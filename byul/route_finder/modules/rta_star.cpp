@@ -24,7 +24,7 @@ static float rta_iterative_eval(const map_t* m,
     for (int d = 0; d < max_depth; ++d) {
         if (coord_equal(current, goal)) break;
 
-        coord_list_t* neighbors = map_make_neighbors(m, current->x, current->y);
+        coord_list_t* neighbors = map_clone_neighbors(m, current->x, current->y);
         coord_t* best = nullptr;
         float best_f = FLT_MAX;
 
@@ -87,7 +87,7 @@ route_t* find_rta_star(const map_t* m,
 
     int retry = 0;
     while (!coord_equal(current, goal) && retry++ < max_retry) {
-        coord_list_t* neighbors = map_make_neighbors(m, current->x, current->y);
+        coord_list_t* neighbors = map_clone_neighbors(m, current->x, current->y);
         coord_t* best = nullptr;
         float best_f = FLT_MAX;
 

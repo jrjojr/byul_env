@@ -1,5 +1,5 @@
 #include "internal/maze.h"
-#include "internal/maze_common.h"
+#include "internal/obstacle.h"
 #include <vector>
 #include <map>
 #include <random>
@@ -8,7 +8,7 @@
 static const int WALL = 1;
 static const int PASSAGE = 0;
 
-void maze_generate_eller(maze_t* maze) {
+void maze_make_eller(maze_t* maze) {
     if (!maze || maze->width < 3 || maze->height < 3) return;
     if (maze->width % 2 == 0 || maze->height % 2 == 0) return;
 

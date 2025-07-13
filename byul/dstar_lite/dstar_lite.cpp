@@ -606,7 +606,7 @@ void dstar_lite_update_vertex(dstar_lite_t* dsl, const coord_t* u) {
     float rhs_u = FLT_MAX;
 
     if (!coord_equal(u, dsl->goal)) {
-        successors_s = map_make_neighbors_all(dsl->m, u->x, u->y);
+        successors_s = map_clone_neighbors_all(dsl->m, u->x, u->y);
         int len = coord_list_length(successors_s);
         for(int i=0; i<len; i++){
             const coord_t* s = coord_list_get(successors_s, i);
@@ -665,7 +665,7 @@ void dstar_lite_update_vertex_range(dstar_lite_t* dsl,
         return;
     }    
 
-    coord_list_t* neighbors = map_make_neighbors_all_range(dsl->m, 
+    coord_list_t* neighbors = map_clone_neighbors_all_range(dsl->m, 
         s->x, s->y, max_range);
 
     int len = coord_list_length(neighbors);
@@ -786,7 +786,7 @@ void dstar_lite_compute_shortest_route(dstar_lite_t* dsl) {
 
             // for s in predecessors(u):
             //     update_vertex(s)
-            predecessors_u = map_make_neighbors_all(
+            predecessors_u = map_clone_neighbors_all(
                 dsl->m, u->x, u->y);
 
             int len = coord_list_length(predecessors_u);
@@ -810,7 +810,7 @@ void dstar_lite_compute_shortest_route(dstar_lite_t* dsl) {
             delete new_g;
 
             // for s in predecessors(u) | {u}:            
-            predecessors_u = map_make_neighbors_all(
+            predecessors_u = map_clone_neighbors_all(
                 dsl->m, u->x, u->y);
             coord_list_push_back(predecessors_u, u);
 
@@ -830,7 +830,7 @@ void dstar_lite_compute_shortest_route(dstar_lite_t* dsl) {
                 if (float_equal(rhs_s, cost_s_u + g_old)) {
                     if (!coord_equal(s, dsl->goal)) {
 
-                        successors_s = map_make_neighbors_all(
+                        successors_s = map_clone_neighbors_all(
                             dsl->m, s->x, s->y);
                         
                         int len = coord_list_length(successors_s);
@@ -941,7 +941,7 @@ route_t* dstar_lite_reconstruct_route(dstar_lite_t* dsl) {
         // printf("dstar_lite_reconstruct_route "
         //     "내부에서 루프 %d 시작.\n", loop);
 
-        coord_list_t* neighbors = map_make_neighbors_all(
+        coord_list_t* neighbors = map_clone_neighbors_all(
             dsl->m, current->x, current->y);
 
         int len = coord_list_length(neighbors);
@@ -1080,7 +1080,7 @@ void dstar_lite_find_loop(dstar_lite_t* dsl) {
         
         // 다음 이동 위치 선택
         min_cost = FLT_MAX;
-        successors_start = map_make_neighbors_all(
+        successors_start = map_clone_neighbors_all(
             dsl->m, start->x, start->y);
 
         int len = coord_list_length(successors_start);

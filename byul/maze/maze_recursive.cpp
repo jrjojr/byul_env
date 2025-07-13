@@ -1,5 +1,4 @@
 #include "internal/maze.h"
-#include "internal/maze_common.h"
 #include <stdlib.h>
 #include <time.h>
 
@@ -8,7 +7,7 @@ typedef struct {
     int x, y;
 } cell_t;
 
-static bool is_valid_cell(const maze_t* maze, int x, int y) {
+static bool is_valid_cell(maze_t* maze, const int x, int y) {
     return x >= 0 && y >= 0 && x < maze->width && y < maze->height;
 }
 
@@ -46,7 +45,7 @@ static void carve_passage(maze_t* maze, int cx, int cy, bool** visited) {
     }
 }
 
-void maze_generate_recursive(maze_t* maze) {
+void maze_make_recursive(maze_t* maze) {
     if (!maze) return;
 
     srand((unsigned int)time(NULL));

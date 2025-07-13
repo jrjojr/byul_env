@@ -4,6 +4,7 @@
 #include <unordered_map>
 #include <functional>
 #include <cstdlib>
+#include <cstring>
 
 void* int_copy(const void* p) {
     int* out = new int;
@@ -251,4 +252,50 @@ bool coord_hash_iter_next(coord_hash_iter_t* iter, coord_t** key_out, void** val
 
 void coord_hash_iter_free(coord_hash_iter_t* iter) {
     delete iter;
+}
+
+char* coord_hash_to_string(const coord_hash_t* hash) {
+    if (!hash) return NULL;
+
+    size_t buf_size = 1024;
+    size_t len = 0;
+    char* buffer = (char*)malloc(buf_size);
+    if (!buffer) return NULL;
+
+    buffer[0] = '\0';
+
+    coord_hash_iter_t* iter = coord_hash_iter_new((coord_hash_t*)hash);
+    coord_t* key;
+
+    while (coord_hash_iter_next(iter, &key, NULL)) {
+        char entry[64];
+        snprintf(entry, sizeof(entry), "(%d,%d) ", key->x, key->y);
+
+        size_t entry_len = strlen(entry);
+        if (len + entry_len + 1 >= buf_size) {
+            buf_size *= 2;
+            buffer = (char*)realloc(buffer, buf_size);
+            if (!buffer) {
+                coord_hash_iter_free(iter);
+                return NULL;
+            }
+        }
+
+        strcat(buffer, entry);
+        len += entry_len;
+    }
+
+    coord_hash_iter_free(iter);
+    return buffer;
+}
+
+void coord_hash_print(const coord_hash_t* hash) {
+    char* str = coord_hash_to_string(hash);
+    int len = coord_hash_length(hash);
+    if (str) {
+        printf("Blocked coords(len: %d): %s\n", len, str);
+        free(str);
+    } else {
+        printf("Blocked coords: (null or empty)\n");
+    }
 }

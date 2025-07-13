@@ -69,7 +69,9 @@ add_subdirectory(cost_coord_pq)
 add_subdirectory(route_finder)
 add_subdirectory(dstar_lite)
 add_subdirectory(maze)
-# add_subdirectory(coord_finder)
+add_subdirectory(route_carve)
+add_subdirectory(obstacle)
+add_subdirectory(console)
 
 
 # 각 모듈 헤더 복사
@@ -79,6 +81,9 @@ copy_headers(map)
 copy_headers(route)
 copy_headers(cost_coord_pq)
 copy_headers(maze)
+copy_headers(route_carve)
+copy_headers(obstacle)
+copy_headers(console)
 
 copy_headers(route_finder)
 copy_route_finder_headers(route_finder)
@@ -123,7 +128,7 @@ target_link_libraries(${PROJECT_NAME} PUBLIC
     route 
     cost_coord_pq
     dstar_lite
-    # coord_finder
+    route_carve
     route_finder
     -Wl,--no-whole-archive
 )

@@ -65,7 +65,7 @@ route_t* find_weighted_astar(const map_t* m,
         float* g_ptr = (float*)coord_hash_get(cost_so_far, current);
         float g = g_ptr ? *g_ptr : 0.0f;
 
-        coord_list_t* neighbors = map_make_neighbors(m, current->x, current->y);
+        coord_list_t* neighbors = map_clone_neighbors(m, current->x, current->y);
         int len = coord_list_length(neighbors);
 
         for (int i = 0; i < len; ++i) {

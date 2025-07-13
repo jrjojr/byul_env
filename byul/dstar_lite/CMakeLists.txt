@@ -10,7 +10,6 @@ set(SOURCES
     ${PROJECT_NAME}.cpp
     ${PROJECT_NAME}_key.cpp
     ${PROJECT_NAME}_pqueue.cpp
-    ${PROJECT_NAME}_utils.cpp
 )
 
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)

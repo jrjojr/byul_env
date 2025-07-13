@@ -1,8 +1,8 @@
 #include "internal/maze.h"
-#include "internal/maze_common.h"
+#include "internal/obstacle.h"
 #include <random>
 
-void maze_generate_binary(maze_t* maze) {
+void maze_make_binary(maze_t* maze) {
     if (!maze || maze->width < 3 || maze->height < 3) return;
     if (maze->width % 2 == 0 || maze->height % 2 == 0) return;
 

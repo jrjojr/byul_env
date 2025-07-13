@@ -31,6 +31,7 @@ target_link_directories(${PROJECT_NAME} PRIVATE
     ${CMAKE_BINARY_DIR}/map
     ${CMAKE_BINARY_DIR}/route_finder
     ${CMAKE_BINARY_DIR}/dstar_lite
+    ${CMAKE_BINARY_DIR}/console    
 
     )
 
@@ -41,6 +42,7 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
     map
     route_finder
     dstar_lite
+    console
 
     )
 

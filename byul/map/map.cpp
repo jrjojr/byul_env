@@ -128,7 +128,7 @@ const coord_hash_t* map_get_blocked_coords(const map_t* m) {
     return m ? m->blocked_coords : nullptr;
 }
 
-coord_list_t* map_make_neighbors(const map_t* m, int x, int y) {
+coord_list_t* map_clone_neighbors(const map_t* m, int x, int y) {
     if (!m) return nullptr;
     coord_list_t* list = coord_list_new();
     static const int dx4[] = {0, -1, 1, 0};
@@ -151,7 +151,7 @@ coord_list_t* map_make_neighbors(const map_t* m, int x, int y) {
     return list;
 }
 
-coord_list_t* map_make_neighbors_all(const map_t* m, int x, int y) {
+coord_list_t* map_clone_neighbors_all(const map_t* m, int x, int y) {
     if (!m) return nullptr;
     coord_list_t* list = coord_list_new();
     static const int dx4[] = {0, -1, 1, 0};
@@ -172,7 +172,7 @@ coord_list_t* map_make_neighbors_all(const map_t* m, int x, int y) {
     return list;
 }
 
-coord_list_t* map_make_neighbors_all_range(
+coord_list_t* map_clone_neighbors_all_range(
     map_t* m, int x, int y, int range) {
 
     if (!m || range < 0) return nullptr;
@@ -182,7 +182,7 @@ coord_list_t* map_make_neighbors_all_range(
             int cx = x + dx;
             int cy = y + dy;
             if (!map_is_inside(m, cx, cy)) continue;
-            coord_list_t* part = map_make_neighbors_all(m, cx, cy);
+            coord_list_t* part = map_clone_neighbors_all(m, cx, cy);
             int len = coord_list_length(part);
             for (int i = 0; i < len; ++i) {
                 const coord_t* c = coord_list_get(part, i);
@@ -197,7 +197,7 @@ coord_list_t* map_make_neighbors_all_range(
     return result;
 }
 
-coord_t* map_make_neighbor_at_degree(const map_t* m, int x, int y, double degree) {
+coord_t* map_clone_neighbor_at_degree(const map_t* m, int x, int y, double degree) {
     if (!m) return nullptr;
     static const int dx8[] = {1,  1, 0, -1, -1, -1,  0, 1};
     static const int dy8[] = {0, -1, -1, -1,  0,  1,  1, 1};
@@ -225,11 +225,11 @@ coord_t* map_make_neighbor_at_degree(const map_t* m, int x, int y, double degree
     return coord_new_full(x + dx8[best_index], y + dy8[best_index]);
 }
 
-coord_t* map_make_neighbor_at_goal(const map_t* m, const coord_t* center, const coord_t* goal) {
+coord_t* map_clone_neighbor_at_goal(const map_t* m, const coord_t* center, const coord_t* goal) {
     if (!m || !center || !goal) return nullptr;
     int x = coord_get_x(center);
     int y = coord_get_y(center);
-    coord_list_t* neighbors = map_make_neighbors_all(m, x, y);
+    coord_list_t* neighbors = map_clone_neighbors_all(m, x, y);
     if (!neighbors) return nullptr;
     double target_deg = coord_degree(center, goal);
     coord_t* best = nullptr;
@@ -251,7 +251,7 @@ coord_t* map_make_neighbor_at_goal(const map_t* m, const coord_t* center, const 
     return best;
 }
 
-coord_list_t* map_make_neighbors_at_degree_range(
+coord_list_t* map_clone_neighbors_at_degree_range(
     const map_t* m,
     const coord_t* center, const coord_t* goal,
     double start_deg, double end_deg,

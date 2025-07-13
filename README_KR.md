@@ -15,13 +15,13 @@
 `maze_t` 구조체로 생성 후, `map_t`에 삽입하여 장애물 패턴으로 사용됩니다.
 
 - 지원 알고리즘: Binary Tree, Prim, Eller, Kruskal 등
-- 동작 방식: `maze_generate()`로 생성 → `maze_apply_to_map()`로 삽입
+- 동작 방식: `maze_make()`로 생성 → `maze_apply_to_map()`로 삽입
 - 활용 목적: 초기 맵 설정, 스테이지 구성, 테스트 자동화 등
 
 #### 주요 인터페이스:
 ```c
 maze_t* maze_new();
-void maze_generate(maze_t* maze, maze_type_t type);
+void maze_make(maze_t* maze, maze_type_t type);
 void maze_apply_to_map(const maze_t* maze, map_t* map);
 void maze_free(maze_t*);
 ```
@@ -115,6 +115,9 @@ A\*, Dijkstra, BFS, JPS 등 **정적 알고리즘**을 통합한 경로 탐색�
     route_free(p);    
     route_finder_free(a);
     map_free(m);
+
+    coord_free(start);
+    coord_free(goal);    
 ```
 
 ### 🧩 요약

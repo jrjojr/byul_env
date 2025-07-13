@@ -7,7 +7,6 @@
 #include "internal/map.h"
 #include "internal/coord.h"
 #include "internal/route.h"
-#include "internal/route_finder.h"
 
 #ifdef __cplusplus
 extern "C" {

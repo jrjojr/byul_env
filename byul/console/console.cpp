@@ -1,5 +1,4 @@
-#include "internal/route_finder.h"
-#include "internal/route_finder_utils.h"
+#include "internal/console.h"
 #include "internal/map.h"
 #include "internal/core.h"
 #include "internal/coord_hash.h"
@@ -69,35 +68,97 @@ static const char* get_map_string(
     return "  .";
 }
 
+// void map_print_ascii(const map_t* m) {
+//     if (!m) return;
+
+//     int width = m->width;
+//     int height = m->height;
+//     bool override_width = false;
+//     bool override_height = false;
+
+//     // width, height가 0이라는 건 자동으로 감지해야 한다는 거다
+//     const coord_hash_t* coords = map_get_blocked_coords(m);
+//     if (coord_hash_length(coords) == 0){
+//         // 블락된 좌표가 없다.
+//         if (width == 0) {
+//         width = 10;
+//         override_width = true;
+//         }
+//         if (height == 0) {
+//             height = 10;
+//             override_height = true;
+//         }
+//     } else{
+//         // 블락된 좌표를 기준으로 좌상단 좌표가 오리진이고 모든 블락된 좌표를 출력한다.
+//         // 너무 많이 출력하면 오래걸리니까 가로x세로 100x100으로 범위제한
+
+//     }
+
+
+
+
+//     printf("[MAP %dx%d ASCII]\n", width, height);
+
+//     if (override_width || override_height) {
+//         printf("[AUTO SIZE OVERRIDE:");
+//         if (override_width)  printf(" width=0→10");
+//         if (override_width && override_height) printf(",");
+//         if (override_height) printf(" height=0→10");
+//         printf("]\n");
+//     }
+
+//     for (int y = 0; y < height; ++y) {
+//         for (int x = 0; x < width; ++x) {
+//             printf("%s", get_map_string(m, x, y, NULL, NULL, NULL, NULL));
+//         }
+//         putchar('\n');
+//     }
+// }
+
+#include "internal/map.h"
+#include "internal/coord_hash.h"
+#include <stdio.h>
+#include <limits.h>
+
 void map_print_ascii(const map_t* m) {
     if (!m) return;
 
-    int width = m->width;
-    int height = m->height;
-    bool override_width = false;
-    bool override_height = false;
+    const coord_hash_t* coords = map_get_blocked_coords(m);
+    int min_x = INT_MAX, min_y = INT_MAX;
+    int max_x = INT_MIN, max_y = INT_MIN;
 
-    if (width == 0) {
-        width = 10;
-        override_width = true;
+    int count = coord_hash_length(coords);
+    if (count > 0) {
+        // 좌표 범위 자동 감지
+        coord_hash_iter_t* iter = coord_hash_iter_new((coord_hash_t*)coords);
+        coord_t* key;
+        while (coord_hash_iter_next(iter, &key, NULL)) {
+            if (key->x < min_x) min_x = key->x;
+            if (key->y < min_y) min_y = key->y;
+            if (key->x > max_x) max_x = key->x;
+            if (key->y > max_y) max_y = key->y;
+        }
+        coord_hash_iter_free(iter);
+
+        // 범위 제한: 최대 100x100
+        if (max_x - min_x + 1 > 100) max_x = min_x + 99;
+        if (max_y - min_y + 1 > 100) max_y = min_y + 99;
+    } else {
+        // 블락된 좌표가 없으면 기본 10x10
+        min_x = 0;
+        min_y = 0;
+        max_x = 9;
+        max_y = 9;
+        printf("[AUTO SIZE OVERRIDE: width=0→10, height=0→10]\n");
     }
-    if (height == 0) {
-        height = 10;
-        override_height = true;
-    }
 
-    printf("[MAP %dx%d ASCII]\n", width, height);
+    int width = max_x - min_x + 1;
+    int height = max_y - min_y + 1;
 
-    if (override_width || override_height) {
-        printf("[AUTO SIZE OVERRIDE:");
-        if (override_width)  printf(" width=0→10");
-        if (override_width && override_height) printf(",");
-        if (override_height) printf(" height=0→10");
-        printf("]\n");
-    }
+    printf("[MAP %dx%d ASCII] (origin = %d,%d)\n", width, height, min_x, min_y);
 
-    for (int y = 0; y < height; ++y) {
-        for (int x = 0; x < width; ++x) {
+    for (int y = min_y; y <= max_y; ++y) {
+        for (int x = min_x; x <= max_x; ++x) {
             printf("%s", get_map_string(m, x, y, NULL, NULL, NULL, NULL));
         }
         putchar('\n');

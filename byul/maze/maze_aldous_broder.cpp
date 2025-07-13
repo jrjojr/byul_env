@@ -1,5 +1,5 @@
 #include "internal/maze.h"
-#include "internal/maze_common.h"
+#include "internal/obstacle.h"
 #include <vector>
 #include <random>
 #include <ctime>
@@ -17,7 +17,7 @@ static bool is_inside(int x, int y, int w, int h) {
     return x > 0 && y > 0 && x < w - 1 && y < h - 1 && x % 2 == 1 && y % 2 == 1;
 }
 
-void maze_generate_aldous_broder(maze_t* maze) {
+void maze_make_aldous_broder(maze_t* maze) {
     if (!maze || maze->width < 3 || maze->height < 3) return;
     if (maze->width % 2 == 0 || maze->height % 2 == 0) return;
 

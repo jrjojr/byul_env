@@ -18,13 +18,13 @@ A standalone maze generator that creates complex structures
 which can be inserted into a map as obstacles.
 
 - Supported algorithms: Binary Tree, Prim, Eller, Kruskal, etc.
-- Usage: generate with `maze_generate()` → apply with `maze_apply_to_map()`
+- Usage: generate with `maze_make()` → apply with `maze_apply_to_map()`
 - Purpose: map setup, stage design, automated testing
 
 #### Key Interface:
 ```c
 maze_t* maze_new();
-void maze_generate(maze_t* maze, maze_type_t type);
+void maze_make(maze_t* maze, maze_type_t type);
 void maze_apply_to_map(const maze_t* maze, map_t* map);
 void maze_free(maze_t*);
 ```
@@ -117,6 +117,9 @@ map_print_ascii_with_visited_count(m, p, 5);
 route_free(p);    
 route_finder_free(a);
 map_free(m);
+
+coord_free(start);
+coord_free(goal);
 ```
 
 ### 🧩 Summary

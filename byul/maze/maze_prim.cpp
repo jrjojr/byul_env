@@ -1,5 +1,5 @@
 #include "internal/maze.h"
-#include "internal/maze_common.h"
+#include "internal/obstacle.h"
 #include <vector>
 #include <random>
 #include <ctime>
@@ -16,7 +16,7 @@ static bool is_inside(int x, int y, int w, int h) {
     return x > 0 && y > 0 && x < w - 1 && y < h - 1;
 }
 
-void maze_generate_prim(maze_t* maze) {
+void maze_make_prim(maze_t* maze) {
     if (!maze) return;
 
     int w = maze->width;

@@ -2,34 +2,35 @@
 #include <string.h>
 
 #include "internal/maze.h"
+#include "internal/maze_room.h"
 
-void maze_generate(maze_t* maze, maze_type_t type) {
+void maze_make(maze_t* maze, maze_type_t type) {
     if (!maze) return;
 
     switch (type) {
         case MAZE_TYPE_RECURSIVE:
-            maze_generate_recursive(maze); break;
+            maze_make_recursive(maze); break;
         case MAZE_TYPE_PRIM:
-            maze_generate_prim(maze); break;
+            maze_make_prim(maze); break;
         case MAZE_TYPE_BINARY:
-            maze_generate_binary(maze); break;
+            maze_make_binary(maze); break;
         case MAZE_TYPE_ELLER:
-            maze_generate_eller(maze); break;
+            maze_make_eller(maze); break;
         case MAZE_TYPE_ALDOUS_BRODER:
-            maze_generate_aldous_broder(maze); break;
+            maze_make_aldous_broder(maze); break;
         case MAZE_TYPE_WILSON:
-            maze_generate_wilson(maze); break;
+            maze_make_wilson(maze); break;
         case MAZE_TYPE_HUNT_AND_KILL:
-            maze_generate_hunt_and_kill(maze); break;
+            maze_make_hunt_and_kill(maze); break;
         case MAZE_TYPE_SIDEWINDER:
-            maze_generate_sidewinder(maze); break;
+            maze_make_sidewinder(maze); break;
         case MAZE_TYPE_RECURSIVE_DIVISION:
-            maze_generate_recursive_division(maze); break;
+            maze_make_recursive_division(maze); break;
         case MAZE_TYPE_KRUSKAL:
-            maze_generate_kruskal(maze); break;
+            maze_make_kruskal(maze); break;
         case MAZE_TYPE_ROOM_BLEND:
-            maze_generate_room_blend(maze); break;
+            maze_make_room_blend(maze); break;
         default:
-            maze_generate_kruskal(maze); break;
+            maze_make_kruskal(maze); break;
     }
 }

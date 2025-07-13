@@ -321,7 +321,7 @@ BYUL_API void dstar_lite_update_vertex(dstar_lite_t* dsl, const coord_t* u);
  * 
  * @param al         알고리즘 컨텍스트
  * @param s          중심 좌표
- * @param max_range  범위 (0이면 s만 갱신)
+ * @param max_range  범위 (0이면 s좌표만 갱신)
  */
 BYUL_API void dstar_lite_update_vertex_range(dstar_lite_t* dsl, 
     const coord_t* s, int max_range);

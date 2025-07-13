@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.10)
 
-project(test_maze)
+project(test_obstacle)
 
 set(CMAKE_C_STANDARD 99)
 set(CMAKE_CXX_STANDARD 17)
@@ -8,7 +8,6 @@ set(CMAKE_CXX_STANDARD 17)
 # ------------------- 테스트 실행 파일 -------------------
 add_executable(${PROJECT_NAME}
     ${PROJECT_NAME}.cpp
-    test_module_maze_room.cpp
 )
 
 # 컴파일·링크 옵션에 ASan 추가
@@ -44,14 +43,12 @@ target_include_directories(${PROJECT_NAME} PRIVATE
 
 # ------------------- 정적 라이브러리 연결 -------------------
 target_link_directories(${PROJECT_NAME} PRIVATE
-    ${CMAKE_BINARY_DIR}/maze
-    ${CMAKE_BINARY_DIR}/route_finder
-    ${CMAKE_BINARY_DIR}/console    
+    ${CMAKE_BINARY_DIR}/obstacle
+    ${CMAKE_BINARY_DIR}/console
 )
 
 target_link_libraries(${PROJECT_NAME} PRIVATE
-    maze
-    route_finder
+    obstacle
     console
 )
 

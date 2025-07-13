@@ -53,7 +53,7 @@ route_t* find_greedy_best_first(const map_t* m,
             break;
         }
 
-        coord_list_t* neighbors = map_make_neighbors(m, current->x, current->y);
+        coord_list_t* neighbors = map_clone_neighbors(m, current->x, current->y);
         int len = coord_list_length(neighbors);
 
         for (int i = 0; i < len; ++i) {

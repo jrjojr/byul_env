@@ -28,11 +28,13 @@ target_include_directories(${PROJECT_NAME} PRIVATE
 # Ensure glib.h can be included
 target_link_directories(${PROJECT_NAME} PRIVATE 
     ${CMAKE_BINARY_DIR}/route_finder
+    ${CMAKE_BINARY_DIR}/console
     )
 
 # Link libraries
 target_link_libraries(${PROJECT_NAME} PRIVATE 
     route_finder
+    console
     )
 
 # Add a test goal CTest

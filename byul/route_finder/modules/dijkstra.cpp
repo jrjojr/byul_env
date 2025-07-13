@@ -55,7 +55,7 @@ route_t* find_dijkstra(const map_t* m,
         float* current_cost_ptr = (float*)coord_hash_get(cost_so_far, current);
         float current_cost = current_cost_ptr ? *current_cost_ptr : 0.0f;
 
-        coord_list_t* neighbors = map_make_neighbors(
+        coord_list_t* neighbors = map_clone_neighbors(
             m, current->x, current->y);
 
         int len = coord_list_length(neighbors);

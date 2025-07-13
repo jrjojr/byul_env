@@ -6,7 +6,6 @@
 #include "internal/coord_hash.h"
 #include "internal/map.h"
 #include "internal/maze_common.h"
-#include "internal/maze_room.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -27,7 +26,7 @@ typedef enum {
     MAZE_TYPE_ROOM_BLEND
 } maze_type_t;
 
-BYUL_API void maze_generate(maze_t* maze, maze_type_t type);
+BYUL_API void maze_make(maze_t* maze, maze_type_t type);
 
 /**
  * @brief 재귀적 분할(Recursive Division) 알고리즘을 사용하여 미로를 생성합니다.
@@ -52,7 +51,7 @@ BYUL_API void maze_generate(maze_t* maze, maze_type_t type);
  * @see maze_new_full()
  * @see maze_apply_to_map()
  */
-BYUL_API void maze_generate_recursive(maze_t* maze);
+BYUL_API void maze_make_recursive(maze_t* maze);
 
 /**
  * @brief Prim 알고리즘을 이용하여 미로를 생성합니다.
@@ -73,7 +72,7 @@ BYUL_API void maze_generate_recursive(maze_t* maze);
  * @usage
  * ```c
  * maze_t* maze = maze_new_full(0, 0, 21, 21, MAZE_TYPE_PRIM);
- * maze_generate_prim(maze);
+ * maze_make_prim(maze);
  * map_t* map = map_new_full(21, 21, MAP_NEIGHBOR_4, NULL);
  * maze_apply_to_map(maze, map);
  * // 이후 map 사용
@@ -83,7 +82,7 @@ BYUL_API void maze_generate_recursive(maze_t* maze);
  *
  * @param maze 미로를 생성할 maze_t 포인터 (NULL 불가)
  */
-BYUL_API void maze_generate_prim(maze_t* maze);
+BYUL_API void maze_make_prim(maze_t* maze);
 
 /**
  * @brief Binary Tree 알고리즘으로 미로를 생성합니다.
@@ -112,12 +111,12 @@ BYUL_API void maze_generate_prim(maze_t* maze);
  * @example
  * ```c
  * maze_t* maze = maze_new_full(0, 0, 9, 9, MAZE_TYPE_BINARY);
- * maze_generate_binary(maze);
+ * maze_make_binary(maze);
  * map_t* map = map_new();
  * maze_apply_to_map(maze, map);
  * ```
  */
-BYUL_API void maze_generate_binary(maze_t* maze);
+BYUL_API void maze_make_binary(maze_t* maze);
 
 /**
  * @brief Eller 알고리즘을 사용하여 미로를 생성합니다.
@@ -147,7 +146,7 @@ BYUL_API void maze_generate_binary(maze_t* maze);
  * ### 사용 예시
  * @code
  * maze_t* maze = maze_new_full(0, 0, 9, 9, MAZE_TYPE_ELLER);
- * maze_generate_eller(maze);
+ * maze_make_eller(maze);
  * map_add_maze(map, maze);
  * @endcode
  *
@@ -156,7 +155,7 @@ BYUL_API void maze_generate_binary(maze_t* maze);
  *
  * @param maze 미로 데이터를 생성할 maze_t 포인터
  */
-BYUL_API void maze_generate_eller(maze_t* maze);
+BYUL_API void maze_make_eller(maze_t* maze);
 
 /**
  * @brief Aldous-Broder 알고리즘을 사용하여 미로를 생성합니다.
@@ -179,7 +178,7 @@ BYUL_API void maze_generate_eller(maze_t* maze);
  * > 특히 셀 개수가 많을수록 시간이 오래 걸릴 수 있습니다.
  *
  * > ❗ 외곽 벽은 알고리즘 내부에서 강제하지 않습니다.  
- * > 필요하다면 `maze_generate()` 또는 후처리 단계에서 별도로 처리하세요.
+ * > 필요하다면 `maze_make()` 또는 후처리 단계에서 별도로 처리하세요.
  *
  * ---
  *
@@ -190,7 +189,7 @@ BYUL_API void maze_generate_eller(maze_t* maze);
  * ### 사용 예시
  * @code
  * maze_t* maze = maze_new_full(0, 0, 9, 9, MAZE_TYPE_ALDOUS_BRODER);
- * maze_generate_aldous_broder(maze);
+ * maze_make_aldous_broder(maze);
  * map_add_maze(map, maze);
  * @endcode
  *
@@ -199,7 +198,7 @@ BYUL_API void maze_generate_eller(maze_t* maze);
  *
  * @param maze 미로를 생성할 대상 maze_t 포인터
  */
-BYUL_API void maze_generate_aldous_broder(maze_t* maze);
+BYUL_API void maze_make_aldous_broder(maze_t* maze);
 
 /**
  * @brief Wilson 알고리즘을 사용하여 미로를 생성합니다.
@@ -230,12 +229,12 @@ BYUL_API void maze_generate_aldous_broder(maze_t* maze);
  *
  * ### 외곽 벽 처리
  * - 이 알고리즘은 외곽을 벽으로 강제하지 않으며,  
- *   필요하다면 `maze_generate()` 또는 후처리 단계에서 외곽 벽을 추가해야 합니다.
+ *   필요하다면 `maze_make()` 또는 후처리 단계에서 외곽 벽을 추가해야 합니다.
  *
  * ### 사용 예시
  * @code
  * maze_t* maze = maze_new_full(0, 0, 9, 9, MAZE_TYPE_WILSON);
- * maze_generate_wilson(maze);
+ * maze_make_wilson(maze);
  * map_add_maze(map, maze);
  * @endcode
  *
@@ -244,7 +243,7 @@ BYUL_API void maze_generate_aldous_broder(maze_t* maze);
  *
  * @param maze 미로를 생성할 대상 maze_t 포인터
  */
-BYUL_API void maze_generate_wilson(maze_t* maze);
+BYUL_API void maze_make_wilson(maze_t* maze);
 
 /**
  * @brief Hunt-and-Kill 알고리즘을 사용하여 미로를 생성합니다.
@@ -281,7 +280,7 @@ BYUL_API void maze_generate_wilson(maze_t* maze);
  * ### 사용 예시
  * @code
  * maze_t* maze = maze_new_full(0, 0, 9, 9, MAZE_TYPE_HUNT_AND_KILL);
- * maze_generate_hunt_and_kill(maze);
+ * maze_make_hunt_and_kill(maze);
  * map_add_maze(map, maze);
  * @endcode
  *
@@ -290,7 +289,7 @@ BYUL_API void maze_generate_wilson(maze_t* maze);
  *
  * @param maze 미로를 생성할 대상 maze_t 포인터
  */
-BYUL_API void maze_generate_hunt_and_kill(maze_t* maze);
+BYUL_API void maze_make_hunt_and_kill(maze_t* maze);
 
 /**
  * @brief Sidewinder 알고리즘을 사용하여 미로를 생성합니다.
@@ -322,7 +321,7 @@ BYUL_API void maze_generate_hunt_and_kill(maze_t* maze);
  * ### 사용 예시
  * @code
  * maze_t* maze = maze_new_full(0, 0, 9, 9, MAZE_TYPE_SIDEWINDER);
- * maze_generate_sidewinder(maze);
+ * maze_make_sidewinder(maze);
  * map_add_maze(map, maze);
  * @endcode
  *
@@ -331,7 +330,7 @@ BYUL_API void maze_generate_hunt_and_kill(maze_t* maze);
  *
  * @param maze 미로를 생성할 대상 maze_t 포인터
  */
-BYUL_API void maze_generate_sidewinder(maze_t* maze);
+BYUL_API void maze_make_sidewinder(maze_t* maze);
 
 /**
  * @brief Recursive Division 알고리즘을 사용하여 미로를 생성합니다.
@@ -366,7 +365,7 @@ BYUL_API void maze_generate_sidewinder(maze_t* maze);
  * ### 사용 예시
  * @code
  * maze_t* maze = maze_new_full(0, 0, 9, 9, MAZE_TYPE_RECURSIVE_DIVISION);
- * maze_generate_recursive_division(maze);
+ * maze_make_recursive_division(maze);
  * map_add_maze(map, maze);
  * @endcode
  *
@@ -376,7 +375,7 @@ BYUL_API void maze_generate_sidewinder(maze_t* maze);
  *
  * @param maze 미로를 생성할 대상 maze_t 포인터
  */
-BYUL_API void maze_generate_recursive_division(maze_t* maze);
+BYUL_API void maze_make_recursive_division(maze_t* maze);
 
 /**
  * @brief Kruskal 알고리즘을 사용하여 완전 연결된 미로를 생성합니다.
@@ -409,7 +408,7 @@ BYUL_API void maze_generate_recursive_division(maze_t* maze);
  * ### 사용 예시
  * @code
  * maze_t* maze = maze_new_full(0, 0, 9, 9, MAZE_TYPE_KRUSKAL);
- * maze_generate_kruskal(maze);
+ * maze_make_kruskal(maze);
  * map_add_maze(map, maze);
  * @endcode
  *
@@ -419,7 +418,7 @@ BYUL_API void maze_generate_recursive_division(maze_t* maze);
  *
  * @param maze 미로를 생성할 대상 maze_t 포인터
  */
-BYUL_API void maze_generate_kruskal(maze_t* maze);
+BYUL_API void maze_make_kruskal(maze_t* maze);
 
 #ifdef __cplusplus
 }

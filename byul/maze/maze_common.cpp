@@ -1,3 +1,4 @@
+#include "internal/maze.h"
 #include "internal/maze_common.h"
 #include <stdlib.h>
 #include <string.h>

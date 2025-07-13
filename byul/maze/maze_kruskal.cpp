@@ -1,5 +1,5 @@
 #include "internal/maze.h"
-#include "internal/maze_common.h"
+#include "internal/obstacle.h"
 #include <vector>
 #include <random>
 #include <ctime>
@@ -32,7 +32,7 @@ static void merge(int x1, int y1, int x2, int y2,
     if (p1 != p2) parent[p2 / parent[0].size()][p2 % parent[0].size()] = p1;
 }
 
-void maze_generate_kruskal(maze_t* maze) {
+void maze_make_kruskal(maze_t* maze) {
     if (!maze || maze->width < 3 || maze->height < 3) return;
     if (maze->width % 2 == 0 || maze->height % 2 == 0) return;
 

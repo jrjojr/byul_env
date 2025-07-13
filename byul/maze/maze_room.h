@@ -2,7 +2,7 @@
 #define MAZE_ROOM_H
 
 #include "internal/coord_hash.h"
-#include "internal/maze_common.h"
+#include "internal/maze.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -63,7 +63,7 @@ typedef struct {
  * ### 사용 예시
  * @code
  * maze_t* maze = maze_new_full(0, 0, 31, 21, MAZE_TYPE_ROOM_BLEND);
- * maze_generate_room_blend(maze);
+ * maze_make_room_blend(maze);
  * map_add_maze(map, maze);
  * @endcode
  *
@@ -71,7 +71,7 @@ typedef struct {
  *
  * @param maze 생성할 대상 미로 구조체 포인터
  */
-BYUL_API void maze_generate_room_blend(maze_t* maze);
+BYUL_API void maze_make_room_blend(maze_t* maze);
 
 #ifdef __cplusplus
 }

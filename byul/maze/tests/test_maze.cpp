@@ -14,7 +14,7 @@ TEST_CASE("미로 생성 및 맵 적용") {
     maze_t* maze = maze_new_full(5, 5, 9, 9);
     CHECK(maze != nullptr);
 
-    maze_generate_recursive(maze);
+    maze_make_recursive(maze);
 
     map_t* map = map_new_full(19, 19, MAP_NEIGHBOR_4, NULL);
     CHECK(map != nullptr);
@@ -36,7 +36,7 @@ TEST_CASE("Prim 미로 생성 테스트") {
     maze_t* maze = maze_new_full(x0, y0, width, height);
     CHECK(maze != nullptr);
 
-    maze_generate_prim(maze);
+    maze_make_prim(maze);
 
     map_t* map = map_new_full(width, height, MAP_NEIGHBOR_4, nullptr);
     maze_apply_to_map(maze, map);
@@ -57,7 +57,7 @@ TEST_CASE("Binary Tree Maze Generation") {
     maze_t* maze = maze_new_full(0, 0, 9, 9);
     REQUIRE(maze != nullptr);
 
-    maze_generate_binary(maze);
+    maze_make_binary(maze);
 
     map_t* map = map_new();
     maze_apply_to_map(maze, map);
@@ -72,7 +72,7 @@ TEST_CASE("Eller's Algorithm Maze Generation") {
     maze_t* maze = maze_new_full(0, 0, 9, 9);
     REQUIRE(maze != nullptr);
 
-    maze_generate_eller(maze);
+    maze_make_eller(maze);
 
     map_t* map = map_new_full(9, 9, MAP_NEIGHBOR_4, NULL);
     REQUIRE(map != nullptr);
@@ -90,7 +90,7 @@ TEST_CASE("Aldous-Broder Maze Generation") {
     maze_t* maze = maze_new_full(x0, y0, width, height);
     REQUIRE(maze != nullptr);
 
-    maze_generate_aldous_broder(maze);
+    maze_make_aldous_broder(maze);
 
     map_t* map = map_new_full(width, height, MAP_NEIGHBOR_4, NULL);
     REQUIRE(map != nullptr);
@@ -114,7 +114,7 @@ TEST_CASE("Wilson's Algorithm Maze Generation") {
     maze_t* maze = maze_new_full(x0, y0, width, height);
     REQUIRE(maze != nullptr);
 
-    maze_generate_wilson(maze);
+    maze_make_wilson(maze);
 
     map_t* map = map_new_full(width, height, MAP_NEIGHBOR_4, NULL);
     REQUIRE(map != nullptr);
@@ -138,7 +138,7 @@ TEST_CASE("Hunt-and-Kill Maze Generation") {
     maze_t* maze = maze_new_full(x0, y0, width, height);
     REQUIRE(maze != nullptr);
 
-    maze_generate_hunt_and_kill(maze);
+    maze_make_hunt_and_kill(maze);
 
     map_t* map = map_new_full(width, height, MAP_NEIGHBOR_4, NULL);
     REQUIRE(map != nullptr);
@@ -162,7 +162,7 @@ TEST_CASE("Sidewinder Maze Generation") {
     maze_t* maze = maze_new_full(x0, y0, width, height);
     REQUIRE(maze != nullptr);
 
-    maze_generate_sidewinder(maze);
+    maze_make_sidewinder(maze);
 
     map_t* map = map_new_full(width, height, MAP_NEIGHBOR_4, NULL);
     REQUIRE(map != nullptr);
@@ -186,7 +186,7 @@ TEST_CASE("Recursive Division Maze Generation") {
     maze_t* maze = maze_new_full(x0, y0, width, height);
     REQUIRE(maze != nullptr);
 
-    maze_generate_recursive_division(maze);
+    maze_make_recursive_division(maze);
 
     map_t* map = map_new_full(width, height, MAP_NEIGHBOR_4, NULL);
     REQUIRE(map != nullptr);
@@ -211,7 +211,7 @@ TEST_CASE("Kruskal's Algorithm Maze Generation") {
     maze_t* maze = maze_new_full(0, 0, width, height);
     REQUIRE(maze != nullptr);
 
-    maze_generate_kruskal(maze);
+    maze_make_kruskal(maze);
 
     // 맵 변환
     map_t* map = map_new_full(width, height, MAP_NEIGHBOR_4, nullptr);

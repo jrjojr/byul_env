@@ -87,7 +87,7 @@ static void fill_with_maze(std::vector<std::vector<int>>& grid, int w, int h) {
     }
 }
 
-void maze_generate_room_blend(maze_t* maze) {
+void maze_make_room_blend(maze_t* maze) {
     if (!maze || maze->width < 9 || maze->height < 9) return;
 
     int w = maze->width;

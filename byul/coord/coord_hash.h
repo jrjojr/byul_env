@@ -96,6 +96,9 @@ BYUL_API bool coord_hash_iter_next(
 BYUL_API void coord_hash_iter_free(
     coord_hash_iter_t* iter);
 
+BYUL_API char* coord_hash_to_string(const coord_hash_t* hash);
+BYUL_API void coord_hash_print(const coord_hash_t* hash);
+
 #ifdef __cplusplus
 }
 #endif
