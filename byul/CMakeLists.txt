@@ -69,7 +69,7 @@ add_subdirectory(cost_coord_pq)
 add_subdirectory(route_finder)
 add_subdirectory(dstar_lite)
 add_subdirectory(maze)
-add_subdirectory(route_carve)
+add_subdirectory(route_carver)
 add_subdirectory(obstacle)
 add_subdirectory(console)
 
@@ -81,7 +81,7 @@ copy_headers(map)
 copy_headers(route)
 copy_headers(cost_coord_pq)
 copy_headers(maze)
-copy_headers(route_carve)
+copy_headers(route_carver)
 copy_headers(obstacle)
 copy_headers(console)
 
@@ -128,7 +128,7 @@ target_link_libraries(${PROJECT_NAME} PUBLIC
     route 
     cost_coord_pq
     dstar_lite
-    route_carve
+    route_carver
     route_finder
     -Wl,--no-whole-archive
 )

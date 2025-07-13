@@ -3,7 +3,7 @@
 cmake_minimum_required(VERSION 3.10)
 
 # Set the project name
-project(test_route_carve)
+project(test_route_carver)
 
 set(EXTERNAL_INCLUDE_DIR ${CMAKE_SOURCE_DIR}/../external)
 message(STATUS "EXTERNAL_INCLUDE_DIR = ${EXTERNAL_INCLUDE_DIR}")
@@ -52,14 +52,14 @@ target_include_directories(${PROJECT_NAME} PRIVATE
 # Ensure glib.h can be included
 target_link_directories(${PROJECT_NAME} PRIVATE 
     ${CMAKE_BINARY_DIR}/lib
-    ${CMAKE_BINARY_DIR}/byul/route_carve
+    ${CMAKE_BINARY_DIR}/byul/route_carver
     ${CMAKE_BINARY_DIR}/byul/console
     ${CMAKE_BINARY_DIR}/byul/obstacle
     )
 
 # Link libraries
 target_link_libraries(${PROJECT_NAME} PRIVATE 
-    route_carve
+    route_carver
     obstacle
     console
     m

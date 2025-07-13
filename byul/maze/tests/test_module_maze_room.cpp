@@ -2,7 +2,7 @@
 #include "internal/maze_common.h"
 #include "internal/maze_room.h"
 #include "internal/map.h"
-#include "internal/route_finder_utils.h"
+#include "internal/console.h"
 
 TEST_CASE("Room + Maze Blending Algorithm") {
     int x0 = 0, y0 = 0, width = 31, height = 21;

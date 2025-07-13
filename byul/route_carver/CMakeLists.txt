@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.10)
 
 # 프로젝트 이름과 언어 설정
-project(route_carve)
+project(route_carver)
 
 # 소스 파일 설정
 set(SOURCES

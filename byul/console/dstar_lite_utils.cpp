@@ -11,7 +11,7 @@
 #include "internal/coord_hash.h"
 #include "internal/dstar_lite_pqueue.h"
 
-#include "internal/route_finder_utils.h"
+#include "internal/console.h"
 
 void dsl_debug_print_g_table(const map_t* m, coord_hash_t* g_table) {
     if (!g_table) return;
