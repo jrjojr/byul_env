@@ -6,6 +6,8 @@ It focuses on three primary features: maze generation, route finding,
 and dynamic path recalculation, centered around the modules  
 `maze`, `dstar_lite`, and `route_finder`.
 
+> 💖 If you enjoy this project, consider supporting development at [paypal.me/jrjojr](https://paypal.me/jrjojr)
+
 ---
 
 ## 🧩 Core Components
