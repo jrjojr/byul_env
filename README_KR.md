@@ -128,9 +128,11 @@ A\*, Dijkstra, BFS, JPS 등 **정적 알고리즘**을 통합한 경로 탐색�
 ## ⚙️ 빌드 방법
 
 ```bash
+git clone https://github.com/jrjojr/byul_env.git
+cd byul
 mkdir build && cd build
 cmake ..
-make
+make -j$(nproc)
 ```
 
 > Windows: `byul.dll` / Linux: `libbyul.so` 생성됨

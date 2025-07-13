@@ -132,7 +132,7 @@ map_free(m);
 This project uses **CMake** for cross-platform builds.
 
 ```bash
-git clone https://github.com/your-id/byul.git
+git clone https://github.com/jrjojr/byul_env.git
 cd byul
 mkdir build && cd build
 cmake ..
