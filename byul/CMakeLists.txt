@@ -1,11 +1,8 @@
-cmake_minimum_required(VERSION 3.10)
+cmake_minimum_required(VERSION 3.20)
 
-# Project name
 project(byul)
 
 enable_testing()
-
-# 최상단 또는 프로젝트 선언 이후
 message(STATUS "Build type: ${CMAKE_BUILD_TYPE}")
 
 if(CMAKE_BUILD_TYPE STREQUAL "Debug")
@@ -13,21 +10,60 @@ if(CMAKE_BUILD_TYPE STREQUAL "Debug")
     message(STATUS "DEBUG mode enabled")
 endif()
 
-# 코드 인텔리센스에 도움이 된다 vscode에서...
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
-
-# 중단점 디버깅 을위해 루트에 한번만 설정하면 된다.
 set(CMAKE_C_FLAGS_DEBUG "-g -O0")
 
-# uninstall 타겟 생성
+set(CMAKE_POSITION_INDEPENDENT_CODE ON)
+add_library(${PROJECT_NAME} SHARED ${PROJECT_NAME}.cpp)
+
+# Windows 빌드 또는 크로스 컴파일 감지
+if(CMAKE_SYSTEM_NAME STREQUAL "Windows" OR WIN32)
+    message(STATUS "Windows build or cross-compilation enabled")
+
+    # DLL 관련 속성
+    set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS ON)
+    set_target_properties(${PROJECT_NAME} PROPERTIES
+        PREFIX ""
+        OUTPUT_NAME "byul"
+        IMPORT_PREFIX "lib"
+        IMPORT_SUFFIX ".a")
+
+    # 정적 링크 + GUI 서브시스템
+    set(CMAKE_SHARED_LINKER_FLAGS
+        "${CMAKE_SHARED_LINKER_FLAGS} -static-libgcc -static-libstdc++")
+    target_link_options(${PROJECT_NAME} PRIVATE "-Wl,--subsystem,windows")
+
+    # 홈 디렉토리 설정
+    if(WIN32)
+        # 실제 Windows에서 빌드 중 (MSVC or MinGW natively)
+        set(HOME_DIR "$ENV{USERPROFILE}")
+    else()
+        # 우분투에서 Windows 크로스 컴파일 중
+        # 사용자가 지정한 경로를 사용 절대 경로 /home으로는 권한이 제한된다
+        # 상대 경로를 사용한다.
+        set(HOME_DIR "${CMAKE_SOURCE_DIR}/../../jaryo/incoming")
+
+    endif()
+
+    # MSVC 전용 옵션
+    if(MSVC)
+        add_compile_options("$<$<COMPILE_LANGUAGE:C>:/utf-8>")
+        add_compile_options("$<$<COMPILE_LANGUAGE:CXX>:/utf-8>")
+    endif()
+
+else()
+    # 일반 Linux 빌드
+    set(HOME_DIR "$ENV{HOME}")
+    set(CMAKE_INSTALL_PREFIX "${HOME_DIR}/${PROJECT_NAME}" 
+        CACHE PATH "Install path" FORCE)    
+endif()
+
+# uninstall 타겟
 configure_file(
     ${CMAKE_CURRENT_SOURCE_DIR}/cmake_uninstall.cmake.in
-    ${CMAKE_BINARY_DIR}/cmake_uninstall.cmake
-    IMMEDIATE @ONLY
-)
+    ${CMAKE_BINARY_DIR}/cmake_uninstall.cmake IMMEDIATE @ONLY)
 add_custom_target(uninstall
-    COMMAND ${CMAKE_COMMAND} -P ${CMAKE_BINARY_DIR}/cmake_uninstall.cmake
-)
+    COMMAND ${CMAKE_COMMAND} -P ${CMAKE_BINARY_DIR}/cmake_uninstall.cmake)
 
 # 빌드 디렉토리 설정
 set(${PROJECT_NAME}_BUILD_INCLUDE_DIR 
@@ -37,30 +73,25 @@ set(${PROJECT_NAME}_BUILD_INTERNAL_DIR
     ${${PROJECT_NAME}_BUILD_INCLUDE_DIR}/internal)
 
 set(${PROJECT_NAME}_BUILD_LIB_DIR ${CMAKE_BINARY_DIR}/lib)
-
 file(MAKE_DIRECTORY ${${PROJECT_NAME}_BUILD_INTERNAL_DIR})
 file(MAKE_DIRECTORY ${${PROJECT_NAME}_BUILD_LIB_DIR})
 
-# 내부 헤더 복사 매크로
+# 헤더 복사 매크로
 macro(copy_headers module)
     file(GLOB HEADERS "${CMAKE_CURRENT_SOURCE_DIR}/${module}/*.h")
     foreach(hdr ${HEADERS})
-        get_filename_component(hname ${hdr} NAME)
         file(COPY ${hdr} DESTINATION ${${PROJECT_NAME}_BUILD_INTERNAL_DIR})
     endforeach()
 endmacro()
 
-# 내부 route_finder 헤더 복사 매크로
 macro(copy_route_finder_headers module)
     file(GLOB HEADERS "${CMAKE_CURRENT_SOURCE_DIR}/${module}/modules/*.h")
-    message(STATUS "GLOB HEADERS from ${module}/modules/: ${HEADERS}")
     foreach(hdr ${HEADERS})
-        get_filename_component(hname ${hdr} NAME)
         file(COPY ${hdr} DESTINATION ${${PROJECT_NAME}_BUILD_INTERNAL_DIR})
     endforeach()
 endmacro()
 
-# 내부 모듈 추가
+# 모듈 추가
 add_subdirectory(core)
 add_subdirectory(coord)
 add_subdirectory(map)
@@ -73,7 +104,7 @@ add_subdirectory(route_carver)
 add_subdirectory(obstacle)
 add_subdirectory(console)
 
-# 각 모듈 헤더 복사
+# 헤더 복사
 copy_headers(core)
 copy_headers(coord)
 copy_headers(map)
@@ -83,28 +114,21 @@ copy_headers(maze)
 copy_headers(route_carver)
 copy_headers(obstacle)
 copy_headers(console)
-
 copy_headers(route_finder)
 copy_route_finder_headers(route_finder)
-
 copy_headers(dstar_lite)
 
-# ${PROJECT_NAME}.h 복사
 file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/${PROJECT_NAME}.h 
     DESTINATION ${${PROJECT_NAME}_BUILD_INCLUDE_DIR})
 
-set(CMAKE_POSITION_INDEPENDENT_CODE ON)
+file(COPY byul_config.h DESTINATION ${${PROJECT_NAME}_BUILD_INCLUDE_DIR})
 
-# 라이브러리 생성
-add_library(${PROJECT_NAME} SHARED ${PROJECT_NAME}.cpp)
-
-# include 경로 설정
+# include 경로
 target_include_directories(${PROJECT_NAME} PUBLIC
     ${CMAKE_SOURCE_DIR}
     ${CMAKE_CURRENT_SOURCE_DIR}
     ${${PROJECT_NAME}_BUILD_INCLUDE_DIR}
-    ${${PROJECT_NAME}_BUILD_INTERNAL_DIR}
-)
+    ${${PROJECT_NAME}_BUILD_INTERNAL_DIR})
 
 target_link_directories(${PROJECT_NAME} PRIVATE 
     ${PROJECT_NAME}_BUILD_LIB_DIR
@@ -117,84 +141,43 @@ target_link_directories(${PROJECT_NAME} PRIVATE
     ${CMAKE_BINARY_DIR}/maze
     ${CMAKE_BINARY_DIR}/route_carver
     ${CMAKE_BINARY_DIR}/obstacle
-    ${CMAKE_BINARY_DIR}/console
-)
+    ${CMAKE_BINARY_DIR}/console)
 
-# 정적 라이브러리 통합 링크 (GNU/Clang 계열)
 target_link_libraries(${PROJECT_NAME} PUBLIC
     -Wl,--whole-archive
     coord 
     map 
     route 
-    cost_coord_pq
+    cost_coord_pq 
     dstar_lite
-    route_carver
-    route_finder
-    maze
-    obstacle
-    console    
-    -Wl,--no-whole-archive
-)
+    route_carver 
+    route_finder 
+    maze 
+    obstacle 
+    console
+    -Wl,--no-whole-archive)
 
-target_compile_definitions(${PROJECT_NAME} PRIVATE ${GLIB_CFLAGS_OTHER})
-target_compile_options(${PROJECT_NAME} PRIVATE ${GLIB_CFLAGS_OTHER})
-
-# 빌드 후 ${PROJECT_NAME} 라이브러리를 lib로 복사
 add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:${PROJECT_NAME}> 
-    ${${PROJECT_NAME}_BUILD_LIB_DIR}/lib${PROJECT_NAME}.a
-)
-
-file(COPY byul_config.h DESTINATION ${${PROJECT_NAME}_BUILD_INCLUDE_DIR})
-
-# 설치 설정
-if (WIN32)
-    set(HOME_DIR "$ENV{USERPROFILE}")
-
-    # add_compile_options("$<$<COMPILE_LANG_AND_ID:CXX,MSVC>:/utf-8>")
-    # add_compile_options("$<$<COMPILE_LANG_AND_ID:C,MSVC>:/utf-8>")
-
-
-
-    # ✅ MSVC 환경 UTF-8 인코딩 강제
-    if (MSVC)
-        # 모든 하위 디렉토리에 이 옵션을 강제 적용
-        # set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /utf-8")
-        # set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /utf-8")    
-set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
-
-        add_compile_options("$<$<COMPILE_LANGUAGE:C>:/utf-8>")
-        add_compile_options("$<$<COMPILE_LANGUAGE:CXX>:/utf-8>")
-    endif()    
-
-
-else()
-    set(HOME_DIR "$ENV{HOME}")
-endif()
-
-set(CMAKE_INSTALL_PREFIX "${HOME_DIR}/${PROJECT_NAME}" 
-    CACHE PATH "Install path" FORCE)
+    ${${PROJECT_NAME}_BUILD_LIB_DIR}/lib${PROJECT_NAME}.a)
 
 install(TARGETS ${PROJECT_NAME}
     LIBRARY DESTINATION ${CMAKE_INSTALL_PREFIX}/lib
     ARCHIVE DESTINATION ${CMAKE_INSTALL_PREFIX}/lib/${PROJECT_NAME}
-    RUNTIME DESTINATION ${CMAKE_INSTALL_PREFIX}/bin
-)
+    RUNTIME DESTINATION ${CMAKE_INSTALL_PREFIX}/bin)
 
-# ${PROJECT_NAME}_BUILD_INCLUDE_DIR 내부의 internal/ 
-# 디렉토리 및 그 안의 .h 파일들도 모두 복사돼요.
 install(DIRECTORY ${${PROJECT_NAME}_BUILD_INCLUDE_DIR}/
-    DESTINATION ${CMAKE_INSTALL_PREFIX}/include
-)
+    DESTINATION ${CMAKE_INSTALL_PREFIX}/include)
 
-# pkg-config 설정
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/${PROJECT_NAME}.pc.in
                ${CMAKE_BINARY_DIR}/${PROJECT_NAME}.pc @ONLY)
 
-message ("설치 디렉토리는 ${CMAKE_INSTALL_PREFIX} 이다")
 install(FILES ${CMAKE_BINARY_DIR}/${PROJECT_NAME}.pc DESTINATION 
     ${CMAKE_INSTALL_PREFIX}/lib/pkgconfig)
 
-target_compile_definitions(${PROJECT_NAME} PRIVATE BYUL_EXPORTS)
+# # 정적으로 링크 (권장) 이러면 dll 하나만 있으면 된다.
+# set(CMAKE_SHARED_LINKER_FLAGS 
+#     "${CMAKE_SHARED_LINKER_FLAGS} -static-libgcc -static-libstdc++")
+
 
 # add_subdirectory(tests)

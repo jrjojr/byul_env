@@ -1,0 +1,66 @@
+{
+  "version": 3,
+  "cmakeMinimumRequired": {
+    "major": 3,
+    "minor": 19,
+    "patch": 0
+  },
+  "configurePresets": [
+    {
+      "name": "linux-debug",
+      "displayName": "Ubuntu Debug Build",
+      "description": "로컬 Ubuntu에서 디버그용 빌드",
+      "generator": "Unix Makefiles",
+      "binaryDir": "${sourceDir}/../build_debug",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug"
+      }
+    },
+    {
+      "name": "linux-release",
+      "displayName": "Ubuntu Release Build",
+      "description": "로컬 Ubuntu에서 릴리즈용 빌드",
+      "generator": "Unix Makefiles",
+      "binaryDir": "${sourceDir}/../build_release",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release"
+      }
+    },
+    {
+      "name": "win-release",
+      "displayName": "Windows 11 (MinGW64 Cross)",
+      "description": "Windows DLL 빌드용 크로스 컴파일 Preset",
+      "generator": "Unix Makefiles",
+      "binaryDir": "${sourceDir}/../build_win_release",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release",
+        "CMAKE_TOOLCHAIN_FILE": "${sourceDir}/cmake/toolchain-mingw64.cmake",
+        "CMAKE_INSTALL_PREFIX": "${sourceDir}/../../../jaryo/incoming/byul"        
+      }
+    }
+  ],
+  "buildPresets": [
+    {
+      "name": "build-linux-debug",
+      "configurePreset": "linux-debug",
+      "description": "로컬 Ubuntu Debug 빌드",
+      "jobs": 8,
+      "targets": ["all"]
+    },
+    {
+      "name": "build-linux-release",
+      "configurePreset": "linux-release",
+      "description": "로컬 Ubuntu Release 빌드",
+      "jobs": 8,
+      "targets": ["all"]
+    },
+    {
+      "name": "build-win-release",
+      "configurePreset": "win-release",
+      "description": "Windows용 DLL 빌드 preset",
+      "jobs": 8,
+      "targets": ["all"]
+    }
+  ],
+  "testPresets": []
+}
