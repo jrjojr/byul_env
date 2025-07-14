@@ -73,7 +73,6 @@ add_subdirectory(route_carver)
 add_subdirectory(obstacle)
 add_subdirectory(console)
 
-
 # 각 모듈 헤더 복사
 copy_headers(core)
 copy_headers(coord)
@@ -89,8 +88,6 @@ copy_headers(route_finder)
 copy_route_finder_headers(route_finder)
 
 copy_headers(dstar_lite)
-# copy_headers(coord_finder)
-
 
 # ${PROJECT_NAME}.h 복사
 file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/${PROJECT_NAME}.h 
@@ -115,9 +112,12 @@ target_link_directories(${PROJECT_NAME} PRIVATE
     ${CMAKE_BINARY_DIR}/map
     ${CMAKE_BINARY_DIR}/route
     ${CMAKE_BINARY_DIR}/dstar_lite
-    # ${CMAKE_BINARY_DIR}/coord_finder
     ${CMAKE_BINARY_DIR}/route_finder
     ${CMAKE_BINARY_DIR}/cost_coord_pq
+    ${CMAKE_BINARY_DIR}/maze
+    ${CMAKE_BINARY_DIR}/route_carver
+    ${CMAKE_BINARY_DIR}/obstacle
+    ${CMAKE_BINARY_DIR}/console
 )
 
 # 정적 라이브러리 통합 링크 (GNU/Clang 계열)
@@ -130,6 +130,9 @@ target_link_libraries(${PROJECT_NAME} PUBLIC
     dstar_lite
     route_carver
     route_finder
+    maze
+    obstacle
+    console    
     -Wl,--no-whole-archive
 )
 

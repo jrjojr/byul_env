@@ -6,7 +6,6 @@
 
 #include "internal/map.h"
 #include "internal/obstacle.h"
-#include "internal/obstacle_util.h"
 #include "internal/console.h"
 
 TEST_CASE("route_carve_beam - straight line carve") {
