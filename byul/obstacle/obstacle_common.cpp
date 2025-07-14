@@ -297,3 +297,13 @@ bool obstacle_is_coord_blocked(const obstacle_t* obstacle, int x, int y){
 
     return coord_hash_contains(obstacle->blocked, make_tmp_coord(x, y));
 }
+
+void obstacle_block_range(obstacle_t* obs, int x, int y, int range) {
+    if (!obs || range < 0) return;
+
+    for (int dx = -range; dx <= range; ++dx) {
+        for (int dy = -range; dy <= range; ++dy) {
+            obstacle_block_coord(obs, x + dx, y + dy);
+        }
+    }
+}

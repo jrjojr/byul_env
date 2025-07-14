@@ -127,12 +127,30 @@ double coord_degree(const coord_t* a, const coord_t* b) {
     return deg;
 }
 
+// const coord_t* make_tmp_coord(int x, int y) {
+//     static thread_local coord_t temp;
+//     temp.x = x;
+//     temp.y = y;
+//     return &temp;
+// }
+
+#include <vector>
+#include <memory>
+
 const coord_t* make_tmp_coord(int x, int y) {
-    static thread_local coord_t temp;
-    temp.x = x;
-    temp.y = y;
-    return &temp;
+    struct CoordPool {
+        std::vector<coord_t*> pool;
+        ~CoordPool() {
+            for (auto c : pool) delete c;
+        }
+    };
+    static thread_local CoordPool thread_coords;
+
+    coord_t* c = new coord_t{x, y};
+    thread_coords.pool.push_back(c);
+    return c;
 }
+
 
 coord_t* coord_clone_next_to_goal(
     const coord_t* start, const coord_t* goal) 

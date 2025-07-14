@@ -85,6 +85,20 @@ BYUL_API void obstacle_apply_to_map(const obstacle_t* obstacle, map_t* map);
 BYUL_API void obstacle_remove_from_map(
     const obstacle_t* obstacle, map_t* map);
 
+/**
+ * @brief 지정 좌표를 중심으로 range 범위 안의 좌표를 모두 block 처리합니다.
+ *
+ * 이 함수는 `(x, y)`를 중심으로 `range` 반경 안의 모든 셀을
+ * 사각형 영역 기준으로 block 처리합니다. 총 (2×range+1)² 개의 좌표가 처리됩니다.
+ *
+ * @param obs    장애물 객체
+ * @param x      중심 좌표 x
+ * @param y      중심 좌표 y
+ * @param range  반경 범위 (0이면 자기 자신만 block)
+ */
+BYUL_API void obstacle_block_range(obstacle_t* obs, int x, int y, int range);
+
+
 #ifdef __cplusplus
 }
 #endif

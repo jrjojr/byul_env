@@ -101,6 +101,465 @@ TEST_CASE("obstacle_make_beam power up") {
     obstacle_free(obs);
 }
 
+TEST_CASE("obstacle_make_torus minimum size") {
+    coord_t start{0, 0};
+    coord_t goal{6, 6}; // width = 7, height = 7
+    int thickness = 2;
+
+    obstacle_t* obs = obstacle_make_torus(&start, &goal, thickness);
+    REQUIRE(obs != nullptr);
+
+    const coord_hash_t* blocked = obstacle_get_blocked_coords(obs);
+    coord_hash_print(blocked);
+
+    map_t* map = map_new();
+    obstacle_apply_to_map(obs, map);
+    map_print_ascii(map);
+    map_free(map);
+
+    obstacle_free(obs);
+}
+
+TEST_CASE("obstacle_make_torus too small should fail") {
+    coord_t start{0, 0};
+    coord_t goal{3, 3}; // width = 4, height = 4 < 2*thickness+1
+    int thickness = 2;
+
+    obstacle_t* obs = obstacle_make_torus(&start, &goal, thickness);
+    REQUIRE(obs == nullptr);
+}
+
+TEST_CASE("obstacle_make_enclosure open LEFT") {
+    coord_t start{0, 0};
+    coord_t goal{6, 6};
+    int thickness = 1;
+
+    obstacle_t* obs = obstacle_make_enclosure(&start, &goal, thickness, ENCLOSURE_OPEN_LEFT);
+    REQUIRE(obs != nullptr);
+
+    const coord_hash_t* blocked = obstacle_get_blocked_coords(obs);
+    coord_hash_print(blocked);
+
+    map_t* map = map_new();
+    obstacle_apply_to_map(obs, map);
+    map_print_ascii(map);
+    map_free(map);
+
+    obstacle_free(obs);
+}
+
+TEST_CASE("obstacle_make_enclosure fully closed") {
+    coord_t start{0, 0};
+    coord_t goal{6, 6};
+    int thickness = 1;
+
+    obstacle_t* obs = obstacle_make_enclosure(&start, &goal, thickness, ENCLOSURE_OPEN_UNKNOWN);
+    REQUIRE(obs != nullptr);
+
+    const coord_hash_t* blocked = obstacle_get_blocked_coords(obs);
+    coord_hash_print(blocked);
+
+    map_t* map = map_new();
+    obstacle_apply_to_map(obs, map);
+    map_print_ascii(map);
+    map_free(map);
+
+    obstacle_free(obs);
+}
+
+TEST_CASE("obstacle_make_cross") {
+    SUBCASE("center point only (length = 0, range = 0)") {
+        coord_t center{10, 10};
+        obstacle_t* obs = obstacle_make_cross(&center, 0, 0);
+        REQUIRE(obs != nullptr);
+
+        const coord_hash_t* blocked = obstacle_get_blocked_coords(obs);
+        coord_hash_print(blocked);
+
+        map_t* map = map_new();
+        obstacle_apply_to_map(obs, map);
+        map_print_ascii(map);
+        map_free(map);
+
+        obstacle_free(obs);
+    }
+
+    SUBCASE("thin cross (length = 2, range = 0)") {
+        coord_t center{10, 10};
+        obstacle_t* obs = obstacle_make_cross(&center, 2, 0);
+        REQUIRE(obs != nullptr);
+
+        const coord_hash_t* blocked = obstacle_get_blocked_coords(obs);
+        coord_hash_print(blocked);
+
+        map_t* map = map_new();
+        obstacle_apply_to_map(obs, map);
+        map_print_ascii(map);
+        map_free(map);
+
+        obstacle_free(obs);
+    }
+
+    SUBCASE("thick cross (length = 3, range = 1)") {
+        coord_t center{10, 10};
+        obstacle_t* obs = obstacle_make_cross(&center, 3, 1);
+        REQUIRE(obs != nullptr);
+
+        const coord_hash_t* blocked = obstacle_get_blocked_coords(obs);
+        coord_hash_print(blocked);
+
+        map_t* map = map_new();
+        obstacle_apply_to_map(obs, map);
+        map_print_ascii(map);
+        map_free(map);
+
+        obstacle_free(obs);
+    }
+
+    SUBCASE("invalid input (null center)") {
+        obstacle_t* obs = obstacle_make_cross(nullptr, 3, 1);
+        REQUIRE(obs == nullptr);
+    }
+
+    SUBCASE("invalid input (negative range)") {
+        coord_t center{10, 10};
+        obstacle_t* obs = obstacle_make_cross(&center, 2, -1);
+        REQUIRE(obs == nullptr);
+    }
+
+    SUBCASE("invalid input (negative length)") {
+        coord_t center{10, 10};
+        obstacle_t* obs = obstacle_make_cross(&center, -1, 1);
+        REQUIRE(obs == nullptr);
+    }
+}
+
+TEST_CASE("obstacle_make_spiral direction") {
+    coord_t center = {20, 20};
+    int radius = 5;
+    int turns = 8;
+    int range = 0;
+    int gap = 2;
+
+    SUBCASE("clockwise spiral") {
+        obstacle_t* obs = obstacle_make_spiral(
+            &center, radius, turns, range, gap, SPIRAL_CLOCKWISE);
+        REQUIRE(obs != nullptr);
+
+        const coord_hash_t* blocked = obstacle_get_blocked_coords(obs);
+        coord_hash_print(blocked);
+
+        map_t* map = map_new();
+        obstacle_apply_to_map(obs, map);
+        map_print_ascii(map);
+        map_free(map);
+
+        obstacle_free(obs);
+    }
+
+    SUBCASE("counter-clockwise spiral") {
+        obstacle_t* obs = obstacle_make_spiral(
+            &center, radius, turns, range, gap, SPIRAL_COUNTER_CLOCKWISE);
+        REQUIRE(obs != nullptr);
+
+        const coord_hash_t* blocked = obstacle_get_blocked_coords(obs);
+        coord_hash_print(blocked);
+
+        map_t* map = map_new();
+        obstacle_apply_to_map(obs, map);
+        map_print_ascii(map);
+        map_free(map);
+
+        obstacle_free(obs);
+    }
+
+    SUBCASE("clockwise with gap and range") {
+        obstacle_t* obs = obstacle_make_spiral(
+            &center, radius, turns, 0, 2, SPIRAL_CLOCKWISE);
+        REQUIRE(obs != nullptr);
+
+        const coord_hash_t* blocked = obstacle_get_blocked_coords(obs);
+        coord_hash_print(blocked);
+
+        map_t* map = map_new();
+        obstacle_apply_to_map(obs, map);
+        map_print_ascii(map);
+        map_free(map);
+
+        obstacle_free(obs);
+    }
+
+    SUBCASE("counter-clockwise with gap and range") {
+        obstacle_t* obs = obstacle_make_spiral(
+            &center, radius, turns, 0, 2, SPIRAL_COUNTER_CLOCKWISE);
+        REQUIRE(obs != nullptr);
+
+        const coord_hash_t* blocked = obstacle_get_blocked_coords(obs);
+        coord_hash_print(blocked);
+
+        map_t* map = map_new();
+        obstacle_apply_to_map(obs, map);
+        map_print_ascii(map);
+        map_free(map);
+
+        obstacle_free(obs);
+    }
+}
+
+TEST_CASE("obstacle_make_triangle") {
+    SUBCASE("기본 삼각형 생성") {
+        coord_t a = {10, 10};
+        coord_t b = {15, 10};
+        coord_t c = {12, 15};
+
+        obstacle_t* obs = obstacle_make_triangle(&a, &b, &c);
+        REQUIRE(obs != nullptr);
+
+        const coord_hash_t* blocked = obstacle_get_blocked_coords(obs);
+        coord_hash_print(blocked);
+
+        map_t* map = map_new();
+        obstacle_apply_to_map(obs, map);
+        map_print_ascii(map);
+        map_free(map);
+        obstacle_free(obs);
+    }
+
+    SUBCASE("역삼각형 (아래쪽 뾰족)") {
+        coord_t a = {12, 10};
+        coord_t b = {9, 15};
+        coord_t c = {15, 15};
+
+        obstacle_t* obs = obstacle_make_triangle(&a, &b, &c);
+        REQUIRE(obs != nullptr);
+
+        const coord_hash_t* blocked = obstacle_get_blocked_coords(obs);
+        coord_hash_print(blocked);
+
+        map_t* map = map_new();
+        obstacle_apply_to_map(obs, map);
+        map_print_ascii(map);
+        map_free(map);
+        obstacle_free(obs);
+    }
+
+    SUBCASE("좌상향 대각 삼각형") {
+        coord_t a = {10, 10};
+        coord_t b = {15, 15};
+        coord_t c = {10, 20};
+
+        obstacle_t* obs = obstacle_make_triangle(&a, &b, &c);
+        REQUIRE(obs != nullptr);
+
+        const coord_hash_t* blocked = obstacle_get_blocked_coords(obs);
+        coord_hash_print(blocked);
+
+        map_t* map = map_new();
+        obstacle_apply_to_map(obs, map);
+        map_print_ascii(map);
+        map_free(map);
+        obstacle_free(obs);
+    }
+
+    SUBCASE("입력이 NULL이면 실패") {
+        coord_t a = {10, 10};
+        obstacle_t* obs = obstacle_make_triangle(&a, nullptr, nullptr);
+        CHECK(obs == nullptr);
+    }
+}
+
+TEST_CASE("obstacle_make_triangle_torus") {
+    SUBCASE("기본 외곽선 torus, thickness = 0") {
+        coord_t a = {10, 10};
+        coord_t b = {15, 10};
+        coord_t c = {12, 15};
+
+        obstacle_t* obs = obstacle_make_triangle_torus(&a, &b, &c, 0);
+        REQUIRE(obs != nullptr);
+
+        const coord_hash_t* blocked = obstacle_get_blocked_coords(obs);
+        coord_hash_print(blocked);
+
+        map_t* map = map_new();
+        obstacle_apply_to_map(obs, map);
+        map_print_ascii(map);
+        map_free(map);
+        obstacle_free(obs);
+    }
+
+    SUBCASE("두께 있는 외곽선 torus, thickness = 1") {
+        coord_t a = {10, 10};
+        coord_t b = {15, 10};
+        coord_t c = {12, 15};
+
+        obstacle_t* obs = obstacle_make_triangle_torus(&a, &b, &c, 1);
+        REQUIRE(obs != nullptr);
+
+        const coord_hash_t* blocked = obstacle_get_blocked_coords(obs);
+        coord_hash_print(blocked);
+
+        map_t* map = map_new();
+        obstacle_apply_to_map(obs, map);
+        map_print_ascii(map);
+        map_free(map);
+        obstacle_free(obs);
+    }
+
+    SUBCASE("두께가 더 두꺼운 torus, thickness = 2") {
+        coord_t a = {8, 8};
+        coord_t b = {16, 9};
+        coord_t c = {12, 16};
+
+        obstacle_t* obs = obstacle_make_triangle_torus(&a, &b, &c, 2);
+        REQUIRE(obs != nullptr);
+
+        const coord_hash_t* blocked = obstacle_get_blocked_coords(obs);
+        coord_hash_print(blocked);
+
+        map_t* map = map_new();
+        obstacle_apply_to_map(obs, map);
+        map_print_ascii(map);
+        map_free(map);
+        obstacle_free(obs);
+    }
+
+    SUBCASE("잘못된 입력 - thickness < 0") {
+        coord_t a = {0, 0};
+        coord_t b = {1, 0};
+        coord_t c = {0, 1};
+
+        obstacle_t* obs = obstacle_make_triangle_torus(&a, &b, &c, -1);
+        CHECK(obs == nullptr);
+    }
+
+    SUBCASE("잘못된 입력 - NULL 좌표") {
+        coord_t a = {0, 0};
+        obstacle_t* obs = obstacle_make_triangle_torus(&a, nullptr, nullptr, 1);
+        CHECK(obs == nullptr);
+    }
+}
+
+TEST_CASE("obstacle_make_polygon") {
+    SUBCASE("정상적인 오각형 polygon 생성") {
+        coord_list_t* list = coord_list_new();
+        coord_list_push_back(list, make_tmp_coord(10, 10));
+        coord_list_push_back(list, make_tmp_coord(15, 10));
+        coord_list_push_back(list, make_tmp_coord(17, 15));
+        coord_list_push_back(list, make_tmp_coord(12, 18));
+        coord_list_push_back(list, make_tmp_coord(8, 14));
+
+        REQUIRE(coord_list_length(list) == 5);
+
+        obstacle_t* obs = obstacle_make_polygon(list);
+        REQUIRE(obs != nullptr);
+
+        const coord_hash_t* blocked = obstacle_get_blocked_coords(obs);
+        coord_hash_print(blocked);  // 디버깅용
+
+        map_t* map = map_new();
+        obstacle_apply_to_map(obs, map);
+        map_print_ascii(map);  // 시각 확인
+
+        map_free(map);
+        obstacle_free(obs);
+        coord_list_free(list);
+    }
+
+    SUBCASE("입력이 부족한 경우 (2점)") {
+        coord_list_t* list = coord_list_new();
+        coord_list_push_back(list, make_tmp_coord(0, 0));
+        coord_list_push_back(list, make_tmp_coord(1, 1));
+
+        REQUIRE(coord_list_length(list) == 2);
+
+        obstacle_t* obs = obstacle_make_polygon(list);
+        CHECK(obs == nullptr);
+
+        coord_list_free(list);
+    }
+
+    SUBCASE("입력이 NULL인 경우") {
+        obstacle_t* obs = obstacle_make_polygon(nullptr);
+        CHECK(obs == nullptr);
+    }
+}
+
+TEST_CASE("obstacle_make_polygon_torus") {
+    SUBCASE("기본적인 오각형 torus 생성 - thickness = 0") {
+        coord_list_t* list = coord_list_new();
+        coord_list_push_back(list, make_tmp_coord(10, 10));
+        coord_list_push_back(list, make_tmp_coord(15, 10));
+        coord_list_push_back(list, make_tmp_coord(17, 15));
+        coord_list_push_back(list, make_tmp_coord(12, 18));
+        coord_list_push_back(list, make_tmp_coord(8, 14));
+
+        REQUIRE(coord_list_length(list) == 5);
+
+        obstacle_t* obs = obstacle_make_polygon_torus(list, 0);
+        REQUIRE(obs != nullptr);
+
+        const coord_hash_t* blocked = obstacle_get_blocked_coords(obs);
+        coord_hash_print(blocked);
+
+        map_t* map = map_new();
+        obstacle_apply_to_map(obs, map);
+        map_print_ascii(map);  // 외곽선만 그려졌는지 육안 확인
+
+        map_free(map);
+        obstacle_free(obs);
+        coord_list_free(list);
+    }
+
+    SUBCASE("thickness = 1 로 선을 두껍게") {
+        coord_list_t* list = coord_list_new();
+        coord_list_push_back(list, make_tmp_coord(5, 5));
+        coord_list_push_back(list, make_tmp_coord(10, 5));
+        coord_list_push_back(list, make_tmp_coord(12, 10));
+        coord_list_push_back(list, make_tmp_coord(7, 13));
+        coord_list_push_back(list, make_tmp_coord(3, 9));
+
+        obstacle_t* obs = obstacle_make_polygon_torus(list, 1);
+        REQUIRE(obs != nullptr);
+
+        const coord_hash_t* blocked = obstacle_get_blocked_coords(obs);
+        coord_hash_print(blocked);
+
+        map_t* map = map_new();
+        obstacle_apply_to_map(obs, map);
+        map_print_ascii(map);
+
+        map_free(map);
+        obstacle_free(obs);
+        coord_list_free(list);
+    }
+
+    SUBCASE("좌표 부족 시 실패 (2점)") {
+        coord_list_t* list = coord_list_new();
+        coord_list_push_back(list, make_tmp_coord(0, 0));
+        coord_list_push_back(list, make_tmp_coord(1, 1));
+
+        obstacle_t* obs = obstacle_make_polygon_torus(list, 0);
+        CHECK(obs == nullptr);
+        coord_list_free(list);
+    }
+
+    SUBCASE("NULL 리스트") {
+        obstacle_t* obs = obstacle_make_polygon_torus(nullptr, 0);
+        CHECK(obs == nullptr);
+    }
+
+    SUBCASE("음수 thickness는 실패") {
+        coord_list_t* list = coord_list_new();
+        coord_list_push_back(list, make_tmp_coord(0, 0));
+        coord_list_push_back(list, make_tmp_coord(1, 0));
+        coord_list_push_back(list, make_tmp_coord(1, 1));
+
+        obstacle_t* obs = obstacle_make_polygon_torus(list, -1);
+        CHECK(obs == nullptr);
+        coord_list_free(list);
+    }
+}
+
 int main(int argc, char** argv) {
 #ifdef _WIN32
     UINT original_cp = GetConsoleOutputCP();
