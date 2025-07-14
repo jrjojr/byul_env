@@ -98,6 +98,10 @@ BYUL_API void obstacle_remove_from_map(
  */
 BYUL_API void obstacle_block_range(obstacle_t* obs, int x, int y, int range);
 
+// 직진 방향으로 목표까지 반경 range 만큼 블락한다.
+// range == 0 이면 해당 좌표만, 1 이상이면 주변 좌표도 블락한다.
+BYUL_API void obstacle_block_straight(obstacle_t* obs, 
+    int x0, int y0, int x1, int y1, int range);
 
 #ifdef __cplusplus
 }

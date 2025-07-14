@@ -592,3 +592,71 @@ int main(int argc, char** argv) {
 
     return res;
 }
+
+
+TEST_CASE("obstacle_block_straight") {
+    SUBCASE("range = 0, 단일 선 블로킹") {
+        obstacle_t* obs = obstacle_new_full(10, 10, 20, 20);
+        REQUIRE(obs != nullptr);
+
+        obstacle_block_straight(obs, 15, 15, 25, 20, 0);
+
+        const coord_hash_t* blocked = obstacle_get_blocked_coords(obs);
+        coord_hash_print(blocked); // 디버깅용
+
+        map_t* map = map_new();
+        obstacle_apply_to_map(obs, map);
+        map_print_ascii(map); // 시각 확인
+
+        map_free(map);
+        obstacle_free(obs);
+    }
+
+    SUBCASE("range = 1, 선 주변까지 블로킹") {
+        obstacle_t* obs = obstacle_new_full(0, 0, 30, 30);
+        REQUIRE(obs != nullptr);
+
+        obstacle_block_straight(obs, 5, 5, 20, 10, 1);
+
+        const coord_hash_t* blocked = obstacle_get_blocked_coords(obs);
+        coord_hash_print(blocked); // 디버깅용
+
+        map_t* map = map_new();
+        obstacle_apply_to_map(obs, map);
+        map_print_ascii(map); // 두꺼운 직선 확인
+
+        map_free(map);
+        obstacle_free(obs);
+    }
+
+    SUBCASE("range = 2, 수직 블로킹") {
+        obstacle_t* obs = obstacle_new_full(0, 0, 30, 30);
+        REQUIRE(obs != nullptr);
+
+        obstacle_block_straight(obs, 10, 5, 10, 20, 2);
+
+        const coord_hash_t* blocked = obstacle_get_blocked_coords(obs);
+        coord_hash_print(blocked);
+
+        map_t* map = map_new();
+        obstacle_apply_to_map(obs, map);
+        map_print_ascii(map);
+
+        map_free(map);
+        obstacle_free(obs);
+    }
+
+    SUBCASE("range = 0, 대각선 블로킹") {
+        obstacle_t* obs = obstacle_new_full(0, 0, 30, 30);
+        REQUIRE(obs != nullptr);
+
+        obstacle_block_straight(obs, 5, 5, 15, 15, 0);
+
+        map_t* map = map_new();
+        obstacle_apply_to_map(obs, map);
+        map_print_ascii(map);
+
+        map_free(map);
+        obstacle_free(obs);
+    }
+}

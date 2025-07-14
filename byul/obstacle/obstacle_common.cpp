@@ -307,3 +307,23 @@ void obstacle_block_range(obstacle_t* obs, int x, int y, int range) {
         }
     }
 }
+
+void obstacle_block_straight(obstacle_t* obs, 
+    int x0, int y0, int x1, int y1, int range) {
+
+    int dx = abs(x1 - x0), sx = (x0 < x1) ? 1 : -1;
+    int dy = -abs(y1 - y0), sy = (y0 < y1) ? 1 : -1;
+    int err = dx + dy;
+
+    while (true) {
+        if (range <= 0)
+            obstacle_block_coord(obs, x0, y0);
+        else
+            obstacle_block_range(obs, x0, y0, range);
+
+        if (x0 == x1 && y0 == y1) break;
+        int e2 = 2 * err;
+        if (e2 >= dy) { err += dy; x0 += sx; }
+        if (e2 <= dx) { err += dx; y0 += sy; }
+    }
+}
