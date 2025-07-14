@@ -37,6 +37,10 @@ BYUL_API int coord_manhattan_distance(const coord_t* a, const coord_t* b);
 // 360도 반환 좌표들간의 각도를...
 BYUL_API double   coord_degree(const coord_t* a, const coord_t* b);
 
+// 시작 좌표에서 목표좌표로 가기위해 가장 가까운 이웃을 반환한다.
+BYUL_API coord_t* coord_clone_next_to_goal(
+    const coord_t* start, const coord_t* goal);
+
 // ------------------------ 좌표 접근자/설정자 ------------------------
 
 BYUL_API int      coord_get_x(const coord_t* c);

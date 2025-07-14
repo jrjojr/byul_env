@@ -6,12 +6,12 @@
 
 #include "internal/map.h"
 #include "internal/obstacle.h"
-#include "internal/obstacle_utils.h"
+#include "internal/obstacle_util.h"
 #include "internal/console.h"
 
 TEST_CASE("route_carve_beam - straight line carve") {
     map_t* map = map_new();
-    obstacle_t* obs = make_rect_all_blocked(0, 0, 10, 10);
+    obstacle_t* obs = obstacle_make_rect_all_blocked(0, 0, 10, 10);
     obstacle_apply_to_map(obs, map);
 
     coord_t start = { 1, 1 };
@@ -28,7 +28,7 @@ TEST_CASE("route_carve_beam - straight line carve") {
 
 TEST_CASE("route_carve_beam - wide beam carve") {
     map_t* map = map_new();
-    obstacle_t* obs = make_rect_all_blocked(0, 0, 10, 10);
+    obstacle_t* obs = obstacle_make_rect_all_blocked(0, 0, 10, 10);
     obstacle_apply_to_map(obs, map);
 
     coord_t start = { 2, 2 };
@@ -45,7 +45,7 @@ map_print_ascii(map);
 
 TEST_CASE("route_carve_bomb - center explosion") {
     map_t* map = map_new();
-    obstacle_t* obs = make_rect_all_blocked(0, 0, 10, 10);
+    obstacle_t* obs = obstacle_make_rect_all_blocked(0, 0, 10, 10);
     obstacle_apply_to_map(obs, map);
 
     coord_t center = { 5, 5 };

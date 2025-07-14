@@ -9,7 +9,7 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 # 소스 파일 설정
 set(SOURCES
     ${PROJECT_NAME}.cpp
-    obstacle_utils.cpp    
+    obstacle_common.cpp    
 )
 
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)

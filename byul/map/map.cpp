@@ -112,10 +112,24 @@ bool map_unblock_coord(map_t* m, int x, int y) {
     return result;
 }
 
+// bool map_is_inside(const map_t* m, int x, int y) {
+//     if (!m) return false;
+//     bool x_ok = (m->width == 0 || (x >= 0 && x < m->width));
+//     bool y_ok = (m->height == 0 || (y >= 0 && y < m->height));
+//     return x_ok && y_ok;
+// }
+
 bool map_is_inside(const map_t* m, int x, int y) {
     if (!m) return false;
-    bool x_ok = (m->width == 0 || (x >= 0 && x < m->width));
-    bool y_ok = (m->height == 0 || (y >= 0 && y < m->height));
+
+    int min_x = (m->width >= 0) ? 0 : m->width;
+    int max_x = (m->width >= 0) ? m->width : 0;
+    int min_y = (m->height >= 0) ? 0 : m->height;
+    int max_y = (m->height >= 0) ? m->height : 0;
+
+    bool x_ok = (m->width == 0 || (x >= min_x && x < max_x));
+    bool y_ok = (m->height == 0 || (y >= min_y && y < max_y));
+
     return x_ok && y_ok;
 }
 

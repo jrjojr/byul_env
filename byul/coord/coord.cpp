@@ -100,14 +100,30 @@ int coord_manhattan_distance(const coord_t* a, const coord_t* b) {
     return std::abs(a->x - b->x) + std::abs(a->y - b->y);
 }
 
+// double coord_degree(const coord_t* a, const coord_t* b) {
+//     if (!a || !b) return 0.0;
+//     double dx = static_cast<double>(b->x - a->x);
+//     double dy = static_cast<double>(b->y - a->y);
+//     double rad = std::atan2(dy, dx);
+//     double deg = rad * (180.0 / M_PI);
+//     if (deg < 0.0) deg += 360.0;
+//     return deg;
+// }
 
 double coord_degree(const coord_t* a, const coord_t* b) {
     if (!a || !b) return 0.0;
+    if (a->x == b->x && a->y == b->y)
+        return std::numeric_limits<double>::quiet_NaN(); // 방향 없음
+
+    // 게임 기준: +Y 아래 방향이면 아래 줄 활성화
+    // double dy = static_cast<double>(a->y - b->y);  // y축 반전
     double dx = static_cast<double>(b->x - a->x);
-    double dy = static_cast<double>(b->y - a->y);
+    double dy = static_cast<double>(b->y - a->y);  // 기본 수학 좌표계
+
     double rad = std::atan2(dy, dx);
     double deg = rad * (180.0 / M_PI);
     if (deg < 0.0) deg += 360.0;
+
     return deg;
 }
 
@@ -116,4 +132,15 @@ const coord_t* make_tmp_coord(int x, int y) {
     temp.x = x;
     temp.y = y;
     return &temp;
+}
+
+coord_t* coord_clone_next_to_goal(
+    const coord_t* start, const coord_t* goal) 
+{
+    if (!start || !goal) return nullptr;
+
+    int dx = (goal->x > start->x) - (goal->x < start->x); // -1, 0, 1
+    int dy = (goal->y > start->y) - (goal->y < start->y); // -1, 0, 1
+
+    return coord_new_full(start->x + dx, start->y + dy);
 }

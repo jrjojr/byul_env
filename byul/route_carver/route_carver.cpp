@@ -13,9 +13,7 @@ int route_carve_beam(map_t* map,
     if(range <= 0){
         while(!coord_equal(cur, goal)){
             // 해당 좌표만 제거한다.
-            double deg = coord_degree(cur, goal);
-            coord_t* next = map_clone_neighbor_at_degree(
-                map, cur->x, cur->y, deg);
+            coord_t* next = coord_clone_next_to_goal(cur, goal);
 
             if (is_coord_blocked_map(map, next->x, next->y, nullptr)){
                 map_unblock_coord(map, next->x, next->y);
@@ -31,8 +29,7 @@ int route_carve_beam(map_t* map,
 
     // while(cur != goal){
     while(!coord_equal(cur, goal)){
-        double deg = coord_degree(cur, goal);
-        coord_t* next = map_clone_neighbor_at_degree(map, cur->x, cur->y, deg);
+        coord_t* next = coord_clone_next_to_goal(cur, goal);
         coord_list_t* neighbors = map_clone_neighbors_all_range(
             map, next->x, next->y, range-1);
         for(int i=0; i < coord_list_length(neighbors); i++){

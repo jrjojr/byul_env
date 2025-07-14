@@ -7,13 +7,13 @@
 
 extern "C" {
 #include "internal/obstacle.h"
-#include "internal/obstacle_utils.h"
+
 #include "internal/console.h"
 #include "internal/map.h"
 }
 
-TEST_CASE("make_rect_all_blocked - full blocking") {
-    obstacle_t* obs = make_rect_all_blocked(10, 20, 5, 5);
+TEST_CASE("obstacle_make_rect_all_blocked - full blocking") {
+    obstacle_t* obs = obstacle_make_rect_all_blocked(10, 20, 5, 5);
     REQUIRE(obs != nullptr);
     CHECK(obstacle_get_width(obs) == 5);
     CHECK(obstacle_get_height(obs) == 5);
@@ -31,15 +31,15 @@ TEST_CASE("make_rect_all_blocked - full blocking") {
 
 }
 
-TEST_CASE("make_rect_random_blocked - ratio = 0.0") {
-    obstacle_t* obs = make_rect_random_blocked(0, 0, 5, 5, 0.0f);
+TEST_CASE("obstacle_make_rect_random_blocked - ratio = 0.0") {
+    obstacle_t* obs = obstacle_make_rect_random_blocked(0, 0, 5, 5, 0.0f);
     REQUIRE(obs == nullptr);
     CHECK(coord_hash_length(obstacle_get_blocked_coords(obs)) == 0);
     obstacle_free(obs);
 }
 
-TEST_CASE("make_rect_random_blocked - ratio = 0.5") {
-    obstacle_t* obs = make_rect_random_blocked(0, 0, 5, 5, 0.5f);
+TEST_CASE("obstacle_make_rect_random_blocked - ratio = 0.5") {
+    obstacle_t* obs = obstacle_make_rect_random_blocked(0, 0, 5, 5, 0.5f);
     REQUIRE(obs != nullptr);
 
     int blocked = coord_hash_length(obstacle_get_blocked_coords(obs));
@@ -54,8 +54,8 @@ TEST_CASE("make_rect_random_blocked - ratio = 0.5") {
     obstacle_free(obs);
 }
 
-TEST_CASE("make_rect_random_blocked - ratio = 1.0") {
-    obstacle_t* obs = make_rect_random_blocked(0, 0, 5, 5, 1.0f);
+TEST_CASE("obstacle_make_rect_random_blocked - ratio = 1.0") {
+    obstacle_t* obs = obstacle_make_rect_random_blocked(0, 0, 5, 5, 1.0f);
     REQUIRE(obs != nullptr);
     CHECK(coord_hash_length(obstacle_get_blocked_coords(obs)) == 25);
 
@@ -67,6 +67,39 @@ TEST_CASE("make_rect_random_blocked - ratio = 1.0") {
     obstacle_free(obs);
 }
 
+TEST_CASE("obstacle_make_beam") {
+    coord_t start{10, 20};
+    coord_t goal{30, 35};
+    obstacle_t* obs = obstacle_make_beam(&start, &goal, 0);
+    REQUIRE(obs != nullptr);
+
+    const coord_hash_t* blocked = obstacle_get_blocked_coords(obs);
+    coord_hash_print(blocked);
+
+    map_t* map = map_new();
+    obstacle_apply_to_map(obs, map);
+    map_print_ascii(map);
+    map_free(map);
+
+    obstacle_free(obs);
+}
+
+TEST_CASE("obstacle_make_beam power up") {
+    coord_t start{10, 20};
+    coord_t goal{30, 35};
+    obstacle_t* obs = obstacle_make_beam(&start, &goal, 1);
+    REQUIRE(obs != nullptr);
+
+    const coord_hash_t* blocked = obstacle_get_blocked_coords(obs);
+    coord_hash_print(blocked);
+
+    map_t* map = map_new();
+    obstacle_apply_to_map(obs, map);
+    map_print_ascii(map);
+    map_free(map);
+
+    obstacle_free(obs);
+}
 
 int main(int argc, char** argv) {
 #ifdef _WIN32

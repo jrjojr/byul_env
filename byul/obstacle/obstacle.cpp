@@ -1,110 +1,138 @@
 #include "internal/obstacle.h"
 #include <stdlib.h>
 #include <string.h>
+#include <time.h>
 
-obstacle_t* obstacle_new() {
-    return obstacle_new_full(0, 0, 0, 0);
-}
+obstacle_t* obstacle_make_rect_all_blocked(int x0, int y0, int width, int height) {
+    if (width <= 0 || height <= 0) return nullptr;
 
-obstacle_t* obstacle_new_full(
-    int x0, int y0, int width, int height) {
+    obstacle_t* obstacle = obstacle_new_full(x0, y0, width, height);
+    if (!obstacle) return nullptr;
 
-    obstacle_t* obstacle = (obstacle_t*)malloc(sizeof(obstacle_t));
-    if (!obstacle) return NULL;
-
-    obstacle->x0 = x0;
-    obstacle->y0 = y0;
-    obstacle->width = width;
-    obstacle->height = height;
-    obstacle->blocked = coord_hash_new();
-
+    for (int dy = 0; dy < height; ++dy) {
+        for (int dx = 0; dx < width; ++dx) {
+            coord_t c = { x0 + dx, y0 + dy };
+            coord_hash_insert(obstacle->blocked, &c, nullptr);
+        }
+    }
     return obstacle;
 }
 
-void obstacle_clear(obstacle_t* obstacle) {
-    if (!obstacle || !obstacle->blocked) return;
+obstacle_t* obstacle_make_rect_random_blocked(
+    int x0, int y0, int width, int height, float ratio) {
 
-    coord_hash_clear(obstacle->blocked);
-}
+    if (width <= 0 || height <= 0 || ratio <= 0.0f) return nullptr;
+    if (ratio > 1.0f) ratio = 1.0f;
 
-void obstacle_free(obstacle_t* obstacle) {
-    if (!obstacle) return;
-    coord_hash_free(obstacle->blocked);
-    free(obstacle);
-}
+    obstacle_t* obstacle = obstacle_new_full(x0, y0, width, height);
+    if (!obstacle) return nullptr;
 
-obstacle_t* obstacle_copy(const obstacle_t* obstacle) {
-    if (!obstacle) return NULL;
-    obstacle_t* copy = obstacle_new_full(obstacle->x0, obstacle->y0, 
-        obstacle->width, obstacle->height);
+    srand((unsigned int)time(nullptr));
 
-    coord_hash_free(copy->blocked);
-    copy->blocked = coord_hash_copy(obstacle->blocked);
-    return copy;
-}
-
-bool obstacle_equal(const obstacle_t* a, const obstacle_t* b) {
-    if (!a || !b) return false;
-    return a->x0 == b->x0 &&
-           a->y0 == b->y0 &&
-           a->width == b->width &&
-           a->height == b->height &&
-           coord_hash_equal(a->blocked, b->blocked);
-}
-
-uint32_t obstacle_hash(const obstacle_t* obstacle) {
-    if (!obstacle) return 0;
-    uint32_t hash = 17;
-    hash = 31 * hash + obstacle->x0;
-    hash = 31 * hash + obstacle->y0;
-    hash = 31 * hash + obstacle->width;
-    hash = 31 * hash + obstacle->height;
-    hash = 31 * hash + coord_hash_hash(obstacle->blocked);
-    return hash;
-}
-
-void obstacle_set_origin(obstacle_t* obstacle, int x0, int y0) {
-    if (!obstacle) return;
-    obstacle->x0 = x0;
-    obstacle->y0 = y0;
-}
-
-void obstacle_get_origin(const obstacle_t* obstacle, int* out_x0, int* out_y0) {
-    if (!obstacle) return;
-    if (out_x0) *out_x0 = obstacle->x0;
-    if (out_y0) *out_y0 = obstacle->y0;
-}
-
-int obstacle_get_width(const obstacle_t* obstacle) {
-    return obstacle ? obstacle->width : 0;
-}
-
-int obstacle_get_height(const obstacle_t* obstacle) {
-    return obstacle ? obstacle->height : 0;
-}
-
-const coord_hash_t* obstacle_get_blocked_coords(const obstacle_t* obstacle) {
-    return obstacle ? obstacle->blocked : NULL;
-}
-
-void obstacle_apply_to_map(const obstacle_t* obstacle, map_t* map) {
-    if (!obstacle || !map) return;
-
-    coord_hash_iter_t* iter = coord_hash_iter_new((coord_hash_t*)obstacle->blocked);
-    coord_t* key;
-    while (coord_hash_iter_next(iter, &key, NULL)) {
-        map_block_coord(map, key->x, key->y);
+    for (int dy = 0; dy < height; ++dy) {
+        for (int dx = 0; dx < width; ++dx) {
+            if ((float)rand() / RAND_MAX <= ratio) {
+                coord_t c = { x0 + dx, y0 + dy };
+                coord_hash_insert(obstacle->blocked, &c, nullptr);
+            }
+        }
     }
-    coord_hash_iter_free(iter);
+    return obstacle;
 }
 
-void obstacle_remove_from_map(const obstacle_t* obstacle, map_t* map) {
-    if (!obstacle || !map) return;
+// obstacle_t* obstacle_make_beam(
+//     const coord_t* start, const coord_t* goal, int range){
 
-    coord_hash_iter_t* iter = coord_hash_iter_new((coord_hash_t*)obstacle->blocked);
-    coord_t* key;
-    while (coord_hash_iter_next(iter, &key, NULL)) {
-        map_unblock_coord(map, key->x, key->y);
+//     if (!start || !goal) return nullptr;
+
+//     int width = goal->x - start->x;
+//     int height = goal->y - start->y;
+//     obstacle_t* obstacle = obstacle_new_full(
+//         start->x, start->y, width, height);
+
+//     coord_t* cur = coord_copy(start);
+
+//     if(range <= 0){
+//         while(!coord_equal(cur, goal)){
+//             // 해당 좌표만 블락한다.
+//             double deg = coord_degree(cur, goal);
+//             coord_t* next = obstacle_clone_neighbor_at_degree(
+//                 obstacle, cur->x, cur->y, deg);
+
+//             if (!obstacle_is_coord_blocked(obstacle, next->x, next->y)){
+//                 obstacle_block_coord(obstacle, next->x, next->y);
+//             }
+//             coord_set(cur, next->x, next->y);
+
+//             coord_free(next);
+//         }
+//         coord_free(cur);
+//         return obstacle;        
+//     }
+
+//     // while(cur != goal){
+//     while(!coord_equal(cur, goal)){
+//         double deg = coord_degree(cur, goal);
+//         coord_t* next = obstacle_clone_neighbor_at_degree(
+//             obstacle, cur->x, cur->y, deg);
+
+//         coord_list_t* neighbors = obstacle_clone_neighbors_all_range(
+//             obstacle, next->x, next->y, range-1);
+//         for(int i=0; i < coord_list_length(neighbors); i++){
+//             const coord_t* c = coord_list_get(neighbors, i);
+//             if (!obstacle_is_coord_blocked(obstacle, c->x, c->y)){
+//                 obstacle_block_coord(obstacle, c->x, c->y);
+//             }
+//         }
+//         coord_set(cur, next->x, next->y);
+//         coord_list_free(neighbors);
+//         coord_free(next);
+//     }
+//     coord_free(cur);
+//     return obstacle;        
+// }
+
+obstacle_t* obstacle_make_beam(
+    const coord_t* start, const coord_t* goal, int range){
+
+    if (!start || !goal) return nullptr;
+
+    int width = goal->x - start->x;
+    int height = goal->y - start->y;
+    obstacle_t* obstacle = obstacle_new_full(
+        start->x, start->y, width, height);
+
+    coord_t* cur = coord_copy(start);
+
+    if(range <= 0){
+        while(!coord_equal(cur, goal)){
+            coord_t* next = coord_clone_next_to_goal(cur, goal);
+
+            if (!obstacle_is_coord_blocked(obstacle, next->x, next->y)) {
+                obstacle_block_coord(obstacle, next->x, next->y);
+            }
+            coord_set(cur, next->x, next->y);
+            coord_free(next);
+        }
     }
-    coord_hash_iter_free(iter);
+
+    // while(cur != goal){
+    while(!coord_equal(cur, goal)){
+        coord_t* next = coord_clone_next_to_goal(cur, goal);
+
+        coord_list_t* neighbors = obstacle_clone_neighbors_all_range(
+            obstacle, next->x, next->y, range-1);
+        for(int i=0; i < coord_list_length(neighbors); i++){
+            const coord_t* c = coord_list_get(neighbors, i);
+
+            if (!obstacle_is_coord_blocked(obstacle, c->x, c->y)){
+                obstacle_block_coord(obstacle, c->x, c->y);
+            }
+        }
+        coord_set(cur, next->x, next->y);
+        coord_list_free(neighbors);
+        coord_free(next);
+    }
+    coord_free(cur);
+    return obstacle;        
 }
