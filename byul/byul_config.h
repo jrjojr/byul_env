@@ -62,4 +62,13 @@
   #define DBG_PRINT(...) ((void)0)
 #endif
 
+// SIMD / GPU 등을 위한 16바이트 정렬 매크로
+#if defined(_MSC_VER)
+  #define BYUL_ALIGN_16 __declspec(align(16))
+#elif defined(__GNUC__) || defined(__clang__)
+  #define BYUL_ALIGN_16 __attribute__((aligned(16)))
+#else
+  #define BYUL_ALIGN_16
+#endif
+
 #endif // BYUL_CONFIG_H

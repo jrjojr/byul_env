@@ -103,6 +103,8 @@ add_subdirectory(maze)
 add_subdirectory(route_carver)
 add_subdirectory(obstacle)
 add_subdirectory(console)
+add_subdirectory(numeq)
+add_subdirectory(gpu)
 
 # 헤더 복사
 copy_headers(core)
@@ -117,6 +119,8 @@ copy_headers(console)
 copy_headers(route_finder)
 copy_route_finder_headers(route_finder)
 copy_headers(dstar_lite)
+copy_headers(numeq)
+copy_headers(gpu)
 
 file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/${PROJECT_NAME}.h 
     DESTINATION ${${PROJECT_NAME}_BUILD_INCLUDE_DIR})

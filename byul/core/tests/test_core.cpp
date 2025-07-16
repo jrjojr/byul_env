@@ -7,6 +7,15 @@ extern "C" {
 
 TEST_CASE("float_equal: similar and dissimilar values") {
     CHECK(float_equal(1.000001f, 1.000002f));
+    CHECK(float_equal(1.000001f, 1.000003f));
+    CHECK(float_equal(1.000001f, 1.000009f));
+
+    CHECK(float_equal(1.00001f, 1.000019f));
+    CHECK(float_equal(1.00001f, 1.000001f));
+
+    CHECK_FALSE(float_equal(1.00001f, 1.000020f));
+    CHECK_FALSE(float_equal(1.00001f, 1.000000f));
+
     CHECK_FALSE(float_equal(1.0f, 1.1f));
 }
 

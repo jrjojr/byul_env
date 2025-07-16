@@ -12,7 +12,18 @@ extern "C" {
 #endif
 
 /// @brief float 비교를 위한 epsilon
+// 상대 오차이다 절대 오차가 아니다 그래서 1e-6f가 아니라 1e-5f인 것이다 오해하지 마라
+// 1.000001, 1.000002 이게 같은거다.
+// CHECK(float_equal(1.00001f, 1.000019f));
+// CHECK(float_equal(1.00001f, 1.000001f));
+// CHECK_FALSE(float_equal(1.00001f, 1.000020f));
+// CHECK_FALSE(float_equal(1.00001f, 1.000000f));
 #define FLOAT_EPSILON 1e-5f
+
+/** @brief deg → rad */
+#define DEG2RAD(x) ((x) * 0.017453292519943295f)
+
+#define SQRT2_INV 0.70710678118f
 
 // ---------------------- float 비교 정확도 ----------------------
 
