@@ -3,6 +3,7 @@
 #include <cmath>
 #include <functional>
 #include <mutex>
+#include "internal/common.h"
 
 static std::mutex bounce_mutex;
 static numeq_bounce_func g_bounce_func = nullptr;
@@ -36,7 +37,7 @@ void numeq_model_drag_force(const vec3_t* velocity,
 // 가속도 계산 (중력 + 바람 + 공기저항)
 // ---------------------------------------------------------
 void numeq_model_accel_at(float t,
-                          const state_vector_t* state0,
+                          const linear_state_t* state0,
                           const environment_t* env,
                           const body_properties_t* body,
                           vec3_t* out_accel) {
@@ -54,7 +55,7 @@ void numeq_model_accel_at(float t,
 // 속도 계산 (v = v₀ + a * t)
 // ---------------------------------------------------------
 void numeq_model_vel_at(float t,
-                        const state_vector_t* state0,
+                        const linear_state_t* state0,
                         const environment_t* env,
                         const body_properties_t* body,
                         vec3_t* out_velocity) {
@@ -68,7 +69,7 @@ void numeq_model_vel_at(float t,
 // 위치 계산 (p = p₀ + v₀·t + 0.5·a·t²)
 // ---------------------------------------------------------
 void numeq_model_pos_at(float t,
-                        const state_vector_t* state0,
+                        const linear_state_t* state0,
                         const environment_t* env,
                         const body_properties_t* body,
                         vec3_t* out_position) {
@@ -86,10 +87,10 @@ void numeq_model_pos_at(float t,
 // 전체 상태 예측
 // ---------------------------------------------------------
 void numeq_model_predict(float t,
-                         const state_vector_t* state0,
+                         const linear_state_t* state0,
                          const environment_t* env,
                          const body_properties_t* body,
-                         state_vector_t* out_state) {
+                         linear_state_t* out_state) {
     numeq_model_pos_at(t, state0, env, body, &out_state->position);
     numeq_model_vel_at(t, state0, env, body, &out_state->velocity);
     numeq_model_accel_at(t, state0, env, body, &out_state->acceleration);
@@ -98,14 +99,14 @@ void numeq_model_predict(float t,
 // ---------------------------------------------------------
 // 최고점 여부 판단: y 속도가 거의 0일 때
 // ---------------------------------------------------------
-bool numeq_model_is_apex(const state_vector_t* state) {
+bool numeq_model_is_apex(const linear_state_t* state) {
     return float_zero(state->velocity.y);
 }
 
 // ---------------------------------------------------------
 // 착지 여부 판단: y 좌표가 지면보다 아래
 // ---------------------------------------------------------
-bool numeq_model_is_grounded(const state_vector_t* state, float ground_height) {
+bool numeq_model_is_grounded(const linear_state_t* state, float ground_height) {
     return state->position.y <= ground_height;
 }
 

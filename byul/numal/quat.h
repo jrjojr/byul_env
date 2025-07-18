@@ -221,6 +221,9 @@ BYUL_API float quat_length(const quat_t* a);
 // 단위 회전
 BYUL_API void quat_identity(quat_t* out);
 
+BYUL_API void quat_from_angular_velocity(
+    quat_t* out, const vec3_t* omega, float dt);
+
 #ifdef __cplusplus
 }
 #endif

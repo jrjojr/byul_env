@@ -6,7 +6,7 @@ extern "C" {
 }
 
 float dummy_cost(
-    const state_vector_t* sim_state,
+    const linear_state_t* sim_state,
     const vec3_t* target,
     const vec3_t* accel,
     void* userdata)
@@ -19,32 +19,50 @@ float dummy_cost(
 }
 
 TEST_CASE("MPC default cost function produces positive cost") {
-    state_vector_t state = {
-        .position = {0.0f, 0.0f, 0.0f},
-        .velocity = {1.0f, 0.0f, 0.0f},
-        .acceleration = {0.0f, 0.0f, 0.0f}
-    };
-    vec3_t target = {3.0f, 0.0f, 0.0f};
+    // 현재 상태
+    motion_state_t ms = {};
+    ms.linear.position = {0.0f, 0.0f, 0.0f};
+    ms.linear.velocity = {1.0f, 0.0f, 0.0f};
+    ms.linear.acceleration = {0.0f, 0.0f, 0.0f};
+    quat_identity(&ms.angular.orientation);
+    ms.angular.angular_velocity = {0.0f, 0.0f, 0.0f};
+    ms.angular.angular_acceleration = {0.0f, 0.0f, 0.0f};
+
+    // 목표 상태
+    motion_state_t target = {};
+    target.linear.position = {3.0f, 0.0f, 0.0f};
+    quat_identity(&target.angular.orientation);
+
+    // 가속도 제어 입력
     vec3_t accel = {0.0f, 0.0f, 0.0f};
-    float cost = numeq_mpc_cost_default(&state, &target, &accel, NULL);
+    vec3_t ang_accel = {0.0f, 0.0f, 0.0f};
+
+    float cost = numeq_mpc_cost_default(&ms, &target, &accel, &ang_accel, NULL);
     CHECK(cost > 0.0f);
 }
 
 TEST_CASE("MPC trajectory init and free") {
-    mpc_trajectory_t traj;
-    CHECK(mpc_trajectory_init(&traj, 10) == true);
+    trajectory_t traj;
+    CHECK(trajectory_init(&traj, 10) == true);
     CHECK(traj.samples != nullptr);
     CHECK(traj.capacity == 10);
-    mpc_trajectory_free(&traj);
+
+    trajectory_free(&traj);
     CHECK(traj.samples == nullptr);
+    CHECK(traj.capacity == 0);
 }
 
 TEST_CASE("MPC directional target structure basic") {
+    quat_t oq;
+    quat_identity(&oq);
     mpc_direction_target_t dir_target = {
         .direction = {1.0f, 0.0f, 0.0f},
-        .weight = 2.0f,
+        .orientation = oq, // 단위 쿼터니언 값
+        .weight_dir = 2.0f,
+        .weight_rot = 1.0f,
         .duration = 1.0f
     };
     CHECK(dir_target.direction.x == doctest::Approx(1.0f));
-    CHECK(dir_target.weight == doctest::Approx(2.0f));
+    CHECK(dir_target.weight_dir == doctest::Approx(2.0f));
+    CHECK(dir_target.duration == doctest::Approx(1.0f));
 }

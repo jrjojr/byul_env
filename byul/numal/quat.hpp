@@ -49,7 +49,7 @@ public:
     }
 
     // 정규화
-    Quat normalized() const {
+    Quat normalize() const {
         quat_t out;
         quat_normalize(&out, &q);
         return Quat(out);

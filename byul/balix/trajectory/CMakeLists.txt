@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.20)
 
 # 프로젝트 이름과 언어 설정
-project(numeq)
+project(trajectory)
 
 enable_testing()
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
@@ -14,12 +14,6 @@ message(STATUS "EXTERNAL_DIR = ${EXTERNAL_DIR}")
 # 소스 파일 설정
 set(SOURCES
     ${PROJECT_NAME}.cpp
-    numeq_integrator.cpp
-    numeq_kalman.cpp
-    numeq_model.cpp
-    numeq_mpc.cpp
-    numeq_pid.cpp
-    numeq_solver.cpp
 )
 
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
@@ -36,17 +30,12 @@ target_include_directories(${PROJECT_NAME} PRIVATE
 )
 
 target_link_directories(${PROJECT_NAME} PRIVATE 
-    ${CMAKE_BINARY_DIR}/common
     ${CMAKE_BINARY_DIR}/numal
-    ${CMAKE_BINARY_DIR}/balix
 )
 
 # 링크 라이브러리 설정
 target_link_libraries(${PROJECT_NAME} PRIVATE 
-    m
-    common
     numal
-    balix
 )
 
 add_subdirectory(tests)

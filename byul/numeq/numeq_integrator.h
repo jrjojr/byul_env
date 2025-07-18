@@ -1,7 +1,7 @@
 #ifndef NUMEQ_INTEGRATOR_H
 #define NUMEQ_INTEGRATOR_H
 
-#include "internal/numeq_common.h"
+#include "internal/trajectory.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -51,7 +51,7 @@ typedef struct s_integrator_config {
  * numeq_integrate(&state, &gravity, &cfg);
  * @endcode
  */
-BYUL_API void numeq_integrate(state_vector_t* state,
+BYUL_API void numeq_integrate(linear_state_t* state,
                      const vec3_t* accel,
                      const integrator_config_t* config);
 
@@ -72,7 +72,7 @@ BYUL_API void numeq_integrate(state_vector_t* state,
  * numeq_integrate_euler(&state, &accel, 0.01f);
  * @endcode
  */
-BYUL_API void numeq_integrate_euler(state_vector_t* state,
+BYUL_API void numeq_integrate_euler(linear_state_t* state,
                            const vec3_t* accel,
                            float dt);
 
@@ -89,7 +89,7 @@ BYUL_API void numeq_integrate_euler(state_vector_t* state,
  * numeq_integrate_semi_implicit(&state, &accel, 0.016f);
  * @endcode
  */
-BYUL_API void numeq_integrate_semi_implicit(state_vector_t* state,
+BYUL_API void numeq_integrate_semi_implicit(linear_state_t* state,
                                    const vec3_t* accel,
                                    float dt);
 
@@ -123,7 +123,7 @@ BYUL_API void numeq_integrate_verlet(vec3_t* position,
  * numeq_integrate_rk4(&state, &accel, 0.016f);
  * @endcode
  */
-BYUL_API void numeq_integrate_rk4(state_vector_t* state,
+BYUL_API void numeq_integrate_rk4(linear_state_t* state,
                          const vec3_t* accel,
                          float dt);
 

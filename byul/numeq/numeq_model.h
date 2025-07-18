@@ -1,7 +1,7 @@
 #ifndef NUMEQ_MODEL_H
 #define NUMEQ_MODEL_H
 
-#include "internal/numeq_common.h"
+#include "internal/trajectory.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -34,7 +34,7 @@ typedef struct s_body_properties {
 // 위치 계산: p(t)
 // ---------------------------------------------------------
 BYUL_API void numeq_model_pos_at(float t,
-                        const state_vector_t* state0,
+                        const linear_state_t* state0,
                         const environment_t* env,
                         const body_properties_t* body,
                         vec3_t* out_position);
@@ -43,7 +43,7 @@ BYUL_API void numeq_model_pos_at(float t,
 // 속도 계산: v(t)
 // ---------------------------------------------------------
 BYUL_API void numeq_model_vel_at(float t,
-                        const state_vector_t* state0,
+                        const linear_state_t* state0,
                         const environment_t* env,
                         const body_properties_t* body,
                         vec3_t* out_velocity);
@@ -52,7 +52,7 @@ BYUL_API void numeq_model_vel_at(float t,
 // 가속도 계산: a(t)
 // ---------------------------------------------------------
 BYUL_API void numeq_model_accel_at(float t,
-                          const state_vector_t* state0,
+                          const linear_state_t* state0,
                           const environment_t* env,
                           const body_properties_t* body,
                           vec3_t* out_accel);
@@ -61,10 +61,10 @@ BYUL_API void numeq_model_accel_at(float t,
 // 전체 상태 예측: state(t)
 // ---------------------------------------------------------
 BYUL_API void numeq_model_predict(float t,
-                         const state_vector_t* state0,
+                         const linear_state_t* state0,
                          const environment_t* env,
                          const body_properties_t* body,
-                         state_vector_t* out_state);
+                         linear_state_t* out_state);
 
 // ---------------------------------------------------------
 // 공기 저항력 계산 (a = F / m)
@@ -77,12 +77,12 @@ BYUL_API void numeq_model_drag_force(const vec3_t* velocity,
 // ---------------------------------------------------------
 // 최고점 여부 판단 (vy ≈ 0)
 // ---------------------------------------------------------
-BYUL_API bool numeq_model_is_apex(const state_vector_t* state);
+BYUL_API bool numeq_model_is_apex(const linear_state_t* state);
 
 // ---------------------------------------------------------
 // 착지 여부 판단
 // ---------------------------------------------------------
-BYUL_API bool numeq_model_is_grounded(const state_vector_t* state,
+BYUL_API bool numeq_model_is_grounded(const linear_state_t* state,
                              float ground_height);
 
 // ---------------------------------------------------------

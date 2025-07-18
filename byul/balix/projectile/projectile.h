@@ -9,6 +9,8 @@ extern "C" {
 #include "byul_config.h"
 #include "internal/numeq.h"
 #include "internal/xform.h"
+#include "internal/trajectory.h"
+#include "internal/controller.h"
 
 // ---------------------------------------------------------
 // 탄도체 유형 구분
@@ -76,11 +78,13 @@ struct s_missile {
     vec3_t thrust;                         // 추진력
     float fuel;                            // 연료량
 
-    projectile_guidance_func guidance_fn; // 유도 함수
-    void* guidance_userdata;              // 유도용 사용자 데이터
+    controller_t* controller;              // 제어기 (PID, MPC, Bang-Bang)
 
-    projectile_environ_func env_fn;       // 외부 환경 함수
-    void* env_userdata;                   // 환경 함수 사용자 데이터
+    projectile_guidance_func guidance_fn;  // 유도 함수
+    void* guidance_userdata;               // 유도용 사용자 데이터
+
+    projectile_environ_func env_fn;        // 외부 환경 함수
+    void* env_userdata;                    // 환경 함수 사용자 데이터
 };
 
 // ---------------------------------------------------------
@@ -112,16 +116,38 @@ const vec3_t* projectile_guidance_none(const projectile_t* proj,
 const vec3_t* projectile_guidance_to_target(const projectile_t* proj, 
     float dt, void* userdata);
 
+
+// 유도 함수: 목표 위치와 속도를 고려한 리드 유도
+// userdata = const target_info_t* (목표의 position, velocity)
+typedef struct {
+    vec3_t position;
+    vec3_t velocity;
+} target_info_t;
+
+const vec3_t* projectile_guidance_lead(
+    const projectile_t* proj, float dt, void* userdata);
+
+typedef struct {
+    const trajectory_t* trajectory; // 타겟의 궤적 (시간별 위치 데이터)
+    float current_time;             // 현재 시간
+} target_traj_info_t;
+
+// 유도 함수: 타겟의 trajectory 기반 예측
+const vec3_t* projectile_guidance_from_trajectory(
+    const projectile_t* proj, float dt, void* userdata);
+
+
 void projectile_apply_rotation(projectile_t* proj, float dt);    
 
 // ---------------------------------------------------------
 // 탄도 예측 구조체 및 API
 // ---------------------------------------------------------
-
 typedef struct s_projectile_result {
-    float impact_time;    // 예측 충돌 시각
-    vec3_t impact_pos;    // 예측 충돌 위치
-    bool valid;           // 예측 유효 여부
+    float impact_time;      // 예측 충돌 시각
+    vec3_t impact_pos;      // 예측 충돌 위치
+    bool valid;             // 예측 유효 여부
+
+    trajectory_t trajectory; // 충돌 전까지의 궤적 전체
 } projectile_result_t;
 
 typedef struct s_projectile_predictor {
@@ -148,6 +174,7 @@ typedef struct s_missile_predictor {
     vec3_t thrust;               ///< 추진력 크기 및 최대 방향
 
     float fuel;                  ///< 연료량
+    controller_t* controller;        // 제어기 추가 (PID, MPC 등)    
 
     projectile_guidance_func guidance_fn; ///< 유도 함수
     void* guidance_userdata;
@@ -162,19 +189,10 @@ typedef struct s_missile_predictor {
     integrator_type_t integrator_type;  ///< ✅ 적분 방식 (Euler, RK4 등)
 } missile_predictor_t;
 
-
-typedef struct s_numeq_state_missile {
-    vec3_t pos;
-    vec3_t vel;
-    float fuel;
-} numeq_state_missile_t;
-
-typedef struct {
-    vec3_t pos;
-    vec3_t vel;
-    float fuel;
-} numeq_model_missile_t;
-
+typedef struct s_missile_state {
+    motion_state_t motion; // 일반 운동 상태
+    float fuel;            // 미사일 전용
+} missile_state_t;
 
 bool projectile_predict_missile(const missile_predictor_t* p,
                                  projectile_result_t* out);

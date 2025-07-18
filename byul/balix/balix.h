@@ -1,0 +1,20 @@
+// Copyright (c) 2025 별이아빠 (byuldev@outlook.kr)
+// This file is part of the Byul World project.
+// Licensed under the Byul World 공개 라이선스 v1.0
+// See the LICENSE file for details.
+
+#ifndef BALIX_H
+#define BALIX_H
+
+#include "internal/trajectory.h"
+#include "internal/projectile.h"
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+#ifdef __cplusplus
+}
+#endif
+
+#endif // BALIX_H

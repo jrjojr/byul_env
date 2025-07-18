@@ -93,7 +93,7 @@ add_subdirectory(navsys)
 add_subdirectory(numal)
 add_subdirectory(numeq)
 add_subdirectory(xform)
-add_subdirectory(projectile)
+add_subdirectory(balix)
 add_subdirectory(gpu_comp_tester)
 
 # ─────────────────────────────────────────────
@@ -105,7 +105,7 @@ copy_headers(navsys)
 copy_headers(numal)
 copy_headers(numeq)
 copy_headers(xform)
-copy_headers(projectile)
+copy_headers(balix)
 copy_headers(gpu_comp_tester)
 
 file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/${PROJECT_NAME}.h 
@@ -131,7 +131,7 @@ target_link_directories(${PROJECT_NAME} PRIVATE
     ${CMAKE_BINARY_DIR}/numal    
     ${CMAKE_BINARY_DIR}/numeq
     ${CMAKE_BINARY_DIR}/xform
-    ${CMAKE_BINARY_DIR}/projectile
+    ${CMAKE_BINARY_DIR}/balix
 )
 
 target_link_libraries(${PROJECT_NAME} PUBLIC
@@ -141,7 +141,7 @@ target_link_libraries(${PROJECT_NAME} PUBLIC
     numal
     numeq
     xform
-    projectile
+    balix
 
     -Wl,--no-whole-archive    
 )

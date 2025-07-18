@@ -1,27 +1,18 @@
+/* internal/vec3.cpp */
 #include "internal/vec3.h"
-
-#include <Eigen/Dense>
+#include "internal/common.h"
 #include <cmath>
 #include <cstring>
 #include <new>
-#include "internal/common.h"
-
-using Eigen::Matrix4f;
-using Eigen::Vector3f;
-
-static inline Vector3f vec3_to_vec3f(const vec3_t* t) {
-    return t ? Vector3f(t->x, t->y, t->z) : Vector3f(0.0f, 0.0f, 0.0f);
-}
-
-static inline void vec3f_to_vec3(vec3_t* out, const Vector3f& v) {
-    if (!out) return;
-    out->x = v.x();
-    out->y = v.y();
-    out->z = v.z();
-}
 
 vec3_t* vec3_new_full(float x, float y, float z) {
-    return new (std::nothrow) vec3_t{x, y, z};
+    vec3_t* v = new (std::nothrow) vec3_t;
+    if (v) {
+        v->x = x;
+        v->y = y;
+        v->z = z;
+    }
+    return v;
 }
 
 vec3_t* vec3_new(void) {
@@ -39,7 +30,7 @@ vec3_t* vec3_copy(const vec3_t* src) {
 
 int vec3_equal(const vec3_t* a, const vec3_t* b) {
     if (!a || !b) return 0;
-    return a->x == b->x && a->y == b->y && a->z == b->z;
+    return (a->x == b->x && a->y == b->y && a->z == b->z) ? 1 : 0;
 }
 
 uint32_t vec3_hash(const vec3_t* v) {
@@ -54,87 +45,107 @@ uint32_t vec3_hash(const vec3_t* v) {
 }
 
 void vec3_zero(vec3_t* out) {
-    out->x = 0.0f;
-    out->y = 0.0f;
-    out->z = 0.0f;
+    out->x = out->y = out->z = 0.0f;
+}
+
+void vec3_negate(vec3_t* out, const vec3_t* a) {
+    out->x = -a->x;
+    out->y = -a->y;
+    out->z = -a->z;
 }
 
 void vec3_add(vec3_t* out, const vec3_t* a, const vec3_t* b) {
-    if (!out || !a || !b) return;
-    vec3f_to_vec3(out, vec3_to_vec3f(a) + vec3_to_vec3f(b));
+    out->x = a->x + b->x;
+    out->y = a->y + b->y;
+    out->z = a->z + b->z;
 }
 
 void vec3_sub(vec3_t* out, const vec3_t* a, const vec3_t* b) {
-    if (!out || !a || !b) return;
-    vec3f_to_vec3(out, vec3_to_vec3f(a) - vec3_to_vec3f(b));
+    out->x = a->x - b->x;
+    out->y = a->y - b->y;
+    out->z = a->z - b->z;
 }
 
 void vec3_mul(vec3_t* out, const vec3_t* a, const vec3_t* b) {
-    if (!out || !a || !b) return;
     out->x = a->x * b->x;
     out->y = a->y * b->y;
     out->z = a->z * b->z;
 }
 
 void vec3_div(vec3_t* out, const vec3_t* a, const vec3_t* b) {
-    if (!out || !a || !b) return;
-
-    out->x = (b->x > -FLOAT_EPSILON && b->x < FLOAT_EPSILON) ? 0.0f : a->x / b->x;
-    out->y = (b->y > -FLOAT_EPSILON && b->y < FLOAT_EPSILON) ? 0.0f : a->y / b->y;
-    out->z = (b->z > -FLOAT_EPSILON && b->z < FLOAT_EPSILON) ? 0.0f : a->z / b->z;
+    out->x = (std::fabs(b->x) > FLOAT_EPSILON) ? a->x / b->x : 0.0f;
+    out->y = (std::fabs(b->y) > FLOAT_EPSILON) ? a->y / b->y : 0.0f;
+    out->z = (std::fabs(b->z) > FLOAT_EPSILON) ? a->z / b->z : 0.0f;
 }
 
-void vec3_scale(vec3_t* out, const vec3_t* a, float scalar) {
-    if (!out || !a) return;
-    vec3f_to_vec3(out, vec3_to_vec3f(a) * scalar);
+void vec3_scale(vec3_t* out, const vec3_t* a, float s) {
+    out->x = a->x * s;
+    out->y = a->y * s;
+    out->z = a->z * s;
 }
 
 float vec3_dot(const vec3_t* a, const vec3_t* b) {
-    if (!a || !b) return 0.0f;
-    return vec3_to_vec3f(a).dot(vec3_to_vec3f(b));
+    return a->x * b->x + a->y * b->y + a->z * b->z;
 }
 
 void vec3_cross(vec3_t* out, const vec3_t* a, const vec3_t* b) {
-    if (!out || !a || !b) return;
-    vec3f_to_vec3(out, vec3_to_vec3f(a).cross(vec3_to_vec3f(b)));
+    out->x = a->y * b->z - a->z * b->y;
+    out->y = a->z * b->x - a->x * b->z;
+    out->z = a->x * b->y - a->y * b->x;
 }
 
 float vec3_length(const vec3_t* a) {
-    if (!a) return 0.0f;
-    return vec3_to_vec3f(a).norm();
+    return std::sqrt(vec3_dot(a, a));
 }
 
-void vec3_normalize(vec3_t* out, const vec3_t* a) {
-    if (!out || !a) return;
-    Vector3f v = vec3_to_vec3f(a);
-    float len = v.norm();
-    if (len < FLOAT_EPSILON) {
-        out->x = out->y = out->z = 0.0f;
+float vec3_length_sq(const vec3_t* a) {
+    if (!a) return 0.0f;
+    return a->x * a->x + a->y * a->y + a->z * a->z;
+}
+
+void vec3_normalize(vec3_t* a) {
+    float len = vec3_length(a);
+    if (len > 0.0f) {
+        a->x /= len;
+        a->y /= len;
+        a->z /= len;
     } else {
-        vec3f_to_vec3(out, v.normalized());
+        vec3_zero(a);
     }
 }
 
+void vec3_unit(vec3_t* out, const vec3_t* src) {
+    float len_sq = src->x * src->x + src->y * src->y + src->z * src->z;
+    if (len_sq > 1e-8f) { // 길이가 0에 가까운지 체크
+        float inv_len = 1.0f / std::sqrt(len_sq);
+        out->x = src->x * inv_len;
+        out->y = src->y * inv_len;
+        out->z = src->z * inv_len;
+    } else {
+        // 길이가 0이라면 0 벡터 반환
+        out->x = 0.0f;
+        out->y = 0.0f;
+        out->z = 0.0f;
+    }
+}
+
+
 float vec3_distance(const vec3_t* a, const vec3_t* b) {
-    if (!a || !b) return 0.0f;
-    return (vec3_to_vec3f(a) - vec3_to_vec3f(b)).norm();
+    vec3_t d;
+    vec3_sub(&d, a, b);
+    return vec3_length(&d);
 }
 
-void vec3_lerp(vec3_t* out, const vec3_t* start, const vec3_t* goal, float t) {
-    if (!out || !start || !goal) return;
-    out->x = (1.0f - t) * start->x + t * goal->x;
-    out->y = (1.0f - t) * start->y + t * goal->y;
-    out->z = (1.0f - t) * start->z + t * goal->z;
+void vec3_lerp(vec3_t* out, const vec3_t* a, const vec3_t* b, float t) {
+    out->x = a->x + (b->x - a->x) * t;
+    out->y = a->y + (b->y - a->y) * t;
+    out->z = a->z + (b->z - a->z) * t;
 }
 
-void vec3_to_mat4(const vec3_t* v, float* out_mat4) {
-    if (!v || !out_mat4) return;
-    
-    Matrix4f mat = Matrix4f::Identity();
-    mat(0, 3) = v->x;
-    mat(1, 3) = v->y;
-    mat(2, 3) = v->z;
-
-    // Eigen은 column-major라서 OpenGL/DirectX에 쓸 때는 memcpy로 바로 넘길 수 있음
-    std::memcpy(out_mat4, mat.data(), sizeof(float) * 16);
+void vec3_to_mat4(const vec3_t* v, float out[16]) {
+    std::memset(out, 0, sizeof(float) * 16);
+    out[0] = out[5] = out[10] = out[15] = 1.0f;
+    out[12] = v->x;
+    out[13] = v->y;
+    out[14] = v->z;
 }

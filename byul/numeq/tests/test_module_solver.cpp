@@ -27,7 +27,7 @@ TEST_CASE("Bisection finds root of sin(x) near pi") {
 }
 
 TEST_CASE("Apex solver computes correct peak") {
-    state_vector_t state = {
+    linear_state_t state = {
         .position = {0, 0, 0},
         .velocity = {2, 10, 0},
         .acceleration = {0, -9.8f, 0}
@@ -48,7 +48,7 @@ TEST_CASE("Solve velocity for flat range") {
 }
 
 TEST_CASE("Solve time to reach specific Y position") {
-    state_vector_t state = {
+    linear_state_t state = {
         .position = {0, 0, 0},
         .velocity = {0, 10, 0},
         .acceleration = {0, -9.8f, 0}
@@ -61,7 +61,7 @@ TEST_CASE("Solve time to reach specific Y position") {
 }
 
 TEST_CASE("Solve time to reach target XZ position") {
-    state_vector_t state = {
+    linear_state_t state = {
         .position = {0, 0, 0},
         .velocity = {10, 0, 0},
         .acceleration = {0, 0, 0}
@@ -74,7 +74,7 @@ TEST_CASE("Solve time to reach target XZ position") {
 }
 
 TEST_CASE("Solve time when projectile stops (horizontal motion)") {
-    state_vector_t state = {
+    linear_state_t state = {
         .position = {0, 0, 0},
         .velocity = {0.5f, 0.0f, 0.0f},
         .acceleration = {-0.1f, 0.0f, 0.0f}

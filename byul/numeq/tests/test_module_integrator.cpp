@@ -5,7 +5,7 @@ extern "C" {
 }
 
 TEST_CASE("Euler Integration: basic update") {
-    state_vector_t state = {
+    linear_state_t state = {
         .position = {0, 0, 0},
         .velocity = {1, 0, 0},
         .acceleration = {0, 0, 0}
@@ -20,7 +20,7 @@ TEST_CASE("Euler Integration: basic update") {
 }
 
 TEST_CASE("Semi-Implicit Euler: acceleration applied first") {
-    state_vector_t state = {
+    linear_state_t state = {
         .position = {0, 0, 0},
         .velocity = {0, 0, 0},
         .acceleration = {0, 0, 0}
@@ -46,7 +46,7 @@ TEST_CASE("Verlet Integration: past position affects update") {
 }
 
 TEST_CASE("RK4 Integration: acceleration effect (simple)") {
-    state_vector_t state = {
+    linear_state_t state = {
         .position = {0, 0, 0},
         .velocity = {0, 0, 0},
         .acceleration = {0, 0, 0}
@@ -65,7 +65,7 @@ TEST_CASE("Unified integrator selector dispatches correctly") {
         .type = INTEGRATOR_EULER,
         .time_step = 1.0f
     };
-    state_vector_t state = {
+    linear_state_t state = {
         .position = {0, 0, 0},
         .velocity = {1, 0, 0},
         .acceleration = {0, 0, 0}

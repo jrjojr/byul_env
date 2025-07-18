@@ -87,7 +87,7 @@ public:
     }
 
     // 정규화
-    DualQuat normalized() const {
+    DualQuat normalize() const {
         dualquat_t out;
         dualquat_normalize(&out, &dq);
         return DualQuat(out);

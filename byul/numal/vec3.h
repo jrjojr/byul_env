@@ -73,6 +73,8 @@ BYUL_API uint32_t vec3_hash(const vec3_t* v);
 
 BYUL_API void vec3_zero(vec3_t* out);
 
+BYUL_API void vec3_negate(vec3_t* out, const vec3_t* a);
+
 BYUL_API void vec3_add(vec3_t* out, const vec3_t* a, const vec3_t* b);
 
 BYUL_API void vec3_sub(vec3_t* out, const vec3_t* a, const vec3_t* b);
@@ -89,7 +91,12 @@ BYUL_API void vec3_cross(vec3_t* out, const vec3_t* a, const vec3_t* b);
 
 BYUL_API float vec3_length(const vec3_t* a);
 
-BYUL_API void vec3_normalize(vec3_t* out, const vec3_t* a);
+// sqrt를 사용하지 않고 제곱값을 반환한다 계산효율때문에 sqrt는 좀 무겁다  제곱보다...
+BYUL_API float vec3_length_sq(const vec3_t* a);
+
+BYUL_API void vec3_normalize(vec3_t* a);
+
+BYUL_API void vec3_unit(vec3_t* out, const vec3_t* src);
 
 BYUL_API float vec3_distance(const vec3_t* a, const vec3_t* b);
 

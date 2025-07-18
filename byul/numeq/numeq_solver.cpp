@@ -52,7 +52,7 @@ bool numeq_solve_bisection(numeq_func_f32 func, void* userdata,
 // 2. 물리 해석 함수
 // -----------------------------
 
-bool numeq_solve_time_for_y(const state_vector_t* s, 
+bool numeq_solve_time_for_y(const linear_state_t* s, 
     float target_y, float* out_time) {
 
     if (!s || !out_time) return false;
@@ -65,7 +65,7 @@ bool numeq_solve_time_for_y(const state_vector_t* s,
     return *out_time >= 0.0f;
 }
 
-bool numeq_solve_time_for_position(const state_vector_t* state,
+bool numeq_solve_time_for_position(const linear_state_t* state,
                                    const vec3_t* target_pos,
                                    float tolerance,
                                    float max_time,
@@ -105,7 +105,7 @@ bool numeq_solve_velocity_for_range(float d, float g, float* out_v) {
     return true;
 }
 
-bool numeq_solve_apex(const state_vector_t* s, 
+bool numeq_solve_apex(const linear_state_t* s, 
     vec3_t* out_pos, float* out_time) {
 
     if (!s || !out_pos || !out_time || s->acceleration.y == 0.0f) 
@@ -120,7 +120,7 @@ bool numeq_solve_apex(const state_vector_t* s,
     return true;
 }
 
-bool numeq_solve_stop_time(const state_vector_t* s, 
+bool numeq_solve_stop_time(const linear_state_t* s, 
     float tol, float* out_time) {
 
     if (!s || !out_time) return false;

@@ -23,9 +23,9 @@ add_library(${PROJECT_NAME} STATIC ${SOURCES})
 
 # 헤더 파일 디렉토리 추가
 target_include_directories(${PROJECT_NAME} PRIVATE 
-    ${CMAKE_SOURCE_DIR}
-    ${CMAKE_CURRENT_SOURCE_DIR}
     ${CMAKE_BINARY_DIR}/include/byul
+    ${CMAKE_CURRENT_SOURCE_DIR}    
+    ${CMAKE_SOURCE_DIR}    
     ${EXTERNAL_DIR}    
 )
 
@@ -33,6 +33,7 @@ target_link_directories(${PROJECT_NAME} PRIVATE
     ${CMAKE_BINARY_DIR}/numal
     ${CMAKE_BINARY_DIR}/xform
     ${CMAKE_BINARY_DIR}/numeq
+    ${CMAKE_BINARY_DIR}/controller
 )
 
 # 링크 라이브러리 설정
@@ -40,6 +41,7 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
     numal
     xform
     numeq
+    controller
 )
 
 add_subdirectory(tests)

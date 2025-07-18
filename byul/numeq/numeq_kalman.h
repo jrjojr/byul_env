@@ -1,7 +1,7 @@
 #ifndef NUMEQ_KALMAN_H
 #define NUMEQ_KALMAN_H
 
-#include "internal/numeq_common.h"
+#include "internal/trajectory.h"
 
 #ifdef __cplusplus
 extern "C" {

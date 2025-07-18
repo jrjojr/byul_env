@@ -184,7 +184,7 @@ void xform_apply_to_direction(
 
     vec3_t temp;
     dualquat_apply_to_point(&xf->dq, local_dir, &temp);
-    vec3_normalize(out_dir, &temp);  // 방향은 반드시 단위벡터로
+    vec3_unit(out_dir, &temp);  // 방향은 반드시 단위벡터로
 }
 
 void xform_to_mat4(const xform_t* xf, float* out_mat4_16) {

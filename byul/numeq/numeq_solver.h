@@ -1,7 +1,7 @@
 #ifndef NUMEQ_SOLVER_H
 #define NUMEQ_SOLVER_H
 
-#include "internal/numeq_common.h"
+#include "internal/trajectory.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -31,13 +31,13 @@ BYUL_API bool numeq_solve_bisection(numeq_func_f32 func,
 
 // 주어진 y 위치에 도달하는 시간 t 계산 (수직 위치 조건)
 // solve: y(t) = target_y
-BYUL_API bool numeq_solve_time_for_y(const state_vector_t* state,
+BYUL_API bool numeq_solve_time_for_y(const linear_state_t* state,
                             float target_y,
                             float* out_time);
 
 // 주어진 위치에 도달하는 시간 t 계산 (xz 기준 + 근사)
 // solve: |pos(t).xz - target.xz| < ε
-BYUL_API bool numeq_solve_time_for_position(const state_vector_t* state,
+BYUL_API bool numeq_solve_time_for_position(const linear_state_t* state,
                                    const vec3_t* target_pos,
                                    float tolerance,
                                    float max_time,
@@ -51,12 +51,12 @@ BYUL_API bool numeq_solve_velocity_for_range(float distance,
 
 // 최고점 도달 시간 및 위치 계산
 // solve: vy(t) == 0 → apex
-BYUL_API bool numeq_solve_apex(const state_vector_t* state,
+BYUL_API bool numeq_solve_apex(const linear_state_t* state,
                       vec3_t* out_apex_pos,
                       float* out_apex_time);
 
 // 발사체가 멈추는 조건(속도 = 0) 도달 시간 계산 (수평 감쇠 포함)
-BYUL_API bool numeq_solve_stop_time(const state_vector_t* state,
+BYUL_API bool numeq_solve_stop_time(const linear_state_t* state,
                            float tolerance,
                            float* out_time);
 

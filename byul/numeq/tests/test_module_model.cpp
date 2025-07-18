@@ -24,7 +24,7 @@ static body_properties_t test_body_no_drag = {
 };
 
 TEST_CASE("Model: a(t) under gravity only") {
-    state_vector_t state = {
+    linear_state_t state = {
         .position = {0, 0, 0},
         .velocity = {10, 10, 0},
         .acceleration = {0, 0, 0}
@@ -36,7 +36,7 @@ TEST_CASE("Model: a(t) under gravity only") {
 }
 
 TEST_CASE("Model: v(t) includes acceleration (gravity)") {
-    state_vector_t state = {
+    linear_state_t state = {
         .position = {0, 0, 0},
         .velocity = {1.0f, 0.0f, 0.0f},
         .acceleration = {0, -9.8f, 0}
@@ -48,7 +48,7 @@ TEST_CASE("Model: v(t) includes acceleration (gravity)") {
 }
 
 TEST_CASE("Model: p(t) includes velocity and gravity") {
-    state_vector_t state = {
+    linear_state_t state = {
         .position = {0, 0, 0},
         .velocity = {0, 10, 0},
         .acceleration = {0, -9.8f, 0}
@@ -59,13 +59,13 @@ TEST_CASE("Model: p(t) includes velocity and gravity") {
 }
 
 TEST_CASE("Model: is_apex true near zero vy") {
-    state_vector_t state = { .velocity = {0.0f, 0.00001f, 0.0f} };
+    linear_state_t state = { .velocity = {0.0f, 0.00001f, 0.0f} };
     CHECK(numeq_model_is_apex(&state));
 }
 
 TEST_CASE("Model: is_grounded below or at ground level") {
-    state_vector_t s1 = { .position = {0.0f, 0.01f, 0.0f} };
-    state_vector_t s2 = { .position = {0.0f, -0.01f, 0.0f} };
+    linear_state_t s1 = { .position = {0.0f, 0.01f, 0.0f} };
+    linear_state_t s2 = { .position = {0.0f, -0.01f, 0.0f} };
     CHECK(numeq_model_is_grounded(&s1, 0.0f) == false);
     CHECK(numeq_model_is_grounded(&s2, 0.0f) == true);
 }

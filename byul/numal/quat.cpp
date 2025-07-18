@@ -365,3 +365,23 @@ void quat_identity(quat_t* out) {
     out->y = 0.0f;
     out->z = 0.0f;
 }
+
+void quat_from_angular_velocity(quat_t* out, const vec3_t* omega, float dt) {
+    float angle = vec3_length(omega) * dt;
+    if (angle < 1e-8f) {
+        // 거의 회전 없음 → 단위 쿼터니언
+        *out = {1.0f, 0.0f, 0.0f, 0.0f};
+        return;
+    }
+
+    vec3_t axis;
+    vec3_unit(&axis, omega);
+
+    float half = angle * 0.5f;
+    float s = sinf(half);
+
+    out->w = cosf(half);
+    out->x = axis.x * s;
+    out->y = axis.y * s;
+    out->z = axis.z * s;
+}

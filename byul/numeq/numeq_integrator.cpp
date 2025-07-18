@@ -5,7 +5,7 @@
 // ---------------------------------------------------------
 // 오일러 방식 적분 (Euler)
 // ---------------------------------------------------------
-void numeq_integrate_euler(state_vector_t* state,
+void numeq_integrate_euler(linear_state_t* state,
                            const vec3_t* accel,
                            float dt) {
     Vec3 v(state->velocity);
@@ -23,7 +23,7 @@ void numeq_integrate_euler(state_vector_t* state,
 // ---------------------------------------------------------
 // 세미-묵시적 오일러 (Semi-Implicit Euler)
 // ---------------------------------------------------------
-void numeq_integrate_semi_implicit(state_vector_t* state,
+void numeq_integrate_semi_implicit(linear_state_t* state,
                                    const vec3_t* accel,
                                    float dt) {
     Vec3 a(*accel);
@@ -57,7 +57,7 @@ void numeq_integrate_verlet(vec3_t* position,
 // ---------------------------------------------------------
 // 4차 Runge-Kutta 적분 (RK4)
 // ---------------------------------------------------------
-void numeq_integrate_rk4(state_vector_t* state,
+void numeq_integrate_rk4(linear_state_t* state,
                          const vec3_t* accel,
                          float dt) {
     Vec3 v0(state->velocity);
@@ -86,7 +86,7 @@ void numeq_integrate_rk4(state_vector_t* state,
 // ---------------------------------------------------------
 // 공통 적분기 인터페이스
 // ---------------------------------------------------------
-void numeq_integrate(state_vector_t* state,
+void numeq_integrate(linear_state_t* state,
                      const vec3_t* accel,
                      const integrator_config_t* config) {
     switch (config->type) {

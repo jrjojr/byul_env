@@ -41,6 +41,12 @@ public:
         return Vec3(result);
     }
 
+    Vec3 operator-() const { 
+        vec3_t r; 
+        vec3_negate(&r, &v); 
+        return Vec3(r); 
+    }
+
         // 요소별 곱
     Vec3 operator*(const Vec3& rhs) const {
         vec3_t result;
@@ -86,10 +92,14 @@ public:
     }
 
     // 정규화
-    Vec3 normalized() const {
-        vec3_t result;
-        vec3_normalize(&result, &v);
-        return Vec3(result);
+    void normalize() {
+        vec3_normalize(&v);
+    }
+
+    Vec3 unit(const Vec3& src) { 
+        vec3_t r;
+        vec3_unit(&r, &src); 
+        return Vec3(r); 
     }
 
     // 거리
@@ -98,7 +108,7 @@ public:
     }
 
     // 보간
-    static Vec3 lerp(const Vec3& a, const Vec3& b, float t) {
+    Vec3 lerp(const Vec3& a, const Vec3& b, float t) {
         vec3_t result;
         vec3_lerp(&result, &a.v, &b.v, t);
         return Vec3(result);
@@ -107,6 +117,19 @@ public:
     // 변환 행렬
     void to_mat4(float* out_mat4) const {
         vec3_to_mat4(&v, out_mat4);
+    }
+
+    // scalar left operations
+    friend Vec3 operator*(float s, const Vec3& vec) {
+        return vec * s;
+    }
+
+    friend Vec3 operator/(float s, const Vec3& vec) {
+        vec3_t r;
+        r.x = s / vec.v.x;
+        r.y = s / vec.v.y;
+        r.z = s / vec.v.z;
+        return Vec3(r);
     }
 
     // 출력용

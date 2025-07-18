@@ -1,223 +1,284 @@
 #include "internal/numeq_mpc.h"
-#include "internal/numeq_model.h"
-#include "internal/numeq_integrator.h"
-#include "internal/vec3.hpp"
+#include "internal/vec3.h"
+#include "internal/quat.h"
 #include <cmath>
+#include <cfloat>
+#include <new>
+#include <cstdio>
 #include <cstring>
-#include <limits>
-#include <vector>
 
 // ---------------------------------------------------------
-// 기본 비용 함수 (거리 오차 + 가속도 제어 비용)
+// 내부 유틸
 // ---------------------------------------------------------
-float numeq_mpc_cost_default(const state_vector_t* sim_state,
-                             const vec3_t* target,
-                             const vec3_t* accel,
-                             void* userdata) {
-    if (!sim_state || !target || !accel) return 1e9f;  // 입력 자체 오류 방지
 
-    const mpc_config_t* cfg = (const mpc_config_t*)userdata;
-    float weight_dist = 1.0f;
-    float weight_acc = 1.0f;
+static float quat_angle_diff(const quat_t* a, const quat_t* b) {
+    quat_t inv_b;
+    quat_inverse(&inv_b, b);
 
-    if (cfg) {
-        weight_dist = cfg->weight_distance;
-        weight_acc  = cfg->weight_accel;
-    }
+    quat_t rel;
+    quat_mul(&rel, a, &inv_b);
 
-    float dist = vec3_distance(&sim_state->position, target);
-    float accel_len = vec3_length(accel);
-
-    return weight_dist * dist * dist +
-           weight_acc * accel_len * accel_len;
+    float angle = 2.0f * std::acos(fabsf(rel.w));
+    return angle;  // 라디안 값
 }
 
-// ---------------------------------------------------------
-// MPC trajectory 초기화
-// ---------------------------------------------------------
-bool mpc_trajectory_init(mpc_trajectory_t* traj, int capacity) {
-    if (capacity <= 0) return false;
-    traj->samples = new trajectory_sample_t[capacity];
-    traj->count = 0;
-    traj->capacity = capacity;
-    return true;
-}
+// trajectory 샘플링 (선형 + 회전)
+static void simulate_trajectory(
+    const motion_state_t* start,
+    const vec3_t& accel,
+    const vec3_t& ang_accel,
+    const mpc_config_t* config,
+    trajectory_t* out_traj)
+{
+    if (!out_traj || config->horizon_sec <= 0.0f || config->step_dt <= 0.0f) return;
 
-void mpc_trajectory_free(mpc_trajectory_t* traj) {
-    if (traj->samples) {
-        delete[] traj->samples;
-        traj->samples = nullptr;
-    }
-    traj->count = 0;
-    traj->capacity = 0;
-}
+    int steps = static_cast<int>(config->horizon_sec / config->step_dt);
+    if (steps <= 0) return;
 
-// ---------------------------------------------------------
-// 단일 목표 MPC 계산 함수
-// ---------------------------------------------------------
-bool numeq_mpc_solve(const state_vector_t* current_state,
-                     const vec3_t* target,
-                     const environment_t* env,
-                     const body_properties_t* body,
-                     const mpc_config_t* config,
-                     mpc_output_t* out_result,
-                     mpc_trajectory_t* out_traj,
-                     mpc_cost_func cost_fn,
-                     void* cost_userdata) {
-    if (!current_state || !target || !env || !body || !config || !out_result) 
-        return false;
+    trajectory_clear(out_traj);
 
-    const int steps = static_cast<int>(config->horizon_sec / config->step_dt);
-    if (steps <= 0) return false;
+    motion_state_t state = *start;
 
-    std::vector<Vec3> accel_candidates;
+    for (int i = 0; i < steps; ++i) {
+        // 선형 속도 업데이트
+        vec3_t scaled_accel;
+        vec3_scale(&scaled_accel, &accel, config->step_dt);
+        vec3_add(&state.linear.velocity, &state.linear.velocity, &scaled_accel);
 
-    const float a = config->max_accel;
-    accel_candidates.emplace_back( 0,  0,  0); // 정지
-    accel_candidates.emplace_back( a,  0,  0);
-    accel_candidates.emplace_back(-a,  0,  0);
-    accel_candidates.emplace_back( 0,  a,  0);
-    accel_candidates.emplace_back( 0, -a,  0);
-    accel_candidates.emplace_back( 0,  0,  a);
-    accel_candidates.emplace_back( 0,  0, -a);
-
-    float best_cost = std::numeric_limits<float>::max();
-    Vec3 best_accel;
-    Vec3 best_future;
-
-    mpc_trajectory_t* traj_out = config->output_trajectory ? out_traj : nullptr;
-
-    for (const Vec3& candidate : accel_candidates) {
-        state_vector_t sim = *current_state;
-
-        mpc_trajectory_t local_traj;
-        if (traj_out) {
-            mpc_trajectory_init(&local_traj, steps);
+        // 선형 속도 제한
+        float speed = vec3_length(&state.linear.velocity);
+        if (config->max_speed > 0.0f && speed > config->max_speed) {
+            vec3_scale(&state.linear.velocity, &state.linear.velocity, config->max_speed / speed);
         }
 
-        float total_cost = 0.0f;
-        for (int i = 0; i < steps; ++i) {
-            integrator_config_t c = integrator_config_t{
-                INTEGRATOR_SEMI_IMPLICIT, config->step_dt};
-                
-            numeq_integrate(&sim, &candidate.v, &c);
+        // 선형 위치 업데이트
+        vec3_t scaled_vel;
+        vec3_scale(&scaled_vel, &state.linear.velocity, config->step_dt);
+        vec3_add(&state.linear.position, &state.linear.position, &scaled_vel);
 
-            float cost = cost_fn(&sim, target, &candidate.v, cost_userdata);
-            total_cost += cost;
+        // 각속도 업데이트
+        vec3_t scaled_ang_accel;
+        vec3_scale(&scaled_ang_accel, &ang_accel, config->step_dt);
+        vec3_add(&state.angular.angular_velocity, &state.angular.angular_velocity, &scaled_ang_accel);
 
-            if (traj_out && i < local_traj.capacity) {
-                local_traj.samples[i].t = i * config->step_dt;
-                local_traj.samples[i].state = sim;
-                local_traj.count++;
-            }
-
-            if (config->max_speed > 0.0f &&
-                vec3_length(&sim.velocity) > config->max_speed) {
-                total_cost += 10000.0f; // 속도 초과 패널티
-                break;
-            }
+        // 각속도 제한
+        float ang_speed = vec3_length(&state.angular.angular_velocity);
+        if (config->max_ang_speed > 0.0f && ang_speed > config->max_ang_speed) {
+            vec3_scale(&state.angular.angular_velocity, &state.angular.angular_velocity, config->max_ang_speed / ang_speed);
         }
 
-        if (total_cost < best_cost) {
-            best_cost = total_cost;
-            best_accel = candidate;
-            best_future = Vec3(sim.position);
+        // 회전 업데이트 (쿼터니언 적분)
+        quat_t delta_rot;
+        quat_from_angular_velocity(&delta_rot, &state.angular.angular_velocity, config->step_dt);
+        quat_mul(&state.angular.orientation, &delta_rot, &state.angular.orientation);
+        quat_normalize(&state.angular.orientation, &state.angular.orientation);
 
-            if (traj_out) {
-                *traj_out = local_traj;
-            }
-        } else {
-            if (traj_out) {
-                mpc_trajectory_free(&local_traj);
+        trajectory_add_sample(out_traj, i * config->step_dt, &state);
+    }
+}
+
+// 비용 함수 평가
+static float evaluate_cost(
+    const motion_state_t* current,
+    const motion_state_t* target,
+    const vec3_t* accel,
+    const vec3_t* ang_accel,
+    mpc_cost_func cost_fn,
+    void* cost_userdata)
+{
+    if (cost_fn) return cost_fn(current, target, accel, ang_accel, cost_userdata);
+    return numeq_mpc_cost_default(current, target, accel, ang_accel, cost_userdata);
+}
+
+// ---------------------------------------------------------
+// 비용 함수 기본 구현
+// ---------------------------------------------------------
+float numeq_mpc_cost_default(
+    const motion_state_t* sim_state,
+    const motion_state_t* target,
+    const vec3_t* accel,
+    const vec3_t* ang_accel,
+    void* userdata)
+{
+    const mpc_config_t* cfg = static_cast<const mpc_config_t*>(userdata);
+
+    // 위치 오차
+    vec3_t diff_pos;
+    vec3_sub(&diff_pos, &sim_state->linear.position, &target->linear.position);
+
+    // 회전 오차
+    float angle_diff = quat_angle_diff(&sim_state->angular.orientation, &target->angular.orientation);
+
+    float w_dist  = cfg ? cfg->weight_distance : 1.0f;
+    float w_rot   = cfg ? cfg->weight_orientation : 1.0f;
+    float w_acc   = cfg ? cfg->weight_accel : 0.1f;
+    float w_ang   = cfg ? cfg->weight_ang_accel : 0.1f;
+
+    return w_dist * vec3_length_sq(&diff_pos)
+         + w_rot  * (angle_diff * angle_diff)
+         + w_acc  * vec3_length_sq(accel)
+         + w_ang  * vec3_length_sq(ang_accel);
+}
+
+float numeq_mpc_cost_speed(
+    const motion_state_t* sim_state,
+    const motion_state_t* target,
+    const vec3_t* accel,
+    const vec3_t* ang_accel,
+    void* userdata)
+{
+    const mpc_config_t* cfg = static_cast<const mpc_config_t*>(userdata);
+    float target_speed = target->linear.velocity.x; // target velocity in x-component
+
+    float v = vec3_length(&sim_state->linear.velocity);
+    float dv = v - target_speed;
+
+    float w_acc = cfg ? cfg->weight_accel : 0.1f;
+    return dv * dv + w_acc * vec3_length(accel) + vec3_length(ang_accel) * 0.05f;
+}
+
+// ---------------------------------------------------------
+// 단일 목표 MPC
+// ---------------------------------------------------------
+bool numeq_mpc_solve(
+    const motion_state_t* current_state,
+    const motion_state_t* target_state,
+    const environment_t* /*env*/,
+    const body_properties_t* /*body*/,
+    const mpc_config_t* config,
+    mpc_output_t* out_result,
+    trajectory_t* out_traj,
+    mpc_cost_func cost_fn,
+    void* cost_userdata)
+{
+    if (!current_state || !target_state || !config || !out_result) return false;
+
+    float step = (config->candidate_step > 0.0f)
+                 ? config->candidate_step
+                 : config->max_accel / 2.0f;
+
+    float ang_step = (config->ang_candidate_step > 0.0f)
+                     ? config->ang_candidate_step
+                     : config->max_ang_accel / 2.0f;
+
+    float best_cost = FLT_MAX;
+    vec3_t best_accel = {0, 0, 0};
+    vec3_t best_ang_accel = {0, 0, 0};
+
+    for (float ax = -config->max_accel; ax <= config->max_accel; ax += step) {
+        for (float ay = -config->max_accel; ay <= config->max_accel; ay += step) {
+            for (float az = -config->max_accel; az <= config->max_accel; az += step) {
+                for (float rx = -config->max_ang_accel; rx <= config->max_ang_accel; rx += ang_step) {
+                    for (float ry = -config->max_ang_accel; ry <= config->max_ang_accel; ry += ang_step) {
+                        for (float rz = -config->max_ang_accel; rz <= config->max_ang_accel; rz += ang_step) {
+                            vec3_t accel = {ax, ay, az};
+                            vec3_t ang_accel = {rx, ry, rz};
+
+                            float cost = evaluate_cost(current_state, target_state, &accel, &ang_accel, cost_fn, cost_userdata);
+                            if (cost < best_cost) {
+                                best_cost = cost;
+                                best_accel = accel;
+                                best_ang_accel = ang_accel;
+                            }
+                        }
+                    }
+                }
             }
         }
     }
 
     out_result->desired_accel = best_accel;
-    out_result->future_target = best_future;
+    out_result->desired_ang_accel = best_ang_accel;
     out_result->cost = best_cost;
+
+    if (out_traj && config->output_trajectory) {
+        simulate_trajectory(current_state, best_accel, best_ang_accel, config, out_traj);
+        if (out_traj->count > 0) {
+            out_result->future_state = out_traj->samples[out_traj->count - 1].state;
+        }
+    } else {
+        out_result->future_state = *target_state;
+    }
     return true;
 }
 
+// ---------------------------------------------------------
+// 경유점 기반 MPC
+// ---------------------------------------------------------
 bool numeq_mpc_solve_route(
-    const state_vector_t* current_state,
+    const motion_state_t* current_state,
     const mpc_target_route_t* route,
     const environment_t* env,
     const body_properties_t* body,
     const mpc_config_t* config,
     mpc_output_t* out_result,
-    mpc_trajectory_t* out_traj,
+    trajectory_t* out_traj,
     mpc_cost_func cost_fn,
     void* cost_userdata)
 {
     if (!route || route->count <= 0) return false;
 
-    float best_cost = std::numeric_limits<float>::max();
-    mpc_output_t best_output = {};
-    mpc_trajectory_t best_traj = {};
+    // 가장 가까운 경유점을 단일 목표로 사용
+    const vec3_t* next_target = &route->points[0];
+    float best_dist = FLT_MAX;
 
     for (int i = 0; i < route->count; ++i) {
-        const vec3_t* waypoint = &route->points[i];
-
-        mpc_output_t temp_output = {};
-        mpc_trajectory_t temp_traj = {};
-
-        bool ok = numeq_mpc_solve(current_state, waypoint,
-                env, body, config,
-                &temp_output,
-                config->output_trajectory ? &temp_traj : nullptr,
-                cost_fn, cost_userdata);
-
-        if (!ok) continue;
-
-        if (temp_output.cost < best_cost) {
-            best_cost = temp_output.cost;
-            best_output = temp_output;
-
-            if (config->output_trajectory) {
-                if (best_traj.samples) {
-                    mpc_trajectory_free(&best_traj);
-                }
-                best_traj = temp_traj;
-            }
-        } else if (config->output_trajectory) {
-            mpc_trajectory_free(&temp_traj);
+        vec3_t diff;
+        vec3_sub(&diff, &current_state->linear.position, &route->points[i]);
+        float dist_sq = vec3_length_sq(&diff);
+        if (dist_sq < best_dist) {
+            best_dist = dist_sq;
+            next_target = &route->points[i];
         }
-
-        if (!route->loop) break;  // 반복 안 하면 첫 번째만 사용
     }
 
-    *out_result = best_output;
-    if (config->output_trajectory && out_traj) {
-        *out_traj = best_traj;
-    }
+    motion_state_t target_state = *current_state;
+    target_state.linear.position = *next_target;
 
-    return true;
+    return numeq_mpc_solve(
+        current_state,
+        &target_state,
+        env,
+        body,
+        config,
+        out_result,
+        out_traj,
+        cost_fn,
+        cost_userdata);
 }
 
+// ---------------------------------------------------------
+// 방향 유지형 MPC
+// ---------------------------------------------------------
 bool numeq_mpc_solve_directional(
-    const state_vector_t* current_state,
+    const motion_state_t* current_state,
     const mpc_direction_target_t* direction_target,
     const environment_t* env,
     const body_properties_t* body,
     const mpc_config_t* config,
     mpc_output_t* out_result,
-    mpc_trajectory_t* out_traj,
+    trajectory_t* out_traj,
     mpc_cost_func cost_fn,
     void* cost_userdata)
 {
-    if (!direction_target || vec3_length(&direction_target->direction) == 0.0f)
-        return false;
+    if (!direction_target) return false;
 
-    Vec3 norm_dir = Vec3(direction_target->direction).normalized();
-    float total_time = direction_target->duration;
+    vec3_t scaled_dir;
+    vec3_scale(&scaled_dir, &direction_target->direction,
+               direction_target->duration * config->step_dt * config->max_speed);
 
-    // 목표 위치 = 현재 위치 + 정규화 방향 * 거리
-    Vec3 p0(current_state->position);
-    Vec3 future_pos = p0 + norm_dir * body->mass * total_time;
+    motion_state_t target_state = *current_state;
+    vec3_add(&target_state.linear.position, &current_state->linear.position, &scaled_dir);
+    target_state.angular.orientation = direction_target->orientation;
 
-    return numeq_mpc_solve(current_state, &future_pos.v,
-                           env, body, config,
-                           out_result, out_traj,
-                           cost_fn, cost_userdata);
+    return numeq_mpc_solve(
+        current_state,
+        &target_state,
+        env,
+        body,
+        config,
+        out_result,
+        out_traj,
+        cost_fn,
+        cost_userdata);
 }

@@ -1,7 +1,7 @@
 ┌─────────────────────────────────────────────┐
 │              [입력: 현재 상태 등]            │
 │                                             │
-│   current_state:     state_vector_t         │
+│   current_state:     linear_state_t         │
 │   target_pos:        vec3_t                 │
 │   env:               environment_t*         │
 │   body:              body_properties_t*     │
