@@ -2,9 +2,9 @@
 #define ROUTE_FINDER_UTILS_H
 
 #include "byul_config.h"
-#include "internal/core.h"
+#include "internal/common.h"
 
-#include "internal/map.h"
+#include "internal/navgrid.h"
 #include "internal/coord.h"
 #include "internal/route.h"
 
@@ -20,7 +20,7 @@ extern "C" {
  *
  * @param m 출력할 맵
  */
-BYUL_API void map_print_ascii(const map_t* m);
+BYUL_API void navgrid_print_ascii(const navgrid_t* m);
 
 /**
  * @brief 경로 정보를 포함하여 맵을 ASCII로 출력합니다.
@@ -31,8 +31,8 @@ BYUL_API void map_print_ascii(const map_t* m);
  * @param m 맵 객체
  * @param p 경로 객체 (route_get_success(p)가 TRUE인 경우만 표시)
  */
-BYUL_API void map_print_ascii_with_route(
-    const map_t* m, const route_t* p, int margin);
+BYUL_API void navgrid_print_ascii_with_route(
+    const navgrid_t* m, const route_t* p, int margin);
 
 /**
  * @brief 방문 횟수를 ASCII 맵 형식으로 출력합니다.
@@ -50,8 +50,8 @@ BYUL_API void map_print_ascii_with_route(
  * @param m    맵 객체
  * @param p    경로 결과 객체 (route_get_visited_count() 사용)
  */
-BYUL_API void map_print_ascii_with_visited_count(
-    const map_t* m, const route_t* p, int margin);
+BYUL_API void navgrid_print_ascii_with_visited_count(
+    const navgrid_t* m, const route_t* p, int margin);
 
 #ifdef __cplusplus
 }

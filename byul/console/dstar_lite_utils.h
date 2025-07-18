@@ -2,8 +2,8 @@
 #define DSTAR_LITE_UTILS_H
 
 #include "byul_config.h"
-#include "internal/core.h"
-#include "internal/map.h"
+#include "internal/common.h"
+#include "internal/navgrid.h"
 #include "internal/coord.h"
 #include "internal/route.h"
 #include "internal/dstar_lite.h"
@@ -17,11 +17,11 @@ extern "C" {
 // ------------------ 디버그용 테이블 출력 ------------------
 
 /// @brief g 테이블 출력 (좌표별 g값)
-BYUL_API void dsl_debug_print_g_table(const map_t* m, coord_hash_t* g_table);
+BYUL_API void dsl_debug_print_g_table(const navgrid_t* m, coord_hash_t* g_table);
 
 /// @brief rhs 테이블 출력 (좌표별 rhs값)
 BYUL_API void dsl_debug_print_rhs_table(
-    const map_t* m, coord_hash_t* rhs_table);
+    const navgrid_t* m, coord_hash_t* rhs_table);
 
 // ------------------ D* Lite 상태 전체 출력 ------------------
 
@@ -64,7 +64,7 @@ BYUL_API void dsl_debug_print_state(
 BYUL_API void dsl_print_info(const dstar_lite_t* dsl);
 
 /// @brief 맵만 출력 (`#`, `.`만 표시)
-BYUL_API void dsl_print_ascii_only_map(const dstar_lite_t* dsl);
+BYUL_API void dsl_print_ascii_only_navgrid(const dstar_lite_t* dsl);
 
 /// @brief 시작, 목표, 경로까지 포함한 맵 출력 (`S`, `G`, `*`, `.`, `#`)
 BYUL_API void dsl_print_ascii_route(

@@ -12,17 +12,17 @@
 ### 🌀 1. Maze Generator – `maze/`
 
 맵에 삽입 가능한 **독립형 미로 생성기**입니다.  
-`maze_t` 구조체로 생성 후, `map_t`에 삽입하여 장애물 패턴으로 사용됩니다.
+`maze_t` 구조체로 생성 후, `navgrid_t`에 삽입하여 장애물 패턴으로 사용됩니다.
 
 - 지원 알고리즘: Binary Tree, Prim, Eller, Kruskal 등
-- 동작 방식: `maze_make()`로 생성 → `maze_apply_to_map()`로 삽입
+- 동작 방식: `maze_make()`로 생성 → `maze_apply_to_navgrid()`로 삽입
 - 활용 목적: 초기 맵 설정, 스테이지 구성, 테스트 자동화 등
 
 #### 주요 인터페이스:
 ```c
 maze_t* maze_new();
 void maze_make(maze_t* maze, maze_type_t type);
-void maze_apply_to_map(const maze_t* maze, map_t* map);
+void maze_apply_to_navgrid(const maze_t* maze, navgrid_t* navgrid);
 void maze_free(maze_t*);
 ```
 
@@ -58,10 +58,10 @@ A\*, Dijkstra, BFS, JPS 등 **정적 알고리즘**을 통합한 경로 탐색�
 - 2D 정수 좌표 구조체 (`coord_t`)
 - 해시 지원 (`coord_hash`), 리스트 연산 (`coord_list`)
 
-### 📌 `map/`
-- `map_t`: 셀 단위로 구성된 맵 구조
+### 📌 `navgrid/`
+- `navgrid_t`: 셀 단위로 구성된 맵 구조
 - 장애물 위치, 이동 가능 여부 판단
-- `map_is_blocked(coord_t*)` 등으로 활용
+- `navgrid_is_blocked(coord_t*)` 등으로 활용
 
 ### 📌 `cost_coord_pq/`
 - `coord + cost` 기반 우선순위 큐
@@ -96,10 +96,10 @@ A\*, Dijkstra, BFS, JPS 등 **정적 알고리즘**을 통합한 경로 탐색�
     REQUIRE_FALSE(coord_equal(start, goal));
 
     std::cout << "default\n";
-    map_t* m = map_new();
+    navgrid_t* m = navgrid_new();
     // 장애물 삽입 (세로 차단)
     for (int y = 1; y < 10; ++y)
-        map_block_coord(m, 5, y);
+        navgrid_block_coord(m, 5, y);
 
     route_finder_t* a = route_finder_new(m);
     route_finder_set_goal(a, goal);
@@ -111,10 +111,10 @@ A\*, Dijkstra, BFS, JPS 등 **정적 알고리즘**을 통합한 경로 탐색�
     REQUIRE(p != nullptr);
     CHECK(route_get_success(p) == true);
     route_print(p);
-    map_print_ascii_with_visited_count(m, p, 5);
+    navgrid_print_ascii_with_visited_count(m, p, 5);
     route_free(p);    
     route_finder_free(a);
-    map_free(m);
+    navgrid_free(m);
 
     coord_free(start);
     coord_free(goal);    

@@ -37,6 +37,20 @@
         "CMAKE_TOOLCHAIN_FILE": "${sourceDir}/cmake/toolchain-mingw64.cmake",
         "CMAKE_INSTALL_PREFIX": "${sourceDir}/../../../jaryo/incoming/byul"        
       }
+    },
+    {
+      "name": "win_sdl_release",
+      "displayName": "Windows 11 (MinGW64 Cross) - SDL 실행파일",
+      "description": "SDL 실행파일 (EXE)용 Windows 크로스 컴파일 Preset",
+      "generator": "Unix Makefiles",
+      "binaryDir": "${sourceDir}/../build_win_sdl_release",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release",
+        "CMAKE_TOOLCHAIN_FILE": "${sourceDir}/cmake/toolchain-mingw64.cmake",
+        "CMAKE_INSTALL_PREFIX": "${sourceDir}/../../../jaryo/incoming/byul_sdl",
+        "CMAKE_PREFIX_PATH": "${sourceDir}/../external/SDL3-3.2.18/cmake",
+        "BUILD_SDL_EXECUTABLE": "ON"
+      }
     }
   ],
   "buildPresets": [
@@ -58,6 +72,13 @@
       "name": "build-win-release",
       "configurePreset": "win-release",
       "description": "Windows용 DLL 빌드 preset",
+      "jobs": 8,
+      "targets": ["all"]
+    },
+    {
+      "name": "build-win_sdl_release",
+      "configurePreset": "win_sdl_release",
+      "description": "Windows SDL 실행파일 빌드 (MinGW64)",
       "jobs": 8,
       "targets": ["all"]
     }

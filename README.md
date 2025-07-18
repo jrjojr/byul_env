@@ -15,17 +15,17 @@ and dynamic path recalculation, centered around the modules
 ### 🌀 1. Maze Generator – `maze/`
 
 A standalone maze generator that creates complex structures  
-which can be inserted into a map as obstacles.
+which can be inserted into a navgrid as obstacles.
 
 - Supported algorithms: Binary Tree, Prim, Eller, Kruskal, etc.
-- Usage: generate with `maze_make()` → apply with `maze_apply_to_map()`
-- Purpose: map setup, stage design, automated testing
+- Usage: generate with `maze_make()` → apply with `maze_apply_to_navgrid()`
+- Purpose: navgrid setup, stage design, automated testing
 
 #### Key Interface:
 ```c
 maze_t* maze_new();
 void maze_make(maze_t* maze, maze_type_t type);
-void maze_apply_to_map(const maze_t* maze, map_t* map);
+void maze_apply_to_navgrid(const maze_t* maze, navgrid_t* navgrid);
 void maze_free(maze_t*);
 ```
 
@@ -49,7 +49,7 @@ automatically recalculates paths in response to obstacle changes.
 
 A unified interface for static algorithms including  
 A*, Dijkstra, BFS, JPS and more.  
-Best suited for single-use searches on fixed maps.
+Best suited for single-use searches on fixed navgrids.
 
 - Uses `route_finder_t` to select algorithm and extract routes
 - Main API: `route_finder_find()`
@@ -62,10 +62,10 @@ Best suited for single-use searches on fixed maps.
 - 2D integer coordinate structure (`coord_t`)
 - Hash support (`coord_hash`), list operations (`coord_list`)
 
-### 📌 `map/`
-- `map_t`: grid-based structure
+### 📌 `navgrid/`
+- `navgrid_t`: grid-based structure
 - Determines walkability and obstacle positions
-- Utility: `map_is_blocked(coord_t*)`
+- Utility: `navgrid_is_blocked(coord_t*)`
 
 ### 📌 `cost_coord_pq/`
 - Priority queue based on `coord + cost`
@@ -98,10 +98,10 @@ coord_t* goal = coord_new_full(9, 9);
 REQUIRE_FALSE(coord_equal(start, goal));
 
 std::cout << "default\n";
-map_t* m = map_new();
+navgrid_t* m = navgrid_new();
 // Insert vertical wall
 for (int y = 1; y < 10; ++y)
-    map_block_coord(m, 5, y);
+    navgrid_block_coord(m, 5, y);
 
 route_finder_t* a = route_finder_new(m);
 route_finder_set_goal(a, goal);
@@ -112,11 +112,11 @@ route_t* p = route_finder_find(a);
 REQUIRE(p != nullptr);
 CHECK(route_get_success(p) == true);
 route_print(p);
-map_print_ascii_with_visited_count(m, p, 5);
+navgrid_print_ascii_with_visited_count(m, p, 5);
 
 route_free(p);    
 route_finder_free(a);
-map_free(m);
+navgrid_free(m);
 
 coord_free(start);
 coord_free(goal);
@@ -127,7 +127,7 @@ coord_free(goal);
 | Situation | Suggested Algorithm | Description |
 |----------|----------------------|-------------|
 | Obstacles change frequently | D* Lite | Persistent state, real-time adaptation |
-| Fixed map | A*, Dijkstra, etc. | Fast one-shot searches |
+| Fixed navgrid | A*, Dijkstra, etc. | Fast one-shot searches |
 | Unified interface | `route_finder` | Switch between algorithms automatically |
 
 ---

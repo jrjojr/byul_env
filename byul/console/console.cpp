@@ -1,6 +1,6 @@
 #include "internal/console.h"
-#include "internal/map.h"
-#include "internal/core.h"
+#include "internal/navgrid.h"
+#include "internal/common.h"
 #include "internal/coord_hash.h"
 #include "internal/coord_list.h"
 #include "internal/route.h"
@@ -8,8 +8,8 @@
 #include <stdlib.h>
 #include <stdint.h>
 
-static char get_map_char(
-    const map_t* m, int x, int y,
+static char get_navgrid_char(
+    const navgrid_t* m, int x, int y,
     const coord_t* start, const coord_t* goal,
     const coord_hash_t* route_coords,
     const coord_hash_t* visited_count
@@ -20,7 +20,7 @@ static char get_map_char(
     if (goal && coord_get_x(goal) == x && coord_get_y(goal) == y) 
         return 'G';
 
-    if (is_coord_blocked_map(m, x, y, nullptr)) return '#';
+    if (is_coord_blocked_navgrid(m, x, y, nullptr)) return '#';
 
     coord_t* tmp = coord_new_full(x, y);
 
@@ -34,8 +34,8 @@ static char get_map_char(
     return '.';
 }
 
-static const char* get_map_string(
-    const map_t* m, int x, int y,
+static const char* get_navgrid_string(
+    const navgrid_t* m, int x, int y,
     const coord_t* start, const coord_t* goal,
     const coord_hash_t* route_coords,
     const coord_hash_t* visited_count
@@ -47,7 +47,7 @@ static const char* get_map_string(
     if (goal && coord_get_x(goal) == x && coord_get_y(goal) == y)
         return "  G";
 
-    if (is_coord_blocked_map(m, x, y, nullptr)) return "  #";
+    if (is_coord_blocked_navgrid(m, x, y, nullptr)) return "  #";
 
     coord_t* tmp = coord_new_full(x, y);
 
@@ -68,7 +68,7 @@ static const char* get_map_string(
     return "  .";
 }
 
-// void map_print_ascii(const map_t* m) {
+// void navgrid_print_ascii(const navgrid_t* m) {
 //     if (!m) return;
 
 //     int width = m->width;
@@ -77,7 +77,7 @@ static const char* get_map_string(
 //     bool override_height = false;
 
 //     // width, height가 0이라는 건 자동으로 감지해야 한다는 거다
-//     const coord_hash_t* coords = map_get_blocked_coords(m);
+//     const coord_hash_t* coords = navgrid_get_blocked_coords(m);
 //     if (coord_hash_length(coords) == 0){
 //         // 블락된 좌표가 없다.
 //         if (width == 0) {
@@ -109,21 +109,21 @@ static const char* get_map_string(
 
 //     for (int y = 0; y < height; ++y) {
 //         for (int x = 0; x < width; ++x) {
-//             printf("%s", get_map_string(m, x, y, NULL, NULL, NULL, NULL));
+//             printf("%s", get_navgrid_string(m, x, y, NULL, NULL, NULL, NULL));
 //         }
 //         putchar('\n');
 //     }
 // }
 
-#include "internal/map.h"
+#include "internal/navgrid.h"
 #include "internal/coord_hash.h"
 #include <stdio.h>
 #include <limits.h>
 
-void map_print_ascii(const map_t* m) {
+void navgrid_print_ascii(const navgrid_t* m) {
     if (!m) return;
 
-    const coord_hash_t* coords = map_get_blocked_coords(m);
+    const coord_hash_t* coords = navgrid_get_blocked_coords(m);
     int min_x = INT_MAX, min_y = INT_MAX;
     int max_x = INT_MIN, max_y = INT_MIN;
 
@@ -159,13 +159,13 @@ void map_print_ascii(const map_t* m) {
 
     for (int y = min_y; y <= max_y; ++y) {
         for (int x = min_x; x <= max_x; ++x) {
-            printf("%s", get_map_string(m, x, y, NULL, NULL, NULL, NULL));
+            printf("%s", get_navgrid_string(m, x, y, NULL, NULL, NULL, NULL));
         }
         putchar('\n');
     }
 }
 
-void map_print_ascii_with_route(const map_t* m, const route_t* p, int margin) {
+void navgrid_print_ascii_with_route(const navgrid_t* m, const route_t* p, int margin) {
     if (!m || !p) return;
 
     const coord_list_t* list = route_get_coords(p);
@@ -209,7 +209,7 @@ void map_print_ascii_with_route(const map_t* m, const route_t* p, int margin) {
 
     for (int y = min_y; y <= max_y; ++y) {
         for (int x = min_x; x <= max_x; ++x) {
-            printf("%s", get_map_string(m, x, y, 
+            printf("%s", get_navgrid_string(m, x, y, 
                 start, goal, route_coords, NULL));
         }
         putchar('\n');
@@ -218,8 +218,8 @@ void map_print_ascii_with_route(const map_t* m, const route_t* p, int margin) {
     coord_hash_free(route_coords);
 }
 
-void map_print_ascii_with_visited_count(
-    const map_t* m, const route_t* p, int margin) {
+void navgrid_print_ascii_with_visited_count(
+    const navgrid_t* m, const route_t* p, int margin) {
 
     if (!m || !p || !route_get_visited_count(p)) return;
 
@@ -270,7 +270,7 @@ void map_print_ascii_with_visited_count(
 
     for (int y = min_y; y <= max_y; ++y) {
         for (int x = min_x; x <= max_x; ++x) {
-            printf("%s", get_map_string(m, x, y, 
+            printf("%s", get_navgrid_string(m, x, y, 
                 start, goal, route_coords, visited));
         }
         putchar('\n');
