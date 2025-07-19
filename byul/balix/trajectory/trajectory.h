@@ -154,22 +154,84 @@ typedef struct s_trajectory {
 // ---------------------------------------------------------
 
 /**
- * @brief trajectory를 초기화하고 메모리 할당
- * @param traj 대상 구조체
- * @param capacity 최대 샘플 수
- * @return true 초기화 성공 여부
+ * @brief 새로운 trajectory를 생성하고 메모리를 할당합니다.
+ *
+ * trajectory_t 구조체와 내부 samples 배열을 동적 할당하며,
+ * count를 0으로 초기화합니다.
+ *
+ * @param capacity trajectory가 저장할 수 있는 최대 샘플 개수
+ * @return 성공 시 할당된 trajectory_t* 포인터, 실패 시 nullptr
+ *
+ * @note 사용 후 반드시 trajectory_destroy()를 호출하여 
+ * 구조체와 내부 메모리를 해제해야 합니다.
  */
-BYUL_API bool trajectory_init(trajectory_t* traj, int capacity);
+BYUL_API trajectory_t* trajectory_create_full(int capacity);
 
 /**
- * @brief trajectory 내부 메모리를 해제
- * @param traj 대상 trajectory
+ * @brief 기본 용량(100 샘플)을 갖는 trajectory를 생성합니다.
+ *
+ * @return capacity = 100으로 할당된 trajectory_t* 포인터
+ *
+ * @note 사용 후 반드시 trajectory_destroy()를 호출하여 
+ * 구조체와 내부 메모리를 해제해야 합니다.
+ */
+BYUL_API trajectory_t* trajectory_create();
+
+/**
+ * @brief trajectory 내부 메모리를 해제합니다.
+ *
+ * trajectory_t 구조체 내의 samples 배열을 해제하고,
+ * count와 capacity를 0으로 초기화합니다.
+ *
+ * @param traj 해제할 trajectory_t 포인터 (NULL 가능)
+ *
+ * @warning traj 자체는 해제하지 않습니다.
+ *          trajectory_create_full()로 동적 생성한 구조체 전체를 해제하려면
+ *  trajectory_destroy()를 사용하세요.
  */
 BYUL_API void trajectory_free(trajectory_t* traj);
 
 /**
- * @brief trajectory 내부 데이터를 모두 지움
- * @param traj 대상 trajectory
+ * @brief trajectory 구조체와 내부 메모리를 모두 해제합니다.
+ *
+ * trajectory_free()를 호출한 뒤 구조체 포인터 자체도 해제합니다.
+ *
+ * @param traj 해제할 trajectory_t 포인터 (NULL 가능)
+ */
+BYUL_API void trajectory_destroy(trajectory_t* traj);
+
+/**
+ * @brief trajectory 내용을 깊은 복사합니다.
+ *
+ * src의 샘플 데이터를 out에 깊은 복사합니다.
+ * 필요 시 out->samples 메모리를 재할당합니다.
+ *
+ * @param out 대상 trajectory (이미 유효한 포인터여야 함)
+ * @param src 원본 trajectory
+ *
+ * @note out->capacity < src->count인 경우 내부 메모리를 재할당합니다.
+ */
+BYUL_API void trajectory_copy(trajectory_t* out, const trajectory_t* src);
+
+/**
+ * @brief trajectory를 복제(클론)하여 새 인스턴스를 생성합니다.
+ *
+ * src 내용을 깊은 복사한 새로운 trajectory를 생성하여 반환합니다.
+ *
+ * @param src 복제할 원본 trajectory
+ * @return 새로운 trajectory_t* (동적 할당), 실패 시 nullptr
+ *
+ * @note 사용 후 반드시 trajectory_destroy()를 호출하여 메모리를 해제해야 합니다.
+ */
+BYUL_API trajectory_t* trajectory_clone(const trajectory_t* src);
+
+/**
+ * @brief trajectory 내부 데이터를 모두 제거합니다.
+ *
+ * count 값을 0으로 초기화하여 모든 샘플을 제거합니다.
+ * capacity 및 samples는 그대로 유지되므로 재사용이 가능합니다.
+ *
+ * @param traj 초기화할 trajectory 포인터 (NULL 가능)
  */
 BYUL_API void trajectory_clear(trajectory_t* traj);
 

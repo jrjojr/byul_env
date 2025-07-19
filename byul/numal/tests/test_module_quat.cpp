@@ -70,7 +70,7 @@ TEST_CASE("quat_rotate_vector") {
 
     vec3_t org = {1.0f, 0.0f, 0.0f};
     vec3_t result;
-    quat_rotate_vector(&result, &q, &org);
+    quat_rotate_vector(&q, &org, &result);
     CHECK(result.x == doctest::Approx(-1.0f));
     CHECK(result.y == doctest::Approx(0.0f));
 }

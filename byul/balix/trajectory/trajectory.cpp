@@ -81,34 +81,72 @@ void motion_state_copy(motion_state_t* out, const motion_state_t* src) {
     *out = *src;
 }
 
-// ---------------------------------------------------------
-// trajectory 초기화
-// ---------------------------------------------------------
-bool trajectory_init(trajectory_t* traj, int capacity) {
-    if (!traj || capacity <= 0) return false;
-    trajectory_free(traj);
-    try {
-        traj->samples = new trajectory_sample_t[capacity];
-        traj->count = 0;
-        traj->capacity = capacity;
-        return true;
-    } catch (const std::bad_alloc&) {
-        traj->samples = nullptr;
-        traj->count = 0;
-        traj->capacity = 0;
-        return false;
-    }
+trajectory_t* trajectory_create_full(int capacity) {
+    if (capacity <= 0) return nullptr;
+
+    trajectory_t* traj = new trajectory_t;
+    traj->samples = new trajectory_sample_t[capacity];
+    traj->count = 0;
+    traj->capacity = capacity;
+
+    return traj;
 }
 
-// ---------------------------------------------------------
-// trajectory 메모리 해제
-// ---------------------------------------------------------
-void trajectory_free(trajectory_t* traj) {
+// 기본 capacity = 100개 기본값
+trajectory_t* trajectory_create(){
+    return trajectory_create_full(100);
+}
+
+void trajectory_free(trajectory_t* traj){
     if (!traj) return;
     delete[] traj->samples;
     traj->samples = nullptr;
     traj->count = 0;
-    traj->capacity = 0;
+    traj->capacity = 0;    
+}
+
+void trajectory_destroy(trajectory_t* traj){
+    if (!traj) return;
+    trajectory_free(traj);
+    delete traj;
+}
+
+void trajectory_copy(trajectory_t* out, const trajectory_t* src) {
+    if (!out || !src) return;
+    if (out->capacity < src->count) {
+        delete[] out->samples;
+        out->samples = new trajectory_sample_t[src->capacity];
+        out->capacity = src->capacity;
+    }
+    out->count = src->count;
+    memcpy(out->samples, src->samples,
+           sizeof(trajectory_sample_t) * src->count);
+}
+
+trajectory_t* trajectory_clone(const trajectory_t* src) {
+    if (!src) return nullptr;
+
+    trajectory_t* traj = trajectory_create_full(src->capacity);
+    traj->count = src->count;
+
+    if (src->count > 0 && src->samples) {
+        memcpy(traj->samples, src->samples,
+               sizeof(trajectory_sample_t) * src->count);
+    }
+
+    return traj;
+}
+
+// ---------------------------------------------------------
+// trajectory 초기화 (0으로 세팅)
+// ---------------------------------------------------------
+void trajectory_clear(trajectory_t* traj) {
+    if (!traj) return;
+    traj->count = 0;
+    if (traj->samples) {
+        memset(traj->samples, 0,
+               sizeof(trajectory_sample_t) * traj->capacity);
+    }
 }
 
 // ---------------------------------------------------------
@@ -124,17 +162,7 @@ bool trajectory_add_sample(
     return true;
 }
 
-// ---------------------------------------------------------
-// trajectory 초기화 (0으로 세팅)
-// ---------------------------------------------------------
-void trajectory_clear(trajectory_t* traj) {
-    if (!traj) return;
-    traj->count = 0;
-    if (traj->samples) {
-        std::memset(
-            traj->samples, 0, sizeof(trajectory_sample_t) * traj->capacity);
-    }
-}
+
 
 int trajectory_length(const trajectory_t* traj) {
     return (traj ? traj->count : 0);

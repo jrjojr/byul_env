@@ -338,47 +338,64 @@ float numeq_mpc_cost_hybrid(
 //     if (!current_state || !target_state || !config || !out_result)
 //         return false;
 
-//     const float step = (config->candidate_step > 0.0f)
-//                        ? config->candidate_step
-//                        : config->max_accel / 2.0f;
+//     // === 후보 가속도 조합 (단순화: -max, 0, +max) ===
+//     float accel_candidates[3] = {-config->max_accel, 0.0f, config->max_accel};
+//     float ang_candidates[3]   = {-config->max_ang_accel, 0.0f, config->max_ang_accel};
 
-//     const float ang_step = (config->ang_candidate_step > 0.0f)
-//                            ? config->ang_candidate_step
-//                            : config->max_ang_accel / 2.0f;
-
-//     // --- DEBUG MODE 출력 ---
-//     int debug_mode = 1;  // 필요시 외부 설정으로 변경 가능
-//     if (debug_mode) {
-//         printf("[DEBUG] step=%.3f, ang_step=%.3f\n", step, ang_step);
-//         printf("[DEBUG] max_accel=%.3f, max_ang_accel=%.3f\n",
-//                config->max_accel, config->max_ang_accel);
-//     }
+//     const int horizon_sec = (config->horizon_sec > 0) ? config->horizon_sec : 10;
+//     const float dt = (config->step_dt > 0.0f) ? config->step_dt : 0.016f;
 
 //     float best_cost = FLT_MAX;
-//     motion_state_t test_state = *current_state;
 //     vec3_t best_accel = {0, 0, 0};
 //     vec3_t best_ang_accel = {0, 0, 0};
 
-//     for (float ax = -config->max_accel; ax <= config->max_accel; ax += step) {
-//         if (debug_mode) printf("[DEBUG] ax=%.3f\n", ax);
-//         for (float ay = -config->max_accel; ay <= config->max_accel; ay += step) {
-//             if (debug_mode) printf("  [DEBUG] ay=%.3f\n", ay);
-//             for (float az = -config->max_accel; az <= config->max_accel; az += step) {
-//                 if (debug_mode) printf("    [DEBUG] az=%.3f\n", az);
-//                 for (float rx = -config->max_ang_accel; rx <= config->max_ang_accel; rx += ang_step) {
-//                     for (float ry = -config->max_ang_accel; ry <= config->max_ang_accel; ry += ang_step) {
-//                         for (float rz = -config->max_ang_accel; rz <= config->max_ang_accel; rz += ang_step) {
+//     int debug_mode = 0;
+//     if (debug_mode) {
+//         printf("[DEBUG] Using RK4 MPC Solve: horizon_sec=%d, dt=%.3f\n", horizon_sec, dt);
+//     }
 
-//                             test_state.linear.acceleration = (vec3_t){ax, ay, az};
-//                             test_state.angular.angular_acceleration = (vec3_t){rx, ry, rz};
+//     // === 모든 후보 가속도 조합 탐색 ===
+//     for (int ix = 0; ix < 3; ix++) {
+//         for (int iy = 0; iy < 3; iy++) {
+//             for (int iz = 0; iz < 3; iz++) {
+//                 for (int rx = 0; rx < 3; rx++) {
+//                     for (int ry = 0; ry < 3; ry++) {
+//                         for (int rz = 0; rz < 3; rz++) {
 
-//                             float cost = cost_fn ? 
-//                                 cost_fn(&test_state, target_state, cost_userdata) : 0.0f;
+//                             vec3_t accel = {accel_candidates[ix],
+//                                             accel_candidates[iy],
+//                                             accel_candidates[iz]};
 
-//                             if (cost < best_cost) {
-//                                 best_cost = cost;
-//                                 best_accel = test_state.linear.acceleration;
-//                                 best_ang_accel = test_state.angular.angular_acceleration;
+//                             vec3_t ang_accel = {ang_candidates[rx],
+//                                                 ang_candidates[ry],
+//                                                 ang_candidates[rz]};
+
+//                             // === Horizon 시뮬레이션 ===
+//                             motion_state_t sim_state = *current_state;
+//                             float total_cost = 0.0f;
+
+//                             for (int step = 0; step < horizon_sec; step++) {
+//                                 // RK4 적분을 사용한 미래 상태 예측
+//                                 numeq_integrate_motion_rk4(&sim_state, &accel, &ang_accel, dt);
+
+//                                 // 비용 계산
+//                                 if (cost_fn) {
+//                                     total_cost += cost_fn(&sim_state, target_state, cost_userdata);
+//                                 }
+//                             }
+
+//                             // 최적 해 갱신
+//                             if (total_cost < best_cost) {
+//                                 best_cost = total_cost;
+//                                 best_accel = accel;
+//                                 best_ang_accel = ang_accel;
+//                             }
+
+//                             if (debug_mode) {
+//                                 printf("[DEBUG] Candidate (%.1f, %.1f, %.1f | %.1f, %.1f, %.1f), cost=%.3f\n",
+//                                        accel.x, accel.y, accel.z,
+//                                        ang_accel.x, ang_accel.y, ang_accel.z,
+//                                        total_cost);
 //                             }
 //                         }
 //                     }
@@ -387,16 +404,23 @@ float numeq_mpc_cost_hybrid(
 //         }
 //     }
 
+//     // === 최적 결과 기록 ===
 //     out_result->desired_accel = best_accel;
 //     out_result->desired_ang_accel = best_ang_accel;
 //     out_result->cost = best_cost;
 
+//     // === 최종 horizon_sec 궤적 계산 ===
 //     if (out_traj && config->output_trajectory) {
-//         motion_state_t start_state = *current_state;
-//         start_state.linear.acceleration = best_accel;
-//         start_state.angular.angular_acceleration = best_ang_accel;
+//         motion_state_t sim_state = *current_state;
+//         sim_state.linear.acceleration = best_accel;
+//         sim_state.angular.angular_acceleration = best_ang_accel;
 
-//         simulate_trajectory(&start_state, config, out_traj);
+//         trajectory_clear(out_traj);
+//         for (int step = 0; step < horizon_sec; step++) {
+//             numeq_integrate_motion_rk4(&sim_state, &best_accel, &best_ang_accel, dt);
+//             trajectory_add_sample(out_traj, step * dt, &sim_state);
+//         }
+
 //         if (out_traj->count > 0) {
 //             out_result->future_state = out_traj->samples[out_traj->count - 1].state;
 //         }
@@ -421,7 +445,6 @@ bool numeq_mpc_solve(
     if (!current_state || !target_state || !config || !out_result)
         return false;
 
-    // === 후보 가속도 조합 (단순화: -max, 0, +max) ===
     float accel_candidates[3] = {-config->max_accel, 0.0f, config->max_accel};
     float ang_candidates[3]   = {-config->max_ang_accel, 0.0f, config->max_ang_accel};
 
@@ -432,12 +455,6 @@ bool numeq_mpc_solve(
     vec3_t best_accel = {0, 0, 0};
     vec3_t best_ang_accel = {0, 0, 0};
 
-    int debug_mode = 0;
-    if (debug_mode) {
-        printf("[DEBUG] Using RK4 MPC Solve: horizon_sec=%d, dt=%.3f\n", horizon_sec, dt);
-    }
-
-    // === 모든 후보 가속도 조합 탐색 ===
     for (int ix = 0; ix < 3; ix++) {
         for (int iy = 0; iy < 3; iy++) {
             for (int iz = 0; iz < 3; iz++) {
@@ -453,32 +470,23 @@ bool numeq_mpc_solve(
                                                 ang_candidates[ry],
                                                 ang_candidates[rz]};
 
-                            // === Horizon 시뮬레이션 ===
                             motion_state_t sim_state = *current_state;
+                            sim_state.linear.acceleration = accel;
+                            sim_state.angular.angular_acceleration = ang_accel;
+
                             float total_cost = 0.0f;
 
                             for (int step = 0; step < horizon_sec; step++) {
-                                // RK4 적분을 사용한 미래 상태 예측
-                                numeq_integrate_motion_rk4(&sim_state, &accel, &ang_accel, dt);
-
-                                // 비용 계산
+                                numeq_integrate_motion_rk4(&sim_state, dt);
                                 if (cost_fn) {
                                     total_cost += cost_fn(&sim_state, target_state, cost_userdata);
                                 }
                             }
 
-                            // 최적 해 갱신
                             if (total_cost < best_cost) {
                                 best_cost = total_cost;
                                 best_accel = accel;
                                 best_ang_accel = ang_accel;
-                            }
-
-                            if (debug_mode) {
-                                printf("[DEBUG] Candidate (%.1f, %.1f, %.1f | %.1f, %.1f, %.1f), cost=%.3f\n",
-                                       accel.x, accel.y, accel.z,
-                                       ang_accel.x, ang_accel.y, ang_accel.z,
-                                       total_cost);
                             }
                         }
                     }
@@ -487,12 +495,10 @@ bool numeq_mpc_solve(
         }
     }
 
-    // === 최적 결과 기록 ===
     out_result->desired_accel = best_accel;
     out_result->desired_ang_accel = best_ang_accel;
     out_result->cost = best_cost;
 
-    // === 최종 horizon_sec 궤적 계산 ===
     if (out_traj && config->output_trajectory) {
         motion_state_t sim_state = *current_state;
         sim_state.linear.acceleration = best_accel;
@@ -500,7 +506,7 @@ bool numeq_mpc_solve(
 
         trajectory_clear(out_traj);
         for (int step = 0; step < horizon_sec; step++) {
-            numeq_integrate_motion_rk4(&sim_state, &best_accel, &best_ang_accel, dt);
+            numeq_integrate_motion_rk4(&sim_state, dt);
             trajectory_add_sample(out_traj, step * dt, &sim_state);
         }
 
@@ -513,7 +519,6 @@ bool numeq_mpc_solve(
 
     return true;
 }
-
 
 
 // ---------------------------------------------------------

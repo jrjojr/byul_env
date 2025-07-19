@@ -12,10 +12,10 @@ public:
     quat_t q;
 
     // 생성자
-    Quat() { q = *quat_init(); }
-    Quat(float w, float x, float y, float z) { q = *quat_init_full(w, x, y, z); }
-    Quat(const quat_t& src) { q = *quat_copy(&src); }
-    Quat(const Quat& other) { q = *quat_copy(&other.q); }
+    Quat() { quat_init(&q); }
+    Quat(float w, float x, float y, float z) { quat_init_full(&q, w, x, y, z); }
+    Quat(const quat_t& src) { quat_copy(&q, &src); }
+    Quat(const Quat& other) { quat_copy(&q, &other.q); }
 
     // 소멸자
     ~Quat() {} // heap 메모리는 직접 관리하지 않음
@@ -81,7 +81,7 @@ public:
     // 회전 적용
     Vec3 rotate(const Vec3& v) const {
         vec3_t result;
-        quat_rotate_vector(&result, &q, &v.v);
+        quat_rotate_vector(&q, &v.v, &result);
         return Vec3(result);
     }
 

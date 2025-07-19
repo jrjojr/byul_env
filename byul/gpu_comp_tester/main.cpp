@@ -141,8 +141,8 @@ int main(int argc, char** argv) {
         quat_slerp(&rs, &ra, &rb, t);
 
         vec3_t rotated_slerp, rotated_lerp, target;
-        quat_rotate_vector(&rotated_slerp, &rs, &origin);
-        quat_rotate_vector(&target, &rb, &origin);
+        quat_rotate_vector(&rs, &origin, &rotated_slerp);
+        quat_rotate_vector(&rb, &origin, &target);
 
         // LERP 계산 (벡터 직접 보간)
         rotated_lerp.x = origin.x * (1 - t) + target.x * t;

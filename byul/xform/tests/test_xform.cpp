@@ -252,7 +252,7 @@ TEST_CASE("quat rotation: yaw 90deg rotates +Z to -X") {
 
     vec3_t forward = {0, 0, 1}; // +Z
     vec3_t rotated;
-    quat_rotate_vector(&rotated, &q, &forward);
+    quat_rotate_vector(&q, &forward, &rotated);
 
     CHECK(rotated.x == doctest::Approx(0.0f).epsilon(0.01f));
     CHECK(rotated.y == doctest::Approx(-1.0f).epsilon(0.01f));
@@ -265,7 +265,7 @@ TEST_CASE("quat rotation: yaw 90deg rotates +Z to -X v1") {
 
     vec3_t forward = {0, 0, 1}; // +Z
     vec3_t rotated;
-    quat_rotate_vector(&rotated, &q, &forward);
+    quat_rotate_vector(&q, &forward, &rotated);
 
     CHECK(rotated.x == doctest::Approx(1.0f).epsilon(0.01f));
     CHECK(rotated.y == doctest::Approx(0.0f).epsilon(0.01f));
@@ -278,7 +278,7 @@ TEST_CASE("quat rotation: yaw -90deg rotates +Z to -X v2") {
 
     vec3_t forward = {0, 0, 1}; // +Z
     vec3_t rotated;
-    quat_rotate_vector(&rotated, &q, &forward);
+    quat_rotate_vector(&q, &forward, &rotated);
 
     CHECK(rotated.x == doctest::Approx(-1.0f).epsilon(0.01f));
     CHECK(rotated.y == doctest::Approx(0.0f).epsilon(0.01f));

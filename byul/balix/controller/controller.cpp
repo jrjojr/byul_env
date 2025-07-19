@@ -213,7 +213,14 @@ controller_t* controller_create_pid(
 
     controller_t* ctrl = new controller_t;
 
-    pid_impl_t* impl = new pid_impl_t;
+    // pid_impl_t* impl = new pid_impl_t;
+
+    pid_impl_t* impl = (pid_impl_t*)malloc(sizeof(pid_impl_t));
+    if (!impl) {
+        // 메모리 할당 실패 처리
+        return NULL;
+    }    
+
     pid_impl_init(impl);
     impl->output_limit = output_limit;
 
@@ -229,7 +236,8 @@ controller_t* controller_create_pid(
 controller_t* controller_create_bangbang(float max_output) {
     controller_t* ctrl = new controller_t;
 
-    bangbang_impl_t* impl = new bangbang_impl_t;
+    // bangbang_impl_t* impl = new bangbang_impl_t;
+    bangbang_impl_t* impl = (bangbang_impl_t*)malloc(sizeof(bangbang_impl_t));
 
     bangbang_impl_init_full(impl, max_output);
 
@@ -252,7 +260,9 @@ controller_t* controller_create_mpc(
 
     motion_state_t target;
     motion_state_init(&target);
-    mpc_impl_t* impl = new mpc_impl_t;
+    // mpc_impl_t* impl = new mpc_impl_t;
+    mpc_impl_t* impl = (mpc_impl_t*)malloc(sizeof(mpc_impl_t));
+
     mpc_impl_init_full(
         impl, config, &target, env, body, numeq_mpc_cost_default);
 
@@ -268,8 +278,8 @@ controller_t* controller_create_mpc(
 void controller_destroy(controller_t* ctrl) {
     if (!ctrl) return;
     if (ctrl->impl) {
-        delete ctrl->impl;
-        ctrl->impl = NULL;
+                free(ctrl->impl);
+        ctrl->impl = nullptr;
     }
     delete ctrl;
 }

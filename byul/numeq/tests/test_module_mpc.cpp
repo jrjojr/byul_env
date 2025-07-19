@@ -42,14 +42,12 @@ TEST_CASE("MPC default cost function produces positive cost") {
 }
 
 TEST_CASE("MPC trajectory init and free") {
-    trajectory_t traj;
-    CHECK(trajectory_init(&traj, 10) == true);
-    CHECK(traj.samples != nullptr);
-    CHECK(traj.capacity == 10);
+    trajectory_t* traj = trajectory_create_full(10);
+    CHECK(traj != nullptr);
+    CHECK(traj->samples != nullptr);
+    CHECK(traj->capacity == 10);
 
-    trajectory_free(&traj);
-    CHECK(traj.samples == nullptr);
-    CHECK(traj.capacity == 0);
+    trajectory_destroy(traj);    
 }
 
 TEST_CASE("MPC directional target structure basic") {
