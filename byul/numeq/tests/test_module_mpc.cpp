@@ -37,7 +37,7 @@ TEST_CASE("MPC default cost function produces positive cost") {
     vec3_t accel = {0.0f, 0.0f, 0.0f};
     vec3_t ang_accel = {0.0f, 0.0f, 0.0f};
 
-    float cost = numeq_mpc_cost_default(&ms, &target, &accel, &ang_accel, NULL);
+    float cost = numeq_mpc_cost_default(&ms, &target, NULL);
     CHECK(cost > 0.0f);
 }
 

@@ -15,19 +15,40 @@ extern "C" {
  * @brief 적분기 방식 종류
  */
 typedef enum e_integrator_type {
-    INTEGRATOR_EULER,           ///< 단순 오일러 방식
-    INTEGRATOR_SEMI_IMPLICIT,   ///< 반묵시적 오일러 (속도 우선)
-    INTEGRATOR_VERLET,          ///< Verlet 방식 (과거 위치 필요)
-    INTEGRATOR_RK4              ///< 4차 Runge-Kutta 방식 (고정확도)
+    INTEGRATOR_EULER,               ///< 단순 오일러 방식
+    INTEGRATOR_SEMI_IMPLICIT,       ///< 반묵시적 오일러 (속도 우선)
+    INTEGRATOR_VERLET,              ///< Verlet 방식 (과거 위치 필요)
+    INTEGRATOR_RK4,                 ///< 4차 Runge-Kutta 방식 (고정확도)
+    INTEGRATOR_MOTION_EULER,        ///< 선형 + 회전 오일러
+    INTEGRATOR_MOTION_SEMI_IMPLICIT,///< 선형 + 회전 반묵시적 오일러
+    INTEGRATOR_MOTION_VERLET,       ///< 선형 + 회전 Verlet 방식
+    INTEGRATOR_MOTION_RK4           ///< 선형 + 회전 4차 Runge-Kutta
 } integrator_type_t;
 
 /**
  * @brief 적분 설정 구조체
  */
 typedef struct s_integrator_config {
-    integrator_type_t type;     ///< 사용할 적분 방식
-    float time_step;            ///< 시간 간격 (dt)
+    integrator_type_t type;       ///< 사용할 적분 방식
+    float time_step;              ///< 시간 간격 (dt)
+    vec3_t linear_accel;          ///< 기본 선형 가속도 (예: 중력)
+    vec3_t angular_accel;         ///< 기본 회전 가속도 (토크)
+    motion_state_t* prev_state;   ///< Verlet 방식에서 참조할 과거 상태
+    void* userdata;               ///< 사용자 데이터 포인터 (옵션)
 } integrator_config_t;
+
+BYUL_API void integrator_config_init(integrator_config_t* cfg);
+
+BYUL_API void integrator_config_init_full(integrator_config_t* cfg,
+                                 integrator_type_t type,
+                                 float time_step,
+                                 const vec3_t* linear_accel,
+                                 const vec3_t* angular_accel,
+                                 motion_state_t* prev_state,
+                                 void* userdata);
+
+BYUL_API void integrator_config_copy(
+    integrator_config_t* out, const integrator_config_t* src);
 
 // ---------------------------------------------------------
 // 🧩 공통 인터페이스
@@ -51,9 +72,7 @@ typedef struct s_integrator_config {
  * numeq_integrate(&state, &gravity, &cfg);
  * @endcode
  */
-BYUL_API void numeq_integrate(linear_state_t* state,
-                     const vec3_t* accel,
-                     const integrator_config_t* config);
+BYUL_API void numeq_integrate(motion_state_t* state, const integrator_config_t* config);
 
 // ---------------------------------------------------------
 // 🎯 각 방식별 수치 적분 함수
@@ -72,9 +91,8 @@ BYUL_API void numeq_integrate(linear_state_t* state,
  * numeq_integrate_euler(&state, &accel, 0.01f);
  * @endcode
  */
-BYUL_API void numeq_integrate_euler(linear_state_t* state,
-                           const vec3_t* accel,
-                           float dt);
+BYUL_API void numeq_integrate_euler(motion_state_t* state,
+                           const vec3_t* accel,float dt);
 
 /**
  * @brief 세미-묵시적 오일러 방식 적분
@@ -89,9 +107,8 @@ BYUL_API void numeq_integrate_euler(linear_state_t* state,
  * numeq_integrate_semi_implicit(&state, &accel, 0.016f);
  * @endcode
  */
-BYUL_API void numeq_integrate_semi_implicit(linear_state_t* state,
-                                   const vec3_t* accel,
-                                   float dt);
+BYUL_API void numeq_integrate_semi_implicit(motion_state_t* state,
+                                   const vec3_t* accel, float dt);
 
 /**
  * @brief Verlet 적분 방식 (이차 정확도)
@@ -102,16 +119,9 @@ BYUL_API void numeq_integrate_semi_implicit(linear_state_t* state,
  * 과거 위치 벡터가 별도로 필요합니다.
  * 감쇠 진동이나 트레일 효과 등에 유용합니다.
  *
- * @code
- * vec3_t prev = state.position;
- * numeq_integrate_verlet(&state.position, &prev, &accel, 0.016f);
- * @endcode
  */
-BYUL_API void numeq_integrate_verlet(vec3_t* position,
-                            vec3_t* prev_position,
-                            const vec3_t* accel,
-                            float dt);
-
+BYUL_API void numeq_integrate_verlet(motion_state_t* state,
+    const motion_state_t* prev_state, const vec3_t* accel, float dt);
 /**
  * @brief 4차 Runge-Kutta 적분 방식
  *
@@ -123,9 +133,44 @@ BYUL_API void numeq_integrate_verlet(vec3_t* position,
  * numeq_integrate_rk4(&state, &accel, 0.016f);
  * @endcode
  */
-BYUL_API void numeq_integrate_rk4(linear_state_t* state,
-                         const vec3_t* accel,
-                         float dt);
+BYUL_API void numeq_integrate_rk4(motion_state_t* state,
+                         const vec3_t* accel, float dt);
+
+BYUL_API void numeq_integrate_attitude_euler(
+    motion_state_t* state, const vec3_t* angular_accel, float dt);
+
+// ---------------------------------------------------------
+// 회전 적분 (Semi-Implicit Euler)
+// ---------------------------------------------------------
+BYUL_API void numeq_integrate_attitude_semi_implicit(
+    motion_state_t* state, const vec3_t* angular_accel, float dt);
+
+// ---------------------------------------------------------
+// 회전 적분 (RK4)
+// ---------------------------------------------------------
+BYUL_API void numeq_integrate_attitude_rk4(
+    motion_state_t* state, const vec3_t* angular_accel, float dt);
+
+// 회전(자세) Verlet 적분
+BYUL_API void numeq_integrate_attitude_verlet(motion_state_t* state,
+    const motion_state_t* prev_state, const vec3_t* angular_accel, float dt);
+
+// 선형 + 회전 통합 Verlet 적분기
+BYUL_API void numeq_integrate_motion_verlet(motion_state_t* state,
+    const motion_state_t* prev_state, const vec3_t* accel, 
+    const vec3_t* angular_accel, float dt);
+
+// 선형 + 회전 통합 Euler 적분기
+BYUL_API void numeq_integrate_motion_euler(motion_state_t* state,
+    const vec3_t* accel, const vec3_t* angular_accel, float dt);
+
+// 선형 + 회전 통합 Semi-Implicit Euler 적분기
+BYUL_API void numeq_integrate_motion_semi_implicit(motion_state_t* state,
+    const vec3_t* accel, const vec3_t* angular_accel, float dt);
+
+// 선형 + 회전 통합 RK4 적분기
+BYUL_API void numeq_integrate_motion_rk4(motion_state_t* state,
+    const vec3_t* accel, const vec3_t* angular_accel, float dt);
 
 #ifdef __cplusplus
 }

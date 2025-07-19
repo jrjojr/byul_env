@@ -22,27 +22,7 @@ typedef struct dualquat_t {
 // -----------------------------
 
 /** @brief 단위 듀얼 회전 (회전=단위, 위치=0) 생성 */
-BYUL_API dualquat_t* dualquat_new(void);
-
-/** @brief 듀얼 회전 해제 */
-BYUL_API void dualquat_free(dualquat_t* dq);
-
-/** @brief 복사 */
-BYUL_API void dualquat_copy(dualquat_t* dst, const dualquat_t* src);
-
-// -----------------------------
-// 비교 / 해시
-// -----------------------------
-
-/** @brief 두 듀얼 회전이 같은지 비교 */
-BYUL_API int dualquat_equal(const dualquat_t* a, const dualquat_t* b);
-
-/** @brief 해시값 계산 */
-BYUL_API uint32_t dualquat_hash(const dualquat_t* dq);
-
-// -----------------------------
-// 생성 및 추출 (회전 + 위치)
-// -----------------------------
+BYUL_API void dualquat_init(dualquat_t* out);
 
 /**
  * @brief 회전(quaternion)과 위치(vec3)로부터 듀얼 쿼터니언을 생성합니다.
@@ -60,11 +40,21 @@ BYUL_API uint32_t dualquat_hash(const dualquat_t* dq);
  * @param[in]  rot 회전 쿼터니언 (NULL이면 단위 회전으로 처리됨)
  * @param[in]  vec 위치 벡터 (NULL이면 위치 없음으로 처리됨)
  */
-BYUL_API void dualquat_from_quat_vec(
-    dualquat_t* out,
-    const quat_t* rot,
-    const vec3_t* vec
-);
+BYUL_API void dualquat_init_quat_vec(
+    dualquat_t* out, const quat_t* rot, const vec3_t* vec);
+
+/** @brief 복사 */
+BYUL_API void dualquat_copy(dualquat_t* out, const dualquat_t* src);
+
+// -----------------------------
+// 비교 / 해시
+// -----------------------------
+
+/** @brief 두 듀얼 회전이 같은지 비교 */
+BYUL_API int dualquat_equal(const dualquat_t* a, const dualquat_t* b);
+
+/** @brief 해시값 계산 */
+BYUL_API uint32_t dualquat_hash(const dualquat_t* dq);
 
 /**
  * @brief 듀얼 쿼터니언으로부터 회전(quat)과 위치(vec3)를 추출합니다.
@@ -91,8 +81,11 @@ BYUL_API void dualquat_to_quat_vec(
 // 연산
 // -----------------------------
 
+// io 본인을 정규화한다.
+BYUL_API void dualquat_normalize(dualquat_t* io);
+
 /** @brief 정규화 */
-BYUL_API void dualquat_normalize(dualquat_t* out, const dualquat_t* dq);
+BYUL_API void dualquat_unit(dualquat_t* out, const dualquat_t* dq);
 
 /** @brief 켤레 */
 BYUL_API void dualquat_conjugate(dualquat_t* out, const dualquat_t* dq);
@@ -125,13 +118,13 @@ BYUL_API void dualquat_apply_to_point(
 BYUL_API void dualquat_to_mat4(const dualquat_t* dq, float* out_mat4);
 
 /** @brief 4x4 행렬로부터 생성 */
-BYUL_API void dualquat_from_mat4(dualquat_t* out, const float* mat4x4);
+BYUL_API void dualquat_init_mat4(dualquat_t* out, const float* mat4x4);
 
 /** @brief 3x3 회전 행렬 변환 (이동 정보는 제외) */
 BYUL_API void dualquat_to_mat3(const dualquat_t* dq, float* out_mat3);
 
 /** @brief 3x3 행렬로부터 생성 (이동은 0으로 설정) */
-BYUL_API void dualquat_from_mat3(dualquat_t* out, const float* mat3);
+BYUL_API void dualquat_init_mat3(dualquat_t* out, const float* mat3);
 
 // -----------------------------
 // 보간

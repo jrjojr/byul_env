@@ -20,46 +20,27 @@ typedef struct s_vec3 {
     float z; ///< Z 좌표
 } vec3_t;
 
-/**
- * @brief 새로운 vec3 벡터를 생성합니다.
- * 
- * @param x X 좌표
- * @param y Y 좌표
- * @param z Z 좌표
- * @return vec3_t* 새로 생성된 벡터 (heap 할당됨, vec3_free로 해제 필요)
- */
-BYUL_API vec3_t* vec3_new_full(float x, float y, float z);
+BYUL_API void vec3_init_full(vec3_t* out, float x, float y, float z);
 
 /**
  * @brief 기본값 (0,0,0)으로 vec3를 생성합니다.
  * 
- * @return vec3_t* 기본 벡터 (heap 할당됨)
  */
-BYUL_API vec3_t* vec3_new(void);
-
-/**
- * @brief vec3 메모리 해제
- * 
- * vec3_new 또는 vec3_new_full로 생성된 벡터를 해제합니다.
- * 
- * @param v 해제할 벡터
- */
-BYUL_API void vec3_free(vec3_t* v);
+BYUL_API void vec3_init(vec3_t* out);
 
 /**
  * @brief vec3 복사
  * 
  */
-BYUL_API vec3_t* vec3_copy(const vec3_t* src);
+BYUL_API void vec3_copy(vec3_t* out, const vec3_t* src);
 
 /**
  * @brief 두 벡터의 동등성 비교
  * 
  * @param a 벡터 A
  * @param b 벡터 B
- * @return int 같으면 1, 다르면 0
  */
-BYUL_API int vec3_equal(const vec3_t* a, const vec3_t* b);
+BYUL_API bool vec3_equal(const vec3_t* a, const vec3_t* b);
 
 /**
  * @brief vec3의 해시값을 계산합니다.

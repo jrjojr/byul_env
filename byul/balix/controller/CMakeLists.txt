@@ -40,6 +40,6 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
     numeq
 )
 
-# add_subdirectory(tests)
+add_subdirectory(tests)
 
 target_compile_definitions(${PROJECT_NAME} PRIVATE BYUL_STATIC)

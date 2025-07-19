@@ -130,15 +130,19 @@ int main(int argc, char** argv) {
         float angle_b = -(base_sec + 1.0f) * (float)(M_PI / 30.0f);
 
         vec3_t axis = {0.0f, 0.0f, 1.0f};
-        quat_t* ra = quat_new_axis_angle(&axis, angle_a);
-        quat_t* rb = quat_new_axis_angle(&axis, angle_b);
+        quat_t ra;
+        quat_init_axis_angle(&ra, &axis, angle_a);
 
-        quat_t* rs = quat_new();
-        quat_slerp(rs, ra, rb, t);
+        quat_t rb;
+        quat_init_axis_angle(&rb, &axis, angle_b);
+
+        quat_t rs;
+        quat_init(&rs);
+        quat_slerp(&rs, &ra, &rb, t);
 
         vec3_t rotated_slerp, rotated_lerp, target;
-        quat_rotate_vector(&rotated_slerp, rs, &origin);
-        quat_rotate_vector(&target, rb, &origin);
+        quat_rotate_vector(&rotated_slerp, &rs, &origin);
+        quat_rotate_vector(&target, &rb, &origin);
 
         // LERP 계산 (벡터 직접 보간)
         rotated_lerp.x = origin.x * (1 - t) + target.x * t;
@@ -156,7 +160,6 @@ int main(int argc, char** argv) {
         glBindVertexArray(0);
 
         SDL_GL_SwapWindow(window);
-        quat_free(ra); quat_free(rb); quat_free(rs);
 
         // FPS 측정
         frames++;

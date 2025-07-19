@@ -10,6 +10,8 @@ extern "C" {
 #include "internal/common.h"
 }
 
+static float sample_speed(const trajectory_sample_t& sample);
+
 int main(int argc, char** argv) {
 #ifdef _WIN32
     UINT original_cp = GetConsoleOutputCP();
@@ -23,6 +25,10 @@ int main(int argc, char** argv) {
 
     doctest::Context context;
     context.applyCommandLine(argc, argv);
+
+    context.setOption("success", true);      // 성공한 테스트도 출력
+    context.setOption("durations", true);    // 각 테스트 케이스 시간 출력
+
     int res = context.run();
 
     if (context.shouldExit()) {
@@ -67,11 +73,11 @@ TEST_CASE("Shell basic gravity") {
     shell.env_fn = projectile_env_none;
     shell.base.on_hit = test_hit_cb;
 
-    xform_t* x0 = xform_new_identity();        // ✅ 위치 초기화
+    xform_t x0;
+    xform_init(&x0);        // ✅ 위치 초기화
     vec3_t v3 = vec3_t{0,0,0};
-    xform_set_position(x0, &v3);
-    shell.base.xf = *x0;
-    xform_free(x0);
+    xform_set_position(&x0, &v3);
+    shell.base.xf = x0;
 
     hit_called = false;
 
@@ -103,11 +109,11 @@ TEST_CASE("Missile guidance to target") {
     missile.guidance_fn = projectile_guidance_to_target;
     missile.guidance_userdata = &target;
 
-    xform_t* x0 = xform_new_identity();        // ✅ 위치 초기화
+    xform_t x0;
+    xform_init(&x0);        // ✅ 위치 초기화
     vec3_t v3 = vec3_t{0,0,0};
-    xform_set_position(x0, &v3);
-    missile.base.xf = *x0;
-    xform_free(x0);
+    xform_set_position(&x0, &v3);
+    missile.base.xf = x0;
 
     for (int i = 0; i < 10; ++i)
         missile_update(&missile, 0.1f);
@@ -126,11 +132,11 @@ TEST_CASE("Projectile angular velocity applies rotation") {
     projectile_t proj{};
     proj.angular_velocity = {0, 1.0f, 0}; // Y축 자전
 
-    xform_t* x0 = xform_new_identity();        // ✅ 회전 초기화
+    xform_t x0;
+    xform_init(&x0);        // ✅ 회전 초기화
     vec3_t v3 = vec3_t{0,0,0};
-    xform_set_position(x0, &v3);
-    proj.xf = *x0;
-    xform_free(x0);
+    xform_set_position(&x0, &v3);
+    proj.xf = x0;
 
     vec3_t forward = {0, 0, 1};
     vec3_t world_before, world_after;
@@ -569,12 +575,6 @@ TEST_CASE("Missile guidance with nonlinear target trajectory") {
     trajectory_free(&target_traj);
 }
 
-// 속도 계산 헬퍼 함수
-static float sample_speed(const trajectory_sample_t& sample) {
-    const vec3_t& v = sample.state.linear.velocity;
-    return sqrtf(v.x * v.x + v.y * v.y + v.z * v.z);
-}
-
 TEST_CASE("Missile control test with PID controller") {
     // PID 컨트롤러 생성 (목표 속력 제어)
     controller_t* pid_ctrl = controller_create_pid(
@@ -645,6 +645,11 @@ TEST_CASE("Missile control test with Bang-Bang controller") {
     controller_destroy(bb_ctrl);
 }
 
+// 속도 계산 헬퍼 함수
+static float sample_speed(const trajectory_sample_t& sample) {
+    const vec3_t& v = sample.state.linear.velocity;
+    return sqrtf(v.x * v.x + v.y * v.y + v.z * v.z);
+}
 
 // ---------------------------------------------------------
 // 헬퍼: 미사일 predictor 동적 생성
@@ -706,6 +711,8 @@ TEST_CASE("Missile control test with MPC controller") {
     controller_t* mpc_ctrl = controller_create_mpc(mpc_config, env, body);
     REQUIRE(mpc_ctrl != nullptr);
 
+    ((mpc_impl_t*)(mpc_ctrl->impl))->target.linear.velocity = {20.0f, 0.0f, 0.0f};
+    ((mpc_impl_t*)(mpc_ctrl->impl))->cost_fn = numeq_mpc_cost_hybrid;
     missile_predictor_t* pred = create_missile_predictor(mpc_ctrl);
 
     projectile_result_t result{};

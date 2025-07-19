@@ -26,58 +26,13 @@ static inline void from_eigen_quat(quat_t* out, const Quaternionf& q) {
 // 생성 / 해제 / 복사
 // -----------------------------
 
-dualquat_t* dualquat_new(void) {
-    dualquat_t* dq = new dualquat_t;
-    dq->real = *quat_new();
-    dq->dual = *quat_new_full(0.0f, 0.0f, 0.0f, 0.0f);
-    return dq;
+void dualquat_init(dualquat_t* out) {
+    if (!out) return;
+    quat_init(&out->real);
+    quat_init_full(&out->dual, 0.0f, 0.0f, 0.0f, 0.0f);
 }
 
-void dualquat_free(dualquat_t* dq) {
-    delete dq;
-}
-
-void dualquat_copy(dualquat_t* dst, const dualquat_t* src) {
-    if (!dst || !src) return;
-    dst->real = src->real;
-    dst->dual = src->dual;
-}
-
-// -----------------------------
-// 비교 / 해시
-// -----------------------------
-
-int dualquat_equal(const dualquat_t* a, const dualquat_t* b) {
-    return quat_equal(&a->real, &b->real) && quat_equal(&a->dual, &b->dual);
-}
-
-uint32_t dualquat_hash(const dualquat_t* dq) {
-    return quat_hash(&dq->real) ^ (quat_hash(&dq->dual) << 1);
-}
-
-// -----------------------------
-// 생성 및 추출
-// -----------------------------
-
-// void dualquat_from_quat_vec(dualquat_t* out, 
-//     const quat_t* rot, const vec3_t* vec) {
-
-//     if (!out || !rot || !vec) return;
-//     float w, x, y, z;
-//     quat_get(rot, &w, &x, &y, &z);
-//     Quaternionf real(w, x, y, z);
-//     Vector3f t(vec->x, vec->y, vec->z);
-//     Quaternionf dual(0.0f, t.x(), t.y(), t.z());
-
-//     from_eigen_quat(&out->real, real);
-    
-//     // from_eigen_quat(&out->dual, (dual * real) * 0.5f);
-//     quat_t temp;
-//     from_eigen_quat(&temp, dual * real);
-//     quat_scale(&out->dual, &temp, 0.5f);
-// }
-
-void dualquat_from_quat_vec(dualquat_t* out, 
+void dualquat_init_quat_vec(dualquat_t* out, 
     const quat_t* rot, const vec3_t* vec) {
 
     if (!out) return;
@@ -101,18 +56,23 @@ void dualquat_from_quat_vec(dualquat_t* out,
     from_eigen_quat(&out->dual, dual);
 }
 
-// void dualquat_to_quat_vec(const dualquat_t* dq, quat_t* rot, vec3_t* vec) {
-//     if (!dq || !rot || !vec) return;
-//     Quaternionf real = to_eigen_quat(&dq->real);
-//     Quaternionf dual = to_eigen_quat(&dq->dual);
+void dualquat_copy(dualquat_t* out, const dualquat_t* src) {
+    if (!out || !src) return;
+    out->real = src->real;
+    out->dual = src->dual;
+}
 
-//     Quaternionf dq_conj = real.conjugate();
-//     dual = dual * dq_conj;
-//     Vector3f t = 2.0f * Vector3f(dual.x(), dual.y(), dual.z());
+// -----------------------------
+// 비교 / 해시
+// -----------------------------
 
-//     quat_set(rot, real.w(), real.x(), real.y(), real.z());
-//     vec->x = t.x(); vec->y = t.y(); vec->z = t.z();
-// }
+int dualquat_equal(const dualquat_t* a, const dualquat_t* b) {
+    return quat_equal(&a->real, &b->real) && quat_equal(&a->dual, &b->dual);
+}
+
+uint32_t dualquat_hash(const dualquat_t* dq) {
+    return quat_hash(&dq->real) ^ (quat_hash(&dq->dual) << 1);
+}
 
 void dualquat_to_quat_vec(const dualquat_t* dq, quat_t* rot, vec3_t* vec) {
     if (!dq) return;
@@ -136,7 +96,24 @@ void dualquat_to_quat_vec(const dualquat_t* dq, quat_t* rot, vec3_t* vec) {
 // 연산
 // -----------------------------
 
-void dualquat_normalize(dualquat_t* out, const dualquat_t* dq) {
+// io 본인을 정규화한다.
+void dualquat_normalize(dualquat_t* io) {
+    if (!io) return;
+    Eigen::Quaternionf real = to_eigen_quat(&io->real);
+    Eigen::Quaternionf dual = to_eigen_quat(&io->dual);
+    float norm = real.norm();
+    if (norm < 1e-8f) {
+        from_eigen_quat(&io->real, Eigen::Quaternionf::Identity());
+        from_eigen_quat(&io->dual, Eigen::Quaternionf(0, 0, 0, 0));
+        return;
+    }
+    real.normalize();
+    dual.coeffs() /= norm; // dual 쿼터니언도 동일한 스케일로 조정
+    from_eigen_quat(&io->real, real);
+    from_eigen_quat(&io->dual, dual);
+}
+
+void dualquat_unit(dualquat_t* out, const dualquat_t* dq) {
     if (!out || !dq) return;
     Quaternionf real = to_eigen_quat(&dq->real);
     Quaternionf dual = to_eigen_quat(&dq->dual);
@@ -226,7 +203,7 @@ void dualquat_to_mat4(const dualquat_t* dq, float* out_mat4) {
     memcpy(out_mat4, mat.data(), sizeof(float) * 16);
 }
 
-void dualquat_from_mat4(dualquat_t* out, const float* mat4x4) {
+void dualquat_init_mat4(dualquat_t* out, const float* mat4x4) {
     if (!out || !mat4x4) return;
     Eigen::Map<const Matrix4f> m(mat4x4);
     Matrix3f rot = m.block<3,3>(0,0);
@@ -249,7 +226,7 @@ void dualquat_to_mat3(const dualquat_t* dq, float* out_mat3) {
     memcpy(out_mat3, m.data(), sizeof(float) * 9);
 }
 
-void dualquat_from_mat3(dualquat_t* out, const float* mat3) {
+void dualquat_init_mat3(dualquat_t* out, const float* mat3) {
     if (!out || !mat3) return;
     Eigen::Map<const Matrix3f> m(mat3);
     Quaternionf q(m);
@@ -269,7 +246,7 @@ void dualquat_lerp(dualquat_t* out,
     quat_scale(&qa_scaled, &a->real, 1.0f - t);
     quat_scale(&qb_scaled, &b_aligned.real, t);
     quat_add(&qsum, &qa_scaled, &qb_scaled);
-    quat_normalize(&qnorm, &qsum);
+    quat_unit(&qnorm, &qsum);
 
     quat_t aconj, bconj;
     quat_conjugate(&aconj, &a->real);
@@ -413,7 +390,7 @@ void dualquat_blend_weighted(dualquat_t* out,
     quat_scale(&ar, &a->real, w1);
     quat_scale(&br, &b_aligned.real, w2);
     quat_add(&sumr, &ar, &br);
-    quat_normalize(&dr, &sumr);
+    quat_unit(&dr, &sumr);
 
     quat_scale(&ad, &a->dual, w1);
     quat_scale(&bd, &b_aligned.dual, w2);

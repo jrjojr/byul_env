@@ -12,8 +12,8 @@ public:
     quat_t q;
 
     // 생성자
-    Quat() { q = *quat_new(); }
-    Quat(float w, float x, float y, float z) { q = *quat_new_full(w, x, y, z); }
+    Quat() { q = *quat_init(); }
+    Quat(float w, float x, float y, float z) { q = *quat_init_full(w, x, y, z); }
     Quat(const quat_t& src) { q = *quat_copy(&src); }
     Quat(const Quat& other) { q = *quat_copy(&other.q); }
 
@@ -51,7 +51,7 @@ public:
     // 정규화
     Quat normalize() const {
         quat_t out;
-        quat_normalize(&out, &q);
+        quat_unit(&out, &q);
         return Quat(out);
     }
 

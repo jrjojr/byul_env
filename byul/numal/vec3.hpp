@@ -98,7 +98,7 @@ public:
 
     Vec3 unit(const Vec3& src) { 
         vec3_t r;
-        vec3_unit(&r, &src); 
+        vec3_unit(&r, &src.v); 
         return Vec3(r); 
     }
 

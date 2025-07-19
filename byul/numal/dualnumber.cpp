@@ -4,66 +4,91 @@
 #include <math.h>
 #include <new>
 
-dualnumber_t* dualnumber_new() {
-    return new (std::nothrow) dualnumber_t{0.0f, 0.0f};
+void dualnumber_init(dualnumber_t* out) {
+    if (!out) return;
+    out->re = 0.0f;
+    out->du = 0.0f;
 }
 
-dualnumber_t* dualnumber_new_full(float re, float du) {
-    return new (std::nothrow) dualnumber_t{re, du};
+void dualnumber_init_full(dualnumber_t* out, float re, float du) {
+    if (!out) return;
+    out->re = re;
+    out->du = du;
 }
 
-void dualnumber_free(dualnumber_t* d) {
-    delete d;
+void dualnumber_copy(dualnumber_t* out, const dualnumber_t* src) {
+    if (!out || !src) return;
+    out->re = src->re;
+    out->du = src->du;
 }
 
-dualnumber_t* dualnumber_copy(const dualnumber_t* src) {
-    if (!src) return nullptr;
-    return dualnumber_new_full(src->re, src->du);
-}
-
-int dualnumber_equal(const dualnumber_t* a, const dualnumber_t* b) {
+bool dualnumber_equal(const dualnumber_t* a, const dualnumber_t* b) {
     return a && b && a->re == b->re && a->du == b->du;
 }
 
 unsigned int dualnumber_hash(const dualnumber_t* a) {
     if (!a) return 0;
     unsigned int h = 0;
-    h ^= *(unsigned int*)&a->re;
-    h ^= *(unsigned int*)&a->du;
+    h ^= *(const unsigned int*)&a->re;
+    h ^= *(const unsigned int*)&a->du;
     return h;
 }
 
-dualnumber_t* dualnumber_neg(const dualnumber_t* a) {
-    return dualnumber_new_full(-a->re, -a->du);
+void dualnumber_neg(dualnumber_t* out, const dualnumber_t* a) {
+    if (!out || !a) return;
+    out->re = -a->re;
+    out->du = -a->du;
 }
 
-dualnumber_t* dualnumber_add(const dualnumber_t* a, const dualnumber_t* b) {
-    return dualnumber_new_full(a->re + b->re, a->du + b->du);
+void dualnumber_add(dualnumber_t* out, 
+    const dualnumber_t* a, const dualnumber_t* b) {
+
+    if (!out || !a || !b) return;
+    out->re = a->re + b->re;
+    out->du = a->du + b->du;
 }
 
-dualnumber_t* dualnumber_sub(const dualnumber_t* a, const dualnumber_t* b) {
-    return dualnumber_new_full(a->re - b->re, a->du - b->du);
+void dualnumber_sub(dualnumber_t* out, 
+    const dualnumber_t* a, const dualnumber_t* b) {
+
+    if (!out || !a || !b) return;
+    out->re = a->re - b->re;
+    out->du = a->du - b->du;
 }
 
-dualnumber_t* dualnumber_mul(const dualnumber_t* a, const dualnumber_t* b) {
-    return dualnumber_new_full(a->re * b->re, a->re * b->du + a->du * b->re);
+void dualnumber_mul(dualnumber_t* out, 
+    const dualnumber_t* a, const dualnumber_t* b) {
+
+    if (!out || !a || !b) return;
+    out->re = a->re * b->re;
+    out->du = a->re * b->du + a->du * b->re;
 }
 
-dualnumber_t* dualnumber_div(const dualnumber_t* a, const dualnumber_t* b) {
+void dualnumber_div(dualnumber_t* out, 
+    const dualnumber_t* a, const dualnumber_t* b) {
+        
+    if (!out || !a || !b || b->re == 0.0f) return;
     float denom = b->re * b->re;
-    return dualnumber_new_full(a->re / b->re, (a->du * b->re - a->re * b->du) / denom);
+    out->re = a->re / b->re;
+    out->du = (a->du * b->re - a->re * b->du) / denom;
 }
 
-dualnumber_t* dualnumber_scale(const dualnumber_t* a, float s) {
-    return dualnumber_new_full(a->re * s, a->du * s);
+void dualnumber_scale(dualnumber_t* out, const dualnumber_t* a, float s) {
+    if (!out || !a) return;
+    out->re = a->re * s;
+    out->du = a->du * s;
 }
 
-dualnumber_t* dualnumber_invscale(const dualnumber_t* a, float s) {
-    return dualnumber_new_full(a->re / s, a->du / s);
+void dualnumber_invscale(dualnumber_t* out, const dualnumber_t* a, float s) {
+    if (!out || !a || s == 0.0f) return;
+    out->re = a->re / s;
+    out->du = a->du / s;
 }
 
-dualnumber_t* dualnumber_powf(const dualnumber_t* a, float n) {
+void dualnumber_powf(dualnumber_t* out, const dualnumber_t* a, float n) {
+    if (!out || !a) return;
     float real_pow = powf(a->re, n);
     float dual_part = n * powf(a->re, n - 1.0f) * a->du;
-    return dualnumber_new_full(real_pow, dual_part);
+    out->re = real_pow;
+    out->du = dual_part;
 }

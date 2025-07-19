@@ -17,7 +17,7 @@ public:
     }
 
     DualQuat(const Quat& rot, const Vec3& trans) {
-        dualquat_from_quat_vec(&dq, &rot.q, &trans.v);
+        dualquat_init_quat_vec(&dq, &rot.q, &trans.v);
     }
 
     DualQuat(const dualquat_t& src) {
@@ -34,13 +34,13 @@ public:
     // 정적 생성
     static DualQuat from(const Quat& rot, const Vec3& trans) {
         DualQuat result;
-        dualquat_from_quat_vec(&result.dq, &rot.q, &trans.v);
+        dualquat_init_quat_vec(&result.dq, &rot.q, &trans.v);
         return result;
     }
 
     static DualQuat from_mat4(const float* mat4x4) {
         DualQuat result;
-        dualquat_from_mat4(&result.dq, mat4x4);
+        dualquat_init_mat4(&result.dq, mat4x4);
         return result;
     }
 
@@ -89,7 +89,7 @@ public:
     // 정규화
     DualQuat normalize() const {
         dualquat_t out;
-        dualquat_normalize(&out, &dq);
+        dualquat_unit(&out, &dq);
         return DualQuat(out);
     }
 

@@ -9,7 +9,7 @@ extern "C" {
 
 TEST_CASE("Scalar PID: Proportional only (Kp only)") {
     pid_controller_t pid;
-    pid_init(&pid, 1.0f, 0.0f, 0.0f, 0.1f);
+    pid_init_full(&pid, 1.0f, 0.0f, 0.0f, 0.1f);
 
     float ctrl = pid_update(&pid, 5.0f, 2.0f);  // error = 3.0
     CHECK(ctrl == doctest::Approx(3.0f));
@@ -17,7 +17,7 @@ TEST_CASE("Scalar PID: Proportional only (Kp only)") {
 
 TEST_CASE("Scalar PID: Full PID output (Kp, Ki, Kd)") {
     pid_controller_t pid;
-    pid_init(&pid, 2.0f, 0.5f, 1.0f, 1.0f);
+    pid_init_full(&pid, 2.0f, 0.5f, 1.0f, 1.0f);
     pid_reset(&pid);
 
     float out1 = pid_update(&pid, 4.0f, 1.0f);  // error = 3
@@ -31,7 +31,7 @@ TEST_CASE("Scalar PID: Full PID output (Kp, Ki, Kd)") {
 
 TEST_CASE("Scalar PID: Output limit + Anti-windup") {
     pid_controller_t pid;
-    pid_init(&pid, 1.0f, 1.0f, 0.0f, 1.0f);
+    pid_init_full(&pid, 1.0f, 1.0f, 0.0f, 1.0f);
     pid.output_limit = 2.0f;
     pid.anti_windup = true;
 
@@ -44,7 +44,7 @@ TEST_CASE("Scalar PID: Output limit + Anti-windup") {
 
 TEST_CASE("Scalar PID: Set and Reset State") {
     pid_controller_t pid;
-    pid_init(&pid, 1.0f, 1.0f, 1.0f, 1.0f);
+    pid_init_full(&pid, 1.0f, 1.0f, 1.0f, 1.0f);
     pid_set_state(&pid, 3.0f, 2.0f);
 
     CHECK(pid.integral == doctest::Approx(3.0f));
@@ -57,7 +57,7 @@ TEST_CASE("Scalar PID: Set and Reset State") {
 
 TEST_CASE("Scalar PID: Preview should not change state") {
     pid_controller_t pid;
-    pid_init(&pid, 1.0f, 1.0f, 1.0f, 1.0f);
+    pid_init_full(&pid, 1.0f, 1.0f, 1.0f, 1.0f);
     pid_set_state(&pid, 5.0f, 2.0f);
 
     float before_integral = pid.integral;

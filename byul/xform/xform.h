@@ -22,16 +22,15 @@ typedef struct s_xform {
  * @brief 단위 변환을 생성합니다. (위치: 0, 회전: 없음)
  * @return 새로 생성된 단위 xform 포인터 (heap 할당됨)
  */
-BYUL_API xform_t* xform_new_identity(void);
+BYUL_API void xform_init(xform_t* out);
 
 // /**
 //  * @brief 위치 + 축-각 기반 회전으로 초기화된 xform 생성
 //  * @param pos 초기 위치 (NULL이면 원점)
 //  * @param axis 회전 축 단위 벡터
 //  * @param radians 회전 각도 (라디안)
-//  * @return 생성된 xform 포인터
 //  */
-BYUL_API xform_t* xform_new_from_axis_angle(
+BYUL_API void xform_init_axis_angle(xform_t* out,
     const vec3_t* pos, const vec3_t* axis, float radians);
 
 /**
@@ -43,7 +42,7 @@ BYUL_API xform_t* xform_new_from_axis_angle(
  * @param radians_z Z축 회전 (roll)
  * @param order 회전 순서 (예: EULER_ORDER_ZYX)
  */
-BYUL_API xform_t* xform_new_from_euler(
+BYUL_API void xform_init_euler(xform_t* out,
     const vec3_t* pos,
     float yaw, float pitch, float roll,
     euler_order_t order);
@@ -53,10 +52,7 @@ BYUL_API xform_t* xform_new_from_euler(
  * @param src 원본 xform
  * @return 복사된 xform 포인터
  */
-BYUL_API xform_t* xform_clone(const xform_t* src);
-
-/** 해제 */
-BYUL_API void xform_free(xform_t* xf);
+BYUL_API void xform_copy(xform_t* out,const xform_t* src);
 
 /** 비교 */
 BYUL_API bool xform_equal(const xform_t* a, const xform_t* b);

@@ -5,32 +5,28 @@
 #include <cstring>
 #include <new>
 
-vec3_t* vec3_new_full(float x, float y, float z) {
-    vec3_t* v = new (std::nothrow) vec3_t;
-    if (v) {
-        v->x = x;
-        v->y = y;
-        v->z = z;
-    }
-    return v;
+// (x, y, z)로 초기화
+void vec3_init_full(vec3_t* out, float x, float y, float z) {
+    if (!out) return;
+    out->x = x;
+    out->y = y;
+    out->z = z;
 }
 
-vec3_t* vec3_new(void) {
-    return vec3_new_full(0.0f, 0.0f, 0.0f);
+// (0, 0, 0)으로 초기화
+void vec3_init(vec3_t* out) {
+    vec3_init_full(out, 0.0f, 0.0f, 0.0f);
 }
 
-void vec3_free(vec3_t* v) {
-    delete v;
+// src 벡터를 out에 복사
+void vec3_copy(vec3_t* out, const vec3_t* src) {
+    if (!out || !src) return;
+    *out = *src;
 }
 
-vec3_t* vec3_copy(const vec3_t* src) {
-    if (!src) return nullptr;
-    return vec3_new_full(src->x, src->y, src->z);
-}
-
-int vec3_equal(const vec3_t* a, const vec3_t* b) {
+bool vec3_equal(const vec3_t* a, const vec3_t* b) {
     if (!a || !b) return 0;
-    return (a->x == b->x && a->y == b->y && a->z == b->z) ? 1 : 0;
+    return (a->x == b->x && a->y == b->y && a->z == b->z);
 }
 
 uint32_t vec3_hash(const vec3_t* v) {

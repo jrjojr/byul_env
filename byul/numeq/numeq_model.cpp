@@ -9,6 +9,106 @@ static std::mutex bounce_mutex;
 static numeq_bounce_func g_bounce_func = nullptr;
 static void* g_bounce_userdata = nullptr;
 
+/**
+ * @brief environment_t 기본값 초기화
+ * @param env 초기화할 환경 구조체
+ */
+void environment_init(environment_t* env) {
+    if (!env) return;
+    env->gravity = (vec3_t){0.0f, -9.8f, 0.0f};
+    vec3_zero(&env->wind);
+    env->air_density = 1.225f;   // 해수면 기준 (kg/m³)
+    env->humidity = 50.0f;       // 기본 습도 [%]
+    env->temperature = 20.0f;    // 기본 온도 [°C]
+    env->pressure = 101325.0f;   // 해수면 기압 [Pa]
+}
+
+/**
+ * @brief environment_t를 지정한 값으로 초기화
+ * @param env 초기화할 환경 구조체
+ * @param gravity 중력 가속도
+ * @param wind 바람 가속도
+ * @param air_density 공기 밀도
+ * @param humidity 습도 [%]
+ * @param temperature 온도 [°C]
+ * @param pressure 기압 [Pa]
+ */
+void environment_init_full(environment_t* env,
+                           const vec3_t* gravity,
+                           const vec3_t* wind,
+                           float air_density,
+                           float humidity,
+                           float temperature,
+                           float pressure) {
+    if (!env) return;
+    env->gravity = *gravity;
+    env->wind = *wind;
+    env->air_density = air_density;
+    env->humidity = humidity;
+    env->temperature = temperature;
+    env->pressure = pressure;
+}
+
+/**
+ * @brief environment_t 복사
+ * @param out 복사 대상
+ * @param src 원본
+ */
+void environment_copy(environment_t* out, const environment_t* src) {
+    if (!out || !src) return;
+    *out = *src;
+}
+
+// ---------------------------------------------------------
+// body_properties_t 유틸리티
+// ---------------------------------------------------------
+
+/**
+ * @brief body_properties_t 기본값 초기화
+ * @param body 초기화할 물체 특성 구조체
+ */
+void body_properties_init(body_properties_t* body) {
+    if (!body) return;
+    body->mass = 1.0f;        // 기본 1 kg
+    body->drag_coef = 0.47f;  // 구체(Cd) 기준값
+    body->cross_section = 0.01f;  // 10 cm² (0.01 m²)
+    body->restitution = 0.5f; // 기본 반발 계수
+    body->friction = 0.5f;    // 기본 마찰 계수
+}
+
+/**
+ * @brief body_properties_t를 지정한 값으로 초기화
+ * @param body 초기화할 구조체
+ * @param mass 질량 [kg]
+ * @param drag_coef 공기 저항 계수
+ * @param cross_section 단면적 [m²]
+ * @param restitution 반발 계수
+ * @param friction 마찰 계수
+ */
+void body_properties_init_full(body_properties_t* body,
+                               float mass,
+                               float drag_coef,
+                               float cross_section,
+                               float restitution,
+                               float friction) {
+    if (!body) return;
+    body->mass = mass;
+    body->drag_coef = drag_coef;
+    body->cross_section = cross_section;
+    body->restitution = restitution;
+    body->friction = friction;
+}
+
+/**
+ * @brief body_properties_t 복사
+ * @param out 복사 대상
+ * @param src 원본
+ */
+void body_properties_copy(body_properties_t* out, const body_properties_t* src) {
+    if (!out || !src) return;
+    *out = *src;
+}
+
 // ---------------------------------------------------------
 // 공기 저항력 계산 (F_drag = 0.5 * ρ * v^2 * C_d * A) → a = F / m
 // ---------------------------------------------------------

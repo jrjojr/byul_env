@@ -36,29 +36,38 @@ typedef struct {
     float du;  // dual part
 } dualnumber_t;
 
-// 메모리 관리
-BYUL_API dualnumber_t* dualnumber_new();
-BYUL_API dualnumber_t* dualnumber_new_full(float re, float du);
-BYUL_API void          dualnumber_free(dualnumber_t* d);
+BYUL_API void dualnumber_init(dualnumber_t* out);
 
-// 기본 연산
-BYUL_API dualnumber_t* dualnumber_neg(const dualnumber_t* a);
-BYUL_API dualnumber_t* dualnumber_add(const dualnumber_t* a, const dualnumber_t* b);
-BYUL_API dualnumber_t* dualnumber_sub(const dualnumber_t* a, const dualnumber_t* b);
-BYUL_API dualnumber_t* dualnumber_mul(const dualnumber_t* a, const dualnumber_t* b);
-BYUL_API dualnumber_t* dualnumber_div(const dualnumber_t* a, const dualnumber_t* b);
+BYUL_API void dualnumber_init_full(dualnumber_t* out, float re, float du);
 
-// 스칼라 연산
-BYUL_API dualnumber_t* dualnumber_scale(const dualnumber_t* a, float s);
-BYUL_API dualnumber_t* dualnumber_invscale(const dualnumber_t* a, float s);
+BYUL_API void dualnumber_copy(dualnumber_t* out, const dualnumber_t* src);
 
-// 거듭제곱
-BYUL_API dualnumber_t* dualnumber_powf(const dualnumber_t* a, float n);
+BYUL_API bool dualnumber_equal(const dualnumber_t* a, const dualnumber_t* b);
 
-// 비교 및 복사
-BYUL_API int            dualnumber_equal(const dualnumber_t* a, const dualnumber_t* b);
-BYUL_API unsigned int   dualnumber_hash(const dualnumber_t* a);
-BYUL_API dualnumber_t*  dualnumber_copy(const dualnumber_t* src);
+BYUL_API unsigned int dualnumber_hash(const dualnumber_t* a);
+
+BYUL_API void dualnumber_neg(dualnumber_t* out, const dualnumber_t* a);
+
+BYUL_API void dualnumber_add(dualnumber_t* out, 
+    const dualnumber_t* a, const dualnumber_t* b);
+
+BYUL_API void dualnumber_sub(dualnumber_t* out, 
+    const dualnumber_t* a, const dualnumber_t* b);
+
+BYUL_API void dualnumber_mul(dualnumber_t* out, 
+    const dualnumber_t* a, const dualnumber_t* b);
+
+BYUL_API void dualnumber_div(dualnumber_t* out, 
+    const dualnumber_t* a, const dualnumber_t* b);
+
+BYUL_API void dualnumber_scale(dualnumber_t* out, 
+    const dualnumber_t* a, float s);
+
+BYUL_API void dualnumber_invscale(dualnumber_t* out, 
+    const dualnumber_t* a, float s);
+
+BYUL_API void dualnumber_powf(dualnumber_t* out, 
+    const dualnumber_t* a, float n);
 
 #ifdef __cplusplus
 } // extern "C"
