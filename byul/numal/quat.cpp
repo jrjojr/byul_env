@@ -138,7 +138,7 @@ void quat_init_axes(quat_t* out,
 }
 
 
-void quat_copy(quat_t* out, const quat_t* src) {
+void quat_assign(quat_t* out, const quat_t* src) {
     if (!out || !src) return;
     *out = *src;
 }

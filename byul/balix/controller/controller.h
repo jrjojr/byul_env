@@ -81,7 +81,7 @@ BYUL_API void pid_impl_init_full(pid_impl_t* impl,
  *
  * @note `dst`와 `src`가 모두 유효한 포인터여야 합니다.
  */
-BYUL_API void pid_impl_copy(pid_impl_t* dst, const pid_impl_t* src);
+BYUL_API void pid_impl_assign(pid_impl_t* dst, const pid_impl_t* src);
 
 // Bang-Bang 구현체
 typedef struct s_bangbang_impl {
@@ -124,7 +124,7 @@ BYUL_API void bangbang_impl_init_full(bangbang_impl_t* impl, float max_output);
  *
  * @note `dst`와 `src`는 모두 유효한 포인터여야 합니다.
  */
-BYUL_API void bangbang_impl_copy(bangbang_impl_t* dst,
+BYUL_API void bangbang_impl_assign(bangbang_impl_t* dst,
                                  const bangbang_impl_t* src);
 
 // MPC 구현체
@@ -187,7 +187,7 @@ BYUL_API void mpc_impl_init_full(mpc_impl_t* impl,
  * @note `dst`와 `src`가 유효한 포인터여야 하며,
  *       내부 구조체(mpc_config_t, motion_state_t 등)는 값 복사됩니다.
  */
-BYUL_API void mpc_impl_copy(mpc_impl_t* dst, const mpc_impl_t* src);
+BYUL_API void mpc_impl_assign(mpc_impl_t* dst, const mpc_impl_t* src);
 
 struct s_controller {
     controller_type_t type;          /**< 제어기 종류 */

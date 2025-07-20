@@ -12,19 +12,19 @@ bool is_coord_blocked_navgrid(const void* context,
     int x, int y, void* userdata) {
 
     if (!context) return false;
-    coord_t* c = coord_new_full(x, y);
+    coord_t* c = coord_create_full(x, y);
     bool result = coord_hash_contains(
         (const coord_hash_t*)((const navgrid_t*)context)->blocked_coords, c);
-    coord_free(c);
+    coord_destroy(c);
     return result;
 }
 
-navgrid_t* navgrid_new() {
-    return navgrid_new_full(0, 0, NAVGRID_DIR_8, 
+navgrid_t* navgrid_create() {
+    return navgrid_create_full(0, 0, NAVGRID_DIR_8, 
         (is_coord_blocked_func) is_coord_blocked_navgrid);
 }
 
-navgrid_t* navgrid_new_full(int width, int height, navgrid_dir_mode_t mode, 
+navgrid_t* navgrid_create_full(int width, int height, navgrid_dir_mode_t mode, 
     is_coord_blocked_func is_coord_blocked_fn) {
 
     if (!is_coord_blocked_fn) {
@@ -35,20 +35,20 @@ navgrid_t* navgrid_new_full(int width, int height, navgrid_dir_mode_t mode,
     m->width = width;
     m->height = height;
     m->mode = mode;
-    m->blocked_coords = coord_hash_new();
+    m->blocked_coords = coord_hash_create();
     m->is_coord_blocked_fn = is_coord_blocked_fn;
     return m;
 }
 
-void navgrid_free(navgrid_t* m) {
+void navgrid_destroy(navgrid_t* m) {
     if (!m) return;
-    coord_hash_free(m->blocked_coords);
+    coord_hash_destroy(m->blocked_coords);
     delete m;
 }
 
 navgrid_t* navgrid_copy(const navgrid_t* m) {
     if (!m) return nullptr;
-    navgrid_t* c = navgrid_new_full(m->width, m->height, m->mode, 
+    navgrid_t* c = navgrid_create_full(m->width, m->height, m->mode, 
         m->is_coord_blocked_fn);
 
     c->blocked_coords = coord_hash_copy(m->blocked_coords);
@@ -98,17 +98,17 @@ void navgrid_set_mode(navgrid_t* m, navgrid_dir_mode_t mode) {
 
 bool navgrid_block_coord(navgrid_t* m, int x, int y) {
     if (!m) return false;
-    coord_t* c = coord_new_full(x, y);
+    coord_t* c = coord_create_full(x, y);
     coord_hash_replace(m->blocked_coords, c, nullptr);
-    coord_free(c);
+    coord_destroy(c);
     return true;
 }
 
 bool navgrid_unblock_coord(navgrid_t* m, int x, int y) {
     if (!m) return false;
-    coord_t* c = coord_new_full(x, y);
+    coord_t* c = coord_create_full(x, y);
     bool result = coord_hash_remove(m->blocked_coords, c);
-    coord_free(c);
+    coord_destroy(c);
     return result;
 }
 
@@ -144,7 +144,7 @@ const coord_hash_t* navgrid_get_blocked_coords(const navgrid_t* m) {
 
 coord_list_t* navgrid_clone_adjacent(const navgrid_t* m, int x, int y) {
     if (!m) return nullptr;
-    coord_list_t* list = coord_list_new();
+    coord_list_t* list = coord_list_create();
     static const int dx4[] = {0, -1, 1, 0};
     static const int dy4[] = {-1, 0, 0, 1};
     static const int dx8[] = {0, -1, 1, 0, -1, -1, 1, 1};
@@ -167,7 +167,7 @@ coord_list_t* navgrid_clone_adjacent(const navgrid_t* m, int x, int y) {
 
 coord_list_t* navgrid_clone_adjacent_all(const navgrid_t* m, int x, int y) {
     if (!m) return nullptr;
-    coord_list_t* list = coord_list_new();
+    coord_list_t* list = coord_list_create();
     static const int dx4[] = {0, -1, 1, 0};
     static const int dy4[] = {-1, 0, 0, 1};
     static const int dx8[] = {0, -1, 1, 0, -1, -1, 1, 1};
@@ -190,7 +190,7 @@ coord_list_t* navgrid_clone_adjacent_all_range(
     navgrid_t* m, int x, int y, int range) {
 
     if (!m || range < 0) return nullptr;
-    coord_hash_t* seen = coord_hash_new();
+    coord_hash_t* seen = coord_hash_create();
     for (int dx = -range; dx <= range; ++dx) {
         for (int dy = -range; dy <= range; ++dy) {
             int cx = x + dx;
@@ -203,11 +203,11 @@ coord_list_t* navgrid_clone_adjacent_all_range(
                 if (!coord_hash_contains(seen, c))
                     coord_hash_replace(seen, c, nullptr);
             }
-            coord_list_free(part);
+            coord_list_destroy(part);
         }
     }
     coord_list_t* result = coord_hash_to_list(seen);
-    coord_hash_free(seen);
+    coord_hash_destroy(seen);
     return result;
 }
 
@@ -219,12 +219,12 @@ coord_t* navgrid_clone_neighbor_at_degree(const navgrid_t* m, int x, int y, doub
     int best_index = -1;
     double min_diff = 360.0;
 
-    coord_t* origin = coord_new_full(x, y);
+    coord_t* origin = coord_create_full(x, y);
     for (int i = 0; i < count; ++i) {
         int nx = x + dx8[i];
         int ny = y + dy8[i];
         if (!navgrid_is_inside(m, nx, ny)) continue;
-        coord_t* target = coord_new_full(nx, ny);
+        coord_t* target = coord_create_full(nx, ny);
         double deg = coord_degree(origin, target);
         double diff = fabs(degree - deg);
         if (diff > 180.0) diff = 360.0 - diff;
@@ -232,11 +232,11 @@ coord_t* navgrid_clone_neighbor_at_degree(const navgrid_t* m, int x, int y, doub
             min_diff = diff;
             best_index = i;
         }
-        coord_free(target);
+        coord_destroy(target);
     }
-    coord_free(origin);
+    coord_destroy(origin);
     if (best_index == -1) return nullptr;
-    return coord_new_full(x + dx8[best_index], y + dy8[best_index]);
+    return coord_create_full(x + dx8[best_index], y + dy8[best_index]);
 }
 
 coord_t* navgrid_clone_neighbor_at_goal(const navgrid_t* m, const coord_t* center, const coord_t* goal) {
@@ -257,11 +257,11 @@ coord_t* navgrid_clone_neighbor_at_goal(const navgrid_t* m, const coord_t* cente
         if (diff > 180.0) diff = 360.0 - diff;
         if (diff < min_diff) {
             min_diff = diff;
-            if (best) coord_free(best);
+            if (best) coord_destroy(best);
             best = coord_copy(c);
         }
     }
-    coord_list_free(neighbors);
+    coord_list_destroy(neighbors);
     return best;
 }
 
@@ -277,7 +277,7 @@ coord_list_t* navgrid_clone_adjacent_at_degree_range(
     double deg_max = fmod(center_deg + end_deg + 360.0, 360.0);
     bool wraps = deg_min > deg_max;
 
-    coord_hash_t* seen = coord_hash_new();
+    coord_hash_t* seen = coord_hash_create();
     int cx = coord_get_x(center);
     int cy = coord_get_y(center);
 
@@ -287,18 +287,18 @@ coord_list_t* navgrid_clone_adjacent_at_degree_range(
             int nx = cx + dx;
             int ny = cy + dy;
             if (!navgrid_is_inside(m, nx, ny)) continue;
-            coord_t* target = coord_new_full(nx, ny);
+            coord_t* target = coord_create_full(nx, ny);
             double deg = coord_degree(center, target);
             bool in_range = (!wraps) ? (deg >= deg_min && deg <= deg_max)
                                      : (deg >= deg_min || deg <= deg_max);
             if (in_range && !coord_hash_contains(seen, target)) {
                 coord_hash_replace(seen, target, nullptr);
             }
-            coord_free(target);
+            coord_destroy(target);
         }
     }
     coord_list_t* result = coord_hash_to_list(seen);
-    coord_hash_free(seen);
+    coord_hash_destroy(seen);
     return result;
 }
 

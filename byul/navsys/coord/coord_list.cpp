@@ -10,14 +10,14 @@ struct s_coord_list {
     std::vector<coord_t*> data;
 };
 
-coord_list_t* coord_list_new() {
+coord_list_t* coord_list_create() {
     return new s_coord_list();
 }
 
-void coord_list_free(coord_list_t* list) {
+void coord_list_destroy(coord_list_t* list) {
     if (!list) return;
     for (coord_t* c : list->data) {
-        coord_free(c);
+        coord_destroy(c);
     }
     delete list;
 }

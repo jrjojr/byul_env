@@ -32,7 +32,7 @@ BYUL_API void vec3_init(vec3_t* out);
  * @brief vec3 복사
  * 
  */
-BYUL_API void vec3_copy(vec3_t* out, const vec3_t* src);
+BYUL_API void vec3_assign(vec3_t* out, const vec3_t* src);
 
 /**
  * @brief 두 벡터의 동등성 비교

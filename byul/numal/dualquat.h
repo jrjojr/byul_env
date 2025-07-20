@@ -40,7 +40,7 @@ BYUL_API void dualquat_init_from_mat3(dualquat_t* out, const float* mat3x3);
 BYUL_API void dualquat_init_from_mat4(dualquat_t* out, const float* mat4x4);
 
 /** @brief 복사 */
-BYUL_API void dualquat_copy(dualquat_t* out, const dualquat_t* src);
+BYUL_API void dualquat_assign(dualquat_t* out, const dualquat_t* src);
 
 // ---------------------------------------------------------
 // 🧪 비교 / 해시

@@ -14,8 +14,8 @@ public:
     // 생성자
     Quat() { quat_init(&q); }
     Quat(float w, float x, float y, float z) { quat_init_full(&q, w, x, y, z); }
-    Quat(const quat_t& src) { quat_copy(&q, &src); }
-    Quat(const Quat& other) { quat_copy(&q, &other.q); }
+    Quat(const quat_t& src) { quat_assign(&q, &src); }
+    Quat(const Quat& other) { quat_assign(&q, &other.q); }
 
     // 소멸자
     ~Quat() {} // heap 메모리는 직접 관리하지 않음

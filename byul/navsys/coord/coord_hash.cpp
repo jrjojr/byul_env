@@ -12,7 +12,7 @@ void* int_copy(const void* p) {
     return out;
 }
 
-void int_free(void* p) {
+void int_destroy(void* p) {
     delete reinterpret_cast<int*>(p);
 }
 
@@ -22,7 +22,7 @@ void* float_copy(const void* p) {
     return out;
 }
 
-void float_free(void* p){
+void float_destroy(void* p){
     delete reinterpret_cast<float*>(p);
 }
 
@@ -32,33 +32,33 @@ void* double_copy(const void* p){
     return out;
 }
 
-void double_free(void* p){
+void double_destroy(void* p){
     delete reinterpret_cast<double*>(p);
 }
 
 struct s_coord_hash {
     std::unordered_map<coord_t*, void*, CoordHash, CoordEqual> data;
     coord_hash_copy_func value_copy_func = nullptr;
-    coord_hash_free_func value_free_func = nullptr;
+    coord_hash_destroy_func value_destroy_func = nullptr;
 };
 
-coord_hash_t* coord_hash_new() {
-    return coord_hash_new_full(int_copy, int_free);
+coord_hash_t* coord_hash_create() {
+    return coord_hash_create_full(int_copy, int_destroy);
 }
 
-coord_hash_t* coord_hash_new_full(coord_hash_copy_func copy_func,
-                                  coord_hash_free_func free_func) {
+coord_hash_t* coord_hash_create_full(coord_hash_copy_func copy_func,
+                                  coord_hash_destroy_func free_func) {
     auto* h = new s_coord_hash;
     h->value_copy_func = copy_func;
-    h->value_free_func = free_func;
+    h->value_destroy_func = free_func;
     return h;
 }
 
-void coord_hash_free(coord_hash_t* hash) {
+void coord_hash_destroy(coord_hash_t* hash) {
     if (!hash) return;
-    if (hash->value_free_func) {
+    if (hash->value_destroy_func) {
         for (auto& [key, val] : hash->data) {
-            if (val) hash->value_free_func(val);
+            if (val) hash->value_destroy_func(val);
         }
     }
     for (auto& [key, _] : hash->data) delete key;
@@ -67,7 +67,7 @@ void coord_hash_free(coord_hash_t* hash) {
 
 coord_hash_t* coord_hash_copy(const coord_hash_t* original) {
     if (!original) return nullptr;
-    coord_hash_t* copy = coord_hash_new();
+    coord_hash_t* copy = coord_hash_create();
     copy->data = original->data;
     return copy;
 }
@@ -86,7 +86,7 @@ bool coord_hash_insert(coord_hash_t* hash, const coord_t* key, void* value) {
     if (!result.second) {
         delete copy_key;
         if (copy_value){
-            if (hash->value_free_func) hash->value_free_func(copy_value);
+            if (hash->value_destroy_func) hash->value_destroy_func(copy_value);
         }
     }
     return result.second;
@@ -98,7 +98,7 @@ bool coord_hash_replace(coord_hash_t* hash, const coord_t* key, void* value) {
     auto it = hash->data.find(const_cast<coord_t*>(key));
     if (it != hash->data.end()) {
         if (value) {
-            if (hash->value_free_func) hash->value_free_func(it->second);
+            if (hash->value_destroy_func) hash->value_destroy_func(it->second);
             it->second = hash->value_copy_func(value);
             return true;
         }
@@ -110,7 +110,7 @@ bool coord_hash_remove(coord_hash_t* hash, const coord_t* key) {
     if (!hash || !key) return false;
     auto it = hash->data.find(const_cast<coord_t*>(key));
     if (it != hash->data.end()) {
-        if (hash->value_free_func) hash->value_free_func(it->second);
+        if (hash->value_destroy_func) hash->value_destroy_func(it->second);
         delete it->first;
         hash->data.erase(it);
         return true;
@@ -120,8 +120,8 @@ bool coord_hash_remove(coord_hash_t* hash, const coord_t* key) {
 
 void coord_hash_clear(coord_hash_t* hash) {
     if (!hash) return;
-    if (hash->value_free_func) {
-        for (auto& [_, val] : hash->data) hash->value_free_func(val);
+    if (hash->value_destroy_func) {
+        for (auto& [_, val] : hash->data) hash->value_destroy_func(val);
     }
     for (auto& [key, _] : hash->data) delete key;
     hash->data.clear();
@@ -157,7 +157,7 @@ uint32_t coord_hash_hash(const coord_hash_t* h) {
     if (!h) return 0;
 
     uint32_t hash = 0;
-    coord_hash_iter_t* it = coord_hash_iter_new(h);
+    coord_hash_iter_t* it = coord_hash_iter_create(h);
     coord_t* key;
     void* val;
 
@@ -167,7 +167,7 @@ uint32_t coord_hash_hash(const coord_hash_t* h) {
         hash ^= (h1 ^ h2);
     }
 
-    coord_hash_iter_free(it);
+    coord_hash_iter_destroy(it);
     return hash;
 }
 
@@ -177,14 +177,14 @@ bool coord_hash_equal(const coord_hash_t* a, const coord_hash_t* b) {
 
 coord_list_t* coord_hash_keys(const coord_hash_t* h) {
     if (!h) return nullptr;
-    coord_list_t* list = coord_list_new();
+    coord_list_t* list = coord_list_create();
     for (const auto& [k, _] : h->data) coord_list_push_back(list, k);
     return list;
 }
 
 coord_list_t* coord_hash_to_list(const coord_hash_t* hash) {
     if (!hash) return nullptr;
-    coord_list_t* list = coord_list_new();
+    coord_list_t* list = coord_list_create();
     for (const auto& [key, _] : hash->data) {
         coord_list_push_back(list, key);
     }
@@ -230,7 +230,7 @@ typedef struct s_coord_hash_iter {
     std::unordered_map<coord_t*, void*, CoordHash, CoordEqual>::const_iterator end;
 } coord_hash_iter_t;
 
-coord_hash_iter_t* coord_hash_iter_new(const coord_hash_t* hash) {
+coord_hash_iter_t* coord_hash_iter_create(const coord_hash_t* hash) {
     if (!hash) return nullptr;
 
     auto* iter = new coord_hash_iter_t;
@@ -250,7 +250,7 @@ bool coord_hash_iter_next(coord_hash_iter_t* iter, coord_t** key_out, void** val
     return true;
 }
 
-void coord_hash_iter_free(coord_hash_iter_t* iter) {
+void coord_hash_iter_destroy(coord_hash_iter_t* iter) {
     delete iter;
 }
 
@@ -264,7 +264,7 @@ char* coord_hash_to_string(const coord_hash_t* hash) {
 
     buffer[0] = '\0';
 
-    coord_hash_iter_t* iter = coord_hash_iter_new((coord_hash_t*)hash);
+    coord_hash_iter_t* iter = coord_hash_iter_create((coord_hash_t*)hash);
     coord_t* key;
 
     while (coord_hash_iter_next(iter, &key, NULL)) {
@@ -276,7 +276,7 @@ char* coord_hash_to_string(const coord_hash_t* hash) {
             buf_size *= 2;
             buffer = (char*)realloc(buffer, buf_size);
             if (!buffer) {
-                coord_hash_iter_free(iter);
+                coord_hash_iter_destroy(iter);
                 return NULL;
             }
         }
@@ -285,7 +285,7 @@ char* coord_hash_to_string(const coord_hash_t* hash) {
         len += entry_len;
     }
 
-    coord_hash_iter_free(iter);
+    coord_hash_iter_destroy(iter);
     return buffer;
 }
 

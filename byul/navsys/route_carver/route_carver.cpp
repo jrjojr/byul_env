@@ -21,9 +21,9 @@ int route_carve_beam(navgrid_t* navgrid,
             }
             coord_set(cur, next->x, next->y);
 
-            coord_free(next);
+            coord_destroy(next);
         }
-        coord_free(cur);
+        coord_destroy(cur);
         return removed;        
     }
 
@@ -40,10 +40,10 @@ int route_carve_beam(navgrid_t* navgrid,
             }
         }
         coord_set(cur, next->x, next->y);
-        coord_list_free(neighbors);
-        coord_free(next);
+        coord_list_destroy(neighbors);
+        coord_destroy(next);
     }
-    coord_free(cur);
+    coord_destroy(cur);
     return removed;
 }
 
@@ -78,6 +78,6 @@ int route_carve_bomb(navgrid_t* navgrid, const coord_t* center, int range){
             removed++;
         }
     }
-    coord_list_free(neighbors);
+    coord_list_destroy(neighbors);
     return removed;
 }

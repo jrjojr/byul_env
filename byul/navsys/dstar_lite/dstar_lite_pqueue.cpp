@@ -15,22 +15,22 @@ struct s_dstar_lite_pqueue {
     coord_hash_t* coord_to_key;
 };
 
-dstar_lite_pqueue_t* dstar_lite_pqueue_new() {
+dstar_lite_pqueue_t* dstar_lite_pqueue_create() {
     auto* q = new dstar_lite_pqueue_t{};
-    q->coord_to_key = coord_hash_new_full(
+    q->coord_to_key = coord_hash_create_full(
         (coord_hash_copy_func)dstar_lite_key_copy,
-        (coord_hash_free_func)dstar_lite_key_free
+        (coord_hash_destroy_func)dstar_lite_key_destroy
     );
     return q;
 }
 
-void dstar_lite_pqueue_free(dstar_lite_pqueue_t* q) {
+void dstar_lite_pqueue_destroy(dstar_lite_pqueue_t* q) {
     if (!q) return;
     for (auto& [key, vec] : q->key_to_coords) {
-        for (coord_t* c : vec) coord_free(c);
-        dstar_lite_key_free(key);
+        for (coord_t* c : vec) coord_destroy(c);
+        dstar_lite_key_destroy(key);
     }
-    coord_hash_free(q->coord_to_key);
+    coord_hash_destroy(q->coord_to_key);
     delete q;
 }
 
@@ -83,7 +83,7 @@ coord_t* dstar_lite_pqueue_pop(dstar_lite_pqueue_t* q) {
     auto& vec = it->second;
 
     if (vec.empty()) {
-        dstar_lite_key_free(it->first);
+        dstar_lite_key_destroy(it->first);
         q->key_to_coords.erase(it);
         return nullptr;
     }
@@ -93,7 +93,7 @@ coord_t* dstar_lite_pqueue_pop(dstar_lite_pqueue_t* q) {
     coord_hash_remove(q->coord_to_key, popped);
 
     if (vec.empty()) {
-        dstar_lite_key_free(it->first);
+        dstar_lite_key_destroy(it->first);
         q->key_to_coords.erase(it);
     }
 
@@ -116,11 +116,11 @@ bool dstar_lite_pqueue_remove(dstar_lite_pqueue_t* q, const coord_t* u) {
                 return coord_equal(c, u);
             });
             if (found != vec.end()) {
-                coord_free(*found);
+                coord_destroy(*found);
                 vec.erase(found);
                 coord_hash_remove(q->coord_to_key, u);
                 if (vec.empty()) {
-                    dstar_lite_key_free(it->first);
+                    dstar_lite_key_destroy(it->first);
                     q->key_to_coords.erase(it);
                 }
                 return true;
@@ -141,11 +141,11 @@ bool dstar_lite_pqueue_remove_full(dstar_lite_pqueue_t* q,
                 return coord_equal(item, c);
             });
             if (found != vec.end()) {
-                coord_free(*found);
+                coord_destroy(*found);
                 vec.erase(found);
                 coord_hash_remove(q->coord_to_key, c);
                 if (vec.empty()) {
-                    dstar_lite_key_free(it->first);
+                    dstar_lite_key_destroy(it->first);
                     q->key_to_coords.erase(it);
                 }
                 return true;

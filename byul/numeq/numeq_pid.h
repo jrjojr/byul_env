@@ -51,8 +51,8 @@
  * pid_reset(&pid);
  *
  * // 6. 상태 복사
- * pid_controller_t pid_copy_target;
- * pid_copy(&pid_copy_target, &pid);
+ * pid_controller_t pid_assign_target;
+ * pid_assign(&pid_assign_target, &pid);
  *
  * // 7. 상태 변화 없는 출력 예측
  * float preview_control = pid_preview(&pid, target_value, current_value);
@@ -80,8 +80,8 @@
  * pid_vec3_reset(&pid3);
  *
  * // 5. 상태 복사
- * pid_controller_vec3_t pid3_copy;
- * pid_vec3_copy(&pid3_copy, &pid3);
+ * pid_controller_vec3_t pid3_assign;
+ * pid_vec3_assign(&pid3_assign, &pid3);
  *
  * // 6. 상태 변화 없는 출력 예측
  * pid_vec3_preview(&pid3, &target, &measured, &output);
@@ -208,7 +208,7 @@ BYUL_API void pid_init_auto(pid_controller_t* pid, float dt);
 /**
  * @brief PID 상태 복사
  */
-BYUL_API void pid_copy(pid_controller_t* dst, 
+BYUL_API void pid_assign(pid_controller_t* dst, 
     const pid_controller_t* src);
 
 /**
@@ -302,7 +302,7 @@ BYUL_API void pid_vec3_init(pid_controller_vec3_t* pid,
 /**
  * @brief vec3 PID 상태 복사
  */
-BYUL_API void pid_vec3_copy(
+BYUL_API void pid_vec3_assign(
     pid_controller_vec3_t* dst, const pid_controller_vec3_t* src);
 
 /**

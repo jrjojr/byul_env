@@ -7,11 +7,11 @@ struct s_hashset {
     std::unordered_set<void*> set;
 };
 
-hashset_t* hashset_new() {
+hashset_t* hashset_create() {
     return new hashset_t();
 }
 
-void hashset_free(hashset_t* hs) {
+void hashset_destroy(hashset_t* hs) {
     delete hs;
 }
 

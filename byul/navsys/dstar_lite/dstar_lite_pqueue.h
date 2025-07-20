@@ -13,9 +13,9 @@ typedef struct s_dstar_lite_pqueue dstar_lite_pqueue_t;
 
 // ------------------------ 생성/소멸/복사 ------------------------
 
-BYUL_API dstar_lite_pqueue_t* dstar_lite_pqueue_new(void);
+BYUL_API dstar_lite_pqueue_t* dstar_lite_pqueue_create(void);
 
-BYUL_API void dstar_lite_pqueue_free(dstar_lite_pqueue_t* q);
+BYUL_API void dstar_lite_pqueue_destroy(dstar_lite_pqueue_t* q);
 
 BYUL_API dstar_lite_pqueue_t* dstar_lite_pqueue_copy(const dstar_lite_pqueue_t* src);
 

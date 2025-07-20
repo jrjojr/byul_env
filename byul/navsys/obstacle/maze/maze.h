@@ -48,7 +48,7 @@ BYUL_API void maze_make(maze_t* maze, maze_type_t type);
  *
  * @param maze 미로 정보와 결과가 저장될 `maze_t*` 포인터
  *
- * @see maze_new_full()
+ * @see maze_create_full()
  * @see maze_apply_to_navgrid()
  */
 BYUL_API void maze_make_recursive(maze_t* maze);
@@ -71,13 +71,13 @@ BYUL_API void maze_make_recursive(maze_t* maze);
  *
  * @usage
  * ```c
- * maze_t* maze = maze_new_full(0, 0, 21, 21, MAZE_TYPE_PRIM);
+ * maze_t* maze = maze_create_full(0, 0, 21, 21, MAZE_TYPE_PRIM);
  * maze_make_prim(maze);
- * navgrid_t* navgrid = navgrid_new_full(21, 21, NAVGRID_DIR_4, NULL);
+ * navgrid_t* navgrid = navgrid_create_full(21, 21, NAVGRID_DIR_4, NULL);
  * maze_apply_to_navgrid(maze, navgrid);
  * // 이후 navgrid 사용
- * maze_free(maze);
- * navgrid_free(navgrid);
+ * maze_destroy(maze);
+ * navgrid_destroy(navgrid);
  * ```
  *
  * @param maze 미로를 생성할 maze_t 포인터 (NULL 불가)
@@ -105,14 +105,14 @@ BYUL_API void maze_make_prim(maze_t* maze);
  *       `width`와 `height`는 홀수로 설정되어야 합니다.
  *       (미로 벽과 통로를 구분하기 위함입니다.)
  *
- * @see maze_new_full()
+ * @see maze_create_full()
  * @see maze_apply_to_navgrid()
  *
  * @example
  * ```c
- * maze_t* maze = maze_new_full(0, 0, 9, 9, MAZE_TYPE_BINARY);
+ * maze_t* maze = maze_create_full(0, 0, 9, 9, MAZE_TYPE_BINARY);
  * maze_make_binary(maze);
- * navgrid_t* navgrid = navgrid_new();
+ * navgrid_t* navgrid = navgrid_create();
  * maze_apply_to_navgrid(maze, navgrid);
  * ```
  */
@@ -137,7 +137,7 @@ BYUL_API void maze_make_binary(maze_t* maze);
  *      외곽 개방 여부도 무작위에 따라 달라질 수 있습니다.
  *
  * ### 사용 조건
- * 이 함수는 반드시 `maze_new_full()` 
+ * 이 함수는 반드시 `maze_create_full()` 
  *      함수를 통해 생성된 `maze_t` 구조체를 사용해야 하며,  
  * 다음과 같은 제약을 만족해야 합니다:
  * - 가로(width)와 세로(height)는 **홀수 값**이어야 합니다. (예: 9x9, 11x7)
@@ -145,7 +145,7 @@ BYUL_API void maze_make_binary(maze_t* maze);
  *
  * ### 사용 예시
  * @code
- * maze_t* maze = maze_new_full(0, 0, 9, 9, MAZE_TYPE_ELLER);
+ * maze_t* maze = maze_create_full(0, 0, 9, 9, MAZE_TYPE_ELLER);
  * maze_make_eller(maze);
  * navgrid_add_maze(navgrid, maze);
  * @endcode
@@ -183,12 +183,12 @@ BYUL_API void maze_make_eller(maze_t* maze);
  * ---
  *
  * ### 사용 조건
- * - `maze_t`는 반드시 `maze_new_full()` 함수를 통해 생성되어야 합니다.
+ * - `maze_t`는 반드시 `maze_create_full()` 함수를 통해 생성되어야 합니다.
  * - 가로(`width`)와 세로(`height`)는 **홀수**여야 하며, **최소 3 이상**이어야 합니다.
  *
  * ### 사용 예시
  * @code
- * maze_t* maze = maze_new_full(0, 0, 9, 9, MAZE_TYPE_ALDOUS_BRODER);
+ * maze_t* maze = maze_create_full(0, 0, 9, 9, MAZE_TYPE_ALDOUS_BRODER);
  * maze_make_aldous_broder(maze);
  * navgrid_add_maze(navgrid, maze);
  * @endcode
@@ -223,7 +223,7 @@ BYUL_API void maze_make_aldous_broder(maze_t* maze);
  * ---
  *
  * ### 사용 조건
- * - `maze_t`는 반드시 `maze_new_full()` 함수를 통해 생성되어야 합니다.
+ * - `maze_t`는 반드시 `maze_create_full()` 함수를 통해 생성되어야 합니다.
  * - 가로(`width`)와 세로(`height`)는 반드시 **홀수 값**이어야 하며, 
  *      **3 이상**이어야 합니다.
  *
@@ -233,7 +233,7 @@ BYUL_API void maze_make_aldous_broder(maze_t* maze);
  *
  * ### 사용 예시
  * @code
- * maze_t* maze = maze_new_full(0, 0, 9, 9, MAZE_TYPE_WILSON);
+ * maze_t* maze = maze_create_full(0, 0, 9, 9, MAZE_TYPE_WILSON);
  * maze_make_wilson(maze);
  * navgrid_add_maze(navgrid, maze);
  * @endcode
@@ -274,12 +274,12 @@ BYUL_API void maze_make_wilson(maze_t* maze);
  * ---
  *
  * ### 사용 조건
- * - `maze_t`는 반드시 `maze_new_full()` 함수를 통해 생성되어야 합니다.
+ * - `maze_t`는 반드시 `maze_create_full()` 함수를 통해 생성되어야 합니다.
  * - 가로(`width`)와 세로(`height`)는 **홀수 값**이어야 하며, **3 이상**이어야 합니다.
  *
  * ### 사용 예시
  * @code
- * maze_t* maze = maze_new_full(0, 0, 9, 9, MAZE_TYPE_HUNT_AND_KILL);
+ * maze_t* maze = maze_create_full(0, 0, 9, 9, MAZE_TYPE_HUNT_AND_KILL);
  * maze_make_hunt_and_kill(maze);
  * navgrid_add_maze(navgrid, maze);
  * @endcode
@@ -315,12 +315,12 @@ BYUL_API void maze_make_hunt_and_kill(maze_t* maze);
  * ---
  *
  * ### 사용 조건
- * - `maze_t`는 반드시 `maze_new_full()` 함수를 통해 생성되어야 합니다.
+ * - `maze_t`는 반드시 `maze_create_full()` 함수를 통해 생성되어야 합니다.
  * - 가로(`width`)와 세로(`height`)는 **홀수 값**이어야 하며, **3 이상**이어야 합니다.
  *
  * ### 사용 예시
  * @code
- * maze_t* maze = maze_new_full(0, 0, 9, 9, MAZE_TYPE_SIDEWINDER);
+ * maze_t* maze = maze_create_full(0, 0, 9, 9, MAZE_TYPE_SIDEWINDER);
  * maze_make_sidewinder(maze);
  * navgrid_add_maze(navgrid, maze);
  * @endcode
@@ -359,12 +359,12 @@ BYUL_API void maze_make_sidewinder(maze_t* maze);
  * ---
  *
  * ### 사용 조건
- * - `maze_t`는 반드시 `maze_new_full()`로 생성되어야 합니다.
+ * - `maze_t`는 반드시 `maze_create_full()`로 생성되어야 합니다.
  * - `width` 및 `height`는 **홀수이며 3 이상**이어야 합니다.
  *
  * ### 사용 예시
  * @code
- * maze_t* maze = maze_new_full(0, 0, 9, 9, MAZE_TYPE_RECURSIVE_DIVISION);
+ * maze_t* maze = maze_create_full(0, 0, 9, 9, MAZE_TYPE_RECURSIVE_DIVISION);
  * maze_make_recursive_division(maze);
  * navgrid_add_maze(navgrid, maze);
  * @endcode
@@ -402,12 +402,12 @@ BYUL_API void maze_make_recursive_division(maze_t* maze);
  * ---
  *
  * ### 사용 조건
- * - `maze_t`는 반드시 `maze_new_full()`로 생성되어야 합니다.
+ * - `maze_t`는 반드시 `maze_create_full()`로 생성되어야 합니다.
  * - `width`, `height`는 **홀수이면서 3 이상**이어야 합니다.
  *
  * ### 사용 예시
  * @code
- * maze_t* maze = maze_new_full(0, 0, 9, 9, MAZE_TYPE_KRUSKAL);
+ * maze_t* maze = maze_create_full(0, 0, 9, 9, MAZE_TYPE_KRUSKAL);
  * maze_make_kruskal(maze);
  * navgrid_add_maze(navgrid, maze);
  * @endcode

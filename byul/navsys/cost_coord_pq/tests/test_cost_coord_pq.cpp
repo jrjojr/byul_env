@@ -7,11 +7,11 @@ extern "C" {
 }
 
 TEST_CASE("cost_coord_pq: 기본 삽입 및 pop") {
-    cost_coord_pq_t* pq = cost_coord_pq_new();
+    cost_coord_pq_t* pq = cost_coord_pq_create();
 
-    coord_t* c1 = coord_new_full(1, 1);
-    coord_t* c2 = coord_new_full(2, 2);
-    coord_t* c3 = coord_new_full(3, 3);
+    coord_t* c1 = coord_create_full(1, 1);
+    coord_t* c2 = coord_create_full(2, 2);
+    coord_t* c3 = coord_create_full(3, 3);
 
     cost_coord_pq_push(pq, 5.0f, c1);
     cost_coord_pq_push(pq, 2.0f, c2);
@@ -24,24 +24,24 @@ TEST_CASE("cost_coord_pq: 기본 삽입 및 pop") {
     coord_t* out = cost_coord_pq_pop(pq);
     CHECK(out->x == 2);
     CHECK(out->y == 2);
-    coord_free(out);
+    coord_destroy(out);
 
     CHECK(cost_coord_pq_length(pq) == 2);
     CHECK(cost_coord_pq_peek_cost(pq) == doctest::Approx(5.0f));
 
-    coord_free(c1);
-    coord_free(c2);
-    coord_free(c3);
-    cost_coord_pq_free(pq);
+    coord_destroy(c1);
+    coord_destroy(c2);
+    coord_destroy(c3);
+    cost_coord_pq_destroy(pq);
 }
 
 TEST_CASE("cost_coord_pq: contains & remove & trim") {
-    cost_coord_pq_t* pq = cost_coord_pq_new();
+    cost_coord_pq_t* pq = cost_coord_pq_create();
 
-    coord_t* c1 = coord_new_full(1, 1);
-    coord_t* c2 = coord_new_full(2, 2);
-    coord_t* c3 = coord_new_full(3, 3);
-    coord_t* c4 = coord_new_full(4, 4);
+    coord_t* c1 = coord_create_full(1, 1);
+    coord_t* c2 = coord_create_full(2, 2);
+    coord_t* c3 = coord_create_full(3, 3);
+    coord_t* c4 = coord_create_full(4, 4);
 
     cost_coord_pq_push(pq, 1.0f, c1);
     cost_coord_pq_push(pq, 1.0f, c2);
@@ -58,13 +58,13 @@ TEST_CASE("cost_coord_pq: contains & remove & trim") {
 
     coord_t* remaining = cost_coord_pq_pop(pq);
     CHECK(remaining != nullptr);
-    coord_free(remaining);
+    coord_destroy(remaining);
 
     CHECK(cost_coord_pq_is_empty(pq));
 
-    coord_free(c1);
-    coord_free(c2);
-    coord_free(c3);
-    coord_free(c4);
-    cost_coord_pq_free(pq);
+    coord_destroy(c1);
+    coord_destroy(c2);
+    coord_destroy(c3);
+    coord_destroy(c4);
+    cost_coord_pq_destroy(pq);
 }

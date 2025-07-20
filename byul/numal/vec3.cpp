@@ -19,7 +19,7 @@ void vec3_init(vec3_t* out) {
 }
 
 // src 벡터를 out에 복사
-void vec3_copy(vec3_t* out, const vec3_t* src) {
+void vec3_assign(vec3_t* out, const vec3_t* src) {
     if (!out || !src) return;
     *out = *src;
 }

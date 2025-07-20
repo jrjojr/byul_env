@@ -18,22 +18,22 @@ route_t* find_fringe_search(const navgrid_t* m,
     if (!heuristic_fn) heuristic_fn = default_heuristic;
     if (!cost_fn) cost_fn = default_cost;
 
-    route_t* result = route_new();
+    route_t* result = route_create();
 
     float threshold = heuristic_fn(start, goal, nullptr);
 
-    coord_hash_t* cost_so_far = coord_hash_new_full(
+    coord_hash_t* cost_so_far = coord_hash_create_full(
         (coord_hash_copy_func) float_copy,
-        (coord_hash_free_func) float_free
+        (coord_hash_destroy_func) float_destroy
     );
 
-    coord_hash_t* came_from = coord_hash_new_full(
+    coord_hash_t* came_from = coord_hash_create_full(
         (coord_hash_copy_func) coord_copy,
-        (coord_hash_free_func) coord_free
+        (coord_hash_destroy_func) coord_destroy
     );
 
-    coord_hash_t* visited = coord_hash_new();
-    cost_coord_pq_t* frontier = cost_coord_pq_new();
+    coord_hash_t* visited = coord_hash_create();
+    cost_coord_pq_t* frontier = cost_coord_pq_create();
 
     float g_start = 0.0f;
     float f_start = g_start + threshold;
@@ -56,7 +56,7 @@ route_t* find_fringe_search(const navgrid_t* m,
 
     float delta = (delta_epsilon > 0.0f) ? delta_epsilon : 0.5f;
 
-    cost_coord_pq_t* next_frontier = cost_coord_pq_new();
+    cost_coord_pq_t* next_frontier = cost_coord_pq_create();
 
     while (!cost_coord_pq_is_empty(frontier) && 
         (max_retry <= 0 || total_retry < max_retry)) {
@@ -77,18 +77,18 @@ route_t* find_fringe_search(const navgrid_t* m,
             if (f > threshold + delta) {
                 if (f < next_threshold) next_threshold = f;
                 cost_coord_pq_push(next_frontier, f, current);
-                coord_free(current);
+                coord_destroy(current);
                 continue;
             }
 
             if (!final || f < threshold + delta) {
-                if (final) coord_free(final);
+                if (final) coord_destroy(final);
                 final = coord_copy(current);
             }
 
             if (coord_equal(current, goal)) {
                 found = true;
-                coord_free(current);
+                coord_destroy(current);
                 break;
             }
 
@@ -119,13 +119,13 @@ route_t* find_fringe_search(const navgrid_t* m,
                     expanded = true;
                 }
             }
-            coord_list_free(neighbors);
-            coord_free(current);
+            coord_list_destroy(neighbors);
+            coord_destroy(current);
         }
 
-        cost_coord_pq_free(frontier);
+        cost_coord_pq_destroy(frontier);
         frontier = next_frontier;
-        next_frontier = cost_coord_pq_new();
+        next_frontier = cost_coord_pq_create();
 
         if (found || cost_coord_pq_is_empty(frontier) || !expanded)
             break;
@@ -139,16 +139,16 @@ route_t* find_fringe_search(const navgrid_t* m,
     if (final) {
         route_reconstruct_path(result, came_from, start, final);
         route_set_success(result, found);
-        coord_free(final);
+        coord_destroy(final);
     } else {
         route_set_success(result, false);
     }
 
-    coord_hash_free(cost_so_far);
-    coord_hash_free(came_from);
-    coord_hash_free(visited);
-    cost_coord_pq_free(frontier);
-    cost_coord_pq_free(next_frontier);
+    coord_hash_destroy(cost_so_far);
+    coord_hash_destroy(came_from);
+    coord_hash_destroy(visited);
+    cost_coord_pq_destroy(frontier);
+    cost_coord_pq_destroy(next_frontier);
 
     route_set_total_retry_count(result, total_retry);
     return result;

@@ -127,7 +127,7 @@ void dstar_lite_set_heuristic_func_userdata(dstar_lite_t* dsl, void* userdata) {
 
 void move_to(const coord_t* c, void* userdata) {
     printf("move to (%d, %d) in finder.\n", c->x, c->y);
-    // coord_free(c);
+    // coord_destroy(c);
 }
 
 move_func dstar_lite_get_move_func(const dstar_lite_t* dsl) {
@@ -201,19 +201,19 @@ void dstar_lite_set_changed_coords_func_userdata(
     dsl->changed_coords_fn_userdata = userdata;
 }
 
-dstar_lite_t* dstar_lite_new(navgrid_t* m) {
+dstar_lite_t* dstar_lite_create(navgrid_t* m) {
     if (!m) return NULL;
 
-    coord_t* c = coord_new();
-    dstar_lite_t* dsl = dstar_lite_new_full(m, c,
+    coord_t* c = coord_create();
+    dstar_lite_t* dsl = dstar_lite_create_full(m, c,
         dstar_lite_cost, dstar_lite_heuristic,        
         false);
-    coord_free(c);
+    coord_destroy(c);
 
     return dsl;
 }
 
-dstar_lite_t* dstar_lite_new_full(navgrid_t* m, coord_t* start,
+dstar_lite_t* dstar_lite_create_full(navgrid_t* m, coord_t* start,
     cost_func cost_fn, heuristic_func heuristic_fn,
     bool debug_mode_enabled) {
 
@@ -240,19 +240,19 @@ dstar_lite_t* dstar_lite_new_full(navgrid_t* m, coord_t* start,
 
     dsl->debug_mode_enabled = debug_mode_enabled;
 
-    dsl->g_table = coord_hash_new_full(
+    dsl->g_table = coord_hash_create_full(
         (coord_hash_copy_func) float_copy,
-        (coord_hash_free_func) float_free
+        (coord_hash_destroy_func) float_destroy
     );
 
-    dsl->rhs_table = coord_hash_new_full(
+    dsl->rhs_table = coord_hash_create_full(
         (coord_hash_copy_func) float_copy,
-        (coord_hash_free_func) float_free        
+        (coord_hash_destroy_func) float_destroy        
     );
 
-    dsl->update_count_table = coord_hash_new();
+    dsl->update_count_table = coord_hash_create();
 
-    dsl->frontier = dstar_lite_pqueue_new();
+    dsl->frontier = dstar_lite_pqueue_create();
 
     dsl->interval_msec = 0;
     dsl->proto_route = NULL;
@@ -276,16 +276,16 @@ dstar_lite_t* dstar_lite_new_full(navgrid_t* m, coord_t* start,
     return dsl;
 }
 
-void dstar_lite_free(dstar_lite_t* dsl) {
+void dstar_lite_destroy(dstar_lite_t* dsl) {
     if (!dsl) return;
-    coord_free(dsl->start);
-    coord_free(dsl->goal);
-    coord_hash_free(dsl->g_table);
-    coord_hash_free(dsl->rhs_table);
-    coord_hash_free(dsl->update_count_table);
-    dstar_lite_pqueue_free(dsl->frontier);
-    if (dsl->proto_route) route_free(dsl->proto_route);
-    if (dsl->real_route) route_free(dsl->real_route);
+    coord_destroy(dsl->start);
+    coord_destroy(dsl->goal);
+    coord_hash_destroy(dsl->g_table);
+    coord_hash_destroy(dsl->rhs_table);
+    coord_hash_destroy(dsl->update_count_table);
+    dstar_lite_pqueue_destroy(dsl->frontier);
+    if (dsl->proto_route) route_destroy(dsl->proto_route);
+    if (dsl->real_route) route_destroy(dsl->real_route);
     delete dsl;
 }
 
@@ -374,7 +374,7 @@ dstar_lite_pqueue_t* dstar_lite_get_frontier(const dstar_lite_t* dsl) {
 }
 
 void dstar_lite_set_frontier(dstar_lite_t* dsl, dstar_lite_pqueue_t* frontier) {
-    if (dsl->frontier) dstar_lite_pqueue_free(dsl->frontier);
+    if (dsl->frontier) dstar_lite_pqueue_destroy(dsl->frontier);
     dsl->frontier = frontier;
 }
 
@@ -485,35 +485,35 @@ const route_t* dstar_lite_get_real_route(const dstar_lite_t* dsl) {
 
 void dstar_lite_reset(dstar_lite_t* dsl) {
     // 🔥 해시테이블 완전 삭제 및 재생성
-    coord_hash_free(dsl->g_table);
-    coord_hash_free(dsl->rhs_table);
-    coord_hash_free(dsl->update_count_table);
+    coord_hash_destroy(dsl->g_table);
+    coord_hash_destroy(dsl->rhs_table);
+    coord_hash_destroy(dsl->update_count_table);
 
-    dsl->g_table = coord_hash_new_full(
+    dsl->g_table = coord_hash_create_full(
         (coord_hash_copy_func) float_copy,
-        (coord_hash_free_func) float_free        
+        (coord_hash_destroy_func) float_destroy        
     );
 
-    dsl->rhs_table = coord_hash_new_full(
+    dsl->rhs_table = coord_hash_create_full(
         (coord_hash_copy_func) float_copy,
-        (coord_hash_free_func) float_free        
+        (coord_hash_destroy_func) float_destroy        
     );
 
-    dsl->update_count_table = coord_hash_new();
+    dsl->update_count_table = coord_hash_create();
 
     if (dsl->proto_route) {
-        route_free(dsl->proto_route);
+        route_destroy(dsl->proto_route);
         dsl->proto_route = NULL;
     }
 
     if (dsl->real_route) {
-        route_free(dsl->real_route);
+        route_destroy(dsl->real_route);
         dsl->real_route = NULL;
     }    
         
     // ♻️ 우선순위 큐도 완전 교체
-    dstar_lite_pqueue_free(dsl->frontier);
-    dsl->frontier = dstar_lite_pqueue_new();
+    dstar_lite_pqueue_destroy(dsl->frontier);
+    dsl->frontier = dstar_lite_pqueue_create();
 
     // 🎯 시작 / 목표 좌표 초기화
     // coord_set(dsl->start, 0, 0);
@@ -560,7 +560,7 @@ dstar_lite_key_t* dstar_lite_calculate_key(dstar_lite_t* dsl, const coord_t* s) 
     float h = dsl->heuristic_fn(dsl->start, s, NULL);
     float k1 = k2 + h + dsl->km;
 
-    dstar_lite_key_t* key = dstar_lite_key_new_full( k1, k2 );
+    dstar_lite_key_t* key = dstar_lite_key_create_full( k1, k2 );
     return key;
 }
 
@@ -581,7 +581,7 @@ void dstar_lite_init(dstar_lite_t* dsl) {
     // U.insert(goal, calculate_key(goal))
     dstar_lite_key_t* calc_key_goal = dstar_lite_calculate_key(dsl, dsl->start);
     dstar_lite_pqueue_push(dsl->frontier, calc_key_goal, dsl->goal);
-    dstar_lite_key_free(calc_key_goal);
+    dstar_lite_key_destroy(calc_key_goal);
 }
 
 void dstar_lite_update_vertex(dstar_lite_t* dsl, const coord_t* u) {
@@ -623,7 +623,7 @@ void dstar_lite_update_vertex(dstar_lite_t* dsl, const coord_t* u) {
             if (cost < min_rhs)
                 min_rhs = cost;
         }
-        coord_list_free(successors_s);
+        coord_list_destroy(successors_s);
 
         float* new_rhs_ptr = new float(1.0);        
         *new_rhs_ptr = min_rhs;
@@ -651,7 +651,7 @@ void dstar_lite_update_vertex(dstar_lite_t* dsl, const coord_t* u) {
     if (!float_equal(g_u, rhs_u)) {
         dstar_lite_key_t* key = dstar_lite_calculate_key(dsl, u);
         dstar_lite_pqueue_push(dsl->frontier, key, u);
-        dstar_lite_key_free(key);
+        dstar_lite_key_destroy(key);
     }
 }        
 
@@ -674,7 +674,7 @@ void dstar_lite_update_vertex_range(dstar_lite_t* dsl,
         dstar_lite_update_vertex(dsl, c);
     }
 
-    coord_list_free(neighbors);
+    coord_list_destroy(neighbors);
 }
 
 void dstar_lite_update_vertex_auto_range(
@@ -745,13 +745,13 @@ void dstar_lite_compute_shortest_route(dstar_lite_t* dsl) {
         //     m, start, goal, km, g_table, rhs_table, frontier);
 
         if (k_old) {
-            dstar_lite_key_free(k_old);
+            dstar_lite_key_destroy(k_old);
             k_old = NULL;
         }
         k_old = dstar_lite_key_copy(top_key);
         u = dstar_lite_pqueue_pop(dsl->frontier);
         if (!u) {
-            // dstar_lite_key_free(k_old);
+            // dstar_lite_key_destroy(k_old);
             break;
         }
 
@@ -770,7 +770,7 @@ void dstar_lite_compute_shortest_route(dstar_lite_t* dsl) {
         }
 
         if(calc_key) {
-            dstar_lite_key_free(calc_key);
+            dstar_lite_key_destroy(calc_key);
             calc_key = NULL;
         }
         calc_key = dstar_lite_calculate_key(dsl, u);
@@ -795,7 +795,7 @@ void dstar_lite_compute_shortest_route(dstar_lite_t* dsl) {
                 dstar_lite_update_vertex(dsl, s);
             }
 
-            coord_list_free(predecessors_u);
+            coord_list_destroy(predecessors_u);
         } else {
             float* g_old_ptr = (float*) coord_hash_get(dsl->g_table, u);
             if (g_old_ptr) {
@@ -854,21 +854,21 @@ void dstar_lite_compute_shortest_route(dstar_lite_t* dsl) {
                             coord_hash_replace(dsl->rhs_table, s, min_ptr);
                             delete min_ptr;
                         }
-                        coord_list_free(successors_s);
+                        coord_list_destroy(successors_s);
                     }
                     dstar_lite_update_vertex(dsl, s);
                 }
             }
-            coord_list_free(predecessors_u);
+            coord_list_destroy(predecessors_u);
         }
-        coord_free(u);
+        coord_destroy(u);
 
-        if (top_key) dstar_lite_key_free(top_key);
+        if (top_key) dstar_lite_key_destroy(top_key);
         top_key = dstar_lite_pqueue_top_key(dsl->frontier);
         if (!top_key) break;
 
         if (calc_key_start) {
-            dstar_lite_key_free(calc_key_start);
+            dstar_lite_key_destroy(calc_key_start);
             calc_key_start = NULL;
         }
         calc_key_start = dstar_lite_calculate_key(dsl, dsl->start);
@@ -894,18 +894,18 @@ void dstar_lite_compute_shortest_route(dstar_lite_t* dsl) {
             (!float_equal(rhs_start, g_start) ) ) );
 
     if (calc_key_start) {
-        dstar_lite_key_free(calc_key_start);
+        dstar_lite_key_destroy(calc_key_start);
         calc_key_start = NULL;
     }            
     if (k_old) {
-        dstar_lite_key_free(k_old);
+        dstar_lite_key_destroy(k_old);
         k_old = NULL;
     }
     if(calc_key) {
-        dstar_lite_key_free(calc_key);
+        dstar_lite_key_destroy(calc_key);
         calc_key = NULL;
     }
-    if(top_key) dstar_lite_key_free(top_key);
+    if(top_key) dstar_lite_key_destroy(top_key);
 
     // if dsl->proto_route == NULL
     if (dsl->proto_route == NULL) {
@@ -918,7 +918,7 @@ void dstar_lite_compute_shortest_route(dstar_lite_t* dsl) {
 route_t* dstar_lite_reconstruct_route(dstar_lite_t* dsl) {
     if (!dsl) return NULL;
 
-    route_t* p = route_new();
+    route_t* p = route_create();
     route_add_coord(p, dsl->start);    
 
     float* g_start_ptr = (float*) coord_hash_get(dsl->g_table, dsl->start);
@@ -960,16 +960,16 @@ route_t* dstar_lite_reconstruct_route(dstar_lite_t* dsl) {
             if (total_cost < min_cost) {
                 min_cost = total_cost;
                 
-                if (next) coord_free(next);  // 기존 next 해제
+                if (next) coord_destroy(next);  // 기존 next 해제
                 next = coord_copy(s);
                 // next = s;
             }
         }
-        coord_list_free(neighbors);
+        coord_list_destroy(neighbors);
 
         if (!next) {  // 더 이상 진행할 수 없음
-            coord_free(current);
-            // route_free(p);
+            coord_destroy(current);
+            // route_destroy(p);
             route_set_success(p, false);
             if (dsl->debug_mode_enabled){
                 // p->visited_count = coord_hash_copy(dsl->update_count_table);
@@ -980,9 +980,9 @@ route_t* dstar_lite_reconstruct_route(dstar_lite_t* dsl) {
 
         float* g_next_ptr = (float*) coord_hash_get(dsl->g_table, next);
         if (!g_next_ptr || float_equal(*g_next_ptr, FLT_MAX)) {
-            coord_free(current);
-            coord_free(next);
-            // route_free(p);
+            coord_destroy(current);
+            coord_destroy(next);
+            // route_destroy(p);
             route_set_success(p, false);
             if (dsl->debug_mode_enabled){
                 // p->visited_count = coord_hash_copy(dsl->update_count_table);  
@@ -992,13 +992,13 @@ p->total_retry_count = dstar_lite_proto_compute_retry_count(dsl);
         }
 
         route_add_coord(p, next);
-        coord_free(current);
+        coord_destroy(current);
         current = next;
     }
 
     dsl->reconstruct_retry_count = loop;
 
-    coord_free(current);
+    coord_destroy(current);
     route_set_success(p, true);    
     if (dsl->debug_mode_enabled){
         // p->visited_count = coord_hash_copy(dsl->update_count_table);    
@@ -1036,7 +1036,7 @@ void dstar_lite_find_loop(dstar_lite_t* dsl) {
     coord_t* s_last = coord_copy(dsl->start);
     coord_t* start = coord_copy(dsl->start);
 
-    dsl->real_route = route_new();
+    dsl->real_route = route_create();
     route_add_coord(dsl->real_route, start);
 
     float* rhs_start_ptr = NULL;
@@ -1096,11 +1096,11 @@ void dstar_lite_find_loop(dstar_lite_t* dsl) {
                 min_cost = total_cost;
 
                 // next = s;
-                if (next) coord_free(next);  // 기존 next 해제
+                if (next) coord_destroy(next);  // 기존 next 해제
                 next = coord_copy(s);
             }
         }
-        coord_list_free(successors_start);
+        coord_list_destroy(successors_start);
 
         if (!next) {
             route_set_success(dsl->real_route, false);
@@ -1135,7 +1135,7 @@ void dstar_lite_find_loop(dstar_lite_t* dsl) {
         if (dsl->force_quit) break;
 
 
-        if(start) coord_free(start);
+        if(start) coord_destroy(start);
         start = coord_copy(next);
 
         // 환경 변화 감지 및 반영
@@ -1146,7 +1146,7 @@ void dstar_lite_find_loop(dstar_lite_t* dsl) {
             if (changed_coords) {
                 dsl->km += dsl->heuristic_fn(s_last, start, NULL);
 
-                if (s_last) coord_free(s_last);
+                if (s_last) coord_destroy(s_last);
                 s_last = coord_copy(start);
 
                 // for u in changed_coords:
@@ -1158,15 +1158,15 @@ void dstar_lite_find_loop(dstar_lite_t* dsl) {
                 }
             }
             // if (changed_coords) {
-            //     g_list_free_full(changed_coords, (GDestroyNotify)coord_free);
+            //     g_list_destroy_full(changed_coords, (GDestroyNotify)coord_destroy);
             // }
             dstar_lite_compute_shortest_route(dsl);
         }
         loop++;
     }
     dsl->force_quit = false;
-    if (start) coord_free(start);
-    if (next) coord_free(next);
+    if (start) coord_destroy(start);
+    if (next) coord_destroy(next);
 
     if (loop >= dsl->real_loop_max_retry) {
         // 길을 못찾고 루프가 한계에 도달했다.
@@ -1174,7 +1174,7 @@ void dstar_lite_find_loop(dstar_lite_t* dsl) {
             if (!coord_equal(s_last, dsl->goal)) {
                 route_set_success(dsl->real_route, false);
                 dsl->real_loop_retry_count = loop;
-                coord_free(s_last);
+                coord_destroy(s_last);
                     dsl->force_quit = false;
                 return;
             }
@@ -1182,7 +1182,7 @@ void dstar_lite_find_loop(dstar_lite_t* dsl) {
     }
     route_set_success(dsl->real_route, true);
     dsl->real_loop_retry_count = loop;
-    if (s_last) coord_free(s_last);    
+    if (s_last) coord_destroy(s_last);    
         dsl->force_quit = false;
     return;    
 }

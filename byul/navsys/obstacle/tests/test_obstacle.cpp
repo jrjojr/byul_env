@@ -22,12 +22,12 @@ TEST_CASE("obstacle_make_rect_all_blocked - full blocking") {
     CHECK(coord_hash_length(blocked) == 25);
     coord_hash_print(blocked);
 
-    navgrid_t* navgrid = navgrid_new();
+    navgrid_t* navgrid = navgrid_create();
     obstacle_apply_to_navgrid(obs, navgrid);
     navgrid_print_ascii(navgrid);
-    navgrid_free(navgrid);
+    navgrid_destroy(navgrid);
 
-    obstacle_free(obs);
+    obstacle_destroy(obs);
 
 }
 
@@ -35,7 +35,7 @@ TEST_CASE("obstacle_make_rect_random_blocked - ratio = 0.0") {
     obstacle_t* obs = obstacle_make_rect_random_blocked(0, 0, 5, 5, 0.0f);
     REQUIRE(obs == nullptr);
     CHECK(coord_hash_length(obstacle_get_blocked_coords(obs)) == 0);
-    obstacle_free(obs);
+    obstacle_destroy(obs);
 }
 
 TEST_CASE("obstacle_make_rect_random_blocked - ratio = 0.5") {
@@ -46,12 +46,12 @@ TEST_CASE("obstacle_make_rect_random_blocked - ratio = 0.5") {
     CHECK(blocked >= 3);     // 너무 낮으면 잘못된 난수
     CHECK(blocked <= 22);    // 너무 높으면 ratio 문제
 
-    navgrid_t* navgrid = navgrid_new();
+    navgrid_t* navgrid = navgrid_create();
     obstacle_apply_to_navgrid(obs, navgrid);
     navgrid_print_ascii(navgrid);
-    navgrid_free(navgrid);    
+    navgrid_destroy(navgrid);    
 
-    obstacle_free(obs);
+    obstacle_destroy(obs);
 }
 
 TEST_CASE("obstacle_make_rect_random_blocked - ratio = 1.0") {
@@ -59,12 +59,12 @@ TEST_CASE("obstacle_make_rect_random_blocked - ratio = 1.0") {
     REQUIRE(obs != nullptr);
     CHECK(coord_hash_length(obstacle_get_blocked_coords(obs)) == 25);
 
-    navgrid_t* navgrid = navgrid_new();
+    navgrid_t* navgrid = navgrid_create();
     obstacle_apply_to_navgrid(obs, navgrid);
     navgrid_print_ascii(navgrid);
-    navgrid_free(navgrid);
+    navgrid_destroy(navgrid);
 
-    obstacle_free(obs);
+    obstacle_destroy(obs);
 }
 
 TEST_CASE("obstacle_make_beam") {
@@ -76,12 +76,12 @@ TEST_CASE("obstacle_make_beam") {
     const coord_hash_t* blocked = obstacle_get_blocked_coords(obs);
     coord_hash_print(blocked);
 
-    navgrid_t* navgrid = navgrid_new();
+    navgrid_t* navgrid = navgrid_create();
     obstacle_apply_to_navgrid(obs, navgrid);
     navgrid_print_ascii(navgrid);
-    navgrid_free(navgrid);
+    navgrid_destroy(navgrid);
 
-    obstacle_free(obs);
+    obstacle_destroy(obs);
 }
 
 TEST_CASE("obstacle_make_beam power up") {
@@ -93,12 +93,12 @@ TEST_CASE("obstacle_make_beam power up") {
     const coord_hash_t* blocked = obstacle_get_blocked_coords(obs);
     coord_hash_print(blocked);
 
-    navgrid_t* navgrid = navgrid_new();
+    navgrid_t* navgrid = navgrid_create();
     obstacle_apply_to_navgrid(obs, navgrid);
     navgrid_print_ascii(navgrid);
-    navgrid_free(navgrid);
+    navgrid_destroy(navgrid);
 
-    obstacle_free(obs);
+    obstacle_destroy(obs);
 }
 
 TEST_CASE("obstacle_make_torus minimum size") {
@@ -112,12 +112,12 @@ TEST_CASE("obstacle_make_torus minimum size") {
     const coord_hash_t* blocked = obstacle_get_blocked_coords(obs);
     coord_hash_print(blocked);
 
-    navgrid_t* navgrid = navgrid_new();
+    navgrid_t* navgrid = navgrid_create();
     obstacle_apply_to_navgrid(obs, navgrid);
     navgrid_print_ascii(navgrid);
-    navgrid_free(navgrid);
+    navgrid_destroy(navgrid);
 
-    obstacle_free(obs);
+    obstacle_destroy(obs);
 }
 
 TEST_CASE("obstacle_make_torus too small should fail") {
@@ -140,12 +140,12 @@ TEST_CASE("obstacle_make_enclosure open LEFT") {
     const coord_hash_t* blocked = obstacle_get_blocked_coords(obs);
     coord_hash_print(blocked);
 
-    navgrid_t* navgrid = navgrid_new();
+    navgrid_t* navgrid = navgrid_create();
     obstacle_apply_to_navgrid(obs, navgrid);
     navgrid_print_ascii(navgrid);
-    navgrid_free(navgrid);
+    navgrid_destroy(navgrid);
 
-    obstacle_free(obs);
+    obstacle_destroy(obs);
 }
 
 TEST_CASE("obstacle_make_enclosure fully closed") {
@@ -159,12 +159,12 @@ TEST_CASE("obstacle_make_enclosure fully closed") {
     const coord_hash_t* blocked = obstacle_get_blocked_coords(obs);
     coord_hash_print(blocked);
 
-    navgrid_t* navgrid = navgrid_new();
+    navgrid_t* navgrid = navgrid_create();
     obstacle_apply_to_navgrid(obs, navgrid);
     navgrid_print_ascii(navgrid);
-    navgrid_free(navgrid);
+    navgrid_destroy(navgrid);
 
-    obstacle_free(obs);
+    obstacle_destroy(obs);
 }
 
 TEST_CASE("obstacle_make_cross") {
@@ -176,12 +176,12 @@ TEST_CASE("obstacle_make_cross") {
         const coord_hash_t* blocked = obstacle_get_blocked_coords(obs);
         coord_hash_print(blocked);
 
-        navgrid_t* navgrid = navgrid_new();
+        navgrid_t* navgrid = navgrid_create();
         obstacle_apply_to_navgrid(obs, navgrid);
         navgrid_print_ascii(navgrid);
-        navgrid_free(navgrid);
+        navgrid_destroy(navgrid);
 
-        obstacle_free(obs);
+        obstacle_destroy(obs);
     }
 
     SUBCASE("thin cross (length = 2, range = 0)") {
@@ -192,12 +192,12 @@ TEST_CASE("obstacle_make_cross") {
         const coord_hash_t* blocked = obstacle_get_blocked_coords(obs);
         coord_hash_print(blocked);
 
-        navgrid_t* navgrid = navgrid_new();
+        navgrid_t* navgrid = navgrid_create();
         obstacle_apply_to_navgrid(obs, navgrid);
         navgrid_print_ascii(navgrid);
-        navgrid_free(navgrid);
+        navgrid_destroy(navgrid);
 
-        obstacle_free(obs);
+        obstacle_destroy(obs);
     }
 
     SUBCASE("thick cross (length = 3, range = 1)") {
@@ -208,12 +208,12 @@ TEST_CASE("obstacle_make_cross") {
         const coord_hash_t* blocked = obstacle_get_blocked_coords(obs);
         coord_hash_print(blocked);
 
-        navgrid_t* navgrid = navgrid_new();
+        navgrid_t* navgrid = navgrid_create();
         obstacle_apply_to_navgrid(obs, navgrid);
         navgrid_print_ascii(navgrid);
-        navgrid_free(navgrid);
+        navgrid_destroy(navgrid);
 
-        obstacle_free(obs);
+        obstacle_destroy(obs);
     }
 
     SUBCASE("invalid input (null center)") {
@@ -249,12 +249,12 @@ TEST_CASE("obstacle_make_spiral direction") {
         const coord_hash_t* blocked = obstacle_get_blocked_coords(obs);
         coord_hash_print(blocked);
 
-        navgrid_t* navgrid = navgrid_new();
+        navgrid_t* navgrid = navgrid_create();
         obstacle_apply_to_navgrid(obs, navgrid);
         navgrid_print_ascii(navgrid);
-        navgrid_free(navgrid);
+        navgrid_destroy(navgrid);
 
-        obstacle_free(obs);
+        obstacle_destroy(obs);
     }
 
     SUBCASE("counter-clockwise spiral") {
@@ -265,12 +265,12 @@ TEST_CASE("obstacle_make_spiral direction") {
         const coord_hash_t* blocked = obstacle_get_blocked_coords(obs);
         coord_hash_print(blocked);
 
-        navgrid_t* navgrid = navgrid_new();
+        navgrid_t* navgrid = navgrid_create();
         obstacle_apply_to_navgrid(obs, navgrid);
         navgrid_print_ascii(navgrid);
-        navgrid_free(navgrid);
+        navgrid_destroy(navgrid);
 
-        obstacle_free(obs);
+        obstacle_destroy(obs);
     }
 
     SUBCASE("clockwise with gap and range") {
@@ -281,12 +281,12 @@ TEST_CASE("obstacle_make_spiral direction") {
         const coord_hash_t* blocked = obstacle_get_blocked_coords(obs);
         coord_hash_print(blocked);
 
-        navgrid_t* navgrid = navgrid_new();
+        navgrid_t* navgrid = navgrid_create();
         obstacle_apply_to_navgrid(obs, navgrid);
         navgrid_print_ascii(navgrid);
-        navgrid_free(navgrid);
+        navgrid_destroy(navgrid);
 
-        obstacle_free(obs);
+        obstacle_destroy(obs);
     }
 
     SUBCASE("counter-clockwise with gap and range") {
@@ -297,12 +297,12 @@ TEST_CASE("obstacle_make_spiral direction") {
         const coord_hash_t* blocked = obstacle_get_blocked_coords(obs);
         coord_hash_print(blocked);
 
-        navgrid_t* navgrid = navgrid_new();
+        navgrid_t* navgrid = navgrid_create();
         obstacle_apply_to_navgrid(obs, navgrid);
         navgrid_print_ascii(navgrid);
-        navgrid_free(navgrid);
+        navgrid_destroy(navgrid);
 
-        obstacle_free(obs);
+        obstacle_destroy(obs);
     }
 }
 
@@ -318,11 +318,11 @@ TEST_CASE("obstacle_make_triangle") {
         const coord_hash_t* blocked = obstacle_get_blocked_coords(obs);
         coord_hash_print(blocked);
 
-        navgrid_t* navgrid = navgrid_new();
+        navgrid_t* navgrid = navgrid_create();
         obstacle_apply_to_navgrid(obs, navgrid);
         navgrid_print_ascii(navgrid);
-        navgrid_free(navgrid);
-        obstacle_free(obs);
+        navgrid_destroy(navgrid);
+        obstacle_destroy(obs);
     }
 
     SUBCASE("역삼각형 (아래쪽 뾰족)") {
@@ -336,11 +336,11 @@ TEST_CASE("obstacle_make_triangle") {
         const coord_hash_t* blocked = obstacle_get_blocked_coords(obs);
         coord_hash_print(blocked);
 
-        navgrid_t* navgrid = navgrid_new();
+        navgrid_t* navgrid = navgrid_create();
         obstacle_apply_to_navgrid(obs, navgrid);
         navgrid_print_ascii(navgrid);
-        navgrid_free(navgrid);
-        obstacle_free(obs);
+        navgrid_destroy(navgrid);
+        obstacle_destroy(obs);
     }
 
     SUBCASE("좌상향 대각 삼각형") {
@@ -354,11 +354,11 @@ TEST_CASE("obstacle_make_triangle") {
         const coord_hash_t* blocked = obstacle_get_blocked_coords(obs);
         coord_hash_print(blocked);
 
-        navgrid_t* navgrid = navgrid_new();
+        navgrid_t* navgrid = navgrid_create();
         obstacle_apply_to_navgrid(obs, navgrid);
         navgrid_print_ascii(navgrid);
-        navgrid_free(navgrid);
-        obstacle_free(obs);
+        navgrid_destroy(navgrid);
+        obstacle_destroy(obs);
     }
 
     SUBCASE("입력이 NULL이면 실패") {
@@ -380,11 +380,11 @@ TEST_CASE("obstacle_make_triangle_torus") {
         const coord_hash_t* blocked = obstacle_get_blocked_coords(obs);
         coord_hash_print(blocked);
 
-        navgrid_t* navgrid = navgrid_new();
+        navgrid_t* navgrid = navgrid_create();
         obstacle_apply_to_navgrid(obs, navgrid);
         navgrid_print_ascii(navgrid);
-        navgrid_free(navgrid);
-        obstacle_free(obs);
+        navgrid_destroy(navgrid);
+        obstacle_destroy(obs);
     }
 
     SUBCASE("두께 있는 외곽선 torus, thickness = 1") {
@@ -398,11 +398,11 @@ TEST_CASE("obstacle_make_triangle_torus") {
         const coord_hash_t* blocked = obstacle_get_blocked_coords(obs);
         coord_hash_print(blocked);
 
-        navgrid_t* navgrid = navgrid_new();
+        navgrid_t* navgrid = navgrid_create();
         obstacle_apply_to_navgrid(obs, navgrid);
         navgrid_print_ascii(navgrid);
-        navgrid_free(navgrid);
-        obstacle_free(obs);
+        navgrid_destroy(navgrid);
+        obstacle_destroy(obs);
     }
 
     SUBCASE("두께가 더 두꺼운 torus, thickness = 2") {
@@ -416,11 +416,11 @@ TEST_CASE("obstacle_make_triangle_torus") {
         const coord_hash_t* blocked = obstacle_get_blocked_coords(obs);
         coord_hash_print(blocked);
 
-        navgrid_t* navgrid = navgrid_new();
+        navgrid_t* navgrid = navgrid_create();
         obstacle_apply_to_navgrid(obs, navgrid);
         navgrid_print_ascii(navgrid);
-        navgrid_free(navgrid);
-        obstacle_free(obs);
+        navgrid_destroy(navgrid);
+        obstacle_destroy(obs);
     }
 
     SUBCASE("잘못된 입력 - thickness < 0") {
@@ -441,7 +441,7 @@ TEST_CASE("obstacle_make_triangle_torus") {
 
 TEST_CASE("obstacle_make_polygon") {
     SUBCASE("정상적인 오각형 polygon 생성") {
-        coord_list_t* list = coord_list_new();
+        coord_list_t* list = coord_list_create();
         coord_list_push_back(list, make_tmp_coord(10, 10));
         coord_list_push_back(list, make_tmp_coord(15, 10));
         coord_list_push_back(list, make_tmp_coord(17, 15));
@@ -456,17 +456,17 @@ TEST_CASE("obstacle_make_polygon") {
         const coord_hash_t* blocked = obstacle_get_blocked_coords(obs);
         coord_hash_print(blocked);  // 디버깅용
 
-        navgrid_t* navgrid = navgrid_new();
+        navgrid_t* navgrid = navgrid_create();
         obstacle_apply_to_navgrid(obs, navgrid);
         navgrid_print_ascii(navgrid);  // 시각 확인
 
-        navgrid_free(navgrid);
-        obstacle_free(obs);
-        coord_list_free(list);
+        navgrid_destroy(navgrid);
+        obstacle_destroy(obs);
+        coord_list_destroy(list);
     }
 
     SUBCASE("입력이 부족한 경우 (2점)") {
-        coord_list_t* list = coord_list_new();
+        coord_list_t* list = coord_list_create();
         coord_list_push_back(list, make_tmp_coord(0, 0));
         coord_list_push_back(list, make_tmp_coord(1, 1));
 
@@ -475,7 +475,7 @@ TEST_CASE("obstacle_make_polygon") {
         obstacle_t* obs = obstacle_make_polygon(list);
         CHECK(obs == nullptr);
 
-        coord_list_free(list);
+        coord_list_destroy(list);
     }
 
     SUBCASE("입력이 NULL인 경우") {
@@ -486,7 +486,7 @@ TEST_CASE("obstacle_make_polygon") {
 
 TEST_CASE("obstacle_make_polygon_torus") {
     SUBCASE("기본적인 오각형 torus 생성 - thickness = 0") {
-        coord_list_t* list = coord_list_new();
+        coord_list_t* list = coord_list_create();
         coord_list_push_back(list, make_tmp_coord(10, 10));
         coord_list_push_back(list, make_tmp_coord(15, 10));
         coord_list_push_back(list, make_tmp_coord(17, 15));
@@ -501,17 +501,17 @@ TEST_CASE("obstacle_make_polygon_torus") {
         const coord_hash_t* blocked = obstacle_get_blocked_coords(obs);
         coord_hash_print(blocked);
 
-        navgrid_t* navgrid = navgrid_new();
+        navgrid_t* navgrid = navgrid_create();
         obstacle_apply_to_navgrid(obs, navgrid);
         navgrid_print_ascii(navgrid);  // 외곽선만 그려졌는지 육안 확인
 
-        navgrid_free(navgrid);
-        obstacle_free(obs);
-        coord_list_free(list);
+        navgrid_destroy(navgrid);
+        obstacle_destroy(obs);
+        coord_list_destroy(list);
     }
 
     SUBCASE("thickness = 1 로 선을 두껍게") {
-        coord_list_t* list = coord_list_new();
+        coord_list_t* list = coord_list_create();
         coord_list_push_back(list, make_tmp_coord(5, 5));
         coord_list_push_back(list, make_tmp_coord(10, 5));
         coord_list_push_back(list, make_tmp_coord(12, 10));
@@ -524,23 +524,23 @@ TEST_CASE("obstacle_make_polygon_torus") {
         const coord_hash_t* blocked = obstacle_get_blocked_coords(obs);
         coord_hash_print(blocked);
 
-        navgrid_t* navgrid = navgrid_new();
+        navgrid_t* navgrid = navgrid_create();
         obstacle_apply_to_navgrid(obs, navgrid);
         navgrid_print_ascii(navgrid);
 
-        navgrid_free(navgrid);
-        obstacle_free(obs);
-        coord_list_free(list);
+        navgrid_destroy(navgrid);
+        obstacle_destroy(obs);
+        coord_list_destroy(list);
     }
 
     SUBCASE("좌표 부족 시 실패 (2점)") {
-        coord_list_t* list = coord_list_new();
+        coord_list_t* list = coord_list_create();
         coord_list_push_back(list, make_tmp_coord(0, 0));
         coord_list_push_back(list, make_tmp_coord(1, 1));
 
         obstacle_t* obs = obstacle_make_polygon_torus(list, 0);
         CHECK(obs == nullptr);
-        coord_list_free(list);
+        coord_list_destroy(list);
     }
 
     SUBCASE("NULL 리스트") {
@@ -549,14 +549,14 @@ TEST_CASE("obstacle_make_polygon_torus") {
     }
 
     SUBCASE("음수 thickness는 실패") {
-        coord_list_t* list = coord_list_new();
+        coord_list_t* list = coord_list_create();
         coord_list_push_back(list, make_tmp_coord(0, 0));
         coord_list_push_back(list, make_tmp_coord(1, 0));
         coord_list_push_back(list, make_tmp_coord(1, 1));
 
         obstacle_t* obs = obstacle_make_polygon_torus(list, -1);
         CHECK(obs == nullptr);
-        coord_list_free(list);
+        coord_list_destroy(list);
     }
 }
 
@@ -596,7 +596,7 @@ int main(int argc, char** argv) {
 
 TEST_CASE("obstacle_block_straight") {
     SUBCASE("range = 0, 단일 선 블로킹") {
-        obstacle_t* obs = obstacle_new_full(10, 10, 20, 20);
+        obstacle_t* obs = obstacle_create_full(10, 10, 20, 20);
         REQUIRE(obs != nullptr);
 
         obstacle_block_straight(obs, 15, 15, 25, 20, 0);
@@ -604,16 +604,16 @@ TEST_CASE("obstacle_block_straight") {
         const coord_hash_t* blocked = obstacle_get_blocked_coords(obs);
         coord_hash_print(blocked); // 디버깅용
 
-        navgrid_t* navgrid = navgrid_new();
+        navgrid_t* navgrid = navgrid_create();
         obstacle_apply_to_navgrid(obs, navgrid);
         navgrid_print_ascii(navgrid); // 시각 확인
 
-        navgrid_free(navgrid);
-        obstacle_free(obs);
+        navgrid_destroy(navgrid);
+        obstacle_destroy(obs);
     }
 
     SUBCASE("range = 1, 선 주변까지 블로킹") {
-        obstacle_t* obs = obstacle_new_full(0, 0, 30, 30);
+        obstacle_t* obs = obstacle_create_full(0, 0, 30, 30);
         REQUIRE(obs != nullptr);
 
         obstacle_block_straight(obs, 5, 5, 20, 10, 1);
@@ -621,16 +621,16 @@ TEST_CASE("obstacle_block_straight") {
         const coord_hash_t* blocked = obstacle_get_blocked_coords(obs);
         coord_hash_print(blocked); // 디버깅용
 
-        navgrid_t* navgrid = navgrid_new();
+        navgrid_t* navgrid = navgrid_create();
         obstacle_apply_to_navgrid(obs, navgrid);
         navgrid_print_ascii(navgrid); // 두꺼운 직선 확인
 
-        navgrid_free(navgrid);
-        obstacle_free(obs);
+        navgrid_destroy(navgrid);
+        obstacle_destroy(obs);
     }
 
     SUBCASE("range = 2, 수직 블로킹") {
-        obstacle_t* obs = obstacle_new_full(0, 0, 30, 30);
+        obstacle_t* obs = obstacle_create_full(0, 0, 30, 30);
         REQUIRE(obs != nullptr);
 
         obstacle_block_straight(obs, 10, 5, 10, 20, 2);
@@ -638,25 +638,25 @@ TEST_CASE("obstacle_block_straight") {
         const coord_hash_t* blocked = obstacle_get_blocked_coords(obs);
         coord_hash_print(blocked);
 
-        navgrid_t* navgrid = navgrid_new();
+        navgrid_t* navgrid = navgrid_create();
         obstacle_apply_to_navgrid(obs, navgrid);
         navgrid_print_ascii(navgrid);
 
-        navgrid_free(navgrid);
-        obstacle_free(obs);
+        navgrid_destroy(navgrid);
+        obstacle_destroy(obs);
     }
 
     SUBCASE("range = 0, 대각선 블로킹") {
-        obstacle_t* obs = obstacle_new_full(0, 0, 30, 30);
+        obstacle_t* obs = obstacle_create_full(0, 0, 30, 30);
         REQUIRE(obs != nullptr);
 
         obstacle_block_straight(obs, 5, 5, 15, 15, 0);
 
-        navgrid_t* navgrid = navgrid_new();
+        navgrid_t* navgrid = navgrid_create();
         obstacle_apply_to_navgrid(obs, navgrid);
         navgrid_print_ascii(navgrid);
 
-        navgrid_free(navgrid);
-        obstacle_free(obs);
+        navgrid_destroy(navgrid);
+        obstacle_destroy(obs);
     }
 }

@@ -22,18 +22,18 @@ route_t* find_weighted_astar(const navgrid_t* m,
     if (!heuristic_fn) heuristic_fn = default_heuristic;
     if (weight <= 0.0f) weight = 1.0f;
 
-    route_t* result = route_new();
+    route_t* result = route_create();
 
-    cost_coord_pq_t* frontier = cost_coord_pq_new();
+    cost_coord_pq_t* frontier = cost_coord_pq_create();
 
-    coord_hash_t* cost_so_far = coord_hash_new_full(
+    coord_hash_t* cost_so_far = coord_hash_create_full(
         (coord_hash_copy_func) float_copy,
-        (coord_hash_free_func) float_free
+        (coord_hash_destroy_func) float_destroy
     );
 
-    coord_hash_t* came_from = coord_hash_new_full(
+    coord_hash_t* came_from = coord_hash_create_full(
         (coord_hash_copy_func) coord_copy,
-        (coord_hash_free_func) coord_free
+        (coord_hash_destroy_func) coord_destroy
     );
 
     float* new_float = new float(0.0);
@@ -56,7 +56,7 @@ route_t* find_weighted_astar(const navgrid_t* m,
 
         if (coord_equal(current, goal)) {
             found = true;
-            if (final) coord_free(final);
+            if (final) coord_destroy(final);
             final = coord_copy(current);
             delete current;
             break;
@@ -91,9 +91,9 @@ route_t* find_weighted_astar(const navgrid_t* m,
             }
         }
 
-        coord_list_free(neighbors);
+        coord_list_destroy(neighbors);
 
-        if (final) coord_free(final);
+        if (final) coord_destroy(final);
         final = coord_copy(current);                
 
         delete current;
@@ -107,11 +107,11 @@ route_t* find_weighted_astar(const navgrid_t* m,
         route_set_success(result, false);
     }
 
-    coord_free(final);
+    coord_destroy(final);
 
-    coord_hash_free(cost_so_far);
-    coord_hash_free(came_from);
-    cost_coord_pq_free(frontier);
+    coord_hash_destroy(cost_so_far);
+    coord_hash_destroy(came_from);
+    cost_coord_pq_destroy(frontier);
 
     route_set_total_retry_count(result, retry);
     return result;

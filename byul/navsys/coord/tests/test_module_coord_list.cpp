@@ -6,20 +6,20 @@ extern "C" {
 }
 
 TEST_CASE("coord_list: 생성 및 기초 확인") {
-    coord_list_t* list = coord_list_new();
+    coord_list_t* list = coord_list_create();
     REQUIRE(list != nullptr);
     CHECK(coord_list_length(list) == 0);
     CHECK(coord_list_empty(list));
 
-    coord_list_free(list);
+    coord_list_destroy(list);
 }
 
 TEST_CASE("coord_list: push_back, get, front, back") {
-    coord_list_t* list = coord_list_new();
+    coord_list_t* list = coord_list_create();
 
-    coord_t* a = coord_new_full(1, 2);
-    coord_t* b = coord_new_full(3, 4);
-    coord_t* c = coord_new_full(5, 6);
+    coord_t* a = coord_create_full(1, 2);
+    coord_t* b = coord_create_full(3, 4);
+    coord_t* c = coord_create_full(5, 6);
 
     coord_list_push_back(list, a);
     coord_list_push_back(list, b);
@@ -32,18 +32,18 @@ TEST_CASE("coord_list: push_back, get, front, back") {
     CHECK(coord_equal(coord_list_front(list), a));
     CHECK(coord_equal(coord_list_back(list), c));
 
-    coord_free(a);
-    coord_free(b);
-    coord_free(c);
-    coord_list_free(list);
+    coord_destroy(a);
+    coord_destroy(b);
+    coord_destroy(c);
+    coord_list_destroy(list);
 }
 
 TEST_CASE("coord_list: pop_back, pop_front") {
-    coord_list_t* list = coord_list_new();
+    coord_list_t* list = coord_list_create();
 
-    coord_t* a = coord_new_full(10, 10);
-    coord_t* b = coord_new_full(20, 20);
-    coord_t* c = coord_new_full(30, 30);
+    coord_t* a = coord_create_full(10, 10);
+    coord_t* b = coord_create_full(20, 20);
+    coord_t* c = coord_create_full(30, 30);
 
     coord_list_push_back(list, a);
     coord_list_push_back(list, b);
@@ -51,27 +51,27 @@ TEST_CASE("coord_list: pop_back, pop_front") {
 
     coord_t* back = coord_list_pop_back(list);
     CHECK(coord_equal(back, c));
-    coord_free(back);
+    coord_destroy(back);
 
     coord_t* front = coord_list_pop_front(list);
     CHECK(coord_equal(front, a));
-    coord_free(front);
+    coord_destroy(front);
 
     CHECK(coord_list_length(list) == 1);
     CHECK(coord_equal(coord_list_front(list), b));
 
-    coord_free(a);
-    coord_free(b);
-    coord_free(c);
-    coord_list_free(list);
+    coord_destroy(a);
+    coord_destroy(b);
+    coord_destroy(c);
+    coord_list_destroy(list);
 }
 
 TEST_CASE("coord_list: insert, remove_at, remove_value") {
-    coord_list_t* list = coord_list_new();
+    coord_list_t* list = coord_list_create();
 
-    coord_t* a = coord_new_full(1, 1);
-    coord_t* b = coord_new_full(2, 2);
-    coord_t* c = coord_new_full(3, 3);
+    coord_t* a = coord_create_full(1, 1);
+    coord_t* b = coord_create_full(2, 2);
+    coord_t* c = coord_create_full(3, 3);
     coord_list_push_back(list, a);
     coord_list_push_back(list, c);
 
@@ -87,18 +87,18 @@ TEST_CASE("coord_list: insert, remove_at, remove_value") {
     CHECK(coord_list_length(list) == 1);
     CHECK(coord_equal(coord_list_get(list, 0), a));
 
-    coord_free(a);
-    coord_free(b);
-    coord_free(c);
-    coord_list_free(list);
+    coord_destroy(a);
+    coord_destroy(b);
+    coord_destroy(c);
+    coord_list_destroy(list);
 }
 
 TEST_CASE("coord_list: clear, reverse, copy") {
-    coord_list_t* list = coord_list_new();
+    coord_list_t* list = coord_list_create();
 
-    coord_t* a = coord_new_full(1, 1);
-    coord_t* b = coord_new_full(2, 2);
-    coord_t* c = coord_new_full(3, 3);
+    coord_t* a = coord_create_full(1, 1);
+    coord_t* b = coord_create_full(2, 2);
+    coord_t* c = coord_create_full(3, 3);
 
     coord_list_push_back(list, a);
     coord_list_push_back(list, b);
@@ -114,19 +114,19 @@ TEST_CASE("coord_list: clear, reverse, copy") {
     coord_list_clear(list);
     CHECK(coord_list_empty(list));
 
-    coord_free(a);
-    coord_free(b);
-    coord_free(c);
-    coord_list_free(list);
-    coord_list_free(copy);
+    coord_destroy(a);
+    coord_destroy(b);
+    coord_destroy(c);
+    coord_list_destroy(list);
+    coord_list_destroy(copy);
 }
 
 TEST_CASE("coord_list: contains, find, sublist") {
-    coord_list_t* list = coord_list_new();
+    coord_list_t* list = coord_list_create();
 
-    coord_t* a = coord_new_full(10, 10);
-    coord_t* b = coord_new_full(20, 20);
-    coord_t* c = coord_new_full(30, 30);
+    coord_t* a = coord_create_full(10, 10);
+    coord_t* b = coord_create_full(20, 20);
+    coord_t* c = coord_create_full(30, 30);
 
     coord_list_push_back(list, a);
     coord_list_push_back(list, b);
@@ -141,9 +141,9 @@ TEST_CASE("coord_list: contains, find, sublist") {
     CHECK(coord_equal(coord_list_get(sub, 0), b));
     CHECK(coord_equal(coord_list_get(sub, 1), c));
 
-    coord_free(a);
-    coord_free(b);
-    coord_free(c);
-    coord_list_free(list);
-    coord_list_free(sub);
+    coord_destroy(a);
+    coord_destroy(b);
+    coord_destroy(c);
+    coord_list_destroy(list);
+    coord_list_destroy(sub);
 }

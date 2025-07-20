@@ -20,18 +20,18 @@ route_t* find_sma_star(const navgrid_t* m,
     if (!cost_fn) cost_fn = default_cost;
     if (!heuristic_fn) heuristic_fn = default_heuristic;
 
-    route_t* result = route_new();
-    coord_hash_t* cost_so_far = coord_hash_new_full(
+    route_t* result = route_create();
+    coord_hash_t* cost_so_far = coord_hash_create_full(
         (coord_hash_copy_func) float_copy,
-        (coord_hash_free_func) float_free
+        (coord_hash_destroy_func) float_destroy
     );
 
-    coord_hash_t* came_from = coord_hash_new_full(
+    coord_hash_t* came_from = coord_hash_create_full(
         (coord_hash_copy_func) coord_copy,
-        (coord_hash_free_func) coord_free
+        (coord_hash_destroy_func) coord_destroy
     );
 
-    cost_coord_pq_t* frontier = cost_coord_pq_new();
+    cost_coord_pq_t* frontier = cost_coord_pq_create();
 
     float* zero = new float(0.0f);
     coord_hash_replace(cost_so_far, start, zero);
@@ -51,7 +51,7 @@ route_t* find_sma_star(const navgrid_t* m,
         if (!current) break;
 
         if (coord_equal(current, goal)) {
-            if (final) coord_free(final);
+            if (final) coord_destroy(final);
             final = coord_copy(current);
             delete current;
             break;
@@ -89,8 +89,8 @@ route_t* find_sma_star(const navgrid_t* m,
             }
         }
 
-        coord_list_free(neighbors);
-        coord_free(current);
+        coord_list_destroy(neighbors);
+        coord_destroy(current);
 
         int n = cost_coord_pq_length(frontier) - memory_limit;
 
@@ -112,16 +112,16 @@ route_t* find_sma_star(const navgrid_t* m,
         } else {
             route_set_success(result, false);
         }
-        coord_free(final);
+        coord_destroy(final);
     } else {
         route_set_success(result, false);
     }
 
     route_set_total_retry_count(result, retry);
 
-    coord_hash_free(cost_so_far);
-    coord_hash_free(came_from);
-    cost_coord_pq_free(frontier);
+    coord_hash_destroy(cost_so_far);
+    coord_hash_destroy(came_from);
+    cost_coord_pq_destroy(frontier);
 
     return result;
 }

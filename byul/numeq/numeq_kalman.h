@@ -169,7 +169,7 @@ BYUL_API void kalman_init_full(kalman_filter_t* kf, float init_x, float init_p,
 /**
  * @brief kalman_filter_t 복사
  */
-BYUL_API void kalman_copy(kalman_filter_t* dst, const kalman_filter_t* src);
+BYUL_API void kalman_assign(kalman_filter_t* dst, const kalman_filter_t* src);
 
 /**
  * @brief 스칼라 필터 초기화
@@ -300,7 +300,7 @@ BYUL_API void kalman_vec3_init_full(kalman_filter_vec3_t* kf,
 /**
  * @brief kalman_filter_vec3_t 복사
  */
-BYUL_API void kalman_vec3_copy(kalman_filter_vec3_t* dst,
+BYUL_API void kalman_vec3_assign(kalman_filter_vec3_t* dst,
                            const kalman_filter_vec3_t* src);
 
 /**

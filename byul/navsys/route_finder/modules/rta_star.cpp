@@ -39,26 +39,26 @@ static float rta_iterative_eval(const navgrid_t* m,
 
             if (f < best_f) {
                 best_f = f;
-                if (best) coord_free(best);
+                if (best) coord_destroy(best);
                 best = coord_copy(next);
                 // best = const_cast<coord_t*>(next);
             }
         }
 
-        coord_list_free(neighbors);
+        coord_list_destroy(neighbors);
         if (!best) break;
 
         if (visited_logging) route_add_visited(route, best);        
 
         g += cost_fn(m, current, best, nullptr);
 
-        coord_free(current);
+        coord_destroy(current);
         current = best;
     }
 
     float h_final = heuristic_fn(current, goal, nullptr);
     float total_f = g + h_final;
-    coord_free(current);
+    coord_destroy(current);
     return total_f;
 }
 
@@ -73,11 +73,11 @@ route_t* find_rta_star(const navgrid_t* m,
     if (!cost_fn) cost_fn = default_cost;
     if (!heuristic_fn) heuristic_fn = default_heuristic;
 
-    route_t* result = route_new();
+    route_t* result = route_create();
     coord_t* current = coord_copy(start);
     route_add_coord(result, current);
 
-    coord_hash_t* visited = coord_hash_new();
+    coord_hash_t* visited = coord_hash_create();
 
     int* new_int = new int(1);
     coord_hash_replace(visited, current, new_int);
@@ -101,16 +101,16 @@ route_t* find_rta_star(const navgrid_t* m,
 
             if (eval < best_f) {
                 best_f = eval;
-                if (best) coord_free(best);
+                if (best) coord_destroy(best);
                 best = coord_copy(next);
                 // best = const_cast<coord_t*>(next);
             }
         }
 
-        coord_list_free(neighbors);
+        coord_list_destroy(neighbors);
         if (!best) break;
 
-        coord_free(current);
+        coord_destroy(current);
         current = best;
         route_add_coord(result, current);
 
@@ -127,8 +127,8 @@ route_t* find_rta_star(const navgrid_t* m,
         route_set_success(result, false);
     }
 
-    coord_free(current);
-    coord_hash_free(visited);
+    coord_destroy(current);
+    coord_hash_destroy(visited);
     route_set_total_retry_count(result, retry);
     return result;
 }

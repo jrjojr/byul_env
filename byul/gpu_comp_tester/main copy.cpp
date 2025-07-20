@@ -49,8 +49,8 @@ int main(int argc, char** argv) {
 
     GLuint ubo = gpu_create_ubo(sizeof(rotator_gpu_lerp_t), 0);
 
-    rotator_t* rot_a = rotator_new_full(1, 0, 0, 0);
-    rotator_t* rot_b = rotator_new_full(0, 1, 0, 0);
+    rotator_t* rot_a = rotator_create_full(1, 0, 0, 0);
+    rotator_t* rot_b = rotator_create_full(0, 1, 0, 0);
 
     rotator_gpu_lerp_t udata;
     init_line_geometries();
@@ -105,8 +105,8 @@ int main(int argc, char** argv) {
         }
     }
 
-    rotator_free(rot_a);
-    rotator_free(rot_b);
+    rotator_destroy(rot_a);
+    rotator_destroy(rot_b);
     gpu_terminate();
     return 0;
 }

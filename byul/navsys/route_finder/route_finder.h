@@ -106,17 +106,17 @@ typedef struct s_route_finder {
  * - 최대 반복 횟수: 10000
  * - 방문 노드 로깅: false
  *
- * @return 초기화된 route_finder_t 포인터 (heap에 생성되며, 사용 후 route_finder_free로 해제해야 함)
+ * @return 초기화된 route_finder_t 포인터 (heap에 생성되며, 사용 후 route_finder_destroy로 해제해야 함)
  */
-BYUL_API route_finder_t* route_finder_new(navgrid_t* navgrid);
+BYUL_API route_finder_t* route_finder_create(navgrid_t* navgrid);
 
-BYUL_API route_finder_t* route_finder_new_full(navgrid_t* navgrid, 
+BYUL_API route_finder_t* route_finder_create_full(navgrid_t* navgrid, 
     route_finder_type_t type, 
     coord_t* start, coord_t* goal,
     cost_func cost_fn, heuristic_func heuristic_fn,
     int max_retry, bool visited_logging, void* userdata);
 
-BYUL_API void route_finder_free(route_finder_t* a);
+BYUL_API void route_finder_destroy(route_finder_t* a);
 
 BYUL_API route_finder_t* route_finder_copy(const route_finder_t* src);
 

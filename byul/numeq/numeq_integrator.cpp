@@ -27,7 +27,7 @@ void integrator_config_init_full(integrator_config_t* cfg,
     cfg->userdata = userdata;
 }
 
-void integrator_config_copy(
+void integrator_config_assign(
     integrator_config_t* out, const integrator_config_t* src) {
 
     if (!out || !src) return;
@@ -201,13 +201,13 @@ void numeq_integrate_attitude_verlet(
     Vec3 w_prev(prev_state->angular.angular_velocity);
     Vec3 a(state->angular.angular_acceleration);
 
-    Vec3 w_new = w * 2.0f - w_prev + a * (dt * dt);
+    Vec3 w_create = w * 2.0f - w_prev + a * (dt * dt);
 
     *const_cast<motion_state_t*>(prev_state) = *state;
-    state->angular.angular_velocity = w_new;
+    state->angular.angular_velocity = w_create;
 
     quat_t dq;
-    quat_init_angular_velocity(&dq, &w_new.v, dt);
+    quat_init_angular_velocity(&dq, &w_create.v, dt);
     quat_mul(&state->angular.orientation, &state->angular.orientation, &dq);
     quat_normalize(&state->angular.orientation);
 }
@@ -240,13 +240,13 @@ void numeq_integrate_motion_verlet(
     Vec3 w_prev(prev_state->angular.angular_velocity);
     Vec3 ang_a(state->angular.angular_acceleration);
 
-    Vec3 w_new = w * 2.0f - w_prev + ang_a * (dt * dt);
+    Vec3 w_create = w * 2.0f - w_prev + ang_a * (dt * dt);
 
-    state->angular.angular_velocity = w_new;
+    state->angular.angular_velocity = w_create;
 
     // 쿼터니언 회전 업데이트
     quat_t dq;
-    quat_init_angular_velocity(&dq, &w_new.v, dt);
+    quat_init_angular_velocity(&dq, &w_create.v, dt);
     quat_mul(&state->angular.orientation, &state->angular.orientation, &dq);
     quat_normalize(&state->angular.orientation);
 }
@@ -357,12 +357,12 @@ void numeq_integrate_motion_rk4(motion_state_t* state, float dt) {
     Vec3 k4_w = ang_a * dt;
 
     Vec3 delta_w = (k1_w + (k2_w + k3_w) * 2.0f + k4_w) * (1.0f / 6.0f);
-    Vec3 w_new = w0 + delta_w;
+    Vec3 w_create = w0 + delta_w;
 
-    state->angular.angular_velocity = w_new;
+    state->angular.angular_velocity = w_create;
 
     quat_t dq;
-    quat_init_angular_velocity(&dq, &w_new.v, dt);
+    quat_init_angular_velocity(&dq, &w_create.v, dt);
     quat_mul(&state->angular.orientation, &state->angular.orientation, &dq);
     quat_normalize(&state->angular.orientation);
 }

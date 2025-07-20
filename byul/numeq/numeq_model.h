@@ -65,7 +65,7 @@ BYUL_API void environment_init_full(environment_t* env,
  * @param out 복사 대상
  * @param src 원본
  */
-BYUL_API void environment_copy(environment_t* out, const environment_t* src);
+BYUL_API void environment_assign(environment_t* out, const environment_t* src);
 
 /**
  * @struct body_properties_t
@@ -122,7 +122,7 @@ BYUL_API void body_properties_init_full(body_properties_t* body,
  * @param out 복사 대상
  * @param src 원본
  */
-BYUL_API void body_properties_copy(
+BYUL_API void body_properties_assign(
     body_properties_t* out, const body_properties_t* src);
 
 // ---------------------------------------------------------

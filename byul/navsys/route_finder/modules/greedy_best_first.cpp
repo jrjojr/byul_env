@@ -18,14 +18,14 @@ route_t* find_greedy_best_first(const navgrid_t* m,
 
     if(!heuristic_fn) heuristic_fn = default_heuristic;
 
-    coord_hash_t* came_from = coord_hash_new_full(
+    coord_hash_t* came_from = coord_hash_create_full(
         (coord_hash_copy_func) coord_copy,
-        (coord_hash_free_func) coord_free
+        (coord_hash_destroy_func) coord_destroy
     );
 
-    coord_hash_t* visited = coord_hash_new();
-    cost_coord_pq_t* frontier = cost_coord_pq_new();
-    route_t* result = route_new();
+    coord_hash_t* visited = coord_hash_create();
+    cost_coord_pq_t* frontier = cost_coord_pq_create();
+    route_t* result = route_create();
 
     float h_start = heuristic_fn(start, goal, nullptr);
 
@@ -47,9 +47,9 @@ route_t* find_greedy_best_first(const navgrid_t* m,
 
         if (coord_equal(current, goal)) {
             found = true;
-            if (final) coord_free(final);
+            if (final) coord_destroy(final);
             final = coord_copy(current);
-            coord_free(current);
+            coord_destroy(current);
             break;
         }
 
@@ -74,12 +74,12 @@ route_t* find_greedy_best_first(const navgrid_t* m,
                 route_add_visited(result, next);
         }
 
-        coord_list_free(neighbors);
+        coord_list_destroy(neighbors);
 
-        if (final) coord_free(final);
+        if (final) coord_destroy(final);
         final = coord_copy(current);        
 
-        coord_free(current);
+        coord_destroy(current);
     }
 
     if (route_reconstruct_path(result, came_from, start, final)) {
@@ -87,11 +87,11 @@ route_t* find_greedy_best_first(const navgrid_t* m,
     } else {
         route_set_success(result, false);
     }
-    if (final) coord_free(final);
+    if (final) coord_destroy(final);
 
-    cost_coord_pq_free(frontier);
-    coord_hash_free(came_from);
-    coord_hash_free(visited);
+    cost_coord_pq_destroy(frontier);
+    coord_hash_destroy(came_from);
+    coord_hash_destroy(visited);
     route_set_total_retry_count(result, retry);
     return result;
 }

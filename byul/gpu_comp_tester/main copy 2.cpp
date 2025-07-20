@@ -96,7 +96,7 @@ int main(int argc, char** argv) {
 
         SDL_GL_SwapWindow(window);
 
-        rotator_free(r);
+        rotator_destroy(r);
 
         frames++;
         auto duration = std::chrono::duration_cast<std::chrono::seconds>(now - last_time);

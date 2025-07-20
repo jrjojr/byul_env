@@ -39,7 +39,7 @@ const char* get_route_finder_name(route_finder_type_t pa) {
     }
 }
 
-route_finder_t* route_finder_new_full(navgrid_t* navgrid, 
+route_finder_t* route_finder_create_full(navgrid_t* navgrid, 
     route_finder_type_t type, 
     coord_t* start, coord_t* goal,
     cost_func cost_fn, heuristic_func heuristic_fn,
@@ -58,23 +58,23 @@ route_finder_t* route_finder_new_full(navgrid_t* navgrid,
     return a;
 }
 
-route_finder_t* route_finder_new(navgrid_t* navgrid) {
+route_finder_t* route_finder_create(navgrid_t* navgrid) {
     coord_t start;
     start.x = 0;
     start.y = 0;
-    return route_finder_new_full(navgrid, ROUTE_FINDER_ASTAR, &start, &start, 
+    return route_finder_create_full(navgrid, ROUTE_FINDER_ASTAR, &start, &start, 
         default_cost, euclidean_heuristic, 10000, false, nullptr);
 }
 
-void route_finder_free(route_finder_t* a) {
-    if(a->start) coord_free(a->start);
-    if(a->goal) coord_free(a->goal);
+void route_finder_destroy(route_finder_t* a) {
+    if(a->start) coord_destroy(a->start);
+    if(a->goal) coord_destroy(a->goal);
     delete a;
 }
 
 route_finder_t* route_finder_copy(const route_finder_t* src) {
     if (!src) return nullptr;
-    return route_finder_new_full(
+    return route_finder_create_full(
         src->navgrid,
         src->type,
         src->start,

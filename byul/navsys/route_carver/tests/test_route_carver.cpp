@@ -9,7 +9,7 @@
 #include "internal/console.h"
 
 TEST_CASE("route_carve_beam - straight line carve") {
-    navgrid_t* navgrid = navgrid_new();
+    navgrid_t* navgrid = navgrid_create();
     obstacle_t* obs = obstacle_make_rect_all_blocked(0, 0, 10, 10);
     obstacle_apply_to_navgrid(obs, navgrid);
 
@@ -21,12 +21,12 @@ TEST_CASE("route_carve_beam - straight line carve") {
 
     navgrid_print_ascii(navgrid);
 
-    obstacle_free(obs);
-    navgrid_free(navgrid);
+    obstacle_destroy(obs);
+    navgrid_destroy(navgrid);
 }
 
 TEST_CASE("route_carve_beam - wide beam carve") {
-    navgrid_t* navgrid = navgrid_new();
+    navgrid_t* navgrid = navgrid_create();
     obstacle_t* obs = obstacle_make_rect_all_blocked(0, 0, 10, 10);
     obstacle_apply_to_navgrid(obs, navgrid);
 
@@ -38,12 +38,12 @@ TEST_CASE("route_carve_beam - wide beam carve") {
 
 navgrid_print_ascii(navgrid);
 
-    obstacle_free(obs);
-    navgrid_free(navgrid);
+    obstacle_destroy(obs);
+    navgrid_destroy(navgrid);
 }
 
 TEST_CASE("route_carve_bomb - center explosion") {
-    navgrid_t* navgrid = navgrid_new();
+    navgrid_t* navgrid = navgrid_create();
     obstacle_t* obs = obstacle_make_rect_all_blocked(0, 0, 10, 10);
     obstacle_apply_to_navgrid(obs, navgrid);
 
@@ -53,8 +53,8 @@ TEST_CASE("route_carve_bomb - center explosion") {
     CHECK(removed == 25);  // 정확한 폭파 크기
 navgrid_print_ascii(navgrid);
 
-    obstacle_free(obs);
-    navgrid_free(navgrid);
+    obstacle_destroy(obs);
+    navgrid_destroy(navgrid);
 }
 
 

@@ -55,14 +55,14 @@ typedef struct {
  * ---
  *
  * ### 사용 조건
- * - `maze_t`는 반드시 `maze_new_full()`로 생성되어야 합니다.
+ * - `maze_t`는 반드시 `maze_create_full()`로 생성되어야 합니다.
  * - `width`, `height`는 **9 이상**의 홀수여야 합니다.
  *
  * ---
  *
  * ### 사용 예시
  * @code
- * maze_t* maze = maze_new_full(0, 0, 31, 21, MAZE_TYPE_ROOM_BLEND);
+ * maze_t* maze = maze_create_full(0, 0, 31, 21, MAZE_TYPE_ROOM_BLEND);
  * maze_make_room_blend(maze);
  * navgrid_add_maze(navgrid, maze);
  * @endcode

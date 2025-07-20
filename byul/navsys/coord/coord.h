@@ -18,9 +18,9 @@ typedef struct s_coord {
 
 // ------------------------ 생성/해제 ------------------------
 
-BYUL_API coord_t* coord_new_full(int x, int y);
-BYUL_API coord_t* coord_new(void);
-BYUL_API void     coord_free(coord_t* c);
+BYUL_API coord_t* coord_create_full(int x, int y);
+BYUL_API coord_t* coord_create(void);
+BYUL_API void     coord_destroy(coord_t* c);
 BYUL_API coord_t* coord_copy(const coord_t* c);
 
 // ------------------------ 비교/해시 ------------------------

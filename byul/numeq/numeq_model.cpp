@@ -54,7 +54,7 @@ void environment_init_full(environment_t* env,
  * @param out 복사 대상
  * @param src 원본
  */
-void environment_copy(environment_t* out, const environment_t* src) {
+void environment_assign(environment_t* out, const environment_t* src) {
     if (!out || !src) return;
     *out = *src;
 }
@@ -104,7 +104,7 @@ void body_properties_init_full(body_properties_t* body,
  * @param out 복사 대상
  * @param src 원본
  */
-void body_properties_copy(body_properties_t* out, const body_properties_t* src) {
+void body_properties_assign(body_properties_t* out, const body_properties_t* src) {
     if (!out || !src) return;
     *out = *src;
 }

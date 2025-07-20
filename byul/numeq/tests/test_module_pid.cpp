@@ -109,7 +109,7 @@ TEST_CASE("Vec3 PID: Copy and Reset") {
         &b.v
     );
 
-    pid_vec3_copy(&pid2, &pid1);
+    pid_vec3_assign(&pid2, &pid1);
 
     CHECK(pid2.x.integral == doctest::Approx(1.0f));
     CHECK(pid2.y.integral == doctest::Approx(2.0f));

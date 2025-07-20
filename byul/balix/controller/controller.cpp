@@ -26,7 +26,7 @@ void pid_impl_init_full(pid_impl_t* impl,
     impl->output_limit = output_limit;
 }
 
-void pid_impl_copy(pid_impl_t* dst, const pid_impl_t* src) {
+void pid_impl_assign(pid_impl_t* dst, const pid_impl_t* src) {
     if (!dst || !src) return;
     dst->pid = src->pid;
     dst->output_limit = src->output_limit;
@@ -44,7 +44,7 @@ void bangbang_impl_init_full(bangbang_impl_t* impl,
     impl->max_output = max_output;
 }
 
-void bangbang_impl_copy(bangbang_impl_t* dst,
+void bangbang_impl_assign(bangbang_impl_t* dst,
                                  const bangbang_impl_t* src) {
     if (!dst || !src) return;
     dst->max_output = src->max_output;
@@ -67,23 +67,23 @@ void mpc_impl_init_full(mpc_impl_t* impl,
                                  const body_properties_t* body,
                                  mpc_cost_func cost_fn) {
     if (!impl) return;
-    if (cfg) mpc_config_copy(&impl->config, cfg);
+    if (cfg) mpc_config_assign(&impl->config, cfg);
     else mpc_config_init(&impl->config);
 
-    if (target) motion_state_copy(&impl->target, target);
+    if (target) motion_state_assign(&impl->target, target);
     else motion_state_init(&impl->target);
 
-    if (env) environment_copy(&impl->env, env);
+    if (env) environment_assign(&impl->env, env);
     else environment_init(&impl->env);
 
-    if (body) body_properties_copy(&impl->body, body);
+    if (body) body_properties_assign(&impl->body, body);
     else body_properties_init(&impl->body);
 
     // 비용 함수 설정
     impl->cost_fn = (cost_fn) ? cost_fn : numeq_mpc_cost_default;
 }
 
-void mpc_impl_copy(mpc_impl_t* dst, const mpc_impl_t* src) {
+void mpc_impl_assign(mpc_impl_t* dst, const mpc_impl_t* src) {
     if (!dst || !src) return;
     dst->config = src->config;
     dst->target = src->target;

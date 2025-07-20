@@ -43,11 +43,11 @@ unsigned int dstar_lite_key_hash(const dstar_lite_key_t* key) {
 
 // ------------------------ 생성/복사/해제 ------------------------
 
-dstar_lite_key_t* dstar_lite_key_new() {
+dstar_lite_key_t* dstar_lite_key_create() {
     return new dstar_lite_key_t{0.0f, 0.0f};
 }
 
-dstar_lite_key_t* dstar_lite_key_new_full(float k1, float k2) {
+dstar_lite_key_t* dstar_lite_key_create_full(float k1, float k2) {
     return new dstar_lite_key_t{k1, k2};
 }
 
@@ -56,6 +56,6 @@ dstar_lite_key_t* dstar_lite_key_copy(const dstar_lite_key_t* key) {
     return new dstar_lite_key_t{key->k1, key->k2};
 }
 
-void dstar_lite_key_free(dstar_lite_key_t* key) {
+void dstar_lite_key_destroy(dstar_lite_key_t* key) {
     delete key;
 }

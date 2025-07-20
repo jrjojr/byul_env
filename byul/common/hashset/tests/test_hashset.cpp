@@ -6,7 +6,7 @@ extern "C" {
 }
 
 TEST_CASE("hashset: basic operations") {
-    hashset_t* set = hashset_new();
+    hashset_t* set = hashset_create();
     REQUIRE(set);
 
     CHECK(hashset_add(set, (hashkey)"apple"));
@@ -16,11 +16,11 @@ TEST_CASE("hashset: basic operations") {
     CHECK(hashset_remove(set, (hashkey)"apple"));
     CHECK(hashset_size(set) == 0);
 
-    hashset_free(set);
+    hashset_destroy(set);
 }
 
 TEST_CASE("hashset: copy and equality") {
-    hashset_t* a = hashset_new();
+    hashset_t* a = hashset_create();
     REQUIRE(a);
     hashset_add(a, (hashkey)"x");
     hashset_add(a, (hashkey)"y");
@@ -32,6 +32,6 @@ TEST_CASE("hashset: copy and equality") {
     hashset_add(b, (hashkey)"z");
     CHECK_FALSE(hashset_equal(a, b));
 
-    hashset_free(a);
-    hashset_free(b);
+    hashset_destroy(a);
+    hashset_destroy(b);
 }

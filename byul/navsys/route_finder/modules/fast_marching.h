@@ -50,7 +50,7 @@ BYUL_API fmm_grid_t* fmm_compute(const navgrid_t* m, const coord_t* start,
  *
  * @param grid fmm_compute()에 의해 생성된 거리장 결과 구조체
  */
-BYUL_API void fmm_grid_free(fmm_grid_t* grid);
+BYUL_API void fmm_grid_destroy(fmm_grid_t* grid);
 
 /**
  * 거리장 결과를 ASCII 형태로 stdout에 출력합니다.

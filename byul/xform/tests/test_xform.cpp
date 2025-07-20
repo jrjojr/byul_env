@@ -113,7 +113,7 @@ TEST_CASE("xform: identity and clone") {
     xform_init(&xf);
 
     xform_t copy;
-    xform_copy(&copy, &xf);
+    xform_assign(&copy, &xf);
     CHECK(xform_equal(&xf, &copy));
 }
 

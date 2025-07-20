@@ -40,9 +40,9 @@ struct s_route {
 typedef struct s_route route_t;
 
 /** 생성 및 해제 **/
-BYUL_API route_t* route_new(void);
-BYUL_API route_t* route_new_full(float cost);
-BYUL_API void  route_free(route_t* p);
+BYUL_API route_t* route_create(void);
+BYUL_API route_t* route_create_full(float cost);
+BYUL_API void  route_destroy(route_t* p);
 
 /** 복사 및 비교 **/
 BYUL_API route_t* route_copy(const route_t* p);

@@ -18,18 +18,18 @@ void* fmm_cell_copy(const void* p) {
     return out;
 }
 
-void fmm_cell_free(void* p) {
+void fmm_cell_destroy(void* p) {
     delete static_cast<fmm_cell_t*>(p);
 }
 
-fmm_cell_t* fmm_cell_new() {
+fmm_cell_t* fmm_cell_create() {
     auto* cell = new fmm_cell_t;
     cell->state = FMM_FAR;
     cell->value = 0.0f;
     return cell;
 }
 
-fmm_cell_t* fmm_cell_new_full(fmm_state_t state, float value) {
+fmm_cell_t* fmm_cell_create_full(fmm_state_t state, float value) {
     auto* cell = new fmm_cell_t;
     cell->state = state;
     cell->value = value;
@@ -48,18 +48,18 @@ fmm_grid_t* fmm_compute(const navgrid_t* m, const coord_t* start,
     fmm_grid_t* grid = new fmm_grid_t();
     grid->width = m->width;
     grid->height = m->height;
-    grid->cells = coord_hash_new_full(
+    grid->cells = coord_hash_create_full(
         (coord_hash_copy_func) fmm_cell_copy,
-        (coord_hash_free_func) fmm_cell_free
+        (coord_hash_destroy_func) fmm_cell_destroy
     );
 
-    grid->visit_order = coord_list_new();
+    grid->visit_order = coord_list_create();
 
-    cost_coord_pq_t* narrow_band = cost_coord_pq_new();
+    cost_coord_pq_t* narrow_band = cost_coord_pq_create();
 
     fmm_cell_t* start_cell = new fmm_cell_t{FMM_NARROW, 0.0f};
     coord_hash_replace(grid->cells, start, start_cell);
-    fmm_cell_free(start_cell);
+    fmm_cell_destroy(start_cell);
 
     coord_list_push_back(grid->visit_order, start);
     cost_coord_pq_push(narrow_band, 0.0f, start);
@@ -76,10 +76,10 @@ fmm_grid_t* fmm_compute(const navgrid_t* m, const coord_t* start,
         if (!current_cell) current_cell = new fmm_cell_t{FMM_KNOWN, FLT_MAX};
         current_cell->state = FMM_KNOWN;
         coord_hash_replace(grid->cells, current, current_cell);
-        // fmm_cell_free(current_cell);
+        // fmm_cell_destroy(current_cell);
 
         if (current_cell->value > radius_limit) {
-            coord_free(current);
+            coord_destroy(current);
             continue;
         }
 
@@ -136,26 +136,26 @@ fmm_grid_t* fmm_compute(const navgrid_t* m, const coord_t* start,
             if (!next_cell || T < next_cell->value) {
                 fmm_cell_t* new_cell = new fmm_cell_t{FMM_NARROW, T};
                 coord_hash_replace(grid->cells, next, new_cell);
-                fmm_cell_free(new_cell);
+                fmm_cell_destroy(new_cell);
 
                 cost_coord_pq_push(narrow_band, T, next);
             }
         }
 
-        coord_list_free(neighbors);
-        coord_free(current);
+        coord_list_destroy(neighbors);
+        coord_destroy(current);
     }
 
-    cost_coord_pq_free(narrow_band);
+    cost_coord_pq_destroy(narrow_band);
     grid->total_retry_count = retry;
     return grid;
 }
 
-void fmm_grid_free(fmm_grid_t* grid) {
+void fmm_grid_destroy(fmm_grid_t* grid) {
     if (!grid) return;
 
-    coord_hash_free(grid->cells);
-    coord_list_free(grid->visit_order);
+    coord_hash_destroy(grid->cells);
+    coord_list_destroy(grid->visit_order);
     delete grid;
 }
 
@@ -185,7 +185,7 @@ route_t* find_fast_marching(const navgrid_t* m,
     fmm_grid_t* grid = fmm_compute(m, start, cost_fn, radius, max_retry);
     if (!grid) return nullptr;
 
-    route_t* route = route_new();
+    route_t* route = route_create();
 
     // 방문한 셀 순서대로 기록
     if (visited_logging && grid->visit_order) {
@@ -209,7 +209,7 @@ route_t* find_fast_marching(const navgrid_t* m,
             route_set_success(route, false);  // fallback이므로 실패로 간주
         } else {
             route_set_success(route, false);
-            fmm_grid_free(grid);
+            fmm_grid_destroy(grid);
             return route;
         }
     }
@@ -238,21 +238,21 @@ route_t* find_fast_marching(const navgrid_t* m,
 
         if (!best_neighbor) {
             route_set_success(route, false);
-            coord_free(current);
-            coord_list_free(neighbors);
-            fmm_grid_free(grid);
+            coord_destroy(current);
+            coord_list_destroy(neighbors);
+            fmm_grid_destroy(grid);
             return route;
         }
 
         route_insert(route, 0, best_neighbor);
-        coord_free(current);
+        coord_destroy(current);
         current = coord_copy(best_neighbor);
-        coord_list_free(neighbors);
+        coord_list_destroy(neighbors);
     }
 
     route_set_total_retry_count(route, grid->total_retry_count);
-    coord_free(current);
-    fmm_grid_free(grid);
+    coord_destroy(current);
+    fmm_grid_destroy(grid);
     if (!fallback) route_set_success(route, true);
     return route;
 }

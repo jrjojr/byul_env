@@ -12,7 +12,7 @@ typedef struct s_rta_star_config{
 } rta_star_config_t;
 typedef rta_star_config_t* rta_star_config;
 
-BYUL_API rta_star_config rta_star_config_new();
+BYUL_API rta_star_config rta_star_config_create();
 
 /**
  * @brief RTA* 알고리즘에서 사용할 깊이 제한 설정을 생성합니다.
@@ -41,10 +41,10 @@ BYUL_API rta_star_config rta_star_config_new();
  * @param depth_limit 앞을 미리 보는 깊이 (1 이상 권장)
  * @return rta_star_config 설정 객체 (free 필요)
  */
-BYUL_API rta_star_config rta_star_config_new_full(int depth_limit);
+BYUL_API rta_star_config rta_star_config_create_full(int depth_limit);
 
 
-BYUL_API void rta_star_config_free(rta_star_config cfg);
+BYUL_API void rta_star_config_destroy(rta_star_config cfg);
 
 /**
  * @brief RTA* (Real-Time A*) 알고리즘을 사용하여 경로를 탐색합니다.
@@ -68,11 +68,11 @@ BYUL_API void rta_star_config_free(rta_star_config cfg);
  *
  * 사용 예:
  * @code
- * coord_t* start = coord_new_full(0, 0);
- * coord_t* goal = coord_new_full(9, 9);
+ * coord_t* start = coord_create_full(0, 0);
+ * coord_t* goal = coord_create_full(9, 9);
  *
- * rta_star_config cfg = rta_star_config_new_full(7); // 깊이 제한 7
- * route_finder al = route_finder_new_full(
+ * rta_star_config cfg = rta_star_config_create_full(7); // 깊이 제한 7
+ * route_finder al = route_finder_create_full(
  *     10, 10,
  *     NAVGRID_DIR_8,
  *     ROUTE_FINDER_RTA_STAR,
@@ -90,14 +90,14 @@ BYUL_API void rta_star_config_free(rta_star_config cfg);
  * route_t* p = route_finder_find(al, start, goal);
  * navgrid_print_ascii_with_visited_count(al->m, p, start, goal);
  *
- * route_free(p);
- * coord_free(start);
- * coord_free(goal);
- * route_finder_free(al);
- * rta_star_config_free(cfg);
+ * route_destroy(p);
+ * coord_destroy(start);
+ * coord_destroy(goal);
+ * route_finder_destroy(al);
+ * rta_star_config_destroy(cfg);
  * @endcode
  *
- * @param al    알고리즘 컨텍스트 (route_finder_new_full로 생성)
+ * @param al    알고리즘 컨텍스트 (route_finder_create_full로 생성)
  * @param start  시작 좌표
  * @param goal    도착 좌표
  * @return 탐색 결과 route_t*. 경로를 찾았으면 success == true, 실패 시 false.

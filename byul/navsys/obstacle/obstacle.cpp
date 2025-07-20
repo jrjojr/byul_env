@@ -6,7 +6,7 @@
 obstacle_t* obstacle_make_rect_all_blocked(int x0, int y0, int width, int height) {
     if (width <= 0 || height <= 0) return nullptr;
 
-    obstacle_t* obstacle = obstacle_new_full(x0, y0, width, height);
+    obstacle_t* obstacle = obstacle_create_full(x0, y0, width, height);
     if (!obstacle) return nullptr;
 
     for (int dy = 0; dy < height; ++dy) {
@@ -24,7 +24,7 @@ obstacle_t* obstacle_make_rect_random_blocked(
     if (width <= 0 || height <= 0 || ratio <= 0.0f) return nullptr;
     if (ratio > 1.0f) ratio = 1.0f;
 
-    obstacle_t* obstacle = obstacle_new_full(x0, y0, width, height);
+    obstacle_t* obstacle = obstacle_create_full(x0, y0, width, height);
     if (!obstacle) return nullptr;
 
     srand((unsigned int)time(nullptr));
@@ -47,7 +47,7 @@ obstacle_t* obstacle_make_beam(
 
     int width = goal->x - start->x;
     int height = goal->y - start->y;
-    obstacle_t* obstacle = obstacle_new_full(
+    obstacle_t* obstacle = obstacle_create_full(
         start->x, start->y, width, height);
 
     coord_t* cur = coord_copy(start);
@@ -60,7 +60,7 @@ obstacle_t* obstacle_make_beam(
                 obstacle_block_coord(obstacle, next->x, next->y);
             }
             coord_set(cur, next->x, next->y);
-            coord_free(next);
+            coord_destroy(next);
         }
     }
 
@@ -78,10 +78,10 @@ obstacle_t* obstacle_make_beam(
             }
         }
         coord_set(cur, next->x, next->y);
-        coord_list_free(neighbors);
-        coord_free(next);
+        coord_list_destroy(neighbors);
+        coord_destroy(next);
     }
-    coord_free(cur);
+    coord_destroy(cur);
     return obstacle;        
 }
 
@@ -101,7 +101,7 @@ obstacle_t* obstacle_make_torus(
     if (width <= thickness * 2 || height <= thickness * 2)
         return NULL; // 내부 구멍이 생기지 않음
 
-    obstacle_t* obs = obstacle_new_full(min_x, min_y, width, height);
+    obstacle_t* obs = obstacle_create_full(min_x, min_y, width, height);
 
     for (int x = 0; x < width; ++x) {
         for (int y = 0; y < height; ++y) {
@@ -136,7 +136,7 @@ obstacle_t* obstacle_make_enclosure(
     int width = max_x - min_x + 1;
     int height = max_y - min_y + 1;
 
-    obstacle_t* obs = obstacle_new_full(min_x, min_y, width, height);
+    obstacle_t* obs = obstacle_create_full(min_x, min_y, width, height);
 
     for (int x = 0; x < width; ++x) {
         for (int y = 0; y < height; ++y) {
@@ -180,7 +180,7 @@ obstacle_t* obstacle_make_cross(
     int width = max_x - min_x + 1;
     int height = max_y - min_y + 1;
 
-    obstacle_t* obs = obstacle_new_full(min_x, min_y, width, height);
+    obstacle_t* obs = obstacle_create_full(min_x, min_y, width, height);
     if (!obs) return NULL;
 
     // 중심점만 block하는 경우
@@ -223,7 +223,7 @@ obstacle_t* obstacle_make_spiral(
     int width = max_x - min_x + 1;
     int height = max_y - min_y + 1;
 
-    obstacle_t* obs = obstacle_new_full(min_x, min_y, width, height);
+    obstacle_t* obs = obstacle_create_full(min_x, min_y, width, height);
     if (!obs) return NULL;
 
     // 방향 설정
@@ -326,7 +326,7 @@ obstacle_t* obstacle_make_triangle(
     int width = max_x - min_x + 1;
     int height = max_y - min_y + 1;
 
-    obstacle_t* obs = obstacle_new_full(min_x, min_y, width, height);
+    obstacle_t* obs = obstacle_create_full(min_x, min_y, width, height);
     if (!obs) return NULL;
 
     for (int x = min_x; x <= max_x; ++x) {
@@ -381,7 +381,7 @@ obstacle_t* obstacle_make_triangle_torus(
     int width = max_x - min_x + 1 + thickness * 2;
     int height = max_y - min_y + 1 + thickness * 2;
 
-    obstacle_t* obs = obstacle_new_full(min_x - thickness, min_y - thickness, width, height);
+    obstacle_t* obs = obstacle_create_full(min_x - thickness, min_y - thickness, width, height);
     if (!obs) return NULL;
 
     // 삼각형 외곽 세 선분만 block
@@ -439,7 +439,7 @@ obstacle_t* obstacle_make_polygon(coord_list_t* list) {
     int width = max_x - min_x + 1;
     int height = max_y - min_y + 1;
 
-    obstacle_t* obs = obstacle_new_full(min_x, min_y, width, height);
+    obstacle_t* obs = obstacle_create_full(min_x, min_y, width, height);
     if (!obs) return NULL;
 
     for (int x = min_x; x <= max_x; ++x) {
@@ -475,7 +475,7 @@ obstacle_t* obstacle_make_polygon_torus(coord_list_t* list, int thickness) {
     int width = max_x - min_x + 1 + thickness * 2;
     int height = max_y - min_y + 1 + thickness * 2;
 
-    obstacle_t* obs = obstacle_new_full(min_x - thickness, min_y - thickness, width, height);
+    obstacle_t* obs = obstacle_create_full(min_x - thickness, min_y - thickness, width, height);
     if (!obs) return NULL;
 
     for (int i = 0; i < count; ++i) {

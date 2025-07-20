@@ -17,7 +17,7 @@ void dsl_debug_print_g_table(const navgrid_t* m, coord_hash_t* g_table) {
     if (!g_table) return;
     printf("\n📊 g_table (g-values):\n");
 
-    coord_hash_iter_t* it = coord_hash_iter_new(g_table);
+    coord_hash_iter_t* it = coord_hash_iter_create(g_table);
     coord_t* c;
     float* val;
     while (coord_hash_iter_next(it, &c, (void**)&val)) {
@@ -29,7 +29,7 @@ void dsl_debug_print_rhs_table(const navgrid_t* m, coord_hash_t* rhs_table) {
     if (!rhs_table) return;
     printf("\n📊 rhs_table:\n");
 
-    coord_hash_iter_t* it = coord_hash_iter_new(rhs_table);
+    coord_hash_iter_t* it = coord_hash_iter_create(rhs_table);
     coord_t* c;
     float* val;
     while (coord_hash_iter_next(it, &c, (void**)&val)) {

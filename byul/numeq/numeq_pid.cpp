@@ -147,7 +147,7 @@ float pid_preview(const pid_controller_t* pid, float target, float measured) {
 }
 
 
-void pid_copy(pid_controller_t* dst, const pid_controller_t* src) {
+void pid_assign(pid_controller_t* dst, const pid_controller_t* src) {
     std::memcpy(dst, src, sizeof(pid_controller_t));
 }
 
@@ -195,9 +195,9 @@ void pid_vec3_preview(const pid_controller_vec3_t* pid,
     out_control->z = pid_preview(&pid->z, target->z, measured->z);
 }
 
-void pid_vec3_copy(pid_controller_vec3_t* dst,
+void pid_vec3_assign(pid_controller_vec3_t* dst,
                    const pid_controller_vec3_t* src) {
-    pid_copy(&dst->x, &src->x);
-    pid_copy(&dst->y, &src->y);
-    pid_copy(&dst->z, &src->z);
+    pid_assign(&dst->x, &src->x);
+    pid_assign(&dst->y, &src->y);
+    pid_assign(&dst->z, &src->z);
 }

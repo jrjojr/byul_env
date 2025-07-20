@@ -11,12 +11,12 @@ route_t* find_bfs(const navgrid_t* m, const coord_t* start, const coord_t* goal,
 
     if (!m || !start || !goal || max_retry <= 0) return nullptr;
 
-    coord_list_t* frontier = coord_list_new();  // 큐
-    coord_hash_t* visited = coord_hash_new();
-    coord_hash_t* came_from = coord_hash_new_full(
+    coord_list_t* frontier = coord_list_create();  // 큐
+    coord_hash_t* visited = coord_hash_create();
+    coord_hash_t* came_from = coord_hash_create_full(
         (coord_hash_copy_func)coord_copy, 
-        (coord_hash_free_func) coord_free);
-    route_t* result = route_new_full(0.0f);
+        (coord_hash_destroy_func) coord_destroy);
+    route_t* result = route_create_full(0.0f);
 
     coord_list_push_back(frontier, start);
 
@@ -35,9 +35,9 @@ route_t* find_bfs(const navgrid_t* m, const coord_t* start, const coord_t* goal,
 
         if (coord_equal(current, goal)) {
             found = true;
-            if (final) coord_free(final);
+            if (final) coord_destroy(final);
             final = coord_copy(current);
-            coord_free(current);
+            coord_destroy(current);
             break;
         }
 
@@ -58,11 +58,11 @@ route_t* find_bfs(const navgrid_t* m, const coord_t* start, const coord_t* goal,
             }
         }
 
-        coord_list_free(neighbors);
+        coord_list_destroy(neighbors);
         // if (!final) final = coord_copy(current); // 최종 시도한 노드 기록
-        if (final) coord_free(final);
+        if (final) coord_destroy(final);
         final = coord_copy(current);
-        coord_free(current);
+        coord_destroy(current);
     }
 
     if (route_reconstruct_path(result, came_from, start, final)) {
@@ -70,14 +70,14 @@ route_t* find_bfs(const navgrid_t* m, const coord_t* start, const coord_t* goal,
     } else {
         route_set_success(result, false);
     }
-    coord_free(final);
+    coord_destroy(final);
     // } else {
     //     route_set_success(result, false);
     // }
 
-    coord_list_free(frontier);
-    coord_hash_free(visited);
-    coord_hash_free(came_from);
+    coord_list_destroy(frontier);
+    coord_hash_destroy(visited);
+    coord_hash_destroy(came_from);
 
     route_set_total_retry_count(result, retry);
     return result;

@@ -16,7 +16,7 @@ TEST_CASE("quat_init / copy / equal / hash") {
     CHECK(x == doctest::Approx(2.0f));
 
     quat_t q3;
-    quat_copy(&q3, &q2);
+    quat_assign(&q3, &q2);
     CHECK(quat_equal(&q3, &q2));
 
     unsigned int hash1 = quat_hash(&q3);

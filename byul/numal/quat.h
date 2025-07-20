@@ -78,7 +78,7 @@ BYUL_API void quat_init_axes(quat_t* out,
 // 📋 복사 / 설정
 // ---------------------------------------------------------
 
-BYUL_API void quat_copy(quat_t* out, const quat_t* src);
+BYUL_API void quat_assign(quat_t* out, const quat_t* src);
 BYUL_API void quat_get(const quat_t* src, 
     float* out_w, float* out_x, float* out_y, float* out_z);
 

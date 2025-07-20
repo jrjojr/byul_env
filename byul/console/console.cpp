@@ -22,12 +22,12 @@ static char get_navgrid_char(
 
     if (is_coord_blocked_navgrid(m, x, y, nullptr)) return '#';
 
-    coord_t* tmp = coord_new_full(x, y);
+    coord_t* tmp = coord_create_full(x, y);
 
     bool is_route = route_coords && coord_hash_contains(route_coords, tmp);
     bool is_visited = visited_count && coord_hash_contains(visited_count, tmp);
 
-    coord_free(tmp);
+    coord_destroy(tmp);
 
     if (is_route) return '*';
     if (is_visited) return '+';
@@ -49,12 +49,12 @@ static const char* get_navgrid_string(
 
     if (is_coord_blocked_navgrid(m, x, y, nullptr)) return "  #";
 
-    coord_t* tmp = coord_new_full(x, y);
+    coord_t* tmp = coord_create_full(x, y);
 
     bool is_route = route_coords && coord_hash_contains(route_coords, tmp);
     void* val = visited_count ? coord_hash_get(visited_count, tmp) : NULL;
 
-    coord_free(tmp);
+    coord_destroy(tmp);
 
     if (is_route) return "  *";    
 
@@ -130,7 +130,7 @@ void navgrid_print_ascii(const navgrid_t* m) {
     int count = coord_hash_length(coords);
     if (count > 0) {
         // 좌표 범위 자동 감지
-        coord_hash_iter_t* iter = coord_hash_iter_new((coord_hash_t*)coords);
+        coord_hash_iter_t* iter = coord_hash_iter_create((coord_hash_t*)coords);
         coord_t* key;
         while (coord_hash_iter_next(iter, &key, NULL)) {
             if (key->x < min_x) min_x = key->x;
@@ -138,7 +138,7 @@ void navgrid_print_ascii(const navgrid_t* m) {
             if (key->x > max_x) max_x = key->x;
             if (key->y > max_y) max_y = key->y;
         }
-        coord_hash_iter_free(iter);
+        coord_hash_iter_destroy(iter);
 
         // 범위 제한: 최대 100x100
         if (max_x - min_x + 1 > 100) max_x = min_x + 99;
@@ -174,7 +174,7 @@ void navgrid_print_ascii_with_route(const navgrid_t* m, const route_t* p, int ma
     const coord_t* start = coord_list_get(list, 0);
     const coord_t* goal = coord_list_get(list, coord_list_length(list) - 1);
 
-    coord_hash_t* route_coords = coord_hash_new();
+    coord_hash_t* route_coords = coord_hash_create();
 
     int min_x = coord_get_x(start), max_x = coord_get_x(start);
     int min_y = coord_get_y(start), max_y = coord_get_y(start);
@@ -215,7 +215,7 @@ void navgrid_print_ascii_with_route(const navgrid_t* m, const route_t* p, int ma
         putchar('\n');
     }
 
-    coord_hash_free(route_coords);
+    coord_hash_destroy(route_coords);
 }
 
 void navgrid_print_ascii_with_visited_count(
@@ -225,10 +225,10 @@ void navgrid_print_ascii_with_visited_count(
 
     const coord_hash_t* visited = route_get_visited_count(p);
     const coord_list_t* list = route_get_coords(p);
-    coord_hash_t* route_coords = coord_hash_new();
+    coord_hash_t* route_coords = coord_hash_create();
 
     if (!list || coord_list_length(list) == 0) {
-        coord_hash_free(route_coords);
+        coord_hash_destroy(route_coords);
         return;
     }
 
@@ -276,5 +276,5 @@ void navgrid_print_ascii_with_visited_count(
         putchar('\n');
     }
 
-    coord_hash_free(route_coords);
+    coord_hash_destroy(route_coords);
 }

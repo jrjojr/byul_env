@@ -21,11 +21,11 @@ public:
     }
 
     DualQuat(const dualquat_t& src) {
-        dualquat_copy(&dq, &src);
+        dualquat_assign(&dq, &src);
     }
 
     DualQuat(const DualQuat& other) {
-        dualquat_copy(&dq, &other.dq);
+        dualquat_assign(&dq, &other.dq);
     }
 
     // 변환자

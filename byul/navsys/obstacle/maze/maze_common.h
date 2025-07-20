@@ -20,10 +20,10 @@ typedef struct s_maze {
 } maze_t;
 
 // 기본 생성자 / 소멸자
-BYUL_API maze_t* maze_new();
-BYUL_API maze_t* maze_new_full(int x0, int y0, int width, int height);
+BYUL_API maze_t* maze_create();
+BYUL_API maze_t* maze_create_full(int x0, int y0, int width, int height);
 
-BYUL_API void maze_free(maze_t* maze);
+BYUL_API void maze_destroy(maze_t* maze);
 
 BYUL_API void maze_clear(maze_t* maze);
 

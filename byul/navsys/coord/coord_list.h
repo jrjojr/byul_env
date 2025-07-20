@@ -14,8 +14,8 @@ extern "C" {
 typedef struct s_coord_list coord_list_t;
 
 // 생성/소멸
-BYUL_API coord_list_t* coord_list_new(void);
-BYUL_API void coord_list_free(coord_list_t* list);
+BYUL_API coord_list_t* coord_list_create(void);
+BYUL_API void coord_list_destroy(coord_list_t* list);
 BYUL_API coord_list_t* coord_list_copy(const coord_list_t* list);
 
 // 정보 조회

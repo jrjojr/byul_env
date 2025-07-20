@@ -12,11 +12,11 @@
 #include <iostream>
 
 TEST_CASE("BFS: simple route") {
-    // navgrid_t* m = navgrid_new();
+    // navgrid_t* m = navgrid_create();
     std::cout << "BFS: simple route\n";
-    navgrid_t* m = navgrid_new_full(10, 10, NAVGRID_DIR_8, is_coord_blocked_navgrid);
-    coord_t* start = coord_new_full(0, 0);
-    coord_t* goal = coord_new_full(9, 9);
+    navgrid_t* m = navgrid_create_full(10, 10, NAVGRID_DIR_8, is_coord_blocked_navgrid);
+    coord_t* start = coord_create_full(0, 0);
+    coord_t* goal = coord_create_full(9, 9);
 
     route_t* p = find_bfs(m, start, goal, 100, true);
 
@@ -26,18 +26,18 @@ TEST_CASE("BFS: simple route") {
     route_print(p);
     navgrid_print_ascii_with_visited_count(m, p, 5);
 
-    route_free(p);
-    coord_free(start);
-    coord_free(goal);
-    navgrid_free(m);
+    route_destroy(p);
+    coord_destroy(start);
+    coord_destroy(goal);
+    navgrid_destroy(m);
 }
 
 TEST_CASE("BFS: blocked route") {
     std::cout << "BFS: blocked route\n";
-    // navgrid_t* m = navgrid_new();
-    navgrid_t* m = navgrid_new_full(10, 10, NAVGRID_DIR_8, is_coord_blocked_navgrid);
-    coord_t* start = coord_new_full(0, 0);
-    coord_t* goal = coord_new_full(9, 9);
+    // navgrid_t* m = navgrid_create();
+    navgrid_t* m = navgrid_create_full(10, 10, NAVGRID_DIR_8, is_coord_blocked_navgrid);
+    coord_t* start = coord_create_full(0, 0);
+    coord_t* goal = coord_create_full(9, 9);
 
     REQUIRE_FALSE(coord_equal(start, goal));
 
@@ -54,18 +54,18 @@ TEST_CASE("BFS: blocked route") {
     navgrid_print_ascii_with_route(m, p, 5);
     navgrid_print_ascii_with_visited_count(m, p, 5);
 
-    route_free(p);
-    coord_free(start);
-    coord_free(goal);
-    navgrid_free(m);
+    route_destroy(p);
+    coord_destroy(start);
+    coord_destroy(goal);
+    navgrid_destroy(m);
 }
 
 TEST_CASE("BFS: blocked route force failed") {
     std::cout << "BFS: blocked route force failed\n";
-    // navgrid_t* m = navgrid_new();
-    navgrid_t* m = navgrid_new_full(10, 10, NAVGRID_DIR_8, is_coord_blocked_navgrid);
-    coord_t* start = coord_new_full(0, 0);
-    coord_t* goal = coord_new_full(9, 9);
+    // navgrid_t* m = navgrid_create();
+    navgrid_t* m = navgrid_create_full(10, 10, NAVGRID_DIR_8, is_coord_blocked_navgrid);
+    coord_t* start = coord_create_full(0, 0);
+    coord_t* goal = coord_create_full(9, 9);
 
     REQUIRE_FALSE(coord_equal(start, goal));
 
@@ -82,17 +82,17 @@ TEST_CASE("BFS: blocked route force failed") {
     navgrid_print_ascii_with_route(m, p, 5);
     navgrid_print_ascii_with_visited_count(m, p, 5);
 
-    route_free(p);
-    coord_free(start);
-    coord_free(goal);
-    navgrid_free(m);
+    route_destroy(p);
+    coord_destroy(start);
+    coord_destroy(goal);
+    navgrid_destroy(m);
 }
 
 TEST_CASE("DFS: simple route") {
-    // navgrid_t* m = navgrid_new();
-    navgrid_t* m = navgrid_new_full(10, 10, NAVGRID_DIR_8, is_coord_blocked_navgrid);
-    coord_t* start = coord_new_full(0, 0);
-    coord_t* goal = coord_new_full(9, 9);
+    // navgrid_t* m = navgrid_create();
+    navgrid_t* m = navgrid_create_full(10, 10, NAVGRID_DIR_8, is_coord_blocked_navgrid);
+    coord_t* start = coord_create_full(0, 0);
+    coord_t* goal = coord_create_full(9, 9);
 
     route_t* p = find_dfs(m, start, goal, 100, true);
 
@@ -102,17 +102,17 @@ TEST_CASE("DFS: simple route") {
     route_print(p);
     navgrid_print_ascii_with_visited_count(m, p, 5);
 
-    route_free(p);
-    coord_free(start);
-    coord_free(goal);
-    navgrid_free(m);
+    route_destroy(p);
+    coord_destroy(start);
+    coord_destroy(goal);
+    navgrid_destroy(m);
 }
 
 TEST_CASE("DFS: blocked route") {
-    // navgrid_t* m = navgrid_new();
-    navgrid_t* m = navgrid_new_full(10, 10, NAVGRID_DIR_8, is_coord_blocked_navgrid);
-    coord_t* start = coord_new_full(0, 0);
-    coord_t* goal = coord_new_full(9, 9);
+    // navgrid_t* m = navgrid_create();
+    navgrid_t* m = navgrid_create_full(10, 10, NAVGRID_DIR_8, is_coord_blocked_navgrid);
+    coord_t* start = coord_create_full(0, 0);
+    coord_t* goal = coord_create_full(9, 9);
 
     REQUIRE_FALSE(coord_equal(start, goal));
 
@@ -128,17 +128,17 @@ TEST_CASE("DFS: blocked route") {
     route_print(p);
     navgrid_print_ascii_with_visited_count(m, p, 5);
 
-    route_free(p);
-    coord_free(start);
-    coord_free(goal);
-    navgrid_free(m);
+    route_destroy(p);
+    coord_destroy(start);
+    coord_destroy(goal);
+    navgrid_destroy(m);
 }
 
 TEST_CASE("DFS: blocked route force failed") {
-    // navgrid_t* m = navgrid_new();
-    navgrid_t* m = navgrid_new_full(10, 10, NAVGRID_DIR_8, is_coord_blocked_navgrid);
-    coord_t* start = coord_new_full(0, 0);
-    coord_t* goal = coord_new_full(9, 9);
+    // navgrid_t* m = navgrid_create();
+    navgrid_t* m = navgrid_create_full(10, 10, NAVGRID_DIR_8, is_coord_blocked_navgrid);
+    coord_t* start = coord_create_full(0, 0);
+    coord_t* goal = coord_create_full(9, 9);
 
     REQUIRE_FALSE(coord_equal(start, goal));
 
@@ -154,17 +154,17 @@ TEST_CASE("DFS: blocked route force failed") {
     route_print(p);
     navgrid_print_ascii_with_visited_count(m, p, 5);
 
-    route_free(p);
-    coord_free(start);
-    coord_free(goal);
-    navgrid_free(m);
+    route_destroy(p);
+    coord_destroy(start);
+    coord_destroy(goal);
+    navgrid_destroy(m);
 }
 
 TEST_CASE("dijkstra: simple route") {
-    // navgrid_t* m = navgrid_new();
-    navgrid_t* m = navgrid_new_full(10, 10, NAVGRID_DIR_8, is_coord_blocked_navgrid);
-    coord_t* start = coord_new_full(0, 0);
-    coord_t* goal = coord_new_full(9, 9);
+    // navgrid_t* m = navgrid_create();
+    navgrid_t* m = navgrid_create_full(10, 10, NAVGRID_DIR_8, is_coord_blocked_navgrid);
+    coord_t* start = coord_create_full(0, 0);
+    coord_t* goal = coord_create_full(9, 9);
 
     route_t* p = find_dijkstra(m, start, goal, default_cost, 1000, true);
 
@@ -174,17 +174,17 @@ TEST_CASE("dijkstra: simple route") {
     route_print(p);
     navgrid_print_ascii_with_visited_count(m, p, 5);
 
-    route_free(p);
-    coord_free(start);
-    coord_free(goal);
-    navgrid_free(m);
+    route_destroy(p);
+    coord_destroy(start);
+    coord_destroy(goal);
+    navgrid_destroy(m);
 }
 
 TEST_CASE("dijkstra: blocked route") {
-    // navgrid_t* m = navgrid_new();
-    navgrid_t* m = navgrid_new_full(10, 10, NAVGRID_DIR_8, is_coord_blocked_navgrid);
-    coord_t* start = coord_new_full(0, 0);
-    coord_t* goal = coord_new_full(9, 9);
+    // navgrid_t* m = navgrid_create();
+    navgrid_t* m = navgrid_create_full(10, 10, NAVGRID_DIR_8, is_coord_blocked_navgrid);
+    coord_t* start = coord_create_full(0, 0);
+    coord_t* goal = coord_create_full(9, 9);
 
     REQUIRE_FALSE(coord_equal(start, goal));
 
@@ -200,17 +200,17 @@ TEST_CASE("dijkstra: blocked route") {
     route_print(p);
     navgrid_print_ascii_with_visited_count(m, p, 5);
 
-    route_free(p);
-    coord_free(start);
-    coord_free(goal);
-    navgrid_free(m);
+    route_destroy(p);
+    coord_destroy(start);
+    coord_destroy(goal);
+    navgrid_destroy(m);
 }
 
 TEST_CASE("dijkstra: blocked route force failed") {
-    // navgrid_t* m = navgrid_new();
-    navgrid_t* m = navgrid_new_full(10, 10, NAVGRID_DIR_8, is_coord_blocked_navgrid);
-    coord_t* start = coord_new_full(0, 0);
-    coord_t* goal = coord_new_full(9, 9);
+    // navgrid_t* m = navgrid_create();
+    navgrid_t* m = navgrid_create_full(10, 10, NAVGRID_DIR_8, is_coord_blocked_navgrid);
+    coord_t* start = coord_create_full(0, 0);
+    coord_t* goal = coord_create_full(9, 9);
 
     REQUIRE_FALSE(coord_equal(start, goal));
 
@@ -226,17 +226,17 @@ TEST_CASE("dijkstra: blocked route force failed") {
     route_print(p);
     navgrid_print_ascii_with_visited_count(m, p, 5);
 
-    route_free(p);
-    coord_free(start);
-    coord_free(goal);
-    navgrid_free(m);
+    route_destroy(p);
+    coord_destroy(start);
+    coord_destroy(goal);
+    navgrid_destroy(m);
 }
 
 TEST_CASE("astar: simple route") {
-    // navgrid_t* m = navgrid_new();
-    navgrid_t* m = navgrid_new_full(10, 10, NAVGRID_DIR_8, is_coord_blocked_navgrid);
-    coord_t* start = coord_new_full(0, 0);
-    coord_t* goal = coord_new_full(9, 9);
+    // navgrid_t* m = navgrid_create();
+    navgrid_t* m = navgrid_create_full(10, 10, NAVGRID_DIR_8, is_coord_blocked_navgrid);
+    coord_t* start = coord_create_full(0, 0);
+    coord_t* goal = coord_create_full(9, 9);
 
     route_t* p = find_astar(m, start, goal, default_cost, default_heuristic, 
         200, true);
@@ -247,17 +247,17 @@ TEST_CASE("astar: simple route") {
     route_print(p);
     navgrid_print_ascii_with_visited_count(m, p, 5);
 
-    route_free(p);
-    coord_free(start);
-    coord_free(goal);
-    navgrid_free(m);
+    route_destroy(p);
+    coord_destroy(start);
+    coord_destroy(goal);
+    navgrid_destroy(m);
 }
 
 TEST_CASE("astar: blocked route") {
-    // navgrid_t* m = navgrid_new();
-    navgrid_t* m = navgrid_new_full(10, 10, NAVGRID_DIR_8, is_coord_blocked_navgrid);
-    coord_t* start = coord_new_full(0, 0);
-    coord_t* goal = coord_new_full(9, 9);
+    // navgrid_t* m = navgrid_create();
+    navgrid_t* m = navgrid_create_full(10, 10, NAVGRID_DIR_8, is_coord_blocked_navgrid);
+    coord_t* start = coord_create_full(0, 0);
+    coord_t* goal = coord_create_full(9, 9);
 
     REQUIRE_FALSE(coord_equal(start, goal));
 
@@ -274,17 +274,17 @@ TEST_CASE("astar: blocked route") {
     route_print(p);
     navgrid_print_ascii_with_visited_count(m, p, 5);
 
-    route_free(p);
-    coord_free(start);
-    coord_free(goal);
-    navgrid_free(m);
+    route_destroy(p);
+    coord_destroy(start);
+    coord_destroy(goal);
+    navgrid_destroy(m);
 }
 
 TEST_CASE("astar: blocked route force failed ") {
-    // navgrid_t* m = navgrid_new();
-    navgrid_t* m = navgrid_new_full(10, 10, NAVGRID_DIR_8, is_coord_blocked_navgrid);
-    coord_t* start = coord_new_full(0, 0);
-    coord_t* goal = coord_new_full(9, 9);
+    // navgrid_t* m = navgrid_create();
+    navgrid_t* m = navgrid_create_full(10, 10, NAVGRID_DIR_8, is_coord_blocked_navgrid);
+    coord_t* start = coord_create_full(0, 0);
+    coord_t* goal = coord_create_full(9, 9);
 
     REQUIRE_FALSE(coord_equal(start, goal));
 
@@ -301,18 +301,18 @@ TEST_CASE("astar: blocked route force failed ") {
     route_print(p);
     navgrid_print_ascii_with_visited_count(m, p, 5);
 
-    route_free(p);
-    coord_free(start);
-    coord_free(goal);
-    navgrid_free(m);
+    route_destroy(p);
+    coord_destroy(start);
+    coord_destroy(goal);
+    navgrid_destroy(m);
 }
 
 TEST_CASE("fast_marching: simple route") {
     std::cout << "fast_marching: simple route\n";
-    // navgrid_t* m = navgrid_new();
-    navgrid_t* m = navgrid_new_full(10, 10, NAVGRID_DIR_8, is_coord_blocked_navgrid);
-    coord_t* start = coord_new_full(0, 0);
-    coord_t* goal = coord_new_full(9, 9);
+    // navgrid_t* m = navgrid_create();
+    navgrid_t* m = navgrid_create_full(10, 10, NAVGRID_DIR_8, is_coord_blocked_navgrid);
+    coord_t* start = coord_create_full(0, 0);
+    coord_t* goal = coord_create_full(9, 9);
 
     route_t* p = find_fast_marching(m, start, goal, 
         default_cost, 1000, true);
@@ -323,19 +323,19 @@ TEST_CASE("fast_marching: simple route") {
     route_print(p);
     navgrid_print_ascii_with_visited_count(m, p, 5);
 
-    route_free(p);
-    coord_free(start);
-    coord_free(goal);
-    navgrid_free(m);
+    route_destroy(p);
+    coord_destroy(start);
+    coord_destroy(goal);
+    navgrid_destroy(m);
 }
 
 TEST_CASE("fast_marching: blocked route") {
-    // navgrid_t* m = navgrid_new();
+    // navgrid_t* m = navgrid_create();
     std::cout << "fast_marching: blocked route\n";
 
-    navgrid_t* m = navgrid_new_full(10, 10, NAVGRID_DIR_8, is_coord_blocked_navgrid);
-    coord_t* start = coord_new_full(0, 0);
-    coord_t* goal = coord_new_full(9, 9);
+    navgrid_t* m = navgrid_create_full(10, 10, NAVGRID_DIR_8, is_coord_blocked_navgrid);
+    coord_t* start = coord_create_full(0, 0);
+    coord_t* goal = coord_create_full(9, 9);
 
     REQUIRE_FALSE(coord_equal(start, goal));
 
@@ -352,18 +352,18 @@ TEST_CASE("fast_marching: blocked route") {
     route_print(p);
     navgrid_print_ascii_with_visited_count(m, p, 5);
 
-    route_free(p);
-    coord_free(start);
-    coord_free(goal);
-    navgrid_free(m);
+    route_destroy(p);
+    coord_destroy(start);
+    coord_destroy(goal);
+    navgrid_destroy(m);
 }
 
 TEST_CASE("fast_marching: blocked route force failed ") {
     std::cout << "fast_marching: blocked route force failed\n";
-    // navgrid_t* m = navgrid_new();
-    navgrid_t* m = navgrid_new_full(10, 10, NAVGRID_DIR_8, is_coord_blocked_navgrid);
-    coord_t* start = coord_new_full(0, 0);
-    coord_t* goal = coord_new_full(9, 9);
+    // navgrid_t* m = navgrid_create();
+    navgrid_t* m = navgrid_create_full(10, 10, NAVGRID_DIR_8, is_coord_blocked_navgrid);
+    coord_t* start = coord_create_full(0, 0);
+    coord_t* goal = coord_create_full(9, 9);
 
     REQUIRE_FALSE(coord_equal(start, goal));
 
@@ -380,19 +380,19 @@ TEST_CASE("fast_marching: blocked route force failed ") {
     route_print(p);
     navgrid_print_ascii_with_visited_count(m, p, 5);
 
-    route_free(p);
-    coord_free(start);
-    coord_free(goal);
-    navgrid_free(m);
+    route_destroy(p);
+    coord_destroy(start);
+    coord_destroy(goal);
+    navgrid_destroy(m);
 }
 
 TEST_CASE("greedy_best_first: simple route") {
     std::cout << "greedy_best_first: simple route\n";
 
-    // navgrid_t* m = navgrid_new();
-    navgrid_t* m = navgrid_new_full(10, 10, NAVGRID_DIR_8, is_coord_blocked_navgrid);
-    coord_t* start = coord_new_full(0, 0);
-    coord_t* goal = coord_new_full(9, 9);
+    // navgrid_t* m = navgrid_create();
+    navgrid_t* m = navgrid_create_full(10, 10, NAVGRID_DIR_8, is_coord_blocked_navgrid);
+    coord_t* start = coord_create_full(0, 0);
+    coord_t* goal = coord_create_full(9, 9);
 
     route_t* p = find_greedy_best_first(m, start, goal, 
         default_heuristic, 1000, true);
@@ -403,19 +403,19 @@ TEST_CASE("greedy_best_first: simple route") {
     route_print(p);
     navgrid_print_ascii_with_visited_count(m, p, 5);
 
-    route_free(p);
-    coord_free(start);
-    coord_free(goal);
-    navgrid_free(m);
+    route_destroy(p);
+    coord_destroy(start);
+    coord_destroy(goal);
+    navgrid_destroy(m);
 }
 
 TEST_CASE("greedy_best_first: blocked route") {
     std::cout << "greedy_best_first: blocked route\n";
 
-    // navgrid_t* m = navgrid_new();
-    navgrid_t* m = navgrid_new_full(10, 10, NAVGRID_DIR_8, is_coord_blocked_navgrid);
-    coord_t* start = coord_new_full(0, 0);
-    coord_t* goal = coord_new_full(9, 9);
+    // navgrid_t* m = navgrid_create();
+    navgrid_t* m = navgrid_create_full(10, 10, NAVGRID_DIR_8, is_coord_blocked_navgrid);
+    coord_t* start = coord_create_full(0, 0);
+    coord_t* goal = coord_create_full(9, 9);
 
     REQUIRE_FALSE(coord_equal(start, goal));
 
@@ -432,19 +432,19 @@ TEST_CASE("greedy_best_first: blocked route") {
     route_print(p);
     navgrid_print_ascii_with_visited_count(m, p, 5);
 
-    route_free(p);
-    coord_free(start);
-    coord_free(goal);
-    navgrid_free(m);
+    route_destroy(p);
+    coord_destroy(start);
+    coord_destroy(goal);
+    navgrid_destroy(m);
 }
 
 TEST_CASE("greedy_best_first: blocked route force failed ") {
     std::cout << "greedy_best_first: blocked route force failed\n";
 
-    // navgrid_t* m = navgrid_new();
-    navgrid_t* m = navgrid_new_full(10, 10, NAVGRID_DIR_8, is_coord_blocked_navgrid);
-    coord_t* start = coord_new_full(0, 0);
-    coord_t* goal = coord_new_full(9, 9);
+    // navgrid_t* m = navgrid_create();
+    navgrid_t* m = navgrid_create_full(10, 10, NAVGRID_DIR_8, is_coord_blocked_navgrid);
+    coord_t* start = coord_create_full(0, 0);
+    coord_t* goal = coord_create_full(9, 9);
 
     REQUIRE_FALSE(coord_equal(start, goal));
 
@@ -461,19 +461,19 @@ TEST_CASE("greedy_best_first: blocked route force failed ") {
     route_print(p);
     navgrid_print_ascii_with_visited_count(m, p, 5);
 
-    route_free(p);
-    coord_free(start);
-    coord_free(goal);
-    navgrid_free(m);
+    route_destroy(p);
+    coord_destroy(start);
+    coord_destroy(goal);
+    navgrid_destroy(m);
 }
 
 TEST_CASE("ida_star: simple route") {
     std::cout << "ida_star: simple route\n";
 
-    // navgrid_t* m = navgrid_new();
-    navgrid_t* m = navgrid_new_full(10, 10, NAVGRID_DIR_8, is_coord_blocked_navgrid);
-    coord_t* start = coord_new_full(0, 0);
-    coord_t* goal = coord_new_full(9, 9);
+    // navgrid_t* m = navgrid_create();
+    navgrid_t* m = navgrid_create_full(10, 10, NAVGRID_DIR_8, is_coord_blocked_navgrid);
+    coord_t* start = coord_create_full(0, 0);
+    coord_t* goal = coord_create_full(9, 9);
 
     route_t* p = find_ida_star(m, start, goal, default_cost, nullptr, 
         200, true);
@@ -484,19 +484,19 @@ TEST_CASE("ida_star: simple route") {
     route_print(p);
     navgrid_print_ascii_with_visited_count(m, p, 5);
 
-    route_free(p);
-    coord_free(start);
-    coord_free(goal);
-    navgrid_free(m);
+    route_destroy(p);
+    coord_destroy(start);
+    coord_destroy(goal);
+    navgrid_destroy(m);
 }
 
 TEST_CASE("ida_star: blocked route") {
     std::cout << "ida_star: blocked route\n";
 
-    // navgrid_t* m = navgrid_new();
-    navgrid_t* m = navgrid_new_full(10, 10, NAVGRID_DIR_8, is_coord_blocked_navgrid);
-    coord_t* start = coord_new_full(0, 0);
-    coord_t* goal = coord_new_full(9, 9);
+    // navgrid_t* m = navgrid_create();
+    navgrid_t* m = navgrid_create_full(10, 10, NAVGRID_DIR_8, is_coord_blocked_navgrid);
+    coord_t* start = coord_create_full(0, 0);
+    coord_t* goal = coord_create_full(9, 9);
 
     REQUIRE_FALSE(coord_equal(start, goal));
 
@@ -513,19 +513,19 @@ TEST_CASE("ida_star: blocked route") {
     route_print(p);
     navgrid_print_ascii_with_visited_count(m, p, 5);
 
-    route_free(p);
-    coord_free(start);
-    coord_free(goal);
-    navgrid_free(m);
+    route_destroy(p);
+    coord_destroy(start);
+    coord_destroy(goal);
+    navgrid_destroy(m);
 }
 
 TEST_CASE("ida_star: blocked route force failed ") {
     std::cout << "ida_star: blocked route force failed\n";
 
-    // navgrid_t* m = navgrid_new();
-    navgrid_t* m = navgrid_new_full(10, 10, NAVGRID_DIR_8, is_coord_blocked_navgrid);
-    coord_t* start = coord_new_full(0, 0);
-    coord_t* goal = coord_new_full(9, 9);
+    // navgrid_t* m = navgrid_create();
+    navgrid_t* m = navgrid_create_full(10, 10, NAVGRID_DIR_8, is_coord_blocked_navgrid);
+    coord_t* start = coord_create_full(0, 0);
+    coord_t* goal = coord_create_full(9, 9);
 
     REQUIRE_FALSE(coord_equal(start, goal));
 
@@ -542,19 +542,19 @@ TEST_CASE("ida_star: blocked route force failed ") {
     route_print(p);
     navgrid_print_ascii_with_visited_count(m, p, 5);
 
-    route_free(p);
-    coord_free(start);
-    coord_free(goal);
-    navgrid_free(m);
+    route_destroy(p);
+    coord_destroy(start);
+    coord_destroy(goal);
+    navgrid_destroy(m);
 }
 
 TEST_CASE("fringe_search: simple route") {
     std::cout << "fringe_search: simple route\n";
 
-    // navgrid_t* m = navgrid_new();
-    navgrid_t* m = navgrid_new_full(10, 10, NAVGRID_DIR_8, is_coord_blocked_navgrid);
-    coord_t* start = coord_new_full(0, 0);
-    coord_t* goal = coord_new_full(9, 9);
+    // navgrid_t* m = navgrid_create();
+    navgrid_t* m = navgrid_create_full(10, 10, NAVGRID_DIR_8, is_coord_blocked_navgrid);
+    coord_t* start = coord_create_full(0, 0);
+    coord_t* goal = coord_create_full(9, 9);
 
     route_t* p = find_fringe_search(m, start, goal, 
         default_cost, default_heuristic, 1.0,
@@ -566,19 +566,19 @@ TEST_CASE("fringe_search: simple route") {
     route_print(p);
     navgrid_print_ascii_with_visited_count(m, p, 5);
 
-    route_free(p);
-    coord_free(start);
-    coord_free(goal);
-    navgrid_free(m);
+    route_destroy(p);
+    coord_destroy(start);
+    coord_destroy(goal);
+    navgrid_destroy(m);
 }
 
 TEST_CASE("fringe_search: blocked route") {
     std::cout << "fringe_search: blocked route\n";
 
-    // navgrid_t* m = navgrid_new();
-    navgrid_t* m = navgrid_new_full(10, 10, NAVGRID_DIR_8, is_coord_blocked_navgrid);
-    coord_t* start = coord_new_full(0, 0);
-    coord_t* goal = coord_new_full(9, 9);
+    // navgrid_t* m = navgrid_create();
+    navgrid_t* m = navgrid_create_full(10, 10, NAVGRID_DIR_8, is_coord_blocked_navgrid);
+    coord_t* start = coord_create_full(0, 0);
+    coord_t* goal = coord_create_full(9, 9);
 
     REQUIRE_FALSE(coord_equal(start, goal));
 
@@ -597,19 +597,19 @@ TEST_CASE("fringe_search: blocked route") {
     route_print(p);
     navgrid_print_ascii_with_visited_count(m, p, 5);
 
-    route_free(p);
-    coord_free(start);
-    coord_free(goal);
-    navgrid_free(m);
+    route_destroy(p);
+    coord_destroy(start);
+    coord_destroy(goal);
+    navgrid_destroy(m);
 }
 
 TEST_CASE("fringe_search: blocked route force failed ") {
     std::cout << "fringe_search: blocked route force failed\n";
 
-    // navgrid_t* m = navgrid_new();
-    navgrid_t* m = navgrid_new_full(10, 10, NAVGRID_DIR_8, is_coord_blocked_navgrid);
-    coord_t* start = coord_new_full(0, 0);
-    coord_t* goal = coord_new_full(9, 9);
+    // navgrid_t* m = navgrid_create();
+    navgrid_t* m = navgrid_create_full(10, 10, NAVGRID_DIR_8, is_coord_blocked_navgrid);
+    coord_t* start = coord_create_full(0, 0);
+    coord_t* goal = coord_create_full(9, 9);
 
     REQUIRE_FALSE(coord_equal(start, goal));
 
@@ -628,19 +628,19 @@ TEST_CASE("fringe_search: blocked route force failed ") {
     route_print(p);
     navgrid_print_ascii_with_visited_count(m, p, 5);
 
-    route_free(p);
-    coord_free(start);
-    coord_free(goal);
-    navgrid_free(m);
+    route_destroy(p);
+    coord_destroy(start);
+    coord_destroy(goal);
+    navgrid_destroy(m);
 }
 
 TEST_CASE("weighted_astar: simple route") {
     std::cout << "weighted_astar: simple route\n";
 
-    // navgrid_t* m = navgrid_new();
-    navgrid_t* m = navgrid_new_full(10, 10, NAVGRID_DIR_8, is_coord_blocked_navgrid);
-    coord_t* start = coord_new_full(0, 0);
-    coord_t* goal = coord_new_full(9, 9);
+    // navgrid_t* m = navgrid_create();
+    navgrid_t* m = navgrid_create_full(10, 10, NAVGRID_DIR_8, is_coord_blocked_navgrid);
+    coord_t* start = coord_create_full(0, 0);
+    coord_t* goal = coord_create_full(9, 9);
 
     route_t* p = find_weighted_astar(m, start, goal, 
         default_cost, default_heuristic, 1.0,
@@ -652,19 +652,19 @@ TEST_CASE("weighted_astar: simple route") {
     route_print(p);
     navgrid_print_ascii_with_visited_count(m, p, 5);
 
-    route_free(p);
-    coord_free(start);
-    coord_free(goal);
-    navgrid_free(m);
+    route_destroy(p);
+    coord_destroy(start);
+    coord_destroy(goal);
+    navgrid_destroy(m);
 }
 
 TEST_CASE("weighted_astar: blocked route") {
     std::cout << "weighted_astar: blocked route\n";
 
-    // navgrid_t* m = navgrid_new();
-    navgrid_t* m = navgrid_new_full(10, 10, NAVGRID_DIR_8, is_coord_blocked_navgrid);
-    coord_t* start = coord_new_full(0, 0);
-    coord_t* goal = coord_new_full(9, 9);
+    // navgrid_t* m = navgrid_create();
+    navgrid_t* m = navgrid_create_full(10, 10, NAVGRID_DIR_8, is_coord_blocked_navgrid);
+    coord_t* start = coord_create_full(0, 0);
+    coord_t* goal = coord_create_full(9, 9);
 
     REQUIRE_FALSE(coord_equal(start, goal));
 
@@ -683,19 +683,19 @@ TEST_CASE("weighted_astar: blocked route") {
     route_print(p);
     navgrid_print_ascii_with_visited_count(m, p, 5);
 
-    route_free(p);
-    coord_free(start);
-    coord_free(goal);
-    navgrid_free(m);
+    route_destroy(p);
+    coord_destroy(start);
+    coord_destroy(goal);
+    navgrid_destroy(m);
 }
 
 TEST_CASE("weighted_astar: blocked route force failed ") {
     std::cout << "weighted_astar: blocked route force failed\n";
 
-    // navgrid_t* m = navgrid_new();
-    navgrid_t* m = navgrid_new_full(10, 10, NAVGRID_DIR_8, is_coord_blocked_navgrid);
-    coord_t* start = coord_new_full(0, 0);
-    coord_t* goal = coord_new_full(9, 9);
+    // navgrid_t* m = navgrid_create();
+    navgrid_t* m = navgrid_create_full(10, 10, NAVGRID_DIR_8, is_coord_blocked_navgrid);
+    coord_t* start = coord_create_full(0, 0);
+    coord_t* goal = coord_create_full(9, 9);
 
     REQUIRE_FALSE(coord_equal(start, goal));
 
@@ -714,19 +714,19 @@ TEST_CASE("weighted_astar: blocked route force failed ") {
     route_print(p);
     navgrid_print_ascii_with_visited_count(m, p, 5);
 
-    route_free(p);
-    coord_free(start);
-    coord_free(goal);
-    navgrid_free(m);
+    route_destroy(p);
+    coord_destroy(start);
+    coord_destroy(goal);
+    navgrid_destroy(m);
 }
 
 TEST_CASE("rta_star: simple route") {
     std::cout << "rta_star: simple route\n";
 
-    // navgrid_t* m = navgrid_new();
-    navgrid_t* m = navgrid_new_full(10, 10, NAVGRID_DIR_8, is_coord_blocked_navgrid);
-    coord_t* start = coord_new_full(0, 0);
-    coord_t* goal = coord_new_full(9, 9);
+    // navgrid_t* m = navgrid_create();
+    navgrid_t* m = navgrid_create_full(10, 10, NAVGRID_DIR_8, is_coord_blocked_navgrid);
+    coord_t* start = coord_create_full(0, 0);
+    coord_t* goal = coord_create_full(9, 9);
 
     route_t* p = find_rta_star(m, start, goal, 
         default_cost, default_heuristic, 9,
@@ -738,19 +738,19 @@ TEST_CASE("rta_star: simple route") {
     route_print(p);
     navgrid_print_ascii_with_visited_count(m, p, 5);
 
-    route_free(p);
-    coord_free(start);
-    coord_free(goal);
-    navgrid_free(m);
+    route_destroy(p);
+    coord_destroy(start);
+    coord_destroy(goal);
+    navgrid_destroy(m);
 }
 
 TEST_CASE("rta_star: blocked route") {
     std::cout << "rta_star: blocked route\n";
 
-    // navgrid_t* m = navgrid_new();
-    navgrid_t* m = navgrid_new_full(10, 10, NAVGRID_DIR_8, is_coord_blocked_navgrid);
-    coord_t* start = coord_new_full(0, 0);
-    coord_t* goal = coord_new_full(9, 9);
+    // navgrid_t* m = navgrid_create();
+    navgrid_t* m = navgrid_create_full(10, 10, NAVGRID_DIR_8, is_coord_blocked_navgrid);
+    coord_t* start = coord_create_full(0, 0);
+    coord_t* goal = coord_create_full(9, 9);
 
     REQUIRE_FALSE(coord_equal(start, goal));
 
@@ -769,19 +769,19 @@ TEST_CASE("rta_star: blocked route") {
     route_print(p);
     navgrid_print_ascii_with_visited_count(m, p, 5);
 
-    route_free(p);
-    coord_free(start);
-    coord_free(goal);
-    navgrid_free(m);
+    route_destroy(p);
+    coord_destroy(start);
+    coord_destroy(goal);
+    navgrid_destroy(m);
 }
 
 TEST_CASE("rta_star: blocked route force failed ") {
     std::cout << "rta_star: blocked route force failed\n";
 
-    // navgrid_t* m = navgrid_new();
-    navgrid_t* m = navgrid_new_full(10, 10, NAVGRID_DIR_8, is_coord_blocked_navgrid);
-    coord_t* start = coord_new_full(0, 0);
-    coord_t* goal = coord_new_full(9, 9);
+    // navgrid_t* m = navgrid_create();
+    navgrid_t* m = navgrid_create_full(10, 10, NAVGRID_DIR_8, is_coord_blocked_navgrid);
+    coord_t* start = coord_create_full(0, 0);
+    coord_t* goal = coord_create_full(9, 9);
 
     REQUIRE_FALSE(coord_equal(start, goal));
 
@@ -800,19 +800,19 @@ TEST_CASE("rta_star: blocked route force failed ") {
     route_print(p);
     navgrid_print_ascii_with_visited_count(m, p, 5);
 
-    route_free(p);
-    coord_free(start);
-    coord_free(goal);
-    navgrid_free(m);
+    route_destroy(p);
+    coord_destroy(start);
+    coord_destroy(goal);
+    navgrid_destroy(m);
 }
 
 TEST_CASE("sma_star: simple route") {
     std::cout << "sma_star: simple route\n";
 
-    // navgrid_t* m = navgrid_new();
-    navgrid_t* m = navgrid_new_full(10, 10, NAVGRID_DIR_8, is_coord_blocked_navgrid);
-    coord_t* start = coord_new_full(0, 0);
-    coord_t* goal = coord_new_full(9, 9);
+    // navgrid_t* m = navgrid_create();
+    navgrid_t* m = navgrid_create_full(10, 10, NAVGRID_DIR_8, is_coord_blocked_navgrid);
+    coord_t* start = coord_create_full(0, 0);
+    coord_t* goal = coord_create_full(9, 9);
 
     route_t* p = find_sma_star(m, start, goal, 
         default_cost, default_heuristic, 1000,
@@ -824,19 +824,19 @@ TEST_CASE("sma_star: simple route") {
     route_print(p);
     navgrid_print_ascii_with_visited_count(m, p, 5);
 
-    route_free(p);
-    coord_free(start);
-    coord_free(goal);
-    navgrid_free(m);
+    route_destroy(p);
+    coord_destroy(start);
+    coord_destroy(goal);
+    navgrid_destroy(m);
 }
 
 TEST_CASE("sma_star: blocked route") {
     std::cout << "sma_star: blocked route\n";
 
-    // navgrid_t* m = navgrid_new();
-    navgrid_t* m = navgrid_new_full(10, 10, NAVGRID_DIR_8, is_coord_blocked_navgrid);
-    coord_t* start = coord_new_full(0, 0);
-    coord_t* goal = coord_new_full(9, 9);
+    // navgrid_t* m = navgrid_create();
+    navgrid_t* m = navgrid_create_full(10, 10, NAVGRID_DIR_8, is_coord_blocked_navgrid);
+    coord_t* start = coord_create_full(0, 0);
+    coord_t* goal = coord_create_full(9, 9);
 
     REQUIRE_FALSE(coord_equal(start, goal));
 
@@ -855,19 +855,19 @@ TEST_CASE("sma_star: blocked route") {
     route_print(p);
     navgrid_print_ascii_with_visited_count(m, p, 5);
 
-    route_free(p);
-    coord_free(start);
-    coord_free(goal);
-    navgrid_free(m);
+    route_destroy(p);
+    coord_destroy(start);
+    coord_destroy(goal);
+    navgrid_destroy(m);
 }
 
 TEST_CASE("sma_star: blocked route force failed ") {
     std::cout << "sma_star: blocked route force failed\n";
 
-    // navgrid_t* m = navgrid_new();
-    navgrid_t* m = navgrid_new_full(10, 10, NAVGRID_DIR_8, is_coord_blocked_navgrid);
-    coord_t* start = coord_new_full(0, 0);
-    coord_t* goal = coord_new_full(9, 9);
+    // navgrid_t* m = navgrid_create();
+    navgrid_t* m = navgrid_create_full(10, 10, NAVGRID_DIR_8, is_coord_blocked_navgrid);
+    coord_t* start = coord_create_full(0, 0);
+    coord_t* goal = coord_create_full(9, 9);
 
     REQUIRE_FALSE(coord_equal(start, goal));
 
@@ -886,25 +886,25 @@ TEST_CASE("sma_star: blocked route force failed ") {
     route_print(p);
     navgrid_print_ascii_with_visited_count(m, p, 5);
 
-    route_free(p);
-    coord_free(start);
-    coord_free(goal);
-    navgrid_free(m);
+    route_destroy(p);
+    coord_destroy(start);
+    coord_destroy(goal);
+    navgrid_destroy(m);
 }
 
 TEST_CASE("route_finder_all: blocked route") {
-    coord_t* start = coord_new_full(0, 0);
-    coord_t* goal = coord_new_full(9, 9);
+    coord_t* start = coord_create_full(0, 0);
+    coord_t* goal = coord_create_full(9, 9);
 
     REQUIRE_FALSE(coord_equal(start, goal));
 
     std::cout << "default\n";
-    navgrid_t* m = navgrid_new();
+    navgrid_t* m = navgrid_create();
     // 장애물 삽입 (세로 차단)
     for (int y = 1; y < 10; ++y)
         navgrid_block_coord(m, 5, y);
 
-    route_finder_t* a = route_finder_new(m);
+    route_finder_t* a = route_finder_create(m);
     route_finder_set_goal(a, goal);
     route_finder_set_start(a, start);
     route_finder_set_visited_logging(a, true);
@@ -915,18 +915,18 @@ TEST_CASE("route_finder_all: blocked route") {
     CHECK(route_get_success(p) == true);
     route_print(p);
     navgrid_print_ascii_with_visited_count(m, p, 5);
-    route_free(p);    
-    route_finder_free(a);
-    navgrid_free(m);
+    route_destroy(p);    
+    route_finder_destroy(a);
+    navgrid_destroy(m);
 
-    m = navgrid_new_full(10, 10, NAVGRID_DIR_8, is_coord_blocked_navgrid);
+    m = navgrid_create_full(10, 10, NAVGRID_DIR_8, is_coord_blocked_navgrid);
     // 장애물 삽입 (세로 차단)
     for (int y = 1; y < 10; ++y)
         navgrid_block_coord(m, 5, y);
 
     REQUIRE_FALSE(coord_equal(start, goal));
 
-    a = route_finder_new(m);
+    a = route_finder_create(m);
     route_finder_set_goal(a, goal);
     route_finder_set_start(a, start);
     route_finder_set_visited_logging(a, true);
@@ -942,7 +942,7 @@ TEST_CASE("route_finder_all: blocked route") {
     CHECK(route_get_success(p) == true);
     route_print(p);
     navgrid_print_ascii_with_visited_count(m, p, 5);
-    route_free(p);
+    route_destroy(p);
 
     // #include "internal/bfs.h"
     std::cout << "bfs.h\n";
@@ -952,7 +952,7 @@ TEST_CASE("route_finder_all: blocked route") {
     CHECK(route_get_success(p) == true);
     route_print(p);
     navgrid_print_ascii_with_visited_count(m, p, 5);
-    route_free(p);
+    route_destroy(p);
 
     // #include "internal/dfs.h"
     std::cout << "dfs.h\n";
@@ -962,7 +962,7 @@ TEST_CASE("route_finder_all: blocked route") {
     CHECK(route_get_success(p) == true);
     route_print(p);
     navgrid_print_ascii_with_visited_count(m, p, 5);
-    route_free(p);
+    route_destroy(p);
 
     // #include "internal/dijkstra.h"
     std::cout << "dijkstra.h\n";
@@ -972,7 +972,7 @@ TEST_CASE("route_finder_all: blocked route") {
     CHECK(route_get_success(p) == true);
     route_print(p);
     navgrid_print_ascii_with_visited_count(m, p, 5);
-    route_free(p);
+    route_destroy(p);
 
     // #include "internal/fast_marching.h"
     std::cout << "fast_marching.h\n";
@@ -982,7 +982,7 @@ TEST_CASE("route_finder_all: blocked route") {
     CHECK(route_get_success(p) == true);
     route_print(p);
     navgrid_print_ascii_with_visited_count(m, p, 5);
-    route_free(p);
+    route_destroy(p);
 
     // #include "internal/fringe_search.h"
     std::cout << "fringe_search.h\n";
@@ -992,7 +992,7 @@ TEST_CASE("route_finder_all: blocked route") {
     CHECK(route_get_success(p) == true);
     route_print(p);
     navgrid_print_ascii_with_visited_count(m, p, 5);
-    route_free(p);
+    route_destroy(p);
 
     // #include "internal/greedy_best_first.h"
     std::cout << "greedy_best_first.h\n";
@@ -1002,7 +1002,7 @@ TEST_CASE("route_finder_all: blocked route") {
     CHECK(route_get_success(p) == true);
     route_print(p);
     navgrid_print_ascii_with_visited_count(m, p, 5);
-    route_free(p);
+    route_destroy(p);
 
     // #include "internal/ida_star.h"
     std::cout << "ida_star.h\n";
@@ -1012,7 +1012,7 @@ TEST_CASE("route_finder_all: blocked route") {
     CHECK(route_get_success(p) == true);
     route_print(p);
     navgrid_print_ascii_with_visited_count(m, p, 5);
-    route_free(p);
+    route_destroy(p);
 
     // #include "internal/rta_star.h"
     std::cout << "rta_star.h\n";
@@ -1022,7 +1022,7 @@ TEST_CASE("route_finder_all: blocked route") {
     CHECK(route_get_success(p) == true);
     route_print(p);
     navgrid_print_ascii_with_visited_count(m, p, 5);
-    route_free(p);
+    route_destroy(p);
 
     // #include "internal/sma_star.h"
     std::cout << "sma_star.h\n";
@@ -1032,7 +1032,7 @@ TEST_CASE("route_finder_all: blocked route") {
     CHECK(route_get_success(p) == true);
     route_print(p);
     navgrid_print_ascii_with_visited_count(m, p, 5);
-    route_free(p);
+    route_destroy(p);
 
     // #include "internal/weighted_astar.h"        
     std::cout << "weighted_astar.h\n";
@@ -1042,10 +1042,10 @@ TEST_CASE("route_finder_all: blocked route") {
     CHECK(route_get_success(p) == true);
     route_print(p);
     navgrid_print_ascii_with_visited_count(m, p, 5);    
-    route_free(p);
+    route_destroy(p);
 
-    coord_free(start);
-    coord_free(goal);
-    navgrid_free(m);
-    route_finder_free(a);
+    coord_destroy(start);
+    coord_destroy(goal);
+    navgrid_destroy(m);
+    route_finder_destroy(a);
 }

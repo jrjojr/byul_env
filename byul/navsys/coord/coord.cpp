@@ -10,7 +10,7 @@
 
 // C++11부터 제공되는 std 기능 사용
 
-coord_t* coord_new_full(int x, int y) {
+coord_t* coord_create_full(int x, int y) {
     // coord_t* c = new (std::nothrow) coord_t;
     coord_t* c = new coord_t();
     if (!c) return nullptr;
@@ -19,11 +19,11 @@ coord_t* coord_new_full(int x, int y) {
     return c;
 }
 
-coord_t* coord_new() {
-    return coord_new_full(0, 0);
+coord_t* coord_create() {
+    return coord_create_full(0, 0);
 }
 
-void coord_free(coord_t* c) {
+void coord_destroy(coord_t* c) {
     delete c;
 }
 
@@ -55,7 +55,7 @@ int coord_compare(const coord_t* c1, const coord_t* c2) {
 
 coord_t* coord_copy(const coord_t* c) {
     if (!c) return nullptr;
-    return coord_new_full(c->x, c->y);
+    return coord_create_full(c->x, c->y);
 }
 
 int coord_get_x(const coord_t* c) {
@@ -163,5 +163,5 @@ coord_t* coord_clone_next_to_goal(
     int dx = (goal->x > start->x) - (goal->x < start->x); // -1, 0, 1
     int dy = (goal->y > start->y) - (goal->y < start->y); // -1, 0, 1
 
-    return coord_new_full(start->x + dx, start->y + dy);
+    return coord_create_full(start->x + dx, start->y + dy);
 }

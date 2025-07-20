@@ -24,7 +24,7 @@ void linear_state_init_full(linear_state_t* out,
     out->acceleration = *acceleration;
 }
 
-void linear_state_copy(linear_state_t* out, const linear_state_t* src) {
+void linear_state_assign(linear_state_t* out, const linear_state_t* src) {
     if (!out || !src) return;
     *out = *src;
 }
@@ -49,7 +49,7 @@ void attitude_state_init_full(attitude_state_t* out,
     out->angular_acceleration = *angular_acceleration;
 }
 
-void attitude_state_copy(attitude_state_t* out, const attitude_state_t* src) {
+void attitude_state_assign(attitude_state_t* out, const attitude_state_t* src) {
     if (!out || !src) return;
     *out = *src;
 }
@@ -76,7 +76,7 @@ void motion_state_init_full(motion_state_t* out,
         orientation, angular_velocity, angular_acceleration);
 }
 
-void motion_state_copy(motion_state_t* out, const motion_state_t* src) {
+void motion_state_assign(motion_state_t* out, const motion_state_t* src) {
     if (!out || !src) return;
     *out = *src;
 }
@@ -111,7 +111,7 @@ void trajectory_destroy(trajectory_t* traj){
     delete traj;
 }
 
-void trajectory_copy(trajectory_t* out, const trajectory_t* src) {
+void trajectory_assign(trajectory_t* out, const trajectory_t* src) {
     if (!out || !src) return;
     if (out->capacity < src->count) {
         delete[] out->samples;
@@ -123,7 +123,7 @@ void trajectory_copy(trajectory_t* out, const trajectory_t* src) {
            sizeof(trajectory_sample_t) * src->count);
 }
 
-trajectory_t* trajectory_clone(const trajectory_t* src) {
+trajectory_t* trajectory_copy(const trajectory_t* src) {
     if (!src) return nullptr;
 
     trajectory_t* traj = trajectory_create_full(src->capacity);

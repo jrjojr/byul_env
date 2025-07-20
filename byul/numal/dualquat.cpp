@@ -75,7 +75,7 @@ void dualquat_init_from_mat3(dualquat_t* out, const float* mat3x3) {
     quat_set(&out->dual, 0, 0, 0, 0);
 }
 
-void dualquat_copy(dualquat_t* out, const dualquat_t* src) {
+void dualquat_assign(dualquat_t* out, const dualquat_t* src) {
     if (!out || !src) return;
     out->real = src->real;
     out->dual = src->dual;

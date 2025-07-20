@@ -149,9 +149,9 @@ typedef struct s_dstar_lite {
  * 생성된 설정 객체는 이후 알고리즘에 전달되어 사용됩니다.
  *
  * @return 새로 생성된 dstar_lite_t* 객체. 
- *      사용 후 dstar_lite_free()로 해제 필요.
+ *      사용 후 dstar_lite_destroy()로 해제 필요.
  */
-BYUL_API dstar_lite_t* dstar_lite_new(navgrid_t* m);
+BYUL_API dstar_lite_t* dstar_lite_create(navgrid_t* m);
 
 /**
  * @brief 사용자 정의 값으로 D* Lite 설정 객체를 생성합니다.
@@ -160,13 +160,13 @@ BYUL_API dstar_lite_t* dstar_lite_new(navgrid_t* m);
  * 
  * @param debug_mode_enabled  디버그 모드 활성화 여부
  * @return 새로 생성된 dstar_lite_t* 객체. 
- *      사용 후 dstar_lite_free()로 해제 필요.
+ *      사용 후 dstar_lite_destroy()로 해제 필요.
  */
-BYUL_API dstar_lite_t* dstar_lite_new_full(navgrid_t* m, coord_t* start, 
+BYUL_API dstar_lite_t* dstar_lite_create_full(navgrid_t* m, coord_t* start, 
     cost_func cost_fn, heuristic_func heuristic_fn,
     bool debug_mode_enabled);
 
-BYUL_API void dstar_lite_free(dstar_lite_t* dsl);
+BYUL_API void dstar_lite_destroy(dstar_lite_t* dsl);
 
 BYUL_API dstar_lite_t* dstar_lite_copy(dstar_lite_t* src);
 

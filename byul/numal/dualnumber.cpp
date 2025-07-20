@@ -16,7 +16,7 @@ void dualnumber_init_full(dualnumber_t* out, float re, float du) {
     out->du = du;
 }
 
-void dualnumber_copy(dualnumber_t* out, const dualnumber_t* src) {
+void dualnumber_assign(dualnumber_t* out, const dualnumber_t* src) {
     if (!out || !src) return;
     out->re = src->re;
     out->du = src->du;

@@ -79,7 +79,7 @@ TEST_CASE("Vec3 Kalman: Copy state") {
     vec3_t vel = {0.0f, 1.0f, 0.0f};
 
     kalman_vec3_reset(&kf1, &pos, &vel, 0.2f, 0.5f, 0.1f);
-    kalman_vec3_copy(&kf2, &kf1);
+    kalman_vec3_assign(&kf2, &kf1);
 
     CHECK(kf2.position.x == doctest::Approx(1.0f));
     CHECK(kf2.velocity.y == doctest::Approx(1.0f));

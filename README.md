@@ -23,10 +23,10 @@ which can be inserted into a navgrid as obstacles.
 
 #### Key Interface:
 ```c
-maze_t* maze_new();
+maze_t* maze_create();
 void maze_make(maze_t* maze, maze_type_t type);
 void maze_apply_to_navgrid(const maze_t* maze, navgrid_t* navgrid);
-void maze_free(maze_t*);
+void maze_destroy(maze_t*);
 ```
 
 ---
@@ -92,18 +92,18 @@ In Byul's World, we prefer **`route`** over `path`. Here's why:
 ### 🔹 Static A* Pathfinding
 
 ```c
-coord_t* start = coord_new_full(0, 0);
-coord_t* goal = coord_new_full(9, 9);
+coord_t* start = coord_create_full(0, 0);
+coord_t* goal = coord_create_full(9, 9);
 
 REQUIRE_FALSE(coord_equal(start, goal));
 
 std::cout << "default\n";
-navgrid_t* m = navgrid_new();
+navgrid_t* m = navgrid_create();
 // Insert vertical wall
 for (int y = 1; y < 10; ++y)
     navgrid_block_coord(m, 5, y);
 
-route_finder_t* a = route_finder_new(m);
+route_finder_t* a = route_finder_create(m);
 route_finder_set_goal(a, goal);
 route_finder_set_start(a, start);
 route_finder_set_visited_logging(a, true);
@@ -114,12 +114,12 @@ CHECK(route_get_success(p) == true);
 route_print(p);
 navgrid_print_ascii_with_visited_count(m, p, 5);
 
-route_free(p);    
-route_finder_free(a);
-navgrid_free(m);
+route_destroy(p);    
+route_finder_destroy(a);
+navgrid_destroy(m);
 
-coord_free(start);
-coord_free(goal);
+coord_destroy(start);
+coord_destroy(goal);
 ```
 
 ### 🧩 Summary

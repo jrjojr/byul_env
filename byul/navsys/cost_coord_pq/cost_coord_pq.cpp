@@ -8,15 +8,15 @@ struct s_cost_coord_pq {
     std::map<float, std::vector<coord_t*>> cost_buckets;
 };
 
-cost_coord_pq_t* cost_coord_pq_new() {
+cost_coord_pq_t* cost_coord_pq_create() {
     return new s_cost_coord_pq();
 }
 
-void cost_coord_pq_free(cost_coord_pq_t* pq) {
+void cost_coord_pq_destroy(cost_coord_pq_t* pq) {
     if (!pq) return;
     for (auto& [_, vec] : pq->cost_buckets) {
         for (coord_t* c : vec) {
-            coord_free(c);
+            coord_destroy(c);
         }
     }
     delete pq;
@@ -78,7 +78,7 @@ bool cost_coord_pq_remove(cost_coord_pq_t* pq, float cost, const coord_t* c) {
     auto& vec = it->second;
     auto v_it = std::remove_if(vec.begin(), vec.end(), [&](coord_t* v) {
         if (coord_equal(v, c)) {
-            coord_free(v);
+            coord_destroy(v);
             return true;
         }
         return false;
@@ -106,7 +106,7 @@ void cost_coord_pq_trim_worst(cost_coord_pq_t* pq, int n) {
     while (it != pq->cost_buckets.rend() && removed < n) {
         auto& vec = it->second;
         while (!vec.empty() && removed < n) {
-            coord_free(vec.back());
+            coord_destroy(vec.back());
             vec.pop_back();
             ++removed;
         }

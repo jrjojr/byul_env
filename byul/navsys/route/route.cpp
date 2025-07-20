@@ -22,15 +22,15 @@ static const int ROUTE_DIRECTION_VECTORS[9][2] = {
     {  1,  1 },  // DOWN_RIGHT
 };
 
-route_t* route_new(void) {
-    return route_new_full(0.0);
+route_t* route_create(void) {
+    return route_create_full(0.0);
 }
 
-route_t* route_new_full(float cost) {
+route_t* route_create_full(float cost) {
     route_t* r = new route_t();
-    r->coords = coord_list_new();
-    r->visited_order = coord_list_new();
-    r->visited_count = coord_hash_new();
+    r->coords = coord_list_create();
+    r->visited_order = coord_list_create();
+    r->visited_count = coord_hash_create();
     r->cost = cost;
     r->success = false;
     r->total_retry_count = 0;
@@ -41,11 +41,11 @@ route_t* route_new_full(float cost) {
     return r;
 }
 
-void route_free(route_t* p) {
+void route_destroy(route_t* p) {
     if (!p) return;
-    coord_list_free(p->coords);
-    coord_list_free(p->visited_order);
-    coord_hash_free(p->visited_count);
+    coord_list_destroy(p->coords);
+    coord_list_destroy(p->visited_order);
+    coord_hash_destroy(p->visited_count);
     delete p;
 }
 
@@ -207,13 +207,13 @@ route_t* route_slice(const route_t* p, int start, int end) {
     coord_list_t* sliced_coords = coord_list_sublist(p->coords, start, end);
     if (!sliced_coords) return NULL;
 
-    route_t* new_route = route_new();  // route_new() 함수가 있어야 함
+    route_t* new_route = route_create();  // route_create() 함수가 있어야 함
     if (!new_route) {
-        coord_list_free(sliced_coords);
+        coord_list_destroy(sliced_coords);
         return NULL;
     }
 
-    if (new_route->coords) coord_list_free(new_route->coords);
+    if (new_route->coords) coord_list_destroy(new_route->coords);
     new_route->coords = sliced_coords;
     return new_route;
 }
@@ -233,9 +233,9 @@ void route_print(const route_t* p) {
 }
 
 // coord_t* route_make_direction(route_t* p, int index) {
-//     if (!p || coord_list_length(p->coords) < 2) return coord_new_full(0, 0);
+//     if (!p || coord_list_length(p->coords) < 2) return coord_create_full(0, 0);
 //     int len = coord_list_length(p->coords);
-//     if (index < 0 || index >= len) return coord_new_full(0, 0);
+//     if (index < 0 || index >= len) return coord_create_full(0, 0);
 
 //     const coord_t* curr = coord_list_get(p->coords, index);
 //     const coord_t* prev = (index >= 1) ? 
@@ -244,7 +244,7 @@ void route_print(const route_t* p) {
 //     const coord_t* next = (index < len - 1) ? 
 //         coord_list_get(p->coords, index + 1) : curr;
 
-//     if (!curr || !prev || !next) return coord_new_full(0, 0);
+//     if (!curr || !prev || !next) return coord_create_full(0, 0);
 
 //     int vx = 0, vy = 0;
 //     vx += coord_get_x(curr) - coord_get_x(prev);
@@ -257,21 +257,21 @@ void route_print(const route_t* p) {
 //     if (vy > 1) vy = 1;
 //     if (vy < -1) vy = -1;
 
-//     return coord_new_full(vx, vy);
+//     return coord_create_full(vx, vy);
 // }
 
 coord_t* route_make_direction(route_t* p, int index) {
-    if (!p || coord_list_length(p->coords) < 2) return coord_new_full(0, 0);
+    if (!p || coord_list_length(p->coords) < 2) return coord_create_full(0, 0);
 
     int len = coord_list_length(p->coords);
-    if (index < 0 || index >= len) return coord_new_full(0, 0);
+    if (index < 0 || index >= len) return coord_create_full(0, 0);
 
     const coord_t* curr = coord_list_get(p->coords, index);
 
     // 끝점은 다음 좌표가 없기 때문에 이전 방향이 유지된다
     if (index == len - 1) {
         const coord_t* prev = coord_list_get(p->coords, index - 1);
-        return coord_new_full(
+        return coord_create_full(
             coord_get_x(curr) - coord_get_x(prev),
             coord_get_y(curr) - coord_get_y(prev)
         );
@@ -279,7 +279,7 @@ coord_t* route_make_direction(route_t* p, int index) {
 
     // 시작점과 중간 점은 현재좌표와 다음 좌표의 관계로 방향을 얻는다.
     const coord_t* next = coord_list_get(p->coords, index + 1);
-    return coord_new_full(
+    return coord_create_full(
         coord_get_x(next) - coord_get_x(curr),
         coord_get_y(next) - coord_get_y(curr)
     );
@@ -306,7 +306,7 @@ route_dir_t route_get_direction_by_index(route_t* p, int index) {
     route_dir_t dir;
     coord_t* vec = route_make_direction(p, index);
     dir = route_get_direction_by_dir_coord(vec);
-    coord_free(vec);
+    coord_destroy(vec);
     return dir;
 }
 
@@ -376,8 +376,8 @@ route_dir_t calc_direction(const coord_t* start, const coord_t* goal) {
 
 coord_t* direction_to_coord(route_dir_t dir) {
     if (dir < ROUTE_DIR_UNKNOWN || dir > ROUTE_DIR_DOWN_RIGHT)
-        return coord_new_full(0, 0);
-    return coord_new_full(
+        return coord_create_full(0, 0);
+    return coord_create_full(
         ROUTE_DIRECTION_VECTORS[dir][0],
         ROUTE_DIRECTION_VECTORS[dir][1]
     );
@@ -512,7 +512,7 @@ bool route_reconstruct_path(route_t* route, const coord_hash_t* came_from,
                             const coord_t* start, const coord_t* goal) {
     if (!route || !came_from || !start || !goal) return false;
 
-    coord_list_t* reversed = coord_list_new();
+    coord_list_t* reversed = coord_list_create();
     // coord_t* current = coord_copy(goal);
     const coord_t* current = goal;
 
@@ -520,10 +520,10 @@ bool route_reconstruct_path(route_t* route, const coord_hash_t* came_from,
         coord_list_insert(reversed, 0, current);
 
         const coord_t* prev = (const coord_t*)coord_hash_get(came_from, current);
-        // coord_free(current);
+        // coord_destroy(current);
 
         if (!prev) {
-            coord_list_free(reversed);
+            coord_list_destroy(reversed);
             return false;  // 복원 실패
         }
 
@@ -538,7 +538,7 @@ bool route_reconstruct_path(route_t* route, const coord_hash_t* came_from,
         route_add_coord(route, (coord_t*)coord_list_get(reversed, i));
     }
 
-    coord_list_free(reversed);
-    // coord_free(current);
+    coord_list_destroy(reversed);
+    // coord_destroy(current);
     return true;
 }

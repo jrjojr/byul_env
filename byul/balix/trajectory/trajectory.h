@@ -46,7 +46,7 @@ BYUL_API void linear_state_init_full(linear_state_t* out,
  * @param out 복사 대상 구조체
  * @param src 복사할 원본 구조체
  */
-BYUL_API void linear_state_copy(
+BYUL_API void linear_state_assign(
     linear_state_t* out, const linear_state_t* src);
 
 /**
@@ -82,7 +82,7 @@ BYUL_API void attitude_state_init_full(attitude_state_t* out,
  * @param out 복사 대상 구조체
  * @param src 복사할 원본 구조체
  */
-BYUL_API void attitude_state_copy(
+BYUL_API void attitude_state_assign(
     attitude_state_t* out, const attitude_state_t* src);
 
 /**
@@ -123,7 +123,7 @@ BYUL_API void motion_state_init_full(motion_state_t* out,
  * @param out 복사 대상 구조체
  * @param src 복사할 원본 구조체
  */
-BYUL_API void motion_state_copy(
+BYUL_API void motion_state_assign(
     motion_state_t* out, const motion_state_t* src);
 
 // ---------------------------------------------------------
@@ -211,7 +211,7 @@ BYUL_API void trajectory_destroy(trajectory_t* traj);
  *
  * @note out->capacity < src->count인 경우 내부 메모리를 재할당합니다.
  */
-BYUL_API void trajectory_copy(trajectory_t* out, const trajectory_t* src);
+BYUL_API void trajectory_assign(trajectory_t* out, const trajectory_t* src);
 
 /**
  * @brief trajectory를 복제(클론)하여 새 인스턴스를 생성합니다.
@@ -223,7 +223,7 @@ BYUL_API void trajectory_copy(trajectory_t* out, const trajectory_t* src);
  *
  * @note 사용 후 반드시 trajectory_destroy()를 호출하여 메모리를 해제해야 합니다.
  */
-BYUL_API trajectory_t* trajectory_clone(const trajectory_t* src);
+BYUL_API trajectory_t* trajectory_copy(const trajectory_t* src);
 
 /**
  * @brief trajectory 내부 데이터를 모두 제거합니다.

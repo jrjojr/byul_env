@@ -20,10 +20,10 @@ typedef struct s_obstacle {
 } obstacle_t;
 
 // 기본 생성자 / 소멸자
-BYUL_API obstacle_t* obstacle_new();
-BYUL_API obstacle_t* obstacle_new_full(
+BYUL_API obstacle_t* obstacle_create();
+BYUL_API obstacle_t* obstacle_create_full(
     int x0, int y0, int width, int height);
-BYUL_API void obstacle_free(obstacle_t* obstacle);
+BYUL_API void obstacle_destroy(obstacle_t* obstacle);
 
 BYUL_API void obstacle_clear(obstacle_t* obstacle);
 

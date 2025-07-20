@@ -14,10 +14,10 @@ typedef struct s_cost_coord_pq cost_coord_pq_t;
 // ------------------------ 생성/해제 ------------------------
 
 /// @brief float 우선순위 기반 coord_t* 저장 큐 생성
-BYUL_API cost_coord_pq_t* cost_coord_pq_new();
+BYUL_API cost_coord_pq_t* cost_coord_pq_create();
 
 /// @brief 큐 해제
-BYUL_API void cost_coord_pq_free(cost_coord_pq_t* pq);
+BYUL_API void cost_coord_pq_destroy(cost_coord_pq_t* pq);
 
 // ------------------------ 삽입/조회 ------------------------
 

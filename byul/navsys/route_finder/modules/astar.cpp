@@ -16,19 +16,19 @@ route_t* find_astar(const navgrid_t* m, const coord_t* start, const coord_t* goa
     if(!cost_fn) cost_fn = default_cost;
     if(!heuristic_fn) heuristic_fn = default_heuristic;
 
-    cost_coord_pq_t* pq = cost_coord_pq_new();
-    coord_hash_t* cost_so_far = coord_hash_new_full(
+    cost_coord_pq_t* pq = cost_coord_pq_create();
+    coord_hash_t* cost_so_far = coord_hash_create_full(
         (coord_hash_copy_func) float_copy,
-        (coord_hash_free_func) float_free
+        (coord_hash_destroy_func) float_destroy
     );   // coord_t* → float*
     
     // coord_t* → coord_t*
-    coord_hash_t* came_from = coord_hash_new_full(
+    coord_hash_t* came_from = coord_hash_create_full(
         (coord_hash_copy_func) coord_copy, 
-        (coord_hash_free_func) coord_free
+        (coord_hash_destroy_func) coord_destroy
     );
 
-    route_t* result = route_new();
+    route_t* result = route_create();
 
     float* zero = new float(0.0f);
     coord_hash_replace(cost_so_far, start, zero);
@@ -49,7 +49,7 @@ route_t* find_astar(const navgrid_t* m, const coord_t* start, const coord_t* goa
 
         if (coord_equal(current, goal)) {
             found = true;
-            if (final) coord_free(final);
+            if (final) coord_destroy(final);
             final = coord_copy(current);
             delete current;
             break;
@@ -82,9 +82,9 @@ route_t* find_astar(const navgrid_t* m, const coord_t* start, const coord_t* goa
             }
         }
 
-        coord_list_free(neighbors);
+        coord_list_destroy(neighbors);
         // if (!final) final = coord_copy(current);  // 마지막 방문 지점 저장
-        if (final) coord_free(final);
+        if (final) coord_destroy(final);
         final = coord_copy(current);        
         delete current;
     }
@@ -101,7 +101,7 @@ route_t* find_astar(const navgrid_t* m, const coord_t* start, const coord_t* goa
     //     route_set_success(result, false);
     // }
 
-    cost_coord_pq_free(pq);
+    cost_coord_pq_destroy(pq);
 
     // 수동 해제: float* 값들
     // coord_list_t* keys = coord_hash_keys(cost_so_far);
@@ -111,10 +111,10 @@ route_t* find_astar(const navgrid_t* m, const coord_t* start, const coord_t* goa
     //     float* val = (float*)coord_hash_get(cost_so_far, key);
     //     delete val;
     // }
-    // coord_list_free(keys);
+    // coord_list_destroy(keys);
 
-    coord_hash_free(cost_so_far);
-    coord_hash_free(came_from);
+    coord_hash_destroy(cost_so_far);
+    coord_hash_destroy(came_from);
 
     route_set_total_retry_count(result, retry);    
     return result;

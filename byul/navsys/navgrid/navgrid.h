@@ -62,12 +62,12 @@ typedef struct s_navgrid navgrid_t;
 // 생성자 및 소멸자
 
 // 0 x 0 , NAVGRID_DIR_8
-BYUL_API navgrid_t* navgrid_new();
+BYUL_API navgrid_t* navgrid_create();
 
-BYUL_API navgrid_t* navgrid_new_full(int width, int height, navgrid_dir_mode_t mode,
+BYUL_API navgrid_t* navgrid_create_full(int width, int height, navgrid_dir_mode_t mode,
     is_coord_blocked_func is_coord_blocked_fn);
 
-BYUL_API void navgrid_free(navgrid_t* m);
+BYUL_API void navgrid_destroy(navgrid_t* m);
 
 // 복사 및 비교
 BYUL_API navgrid_t* navgrid_copy(const navgrid_t* m);

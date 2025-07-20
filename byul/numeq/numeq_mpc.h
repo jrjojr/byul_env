@@ -205,7 +205,7 @@ BYUL_API void mpc_config_init_full(mpc_config_t* cfg,
 /**
  * @brief mpc_config_t 복사
  */
-BYUL_API void mpc_config_copy(mpc_config_t* out, const mpc_config_t* src);
+BYUL_API void mpc_config_assign(mpc_config_t* out, const mpc_config_t* src);
 
 /**
  * @brief 다중 지점 기반 목표 경로
@@ -236,7 +236,7 @@ BYUL_API void mpc_target_route_init_full(mpc_target_route_t* route,
 /**
  * @brief mpc_target_route_t 복사
  */
-BYUL_API void mpc_target_route_copy(mpc_target_route_t* out,
+BYUL_API void mpc_target_route_assign(mpc_target_route_t* out,
                            const mpc_target_route_t* src);
 
 
@@ -272,7 +272,7 @@ void mpc_direction_target_init_full(mpc_direction_target_t* target,
 /**
  * @brief mpc_direction_target_t 복사
  */
-void mpc_direction_target_copy(mpc_direction_target_t* out,
+void mpc_direction_target_assign(mpc_direction_target_t* out,
                                const mpc_direction_target_t* src);
 
 

@@ -20,10 +20,10 @@
 
 #### 주요 인터페이스:
 ```c
-maze_t* maze_new();
+maze_t* maze_create();
 void maze_make(maze_t* maze, maze_type_t type);
 void maze_apply_to_navgrid(const maze_t* maze, navgrid_t* navgrid);
-void maze_free(maze_t*);
+void maze_destroy(maze_t*);
 ```
 
 ---
@@ -90,18 +90,18 @@ A\*, Dijkstra, BFS, JPS 등 **정적 알고리즘**을 통합한 경로 탐색�
 고정된 맵에서 가장 일반적인 A* 알고리즘을 사용하려면 다음처럼 작성합니다:
 
 ```c
-    coord_t* start = coord_new_full(0, 0);
-    coord_t* goal = coord_new_full(9, 9);
+    coord_t* start = coord_create_full(0, 0);
+    coord_t* goal = coord_create_full(9, 9);
 
     REQUIRE_FALSE(coord_equal(start, goal));
 
     std::cout << "default\n";
-    navgrid_t* m = navgrid_new();
+    navgrid_t* m = navgrid_create();
     // 장애물 삽입 (세로 차단)
     for (int y = 1; y < 10; ++y)
         navgrid_block_coord(m, 5, y);
 
-    route_finder_t* a = route_finder_new(m);
+    route_finder_t* a = route_finder_create(m);
     route_finder_set_goal(a, goal);
     route_finder_set_start(a, start);
     route_finder_set_visited_logging(a, true);
@@ -112,12 +112,12 @@ A\*, Dijkstra, BFS, JPS 등 **정적 알고리즘**을 통합한 경로 탐색�
     CHECK(route_get_success(p) == true);
     route_print(p);
     navgrid_print_ascii_with_visited_count(m, p, 5);
-    route_free(p);    
-    route_finder_free(a);
-    navgrid_free(m);
+    route_destroy(p);    
+    route_finder_destroy(a);
+    navgrid_destroy(m);
 
-    coord_free(start);
-    coord_free(goal);    
+    coord_destroy(start);
+    coord_destroy(goal);    
 ```
 
 ### 🧩 요약

@@ -23,8 +23,8 @@ extern "C" {
  * 이에 따라 제한이 클수록 A*에 가까운 품질을 제공하며, 
  * 제한이 작을수록 경로 품질이 떨어지거나 탐색에 실패할 수 있습니다.
  *
- * @param m             맵 객체 (navgrid_new 또는 navgrid_load 등으로 생성된 맵)
- * @param start         시작 좌표 (coord_new 또는 coord_new_full로 생성)
+ * @param m             맵 객체 (navgrid_create 또는 navgrid_load 등으로 생성된 맵)
+ * @param start         시작 좌표 (coord_create 또는 coord_create_full로 생성)
  * @param goal          도착 좌표 (coord_t 구조체, const로 전달됨)
  * @param cost_fn       이동 비용 함수 (NULL일 경우 default_cost 사용)
  * @param heuristic_fn  휴리스틱 함수 (NULL일 경우 default_heuristic 사용)

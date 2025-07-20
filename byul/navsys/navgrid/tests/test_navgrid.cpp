@@ -4,24 +4,24 @@
 #include "internal/coord.h"
 
 TEST_CASE("navgrid blocking and checking") {
-    navgrid_t* m = navgrid_new();
+    navgrid_t* m = navgrid_create();
     CHECK(navgrid_block_coord(m, 6, 6));
     CHECK(m->is_coord_blocked_fn(m, 6, 6, nullptr));
     CHECK_FALSE(m->is_coord_blocked_fn(m, 5, 5, nullptr));
-    navgrid_free(m);
+    navgrid_destroy(m);
 }
 
 TEST_CASE("navgrid unblock") {
-    navgrid_t* m = navgrid_new();
+    navgrid_t* m = navgrid_create();
     CHECK(navgrid_block_coord(m, 4, 4));
     CHECK(m->is_coord_blocked_fn(m, 4, 4, nullptr));
     CHECK(navgrid_unblock_coord(m, 4, 4));
     CHECK_FALSE(m->is_coord_blocked_fn(m, 4, 4, nullptr));
-    navgrid_free(m);
+    navgrid_destroy(m);
 }
 
 TEST_CASE("navgrid clear all") {
-    navgrid_t* m = navgrid_new();
+    navgrid_t* m = navgrid_create();
     for (int x = 0; x < 5; ++x)
         for (int y = 1; y < 10; ++y)
             navgrid_block_coord(m, x, y);
@@ -29,11 +29,11 @@ TEST_CASE("navgrid clear all") {
     CHECK(m->is_coord_blocked_fn(m, 2, 2, nullptr));
     navgrid_clear(m);
     CHECK_FALSE(m->is_coord_blocked_fn(m, 2, 2, nullptr));
-    navgrid_free(m);
+    navgrid_destroy(m);
 }
 
 TEST_CASE("navgrid neighbors filtering") {
-    navgrid_t* m = navgrid_new();
+    navgrid_t* m = navgrid_create();
     navgrid_block_coord(m, 3, 2);
     navgrid_block_coord(m, 2, 3);
 
@@ -51,38 +51,38 @@ TEST_CASE("navgrid neighbors filtering") {
     }
     CHECK(has_21);
     CHECK(has_12);
-    coord_list_free(neighbors);
-    navgrid_free(m);
+    coord_list_destroy(neighbors);
+    navgrid_destroy(m);
 }
 
 TEST_CASE("navgrid neighbor at degree") {
-    navgrid_t* m = navgrid_new_full(5, 5, NAVGRID_DIR_8, is_coord_blocked_navgrid);
+    navgrid_t* m = navgrid_create_full(5, 5, NAVGRID_DIR_8, is_coord_blocked_navgrid);
     coord_t* c = navgrid_clone_neighbor_at_degree(m, 2, 2, 0.0);
     REQUIRE(c);
     CHECK(coord_get_x(c) == 3);
     CHECK(coord_get_y(c) == 2);
-    coord_free(c);
-    navgrid_free(m);
+    coord_destroy(c);
+    navgrid_destroy(m);
 }
 
 TEST_CASE("navgrid neighbor at goal") {
-    navgrid_t* m = navgrid_new_full(5, 5, NAVGRID_DIR_8, is_coord_blocked_navgrid);
-    coord_t* center = coord_new_full(2, 2);
-    coord_t* goal = coord_new_full(4, 1);
+    navgrid_t* m = navgrid_create_full(5, 5, NAVGRID_DIR_8, is_coord_blocked_navgrid);
+    coord_t* center = coord_create_full(2, 2);
+    coord_t* goal = coord_create_full(4, 1);
     coord_t* c = navgrid_clone_neighbor_at_goal(m, center, goal);
     REQUIRE(c);
     CHECK(coord_get_x(c) == 3);
     CHECK(coord_get_y(c) == 1);
-    coord_free(center);
-    coord_free(goal);
-    coord_free(c);
-    navgrid_free(m);
+    coord_destroy(center);
+    coord_destroy(goal);
+    coord_destroy(c);
+    navgrid_destroy(m);
 }
 
 TEST_CASE("navgrid cone neighbor range") {
-    navgrid_t* m = navgrid_new_full(5, 5, NAVGRID_DIR_8, is_coord_blocked_navgrid);
-    coord_t* center = coord_new_full(2, 2);
-    coord_t* goal = coord_new_full(4, 2);
+    navgrid_t* m = navgrid_create_full(5, 5, NAVGRID_DIR_8, is_coord_blocked_navgrid);
+    coord_t* center = coord_create_full(2, 2);
+    coord_t* goal = coord_create_full(4, 2);
 
     coord_list_t* result = navgrid_clone_adjacent_at_degree_range(
         m, center, goal, -45.0, 45.0, 1);
@@ -94,8 +94,8 @@ TEST_CASE("navgrid cone neighbor range") {
         CHECK(navgrid_is_inside(m, coord_get_x(c), coord_get_y(c)));
     }
 
-    coord_list_free(result);
-    coord_free(center);
-    coord_free(goal);
-    navgrid_free(m);
+    coord_list_destroy(result);
+    coord_destroy(center);
+    coord_destroy(goal);
+    navgrid_destroy(m);
 }

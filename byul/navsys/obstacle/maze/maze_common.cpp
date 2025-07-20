@@ -3,11 +3,11 @@
 #include <stdlib.h>
 #include <string.h>
 
-maze_t* maze_new() {
-    return maze_new_full(0, 0, 0, 0);
+maze_t* maze_create() {
+    return maze_create_full(0, 0, 0, 0);
 }
 
-maze_t* maze_new_full(
+maze_t* maze_create_full(
     int x0, int y0, int width, int height) {
 
     maze_t* maze = (maze_t*)malloc(sizeof(maze_t));
@@ -17,7 +17,7 @@ maze_t* maze_new_full(
     maze->y0 = y0;
     maze->width = width;
     maze->height = height;
-    maze->blocked = coord_hash_new();
+    maze->blocked = coord_hash_create();
 
     return maze;
 }
@@ -28,18 +28,18 @@ void maze_clear(maze_t* maze) {
     coord_hash_clear(maze->blocked);
 }
 
-void maze_free(maze_t* maze) {
+void maze_destroy(maze_t* maze) {
     if (!maze) return;
-    coord_hash_free(maze->blocked);
+    coord_hash_destroy(maze->blocked);
     free(maze);
 }
 
 maze_t* maze_copy(const maze_t* maze) {
     if (!maze) return NULL;
-    maze_t* copy = maze_new_full(maze->x0, maze->y0, 
+    maze_t* copy = maze_create_full(maze->x0, maze->y0, 
         maze->width, maze->height);
 
-    coord_hash_free(copy->blocked);
+    coord_hash_destroy(copy->blocked);
     copy->blocked = coord_hash_copy(maze->blocked);
     return copy;
 }
@@ -91,21 +91,21 @@ const coord_hash_t* maze_get_blocked_coords(const maze_t* maze) {
 void maze_apply_to_navgrid(const maze_t* maze, navgrid_t* navgrid) {
     if (!maze || !navgrid) return;
 
-    coord_hash_iter_t* iter = coord_hash_iter_new((coord_hash_t*)maze->blocked);
+    coord_hash_iter_t* iter = coord_hash_iter_create((coord_hash_t*)maze->blocked);
     coord_t* key;
     while (coord_hash_iter_next(iter, &key, NULL)) {
         navgrid_block_coord(navgrid, key->x, key->y);
     }
-    coord_hash_iter_free(iter);
+    coord_hash_iter_destroy(iter);
 }
 
 void maze_remove_from_navgrid(const maze_t* maze, navgrid_t* navgrid) {
     if (!maze || !navgrid) return;
 
-    coord_hash_iter_t* iter = coord_hash_iter_new((coord_hash_t*)maze->blocked);
+    coord_hash_iter_t* iter = coord_hash_iter_create((coord_hash_t*)maze->blocked);
     coord_t* key;
     while (coord_hash_iter_next(iter, &key, NULL)) {
         navgrid_unblock_coord(navgrid, key->x, key->y);
     }
-    coord_hash_iter_free(iter);
+    coord_hash_iter_destroy(iter);
 }

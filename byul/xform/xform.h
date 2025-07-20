@@ -45,7 +45,7 @@ BYUL_API void xform_init_euler_deg(
     float yaw_deg, float pitch_deg, float roll_deg,
     euler_order_t order);
 
-BYUL_API void xform_copy(xform_t* out, const xform_t* src);
+BYUL_API void xform_assign(xform_t* out, const xform_t* src);
 
 BYUL_API bool xform_equal(const xform_t* a, const xform_t* b);
 

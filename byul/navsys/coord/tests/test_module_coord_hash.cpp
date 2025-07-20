@@ -10,8 +10,8 @@ int* make_int(int value) {
 }
 
 TEST_CASE("coord_hash: replace with int values (new/delete)") {
-    coord_hash_t* hash = coord_hash_new_full(int_copy, int_free);
-    coord_t* c = coord_new_full(1, 1);
+    coord_hash_t* hash = coord_hash_create_full(int_copy, int_destroy);
+    coord_t* c = coord_create_full(1, 1);
 
     int* v1 = make_int(100);
     int* v2 = make_int(200);
@@ -32,9 +32,9 @@ TEST_CASE("coord_hash: replace with int values (new/delete)") {
     REQUIRE(found3 != nullptr);
     CHECK(*found3 == 300);
 
-    coord_free(c);
+    coord_destroy(c);
     delete v1;  // 입력용 포인터는 hash 내부에서 복사됐기 때문에 직접 해제 필요
     delete v2;
     delete v3;
-    coord_hash_free(hash);
+    coord_hash_destroy(hash);
 }

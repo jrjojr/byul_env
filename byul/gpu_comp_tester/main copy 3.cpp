@@ -82,7 +82,7 @@ int main(int argc, char** argv) {
         rotator_t* ra = rotator_from_axis_angle(&axis, angle_rad_a);
         rotator_t* rb = rotator_from_axis_angle(&axis, angle_rad_b);
 
-        rotator_t* rs = rotator_new();
+        rotator_t* rs = rotator_create();
         rotator_slerp(rs, ra, rb, t);
         rotator_apply_to_vec3(&rotated_slerp, rs, &origin);
 
@@ -112,9 +112,9 @@ int main(int argc, char** argv) {
 
         SDL_GL_SwapWindow(window);
 
-        rotator_free(ra);
-        rotator_free(rb);
-        rotator_free(rs);
+        rotator_destroy(ra);
+        rotator_destroy(rb);
+        rotator_destroy(rs);
 
         frames++;
         auto duration = std::chrono::duration_cast<std::chrono::seconds>(now - last_time);

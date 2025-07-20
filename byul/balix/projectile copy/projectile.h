@@ -97,6 +97,7 @@ BYUL_API void projectile_init_full(projectile_t* out,
  */
 BYUL_API void projectile_assign(projectile_t* out, const projectile_t* src);
 
+
 // ---------------------------------------------------------
 // 포탄 (비유도)
 // ---------------------------------------------------------

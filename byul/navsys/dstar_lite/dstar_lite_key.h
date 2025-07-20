@@ -15,13 +15,13 @@ typedef struct s_dstar_lite_key {
 
 // ------------------------ 생성/복사/해제 ------------------------
 
-BYUL_API dstar_lite_key_t* dstar_lite_key_new(void);
+BYUL_API dstar_lite_key_t* dstar_lite_key_create(void);
 
-BYUL_API dstar_lite_key_t* dstar_lite_key_new_full(float k1, float k2);
+BYUL_API dstar_lite_key_t* dstar_lite_key_create_full(float k1, float k2);
 
 BYUL_API dstar_lite_key_t* dstar_lite_key_copy(const dstar_lite_key_t* key);
 
-BYUL_API void dstar_lite_key_free(dstar_lite_key_t* key);
+BYUL_API void dstar_lite_key_destroy(dstar_lite_key_t* key);
 
 // ------------------------ 비교 함수 ------------------------
 

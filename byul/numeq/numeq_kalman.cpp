@@ -50,7 +50,7 @@ void kalman_init_full(kalman_filter_t* kf, float init_x, float init_p,
 /**
  * @brief kalman_filter_t 복사
  */
-void kalman_copy(kalman_filter_t* dst, const kalman_filter_t* src) {
+void kalman_assign(kalman_filter_t* dst, const kalman_filter_t* src) {
     if (!dst || !src) return;
     *dst = *src;
 }
@@ -136,7 +136,7 @@ void kalman_vec3_init_full(kalman_filter_vec3_t* kf,
 /**
  * @brief kalman_filter_vec3_t 복사
  */
-void kalman_vec3_copy(kalman_filter_vec3_t* dst,
+void kalman_vec3_assign(kalman_filter_vec3_t* dst,
                            const kalman_filter_vec3_t* src) {
     if (!dst || !src) return;
     *dst = *src;

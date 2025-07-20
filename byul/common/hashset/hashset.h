@@ -18,8 +18,8 @@ typedef void (*hashset_func)(hashkey item, valueptr userdata);
 /// @brief opaque 포인터: C++ 구현체를 감싼 구조
 typedef struct s_hashset hashset_t;
 
-BYUL_API hashset_t* hashset_new();
-BYUL_API void     hashset_free(hashset_t* hs);
+BYUL_API hashset_t* hashset_create();
+BYUL_API void     hashset_destroy(hashset_t* hs);
 
 BYUL_API bool     hashset_add(hashset_t* hs, hashkey item);
 BYUL_API bool     hashset_contains(const hashset_t* hs, hashkey item);

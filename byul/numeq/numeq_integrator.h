@@ -43,7 +43,7 @@ BYUL_API void integrator_config_init_full(integrator_config_t* cfg,
                                  motion_state_t* prev_state,
                                  void* userdata);
 
-BYUL_API void integrator_config_copy(
+BYUL_API void integrator_config_assign(
     integrator_config_t* out, const integrator_config_t* src);
 
 // ---------------------------------------------------------

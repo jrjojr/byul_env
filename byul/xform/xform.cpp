@@ -59,7 +59,7 @@ void xform_init_euler_deg(
 // 📌 복사 / 비교
 // ---------------------------------------------------------
 
-void xform_copy(xform_t* out, const xform_t* src) {
+void xform_assign(xform_t* out, const xform_t* src) {
     if (!out || !src) return;
     out->dq = src->dq;
     out->scale = src->scale;

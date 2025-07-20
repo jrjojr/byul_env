@@ -13,7 +13,7 @@
  *     f(x + ε) = 8 + 12ε  → 여기서 12는 f'(2) = 3·2²
  *
  * 사용 예시:
- *   dualnumber_t* x = dualnumber_new_full(2.0f, 1.0f); // ε항 계수는 항상 1
+ *   dualnumber_t* x = dualnumber_create_full(2.0f, 1.0f); // ε항 계수는 항상 1
  *   dualnumber_t* y = dualnumber_powf(x, 3.0f);        // f(x) = x³
  *   printf("f(x)=%.1f, f'(x)=%.1f\\n", y->re, y->du);  // 결과: 8.0, 12.0
  *
@@ -40,7 +40,7 @@ BYUL_API void dualnumber_init(dualnumber_t* out);
 
 BYUL_API void dualnumber_init_full(dualnumber_t* out, float re, float du);
 
-BYUL_API void dualnumber_copy(dualnumber_t* out, const dualnumber_t* src);
+BYUL_API void dualnumber_assign(dualnumber_t* out, const dualnumber_t* src);
 
 BYUL_API bool dualnumber_equal(const dualnumber_t* a, const dualnumber_t* b);
 
