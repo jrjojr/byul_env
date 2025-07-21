@@ -19,29 +19,37 @@ set(CMAKE_C_FLAGS_DEBUG "-g -O0")
 
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
-add_library(${PROJECT_NAME} STATIC ${PROJECT_NAME}.cpp)
+# 소스 파일 설정
+set(SOURCES
+    ${PROJECT_NAME}.cpp
+    environ.cpp
+)
+
+add_library(${PROJECT_NAME} STATIC ${SOURCES})
+
 
 # 모듈 추가
+add_subdirectory(numal)
+add_subdirectory(numeq)
+add_subdirectory(xform)
 add_subdirectory(trajectory)
-add_subdirectory(projectile)
 add_subdirectory(controller)
+add_subdirectory(entity_dynamic)
 
 # include 경로
-target_include_directories(${PROJECT_NAME} PUBLIC
+target_include_directories(${PROJECT_NAME} PRIVATE
     ${CMAKE_SOURCE_DIR}
     ${CMAKE_CURRENT_SOURCE_DIR}
+    ${CMAKE_BINARY_DIR}/include/byul
 )
 
-target_link_directories(${PROJECT_NAME} PRIVATE 
-    ${CMAKE_BINARY_DIR}/trajectory
-    ${CMAKE_BINARY_DIR}/projectile
-    ${CMAKE_BINARY_DIR}/controller
-)
-
-target_link_libraries(${PROJECT_NAME} PUBLIC
+target_link_libraries(${PROJECT_NAME} PRIVATE
+    numal
+    numeq
+    xform
     trajectory
-    projectile
     controller
+    entity_dynamic
 )
 
 # add_subdirectory(tests)

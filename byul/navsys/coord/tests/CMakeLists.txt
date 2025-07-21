@@ -5,11 +5,17 @@ project(test_coord)
 set(CMAKE_C_STANDARD 99)
 set(CMAKE_CXX_STANDARD 17)
 
-# ------------------- 테스트 실행 파일 -------------------
-add_executable(${PROJECT_NAME}
-    test_coord.cpp
+# 소스 파일 설정
+set(SOURCES
+    main.cpp
+    test_module_coord.cpp
     test_module_coord_list.cpp
     test_module_coord_hash.cpp
+)
+
+# ------------------- 테스트 실행 파일 -------------------
+add_executable(${PROJECT_NAME}
+    ${SOURCES}
 )
 
 # 컴파일·링크 옵션에 ASan 추가
@@ -39,8 +45,7 @@ message(STATUS "EXTERNAL_DIR = ${EXTERNAL_DIR}")
 target_include_directories(${PROJECT_NAME} PRIVATE
     ${CMAKE_SOURCE_DIR}
     ${CMAKE_CURRENT_SOURCE_DIR}
-    ${CMAKE_SOURCE_DIR}/coord
-    ${CMAKE_BINARY_DIR}/include/byul    
+    ${CMAKE_BINARY_DIR}/include/byul
     ${EXTERNAL_DIR}
 )
 

@@ -55,16 +55,16 @@ void mpc_impl_init(mpc_impl_t* impl) {
     if (!impl) return;
     mpc_config_init(&impl->config);
     motion_state_init(&impl->target);
-    environment_init(&impl->env);
-    body_properties_init(&impl->body);
+    environ_init(&impl->env);
+    bodyprops_init(&impl->body);
     impl->cost_fn = numeq_mpc_cost_default;
 }
 
 void mpc_impl_init_full(mpc_impl_t* impl,
                                  const mpc_config_t* cfg,
                                  const motion_state_t* target,
-                                 const environment_t* env,
-                                 const body_properties_t* body,
+                                 const environ_t* env,
+                                 const bodyprops_t* body,
                                  mpc_cost_func cost_fn) {
     if (!impl) return;
     if (cfg) mpc_config_assign(&impl->config, cfg);
@@ -73,11 +73,11 @@ void mpc_impl_init_full(mpc_impl_t* impl,
     if (target) motion_state_assign(&impl->target, target);
     else motion_state_init(&impl->target);
 
-    if (env) environment_assign(&impl->env, env);
-    else environment_init(&impl->env);
+    if (env) environ_assign(&impl->env, env);
+    else environ_init(&impl->env);
 
-    if (body) body_properties_assign(&impl->body, body);
-    else body_properties_init(&impl->body);
+    if (body) bodyprops_assign(&impl->body, body);
+    else bodyprops_init(&impl->body);
 
     // 비용 함수 설정
     impl->cost_fn = (cost_fn) ? cost_fn : numeq_mpc_cost_default;
@@ -164,7 +164,7 @@ static float controller_mpc_compute(
     // 3. MPC 계산 실행
     // -----------------------------------------------------
     mpc_output_t out;
-    bool ok = numeq_mpc_solve(
+    bool ok = numeq_mpc_solve_fast(
         &current_state,
         &target_state,
         &impl->env,
@@ -252,8 +252,8 @@ controller_t* controller_create_bangbang(float max_output) {
 
 controller_t* controller_create_mpc(
     const mpc_config_t*      config,
-    const environment_t*     env,
-    const body_properties_t* body) 
+    const environ_t*     env,
+    const bodyprops_t* body) 
 {
     // Allocate controller and impl
     controller_t* ctrl = new controller_t;

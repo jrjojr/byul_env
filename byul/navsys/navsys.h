@@ -6,15 +6,17 @@
 #ifndef NAVSYS_H
 #define NAVSYS_H
 
-#include "internal/navgrid.h"
 #include "internal/coord.h"
 #include "internal/route.h"
-#include "internal/dstar_lite.h"
+#include "internal/navgrid.h"
+
+#include "internal/cost_coord_pq.h"
 #include "internal/route_finder.h"
+#include "internal/dstar_lite.h"
+
 #include "internal/maze.h"
 #include "internal/route_carver.h"
 #include "internal/obstacle.h"
-#include "internal/console.h"
 
 #ifdef __cplusplus
 extern "C" {

@@ -178,6 +178,25 @@ BYUL_API trajectory_t* trajectory_create_full(int capacity);
 BYUL_API trajectory_t* trajectory_create();
 
 /**
+ * @brief trajectory_t를 기본 용량(100)으로 초기화
+ *
+ * @param traj 초기화할 trajectory_t 포인터
+ *
+ * @note 기존 samples 배열이 존재하면 삭제 후 재할당합니다.
+ */
+BYUL_API void trajectory_init(trajectory_t* traj);
+
+/**
+ * @brief trajectory_t를 지정한 capacity로 초기화
+ *
+ * @param traj 초기화할 trajectory_t 포인터
+ * @param capacity 샘플 배열의 최대 용량 (capacity > 0)
+ *
+ * @note 기존 samples 배열이 존재하면 삭제 후 재할당합니다.
+ */
+BYUL_API void trajectory_init_full(trajectory_t* traj, int capacity);
+
+/**
  * @brief trajectory 내부 메모리를 해제합니다.
  *
  * trajectory_t 구조체 내의 samples 배열을 해제하고,
@@ -236,6 +255,18 @@ BYUL_API trajectory_t* trajectory_copy(const trajectory_t* src);
 BYUL_API void trajectory_clear(trajectory_t* traj);
 
 /**
+ * @brief trajectory_t의 용량(capacity)을 새 크기로 조정합니다.
+ *
+ * @param traj     리사이즈할 trajectory_t 포인터
+ * @param new_cap  새 용량 (new_cap > 0)
+ *
+ * @note 기존 samples 데이터를 보존하며, count가 new_cap을 초과하면
+ *       count는 new_cap으로 잘립니다.
+ *       메모리 재할당 후 기존 포인터는 delete[]로 안전하게 해제됩니다.
+ */
+BYUL_API void trajectory_resize(trajectory_t* traj, int new_cap);
+
+/**
  * @brief trajectory에 샘플을 추가
  * @param traj 대상 trajectory
  * @param t 시간 값
@@ -260,14 +291,51 @@ BYUL_API int trajectory_length(const trajectory_t* traj);
 BYUL_API int trajectory_capacity(const trajectory_t* traj);
 
 /**
- * @brief 특정 시간 t에서 위치를 보간
- * @param traj 대상 trajectory
- * @param t 시간 값
- * @param out_pos 보간 결과 위치 벡터
- * @return 보간 성공 여부
+ * @brief 주어진 시간 t에서 trajectory 상의 위치를 보간(interpolate)하여 계산합니다.
+ *
+ * 이 함수는 trajectory_t에 저장된 샘플들을 기반으로,
+ * 시간 @p t 가 샘플 시간 범위 내에 있다면 
+ * 두 인접 샘플 사이를 선형 보간(lerp)하여 위치를 계산합니다.
+ * - @p t 가 첫 샘플 시간보다 작거나 같으면 첫 샘플 위치를 반환합니다.
+ * - @p t 가 마지막 샘플 시간보다 크거나 같으면 마지막 샘플 위치를 반환합니다.
+ *
+ * @param[in] traj     보간에 사용할 trajectory 데이터
+ * @param[in] t        보간할 시간 (초)
+ * @param[out] out_pos 계산된 위치 벡터 (NULL이면 false 반환)
+ * @return 보간 성공 시 true, 데이터가 유효하지 않으면 false
  */
-BYUL_API bool trajectory_sample_position(
+BYUL_API bool trajectory_interpolate_position(
     const trajectory_t* traj, float t, vec3_t* out_pos);
+
+/**
+ * @brief 주어진 시간 t에서 타겟의 속도를 추정합니다.
+ *
+ * trajectory_t에 저장된 샘플들을 기반으로 t 시점의 속도를 계산합니다.
+ * - 샘플이 2개 이상 있으면 인접 샘플의 위치 변화량을 사용하여 속도를 추정합니다.
+ * - 샘플이 1개 이하이면 false를 반환합니다.
+ *
+ * @param[in] traj  속도 추정에 사용할 trajectory 데이터
+ * @param[in] t     추정할 시간 (초)
+ * @param[out] out_vel 계산된 속도 벡터 (NULL이면 false 반환)
+ * @return 추정 성공 시 true, 실패 시 false
+ */
+BYUL_API bool trajectory_estimate_velocity(
+    const trajectory_t* traj, float t, vec3_t* out_vel);
+
+/**
+ * @brief 주어진 시간 t에서 타겟의 가속도를 추정합니다.
+ *
+ * trajectory_t에 저장된 샘플들을 기반으로 t 시점의 가속도를 계산합니다.
+ * - 속도를 두 번 미분하거나, 인접 샘플 간의 속도 변화량으로 근사 추정합니다.
+ * - 샘플이 3개 이하이면 false를 반환합니다.
+ *
+ * @param[in] traj  가속도 추정에 사용할 trajectory 데이터
+ * @param[in] t     추정할 시간 (초)
+ * @param[out] out_acc 계산된 가속도 벡터 (NULL이면 false 반환)
+ * @return 추정 성공 시 true, 실패 시 false
+ */
+BYUL_API bool trajectory_estimate_acceleration(
+    const trajectory_t* traj, float t, vec3_t* out_acc);
 
 // ---------------------------------------------------------
 // trajectory 출력 유틸리티

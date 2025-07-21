@@ -16,12 +16,28 @@ bool float_equal(float a, float b) {
     return diff <= FLOAT_EPSILON * largest;
 }
 
-// bool float_zero(float x) {
-//     return fabsf(x) < FLOAT_EPSILON;
-// }
+bool float_equal_tol(float a, float b, float tol) {
+    if (tol < 0.0f) tol = -tol; // tol이 음수면 양수로 변환
+    return fabsf(a - b) <= tol;
+}
+
+bool float_equal_tol_all(
+    float a, float b, float tol_pos, float tol_neg) {
+
+    // 잘못된 부호가 들어와도 양수로 변환
+    if (tol_pos < 0.0f) tol_pos = -tol_pos;
+    if (tol_neg < 0.0f) tol_neg = -tol_neg;
+
+    float diff = b - a;
+    if (diff >= 0.0f) {
+        return diff <= tol_pos;  // 양수 방향 허용 범위
+    } else {
+        return -diff <= tol_neg; // 음수 방향 허용 범위
+    }
+}
 
 bool float_zero(float x) {
-    return fabsf(x) <= FLOAT_EPSILON * fmaxf(1.0f, fabsf(x));
+    return fabsf(x) <= FLOAT_EPSILON;
 }
 
 
@@ -65,7 +81,7 @@ float inv_lerp(float a, float b, float value) {
     return float_zero(b - a) ? 0.0f : (value - a) / (b - a);
 }
 
-float renavgrid(float in_min, float in_max, 
+float remap(float in_min, float in_max, 
     float out_min, float out_max, float value) {
 
     float t = inv_lerp(in_min, in_max, value);

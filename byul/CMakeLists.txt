@@ -89,24 +89,22 @@ endmacro()
 # ─────────────────────────────────────────────
 add_subdirectory(common)
 add_subdirectory(console)
+
 add_subdirectory(navsys)
-add_subdirectory(numal)
-add_subdirectory(numeq)
-add_subdirectory(xform)
 add_subdirectory(balix)
 add_subdirectory(gpu_comp_tester)
+add_subdirectory(entity)
 
 # ─────────────────────────────────────────────
 # 헤더 복사
 # ─────────────────────────────────────────────
 copy_headers(common)
 copy_headers(console)
+
 copy_headers(navsys)
-copy_headers(numal)
-copy_headers(numeq)
-copy_headers(xform)
 copy_headers(balix)
 copy_headers(gpu_comp_tester)
+copy_headers(entity)
 
 file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/${PROJECT_NAME}.h 
     DESTINATION ${${PROJECT_NAME}_BUILD_INCLUDE_DIR})
@@ -127,21 +125,20 @@ target_include_directories(${PROJECT_NAME} PUBLIC
 target_link_directories(${PROJECT_NAME} PRIVATE 
     ${${PROJECT_NAME}_BUILD_LIB_DIR}
     ${CMAKE_BINARY_DIR}/common
+    ${CMAKE_BINARY_DIR}/console    
     ${CMAKE_BINARY_DIR}/navsys
-    ${CMAKE_BINARY_DIR}/numal    
-    ${CMAKE_BINARY_DIR}/numeq
-    ${CMAKE_BINARY_DIR}/xform
     ${CMAKE_BINARY_DIR}/balix
+    ${CMAKE_BINARY_DIR}/entity
 )
 
 target_link_libraries(${PROJECT_NAME} PUBLIC
     -Wl,--whole-archive
+    common
+    console
+    
     navsys
-
-    numal
-    numeq
-    xform
     balix
+    entity
 
     -Wl,--no-whole-archive    
 )

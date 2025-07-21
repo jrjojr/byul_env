@@ -31,14 +31,12 @@ target_link_directories(${PROJECT_NAME} PRIVATE
 )
 
 # 링크 라이브러리 설정
-target_link_libraries(${PROJECT_NAME} PRIVATE ${GLIB_LIBRARIES}
+target_link_libraries(${PROJECT_NAME} PRIVATE
     common
     coord
     navgrid
     m
 )
-
-add_subdirectory(maze)
 
 add_subdirectory(tests)
 

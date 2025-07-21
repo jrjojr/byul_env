@@ -48,6 +48,7 @@ target_link_directories(${PROJECT_NAME} PRIVATE
 
 target_link_libraries(${PROJECT_NAME} PRIVATE
     controller
+    balix
 )
 
 # coord는 STATIC 라이브러리이므로 필요 시 심볼 정의

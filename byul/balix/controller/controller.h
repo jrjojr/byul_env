@@ -15,8 +15,8 @@ extern "C" {
 // ---------------------------------------------------------
 typedef enum e_controller_type {
     CONTROLLER_NONE = 0,   /**< 제어 없음 */
-    CONTROLLER_PID,        /**< PID 제어 */
     CONTROLLER_BANGBANG,   /**< Bang-Bang 제어 */
+    CONTROLLER_PID,        /**< PID 제어 */
     CONTROLLER_MPC         /**< Model Predictive Control */
 } controller_type_t;
 
@@ -131,8 +131,8 @@ BYUL_API void bangbang_impl_assign(bangbang_impl_t* dst,
 typedef struct s_mpc_impl {
     mpc_config_t config;   // MPC 설정
     motion_state_t target;         // 목표 속도/위치 (x방향 기준)
-    environment_t env;     // 환경 정보 (필요 시 세팅)
-    body_properties_t body;// 물리 속성 (질량 등)
+    environ_t env;     // 환경 정보 (필요 시 세팅)
+    bodyprops_t body;// 물리 속성 (질량 등)
     mpc_cost_func cost_fn;
 } mpc_impl_t;
 
@@ -142,8 +142,8 @@ typedef struct s_mpc_impl {
  * MPC(Model Predictive Control) 제어기를 기본값으로 초기화합니다.
  * - `mpc_config_t`는 `mpc_config_init()`로 초기화됩니다.
  * - `motion_state_t`는 `motion_state_init()`으로 초기화됩니다.
- * - `environment_t`는 `environment_init()`으로 초기화됩니다.
- * - `body_properties_t`는 `body_properties_init()`으로 초기화됩니다.
+ * - `environ_t`는 `environment_init()`으로 초기화됩니다.
+ * - `bodyprops_t`는 `body_properties_init()`으로 초기화됩니다.
  * - `cost_fn`은 numeq_mpc_cost_default 로 설정됩니다.
  *
  * @param impl 초기화할 mpc_impl_t 구조체 포인터
@@ -171,8 +171,8 @@ BYUL_API void mpc_impl_init(mpc_impl_t* impl);
 BYUL_API void mpc_impl_init_full(mpc_impl_t* impl,
                                  const mpc_config_t* cfg,
                                  const motion_state_t* target,
-                                 const environment_t* env,
-                                 const body_properties_t* body,
+                                 const environ_t* env,
+                                 const bodyprops_t* body,
                                  mpc_cost_func cost_fn);
 
 /**
@@ -218,8 +218,8 @@ BYUL_API controller_t* controller_create_bangbang(float max_output);
  */
 BYUL_API controller_t* controller_create_mpc(
     const mpc_config_t*      config,
-    const environment_t*     env,
-    const body_properties_t* body);
+    const environ_t*     env,
+    const bodyprops_t* body);
 
 /**
  * @brief 컨트롤러 해제

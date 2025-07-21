@@ -1,5 +1,5 @@
-#ifndef CORE_H
-#define CORE_H
+#ifndef COMMON_H
+#define COMMON_H
 
 #include <stdint.h>
 #include <stdbool.h>
@@ -70,6 +70,36 @@ BYUL_API int  int_compare(int a, int b, void* userdata);
 BYUL_API bool float_equal(float a, float b);
 
 /**
+ * @brief 공차(tolerance) 기반 부동소수점 비교
+ *
+ * @param a   첫 번째 값
+ * @param b   두 번째 값
+ * @param tol 허용 오차 (예: 1e-5f)
+ * @return 값 차이가 tol 이하이면 true
+ */
+BYUL_API bool float_equal_tol(float a, float b, float tol);
+
+/**
+ * @brief 기준값 a에 대해 b가 양수/음수 공차 범위 내에 있는지 비교
+ *
+ * @param a       기준 값
+ * @param b       비교 대상 값
+ * @param tol_pos 양수 방향 공차 (b >= a일 때 허용 오차)
+ * @param tol_neg 음수 방향 공차 (b < a일 때 허용 오차)
+ * @return 허용 범위 내이면 true, 아니면 false
+ *
+ * 예시:
+ *   a = 1.0, tol_pos = 0.002, tol_neg = 0.001
+ *   b = 1.002  → true  (1.002 - 1.0 = 0.002 ≤ tol_pos)
+ *   b = 0.999  → true  (1.0 - 0.999 = 0.001 ≤ tol_neg)
+ *   b = 0.998  → false (1.0 - 0.998 = 0.002 > tol_neg)
+ *
+ * @note tol_pos, tol_neg가 음수로 들어오면 fabsf()로 자동 보정.
+ */
+BYUL_API bool float_equal_tol_all(
+    float a, float b, float tol_pos, float tol_neg);
+
+/**
  * @brief 값이 0에 가까운지 확인
  * @param x 비교할 값
  * @return |x| < EPSILON이면 true
@@ -129,7 +159,7 @@ BYUL_API float lerp(float a, float b, float t);
 BYUL_API float inv_lerp(float a, float b, float value);
 
 /**
- * @brief 범위 재매핑 (Renavgrid)
+ * @brief 범위 재매핑 (Remap)
  * @param in_min 입력 최소
  * @param in_max 입력 최대
  * @param out_min 출력 최소
@@ -137,7 +167,7 @@ BYUL_API float inv_lerp(float a, float b, float value);
  * @param value 입력 값
  * @return 변환된 출력 값
  */
-BYUL_API float renavgrid(float in_min, float in_max, 
+BYUL_API float remap(float in_min, float in_max, 
                      float out_min, float out_max, float value);
 
 /**
@@ -168,4 +198,4 @@ BYUL_API float smoothstep(float edge0, float edge1, float x);
 }
 #endif
 
-#endif // CORE_H
+#endif // COMMON_H

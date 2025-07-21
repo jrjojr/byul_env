@@ -6,6 +6,7 @@
 extern "C" {
 #include "internal/xform.h"
 #include "internal/projectile.h"
+#include "internal/controller.h"
 
 #include "internal/common.h"
 }
@@ -82,11 +83,11 @@ TEST_CASE("MPC controller basic output") {
     mpc_config_t config;
     mpc_config_init(&config);
 
-    environment_t env;
-    environment_init(&env);
+    environ_t env;
+    environ_init(&env);
 
-    body_properties_t body;
-    body_properties_init(&body);
+    bodyprops_t body;
+    bodyprops_init(&body);
 
     controller_t* mpc_ctrl = controller_create_mpc(&config, &env, &body);
     REQUIRE(mpc_ctrl != nullptr);

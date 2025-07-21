@@ -19,45 +19,41 @@ set(CMAKE_C_FLAGS_DEBUG "-g -O0")
 
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
-add_library(${PROJECT_NAME} STATIC ${PROJECT_NAME}.cpp)
+# add_library(${PROJECT_NAME} STATIC ${PROJECT_NAME}.cpp)
+
+# navsys는 소스 없는 허브 라이브러리
+add_library(${PROJECT_NAME} INTERFACE)
 
 # 모듈 추가
 add_subdirectory(coord)
 add_subdirectory(route)
 add_subdirectory(navgrid)
+
 add_subdirectory(cost_coord_pq)
 add_subdirectory(route_finder)
 add_subdirectory(dstar_lite)
+
+add_subdirectory(maze)
 add_subdirectory(route_carver)
 add_subdirectory(obstacle)
 
 # include 경로
-target_include_directories(${PROJECT_NAME} PUBLIC
+target_include_directories(${PROJECT_NAME} INTERFACE
     ${CMAKE_SOURCE_DIR}
     ${CMAKE_CURRENT_SOURCE_DIR}
 )
 
-target_link_directories(${PROJECT_NAME} PRIVATE 
-    ${CMAKE_BINARY_DIR}/common
-    ${CMAKE_BINARY_DIR}/coord
-    ${CMAKE_BINARY_DIR}/route
-    ${CMAKE_BINARY_DIR}/navgrid    
-    ${CMAKE_BINARY_DIR}/dstar_lite
-    ${CMAKE_BINARY_DIR}/route_finder
-    ${CMAKE_BINARY_DIR}/cost_coord_pq
-    ${CMAKE_BINARY_DIR}/route_carver
-    ${CMAKE_BINARY_DIR}/obstacle
-)
-
-target_link_libraries(${PROJECT_NAME} PUBLIC
-    common
+target_link_libraries(${PROJECT_NAME} INTERFACE
     coord 
-    navgrid 
     route 
+    navgrid 
+
     cost_coord_pq 
-    dstar_lite
-    route_carver 
     route_finder 
+    dstar_lite
+
+    maze
+    route_carver     
     obstacle 
 )
 
