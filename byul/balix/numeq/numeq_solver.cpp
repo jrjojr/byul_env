@@ -5,6 +5,7 @@
 #include <vector>
 #include "internal/numeq_solver.h"
 #include "internal/vec3.hpp"
+#include "internal/common.h"
 
 // -----------------------------
 // 1. 수학 해석 함수

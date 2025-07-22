@@ -1,15 +1,28 @@
 cmake_minimum_required(VERSION 3.20)
 
-project(test_entity)
+project(test_balix)
 
 set(CMAKE_C_STANDARD 99)
 set(CMAKE_CXX_STANDARD 17)
 
+
 # 소스 파일 설정
 set(SOURCES
     main.cpp
-    test_module_entity.cpp
-    test_module_entity_dynamic.cpp    
+
+    test_module_controller.cpp
+    test_module_dualnumber.cpp
+    test_module_dualquat.cpp
+    test_module_integrator.cpp
+    test_module_kalman.cpp
+    test_module_model.cpp
+    test_module_mpc.cpp
+    test_module_pid.cpp
+    test_module_quat.cpp
+    test_module_solver.cpp
+    test_module_trajectory.cpp
+    test_module_xform.cpp
+
 )
 
 # ------------------- 테스트 실행 파일 -------------------
@@ -49,11 +62,12 @@ target_include_directories(${PROJECT_NAME} PRIVATE
 )
 
 # ------------------- 정적 라이브러리 연결 -------------------
-target_link_directories(${PROJECT_NAME} PRIVATE
-    ${CMAKE_BINARY_DIR}/entity
-)
+# target_link_directories(${PROJECT_NAME} PRIVATE
+#     ${CMAKE_BINARY_DIR}/controller
+# )
 
 target_link_libraries(${PROJECT_NAME} PRIVATE
+    balix
     entity
 )
 

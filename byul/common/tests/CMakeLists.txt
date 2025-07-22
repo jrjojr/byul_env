@@ -2,12 +2,23 @@ cmake_minimum_required(VERSION 3.20)
 
 project(test_common)
 
+
+# 소스 파일 설정
+set(SOURCES
+    main.cpp
+    test_module_common.cpp
+    test_module_hashset.cpp    
+)
+
 # ------------------- 테스트 실행 파일 -------------------
-add_executable(${PROJECT_NAME} test_common.cpp)
+add_executable(${PROJECT_NAME}
+    ${SOURCES}
+)
+
 
 # ------------------- include 경로 설정 -------------------
 set(EXTERNAL_DIR ${CMAKE_SOURCE_DIR}/../external)
-message(STATUS "EXTERNAL_DIR = ${EXTERNAL_DIR}")
+message(STATUS "${PROJECT_NAME} : EXTERNAL_DIR = ${EXTERNAL_DIR}")
 
 # 포함 디렉토리
 # common.h, doctest.h 등 경로 포함

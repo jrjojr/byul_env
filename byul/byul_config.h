@@ -25,7 +25,6 @@
 // ─────────────────────────────
 // DLL Export/Import 매크로
 // ─────────────────────────────
-// BYUL_STATIC이 정의되어 있으면 모든 export macro 제거됨
 #if defined(BYUL_STATIC)
   #define BYUL_API
 #else
@@ -36,7 +35,7 @@
       #define BYUL_API __declspec(dllimport)
     #endif
   #else
-    #define BYUL_API __attribute__((visibility("default")))
+    #define BYUL_API
   #endif
 #endif
 
@@ -71,17 +70,6 @@
   #define DBG_PRINT(...) printf(__VA_ARGS__)
 #else
   #define DBG_PRINT(...) ((void)0)
-#endif
-
-// ─────────────────────────────
-// 16바이트 정렬 매크로 (SIMD / GPU 등)
-// ─────────────────────────────
-#if defined(_MSC_VER)
-  #define BYUL_ALIGN_16 __declspec(align(16))
-#elif defined(__GNUC__) || defined(__clang__)
-  #define BYUL_ALIGN_16 __attribute__((aligned(16)))
-#else
-  #define BYUL_ALIGN_16
 #endif
 
 #endif // BYUL_CONFIG_H

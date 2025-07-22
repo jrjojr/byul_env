@@ -23,19 +23,17 @@ target_include_directories(${PROJECT_NAME} PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}    
 )
 
-target_link_directories(${PROJECT_NAME} PRIVATE 
-    ${CMAKE_BINARY_DIR}/coord
-    ${CMAKE_BINARY_DIR}/navgrid
-    ${CMAKE_BINARY_DIR}/route
-    ${CMAKE_BINARY_DIR}/common
-)
+# target_link_directories(${PROJECT_NAME} PRIVATE 
+#     ${CMAKE_BINARY_DIR}/coord
+#     ${CMAKE_BINARY_DIR}/navgrid
+#     ${CMAKE_BINARY_DIR}/route
+#     ${CMAKE_BINARY_DIR}/common
+# )
 
 # 링크 라이브러리 설정
-target_link_libraries(${PROJECT_NAME} PRIVATE ${GLIB_LIBRARIES}
-    coord
-    navgrid
-    route
+target_link_libraries(${PROJECT_NAME} PRIVATE
     common
+    navsys
 )
 
 # add_subdirectory(tests)

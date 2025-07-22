@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.20)
 
-project(test_entity)
+project(test_projectile)
 
 set(CMAKE_C_STANDARD 99)
 set(CMAKE_CXX_STANDARD 17)
@@ -8,8 +8,10 @@ set(CMAKE_CXX_STANDARD 17)
 # 소스 파일 설정
 set(SOURCES
     main.cpp
-    test_module_entity.cpp
-    test_module_entity_dynamic.cpp    
+    # test_module_projectile.cpp    
+    # test_module_projectile_propulsion.cpp    
+    # test_module_projectile_guidance.cpp    
+    test_module_projectile_predict.cpp    
 )
 
 # ------------------- 테스트 실행 파일 -------------------
@@ -50,11 +52,13 @@ target_include_directories(${PROJECT_NAME} PRIVATE
 
 # ------------------- 정적 라이브러리 연결 -------------------
 target_link_directories(${PROJECT_NAME} PRIVATE
-    ${CMAKE_BINARY_DIR}/entity
+    ${CMAKE_BINARY_DIR}/projectile
 )
 
 target_link_libraries(${PROJECT_NAME} PRIVATE
+    projectile
     entity
+    m
 )
 
 # coord는 STATIC 라이브러리이므로 필요 시 심볼 정의

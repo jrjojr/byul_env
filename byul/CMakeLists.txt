@@ -1,11 +1,19 @@
 cmake_minimum_required(VERSION 3.20)
 project(byul)
 
+# ─────────────────────────────────────────────
+# 루트 전용: 빌드 타입 메시지 출력
+# ─────────────────────────────────────────────
 message(STATUS "Build type: ${CMAKE_BUILD_TYPE}")
+
+# ─────────────────────────────────────────────
+# 루트 전용: CTest 활성화
+# 하위 디렉토리에서는 enable_testing() 호출 필요 없음
+# ─────────────────────────────────────────────
 enable_testing()
 
 # ─────────────────────────────────────────────
-# 기본 설정
+# 기본 설정 (루트에서 전역 적용)
 # ─────────────────────────────────────────────
 if(CMAKE_BUILD_TYPE STREQUAL "Debug")
     add_definitions(-DDEBUG)
@@ -16,24 +24,29 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
+# 루트 전용: VSCode 등에서 컴파일 DB 제공
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+
+# 루트 전용: 정적 라이브러리 -> 동적 라이브러리 링크 지원
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
-set(CMAKE_C_FLAGS_DEBUG "-g -O0")
 
 # ─────────────────────────────────────────────
-# DLL 빌드 설정 (Windows)
+# 루트 전용: 최종 DLL/Shared 라이브러리 생성
+# ─────────────────────────────────────────────
+add_library(${PROJECT_NAME} SHARED ${PROJECT_NAME}.cpp)
+target_compile_definitions(${PROJECT_NAME} PRIVATE BYUL_EXPORTS)
+
+# ─────────────────────────────────────────────
+# 루트 전용: DLL 빌드 관련 옵션 (Windows)
 # ─────────────────────────────────────────────
 if(CMAKE_SYSTEM_NAME STREQUAL "Windows" OR WIN32)
     message(STATUS "Windows build or cross-compilation enabled")
 
-    # 정적 링크
-    # 이유는 우분투에서 빌드해서 실행할때는 이미 모든 so가 이미 준비되어있다
-    # 우분투 자체에 이미 설치되어있다
-    # 하지만 win11용으로 빌드할때는 libstdc++.dll이 필요하다 따로 관리할수 없으니
-    # 통합해서 다른 dll이 필요없게 만들어야 한다.
+    # 루트 전용: 정적 링킹 플래그
     set(CMAKE_SHARED_LINKER_FLAGS
         "${CMAKE_SHARED_LINKER_FLAGS} -static-libgcc -static-libstdc++")
 
+    # 루트 전용: Windows 서브시스템 설정
     target_link_options(${PROJECT_NAME} PRIVATE "-Wl,--subsystem,windows")
 
     if(WIN32)
@@ -49,18 +62,13 @@ if(CMAKE_SYSTEM_NAME STREQUAL "Windows" OR WIN32)
 
 else()
     set(HOME_DIR "$ENV{HOME}")
+    # 루트 전용: 설치 경로 설정
     set(CMAKE_INSTALL_PREFIX "${HOME_DIR}/${PROJECT_NAME}" 
         CACHE PATH "Install path" FORCE)
 endif()
 
 # ─────────────────────────────────────────────
-# DLL 정의
-# ─────────────────────────────────────────────
-add_library(${PROJECT_NAME} SHARED ${PROJECT_NAME}.cpp)
-target_compile_definitions(${PROJECT_NAME} PRIVATE BYUL_EXPORTS)
-
-# ─────────────────────────────────────────────
-# 빌드 경로 설정
+# 루트 전용: 빌드 경로 관리
 # ─────────────────────────────────────────────
 set(${PROJECT_NAME}_BUILD_INCLUDE_DIR 
     ${CMAKE_BINARY_DIR}/include/${PROJECT_NAME})
@@ -73,7 +81,7 @@ file(MAKE_DIRECTORY ${${PROJECT_NAME}_BUILD_INTERNAL_DIR})
 file(MAKE_DIRECTORY ${${PROJECT_NAME}_BUILD_LIB_DIR})
 
 # ─────────────────────────────────────────────
-# 헤더 복사 매크로
+# 루트 전용: 헤더 복사 매크로 정의
 # ─────────────────────────────────────────────
 macro(copy_headers module)
     file(GLOB_RECURSE HEADERS
@@ -85,66 +93,55 @@ macro(copy_headers module)
 endmacro()
 
 # ─────────────────────────────────────────────
-# 모듈 추가
+# 루트 전용: 하위 모듈 추가
 # ─────────────────────────────────────────────
 add_subdirectory(common)
 add_subdirectory(console)
-
 add_subdirectory(navsys)
 add_subdirectory(balix)
 add_subdirectory(gpu_comp_tester)
 add_subdirectory(entity)
+add_subdirectory(projectile)
 
 # ─────────────────────────────────────────────
-# 헤더 복사
+# 루트 전용: 헤더 복사
 # ─────────────────────────────────────────────
 copy_headers(common)
 copy_headers(console)
-
 copy_headers(navsys)
 copy_headers(balix)
 copy_headers(gpu_comp_tester)
 copy_headers(entity)
+copy_headers(projectile)
 
 file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/${PROJECT_NAME}.h 
     DESTINATION ${${PROJECT_NAME}_BUILD_INCLUDE_DIR})
 file(COPY byul_config.h DESTINATION ${${PROJECT_NAME}_BUILD_INCLUDE_DIR})
 
 # ─────────────────────────────────────────────
-# include 경로 설정
+# include 경로 설정 (필요 시 활성화)
 # ─────────────────────────────────────────────
-target_include_directories(${PROJECT_NAME} PUBLIC
-    ${CMAKE_SOURCE_DIR}
-    ${CMAKE_CURRENT_SOURCE_DIR}
-    ${${PROJECT_NAME}_BUILD_INCLUDE_DIR}
-    ${${PROJECT_NAME}_BUILD_INTERNAL_DIR})
+# target_include_directories(${PROJECT_NAME} PRIVATE
+#     ${CMAKE_SOURCE_DIR}
+#     ${CMAKE_CURRENT_SOURCE_DIR}
+#     ${${PROJECT_NAME}_BUILD_INCLUDE_DIR}
+#     ${${PROJECT_NAME}_BUILD_INTERNAL_DIR})
 
 # ─────────────────────────────────────────────
-# 라이브러리 링크 (navsys만 whole-archive)
+# 루트 전용: 라이브러리 링크 (whole-archive)
 # ─────────────────────────────────────────────
-target_link_directories(${PROJECT_NAME} PRIVATE 
-    ${${PROJECT_NAME}_BUILD_LIB_DIR}
-    ${CMAKE_BINARY_DIR}/common
-    ${CMAKE_BINARY_DIR}/console    
-    ${CMAKE_BINARY_DIR}/navsys
-    ${CMAKE_BINARY_DIR}/balix
-    ${CMAKE_BINARY_DIR}/entity
-)
-
-target_link_libraries(${PROJECT_NAME} PUBLIC
+target_link_libraries(${PROJECT_NAME} PRIVATE
     -Wl,--whole-archive
     common
     console
-    
     navsys
     balix
     entity
-
     -Wl,--no-whole-archive    
 )
 
 # ─────────────────────────────────────────────
-# 설치 관련
+# 루트 전용: 설치 관련 설정
 # ─────────────────────────────────────────────
 configure_file(
     ${CMAKE_CURRENT_SOURCE_DIR}/cmake_uninstall.cmake.in
@@ -165,3 +162,6 @@ configure_file(${CMAKE_CURRENT_SOURCE_DIR}/${PROJECT_NAME}.pc.in
 
 install(FILES ${CMAKE_BINARY_DIR}/${PROJECT_NAME}.pc DESTINATION 
     ${CMAKE_INSTALL_PREFIX}/lib/pkgconfig)
+
+
+add_subdirectory(tests)

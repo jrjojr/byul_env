@@ -180,7 +180,7 @@ void trajectory_clear(trajectory_t* traj) {
  *       count는 new_cap으로 잘립니다.
  *       메모리 재할당 후 기존 포인터는 delete[]로 안전하게 해제됩니다.
  */
-BYUL_API void trajectory_resize(trajectory_t* traj, int new_cap) {
+void trajectory_resize(trajectory_t* traj, int new_cap) {
     if (!traj || new_cap <= 0) return;
 
     // 기존과 같은 capacity라면 무시

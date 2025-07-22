@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.20)
 
-project(test_entity)
+project(test_navsys)
 
 set(CMAKE_C_STANDARD 99)
 set(CMAKE_CXX_STANDARD 17)
@@ -8,8 +8,20 @@ set(CMAKE_CXX_STANDARD 17)
 # 소스 파일 설정
 set(SOURCES
     main.cpp
-    test_module_entity.cpp
-    test_module_entity_dynamic.cpp    
+    test_module_coord.cpp
+    test_module_coord_list.cpp
+    test_module_coord_hash.cpp
+
+    test_module_cost_coord_pq.cpp
+    test_module_dstar_lite_pqueue.cpp
+    test_module_dstar_lite.cpp
+    test_module_maze_room.cpp
+    test_module_maze.cpp
+    test_module_navgrid.cpp
+    test_module_obstacle.cpp
+    test_module_route_finder.cpp
+    test_module_route.cpp
+    test_module_route_carver.cpp
 )
 
 # ------------------- 테스트 실행 파일 -------------------
@@ -50,14 +62,15 @@ target_include_directories(${PROJECT_NAME} PRIVATE
 
 # ------------------- 정적 라이브러리 연결 -------------------
 target_link_directories(${PROJECT_NAME} PRIVATE
-    ${CMAKE_BINARY_DIR}/entity
+    ${CMAKE_BINARY_DIR}/navsys
 )
 
 target_link_libraries(${PROJECT_NAME} PRIVATE
-    entity
+    navsys
+    console
 )
 
-# coord는 STATIC 라이브러리이므로 필요 시 심볼 정의
+# STATIC 라이브러리이 필요 시 심볼 정의
 target_compile_definitions(${PROJECT_NAME} PRIVATE BYUL_STATIC)
 
 # ------------------- CTest -------------------

@@ -4,11 +4,12 @@ cmake_minimum_required(VERSION 3.20)
 project(common)
 
 set(EXTERNAL_DIR ${CMAKE_SOURCE_DIR}/../external)
-message(STATUS "EXTERNAL_DIR = ${EXTERNAL_DIR}")
+message(STATUS "${PROJECT_NAME} : EXTERNAL_DIR = ${EXTERNAL_DIR}")
 
 # 소스 파일 설정
 set(SOURCES
     ${PROJECT_NAME}.cpp
+    hashset.cpp
 )
 
 # 코드 인텔리센스에 도움이 된다 vscode에서...

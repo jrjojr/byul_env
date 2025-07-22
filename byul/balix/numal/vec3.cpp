@@ -158,13 +158,13 @@ bool vec3_is_zero(const vec3_t* v)
 #include "internal/vec3.h"
 #include <stdio.h>
 
-BYUL_API char* vec3_to_string(const vec3_t* v, char* buffer, size_t buffer_size) {
+char* vec3_to_string(const vec3_t* v, char* buffer, size_t buffer_size) {
     if (!v || !buffer || buffer_size < 32) return NULL;
     snprintf(buffer, buffer_size, "(%.3f, %.3f, %.3f)", v->x, v->y, v->z);
     return buffer;
 }
 
-BYUL_API void vec3_print(const vec3_t* v) {
+void vec3_print(const vec3_t* v) {
     if (!v) {
         printf("(null vec3)\n");
         return;

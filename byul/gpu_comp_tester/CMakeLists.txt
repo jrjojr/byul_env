@@ -6,7 +6,7 @@ project(gpu_comp_tester LANGUAGES C CXX)
 # 📁 외부 디렉토리 정의
 # ----------------------------------------
 set(EXTERNAL_DIR ${CMAKE_SOURCE_DIR}/../external)
-message(STATUS "EXTERNAL_DIR = ${EXTERNAL_DIR}")
+message(STATUS "${PROJECT_NAME} : EXTERNAL_DIR = ${EXTERNAL_DIR}")
 
 
 # ✅ C++17 이상 사용
@@ -84,21 +84,21 @@ target_include_directories(${PROJECT_NAME} PRIVATE
 # 🔗 라이브러리 링크
 # ----------------------------------------
 target_link_directories(${PROJECT_NAME} PRIVATE
-    ${CMAKE_BINARY_DIR}/numal
+    ${CMAKE_BINARY_DIR}/balix
 )
 
 if(CMAKE_SYSTEM_NAME STREQUAL "Windows")
     target_link_libraries(${PROJECT_NAME} PRIVATE
         ${SDL_LIBRARIES}
         opengl32
-        numal
+        balix
         m
     )
 else()
     target_link_libraries(${PROJECT_NAME} PRIVATE
         ${SDL_LIBRARIES}
         GL
-        numal
+        balix
         m
     )
 endif()

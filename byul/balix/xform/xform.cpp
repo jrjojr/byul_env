@@ -4,6 +4,7 @@
 #include <iostream>
 #include <cmath>
 #include <iomanip>
+#include "internal/common.h"
 
 // ---------------------------------------------------------
 // 📌 내부 유틸
