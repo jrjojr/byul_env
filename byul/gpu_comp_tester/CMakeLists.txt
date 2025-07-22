@@ -15,34 +15,6 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF) # gnu++17이 아닌 순수 c++17 사용
 
 # ----------------------------------------
-# 🧭 플랫폼 확인 및 SDL2 / SDL3 자동 분기
-# ----------------------------------------
-if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
-    find_package(SDL2 REQUIRED)
-    set(SDL_INCLUDE_DIRS ${SDL2_INCLUDE_DIRS})
-    set(SDL_LIBRARIES ${SDL2_LIBRARIES})
-elseif(CMAKE_SYSTEM_NAME STREQUAL "Windows")
-    find_package(SDL3 CONFIG REQUIRED)
-    set(SDL_INCLUDE_DIRS ${EXTERNAL_DIR}/SDL3-3.2.18/x86_64-w64-mingw32/include)
-    set(SDL_LIBRARIES ${EXTERNAL_DIR}/SDL3-3.2.18/x86_64-w64-mingw32/bin/SDL3.dll)
-    message(STATUS "🪟 SDL3 경로 사용: ${SDL_INCLUDE_DIRS}")
-     message(STATUS "SDL_LIBRARIES : ${SDL_LIBRARIES}")
-
-    # ✅ SDL3용 매크로 정의
-    add_compile_definitions(USE_SDL3=1)
-
-    # 정적 링크
-    # 이유는 우분투에서 빌드해서 실행할때는 이미 모든 so가 이미 준비되어있다
-    # 우분투 자체에 이미 설치되어있다
-    # 하지만 win11용으로 빌드할때는 libstdc++.dll이 필요하다 따로 관리할수 없으니
-    # 통합해서 다른 dll이 필요없게 만들어야 한다.
-    set(CMAKE_EXE_LINKER_FLAGS "-static-libgcc -static-libstdc++")    
-else()
-    message(FATAL_ERROR "⚠️ Unknown platform: ${CMAKE_SYSTEM_NAME}")
-endif()
-
-
-# ----------------------------------------
 # 🛠️ 공통 설정
 # ----------------------------------------
 enable_testing()
@@ -67,6 +39,47 @@ set(SOURCES
 # 🔧 바이너리 생성
 # ----------------------------------------
 add_executable(${PROJECT_NAME} ${SOURCES})
+
+# ----------------------------------------
+# 🧭 플랫폼 확인 및 SDL2 / SDL3 자동 분기
+# ----------------------------------------
+if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
+    find_package(SDL2 REQUIRED)
+    set(SDL_INCLUDE_DIRS ${SDL2_INCLUDE_DIRS})
+    set(SDL_LIBRARIES ${SDL2_LIBRARIES})
+elseif(CMAKE_SYSTEM_NAME STREQUAL "Windows")
+    find_package(SDL3 CONFIG REQUIRED)
+    set(SDL_INCLUDE_DIRS ${EXTERNAL_DIR}/SDL3-3.2.18/x86_64-w64-mingw32/include)
+    set(SDL_LIBRARIES ${EXTERNAL_DIR}/SDL3-3.2.18/x86_64-w64-mingw32/bin/SDL3.dll)
+    message(STATUS "🪟 SDL3 경로 사용: ${SDL_INCLUDE_DIRS}")
+     message(STATUS "SDL_LIBRARIES : ${SDL_LIBRARIES}")
+
+    # ✅ SDL3용 매크로 정의 전역 설정은 사용하지만 꼬인다.
+    # add_compile_definitions(USE_SDL3=1)
+
+    # 해당 프로젝트만 적용한다
+    target_compile_definitions(${PROJECT_NAME} PRIVATE USE_SDL3=1)
+
+
+    # 정적 링크
+    # 이유는 우분투에서 빌드해서 실행할때는 이미 모든 so가 이미 준비되어있다
+    # 우분투 자체에 이미 설치되어있다
+    # 하지만 win11용으로 빌드할때는 libstdc++.dll이 필요하다 따로 관리할수 없으니
+    # 통합해서 다른 dll이 필요없게 만들어야 한다.
+    # set(CMAKE_EXE_LINKER_FLAGS "-static-libgcc -static-libstdc++")    
+
+    # 루트 전용: 정적 링킹 플래그 전역 설정이라 다른 dll이 영향을 받는다 사용하지마.
+    # set(CMAKE_SHARED_LINKER_FLAGS
+    #     "${CMAKE_SHARED_LINKER_FLAGS} -static-libgcc -static-libstdc++")
+
+    # 정확하게 현재 프로젝트만 적용한다.
+    set_target_properties(${PROJECT_NAME} PROPERTIES
+        LINK_FLAGS "-static-libstdc++ -static-libgcc"
+    )    
+else()
+    message(FATAL_ERROR "⚠️ Unknown platform: ${CMAKE_SYSTEM_NAME}")
+endif()
+
 
 # ----------------------------------------
 # 🔍 include 디렉토리

@@ -42,12 +42,21 @@ target_compile_definitions(${PROJECT_NAME} PRIVATE BYUL_EXPORTS)
 if(CMAKE_SYSTEM_NAME STREQUAL "Windows" OR WIN32)
     message(STATUS "Windows build or cross-compilation enabled")
 
-    # 루트 전용: 정적 링킹 플래그
-    set(CMAKE_SHARED_LINKER_FLAGS
-        "${CMAKE_SHARED_LINKER_FLAGS} -static-libgcc -static-libstdc++")
+    # 루트 전용: 정적 링킹 플래그 전역 설정이라 다른 dll이 영향을 받는다 사용하지마
+    # set(CMAKE_SHARED_LINKER_FLAGS
+    #     "${CMAKE_SHARED_LINKER_FLAGS} -static-libgcc -static-libstdc++")
 
-    # 루트 전용: Windows 서브시스템 설정
-    target_link_options(${PROJECT_NAME} PRIVATE "-Wl,--subsystem,windows")
+    # 정확하게 현재 프로젝트만 적용한다.
+    # set_target_properties(${PROJECT_NAME} PROPERTIES
+    #     LINK_FLAGS "-static-libstdc++ -static-libgcc"
+    # )
+
+    # 루트 전용: Windows 서브시스템 설정 dll 에서는 절대 콘솔
+    # --subsystem,windows가 DLL에 적용되면 
+    # main()/DllMain() 진입점 설정이 꼬일 수 있어요.
+    # 이 설정은 콘솔/GUI 동작과 무관하게 라이브러리에서 불필요하며, 
+    # 종종 test_byul.exe 실행 시 콘솔이 열리지 않는 문제를 유발합니다.
+    # target_link_options(${PROJECT_NAME} PRIVATE "-Wl,--subsystem,windows")
 
     if(WIN32)
         set(HOME_DIR "$ENV{USERPROFILE}")
@@ -164,4 +173,36 @@ install(FILES ${CMAKE_BINARY_DIR}/${PROJECT_NAME}.pc DESTINATION
     ${CMAKE_INSTALL_PREFIX}/lib/pkgconfig)
 
 
+# ─────────────────────────────────────────────
+# Windows MinGW DLL 자동 복사 (선택 사항)
+# ─────────────────────────────────────────────
+if (WIN32 AND NOT MSVC)
+    # 교차 빌드 시 필요한 DLL을 자동 복사
+    add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different
+            "/usr/lib/gcc/x86_64-w64-mingw32/13-win32/libstdc++-6.dll"
+            "$<TARGET_FILE_DIR:${PROJECT_NAME}>"
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different
+            "/usr/lib/gcc/x86_64-w64-mingw32/13-win32/libgcc_s_seh-1.dll"
+            "$<TARGET_FILE_DIR:${PROJECT_NAME}>"
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different
+            "/usr/x86_64-w64-mingw32/lib/libwinpthread-1.dll"
+            "$<TARGET_FILE_DIR:${PROJECT_NAME}>"
+    )
+endif()    
+
+set(MANDATORY_DLL
+    ${CMAKE_BINARY_DIR}/libstdc++-6.dll
+    ${CMAKE_BINARY_DIR}/libgcc_s_seh-1.dll
+    ${CMAKE_BINARY_DIR}/libwinpthread-1.dll
+)
+
+if(CMAKE_SYSTEM_NAME STREQUAL "Windows")
+    install(FILES
+        ${MANDATORY_DLL}
+        DESTINATION ${CMAKE_INSTALL_PREFIX}/bin
+    )
+endif()
+
 add_subdirectory(tests)
+
