@@ -1,96 +1,68 @@
-# 🌟 Byul's World – Path Finding Engine
+# Byul's World – Simulation & Pathfinding Engine
 
-The `byul` module is a lightweight, high-performance engine  
-designed for pathfinding in real-time simulation games.  
-It focuses on three primary features: maze generation, route finding,  
-and dynamic path recalculation, centered around the modules  
-`maze`, `dstar_lite`, and `route_finder`.
+`byul` started as a **pathfinding engine**,  
+and has evolved to include **maze generation, projectile trajectory prediction, control systems (MPC/PID), and numerical analysis**,  
+making it a **lightweight and high-performance simulation engine**.
 
 > 💖 If you enjoy this project, consider supporting development at [paypal.me/jrjojr](https://paypal.me/jrjojr)
 
 ---
 
-## 🧩 Core Components
+## ✨ Key Features
+- **Pathfinding**  
+  Supports A*, Dijkstra, BFS, D* Lite for both static and dynamic pathfinding.
+- **Maze Generation**  
+  Includes Binary Tree, Eller, Kruskal, and other maze generation algorithms.
+- **Projectile Trajectory Prediction**  
+  Predicts projectile paths with gravity, drag, and wind using RK4/Verlet integration.
+- **Control Systems**  
+  PID and Model Predictive Control (MPC) for path and motion control.
+- **Numerical Core**  
+  Implements vec3, quat, dualquat, dualnumber-based 3D math operations.
+- **Modular Architecture**  
+  Includes `numeq`, `controller`, `motion_state`, and `trajectory` as independent modules.
 
-### 🌀 1. Maze Generator – `maze/`
+---
 
-A standalone maze generator that creates complex structures  
-which can be inserted into a navgrid as obstacles.
+## 📜 Project Evolution
+1. **Pathfinding Engine**  
+   Implemented A*, Dijkstra, D* Lite → 2D testing with `PySide6`.
+2. **Maze Generation**  
+   Added Binary Tree, Prim, Eller, Kruskal algorithms.
+3. **Numerical & Physics Core**  
+   Introduced vec3, quat, dualquat, and motion_state for 3D math and physics.
+4. **Control Systems**  
+   Integrated PID, Bang-Bang, and MPC-based control.
+5. **Projectile Trajectory Prediction**  
+   Added Euler, Semi-Implicit, Verlet, RK4 integrators with trajectory recording.
 
-- Supported algorithms: Binary Tree, Prim, Eller, Kruskal, etc.
-- Usage: generate with `maze_make()` → apply with `maze_apply_to_navgrid()`
-- Purpose: navgrid setup, stage design, automated testing
+---
 
-#### Key Interface:
-```c
-maze_t* maze_create();
-void maze_make(maze_t* maze, maze_type_t type);
-void maze_apply_to_navgrid(const maze_t* maze, navgrid_t* navgrid);
-void maze_destroy(maze_t*);
+## 🚀 Build & Run
+### Linux / macOS
+```bash
+git clone https://github.com/jrjojr/byul_env.git
+cd byul
+mkdir build && cd build
+cmake ..
+make -j$(nproc)
+ctest
+```
+
+### Windows (MinGW)
+```bash
+git clone https://github.com/jrjojr/byul_env.git
+cd byul
+mkdir build && cd build
+cmake -G "MinGW Makefiles" ..
+mingw32-make -j4
+ctest
 ```
 
 ---
 
-### 🧠 2. D* Lite Module – `dstar_lite/`
-
-A fully implemented **D* Lite algorithm** for dynamic environments.  
-The `dstar_lite_t` structure maintains internal state and  
-automatically recalculates paths in response to obstacle changes.
-
-- Key sorting: based on `dstar_lite_key`
-- Priority queue: handled by `dstar_lite_pqueue`
-- Heuristics: implemented via `dstar_lite_utils`
-
-> Not a one-shot searcher — it's a **persistent route engine** that responds to change.
-
----
-
-### 🚦 3. Static Route Finder – `route_finder/`
-
-A unified interface for static algorithms including  
-A*, Dijkstra, BFS, JPS and more.  
-Best suited for single-use searches on fixed navgrids.
-
-- Uses `route_finder_t` to select algorithm and extract routes
-- Main API: `route_finder_find()`
-
----
-
-## 🛠 Supporting Modules
-
-### 📌 `coord/`
-- 2D integer coordinate structure (`coord_t`)
-- Hash support (`coord_hash`), list operations (`coord_list`)
-
-### 📌 `navgrid/`
-- `navgrid_t`: grid-based structure
-- Determines walkability and obstacle positions
-- Utility: `navgrid_is_blocked(coord_t*)`
-
-### 📌 `cost_coord_pq/`
-- Priority queue based on `coord + cost`
-- Used during route expansion
-- Custom lightweight heap implementation
-
----
-
-## 📘 Terminology – Why use `route` instead of `path`?
-
-In Byul's World, we prefer **`route`** over `path`. Here's why:
-
-- `path` is ambiguous, often interpreted as a file system path
-- In a game context, **"route" means intentional movement toward a goal"**
-- When distinguishing between static (`route_finder`) and dynamic (`dstar_lite`) logic,
-  the term `route` conveys **purpose, direction, and designed flow**
-
-> This is a deliberate design choice — all modules use `route` consistently.
-
----
-
-## ▶️ Usage Example
-
-### 🔹 Static A* Pathfinding
-
+## 🧪 Test Examples
+### Pathfinding (A*)
 ```c
 coord_t* start = coord_create_full(0, 0);
 coord_t* goal = coord_create_full(9, 9);
@@ -99,7 +71,7 @@ REQUIRE_FALSE(coord_equal(start, goal));
 
 std::cout << "default\n";
 navgrid_t* m = navgrid_create();
-// Insert vertical wall
+// Insert obstacles (vertical block)
 for (int y = 1; y < 10; ++y)
     navgrid_block_coord(m, 5, y);
 
@@ -107,13 +79,13 @@ route_finder_t* a = route_finder_create(m);
 route_finder_set_goal(a, goal);
 route_finder_set_start(a, start);
 route_finder_set_visited_logging(a, true);
+route_t* p = nullptr;
 
-route_t* p = route_finder_find(a);
+p = route_finder_find(a);
 REQUIRE(p != nullptr);
 CHECK(route_get_success(p) == true);
 route_print(p);
 navgrid_print_ascii_with_visited_count(m, p, 5);
-
 route_destroy(p);    
 route_finder_destroy(a);
 navgrid_destroy(m);
@@ -122,66 +94,46 @@ coord_destroy(start);
 coord_destroy(goal);
 ```
 
-### 🧩 Summary
+### Projectile Trajectory Prediction (RK4)
+```c
+linear_state_t projectile = { {0,0,0}, {10,10,0}, {0,0,0} };
+environ_t env = environ_default();
+bodyprops_t body = bodyprops_default();
 
-| Situation | Suggested Algorithm | Description |
-|----------|----------------------|-------------|
-| Obstacles change frequently | D* Lite | Persistent state, real-time adaptation |
-| Fixed navgrid | A*, Dijkstra, etc. | Fast one-shot searches |
-| Unified interface | `route_finder` | Switch between algorithms automatically |
+linear_state_t predicted;
+numeq_model_predict_rk4(1.0f, &projectile, &env, &body, 60, &predicted);
 
----
-
-## ⚙️ Build Instructions
-
-This project uses **CMake** for cross-platform builds.
-
-```bash
-git clone https://github.com/jrjojr/byul_env.git
-cd byul
-mkdir build && cd build
-cmake ..
-make -j$(nproc)
+printf("Predicted position: %.2f, %.2f, %.2f\n",
+       predicted.position.x, predicted.position.y, predicted.position.z);
 ```
 
-> Windows: `byul.dll` / Linux: `libbyul.so` or `libbyul.a`
-
 ---
 
-## 🧪 Testing
+## 📘 Why `route` instead of `path`?
 
-```bash
-cd byul/maze/tests
-make
-./test_maze
-```
+In Byul's World, the term **`route`** is used instead of `path` for the following reasons:
 
-> All modules include unit tests using `doctest`.
+- `path` is commonly associated with filesystem paths, which can be confusing.
+- `route` better reflects the **"strategic path to a destination"** in the context of games.
+- The distinction between **static search (`route_finder`)** and **dynamic search (`dstar_lite`)** is clearer with `route`.
+
+> This terminology is part of the design philosophy and is used consistently across the project.
 
 ---
-
-## 📄 License – Byul World Public License v1.0
-
-| Allowed                         | Prohibited                                     |
-|---------------------------------|------------------------------------------------|
-| Personal learning & analysis    | Commercial use (direct/indirect profit)        |
-| Academic or demo presentation   | Redistribution, packaging, public hosting      |
-| Credited reference              | Removing or misrepresenting authorship         |
 
 Contact: **byuldev@outlook.kr**
 
-> See LICENSE for full legal terms.
+---
+
+## 📄 License
+- **Byul World Public License v1.0**  
+  - Free for personal learning and research  
+  - Commercial use and redistribution are prohibited  
+  - See the LICENSE file for details
 
 ---
 
-## 💬 Developer Note
-
-This is not just a pathfinding module.  
-It is the **core logic that gives life and movement** to Byul's World.
-
-Mazes are the art of obstacles.  
-Routes are the will to move.  
-Finding them is how we ask the world a question.
-
-© 2025 ByulPapa (byuldev@outlook.kr)  
-All rights reserved.
+## 💬 Developer’s Note
+> `byul` has evolved beyond simple pathfinding to become a **real-time simulation engine**.  
+> From pathfinding to projectile trajectory prediction,  
+> this project serves as the foundation for creating **Byul's World**.
