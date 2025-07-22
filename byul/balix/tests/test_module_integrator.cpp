@@ -93,13 +93,8 @@ TEST_CASE("Unified integrator selector dispatches correctly") {
 
 TEST_CASE("Unified integrator selector dispatches correctly v1") {
     integrator_config_t cfg;
-    integrator_config_init_full(
-        &cfg,
-        INTEGRATOR_EULER,  // 오일러 방식
-        1.0f,              // dt = 1초
-        nullptr,           // prev_state 없음
-        nullptr            // userdata 없음
-    );
+    integrator_config_init(&cfg);
+    cfg.time_step = 1.0f;
 
     motion_state_t state;
     state.linear.position = {0.0f, 0.0f, 0.0f};

@@ -28,39 +28,40 @@ set(SOURCES
     environ/environ.cpp    
 
     numal/dualnumber.cpp
-    numal/dualnumber.h
+
     numal/dualquat.cpp
-    numal/dualquat.h
+
     numal/dualquat.hpp
     numal/numal.cpp
-    numal/numal.h
+
     numal/quat.cpp
-    numal/quat.h
+
     numal/quat.hpp
     numal/vec3.cpp
-    numal/vec3.h
+
     numal/vec3.hpp
 
     numeq/numeq_integrator.cpp
-    numeq/numeq_integrator.h
+
     numeq/numeq_kalman.cpp
-    numeq/numeq_kalman.h
+
     numeq/numeq_model.cpp
-    numeq/numeq_model.h
+
     numeq/numeq_mpc.cpp
-    numeq/numeq_mpc.h
+
     numeq/numeq_pid_vec3.cpp
-    numeq/numeq_pid_vec3.h
+
     numeq/numeq_pid.cpp
-    numeq/numeq_pid.h
+
     numeq/numeq_solver.cpp
-    numeq/numeq_solver.h
+
     numeq/numeq.cpp
-    numeq/numeq.h
+
 
     xform/xform.cpp
 
     trajectory/trajectory.cpp
+    motion_state/motion_state.cpp
 
     controller/controller.cpp
 )

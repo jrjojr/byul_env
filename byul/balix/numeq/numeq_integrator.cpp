@@ -1,6 +1,7 @@
 // linear_state_t -> motion_state_t로 변경한 버전
 
 #include "internal/numeq_integrator.h"
+#include "internal/numeq_model.h"
 #include "internal/vec3.hpp"
 #include <cassert>
 
@@ -19,11 +20,17 @@ void integrator_config_init_full(integrator_config_t* cfg,
                                  integrator_type_t type,
                                  float time_step,
                                  motion_state_t* prev_state,
-                                 void* userdata) {
+                                 const environ_t* env,
+                                 const bodyprops_t* body,
+                                 void* userdata)
+{
     if (!cfg) return;
+
     cfg->type = type;
     cfg->time_step = time_step;
     cfg->prev_state = prev_state;
+    cfg->env = env;
+    cfg->body = body;
     cfg->userdata = userdata;
 }
 
@@ -321,7 +328,6 @@ void numeq_integrate_motion_semi_implicit(motion_state_t* state, float dt) {
     quat_normalize(&state->angular.orientation);
 }
 
-// 선형 + 회전 통합 RK4 적분기 (accel 파라미터 제거)
 void numeq_integrate_motion_rk4(motion_state_t* state, float dt) {
     assert(state);
 
@@ -367,6 +373,84 @@ void numeq_integrate_motion_rk4(motion_state_t* state, float dt) {
     quat_normalize(&state->angular.orientation);
 }
 
+void numeq_integrate_motion_rk4_env(motion_state_t* state,
+                                float dt,
+                                const environ_t* env,
+                                const bodyprops_t* body)
+{
+    assert(state && env && body);
+
+    // ===== 선형 운동 RK4 =====
+    Vec3 p0(state->linear.position);
+    Vec3 v0(state->linear.velocity);
+
+    // k1
+    vec3_t a1;
+    numeq_model_accel_at(0.0f, &state->linear, env, body, &a1);
+    Vec3 k1_p = v0 * dt;
+    Vec3 k1_v = Vec3(a1) * dt;
+
+    // k2
+    linear_state_t tmp2 = state->linear;
+    vec3_t v_half2 = {v0.v.x + 0.5f * k1_v.v.x,
+                      v0.v.y + 0.5f * k1_v.v.y,
+                      v0.v.z + 0.5f * k1_v.v.z};
+    tmp2.velocity = v_half2;
+    vec3_t a2;
+    numeq_model_accel_at(dt * 0.5f, &tmp2, env, body, &a2);
+    Vec3 k2_p = (v0 + k1_v * 0.5f) * dt;
+    Vec3 k2_v = Vec3(a2) * dt;
+
+    // k3
+    linear_state_t tmp3 = state->linear;
+    vec3_t v_half3 = {v0.v.x + 0.5f * k2_v.v.x,
+                      v0.v.y + 0.5f * k2_v.v.y,
+                      v0.v.z + 0.5f * k2_v.v.z};
+    tmp3.velocity = v_half3;
+    vec3_t a3;
+    numeq_model_accel_at(dt * 0.5f, &tmp3, env, body, &a3);
+    Vec3 k3_p = (v0 + k2_v * 0.5f) * dt;
+    Vec3 k3_v = Vec3(a3) * dt;
+
+    // k4
+    linear_state_t tmp4 = state->linear;
+    vec3_t v_full = {v0.v.x + k3_v.v.x,
+                     v0.v.y + k3_v.v.y,
+                     v0.v.z + k3_v.v.z};
+    tmp4.velocity = v_full;
+    vec3_t a4;
+    numeq_model_accel_at(dt, &tmp4, env, body, &a4);
+    Vec3 k4_p = (v0 + k3_v) * dt;
+    Vec3 k4_v = Vec3(a4) * dt;
+
+    // 업데이트
+    Vec3 dp = (k1_p + (k2_p + k3_p) * 2.0f + k4_p) * (1.0f / 6.0f);
+    Vec3 dv = (k1_v + (k2_v + k3_v) * 2.0f + k4_v) * (1.0f / 6.0f);
+
+    state->linear.position = p0 + dp;
+    state->linear.velocity = v0 + dv;
+    state->linear.acceleration = a4;  // 마지막 스텝 가속도로 갱신
+
+    // ===== 회전 운동 RK4 =====
+    Vec3 w0(state->angular.angular_velocity);
+    Vec3 alpha0(state->angular.angular_acceleration);
+
+    // 각속도 변화
+    Vec3 k1_w = alpha0 * dt;
+    Vec3 k2_w = alpha0 * dt;
+    Vec3 k3_w = alpha0 * dt;
+    Vec3 k4_w = alpha0 * dt;
+    Vec3 delta_w = (k1_w + (k2_w + k3_w) * 2.0f + k4_w) * (1.0f / 6.0f);
+    Vec3 w_new = w0 + delta_w;
+    state->angular.angular_velocity = w_new;
+
+    // 쿼터니언 회전 적용
+    quat_t dq;
+    quat_init_angular_velocity(&dq, &w_new.v, dt);
+    quat_mul(&state->angular.orientation, &state->angular.orientation, &dq);
+    quat_normalize(&state->angular.orientation);
+}
+
 // ---------------------------------------------------------
 // 공통 적분기 인터페이스
 // ---------------------------------------------------------
@@ -400,6 +484,11 @@ void numeq_integrate(
         case INTEGRATOR_MOTION_RK4:
             numeq_integrate_motion_rk4(state, config->time_step);
             break;
+        case INTEGRATOR_MOTION_RK4_ENV:
+            numeq_integrate_motion_rk4_env(
+                state, config->time_step, config->env, config->body);
+            break;
+
         case INTEGRATOR_MOTION_VERLET:
             if (config->prev_state) {
                 numeq_integrate_motion_verlet(state, config->prev_state, 

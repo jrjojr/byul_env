@@ -33,7 +33,8 @@ extern "C" {
  * }
  * @endcode
  */
-BYUL_API bool numeq_solve_quadratic(float a, float b, float c, float* out_x1, float* out_x2);
+BYUL_API bool numeq_solve_quadratic(
+    float a, float b, float c, float* out_x1, float* out_x2);
 
 /**
  * @brief 3차방정식 ax³ + bx² + cx + d = 0의 해를 구합니다. (실근만 반환)
@@ -56,7 +57,8 @@ BYUL_API bool numeq_solve_quadratic(float a, float b, float c, float* out_x1, fl
  * }
  * @endcode
  */
-BYUL_API bool numeq_solve_cubic(float a, float b, float c, float d, float* out_roots, int* out_count);
+BYUL_API bool numeq_solve_cubic(float a, float b, float c, float d, 
+    float* out_roots, int* out_count);
 
 typedef float (*numeq_func_f32)(float x, void* userdata);
 

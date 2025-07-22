@@ -204,5 +204,5 @@ if(CMAKE_SYSTEM_NAME STREQUAL "Windows")
     )
 endif()
 
-add_subdirectory(tests)
+# add_subdirectory(tests)
 

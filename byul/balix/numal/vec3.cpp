@@ -171,3 +171,21 @@ void vec3_print(const vec3_t* v) {
     }
     printf("(%.6f, %.6f, %.6f)\n", v->x, v->y, v->z);
 }
+
+void vec3_iadd(vec3_t* io, const vec3_t* other) {
+    io->x += other->x;
+    io->y += other->y;
+    io->z += other->z;
+}
+
+void vec3_isub(vec3_t* io, const vec3_t* other) {
+    io->x -= other->x;
+    io->y -= other->y;
+    io->z -= other->z;
+}
+
+void vec3_iscale(vec3_t* io, float scalar) {
+    io->x *= scalar;
+    io->y *= scalar;
+    io->z *= scalar;
+}

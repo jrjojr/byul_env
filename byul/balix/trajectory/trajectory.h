@@ -3,128 +3,12 @@
 
 #include <stdbool.h>
 #include "internal/numal.h"
+#include "internal/motion_state.h"
 #include "byul_config.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
-
-// ---------------------------------------------------------
-// 운동 상태 구조체 (선형 + 회전)
-// ---------------------------------------------------------
-
-/**
- * @struct linear_state_t
- * @brief 선형(위치 기반) 운동 상태를 나타내는 구조체
- */
-typedef struct s_linear_state {
-    vec3_t position;      /**< 현재 위치 */
-    vec3_t velocity;      /**< 현재 속도 */
-    vec3_t acceleration;  /**< 현재 가속도 */
-} linear_state_t;
-
-/**
- * @brief linear_state_t를 0으로 초기화
- * @param out 초기화할 구조체 포인터
- */
-BYUL_API void linear_state_init(linear_state_t* out);
-
-/**
- * @brief linear_state_t를 지정한 값으로 초기화
- * @param out 초기화할 구조체 포인터
- * @param position 위치 벡터
- * @param velocity 속도 벡터
- * @param acceleration 가속도 벡터
- */
-BYUL_API void linear_state_init_full(linear_state_t* out,
-                                     const vec3_t* position,
-                                     const vec3_t* velocity,
-                                     const vec3_t* acceleration);
-
-/**
- * @brief linear_state_t 복사
- * @param out 복사 대상 구조체
- * @param src 복사할 원본 구조체
- */
-BYUL_API void linear_state_assign(
-    linear_state_t* out, const linear_state_t* src);
-
-/**
- * @struct attitude_state_t
- * @brief 회전(자세) 운동 상태를 나타내는 구조체
- */
-typedef struct s_attitude_state {
-    quat_t orientation;          /**< 현재 방향 (쿼터니언) */
-    vec3_t angular_velocity;     /**< 현재 각속도 */
-    vec3_t angular_acceleration; /**< 현재 각가속도 */
-} attitude_state_t;
-
-/**
- * @brief attitude_state_t를 기본값으로 초기화 (단위 쿼터니언)
- * @param out 초기화할 구조체 포인터
- */
-BYUL_API void attitude_state_init(attitude_state_t* out);
-
-/**
- * @brief attitude_state_t를 지정한 값으로 초기화
- * @param out 초기화할 구조체 포인터
- * @param orientation 쿼터니언 방향
- * @param angular_velocity 각속도 벡터
- * @param angular_acceleration 각가속도 벡터
- */
-BYUL_API void attitude_state_init_full(attitude_state_t* out,
-                                       const quat_t* orientation,
-                                       const vec3_t* angular_velocity,
-                                       const vec3_t* angular_acceleration);
-
-/**
- * @brief attitude_state_t 복사
- * @param out 복사 대상 구조체
- * @param src 복사할 원본 구조체
- */
-BYUL_API void attitude_state_assign(
-    attitude_state_t* out, const attitude_state_t* src);
-
-/**
- * @struct motion_state_t
- * @brief 선형 운동 + 회전 운동을 통합한 상태 구조체
- */
-typedef struct s_motion_state {
-    linear_state_t linear;    /**< 선형 운동 */
-    attitude_state_t angular; /**< 회전 운동 */
-} motion_state_t;
-
-/**
- * @brief motion_state_t를 기본값으로 초기화
- * @param out 초기화할 구조체 포인터
- */
-BYUL_API void motion_state_init(motion_state_t* out);
-
-/**
- * @brief motion_state_t를 지정한 값으로 초기화
- * @param out 초기화할 구조체 포인터
- * @param position 위치 벡터
- * @param velocity 속도 벡터
- * @param acceleration 가속도 벡터
- * @param orientation 쿼터니언 방향
- * @param angular_velocity 각속도 벡터
- * @param angular_acceleration 각가속도 벡터
- */
-BYUL_API void motion_state_init_full(motion_state_t* out,
-                                     const vec3_t* position,
-                                     const vec3_t* velocity,
-                                     const vec3_t* acceleration,
-                                     const quat_t* orientation,
-                                     const vec3_t* angular_velocity,
-                                     const vec3_t* angular_acceleration);
-
-/**
- * @brief motion_state_t 복사
- * @param out 복사 대상 구조체
- * @param src 복사할 원본 구조체
- */
-BYUL_API void motion_state_assign(
-    motion_state_t* out, const motion_state_t* src);
 
 // ---------------------------------------------------------
 // 비행 경로 샘플 (시간 + 상태)

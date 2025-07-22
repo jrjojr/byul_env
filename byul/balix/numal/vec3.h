@@ -128,6 +128,25 @@ BYUL_API char* vec3_to_string(
  */
 BYUL_API void vec3_print(const vec3_t* v);
 
+/**
+ * @brief 벡터에 다른 벡터를 더해 자기 자신을 갱신합니다. (in-place addition)
+ *
+ * @param io 대상 벡터 (결과도 여기에 저장)
+ * @param other 더할 벡터
+ */
+BYUL_API void vec3_iadd(vec3_t* io, const vec3_t* other);
+
+/**
+ * @brief 벡터에서 다른 벡터를 빼 자기 자신을 갱신합니다. (in-place subtraction)
+ */
+BYUL_API void vec3_isub(vec3_t* io, const vec3_t* other);
+
+/**
+ * @brief 벡터를 스칼라 값으로 스케일링 (in-place scaling)
+ */
+BYUL_API void vec3_iscale(vec3_t* io, float scalar);
+
+
 #ifdef __cplusplus
 }
 #endif

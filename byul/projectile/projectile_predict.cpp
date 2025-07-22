@@ -187,8 +187,9 @@ bool projectile_predict(
         // -----------------------------
         vec3_t pos_prev = state.linear.position;
         integrator_config_t config;
-        integrator_config_init_full(&config, INTEGRATOR_SEMI_IMPLICIT,
-                                    time_step, nullptr, nullptr);
+        integrator_config_init(&config);
+        config.time_step = time_step;
+        
         numeq_integrate(&state, &config);
 
         // -----------------------------
