@@ -1,5 +1,5 @@
-#ifndef BYUL_CONFIG_H
-#define BYUL_CONFIG_H
+#ifndef BYUL_COMMON_H
+#define BYUL_COMMON_H
 
 // ─────────────────────────────
 // 플랫폼 감지
@@ -72,4 +72,4 @@
   #define DBG_PRINT(...) ((void)0)
 #endif
 
-#endif // BYUL_CONFIG_H
+#endif // BYUL_COMMON_H

@@ -1,7 +1,7 @@
 #ifndef PROJECTILE_GUIDANCE_H
 #define PROJECTILE_GUIDANCE_H
 
-#include "byul_config.h"
+#include "byul_common.h"
 #include "internal/vec3.h"
 #include "internal/projectile.h"
 #include "internal/trajectory.h"

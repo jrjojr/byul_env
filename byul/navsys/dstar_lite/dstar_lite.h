@@ -38,7 +38,7 @@
 #ifndef DSTAR_LITE_H
 #define DSTAR_LITE_H
 
-#include "byul_config.h"
+#include "byul_common.h"
 #include "internal/common.h"
 
 #include "internal/navgrid.h"

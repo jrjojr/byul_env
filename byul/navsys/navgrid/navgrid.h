@@ -1,7 +1,7 @@
 #ifndef NAVGRID_H
 #define NAVGRID_H
 
-#include "byul_config.h"
+#include "byul_common.h"
 #include "internal/coord.h"
 #include "internal/coord_list.h"
 #include "internal/coord_hash.h"

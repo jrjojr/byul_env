@@ -1,7 +1,7 @@
 #ifndef PROJECTILE_PREDICT_H
 #define PROJECTILE_PREDICT_H
 
-#include "byul_config.h"
+#include "byul_common.h"
 #include "internal/projectile.h"
 #include "internal/trajectory.h"
 #include "internal/projectile_propulsion.h"

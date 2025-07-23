@@ -1,7 +1,7 @@
 #ifndef MAZE_H
 #define MAZE_H
 
-#include "byul_config.h"
+#include "byul_common.h"
 #include "internal/coord.h"
 #include "internal/coord_hash.h"
 #include "internal/navgrid.h"

@@ -1,7 +1,7 @@
 #ifndef DFS_H
 #define DFS_H
 
-#include "byul_config.h"
+#include "byul_common.h"
 #include "internal/common.h"
 #include "internal/coord.h"
 #include "internal/navgrid.h"

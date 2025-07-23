@@ -1,7 +1,7 @@
 #ifndef DSTAR_LITE_PQUEUE_H
 #define DSTAR_LITE_PQUEUE_H
 
-#include "byul_config.h"
+#include "byul_common.h"
 #include "internal/coord.h"
 #include "internal/dstar_lite_key.h"
 

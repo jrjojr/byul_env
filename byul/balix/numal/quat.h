@@ -2,7 +2,7 @@
 #define QUAT_H
 
 #include <stdint.h>
-#include "byul_config.h"
+#include "byul_common.h"
 #include "internal/vec3.h"
 
 #ifdef __cplusplus

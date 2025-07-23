@@ -6,7 +6,7 @@ extern "C" {
 #endif
 
 #include <stdint.h>
-#include "byul_config.h"
+#include "byul_common.h"
 #include "internal/entity.h"
 #include "internal/xform.h"
 #include "internal/bodyprops.h"

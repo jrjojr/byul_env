@@ -5,7 +5,7 @@
 #include <stdbool.h>
 #include <stddef.h>
 
-#include "byul_config.h"
+#include "byul_common.h"
 
 #ifdef __cplusplus
 extern "C" {

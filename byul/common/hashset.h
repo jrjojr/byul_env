@@ -1,7 +1,7 @@
 #ifndef HASHSET_H
 #define HASHSET_H
 
-#include "byul_config.h"
+#include "byul_common.h"
 
 #ifdef __cplusplus
 extern "C" {

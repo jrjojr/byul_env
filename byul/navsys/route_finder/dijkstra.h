@@ -1,7 +1,7 @@
 #ifndef DIJKSTRA_H
 #define DIJKSTRA_H
 
-#include "byul_config.h"
+#include "byul_common.h"
 #include "internal/coord.h"
 #include "internal/navgrid.h"
 #include "internal/route.h"

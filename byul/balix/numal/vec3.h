@@ -2,7 +2,7 @@
 #define VEC3_H
 
 #include <stdint.h>
-#include "byul_config.h"
+#include "byul_common.h"
 
 #ifdef __cplusplus
 extern "C" {

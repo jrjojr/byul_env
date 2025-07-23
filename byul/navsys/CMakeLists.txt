@@ -25,75 +25,51 @@ endif()
 set(SOURCES
     ${PROJECT_NAME}.cpp
 
-    coord.cpp
+    coord/coord.cpp
+    coord/coord_hash.cpp
+    coord/coord_list.cpp
+    coord/cost_coord_pq.cpp
 
-    coord_hash.cpp
+    route/route.cpp
 
-    coord_list.cpp
+    navgrid/navgrid.cpp
 
-    cost_coord_pq.cpp
+    route_carver/route_carver.cpp
 
-    dstar_lite_key.cpp
+    dstar_lite/dstar_lite_key.cpp
+    dstar_lite/dstar_lite_pqueue.cpp
+    dstar_lite/dstar_lite.cpp
 
+    route_finder/route_finder.cpp    
+    route_finder/route_finder_common.cpp
+    route_finder/astar.cpp
+    route_finder/bfs.cpp
+    route_finder/dfs.cpp
+    route_finder/dijkstra.cpp
+    route_finder/fast_marching.cpp
+    route_finder/fringe_search.cpp
+    route_finder/greedy_best_first.cpp
+    route_finder/ida_star.cpp
+    route_finder/rta_star.cpp
+    route_finder/sma_star.cpp
+    route_finder/weighted_astar.cpp
 
-    dstar_lite_pqueue.cpp
+    obstacle/obstacle_common.cpp
+    obstacle/obstacle.cpp    
 
-    dstar_lite.cpp
-
-    maze_aldous_broder.cpp
-    maze_binary.cpp
-    maze_common.cpp
-
-    maze_eller.cpp
-    maze_hunt_and_kill.cpp
-    maze_kruskal.cpp
-    maze_prim.cpp
-    maze_recursive_division.cpp
-    maze_recursive.cpp
-    maze_room.cpp
-
-    maze_sidewinder.cpp
-    maze_wilson.cpp
-    maze.cpp
-
-    navgrid.cpp
-
-    navsys.cpp
-
-    obstacle_common.cpp
-
-    obstacle.cpp
-
-    route_carver.cpp
-
-    route_finder_common.cpp
-
-    route_finder.cpp
-
-    route.cpp
-
-    modules/astar.cpp
-
-    modules/bfs.cpp
-
-    modules/dfs.cpp
-
-    modules/dijkstra.cpp
-
-    modules/fast_marching.cpp
-
-    modules/fringe_search.cpp
-
-    modules/greedy_best_first.cpp
-
-    modules/ida_star.cpp
-
-    modules/rta_star.cpp
-
-    modules/sma_star.cpp
-
-    modules/weighted_astar.cpp
-
+    maze/maze_aldous_broder.cpp
+    maze/maze_binary.cpp
+    maze/maze_common.cpp
+    maze/maze_eller.cpp
+    maze/maze_hunt_and_kill.cpp
+    maze/maze_kruskal.cpp
+    maze/maze_prim.cpp
+    maze/maze_recursive_division.cpp
+    maze/maze_recursive.cpp
+    maze/maze_room.cpp
+    maze/maze_sidewinder.cpp
+    maze/maze_wilson.cpp
+    maze/maze.cpp
 )
 
 add_library(${PROJECT_NAME} STATIC ${SOURCES})

@@ -1,7 +1,7 @@
 #ifndef DSTAR_LITE_UTILS_H
 #define DSTAR_LITE_UTILS_H
 
-#include "byul_config.h"
+#include "byul_common.h"
 #include "internal/common.h"
 #include "internal/navgrid.h"
 #include "internal/coord.h"

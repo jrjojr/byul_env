@@ -1,7 +1,7 @@
 #ifndef ROUTE_FINDER_UTILS_H
 #define ROUTE_FINDER_UTILS_H
 
-#include "byul_config.h"
+#include "byul_common.h"
 #include "internal/common.h"
 
 #include "internal/navgrid.h"

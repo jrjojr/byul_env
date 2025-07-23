@@ -4,7 +4,7 @@
 #include "internal/vec3.h"
 #include "internal/quat.h"       // euler_order_t 정의
 #include "internal/dualquat.h"
-#include "byul_config.h"
+#include "byul_common.h"
 
 #ifdef __cplusplus
 extern "C" {

@@ -1,7 +1,7 @@
 #ifndef ASTAR_H
 #define ASTAR_H
 
-#include "byul_config.h"
+#include "byul_common.h"
 
 #include "internal/route_finder_common.h"
 #include "internal/navgrid.h"

@@ -4,7 +4,7 @@
 #include <stdbool.h>
 #include "internal/numeq.h"
 
-#include "byul_config.h"
+#include "byul_common.h"
 
 #ifdef __cplusplus
 extern "C" {

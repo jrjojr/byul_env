@@ -3,7 +3,7 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "byul_config.h"
+#include "byul_common.h"
 #include "internal/coord.h"
 
 #ifdef __cplusplus

@@ -47,6 +47,13 @@ if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
     find_package(SDL2 REQUIRED)
     set(SDL_INCLUDE_DIRS ${SDL2_INCLUDE_DIRS})
     set(SDL_LIBRARIES ${SDL2_LIBRARIES})
+
+    # # RPATH 설정: ../lib 경로에서 .so 찾기
+    #  현재 프로젝트가 dll이면 설정하지만 실행파일에서 찾아야지
+    # set_target_properties(${PROJECT_NAME} PROPERTIES
+    #     BUILD_RPATH "\$ORIGIN/../"
+    #     INSTALL_RPATH "\$ORIGIN/../lib"        
+    # )    
 elseif(CMAKE_SYSTEM_NAME STREQUAL "Windows")
     find_package(SDL3 CONFIG REQUIRED)
     set(SDL_INCLUDE_DIRS ${EXTERNAL_DIR}/SDL3-3.2.18/x86_64-w64-mingw32/include)
@@ -73,9 +80,8 @@ elseif(CMAKE_SYSTEM_NAME STREQUAL "Windows")
     #     "${CMAKE_SHARED_LINKER_FLAGS} -static-libgcc -static-libstdc++")
 
     # 정확하게 현재 프로젝트만 적용한다.
-    set_target_properties(${PROJECT_NAME} PROPERTIES
-        LINK_FLAGS "-static-libstdc++ -static-libgcc"
-    )    
+    # set_target_properties(${PROJECT_NAME} PROPERTIES
+    #     LINK_FLAGS "-static-libstdc++ -static-libgcc"
 else()
     message(FATAL_ERROR "⚠️ Unknown platform: ${CMAKE_SYSTEM_NAME}")
 endif()
@@ -137,23 +143,23 @@ set(GPU_SHADER_FILES
 # 📦 설치 설정
 # ----------------------------------------
 install(TARGETS ${PROJECT_NAME}
-    RUNTIME DESTINATION ${CMAKE_INSTALL_PREFIX}/bin
-    LIBRARY DESTINATION ${CMAKE_INSTALL_PREFIX}/lib
-    ARCHIVE DESTINATION ${CMAKE_INSTALL_PREFIX}/lib/${PROJECT_NAME}
+    RUNTIME DESTINATION bin
+    LIBRARY DESTINATION lib
+    ARCHIVE DESTINATION lib/${PROJECT_NAME}
 )
 
 install(FILES ${GPU_SHADER_FILES}
-    DESTINATION ${SHADER_DIR}
+    DESTINATION glsl
 )
 
 # SDL DLL (Windows에서만 설치)
 if(CMAKE_SYSTEM_NAME STREQUAL "Windows")
     install(FILES
         ${EXTERNAL_DIR}/SDL3-3.2.18/x86_64-w64-mingw32/bin/SDL3.dll
-        DESTINATION ${CMAKE_INSTALL_PREFIX}/bin
+        DESTINATION bin
     )
     install(FILES
         ${EXTERNAL_DIR}/SDL3-3.2.18/LICENSE.txt
-        DESTINATION ${CMAKE_INSTALL_PREFIX}/share/sdl
+        DESTINATION share/sdl
     )
 endif()

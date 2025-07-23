@@ -1,7 +1,7 @@
 #ifndef ROUTE_FORGE_H
 #define ROUTE_FORGE_H
 
-#include "byul_config.h"
+#include "byul_common.h"
 #include "internal/navgrid.h"     // navgrid_t 정의 필요
 #include "internal/coord.h"   // coord_t 정의 필요
 

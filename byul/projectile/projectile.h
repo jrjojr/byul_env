@@ -6,7 +6,7 @@ extern "C" {
 #endif
 
 #include <stdbool.h>
-#include "byul_config.h"
+#include "byul_common.h"
 #include "internal/entity_dynamic.h"
 
 // ---------------------------------------------------------

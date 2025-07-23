@@ -1,7 +1,7 @@
 #ifndef WEIGHTED_ASTAR_H
 #define WEIGHTED_ASTAR_H
 
-#include "byul_config.h"
+#include "byul_common.h"
 #include "internal/common.h"
 
 #include "internal/route_finder_common.h"

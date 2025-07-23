@@ -34,8 +34,7 @@
       "binaryDir": "${sourceDir}/../build_win_release",
       "cacheVariables": {
         "CMAKE_BUILD_TYPE": "Release",
-        "CMAKE_TOOLCHAIN_FILE": "${sourceDir}/cmake/toolchain-mingw64.cmake",
-        "CMAKE_INSTALL_PREFIX": "${sourceDir}/../../../jaryo/incoming/byul"        
+        "CMAKE_TOOLCHAIN_FILE": "${sourceDir}/cmake/toolchain-mingw64.cmake"
       }
     },
     {
@@ -47,9 +46,17 @@
       "cacheVariables": {
         "CMAKE_BUILD_TYPE": "Release",
         "CMAKE_TOOLCHAIN_FILE": "${sourceDir}/cmake/toolchain-mingw64.cmake",
-        "CMAKE_INSTALL_PREFIX": "${sourceDir}/../../../jaryo/incoming/byul_sdl",
         "CMAKE_PREFIX_PATH": "${sourceDir}/../external/SDL3-3.2.18/cmake",
         "BUILD_SDL_EXECUTABLE": "ON"
+      }
+    },
+    {
+      "name": "win-native",
+      "displayName": "Windows 11 (MSYS2 MinGW Native)",
+      "generator": "MinGW Makefiles",
+      "binaryDir": "${sourceDir}/../build_win_native",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release"
       }
     }
   ],
@@ -59,28 +66,35 @@
       "configurePreset": "linux-debug",
       "description": "로컬 Ubuntu Debug 빌드",
       "jobs": 8,
-      "targets": ["all"]
+      "targets": ["all", "package_zip"]
     },
     {
       "name": "build-linux-release",
       "configurePreset": "linux-release",
       "description": "로컬 Ubuntu Release 빌드",
       "jobs": 8,
-      "targets": ["all"]
+      "targets": ["all", "package_zip"]
     },
     {
       "name": "build-win-release",
       "configurePreset": "win-release",
       "description": "Windows용 DLL 빌드 preset",
       "jobs": 8,
-      "targets": ["all"]
+      "targets": ["all", "package_zip"]
     },
     {
       "name": "build-win_sdl_release",
       "configurePreset": "win_sdl_release",
       "description": "Windows SDL 실행파일 빌드 (MinGW64)",
       "jobs": 8,
-      "targets": ["all"]
+      "targets": ["all", "package_zip"]
+    },
+    {
+      "name": "build-win-native",
+      "configurePreset": "win-native",
+      "description": "Windows native 용 DLL 빌드 preset",
+      "jobs": 8,
+      "targets": ["all", "package_zip"]      
     }
   ],
   "testPresets": []

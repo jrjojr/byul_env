@@ -5,7 +5,7 @@
 extern "C" {
 #endif
 
-#include "byul_config.h"
+#include "byul_common.h"
 #include "internal/vec3.h"
 
 // 전방 선언

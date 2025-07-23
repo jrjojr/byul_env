@@ -1,7 +1,7 @@
 #ifndef OBSTACLE_H
 #define OBSTACLE_H
 
-#include "byul_config.h"
+#include "byul_common.h"
 #include "internal/navgrid.h"
 #include "internal/coord.h"
 #include "internal/coord_hash.h"
