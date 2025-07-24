@@ -79,9 +79,15 @@ if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
     target_compile_options(${PROJECT_NAME} PRIVATE -fsanitize=address -fsanitize=leak -g -O1)
     target_link_options(${PROJECT_NAME} PRIVATE -fsanitize=address -fsanitize=leak)
     set_target_properties(${PROJECT_NAME} PROPERTIES
-        BUILD_RPATH "\$ORIGIN/../"
+        BUILD_RPATH "\$ORIGIN/../lib"
         INSTALL_RPATH "\$ORIGIN/../lib"
     )
+    # ubuntu: 실행파일 : bin, so : lib 디렉토리에 있어야 함
+    set_target_properties(${PROJECT_NAME} PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin
+        LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib
+        ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib/${PROJECT_NAME}
+    )    
 elseif(CMAKE_SYSTEM_NAME STREQUAL "Windows")
     message(STATUS "${PROJECT_NAME}: No ASan for Windows (unsupported).")
 

@@ -25,6 +25,7 @@ endif()
 set(SOURCES
     ${PROJECT_NAME}.cpp
 
+    bodyprops/bodyprops.cpp    
     environ/environ.cpp    
 
     numal/dualnumber.cpp

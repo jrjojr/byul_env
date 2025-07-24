@@ -9,7 +9,6 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 # 소스 파일 설정
 set(SOURCES
     ${PROJECT_NAME}.cpp
-    bodyprops.cpp
     entity_dynamic.cpp
     entity_dynamic_coord.cpp
 )

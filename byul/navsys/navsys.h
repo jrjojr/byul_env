@@ -7,6 +7,9 @@
 #define NAVSYS_H
 
 #include "internal/coord.h"
+#include "internal/coord_list.h"
+#include "internal/coord_hash.h"
+
 #include "internal/route.h"
 #include "internal/navgrid.h"
 

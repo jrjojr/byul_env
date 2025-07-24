@@ -155,7 +155,7 @@ TEST_CASE("numeq_mpc_solve basic test v1") {
     config.output_trajectory = true;
 
     mpc_output_t result = {};
-    trajectory_t traj;
+    trajectory_t traj = {};
     trajectory_init(&traj);
 
     bool ok = numeq_mpc_solve(
@@ -202,7 +202,7 @@ TEST_CASE("numeq_mpc_solve basic test v2") {
     config.output_trajectory = true;
 
     mpc_output_t result = {};
-    trajectory_t traj;
+    trajectory_t traj = {};
     trajectory_init(&traj);
 
     environ_t env;
@@ -254,7 +254,7 @@ TEST_CASE("numeq_mpc_solve basic test v3") {
     config.output_trajectory = true;
 
     mpc_output_t result = {};
-    trajectory_t traj;
+    trajectory_t traj = {};
     trajectory_init(&traj);
 
     environ_t env;
@@ -306,7 +306,7 @@ TEST_CASE("numeq_mpc_solve_fast basic test") {
     config.output_trajectory = true;
 
     mpc_output_t result = {};
-    trajectory_t traj;
+    trajectory_t traj = {};
     trajectory_init(&traj);
 
     environ_t env;
@@ -358,7 +358,7 @@ TEST_CASE("numeq_mpc_solve_coarse2fine basic test") {
     config.output_trajectory = true;
 
     mpc_output_t result = {};
-    trajectory_t traj;
+    trajectory_t traj = {};
     trajectory_init(&traj);
 
     environ_t env;
@@ -427,7 +427,7 @@ static float run_mpc_test(
     config.output_trajectory = true;
 
     mpc_output_t result = {};
-    trajectory_t traj;
+    trajectory_t traj = {};
     trajectory_init(&traj);
 
     auto start = std::chrono::high_resolution_clock::now();

@@ -39,6 +39,36 @@ set(SOURCES
 # ----------------------------------------
 add_executable(${PROJECT_NAME} ${SOURCES})
 
+# ─────────────────────────────────────────────
+# 플랫폼별 설정
+# ─────────────────────────────────────────────
+if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
+    message(STATUS "${PROJECT_NAME}: Applying ASan + LSan for Linux")
+    target_compile_options(${PROJECT_NAME} PRIVATE -fsanitize=address -fsanitize=leak -g -O1)
+    target_link_options(${PROJECT_NAME} PRIVATE -fsanitize=address -fsanitize=leak)
+    set_target_properties(${PROJECT_NAME} PROPERTIES
+        BUILD_RPATH "\$ORIGIN/../lib"
+        INSTALL_RPATH "\$ORIGIN/../lib"
+    )
+    # ubuntu: 실행파일 : bin, so : lib 디렉토리에 있어야 함
+    set_target_properties(${PROJECT_NAME} PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin
+        LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib
+        ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib/${PROJECT_NAME}
+    )    
+elseif(CMAKE_SYSTEM_NAME STREQUAL "Windows")
+    message(STATUS "${PROJECT_NAME}: No ASan for Windows (unsupported).")
+
+    # Windows: exe와 dll이 항상 같은 bin 디렉토리에 있어야 함
+    set_target_properties(${PROJECT_NAME} PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin
+        LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin
+        ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib/${PROJECT_NAME}
+    )
+else()
+    message(FATAL_ERROR "⚠️ Unknown platform: ${CMAKE_SYSTEM_NAME}")
+endif()
+
 # ----------------------------------------
 # 🧭 플랫폼 확인 및 SDL2 / SDL3 자동 분기
 # ----------------------------------------
@@ -47,12 +77,6 @@ if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
     set(SDL_INCLUDE_DIRS ${SDL2_INCLUDE_DIRS})
     set(SDL_LIBRARIES ${SDL2_LIBRARIES})
 
-    # # RPATH 설정: ../lib 경로에서 .so 찾기
-    #  현재 프로젝트가 dll이면 설정하지만 실행파일에서 찾아야지
-    # set_target_properties(${PROJECT_NAME} PROPERTIES
-    #     BUILD_RPATH "\$ORIGIN/../"
-    #     INSTALL_RPATH "\$ORIGIN/../lib"        
-    # )    
 elseif(CMAKE_SYSTEM_NAME STREQUAL "Windows")
     set(SDL3_DIR "${EXTERNAL_DIR}/SDL3-3.2.18/cmake")
     find_package(SDL3 CONFIG REQUIRED)
@@ -62,10 +86,6 @@ elseif(CMAKE_SYSTEM_NAME STREQUAL "Windows")
     message(STATUS "🪟 SDL3 경로 사용: ${SDL_INCLUDE_DIRS}")
      message(STATUS "SDL_LIBRARIES : ${SDL_LIBRARIES}")
 
-    # ✅ SDL3용 매크로 정의 전역 설정은 사용하지만 꼬인다.
-    # add_compile_definitions(USE_SDL3=1)
-
-    # 해당 프로젝트만 적용한다
     target_compile_definitions(${PROJECT_NAME} PRIVATE USE_SDL3=1)
 
     set(SDL3_DLL ${EXTERNAL_DIR}/SDL3-3.2.18/x86_64-w64-mingw32/bin/SDL3.dll)
@@ -76,27 +96,7 @@ elseif(CMAKE_SYSTEM_NAME STREQUAL "Windows")
     )
     message(STATUS "🪟 SDL3.dll을 ${CMAKE_BINARY_DIR}/bin 으로 복사하도록 설정했습니다.")
 
-    # Windows: exe와 dll이 항상 같은 bin 디렉토리에 있어야 함
-    set_target_properties(${PROJECT_NAME} PROPERTIES
-        RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin
-        LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin
-        ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib/${PROJECT_NAME}
-    )
-    # 정적 링크
-    # 이유는 우분투에서 빌드해서 실행할때는 이미 모든 so가 이미 준비되어있다
-    # 우분투 자체에 이미 설치되어있다
-    # 하지만 win11용으로 빌드할때는 libstdc++.dll이 필요하다 따로 관리할수 없으니
-    # 통합해서 다른 dll이 필요없게 만들어야 한다.
-    # set(CMAKE_EXE_LINKER_FLAGS "-static-libgcc -static-libstdc++")    
-
-    # 루트 전용: 정적 링킹 플래그 전역 설정이라 다른 dll이 영향을 받는다 사용하지마.
-    # set(CMAKE_SHARED_LINKER_FLAGS
-    #     "${CMAKE_SHARED_LINKER_FLAGS} -static-libgcc -static-libstdc++")
-
-    # 정확하게 현재 프로젝트만 적용한다.
-    # set_target_properties(${PROJECT_NAME} PROPERTIES
-    #     LINK_FLAGS "-static-libstdc++ -static-libgcc"
-else()
+    else()
     message(FATAL_ERROR "⚠️ Unknown platform: ${CMAKE_SYSTEM_NAME}")
 endif()
 
@@ -141,7 +141,6 @@ endif()
 # ----------------------------------------
 target_compile_definitions(${PROJECT_NAME} PRIVATE
     BYUL_STATIC
-    # SHADER_DIR="${SHADER_DIR}"
 )
 
 # ----------------------------------------

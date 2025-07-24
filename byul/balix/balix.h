@@ -6,8 +6,15 @@
 #ifndef BALIX_H
 #define BALIX_H
 
+#include "internal/bodyprops.h"
+#include "internal/environ.h"
+#include "internal/numal.h"
+#include "internal/numeq.h"
+
+#include "internal/motion_state.h"
 #include "internal/trajectory.h"
-#include "internal/projectile.h"
+#include "internal/controller.h"
+#include "internal/xform.h"
 
 #ifdef __cplusplus
 extern "C" {

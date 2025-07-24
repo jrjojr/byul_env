@@ -8,8 +8,8 @@
 #ifndef BYUL_H
 #define BYUL_H
 
-#include "internal/common.h"
 #include "internal/navsys.h"
+#include "internal/balix.h"
 
 #ifdef __cplusplus
 extern "C" {

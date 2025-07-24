@@ -17,24 +17,34 @@ add_executable(${PROJECT_NAME}
     ${SOURCES}
 )
 
-# 컴파일·링크 옵션에 ASan 추가
-# win11과 우분투는 다르다
-if (CMAKE_SYSTEM_NAME MATCHES "Windows")
-    message(STATUS 
-    "${PROJECT_NAME} No apply ASan for Windows because error.")
+# ─────────────────────────────────────────────
+# 플랫폼별 설정
+# ─────────────────────────────────────────────
+if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
+    message(STATUS "${PROJECT_NAME}: Applying ASan + LSan for Linux")
+    target_compile_options(${PROJECT_NAME} PRIVATE -fsanitize=address -fsanitize=leak -g -O1)
+    target_link_options(${PROJECT_NAME} PRIVATE -fsanitize=address -fsanitize=leak)
+    set_target_properties(${PROJECT_NAME} PROPERTIES
+        BUILD_RPATH "\$ORIGIN/../lib"
+        INSTALL_RPATH "\$ORIGIN/../lib"
+    )
+    # ubuntu: 실행파일 : bin, so : lib 디렉토리에 있어야 함
+    set_target_properties(${PROJECT_NAME} PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin
+        LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib
+        ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib/${PROJECT_NAME}
+    )    
+elseif(CMAKE_SYSTEM_NAME STREQUAL "Windows")
+    message(STATUS "${PROJECT_NAME}: No ASan for Windows (unsupported).")
 
+    # Windows: exe와 dll이 항상 같은 bin 디렉토리에 있어야 함
+    set_target_properties(${PROJECT_NAME} PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin
+        LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin
+        ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib/${PROJECT_NAME}
+    )
 else()
-    message(STATUS "${PROJECT_NAME} Applying ASan + LSan for Unix-like")
-    target_compile_options(${PROJECT_NAME} PRIVATE
-        -fsanitize=address
-        -fsanitize=leak
-        -g
-        -O1
-    )
-    target_link_options(${PROJECT_NAME} PRIVATE
-        -fsanitize=address
-        -fsanitize=leak
-    )
+    message(FATAL_ERROR "⚠️ Unknown platform: ${CMAKE_SYSTEM_NAME}")
 endif()
 
 # 외부 include 경로 설정
@@ -63,3 +73,20 @@ target_compile_definitions(${PROJECT_NAME} PRIVATE BYUL_STATIC)
 # ------------------- CTest -------------------
 enable_testing()
 add_test(NAME ${PROJECT_NAME} COMMAND ${PROJECT_NAME})
+
+# ─────────────────────────────────────────────
+# 공통 결과물 설치
+# ─────────────────────────────────────────────
+if(WIN32)
+    install(TARGETS ${PROJECT_NAME}
+        RUNTIME DESTINATION bin
+        LIBRARY DESTINATION bin
+        ARCHIVE DESTINATION lib/${PROJECT_NAME}
+    )
+else()
+    install(TARGETS ${PROJECT_NAME}
+        RUNTIME DESTINATION bin
+        LIBRARY DESTINATION lib
+        ARCHIVE DESTINATION lib/${PROJECT_NAME}
+    )
+endif()

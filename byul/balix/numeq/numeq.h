@@ -1,7 +1,6 @@
 #ifndef NUMEQ_H
 #define NUMEQ_H
 
-#include "internal/trajectory.h"
 #include "internal/numeq_integrator.h"
 #include "internal/numeq_kalman.h"
 #include "internal/numeq_model.h"
