@@ -66,6 +66,11 @@ BYUL_API trajectory_t* trajectory_create();
  *
  * @param traj 초기화할 trajectory_t 포인터
  *
+ * @warning
+ * - 반드시 `trajectory_t traj = {};` 로 선언 후 호출해야 합니다.
+ *   (samples 포인터가 쓰레기값이면 `delete[]` 호출 시 메모리 폴트(SIGSEGV) 발생)
+ * - 가능하면 이 함수 대신 trajectory_create() 사용을 권장합니다.
+ *
  * @note 기존 samples 배열이 존재하면 삭제 후 재할당합니다.
  */
 BYUL_API void trajectory_init(trajectory_t* traj);
@@ -75,6 +80,11 @@ BYUL_API void trajectory_init(trajectory_t* traj);
  *
  * @param traj 초기화할 trajectory_t 포인터
  * @param capacity 샘플 배열의 최대 용량 (capacity > 0)
+ *
+ * @warning
+ * - 반드시 `trajectory_t traj = {};` 로 선언 후 호출해야 합니다.
+ *   (samples 포인터가 쓰레기값이면 `delete[]` 호출 시 메모리 폴트(SIGSEGV) 발생)
+ * - 가능하면 이 함수 대신 trajectory_create_full() 사용을 권장합니다.
  *
  * @note 기존 samples 배열이 존재하면 삭제 후 재할당합니다.
  */

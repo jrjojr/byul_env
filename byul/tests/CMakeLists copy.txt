@@ -24,20 +24,19 @@ function(add_module MODULE_NAME)
     set(MODULE_DIR "${CMAKE_SOURCE_DIR}/${MODULE_NAME}")
 
     if(TEST_${UPPER_NAME} AND EXISTS "${MODULE_DIR}")
-        file(GLOB_RECURSE MODULE_TESTS CONFIGURE_DEPENDS "${MODULE_DIR}/**/test_module_*.cpp")
+        file(GLOB_RECURSE MODULE_TESTS "${MODULE_DIR}/**/test_module_*.cpp")
         if(MODULE_TESTS)
-            message(STATUS "[TEST] ${MODULE_NAME}:")
+            message(STATUS "[TEST] Adding tests from ${MODULE_NAME}:")
             foreach(TEST_SRC ${MODULE_TESTS})
                 message(STATUS "   ${TEST_SRC}")
             endforeach()
             list(APPEND TEST_SOURCES ${MODULE_TESTS})
             set(TEST_SOURCES "${TEST_SOURCES}" PARENT_SCOPE)
         else()
-            message(STATUS "[TEST] ${MODULE_NAME}: No test_module_*.cpp found")
+            message(STATUS "[TEST] No test_module_*.cpp found in ${MODULE_NAME}")
         endif()
 
-        file(GLOB_RECURSE MODULE_HEADERS CONFIGURE_DEPENDS
-            "${MODULE_DIR}/**/*.h" "${MODULE_DIR}/**/*.hpp")
+        file(GLOB_RECURSE MODULE_HEADERS "${MODULE_DIR}/**/*.h" "${MODULE_DIR}/**/*.hpp")
         foreach(HDR ${MODULE_HEADERS})
             get_filename_component(HDR_DIR ${HDR} DIRECTORY)
             list(APPEND TEST_INC_DIRS ${HDR_DIR})
@@ -62,7 +61,7 @@ target_link_libraries(${PROJECT_NAME} PRIVATE byul)
 
 # 외부 include 경로 설정
 set(EXTERNAL_DIR ${CMAKE_SOURCE_DIR}/../external)
-message(STATUS "${PROJECT_NAME}: EXTERNAL_DIR = ${EXTERNAL_DIR}")
+message(STATUS "${PROJECT_NAME} : EXTERNAL_DIR = ${EXTERNAL_DIR}")
 
 target_include_directories(${PROJECT_NAME} PRIVATE
     ${CMAKE_SOURCE_DIR}
@@ -75,41 +74,24 @@ target_include_directories(${PROJECT_NAME} PRIVATE
 # 플랫폼별 설정
 # ─────────────────────────────────────────────
 if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
-    message(STATUS "${PROJECT_NAME}: Applying ASan + LSan for Linux")
+    # Linux: ASan/LSan 적용
+    message(STATUS "${PROJECT_NAME} Applying ASan + LSan for Linux")
     target_compile_options(${PROJECT_NAME} PRIVATE -fsanitize=address -fsanitize=leak -g -O1)
     target_link_options(${PROJECT_NAME} PRIVATE -fsanitize=address -fsanitize=leak)
+
+    # RPATH 설정: ../lib 경로에서 .so 찾기
+    message("ORIGIN : \$ORIGIN" )
+    message("ORIGIN : $ORIGIN" )
     set_target_properties(${PROJECT_NAME} PROPERTIES
         BUILD_RPATH "\$ORIGIN/../"
         INSTALL_RPATH "\$ORIGIN/../lib"
     )
-elseif(CMAKE_SYSTEM_NAME STREQUAL "Windows")
-    message(STATUS "${PROJECT_NAME}: No ASan for Windows (unsupported).")
 
-    # Windows: exe와 dll이 항상 같은 bin 디렉토리에 있어야 함
-    set_target_properties(${PROJECT_NAME} PROPERTIES
-        RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin
-        LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin
-        ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib/${PROJECT_NAME}
-    )
+elseif(CMAKE_SYSTEM_NAME STREQUAL "Windows")
+    message(STATUS "${PROJECT_NAME} No ASan for Windows (unsupported).")
+
 else()
     message(FATAL_ERROR "⚠️ Unknown platform: ${CMAKE_SYSTEM_NAME}")
-endif()
-
-# ─────────────────────────────────────────────
-# 공통 결과물 설치
-# ─────────────────────────────────────────────
-if(WIN32)
-    install(TARGETS ${PROJECT_NAME}
-        RUNTIME DESTINATION bin
-        LIBRARY DESTINATION bin
-        ARCHIVE DESTINATION lib/${PROJECT_NAME}
-    )
-else()
-    install(TARGETS ${PROJECT_NAME}
-        RUNTIME DESTINATION bin
-        LIBRARY DESTINATION lib
-        ARCHIVE DESTINATION lib/${PROJECT_NAME}
-    )
 endif()
 
 # ─────────────────────────────────────────────
@@ -117,6 +99,15 @@ endif()
 # ─────────────────────────────────────────────
 enable_testing()
 add_test(NAME ${PROJECT_NAME} COMMAND ${PROJECT_NAME})
+
+# ─────────────────────────────────────────────
+# 결과물 설치
+# ─────────────────────────────────────────────
+install(TARGETS ${PROJECT_NAME}
+    RUNTIME DESTINATION bin
+    LIBRARY DESTINATION lib
+    ARCHIVE DESTINATION lib
+)
 
 # ─────────────────────────────────────────────
 # 디버그 메시지

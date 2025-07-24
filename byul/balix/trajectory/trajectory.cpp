@@ -31,7 +31,7 @@ void trajectory_free(trajectory_t* traj){
 void trajectory_init(trajectory_t* traj) {
     if (!traj) return;
     // 기존 메모리 해제
-    if (traj->samples) {
+    if (traj->samples && traj->capacity > 0) {
         delete[] traj->samples;
     }
     traj->capacity = 100;  // 기본 용량

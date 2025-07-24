@@ -141,6 +141,13 @@ elseif (WIN32)
         set(MINGW_PTHREAD_DLL "C:/msys64/mingw64/bin/libwinpthread-1.dll")
     endif()
 
+    # Windows: exe와 dll이 항상 같은 bin 디렉토리에 있어야 함
+    set_target_properties(${PROJECT_NAME} PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin
+        LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin
+        ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib/${PROJECT_NAME}
+    )    
+
 elseif (CMAKE_SYSTEM_NAME STREQUAL "Linux")
     # Ubuntu 네이티브 빌드
     set(HOME_DIR "$ENV{HOME}")
@@ -169,19 +176,19 @@ if (DEFINED MINGW_DLL_PATH)
     add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy_if_different
             "${MINGW_DLL_PATH}/libstdc++-6.dll"
-            "${CMAKE_BINARY_DIR}/libstdc++-6.dll"
+            "${CMAKE_BINARY_DIR}/bin/libstdc++-6.dll"
         COMMAND ${CMAKE_COMMAND} -E copy_if_different
             "${MINGW_DLL_PATH}/libgcc_s_seh-1.dll"
-            "${CMAKE_BINARY_DIR}/libgcc_s_seh-1.dll"
+            "${CMAKE_BINARY_DIR}/bin/libgcc_s_seh-1.dll"
         COMMAND ${CMAKE_COMMAND} -E copy_if_different
             "${MINGW_PTHREAD_DLL}"
-            "${CMAKE_BINARY_DIR}/libwinpthread-1.dll"
+            "${CMAKE_BINARY_DIR}/bin/libwinpthread-1.dll"
     )
 
     set(MANDATORY_DLL
-        ${CMAKE_BINARY_DIR}/libstdc++-6.dll
-        ${CMAKE_BINARY_DIR}/libgcc_s_seh-1.dll
-        ${CMAKE_BINARY_DIR}/libwinpthread-1.dll
+        ${CMAKE_BINARY_DIR}/bin/libstdc++-6.dll
+        ${CMAKE_BINARY_DIR}/bin/libgcc_s_seh-1.dll
+        ${CMAKE_BINARY_DIR}/bin/libwinpthread-1.dll
     )
     install(FILES ${MANDATORY_DLL} DESTINATION bin)
 endif()
@@ -189,11 +196,22 @@ endif()
 set(CMAKE_INSTALL_PREFIX "${HOME_DIR}/${PROJECT_NAME}" 
     CACHE PATH "Install path" FORCE)
 
-    message("CMAKE_INSTALL_PREFIX : ${CMAKE_INSTALL_PREFIX}")
-install(TARGETS ${PROJECT_NAME}
-    LIBRARY DESTINATION lib
-    ARCHIVE DESTINATION lib
-    RUNTIME DESTINATION bin)
+# ─────────────────────────────────────────────
+# 공통 결과물 설치
+# ─────────────────────────────────────────────
+if(WIN32)
+    install(TARGETS ${PROJECT_NAME}
+        RUNTIME DESTINATION bin
+        LIBRARY DESTINATION bin
+        ARCHIVE DESTINATION lib/${PROJECT_NAME}
+    )
+else()
+    install(TARGETS ${PROJECT_NAME}
+        RUNTIME DESTINATION bin
+        LIBRARY DESTINATION lib
+        ARCHIVE DESTINATION lib/${PROJECT_NAME}
+    )
+endif()
 
 install(DIRECTORY ${BYUL_INCLUDE_DIR}/
     DESTINATION include)
@@ -209,29 +227,60 @@ add_custom_target(uninstall
     COMMAND ${CMAKE_COMMAND} -P ${CMAKE_BINARY_DIR}/cmake_uninstall.cmake)
 
 # ─────────────────────────────────────────────
-# ZIP 패키징
+# ZIP 패키징 설정
 # ─────────────────────────────────────────────
 set(PACKAGE_DIR "${CMAKE_BINARY_DIR}/package_tmp")
 
-# zip_inner 변수를 set()으로 설정
-set(zip_inner "${PACKAGE_DIR}/${CMAKE_INSTALL_PREFIX}/../")
+message(STATUS "PACKAGE_DIR : ${PACKAGE_DIR}")
+message(STATUS "CMAKE_INSTALL_PREFIX : ${CMAKE_INSTALL_PREFIX}")
 
-add_custom_target(package_zip
-    COMMAND ${CMAKE_COMMAND} -E echo "Packaging ${PROJECT_NAME}..."
-    COMMAND ${CMAKE_COMMAND} -E rm -rf ${PACKAGE_DIR}
-    COMMAND ${CMAKE_COMMAND} -E make_directory ${PACKAGE_DIR}
+# ZIP 명령어 찾기
+find_program(ZIP_EXECUTABLE zip)
+if(NOT ZIP_EXECUTABLE)
+    message(FATAL_ERROR "zip 명령을 찾을 수 없습니다. \n  MSYS2/MinGW 환경에서 'pacman -S zip'으로 설치해주세요.")
+endif()
 
-    # DESTDIR를 이용해 임시 설치
-    COMMAND ${CMAKE_COMMAND} -E env DESTDIR=${PACKAGE_DIR}
+set(INSTALL_PREFIX "${CMAKE_INSTALL_PREFIX}")
+
+# 드라이브 문자 제거 (예: C:/Users/critl/byul → Users/critl/byul)
+string(REGEX REPLACE "^[A-Za-z]:/" "" INSTALL_PREFIX_NO_DRIVE "${INSTALL_PREFIX}")
+
+message(STATUS "CMAKE_INSTALL_PREFIX(드라이브 제거): ${INSTALL_PREFIX_NO_DRIVE}")
+
+message(STATUS "package_tmp/INSTALL_PREFIX_NO_DRIVE : package_tmp/${INSTALL_PREFIX_NO_DRIVE}")
+set (ZIP_INNER "${INSTALL_PREFIX_NO_DRIVE}")
+message(STATUS "ZIP_INNER : ${ZIP_INNER}")
+
+# ─────────────────────────────────────────────
+# package_tmp 삭제
+# ─────────────────────────────────────────────
+add_custom_target(package_clean
+    COMMAND ${CMAKE_COMMAND} -E echo "[CLEAN] Removing ${PACKAGE_DIR}..."
+    COMMAND ${CMAKE_COMMAND} -E remove_directory "${PACKAGE_DIR}"
+    COMMENT "[CLEAN] package_tmp deleted"
+)
+
+# ─────────────────────────────────────────────
+# 설치 단계 (CMake Install)
+# ─────────────────────────────────────────────
+add_custom_target(package_install
+    COMMAND ${CMAKE_COMMAND} -E echo "[INSTALL] Creating ${PACKAGE_DIR}..."
+    COMMAND ${CMAKE_COMMAND} -E make_directory "${PACKAGE_DIR}"
+    COMMAND ${CMAKE_COMMAND} -E env DESTDIR="${PACKAGE_DIR}"
         ${CMAKE_COMMAND} -P ${CMAKE_BINARY_DIR}/cmake_install.cmake
+    DEPENDS package_clean
+    COMMENT "[INSTALL] package_tmp created and files installed"
+)
 
-    # 압축 (byul 디렉토리를 포함)
-    COMMAND ${CMAKE_COMMAND} -E chdir ${zip_inner}
-            ${CMAKE_COMMAND} -E tar "cfv"
-            "${CMAKE_BINARY_DIR}/${PROJECT_NAME}.zip"
-            --format=zip
-            .
-
-    COMMAND ${CMAKE_COMMAND} -E rm -rf ${PACKAGE_DIR}
-    COMMENT "Installed to ${PACKAGE_DIR} and packaged into ${PROJECT_NAME}.zip"
+# ─────────────────────────────────────────────
+# ZIP 생성 단계
+# ─────────────────────────────────────────────
+add_custom_target(package_zip
+    COMMAND ${CMAKE_COMMAND} -E echo "[ZIP] Removing old zip file..."
+    COMMAND ${CMAKE_COMMAND} -E remove -f "${CMAKE_BINARY_DIR}/${PROJECT_NAME}.zip"
+    COMMAND ${CMAKE_COMMAND} -E echo "[ZIP] Compressing byul/bin folder..."
+    COMMAND ${ZIP_EXECUTABLE} -r "${CMAKE_BINARY_DIR}/${PROJECT_NAME}.zip" .
+        WORKING_DIRECTORY "${PACKAGE_DIR}/${ZIP_INNER}/../"
+    DEPENDS package_install
+    COMMENT "[ZIP] ${PROJECT_NAME}.zip created"
 )

@@ -1,101 +1,136 @@
 {
-  "version": 3,
-  "cmakeMinimumRequired": {
-    "major": 3,
-    "minor": 19,
-    "patch": 0
-  },
-  "configurePresets": [
-    {
-      "name": "linux-debug",
-      "displayName": "Ubuntu Debug Build",
-      "description": "로컬 Ubuntu에서 디버그용 빌드",
-      "generator": "Unix Makefiles",
-      "binaryDir": "${sourceDir}/../build_debug",
-      "cacheVariables": {
-        "CMAKE_BUILD_TYPE": "Debug"
-      }
+    "version": 3,
+    "cmakeMinimumRequired": {
+        "major": 3,
+        "minor": 19,
+        "patch": 0
     },
-    {
-      "name": "linux-release",
-      "displayName": "Ubuntu Release Build",
-      "description": "로컬 Ubuntu에서 릴리즈용 빌드",
-      "generator": "Unix Makefiles",
-      "binaryDir": "${sourceDir}/../build_release",
-      "cacheVariables": {
-        "CMAKE_BUILD_TYPE": "Release"
-      }
-    },
-    {
-      "name": "win-release",
-      "displayName": "Windows 11 (MinGW64 Cross)",
-      "description": "Windows DLL 빌드용 크로스 컴파일 Preset",
-      "generator": "Unix Makefiles",
-      "binaryDir": "${sourceDir}/../build_win_release",
-      "cacheVariables": {
-        "CMAKE_BUILD_TYPE": "Release",
-        "CMAKE_TOOLCHAIN_FILE": "${sourceDir}/cmake/toolchain-mingw64.cmake"
-      }
-    },
-    {
-      "name": "win_sdl_release",
-      "displayName": "Windows 11 (MinGW64 Cross) - SDL 실행파일",
-      "description": "SDL 실행파일 (EXE)용 Windows 크로스 컴파일 Preset",
-      "generator": "Unix Makefiles",
-      "binaryDir": "${sourceDir}/../build_win_sdl_release",
-      "cacheVariables": {
-        "CMAKE_BUILD_TYPE": "Release",
-        "CMAKE_TOOLCHAIN_FILE": "${sourceDir}/cmake/toolchain-mingw64.cmake",
-        "CMAKE_PREFIX_PATH": "${sourceDir}/../external/SDL3-3.2.18/cmake",
-        "BUILD_SDL_EXECUTABLE": "ON"
-      }
-    },
-    {
-      "name": "win-native",
-      "displayName": "Windows 11 (MSYS2 MinGW Native)",
-      "generator": "MinGW Makefiles",
-      "binaryDir": "${sourceDir}/../build_win_native",
-      "cacheVariables": {
-        "CMAKE_BUILD_TYPE": "Release"
-      }
-    }
-  ],
-  "buildPresets": [
-    {
-      "name": "build-linux-debug",
-      "configurePreset": "linux-debug",
-      "description": "로컬 Ubuntu Debug 빌드",
-      "jobs": 8,
-      "targets": ["all", "package_zip"]
-    },
-    {
-      "name": "build-linux-release",
-      "configurePreset": "linux-release",
-      "description": "로컬 Ubuntu Release 빌드",
-      "jobs": 8,
-      "targets": ["all", "package_zip"]
-    },
-    {
-      "name": "build-win-release",
-      "configurePreset": "win-release",
-      "description": "Windows용 DLL 빌드 preset",
-      "jobs": 8,
-      "targets": ["all", "package_zip"]
-    },
-    {
-      "name": "build-win_sdl_release",
-      "configurePreset": "win_sdl_release",
-      "description": "Windows SDL 실행파일 빌드 (MinGW64)",
-      "jobs": 8,
-      "targets": ["all", "package_zip"]
-    },
-    {
-      "name": "build-win-native",
-      "configurePreset": "win-native",
-      "description": "Windows native 용 DLL 빌드 preset",
-      "jobs": 8,
-      "targets": ["all", "package_zip"]      
-    }
-  ],
-  "testPresets": []
+    "configurePresets": [
+        {
+            "name": "linux-debug",
+            "displayName": "Ubuntu Debug Build",
+            "description": "로컬 Ubuntu에서 디버그용 빌드",
+            "generator": "Unix Makefiles",
+            "binaryDir": "${sourceDir}/../build_debug",
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Debug"
+            }
+        },
+        {
+            "name": "linux-release",
+            "displayName": "Ubuntu Release Build",
+            "description": "로컬 Ubuntu에서 릴리즈용 빌드",
+            "generator": "Unix Makefiles",
+            "binaryDir": "${sourceDir}/../build_release",
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Release"
+            }
+        },
+        {
+            "name": "win-release",
+            "displayName": "Windows 11 (MinGW64 Cross)",
+            "description": "Windows DLL 빌드용 크로스 컴파일 Preset",
+            "generator": "Unix Makefiles",
+            "binaryDir": "${sourceDir}/../build_win_release",
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Release",
+                "CMAKE_TOOLCHAIN_FILE": "${sourceDir}/cmake/toolchain-mingw64.cmake"
+            }
+        },
+        {
+            "name": "win_sdl_release",
+            "displayName": "Windows 11 (MinGW64 Cross) - SDL 실행파일",
+            "description": "SDL 실행파일 (EXE)용 Windows 크로스 컴파일 Preset",
+            "generator": "Unix Makefiles",
+            "binaryDir": "${sourceDir}/../build_win_sdl_release",
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Release",
+                "CMAKE_TOOLCHAIN_FILE": "${sourceDir}/cmake/toolchain-mingw64.cmake",
+                "CMAKE_PREFIX_PATH": "${sourceDir}/../external/SDL3-3.2.18/cmake",
+                "BUILD_SDL_EXECUTABLE": "ON"
+            }
+        },
+        {
+            "name": "win-native",
+            "displayName": "Windows 11 (MSYS2 MinGW Native)",
+            "generator": "MinGW Makefiles",
+            "binaryDir": "${sourceDir}/../build_win_native",
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Release"
+            }
+        },
+        {
+            "name": "win-native-debug",
+            "displayName": "Windows 11 (MSYS2 MinGW Native - Debug)",
+            "description": "Windows 11에서 MinGW Native Debug 빌드",
+            "generator": "MinGW Makefiles",
+            "binaryDir": "${sourceDir}/../build_win_native_debug",
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Debug"
+            }
+        }
+    ],
+    "buildPresets": [
+        {
+            "name": "build-linux-debug",
+            "configurePreset": "linux-debug",
+            "description": "로컬 Ubuntu Debug 빌드",
+            "jobs": 8,
+            "targets": [
+                "all",
+                "package_zip"
+            ]
+        },
+        {
+            "name": "build-linux-release",
+            "configurePreset": "linux-release",
+            "description": "로컬 Ubuntu Release 빌드",
+            "jobs": 8,
+            "targets": [
+                "all",
+                "package_zip"
+            ]
+        },
+        {
+            "name": "build-win-release",
+            "configurePreset": "win-release",
+            "description": "Windows용 DLL 빌드 preset",
+            "jobs": 8,
+            "targets": [
+                "all",
+                "package_zip"
+            ]
+        },
+        {
+            "name": "build-win_sdl_release",
+            "configurePreset": "win_sdl_release",
+            "description": "Windows SDL 실행파일 빌드 (MinGW64)",
+            "jobs": 8,
+            "targets": [
+                "all",
+                "package_zip"
+            ]
+        },
+        {
+            "name": "build-win-native",
+            "configurePreset": "win-native",
+            "description": "Windows native 용 DLL 빌드 preset",
+            "jobs": 8,
+            "targets": [
+                "all",
+                "package_zip"
+            ]
+        },
+        {
+            "name": "build-win-native-debug",
+            "configurePreset": "win-native-debug",
+            "description": "Windows native Debug 빌드 preset",
+            "jobs": 8,
+            "targets": [
+                "all",
+                "package_zip"
+            ]
+        }
+    ],
+    "testPresets": []
 }

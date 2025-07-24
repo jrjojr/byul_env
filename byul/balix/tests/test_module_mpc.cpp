@@ -107,7 +107,7 @@ TEST_CASE("numeq_mpc_solve basic test") {
     config.output_trajectory = true;
 
     mpc_output_t result = {};
-    trajectory_t traj;
+    trajectory_t traj = {};
     trajectory_init(&traj); // trajectory 초기화
 
     bool ok = numeq_mpc_solve(

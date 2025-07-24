@@ -7,7 +7,7 @@ extern "C" {
 }
 
 TEST_CASE("dualnumber 기본 연산 테스트") {
-    MESSAGE("");
+    // MESSAGE("");
 // MESSAGE(
 //     "\n💡 dualnumber는 자동 미분의 핵심 도구입니다.\n"
 //     "   형태는 a + bε 이며, ε^2 = 0 인 특수한 기호로, 무한소를 나타냅니다.\n"

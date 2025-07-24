@@ -18,9 +18,10 @@ int main(int argc, char** argv) {
     context.applyCommandLine(argc, argv);
 
     // --- 기본 옵션 강제 설정 ---
-    context.setOption("success", true);      // 성공한 테스트도 모두 출력
-    context.setOption("no-skip", true);      // 스킵된 테스트도 출력
-    context.setOption("reporters", "console");
+    // context.setOption("success", true);      // 성공한 테스트도 모두 출력
+    // context.setOption("no-skip", true);      // 스킵된 테스트도 출력
+    // context.setOption("reporters", "console");
+    // context.setOption("no-colors", true);
     // context.setOption("durations", true);  // 각 테스트 실행 시간 출력 (원하면 활성화)
 
     int res = context.run();

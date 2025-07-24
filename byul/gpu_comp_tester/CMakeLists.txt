@@ -34,7 +34,6 @@ set(SOURCES
     ${EXTERNAL_DIR}/glad/src/gl.c
 )
 
-
 # ----------------------------------------
 # 🔧 바이너리 생성
 # ----------------------------------------
@@ -55,7 +54,9 @@ if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
     #     INSTALL_RPATH "\$ORIGIN/../lib"        
     # )    
 elseif(CMAKE_SYSTEM_NAME STREQUAL "Windows")
+    set(SDL3_DIR "${EXTERNAL_DIR}/SDL3-3.2.18/cmake")
     find_package(SDL3 CONFIG REQUIRED)
+
     set(SDL_INCLUDE_DIRS ${EXTERNAL_DIR}/SDL3-3.2.18/x86_64-w64-mingw32/include)
     set(SDL_LIBRARIES ${EXTERNAL_DIR}/SDL3-3.2.18/x86_64-w64-mingw32/bin/SDL3.dll)
     message(STATUS "🪟 SDL3 경로 사용: ${SDL_INCLUDE_DIRS}")
@@ -67,7 +68,20 @@ elseif(CMAKE_SYSTEM_NAME STREQUAL "Windows")
     # 해당 프로젝트만 적용한다
     target_compile_definitions(${PROJECT_NAME} PRIVATE USE_SDL3=1)
 
+    set(SDL3_DLL ${EXTERNAL_DIR}/SDL3-3.2.18/x86_64-w64-mingw32/bin/SDL3.dll)
+    add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different
+        "${SDL3_DLL}"
+        $<TARGET_FILE_DIR:${PROJECT_NAME}>
+    )
+    message(STATUS "🪟 SDL3.dll을 ${CMAKE_BINARY_DIR}/bin 으로 복사하도록 설정했습니다.")
 
+    # Windows: exe와 dll이 항상 같은 bin 디렉토리에 있어야 함
+    set_target_properties(${PROJECT_NAME} PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin
+        LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin
+        ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib/${PROJECT_NAME}
+    )
     # 정적 링크
     # 이유는 우분투에서 빌드해서 실행할때는 이미 모든 so가 이미 준비되어있다
     # 우분투 자체에 이미 설치되어있다
@@ -139,14 +153,22 @@ set(GPU_SHADER_FILES
     ${CMAKE_CURRENT_SOURCE_DIR}/shader.frag
 )
 
-# ----------------------------------------
-# 📦 설치 설정
-# ----------------------------------------
-install(TARGETS ${PROJECT_NAME}
-    RUNTIME DESTINATION bin
-    LIBRARY DESTINATION lib
-    ARCHIVE DESTINATION lib/${PROJECT_NAME}
-)
+# ─────────────────────────────────────────────
+# 공통 결과물 설치
+# ─────────────────────────────────────────────
+if(WIN32)
+    install(TARGETS ${PROJECT_NAME}
+        RUNTIME DESTINATION bin
+        LIBRARY DESTINATION bin
+        ARCHIVE DESTINATION lib/${PROJECT_NAME}
+    )
+else()
+    install(TARGETS ${PROJECT_NAME}
+        RUNTIME DESTINATION bin
+        LIBRARY DESTINATION lib
+        ARCHIVE DESTINATION lib/${PROJECT_NAME}
+    )
+endif()
 
 install(FILES ${GPU_SHADER_FILES}
     DESTINATION glsl
