@@ -76,7 +76,7 @@ ctest
     route_finder_set_start(rf, &start);
     route_finder_set_goal(rf, &goal);
 
-    // 장애물 삽입 (세로 차단)
+    // Obstacle insertion (vertical barrier)
     for (int y = 1; y < 10; ++y)
         navgrid_block_coord(m, 5, y);
 
