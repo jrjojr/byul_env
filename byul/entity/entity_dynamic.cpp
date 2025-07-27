@@ -93,7 +93,7 @@ void entity_dynamic_calc_accel_env(
     state0.velocity = curr->velocity;
     state0.acceleration = accel;
 
-    numeq_model_accel_at(0.0f, &state0, env, &curr->props, out_accel);
+    numeq_model_accel_at(dt, &state0, env, &curr->props, out_accel);
 }
 
 void entity_dynamic_calc_drag_accel(

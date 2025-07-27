@@ -159,9 +159,6 @@ void numeq_model_accel_at(
 
     // 항력 및 환경 가속도
     numeq_model_accel_internal(&vel, env, body, out_accel);
-
-    // state0의 자체 가속도 추가
-    vec3_add(out_accel, out_accel, &state0->acceleration);
 }
 
 // ---------------------------------------------------------
@@ -182,8 +179,8 @@ void numeq_model_vel_at(
     vec3_t vel = state0->velocity;
     bodyprops_apply_friction(&vel, body, t);    // 마찰 적용
 
-    *out_velocity = vel;
-    vec3_madd(out_velocity, out_velocity, &a0, t);
+    Vec3 v0(vel);
+    *out_velocity = v0 + Vec3(a0) * t;
 }
 
 // ---------------------------------------------------------

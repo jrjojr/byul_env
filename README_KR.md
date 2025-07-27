@@ -94,16 +94,47 @@ ctest
 
 ### 발사체 궤적 예측 (RK4)
 ```c
-linear_state_t projectile = { {0,0,0}, {10,10,0}, {0,0,0} };
-environ_t env = environ_default();
-bodyprops_t body = bodyprops_default();
+TEST_CASE("projectile_predict - ground collision") {
+    MESSAGE("\nprojectile_predict - ground collision");
+    vec3_t start_pos = {0, 500, 0};
+    vec3_t target_pos = {0, 0, 0};
+    projectile_t proj;
+    projectile_init(&proj);
+    proj.base.xf.pos = start_pos;
 
-linear_state_t predicted;
-numeq_model_calc_rk4(1.0f, &projectile, &env, &body, 60, &predicted);
+    entity_dynamic_t entdyn;
+    entity_dynamic_init(&entdyn);
+    entdyn.xf.pos = target_pos;
 
-printf("Predicted position: %.2f, %.2f, %.2f\n",
-       predicted.position.x, predicted.position.y, predicted.position.z);
+    projectile_result_t* result = projectile_result_create();
+
+    environ_t env;
+    environ_init(&env);
+
+    bool hit = projectile_predict(
+        result,          // [out] 발사체 궤적 및 충돌 정보 저장 (projectile_result_t*)
+        &proj,           // [in]  발사체 정보 (초기 위치, 속도, 물리 특성)
+        &entdyn,         // [in]  타겟 엔티티 (충돌 판정 대상)
+        500.0f,          // [in]  max_time: 예측 최대 시간 (초)
+        1.0f,            // [in]  time_step: 시뮬레이션 샘플링 간격 (초)
+        &env,            // [in]  환경 정보 (중력, 바람 등)
+        nullptr,         // [in]  추진기 (없으면 null)
+        guidance_none    // [in]  유도 함수 포인터 (없으면 guidance_none)
+    );
+
+    CHECK(hit == true);
+    CHECK(result->valid == true);
+    CHECK(result->impact_time > 0.0f);
+    CHECK(result->impact_pos.y == doctest::Approx(0.0f).epsilon(1.0f));
+
+    trajectory_print(result->trajectory);
+    char buf[64];
+    printf("impact time : %f, impact pos : %s\n", result->impact_time, 
+        vec3_to_string(&result->impact_pos, buf, 64));    
+    projectile_result_destroy(result);
+}
 ```
+
 
 ## 📘 용어 설명 – 왜 `path`가 아닌 `route`인가?
 
