@@ -112,14 +112,14 @@ TEST_CASE("projectile_predict - ground collision") {
     environ_init(&env);
 
     bool hit = projectile_predict(
-        result,          // [out] 발사체 궤적 및 충돌 정보 저장 (projectile_result_t*)
-        &proj,           // [in]  발사체 엔티티
-        &entdyn,         // [in]  타겟 엔티티 (충돌 판정 대상)
-        500.0f,          // [in]  max_time: 예측 최대 시간 (초)
-        1.0f,            // [in]  time_step: 시뮬레이션 샘플링 간격 (초)
-        &env,            // [in]  환경 정보 (중력, 바람 등)
-        nullptr,         // [in]  추진기 (없으면 null)
-        guidance_none    // [in]  유도 함수 포인터 (없으면 guidance_none)
+        result,          // [out] Stores the predicted trajectory and impact information
+        &proj,           // [in]  Projectile entity
+        &entdyn,         // [in]  Target entity (collision check target)
+        500.0f,          // [in]  max_time: Maximum prediction time (seconds)
+        1.0f,            // [in]  time_step: Simulation sampling interval (seconds)
+        &env,            // [in]  Environment data (gravity, wind, etc.)
+        nullptr,         // [in]  Propulsion system (null if none)
+        guidance_none    // [in]  Guidance function pointer (guidance_none or nullptr)
     );
 
     CHECK(hit == true);
