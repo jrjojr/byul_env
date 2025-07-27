@@ -50,7 +50,7 @@ TEST_CASE("projectile_predict - ground collision") {
 
     bool hit = projectile_predict(
         result,          // [out] 발사체 궤적 및 충돌 정보 저장 (projectile_result_t*)
-        &proj,           // [in]  발사체 정보 (초기 위치, 속도, 물리 특성)
+        &proj,           // [in]  발사체 엔티티
         &entdyn,         // [in]  타겟 엔티티 (충돌 판정 대상)
         500.0f,          // [in]  max_time: 예측 최대 시간 (초)
         1.0f,            // [in]  time_step: 시뮬레이션 샘플링 간격 (초)
