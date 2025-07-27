@@ -53,6 +53,7 @@ add_module(console)
 add_module(navsys)
 add_module(balix)
 add_module(entity)
+add_module(projectile)
 
 # ─────────────────────────────────────────────
 # 테스트 실행 파일 생성

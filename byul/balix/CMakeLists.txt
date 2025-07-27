@@ -44,7 +44,8 @@ set(SOURCES
 
     numeq/numeq_integrator.cpp
 
-    numeq/numeq_kalman.cpp
+    numeq/filters/numeq_filters.cpp
+    numeq/filters/numeq_kalman.cpp
 
     numeq/numeq_model.cpp
 

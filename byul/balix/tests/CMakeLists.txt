@@ -10,7 +10,6 @@ set(CMAKE_CXX_STANDARD 17)
 set(SOURCES
     main.cpp
 
-
     test_module_dualnumber.cpp
     test_module_quat.cpp
     test_module_dualquat.cpp

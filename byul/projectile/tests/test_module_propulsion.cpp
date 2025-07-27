@@ -1,5 +1,5 @@
 #include <doctest.h>
-#include "internal/projectile_propulsion.h"
+#include "internal/propulsion.h"
 #include "internal/controller.h"
 #include <cstdio>
 #include <cstring>
@@ -18,7 +18,7 @@ TEST_CASE("propulsion basic init test") {
     CHECK(p.fuel_remaining == doctest::Approx(50.0f));
     CHECK(p.burn_rate == doctest::Approx(0.05));
     CHECK(p.controller == nullptr);
-    CHECK_FALSE(p.active);
+    CHECK(p.active);
 }
 
 // ---------------------------------------------------------

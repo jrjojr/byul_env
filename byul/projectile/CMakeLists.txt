@@ -14,8 +14,9 @@ message(STATUS "${PROJECT_NAME} : EXTERNAL_DIR = ${EXTERNAL_DIR}")
 # 소스 파일 설정
 set(SOURCES
     ${PROJECT_NAME}.cpp
-    projectile_propulsion.cpp
-    projectile_guidance.cpp
+    projectile_common.cpp
+    propulsion.cpp
+    guidance.cpp
     projectile_predict.cpp
 )
 

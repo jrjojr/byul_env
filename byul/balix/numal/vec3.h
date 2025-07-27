@@ -43,6 +43,35 @@ BYUL_API void vec3_assign(vec3_t* out, const vec3_t* src);
  */
 BYUL_API bool vec3_equal(const vec3_t* a, const vec3_t* b);
 
+/* ---------------------------------------------------------
+// vec3_equal_tol
+// ---------------------------------------------------------
+/**
+ * @brief vec3의 각 성분을 동일한 공차(tolerance)로 비교합니다.
+ *
+ * @param a   첫 번째 벡터
+ * @param b   두 번째 벡터
+ * @param tol 허용 오차 (모든 x,y,z에 동일하게 적용)
+ * @return 모든 성분 차이가 tol 이하이면 true
+ */
+BYUL_API bool vec3_equal_tol(const vec3_t* a, const vec3_t* b, float tol);
+
+// ---------------------------------------------------------
+// vec3_equal_tol_all
+// ---------------------------------------------------------
+/**
+ * @brief vec3의 각 성분을 양수/음수 방향의 개별 공차로 비교합니다.
+ *
+ * @param a        첫 번째 벡터
+ * @param b        두 번째 벡터
+ * @param tol_pos  양수 방향 공차 (b >= a일 때 허용 오차)
+ * @param tol_neg  음수 방향 공차 (b < a일 때 허용 오차)
+ * @return 모든 성분 차이가 개별 공차 내이면 true
+ */
+BYUL_API bool vec3_equal_tol_all(
+    const vec3_t* a, const vec3_t* b,
+    float tol_pos, float tol_neg);
+
 /**
  * @brief vec3의 해시값을 계산합니다.
  * 
@@ -63,7 +92,26 @@ BYUL_API void vec3_sub(vec3_t* out, const vec3_t* a, const vec3_t* b);
 
 BYUL_API void vec3_mul(vec3_t* out, const vec3_t* a, const vec3_t* b);
 
+/**
+ * @brief 벡터를 벡터로 나눕니다. (요소별 나눗셈)
+ *
+ * 각 요소별로 a / b 연산을 수행하며,  
+ * b의 요소가 0.0f 또는 FLOAT_EPSILON 이하일 경우 해당 요소는 INFINITY를 반환합니다.
+ *
+ * @param[out] out 결과 벡터
+ * @param[in]  a   입력 벡터
+ * @param[in]  b   나눌 벡터
+ */
 BYUL_API void vec3_div(vec3_t* out, const vec3_t* a, const vec3_t* b);
+
+/**
+ * @brief 벡터를 스칼라로 나눕니다.
+ *
+ * @param[out] out   결과 벡터
+ * @param[in]  a     입력 벡터
+ * @param[in]  scalar 나눌 값 (0.0f 또는 FLOAT_EPSILON 이하일 경우 INFINITY)
+ */
+BYUL_API void vec3_div_scalar(vec3_t* out, const vec3_t* a, float scalar);
 
 BYUL_API void vec3_scale(vec3_t* out, const vec3_t* a, float scalar);
 
@@ -146,6 +194,27 @@ BYUL_API void vec3_isub(vec3_t* io, const vec3_t* other);
  */
 BYUL_API void vec3_iscale(vec3_t* io, float scalar);
 
+/**
+ * @brief out = a + b * scalar
+ *
+ * @param out 결과 벡터
+ * @param a   기준 벡터
+ * @param b   추가할 벡터
+ * @param scalar 스칼라 값
+ */
+BYUL_API void vec3_madd(vec3_t* out, const vec3_t* a, const vec3_t* b, float scalar);
+
+/**
+ * @brief 등가속도 운동 공식으로 위치 예측 (p + v*t + 0.5*a*t²)
+ *
+ * @param out 결과 벡터 (출력)
+ * @param p   초기 위치
+ * @param v   속도 벡터
+ * @param a   가속도 벡터
+ * @param t   시간 (초 단위)
+ */
+BYUL_API void vec3_project(vec3_t* out, const vec3_t* p,
+                           const vec3_t* v, const vec3_t* a, float t);
 
 #ifdef __cplusplus
 }

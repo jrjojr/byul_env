@@ -43,11 +43,12 @@ typedef enum e_integrator_type {
     INTEGRATOR_SEMI_IMPLICIT,       ///< 반묵시적 오일러 (속도 우선)
     INTEGRATOR_VERLET,              ///< Verlet 방식 (과거 위치 필요)
     INTEGRATOR_RK4,                 ///< 4차 Runge-Kutta 방식 (고정확도)
+    INTEGRATOR_RK4_ENV,           ///< 선형 + 환경 4차 Runge-Kutta
     INTEGRATOR_MOTION_EULER,        ///< 선형 + 회전 오일러
     INTEGRATOR_MOTION_SEMI_IMPLICIT,///< 선형 + 회전 반묵시적 오일러
     INTEGRATOR_MOTION_VERLET,       ///< 선형 + 회전 Verlet 방식
     INTEGRATOR_MOTION_RK4,            ///< 선형 + 회전 4차 Runge-Kutta
-    INTEGRATOR_MOTION_RK4_ENV           ///< 선형 + 회전 4차 Runge-Kutta
+    INTEGRATOR_MOTION_RK4_ENV           ///< 선형 + 회전 + 환경 4차 Runge-Kutta
 } integrator_type_t;
 
 /**
@@ -178,6 +179,11 @@ BYUL_API void numeq_integrate_verlet(motion_state_t* state,
  */
 BYUL_API void numeq_integrate_rk4(motion_state_t* state, float dt);
 
+BYUL_API void numeq_integrate_rk4_env(motion_state_t* state,
+                                float dt,
+                                const environ_t* env,
+                                const bodyprops_t* body);
+
 BYUL_API void numeq_integrate_attitude_euler(
     motion_state_t* state, float dt);
 
@@ -192,6 +198,11 @@ BYUL_API void numeq_integrate_attitude_semi_implicit(
 // ---------------------------------------------------------
 BYUL_API void numeq_integrate_attitude_rk4(
     motion_state_t* state, float dt);
+
+BYUL_API void numeq_integrate_attitude_rk4_env(motion_state_t* state,
+                                float dt,
+                                const environ_t* env,
+                                const bodyprops_t* body);    
 
 // 회전(자세) Verlet 적분
 BYUL_API void numeq_integrate_attitude_verlet(motion_state_t* state,

@@ -1,4 +1,4 @@
-#include "internal/projectile_propulsion.h"
+#include "internal/propulsion.h"
 #include <string.h>
 #include <stdio.h>
 #include <math.h>
@@ -33,7 +33,7 @@ void propulsion_init(propulsion_t* p) {
 
     // --- 컨트롤러 ---
     p->controller = NULL;
-    p->active = false;
+    p->active = true;
 }
 
 void propulsion_init_full(propulsion_t* p,

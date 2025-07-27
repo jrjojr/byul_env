@@ -305,7 +305,7 @@ BYUL_API void dstar_lite_set_changed_coords_func_userdata(
  * @param s   대상 좌표
  * @return 계산된 dstar_lite_key_t 구조체
  */
-BYUL_API dstar_lite_key_t* dstar_lite_calculate_key(dstar_lite_t* dsl, const coord_t* s);
+BYUL_API dstar_lite_key_t* dstar_lite_calc_key(dstar_lite_t* dsl, const coord_t* s);
 
 BYUL_API void dstar_lite_init(dstar_lite_t* dsl);
 

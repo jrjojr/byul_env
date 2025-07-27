@@ -10,6 +10,35 @@
 
 #include <iostream>
 
+TEST_CASE("default: route finder") {
+    navgrid_t* m = navgrid_create();
+
+    coord_t start;
+    coord_init_full(&start, 0, 0);
+
+    coord_t goal; 
+    coord_init_full(&goal, 9, 9);
+
+    route_finder_t* rf = route_finder_create(m);
+    route_finder_set_start(rf, &start);
+    route_finder_set_goal(rf, &goal);
+
+    // 장애물 삽입 (세로 차단)
+    for (int y = 1; y < 10; ++y)
+        navgrid_block_coord(m, 5, y);
+
+    route_t* p = route_finder_run(rf);
+
+    CHECK(route_get_success(p) == true);
+
+    route_print(p);
+    navgrid_print_ascii_with_visited_count(m, p, 5);
+
+    route_destroy(p);
+    route_finder_destroy(rf);
+    navgrid_destroy(m);
+}
+
 TEST_CASE("BFS: simple route") {
     // navgrid_t* m = navgrid_create();
     std::cout << "BFS: simple route\n";
@@ -909,7 +938,7 @@ TEST_CASE("route_finder_all: blocked route") {
     route_finder_set_visited_logging(a, true);
     route_t* p = nullptr;
 
-    p = route_finder_find(a);
+    p = route_finder_run(a);
     REQUIRE(p != nullptr);
     CHECK(route_get_success(p) == true);
     route_print(p);
@@ -936,7 +965,7 @@ TEST_CASE("route_finder_all: blocked route") {
     // #include "internal/astar.h"
     std::cout << "astar.h\n";
     route_finder_set_type(a, ROUTE_FINDER_ASTAR);
-    p = route_finder_find(a);
+    p = route_finder_run(a);
     REQUIRE(p != nullptr);
     CHECK(route_get_success(p) == true);
     route_print(p);
@@ -946,7 +975,7 @@ TEST_CASE("route_finder_all: blocked route") {
     // #include "internal/bfs.h"
     std::cout << "bfs.h\n";
     route_finder_set_type(a, ROUTE_FINDER_BFS);
-    p = route_finder_find(a);
+    p = route_finder_run(a);
     REQUIRE(p != nullptr);
     CHECK(route_get_success(p) == true);
     route_print(p);
@@ -956,7 +985,7 @@ TEST_CASE("route_finder_all: blocked route") {
     // #include "internal/dfs.h"
     std::cout << "dfs.h\n";
     route_finder_set_type(a, ROUTE_FINDER_DFS);
-    p = route_finder_find(a);
+    p = route_finder_run(a);
     REQUIRE(p != nullptr);
     CHECK(route_get_success(p) == true);
     route_print(p);
@@ -966,7 +995,7 @@ TEST_CASE("route_finder_all: blocked route") {
     // #include "internal/dijkstra.h"
     std::cout << "dijkstra.h\n";
     route_finder_set_type(a, ROUTE_FINDER_DIJKSTRA);
-    p = route_finder_find(a);
+    p = route_finder_run(a);
     REQUIRE(p != nullptr);
     CHECK(route_get_success(p) == true);
     route_print(p);
@@ -976,7 +1005,7 @@ TEST_CASE("route_finder_all: blocked route") {
     // #include "internal/fast_marching.h"
     std::cout << "fast_marching.h\n";
     route_finder_set_type(a, ROUTE_FINDER_FAST_MARCHING);
-    p = route_finder_find(a);
+    p = route_finder_run(a);
     REQUIRE(p != nullptr);
     CHECK(route_get_success(p) == true);
     route_print(p);
@@ -986,7 +1015,7 @@ TEST_CASE("route_finder_all: blocked route") {
     // #include "internal/fringe_search.h"
     std::cout << "fringe_search.h\n";
     route_finder_set_type(a, ROUTE_FINDER_FRINGE_SEARCH);
-    p = route_finder_find(a);
+    p = route_finder_run(a);
     REQUIRE(p != nullptr);
     CHECK(route_get_success(p) == true);
     route_print(p);
@@ -996,7 +1025,7 @@ TEST_CASE("route_finder_all: blocked route") {
     // #include "internal/greedy_best_first.h"
     std::cout << "greedy_best_first.h\n";
     route_finder_set_type(a, ROUTE_FINDER_GREEDY_BEST_FIRST);
-    p = route_finder_find(a);
+    p = route_finder_run(a);
     REQUIRE(p != nullptr);
     CHECK(route_get_success(p) == true);
     route_print(p);
@@ -1006,7 +1035,7 @@ TEST_CASE("route_finder_all: blocked route") {
     // #include "internal/ida_star.h"
     std::cout << "ida_star.h\n";
     route_finder_set_type(a, ROUTE_FINDER_IDA_STAR);
-    p = route_finder_find(a);
+    p = route_finder_run(a);
     REQUIRE(p != nullptr);
     CHECK(route_get_success(p) == true);
     route_print(p);
@@ -1016,7 +1045,7 @@ TEST_CASE("route_finder_all: blocked route") {
     // #include "internal/rta_star.h"
     std::cout << "rta_star.h\n";
     route_finder_set_type(a, ROUTE_FINDER_RTA_STAR);
-    p = route_finder_find(a);
+    p = route_finder_run(a);
     REQUIRE(p != nullptr);
     CHECK(route_get_success(p) == true);
     route_print(p);
@@ -1026,7 +1055,7 @@ TEST_CASE("route_finder_all: blocked route") {
     // #include "internal/sma_star.h"
     std::cout << "sma_star.h\n";
     route_finder_set_type(a, ROUTE_FINDER_SMA_STAR);
-    p = route_finder_find(a);
+    p = route_finder_run(a);
     REQUIRE(p != nullptr);
     CHECK(route_get_success(p) == true);
     route_print(p);
@@ -1036,7 +1065,7 @@ TEST_CASE("route_finder_all: blocked route") {
     // #include "internal/weighted_astar.h"        
     std::cout << "weighted_astar.h\n";
     route_finder_set_type(a, ROUTE_FINDER_WEIGHTED_ASTAR);
-    p = route_finder_find(a);
+    p = route_finder_run(a);
     REQUIRE(p != nullptr);
     CHECK(route_get_success(p) == true);
     route_print(p);

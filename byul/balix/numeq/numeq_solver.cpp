@@ -10,6 +10,12 @@
 // -----------------------------
 // 1. 수학 해석 함수
 // -----------------------------
+bool numeq_solve_linear(float a, float b, float* out_x)
+{
+    if (fabsf(a) < 1e-8f) return false;  // a = 0이면 해 없음
+    if (out_x) *out_x = -b / a;
+    return true;
+}
 
 bool numeq_solve_quadratic(float a, float b, float c, 
     float* out_x1, float* out_x2) {
@@ -222,3 +228,4 @@ bool numeq_solve_time_for_vec3(numeq_vec3_func func,
     *out_t = best_t;
     return true;
 }
+

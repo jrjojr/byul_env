@@ -8,9 +8,9 @@ set(CMAKE_CXX_STANDARD 17)
 # 소스 파일 설정
 set(SOURCES
     main.cpp
-    test_module_projectile.cpp    
-    test_module_projectile_propulsion.cpp    
-    test_module_projectile_guidance.cpp    
+    test_module_projectile_common.cpp    
+    test_module_propulsion.cpp    
+    test_module_guidance.cpp    
     test_module_projectile_predict.cpp    
 )
 

@@ -141,7 +141,7 @@ BYUL_API void motion_state_assign(
  * @return true    max_t 내에서 충돌 발생
  * @return false   충돌 없음
  */
-BYUL_API bool motion_state_predict_collision_time(
+BYUL_API bool motion_state_calc_collision_time(
     const motion_state_t* a,
     const motion_state_t* b,
     float radius_a,
@@ -164,7 +164,7 @@ BYUL_API bool motion_state_predict_collision_time(
  * @return true    충돌 지점 계산 성공
  * @return false   충돌 없음
  */
-BYUL_API bool motion_state_predict_collision_point(
+BYUL_API bool motion_state_calc_collision_point(
     const motion_state_t* a,
     const motion_state_t* b,
     float radius_a,

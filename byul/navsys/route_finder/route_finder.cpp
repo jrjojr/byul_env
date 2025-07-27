@@ -194,50 +194,50 @@ int route_finder_get_max_retry(route_finder_t* a){
     return a->max_retry;
 }
 
-route_t* route_finder_find_with_type(route_finder_t* a, route_finder_type_t type) {
+route_t* route_finder_run_type(route_finder_t* a, route_finder_type_t type) {
     if (!a) return NULL;
     switch (type) {
-        case ROUTE_FINDER_ASTAR: return route_finder_find_astar(a);
-        case ROUTE_FINDER_BFS: return route_finder_find_bfs(a);
-        case ROUTE_FINDER_DFS: return route_finder_find_dfs(a);
-        case ROUTE_FINDER_DIJKSTRA: return route_finder_find_dijkstra(a);
-        case ROUTE_FINDER_FAST_MARCHING: return route_finder_find_fast_marching(a);
-        case ROUTE_FINDER_FRINGE_SEARCH: return route_finder_find_fringe_search(a);
-        case ROUTE_FINDER_GREEDY_BEST_FIRST: return route_finder_find_greedy_best_first(a);
-        case ROUTE_FINDER_IDA_STAR: return route_finder_find_ida_star(a);
-        case ROUTE_FINDER_RTA_STAR: return route_finder_find_rta_star(a);
-        case ROUTE_FINDER_SMA_STAR: return route_finder_find_sma_star(a);
-        case ROUTE_FINDER_WEIGHTED_ASTAR: return route_finder_find_weighted_astar(a);
+        case ROUTE_FINDER_ASTAR: return route_finder_run_astar(a);
+        case ROUTE_FINDER_BFS: return route_finder_run_bfs(a);
+        case ROUTE_FINDER_DFS: return route_finder_run_dfs(a);
+        case ROUTE_FINDER_DIJKSTRA: return route_finder_run_dijkstra(a);
+        case ROUTE_FINDER_FAST_MARCHING: return route_finder_run_fast_marching(a);
+        case ROUTE_FINDER_FRINGE_SEARCH: return route_finder_run_fringe_search(a);
+        case ROUTE_FINDER_GREEDY_BEST_FIRST: return route_finder_run_greedy_best_first(a);
+        case ROUTE_FINDER_IDA_STAR: return route_finder_run_ida_star(a);
+        case ROUTE_FINDER_RTA_STAR: return route_finder_run_rta_star(a);
+        case ROUTE_FINDER_SMA_STAR: return route_finder_run_sma_star(a);
+        case ROUTE_FINDER_WEIGHTED_ASTAR: return route_finder_run_weighted_astar(a);
         default: return NULL;
     }
 }
 
-route_t* route_finder_find(route_finder_t* a) {
+route_t* route_finder_run(route_finder_t* a) {
     if (!a) return NULL;
-    return route_finder_find_with_type(a, a->type);
+    return route_finder_run_type(a, a->type);
 }
 
-route_t* route_finder_find_astar(route_finder_t* a){
+route_t* route_finder_run_astar(route_finder_t* a){
     return find_astar(a->navgrid, a->start, a->goal, 
         a->cost_fn, a->heuristic_fn, a->max_retry, a->visited_logging);
 }
 
-route_t* route_finder_find_bfs(route_finder_t* a){
+route_t* route_finder_run_bfs(route_finder_t* a){
     return find_bfs(a->navgrid, a->start, a->goal, 
         a->max_retry, a->visited_logging);
 }
 
-route_t* route_finder_find_dfs(route_finder_t* a){
+route_t* route_finder_run_dfs(route_finder_t* a){
     return find_dfs(a->navgrid, a->start, a->goal, a->max_retry,
         a->visited_logging);
 }
 
-route_t* route_finder_find_dijkstra(route_finder_t* a){
+route_t* route_finder_run_dijkstra(route_finder_t* a){
     return find_dijkstra(a->navgrid, a->start, a->goal, a->cost_fn,
         a->max_retry, a->visited_logging);
 }
 
-route_t* route_finder_find_fringe_search(route_finder_t* a) {
+route_t* route_finder_run_fringe_search(route_finder_t* a) {
     float delta_epsilon = 0.3f;
 
     if (a->userdata) {
@@ -252,19 +252,19 @@ route_t* route_finder_find_fringe_search(route_finder_t* a) {
         a->max_retry, a->visited_logging);
 }
 
-route_t* route_finder_find_greedy_best_first(route_finder_t* a){
+route_t* route_finder_run_greedy_best_first(route_finder_t* a){
     return find_greedy_best_first(a->navgrid, a->start, a->goal,
     a->heuristic_fn, a->max_retry, a->visited_logging);
 }
 
-route_t* route_finder_find_ida_star(route_finder_t* a){
+route_t* route_finder_run_ida_star(route_finder_t* a){
     // ida는 유클리드가 아니라 맨하탄으로 휴리스틱을 설정해야 한다.
     route_finder_set_heuristic_func(a, manhattan_heuristic);
     return find_ida_star(a->navgrid, a->start, a->goal,
     a->cost_fn, a->heuristic_fn, a->max_retry, a->visited_logging);
 }
 
-route_t* route_finder_find_rta_star(route_finder_t* a) {
+route_t* route_finder_run_rta_star(route_finder_t* a) {
     int depth_limit = 5;
 
     if (a->userdata) {
@@ -279,7 +279,7 @@ route_t* route_finder_find_rta_star(route_finder_t* a) {
         a->max_retry, a->visited_logging);
 }
 
-route_t* route_finder_find_sma_star(route_finder_t* a) {
+route_t* route_finder_run_sma_star(route_finder_t* a) {
     if (!a || !a->navgrid) return NULL;
 
     int memory_limit = 0;
@@ -308,7 +308,7 @@ route_t* route_finder_find_sma_star(route_finder_t* a) {
         a->max_retry, a->visited_logging);
 }
 
-route_t* route_finder_find_weighted_astar(route_finder_t* a) {
+route_t* route_finder_run_weighted_astar(route_finder_t* a) {
     float weight = 1.5f;
 
     if (a->userdata) {
@@ -323,7 +323,7 @@ route_t* route_finder_find_weighted_astar(route_finder_t* a) {
         a->max_retry, a->visited_logging);
 }
 
-route_t* route_finder_find_fast_marching(route_finder_t* a){
+route_t* route_finder_run_fast_marching(route_finder_t* a){
     return find_fast_marching(a->navgrid, a->start, a->goal,
     a->cost_fn, a->max_retry, a->visited_logging);
 }

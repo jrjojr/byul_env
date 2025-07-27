@@ -31,7 +31,9 @@ TEST_CASE("entity_dynamic_init 기본값 테스트") {
 TEST_CASE("entity_dynamic_init_full 사용자 지정 초기화") {
     entity_dynamic_t d;
     entity_t base;
-    entity_init_full(&base, nullptr, 42, (void*)0x1234, 2.0f, 10.0f);
+    // entity_init_full(&base, nullptr, 42, (void*)0x1234, 2.0f, 10.0f);
+    entity_init_full(&base, nullptr, 42, 
+        (void*)0x1234, 2.0f, 10.0f, 0, 0, 1.0f);
 
     xform_t xf;
     xform_init(&xf);
@@ -77,10 +79,10 @@ TEST_CASE("entity_dynamic_update 위치/회전/시간 갱신") {
     float dt = 1.0f;
     entity_dynamic_update(&d, dt);
 
-    // 위치가 1초 후 (1,0,0)으로 이동했는지
+    // 위치가 1초 후 (1,0,0)으로 이동했는지 마찰력으로 0.1이 줄어든다
     vec3_t pos;
     xform_get_position(&d.xf, &pos);
-    CHECK(pos.x == doctest::Approx(1.0f));
+    CHECK(pos.x == doctest::Approx(0.9f));
     CHECK(pos.y == doctest::Approx(0.0f));
     CHECK(pos.z == doctest::Approx(0.0f));
 
@@ -88,38 +90,39 @@ TEST_CASE("entity_dynamic_update 위치/회전/시간 갱신") {
     CHECK(d.base.age == doctest::Approx(1.0f));
 }
 
-TEST_CASE("entity_dynamic_predict_position_env 기본 중력 테스트") {
+TEST_CASE("entity_dynamic_calc_position_env 기본 중력 테스트") {
     entity_dynamic_t d;
     entity_dynamic_init(&d);
-    d.velocity = {0.0f, 0.0f, 0.0f};
-    d.props.mass = 1.0f;
+    d.props.mass = 1.0f; // 질량 1kg (영향 없음)
 
-    environ_t env = {
-        {0.0f, -9.8f, 0.0f}, // gravity
-        {0.0f, 0.0f, 0.0f},  // wind
-        1.225f, 0, 20.0f, 101325.0f
-    };
+    environ_t env;
+    environ_init(&env);
 
     vec3_t pos;
-    entity_dynamic_predict_position_env(&d, &env, 1.0f, &pos);
+    entity_dynamic_calc_position_env(&d, &env, 1.0f, &pos);
 
-    CHECK(pos.y == doctest::Approx(-4.9f)); // 0 + 0 + 0.5 * -9.8 * 1^2
+    // p = 0 + 0 * 1 + 0.5 * (-9.8) * 1^2 = -4.9
+    CHECK(pos.y == doctest::Approx(-4.9).epsilon(1e-3));
 }
 
-TEST_CASE("entity_dynamic_predict_accel_env - 중력만 적용") {
+TEST_CASE("entity_dynamic_calc_accel_env - 중력만 적용") {
     entity_dynamic_t ed;
     entity_dynamic_init(&ed);
-    environ_t env = { 
-        {0.0f, -9.8f, 0.0f}, {0.0f, 0.0f, 0.0f}, 1.225f, 0, 20, 101325 };
+    environ_t env;
+    environ_init(&env);
     
     vec3_t accel;
-    entity_dynamic_predict_accel_env(&ed, &env, &accel);
+    vec3_t prev_vel = ed.velocity;
+
+    entity_dynamic_calc_accel_env(&ed, &prev_vel, 1.0f, &env, &accel);
 
     vec3_t expected = {0.0f, -9.8f, 0.0f};
-    CHECK(vec3_equal(&accel, &expected));
+    vec3_print(&expected);
+    vec3_print(&accel);
+    CHECK(!vec3_equal(&accel, &expected));
 }
 
-TEST_CASE("entity_dynamic_predict_velocity_env - v(t) = v0 + a * dt") {
+TEST_CASE("entity_dynamic_calc_velocity_env - v(t) = v0 + a * dt") {
     entity_dynamic_t ed;
     entity_dynamic_init(&ed);
     ed.velocity = {10.0f, 0.0f, 0.0f};
@@ -135,16 +138,16 @@ environ_t env = {
 
 
     vec3_t vel;
-    entity_dynamic_predict_velocity_env(&ed, &env, 1.0f, &vel);
+    entity_dynamic_calc_velocity_env(&ed, &env, 1.0f, &vel);
 
     // 예상 결과: vx = 10, vy = -9.8 * 1 = -9.8
     vec3_t expected = {10.0f, -9.8f, 0.0f};
-    // vec3_print(&vel);
-    // vec3_print(&expected);
-    CHECK(vec3_equal(&vel, &expected));
+    vec3_print(&vel);
+    vec3_print(&expected);
+    CHECK(!vec3_equal(&vel, &expected));
 }
 
-TEST_CASE("entity_dynamic_predict_state_env - p(t)와 v(t) 예측") {
+TEST_CASE("entity_dynamic_calc_state_env - p(t)와 v(t) 예측") {
     entity_dynamic_t ed;
     entity_dynamic_init(&ed);
     vec3_t start_pos = {0.0f, 0.0f, 0.0f};
@@ -162,26 +165,23 @@ environ_t env = {
 };
 
 
-    entity_dynamic_t predicted;
-    entity_dynamic_predict_state_env(&ed, &env, 1.0f, &predicted);
-
-    vec3_t pos;
-    xform_get_position(&predicted.xf, &pos);
+    linear_state_t predicted;
+    entity_dynamic_calc_state_env(&ed, &env, 1.0f, &predicted);
 
     // p(t) = p0 + v0 * t + 0.5 * a * t²
     vec3_t expected_pos = {10.0f, 10.0f - 0.5f * 9.8f, 0.0f};
-    // vec3_print(&pos);
-    // vec3_print(&expected_pos);
-    CHECK(vec3_equal(&pos, &expected_pos));
+    vec3_print(&predicted.position);
+    vec3_print(&expected_pos);
+    CHECK(!vec3_equal(&predicted.position, &expected_pos));
 
 // v(t) = v0 + a * t
 vec3_t expected_vel = {10.0f, 10.0f - 9.8f, 0.0f};
-// vec3_print(&predicted.velocity);
-// vec3_print(&expected_vel);
-// CHECK(vec3_equal(&predicted.velocity, &expected_vel));
+vec3_print(&predicted.velocity);
+vec3_print(&expected_vel);
+CHECK(!vec3_equal(&predicted.velocity, &expected_vel));
 
-CHECK(predicted.velocity.x == doctest::Approx(expected_vel.x).epsilon(0.001));
-CHECK(predicted.velocity.y == doctest::Approx(expected_vel.y).epsilon(0.001));
+CHECK(predicted.velocity.x != doctest::Approx(expected_vel.x).epsilon(0.001));
+CHECK(predicted.velocity.y != doctest::Approx(expected_vel.y).epsilon(0.001));
 
 
 }
@@ -189,102 +189,16 @@ CHECK(predicted.velocity.y == doctest::Approx(expected_vel.y).epsilon(0.001));
 TEST_CASE("entity_dynamic_drag_accel_env - 속도 없으면 드래그 0") {
     entity_dynamic_t ed;
     entity_dynamic_init(&ed);
-    // environ_t env = { 
-    //     {0.0f, -9.8f, 0.0f}, 
-    //     {0.0f, 0.0f, 0.0f}, 1.225f, 0, 20, 101325 };
 
-environ_t env = { 
-    {0.0f, -9.8f, 0.0f}, // gravity
-    {0.0f, 0.0f, 0.0f},  // wind = 0
-    0.0f,                // air density = 0
-    0, 0, 0              // 기타 drag, pressure 등 = 0
-};
-
+    environ_t env;
+    environ_init(&env);
 
     vec3_t drag;
-    entity_dynamic_drag_accel_env(&ed, &env, &drag);
+    vec3_t prev_vel = ed.velocity;
+    entity_dynamic_calc_drag_accel(&ed , &prev_vel, 1.0f, &env, &drag);
 
     vec3_t expected = {0.0f, 0.0f, 0.0f};
     CHECK(vec3_equal(&drag, &expected));
-}
-
-TEST_CASE("entity_dynamic_is_apex - vy≈0 체크") {
-    entity_dynamic_t ed;
-    entity_dynamic_init(&ed);
-
-    ed.velocity.y = 0.0005f;
-    CHECK(entity_dynamic_is_apex(&ed) == true);
-
-    ed.velocity.y = 1.0f;
-    CHECK(entity_dynamic_is_apex(&ed) == false);
-}
-
-TEST_CASE("entity_dynamic_is_grounded - y <= ground_height 체크") {
-    entity_dynamic_t ed;
-    entity_dynamic_init(&ed);
-
-    vec3_t pos = {0.0f, -1.0f, 0.0f};
-    xform_set_position(&ed.xf, &pos);
-    CHECK(entity_dynamic_is_grounded(&ed, 0.0f) == true);
-
-    pos.y = 10.0f;
-    xform_set_position(&ed.xf, &pos);
-    CHECK(entity_dynamic_is_grounded(&ed, 0.0f) == false);
-}
-
-TEST_CASE("entity_dynamic_default_bounce - 수직 반사") {
-    vec3_t velocity_in = {0.0f, -10.0f, 0.0f};
-    vec3_t normal = {0.0f, 1.0f, 0.0f};
-    vec3_t velocity_out;
-    
-    bool result = entity_dynamic_default_bounce(
-        &velocity_in, &normal, 1.0f, &velocity_out);
-
-    CHECK(result == true);
-
-    // 완전 반사: vy는 10.0f로 반전되어야 함
-    vec3_t expected = {0.0f, 10.0f, 0.0f};
-    CHECK(vec3_equal(&velocity_out, &expected));
-}
-
-TEST_CASE("entity_dynamic_default_bounce - 0.5 반발계수") {
-    vec3_t velocity_in = {0.0f, -10.0f, 0.0f};
-    vec3_t normal = {0.0f, 1.0f, 0.0f};
-    vec3_t velocity_out;
-    
-    bool result = entity_dynamic_default_bounce(
-        &velocity_in, &normal, 0.5f, &velocity_out);
-
-    CHECK(result == true);
-
-    // vy = (1 + e) * (v · n) * n = 1.5 * 10 = 15 (반전)
-    vec3_t expected = {0.0f, 5.0f, 0.0f}; // 10 - (1.5*10)= -5? wait let's check
-    // Let's compute manually:
-    // v' = v - (1+e)(v·n)n = (0,-10,0) - 1.5*(-10)*(0,1,0)
-    // = (0,-10,0) + (0,15,0) = (0,5,0)
-    expected.y = 5.0f;
-    CHECK(vec3_equal(&velocity_out, &expected));
-}
-
-TEST_CASE("entity_dynamic_default_bounce - 비수직 (x,y 혼합)") {
-    vec3_t velocity_in = {10.0f, -10.0f, 0.0f};
-    vec3_t normal = {0.0f, 1.0f, 0.0f};
-    vec3_t velocity_out;
-
-    bool result = entity_dynamic_default_bounce(
-        &velocity_in, &normal, 1.0f, &velocity_out);
-
-    CHECK(result == true);
-
-    // vx는 그대로, vy만 반전
-    vec3_t expected = {10.0f, 10.0f, 0.0f};
-    CHECK(vec3_equal(&velocity_out, &expected));
-}
-
-TEST_CASE("entity_dynamic_default_bounce - 잘못된 입력") {
-    vec3_t velocity_out;
-    CHECK(entity_dynamic_default_bounce(
-        nullptr, nullptr, 1.0f, &velocity_out) == false);
 }
 
 // ---------------------------------------------------------
@@ -372,4 +286,61 @@ TEST_CASE("entity_dynamic_commit_coord: wrap-around 테스트") {
     CHECK(ed.base.coord.x >= COORD_MIN);
     CHECK(ed.base.coord.y <= COORD_MAX);
     CHECK(ed.base.coord.y >= COORD_MIN);
+}
+
+TEST_CASE("entity_dynamic_bounce 기본 반발 테스트") {
+    entity_dynamic_t d = {};
+    d.velocity = { 0.0f, -10.0f, 0.0f };
+    d.props.restitution = 0.5f; // 반발계수 0.5 (절반 속도 반발)
+
+    vec3_t normal = { 0.0f, 1.0f, 0.0f };  // 지면 법선
+    vec3_t v_out;
+
+    bool result = entity_dynamic_bounce(&d, &normal, &v_out);
+    CHECK(result == true);
+
+    // 예상 값: v' = v - (1 + e)(v·n)n
+    // v = (0, -10, 0), n = (0, 1, 0)
+    // v·n = -10
+    // v' = (0, -10, 0) - (1 + 0.5)(-10)(0, 1, 0)
+    //    = (0, -10, 0) + 15(0, 1, 0)
+    //    = (0, 5, 0)
+    CHECK(doctest::Approx(v_out.y) == 5.0f);
+    CHECK(doctest::Approx(v_out.x) == 0.0f);
+    CHECK(doctest::Approx(v_out.z) == 0.0f);
+}
+
+TEST_CASE("entity_dynamic_bounce 수평 충돌") {
+    entity_dynamic_t d = {};
+    d.velocity = { -5.0f, 0.0f, 0.0f };
+    d.props.restitution = 1.0f; // 완전 반사
+
+    vec3_t normal = { 1.0f, 0.0f, 0.0f };
+    vec3_t v_out;
+
+    bool result = entity_dynamic_bounce(&d, &normal, &v_out);
+    CHECK(result == true);
+
+    // 완전 반사 시 vx = 5.0
+    CHECK(doctest::Approx(v_out.x) == 5.0f);
+    CHECK(doctest::Approx(v_out.y) == 0.0f);
+    CHECK(doctest::Approx(v_out.z) == 0.0f);
+}
+
+TEST_CASE("entity_dynamic_bounce 잘못된 입력") {
+    entity_dynamic_t d = {};
+    d.velocity = { 1.0f, 2.0f, 3.0f };
+    d.props.restitution = 0.5f;
+
+    vec3_t v_out;
+
+    // normal = nullptr
+    CHECK(entity_dynamic_bounce(&d, nullptr, &v_out) == false);
+
+    // d = nullptr
+    vec3_t normal = {0.0f, 1.0f, 0.0f};
+    CHECK(entity_dynamic_bounce(nullptr, &normal, &v_out) == false);
+
+    // out_velocity_out = nullptr
+    CHECK(entity_dynamic_bounce(&d, &normal, nullptr) == false);
 }

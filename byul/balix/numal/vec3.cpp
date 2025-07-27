@@ -26,8 +26,51 @@ void vec3_assign(vec3_t* out, const vec3_t* src) {
 }
 
 bool vec3_equal(const vec3_t* a, const vec3_t* b) {
-    if (!a || !b) return 0;
-    return (a->x == b->x && a->y == b->y && a->z == b->z);
+    if (!a || !b) return false;
+    return float_equal(a->x, b->x) &&
+           float_equal(a->y, b->y) &&
+           float_equal(a->z, b->z);
+}
+
+/* ---------------------------------------------------------
+// vec3_equal_tol
+// ---------------------------------------------------------
+/**
+ * @brief vec3의 각 성분을 동일한 공차(tolerance)로 비교합니다.
+ *
+ * @param a   첫 번째 벡터
+ * @param b   두 번째 벡터
+ * @param tol 허용 오차 (모든 x,y,z에 동일하게 적용)
+ * @return 모든 성분 차이가 tol 이하이면 true
+ */
+bool vec3_equal_tol(const vec3_t* a, const vec3_t* b, float tol)
+{
+    if (!a || !b) return false;
+    return float_equal_tol(a->x, b->x, tol) &&
+           float_equal_tol(a->y, b->y, tol) &&
+           float_equal_tol(a->z, b->z, tol);
+}
+
+// ---------------------------------------------------------
+// vec3_equal_tol_all
+// ---------------------------------------------------------
+/**
+ * @brief vec3의 각 성분을 양수/음수 방향의 개별 공차로 비교합니다.
+ *
+ * @param a        첫 번째 벡터
+ * @param b        두 번째 벡터
+ * @param tol_pos  양수 방향 공차 (b >= a일 때 허용 오차)
+ * @param tol_neg  음수 방향 공차 (b < a일 때 허용 오차)
+ * @return 모든 성분 차이가 개별 공차 내이면 true
+ */
+bool vec3_equal_tol_all(
+    const vec3_t* a, const vec3_t* b,
+    float tol_pos, float tol_neg)
+{
+    if (!a || !b) return false;
+    return float_equal_tol_all(a->x, b->x, tol_pos, tol_neg) &&
+           float_equal_tol_all(a->y, b->y, tol_pos, tol_neg) &&
+           float_equal_tol_all(a->z, b->z, tol_pos, tol_neg);
 }
 
 uint32_t vec3_hash(const vec3_t* v) {
@@ -70,9 +113,33 @@ void vec3_mul(vec3_t* out, const vec3_t* a, const vec3_t* b) {
 }
 
 void vec3_div(vec3_t* out, const vec3_t* a, const vec3_t* b) {
-    out->x = (std::fabs(b->x) > FLOAT_EPSILON) ? a->x / b->x : 0.0f;
-    out->y = (std::fabs(b->y) > FLOAT_EPSILON) ? a->y / b->y : 0.0f;
-    out->z = (std::fabs(b->z) > FLOAT_EPSILON) ? a->z / b->z : 0.0f;
+    if (!out || !a || !b) return;
+
+    out->x = (fabsf(b->x) > FLOAT_EPSILON) ? (a->x / b->x) : INFINITY;
+    out->y = (fabsf(b->y) > FLOAT_EPSILON) ? (a->y / b->y) : INFINITY;
+    out->z = (fabsf(b->z) > FLOAT_EPSILON) ? (a->z / b->z) : INFINITY;
+
+#ifdef DEBUG
+    if (b->x == 0.0f || b->y == 0.0f || b->z == 0.0f) {
+        fprintf(stderr, "[vec3_div] Division by zero detected! Returning INF where applicable.\n");
+    }
+#endif
+}
+
+void vec3_div_scalar(vec3_t* out, const vec3_t* a, float scalar) {
+    if (!out || !a) return;
+
+    if (scalar == 0.0f) {
+#ifdef DEBUG
+        fprintf(stderr, "[vec3_div_scalar] Division by zero! Returning INF vector.\n");
+#endif
+        *out = (vec3_t){ INFINITY, INFINITY, INFINITY };
+        return;
+    }
+
+    out->x = a->x / scalar;
+    out->y = a->y / scalar;
+    out->z = a->z / scalar;
 }
 
 void vec3_scale(vec3_t* out, const vec3_t* a, float s) {
@@ -188,4 +255,19 @@ void vec3_iscale(vec3_t* io, float scalar) {
     io->x *= scalar;
     io->y *= scalar;
     io->z *= scalar;
+}
+
+void vec3_madd(vec3_t* out, 
+    const vec3_t* a, const vec3_t* b, float scalar) {
+    out->x = a->x + b->x * scalar;
+    out->y = a->y + b->y * scalar;
+    out->z = a->z + b->z * scalar;
+}
+
+void vec3_project(vec3_t* out, 
+    const vec3_t* p, const vec3_t* v, const vec3_t* a, float t) {
+    // out = p + v*t + 0.5*a*t²
+    out->x = p->x + v->x * t + 0.5f * a->x * t * t;
+    out->y = p->y + v->y * t + 0.5f * a->y * t * t;
+    out->z = p->z + v->z * t + 0.5f * a->z * t * t;
 }

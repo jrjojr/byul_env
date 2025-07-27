@@ -172,17 +172,17 @@ BYUL_API void route_finder_print(const route_finder_t* a);
 /**
  * @brief 정적 길찾기 실행 (알고리즘 유형 분기 포함)
  */
-BYUL_API route_t* route_finder_find_with_type(route_finder_t* a, route_finder_type_t type);
+BYUL_API route_t* route_finder_run_type(route_finder_t* a, route_finder_type_t type);
 
-BYUL_API route_t* route_finder_find(route_finder_t* a);
+BYUL_API route_t* route_finder_run(route_finder_t* a);
 
 /**
  * @brief 알고리즘별 직접 실행 함수 (정적 길찾기 전용)
  */
-BYUL_API route_t* route_finder_find_astar(route_finder_t* a);
-BYUL_API route_t* route_finder_find_bfs(route_finder_t* a);
-BYUL_API route_t* route_finder_find_dfs(route_finder_t* a);
-BYUL_API route_t* route_finder_find_dijkstra(route_finder_t* a);
+BYUL_API route_t* route_finder_run_astar(route_finder_t* a);
+BYUL_API route_t* route_finder_run_bfs(route_finder_t* a);
+BYUL_API route_t* route_finder_run_dfs(route_finder_t* a);
+BYUL_API route_t* route_finder_run_dijkstra(route_finder_t* a);
 
 /**
  * @brief Fringe Search 알고리즘을 실행합니다.
@@ -197,11 +197,11 @@ BYUL_API route_t* route_finder_find_dijkstra(route_finder_t* a);
  *
  * @return 계산된 경로(route_t*) 또는 실패 시 NULL
  */
-BYUL_API route_t* route_finder_find_fringe_search(route_finder_t* a);
+BYUL_API route_t* route_finder_run_fringe_search(route_finder_t* a);
 
-BYUL_API route_t* route_finder_find_greedy_best_first(route_finder_t* a);
+BYUL_API route_t* route_finder_run_greedy_best_first(route_finder_t* a);
 
-BYUL_API route_t* route_finder_find_ida_star(route_finder_t* a);
+BYUL_API route_t* route_finder_run_ida_star(route_finder_t* a);
 
 /**
  * @brief Real-Time A* (RTA*) 알고리즘을 실행합니다.
@@ -215,7 +215,7 @@ BYUL_API route_t* route_finder_find_ida_star(route_finder_t* a);
  *
  * @return 계산된 경로(route_t*) 또는 실패 시 NULL
  */
-BYUL_API route_t* route_finder_find_rta_star(route_finder_t* a);
+BYUL_API route_t* route_finder_run_rta_star(route_finder_t* a);
 
 /**
 * memory_limit은 맵 크기 및 난이도에 따라 달라져야 하며,
@@ -230,7 +230,7 @@ BYUL_API route_t* route_finder_find_rta_star(route_finder_t* a);
  *   - 1000x1000 맵: memory_limit ≈ 50,000 ~ 100,000
  *
  */
-BYUL_API route_t* route_finder_find_sma_star(route_finder_t* a);
+BYUL_API route_t* route_finder_run_sma_star(route_finder_t* a);
 
 /**
  * @brief Weighted A* 알고리즘을 실행합니다.
@@ -244,9 +244,9 @@ BYUL_API route_t* route_finder_find_sma_star(route_finder_t* a);
  *
  * @return 계산된 경로(route_t*) 또는 실패 시 NULL
  */
-BYUL_API route_t* route_finder_find_weighted_astar(route_finder_t* a);
+BYUL_API route_t* route_finder_run_weighted_astar(route_finder_t* a);
 
-BYUL_API route_t* route_finder_find_fast_marching(route_finder_t* a);
+BYUL_API route_t* route_finder_run_fast_marching(route_finder_t* a);
 
 #ifdef __cplusplus
 }

@@ -388,11 +388,10 @@ bool numeq_mpc_solve(
                                 // 환경 기반 외부 가속도 계산 (중력 + 바람 + 드래그)
                                 vec3_t external_accel = {0, 0, 0};
                                 if (env && body) {
-                                    environ_get_accel_ext(
-                                        &external_accel, env, body, 
-                                        &sim_state.linear.velocity);
+                                    numeq_model_accel(&sim_state.linear,
+                                        env, body, &external_accel);
                                 } else if (env) {
-                                    environ_get_accel(&external_accel, env);
+                                    environ_adjust_accel_gsplit(env, true, &external_accel);
                                 }
 
                                 // 제어 가속도와 외부 가속도를 합산
@@ -440,11 +439,11 @@ bool numeq_mpc_solve(
             // 환경 가속도 계산
             vec3_t external_accel = {0, 0, 0};
             if (env && body) {
-                environ_get_accel_ext(
-                    &external_accel, env, body, &sim_state.linear.velocity);
+                numeq_model_accel(&sim_state.linear,
+                    env, body, &external_accel);
 
             } else if (env) {
-                environ_get_accel(&external_accel, env);
+                environ_adjust_accel_gsplit(env, true, &external_accel);
             }
 
             // 최적 가속도 적용
@@ -526,13 +525,11 @@ bool numeq_mpc_solve_fast(
                                 // 환경 기반 외부 가속도 계산
                                 vec3_t external_accel = {0, 0, 0};
                                 if (env && body) {
-                                    environ_get_accel_ext(
-                                        &external_accel, 
-                                        env, body, 
-                                        &sim_state.linear.velocity);
+                                    numeq_model_accel(&sim_state.linear,
+                                        env, body, &external_accel);
 
                                 } else if (env) {
-                                    environ_get_accel(&external_accel, env);
+                                    environ_adjust_accel_gsplit(env, true, &external_accel);
                                 }
 
                                 // 제어 가속도와 외부 가속도 합산
@@ -579,11 +576,11 @@ bool numeq_mpc_solve_fast(
         for (int step = 0; step < horizon_sec; step++) {
             vec3_t external_accel = {0, 0, 0};
             if (env && body) {
-                environ_get_accel_ext(
-                    &external_accel, env, body, &sim_state.linear.velocity);
+                numeq_model_accel(&sim_state.linear,
+                    env, body, &external_accel);
 
             } else if (env) {
-                environ_get_accel(&external_accel, env);
+                environ_adjust_accel_gsplit(env, true, &external_accel);
             }
 
             vec3_t total_accel;
@@ -626,11 +623,11 @@ static float evaluate_cost(
         // 환경 기반 외부 가속도 계산
         vec3_t external_accel = {0, 0, 0};
         if (env && body) {
-            environ_get_accel_ext(
-                &external_accel, env, body, &sim_state.linear.velocity);
+            numeq_model_accel(&sim_state.linear,
+                env, body, &external_accel);
 
         } else if (env) {
-            environ_get_accel(&external_accel, env);
+            environ_adjust_accel_gsplit(env, true, &external_accel);
         }
 
         // 제어 가속도와 외부 가속도 합산
@@ -744,11 +741,11 @@ bool numeq_mpc_solve_coarse2fine(
         for (int step = 0; step < horizon_sec; step++) {
             vec3_t external_accel = {0, 0, 0};
             if (env && body) {
-                environ_get_accel_ext(
-                    &external_accel, env, body, &sim_state.linear.velocity);
+                numeq_model_accel(&sim_state.linear,
+                    env, body, &external_accel);
 
             } else if (env) {
-                environ_get_accel(&external_accel, env);
+                environ_adjust_accel_gsplit(env, true, &external_accel);
             }
 
             vec3_t total_accel;

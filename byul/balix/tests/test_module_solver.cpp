@@ -98,3 +98,4 @@ TEST_CASE("Solve vec3 function to approach target") {
     CHECK(ok);
     CHECK(t_min == doctest::Approx(2.0f).epsilon(0.01f));
 }
+

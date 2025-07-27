@@ -64,34 +64,32 @@ ctest
 ## 🧪 테스트 예제
 ### 경로 탐색 (A*)
 ```c
-    coord_t* start = coord_create_full(0, 0);
-    coord_t* goal = coord_create_full(9, 9);
-
-    REQUIRE_FALSE(coord_equal(start, goal));
-
-    std::cout << "default\n";
     navgrid_t* m = navgrid_create();
+
+    coord_t start;
+    coord_init_full(&start, 0, 0);
+
+    coord_t goal; 
+    coord_init_full(&goal, 9, 9);
+
+    route_finder_t* rf = route_finder_create(m);
+    route_finder_set_start(rf, &start);
+    route_finder_set_goal(rf, &goal);
+
     // 장애물 삽입 (세로 차단)
     for (int y = 1; y < 10; ++y)
         navgrid_block_coord(m, 5, y);
 
-    route_finder_t* a = route_finder_create(m);
-    route_finder_set_goal(a, goal);
-    route_finder_set_start(a, start);
-    route_finder_set_visited_logging(a, true);
-    route_t* p = nullptr;
+    route_t* p = route_finder_run(rf);
 
-    p = route_finder_find(a);
-    REQUIRE(p != nullptr);
     CHECK(route_get_success(p) == true);
+
     route_print(p);
     navgrid_print_ascii_with_visited_count(m, p, 5);
-    route_destroy(p);    
-    route_finder_destroy(a);
-    navgrid_destroy(m);
 
-    coord_destroy(start);
-    coord_destroy(goal);    
+    route_destroy(p);
+    route_finder_destroy(rf);
+    navgrid_destroy(m);
 ```
 
 ### 발사체 궤적 예측 (RK4)
@@ -101,7 +99,7 @@ environ_t env = environ_default();
 bodyprops_t body = bodyprops_default();
 
 linear_state_t predicted;
-numeq_model_predict_rk4(1.0f, &projectile, &env, &body, 60, &predicted);
+numeq_model_calc_rk4(1.0f, &projectile, &env, &body, 60, &predicted);
 
 printf("Predicted position: %.2f, %.2f, %.2f\n",
        predicted.position.x, predicted.position.y, predicted.position.z);

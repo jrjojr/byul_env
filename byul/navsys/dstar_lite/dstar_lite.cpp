@@ -542,7 +542,7 @@ int dstar_lite_get_interval_msec(const dstar_lite_t* dsl) {
     return dsl ? dsl->interval_msec : 0;
 }
 
-dstar_lite_key_t* dstar_lite_calculate_key(dstar_lite_t* dsl, const coord_t* s) {
+dstar_lite_key_t* dstar_lite_calc_key(dstar_lite_t* dsl, const coord_t* s) {
     float g_val = FLT_MAX;
     float rhs_val = FLT_MAX;
 
@@ -578,8 +578,8 @@ void dstar_lite_init(dstar_lite_t* dsl) {
     coord_hash_replace(dsl->rhs_table, dsl->goal, rhs_goal_ptr);
     delete rhs_goal_ptr;
     
-    // U.insert(goal, calculate_key(goal))
-    dstar_lite_key_t* calc_key_goal = dstar_lite_calculate_key(dsl, dsl->start);
+    // U.insert(goal, calc_key(goal))
+    dstar_lite_key_t* calc_key_goal = dstar_lite_calc_key(dsl, dsl->start);
     dstar_lite_pqueue_push(dsl->frontier, calc_key_goal, dsl->goal);
     dstar_lite_key_destroy(calc_key_goal);
 }
@@ -649,7 +649,7 @@ void dstar_lite_update_vertex(dstar_lite_t* dsl, const coord_t* u) {
     }
 
     if (!float_equal(g_u, rhs_u)) {
-        dstar_lite_key_t* key = dstar_lite_calculate_key(dsl, u);
+        dstar_lite_key_t* key = dstar_lite_calc_key(dsl, u);
         dstar_lite_pqueue_push(dsl->frontier, key, u);
         dstar_lite_key_destroy(key);
     }
@@ -773,7 +773,7 @@ void dstar_lite_compute_shortest_route(dstar_lite_t* dsl) {
             dstar_lite_key_destroy(calc_key);
             calc_key = NULL;
         }
-        calc_key = dstar_lite_calculate_key(dsl, u);
+        calc_key = dstar_lite_calc_key(dsl, u);
         if (dstar_lite_key_compare(k_old, calc_key) < 0) {
             dstar_lite_pqueue_push(dsl->frontier, calc_key, u);
         } else if ( g_u > rhs_u) {
@@ -871,7 +871,7 @@ void dstar_lite_compute_shortest_route(dstar_lite_t* dsl) {
             dstar_lite_key_destroy(calc_key_start);
             calc_key_start = NULL;
         }
-        calc_key_start = dstar_lite_calculate_key(dsl, dsl->start);
+        calc_key_start = dstar_lite_calc_key(dsl, dsl->start);
                     
         g_start_ptr = (float*)coord_hash_get(dsl->g_table, dsl->start);
         if ( g_start_ptr ) {

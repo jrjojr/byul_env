@@ -12,6 +12,26 @@ extern "C" {
 // ---------------------------------------------------------
 
 /**
+ * @brief 1차방정식 ax + b = 0의 해를 구합니다.
+ *
+ * @param a 1차항 계수
+ * @param b 상수항
+ * @param[out] out_x 해 저장 (a != 0일 때)
+ *
+ * @return 해가 존재하면 true, a가 0이면 false
+ *
+ * **예시**
+ * @code
+ * float x;
+ * if (numeq_solve_linear(2.0f, -4.0f, &x)) {
+ *     // x = 2.0
+ * }
+ * @endcode
+ */
+BYUL_API bool numeq_solve_linear(float a, float b, float* out_x);
+
+
+/**
  * @brief 이차방정식 ax² + bx + c = 0의 해를 구합니다. (실근만 반환)
  *
  * @param a 이차항 계수 (a != 0)
@@ -128,6 +148,7 @@ BYUL_API bool numeq_solve_time_for_vec3(numeq_vec3_func func,
                                float t_min, float t_max,
                                float tol,
                                float* out_t);
+
 
 #ifdef __cplusplus
 }

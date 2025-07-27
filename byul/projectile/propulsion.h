@@ -1,5 +1,5 @@
-#ifndef PROJECTILE_PROPULSION_H
-#define PROJECTILE_PROPULSION_H
+#ifndef PROPULSION_H
+#define PROPULSION_H
 
 #include "internal/controller.h"
 
@@ -371,4 +371,4 @@ BYUL_API const char* propulsion_to_json(
 }
 #endif
 
-#endif // PROJECTILE_PROPULSION_H
+#endif // PROPULSION_H

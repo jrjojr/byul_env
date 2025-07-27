@@ -385,87 +385,42 @@ BYUL_API float numeq_mpc_cost_hybrid(
 // ---------------------------------------------------------
 
 /**
- * @brief 단일 목표 Model Predictive Control (MPC) 솔버
+ * @brief Model Predictive Control(MPC)을 이용해 최적 가속도 벡터를 탐색하고, 
+ *        미래 궤적(trajectory)을 예측한다.
  *
- * 현재 상태(`current_state`)에서 목표 상태(`target_state`)로 이동하기 위해
- * 가능한 가속도(acceleration) 및 각가속도(angular acceleration) 후보들을
- * 브루트포스 방식으로 평가하고, 비용 함수(`cost_fn`)가 최소화되는
- * 최적의 제어 입력을 계산합니다.
+ * 이 함수는 현재 상태(`current_state`)에서 목표 상태(`target_state`)로 이동하기 위해 
+ * 지정된 시간 구간(`config->horizon_sec`) 동안 후보 가속도 조합을 시뮬레이션하며, 
+ * 비용 함수(`cost_fn`)를 사용해 최소 비용을 제공하는 제어 입력을 찾는다.
+ * 
+ * 선택된 제어 입력(`desired_accel`, `desired_ang_accel`)과 
+ * 예측된 미래 상태(`future_state`)는 `out_result`에 저장된다.
+ * `config->output_trajectory`가 활성화된 경우, `out_traj`에 
+ * 미래 궤적 샘플이 기록된다.
  *
- * ---
+ * @param current_state   현재 물체의 상태 (위치, 속도, 가속도 등).
+ * @param target_state    목표로 하는 상태 (위치, 속도, 방향).
+ * @param env             외부 환경 요소 (중력, 바람, 항력 등), NULL 허용.
+ * @param body            물체의 물리 특성(질량, 공기저항 계수 등), NULL 허용.
+ * @param config          MPC 설정 값 (가속도 제한, 시뮬레이션 horizon, step 간격 등).
+ * @param out_result      최적화 결과가 저장될 출력 구조체 (NULL 불가).
+ * @param out_traj        미래 궤적 샘플을 기록할 구조체 (config->output_trajectory=true일 때만 사용).
+ * @param cost_fn         후보 시뮬레이션의 비용을 평가하는 사용자 정의 함수 포인터 (NULL 가능).
+ *                        - 형식: float cost_fn(const motion_state_t* sim_state,
+ *                                                const motion_state_t* target_state,
+ *                                                void* userdata)
+ * @param cost_userdata   비용 함수에 전달되는 사용자 데이터 포인터.
  *
- * ## 작동 원리
- * 1. `config->max_accel`, `config->max_ang_accel` 범위에서
- *    각 축별 가속도 후보(-max, 0, +max)를 생성합니다.
- * 2. 모든 조합(총 3³ × 3³ = 729개)에 대해 **시간 지평선(horizon_sec)** 동안
- *    `numeq_integrate_motion_rk4()`로 상태를 적분하며 시뮬레이션을 수행합니다.
- * 3. 각 시뮬레이션에 대해 `cost_fn`을 호출하여 누적 비용(total_cost)을 계산합니다.
- * 4. 최소 비용을 발생시키는 가속도 조합을 **최적값**으로 선택하고
- *    `out_result`에 기록합니다.
- * 5. `out_traj`가 지정되고 `config->output_trajectory == true`이면,
- *    선택된 제어 입력을 적용하여 미래 궤적(trajectory)을 생성합니다.
+ * @return true  성공적으로 MPC 최적화를 수행한 경우.
+ * @return false 입력 파라미터가 유효하지 않거나 계산 실패 시.
  *
- * ---
+ * @note
+ * - 가속도 후보는 `-config->max_accel, 0, +config->max_accel`의 
+ *   전수 탐색으로 이루어진다.
+ * - `numeq_integrate_motion_rk4()`를 사용하여 물리 시뮬레이션을 수행한다.
+ * - 실시간 제어에서는 후보 수와 `horizon_sec` 값을 최소화하거나 
+ *   QP 기반 알고리즘으로 대체하는 것을 권장한다.
  *
- * ## 매개변수
- * @param[in]  current_state  현재 모션 상태 (위치, 속도, 회전 정보 포함)
- * @param[in]  target_state   목표 모션 상태
- * @param[in]  env            환경 정보 (중력, 풍속, 공기밀도 등)
- *                            현재 버전에서는 사용하지 않지만 향후 확장을 위해 유지됩니다.
- * @param[in]  body           물리 속성 (질량, 항력계수 등)
- *                            현재 버전에서는 사용하지 않지만 향후 확장을 위해 유지됩니다.
- * @param[in]  config         MPC 설정 (horizon_sec, step_dt, max_accel 등)
- * @param[out] out_result     MPC 결과 출력 구조체
- *                            (desired_accel, desired_ang_accel, cost, future_state 포함)
- * @param[out] out_traj       미래 궤적을 저장할 trajectory_t (NULL이면 궤적 저장 안 함)
- * @param[in]  cost_fn        비용 함수 포인터
- *                            - 호출 시점: 각 스텝마다 (sim_state, target_state, cost_userdata)
- *                            - 반환 값: 해당 스텝의 비용 (작을수록 더 나은 결과)
- * @param[in]  cost_userdata  비용 함수에 전달되는 사용자 정의 데이터 (NULL 가능)
- *
- * ---
- *
- * ## 반환값
- * - **true**: MPC 계산 성공
- * - **false**: 입력 포인터(current_state, target_state, config, out_result) 중
- *              하나라도 NULL이면 실패
- *
- * ---
- *
- * ## 사용 예시
- * @code
- * motion_state_t current, target;
- * mpc_config_t cfg;
- * mpc_output_t result;
- * trajectory_t traj;
- *
- * mpc_config_init(&cfg);
- * cfg.max_accel = 5.0f;
- * cfg.max_ang_accel = 2.0f;
- * cfg.horizon_sec = 10;
- * cfg.step_dt = 0.016f; // 60Hz
- *
- * bool ok = numeq_mpc_solve(&current, &target,
- *                           NULL, NULL,
- *                           &cfg,
- *                           &result, &traj,
- *                           my_cost_fn, NULL);
- *
- * if (ok) {
- *     printf("Best Accel: (%f, %f, %f)\n",
- *            result.desired_accel.x,
- *            result.desired_accel.y,
- *            result.desired_accel.z);
- * }
- * @endcode
- *
- * ---
- *
- * ## 주의사항
- * - 브루트포스 탐색(3³ × 3³ = 729회 × horizon_sec)으로 연산량이 큽니다.
- *   실시간 환경에서는 후보 수를 줄이거나 horizon_sec을 줄여야 합니다.
- * - env와 body는 현재 사용되지 않으나 향후 공기저항/중력/질량을 반영할 계획입니다.
- * - cost_fn이 NULL이면 모든 후보의 비용이 0이므로 첫 번째 후보가 선택됩니다.
+ * @see mpc_output_t, trajectory_t, mpc_cost_func
  */
 BYUL_API bool numeq_mpc_solve(
     const motion_state_t* current_state,

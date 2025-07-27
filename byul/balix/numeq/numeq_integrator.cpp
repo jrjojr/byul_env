@@ -10,9 +10,11 @@
 // ---------------------------------------------------------
 void integrator_config_init(integrator_config_t* cfg) {
     if (!cfg) return;
-    cfg->type = INTEGRATOR_MOTION_RK4;
+    cfg->type = INTEGRATOR_RK4_ENV;
     cfg->time_step = 0.016f; // 기본 60Hz
     cfg->prev_state = nullptr;
+    cfg->env = nullptr;
+    cfg->body = nullptr;
     cfg->userdata = nullptr;
 }
 
@@ -125,6 +127,136 @@ void numeq_integrate_rk4(
     state->linear.acceleration = a0;
 }
 
+void numeq_integrate_rk4_env(motion_state_t* state,
+                             float dt,
+                             const environ_t* env,
+                             const bodyprops_t* body)
+{
+    assert(state);
+
+    if (!env && !body) {
+        numeq_integrate_rk4(state, dt);
+        return;
+    }
+    
+    environ_t a_env = env ? *env : (environ_t){0};
+    bodyprops_t a_body = body ? *body : (bodyprops_t){0};
+
+    // 초기 상태
+    Vec3 p0(state->linear.position);
+    Vec3 v0(state->linear.velocity);
+
+    // ===== RK4 선형 운동 =====
+    // k1
+    vec3_t a1;
+    numeq_model_accel_at(0.0f, &state->linear, env, body, &a1);
+    Vec3 k1_p = v0 * dt;
+    Vec3 k1_v = Vec3(a1) * dt;
+
+    // k2
+    linear_state_t tmp2 = state->linear;
+    tmp2.velocity = v0 + k1_v * 0.5f;
+
+    vec3_t a2;
+    numeq_model_accel_at(dt * 0.5f, &tmp2, env, body, &a2);
+    Vec3 k2_p = (v0 + k1_v * 0.5f) * dt;
+    Vec3 k2_v = Vec3(a2) * dt;
+
+    // k3
+    linear_state_t tmp3 = state->linear;
+    vec3_t v_half3 = {v0.v.x + 0.5f * k2_v.v.x,
+                      v0.v.y + 0.5f * k2_v.v.y,
+                      v0.v.z + 0.5f * k2_v.v.z};
+    tmp3.velocity = v_half3;
+    vec3_t a3;
+    numeq_model_accel_at(dt * 0.5f, &tmp3, env, body, &a3);
+    Vec3 k3_p = (v0 + k2_v * 0.5f) * dt;
+    Vec3 k3_v = Vec3(a3) * dt;
+
+    // k4
+    linear_state_t tmp4 = state->linear;
+    vec3_t v_full = {v0.v.x + k3_v.v.x,
+                     v0.v.y + k3_v.v.y,
+                     v0.v.z + k3_v.v.z};
+    tmp4.velocity = v_full;
+    vec3_t a4;
+    numeq_model_accel_at(dt, &tmp4, env, body, &a4);
+    Vec3 k4_p = (v0 + k3_v) * dt;
+    Vec3 k4_v = Vec3(a4) * dt;
+
+    // 업데이트
+    Vec3 dp = (k1_p + (k2_p + k3_p) * 2.0f + k4_p) * (1.0f / 6.0f);
+    Vec3 dv = (k1_v + (k2_v + k3_v) * 2.0f + k4_v) * (1.0f / 6.0f);
+
+    state->linear.position = p0 + dp;
+    state->linear.velocity = v0 + dv;
+    state->linear.acceleration = a4;  // 마지막 스텝 가속도로 갱신
+}
+
+// void numeq_integrate_rk4_env(motion_state_t* state,
+//                              float dt,
+//                              const environ_t* env,
+//                              const bodyprops_t* body)
+// {
+//     assert(state);
+
+//     if (!env && !body) {
+//         numeq_integrate_rk4(state, dt);
+//         return;
+//     }
+
+//     environ_t a_env = env ? *env : (environ_t){0};
+//     bodyprops_t a_body = body ? *body : (bodyprops_t){0};
+
+//     // 초기 상태
+//     Vec3 p0(state->linear.position);
+//     Vec3 v0(state->linear.velocity);
+//     Vec3 g = env ? Vec3(env->gravity) : Vec3(0.0f, 0.0f, 0.0f);
+
+//     // ===== RK4 선형 운동 =====
+//     // k1
+//     vec3_t a1_ext;
+//     numeq_model_accel_except_gravity(&state->linear, &a_env, &a_body, &a1_ext);
+//     Vec3 a1 = Vec3(a1_ext) + g;
+//     Vec3 k1_p = v0 * dt;
+//     Vec3 k1_v = a1 * dt;
+
+//     // k2
+//     linear_state_t tmp2 = state->linear;
+//     tmp2.velocity = v0 + k1_v * 0.5f;
+//     vec3_t a2_ext;
+//     numeq_model_accel_except_gravity(&tmp2, &a_env, &a_body, &a2_ext);
+//     Vec3 a2 = Vec3(a2_ext) + g;
+//     Vec3 k2_p = (v0 + k1_v * 0.5f) * dt;
+//     Vec3 k2_v = a2 * dt;
+
+//     // k3
+//     linear_state_t tmp3 = state->linear;
+//     tmp3.velocity = v0 + k2_v * 0.5f;
+//     vec3_t a3_ext;
+//     numeq_model_accel_except_gravity(&tmp3, &a_env, &a_body, &a3_ext);
+//     Vec3 a3 = Vec3(a3_ext) + g;
+//     Vec3 k3_p = (v0 + k2_v * 0.5f) * dt;
+//     Vec3 k3_v = a3 * dt;
+
+//     // k4
+//     linear_state_t tmp4 = state->linear;
+//     tmp4.velocity = v0 + k3_v;
+//     vec3_t a4_ext;
+//     numeq_model_accel_except_gravity(&tmp4, &a_env, &a_body, &a4_ext);
+//     Vec3 a4 = Vec3(a4_ext) + g;
+//     Vec3 k4_p = (v0 + k3_v) * dt;
+//     Vec3 k4_v = a4 * dt;
+
+//     // 최종 업데이트
+//     Vec3 dp = (k1_p + 2.0f * (k2_p + k3_p) + k4_p) / 6.0f;
+//     Vec3 dv = (k1_v + 2.0f * (k2_v + k3_v) + k4_v) / 6.0f;
+
+//     state->linear.position = p0 + dp;
+//     state->linear.velocity = v0 + dv;
+//     state->linear.acceleration = a4;  // 마지막 단계의 전체 가속도
+// }
+
 // ---------------------------------------------------------
 // 회전 적분 (Angular Euler)
 // ---------------------------------------------------------
@@ -197,6 +329,64 @@ void numeq_integrate_attitude_rk4(
     quat_normalize(&state->angular.orientation);
 }
 
+// ---------------------------------------------------------
+// 회전 적분 (RK4 + 환경 반영)
+// ---------------------------------------------------------
+void numeq_integrate_attitude_rk4_env(motion_state_t* state,
+                                      float dt,
+                                      const environ_t* env,
+                                      const bodyprops_t* body)
+{
+    if (!state) return;
+
+    if(!env  || !body){
+        numeq_integrate_attitude_rk4(state, dt);
+        return;
+    }
+
+    // 초기 각속도 및 각가속도
+    vec3_t w0 = state->angular.angular_velocity;
+    vec3_t alpha0 = state->angular.angular_acceleration;
+
+    // -----------------------------------------------------
+    // 환경 영향: 예를 들어 공기 저항에 의한 회전 감쇠 토크를 추가할 수 있음.
+    // 단순 모델: alpha0 -= k_drag * w0 (선형 감쇠 가정)
+    // 여기서 k_drag는 공기 밀도, 단면적, 드래그 계수에 비례
+    // -----------------------------------------------------
+    float angular_drag_coeff = 0.5f * env->air_density 
+    * body->drag_coef * body->cross_section / (body->mass + 1e-6f);
+    
+    vec3_t drag_torque = {
+        -angular_drag_coeff * w0.x,
+        -angular_drag_coeff * w0.y,
+        -angular_drag_coeff * w0.z
+    };
+    alpha0.x += drag_torque.x;
+    alpha0.y += drag_torque.y;
+    alpha0.z += drag_torque.z;
+
+    // -----------------------------------------------------
+    // RK4 적분 (각속도)
+    // -----------------------------------------------------
+    vec3_t k1 = alpha0;
+    vec3_t k2 = alpha0; // 선형 시스템이므로 동일
+    vec3_t k3 = alpha0;
+    vec3_t k4 = alpha0;
+
+    w0.x += (k1.x + 2*k2.x + 2*k3.x + k4.x) * (dt / 6.0f);
+    w0.y += (k1.y + 2*k2.y + 2*k3.y + k4.y) * (dt / 6.0f);
+    w0.z += (k1.z + 2*k2.z + 2*k3.z + k4.z) * (dt / 6.0f);
+
+    state->angular.angular_velocity = w0;
+
+    // -----------------------------------------------------
+    // 쿼터니언 업데이트
+    // -----------------------------------------------------
+    quat_t dq;
+    quat_init_angular_velocity(&dq, &w0, dt);
+    quat_mul(&state->angular.orientation, &state->angular.orientation, &dq);
+    quat_normalize(&state->angular.orientation);
+}
 
 // 회전(자세) Verlet 적분
 void numeq_integrate_attitude_verlet(
@@ -374,68 +564,71 @@ void numeq_integrate_motion_rk4(motion_state_t* state, float dt) {
 }
 
 void numeq_integrate_motion_rk4_env(motion_state_t* state,
-                                float dt,
-                                const environ_t* env,
-                                const bodyprops_t* body)
+                                    float dt,
+                                    const environ_t* env,
+                                    const bodyprops_t* body)
 {
-    assert(state && env && body);
+    assert(state);
 
-    // ===== 선형 운동 RK4 =====
+    // 환경이나 물체 특성이 없으면 기본 RK4 호출
+    if (!env || !body) {
+        numeq_integrate_motion_rk4(state, dt);
+        return;
+    }
+
+    environ_t a_env = env ? *env : (environ_t){0};
+    bodyprops_t a_body = body ? *body : (bodyprops_t){0};
+
+    // -----------------------------
+    // 선형 운동 (Linear Motion)
+    // -----------------------------
     Vec3 p0(state->linear.position);
     Vec3 v0(state->linear.velocity);
 
     // k1
     vec3_t a1;
-    numeq_model_accel_at(0.0f, &state->linear, env, body, &a1);
+    numeq_model_accel(&state->linear, &a_env, &a_body, &a1);
     Vec3 k1_p = v0 * dt;
     Vec3 k1_v = Vec3(a1) * dt;
 
     // k2
     linear_state_t tmp2 = state->linear;
-    vec3_t v_half2 = {v0.v.x + 0.5f * k1_v.v.x,
-                      v0.v.y + 0.5f * k1_v.v.y,
-                      v0.v.z + 0.5f * k1_v.v.z};
-    tmp2.velocity = v_half2;
+    tmp2.velocity = v0 + k1_v * 0.5f;
     vec3_t a2;
-    numeq_model_accel_at(dt * 0.5f, &tmp2, env, body, &a2);
+    numeq_model_accel(&tmp2, &a_env, &a_body, &a2);
     Vec3 k2_p = (v0 + k1_v * 0.5f) * dt;
     Vec3 k2_v = Vec3(a2) * dt;
 
     // k3
     linear_state_t tmp3 = state->linear;
-    vec3_t v_half3 = {v0.v.x + 0.5f * k2_v.v.x,
-                      v0.v.y + 0.5f * k2_v.v.y,
-                      v0.v.z + 0.5f * k2_v.v.z};
-    tmp3.velocity = v_half3;
+    tmp3.velocity = v0 + k2_v * 0.5f;
     vec3_t a3;
-    numeq_model_accel_at(dt * 0.5f, &tmp3, env, body, &a3);
+    numeq_model_accel(&tmp3, &a_env, &a_body, &a3);
     Vec3 k3_p = (v0 + k2_v * 0.5f) * dt;
     Vec3 k3_v = Vec3(a3) * dt;
 
     // k4
     linear_state_t tmp4 = state->linear;
-    vec3_t v_full = {v0.v.x + k3_v.v.x,
-                     v0.v.y + k3_v.v.y,
-                     v0.v.z + k3_v.v.z};
-    tmp4.velocity = v_full;
+    tmp4.velocity = v0 + k3_v;
     vec3_t a4;
-    numeq_model_accel_at(dt, &tmp4, env, body, &a4);
+    numeq_model_accel(&tmp4, &a_env, &a_body, &a4);
     Vec3 k4_p = (v0 + k3_v) * dt;
     Vec3 k4_v = Vec3(a4) * dt;
 
-    // 업데이트
+    // 최종 업데이트
     Vec3 dp = (k1_p + (k2_p + k3_p) * 2.0f + k4_p) * (1.0f / 6.0f);
     Vec3 dv = (k1_v + (k2_v + k3_v) * 2.0f + k4_v) * (1.0f / 6.0f);
-
     state->linear.position = p0 + dp;
     state->linear.velocity = v0 + dv;
-    state->linear.acceleration = a4;  // 마지막 스텝 가속도로 갱신
+    state->linear.acceleration = a4;
 
-    // ===== 회전 운동 RK4 =====
+    // -----------------------------
+    // 회전 운동 (Angular Motion)
+    // -----------------------------
     Vec3 w0(state->angular.angular_velocity);
     Vec3 alpha0(state->angular.angular_acceleration);
 
-    // 각속도 변화
+    // 각속도 RK4 (상수 alpha 가정)
     Vec3 k1_w = alpha0 * dt;
     Vec3 k2_w = alpha0 * dt;
     Vec3 k3_w = alpha0 * dt;
@@ -467,6 +660,10 @@ void numeq_integrate(
         case INTEGRATOR_RK4:
             numeq_integrate_rk4(state, config->time_step);
             break;
+        case INTEGRATOR_RK4_ENV:
+            numeq_integrate_rk4_env(
+                state, config->time_step, config->env, config->body);
+            break;            
         case INTEGRATOR_VERLET:
             if (config->prev_state) {
                 numeq_integrate_verlet(state, config->prev_state, 

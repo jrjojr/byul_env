@@ -87,7 +87,7 @@ BYUL_API void rta_star_config_destroy(rta_star_config cfg);
  * for (int y = 1; y < 10; y++)
  *     navgrid_block_coord(al->m, 5, y);
  *
- * route_t* p = route_finder_find(al, start, goal);
+ * route_t* p = route_finder_run(al, start, goal);
  * navgrid_print_ascii_with_visited_count(al->m, p, start, goal);
  *
  * route_destroy(p);

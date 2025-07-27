@@ -313,6 +313,8 @@ TEST_CASE("xform_lerp should interpolate position and rotation linearly") {
     vec3_t mid_pos;
     xform_get_position(&mid, &mid_pos);
     vec3_t v3 = {5, 0, 0};
+    vec3_print(&mid_pos);
+    vec3_print(&v3);
     CHECK(vec3_equal(&mid_pos, &v3));
 
     vec3_t axis;

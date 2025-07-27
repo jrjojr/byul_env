@@ -1,4 +1,4 @@
-#include "internal/projectile_guidance.h"
+#include "internal/guidance.h"
 #include "internal/xform.h"
 #include "internal/vec3.h"
 #include <math.h>
@@ -14,13 +14,13 @@
 // ---------------------------------------------------------
 // 유도 없음 (None)
 // ---------------------------------------------------------
-const vec3_t* projectile_guidance_none(
-    const projectile_t* proj, float dt, void* userdata, vec3_t* out)
+const vec3_t* guidance_none(
+    const entity_dynamic_t* entdyn, float dt, void* userdata, vec3_t* out)
 {
     static vec3_t s_zero = {0, 0, 0};
     vec3_t* result = out ? out : &s_zero;
 
-    (void)proj; (void)dt; (void)userdata;
+    (void)entdyn; (void)dt; (void)userdata;
     vec3_zero(result);
     return result;
 }
@@ -28,29 +28,29 @@ const vec3_t* projectile_guidance_none(
 // ---------------------------------------------------------
 // 정적 타겟 유도 (Point)
 // ---------------------------------------------------------
-const vec3_t* projectile_guidance_point(
-    const projectile_t* proj, float dt, void* userdata, vec3_t* out)
+const vec3_t* guidance_point(
+    const entity_dynamic_t* entdyn, float dt, void* userdata, vec3_t* out)
 {
     static vec3_t s_dir;
     vec3_t* result = out ? out : &s_dir;
 
     (void)dt;
-    if (!proj || !userdata) {
+    if (!entdyn || !userdata) {
         vec3_zero(result);
         return result;
     }
 
     const vec3_t* target_pos = (const vec3_t*)userdata;
     vec3_t proj_pos;
-    xform_get_position(&proj->base.xf, &proj_pos);
+    xform_get_position(&entdyn->xf, &proj_pos);
 
     vec3_sub(result, target_pos, &proj_pos);
     vec3_unit(result, result);
     return result;
 }
 
-const vec3_t* projectile_guidance_lead(
-    const projectile_t* proj, float dt, void* userdata, vec3_t* out)
+const vec3_t* guidance_lead(
+    const entity_dynamic_t* entdyn, float dt, void* userdata, vec3_t* out)
 {
     int debug_mode;
 
@@ -60,7 +60,7 @@ const vec3_t* projectile_guidance_lead(
     vec3_t* result = out ? out : &s_dir;
     (void)dt;
 
-    if (!proj || !userdata) {
+    if (!entdyn || !userdata) {
         vec3_zero(result);
         return result;
     }
@@ -68,7 +68,7 @@ const vec3_t* projectile_guidance_lead(
     const entity_dynamic_t* target = (const entity_dynamic_t*)userdata;
 
     vec3_t missile_pos;
-    xform_get_position(&proj->base.xf, &missile_pos);
+    xform_get_position(&entdyn->xf, &missile_pos);
     if (debug_mode) {
         printf("[DEBUG] missile_pos: "); vec3_print(&missile_pos);
     }
@@ -79,7 +79,7 @@ const vec3_t* projectile_guidance_lead(
         printf("[DEBUG] target_pos: "); vec3_print(&target_pos);
     }
 
-    float missile_speed = vec3_length(&proj->base.velocity);
+    float missile_speed = vec3_length(&entdyn->velocity);
     if (debug_mode) {
         printf("[DEBUG] missile_speed = %f\n", missile_speed);
     }
@@ -165,8 +165,8 @@ static float compute_intercept_time(
  * 타겟의 motion_state_t(위치, 속도)를 기반으로 요격 위치를 계산하여
  * 발사체가 향해야 할 단위 방향 벡터를 반환합니다.
  */
-const vec3_t* projectile_guidance_predict(
-    const projectile_t* proj,
+const vec3_t* guidance_predict(
+    const entity_dynamic_t* entdyn,
     float dt,
     void* userdata,
     vec3_t* out)
@@ -174,26 +174,28 @@ const vec3_t* projectile_guidance_predict(
     static vec3_t s_dir;
     vec3_t* result = out ? out : &s_dir;
 
-    if (!proj || !userdata) {
+    if (!entdyn || !userdata) {
         vec3_zero(result);
         return result;
     }
 
-    const target_info_t* info = (const target_info_t*)userdata;
-    const entity_dynamic_t* target = info->target;  // 타겟 엔티티
+    const guidance_target_info_t* info 
+    = (const guidance_target_info_t*)userdata;
+
+    entity_dynamic_t target = info->target;  // 타겟 엔티티
 
     // 발사체 위치 및 속도 크기
     vec3_t missile_pos;
-    xform_get_position(&proj->base.xf, &missile_pos);
-    float missile_speed = vec3_length(&proj->base.velocity);
+    xform_get_position(&entdyn->xf, &missile_pos);
+    float missile_speed = vec3_length(&entdyn->velocity);
     if (missile_speed < 0.01f) missile_speed = 0.01f;
 
     // -------------------------------
     // 타겟 상태 (현재 위치, 속도)
     // -------------------------------
     vec3_t target_pos;
-    xform_get_position(&target->xf, &target_pos);
-    vec3_t target_vel = target->velocity;    
+    xform_get_position(&target.xf, &target_pos);
+    vec3_t target_vel = target.velocity;    
 
     // 요격 시간 계산
     float intercept_time = compute_intercept_time(&missile_pos, missile_speed,
@@ -269,8 +271,8 @@ static float compute_intercept_time_accel(
  *
  * target_info_t는 entity_dynamic_t + environ_t 기반으로 동작합니다.
  */
-const vec3_t* projectile_guidance_predict_accel(
-    const projectile_t* proj,
+const vec3_t* guidance_predict_accel(
+    const entity_dynamic_t* entdyn,
     float dt,
     void* userdata,
     vec3_t* out)
@@ -278,36 +280,37 @@ const vec3_t* projectile_guidance_predict_accel(
     static vec3_t s_dir;
     vec3_t* result = out ? out : &s_dir;
 
-    if (!proj || !userdata) {
+    if (!entdyn || !userdata) {
         vec3_zero(result);
         return result;
     }
 
-    const target_info_t* info = (const target_info_t*)userdata;
-    const entity_dynamic_t* target = info->target;  // 타겟 엔티티
+    const guidance_target_info_t* info = (const guidance_target_info_t*)userdata;
+    entity_dynamic_t target = info->target;  // 타겟 엔티티
 
     // -------------------------------
     // 발사체 위치 및 속도
     // -------------------------------
     vec3_t missile_pos;
-    xform_get_position(&proj->base.xf, &missile_pos);
-    float missile_speed = vec3_length(&proj->base.velocity);
+    xform_get_position(&entdyn->xf, &missile_pos);
+    float missile_speed = vec3_length(&entdyn->velocity);
     if (missile_speed < 0.01f) missile_speed = 0.01f;
 
     // -------------------------------
     // 타겟 상태 (현재 위치, 속도)
     // -------------------------------
     vec3_t target_pos;
-    xform_get_position(&target->xf, &target_pos);
-    vec3_t target_vel = target->velocity;
+    xform_get_position(&target.xf, &target_pos);
+    vec3_t target_vel = target.velocity;
 
     // -------------------------------
     // 타겟 가속도 (환경 포함)
     // -------------------------------
     vec3_t target_acc = {0, 0, 0};
-    if (info->env) {
-        entity_dynamic_predict_accel_env(target, info->env, &target_acc);
-    }
+    vec3_t prev_vel = target_vel;
+
+    entity_dynamic_calc_accel_env(&target, 
+        &prev_vel, dt, &info->env, &target_acc);
 
     // -------------------------------
     // 요격 시간 계산
@@ -342,8 +345,8 @@ const vec3_t* projectile_guidance_predict_accel(
  * - environ_t를 이용해 중력, 바람, 드래그 등의 외부 힘을 반영합니다.
  * - Cardano 기반 요격 시간 계산으로 미래 타겟 위치를 예측하고 단위 방향 벡터를 반환합니다.
  */
-const vec3_t* projectile_guidance_predict_accel_env(
-    const projectile_t* proj,
+const vec3_t* guidance_predict_accel_env(
+    const entity_dynamic_t* entdyn,
     float dt,
     void* userdata,
     vec3_t* out)
@@ -351,30 +354,30 @@ const vec3_t* projectile_guidance_predict_accel_env(
     static vec3_t s_dir;
     vec3_t* result = out ? out : &s_dir;
 
-    if (!proj || !userdata) {
+    if (!entdyn || !userdata) {
         vec3_zero(result);
         return result;
     }
 
-    const target_info_t* info = (const target_info_t*)userdata;
-    const entity_dynamic_t* target = info->target;
+    const guidance_target_info_t* info = (const guidance_target_info_t*)userdata;
+    entity_dynamic_t target = info->target;
 
     // --- 발사체 현재 위치 및 속도 ---
     vec3_t missile_pos;
-    xform_get_position(&proj->base.xf, &missile_pos);
-    float missile_speed = vec3_length(&proj->base.velocity);
+    xform_get_position(&entdyn->xf, &missile_pos);
+    float missile_speed = vec3_length(&entdyn->velocity);
     if (missile_speed < 0.01f) missile_speed = 0.01f;
 
     // --- 타겟의 현재 상태 ---
     vec3_t target_pos;
-    xform_get_position(&target->xf, &target_pos);
-    vec3_t target_vel = target->velocity;
+    xform_get_position(&target.xf, &target_pos);
+    vec3_t target_vel = target.velocity;
 
     // --- 타겟 가속도 추정 (환경 영향 포함) ---
     vec3_t target_acc = {0, 0, 0};
-    if (info->env) {
-        entity_dynamic_predict_accel_env(target, info->env, &target_acc);
-    }
+    vec3_t prev_vel = target_vel;
+    entity_dynamic_calc_accel_env(&target, &prev_vel, dt, 
+        &info->env, &target_acc);
 
     // --- 요격 시간 계산 ---
     float intercept_time = compute_intercept_time_accel(&missile_pos,
