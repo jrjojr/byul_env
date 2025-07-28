@@ -1,6 +1,6 @@
 #include "doctest.h"
-#include "internal/navgrid.h"
-#include "internal/coord.h"
+#include "navgrid.h"
+#include "coord.h"
 
 TEST_CASE("navgrid blocking and checking") {
     navgrid_t* m = navgrid_create();

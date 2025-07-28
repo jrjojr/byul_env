@@ -1,11 +1,11 @@
-#include "internal/rta_star.h"
-#include "internal/navgrid.h"
-#include "internal/coord.hpp"
-#include "internal/coord_list.h"
-#include "internal/coord_hash.h"
-#include "internal/cost_coord_pq.h"
-#include "internal/route.h"
-#include "internal/console.h"
+#include "rta_star.h"
+#include "navgrid.h"
+#include "coord.hpp"
+#include "coord_list.h"
+#include "coord_hash.h"
+#include "cost_coord_pq.h"
+#include "route.h"
+// #include "console.h"
 #include <float.h>
 #include <cmath>
 

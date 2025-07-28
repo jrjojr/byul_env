@@ -10,6 +10,7 @@ set(SOURCES
     main.cpp
     test_module_entity.cpp
     test_module_entity_dynamic.cpp    
+    test_module_entity_spring.cpp
 )
 
 # ------------------- 테스트 실행 파일 -------------------
@@ -54,7 +55,21 @@ message(STATUS "${PROJECT_NAME} : EXTERNAL_DIR = ${EXTERNAL_DIR}")
 target_include_directories(${PROJECT_NAME} PRIVATE
     ${CMAKE_SOURCE_DIR}
     ${CMAKE_CURRENT_SOURCE_DIR}
-    ${CMAKE_BINARY_DIR}/include/byul
+    
+    ${CMAKE_SOURCE_DIR}/common
+
+    ${CMAKE_SOURCE_DIR}/navsys/coord
+
+    ${CMAKE_SOURCE_DIR}/balix/numal
+    ${CMAKE_SOURCE_DIR}/balix/xform
+    ${CMAKE_SOURCE_DIR}/balix/bodyprops
+    ${CMAKE_SOURCE_DIR}/balix/environ
+    ${CMAKE_SOURCE_DIR}/balix/motion_state
+    ${CMAKE_SOURCE_DIR}/balix/trajectory
+
+    ${CMAKE_SOURCE_DIR}/entity
+    
+
     ${EXTERNAL_DIR}
 )
 

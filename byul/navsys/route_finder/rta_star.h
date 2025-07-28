@@ -1,7 +1,7 @@
 #ifndef RTA_STAR_H
 #define RTA_STAR_H
 
-#include "internal/route_finder_common.h"
+#include "route_finder_common.h"
 
 #ifdef __cplusplus
 extern "C" {

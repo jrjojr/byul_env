@@ -1,8 +1,8 @@
 #ifndef NUMEQ_PID_VEC3_H
 #define NUMEQ_PID_VEC3_H
 
-#include "internal/numeq_pid.h"
-#include "internal/trajectory.h"
+#include "numeq_pid.h"
+#include "trajectory.h"
 
 #ifdef __cplusplus
 extern "C" {

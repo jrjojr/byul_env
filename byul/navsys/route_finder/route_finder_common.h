@@ -2,9 +2,9 @@
 #define ROUTE_FINDER_COMMON_H
 
 #include "byul_common.h"
-#include "internal/navgrid.h"
-#include "internal/coord.h"
-#include "internal/route.h"
+#include "navgrid.h"
+#include "coord.h"
+#include "route.h"
 
 #ifdef __cplusplus
 extern "C" {

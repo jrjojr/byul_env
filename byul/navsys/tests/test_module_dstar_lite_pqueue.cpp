@@ -1,9 +1,9 @@
 #include "doctest.h"
 
 extern "C" {
-#include "internal/dstar_lite_pqueue.h"
-#include "internal/coord.h"
-#include "internal/dstar_lite_key.h"
+#include "dstar_lite_pqueue.h"
+#include "coord.h"
+#include "dstar_lite_key.h"
 }
 
 TEST_CASE("dstar_lite_pqueue multiple pushes with same key") {

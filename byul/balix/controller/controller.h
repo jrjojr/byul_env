@@ -2,7 +2,7 @@
 #define CONTROLLER_H
 
 #include <stdbool.h>
-#include "internal/numeq.h"
+#include "numeq.h"
 
 #include "byul_common.h"
 

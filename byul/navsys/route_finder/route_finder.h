@@ -1,20 +1,20 @@
 #ifndef ROUTE_FINDER_H
 #define ROUTE_FINDER_H
 
-#include "internal/route_finder_common.h"
+#include "route_finder_common.h"
 
 // 모든 알고리즘 모듈 포함
-#include "internal/astar.h"
-#include "internal/bfs.h"
-#include "internal/dfs.h"
-#include "internal/dijkstra.h"
-#include "internal/fast_marching.h"
-#include "internal/fringe_search.h"
-#include "internal/greedy_best_first.h"
-#include "internal/ida_star.h"
-#include "internal/rta_star.h"
-#include "internal/sma_star.h"
-#include "internal/weighted_astar.h"
+#include "astar.h"
+#include "bfs.h"
+#include "dfs.h"
+#include "dijkstra.h"
+#include "fast_marching.h"
+#include "fringe_search.h"
+#include "greedy_best_first.h"
+#include "ida_star.h"
+#include "rta_star.h"
+#include "sma_star.h"
+#include "weighted_astar.h"
 
 #ifdef __cplusplus
 extern "C" {

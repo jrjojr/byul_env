@@ -68,6 +68,29 @@
             "cacheVariables": {
                 "CMAKE_BUILD_TYPE": "Debug"
             }
+        },
+        {
+            "name": "win-msvc-release",
+            "displayName": "Windows 11 (MSVC Release)",
+            "description": "Visual Studio 2022 (x64) Release 빌드",
+            "generator": "Visual Studio 17 2022",
+            "cmakeExecutable": "C:/Program Files/Microsoft Visual Studio/2022/Community/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/bin/cmake.exe",            
+            "binaryDir": "${sourceDir}/../build_win_msvc_release",
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Release"
+            }
+        },
+        {
+            "name": "win-msvc-debug",
+            "displayName": "Windows 11 (MSVC Debug)",
+            "description": "Visual Studio 2022 (x64) Debug 빌드",
+            "generator": "Visual Studio 17 2022",
+            "cmakeExecutable": "C:/Program Files/Microsoft Visual Studio/2022/Community/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/bin/cmake.exe",            
+            "binaryDir": "${sourceDir}/../build_win_msvc_debug",
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Debug"
+
+            }
         }
     ],
     "buildPresets": [
@@ -76,60 +99,56 @@
             "configurePreset": "linux-debug",
             "description": "로컬 Ubuntu Debug 빌드",
             "jobs": 8,
-            "targets": [
-                "all",
-                "package_zip"
-            ]
+            "targets": [ "all", "package_zip" ]
         },
         {
             "name": "build-linux-release",
             "configurePreset": "linux-release",
             "description": "로컬 Ubuntu Release 빌드",
             "jobs": 8,
-            "targets": [
-                "all",
-                "package_zip"
-            ]
+            "targets": [ "all", "package_zip" ]
         },
         {
             "name": "build-win-release",
             "configurePreset": "win-release",
             "description": "Windows용 DLL 빌드 preset",
             "jobs": 8,
-            "targets": [
-                "all",
-                "package_zip"
-            ]
+            "targets": [ "all", "package_zip" ]
         },
         {
             "name": "build-win_sdl_release",
             "configurePreset": "win_sdl_release",
             "description": "Windows SDL 실행파일 빌드 (MinGW64)",
             "jobs": 8,
-            "targets": [
-                "all",
-                "package_zip"
-            ]
+            "targets": [ "all", "package_zip" ]
         },
         {
             "name": "build-win-native",
             "configurePreset": "win-native",
             "description": "Windows native 용 DLL 빌드 preset",
             "jobs": 8,
-            "targets": [
-                "all",
-                "package_zip"
-            ]
+            "targets": [ "all", "package_zip" ]
         },
         {
             "name": "build-win-native-debug",
             "configurePreset": "win-native-debug",
             "description": "Windows native Debug 빌드 preset",
             "jobs": 8,
-            "targets": [
-                "all",
-                "package_zip"
-            ]
+            "targets": [ "all", "package_zip" ]
+        },
+        {
+            "name": "build-win-msvc-release",
+            "configurePreset": "win-msvc-release",
+            "description": "Windows MSVC Release 빌드",
+            "jobs": 8,
+            "targets": [ "all", "package_zip" ]
+        },
+        {
+            "name": "build-win-msvc-debug",
+            "configurePreset": "win-msvc-debug",
+            "description": "Windows MSVC Debug 빌드",
+            "jobs": 8,
+            "targets": [ "all", "package_zip" ]
         }
     ],
     "testPresets": []

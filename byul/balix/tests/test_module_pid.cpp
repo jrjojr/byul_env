@@ -4,11 +4,11 @@
 #include <cstdio>
 
 extern "C" {
-    #include "internal/numeq_pid.h"
-    #include "internal/numeq_pid_vec3.h"
+    #include "numeq_pid.h"
+    #include "numeq_pid_vec3.h"
 }
 
-#include "internal/vec3.hpp"
+#include "vec3.hpp"
 // -------------------- Scalar PID Tests --------------------
 
 TEST_CASE("Scalar PID: Proportional only (Kp only)") {

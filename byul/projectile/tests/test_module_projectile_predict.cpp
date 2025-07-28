@@ -1,10 +1,10 @@
 #include "doctest.h"
-#include "internal/projectile_predict.h"
-#include "internal/guidance.h"
-#include "internal/propulsion.h"
-#include "internal/trajectory.h"
-#include "internal/xform.h"
-#include "internal/entity_dynamic.h"
+#include "projectile_predict.h"
+#include "guidance.h"
+#include "propulsion.h"
+#include "trajectory.h"
+#include "xform.h"
+#include "entity_dynamic.h"
 #include <cmath>
 #include <stdio.h>
 

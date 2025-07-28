@@ -5,10 +5,10 @@
 #include <iostream>
 
 extern "C" {
-#include "internal/obstacle.h"
+#include "obstacle.h"
 
-#include "internal/console.h"
-#include "internal/navgrid.h"
+#include "console.h"
+#include "navgrid.h"
 }
 
 TEST_CASE("obstacle_make_rect_all_blocked - full blocking") {

@@ -4,7 +4,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include "byul_common.h"
-#include "internal/coord.h"
+#include "coord.h"
 
 #ifdef __cplusplus
 extern "C" {

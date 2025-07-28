@@ -1,7 +1,7 @@
 #include "doctest.h"
 
 extern "C" {
-    #include "internal/common.h"
+    #include "float_common.h"
 }
 
 TEST_CASE("float_equal: similar and dissimilar values") {

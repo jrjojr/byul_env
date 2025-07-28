@@ -6,20 +6,20 @@
 #ifndef NAVSYS_H
 #define NAVSYS_H
 
-#include "internal/coord.h"
-#include "internal/coord_list.h"
-#include "internal/coord_hash.h"
+#include "coord.h"
+#include "coord_list.h"
+#include "coord_hash.h"
 
-#include "internal/route.h"
-#include "internal/navgrid.h"
+#include "route.h"
+#include "navgrid.h"
 
-#include "internal/cost_coord_pq.h"
-#include "internal/route_finder.h"
-#include "internal/dstar_lite.h"
+#include "cost_coord_pq.h"
+#include "route_finder.h"
+#include "dstar_lite.h"
 
-#include "internal/maze.h"
-#include "internal/route_carver.h"
-#include "internal/obstacle.h"
+#include "maze.h"
+#include "route_carver.h"
+#include "obstacle.h"
 
 #ifdef __cplusplus
 extern "C" {

@@ -1,8 +1,8 @@
-#include "internal/dstar_lite_pqueue.h"
-#include "internal/coord.h"
+#include "dstar_lite_pqueue.h"
+#include "coord.h"
 #include "dstar_lite_key.hpp"
-#include "internal/common.h"
-#include "internal/coord_hash.h"
+#include "float_common.h"
+#include "coord_hash.h"
 
 #include <map>
 #include <vector>

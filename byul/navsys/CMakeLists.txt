@@ -4,21 +4,6 @@ project(navsys)
 
 message(STATUS "Build type: ${CMAKE_BUILD_TYPE}")
 
-if(CMAKE_BUILD_TYPE STREQUAL "Debug")
-    add_definitions(-DDEBUG)
-    message(STATUS "DEBUG mode enabled")
-endif()
-
-# ─────────────────────────────────────────────
-# ⛔ 루트에서만 설정해도 되는 것들 (코멘트 처리)
-# ─────────────────────────────────────────────
-# set(CMAKE_CXX_STANDARD 17)
-# set(CMAKE_CXX_STANDARD_REQUIRED ON)
-# set(CMAKE_CXX_EXTENSIONS OFF) # gnu++17이 아닌 순수 c++17 사용
-
-# set(CMAKE_EXPORT_COMPILE_COMMANDS ON)  # 루트에서 이미 설정
-# set(CMAKE_POSITION_INDEPENDENT_CODE ON) # 루트에서 이미 설정
-
 # ─────────────────────────────────────────────
 # 소스 파일
 # ─────────────────────────────────────────────
@@ -72,15 +57,62 @@ set(SOURCES
     maze/maze.cpp
 )
 
+set(HEADERS
+    ${PROJECT_NAME}.h
+
+    coord/coord.h
+    coord/coord_hash.h
+    coord/coord_list.h
+    coord/cost_coord_pq.h
+
+    route/route.h
+
+    navgrid/navgrid.h
+
+    route_carver/route_carver.h
+
+    dstar_lite/dstar_lite_key.h
+    dstar_lite/dstar_lite_pqueue.h
+    dstar_lite/dstar_lite.h
+
+    route_finder/route_finder.h    
+    route_finder/route_finder_common.h
+    route_finder/astar.h
+    route_finder/bfs.h
+    route_finder/dfs.h
+    route_finder/dijkstra.h
+    route_finder/fast_marching.h
+    route_finder/fringe_search.h
+    route_finder/greedy_best_first.h
+    route_finder/ida_star.h
+    route_finder/rta_star.h
+    route_finder/sma_star.h
+    route_finder/weighted_astar.h
+
+    obstacle/obstacle_common.h
+    obstacle/obstacle.h    
+
+    maze/maze_room.h
+    maze/maze.h
+)
+
 add_library(${PROJECT_NAME} STATIC ${SOURCES})
 
 # ─────────────────────────────────────────────
 # include 경로
 # ─────────────────────────────────────────────
 target_include_directories(${PROJECT_NAME} PRIVATE
+    ${CMAKE_CURRENT_SOURCE_DIR}    
     ${CMAKE_SOURCE_DIR}
-    ${CMAKE_CURRENT_SOURCE_DIR}
-    ${CMAKE_BINARY_DIR}/include/byul
+    ${CMAKE_SOURCE_DIR}/common
+    ${CMAKE_SOURCE_DIR}/navsys/coord
+    ${CMAKE_SOURCE_DIR}/navsys/dstar_lite
+    ${CMAKE_SOURCE_DIR}/navsys/maze
+    ${CMAKE_SOURCE_DIR}/navsys/navgrid
+    ${CMAKE_SOURCE_DIR}/navsys/obstacle
+    ${CMAKE_SOURCE_DIR}/navsys/route
+    ${CMAKE_SOURCE_DIR}/navsys/route_carver
+    ${CMAKE_SOURCE_DIR}/navsys/route_finder
 )
 
 # ─────────────────────────────────────────────
@@ -104,3 +136,7 @@ add_subdirectory(tests)
 
 # win11 에서는 무조건 설정해야 한다 dll과 static 간에 문제때문에 링크가 안된다.
 target_compile_definitions(${PROJECT_NAME} PRIVATE BYUL_STATIC)
+
+install(FILES ${HEADERS}
+    DESTINATION include/${CMAKE_PROJECT_NAME}
+)

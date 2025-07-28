@@ -1,11 +1,11 @@
-#include "internal/guidance.h"
-#include "internal/xform.h"
-#include "internal/vec3.h"
+#include "guidance.h"
+#include "xform.h"
+#include "vec3.h"
 #include <math.h>
 
-#include "internal/environ.h"
-#include "internal/numeq_integrator.h"
-#include "internal/numeq_solver.h"
+#include "environ.h"
+#include "numeq_integrator.h"
+#include "numeq_solver.h"
 #include <float.h>
 
 #include <stdio.h>

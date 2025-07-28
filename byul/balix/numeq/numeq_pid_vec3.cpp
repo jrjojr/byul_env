@@ -1,4 +1,4 @@
-#include "internal/numeq_pid_vec3.h"
+#include "numeq_pid_vec3.h"
 
 // ---------------------------------------------------------
 // 벡터 PID

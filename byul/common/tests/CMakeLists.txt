@@ -21,9 +21,10 @@ set(EXTERNAL_DIR ${CMAKE_SOURCE_DIR}/../external)
 message(STATUS "${PROJECT_NAME} : EXTERNAL_DIR = ${EXTERNAL_DIR}")
 
 # 포함 디렉토리
-# common.h, doctest.h 등 경로 포함
+# float_common.h, doctest.h 등 경로 포함
 target_include_directories(${PROJECT_NAME} PRIVATE
     ${CMAKE_SOURCE_DIR}                         # 프로젝트 루트
+    ${CMAKE_SOURCE_DIR}/common
     ${CMAKE_CURRENT_SOURCE_DIR}                 # 현재 테스트 디렉토리
     ${CMAKE_BINARY_DIR}/include/byul     # 빌드시 생성되는 헤더
     ${EXTERNAL_DIR}                     
@@ -36,8 +37,13 @@ target_link_directories(${PROJECT_NAME} PRIVATE
 
 target_link_libraries(${PROJECT_NAME} PRIVATE
     common
-    m # 수학함수 fabsf 등
 )
+
+# 수학 라이브러리 링크 (리눅스/유닉스 전용)
+if(UNIX)
+    target_link_libraries(${PROJECT_NAME} PRIVATE m)
+endif()
+
 
 target_compile_definitions(${PROJECT_NAME} PRIVATE BYUL_STATIC)
 

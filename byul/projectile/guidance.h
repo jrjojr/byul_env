@@ -6,9 +6,9 @@ extern "C" {
 #endif
 
 #include "byul_common.h"
-#include "internal/vec3.h"
-#include "internal/entity_dynamic.h"
-#include "internal/trajectory.h"
+#include "vec3.h"
+#include "entity_dynamic.h"
+#include "trajectory.h"
 
 /**
  * @typedef guidance_func

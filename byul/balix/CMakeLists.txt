@@ -32,15 +32,11 @@ set(SOURCES
 
     numal/dualquat.cpp
 
-    numal/dualquat.hpp
     numal/numal.cpp
 
     numal/quat.cpp
 
-    numal/quat.hpp
     numal/vec3.cpp
-
-    numal/vec3.hpp
 
     numeq/numeq_integrator.cpp
 
@@ -68,6 +64,52 @@ set(SOURCES
     controller/controller.cpp
 )
 
+set(HEADERS
+    ${PROJECT_NAME}.h
+
+    bodyprops/bodyprops.h    
+    environ/environ.h    
+
+    numal/dualnumber.h
+
+    numal/dualquat.h
+
+    numal/dualquat.hpp
+    numal/numal.h
+
+    numal/quat.h
+
+    numal/quat.hpp
+    numal/vec3.h
+
+    numal/vec3.hpp
+
+    numeq/numeq_integrator.h
+
+    numeq/filters/numeq_filters.h
+    numeq/filters/numeq_kalman.h
+
+    numeq/numeq_model.h
+
+    numeq/numeq_mpc.h
+
+    numeq/numeq_pid_vec3.h
+
+    numeq/numeq_pid.h
+
+    numeq/numeq_solver.h
+
+    numeq/numeq.h
+
+
+    xform/xform.h
+
+    trajectory/trajectory.h
+    motion_state/motion_state.h
+
+    controller/controller.h
+)
+
 add_library(${PROJECT_NAME} STATIC ${SOURCES})
 
 # 외부 include 경로 설정
@@ -78,10 +120,23 @@ message(STATUS "${PROJECT_NAME} : EXTERNAL_DIR = ${EXTERNAL_DIR}")
 # include 경로
 # ─────────────────────────────────────────────
 target_include_directories(${PROJECT_NAME} PRIVATE
-    ${CMAKE_SOURCE_DIR}
-    ${CMAKE_CURRENT_SOURCE_DIR}
-    ${CMAKE_BINARY_DIR}/include/byul
     ${EXTERNAL_DIR}
+    ${CMAKE_CURRENT_SOURCE_DIR}
+    ${CMAKE_SOURCE_DIR}
+    ${CMAKE_SOURCE_DIR}/common
+    
+    ${CMAKE_SOURCE_DIR}/balix/bodyprops
+    ${CMAKE_SOURCE_DIR}/balix/controller
+    ${CMAKE_SOURCE_DIR}/balix/environ
+    ${CMAKE_SOURCE_DIR}/balix/motion_state
+    ${CMAKE_SOURCE_DIR}/balix/numal
+    
+    ${CMAKE_SOURCE_DIR}/balix/numeq
+    ${CMAKE_SOURCE_DIR}/balix/numeq/filters
+
+    ${CMAKE_SOURCE_DIR}/balix/tests
+    ${CMAKE_SOURCE_DIR}/balix/trajectory
+    ${CMAKE_SOURCE_DIR}/balix/xform    
 )
 
 # ─────────────────────────────────────────────
@@ -111,3 +166,7 @@ add_subdirectory(tests)
 
 # win11 에서는 무조건 설정해야 한다 dll과 static 간에 문제때문에 링크가 안된다.
 target_compile_definitions(${PROJECT_NAME} PRIVATE BYUL_STATIC)
+
+install(FILES ${HEADERS}
+    DESTINATION include/${CMAKE_PROJECT_NAME}
+)

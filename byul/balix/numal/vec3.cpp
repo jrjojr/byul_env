@@ -1,6 +1,6 @@
-/* internal/vec3.cpp */
-#include "internal/vec3.h"
-#include "internal/common.h"
+/* vec3.cpp */
+#include "vec3.h"
+#include "float_common.h"
 #include <cmath>
 #include <new>
 #include <stdio.h>
@@ -133,7 +133,7 @@ void vec3_div_scalar(vec3_t* out, const vec3_t* a, float scalar) {
 #ifdef DEBUG
         fprintf(stderr, "[vec3_div_scalar] Division by zero! Returning INF vector.\n");
 #endif
-        *out = (vec3_t){ INFINITY, INFINITY, INFINITY };
+        *out = vec3_t{ INFINITY, INFINITY, INFINITY };
         return;
     }
 
@@ -222,7 +222,7 @@ bool vec3_is_zero(const vec3_t* v)
             float_zero(v->z));
 }
 
-#include "internal/vec3.h"
+#include "vec3.h"
 #include <stdio.h>
 
 char* vec3_to_string(const vec3_t* v, char* buffer, size_t buffer_size) {

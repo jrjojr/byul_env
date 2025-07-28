@@ -3,7 +3,7 @@
 #include <iostream>
 
 extern "C" {
-#include "internal/trajectory.h"
+#include "trajectory.h"
 }
 
 // ---------------------------------------------------------

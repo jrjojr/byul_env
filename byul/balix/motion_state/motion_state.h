@@ -2,7 +2,7 @@
 #define MOTION_STATE_H
 
 #include <stdbool.h>
-#include "internal/numal.h"
+#include "numal.h"
 #include "byul_common.h"
 
 #ifdef __cplusplus

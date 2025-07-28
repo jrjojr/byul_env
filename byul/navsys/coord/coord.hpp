@@ -1,7 +1,7 @@
 #ifndef COORD_HPP
 #define COORD_HPP
 
-#include "internal/coord.h"
+#include "coord.h"
 #include <cstddef>     // for size_t
 #include <functional>  // for std::hash
 #include <ostream>     // for operator<<

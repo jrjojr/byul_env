@@ -1,11 +1,11 @@
 #include <cmath>
 #include <cstring>
-#include "internal/entity_dynamic.h"
-#include "internal/vec3.h"
-#include "internal/xform.h"
-#include "internal/bodyprops.h"
-#include "internal/trajectory.h"
-#include "internal/numeq_model.h"
+#include "entity_dynamic.h"
+#include "vec3.h"
+#include "xform.h"
+#include "bodyprops.h"
+#include "trajectory.h"
+#include "numeq_model.h"
 
 // ---------------------------------------------------------
 // 기본 초기화
@@ -46,9 +46,9 @@ void entity_dynamic_init_full(
         xform_init(&d->xf);
     }
 
-    d->velocity = velocity ? *velocity : (vec3_t){0, 0, 0};
-    d->angular_velocity = angular ? *angular : (vec3_t){0, 0, 0};
-    d->props = props ? *props : (bodyprops_t){1.0f, 0.47f, 0.01f, 0.5f, 0.5f};
+    d->velocity = velocity ? *velocity : vec3_t{0, 0, 0};
+    d->angular_velocity = angular ? *angular : vec3_t{0, 0, 0};
+    d->props = props ? *props : bodyprops_t{1.0f, 0.47f, 0.01f, 0.5f, 0.5f};
 }
 
 // ---------------------------------------------------------
@@ -67,7 +67,7 @@ void entity_dynamic_calc_accel(
     vec3_t* out_accel
 ) {
     if (!curr || !prev_vel || !out_accel || dt <= 0.0f) {
-        if (out_accel) *out_accel = (vec3_t){0.0f, 0.0f, 0.0f};
+        if (out_accel) *out_accel = vec3_t{0.0f, 0.0f, 0.0f};
         return;
     }
 
@@ -104,7 +104,7 @@ void entity_dynamic_calc_drag_accel(
     vec3_t* out_drag_accel
 ) {
     if (!curr || !prev_vel || !env || !out_drag_accel || dt <= 0.0f) {
-        if (out_drag_accel) *out_drag_accel = (vec3_t){0.0f, 0.0f, 0.0f};
+        if (out_drag_accel) *out_drag_accel = vec3_t{0.0f, 0.0f, 0.0f};
         return;
     }
 
@@ -158,7 +158,7 @@ void entity_dynamic_update_env(
     linear_state_t state0;
     xform_get_position(&d->xf, &state0.position);
     state0.velocity = d->velocity;
-    state0.acceleration = (vec3_t){0.0f, 0.0f, 0.0f};
+    state0.acceleration = vec3_t{0.0f, 0.0f, 0.0f};
 
     const bodyprops_t* body = &d->props;
 

@@ -1,4 +1,4 @@
-#include "internal/gpu.h"
+#include "gpu.h"
 #ifdef USE_SDL3
     #include <SDL3/SDL.h>
 #else

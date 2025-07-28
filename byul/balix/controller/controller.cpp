@@ -1,5 +1,5 @@
-#include "internal/controller.h"
-#include "internal/numeq_mpc.h"
+#include "controller.h"
+#include "numeq_mpc.h"
 #include <stdlib.h>
 #include <string.h>
 
@@ -191,16 +191,16 @@ static void controller_mpc_reset(controller_t* ctrl) {
     mpc_impl_t* impl = (mpc_impl_t*)ctrl->impl;
 
     // 선형 상태 초기화
-    impl->target.linear.position = (vec3_t){0.0f, 0.0f, 0.0f};
-    impl->target.linear.velocity = (vec3_t){0.0f, 0.0f, 0.0f};
-    impl->target.linear.acceleration = (vec3_t){0.0f, 0.0f, 0.0f};
+    impl->target.linear.position = vec3_t{0.0f, 0.0f, 0.0f};
+    impl->target.linear.velocity = vec3_t{0.0f, 0.0f, 0.0f};
+    impl->target.linear.acceleration = vec3_t{0.0f, 0.0f, 0.0f};
 
     // 각 상태 초기화
     quat_t oq;
     quat_identity(&oq);
     impl->target.angular.orientation = oq; // 단위 쿼터니언
-    impl->target.angular.angular_velocity = (vec3_t){0.0f, 0.0f, 0.0f};
-    impl->target.angular.angular_acceleration = (vec3_t){0.0f, 0.0f, 0.0f};
+    impl->target.angular.angular_velocity = vec3_t{0.0f, 0.0f, 0.0f};
+    impl->target.angular.angular_acceleration = vec3_t{0.0f, 0.0f, 0.0f};
 }
 
 

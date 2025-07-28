@@ -1,6 +1,6 @@
 #include "doctest.h"
 #include <cmath>
-#include "internal/numal.h"
+#include "numal.h"
 
 TEST_CASE("quat_init / copy / equal / hash") {
     quat_t q1;

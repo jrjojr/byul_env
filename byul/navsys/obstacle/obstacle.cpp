@@ -1,4 +1,4 @@
-#include "internal/obstacle.h"
+#include "obstacle.h"
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>

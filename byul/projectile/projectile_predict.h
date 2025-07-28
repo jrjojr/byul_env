@@ -6,28 +6,35 @@ extern "C" {
 #endif
 
 #include "byul_common.h"
-#include "internal/projectile_common.h"
-#include "internal/trajectory.h"
-#include "internal/propulsion.h"
-#include "internal/guidance.h"
-#include "internal/environ.h"
-#include "internal/entity_dynamic.h"
-#include "internal/numeq_filters.h"
+#include "projectile_common.h"
+#include "trajectory.h"
+#include "propulsion.h"
+#include "guidance.h"
+#include "environ.h"
+#include "entity_dynamic.h"
+#include "numeq_filters.h"
 
 /**
  * @struct projectile_result_t
  * @brief 발사체 궤적 예측 결과 구조체
  *
- * 이 구조체는 발사체가 이동하는 동안의 궤적(trajectory),
+ * 이 구조체는 발사체의 시작/타겟 정보, 궤적(trajectory),
  * 예측 충돌 시각 및 충돌 위치를 포함합니다.
  */
 typedef struct s_projectile_result {
+    // 입력 메타데이터
+    vec3_t start_pos;         /**< 발사체 시작 위치 (월드 좌표) */
+    vec3_t target_pos;        /**< 목표 위치 (월드 좌표, 벡터) */
+    vec3_t initial_velocity;  /**< 초기 속도 벡터 (m/s) */
+
+    // 결과 정보
     float impact_time;        /**< 예측 충돌 시각 (초 단위) */
     vec3_t impact_pos;        /**< 예측 충돌 위치 (월드 좌표) */
     bool valid;               /**< 예측 결과의 유효 여부 (true면 충돌 발생) */
 
     trajectory_t* trajectory; /**< 예측된 궤적 데이터 (동적 메모리 할당됨) */
 } projectile_result_t;
+
 
 // ---------------------------------------------------------
 // projectile_result_t 관리 함수
@@ -100,6 +107,71 @@ BYUL_API void projectile_result_free(projectile_result_t* res);
  */
 BYUL_API void projectile_result_destroy(projectile_result_t* res);
 
+/**
+ * @brief projectile_result_t 내용을 표준 출력으로 출력합니다.
+ *
+ * @param result 출력할 projectile_result_t 포인터
+ */
+BYUL_API void projectile_result_print(const projectile_result_t* result);
+
+
+/// 문자열 변환에 필요한 권장 버퍼 크기
+#define PROJECTILE_RESULT_STR_BUFSIZE 512
+/**
+ * @brief projectile_result_t 내용을 문자열로 변환합니다.
+ *
+ * @param result       변환할 projectile_result_t 포인터
+ * @param buffer       결과를 저장할 버퍼
+ * @param buffer_size  버퍼 크기 (권장값: PROJECTILE_RESULT_STR_BUFSIZE)
+ * @return buffer 포인터를 반환 (체이닝 용도)
+ */
+BYUL_API char* projectile_result_to_string(
+    const projectile_result_t* result,
+    char* buffer,
+    size_t buffer_size);
+
+/**
+ * @brief projectile_result_t의 상세 정보를 출력합니다.
+ *
+ * - result의 기본 정보(valid, impact_time, impact_pos)
+ * - trajectory가 존재하면 trajectory_print()까지 호출
+ *
+ * @param result 출력할 projectile_result_t 포인터
+ */
+BYUL_API void projectile_result_print_detailed(
+    const projectile_result_t* result);
+
+/**
+ * @brief projectile_result_t의 상세 정보를 문자열로 변환합니다.
+ *
+ * 이 함수는 기본 정보(valid, impact_time, impact_pos) 외에도 trajectory의 모든 포인트를
+ * 문자열로 포함합니다. trajectory 포인트가 많으면 매우 큰 문자열이 생성될 수 있으므로
+ * 충분히 큰 버퍼(권장: PROJECTILE_RESULT_STR_BUFSIZE * 100 이상)를 사용해야 합니다.
+ *
+ * @param result       변환할 projectile_result_t 포인터 (NULL 허용 안 됨)
+ * @param buffer       결과를 저장할 버퍼 (NULL 허용 안 됨)
+ * @param buffer_size  버퍼 크기 (trajectory 데이터 크기에 따라 25KB 이상 권장)
+ * @return buffer 포인터를 반환 (체이닝 또는 printf와 함께 사용 가능)
+ */
+BYUL_API char* projectile_result_to_string_detailed(
+    const projectile_result_t* result,
+    char* buffer,
+    size_t buffer_size);
+
+/**
+ * @brief trajectory의 초기 두 샘플로부터 초기 힘을 계산합니다.
+ *
+ * F = m * a, a = (v1 - v0) / Δt
+ * 여기서 v0, v1은 trajectory의 0번과 1번 샘플의 속도 벡터입니다.
+ *
+ * @param result  궤적 데이터가 포함된 projectile_result_t (NULL 허용 안됨)
+ * @param mass    발사체 질량 (kg)
+ * @return 초기 힘 (뉴턴, N). 유효하지 않으면 0.0f 반환.
+ */
+BYUL_API float projectile_result_calc_initial_force(
+    const projectile_result_t* result,
+    float mass);    
+
 // ---------------------------------------------------------
 // 발사체 궤적 예측
 // ---------------------------------------------------------
@@ -128,7 +200,7 @@ BYUL_API void projectile_result_destroy(projectile_result_t* res);
 BYUL_API bool projectile_predict(
     projectile_result_t* out,
     const projectile_t* proj,
-    entity_dynamic_t* entdyn,
+    const entity_dynamic_t* entdyn,
     float max_time,
     float time_step,
     const environ_t* env,

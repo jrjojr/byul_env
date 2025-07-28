@@ -1,6 +1,6 @@
-#include "internal/gpu.h"
-#include "internal/quat.hpp"
-#include "internal/vec3.hpp"
+#include "gpu.h"
+#include "quat.hpp"
+#include "vec3.hpp"
 #ifdef USE_SDL3
     #include <SDL3/SDL.h>
 #else
@@ -19,7 +19,7 @@
 #define SHADER_DIR "../glsl"
 #endif
 
-#include "internal/common.h"
+#include "float_common.h"
 #include <filesystem>
 
 static GLuint vao = 0, vbo = 0, vbo_type = 0;

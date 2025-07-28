@@ -6,7 +6,7 @@ extern "C" {
 #endif
 
 #include <stdint.h>
-#include "internal/quat.h"
+#include "quat.h"
 
 // ----------------------------------------
 // 🖼️ GPU 초기화 / 종료

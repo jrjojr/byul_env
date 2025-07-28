@@ -1,5 +1,5 @@
-#include "internal/coord.hpp"
-#include "internal/coord_list.h"
+#include "coord.hpp"
+#include "coord_list.h"
 #include <vector>
 #include <algorithm>
 #include <cmath>

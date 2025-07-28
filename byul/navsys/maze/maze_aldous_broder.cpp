@@ -1,5 +1,5 @@
-#include "internal/maze.h"
-#include "internal/obstacle.h"
+#include "maze.h"
+#include "obstacle.h"
 #include <vector>
 #include <random>
 #include <ctime>

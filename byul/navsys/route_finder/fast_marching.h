@@ -1,9 +1,9 @@
 #ifndef FAST_MARCHING_H
 #define FAST_MARCHING_H
 
-#include "internal/route_finder_common.h"
-#include "internal/cost_coord_pq.h"
-#include "internal/navgrid.h"
+#include "route_finder_common.h"
+#include "cost_coord_pq.h"
+#include "navgrid.h"
 
 #ifdef __cplusplus
 extern "C" {

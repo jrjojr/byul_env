@@ -2,16 +2,16 @@
 #include <cstdlib>
 #include <cstring>
 #include <unordered_set>
-#include "internal/common.h"
-#include "internal/dstar_lite_utils.h"
-#include "internal/coord.h"
-#include "internal/dstar_lite_key.h"
-#include "internal/route.h"
-#include "internal/navgrid.h"
-#include "internal/coord_hash.h"
-#include "internal/dstar_lite_pqueue.h"
+#include "float_common.h"
+#include "dstar_lite_console.h"
+#include "coord.h"
+#include "dstar_lite_key.h"
+#include "route.h"
+#include "navgrid.h"
+#include "coord_hash.h"
+#include "dstar_lite_pqueue.h"
 
-#include "internal/console.h"
+#include "console.h"
 
 void dsl_debug_print_g_table(const navgrid_t* m, coord_hash_t* g_table) {
     if (!g_table) return;

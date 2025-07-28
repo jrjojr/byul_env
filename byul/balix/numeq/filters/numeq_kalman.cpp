@@ -1,4 +1,4 @@
-#include "internal/numeq_kalman.h"
+#include "numeq_kalman.h"
 #include <cmath>
 #include <cstring> // memset
 
@@ -75,8 +75,8 @@ void kalman_vec3_init_full(kalman_filter_vec3_t* kf,
                                     float measurement_noise,
                                     float dt) {
     if (!kf) return;
-    kf->position = init_pos ? *init_pos : (vec3_t){0, 0, 0};
-    kf->velocity = init_vel ? *init_vel : (vec3_t){0, 0, 0};
+    kf->position = init_pos ? *init_pos : vec3_t{0, 0, 0};
+    kf->velocity = init_vel ? *init_vel : vec3_t{0, 0, 0};
     kf->error_p = {1, 1, 1};
     kf->q = process_noise;
     kf->r = measurement_noise;

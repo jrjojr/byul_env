@@ -13,7 +13,7 @@
 #ifndef NUMEQ_KALMAN_H
 #define NUMEQ_KALMAN_H
 
-#include "internal/trajectory.h"
+#include "trajectory.h"
 
 #ifdef __cplusplus
 extern "C" {

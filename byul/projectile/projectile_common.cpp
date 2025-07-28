@@ -1,5 +1,5 @@
 #include <iostream>
-#include "internal/projectile_common.h"
+#include "projectile_common.h"
 #include <math.h>
 
 // ---------------------------------------------------------
@@ -10,8 +10,9 @@ void projectile_init(projectile_t* proj)
     if (!proj) return;
 
     entity_dynamic_init(&proj->base);
-    proj->on_hit = NULL;
+    proj->on_hit = projectile_default_hit_cb;
     proj->hit_userdata = NULL;
+    proj->damage = 1.0f;
 }
 
 void projectile_init_full(
@@ -62,10 +63,15 @@ void projectile_update(projectile_t* proj, float dt)
     }
 }
 
-void projectile_default_hit_cb(const projectile_t* proj, void* userdata)
+void projectile_default_hit_cb(const void* projectile, void* userdata)
 {
-    (void)proj;
     (void)userdata;
-    std::cout << "[projectile] default hit cb (no effect)\n";
-}
 
+    const projectile_t* proj = (const projectile_t*)projectile;
+    if (!proj) {
+        printf("[projectile] hit callback called with null projectile\n");
+        return;
+    }
+
+    printf("[projectile] default hit cb damaged : %.2f\n", proj->damage);
+}

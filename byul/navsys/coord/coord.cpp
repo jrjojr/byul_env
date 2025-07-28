@@ -1,8 +1,8 @@
-#include "internal/coord.h"
+#include "coord.h"
 #include <cmath>
 #include <cstdlib>
 #include <stdio.h>
-#include "internal/common.h"
+#include "float_common.h"
 
 // ------------------------ 내부 유틸리티 ------------------------
 

@@ -2,7 +2,7 @@
 #include <math.h>
 
 extern "C" {
-    #include "internal/numeq_solver.h"
+    #include "numeq_solver.h"
 }
 
 // --------------------- TEST CASES -----------------------
@@ -27,11 +27,11 @@ TEST_CASE("Bisection finds root of sin(x) near pi") {
 }
 
 TEST_CASE("Apex solver computes correct peak") {
-    linear_state_t state = {
-        .position = {0, 0, 0},
-        .velocity = {2, 10, 0},
-        .acceleration = {0, -9.8f, 0}
-    };
+    linear_state_t state;
+	linear_state_init(&state);
+    state.velocity = { 2, 10, 0 };
+        state.acceleration = { 0, -9.8f, 0 };
+
     vec3_t apex;
     float t_apex;
     bool ok = numeq_solve_apex(&state, &apex, &t_apex);

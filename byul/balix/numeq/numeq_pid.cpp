@@ -1,5 +1,5 @@
-#include "internal/numeq_pid.h"
-#include "internal/vec3.hpp"
+#include "numeq_pid.h"
+#include "vec3.hpp"
 #include <cmath>
 #include <cstring>
 #include <stddef.h>  // for NULL

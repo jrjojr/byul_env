@@ -1,8 +1,8 @@
 #include <cmath>
 #include <doctest.h>
-#include "internal/dualquat.h"
-#include "internal/vec3.h"
-#include "internal/quat.h"
+#include "dualquat.h"
+#include "vec3.h"
+#include "quat.h"
 
 TEST_CASE("dualquat_identity creates unit dual quaternion") {
     dualquat_t dq;

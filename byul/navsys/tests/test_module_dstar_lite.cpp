@@ -1,12 +1,17 @@
 #include <doctest.h>
 
-#include "internal/dstar_lite.h"
+#include "dstar_lite.h"
 
-#include "internal/dstar_lite_utils.h"
+#include "dstar_lite_console.h"
 
-#include "internal/route.h"
+#include "route.h"
 #include <stdio.h>
-#include <unistd.h>
+#ifdef _WIN32  
+#include <windows.h>  
+#else  
+#include <unistd.h>  
+#endif
+
 #include <thread>
 
 TEST_CASE("test_dstar_lite_basic") {

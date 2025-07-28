@@ -4,8 +4,8 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include "byul_common.h"
-#include "internal/coord.h"
-#include "internal/coord_list.h"  // for coord_list_t
+#include "coord.h"
+#include "coord_list.h"  // for coord_list_t
 
 #ifdef __cplusplus
 extern "C" {

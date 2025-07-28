@@ -1,8 +1,8 @@
 #ifndef XFORM_H
 #define XFORM_H
 
-#include "internal/vec3.h"
-#include "internal/quat.h"       // euler_order_t 정의
+#include "vec3.h"
+#include "quat.h"       // euler_order_t 정의
 #include "byul_common.h"
 
 #ifdef __cplusplus

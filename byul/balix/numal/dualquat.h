@@ -1,8 +1,8 @@
 #ifndef DUALQUAT_H
 #define DUALQUAT_H
 
-#include "internal/quat.h"
-#include "internal/vec3.h"
+#include "quat.h"
+#include "vec3.h"
 #include "byul_common.h"
 
 #ifdef __cplusplus

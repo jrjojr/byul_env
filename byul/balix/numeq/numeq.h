@@ -1,12 +1,12 @@
 #ifndef NUMEQ_H
 #define NUMEQ_H
 
-#include "internal/numeq_integrator.h"
-#include "internal/numeq_kalman.h"
-#include "internal/numeq_model.h"
-#include "internal/numeq_mpc.h"
-#include "internal/numeq_pid.h"
-#include "internal/numeq_solver.h"
+#include "numeq_integrator.h"
+#include "numeq_kalman.h"
+#include "numeq_model.h"
+#include "numeq_mpc.h"
+#include "numeq_pid.h"
+#include "numeq_solver.h"
 
 #ifdef __cplusplus
 extern "C" {

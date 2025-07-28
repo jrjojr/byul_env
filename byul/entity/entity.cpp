@@ -1,10 +1,10 @@
 #include <cstring>
 #include <cmath>
-#include "internal/entity.h"
-#include "internal/vec3.h"
-#include "internal/xform.h"
-#include "internal/bodyprops.h"
-#include "internal/coord.h"
+#include "entity.h"
+#include "vec3.h"
+#include "xform.h"
+#include "bodyprops.h"
+#include "coord.h"
 
 #include <math.h>   // fmaxf
 #include <string.h> // memset
@@ -17,7 +17,7 @@ void entity_init(entity_t* e)
 {
     if (!e) return;
     e->id = -1;
-    e->coord = (coord_t){0, 0};
+    e->coord = coord_t{0, 0};
     e->owner = NULL;
     e->age = 0.0f;
     e->lifetime = 0.0f;
@@ -40,7 +40,7 @@ void entity_init_full(
 {
     if (!e) return;
     e->id = id;
-    e->coord = coord ? *coord : (coord_t){0, 0};
+    e->coord = coord ? *coord : coord_t{0, 0};
     e->owner = owner;
     e->age = fmaxf(0.0f, age);
     e->lifetime = fmaxf(0.0f, lifetime);

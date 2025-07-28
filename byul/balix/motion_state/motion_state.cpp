@@ -1,4 +1,4 @@
-#include "internal/motion_state.h"
+#include "motion_state.h"
 #include <cstdio>
 #include <cstring>
 #include <cmath>

@@ -39,16 +39,16 @@
 #define DSTAR_LITE_H
 
 #include "byul_common.h"
-#include "internal/common.h"
+#include "float_common.h"
 
-#include "internal/navgrid.h"
-#include "internal/coord.h"
-#include "internal/coord_list.h"
-#include "internal/coord_hash.h"
-#include "internal/route.h"
-#include "internal/dstar_lite_key.h"
-#include "internal/dstar_lite_pqueue.h"
-#include "internal/route_finder.h"
+#include "navgrid.h"
+#include "coord.h"
+#include "coord_list.h"
+#include "coord_hash.h"
+#include "route.h"
+#include "dstar_lite_key.h"
+#include "dstar_lite_pqueue.h"
+#include "route_finder.h"
 
 #ifdef __cplusplus
 extern "C" {

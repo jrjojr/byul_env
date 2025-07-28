@@ -1,8 +1,8 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "internal/maze.h"
-#include "internal/maze_room.h"
+#include "maze.h"
+#include "maze_room.h"
 
 void maze_make(maze_t* maze, maze_type_t type) {
     if (!maze) return;

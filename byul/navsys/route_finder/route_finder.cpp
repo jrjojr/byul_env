@@ -1,9 +1,9 @@
 // route_finder.cpp
 
-#include "internal/route_finder.h"
-#include "internal/cost_coord_pq.h"
-#include "internal/coord_list.h"
-#include "internal/coord.hpp"
+#include "route_finder.h"
+#include "cost_coord_pq.h"
+#include "coord_list.h"
+#include "coord.hpp"
 
 #include <cmath>
 #include <vector>

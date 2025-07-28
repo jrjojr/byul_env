@@ -1,5 +1,5 @@
-#include "internal/gpu.h"
-#include "internal/gpu_compute.h"
+#include "gpu.h"
+#include "gpu_compute.h"
 #include <stdio.h>
 #include <glad/gl.h>
 #include <SDL.h>

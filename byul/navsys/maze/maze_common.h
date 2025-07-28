@@ -2,9 +2,9 @@
 #define OBSTACLE_H
 
 #include "byul_common.h"
-#include "internal/navgrid.h"
-#include "internal/coord.h"
-#include "internal/coord_hash.h"
+#include "navgrid.h"
+#include "coord.h"
+#include "coord_hash.h"
 
 #ifdef __cplusplus
 extern "C" {

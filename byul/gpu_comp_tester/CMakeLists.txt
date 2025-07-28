@@ -106,6 +106,13 @@ endif()
 # ----------------------------------------
 target_include_directories(${PROJECT_NAME} PRIVATE
     ${CMAKE_SOURCE_DIR}
+    ${CMAKE_SOURCE_DIR}/common
+
+    ${CMAKE_SOURCE_DIR}/navsys/dstar_lite
+
+    ${CMAKE_SOURCE_DIR}/balix/numal
+    ${CMAKE_SOURCE_DIR}/balix/trajectory
+
     ${CMAKE_CURRENT_SOURCE_DIR}
     ${CMAKE_BINARY_DIR}/include/byul
     ${EXTERNAL_DIR}
@@ -125,7 +132,6 @@ if(CMAKE_SYSTEM_NAME STREQUAL "Windows")
         ${SDL_LIBRARIES}
         opengl32
         balix
-        m
     )
 else()
     target_link_libraries(${PROJECT_NAME} PRIVATE

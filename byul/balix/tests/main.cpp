@@ -4,7 +4,7 @@
 #include <iostream>
 
 extern "C" {
-#include "internal/numal.h"
+#include "numal.h"
 }
 
 int main(int argc, char** argv) {

@@ -2,9 +2,9 @@
 #define NAVGRID_H
 
 #include "byul_common.h"
-#include "internal/coord.h"
-#include "internal/coord_list.h"
-#include "internal/coord_hash.h"
+#include "coord.h"
+#include "coord_list.h"
+#include "coord_hash.h"
 
 #ifdef __cplusplus
 extern "C" {

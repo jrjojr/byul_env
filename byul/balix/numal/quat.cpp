@@ -1,9 +1,9 @@
 // Eigen 기반 재작성: quat.cpp
-#include "internal/quat.h"
+#include "quat.h"
 #include <cmath>
 #include <cstring>
 #include <Eigen/Geometry>
-#include "internal/common.h"
+#include "float_common.h"
 
 // ---------------------------------------------------------
 // 🔧 변환 유틸

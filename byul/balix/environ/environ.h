@@ -6,7 +6,7 @@ extern "C" {
 #endif
 
 #include "byul_common.h"
-#include "internal/vec3.h"
+#include "vec3.h"
 
 // 전방 선언
 typedef struct s_bodyprops bodyprops_t;

@@ -1,7 +1,7 @@
 #ifndef PROPULSION_H
 #define PROPULSION_H
 
-#include "internal/controller.h"
+#include "controller.h"
 
 #ifdef __cplusplus
 extern "C" {

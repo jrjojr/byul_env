@@ -1,9 +1,9 @@
-#include "internal/dfs.h"
-#include "internal/navgrid.h"
-#include "internal/coord.h"
-#include "internal/coord_list.h"
-#include "internal/coord_hash.h"
-#include "internal/route.h"
+#include "dfs.h"
+#include "navgrid.h"
+#include "coord.h"
+#include "coord_list.h"
+#include "coord_hash.h"
+#include "route.h"
 #include <stdint.h>
 
 route_t* find_dfs(const navgrid_t* m, const coord_t* start, const coord_t* goal, 

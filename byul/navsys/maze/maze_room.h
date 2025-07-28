@@ -1,8 +1,8 @@
 #ifndef MAZE_ROOM_H
 #define MAZE_ROOM_H
 
-#include "internal/coord_hash.h"
-#include "internal/maze.h"
+#include "coord_hash.h"
+#include "maze.h"
 
 #ifdef __cplusplus
 extern "C" {

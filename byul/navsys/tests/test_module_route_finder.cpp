@@ -1,11 +1,11 @@
 #include "doctest.h"
 
 // extern "C" {
-    #include "internal/navgrid.h"
-    #include "internal/coord.h"
-    #include "internal/route.h"
-    #include "internal/route_finder.h"
-    #include "internal/console.h"
+    #include "navgrid.h"
+    #include "coord.h"
+    #include "route.h"
+    #include "route_finder.h"
+    #include "console.h"
 // }
 
 #include <iostream>
@@ -962,7 +962,7 @@ TEST_CASE("route_finder_all: blocked route") {
 
 
 
-    // #include "internal/astar.h"
+    // #include "astar.h"
     std::cout << "astar.h\n";
     route_finder_set_type(a, ROUTE_FINDER_ASTAR);
     p = route_finder_run(a);
@@ -972,7 +972,7 @@ TEST_CASE("route_finder_all: blocked route") {
     navgrid_print_ascii_with_visited_count(m, p, 5);
     route_destroy(p);
 
-    // #include "internal/bfs.h"
+    // #include "bfs.h"
     std::cout << "bfs.h\n";
     route_finder_set_type(a, ROUTE_FINDER_BFS);
     p = route_finder_run(a);
@@ -982,7 +982,7 @@ TEST_CASE("route_finder_all: blocked route") {
     navgrid_print_ascii_with_visited_count(m, p, 5);
     route_destroy(p);
 
-    // #include "internal/dfs.h"
+    // #include "dfs.h"
     std::cout << "dfs.h\n";
     route_finder_set_type(a, ROUTE_FINDER_DFS);
     p = route_finder_run(a);
@@ -992,7 +992,7 @@ TEST_CASE("route_finder_all: blocked route") {
     navgrid_print_ascii_with_visited_count(m, p, 5);
     route_destroy(p);
 
-    // #include "internal/dijkstra.h"
+    // #include "dijkstra.h"
     std::cout << "dijkstra.h\n";
     route_finder_set_type(a, ROUTE_FINDER_DIJKSTRA);
     p = route_finder_run(a);
@@ -1002,7 +1002,7 @@ TEST_CASE("route_finder_all: blocked route") {
     navgrid_print_ascii_with_visited_count(m, p, 5);
     route_destroy(p);
 
-    // #include "internal/fast_marching.h"
+    // #include "fast_marching.h"
     std::cout << "fast_marching.h\n";
     route_finder_set_type(a, ROUTE_FINDER_FAST_MARCHING);
     p = route_finder_run(a);
@@ -1012,7 +1012,7 @@ TEST_CASE("route_finder_all: blocked route") {
     navgrid_print_ascii_with_visited_count(m, p, 5);
     route_destroy(p);
 
-    // #include "internal/fringe_search.h"
+    // #include "fringe_search.h"
     std::cout << "fringe_search.h\n";
     route_finder_set_type(a, ROUTE_FINDER_FRINGE_SEARCH);
     p = route_finder_run(a);
@@ -1022,7 +1022,7 @@ TEST_CASE("route_finder_all: blocked route") {
     navgrid_print_ascii_with_visited_count(m, p, 5);
     route_destroy(p);
 
-    // #include "internal/greedy_best_first.h"
+    // #include "greedy_best_first.h"
     std::cout << "greedy_best_first.h\n";
     route_finder_set_type(a, ROUTE_FINDER_GREEDY_BEST_FIRST);
     p = route_finder_run(a);
@@ -1032,7 +1032,7 @@ TEST_CASE("route_finder_all: blocked route") {
     navgrid_print_ascii_with_visited_count(m, p, 5);
     route_destroy(p);
 
-    // #include "internal/ida_star.h"
+    // #include "ida_star.h"
     std::cout << "ida_star.h\n";
     route_finder_set_type(a, ROUTE_FINDER_IDA_STAR);
     p = route_finder_run(a);
@@ -1042,7 +1042,7 @@ TEST_CASE("route_finder_all: blocked route") {
     navgrid_print_ascii_with_visited_count(m, p, 5);
     route_destroy(p);
 
-    // #include "internal/rta_star.h"
+    // #include "rta_star.h"
     std::cout << "rta_star.h\n";
     route_finder_set_type(a, ROUTE_FINDER_RTA_STAR);
     p = route_finder_run(a);
@@ -1052,7 +1052,7 @@ TEST_CASE("route_finder_all: blocked route") {
     navgrid_print_ascii_with_visited_count(m, p, 5);
     route_destroy(p);
 
-    // #include "internal/sma_star.h"
+    // #include "sma_star.h"
     std::cout << "sma_star.h\n";
     route_finder_set_type(a, ROUTE_FINDER_SMA_STAR);
     p = route_finder_run(a);
@@ -1062,7 +1062,7 @@ TEST_CASE("route_finder_all: blocked route") {
     navgrid_print_ascii_with_visited_count(m, p, 5);
     route_destroy(p);
 
-    // #include "internal/weighted_astar.h"        
+    // #include "weighted_astar.h"        
     std::cout << "weighted_astar.h\n";
     route_finder_set_type(a, ROUTE_FINDER_WEIGHTED_ASTAR);
     p = route_finder_run(a);

@@ -5,11 +5,11 @@
 // Licensed under the Byul World 공개 라이선스 v1.0
 // See the LICENSE file for details.
 
-#include "internal/dstar_lite.h"
-#include "internal/navgrid.h"
-#include "internal/route.h"
-#include "internal/dstar_lite_pqueue.h"
-#include "internal/dstar_lite_key.h"
+#include "dstar_lite.h"
+#include "navgrid.h"
+#include "route.h"
+#include "dstar_lite_pqueue.h"
+#include "dstar_lite_key.h"
 
 #include <float.h>
 #include <math.h>
@@ -741,7 +741,7 @@ void dstar_lite_compute_shortest_route(dstar_lite_t* dsl) {
         // printf("dstar_lite_compute_shortest_route "
         //     "내부에서 루프 %d 시작.\n", loop);
 
-        // print_all_dsl_internal(
+        // print_all_dsl_byul(
         //     m, start, goal, km, g_table, rhs_table, frontier);
 
         if (k_old) {

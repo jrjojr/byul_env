@@ -53,7 +53,7 @@ extern "C" {
 #endif
 
 #include "byul_common.h"
-#include "internal/numeq_kalman.h"  // Kalman 기본 구현 포함
+#include "numeq_kalman.h"  // Kalman 기본 구현 포함
 
 // =========================================================
 // 필터 공통 인터페이스 정의

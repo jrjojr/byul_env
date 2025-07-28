@@ -68,7 +68,7 @@
 #ifndef NUMEQ_PID_H
 #define NUMEQ_PID_H
 
-#include "internal/trajectory.h"
+#include "trajectory.h"
 
 #ifdef __cplusplus
 extern "C" {

@@ -3,11 +3,11 @@
 #include <iostream>
 
 extern "C" {
-#include "internal/xform.h"
-#include "internal/projectile.h"
-#include "internal/controller.h"
+#include "xform.h"
+#include "projectile.h"
+#include "controller.h"
 
-#include "internal/common.h"
+#include "float_common.h"
 }
 
 TEST_CASE("PID controller basic response") {

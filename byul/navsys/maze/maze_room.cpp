@@ -1,5 +1,5 @@
-#include "internal/maze.h"
-#include "internal/maze_room.h"
+#include "maze.h"
+#include "maze_room.h"
 #include <vector>
 #include <cstdlib>
 #include <ctime>

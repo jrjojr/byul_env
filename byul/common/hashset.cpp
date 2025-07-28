@@ -1,4 +1,4 @@
-#include "internal/hashset.h"
+#include "hashset.h"
 #include <unordered_set>
 #include <cmath>
 #include <algorithm>
@@ -65,7 +65,7 @@ bool hashset_equal(const hashset_t* a, const hashset_t* b) {
     return a && b && a->set == b->set;
 }
 
-uint32_t hashset_hash(const hashkey key) {
+unsigned int hashset_hash(const hashkey key) {
     return std::hash<void*>{}(key);
 }
 

@@ -1,7 +1,7 @@
 #include "doctest.h"
 
 extern "C" {
-    #include "internal/numeq_kalman.h"
+    #include "numeq_kalman.h"
 }
 
 // -------------------- Scalar Kalman --------------------

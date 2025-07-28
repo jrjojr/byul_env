@@ -2,13 +2,13 @@
 #define DSTAR_LITE_UTILS_H
 
 #include "byul_common.h"
-#include "internal/common.h"
-#include "internal/navgrid.h"
-#include "internal/coord.h"
-#include "internal/route.h"
-#include "internal/dstar_lite.h"
-#include "internal/coord_hash.h"
-#include "internal/dstar_lite_pqueue.h"
+#include "float_common.h"
+#include "navgrid.h"
+#include "coord.h"
+#include "route.h"
+#include "dstar_lite.h"
+#include "coord_hash.h"
+#include "dstar_lite_pqueue.h"
 
 #ifdef __cplusplus
 extern "C" {

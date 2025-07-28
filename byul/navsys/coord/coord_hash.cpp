@@ -1,6 +1,6 @@
-#include "internal/coord.hpp"
-#include "internal/coord_list.h"
-#include "internal/coord_hash.h"
+#include "coord.hpp"
+#include "coord_list.h"
+#include "coord_hash.h"
 #include <unordered_map>
 #include <functional>
 #include <cstdlib>

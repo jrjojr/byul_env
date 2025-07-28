@@ -1,9 +1,9 @@
-#include "internal/console.h"
-#include "internal/navgrid.h"
-#include "internal/common.h"
-#include "internal/coord_hash.h"
-#include "internal/coord_list.h"
-#include "internal/route.h"
+#include "console.h"
+#include "navgrid.h"
+#include "float_common.h"
+#include "coord_hash.h"
+#include "coord_list.h"
+#include "route.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
@@ -115,8 +115,8 @@ static const char* get_navgrid_string(
 //     }
 // }
 
-#include "internal/navgrid.h"
-#include "internal/coord_hash.h"
+#include "navgrid.h"
+#include "coord_hash.h"
 #include <stdio.h>
 #include <limits.h>
 

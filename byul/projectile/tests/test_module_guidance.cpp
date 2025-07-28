@@ -1,9 +1,9 @@
 #include "doctest.h"
-#include "internal/guidance.h"
-#include "internal/xform.h"
-#include "internal/entity_dynamic.h"
-#include "internal/environ.h"
-#include "internal/projectile.h"
+#include "guidance.h"
+#include "xform.h"
+#include "entity_dynamic.h"
+#include "environ.h"
+#include "projectile.h"
 #include <cmath>
 #include <stdio.h>
 
@@ -62,13 +62,13 @@ TEST_CASE("guidance_lead predicts target") {
 
     // 발사체 초기화
     xform_set_position(&proj.base.xf, &ZERO);
-    proj.base.velocity = (vec3_t){1, 0, 0};
+    proj.base.velocity = vec3_t{1, 0, 0};
 
     // 타겟 초기화
     xform_set_position(&target.xf, &ZERO);
     vec3_t offset = {10, 0, 0};
     xform_translate(&target.xf, &offset);
-    target.velocity = (vec3_t){-0.5f, 0, 0}; // 속도 조정
+    target.velocity = vec3_t{-0.5f, 0, 0}; // 속도 조정
 
     const vec3_t* result 
     = guidance_lead(&proj.base, 0.016f, &target, &dir);
@@ -126,7 +126,7 @@ TEST_CASE("guidance_predict returns correct direction") {
 // guidance_predict_accel 테스트
 // ---------------------------------------------------------
 TEST_CASE("guidance_predict_accel handles acceleration") {
-    vec3_t dir;
+    vec3_t dir = {};
     vec3_t proj_pos = {0, 0, 0};
     vec3_t proj_vel = {5, 0, 0};
     projectile_t proj = create_test_projectile(proj_pos, proj_vel);
@@ -136,7 +136,7 @@ TEST_CASE("guidance_predict_accel handles acceleration") {
     entity_dynamic_t target = create_test_target(target_pos, target_vel);
 
     // 타겟에 약간의 가속도 추가
-    guidance_target_info_t info;
+    guidance_target_info_t info = {};
     info.target = target;
     info.current_time = 0.0f;
 
@@ -144,6 +144,7 @@ TEST_CASE("guidance_predict_accel handles acceleration") {
     = guidance_predict_accel(&proj.base, 0.016f, &info, &dir);
     CHECK(result == &dir);
     char buf[64];
+    vec3_print(&dir);
     printf("guidance_predict_accel :%s\n", vec3_to_string(&dir, buf, 64));
     CHECK(fabsf(vec3_length(&dir) - 1.0f) <= 1e-5f);
     CHECK(dir.x >= 0.0f);

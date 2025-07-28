@@ -1,7 +1,7 @@
 #ifndef FRINGE_SEARCH_H
 #define FRINGE_SEARCH_H
 
-#include "internal/route_finder_common.h"
+#include "route_finder_common.h"
 
 #ifdef __cplusplus
 extern "C" {

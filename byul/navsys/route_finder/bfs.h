@@ -2,9 +2,9 @@
 #define BFS_H
 
 #include "byul_common.h"
-#include "internal/coord.h"
-#include "internal/navgrid.h"
-#include "internal/route.h"
+#include "coord.h"
+#include "navgrid.h"
+#include "route.h"
 
 #ifdef __cplusplus
 extern "C" {

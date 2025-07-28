@@ -1,8 +1,8 @@
 #include "doctest.h"
 #include <cmath>
 
-#include "internal/coord.h"
-#include "internal/common.h"
+#include "coord.h"
+#include "float_common.h"
 
 TEST_CASE("Wrap-Around Test") {
     coord_t a;

@@ -2,10 +2,10 @@
 #define DIJKSTRA_H
 
 #include "byul_common.h"
-#include "internal/coord.h"
-#include "internal/navgrid.h"
-#include "internal/route.h"
-#include "internal/route_finder_common.h"
+#include "coord.h"
+#include "navgrid.h"
+#include "route.h"
+#include "route_finder_common.h"
 
 #ifdef __cplusplus
 extern "C" {

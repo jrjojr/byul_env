@@ -1,8 +1,8 @@
 #include "doctest.h"
 
 extern "C" {
-#include "internal/coord.h"
-#include "internal/coord_hash.h"
+#include "coord.h"
+#include "coord_hash.h"
 }
 
 int* make_int(int value) {

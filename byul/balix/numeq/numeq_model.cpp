@@ -1,11 +1,11 @@
-#include "internal/numeq_model.h"
-#include "internal/vec3.hpp"
-#include "internal/common.h"
-#include "internal/numeq_integrator.h"
+#include "numeq_model.h"
+#include "vec3.hpp"
+#include "float_common.h"
+#include "numeq_integrator.h"
 #include <cmath>
 #include <functional>
 #include <mutex>
-#include "internal/numeq_solver.h"
+#include "numeq_solver.h"
 
 // ---------------------------------------------------------
 // drag_accel = -0.5 * ρ * v|v| * Cd * A / m
@@ -59,7 +59,7 @@ static inline void numeq_model_accel_internal(
     if (!vel || !out_accel) return;
 
     // 중력 (env가 있을 때만)
-    *out_accel = env ? env->gravity : (vec3_t){0.0f, 0.0f, 0.0f};
+    *out_accel = env ? env->gravity : vec3_t{0.0f, 0.0f, 0.0f};
 
     // 항력
     vec3_t drag_accel = {0, 0, 0};
@@ -82,7 +82,7 @@ static inline void numeq_model_accel_except_gravity_internal(
     if (!vel || !out_accel) return;
 
     // 중력 (env가 있을 때만)
-    *out_accel = env ? env->gravity : (vec3_t){0.0f, 0.0f, 0.0f};
+    *out_accel = env ? env->gravity : vec3_t{0.0f, 0.0f, 0.0f};
 
     // 항력
     vec3_t drag_accel = {0, 0, 0};

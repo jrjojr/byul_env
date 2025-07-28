@@ -20,6 +20,14 @@ set(SOURCES
     projectile_predict.cpp
 )
 
+set(HEADERS
+    ${PROJECT_NAME}.h
+    projectile_common.h
+    propulsion.h
+    guidance.h
+    projectile_predict.h
+)
+
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 # 스태틱 라이브러리 생성
@@ -27,9 +35,23 @@ add_library(${PROJECT_NAME} STATIC ${SOURCES})
 
 # 헤더 파일 디렉토리 추가
 target_include_directories(${PROJECT_NAME} PRIVATE 
-    ${CMAKE_BINARY_DIR}/include/byul
     ${CMAKE_CURRENT_SOURCE_DIR}    
     ${CMAKE_SOURCE_DIR}    
+    ${CMAKE_SOURCE_DIR}/common
+
+    ${CMAKE_SOURCE_DIR}/balix/numal
+    ${CMAKE_SOURCE_DIR}/balix/controller
+    ${CMAKE_SOURCE_DIR}/balix/xform
+    
+    ${CMAKE_SOURCE_DIR}/balix/numeq
+    ${CMAKE_SOURCE_DIR}/balix/numeq/filters
+
+    ${CMAKE_SOURCE_DIR}/balix/bodyprops
+    ${CMAKE_SOURCE_DIR}/balix/environ
+    ${CMAKE_SOURCE_DIR}/balix/motion_state
+    ${CMAKE_SOURCE_DIR}/balix/trajectory
+    ${CMAKE_SOURCE_DIR}/entity
+    ${CMAKE_SOURCE_DIR}/navsys/coord
     ${EXTERNAL_DIR}    
 )
 
@@ -49,3 +71,7 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
 add_subdirectory(tests)
 
 target_compile_definitions(${PROJECT_NAME} PRIVATE BYUL_STATIC)
+
+install(FILES ${HEADERS}
+    DESTINATION include/${CMAKE_PROJECT_NAME}
+)

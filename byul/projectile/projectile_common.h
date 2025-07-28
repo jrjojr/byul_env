@@ -7,7 +7,7 @@ extern "C" {
 
 #include <stdbool.h>
 #include "byul_common.h"
-#include "internal/entity_dynamic.h"
+#include "entity_dynamic.h"
 
 // ---------------------------------------------------------
 // 구조체 및 콜백 타입 선언
@@ -19,7 +19,9 @@ typedef struct s_projectile projectile_t;
  * @param proj      충돌이 발생한 발사체
  * @param userdata  사용자 지정 데이터
  */
-typedef void (*projectile_hit_cb)(const projectile_t* proj, void* userdata);
+// typedef void (*projectile_hit_cb)(const projectile_t* proj, void* userdata);
+typedef void (*projectile_hit_cb)(const void* projectile, void* userdata);
+
 
 /**
  * @enum projectile_attr_t
@@ -148,7 +150,7 @@ struct s_projectile {
     entity_dynamic_t base;
 
     /**
-     * @brief 기본 피해량.
+     * @brief 기본 피해량. 1.0f
      * @details 발사체가 목표에 명중했을 때의 기본 피해 값입니다.
      */
     float damage;
@@ -186,7 +188,7 @@ struct s_projectile {
  *
  * **기본 동작**
  * - `proj->base` : entity_dynamic_init()으로 초기화
- * - `proj->damage` : 0.0f
+ * - `proj->damage` : 1.0f
  * - `proj->attrs` : PROJECTILE_ATTR_NONE (속성 없음)
  * - `proj->on_hit` : NULL
  * - `proj->hit_userdata` : NULL
@@ -261,14 +263,14 @@ BYUL_API void projectile_assign(projectile_t* out, const projectile_t* src);
 BYUL_API void projectile_update(projectile_t* proj, float dt);
 
 // ---------------------------------------------------------
-// 기본 콜백
+// 기본 충돌 콜백
 // ---------------------------------------------------------
 /**
- * @brief 기본 충돌 콜백 (아무 작업도 하지 않음)
- * 아무 작업하지 않는다고 출력한다
+ * @brief 기본 충돌 콜백
+ * 충돌시 데미지를 출력한다.
  */
 BYUL_API void projectile_default_hit_cb(
-    const projectile_t* proj, void* userdata);
+    const void* projectile, void* userdata);
 
 
 #ifdef __cplusplus

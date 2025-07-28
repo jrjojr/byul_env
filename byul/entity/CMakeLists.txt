@@ -11,6 +11,14 @@ set(SOURCES
     ${PROJECT_NAME}.cpp
     entity_dynamic.cpp
     entity_dynamic_coord.cpp
+    entity_spring.cpp
+)
+
+set(HEADERS
+    ${PROJECT_NAME}.h
+    entity_dynamic.h
+    entity_dynamic_coord.h
+    entity_spring.h
 )
 
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
@@ -22,7 +30,18 @@ add_library(${PROJECT_NAME} STATIC ${SOURCES})
 target_include_directories(${PROJECT_NAME} PRIVATE 
     ${CMAKE_BINARY_DIR}/include/byul
     ${CMAKE_CURRENT_SOURCE_DIR}    
-    ${CMAKE_SOURCE_DIR}    
+    ${CMAKE_SOURCE_DIR}
+    ${CMAKE_SOURCE_DIR}/common
+
+    ${CMAKE_SOURCE_DIR}/navsys/coord
+
+    ${CMAKE_SOURCE_DIR}/balix/numal
+    ${CMAKE_SOURCE_DIR}/balix/xform
+    ${CMAKE_SOURCE_DIR}/balix/bodyprops
+    ${CMAKE_SOURCE_DIR}/balix/environ
+    ${CMAKE_SOURCE_DIR}/balix/motion_state
+    ${CMAKE_SOURCE_DIR}/balix/trajectory
+    ${CMAKE_SOURCE_DIR}/balix/numeq
 )
 
 # target_link_directories(${PROJECT_NAME} PRIVATE 
@@ -38,3 +57,7 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
 add_subdirectory(tests)
 
 target_compile_definitions(${PROJECT_NAME} PRIVATE BYUL_STATIC)
+
+install(FILES ${HEADERS}
+    DESTINATION include/${CMAKE_PROJECT_NAME}
+)

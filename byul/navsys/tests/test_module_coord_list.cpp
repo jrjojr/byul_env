@@ -1,8 +1,8 @@
 #include "doctest.h"
 
 extern "C" {
-#include "internal/coord_list.h"
-#include "internal/coord.h"
+#include "coord_list.h"
+#include "coord.h"
 }
 
 TEST_CASE("coord_list: 생성 및 기초 확인") {

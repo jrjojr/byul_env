@@ -3,7 +3,7 @@
 #include <iostream>
 
 extern "C" {
-#include "internal/numal.h"
+#include "numal.h"
 }
 
 TEST_CASE("dualnumber 기본 연산 테스트") {

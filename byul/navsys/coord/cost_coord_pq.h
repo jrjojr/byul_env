@@ -1,7 +1,7 @@
 #ifndef COST_COORD_PQ_H
 #define COST_COORD_PQ_H
 
-#include "internal/coord.h"   // coord_t
+#include "coord.h"   // coord_t
 #include "byul_common.h"
 #include <stdbool.h>
 

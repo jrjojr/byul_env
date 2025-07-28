@@ -1,7 +1,7 @@
 #ifndef GREEDY_BEST_FIRST_H
 #define GREEDY_BEST_FIRST_H
 
-#include "internal/route_finder_common.h"
+#include "route_finder_common.h"
 
 #ifdef __cplusplus
 extern "C" {

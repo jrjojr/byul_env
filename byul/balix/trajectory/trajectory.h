@@ -2,8 +2,8 @@
 #define TRAJECTORY_H
 
 #include <stdbool.h>
-#include "internal/numal.h"
-#include "internal/motion_state.h"
+#include "numal.h"
+#include "motion_state.h"
 #include "byul_common.h"
 
 #ifdef __cplusplus
@@ -235,15 +235,27 @@ BYUL_API bool trajectory_estimate_acceleration(
 // trajectory 출력 유틸리티
 // ---------------------------------------------------------
 
+#define TRAJECTORY_STR_BUFSIZE 51200
 /**
- * @brief trajectory를 문자열로 변환
- * @param traj 대상 trajectory
- * @param buffer 결과를 담을 버퍼
- * @param size 버퍼 크기
- * @return buffer 포인터
+ * @brief trajectory_t 데이터를 사람이 읽을 수 있는 문자열로 변환합니다.
+ *
+ * 이 함수는 주어진 trajectory의 모든 포인트(시간, 위치, 속도)를 문자열로 변환하여
+ * 지정된 버퍼에 저장합니다. 포인트 수가 많으면 버퍼가 부족할 수 있으므로
+ * 충분히 큰 크기의 버퍼를 사용해야 합니다.
+ *
+ * @param traj    변환할 trajectory_t 포인터 (NULL이면 "(null)" 문자열 반환)
+ * @param buffer  변환 결과를 저장할 버퍼 (NULL이면 반환값도 NULL)
+ * @param size    버퍼 크기 (포인트가 많으면 TRAJECTORY_STR_BUFSIZE 이상 권장)
+ * @return buffer 포인터 (입력 buffer와 동일)
+ *
+ * @note
+ * - trajectory가 NULL일 경우 "[Trajectory] (null)" 문자열을 생성합니다.
+ * - 포인트 수가 많을 경우 출력이 중간에 잘릴 수 있습니다.
+ * - trajectory_to_string_detailed() 같은 확장 버전을 사용하면 요약/세부 출력 조정이 가능합니다.
  */
 BYUL_API char* trajectory_to_string(
     const trajectory_t* traj, char* buffer, size_t size);
+
 
 /**
  * @brief trajectory 내용을 콘솔에 출력

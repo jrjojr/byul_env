@@ -64,10 +64,31 @@ set(EXTERNAL_DIR ${CMAKE_SOURCE_DIR}/../external)
 message(STATUS "${PROJECT_NAME} : EXTERNAL_DIR = ${EXTERNAL_DIR}")
 
 target_include_directories(${PROJECT_NAME} PRIVATE
-    ${CMAKE_SOURCE_DIR}
     ${CMAKE_CURRENT_SOURCE_DIR}
     ${CMAKE_BINARY_DIR}/include/byul
     ${EXTERNAL_DIR}
+
+    ${CMAKE_SOURCE_DIR}
+    ${CMAKE_SOURCE_DIR}/common
+
+    ${CMAKE_SOURCE_DIR}/navsys/coord
+
+    ${CMAKE_SOURCE_DIR}/balix/numal
+    
+    ${CMAKE_SOURCE_DIR}/balix/numeq
+    ${CMAKE_SOURCE_DIR}/balix/numeq/filters
+
+    ${CMAKE_SOURCE_DIR}/balix/controller
+    ${CMAKE_SOURCE_DIR}/balix/trajectory
+    ${CMAKE_SOURCE_DIR}/balix/motion_state
+    ${CMAKE_SOURCE_DIR}/balix/bodyprops
+    ${CMAKE_SOURCE_DIR}/balix/environ
+
+    ${CMAKE_SOURCE_DIR}/balix/xform
+
+    ${CMAKE_SOURCE_DIR}/entity
+
+    ${CMAKE_SOURCE_DIR}/projectile
 )
 
 # ------------------- 정적 라이브러리 연결 -------------------

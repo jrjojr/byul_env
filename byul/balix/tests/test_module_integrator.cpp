@@ -1,7 +1,7 @@
 #include "doctest.h"
 
 extern "C" {
-#include "internal/numeq_integrator.h"
+#include "numeq_integrator.h"
 }
 
 TEST_CASE("Euler Integration: basic update") {

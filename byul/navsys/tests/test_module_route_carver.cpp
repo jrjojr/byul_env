@@ -1,11 +1,11 @@
 #include "doctest.h"
-#include "internal/route_carver.h"
-#include "internal/coord.h"
+#include "route_carver.h"
+#include "coord.h"
 #include <locale.h>
 
-#include "internal/navgrid.h"
-#include "internal/obstacle.h"
-#include "internal/console.h"
+#include "navgrid.h"
+#include "obstacle.h"
+#include "console.h"
 
 TEST_CASE("route_carve_beam - straight line carve") {
     navgrid_t* navgrid = navgrid_create();

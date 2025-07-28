@@ -1,7 +1,7 @@
 #ifndef NUMEQ_SOLVER_H
 #define NUMEQ_SOLVER_H
 
-#include "internal/trajectory.h"
+#include "trajectory.h"
 
 #ifdef __cplusplus
 extern "C" {

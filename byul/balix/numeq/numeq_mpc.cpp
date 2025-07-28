@@ -1,20 +1,20 @@
-#include "internal/numeq_mpc.h"
-#include "internal/vec3.h"
-#include "internal/quat.h"
+#include "numeq_mpc.h"
+#include "vec3.h"
+#include "quat.h"
 #include <cmath>
 #include <cfloat>
 #include <new>
 #include <cstdio>
 #include <cstring>
-#include "internal/numeq_integrator.h"
+#include "numeq_integrator.h"
 
 #include <float.h>
 #include <math.h>
 #include <stdio.h>
 
-#include "internal/numeq_mpc.h"
-#include "internal/numeq_integrator.h"
-#include "internal/numeq_solver.h"
+#include "numeq_mpc.h"
+#include "numeq_integrator.h"
+#include "numeq_solver.h"
 #include <Eigen/Dense>
 #include <vector>
 #include <limits>
@@ -224,7 +224,7 @@ void mpc_target_route_assign(mpc_target_route_t* out,
  */
 void mpc_direction_target_init(mpc_direction_target_t* target) {
     if (!target) return;
-    target->direction = (vec3_t){1.0f, 0.0f, 0.0f}; // 기본 X축 방향
+    target->direction = vec3_t{1.0f, 0.0f, 0.0f}; // 기본 X축 방향
     quat_identity(&target->orientation);
     target->weight_dir = 1.0f;
     target->weight_rot = 0.5f;

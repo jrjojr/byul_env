@@ -1,8 +1,8 @@
-#include "internal/xform.h"
-#include "internal/quat.h"
-#include "internal/vec3.h"
-#include "internal/dualquat.h"
-#include "internal/common.h"
+#include "xform.h"
+#include "quat.h"
+#include "vec3.h"
+#include "dualquat.h"
+#include "float_common.h"
 #include <iostream>
 #include <cmath>
 #include <iomanip>

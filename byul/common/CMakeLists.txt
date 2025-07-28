@@ -8,8 +8,13 @@ message(STATUS "${PROJECT_NAME} : EXTERNAL_DIR = ${EXTERNAL_DIR}")
 
 # 소스 파일 설정
 set(SOURCES
-    ${PROJECT_NAME}.cpp
+    float_common.cpp
     hashset.cpp
+)
+
+set(HEADERS
+    float_common.h
+    hashset.h
 )
 
 # 코드 인텔리센스에 도움이 된다 vscode에서...
@@ -33,9 +38,10 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
 
 )
 
-target_compile_definitions(${PROJECT_NAME} PRIVATE ${GLIB_CFLAGS_OTHER})
-target_compile_options(${PROJECT_NAME} PRIVATE ${GLIB_CFLAGS_OTHER})
-
 add_subdirectory(tests)
 
 target_compile_definitions(${PROJECT_NAME} PRIVATE BYUL_STATIC)
+
+install(FILES ${HEADERS}
+    DESTINATION include/${CMAKE_PROJECT_NAME}
+)

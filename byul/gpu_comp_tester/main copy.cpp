@@ -1,4 +1,4 @@
-#include "internal/gpu.h"
+#include "gpu.h"
 #include <stdio.h>
 #include <glad/gl.h>   // OpenGL 함수 선언
 #include <SDL.h>

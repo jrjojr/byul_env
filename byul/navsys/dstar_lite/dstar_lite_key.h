@@ -2,7 +2,7 @@
 #define DSTAR_LITE_KEY_H
 
 #include "byul_common.h"
-#include "internal/coord.h"
+#include "coord.h"
 
 #ifdef __cplusplus
 extern "C" {

@@ -1,5 +1,5 @@
-#include "internal/bodyprops.h"
-#include "internal/numeq_solver.h"
+#include "bodyprops.h"
+#include "numeq_solver.h"
 
 // ---------------------------------------------------------
 // bodyprops_t 유틸리티
@@ -70,7 +70,7 @@ float bodyprops_apply_friction_dt(vec3_t* velocity,
 
     float v0 = vec3_length(velocity);
     if (v0 <= 1e-5f) {
-        *velocity = (vec3_t){0, 0, 0};
+        *velocity = vec3_t{0, 0, 0};
         return 0.0f;
     }
 
@@ -84,7 +84,7 @@ float bodyprops_apply_friction_dt(vec3_t* velocity,
         // 속도가 0이 되는 순간을 방정식으로 계산
         float t_stop = 0.0f;
         if (numeq_solve_linear(body->friction, -1.0f, &t_stop) && t_stop > 0.0f) {
-            *velocity = (vec3_t){0, 0, 0};
+            *velocity = vec3_t{0, 0, 0};
             return (t_stop < dt) ? t_stop : dt;
         }
     }

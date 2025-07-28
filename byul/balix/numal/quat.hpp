@@ -1,8 +1,8 @@
 #ifndef QUAT_HPP
 #define QUAT_HPP
 
-#include "internal/quat.h"
-#include "internal/vec3.hpp"
+#include "quat.h"
+#include "vec3.hpp"
 #include <cmath>
 #include <stdexcept>
 #include <iostream>

@@ -2,7 +2,7 @@
 #define OBSTACLE_H
 
 #include "byul_common.h"
-#include "internal/obstacle_common.h"
+#include "obstacle_common.h"
 
 #ifdef __cplusplus
 extern "C" {

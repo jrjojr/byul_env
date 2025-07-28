@@ -5,8 +5,8 @@
 #include <iostream>
 
 extern "C" {
-#include "internal/maze.h"
-#include "internal/console.h"
+#include "maze.h"
+#include "console.h"
 }
 
 TEST_CASE("미로 생성 및 맵 적용") {

@@ -1,4 +1,4 @@
-#include "internal/propulsion.h"
+#include "propulsion.h"
 #include <string.h>
 #include <stdio.h>
 #include <math.h>

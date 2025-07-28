@@ -2,8 +2,8 @@
 #define DSTAR_LITE_KEY_HPP
 
 #include "byul_common.h"
-#include "internal/coord.h"
-#include "internal/dstar_lite_key.h"
+#include "coord.h"
+#include "dstar_lite_key.h"
 
 #include <functional>
 #include <cstddef>

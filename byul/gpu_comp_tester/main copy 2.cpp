@@ -1,4 +1,4 @@
-#include "internal/gpu.h"
+#include "gpu.h"
 #include <stdio.h>
 #include <glad/gl.h>
 #include <SDL.h>

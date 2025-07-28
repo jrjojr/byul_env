@@ -1,12 +1,12 @@
-#ifndef ROUTE_FINDER_UTILS_H
-#define ROUTE_FINDER_UTILS_H
+#ifndef CONSOLE_H
+#define CONSOLE_H
 
 #include "byul_common.h"
-#include "internal/common.h"
+#include "float_common.h"
 
-#include "internal/navgrid.h"
-#include "internal/coord.h"
-#include "internal/route.h"
+#include "navgrid.h"
+#include "coord.h"
+#include "route.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -57,4 +57,4 @@ BYUL_API void navgrid_print_ascii_with_visited_count(
 }
 #endif
 
-#endif // ROUTE_FINDER_UTILS_H
+#endif // CONSOLE_H

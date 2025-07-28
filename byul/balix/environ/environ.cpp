@@ -1,7 +1,7 @@
-#include "internal/environ.h"
-#include "internal/numeq_model.h"
-#include "internal/vec3.h"
-#include "internal/common.h"
+#include "environ.h"
+#include "numeq_model.h"
+#include "vec3.h"
+#include "float_common.h"
 #include <math.h>
 #include <string.h>
 
@@ -48,7 +48,7 @@ static float environ_calc_factor(const environ_t* env) {
 // ---------------------------------------------------------
 void environ_init(environ_t* env) {
     if (!env) return;
-    env->gravity = (vec3_t){0.0f, -9.81f, 0.0f};
+    env->gravity = vec3_t{0.0f, -9.81f, 0.0f};
     vec3_zero(&env->wind);
     env->air_density = 1.225f;
     env->humidity = 50.0f;
@@ -69,8 +69,8 @@ void environ_init_full(environ_t* env,
                            void* userdata) {
     if (!env) return;
 
-    env->gravity = gravity ? *gravity : (vec3_t){0.0f, -9.81f, 0.0f};
-    env->wind = wind ? *wind : (vec3_t){0.0f, 0.0f, 0.0f};
+    env->gravity = gravity ? *gravity : vec3_t{0.0f, -9.81f, 0.0f};
+    env->wind = wind ? *wind : vec3_t{0.0f, 0.0f, 0.0f};
     env->air_density = air_density;
     env->humidity = humidity;
     env->temperature = temperature;
@@ -138,7 +138,7 @@ const vec3_t* environ_calc_gravity(const environ_t* env,
                                        vec3_t* out) {
     (void)dt; (void)userdata;
     static vec3_t result;
-    result = env ? env->gravity : (vec3_t){0.0f, -9.81f, 0.0f};
+    result = env ? env->gravity : vec3_t{0.0f, -9.81f, 0.0f};
     environ_adjust_accel(env, &result);
     if (out) { *out = result; return out; }
     return &result;
@@ -156,7 +156,7 @@ const vec3_t* environ_calc_gravity_wind(const environ_t* env,
         result.z = env->gravity.z + env->wind.z;
         environ_adjust_accel(env, &result);
     } else {
-        result = (vec3_t){0.0f, -9.81f, 0.0f};
+        result = vec3_t{0.0f, -9.81f, 0.0f};
     }
     if (out) { *out = result; return out; }
     return &result;
@@ -167,11 +167,11 @@ const vec3_t* environ_calc_gravity_wind(const environ_t* env,
 // ---------------------------------------------------------
 void environ_periodic_init(environ_periodic_t* out) {
     if (!out) return;
-    out->base_wind = (vec3_t){0.0f, 0.0f, 0.0f};
-    out->gust_amplitude = (vec3_t){0.5f, 0.0f, 0.5f};
+    out->base_wind = vec3_t{0.0f, 0.0f, 0.0f};
+    out->gust_amplitude = vec3_t{0.5f, 0.0f, 0.5f};
     out->gust_frequency = 1.0f;
     out->time = 0.0f;
-    out->gravity = (vec3_t){0.0f, -9.81f, 0.0f};
+    out->gravity = vec3_t{0.0f, -9.81f, 0.0f};
 }
 
 void environ_periodic_init_full(const vec3_t* base_wind,
@@ -180,10 +180,10 @@ void environ_periodic_init_full(const vec3_t* base_wind,
                                     const vec3_t* gravity,
                                     environ_periodic_t* out) {
     if (!out) return;
-    out->base_wind = base_wind ? *base_wind : (vec3_t){0.0f, 0.0f, 0.0f};
-    out->gust_amplitude = gust_amp ? *gust_amp : (vec3_t){0.5f, 0.0f, 0.5f};
+    out->base_wind = base_wind ? *base_wind : vec3_t{0.0f, 0.0f, 0.0f};
+    out->gust_amplitude = gust_amp ? *gust_amp : vec3_t{0.5f, 0.0f, 0.5f};
     out->gust_frequency = (gust_freq < 0.0f) ? 0.0f : gust_freq;
-    out->gravity = gravity ? *gravity : (vec3_t){0.0f, -9.81f, 0.0f};
+    out->gravity = gravity ? *gravity : vec3_t{0.0f, -9.81f, 0.0f};
     out->time = 0.0f;
 }
 
@@ -202,7 +202,7 @@ const vec3_t* environ_calc_periodic(const environ_t* env,
 
     environ_periodic_t* pdata = (environ_periodic_t*)userdata;
     if (!pdata) {
-        *target = env ? env->gravity : (vec3_t){0.0f, -9.81f, 0.0f};
+        *target = env ? env->gravity : vec3_t{0.0f, -9.81f, 0.0f};
         environ_adjust_accel(env, target);
         return target;
     }

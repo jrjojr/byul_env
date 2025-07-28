@@ -1,9 +1,9 @@
 #include <cmath>
 #include <cstdio>
-#include "internal/projectile_predict.h"
-#include "internal/guidance.h"
-#include "internal/common.h"
-#include "internal/numeq_filters.h"
+#include "projectile_predict.h"
+#include "guidance.h"
+#include "float_common.h"
+#include "numeq_filters.h"
 
 // ---------------------------------------------------------
 // projectile_result_create
@@ -12,10 +12,17 @@ projectile_result_t* projectile_result_create() {
     projectile_result_t* res = new projectile_result_t;
     if (!res) return nullptr;
 
+    // 입력 메타데이터 초기화
+    vec3_zero(&res->start_pos);
+    vec3_zero(&res->target_pos);
+    vec3_zero(&res->initial_velocity);
+
+    // 결과 정보 초기화
     res->impact_time = 0.0f;
     vec3_zero(&res->impact_pos);
     res->valid = false;
 
+    // trajectory 생성
     res->trajectory = trajectory_create();  // 기본 capacity = 100
     if (!res->trajectory) {
         delete res;
@@ -33,10 +40,17 @@ projectile_result_t* projectile_result_create_full(int capacity) {
     projectile_result_t* res = new projectile_result_t;
     if (!res) return nullptr;
 
+    // 입력 메타데이터 초기화
+    vec3_zero(&res->start_pos);
+    vec3_zero(&res->target_pos);
+    vec3_zero(&res->initial_velocity);
+
+    // 결과 정보 초기화
     res->impact_time = 0.0f;
     vec3_zero(&res->impact_pos);
     res->valid = false;
 
+    // trajectory 생성
     res->trajectory = trajectory_create_full(capacity);
     if (!res->trajectory) {
         delete res;
@@ -54,10 +68,17 @@ projectile_result_t* projectile_result_copy(const projectile_result_t* src) {
     projectile_result_t* res = new projectile_result_t;
     if (!res) return nullptr;
 
+    // 입력 메타데이터 복사
+    res->start_pos = src->start_pos;
+    res->target_pos = src->target_pos;
+    res->initial_velocity = src->initial_velocity;
+
+    // 결과 정보 복사
     res->impact_time = src->impact_time;
     res->impact_pos = src->impact_pos;
     res->valid = src->valid;
 
+    // trajectory 복사
     res->trajectory = trajectory_copy(src->trajectory);
     if (!res->trajectory) {
         delete res;
@@ -66,48 +87,69 @@ projectile_result_t* projectile_result_copy(const projectile_result_t* src) {
     return res;
 }
 
+// ---------------------------------------------------------
+// projectile_result_reset
+// ---------------------------------------------------------
 void projectile_result_reset(projectile_result_t* res)
 {
     if (!res) return;
 
+    // 입력 메타데이터 초기화
+    vec3_zero(&res->start_pos);
+    vec3_zero(&res->target_pos);
+    vec3_zero(&res->initial_velocity);
+
+    // 결과 정보 초기화
     res->impact_time = 0.0f;
-    res->impact_pos = (vec3_t){0.0f, 0.0f, 0.0f};
+    vec3_zero(&res->impact_pos);
     res->valid = false;
 
+    // trajectory 데이터 초기화
     if (res->trajectory) {
-        trajectory_clear(res->trajectory);  // 내부 데이터만 초기화
+        trajectory_clear(res->trajectory);
     }
 }
 
+// ---------------------------------------------------------
+// projectile_result_resize
+// ---------------------------------------------------------
 void projectile_result_resize(projectile_result_t* res, int new_capacity)
 {
-    if (!res) return;
+    if (!res || new_capacity <= 0) return;
 
     if (res->trajectory) {
         trajectory_destroy(res->trajectory);
     }
     res->trajectory = trajectory_create_full(new_capacity);
 
-    // 재할당 후 상태 초기화
-    res->impact_time = 0.0f;
-    res->impact_pos = (vec3_t){0.0f, 0.0f, 0.0f};
-    res->valid = false;
+    // 전체 상태 초기화
+    projectile_result_reset(res);
 }
 
+// ---------------------------------------------------------
+// projectile_result_free
+// ---------------------------------------------------------
 void projectile_result_free(projectile_result_t* res)
 {
     if (!res) return;
 
-    // trajectory 메모리도 같이 해제
+    // trajectory 메모리 해제
     if (res->trajectory) {
         trajectory_destroy(res->trajectory);
         res->trajectory = NULL;
     }
 
-    // 필드 초기화
+    // 나머지 필드 초기화
+    vec3_zero(&res->start_pos);
+    vec3_zero(&res->target_pos);
+    vec3_zero(&res->initial_velocity);
+
     res->impact_time = 0.0f;
-    res->impact_pos = (vec3_t){0.0f, 0.0f, 0.0f};
+    vec3_zero(&res->impact_pos);
     res->valid = false;
+
+    // 동적 메모리 해제
+    delete res;
 }
 
 // ---------------------------------------------------------
@@ -120,6 +162,113 @@ void projectile_result_destroy(projectile_result_t* res) {
         res->trajectory = nullptr;
     }
     delete res;
+}
+
+// 내부 헬퍼: projectile_result를 문자열로 포맷
+static int projectile_result_format(
+    const projectile_result_t* result,
+    char* buffer,
+    size_t buffer_size)
+{
+    if (!buffer || buffer_size == 0) return -1;
+
+    if (!result) {
+        return snprintf(buffer, buffer_size, "[Projectile Result] (null)");
+    }
+
+    return snprintf(buffer, buffer_size,
+        "[Projectile Result]\n"
+        "  Start Pos   : (%.3f, %.3f, %.3f)\n"
+        "  Target Pos  : (%.3f, %.3f, %.3f)\n"
+        "  Initial Vel : (%.3f, %.3f, %.3f)\n"
+        "  Valid       : %s\n"
+        "  Impact Time : %.3f sec\n"
+        "  Impact Pos  : (%.3f, %.3f, %.3f)\n"
+        "  Trajectory  : %s (%u points)",
+        result->start_pos.x, result->start_pos.y, result->start_pos.z,
+        result->target_pos.x, result->target_pos.y, result->target_pos.z,
+        result->initial_velocity.x, result->initial_velocity.y, result->initial_velocity.z,
+        result->valid ? "true" : "false",
+        result->impact_time,
+        result->impact_pos.x, result->impact_pos.y, result->impact_pos.z,
+        result->trajectory ? "present" : "none",
+        result->trajectory ? result->trajectory->count : 0
+    );
+}
+
+// 기존 print() 리팩토링
+void projectile_result_print(const projectile_result_t* result)
+{
+    char buffer[PROJECTILE_RESULT_STR_BUFSIZE];
+    int written = projectile_result_format(result, buffer, sizeof(buffer));
+    if (written > 0) {
+        printf("%s\n", buffer);
+    }
+}
+
+// 기존 to_string() 리팩토링
+char* projectile_result_to_string(
+    const projectile_result_t* result,
+    char* buffer,
+    size_t buffer_size)
+{
+    projectile_result_format(result, buffer, buffer_size);
+    return buffer;
+}
+
+void projectile_result_print_detailed(const projectile_result_t* result)
+{
+    if (!result) {
+        printf("[Projectile Result] (null)\n");
+        return;
+    }
+
+    // Trajectory 출력
+    if (result->trajectory) {
+        trajectory_print(result->trajectory);
+    } else {
+        printf("Trajectory: (none)\n");
+    }
+
+    // 기본 정보 출력
+    projectile_result_print(result);
+}
+
+char* projectile_result_to_string_detailed(
+    const projectile_result_t* result,
+    char* buffer,
+    size_t buffer_size)
+{
+    if (!buffer || buffer_size == 0) return NULL;
+
+    if (!result) {
+        snprintf(buffer, buffer_size, "[Projectile Result] (null)");
+        return buffer;
+    }
+
+    size_t offset = 0;
+
+    // 1. 기본 정보 포맷팅
+    int written = projectile_result_format(result, buffer, buffer_size);
+    if (written < 0) return buffer;
+    if ((size_t)written >= buffer_size) return buffer;  // 버퍼 초과
+    offset = (size_t)written;
+
+    // 2. Trajectory 출력
+    if (result->trajectory) {
+        // 남은 공간에 trajectory 추가
+        size_t remaining = buffer_size - offset;
+        if (remaining > 1) {
+            buffer[offset++] = '\n';
+            trajectory_to_string(result->trajectory,
+                                 buffer + offset,
+                                 remaining - 1);
+        }
+    } else {
+        snprintf(buffer + offset, buffer_size - offset, "\nTrajectory: (none)\n");
+    }
+
+    return buffer;
 }
 
 // ---------------------------------------------------------
@@ -242,55 +391,6 @@ static bool solve_entity_hit_time(
     return true;
 }
 
-// static bool detect_entity_collision_precise(
-//     const vec3_t* proj_pos_prev,
-//     const vec3_t* proj_vel_prev,
-//     const vec3_t* proj_accel,
-//     const vec3_t* target_pos,
-//     float target_radius,
-//     float dt,
-//     float t_prev,
-//     vec3_t* impact_pos,
-//     float* impact_time)
-// {
-//     // --- 상대 좌표계 변환 ---
-//     vec3_t rel_p = *proj_pos_prev;
-//     vec3_sub(&rel_p, &rel_p, target_pos);
-
-//     vec3_t rel_v = *proj_vel_prev;
-//     vec3_t rel_a = *proj_accel;
-
-//     // --- 초기 선형 상태 생성 ---
-//     linear_state_t state_prev;
-//     linear_state_init(&state_prev);
-//     state_prev.position = rel_p;
-//     state_prev.velocity = rel_v;
-//     state_prev.acceleration = rel_a;
-
-//     // --- 이전/현재 거리 ---
-//     float d_prev = vec3_length(&rel_p);
-//     vec3_t rel_curr;
-//     numeq_model_pos_at(dt, &state_prev, NULL, NULL, &rel_curr);
-//     float d_curr = vec3_length(&rel_curr);
-
-//     // --- 빠른 배제 조건 ---
-//     if (d_prev <= target_radius) return false;   // 이전 프레임에서 이미 충돌
-//     if (d_curr > d_prev) return false;           // 점점 멀어짐 → 충돌 불가
-
-//     // --- 충돌 시간 계산 ---
-//     float t_local;
-//     if (!solve_entity_hit_time(&rel_p, &rel_v, &rel_a, target_radius, dt, &t_local))
-//         return false;
-//     if (t_local < 0.0f || t_local > dt) return false;
-
-//     // --- 충돌 위치 계산 ---
-//     *impact_time = t_prev + t_local;
-//     numeq_model_pos_at(t_local, &state_prev, NULL, NULL, impact_pos);
-//     vec3_add(impact_pos, impact_pos, target_pos); // 타겟 좌표계에서 월드 좌표로 변환
-
-//     return true;
-// }
-
 static bool detect_entity_collision_precise(
     const vec3_t* proj_pos_prev,
     const vec3_t* proj_vel_prev,
@@ -357,6 +457,31 @@ static bool detect_entity_collision_precise(
     return false;
 }
 
+float projectile_result_calc_initial_force(
+    const projectile_result_t* result,
+    float mass)
+{
+    if (!result || !result->trajectory || result->trajectory->count < 2) {
+        return 0.0f;
+    }
+
+    const trajectory_sample_t* s0 = &result->trajectory->samples[0];
+    const trajectory_sample_t* s1 = &result->trajectory->samples[1];
+
+    float dt = s1->t - s0->t;
+    if (dt <= 1e-6f) {
+        return 0.0f;
+    }
+
+    // 속도 벡터 차이
+    vec3_t dv;
+    vec3_sub(&dv, &s1->state.linear.velocity, &s0->state.linear.velocity);
+    vec3_scale(&dv, &dv, 1.0f / dt);
+
+    // 힘 = m * |a|
+    return mass * vec3_length(&dv);
+}
+
 
 // ---------------------------------------------------------
 // projectile_predict()
@@ -364,7 +489,7 @@ static bool detect_entity_collision_precise(
 bool projectile_predict(
     projectile_result_t* out,
     const projectile_t* proj,
-    entity_dynamic_t* entdyn,
+    const entity_dynamic_t* entdyn,
     float max_time,
     float time_step,
     const environ_t* env,
@@ -374,7 +499,7 @@ bool projectile_predict(
     if (!proj || !out || time_step <= 0.0f) return false;
     trajectory_clear(out->trajectory);
 
-    vec3_t target_pos = entdyn ? entdyn->xf.pos : (vec3_t){0, 0, 0};
+    vec3_t target_pos = entdyn ? entdyn->xf.pos : vec3_t{0, 0, 0};
     float target_radius = entdyn ? entity_size(&entdyn->base) : 0.0f;
 
     motion_state_t state;
@@ -387,6 +512,11 @@ bool projectile_predict(
 
     float t = 0.0f;
     const int max_steps = (int)ceilf(max_time / time_step);
+
+    out->start_pos = proj->base.xf.pos;
+    out->target_pos = entdyn->xf.pos;
+    out->initial_velocity = proj->base.velocity;
+    out->valid = false;
 
     for (int step = 0; step < max_steps; ++step, t += time_step) {
         vec3_t pos_prev = state.linear.position;
@@ -483,7 +613,7 @@ bool projectile_predict(
                         time_step, t-time_step, &out->impact_pos, &out->impact_time))
                 {
                     out->valid = true;
-                    return true;
+                    goto finalize;
                 }
             }
         // }
@@ -499,13 +629,15 @@ bool projectile_predict(
                 t, time_step, &out->impact_pos, &out->impact_time)){
 
                 out->valid = true;
-                return true;
+               goto finalize;
             }
         }
     }
 
     out->valid = false;
-    return false;
+
+finalize:
+    return out->valid;
 }
 
 bool projectile_predict_with_kalman_filter(
@@ -522,7 +654,7 @@ bool projectile_predict_with_kalman_filter(
     trajectory_clear(out->trajectory);
 
     // --- 타겟 정보 ---
-    vec3_t target_pos = entdyn ? entdyn->xf.pos : (vec3_t){0, 0, 0};
+    vec3_t target_pos = entdyn ? entdyn->xf.pos : vec3_t{0, 0, 0};
     float target_radius = entdyn ? entity_size(&entdyn->base) : 0.0f;
 
     // --- 초기 상태 설정 ---
@@ -646,7 +778,7 @@ bool projectile_predict_with_filter(
     if (!proj || !out || time_step <= 0.0f) return false;
     trajectory_clear(out->trajectory);
 
-    vec3_t target_pos = entdyn ? entdyn->xf.pos : (vec3_t){0, 0, 0};
+    vec3_t target_pos = entdyn ? entdyn->xf.pos : vec3_t{0, 0, 0};
     float target_radius = entdyn ? entity_size(&entdyn->base) : 0.0f;
 
     motion_state_t state;

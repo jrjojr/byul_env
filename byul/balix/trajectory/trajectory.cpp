@@ -1,4 +1,4 @@
-#include "internal/trajectory.h"
+#include "trajectory.h"
 #include <cstdio>
 #include <cstring>
 #include <cmath>

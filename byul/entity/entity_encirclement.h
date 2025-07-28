@@ -5,7 +5,7 @@
 extern "C" {
 #endif
 
-#include "internal/entity_dynamic.h"
+#include "entity_dynamic.h"
 
 // ---------------------------------------------------------
 // 기초 유틸리티

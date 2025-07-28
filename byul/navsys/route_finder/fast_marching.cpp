@@ -1,11 +1,11 @@
 // fast_marching.cpp
 
-#include "internal/fast_marching.h"
-#include "internal/navgrid.h"
-#include "internal/coord.hpp"
-#include "internal/coord_list.h"
-#include "internal/coord_hash.h"
-#include "internal/cost_coord_pq.h"
+#include "fast_marching.h"
+#include "navgrid.h"
+#include "coord.hpp"
+#include "coord_list.h"
+#include "coord_hash.h"
+#include "cost_coord_pq.h"
 #include <float.h>
 #include <cmath>
 #include <stdio.h>

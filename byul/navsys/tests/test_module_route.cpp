@@ -1,6 +1,6 @@
 #include "doctest.h"
-#include "internal/route.h"
-#include "internal/coord.h"
+#include "route.h"
+#include "coord.h"
 
 TEST_CASE("route creation and basic ops") {
     route_t* p = route_create();

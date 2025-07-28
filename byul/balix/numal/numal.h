@@ -1,10 +1,10 @@
 #ifndef NUMAL_H
 #define NUMAL_H
 
-#include "internal/dualnumber.h"
-#include "internal/vec3.h"
-#include "internal/quat.h"
-#include "internal/dualquat.h"
+#include "dualnumber.h"
+#include "vec3.h"
+#include "quat.h"
+#include "dualquat.h"
 
 #ifdef __cplusplus
 extern "C" {

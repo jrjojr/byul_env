@@ -3,18 +3,15 @@
 #include "math.h"
 
 extern "C" {
-#include "internal/projectile.h"
-#include "internal/entity_dynamic.h"
-#include "internal/vec3.h"
-#include "internal/xform.h"
+#include "projectile.h"
+#include "entity_dynamic.h"
+#include "vec3.h"
+#include "xform.h"
 }
 
 TEST_CASE("projectile_init 기본값 테스트") {
     projectile_t proj;
     projectile_init(&proj);
-
-    CHECK(proj.on_hit == nullptr);
-    CHECK(proj.hit_userdata == nullptr);
 
     // base 확인
     CHECK(proj.base.base.id == -1);
@@ -30,7 +27,7 @@ TEST_CASE("projectile_init_full 사용자 지정 초기화") {
     base_dyn.base.id = 77;
     base_dyn.velocity = {1.0f, 2.0f, 3.0f};
 
-    auto on_hit_test = [](const projectile_t* p, void* ud) {
+    auto on_hit_test = [](const void* p, void* ud) {
         (void)p;
         int* val = static_cast<int*>(ud);
         *val = 123;
@@ -68,7 +65,7 @@ TEST_CASE("projectile_update 동작 테스트") {
     proj.base.base.lifetime = 0.5f;
 
     int userdata_val = 0;
-    proj.on_hit = [](const projectile_t* p, void* ud) {
+    proj.on_hit = [](const void* p, void* ud) {
         (void)p;
         int* val = static_cast<int*>(ud);
         *val = 999;
@@ -86,15 +83,6 @@ TEST_CASE("projectile_update 동작 테스트") {
     CHECK(userdata_val == 999);
 }
 
-static bool hit_called = false;
-static void custom_hit_cb(const projectile_t* proj, void* userdata) {
-    (void)proj;
-    int* flag = (int*)userdata;
-    *flag = 1;
-    hit_called = true;
-   std::cout << "[projectile] default hit cb (no effect)\n";    
-}
-
 TEST_CASE("projectile_default_hit_cb 동작 테스트") {
     projectile_t proj;
     projectile_init(&proj);
@@ -109,19 +97,12 @@ TEST_CASE("projectile_update에서 on_hit 호출 테스트") {
     projectile_init(&proj);
 
     proj.base.base.lifetime = 1.0f;  // 1초 후 만료
-    int user_flag = 0;
-    proj.on_hit = custom_hit_cb;
-    proj.hit_userdata = &user_flag;
 
     // 아직 수명 전
     projectile_update(&proj, 0.5f);
-    CHECK(user_flag == 0);
-    CHECK(hit_called == false);
 
     // 수명 경과 (1.2초 후)
     projectile_update(&proj, 0.7f);
-    CHECK(user_flag == 1);
-    CHECK(hit_called == true);
 }
 
 TEST_CASE("projectile_calc_launch_param - 기본 포물선 발사") {

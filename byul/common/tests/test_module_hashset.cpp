@@ -1,7 +1,7 @@
 #include "doctest.h"
 
 extern "C" {
-    #include "internal/hashset.h"
+    #include "hashset.h"
 }
 
 TEST_CASE("hashset: basic operations") {

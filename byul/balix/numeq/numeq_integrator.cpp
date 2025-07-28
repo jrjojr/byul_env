@@ -1,8 +1,8 @@
 // linear_state_t -> motion_state_t로 변경한 버전
 
-#include "internal/numeq_integrator.h"
-#include "internal/numeq_model.h"
-#include "internal/vec3.hpp"
+#include "numeq_integrator.h"
+#include "numeq_model.h"
+#include "vec3.hpp"
 #include <cassert>
 
 // ---------------------------------------------------------
@@ -139,8 +139,8 @@ void numeq_integrate_rk4_env(motion_state_t* state,
         return;
     }
     
-    environ_t a_env = env ? *env : (environ_t){0};
-    bodyprops_t a_body = body ? *body : (bodyprops_t){0};
+    environ_t a_env = env ? *env : environ_t{0};
+    bodyprops_t a_body = body ? *body : bodyprops_t{0};
 
     // 초기 상태
     Vec3 p0(state->linear.position);
@@ -205,8 +205,8 @@ void numeq_integrate_rk4_env(motion_state_t* state,
 //         return;
 //     }
 
-//     environ_t a_env = env ? *env : (environ_t){0};
-//     bodyprops_t a_body = body ? *body : (bodyprops_t){0};
+//     environ_t a_env = env ? *env : environ_t{0};
+//     bodyprops_t a_body = body ? *body : bodyprops_t{0};
 
 //     // 초기 상태
 //     Vec3 p0(state->linear.position);
@@ -576,8 +576,8 @@ void numeq_integrate_motion_rk4_env(motion_state_t* state,
         return;
     }
 
-    environ_t a_env = env ? *env : (environ_t){0};
-    bodyprops_t a_body = body ? *body : (bodyprops_t){0};
+    environ_t a_env = env ? *env : environ_t{0};
+    bodyprops_t a_body = body ? *body : bodyprops_t{0};
 
     // -----------------------------
     // 선형 운동 (Linear Motion)

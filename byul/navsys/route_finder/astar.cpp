@@ -1,10 +1,10 @@
-#include "internal/astar.h"
-#include "internal/navgrid.h"
-#include "internal/coord.hpp"
-#include "internal/coord_list.h"
-#include "internal/coord_hash.h"
-#include "internal/cost_coord_pq.h"
-#include "internal/route.h"
+#include "astar.h"
+#include "navgrid.h"
+#include "coord.hpp"
+#include "coord_list.h"
+#include "coord_hash.h"
+#include "cost_coord_pq.h"
+#include "route.h"
 #include <cmath>
 
 route_t* find_astar(const navgrid_t* m, const coord_t* start, const coord_t* goal,

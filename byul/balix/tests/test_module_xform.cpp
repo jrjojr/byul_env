@@ -3,11 +3,11 @@
 #include <iostream>
 
 extern "C" {
-#include "internal/xform.h"
+#include "xform.h"
 }
 
-#include "internal/vec3.hpp"
-#include "internal/common.h"
+#include "vec3.hpp"
+#include "float_common.h"
 
 TEST_CASE("xform: identity transform") {
     xform_t xf;

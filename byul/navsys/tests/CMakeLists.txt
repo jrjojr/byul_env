@@ -65,8 +65,21 @@ message(STATUS "${PROJECT_NAME} : EXTERNAL_DIR = ${EXTERNAL_DIR}")
 
 target_include_directories(${PROJECT_NAME} PRIVATE
     ${CMAKE_SOURCE_DIR}
+    ${CMAKE_SOURCE_DIR}/common
+    ${CMAKE_SOURCE_DIR}/console
+
+    ${CMAKE_SOURCE_DIR}/navsys/coord
+    ${CMAKE_SOURCE_DIR}/navsys/route
+    ${CMAKE_SOURCE_DIR}/navsys/navgrid
+    ${CMAKE_SOURCE_DIR}/navsys/dstar_lite
+    ${CMAKE_SOURCE_DIR}/navsys/route_finder
+    ${CMAKE_SOURCE_DIR}/navsys/maze
+    ${CMAKE_SOURCE_DIR}/navsys/obstacle
+    ${CMAKE_SOURCE_DIR}/navsys/route_carver
+
+    ${CMAKE_SOURCE_DIR}/balix/trajectory
+
     ${CMAKE_CURRENT_SOURCE_DIR}
-    ${CMAKE_BINARY_DIR}/include/byul
     ${EXTERNAL_DIR}
 )
 

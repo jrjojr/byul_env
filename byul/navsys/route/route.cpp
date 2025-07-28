@@ -1,9 +1,9 @@
 // route.cpp - GLib 제거, 구조체 은닉, 내부 std::vector 기반
 
-#include "internal/route.h"
-#include "internal/coord.hpp"
-#include "internal/common.h"
-#include "internal/coord_list.h"
+#include "route.h"
+#include "coord.hpp"
+#include "float_common.h"
+#include "coord_list.h"
 
 #include <vector>
 #include <cmath>

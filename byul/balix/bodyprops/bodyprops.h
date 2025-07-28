@@ -2,7 +2,7 @@
 #define BODYPROPS_H
 
 #include "byul_common.h"
-#include "internal/vec3.h"
+#include "vec3.h"
 
 #ifdef __cplusplus
 extern "C" {

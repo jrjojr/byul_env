@@ -17,10 +17,10 @@
 #ifndef NUMEQ_MODEL_H
 #define NUMEQ_MODEL_H
 
-#include "internal/trajectory.h"
-#include "internal/vec3.h"
-#include "internal/environ.h"
-#include "internal/bodyprops.h"
+#include "trajectory.h"
+#include "vec3.h"
+#include "environ.h"
+#include "bodyprops.h"
 
 #ifdef __cplusplus
 extern "C" {

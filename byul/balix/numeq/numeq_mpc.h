@@ -29,9 +29,9 @@
 #ifndef NUMEQ_MPC_H
 #define NUMEQ_MPC_H
 
-#include "internal/trajectory.h"
-#include "internal/numeq_model.h"
-#include "internal/numal.h"
+#include "trajectory.h"
+#include "numeq_model.h"
+#include "numal.h"
 
 #ifdef __cplusplus
 extern "C" {

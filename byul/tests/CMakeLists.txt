@@ -59,17 +59,31 @@ add_module(projectile)
 # 테스트 실행 파일 생성
 # ─────────────────────────────────────────────
 add_executable(${PROJECT_NAME} ${TEST_SOURCES})
-target_link_libraries(${PROJECT_NAME} PRIVATE byul)
 
 # 외부 include 경로 설정
 set(EXTERNAL_DIR ${CMAKE_SOURCE_DIR}/../external)
 message(STATUS "${PROJECT_NAME}: EXTERNAL_DIR = ${EXTERNAL_DIR}")
 
 target_include_directories(${PROJECT_NAME} PRIVATE
-    ${CMAKE_SOURCE_DIR}
-    ${CMAKE_BINARY_DIR}/include/byul
     ${EXTERNAL_DIR}
     ${TEST_INC_DIRS}
+    ${CMAKE_SOURCE_DIR}
+    ${CMAKE_SOURCE_DIR}/common
+    ${CMAKE_SOURCE_DIR}/console
+    ${CMAKE_SOURCE_DIR}/projectile
+    ${CMAKE_SOURCE_DIR}/entity
+)
+
+target_link_directories(${PROJECT_NAME} PRIVATE 
+    # byul
+    # ${CMAKE_BINARY_DIR}/common
+    # ${CMAKE_BINARY_DIR}/console
+)
+
+target_link_libraries(${PROJECT_NAME} PRIVATE 
+    byul
+    # common
+    # console
 )
 
 # ─────────────────────────────────────────────

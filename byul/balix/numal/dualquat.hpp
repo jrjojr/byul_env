@@ -1,9 +1,9 @@
 #ifndef DUALQUAT_HPP
 #define DUALQUAT_HPP
 
-#include "internal/dualquat.h"
-#include "internal/quat.hpp"
-#include "internal/vec3.hpp"
+#include "dualquat.h"
+#include "quat.hpp"
+#include "vec3.hpp"
 #include <iostream>
 #include <cmath>
 

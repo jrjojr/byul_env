@@ -1,8 +1,8 @@
 #include "doctest.h"
 
 extern "C" {
-    #include "internal/cost_coord_pq.h"
-    #include "internal/coord.h"
+    #include "cost_coord_pq.h"
+    #include "coord.h"
 }
 
 TEST_CASE("cost_coord_pq: 기본 삽입 및 pop") {

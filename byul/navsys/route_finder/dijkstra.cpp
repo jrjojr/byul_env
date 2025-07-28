@@ -1,10 +1,10 @@
-#include "internal/dijkstra.h"
-#include "internal/cost_coord_pq.h"
-#include "internal/navgrid.h"
-#include "internal/coord.hpp"
-#include "internal/coord_list.h"
-#include "internal/coord_hash.h"
-#include "internal/route.h"
+#include "dijkstra.h"
+#include "cost_coord_pq.h"
+#include "navgrid.h"
+#include "coord.hpp"
+#include "coord_list.h"
+#include "coord_hash.h"
+#include "route.h"
 
 route_t* find_dijkstra(const navgrid_t* m,
     const coord_t* start, const coord_t* goal, cost_func cost_fn,

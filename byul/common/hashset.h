@@ -6,8 +6,6 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-#include <cstddef>
-#include <cstdint>
 
 // ---------------------- hashset_t 타입 정의 ----------------------
 
@@ -38,7 +36,7 @@ BYUL_API void     hashset_foreach(hashset_t* hs,
 
 BYUL_API hashset_t* hashset_copy(const hashset_t* original);
 BYUL_API bool     hashset_equal(const hashset_t* a, const hashset_t* b);
-BYUL_API uint32_t hashset_hash(const hashkey key);
+BYUL_API unsigned int hashset_hash(const hashkey key);
 
 BYUL_API hashset_t* hashset_union(const hashset_t* a, const hashset_t* b);
 BYUL_API hashset_t* hashset_intersect(const hashset_t* a, const hashset_t* b);

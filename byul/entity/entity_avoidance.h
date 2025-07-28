@@ -5,7 +5,7 @@
 extern "C" {
 #endif
 
-#include "internal/entity_dynamic.h"  // 기존 엔티티 구조체 참조
+#include "entity_dynamic.h"  // 기존 엔티티 구조체 참조
 
 // ---------------------------------------------------------
 // 회피용 경계 구조체

@@ -7,7 +7,7 @@ extern "C" {
 
 #include <stdint.h>
 #include "byul_common.h"
-#include "internal/coord.h"
+#include "coord.h"
 
 // ---------------------------------------------------------
 // 기본 엔티티 구조체

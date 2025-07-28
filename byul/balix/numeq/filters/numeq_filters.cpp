@@ -1,4 +1,4 @@
-#include "internal/numeq_filters.h"
+#include "numeq_filters.h"
 #include <cstring>  // memset
 #include <cstdio>   // 디버깅용 (필요 시)
 

@@ -3,9 +3,9 @@
 #include <algorithm>
 #include <functional>
 #include <vector>
-#include "internal/numeq_solver.h"
-#include "internal/vec3.hpp"
-#include "internal/common.h"
+#include "numeq_solver.h"
+#include "vec3.hpp"
+#include "float_common.h"
 
 // -----------------------------
 // 1. 수학 해석 함수

@@ -1,5 +1,5 @@
-#include "internal/entity_dynamic_coord.h"
-#include "internal/coord.h"
+#include "entity_dynamic_coord.h"
+#include "coord.h"
 #include <math.h>
 
 // ---------------------------------------------------------

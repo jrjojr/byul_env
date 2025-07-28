@@ -2,12 +2,12 @@
 #define WEIGHTED_ASTAR_H
 
 #include "byul_common.h"
-#include "internal/common.h"
+#include "float_common.h"
 
-#include "internal/route_finder_common.h"
-#include "internal/navgrid.h"
-#include "internal/coord.h"
-#include "internal/route.h"
+#include "route_finder_common.h"
+#include "navgrid.h"
+#include "coord.h"
+#include "route.h"
 
 #ifdef __cplusplus
 extern "C" {

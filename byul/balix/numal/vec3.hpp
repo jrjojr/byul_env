@@ -1,7 +1,7 @@
 #ifndef VEC3_HPP
 #define VEC3_HPP
 
-#include "internal/vec3.h"
+#include "vec3.h"
 #include <cmath>
 #include <cstdint>
 #include <iostream>

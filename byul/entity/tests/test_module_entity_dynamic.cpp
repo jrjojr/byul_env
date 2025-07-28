@@ -2,12 +2,12 @@
 #include <math.h>
 
 extern "C" {
-#include "internal/entity_dynamic.h"
-#include "internal/entity_dynamic_coord.h"
-#include "internal/vec3.h"
-#include "internal/xform.h"
-#include "internal/bodyprops.h"
-#include "internal/common.h"
+#include "entity_dynamic.h"
+#include "entity_dynamic_coord.h"
+#include "vec3.h"
+#include "xform.h"
+#include "bodyprops.h"
+#include "float_common.h"
 }
 
 TEST_CASE("entity_dynamic_init 기본값 테스트") {

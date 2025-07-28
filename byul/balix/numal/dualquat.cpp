@@ -1,6 +1,6 @@
-#include "internal/dualquat.h"
-#include "internal/quat.h"
-#include "internal/vec3.h"
+#include "dualquat.h"
+#include "quat.h"
+#include "vec3.h"
 
 #include <Eigen/Geometry>
 #include <cmath>

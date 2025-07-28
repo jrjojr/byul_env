@@ -7,11 +7,11 @@ extern "C" {
 
 #include <stdint.h>
 #include "byul_common.h"
-#include "internal/entity.h"
-#include "internal/xform.h"
-#include "internal/bodyprops.h"
-#include "internal/environ.h"
-#include "internal/motion_state.h"
+#include "entity.h"
+#include "xform.h"
+#include "bodyprops.h"
+#include "environ.h"
+#include "motion_state.h"
 
 // 전방 선언
 typedef struct s_motion_state motion_state_t;

@@ -3,9 +3,9 @@
 #include <iostream>
 
 extern "C" {
-    #include "internal/numeq_mpc.h"
-    #include "internal/numeq_model.h"
-    #include "internal/trajectory.h"
+    #include "numeq_mpc.h"
+    #include "numeq_model.h"
+    #include "trajectory.h"
 }
 
 TEST_CASE("MPC default cost function produces positive cost") {
@@ -39,13 +39,13 @@ TEST_CASE("MPC trajectory init and free") {
 TEST_CASE("MPC directional target structure basic") {
     quat_t oq;
     quat_identity(&oq);
-    mpc_direction_target_t dir_target = {
-        .direction = {1.0f, 0.0f, 0.0f},
-        .orientation = oq, // 단위 쿼터니언 값
-        .weight_dir = 2.0f,
-        .weight_rot = 1.0f,
-        .duration = 1.0f
-    };
+    mpc_direction_target_t dir_target;
+
+    mpc_direction_target_init(&dir_target);
+	dir_target.weight_dir = 2.0f; // 방향 가중치 설정
+	dir_target.weight_rot = 1.0f; // 회전 가중치 설정
+	dir_target.duration = 1.0f; // 지속 시간 설정
+
     CHECK(dir_target.direction.x == doctest::Approx(1.0f));
     CHECK(dir_target.weight_dir == doctest::Approx(2.0f));
     CHECK(dir_target.duration == doctest::Approx(1.0f));

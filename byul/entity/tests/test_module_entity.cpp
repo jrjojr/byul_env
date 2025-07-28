@@ -1,7 +1,7 @@
 #include "doctest.h"
 
 extern "C" {
-#include "internal/entity.h"
+#include "entity.h"
 }
 
 // ---------------------------------------------------------

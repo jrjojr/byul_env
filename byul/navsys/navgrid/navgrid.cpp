@@ -1,12 +1,12 @@
-#include "internal/navgrid.h"
+#include "navgrid.h"
 #include <unordered_set>
 #include <unordered_map>
 #include <vector>
 #include <cmath>
 #include <cstdint>
-#include "internal/coord.h"
-#include "internal/coord_list.h"
-#include "internal/coord_hash.h"
+#include "coord.h"
+#include "coord_list.h"
+#include "coord_hash.h"
 
 bool is_coord_blocked_navgrid(const void* context, 
     int x, int y, void* userdata) {

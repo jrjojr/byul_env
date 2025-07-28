@@ -1,4 +1,4 @@
-#include "common.h"
+#include "float_common.h"
 #include <cmath>
 
 int float_compare(float a, float b, void*) {

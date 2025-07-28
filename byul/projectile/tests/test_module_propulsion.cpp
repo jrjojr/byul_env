@@ -1,6 +1,6 @@
 #include <doctest.h>
-#include "internal/propulsion.h"
-#include "internal/controller.h"
+#include "propulsion.h"
+#include "controller.h"
 #include <cstdio>
 #include <cstring>
 #include <string>

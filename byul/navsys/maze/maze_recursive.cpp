@@ -1,4 +1,4 @@
-#include "internal/maze.h"
+#include "maze.h"
 #include <stdlib.h>
 #include <time.h>
 

@@ -21,7 +21,7 @@
 #ifndef NUMEQ_INTEGRATOR_H
 #define NUMEQ_INTEGRATOR_H
 
-#include "internal/motion_state.h"
+#include "motion_state.h"
 
 #ifdef __cplusplus
 extern "C" {

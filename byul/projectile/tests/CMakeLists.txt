@@ -8,10 +8,11 @@ set(CMAKE_CXX_STANDARD 17)
 # 소스 파일 설정
 set(SOURCES
     main.cpp
-    # test_module_projectile_common.cpp    
-    # test_module_propulsion.cpp    
-    # test_module_guidance.cpp    
+    test_module_projectile_common.cpp    
+    test_module_propulsion.cpp    
+    test_module_guidance.cpp    
     test_module_projectile_predict.cpp    
+    test_module_projectile.cpp
 )
 
 # ------------------- 테스트 실행 파일 -------------------
@@ -54,10 +55,33 @@ set(EXTERNAL_DIR ${CMAKE_SOURCE_DIR}/../external)
 message(STATUS "${PROJECT_NAME} : EXTERNAL_DIR = ${EXTERNAL_DIR}")
 
 target_include_directories(${PROJECT_NAME} PRIVATE
-    ${CMAKE_SOURCE_DIR}
     ${CMAKE_CURRENT_SOURCE_DIR}
     ${CMAKE_BINARY_DIR}/include/byul
     ${EXTERNAL_DIR}
+
+    ${CMAKE_SOURCE_DIR}
+
+    ${CMAKE_SOURCE_DIR}/navsys/coord
+
+    ${CMAKE_SOURCE_DIR}/balix
+    ${CMAKE_SOURCE_DIR}/balix/numal
+    ${CMAKE_SOURCE_DIR}/balix/numeq
+    ${CMAKE_SOURCE_DIR}/balix/numeq/filters 
+
+    ${CMAKE_SOURCE_DIR}/balix/xform
+    ${CMAKE_SOURCE_DIR}/balix/motion_state
+    ${CMAKE_SOURCE_DIR}/balix/propulsion
+    ${CMAKE_SOURCE_DIR}/balix/guidance
+    ${CMAKE_SOURCE_DIR}/balix/controller
+    ${CMAKE_SOURCE_DIR}/balix/bodyprops
+    ${CMAKE_SOURCE_DIR}/balix/environ
+
+    ${CMAKE_SOURCE_DIR}/balix/trajectory
+    
+    ${CMAKE_SOURCE_DIR}/projectile
+
+    ${CMAKE_SOURCE_DIR}/entity
+        
 )
 
 # ------------------- 정적 라이브러리 연결 -------------------
@@ -68,8 +92,13 @@ target_link_directories(${PROJECT_NAME} PRIVATE
 target_link_libraries(${PROJECT_NAME} PRIVATE
     projectile
     entity
-    m
 )
+
+# 수학 라이브러리 링크 (리눅스/유닉스 전용)
+if(UNIX)
+    target_link_libraries(${PROJECT_NAME} PRIVATE m)
+endif()
+
 
 # coord는 STATIC 라이브러리이므로 필요 시 심볼 정의
 target_compile_definitions(${PROJECT_NAME} PRIVATE BYUL_STATIC)

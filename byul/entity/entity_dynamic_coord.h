@@ -5,7 +5,7 @@
 extern "C" {
 #endif
 
-#include "internal/entity_dynamic.h"
+#include "entity_dynamic.h"
 
 /**
  * @brief 현재 coord와 xform의 상대 좌표를 더해 절대 좌표(coord_t)를 계산합니다.
