@@ -2,85 +2,78 @@
 #define VEC3_H
 
 #include <stdint.h>
+#include <stddef.h>
+
 #include "byul_common.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
-#include <cstddef>
 
 /**
- * @brief 3차원 벡터 구조체
+ * @brief 3D vector structure
  * 
- * 3D 좌표 또는 방향을 표현하기 위한 구조체입니다.
- * 주로 위치(position), 이동량(delta), 방향(direction)을 나타내는 데 사용됩니다.
+ * Represents 3D coordinates or directions.
+ * Primarily used for position, delta (movement), or direction.
  */
 typedef struct s_vec3 {
-    float x; ///< X 좌표
-    float y; ///< Y 좌표
-    float z; ///< Z 좌표
+    float x; ///< X coordinate
+    float y; ///< Y coordinate
+    float z; ///< Z coordinate
 } vec3_t;
 
 BYUL_API void vec3_init_full(vec3_t* out, float x, float y, float z);
 
 /**
- * @brief 기본값 (0,0,0)으로 vec3를 생성합니다.
- * 
+ * @brief Initialize vec3 with default values (0,0,0).
  */
 BYUL_API void vec3_init(vec3_t* out);
 
 /**
- * @brief vec3 복사
- * 
+ * @brief Copy vec3.
  */
 BYUL_API void vec3_assign(vec3_t* out, const vec3_t* src);
 
 /**
- * @brief 두 벡터의 동등성 비교
+ * @brief Compare equality of two vectors.
  * 
- * @param a 벡터 A
- * @param b 벡터 B
+ * @param a Vector A
+ * @param b Vector B
  */
 BYUL_API bool vec3_equal(const vec3_t* a, const vec3_t* b);
 
-/* ---------------------------------------------------------
-// vec3_equal_tol
-// ---------------------------------------------------------
 /**
- * @brief vec3의 각 성분을 동일한 공차(tolerance)로 비교합니다.
+ * @brief Compare each component of two vec3 with the same tolerance.
  *
- * @param a   첫 번째 벡터
- * @param b   두 번째 벡터
- * @param tol 허용 오차 (모든 x,y,z에 동일하게 적용)
- * @return 모든 성분 차이가 tol 이하이면 true
+ * @param a   First vector
+ * @param b   Second vector
+ * @param tol Allowed tolerance (applied to all x, y, z)
+ * @return true if all component differences are within tolerance
  */
 BYUL_API bool vec3_equal_tol(const vec3_t* a, const vec3_t* b, float tol);
 
-// ---------------------------------------------------------
-// vec3_equal_tol_all
-// ---------------------------------------------------------
 /**
- * @brief vec3의 각 성분을 양수/음수 방향의 개별 공차로 비교합니다.
+ * @brief Compare each component of two vec3 with separate positive/negative tolerances.
  *
- * @param a        첫 번째 벡터
- * @param b        두 번째 벡터
- * @param tol_pos  양수 방향 공차 (b >= a일 때 허용 오차)
- * @param tol_neg  음수 방향 공차 (b < a일 때 허용 오차)
- * @return 모든 성분 차이가 개별 공차 내이면 true
+ * @param a        First vector
+ * @param b        Second vector
+ * @param tol_pos  Positive direction tolerance (applied when b >= a)
+ * @param tol_neg  Negative direction tolerance (applied when b < a)
+ * @return true if all component differences are within tolerances
  */
 BYUL_API bool vec3_equal_tol_all(
     const vec3_t* a, const vec3_t* b,
     float tol_pos, float tol_neg);
 
 /**
- * @brief vec3의 해시값을 계산합니다.
+ * @brief Compute a hash value for vec3.
  * 
- * float 값을 정수형으로 변환해 단순 해싱합니다.
+ * Converts float values to integers for simple hashing.
  * 
- * @param v 해시 대상 벡터
- * @return uint32_t 해시값
+ * @param v Vector to hash
+ * @return unsigned int Hash value
  */
-BYUL_API uint32_t vec3_hash(const vec3_t* v);
+BYUL_API unsigned int vec3_hash(const vec3_t* v);
 
 BYUL_API void vec3_zero(vec3_t* out);
 
@@ -93,23 +86,23 @@ BYUL_API void vec3_sub(vec3_t* out, const vec3_t* a, const vec3_t* b);
 BYUL_API void vec3_mul(vec3_t* out, const vec3_t* a, const vec3_t* b);
 
 /**
- * @brief 벡터를 벡터로 나눕니다. (요소별 나눗셈)
+ * @brief Divide a vector by another vector (element-wise division).
  *
- * 각 요소별로 a / b 연산을 수행하며,  
- * b의 요소가 0.0f 또는 FLOAT_EPSILON 이하일 경우 해당 요소는 INFINITY를 반환합니다.
+ * Each component performs a / b.  
+ * If any component of b is 0.0f or less than FLOAT_EPSILON, the result for that component is set to INFINITY.
  *
- * @param[out] out 결과 벡터
- * @param[in]  a   입력 벡터
- * @param[in]  b   나눌 벡터
+ * @param[out] out Result vector
+ * @param[in]  a   Input vector
+ * @param[in]  b   Divisor vector
  */
 BYUL_API void vec3_div(vec3_t* out, const vec3_t* a, const vec3_t* b);
 
 /**
- * @brief 벡터를 스칼라로 나눕니다.
+ * @brief Divide a vector by a scalar.
  *
- * @param[out] out   결과 벡터
- * @param[in]  a     입력 벡터
- * @param[in]  scalar 나눌 값 (0.0f 또는 FLOAT_EPSILON 이하일 경우 INFINITY)
+ * @param[out] out   Result vector
+ * @param[in]  a     Input vector
+ * @param[in]  scalar Divisor (if 0.0f or <= FLOAT_EPSILON, result is INFINITY)
  */
 BYUL_API void vec3_div_scalar(vec3_t* out, const vec3_t* a, float scalar);
 
@@ -121,7 +114,9 @@ BYUL_API void vec3_cross(vec3_t* out, const vec3_t* a, const vec3_t* b);
 
 BYUL_API float vec3_length(const vec3_t* a);
 
-// sqrt를 사용하지 않고 제곱값을 반환한다 계산효율때문에 sqrt는 좀 무겁다  제곱보다...
+/**
+ * @brief Returns the squared length (without sqrt for performance).
+ */
 BYUL_API float vec3_length_sq(const vec3_t* a);
 
 BYUL_API void vec3_normalize(vec3_t* a);
@@ -131,87 +126,87 @@ BYUL_API void vec3_unit(vec3_t* out, const vec3_t* src);
 BYUL_API float vec3_distance(const vec3_t* a, const vec3_t* b);
 
 /**
- * @brief 선형 보간을 사용해 start와 goal 사이의 위치를 계산합니다.
+ * @brief Calculate linear interpolation between start and goal.
  * 
- * @param out 결과 위치 (출력)
- * @param start 시작 위치
- * @param goal 목표 위치
- * @param t 보간 계수 (0.0 ~ 1.0 사이값)
+ * @param out Result position (output)
+ * @param start Start position
+ * @param goal Target position
+ * @param t Interpolation factor (0.0 ~ 1.0)
  */
 BYUL_API void vec3_lerp(vec3_t* out, 
     const vec3_t* start, const vec3_t* goal, float t);
 
 /**
- * @brief vec3를 위치 정보만 담은 4x4 변환 행렬로 변환합니다.
+ * @brief Convert a vec3 into a 4x4 translation matrix (position only).
  * 
- * 회전이 없는 단순 위치 변환 행렬을 생성합니다.
+ * Creates a transformation matrix with only translation, no rotation.
  * 
- * @param v 위치 벡터
- * @param out_mat4 16개 float 배열 (column-major 방식)
+ * @param v Position vector
+ * @param out_mat4 16-element float array (column-major order)
  */
 BYUL_API void vec3_to_mat4(const vec3_t* v, float* out_mat4);
 
 /**
- * @brief vec3_t 벡터가 (0,0,0)인지 검사합니다.
+ * @brief Check if vec3 is approximately (0,0,0).
  *
- * @param v 검사할 벡터
- * @return true  모든 성분이 0에 매우 가까우면 true
- * @return false 하나라도 0이 아니면 false
+ * @param v Vector to check
+ * @return true if all components are close to 0
+ * @return false otherwise
  */
 BYUL_API bool vec3_is_zero(const vec3_t* v);
 
 /**
- * @brief vec3 값을 문자열로 변환
- * @param v 변환할 벡터
- * @param buffer 출력 버퍼 (최소 64바이트 권장)
- * @param buffer_size 버퍼 크기
- * @return buffer (편의상 반환)
+ * @brief Convert vec3 to string.
+ * @param v Vector to convert
+ * @param buffer Output buffer (at least 64 bytes recommended)
+ * @param buffer_size Buffer size
+ * @return buffer (for convenience)
  */
 BYUL_API char* vec3_to_string(
     const vec3_t* v, char* buffer, size_t buffer_size);
 
 /**
- * @brief vec3 값을 콘솔에 출력
- * @param v 출력할 벡터
+ * @brief Print vec3 to console.
+ * @param v Vector to print
  */
 BYUL_API void vec3_print(const vec3_t* v);
 
 /**
- * @brief 벡터에 다른 벡터를 더해 자기 자신을 갱신합니다. (in-place addition)
+ * @brief Add another vector to the current vector (in-place addition).
  *
- * @param io 대상 벡터 (결과도 여기에 저장)
- * @param other 더할 벡터
+ * @param io Target vector (result is stored here)
+ * @param other Vector to add
  */
 BYUL_API void vec3_iadd(vec3_t* io, const vec3_t* other);
 
 /**
- * @brief 벡터에서 다른 벡터를 빼 자기 자신을 갱신합니다. (in-place subtraction)
+ * @brief Subtract another vector from the current vector (in-place subtraction).
  */
 BYUL_API void vec3_isub(vec3_t* io, const vec3_t* other);
 
 /**
- * @brief 벡터를 스칼라 값으로 스케일링 (in-place scaling)
+ * @brief Scale the current vector by a scalar (in-place scaling).
  */
 BYUL_API void vec3_iscale(vec3_t* io, float scalar);
 
 /**
  * @brief out = a + b * scalar
  *
- * @param out 결과 벡터
- * @param a   기준 벡터
- * @param b   추가할 벡터
- * @param scalar 스칼라 값
+ * @param out Result vector
+ * @param a   Base vector
+ * @param b   Vector to scale and add
+ * @param scalar Scalar value
  */
 BYUL_API void vec3_madd(vec3_t* out, const vec3_t* a, const vec3_t* b, float scalar);
 
 /**
- * @brief 등가속도 운동 공식으로 위치 예측 (p + v*t + 0.5*a*t²)
+ * @brief Predict position using constant acceleration (p + v*t + 0.5*a*t^2).
  *
- * @param out 결과 벡터 (출력)
- * @param p   초기 위치
- * @param v   속도 벡터
- * @param a   가속도 벡터
- * @param t   시간 (초 단위)
+ * @param out Result vector (output)
+ * @param p   Initial position
+ * @param v   Velocity vector
+ * @param a   Acceleration vector
+ * @param t   Time (seconds)
  */
 BYUL_API void vec3_project(vec3_t* out, const vec3_t* p,
                            const vec3_t* v, const vec3_t* a, float t);

@@ -11,33 +11,32 @@ extern "C" {
 #endif
 
 /**
- * @brief BFS(너비 우선 탐색)를 이용하여 맵 상의 최단 경로를 탐색합니다.
+ * @brief Finds the shortest path on a map using BFS (Breadth-First Search).
  *
- * 이 함수는 주어진 맵(@p m)에서 시작 좌표(@p start)에서 목표 좌표(@p goal)까지
- * 최단 거리(이동 횟수 기준)의 경로를 BFS(FIFO 큐) 방식으로 탐색합니다.
+ * This function performs a BFS (FIFO queue) search on the given map (@p m)
+ * to find the shortest path (in terms of steps) from the start coordinate (@p start)
+ * to the goal coordinate (@p goal).
  *
- * 내부적으로 방문 좌표 집합과 이동 경로를 추적하며,
- * @p max_retry 회 이상 반복하지 않도록 제한합니다.
+ * Internally, it tracks the set of visited coordinates and the path of movement,
+ * with a limit of @p max_retry iterations to prevent infinite loops.
  *
- * - 경로를 찾은 경우: start → goal로 이어지는 경로를 반환하고 success가 true입니다.
- * - 경로가 없더라도: 마지막으로 탐색된 좌표까지의 경로를 반환하고 success는 false입니다.
- * - @p visited_logging 가 true이면 모든 방문 좌표에 대해 카운트를 기록합니다.
+ * - If a path is found: a route from start -> goal is returned, and success is true.
+ * - If no path exists: a route up to the last explored coordinate is returned, and success is false.
+ * - If @p visited_logging is true, visit counts for all explored coordinates are recorded.
  *
- * @param m             경로를 탐색할 맵 객체
- * @param start         시작 좌표
- * @param goal          목표 좌표
- * @param max_retry     최대 반복 횟수 (무한 루프 방지를 위한 제한).
- *                      일반적으로 width * height 정도의 값을 권장합니다.
- * @param visited_logging 방문 좌표의 카운트 기록 여부
+ * @param m                The map object where the search is performed.
+ * @param start            Start coordinate.
+ * @param goal             Goal coordinate.
+ * @param max_retry        Maximum number of iterations (recommended: width * height).
+ * @param visited_logging  Whether to record visited coordinate counts.
  * 
- * @return 생성된 @c route_t* 객체.
- *         - @c route_get_success(result) 가 true이면 경로 탐색에 성공한 것입니다.
- *         - 실패한 경우에도 마지막으로 도달한 좌표까지의 경로를 포함합니다.
+ * @return A @c route_t* object.
+ *         - If @c route_get_success(result) is true, the path search succeeded.
+ *         - If failed, the path includes the last reached coordinate.
  */
 BYUL_API route_t* find_bfs(const navgrid_t* m, 
     const coord_t* start, const coord_t* goal, 
     int max_retry, bool visited_logging);
-
 
 #ifdef __cplusplus
 }

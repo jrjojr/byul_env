@@ -11,7 +11,6 @@ class DualQuat {
 public:
     dualquat_t dq;
 
-    // 생성자
     DualQuat() {
         dualquat_identity(&dq);
     }
@@ -28,10 +27,8 @@ public:
         dualquat_assign(&dq, &other.dq);
     }
 
-    // 변환자
     operator dualquat_t() const { return dq; }
 
-    // 정적 생성
     static DualQuat from(const Quat& rot, const Vec3& trans) {
         DualQuat result;
         dualquat_init_quat_vec(&result.dq, &rot.q, &trans.v);
@@ -40,11 +37,10 @@ public:
 
     static DualQuat from_mat4(const float* mat4x4) {
         DualQuat result;
-        dualquat_init_mat4(&result.dq, mat4x4);
+        dualquat_init_from_mat4(&result.dq, mat4x4);
         return result;
     }
 
-    // 이동, 회전 추출
     void to_components(Quat& out_rot, Vec3& out_trans) const {
         quat_t q;
         vec3_t v;
@@ -53,7 +49,6 @@ public:
         out_trans = Vec3(v);
     }
 
-    // 연산자 오버로딩
     DualQuat operator+(const DualQuat& rhs) const {
         dualquat_t out;
         dualquat_add(&out, &dq, &rhs.dq);
@@ -86,35 +81,30 @@ public:
         return !(*this == rhs);
     }
 
-    // 정규화
     DualQuat normalize() const {
         dualquat_t out;
         dualquat_unit(&out, &dq);
         return DualQuat(out);
     }
 
-    // 역
     DualQuat inverse() const {
         dualquat_t out;
         dualquat_inverse(&out, &dq);
         return DualQuat(out);
     }
 
-    // 켤레
     DualQuat conjugate() const {
         dualquat_t out;
         dualquat_conjugate(&out, &dq);
         return DualQuat(out);
     }
 
-    // 변환 적용
     Vec3 transform_point(const Vec3& p) const {
         vec3_t io = p.v;
         dualquat_apply_to_point_inplace(&dq, &io);
         return Vec3(io);
     }
 
-    // 보간
     static DualQuat slerp(const DualQuat& a, const DualQuat& b, float t) {
         dualquat_t out;
         dualquat_slerp(&out, &a.dq, &b.dq, t);
@@ -135,14 +125,12 @@ public:
         return DualQuat(out);
     }
 
-    // 정렬
     DualQuat aligned() const {
         dualquat_t out;
         dualquat_align(&out, &dq);
         return DualQuat(out);
     }
 
-    // 행렬 변환
     void to_mat4(float* out_mat4) const {
         dualquat_to_mat4(&dq, out_mat4);
     }
@@ -151,7 +139,6 @@ public:
         dualquat_to_mat3(&dq, out_mat3);
     }
 
-    // 길이 및 내적
     float dot(const DualQuat& rhs) const {
         return dualquat_dot(&dq, &rhs.dq);
     }
@@ -160,7 +147,6 @@ public:
         return dualquat_length(&dq);
     }
 
-    // 출력
     friend std::ostream& operator<<(std::ostream& os, const DualQuat& dq) {
         os << "[real: (" << dq.dq.real.w << ", " << dq.dq.real.x << ", " 
            << dq.dq.real.y << ", " << dq.dq.real.z << "), "

@@ -42,8 +42,8 @@ TEST_CASE("obstacle_make_rect_random_blocked - ratio = 0.5") {
     REQUIRE(obs != nullptr);
 
     int blocked = coord_hash_length(obstacle_get_blocked_coords(obs));
-    CHECK(blocked >= 3);     // 너무 낮으면 잘못된 난수
-    CHECK(blocked <= 22);    // 너무 높으면 ratio 문제
+    CHECK(blocked >= 3);     // Too low means incorrect random values
+    CHECK(blocked <= 22);    // Too high means ratio issue
 
     navgrid_t* navgrid = navgrid_create();
     obstacle_apply_to_navgrid(obs, navgrid);
@@ -133,7 +133,8 @@ TEST_CASE("obstacle_make_enclosure open LEFT") {
     coord_t goal{6, 6};
     int thickness = 1;
 
-    obstacle_t* obs = obstacle_make_enclosure(&start, &goal, thickness, ENCLOSURE_OPEN_LEFT);
+    obstacle_t* obs = obstacle_make_enclosure(
+        &start, &goal, thickness, ENCLOSURE_OPEN_LEFT);
     REQUIRE(obs != nullptr);
 
     const coord_hash_t* blocked = obstacle_get_blocked_coords(obs);
@@ -152,7 +153,8 @@ TEST_CASE("obstacle_make_enclosure fully closed") {
     coord_t goal{6, 6};
     int thickness = 1;
 
-    obstacle_t* obs = obstacle_make_enclosure(&start, &goal, thickness, ENCLOSURE_OPEN_UNKNOWN);
+    obstacle_t* obs = obstacle_make_enclosure(
+        &start, &goal, thickness, ENCLOSURE_OPEN_UNKNOWN);
     REQUIRE(obs != nullptr);
 
     const coord_hash_t* blocked = obstacle_get_blocked_coords(obs);
@@ -306,7 +308,7 @@ TEST_CASE("obstacle_make_spiral direction") {
 }
 
 TEST_CASE("obstacle_make_triangle") {
-    SUBCASE("기본 삼각형 생성") {
+    SUBCASE("basic triangle generate.") {
         coord_t a = {10, 10};
         coord_t b = {15, 10};
         coord_t c = {12, 15};
@@ -324,7 +326,7 @@ TEST_CASE("obstacle_make_triangle") {
         obstacle_destroy(obs);
     }
 
-    SUBCASE("역삼각형 (아래쪽 뾰족)") {
+    SUBCASE("reverse triangllle") {
         coord_t a = {12, 10};
         coord_t b = {9, 15};
         coord_t c = {15, 15};
@@ -342,7 +344,7 @@ TEST_CASE("obstacle_make_triangle") {
         obstacle_destroy(obs);
     }
 
-    SUBCASE("좌상향 대각 삼각형") {
+    SUBCASE("up_left diagonal triangle") {
         coord_t a = {10, 10};
         coord_t b = {15, 15};
         coord_t c = {10, 20};
@@ -360,7 +362,7 @@ TEST_CASE("obstacle_make_triangle") {
         obstacle_destroy(obs);
     }
 
-    SUBCASE("입력이 NULL이면 실패") {
+    SUBCASE("input is null that fail") {
         coord_t a = {10, 10};
         obstacle_t* obs = obstacle_make_triangle(&a, nullptr, nullptr);
         CHECK(obs == nullptr);
@@ -368,7 +370,7 @@ TEST_CASE("obstacle_make_triangle") {
 }
 
 TEST_CASE("obstacle_make_triangle_torus") {
-    SUBCASE("기본 외곽선 torus, thickness = 0") {
+    SUBCASE("basic outline torus, thickness = 0") {
         coord_t a = {10, 10};
         coord_t b = {15, 10};
         coord_t c = {12, 15};
@@ -386,7 +388,7 @@ TEST_CASE("obstacle_make_triangle_torus") {
         obstacle_destroy(obs);
     }
 
-    SUBCASE("두께 있는 외곽선 torus, thickness = 1") {
+    SUBCASE("fat outline torus, thickness = 1") {
         coord_t a = {10, 10};
         coord_t b = {15, 10};
         coord_t c = {12, 15};
@@ -404,7 +406,7 @@ TEST_CASE("obstacle_make_triangle_torus") {
         obstacle_destroy(obs);
     }
 
-    SUBCASE("두께가 더 두꺼운 torus, thickness = 2") {
+    SUBCASE("more fat torus, thickness = 2") {
         coord_t a = {8, 8};
         coord_t b = {16, 9};
         coord_t c = {12, 16};
@@ -422,7 +424,7 @@ TEST_CASE("obstacle_make_triangle_torus") {
         obstacle_destroy(obs);
     }
 
-    SUBCASE("잘못된 입력 - thickness < 0") {
+    SUBCASE("fault input - thickness < 0") {
         coord_t a = {0, 0};
         coord_t b = {1, 0};
         coord_t c = {0, 1};
@@ -431,7 +433,7 @@ TEST_CASE("obstacle_make_triangle_torus") {
         CHECK(obs == nullptr);
     }
 
-    SUBCASE("잘못된 입력 - NULL 좌표") {
+    SUBCASE("fault input - NULL coord") {
         coord_t a = {0, 0};
         obstacle_t* obs = obstacle_make_triangle_torus(&a, nullptr, nullptr, 1);
         CHECK(obs == nullptr);
@@ -439,7 +441,7 @@ TEST_CASE("obstacle_make_triangle_torus") {
 }
 
 TEST_CASE("obstacle_make_polygon") {
-    SUBCASE("정상적인 오각형 polygon 생성") {
+    SUBCASE("generic pentagon polygon generate") {
         coord_list_t* list = coord_list_create();
         coord_list_push_back(list, make_tmp_coord(10, 10));
         coord_list_push_back(list, make_tmp_coord(15, 10));
@@ -453,18 +455,18 @@ TEST_CASE("obstacle_make_polygon") {
         REQUIRE(obs != nullptr);
 
         const coord_hash_t* blocked = obstacle_get_blocked_coords(obs);
-        coord_hash_print(blocked);  // 디버깅용
+        coord_hash_print(blocked);
 
         navgrid_t* navgrid = navgrid_create();
         obstacle_apply_to_navgrid(obs, navgrid);
-        navgrid_print_ascii(navgrid);  // 시각 확인
+        navgrid_print_ascii(navgrid);
 
         navgrid_destroy(navgrid);
         obstacle_destroy(obs);
         coord_list_destroy(list);
     }
 
-    SUBCASE("입력이 부족한 경우 (2점)") {
+    SUBCASE("lack of input (2 point )") {
         coord_list_t* list = coord_list_create();
         coord_list_push_back(list, make_tmp_coord(0, 0));
         coord_list_push_back(list, make_tmp_coord(1, 1));
@@ -477,14 +479,14 @@ TEST_CASE("obstacle_make_polygon") {
         coord_list_destroy(list);
     }
 
-    SUBCASE("입력이 NULL인 경우") {
+    SUBCASE("input is NULL") {
         obstacle_t* obs = obstacle_make_polygon(nullptr);
         CHECK(obs == nullptr);
     }
 }
 
 TEST_CASE("obstacle_make_polygon_torus") {
-    SUBCASE("기본적인 오각형 torus 생성 - thickness = 0") {
+    SUBCASE("basic pentagon torus generate - thickness = 0") {
         coord_list_t* list = coord_list_create();
         coord_list_push_back(list, make_tmp_coord(10, 10));
         coord_list_push_back(list, make_tmp_coord(15, 10));
@@ -502,14 +504,14 @@ TEST_CASE("obstacle_make_polygon_torus") {
 
         navgrid_t* navgrid = navgrid_create();
         obstacle_apply_to_navgrid(obs, navgrid);
-        navgrid_print_ascii(navgrid);  // 외곽선만 그려졌는지 육안 확인
+        navgrid_print_ascii(navgrid);
 
         navgrid_destroy(navgrid);
         obstacle_destroy(obs);
         coord_list_destroy(list);
     }
 
-    SUBCASE("thickness = 1 로 선을 두껍게") {
+    SUBCASE("thickness = 1 more fat") {
         coord_list_t* list = coord_list_create();
         coord_list_push_back(list, make_tmp_coord(5, 5));
         coord_list_push_back(list, make_tmp_coord(10, 5));
@@ -532,7 +534,7 @@ TEST_CASE("obstacle_make_polygon_torus") {
         coord_list_destroy(list);
     }
 
-    SUBCASE("좌표 부족 시 실패 (2점)") {
+    SUBCASE("lack of coord (2 point)") {
         coord_list_t* list = coord_list_create();
         coord_list_push_back(list, make_tmp_coord(0, 0));
         coord_list_push_back(list, make_tmp_coord(1, 1));
@@ -542,12 +544,12 @@ TEST_CASE("obstacle_make_polygon_torus") {
         coord_list_destroy(list);
     }
 
-    SUBCASE("NULL 리스트") {
+    SUBCASE("NULL list") {
         obstacle_t* obs = obstacle_make_polygon_torus(nullptr, 0);
         CHECK(obs == nullptr);
     }
 
-    SUBCASE("음수 thickness는 실패") {
+    SUBCASE("minus thickness is fail") {
         coord_list_t* list = coord_list_create();
         coord_list_push_back(list, make_tmp_coord(0, 0));
         coord_list_push_back(list, make_tmp_coord(1, 0));
@@ -560,24 +562,24 @@ TEST_CASE("obstacle_make_polygon_torus") {
 }
 
 TEST_CASE("obstacle_block_straight") {
-    SUBCASE("range = 0, 단일 선 블로킹") {
+    SUBCASE("range = 0, one line blocking") {
         obstacle_t* obs = obstacle_create_full(10, 10, 20, 20);
         REQUIRE(obs != nullptr);
 
         obstacle_block_straight(obs, 15, 15, 25, 20, 0);
 
         const coord_hash_t* blocked = obstacle_get_blocked_coords(obs);
-        coord_hash_print(blocked); // 디버깅용
+        coord_hash_print(blocked);
 
         navgrid_t* navgrid = navgrid_create();
         obstacle_apply_to_navgrid(obs, navgrid);
-        navgrid_print_ascii(navgrid); // 시각 확인
+        navgrid_print_ascii(navgrid);
 
         navgrid_destroy(navgrid);
         obstacle_destroy(obs);
     }
 
-    SUBCASE("range = 1, 선 주변까지 블로킹") {
+    SUBCASE("range = 1, block adjacent") {
         obstacle_t* obs = obstacle_create_full(0, 0, 30, 30);
         REQUIRE(obs != nullptr);
 
@@ -594,7 +596,7 @@ TEST_CASE("obstacle_block_straight") {
         obstacle_destroy(obs);
     }
 
-    SUBCASE("range = 2, 수직 블로킹") {
+    SUBCASE("range = 2, vertical blocking") {
         obstacle_t* obs = obstacle_create_full(0, 0, 30, 30);
         REQUIRE(obs != nullptr);
 
@@ -611,7 +613,7 @@ TEST_CASE("obstacle_block_straight") {
         obstacle_destroy(obs);
     }
 
-    SUBCASE("range = 0, 대각선 블로킹") {
+    SUBCASE("range = 0, diagonal blocking") {
         obstacle_t* obs = obstacle_create_full(0, 0, 30, 30);
         REQUIRE(obs != nullptr);
 

@@ -9,17 +9,14 @@ extern "C" {
 }
 
 TEST_CASE("MPC default cost function produces positive cost") {
-    // 현재 상태
     motion_state_t ms = {};
     ms.linear.velocity = {1.0f, 0.0f, 0.0f};
     quat_identity(&ms.angular.orientation);
 
-    // 목표 상태
     motion_state_t target = {};
     target.linear.position = {3.0f, 0.0f, 0.0f};
     quat_identity(&target.angular.orientation);
 
-    // 가속도 제어 입력
     vec3_t accel = {0.0f, 0.0f, 0.0f};
     vec3_t ang_accel = {0.0f, 0.0f, 0.0f};
 
@@ -42,9 +39,9 @@ TEST_CASE("MPC directional target structure basic") {
     mpc_direction_target_t dir_target;
 
     mpc_direction_target_init(&dir_target);
-	dir_target.weight_dir = 2.0f; // 방향 가중치 설정
-	dir_target.weight_rot = 1.0f; // 회전 가중치 설정
-	dir_target.duration = 1.0f; // 지속 시간 설정
+	dir_target.weight_dir = 2.0f;
+	dir_target.weight_rot = 1.0f;
+	dir_target.duration = 1.0f;
 
     CHECK(dir_target.direction.x == doctest::Approx(1.0f));
     CHECK(dir_target.weight_dir == doctest::Approx(2.0f));
@@ -57,7 +54,7 @@ TEST_CASE("numeq_mpc_solve_coarse2fine basic test") {
 
     motion_state_t target;
     motion_state_init(&target);
-    target.linear.position = {10, 0, 0}; // 10m 앞 목표로 설정!
+    target.linear.position = {10, 0, 0};
 
     mpc_config_t config;
     mpc_config_init(&config);
@@ -90,7 +87,7 @@ TEST_CASE("numeq_mpc_solve_coarse2fine basic test") {
     );
 
     CHECK(ok == true);
-    CHECK(result.desired_accel.x > 0.0f);  // x축으로 가속해야 함
+    CHECK(result.desired_accel.x > 0.0f);
     CHECK(result.cost >= 0.0f);
     CHECK(traj.count > 0);
 
@@ -98,7 +95,7 @@ TEST_CASE("numeq_mpc_solve_coarse2fine basic test") {
     float dist = vec3_distance(
         &last.state.linear.position, &target.linear.position);
 
-    CHECK(dist < 10.0f); // 최소한 접근
+    CHECK(dist < 10.0f);
     trajectory_print(&traj);
     trajectory_free(&traj);
 }
@@ -118,11 +115,11 @@ static float run_mpc_test(
 
     motion_state_t target;
     motion_state_init(&target);
-    target.linear.position = {10, 0, 0}; // x=10m 목표
+    target.linear.position = {10, 0, 0};
 
     environ_t env;
     environ_init(&env);
-    env.gravity = {0.0f, -9.8f, 0.0f}; // 동일한 중력 조건
+    env.gravity = {0.0f, -9.8f, 0.0f};
     env.wind = {0.0f, 0.0f, 0.0f};
 
     bodyprops_t body;

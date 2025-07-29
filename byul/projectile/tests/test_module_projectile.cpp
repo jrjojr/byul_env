@@ -91,7 +91,7 @@ TEST_CASE("Patriot initialization and launch") {
     projectile_result_destroy(result);    
 }
 
-TEST_CASE("shell_projectile_update 동작 테스트") {
+TEST_CASE("shell_projectile_update") {
     shell_projectile_t proj;
     shell_projectile_init(&proj);
 
@@ -107,35 +107,30 @@ TEST_CASE("shell_projectile_update 동작 테스트") {
     };
     proj.proj.hit_userdata = &userdata_val;
 
-    // 0.3초 경과
     projectile_update(&proj.proj, 0.3f);
     CHECK(proj.proj.base.base.age == doctest::Approx(0.3f));
     CHECK(userdata_val == 0);
 
-    // 0.3초 추가 (총 0.6초 > 0.5초 수명)
     projectile_update(&proj.proj, 0.3f);
     CHECK(proj.proj.base.base.age == doctest::Approx(0.6f));
     CHECK(userdata_val == 999);
 }
 
-TEST_CASE("shell_projectile_default_hit_cb 동작 테스트") {
+TEST_CASE("shell_projectile_default_hit_cb") {
     shell_projectile_t proj;
     shell_projectile_init(&proj);
 
-    // stdout 캡처 없이 단순 호출만 체크
     shell_projectile_hit_cb(&proj, nullptr);
-    CHECK(true); // 단순 호출 성공 여부만 확인
+    CHECK(true);
 }
 
-TEST_CASE("shell_projectile_update에서 on_hit 호출 테스트") {
+TEST_CASE("shell_projectile_update on_hit") {
     shell_projectile_t proj;
     shell_projectile_init(&proj);
 
-    proj.proj.base.base.lifetime = 1.0f;  // 1초 후 만료
+    proj.proj.base.base.lifetime = 1.0f;
 
-    // 아직 수명 전
     projectile_update(&proj.proj, 0.5f);
 
-    // 수명 경과 (1.2초 후)
     projectile_update(&proj.proj, 0.7f);
 }

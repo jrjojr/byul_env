@@ -8,33 +8,33 @@ extern "C" {
 #include <stdint.h>
 
 // ----------------------------------------
-// ⚙️ Compute Shader 로딩 및 실행
+// Compute Shader Loading and Execution
 // ----------------------------------------
 
-// 컴퓨트 셰이더만 로딩 (vs/fs 없음)
+// Load compute shader only (no vs/fs)
 unsigned int gpu_load_compute_shader(const char* cs_path);
 
-// 컴퓨트 디스패치 (X, Y, Z 스레드 그룹)
+// Dispatch compute (X, Y, Z thread groups)
 void gpu_dispatch_compute(unsigned int program, int x, int y, int z);
 
-// 메모리 배리어 (GL_SHADER_STORAGE_BARRIER_BIT 등 내부 처리)
+// Memory barrier (handles GL_SHADER_STORAGE_BARRIER_BIT internally)
 void gpu_memory_barrier(void);
 
 // ----------------------------------------
-// 📦 SSBO (Shader Storage Buffer Object) 관리
+// SSBO (Shader Storage Buffer Object) Management
 // ----------------------------------------
 
-// SSBO 생성 (binding index는 layout(binding=...)과 대응됨)
+// Create SSBO (binding index corresponds to layout(binding=...))
 unsigned int gpu_create_ssbo(uint32_t size, uint32_t binding_index);
 
-// SSBO에 CPU 데이터 업로드
+// Upload CPU data to SSBO
 void gpu_update_ssbo(unsigned int ssbo, const void* data, uint32_t size);
 
-// SSBO 매핑 (읽기용)
+// Map SSBO (for read access)
 void* gpu_navgrid_ssbo(unsigned int ssbo);
 
-// SSBO 언매핑 (매핑 해제 시 반드시 호출)
-void  gpu_unnavgrid_ssbo(unsigned int ssbo);
+// Unmap SSBO (must be called after mapping)
+void gpu_unnavgrid_ssbo(unsigned int ssbo);
 
 #ifdef __cplusplus
 }

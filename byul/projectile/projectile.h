@@ -3,31 +3,32 @@
 
 /**
  * @file projectile.h
- * @brief 무기 발사체 계층(Shell, Rocket, Missile, Patriot)의 초기화 및 궤적 생성 인터페이스
+ * @brief Initialization and trajectory generation interface for weapon projectiles 
+ *        (Shell, Rocket, Missile, Patriot)
  *
- * 이 헤더는 총알, 포탄, 로켓, 미사일까지 포함한 모든 **무기 발사체**를
- * 공통적으로 다룰 수 있는 API를 제공합니다.
+ * This header provides an API that can handle all **weapon projectiles**,
+ * including bullets, shells, rockets, and missiles, in a unified way.
  *
- * ### 주요 개념
+ * ### Key Concepts
  * - **Projectile:** 
- *   - 돌멩이, 화살, 석궁볼트 같은 단순 발사체.
+ *   - Simple projectiles like stones, arrows, and crossbow bolts.
  * - **Shell:** 
- *   - 폭발 반경을 가진 포탄(총알, 포탄 등).
+ *   - Explosive shells (bullets, artillery shells) with a blast radius.
  * - **Rocket:** 
- *   - 추진기(propulsion)가 추가된 발사체, 유도 없음.
+ *   - Projectile with a propulsion system (no guidance).
  * - **Missile:** 
- *   - 로켓 + 기본 유도(`guidance_point`, `guidance_lead`).
+ *   - Rocket + basic guidance (`guidance_point`, `guidance_lead`).
  * - **Patriot:** 
- *   - 미사일 + 고급 유도(`guidance_predict_accel`), 
- *     **타겟 엔티티(entity_dynamic_t)**를 추적.
+ *   - Missile + advanced guidance (`guidance_predict_accel`), 
+ *     tracks a **target entity (entity_dynamic_t)**.
  *
- * ### 핵심 함수
+ * ### Core Functions
  * - `projectile_launch()`: 
- *   - 일반 발사체의 궤적 예측.
+ *   - Predicts the trajectory of a general projectile.
  * - `shell_launch()`, `rocket_launch()`, `missile_launch()`, `patriot_launch()`: 
- *   - 발사체 계층별 궤적 생성 함수.
+ *   - Functions to generate trajectories for each projectile type.
  *
- * ### 사용 예시
+ * ### Example Usage
  * ```c
  * projectile_result_t result;
  * shell_t shell;
@@ -51,7 +52,7 @@ extern "C" {
 #include "environ.h"
 
 // ---------------------------------------------------------
-// 전방 선언
+// Forward Declarations
 // ---------------------------------------------------------
 typedef struct s_projectile projectile_t;
 typedef struct s_projectile_result projectile_result_t;
@@ -67,37 +68,37 @@ typedef struct s_shell_projectile {
 
 typedef struct s_rocket {
     shell_projectile_t base;
-    propulsion_t propulsion;       ///< 추진기 (유도 없음)
+    propulsion_t propulsion;       ///< Propulsion (no guidance)
 } rocket_t;
 
 typedef struct s_missile {
     rocket_t base;
     guidance_func guidance;        ///< guidance_point / guidance_lead
-    void* guidance_userdata;       ///< 벡터 타겟
+    void* guidance_userdata;       ///< Vector target
 } missile_t;
 
 typedef struct s_patriot {
     missile_t base;
     guidance_func guidance;        ///< guidance_predict_accel / accel_env
-    void* guidance_userdata;       ///< 엔티티 타겟
+    void* guidance_userdata;       ///< Entity target
 } patriot_t;
 
 // ---------------------------------------------------------
-// 공통 발사체 (Projectile)
+// General Projectile
 // ---------------------------------------------------------
 
 /**
- * @brief 일반 발사체(Shell 계열)의 궤적을 계산하고 충돌 여부를 예측합니다.
+ * @brief Calculates the trajectory of a general projectile (Shell class) and predicts collision.
  *
- * 돌멩이, 화살, 석궁 볼트 등 **단순 발사체**에 적합합니다.
+ * Suitable for **simple projectiles** such as stones, arrows, or crossbow bolts.
  *
- * @param[in]  projectile    발사체 정보
- * @param[in]  target        목표 좌표
- * @param[in]  initial_speed 초기 발사 속도
- * @param[in]  env           환경 정보 (중력, 바람 등, NULL이면 무시)
- * @param[out] out           궤적 및 충돌 결과
- * @retval true  목표에 도달 또는 충돌 발생
- * @retval false 시뮬레이션 시간 내 도달 불가
+ * @param[in]  projectile    Projectile information
+ * @param[in]  target        Target coordinates
+ * @param[in]  initial_speed Initial launch speed
+ * @param[in]  env           Environment data (gravity, wind, etc., ignored if NULL)
+ * @param[out] out           Trajectory and collision result
+ * @retval true  Reaches the target or collision occurred
+ * @retval false Cannot reach the target within simulation time
  */
 BYUL_API bool projectile_launch(
     const projectile_t* projectile,
@@ -108,7 +109,7 @@ BYUL_API bool projectile_launch(
 );
 
 // ---------------------------------------------------------
-// 포탄 (Shell) - 총알, 포탄 기본 데미지 1.0, 폭발범위 10.0
+// Shell - Default damage 1.0, explosion radius 10.0
 // ---------------------------------------------------------
 BYUL_API void shell_projectile_init(shell_projectile_t* shell);
 BYUL_API void shell_projectile_init_full(
@@ -126,7 +127,7 @@ BYUL_API bool shell_projectile_launch(
 );
 
 // ---------------------------------------------------------
-// 로켓 (Rocket) 기본 데미지 1.0, 폭발범위 10.0
+// Rocket - Default damage 1.0, explosion radius 10.0
 // ---------------------------------------------------------
 BYUL_API void rocket_init(rocket_t* rocket);
 BYUL_API void rocket_init_full(
@@ -143,7 +144,7 @@ BYUL_API bool rocket_launch(
 );
 
 // ---------------------------------------------------------
-// 미사일 (Missile) 기본 데미지 1.0, 폭발범위 10.0 선형 유도 장치
+// Missile - Default damage 1.0, explosion radius 10.0, linear guidance
 // ---------------------------------------------------------
 BYUL_API void missile_init(missile_t* missile);
 BYUL_API void missile_init_full(
@@ -160,7 +161,7 @@ BYUL_API bool missile_launch(
 );
 
 // ---------------------------------------------------------
-// 패트리엇 (Patriot)  기본 데미지 1.0, 폭발범위 10.0 비선형 유도 장치
+// Patriot - Default damage 1.0, explosion radius 10.0, nonlinear guidance
 // ---------------------------------------------------------
 BYUL_API void patriot_init(patriot_t* patriot);
 BYUL_API void patriot_init_full(
@@ -177,11 +178,11 @@ BYUL_API bool patriot_launch(
 );
 
 // ---------------------------------------------------------
-// 기본 포탄 충돌 콜백
+// Default Shell Collision Callback
 // ---------------------------------------------------------
 /**
- * @brief 기본 포탄 충돌 콜백
- * 충돌시 데미지를 출력한다.
+ * @brief Default shell collision callback
+ * Prints damage on collision.
  */
 BYUL_API void shell_projectile_hit_cb(
     const void* projectile, void* userdata);

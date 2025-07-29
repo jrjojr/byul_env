@@ -10,11 +10,11 @@ extern "C" {
 #endif
 
 // ---------------------------------------------------------
-// 🎛️ 회전 순서 (Euler order)
+// Euler rotation order
 // ---------------------------------------------------------
 
 typedef enum euler_order_t {
-    EULER_ORDER_ZYX,  ///< (Roll → Yaw → Pitch), 일반적으로 가장 많이 사용됨
+    EULER_ORDER_ZYX,  ///< (Roll -> Yaw -> Pitch), commonly used
     EULER_ORDER_XYZ,
     EULER_ORDER_XZY,
     EULER_ORDER_YXZ,
@@ -23,7 +23,7 @@ typedef enum euler_order_t {
 } euler_order_t;
 
 // ---------------------------------------------------------
-// 🌀 쿼터니언 구조체
+// Quaternion structure
 // ---------------------------------------------------------
 
 typedef struct s_quat {
@@ -34,48 +34,48 @@ typedef struct s_quat {
 } quat_t;
 
 // ---------------------------------------------------------
-// 🎯 생성자 / 초기화
+// Constructors / Initialization
 // ---------------------------------------------------------
 
-/** @brief 단위 회전(w=1, x=y=z=0)으로 초기화 */
+/** @brief Initialize to identity rotation (w=1, x=y=z=0) */
 BYUL_API void quat_init(quat_t* out);
 
-/** @brief 직접 지정한 값으로 초기화 */
+/** @brief Initialize with specified values */
 BYUL_API void quat_init_full(quat_t* out, 
     float w, float x, float y, float z);
 
-/** @brief 축 + 라디안 각도로 초기화 */
+/** @brief Initialize with axis + radians angle */
 BYUL_API void quat_init_axis_angle(quat_t* out, 
     const vec3_t* axis, float radians);
 
-/** @brief 축 + 도(degree) 각도로 초기화 */
+/** @brief Initialize with axis + degrees angle */
 BYUL_API void quat_init_axis_deg(quat_t* out, 
     const vec3_t* axis, float degrees);
 
-/** @brief 오일러 각(라디안)으로 초기화 */
+/** @brief Initialize with Euler angles (radians) */
 BYUL_API void quat_init_euler(quat_t* out,
     float radians_x, float radians_y, float radians_z,
     euler_order_t order);
 
-/** @brief 오일러 각(도)으로 초기화 */
+/** @brief Initialize with Euler angles (degrees) */
 BYUL_API void quat_init_euler_deg(quat_t* out,
     float deg_x, float deg_y, float deg_z,
     euler_order_t order);
 
-/** @brief 각속도(ω) * dt를 쿼터니언으로 초기화 */
+/** @brief Initialize with angular velocity (omega) * dt */
 BYUL_API void quat_init_angular_velocity(quat_t* out, 
     const vec3_t* omega, float dt);
 
-/** @brief 두 벡터를 일치시키는 최소 회전으로 초기화 */
+/** @brief Initialize with the minimal rotation aligning two vectors */
 BYUL_API void quat_init_two_vector(quat_t* out, 
     const vec3_t* from, const vec3_t* to);
 
-/** @brief 3축 벡터(right, up, forward)로 초기화 */
+/** @brief Initialize with 3 axis vectors (right, up, forward) */
 BYUL_API void quat_init_axes(quat_t* out, 
     const vec3_t* xaxis, const vec3_t* yaxis, const vec3_t* zaxis);
 
 // ---------------------------------------------------------
-// 📋 복사 / 설정
+// Copy / Set
 // ---------------------------------------------------------
 
 BYUL_API void quat_assign(quat_t* out, const quat_t* src);
@@ -85,16 +85,16 @@ BYUL_API void quat_get(const quat_t* src,
 BYUL_API void quat_set(quat_t* out, float w, float x, float y, float z);
 
 // ---------------------------------------------------------
-// 🧪 비교 / 검증
+// Comparison / Validation
 // ---------------------------------------------------------
 
 BYUL_API int quat_equal(const quat_t* a, const quat_t* b);
 BYUL_API uint32_t quat_hash(const quat_t* q);
 BYUL_API int quat_is_valid(const quat_t* q);
-BYUL_API void quat_reset(quat_t* out); ///< 단위 회전으로 리셋
+BYUL_API void quat_reset(quat_t* out); ///< Reset to identity rotation
 
 // ---------------------------------------------------------
-// 🔁 회전 연산
+// Rotation operations
 // ---------------------------------------------------------
 
 BYUL_API void quat_mul(quat_t* out, const quat_t* a, const quat_t* b);
@@ -108,7 +108,7 @@ BYUL_API void quat_apply_to_vec3(
     const quat_t* q, const vec3_t* v, vec3_t* out);
 
 // ---------------------------------------------------------
-// 🔄 행렬 변환
+// Matrix conversions
 // ---------------------------------------------------------
 
 BYUL_API void quat_to_mat3(const quat_t* q, float* out_mat3x3);
@@ -117,7 +117,7 @@ BYUL_API void quat_init_from_mat3(quat_t* out, const float* mat3x3);
 BYUL_API void quat_init_from_mat4(quat_t* out, const float* mat4x4);
 
 // ---------------------------------------------------------
-// 📐 회전 보간
+// Rotation interpolation
 // ---------------------------------------------------------
 
 BYUL_API void quat_lerp(quat_t* out, 
@@ -127,7 +127,7 @@ BYUL_API void quat_slerp(quat_t* out,
     const quat_t* a, const quat_t* b, float t);
 
 // ---------------------------------------------------------
-// 🔍 변환 유틸
+// Conversion utilities
 // ---------------------------------------------------------
 
 BYUL_API void quat_to_axis_angle(const quat_t* q, 
@@ -141,7 +141,7 @@ BYUL_API void quat_to_euler(const quat_t* q,
     float* out_x, float* out_y, float* out_z, euler_order_t order);
 
 // ---------------------------------------------------------
-// ➕ 산술 연산
+// Arithmetic operations
 // ---------------------------------------------------------
 
 BYUL_API void quat_add(quat_t* out, const quat_t* a, const quat_t* b);
@@ -153,7 +153,7 @@ BYUL_API float quat_dot(const quat_t* a, const quat_t* b);
 BYUL_API float quat_length(const quat_t* a);
 
 // ---------------------------------------------------------
-// 🏷️ 단위 회전
+// Identity rotation
 // ---------------------------------------------------------
 
 BYUL_API void quat_identity(quat_t* out);

@@ -80,7 +80,7 @@ route_t* find_dijkstra(const navgrid_t* m,
         }
 
         coord_list_destroy(neighbors);
-        // if (!final) final = coord_copy(current);  // 최후 탐색 위치
+
         if (final) coord_destroy(final);
         final = coord_copy(current);
         delete current;
@@ -97,7 +97,6 @@ route_t* find_dijkstra(const navgrid_t* m,
     //     route_set_success(result, false);
     // }
 
-    // 해제
     // coord_list_t* cost_keys = coord_hash_keys(cost_so_far);
     // int cost_len = coord_list_length(cost_keys);
     // for (int i = 0; i < cost_len; ++i) {

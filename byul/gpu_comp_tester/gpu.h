@@ -9,15 +9,15 @@ extern "C" {
 #include "quat.h"
 
 // ----------------------------------------
-// 🖼️ GPU 초기화 / 종료
+// GPU Initialization / Termination
 // ----------------------------------------
 
 int  gpu_init(int width, int height, const char* title);
 void gpu_terminate(void);
-void* gpu_get_window(void); // 내부적으로는 SDL_Window*
+void* gpu_get_window(void); // Internally this is SDL_Window*
 
 // ----------------------------------------
-// 🔧 셰이더 로딩 / GLSL 관리
+// Shader Loading / GLSL Management
 // ----------------------------------------
 
 unsigned int gpu_load_shader(const char* vs_path, const char* fs_path);

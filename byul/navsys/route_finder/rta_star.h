@@ -8,70 +8,67 @@ extern "C" {
 #endif
 
 typedef struct s_rta_star_config{
-    int depth_limit; // 탐색 제한 깊이
+    int depth_limit; // Search depth limit
 } rta_star_config_t;
 typedef rta_star_config_t* rta_star_config;
 
 BYUL_API rta_star_config rta_star_config_create();
 
 /**
- * @brief RTA* 알고리즘에서 사용할 깊이 제한 설정을 생성합니다.
+ * @brief Creates the depth limit setting for the RTA* algorithm.
  *
- * RTA* (Real-Time A*)는 전체 경로를 한 번에 탐색하지 않고,
- * 현재 위치에서 일정 깊이만큼 앞을 미리 탐색하여
- * 가장 유망한 다음 방향으로 한 칸씩 이동하는 알고리즘입니다.
+ * RTA* (Real-Time A*) does not explore the entire path at once,
+ * but instead looks ahead only a limited depth from the current position
+ * to select the most promising next step.
  *
- * 이 함수는 해당 "앞을 미리 보는 깊이"를 설정합니다.
- * 설정된 깊이만큼 순차적으로 이웃 노드를 평가하여,
- * g + h 값이 가장 낮은 방향을 선택합니다.
+ * This function sets the "lookahead depth."
+ * The algorithm evaluates neighbor nodes up to the given depth
+ * and selects the direction with the lowest g + h cost.
  *
- * 깊이 제한(depth_limit)은 장애물의 구조와 크게 연관되어 있습니다.
+ * The depth limit is closely related to the structure of obstacles.
  *
- * - 깊이 제한이 낮을수록 빠르게 반응하나, 복잡한 장애물을 피하지 못할 수 있습니다.
- * - 예를 들어, 장애물이 5칸 이상을 막고 있다면, depth_limit이 최소 6 이상이어야
- *   우회 경로를 탐지할 수 있습니다.
- * - depth_limit이 너무 작으면, 알고리즘은 막힌 방향을 최선이라 판단해
- *   경로 탐색에 실패할 수 있습니다.
+ * - A low depth limit gives quick responses but may fail to avoid complex obstacles.
+ * - For example, if an obstacle spans 5 cells, the depth_limit must be at least 6
+ *   to detect a detour.
+ * - If the depth_limit is too small, the algorithm might consider a blocked path as the best route and fail.
  *
- * 일반적으로:
- * - 실시간 반응형 이동(NPC AI 등): 2~4 추천
- * - 복잡한 장애물 우회가 필요한 상황: 6~8 추천
- * - 미로와 같은 구조에서는 A*나 Dijkstra를 사용하는 것이 더 적합합니다.
+ * General recommendations:
+ * - Real-time reactive movement (NPC AI): 2~4
+ * - Complex obstacle navigation: 6~8
+ * - For maze-like structures, A* or Dijkstra is often more suitable.
  *
- * @param depth_limit 앞을 미리 보는 깊이 (1 이상 권장)
- * @return rta_star_config 설정 객체 (free 필요)
+ * @param depth_limit The lookahead depth (recommended: 1 or higher)
+ * @return rta_star_config configuration object (must be freed)
  */
 BYUL_API rta_star_config rta_star_config_create_full(int depth_limit);
-
 
 BYUL_API void rta_star_config_destroy(rta_star_config cfg);
 
 /**
- * @brief RTA* (Real-Time A*) 알고리즘을 사용하여 경로를 탐색합니다.
+ * @brief Finds a path using the RTA* (Real-Time A*) algorithm.
  *
- * 이 알고리즘은 전체 경로를 미리 계산하지 않고,
- * 현재 위치에서 일정 깊이까지만 휴리스틱 기반으로 앞을 예측한 뒤,
- * 가장 유망한 방향으로 한 칸씩 이동하는 실시간 근사 탐색 방식입니다.
+ * This algorithm does not compute the full path at once.
+ * It uses a heuristic lookahead up to a specified depth
+ * and moves one step at a time towards the most promising direction.
  *
- * 각 탐색 스텝에서는 다음과 같은 과정이 수행됩니다:
- * - 현재 위치에서 최대 depth_limit만큼의 lookahead 탐색 수행
- * - g + h 평가 값이 가장 낮은 이웃 노드를 선택
- * - 한 칸 이동 후 반복
+ * Each step performs:
+ * - Lookahead search up to depth_limit from the current position.
+ * - Selects the neighbor node with the lowest g + h evaluation.
+ * - Moves one step and repeats.
  *
- * 깊이 제한이 충분하지 않으면 장애물을 피하지 못하고
- * 경로 탐색에 실패할 수 있으며,
- * 예측된 경로가 잘못되어 일찍 종료될 수 있습니다.
+ * If the depth limit is insufficient, the algorithm may fail to avoid obstacles
+ * and terminate early with an incorrect path.
  *
- * 예시: 중앙에 세로 장애물이 있는 10x10 맵에서,
- *       깊이 제한이 6 이하면 우회로를 탐지하지 못하고 실패,
- *       7 이상이면 장애물을 피해서 성공적으로 도착 지점에 도달합니다.
+ * Example: On a 10x10 map with a vertical wall in the center,
+ *          if depth_limit <= 6, the detour might not be detected (failure),
+ *          but with depth_limit >= 7, the algorithm will successfully reach the goal.
  *
- * 사용 예:
+ * Usage example:
  * @code
  * coord_t* start = coord_create_full(0, 0);
  * coord_t* goal = coord_create_full(9, 9);
  *
- * rta_star_config cfg = rta_star_config_create_full(7); // 깊이 제한 7
+ * rta_star_config cfg = rta_star_config_create_full(7); // Depth limit = 7
  * route_finder al = route_finder_create_full(
  *     10, 10,
  *     NAVGRID_DIR_8,
@@ -83,7 +80,7 @@ BYUL_API void rta_star_config_destroy(rta_star_config cfg);
  *     true
  * );
  *
- * // 장애물: 중앙 수직 벽
+ * // Add vertical wall in the center
  * for (int y = 1; y < 10; y++)
  *     navgrid_block_coord(al->m, 5, y);
  *
@@ -97,15 +94,20 @@ BYUL_API void rta_star_config_destroy(rta_star_config cfg);
  * rta_star_config_destroy(cfg);
  * @endcode
  *
- * @param al    알고리즘 컨텍스트 (route_finder_create_full로 생성)
- * @param start  시작 좌표
- * @param goal    도착 좌표
- * @return 탐색 결과 route_t*. 경로를 찾았으면 success == true, 실패 시 false.
+ * @param m             The map
+ * @param start         Starting coordinate
+ * @param goal          Goal coordinate
+ * @param cost_fn       Cost function
+ * @param heuristic_fn  Heuristic function
+ * @param depth_limit   Lookahead search depth limit
+ * @param max_retry     Maximum number of iterations
+ * @param visited_logging Whether to log visited nodes
+ * @return route_t* Path result. success == true if a path is found, false otherwise.
  */
 BYUL_API route_t* find_rta_star(const navgrid_t* m,
     const coord_t* start, const coord_t* goal,
     cost_func cost_fn, heuristic_func heuristic_fn,
-    int depth_limit, // 탐색 제한 깊이
+    int depth_limit,
     int max_retry, bool visited_logging);
 
 #ifdef __cplusplus

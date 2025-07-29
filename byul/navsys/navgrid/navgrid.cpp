@@ -112,13 +112,6 @@ bool navgrid_unblock_coord(navgrid_t* m, int x, int y) {
     return result;
 }
 
-// bool navgrid_is_inside(const navgrid_t* m, int x, int y) {
-//     if (!m) return false;
-//     bool x_ok = (m->width == 0 || (x >= 0 && x < m->width));
-//     bool y_ok = (m->height == 0 || (y >= 0 && y < m->height));
-//     return x_ok && y_ok;
-// }
-
 bool navgrid_is_inside(const navgrid_t* m, int x, int y) {
     if (!m) return false;
 
@@ -211,7 +204,8 @@ coord_list_t* navgrid_clone_adjacent_all_range(
     return result;
 }
 
-coord_t* navgrid_clone_neighbor_at_degree(const navgrid_t* m, int x, int y, double degree) {
+coord_t* navgrid_clone_neighbor_at_degree(
+    const navgrid_t* m, int x, int y, double degree) {
     if (!m) return nullptr;
     static const int dx8[] = {1,  1, 0, -1, -1, -1,  0, 1};
     static const int dy8[] = {0, -1, -1, -1,  0,  1,  1, 1};
@@ -239,7 +233,8 @@ coord_t* navgrid_clone_neighbor_at_degree(const navgrid_t* m, int x, int y, doub
     return coord_create_full(x + dx8[best_index], y + dy8[best_index]);
 }
 
-coord_t* navgrid_clone_neighbor_at_goal(const navgrid_t* m, const coord_t* center, const coord_t* goal) {
+coord_t* navgrid_clone_neighbor_at_goal(
+    const navgrid_t* m, const coord_t* center, const coord_t* goal) {
     if (!m || !center || !goal) return nullptr;
     int x = coord_get_x(center);
     int y = coord_get_y(center);

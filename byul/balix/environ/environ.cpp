@@ -5,37 +5,29 @@
 #include <math.h>
 #include <string.h>
 
-// ---------------------------------------------------------
-// 공통 보정 계수 계산 (humidity, temp, density, pressure)
-// ---------------------------------------------------------
 static float environ_calc_factor(const environ_t* env) {
     if (!env) return 1.0f;
 
-    // --- 습도: 역 U자형 (50%에서 최대 효율) ---
     float humidity_norm = (env->humidity - 50.0f) / 50.0f;
     float humidity_factor = 1.0f - 0.3f * (humidity_norm * humidity_norm);
     if (humidity_factor < 0.7f) humidity_factor = 0.7f;
 
-    // --- 온도: U자형 + 비례형 ---
     float temp_norm = (env->temperature - 20.0f) / 40.0f;
     float temp_u = 0.7f + 0.3f * (temp_norm * temp_norm);
     float temp_linear = 1.0f - (fabsf(env->temperature - 20.0f) / 200.0f);
     if (temp_linear < 0.8f) temp_linear = 0.8f;
     float temp_factor = temp_u * temp_linear;
 
-    // --- 공기 밀도 ---
     float air_density_factor = env->air_density / 1.225f;
     if (air_density_factor < 0.8f) air_density_factor = 0.8f;
     if (air_density_factor > 1.2f) air_density_factor = 1.2f;
 
-    // --- 기압 ---
     float pressure_norm = (env->pressure - 101325.0f) / 20000.0f;
     float pressure_u = 1.0f - 0.1f * (pressure_norm * pressure_norm);
     float pressure_linear = 1.0f - (fabsf(env->pressure - 101325.0f) / 200000.0f);
     if (pressure_linear < 0.85f) pressure_linear = 0.85f;
     float pressure_factor = pressure_u * pressure_linear;
 
-    // --- 최종 보정값 ---
     float final_factor = humidity_factor * temp_factor *
                          air_density_factor * pressure_factor;
     if (final_factor < 0.5f) final_factor = 0.5f;
@@ -43,9 +35,6 @@ static float environ_calc_factor(const environ_t* env) {
     return final_factor;
 }
 
-// ---------------------------------------------------------
-// environ_t 초기화 및 복사
-// ---------------------------------------------------------
 void environ_init(environ_t* env) {
     if (!env) return;
     env->gravity = vec3_t{0.0f, -9.81f, 0.0f};
@@ -84,9 +73,6 @@ void environ_assign(environ_t* out, const environ_t* src) {
     *out = *src;
 }
 
-// ---------------------------------------------------------
-// 외력(accel)에 환경 보정만 적용 (중력 제외)
-// ---------------------------------------------------------
 void environ_adjust_accel( const environ_t* env, vec3_t* accel) {
     if (!env || !accel) return;
 
@@ -101,17 +87,14 @@ void environ_adjust_accel_gsplit(
     vec3_t non_gravity = *accel;
 
     if (has_gravity) {
-        // 중력 포함 → 중력만 분리
         vec3_sub(&non_gravity, &non_gravity, &env->gravity);
     }
 
-    // 외력 보정
     float factor = environ_calc_factor(env);
     non_gravity.x *= factor;
     non_gravity.y *= factor;
     non_gravity.z *= factor;
 
-    // 중력 재합산
     if (has_gravity) {
         vec3_add(accel, &non_gravity, &env->gravity);
     } else {
@@ -119,9 +102,6 @@ void environ_adjust_accel_gsplit(
     }
 }
 
-// ---------------------------------------------------------
-// 기본 환경 가속도 함수
-// ---------------------------------------------------------
 const vec3_t* environ_calc_none(const environ_t* env,
                                     float dt,
                                     void* userdata,
@@ -162,9 +142,6 @@ const vec3_t* environ_calc_gravity_wind(const environ_t* env,
     return &result;
 }
 
-// ---------------------------------------------------------
-// 주기적 환경 데이터
-// ---------------------------------------------------------
 void environ_periodic_init(environ_periodic_t* out) {
     if (!out) return;
     out->base_wind = vec3_t{0.0f, 0.0f, 0.0f};

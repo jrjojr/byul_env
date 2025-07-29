@@ -1,15 +1,10 @@
 #include "numeq_pid_vec3.h"
 
-// ---------------------------------------------------------
-// 벡터 PID
-// ---------------------------------------------------------
-
 void pid_vec3_init(pid_controller_vec3_t* pid) {
     pid_init(&pid->x);
     pid_init(&pid->y);
     pid_init(&pid->z);
 }
-
 
 void pid_vec3_init_full(pid_controller_vec3_t* pid,
                    float kp, float ki, float kd,

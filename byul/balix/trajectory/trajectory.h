@@ -11,274 +11,263 @@ extern "C" {
 #endif
 
 // ---------------------------------------------------------
-// 비행 경로 샘플 (시간 + 상태)
+// Flight Path Samples (Time + State)
 // ---------------------------------------------------------
 
 /**
  * @struct trajectory_sample_t
- * @brief 특정 시간의 물리 상태 샘플을 표현하는 구조체
+ * @brief Structure representing a physical state sample at a specific time.
  */
 typedef struct s_trajectory_sample {
-    float t;                 /**< 시간 (초 단위) */
-    motion_state_t state;    /**< 해당 시점의 운동 상태 */
+    float t;                 /**< Time (in seconds) */
+    motion_state_t state;    /**< Motion state at the given time */
 } trajectory_sample_t;
 
 /**
  * @struct trajectory_t
- * @brief 시간 순서로 예측된 경로(trajectory) 데이터
+ * @brief Predicted trajectory data in chronological order.
  */
 typedef struct s_trajectory {
-    trajectory_sample_t* samples; /**< 예측된 경로 샘플 배열 */
-    int count;                    /**< 유효한 샘플 수 */
-    int capacity;                 /**< 할당된 샘플 수 */
+    trajectory_sample_t* samples; /**< Array of predicted trajectory samples */
+    int count;                    /**< Number of valid samples */
+    int capacity;                 /**< Allocated sample capacity */
 } trajectory_t;
 
 // ---------------------------------------------------------
-// trajectory 메모리 관리 유틸리티
+// Trajectory Memory Management Utilities
 // ---------------------------------------------------------
 
 /**
- * @brief 새로운 trajectory를 생성하고 메모리를 할당합니다.
+ * @brief Creates a new trajectory and allocates memory.
  *
- * trajectory_t 구조체와 내부 samples 배열을 동적 할당하며,
- * count를 0으로 초기화합니다.
+ * Dynamically allocates a trajectory_t structure and its internal samples array,
+ * initializing count to 0.
  *
- * @param capacity trajectory가 저장할 수 있는 최대 샘플 개수
- * @return 성공 시 할당된 trajectory_t* 포인터, 실패 시 nullptr
+ * @param capacity Maximum number of samples the trajectory can hold.
+ * @return Pointer to the allocated trajectory_t on success, nullptr on failure.
  *
- * @note 사용 후 반드시 trajectory_destroy()를 호출하여 
- * 구조체와 내부 메모리를 해제해야 합니다.
+ * @note Must call trajectory_destroy() after use to free both the structure
+ *       and its internal memory.
  */
 BYUL_API trajectory_t* trajectory_create_full(int capacity);
 
 /**
- * @brief 기본 용량(100 샘플)을 갖는 trajectory를 생성합니다.
+ * @brief Creates a trajectory with default capacity (100 samples).
  *
- * @return capacity = 100으로 할당된 trajectory_t* 포인터
+ * @return Pointer to a trajectory_t allocated with capacity = 100.
  *
- * @note 사용 후 반드시 trajectory_destroy()를 호출하여 
- * 구조체와 내부 메모리를 해제해야 합니다.
+ * @note Must call trajectory_destroy() after use to free memory.
  */
 BYUL_API trajectory_t* trajectory_create();
 
 /**
- * @brief trajectory_t를 기본 용량(100)으로 초기화
+ * @brief Initializes a trajectory_t with default capacity (100).
  *
- * @param traj 초기화할 trajectory_t 포인터
+ * @param traj Pointer to trajectory_t to initialize.
  *
  * @warning
- * - 반드시 `trajectory_t traj = {};` 로 선언 후 호출해야 합니다.
- *   (samples 포인터가 쓰레기값이면 `delete[]` 호출 시 메모리 폴트(SIGSEGV) 발생)
- * - 가능하면 이 함수 대신 trajectory_create() 사용을 권장합니다.
+ * - Must declare `trajectory_t traj = {};` before calling this function.
+ *   (If samples pointer is uninitialized, calling delete[] may cause SIGSEGV.)
+ * - Prefer using trajectory_create() instead of this function if possible.
  *
- * @note 기존 samples 배열이 존재하면 삭제 후 재할당합니다.
+ * @note Existing samples array will be deleted and reallocated.
  */
 BYUL_API void trajectory_init(trajectory_t* traj);
 
 /**
- * @brief trajectory_t를 지정한 capacity로 초기화
+ * @brief Initializes a trajectory_t with a specified capacity.
  *
- * @param traj 초기화할 trajectory_t 포인터
- * @param capacity 샘플 배열의 최대 용량 (capacity > 0)
+ * @param traj Pointer to trajectory_t to initialize.
+ * @param capacity Maximum number of samples (capacity > 0).
  *
  * @warning
- * - 반드시 `trajectory_t traj = {};` 로 선언 후 호출해야 합니다.
- *   (samples 포인터가 쓰레기값이면 `delete[]` 호출 시 메모리 폴트(SIGSEGV) 발생)
- * - 가능하면 이 함수 대신 trajectory_create_full() 사용을 권장합니다.
+ * - Must declare `trajectory_t traj = {};` before calling this function.
+ * - Prefer using trajectory_create_full() instead of this function if possible.
  *
- * @note 기존 samples 배열이 존재하면 삭제 후 재할당합니다.
+ * @note Existing samples array will be deleted and reallocated.
  */
 BYUL_API void trajectory_init_full(trajectory_t* traj, int capacity);
 
 /**
- * @brief trajectory 내부 메모리를 해제합니다.
+ * @brief Frees the internal memory of a trajectory.
  *
- * trajectory_t 구조체 내의 samples 배열을 해제하고,
- * count와 capacity를 0으로 초기화합니다.
+ * Frees the samples array within trajectory_t and resets count and capacity to 0.
  *
- * @param traj 해제할 trajectory_t 포인터 (NULL 가능)
+ * @param traj Pointer to trajectory_t (NULL allowed).
  *
- * @warning traj 자체는 해제하지 않습니다.
- *          trajectory_create_full()로 동적 생성한 구조체 전체를 해제하려면
- *  trajectory_destroy()를 사용하세요.
+ * @warning Does not free the trajectory_t itself.
+ *          Use trajectory_destroy() if the structure was dynamically allocated
+ *          with trajectory_create_full().
  */
 BYUL_API void trajectory_free(trajectory_t* traj);
 
 /**
- * @brief trajectory 구조체와 내부 메모리를 모두 해제합니다.
+ * @brief Frees both the trajectory structure and its internal memory.
  *
- * trajectory_free()를 호출한 뒤 구조체 포인터 자체도 해제합니다.
+ * Calls trajectory_free() and also deallocates the trajectory_t pointer itself.
  *
- * @param traj 해제할 trajectory_t 포인터 (NULL 가능)
+ * @param traj Pointer to trajectory_t (NULL allowed).
  */
 BYUL_API void trajectory_destroy(trajectory_t* traj);
 
 /**
- * @brief trajectory 내용을 깊은 복사합니다.
+ * @brief Performs a deep copy of trajectory data.
  *
- * src의 샘플 데이터를 out에 깊은 복사합니다.
- * 필요 시 out->samples 메모리를 재할당합니다.
+ * Copies all samples from src to out. Reallocates out->samples if needed.
  *
- * @param out 대상 trajectory (이미 유효한 포인터여야 함)
- * @param src 원본 trajectory
+ * @param out Destination trajectory (must be a valid pointer).
+ * @param src Source trajectory.
  *
- * @note out->capacity < src->count인 경우 내부 메모리를 재할당합니다.
+ * @note If out->capacity < src->count, memory will be reallocated.
  */
 BYUL_API void trajectory_assign(trajectory_t* out, const trajectory_t* src);
 
 /**
- * @brief trajectory를 복제(클론)하여 새 인스턴스를 생성합니다.
+ * @brief Creates a clone of a trajectory.
  *
- * src 내용을 깊은 복사한 새로운 trajectory를 생성하여 반환합니다.
+ * Allocates and returns a new trajectory_t with a deep copy of src.
  *
- * @param src 복제할 원본 trajectory
- * @return 새로운 trajectory_t* (동적 할당), 실패 시 nullptr
+ * @param src Source trajectory to copy.
+ * @return New trajectory_t* (dynamically allocated), nullptr on failure.
  *
- * @note 사용 후 반드시 trajectory_destroy()를 호출하여 메모리를 해제해야 합니다.
+ * @note Must call trajectory_destroy() after use to free memory.
  */
 BYUL_API trajectory_t* trajectory_copy(const trajectory_t* src);
 
 /**
- * @brief trajectory 내부 데이터를 모두 제거합니다.
+ * @brief Clears all data in a trajectory.
  *
- * count 값을 0으로 초기화하여 모든 샘플을 제거합니다.
- * capacity 및 samples는 그대로 유지되므로 재사용이 가능합니다.
+ * Resets count to 0, but keeps capacity and samples memory intact for reuse.
  *
- * @param traj 초기화할 trajectory 포인터 (NULL 가능)
+ * @param traj Pointer to trajectory (NULL allowed).
  */
 BYUL_API void trajectory_clear(trajectory_t* traj);
 
 /**
- * @brief trajectory_t의 용량(capacity)을 새 크기로 조정합니다.
+ * @brief Resizes the trajectory_t capacity.
  *
- * @param traj     리사이즈할 trajectory_t 포인터
- * @param new_cap  새 용량 (new_cap > 0)
+ * @param traj Pointer to trajectory_t.
+ * @param new_cap New capacity (must be > 0).
  *
- * @note 기존 samples 데이터를 보존하며, count가 new_cap을 초과하면
- *       count는 new_cap으로 잘립니다.
- *       메모리 재할당 후 기존 포인터는 delete[]로 안전하게 해제됩니다.
+ * @note Existing sample data is preserved, but if count > new_cap,
+ *       count will be truncated to new_cap.
  */
 BYUL_API void trajectory_resize(trajectory_t* traj, int new_cap);
 
 /**
- * @brief trajectory에 샘플을 추가
- * @param traj 대상 trajectory
- * @param t 시간 값
- * @param state 운동 상태
- * @return 추가 성공 여부
+ * @brief Adds a sample to the trajectory.
+ * @param traj Target trajectory.
+ * @param t Time value.
+ * @param state Motion state to add.
+ * @return True if added successfully.
  */
 BYUL_API bool trajectory_add_sample(
     trajectory_t* traj, float t, const motion_state_t* state);
 
 /**
- * @brief trajectory에 저장된 샘플 개수 반환
- * @param traj 대상 trajectory
- * @return 샘플 개수
+ * @brief Returns the number of samples in the trajectory.
+ * @param traj Target trajectory.
+ * @return Sample count.
  */
 BYUL_API int trajectory_length(const trajectory_t* traj);
 
 /**
- * @brief trajectory의 최대 capacity 반환
- * @param traj 대상 trajectory
- * @return capacity
+ * @brief Returns the maximum capacity of the trajectory.
+ * @param traj Target trajectory.
+ * @return Capacity.
  */
 BYUL_API int trajectory_capacity(const trajectory_t* traj);
 
 /**
- * @brief 주어진 시간 t에서 trajectory 상의 위치를 보간(interpolate)하여 계산합니다.
+ * @brief Interpolates the position on the trajectory at time t.
  *
- * 이 함수는 trajectory_t에 저장된 샘플들을 기반으로,
- * 시간 @p t 가 샘플 시간 범위 내에 있다면 
- * 두 인접 샘플 사이를 선형 보간(lerp)하여 위치를 계산합니다.
- * - @p t 가 첫 샘플 시간보다 작거나 같으면 첫 샘플 위치를 반환합니다.
- * - @p t 가 마지막 샘플 시간보다 크거나 같으면 마지막 샘플 위치를 반환합니다.
+ * Uses the stored samples in trajectory_t to compute the position
+ * at time t using linear interpolation between adjacent samples.
+ * - If t <= first sample time, returns the first sample position.
+ * - If t >= last sample time, returns the last sample position.
  *
- * @param[in] traj     보간에 사용할 trajectory 데이터
- * @param[in] t        보간할 시간 (초)
- * @param[out] out_pos 계산된 위치 벡터 (NULL이면 false 반환)
- * @return 보간 성공 시 true, 데이터가 유효하지 않으면 false
+ * @param[in] traj     Trajectory data.
+ * @param[in] t        Time to interpolate (seconds).
+ * @param[out] out_pos Output vector (returns false if NULL).
+ * @return True if interpolation was successful.
  */
 BYUL_API bool trajectory_interpolate_position(
     const trajectory_t* traj, float t, vec3_t* out_pos);
 
 /**
- * @brief 주어진 시간 t에서 타겟의 속도를 추정합니다.
+ * @brief Estimates velocity at time t.
  *
- * trajectory_t에 저장된 샘플들을 기반으로 t 시점의 속도를 계산합니다.
- * - 샘플이 2개 이상 있으면 인접 샘플의 위치 변화량을 사용하여 속도를 추정합니다.
- * - 샘플이 1개 이하이면 false를 반환합니다.
+ * Computes the velocity at time t based on sample positions.
+ * - Requires at least 2 samples.
+ * - Returns false if insufficient data.
  *
- * @param[in] traj  속도 추정에 사용할 trajectory 데이터
- * @param[in] t     추정할 시간 (초)
- * @param[out] out_vel 계산된 속도 벡터 (NULL이면 false 반환)
- * @return 추정 성공 시 true, 실패 시 false
+ * @param[in] traj  Trajectory data.
+ * @param[in] t     Time (seconds).
+ * @param[out] out_vel Output velocity vector (returns false if NULL).
+ * @return True if successful.
  */
 BYUL_API bool trajectory_estimate_velocity(
     const trajectory_t* traj, float t, vec3_t* out_vel);
 
 /**
- * @brief 주어진 시간 t에서 타겟의 가속도를 추정합니다.
+ * @brief Estimates acceleration at time t.
  *
- * trajectory_t에 저장된 샘플들을 기반으로 t 시점의 가속도를 계산합니다.
- * - 속도를 두 번 미분하거나, 인접 샘플 간의 속도 변화량으로 근사 추정합니다.
- * - 샘플이 3개 이하이면 false를 반환합니다.
+ * Approximates acceleration by differentiating velocity between adjacent samples.
+ * - Requires at least 3 samples.
  *
- * @param[in] traj  가속도 추정에 사용할 trajectory 데이터
- * @param[in] t     추정할 시간 (초)
- * @param[out] out_acc 계산된 가속도 벡터 (NULL이면 false 반환)
- * @return 추정 성공 시 true, 실패 시 false
+ * @param[in] traj  Trajectory data.
+ * @param[in] t     Time (seconds).
+ * @param[out] out_acc Output acceleration vector (returns false if NULL).
+ * @return True if successful.
  */
 BYUL_API bool trajectory_estimate_acceleration(
     const trajectory_t* traj, float t, vec3_t* out_acc);
 
 // ---------------------------------------------------------
-// trajectory 출력 유틸리티
+// Trajectory Output Utilities
 // ---------------------------------------------------------
 
 #define TRAJECTORY_STR_BUFSIZE 51200
 /**
- * @brief trajectory_t 데이터를 사람이 읽을 수 있는 문자열로 변환합니다.
+ * @brief Converts a trajectory_t into a human-readable string.
  *
- * 이 함수는 주어진 trajectory의 모든 포인트(시간, 위치, 속도)를 문자열로 변환하여
- * 지정된 버퍼에 저장합니다. 포인트 수가 많으면 버퍼가 부족할 수 있으므로
- * 충분히 큰 크기의 버퍼를 사용해야 합니다.
+ * Converts all points (time, position, velocity) of the given trajectory
+ * into a formatted string stored in the provided buffer.
  *
- * @param traj    변환할 trajectory_t 포인터 (NULL이면 "(null)" 문자열 반환)
- * @param buffer  변환 결과를 저장할 버퍼 (NULL이면 반환값도 NULL)
- * @param size    버퍼 크기 (포인트가 많으면 TRAJECTORY_STR_BUFSIZE 이상 권장)
- * @return buffer 포인터 (입력 buffer와 동일)
+ * @param traj    Pointer to trajectory_t (NULL returns "(null)").
+ * @param buffer  Buffer to store the string (NULL returns NULL).
+ * @param size    Buffer size (recommend TRAJECTORY_STR_BUFSIZE or larger).
+ * @return buffer Pointer to the provided buffer.
  *
  * @note
- * - trajectory가 NULL일 경우 "[Trajectory] (null)" 문자열을 생성합니다.
- * - 포인트 수가 많을 경우 출력이 중간에 잘릴 수 있습니다.
- * - trajectory_to_string_detailed() 같은 확장 버전을 사용하면 요약/세부 출력 조정이 가능합니다.
+ * - If traj is NULL, returns "[Trajectory] (null)".
+ * - Output may be truncated if the buffer is too small.
  */
 BYUL_API char* trajectory_to_string(
     const trajectory_t* traj, char* buffer, size_t size);
 
-
 /**
- * @brief trajectory 내용을 콘솔에 출력
- * @param traj 대상 trajectory
+ * @brief Prints the trajectory content to console.
+ * @param traj Target trajectory.
  */
 BYUL_API void trajectory_print(const trajectory_t* traj);
 
 /**
- * @brief trajectory의 위치 리스트 추출
- * @param traj 대상 trajectory
- * @param out_list 결과를 저장할 vec3 배열
- * @param max 최대 추출 개수
- * @return 실제 추출한 개수
+ * @brief Extracts position list from trajectory.
+ * @param traj Target trajectory.
+ * @param out_list Array to store result.
+ * @param max Maximum number of positions to extract.
+ * @return Number of extracted positions.
  */
 BYUL_API int trajectory_get_positions(
     const trajectory_t* traj, vec3_t* out_list, int max);
 
 /**
- * @brief trajectory의 속력 리스트 추출
- * @param traj 대상 trajectory
- * @param out_list 결과를 저장할 float 배열
- * @param max 최대 추출 개수
- * @return 실제 추출한 개수
+ * @brief Extracts speed list from trajectory.
+ * @param traj Target trajectory.
+ * @param out_list Array to store speed values.
+ * @param max Maximum number of speeds to extract.
+ * @return Number of extracted speeds.
  */
 BYUL_API int trajectory_get_speeds(
     const trajectory_t* traj, float* out_list, int max);

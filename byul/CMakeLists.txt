@@ -6,6 +6,7 @@ project(byul VERSION 1.0 LANGUAGES CXX)
 # Build type and basic settings
 # -----------------------------------------------------------------------------
 message(STATUS "Build type: ${CMAKE_BUILD_TYPE}")
+
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
@@ -21,6 +22,10 @@ if(CMAKE_BUILD_TYPE STREQUAL "Debug")
     add_definitions(-DDEBUG)
     message(STATUS "DEBUG mode enabled")
 endif()
+
+# lib가 위치할 디렉토리 생성
+# set(BYUL_LIB_DIR ${CMAKE_BINARY_DIR}/lib)
+# file(MAKE_DIRECTORY ${BYUL_LIB_DIR})
 
 # -----------------------------------------------------------------------------
 # MSVC specific settings
@@ -69,10 +74,53 @@ add_library(${PROJECT_NAME} SHARED ${SOURCES})
 
 target_compile_definitions(${PROJECT_NAME} PRIVATE BYUL_EXPORTS)
 
+# 루트 CMakeLists.txt
+# add_compile_definitions(BYUL_EXPORTS)
+
+
+target_include_directories(${PROJECT_NAME} PRIVATE
+    ${CMAKE_CURRENT_SOURCE_DIR}
+    ${CMAKE_SOURCE_DIR}
+
+    ${CMAKE_SOURCE_DIR}/common
+
+    ${CMAKE_SOURCE_DIR}/navsys
+    ${CMAKE_SOURCE_DIR}/navsys/coord
+    ${CMAKE_SOURCE_DIR}/navsys/dstar_lite
+    ${CMAKE_SOURCE_DIR}/navsys/maze
+    ${CMAKE_SOURCE_DIR}/navsys/navgrid
+    ${CMAKE_SOURCE_DIR}/navsys/obstacle
+    ${CMAKE_SOURCE_DIR}/navsys/route
+    ${CMAKE_SOURCE_DIR}/navsys/route_carver
+    ${CMAKE_SOURCE_DIR}/navsys/route_finder
+
+    ${CMAKE_SOURCE_DIR}/balix
+    ${CMAKE_SOURCE_DIR}/balix/bodyprops
+    ${CMAKE_SOURCE_DIR}/balix/controller
+    ${CMAKE_SOURCE_DIR}/balix/environ
+    ${CMAKE_SOURCE_DIR}/balix/motion_state
+    ${CMAKE_SOURCE_DIR}/balix/numal
+    
+    ${CMAKE_SOURCE_DIR}/balix/numeq
+    ${CMAKE_SOURCE_DIR}/balix/numeq/filters
+
+    ${CMAKE_SOURCE_DIR}/balix/tests
+    ${CMAKE_SOURCE_DIR}/balix/trajectory
+    ${CMAKE_SOURCE_DIR}/balix/xform    
+
+    ${CMAKE_SOURCE_DIR}/entity
+    ${CMAKE_SOURCE_DIR}/projectile
+
+)
+
 # tests require ${PROJECT_NAME} library
 add_subdirectory(tests)
 
-set(SUB_MODULES
+target_link_directories(${PROJECT_NAME} PRIVATE
+    ${CMAKE_BINARY_DIR}/common
+)
+
+set(SUB_LIBS
     common
     console
     navsys
@@ -84,17 +132,17 @@ set(SUB_MODULES
 if (CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
     target_link_libraries(${PROJECT_NAME} PRIVATE
         -Wl,--whole-archive
-        ${SUB_MODULES}
+        ${SUB_LIBS}
         -Wl,--no-whole-archive
     )
 elseif (MSVC)
-    foreach(module ${SUB_MODULES})
+    foreach(module ${SUB_LIBS})
         set(MSVC_WHOLEARCHIVE_FLAGS "${MSVC_WHOLEARCHIVE_FLAGS} /WHOLEARCHIVE:${module}")
     endforeach()
     set_target_properties(${PROJECT_NAME} PROPERTIES LINK_FLAGS "${MSVC_WHOLEARCHIVE_FLAGS}")
-    target_link_libraries(${PROJECT_NAME} PRIVATE ${SUB_MODULES})
+    target_link_libraries(${PROJECT_NAME} PRIVATE ${SUB_LIBS})
 else()
-    target_link_libraries(${PROJECT_NAME} PRIVATE ${SUB_MODULES})
+    target_link_libraries(${PROJECT_NAME} PRIVATE ${SUB_LIBS})
 endif()
 
 # -----------------------------------------------------------------------------

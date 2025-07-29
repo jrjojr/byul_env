@@ -2,22 +2,7 @@ cmake_minimum_required(VERSION 3.20)
 
 project(balix)
 
-message(STATUS "Build type: ${CMAKE_BUILD_TYPE}")
 
-if(CMAKE_BUILD_TYPE STREQUAL "Debug")
-    add_definitions(-DDEBUG)
-    message(STATUS "DEBUG mode enabled")
-endif()
-
-# ─────────────────────────────────────────────
-# ⛔ 루트에서만 설정되는 항목 (중복 제거)
-# ─────────────────────────────────────────────
-# set(CMAKE_CXX_STANDARD 17)
-# set(CMAKE_CXX_STANDARD_REQUIRED ON)
-# set(CMAKE_CXX_EXTENSIONS OFF) # gnu++17이 아닌 순수 c++17 사용
-
-# set(CMAKE_EXPORT_COMPILE_COMMANDS ON) # 루트에서 이미 설정
-# set(CMAKE_POSITION_INDEPENDENT_CODE ON) # 루트에서 이미 설정
 
 # ─────────────────────────────────────────────
 # 소스 파일 설정
@@ -125,6 +110,9 @@ target_include_directories(${PROJECT_NAME} PRIVATE
     ${CMAKE_SOURCE_DIR}
     ${CMAKE_SOURCE_DIR}/common
     
+    ${CMAKE_SOURCE_DIR}/navsys
+    ${CMAKE_SOURCE_DIR}/navsys/coord
+
     ${CMAKE_SOURCE_DIR}/balix/bodyprops
     ${CMAKE_SOURCE_DIR}/balix/controller
     ${CMAKE_SOURCE_DIR}/balix/environ

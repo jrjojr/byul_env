@@ -12,29 +12,29 @@ extern "C" {
 // Spring Force (Hooke's Law)
 // ---------------------------------------------------------
 /**
- * @brief 두 엔티티 사이의 스프링 힘을 계산합니다.
+ * @brief Calculate the spring force between two entities.
  *
- * 스프링 모델은 후크의 법칙(Hooke's Law)과 감쇠력을 기반으로 합니다:
- * 
- * F = -k (d - L0) * d_hat - c (v_rel · d_hat) * d_hat
+ * The spring model is based on Hooke's Law and damping force:
  *
- * - d : 두 엔티티의 거리
- * - L0 : 스프링의 자연 길이 (목표 거리)
- * - k : 스프링 강성 계수 (강할수록 힘이 크게 작용)
- * - c : 감쇠 계수 (속도에 비례하는 저항)
- * - d_hat : 두 엔티티 사이의 단위 벡터
+ * F = -k (d - L0) * d_hat - c (v_rel * d_hat) * d_hat
  *
- * @param[out] out   계산된 힘 벡터 (NULL이면 무시)
- * @param[in]  a     기준 엔티티 (힘이 작용하는 쪽)
- * @param[in]  b     상대 엔티티
- * @param[in]  k     스프링 강성 계수 (k > 0)
- * @param[in]  c     감쇠 계수 (>= 0)
- * @param[in]  L0    목표 거리 (m)
+ * - d : Distance between two entities
+ * - L0 : Natural length of the spring (target distance)
+ * - k : Spring stiffness coefficient (higher = stronger force)
+ * - c : Damping coefficient (>= 0)
+ * - d_hat : Unit vector between the two entities
+ *
+ * @param[out] out   Calculated force vector (ignored if NULL)
+ * @param[in]  a     Reference entity (receiving the force)
+ * @param[in]  b     Other entity
+ * @param[in]  k     Spring stiffness coefficient (k > 0)
+ * @param[in]  c     Damping coefficient (>= 0)
+ * @param[in]  L0    Target distance (m)
  *
  * @note
- * - d < L0 → 반발력 (밀어냄)
- * - d > L0 → 인력 (당김)
- * - d = L0 → 힘 없음
+ * - d < L0 -> Repulsion (push)
+ * - d > L0 -> Attraction (pull)
+ * - d = L0 -> No force
  */
 BYUL_API void spring_force(vec3_t* out,
     const entity_dynamic_t* a,
@@ -44,17 +44,17 @@ BYUL_API void spring_force(vec3_t* out,
     float L0);
 
 /**
- * @brief 한 엔티티가 여러 엔티티로부터 받는 총합 스프링 힘을 계산합니다.
+ * @brief Calculate the total spring force acting on one entity from multiple others.
  *
- * spring_force()를 여러 번 호출하여 자기 자신을 제외한 모든 엔티티와의 힘을 합산합니다.
+ * Calls spring_force() for all other entities and sums the results.
  *
- * @param[out] out   총합 힘 벡터 (NULL이면 무시)
- * @param[in]  self  기준 엔티티
- * @param[in]  others 비교 엔티티 배열
- * @param[in]  count others 배열 크기
- * @param[in]  k     스프링 강성 계수
- * @param[in]  c     감쇠 계수
- * @param[in]  L0    목표 거리
+ * @param[out] out   Total force vector (ignored if NULL)
+ * @param[in]  self  Reference entity
+ * @param[in]  others Array of other entities
+ * @param[in]  count Number of entities in others
+ * @param[in]  k     Spring stiffness coefficient
+ * @param[in]  c     Damping coefficient
+ * @param[in]  L0    Target distance
  */
 BYUL_API void spring_force_total(vec3_t* out,
     const entity_dynamic_t* self,
@@ -65,23 +65,23 @@ BYUL_API void spring_force_total(vec3_t* out,
     float L0);
 
 /**
- * @brief 전체 스프링 기반 거리 유지 시뮬레이션을 수행합니다.
+ * @brief Perform a full spring-based distance maintenance simulation.
  *
- * 각 엔티티는 다른 모든 엔티티와 스프링으로 연결되어 있다고 가정하며,
- * 후크의 법칙과 감쇠를 통해 자연 길이 L0를 유지하려는 힘이 작용합니다.
+ * Each entity is assumed to be connected to all other entities by springs.
+ * Hooke's Law and damping are applied to maintain the natural length L0.
  *
- * @param[out] traj   엔티티 궤적 기록 포인터 (NULL 가능)
- * @param[in,out] e   엔티티 배열
- * @param[in]  count  엔티티 개수
- * @param[in]  dt     시뮬레이션 시간 간격 (초)
- * @param[in]  k      스프링 강성 계수
- * @param[in]  c      감쇠 계수
- * @param[in]  L0     목표 거리 (m)
- * @param[in]  steps  시뮬레이션 반복 횟수
+ * @param[out] traj   Pointer to trajectory record (can be NULL)
+ * @param[in,out] e   Array of entities
+ * @param[in]  count  Number of entities
+ * @param[in]  dt     Time step (seconds)
+ * @param[in]  k      Spring stiffness coefficient
+ * @param[in]  c      Damping coefficient
+ * @param[in]  L0     Target distance (m)
+ * @param[in]  steps  Number of simulation iterations
  *
  * @note
- * Semi-Implicit Euler Integrator를 사용합니다:
- * 
+ * Uses Semi-Implicit Euler Integrator:
+ *
  * v(t+1) = v(t) + (F/m) * dt
  * x(t+1) = x(t) + v(t+1) * dt
  */
@@ -94,18 +94,18 @@ BYUL_API void spring_simulate(trajectory_t* traj,
 // Pairwise Spring Simulation
 // ---------------------------------------------------------
 /**
- * @brief 엔티티 쌍(pairwise) 간의 스프링 시뮬레이션을 수행합니다.
+ * @brief Perform a pairwise spring simulation between all entity pairs.
  *
- * 모든 엔티티 쌍 (i, j)에 대해 스프링 힘을 계산하고, 속도 및 위치를 업데이트합니다.
+ * For every entity pair (i, j), spring force is computed and positions and velocities are updated.
  *
- * @param[out] traj   엔티티 궤적 기록 포인터 (NULL 가능)
- * @param[in,out] e   엔티티 배열
- * @param[in]  count  엔티티 수
- * @param[in]  dt     시뮬레이션 시간 스텝 (초)
- * @param[in]  k      스프링 강성 계수
- * @param[in]  c      감쇠 계수
- * @param[in]  L0     자연 길이
- * @param[in]  steps  반복 스텝 수
+ * @param[out] traj   Pointer to trajectory record (can be NULL)
+ * @param[in,out] e   Array of entities
+ * @param[in]  count  Number of entities
+ * @param[in]  dt     Time step (seconds)
+ * @param[in]  k      Spring stiffness coefficient
+ * @param[in]  c      Damping coefficient
+ * @param[in]  L0     Natural length
+ * @param[in]  steps  Number of simulation steps
  */
 BYUL_API void spring_simulate_pairwise(trajectory_t* traj,
                               entity_dynamic_t* e, int count,
@@ -117,12 +117,12 @@ BYUL_API void spring_simulate_pairwise(trajectory_t* traj,
 // ---------------------------------------------------------
 /**
  * @struct spring_link_t
- * @brief 두 엔티티 간 스프링 연결 정보를 나타내는 구조체.
+ * @brief Structure representing a spring connection between two entities.
  *
- * - i, j : 연결된 엔티티 인덱스
- * - k : 스프링 강성 계수
- * - c : 감쇠 계수
- * - L0: 자연 길이
+ * - i, j : Indices of connected entities
+ * - k : Spring stiffness coefficient
+ * - c : Damping coefficient
+ * - L0: Natural length
  */
 typedef struct s_spring_link {
     int i, j;
@@ -132,22 +132,22 @@ typedef struct s_spring_link {
 } spring_link_t;
 
 /**
- * @brief 네트워크(그래프) 기반 스프링 시뮬레이션을 수행합니다.
+ * @brief Perform a network (graph-based) spring simulation.
  *
- * 엔티티 배열과 스프링 연결 정보(links)를 이용해,
- * 네트워크 전체에서 스프링 힘을 계산하고 위치 및 속도를 업데이트합니다.
+ * Uses an entity array and spring link information (links)
+ * to compute spring forces across the network and update positions and velocities.
  *
- * @param[out] traj       궤적 기록 포인터 (NULL이면 기록 안 함)
- * @param[in,out] e       엔티티 배열
- * @param[in]  count      엔티티 수
- * @param[in]  links      스프링 연결 배열
- * @param[in]  link_count 링크 개수
- * @param[in]  dt         시뮬레이션 시간 간격 (초)
- * @param[in]  steps      시뮬레이션 반복 스텝 수
+ * @param[out] traj       Pointer to trajectory record (NULL = no logging)
+ * @param[in,out] e       Array of entities
+ * @param[in]  count      Number of entities
+ * @param[in]  links      Array of spring links
+ * @param[in]  link_count Number of links
+ * @param[in]  dt         Time step (seconds)
+ * @param[in]  steps      Number of simulation steps
  *
  * @note
- * - spring_simulate_pairwise()는 모든 쌍을 계산하지만,
- *   spring_simulate_network()는 지정된 links[]에 대해서만 계산합니다.
+ * - spring_simulate_pairwise() computes all pairs,
+ *   spring_simulate_network() only computes for specified links[].
  */
 BYUL_API void spring_simulate_network(
     trajectory_t* traj,
@@ -156,35 +156,35 @@ BYUL_API void spring_simulate_network(
     float dt, int steps);
 
 /**
- * @brief Velocity Verlet 적분기를 이용한 반발력(Repulsion) 네트워크 시뮬레이션.
+ * @brief Perform a repulsion network simulation using Velocity Verlet integration.
  *
- * 이 함수는 엔티티들 사이의 가상 스프링을 기반으로 한 반발력 네트워크를 시뮬레이션합니다.
- * 각 링크(spring_link_t)는 두 엔티티 사이의 최소 안전거리(L0)를 정의하며,
- * 거리가 이 값보다 좁아질 경우 스프링 반발력과 감쇠력을 계산하여 엔티티를 밀어냅니다.
- * 시뮬레이션은 Velocity Verlet 적분법을 사용하여 안정적으로 위치와 속도를 업데이트합니다.
+ * This function simulates a repulsion network based on virtual springs between entities.
+ * Each link (spring_link_t) defines a minimum safe distance (L0)
+ * and applies repulsion and damping forces if entities get closer than this distance.
+ * The simulation updates positions and velocities using Velocity Verlet integration.
  *
- * 주요 특징
- * - 각 엔티티는 질량(props.mass), 속도(velocity), 위치(xf.pos)를 가지는 입자(Particle)으로 모델링됩니다.
- * - links 배열은 엔티티 쌍 (i, j)마다 스프링 상수 k, 감쇠 계수 c, 목표 거리 L0를 정의합니다.
- * - 매 시뮬레이션 스텝마다 모든 링크의 힘을 누적 계산한 후, Velocity Verlet 적분기로 위치와 속도를 갱신합니다.
- * - trajectory_t가 주어지면 각 시뮬레이션 스텝의 엔티티 상태(위치/속도)가 기록됩니다.
+ * Main Features:
+ * - Each entity is modeled as a particle with mass (props.mass), velocity, and position (xf.pos).
+ * - The links array defines spring constant k, damping coefficient c, and target distance L0 for each pair.
+ * - On each step, forces from all links are accumulated, then positions and velocities are updated.
+ * - If trajectory_t is provided, the state (position/velocity) of each entity is recorded at each step.
  *
- * @param[out] traj         시뮬레이션 중 엔티티의 상태를 기록할 trajectory_t 포인터 (NULL 가능)
- * @param[in,out] e         시뮬레이션 대상 엔티티 배열 (entity_dynamic_t[count])
- * @param[in] count         엔티티 개수 (2개 이상이어야 함)
- * @param[in] links         엔티티 간 반발 링크 배열 (spring_link_t[link_count])
- * @param[in] link_count    링크 개수
- * @param[in] dt            시간 스텝 (초 단위)
- * @param[in] steps         시뮬레이션 스텝 수
+ * @param[out] traj         Pointer to trajectory record (NULL = no logging)
+ * @param[in,out] e         Array of entities (entity_dynamic_t[count])
+ * @param[in] count         Number of entities (must be >= 2)
+ * @param[in] links         Array of repulsion links (spring_link_t[link_count])
+ * @param[in] link_count    Number of links
+ * @param[in] dt            Time step (seconds)
+ * @param[in] steps         Number of simulation steps
  *
  * @note
- * - traj가 NULL이면 로그를 기록하지 않고 엔티티의 최종 상태만 업데이트합니다.
- * - Velocity Verlet은 두 번의 절반 속도 업데이트로 오일러 방식보다 안정적입니다.
- * - 모든 엔티티는 props.mass > 0 값을 가져야 힘-가속도 계산이 정상 동작합니다.
+ * - If traj is NULL, only the final state is updated.
+ * - Velocity Verlet is more stable than Euler due to its half-step velocity update.
+ * - All entities must have props.mass > 0 for correct force-to-acceleration calculations.
  *
  * @warning
- * - count <= 1 또는 link_count <= 0이면 시뮬레이션이 수행되지 않습니다.
- * - dt가 너무 크면 수치적 불안정성이 발생할 수 있으니 0.01~0.05초 정도가 적당합니다.
+ * - If count <= 1 or link_count <= 0, no simulation is performed.
+ * - Large dt may cause instability; 0.01 to 0.05 seconds is recommended.
  *
  * @see spring_link_t
  * @see entity_dynamic_t
@@ -196,19 +196,19 @@ BYUL_API void repulsion_simulate_network(trajectory_t* traj,
                                 float dt, int steps);
 
 /**
- * @brief 외부 힘을 사용해 엔티티를 부드럽게 밀어내는 시뮬레이션
+ * @brief Perform simulation using external push forces to move entities smoothly.
  *
- * - 각 엔티티는 질량(props.mass), 위치(xf.pos), 속도(velocity)를 가진다.
- * - push_forces 배열에서 각 엔티티가 받는 외부 힘을 정의한다.
- * - 스프링 대신 일정한 힘을 계속 가해 사람이 사람을 밀듯이 부드럽게 움직인다.
- * - trajectory_t를 제공하면 각 step마다 위치와 속도를 기록할 수 있다.
+ * - Each entity has mass (props.mass), position (xf.pos), and velocity.
+ * - The push_forces array defines the external force applied to each entity.
+ * - Instead of springs, a constant force is applied for smooth pushing like human interaction.
+ * - If trajectory_t is provided, the state is recorded at each step.
  *
- * @param[out] traj        각 step의 궤적을 저장할 수 있는 trajectory_t (NULL 가능)
- * @param[in,out] e        엔티티 배열 (크기 count)
- * @param[in] count        엔티티 개수
- * @param[in] push_forces  각 엔티티에 적용할 외부 힘 배열 (크기 count)
- * @param[in] dt           시뮬레이션 시간 간격 (초)
- * @param[in] steps        시뮬레이션 step 수
+ * @param[out] traj        Pointer to trajectory record (NULL = no logging)
+ * @param[in,out] e        Array of entities (size = count)
+ * @param[in] count        Number of entities
+ * @param[in] push_forces  Array of external forces (size = count)
+ * @param[in] dt           Time step (seconds)
+ * @param[in] steps        Number of simulation steps
  */
 BYUL_API void push_simulate_network(trajectory_t* traj,
                                     entity_dynamic_t* e, int count,

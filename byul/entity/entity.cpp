@@ -9,10 +9,6 @@
 #include <math.h>   // fmaxf
 #include <string.h> // memset
 
-// ---------------------------------------------------------
-// 엔티티 초기화 함수
-// ---------------------------------------------------------
-
 void entity_init(entity_t* e)
 {
     if (!e) return;
@@ -55,9 +51,6 @@ void entity_assign(entity_t* dst, const entity_t* src)
     *dst = *src;
 }
 
-// ---------------------------------------------------------
-// 수명 관리
-// ---------------------------------------------------------
 bool entity_is_expired(const entity_t* e)
 {
     if (!e) return true;
@@ -75,11 +68,10 @@ float entity_size(const entity_t* e)
 {
     if (!e) return 0.0f;
 
-    // 기본 크기 계산: sqrt(1 + width_range² + height_range²)
+    // size: sqrt(1 + width_range^2 + height_range^2)
     float diag = sqrtf(1.0f +
                        (float)(e->width_range * e->width_range) +
                        (float)(e->height_range * e->height_range));
 
-    // 영향 비율 적용
     return diag * e->influence_ratio;
 }

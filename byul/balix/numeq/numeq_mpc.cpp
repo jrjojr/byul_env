@@ -20,10 +20,6 @@
 #include <limits>
 #include <cmath>
 
-// ---------------------------------------------------------
-// 내부 유틸
-// ---------------------------------------------------------
-
 static float quat_angle_diff(const quat_t* a, const quat_t* b) {
     quat_t inv_b;
     quat_inverse(&inv_b, b);
@@ -32,10 +28,9 @@ static float quat_angle_diff(const quat_t* a, const quat_t* b) {
     quat_mul(&rel, a, &inv_b);
 
     float angle = 2.0f * std::acos(fabsf(rel.w));
-    return angle;  // 라디안 값
+    return angle;
 }
 
-// trajectory 샘플링 (선형 + 회전)
 static void simulate_trajectory(
     const motion_state_t* start,
     const mpc_config_t* config,
@@ -52,34 +47,29 @@ static void simulate_trajectory(
     motion_state_t state = *start;
 
     for (int i = 0; i < steps; ++i) {
-        // --- 선형 속도 업데이트 ---
+
         vec3_t scaled_accel;
         vec3_scale(&scaled_accel, &state.linear.acceleration, config->step_dt);
         vec3_add(&state.linear.velocity, &state.linear.velocity, &scaled_accel);
 
-        // 속도 제한
         float speed = vec3_length(&state.linear.velocity);
         if (config->max_speed > 0.0f && speed > config->max_speed) {
             vec3_scale(&state.linear.velocity, &state.linear.velocity, config->max_speed / speed);
         }
 
-        // 위치 업데이트
         vec3_t scaled_vel;
         vec3_scale(&scaled_vel, &state.linear.velocity, config->step_dt);
         vec3_add(&state.linear.position, &state.linear.position, &scaled_vel);
 
-        // --- 각속도 업데이트 ---
         vec3_t scaled_ang_accel;
         vec3_scale(&scaled_ang_accel, &state.angular.angular_acceleration, config->step_dt);
         vec3_add(&state.angular.angular_velocity, &state.angular.angular_velocity, &scaled_ang_accel);
 
-        // 각속도 제한
         float ang_speed = vec3_length(&state.angular.angular_velocity);
         if (config->max_ang_speed > 0.0f && ang_speed > config->max_ang_speed) {
             vec3_scale(&state.angular.angular_velocity, &state.angular.angular_velocity, config->max_ang_speed / ang_speed);
         }
 
-        // 회전 업데이트 (쿼터니언 적분)
         quat_t delta_rot;
         quat_init_angular_velocity(&delta_rot, &state.angular.angular_velocity, config->step_dt);
         quat_mul(&state.angular.orientation, &delta_rot, &state.angular.orientation);
@@ -89,32 +79,6 @@ static void simulate_trajectory(
     }
 }
 
-// ---------------------------------------------------------
-// mpc_config_t 유틸리티
-// ---------------------------------------------------------
-
-/**
- * @brief mpc_config_t 기본값 초기화
- *
- * 기본값:
- * - horizon_sec = 1.0f
- * - step_dt = 0.05f
- * - max_accel = 10.0f
- * - max_ang_accel = 5.0f
- * - max_speed = 50.0f
- * - max_ang_speed = 10.0f
- * - weight_distance = 1.0f
- * - weight_orientation = 0.5f
- * - weight_velocity = 0.1f
- * - weight_accel = 0.1f
- * - weight_ang_accel = 0.1f
- * - max_iter = 10
- * - output_trajectory = false
- * - candidate_step = 0.5f
- * - ang_candidate_step = 0.1f
- *
- * @param cfg 초기화할 mpc_config_t 구조체
- */
 void mpc_config_init(mpc_config_t* cfg) {
     if (!cfg) return;
     cfg->horizon_sec = 1.0f;
@@ -134,9 +98,6 @@ void mpc_config_init(mpc_config_t* cfg) {
     cfg->ang_candidate_step = 0.1f;
 }
 
-/**
- * @brief mpc_config_t 지정 값 초기화
- */
 void mpc_config_init_full(mpc_config_t* cfg,
                           float horizon_sec,
                           float step_dt,
@@ -171,21 +132,11 @@ void mpc_config_init_full(mpc_config_t* cfg,
     cfg->ang_candidate_step = ang_candidate_step;
 }
 
-/**
- * @brief mpc_config_t 복사
- */
 void mpc_config_assign(mpc_config_t* out, const mpc_config_t* src) {
     if (!out || !src) return;
     *out = *src;
 }
 
-// ---------------------------------------------------------
-// mpc_target_route_t 유틸리티
-// ---------------------------------------------------------
-
-/**
- * @brief mpc_target_route_t 기본값 초기화
- */
 void mpc_target_route_init(mpc_target_route_t* route) {
     if (!route) return;
     route->points = NULL;
@@ -193,9 +144,6 @@ void mpc_target_route_init(mpc_target_route_t* route) {
     route->loop = false;
 }
 
-/**
- * @brief mpc_target_route_t 지정 값 초기화
- */
 void mpc_target_route_init_full(mpc_target_route_t* route,
                                 const vec3_t* points,
                                 int count,
@@ -206,34 +154,21 @@ void mpc_target_route_init_full(mpc_target_route_t* route,
     route->loop = loop;
 }
 
-/**
- * @brief mpc_target_route_t 복사
- */
 void mpc_target_route_assign(mpc_target_route_t* out,
                            const mpc_target_route_t* src) {
     if (!out || !src) return;
-    *out = *src; // shallow copy (points 포인터 공유)
+    *out = *src;
 }
 
-// ---------------------------------------------------------
-// mpc_direction_target_t 유틸리티
-// ---------------------------------------------------------
-
-/**
- * @brief mpc_direction_target_t 기본값 초기화
- */
 void mpc_direction_target_init(mpc_direction_target_t* target) {
     if (!target) return;
-    target->direction = vec3_t{1.0f, 0.0f, 0.0f}; // 기본 X축 방향
+    target->direction = vec3_t{1.0f, 0.0f, 0.0f};
     quat_identity(&target->orientation);
     target->weight_dir = 1.0f;
     target->weight_rot = 0.5f;
     target->duration = 1.0f;
 }
 
-/**
- * @brief mpc_direction_target_t 지정 값 초기화
- */
 void mpc_direction_target_init_full(mpc_direction_target_t* target,
                                     const vec3_t* direction,
                                     const quat_t* orientation,
@@ -248,19 +183,12 @@ void mpc_direction_target_init_full(mpc_direction_target_t* target,
     target->duration = duration;
 }
 
-/**
- * @brief mpc_direction_target_t 복사
- */
 void mpc_direction_target_assign(mpc_direction_target_t* out,
                                const mpc_direction_target_t* src) {
     if (!out || !src) return;
     *out = *src;
 }
 
-
-// ---------------------------------------------------------
-// 비용 함수 기본 구현
-// ---------------------------------------------------------
 float numeq_mpc_cost_default(
     const motion_state_t* sim_state,
     const motion_state_t* target,
@@ -268,11 +196,9 @@ float numeq_mpc_cost_default(
 {
     const mpc_config_t* cfg = static_cast<const mpc_config_t*>(userdata);
 
-    // 위치 오차
     vec3_t diff_pos;
     vec3_sub(&diff_pos, &sim_state->linear.position, &target->linear.position);
 
-    // 회전 오차
     float angle_diff = quat_angle_diff(
         &sim_state->angular.orientation, &target->angular.orientation);
 
@@ -312,20 +238,17 @@ float numeq_mpc_cost_hybrid(
 {
     const mpc_config_t* cfg = static_cast<const mpc_config_t*>(userdata);
 
-    // 위치 오차
     vec3_t diff_pos;
     vec3_sub(&diff_pos, &sim_state->linear.position, &target->linear.position);
 
-    // 속도 오차
     vec3_t diff_vel;
     vec3_sub(&diff_vel, &sim_state->linear.velocity, &target->linear.velocity);
 
-    // 회전 오차
     float angle_diff = quat_angle_diff(&sim_state->angular.orientation, 
         &target->angular.orientation);
 
     float w_dist  = cfg ? cfg->weight_distance : 1.0f;
-    float w_vel   = cfg ? cfg->weight_velocity : 1.0f;  // 새 가중치
+    float w_vel   = cfg ? cfg->weight_velocity : 1.0f;
     float w_rot   = cfg ? cfg->weight_orientation : 1.0f;
     float w_acc   = cfg ? cfg->weight_accel : 0.1f;
     float w_ang   = cfg ? cfg->weight_ang_accel : 0.1f;
@@ -364,7 +287,6 @@ bool numeq_mpc_solve(
     vec3_t best_accel = {0, 0, 0};
     vec3_t best_ang_accel = {0, 0, 0};
 
-    // 후보 가속도 조합 탐색
     for (int ix = 0; ix < 3; ix++) {
         for (int iy = 0; iy < 3; iy++) {
             for (int iz = 0; iz < 3; iz++) {
@@ -385,7 +307,6 @@ bool numeq_mpc_solve(
                             float total_cost = 0.0f;
 
                             for (int step = 0; step < horizon_sec; step++) {
-                                // 환경 기반 외부 가속도 계산 (중력 + 바람 + 드래그)
                                 vec3_t external_accel = {0, 0, 0};
                                 if (env && body) {
                                     numeq_model_accel(&sim_state.linear,
@@ -394,7 +315,6 @@ bool numeq_mpc_solve(
                                     environ_adjust_accel_gsplit(env, true, &external_accel);
                                 }
 
-                                // 제어 가속도와 외부 가속도를 합산
                                 vec3_t total_accel;
                                 vec3_add(
                                     &total_accel, &accel, &external_accel);
@@ -402,10 +322,8 @@ bool numeq_mpc_solve(
                                 sim_state.linear.acceleration = total_accel;
                                 sim_state.angular.angular_acceleration = ang_accel;
 
-                                // 물리 시뮬레이션 step
                                 numeq_integrate_motion_rk4(&sim_state, dt);
 
-                                // 비용 함수 평가
                                 if (cost_fn) {
                                     total_cost += cost_fn(
                                         &sim_state, 
@@ -413,7 +331,6 @@ bool numeq_mpc_solve(
                                 }
                             }
 
-                            // 최소 비용 후보 갱신
                             if (total_cost < best_cost) {
                                 best_cost = total_cost;
                                 best_accel = accel;
@@ -430,13 +347,11 @@ bool numeq_mpc_solve(
     out_result->desired_ang_accel = best_ang_accel;
     out_result->cost = best_cost;
 
-    // 최적 후보로 미래 trajectory 생성
     if (out_traj && config->output_trajectory) {
         motion_state_t sim_state = *current_state;
         trajectory_clear(out_traj);
 
         for (int step = 0; step < horizon_sec; step++) {
-            // 환경 가속도 계산
             vec3_t external_accel = {0, 0, 0};
             if (env && body) {
                 numeq_model_accel(&sim_state.linear,
@@ -446,7 +361,6 @@ bool numeq_mpc_solve(
                 environ_adjust_accel_gsplit(env, true, &external_accel);
             }
 
-            // 최적 가속도 적용
             vec3_t total_accel;
             vec3_add(&total_accel, &best_accel, &external_accel);
             sim_state.linear.acceleration = total_accel;
@@ -484,7 +398,6 @@ bool numeq_mpc_solve_fast(
     if (!current_state || !target_state || !config || !out_result)
         return false;
 
-    // Adaptive 후보군: 0, sign(error)*max
     vec3_t error;
     vec3_sub(&error, 
         &target_state->linear.position, &current_state->linear.position);
@@ -502,7 +415,6 @@ bool numeq_mpc_solve_fast(
     vec3_t best_accel = {0, 0, 0};
     vec3_t best_ang_accel = {0, 0, 0};
 
-    // 후보군 탐색
     for (int ix = 0; ix < 2; ix++) {
         for (int iy = 0; iy < 2; iy++) {
             for (int iz = 0; iz < 2; iz++) {
@@ -522,7 +434,7 @@ bool numeq_mpc_solve_fast(
                             float total_cost = 0.0f;
 
                             for (int step = 0; step < horizon_sec; step++) {
-                                // 환경 기반 외부 가속도 계산
+
                                 vec3_t external_accel = {0, 0, 0};
                                 if (env && body) {
                                     numeq_model_accel(&sim_state.linear,
@@ -532,16 +444,13 @@ bool numeq_mpc_solve_fast(
                                     environ_adjust_accel_gsplit(env, true, &external_accel);
                                 }
 
-                                // 제어 가속도와 외부 가속도 합산
                                 vec3_t total_accel;
                                 vec3_add(&total_accel, &accel, &external_accel);
                                 sim_state.linear.acceleration = total_accel;
                                 sim_state.angular.angular_acceleration = ang_accel;
 
-                                // 물리 시뮬레이션 step
                                 numeq_integrate_motion_rk4(&sim_state, dt);
 
-                                // 비용 함수 평가
                                 if (cost_fn) {
                                     total_cost += cost_fn(
                                         &sim_state, 
@@ -568,7 +477,6 @@ bool numeq_mpc_solve_fast(
     out_result->desired_ang_accel = best_ang_accel;
     out_result->cost = best_cost;
 
-    // 궤적 기록
     if (out_traj && config->output_trajectory) {
         motion_state_t sim_state = *current_state;
         trajectory_clear(out_traj);
@@ -620,7 +528,7 @@ static float evaluate_cost(
 
     float total_cost = 0.0f;
     for (int step = 0; step < horizon_sec; step++) {
-        // 환경 기반 외부 가속도 계산
+
         vec3_t external_accel = {0, 0, 0};
         if (env && body) {
             numeq_model_accel(&sim_state.linear,
@@ -630,15 +538,12 @@ static float evaluate_cost(
             environ_adjust_accel_gsplit(env, true, &external_accel);
         }
 
-        // 제어 가속도와 외부 가속도 합산
         vec3_t total_accel;
         vec3_add(&total_accel, accel, &external_accel);
         sim_state.linear.acceleration = total_accel;
 
-        // 물리 시뮬레이션 step
         numeq_integrate_motion_rk4(&sim_state, dt);
 
-        // 비용 함수 평가
         if (cost_fn) {
             total_cost += cost_fn(&sim_state, target_state, cost_userdata);
         }
@@ -663,7 +568,6 @@ bool numeq_mpc_solve_coarse2fine(
     const int horizon_sec = (config->horizon_sec > 0) ? config->horizon_sec : 5;
     const float dt = (config->step_dt > 0.0f) ? config->step_dt : 0.016f;
 
-    // 1. Coarse 후보군
     float coarse_candidates[3] = {
         -config->max_accel, 0.0f, config->max_accel};
 
@@ -704,7 +608,6 @@ bool numeq_mpc_solve_coarse2fine(
         }
     }
 
-    // 2. Fine 후보군 (best 주변 ±delta)
     const float delta = config->max_accel * 0.25f;
     float fine_candidates[3] = {-delta, 0.0f, delta};
 
@@ -733,7 +636,6 @@ bool numeq_mpc_solve_coarse2fine(
     out_result->desired_ang_accel = best_ang_accel;
     out_result->cost = best_cost;
 
-    // 3. Trajectory 기록
     if (out_traj && config->output_trajectory) {
         motion_state_t sim_state = *current_state;
         trajectory_clear(out_traj);
@@ -768,9 +670,6 @@ bool numeq_mpc_solve_coarse2fine(
     return true;
 }
 
-// ---------------------------------------------------------
-// 경유점 기반 MPC
-// ---------------------------------------------------------
 bool numeq_mpc_solve_route(
     const motion_state_t* current_state,
     const mpc_target_route_t* route,
@@ -784,7 +683,6 @@ bool numeq_mpc_solve_route(
 {
     if (!route || route->count <= 0) return false;
 
-    // 가장 가까운 경유점을 단일 목표로 사용
     const vec3_t* next_target = &route->points[0];
     float best_dist = FLT_MAX;
 
@@ -815,9 +713,6 @@ bool numeq_mpc_solve_route(
         cost_userdata);
 }
 
-// ---------------------------------------------------------
-// 방향 유지형 MPC
-// ---------------------------------------------------------
 bool numeq_mpc_solve_directional(
     const motion_state_t* current_state,
     const mpc_direction_target_t* direction_target,

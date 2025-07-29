@@ -24,15 +24,15 @@
 
 static GLuint vao = 0, vbo = 0, vbo_type = 0;
 static const int HAND_COUNT = 2;
-static float vertices[HAND_COUNT * 2 * 3];  // 2점 × 3좌표 × 2라인
-static int types[HAND_COUNT * 2];          // 각 정점의 타입 (0: SLERP, 1: LERP)
+static float vertices[HAND_COUNT * 2 * 3];  // 2 points * 3 coordinates * 2 lines
+static int types[HAND_COUNT * 2];           // Vertex type (0: SLERP, 1: LERP)
 
 static void update_vertices(const vec3_t& slerp, const vec3_t& lerp) {
-    // SLERP (빨강)
+    // SLERP (red)
     vertices[0] = 0.0f; vertices[1] = 0.0f; vertices[2] = 0.0f;
     vertices[3] = slerp.x; vertices[4] = slerp.y; vertices[5] = slerp.z;
 
-    // LERP (파랑)
+    // LERP (blue)
     vertices[6] = 0.0f; vertices[7] = 0.0f; vertices[8] = 0.0f;
     vertices[9] = lerp.x; vertices[10] = lerp.y; vertices[11] = lerp.z;
 
@@ -42,7 +42,7 @@ static void update_vertices(const vec3_t& slerp, const vec3_t& lerp) {
 
 static void init_vao() {
     for (int i = 0; i < HAND_COUNT * 2; ++i)
-        types[i] = (i < 2) ? 0 : 1;  // 앞 2개: SLERP, 뒤 2개: LERP
+        types[i] = (i < 2) ? 0 : 1;  // First 2: SLERP, next 2: LERP
 
     glGenVertexArrays(1, &vao);
     glBindVertexArray(vao);
@@ -97,29 +97,28 @@ int main(int argc, char** argv) {
     int running = 1, frames = 0;
     vec3_t origin = {0.0f, 0.5f, 0.0f};
 
-        while (running) {
+    while (running) {
 #ifdef USE_SDL3
-    SDL_Event event;
-    while (SDL_PollEvent(&event)) {
-        if (event.type == SDL_EVENT_QUIT) {
-            running = 0;
-        } else if (event.type == SDL_EVENT_KEY_DOWN) {
-            // SDL3는 keysym 구조체 없이 바로 keycode
-            if (event.key.key == SDLK_ESCAPE) {
+        SDL_Event event;
+        while (SDL_PollEvent(&event)) {
+            if (event.type == SDL_EVENT_QUIT) {
+                running = 0;
+            } else if (event.type == SDL_EVENT_KEY_DOWN) {
+                // SDL3 uses keycode directly (no keysym struct)
+                if (event.key.key == SDLK_ESCAPE) {
+                    running = 0;
+                }
+            }
+        }
+#else
+        SDL_Event event;
+        while (SDL_PollEvent(&event)) {
+            if (event.type == SDL_QUIT ||
+                (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_ESCAPE)) {
                 running = 0;
             }
         }
-    }
-            #else
-                    SDL_Event event;
-                    while (SDL_PollEvent(&event)) {
-                        if (event.type == SDL_QUIT ||
-                            (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_ESCAPE)) {
-                            running = 0;
-                        }
-                    }
-            #endif
-
+#endif
 
         auto now = clock::now();
         float elapsed = std::chrono::duration<float>(now - start_time).count();
@@ -144,7 +143,7 @@ int main(int argc, char** argv) {
         quat_rotate_vector(&rs, &origin, &rotated_slerp);
         quat_rotate_vector(&rb, &origin, &target);
 
-        // LERP 계산 (벡터 직접 보간)
+        // LERP calculation (direct vector interpolation)
         rotated_lerp.x = origin.x * (1 - t) + target.x * t;
         rotated_lerp.y = origin.y * (1 - t) + target.y * t;
         rotated_lerp.z = origin.z * (1 - t) + target.z * t;
@@ -161,7 +160,7 @@ int main(int argc, char** argv) {
 
         SDL_GL_SwapWindow(window);
 
-        // FPS 측정
+        // FPS measurement
         frames++;
         if (std::chrono::duration_cast<std::chrono::seconds>(now - last_time).count() >= 1) {
             printf("FPS: %d\n", frames);

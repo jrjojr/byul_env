@@ -29,7 +29,6 @@ void maze_make_hunt_and_kill(maze_t* maze) {
     std::uniform_int_distribution<int> dist_x(0, (w - 1) / 2 - 1);
     std::uniform_int_distribution<int> dist_y(0, (h - 1) / 2 - 1);
 
-    // 시작 셀 선택
     int cx = dist_x(rng) * 2 + 1;
     int cy = dist_y(rng) * 2 + 1;
     grid[cy][cx] = PASSAGE;
@@ -99,10 +98,9 @@ void maze_make_hunt_and_kill(maze_t* maze) {
             if (found) break;
         }
 
-        if (!found) break; // 종료 조건
+        if (!found) break;
     }
 
-    // 벽을 blocked에 삽입
     for (int y = 0; y < h; ++y) {
         for (int x = 0; x < w; ++x) {
             if (grid[y][x] != PASSAGE) {

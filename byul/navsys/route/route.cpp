@@ -1,5 +1,3 @@
-// route.cpp - GLib 제거, 구조체 은닉, 내부 std::vector 기반
-
 #include "route.h"
 #include "coord.hpp"
 #include "float_common.h"
@@ -52,7 +50,7 @@ void route_destroy(route_t* p) {
 
 route_t* route_copy(const route_t* p) {
     if (!p) return nullptr;
-    return new route_t(*p);  // 깊은 복사 (vector/navgrid 모두 복사됨)
+    return new route_t(*p);  
 }
 
 uintptr_t route_hash(const route_t* p) {
@@ -207,7 +205,7 @@ route_t* route_slice(const route_t* p, int start, int end) {
     coord_list_t* sliced_coords = coord_list_sublist(p->coords, start, end);
     if (!sliced_coords) return NULL;
 
-    route_t* new_route = route_create();  // route_create() 함수가 있어야 함
+    route_t* new_route = route_create();
     if (!new_route) {
         coord_list_destroy(sliced_coords);
         return NULL;
@@ -232,34 +230,6 @@ void route_print(const route_t* p) {
     printf("\n");
 }
 
-// coord_t* route_make_direction(route_t* p, int index) {
-//     if (!p || coord_list_length(p->coords) < 2) return coord_create_full(0, 0);
-//     int len = coord_list_length(p->coords);
-//     if (index < 0 || index >= len) return coord_create_full(0, 0);
-
-//     const coord_t* curr = coord_list_get(p->coords, index);
-//     const coord_t* prev = (index >= 1) ? 
-//         coord_list_get(p->coords, index - 1) : curr;
-
-//     const coord_t* next = (index < len - 1) ? 
-//         coord_list_get(p->coords, index + 1) : curr;
-
-//     if (!curr || !prev || !next) return coord_create_full(0, 0);
-
-//     int vx = 0, vy = 0;
-//     vx += coord_get_x(curr) - coord_get_x(prev);
-//     vy += coord_get_y(curr) - coord_get_y(prev);
-//     vx += coord_get_x(next) - coord_get_x(curr);
-//     vy += coord_get_y(next) - coord_get_y(curr);
-
-//     if (vx > 1) vx = 1;
-//     if (vx < -1) vx = -1;
-//     if (vy > 1) vy = 1;
-//     if (vy < -1) vy = -1;
-
-//     return coord_create_full(vx, vy);
-// }
-
 coord_t* route_make_direction(route_t* p, int index) {
     if (!p || coord_list_length(p->coords) < 2) return coord_create_full(0, 0);
 
@@ -268,7 +238,6 @@ coord_t* route_make_direction(route_t* p, int index) {
 
     const coord_t* curr = coord_list_get(p->coords, index);
 
-    // 끝점은 다음 좌표가 없기 때문에 이전 방향이 유지된다
     if (index == len - 1) {
         const coord_t* prev = coord_list_get(p->coords, index - 1);
         return coord_create_full(
@@ -277,7 +246,6 @@ coord_t* route_make_direction(route_t* p, int index) {
         );
     }
 
-    // 시작점과 중간 점은 현재좌표와 다음 좌표의 관계로 방향을 얻는다.
     const coord_t* next = coord_list_get(p->coords, index + 1);
     return coord_create_full(
         coord_get_x(next) - coord_get_x(curr),
@@ -524,7 +492,7 @@ bool route_reconstruct_path(route_t* route, const coord_hash_t* came_from,
 
         if (!prev) {
             coord_list_destroy(reversed);
-            return false;  // 복원 실패
+            return false;
         }
 
         // current = coord_copy(prev);

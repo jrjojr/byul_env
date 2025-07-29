@@ -4,7 +4,7 @@ cmake_minimum_required(VERSION 3.20)
 project(projectile)
 
 enable_testing()
-set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+
 
 # 외부 include 경로 설정
 set(EXTERNAL_DIR ${CMAKE_SOURCE_DIR}/../external)
@@ -65,8 +65,12 @@ target_include_directories(${PROJECT_NAME} PRIVATE
 # 링크 라이브러리 설정
 target_link_libraries(${PROJECT_NAME} PRIVATE 
     balix
-    m
 )
+
+# 수학 라이브러리 링크 (리눅스/유닉스 전용)
+if(UNIX)
+    target_link_libraries(${PROJECT_NAME} PRIVATE m)
+endif()
 
 add_subdirectory(tests)
 

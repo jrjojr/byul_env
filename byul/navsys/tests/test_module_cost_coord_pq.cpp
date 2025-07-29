@@ -5,7 +5,7 @@ extern "C" {
     #include "coord.h"
 }
 
-TEST_CASE("cost_coord_pq: 기본 삽입 및 pop") {
+TEST_CASE("cost_coord_pq v1") {
     cost_coord_pq_t* pq = cost_coord_pq_create();
 
     coord_t* c1 = coord_create_full(1, 1);

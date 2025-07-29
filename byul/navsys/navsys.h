@@ -1,6 +1,6 @@
-// Copyright (c) 2025 별이아빠 (byuldev@outlook.kr)
+// Copyright (c) 2025 ByulPapa (byuldev@outlook.kr)
 // This file is part of the Byul World project.
-// Licensed under the Byul World 공개 라이선스 v1.0
+// Licensed under the Byul World Public License v1.0
 // See the LICENSE file for details.
 
 #ifndef NAVSYS_H

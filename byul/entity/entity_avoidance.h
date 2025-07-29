@@ -5,17 +5,17 @@
 extern "C" {
 #endif
 
-#include "entity_dynamic.h"  // 기존 엔티티 구조체 참조
+#include "entity_dynamic.h"  // Reference to dynamic entity structure
 
 // ---------------------------------------------------------
-// 회피용 경계 구조체
+// Boundary structure for avoidance
 // ---------------------------------------------------------
 /**
  * @struct avoidance_boundary_t
- * @brief 엔티티가 회피할 수 있는 영역
+ * @brief Defines a region that an entity should avoid.
  *
- * - center: 경계 중심 좌표
- * - radius: 경계 반경
+ * - center: The center position of the boundary
+ * - radius: The boundary radius
  */
 typedef struct s_avoidance_boundary {
     vec3_t center;
@@ -23,10 +23,10 @@ typedef struct s_avoidance_boundary {
 } avoidance_boundary_t;
 
 // ---------------------------------------------------------
-// 충돌 예측 및 회피 벡터 계산
+// Collision prediction and avoidance vector calculation
 // ---------------------------------------------------------
 /**
- * @brief 회피 필요 여부 판단
+ * @brief Determine if avoidance is needed between two entities.
  */
 bool entity_avoidance_need(
     const entity_dynamic_t* self,
@@ -34,7 +34,7 @@ bool entity_avoidance_need(
     float safe_dist);
 
 /**
- * @brief 회피 방향 벡터 계산
+ * @brief Calculate the avoidance direction vector.
  */
 vec3_t entity_avoidance_direction(
     const entity_dynamic_t* self,
@@ -43,13 +43,13 @@ vec3_t entity_avoidance_direction(
     float k);
 
 /**
- * @brief self가 other와 충돌할 가능성을 예측하고 회피 벡터를 계산.
+ * @brief Predict potential collision between self and other and compute an avoidance vector.
  *
- * @param self      대상 엔티티
- * @param other     상대 엔티티
- * @param safe_dist 안전 거리 (이 거리 이내로 접근하면 회피 필요)
- * @param k         회피 강도 계수
- * @return          회피 벡터 (필요 없으면 (0,0,0))
+ * @param self      The entity to evaluate
+ * @param other     The other entity
+ * @param safe_dist Safe distance (if within this range, avoidance is required)
+ * @param k         Avoidance intensity coefficient
+ * @return          Avoidance vector (returns (0,0,0) if no avoidance is needed)
  */
 vec3_t entity_avoidance_calc_single(
     const entity_dynamic_t* self,
@@ -58,14 +58,14 @@ vec3_t entity_avoidance_calc_single(
     float k);
 
 /**
- * @brief self가 여러 엔티티로부터 받을 총합 회피 벡터를 계산.
+ * @brief Compute the total avoidance vector from multiple entities.
  *
- * @param self      대상 엔티티
- * @param others    상대 엔티티 배열
- * @param count     others 배열 크기
- * @param safe_dist 안전 거리
- * @param k         회피 강도 계수
- * @return          총합 회피 벡터
+ * @param self      The target entity
+ * @param others    Array of other entities
+ * @param count     Number of entities in the others array
+ * @param safe_dist Safe distance
+ * @param k         Avoidance intensity coefficient
+ * @return          Total avoidance vector
  */
 vec3_t entity_avoidance_calc_multi(
     const entity_dynamic_t* self,
@@ -75,16 +75,16 @@ vec3_t entity_avoidance_calc_multi(
     float k);
 
 // ---------------------------------------------------------
-// 경로 기록 구조체
+// Trajectory record structure
 // ---------------------------------------------------------
 #define AVOIDANCE_MAX_STEP 256
 
 /**
  * @struct entity_avoidance_traj_t
- * @brief 회피 이동 경로 기록
+ * @brief Records the avoidance movement path.
  *
- * - path: 이동 위치
- * - count: 기록된 스텝 수
+ * - path: Array of positions
+ * - count: Number of recorded steps
  */
 typedef struct s_entity_avoidance_traj {
     vec3_t path[AVOIDANCE_MAX_STEP];
@@ -92,20 +92,20 @@ typedef struct s_entity_avoidance_traj {
 } entity_avoidance_traj_t;
 
 // ---------------------------------------------------------
-// 회피 시뮬레이션
+// Avoidance simulation
 // ---------------------------------------------------------
 /**
- * @brief 엔티티가 목표점을 향해 이동하면서 다른 엔티티를 회피하는 경로를 생성.
+ * @brief Generate a path for an entity to move toward a target while avoiding other entities.
  *
- * @param e          대상 엔티티
- * @param others     상대 엔티티 배열
- * @param count      others 배열 크기
- * @param traj       회피 경로 기록 (NULL 가능)
- * @param boundary   회피 가능한 영역 (NULL이면 무제한)
- * @param dt         시간 간격 (초)
- * @param safe_dist  안전 거리
- * @param k          회피 강도 계수
- * @param steps      시뮬레이션 스텝 수
+ * @param e          Target entity
+ * @param others     Array of other entities
+ * @param count      Number of entities in the others array
+ * @param traj       Optional trajectory record (can be NULL)
+ * @param boundary   Optional avoidance boundary (NULL means unlimited)
+ * @param dt         Time step (seconds)
+ * @param safe_dist  Safe distance
+ * @param k          Avoidance intensity coefficient
+ * @param steps      Number of simulation steps
  */
 void entity_avoidance_auto(
     entity_dynamic_t* e,

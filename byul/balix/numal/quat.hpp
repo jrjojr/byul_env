@@ -11,19 +11,15 @@ class Quat {
 public:
     quat_t q;
 
-    // 생성자
     Quat() { quat_init(&q); }
     Quat(float w, float x, float y, float z) { quat_init_full(&q, w, x, y, z); }
     Quat(const quat_t& src) { quat_assign(&q, &src); }
     Quat(const Quat& other) { quat_assign(&q, &other.q); }
 
-    // 소멸자
-    ~Quat() {} // heap 메모리는 직접 관리하지 않음
+    ~Quat() {}
 
-    // 변환자
     operator quat_t() const { return q; }
 
-    // 연산자 오버로딩
     Quat operator*(const Quat& rhs) const {
         quat_t out;
         quat_mul(&out, &q, &rhs.q);
@@ -48,28 +44,24 @@ public:
         return Quat(out);
     }
 
-    // 정규화
     Quat normalize() const {
         quat_t out;
         quat_unit(&out, &q);
         return Quat(out);
     }
 
-    // 켤레
     Quat conjugate() const {
         quat_t out;
         quat_conjugate(&out, &q);
         return Quat(out);
     }
 
-    // 역
     Quat inverse() const {
         quat_t out;
         quat_inverse(&out, &q);
         return Quat(out);
     }
 
-    // 길이 및 내적
     float length() const {
         return quat_length(&q);
     }
@@ -78,14 +70,12 @@ public:
         return quat_dot(&q, &rhs.q);
     }
 
-    // 회전 적용
     Vec3 rotate(const Vec3& v) const {
         vec3_t result;
         quat_rotate_vector(&q, &v.v, &result);
         return Vec3(result);
     }
 
-    // 보간
     static Quat slerp(const Quat& a, const Quat& b, float t) {
         quat_t out;
         quat_slerp(&out, &a.q, &b.q, t);
@@ -98,14 +88,12 @@ public:
         return Quat(out);
     }
 
-    // 오일러 변환
     void toEuler(float& x, float& y, float& z, 
         euler_order_t order = EULER_ORDER_ZYX) const {
 
         quat_to_euler(&q, &x, &y, &z, order);
     }
 
-    // 벡터 추출
     Vec3 getForward() const {
         vec3_t dir;
         quat_get_forward(&q, &dir);
@@ -124,21 +112,18 @@ public:
         return Vec3(dir);
     }
 
-    // 축+각 변환
     void toAxisAngle(Vec3& axis_out, float& radians_out) const {
         vec3_t axis;
         quat_to_axis_angle(&q, &axis, &radians_out);
         axis_out = Vec3(axis);
     }
 
-    // 단위 회전 설정
     static Quat identity() {
         quat_t out;
         quat_identity(&out);
         return Quat(out);
     }
 
-    // 출력 연산자
     friend std::ostream& operator<<(std::ostream& os, const Quat& quat) {
         os << "(" << quat.q.w << ", " << quat.q.x << ", " << quat.q.y << ", " << quat.q.z << ")";
         return os;

@@ -11,18 +11,12 @@ class Vec3 {
 public:
     vec3_t v;
 
-    // ---------------------------------------------------------
-    // 생성자 & 변환자
-    // ---------------------------------------------------------
     Vec3() : v{0.0f, 0.0f, 0.0f} {}
     Vec3(float x, float y, float z) : v{x, y, z} {}
     explicit Vec3(const vec3_t& src) : v{src.x, src.y, src.z} {}
 
     operator vec3_t() const { return v; }
 
-    // ---------------------------------------------------------
-    // 비교 연산자
-    // ---------------------------------------------------------
     bool operator==(const Vec3& rhs) const noexcept {
         return vec3_equal(&v, &rhs.v);
     }
@@ -30,9 +24,6 @@ public:
         return !(*this == rhs);
     }
 
-    // ---------------------------------------------------------
-    // 산술 연산자 (새 벡터 반환)
-    // ---------------------------------------------------------
     Vec3 operator+(const Vec3& rhs) const noexcept {
         vec3_t result;
         vec3_add(&result, &v, &rhs.v);
@@ -48,7 +39,7 @@ public:
         vec3_negate(&r, &v);
         return Vec3(r);
     }
-    Vec3 operator*(const Vec3& rhs) const noexcept { // 요소곱
+    Vec3 operator*(const Vec3& rhs) const noexcept {
         vec3_t result;
         vec3_mul(&result, &v, &rhs.v);
         return Vec3(result);
@@ -69,9 +60,6 @@ public:
         return *this * (1.0f / scalar);
     }
 
-    // ---------------------------------------------------------
-    // In-place 연산자 (자기 자신 갱신)
-    // ---------------------------------------------------------
     Vec3& operator+=(const Vec3& rhs) noexcept {
         v.x += rhs.v.x; v.y += rhs.v.y; v.z += rhs.v.z;
         return *this;
@@ -92,9 +80,6 @@ public:
         return *this;
     }
 
-    // ---------------------------------------------------------
-    // 벡터 연산
-    // ---------------------------------------------------------
     float dot(const Vec3& rhs) const noexcept {
         return vec3_dot(&v, &rhs.v);
     }
@@ -113,9 +98,6 @@ public:
         return vec3_distance(&v, &other.v);
     }
 
-    // ---------------------------------------------------------
-    // 정규화
-    // ---------------------------------------------------------
     Vec3 normalized() const {
         vec3_t r = v;
         vec3_normalize(&r);
@@ -125,9 +107,6 @@ public:
         vec3_normalize(&v);
     }
 
-    // ---------------------------------------------------------
-    // 정적 유틸 함수
-    // ---------------------------------------------------------
     static Vec3 Zero() noexcept { return Vec3(0, 0, 0); }
 
     static Vec3 Lerp(const Vec3& a, const Vec3& b, float t) {
@@ -146,9 +125,6 @@ public:
         vec3_to_mat4(&v, out_mat4);
     }
 
-    // ---------------------------------------------------------
-    // 스칼라 왼쪽 연산
-    // ---------------------------------------------------------
     friend Vec3 operator*(float s, const Vec3& vec) noexcept {
         return vec * s;
     }
@@ -160,9 +136,6 @@ public:
         return Vec3(r);
     }
 
-    // ---------------------------------------------------------
-    // 출력 스트림
-    // ---------------------------------------------------------
     friend std::ostream& operator<<(std::ostream& os, const Vec3& vec) {
         os << "(" << vec.v.x << ", " << vec.v.y << ", " << vec.v.z << ")";
         return os;

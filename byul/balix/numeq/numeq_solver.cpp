@@ -7,12 +7,9 @@
 #include "vec3.hpp"
 #include "float_common.h"
 
-// -----------------------------
-// 1. 수학 해석 함수
-// -----------------------------
 bool numeq_solve_linear(float a, float b, float* out_x)
 {
-    if (fabsf(a) < 1e-8f) return false;  // a = 0이면 해 없음
+    if (fabsf(a) < 1e-8f) return false;
     if (out_x) *out_x = -b / a;
     return true;
 }
@@ -29,14 +26,11 @@ bool numeq_solve_quadratic(float a, float b, float c,
     return true;
 }
 
-// -----------------------------
-// 1.x 3차 방정식 해석 함수
-// -----------------------------
 bool numeq_solve_cubic(float a, float b, float c, float d,
                        float* out_roots, int* out_count) {
     if (!out_roots || !out_count) return false;
     if (fabs(a) < 1e-8f) {
-        // 3차항이 0이면 2차방정식으로 처리
+
         float x1, x2;
         if (!numeq_solve_quadratic(b, c, d, &x1, &x2)) return false;
         *out_count = (x1 == x2) ? 1 : 2;
@@ -45,7 +39,6 @@ bool numeq_solve_cubic(float a, float b, float c, float d,
         return true;
     }
 
-    // 표준화: x = y - b/(3a)
     float A = b / a;
     float B = c / a;
     float C = d / a;
@@ -54,23 +47,23 @@ bool numeq_solve_cubic(float a, float b, float c, float d,
     float p = (1.0f / 3.0f) * (-1.0f / 3.0f * sq_A + B);
     float q = (1.0f / 2.0f) * (2.0f / 27.0f * A * sq_A - A * B / 3.0f + C);
 
-    float D = q * q + p * p * p; // 판별식
+    float D = q * q + p * p * p;
     int count = 0;
 
     if (fabs(D) < 1e-8f) {
         if (fabs(q) < 1e-8f) {
-            // 삼중근
+
             out_roots[0] = -A / 3.0f;
             count = 1;
         } else {
-            // 중근
+
             float u = cbrtf(-q);
             out_roots[0] = 2.0f * u - A / 3.0f;
             out_roots[1] = -u - A / 3.0f;
             count = 2;
         }
     } else if (D < 0.0f) {
-        // 3개의 실근
+
         float phi = acosf(-q / sqrtf(-p * p * p));
         float t = 2.0f * sqrtf(-p);
         out_roots[0] = t * cosf(phi / 3.0f) - A / 3.0f;
@@ -79,7 +72,7 @@ bool numeq_solve_cubic(float a, float b, float c, float d,
         count = 3;
         std::sort(out_roots, out_roots + 3);
     } else {
-        // 1개의 실근
+
         float sqrt_D = sqrtf(D);
         float u = cbrtf(-q + sqrt_D);
         float v = cbrtf(-q - sqrt_D);
@@ -116,10 +109,6 @@ bool numeq_solve_bisection(numeq_func_f32 func, void* userdata,
     *out_root = 0.5f * (a + b);
     return true;
 }
-
-// -----------------------------
-// 2. 물리 해석 함수
-// -----------------------------
 
 bool numeq_solve_time_for_y(const linear_state_t* s, 
     float target_y, float* out_time) {

@@ -7,9 +7,6 @@
 #include "trajectory.h"
 #include "numeq_model.h"
 
-// ---------------------------------------------------------
-// 기본 초기화
-// ---------------------------------------------------------
 void entity_dynamic_init(entity_dynamic_t* d)
 {
     if (!d) return;
@@ -20,9 +17,6 @@ void entity_dynamic_init(entity_dynamic_t* d)
     vec3_zero(&d->angular_velocity);
 }
 
-// ---------------------------------------------------------
-// 사용자 지정 초기화
-// ---------------------------------------------------------
 void entity_dynamic_init_full(
     entity_dynamic_t* d,
     const entity_t* base,
@@ -51,9 +45,6 @@ void entity_dynamic_init_full(
     d->props = props ? *props : bodyprops_t{1.0f, 0.47f, 0.01f, 0.5f, 0.5f};
 }
 
-// ---------------------------------------------------------
-// 복사
-// ---------------------------------------------------------
 void entity_dynamic_assign(entity_dynamic_t* dst, const entity_dynamic_t* src)
 {
     if (!dst || !src) return;
@@ -87,7 +78,7 @@ void entity_dynamic_calc_accel_env(
 
     vec3_t accel;
     entity_dynamic_calc_accel(curr, prev_vel, dt, &accel);
-    // linear_state_t로 변환
+
     linear_state_t state0;
     xform_get_position(&curr->xf, &state0.position);
     state0.velocity = curr->velocity;
@@ -108,17 +99,15 @@ void entity_dynamic_calc_drag_accel(
         return;
     }
 
-    // 현재 가속도 계산 (a = Δv / dt)
+    //  (a = delt_v / dt)
     vec3_t accel;
     entity_dynamic_calc_accel_env(curr, prev_vel, dt, env, &accel);
 
-    // linear_state_t 초기화
     linear_state_t state0;
     xform_get_position(&curr->xf, &state0.position);
     state0.velocity = curr->velocity;
     state0.acceleration = accel;
 
-    // 항력 가속도 계산
     numeq_model_drag_accel(&state0, env, &curr->props, out_drag_accel);
 }
 
@@ -126,14 +115,13 @@ void entity_dynamic_update(entity_dynamic_t* d, float dt)
 {
     if (!d || dt <= 0.0f) return;
 
-    // 위치 업데이트: p = p + v * dt
+    // pos: p = p + v * dt
     if (!vec3_is_zero(&d->velocity)) {
         vec3_t pos;
         entity_dynamic_calc_position(d, dt, &pos);
         xform_set_position(&d->xf, &pos);
     }
 
-    // 회전 업데이트
     if (!vec3_is_zero(&d->angular_velocity)) {
         float angle = vec3_length(&d->angular_velocity) * dt;
         if (angle > 1e-5f) {
@@ -143,7 +131,6 @@ void entity_dynamic_update(entity_dynamic_t* d, float dt)
         }
     }
 
-    // 시간 갱신
     d->base.age += dt;
 }
 
@@ -154,7 +141,6 @@ void entity_dynamic_update_env(
 {
     if (!d || !env || dt <= 0.0f) return;
 
-    // linear_state_t로 변환
     linear_state_t state0;
     xform_get_position(&d->xf, &state0.position);
     state0.velocity = d->velocity;
@@ -162,12 +148,10 @@ void entity_dynamic_update_env(
 
     const bodyprops_t* body = &d->props;
 
-    // 위치 업데이트 (가속도 포함)
     vec3_t new_pos;
     entity_dynamic_calc_position_env(d, env, dt, &new_pos);
     xform_set_position(&d->xf, &new_pos);
 
-    // 회전 업데이트
     if (!vec3_is_zero(&d->angular_velocity)) {
         float angle = vec3_length(&d->angular_velocity) * dt;
         if (angle > 1e-5f) {
@@ -177,29 +161,26 @@ void entity_dynamic_update_env(
         }
     }
 
-    // 시간 갱신
     d->base.age += dt;
 }
 
 // ---------------------------------------------------------
-// 위치 계산: p(t) = p0 + v0 * dt   (등속도 가정)
+// pos: p(t) = p0 + v0 * dt
 // ---------------------------------------------------------
-BYUL_API void entity_dynamic_calc_position(
+void entity_dynamic_calc_position(
     const entity_dynamic_t* d,
     float dt,
     vec3_t* out_pos
 ) {
     if (!d || !out_pos || dt <= 0.0f) return;
 
-    // 1. 현재 위치
     vec3_t current_pos;
     xform_get_position(&d->xf, &current_pos);
 
-    // 2. 초기 속도 (마찰 포함)
     vec3_t v0 = d->velocity;
     bodyprops_apply_friction(&v0, &d->props, dt);
 
-    // 3. 위치 변화 Δp = v0 * dt
+    // pos_diff: delta_p = v0 * dt
     vec3_t delta;
     vec3_scale(&delta, &v0, dt);
     vec3_add(out_pos, &current_pos, &delta);
@@ -207,9 +188,9 @@ BYUL_API void entity_dynamic_calc_position(
 
 
 // ---------------------------------------------------------
-// 속도 계산: v(t) = v0 (가속도 없음)
+// velocity : v(t) = v0 (no accel)
 // ---------------------------------------------------------
-BYUL_API void entity_dynamic_calc_velocity(
+void entity_dynamic_calc_velocity(
     const entity_dynamic_t* d,
     float dt,
     vec3_t* out_vel
@@ -221,23 +202,19 @@ BYUL_API void entity_dynamic_calc_velocity(
     *out_vel = vel;
 }
 
-// ---------------------------------------------------------
-// 전체 상태 예측
-// ---------------------------------------------------------
-BYUL_API void entity_dynamic_calc_state(
+void entity_dynamic_calc_state(
     const entity_dynamic_t* d,
     float dt,
     entity_dynamic_t* out_state
 ) {
     if (!d || !out_state) return;
-    *out_state = *d; // 현재 상태 복사
+    *out_state = *d;
     entity_dynamic_calc_position(d, dt, &out_state->xf.pos);
     out_state->velocity = d->velocity;
 }
 
 // ---------------------------------------------------------
-// 위치 예측 (환경 영향 포함)
-// p(t) = p0 + v0 * t + 0.5 * a * t²
+// p(t) = p0 + v0 * t + 0.5 * a * t^2
 // ---------------------------------------------------------
 void entity_dynamic_calc_position_env(
     const entity_dynamic_t* d,
@@ -247,21 +224,20 @@ void entity_dynamic_calc_position_env(
 ) {
     if (!d || !env || !out_pos || dt <= 0.0f) return;
 
-    // 1. 현재 위치와 초기 속도
+
     vec3_t current_pos;
     xform_get_position(&d->xf, &current_pos);
 
     vec3_t v0 = d->velocity;
-    bodyprops_apply_friction(&v0, &d->props, dt); // 마찰 적용
+    bodyprops_apply_friction(&v0, &d->props, dt);
 
-    // 2. 초기 가속도 계산 (중력 + 항력 + 외력)
     motion_state_t state0;
     entity_dynamic_to_motion_state(d, &state0, NULL, NULL);
 
     vec3_t a0 = {0, 0, 0};
     numeq_model_accel(&state0.linear, env, &d->props, &a0);
 
-    // 3. 위치 변화량 계산: Δp = v0 * t + 0.5 * a0 * t²
+    // delta_p = v0 * t + 0.5 * a0 * t^2
     vec3_t term_v, term_a;
     vec3_scale(&term_v, &v0, dt);
     vec3_scale(&term_a, &a0, 0.5f * dt * dt);
@@ -309,7 +285,6 @@ void entity_dynamic_to_motion_state(
 {
     if (!ed || !out) return;
 
-    // 선형 상태
     xform_get_position(&ed->xf, &out->linear.position);
     out->linear.velocity = ed->velocity;
     if (lin_acc) {
@@ -318,8 +293,7 @@ void entity_dynamic_to_motion_state(
         vec3_zero(&out->linear.acceleration);
     }
 
-    // 회전 상태
-    quat_t orientation = ed->xf.rot;  // xform의 회전 직접 사용
+    quat_t orientation = ed->xf.rot;
     out->angular.orientation = orientation;
     out->angular.angular_velocity = ed->angular_velocity;
     if (ang_acc) {
@@ -335,19 +309,14 @@ void entity_dynamic_from_motion_state(
 {
     if (!ed || !ms) return;
 
-    // 위치/회전
     xform_set_position(&ed->xf, &ms->linear.position);
     ed->xf.rot = ms->angular.orientation;
 
-    // 선형/회전 속도
     ed->velocity = ms->linear.velocity;
     ed->angular_velocity = ms->angular.angular_velocity;
 }
 
-// ---------------------------------------------------------
-// 충돌 반발 계산
-// ---------------------------------------------------------
-BYUL_API bool entity_dynamic_bounce(
+bool entity_dynamic_bounce(
     const entity_dynamic_t* d,
     const vec3_t* normal,
     vec3_t* out_velocity_out)
@@ -355,13 +324,13 @@ BYUL_API bool entity_dynamic_bounce(
     if (!d || !normal || !out_velocity_out) return false;
 
     vec3_t n_unit = *normal;
-    if (vec3_is_zero(&n_unit)) return false; // 잘못된 입력 방어
+    if (vec3_is_zero(&n_unit)) return false;
     vec3_normalize(&n_unit);
 
     float restitution = d->props.restitution;
     float dot = vec3_dot(&d->velocity, &n_unit);
 
-    // v' = v - (1 + e)(v · n)n
+    // v' = v - (1 + e)(v * n)n
     vec3_t scaled_normal;
     vec3_scale(&scaled_normal, &n_unit, (1.0f + restitution) * dot);
     vec3_sub(out_velocity_out, &d->velocity, &scaled_normal);

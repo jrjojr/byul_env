@@ -138,15 +138,15 @@ TEST_CASE("route append and append_nodup") {
     coord_t* c = coord_create_full(2, 0);
     coord_t* d = coord_create_full(3, 0);
 
-    // 첫 번째 경로: (0,0) -> (1,0) -> (2,0)
+    // first route : (0,0) -> (1,0) -> (2,0)
     route_t* r1 = route_create();
     route_add_coord(r1, a);
     route_add_coord(r1, b);
     route_add_coord(r1, c);
 
-    // 두 번째 경로: (2,0) -> (3,0)
+    // second route: (2,0) -> (3,0)
     route_t* r2 = route_create();
-    coord_t* c_dup = coord_create_full(2, 0); // r1의 끝과 동일 좌표
+    coord_t* c_dup = coord_create_full(2, 0);
     route_add_coord(r2, c_dup);
     route_add_coord(r2, d);
 
@@ -165,16 +165,16 @@ TEST_CASE("route append and append_nodup") {
     SUBCASE("append_nodup removes duplicated endpoint") {
         route_t* merged = route_create();
         route_append(merged, r1);
-        route_append_nodup(merged, r2);  // (2,0) 중복 제거되어야 함
+        route_append_nodup(merged, r2);  // (2,0) duplicated want remove
 
-        CHECK(route_length(merged) == 4);  // 중복 1개 제거
+        CHECK(route_length(merged) == 4);  // duplicated 1개 remove
         CHECK(coord_get_x(route_get_coord_at(merged, 0)) == 0);
         CHECK(coord_get_x(route_get_coord_at(merged, 3)) == 3);
 
-        // 중간 중복이 제거되지 않는지 확인
+
         coord_t* e = coord_create_full(1, 0);
         route_add_coord(r2, e);
-        route_append_nodup(merged, r2); // (1,0)은 중간 중복이므로 남아야 함
+        route_append_nodup(merged, r2); // (1,0) middle duplicated alive.
         CHECK(route_contains(merged, e) == 1);
 
         coord_destroy(e);

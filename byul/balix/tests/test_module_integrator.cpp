@@ -60,15 +60,15 @@ TEST_CASE("RK4 Integration: acceleration effect (simple)") {
         .linear = {
             .position = {0, 0, 0},
             .velocity = {0, 0, 0},
-            .acceleration = {1.0f, 0.0f, 0.0f}  // 가속도 직접 설정
+            .acceleration = {1.0f, 0.0f, 0.0f}
         }
     };
 
     float dt = 1.0f;
     numeq_integrate_motion_rk4(&state, dt);
 
-    CHECK(state.linear.velocity.x > 0.9f);  // 예상: ~1.0
-    CHECK(state.linear.position.x > 0.4f);  // 예상: ~0.5
+    CHECK(state.linear.velocity.x > 0.9f);
+    CHECK(state.linear.position.x > 0.4f);
 }
 
 
@@ -108,14 +108,13 @@ TEST_CASE("Unified integrator selector dispatches correctly v1") {
 
 TEST_CASE("Unified integrator selector dispatches correctly v2") {
     integrator_config_t cfg;
-    integrator_config_init(&cfg);  // 기본 설정 (예: RK4, dt=0.016f)
+    integrator_config_init(&cfg);  // default config (RK4, dt=0.016f)
 
     motion_state_t state;
     motion_state_init(&state);     // position=(0,0,0), velocity=(0,0,0)
-    state.linear.velocity = {1.0f, 0.0f, 0.0f};  // 초기 속도를 직접 지정
+    state.linear.velocity = {1.0f, 0.0f, 0.0f};
 
     numeq_integrate(&state, &cfg);
 
-    // 기본 dt (0.016f)를 적용하면 position.x ≈ 0.016f
     CHECK(state.linear.position.x == doctest::Approx(cfg.time_step));
 }

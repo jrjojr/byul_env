@@ -55,7 +55,8 @@ TEST_CASE("navgrid neighbors filtering") {
 }
 
 TEST_CASE("navgrid neighbor at degree") {
-    navgrid_t* m = navgrid_create_full(5, 5, NAVGRID_DIR_8, is_coord_blocked_navgrid);
+    navgrid_t* m = navgrid_create_full(
+        5, 5, NAVGRID_DIR_8, is_coord_blocked_navgrid);
     coord_t* c = navgrid_clone_neighbor_at_degree(m, 2, 2, 0.0);
     REQUIRE(c);
     CHECK(coord_get_x(c) == 3);
@@ -65,7 +66,8 @@ TEST_CASE("navgrid neighbor at degree") {
 }
 
 TEST_CASE("navgrid neighbor at goal") {
-    navgrid_t* m = navgrid_create_full(5, 5, NAVGRID_DIR_8, is_coord_blocked_navgrid);
+    navgrid_t* m = navgrid_create_full(
+        5, 5, NAVGRID_DIR_8, is_coord_blocked_navgrid);
     coord_t* center = coord_create_full(2, 2);
     coord_t* goal = coord_create_full(4, 1);
     coord_t* c = navgrid_clone_neighbor_at_goal(m, center, goal);
@@ -79,7 +81,8 @@ TEST_CASE("navgrid neighbor at goal") {
 }
 
 TEST_CASE("navgrid cone neighbor range") {
-    navgrid_t* m = navgrid_create_full(5, 5, NAVGRID_DIR_8, is_coord_blocked_navgrid);
+    navgrid_t* m = navgrid_create_full(
+        5, 5, NAVGRID_DIR_8, is_coord_blocked_navgrid);
     coord_t* center = coord_create_full(2, 2);
     coord_t* goal = coord_create_full(4, 2);
 

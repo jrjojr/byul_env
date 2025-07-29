@@ -3,7 +3,7 @@
 #include "propulsion.h"
 #include "guidance.h"
 #include "entity_dynamic.h"
-#include <math.h>    // sqrtf 등
+#include <math.h>    // sqrtf
 #include <string.h>  // memset, memcpy
 #include <iostream>
 
@@ -74,7 +74,7 @@ void missile_init(missile_t* missile)
     if (!missile) return;
     memset(missile, 0, sizeof(missile_t));
     rocket_init(&missile->base);
-    missile->guidance = guidance_lead; // 기본 유도 방식
+    missile->guidance = guidance_lead; // linear guide
     missile->guidance_userdata = NULL;
 }
 
@@ -103,7 +103,7 @@ void patriot_init(patriot_t* patriot)
     if (!patriot) return;
     memset(patriot, 0, sizeof(patriot_t));
     missile_init(&patriot->base);
-    patriot->guidance = guidance_predict_accel_env; // 고급 유도 방식
+    patriot->guidance = guidance_predict_accel_env; // non linear
     patriot->guidance_userdata = NULL;
 }
 
@@ -123,10 +123,6 @@ void patriot_assign(patriot_t* patriot, const patriot_t* src)
     if (!patriot || !src) return;
     memcpy(patriot, src, sizeof(patriot_t));
 }
-
-// ---------------------------------------------------------
-// 기본 발사체
-// ---------------------------------------------------------
 
 // 5 sec
 #ifndef MAX_TIME
@@ -150,25 +146,20 @@ bool projectile_launch(
     float max_time = MAX_TIME;
     float time_step = TIME_STEP;
 
-    // 나의 위치에서 타겟까지의 방향 벡터 계산
     vec3_t dir;
     vec3_sub(&dir, target, &proj->base.xf.pos);   // dir = target - my_pos
-    vec3_normalize(&dir);              // 단위 벡터로 정규화
-    // 속도를 방향 벡터 × 힘으로 설정
+    vec3_normalize(&dir);
     vec3_scale(&dir, &dir, initial_speed);
 
-    // 발사체 상태 복제
     projectile_t self;
     projectile_assign(&self, proj);
 
-    // 발사체 속도 설정
     self.base.velocity = dir;
 
     entity_dynamic_t entdyn;
     entity_dynamic_init(&entdyn);
     entdyn.xf.pos = *target;
 
-    // 궤적 예측
     return projectile_predict(out, &self, &entdyn,
                               max_time, time_step, env, NULL, NULL);
 }

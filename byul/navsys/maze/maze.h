@@ -11,7 +11,6 @@
 extern "C" {
 #endif
 
-// 미로 알고리즘 타입
 typedef enum {
     MAZE_TYPE_RECURSIVE,
     MAZE_TYPE_PRIM,
@@ -29,24 +28,27 @@ typedef enum {
 BYUL_API void maze_make(maze_t* maze, maze_type_t type);
 
 /**
- * @brief 재귀적 분할(Recursive Division) 알고리즘을 사용하여 미로를 생성합니다.
+ * @brief Generates a maze using the Recursive Division algorithm.
  *
- * 이 함수는 주어진 `maze_t` 구조체 내 정의된 영역(
- * `x0`, `y0`, `width`, `height`)을 기반으로,
- * 고전적인 **재귀적 분할 알고리즘**을 통해 벽과 통로의 구조를 생성합니다.
- * 내부적으로 2셀 단위로 벽과 통로를 반복적으로 나누며,
- * 반드시 홀수 크기의 너비와 높이(예: 9x9)를 사용하는 것이 권장됩니다.
+ * This function creates a wall and passage layout within the area
+ * defined by the `maze_t` structure (`x0`, `y0`, `width`, `height`)
+ * using the classic **Recursive Division algorithm**.
+ * It divides the grid into walls and passages in steps of 2 cells,
+ * and it is recommended to use odd dimensions (e.g., 9x9).
  *
- * - 생성된 결과는 `maze->blocked` 내부에 저장되며,
- *   `maze_apply_to_navgrid()` 함수를 통해 `navgrid_t`에 삽입할 수 있습니다.
- * - 이 함수는 `maze_t` 구조체의 `type` 필드가 
- * `MAZE_TYPE_RECURSIVE`일 때에만 호출되어야 합니다.
- * - 미로의 좌표계는 절대 좌표 기준이며, `x0`, `y0`는 미로 좌측 상단 기준점입니다.
+ * - The generated result is stored in `maze->blocked`,
+ *   and can be inserted into a `navgrid_t` by using `maze_apply_to_navgrid()`.
+ * - This function should only be called when the `type` field of `maze_t`
+ *   is set to `MAZE_TYPE_RECURSIVE`.
+ * - The maze coordinates are based on absolute positions,
+ *   where `x0`, `y0` represent the top-left origin of the maze.
  *
- * @note 4방향(상,하,좌,우) 기준으로만 분할되며, 대각선 연결은 생성되지 않습니다.
- * @note 미로는 외벽이 막혀 있는 형태로 생성되며, 출입구는 따로 뚫어야 합니다.
+ * @note The maze is divided using only the 4 cardinal directions (up, down, left, right),
+ *       and no diagonal connections are created.
+ * @note The maze is generated with closed outer walls,
+ *       so entrances or exits need to be carved separately.
  *
- * @param maze 미로 정보와 결과가 저장될 `maze_t*` 포인터
+ * @param maze Pointer to a `maze_t` structure where maze info and results will be stored.
  *
  * @see maze_create_full()
  * @see maze_apply_to_navgrid()
@@ -54,20 +56,23 @@ BYUL_API void maze_make(maze_t* maze, maze_type_t type);
 BYUL_API void maze_make_recursive(maze_t* maze);
 
 /**
- * @brief Prim 알고리즘을 이용하여 미로를 생성합니다.
+ * @brief Generates a maze using the Prim algorithm.
  *
- * 이 함수는 지정된 maze_t 구조체 내부에 Prim 알고리즘 기반의
- * 미로를 생성합니다. 생성된 미로는 내부 blocked 좌표 집합에 기록되며,
- * 필요 시 `maze_apply_to_navgrid()` 함수를 통해 navgrid_t에 삽입할 수 있습니다.
+ * This function generates a maze inside the specified `maze_t` structure
+ * based on the Prim algorithm. The generated maze is recorded in the internal
+ * `blocked` coordinate set, and can be inserted into a `navgrid_t` using
+ * the `maze_apply_to_navgrid()` function if needed.
  *
  * @details
- * Prim 알고리즘은 그래프 최소 신장 트리(MST)를 구하는 방식에서
- * 응용된 미로 생성 방법입니다. 벽으로 둘러싸인 셀들 중 하나에서 시작하여,
- * 인접한 벽을 랜덤하게 선택하면서 셀들을 연결해 나갑니다.
- * 이때 한쪽 셀만 방문된 상태인 벽만 선택하며, 전체를 하나의 연결된 통로로 만듭니다.
+ * The Prim algorithm is an application of the Minimum Spanning Tree (MST)
+ * concept for maze generation. Starting from one cell surrounded by walls,
+ * it randomly selects adjacent walls to connect cells, while ensuring that
+ * only walls with exactly one visited cell are chosen. This results in a
+ * single connected passage network.
  *
- * 미로는 홀수 크기(width, height)로 구성하는 것이 일반적이며,
- * 모든 셀은 홀수 좌표에 위치하며, 그 사이의 짝수 좌표는 벽으로 간주됩니다.
+ * It is recommended to use odd values for `width` and `height` for the maze,
+ * as all cells are located at odd coordinates, and even coordinates are
+ * considered walls.
  *
  * @usage
  * ```c
@@ -75,35 +80,39 @@ BYUL_API void maze_make_recursive(maze_t* maze);
  * maze_make_prim(maze);
  * navgrid_t* navgrid = navgrid_create_full(21, 21, NAVGRID_DIR_4, NULL);
  * maze_apply_to_navgrid(maze, navgrid);
- * // 이후 navgrid 사용
+ * // Use the navgrid here
  * maze_destroy(maze);
  * navgrid_destroy(navgrid);
  * ```
  *
- * @param maze 미로를 생성할 maze_t 포인터 (NULL 불가)
+ * @param maze Pointer to the `maze_t` structure where the maze will be generated (must not be NULL).
  */
 BYUL_API void maze_make_prim(maze_t* maze);
 
 /**
- * @brief Binary Tree 알고리즘으로 미로를 생성합니다.
+ * @brief Generates a maze using the Binary Tree algorithm.
  *
- * 이 함수는 Binary Tree 방식의 미로 생성 알고리즘을 사용하여
- * 주어진 `maze_t` 구조체 내부의 `blocked` 좌표 집합을 설정합니다.
+ * This function uses the Binary Tree maze generation algorithm to set the
+ * `blocked` coordinate set inside the given `maze_t` structure.
  *
- * Binary Tree 알고리즘은 각 셀에서 북쪽 또는 동쪽으로만 
- * 벽을 허물어가는 매우 단순한 방식이며,
- * 구현이 간단하고 빠르지만, 생성되는 미로는 편향된 경향이 있습니다.
+ * The Binary Tree algorithm is a very simple approach that removes walls
+ * only towards the north or east from each cell.
+ * While it is simple and fast to implement, the resulting maze tends
+ * to be biased.
  *
- * - 항상 오른쪽 또는 아래 방향 통로가 존재하게 되어 복잡도가 낮습니다.
- * - 규칙성이 강하므로, 실제 게임에서는 보조 알고리즘이나 후처리가 필요한 경우가 많습니다.
+ * - The maze will always have paths leaning toward the right or downward,
+ *   resulting in low complexity.
+ * - Due to its strong regularity, additional algorithms or post-processing
+ *   are often needed in real game scenarios.
  *
- * @param maze 미로의 좌표 기준, 너비, 높이, 
- *      타입(MAZE_TYPE_BINARY)이 설정된 구조체 포인터입니다.
- *             이 함수는 해당 구조체 내부의 blocked 필드를 수정하여 미로를 생성합니다.
+ * @param maze A pointer to a `maze_t` structure with its coordinates,
+ *      width, height, and type (MAZE_TYPE_BINARY) already set.
+ *      This function modifies the `blocked` field within the structure
+ *      to generate the maze.
  *
- * @note `maze`는 반드시 유효한 포인터여야 하며, 
- *       `width`와 `height`는 홀수로 설정되어야 합니다.
- *       (미로 벽과 통로를 구분하기 위함입니다.)
+ * @note `maze` must be a valid pointer, and
+ *       `width` and `height` must be odd values
+ *       (to properly differentiate walls from passages).
  *
  * @see maze_create_full()
  * @see maze_apply_to_navgrid()
@@ -119,306 +128,308 @@ BYUL_API void maze_make_prim(maze_t* maze);
 BYUL_API void maze_make_binary(maze_t* maze);
 
 /**
- * @brief Eller 알고리즘을 사용하여 미로를 생성합니다.
+ * @brief Generates a maze using the Eller algorithm.
  *
- * 이 함수는 고전적인 **Eller 알고리즘**을 기반으로, 지정된 `maze_t` 구조체 내부에
- * 미로 패턴을 생성합니다. 미로는 **한 줄씩(row-by-row)** 생성되며, 각 줄마다
- * 셋(set) ID를 관리하고 병합하며 다음 줄로 연결하여 전체 연결된 구조를 만듭니다.
+ * This function generates a maze pattern inside the specified `maze_t`
+ * structure based on the classic **Eller algorithm**. The maze is created
+ * **row by row**, where each row is managed with unique set IDs that are
+ * merged and connected to form a fully connected structure.
  *
- * ### 알고리즘 개요
- * - 각 홀수 칸마다 고유한 셋(set) ID를 부여합니다.
- * - 좌우 인접 셀을 랜덤하게 병합(연결)하여 수평 통로를 만듭니다.
- * - 각 셋마다 최소 하나 이상은 아래쪽으로 연결되도록 수직 통로를 개방합니다.
- * - 마지막 줄에서는 남은 셋을 전부 병합하여 하나의 연결된 구조를 완성합니다.
+ * ### Algorithm Overview
+ * - Assign a unique set ID to each odd cell.
+ * - Randomly merge adjacent horizontal cells to create horizontal passages.
+ * - Ensure that each set has at least one vertical passage to the next row.
+ * - On the last row, merge all remaining sets to form a single connected structure.
  *
- * > ❗ 이 알고리즘은 **외곽 벽을 강제하지 않으며**,  
- * > 외부에서 후처리로 벽을 추가해야 할 수 있습니다.  
- * > 알고리즘 원리에 충실하게 구현되어 있으며, 
- *      외곽 개방 여부도 무작위에 따라 달라질 수 있습니다.
+ * Note: This algorithm does not enforce outer walls,
+ * and additional walls may need to be added as post-processing.
+ * The implementation adheres closely to the original principle, and
+ * whether the boundary is open or closed may vary due to randomness.
  *
- * ### 사용 조건
- * 이 함수는 반드시 `maze_create_full()` 
- *      함수를 통해 생성된 `maze_t` 구조체를 사용해야 하며,  
- * 다음과 같은 제약을 만족해야 합니다:
- * - 가로(width)와 세로(height)는 **홀수 값**이어야 합니다. (예: 9x9, 11x7)
- * - 가로, 세로는 최소 **3 이상**이어야 합니다.
+ * ### Usage Requirements
+ * This function must be used with a `maze_t` structure created using
+ * `maze_create_full()`, and the following constraints must be satisfied:
+ * - Width and height must be odd values (e.g., 9x9, 11x7).
+ * - Both width and height must be at least 3.
  *
- * ### 사용 예시
+ * ### Example Usage
  * @code
  * maze_t* maze = maze_create_full(0, 0, 9, 9, MAZE_TYPE_ELLER);
  * maze_make_eller(maze);
  * navgrid_add_maze(navgrid, maze);
  * @endcode
  *
- * 함수 실행 후 `maze->blocked` 필드에는 벽 좌표가 등록되며,  
- * `maze->type` 필드는 `MAZE_TYPE_ELLER`로 설정됩니다.
+ * After execution, wall coordinates are stored in `maze->blocked`,
+ * and `maze->type` is set to `MAZE_TYPE_ELLER`.
  *
- * @param maze 미로 데이터를 생성할 maze_t 포인터
+ * @param maze Pointer to a `maze_t` structure where maze data will be generated
  */
 BYUL_API void maze_make_eller(maze_t* maze);
 
 /**
- * @brief Aldous-Broder 알고리즘을 사용하여 미로를 생성합니다.
+ * @brief Generates a maze using the Aldous-Broder algorithm.
  *
- * 이 함수는 **Aldous-Broder 알고리즘**을 사용하여 지정된 `maze_t` 구조체에  
- * 무작위 순회 기반(Random Walk) 방식으로 미로를 생성합니다.  
- * 모든 셀을 무작위로 순회하면서, **방문하지 않은 셀에 도달했을 때만 통로를 개방**합니다.
+ * This function generates a maze in the specified `maze_t` structure  
+ * using the **Aldous-Broder algorithm**, which is based on a random walk.  
+ * All cells are traversed randomly, and **passages are opened only when an unvisited cell is reached**.
  *
- * ### 알고리즘 개요
- * - 무작위 셀에서 시작하여 계속해서 이웃 셀로 이동합니다.
- * - **방문하지 않은 셀을 처음 방문했을 때**, 
- *      현재 위치와 다음 셀 사이에 **통로를 개방**합니다.
- * - 이미 방문한 셀로 이동하는 경우는 통로를 만들지 않고 그대로 이동만 합니다.
- * - 모든 셀이 방문될 때까지 반복하며, 이를 통해 완전한 연결성을 갖춘 미로를 만듭니다.
+ * ### Algorithm Overview
+ * - Start from a random cell and continuously move to a neighboring cell.
+ * - **When a new unvisited cell is visited for the first time**,  
+ *   open a passage between the current cell and the next cell.
+ * - If the cell has already been visited, simply move without creating a passage.
+ * - Repeat until all cells are visited, resulting in a fully connected maze.
  *
- * 이 알고리즘은 매우 단순하면서도,
- * **모든 가능한 미로 중 하나를 균일한 확률로 생성하는 유일한 알고리즘** 중 하나입니다.
+ * This algorithm is very simple and  
+ * **is one of the few algorithms that generates all possible mazes with uniform probability**.
  *
- * > ❗ 단점: 평균적으로 매우 비효율적일 수 있으며,  
- * > 특히 셀 개수가 많을수록 시간이 오래 걸릴 수 있습니다.
+ * Note: It can be inefficient on average,  
+ * especially when the number of cells is large.
  *
- * > ❗ 외곽 벽은 알고리즘 내부에서 강제하지 않습니다.  
- * > 필요하다면 `maze_make()` 또는 후처리 단계에서 별도로 처리하세요.
+ * Note: Outer walls are not enforced by this algorithm.  
+ * Add outer walls using `maze_make()` or post-processing if needed.
  *
  * ---
  *
- * ### 사용 조건
- * - `maze_t`는 반드시 `maze_create_full()` 함수를 통해 생성되어야 합니다.
- * - 가로(`width`)와 세로(`height`)는 **홀수**여야 하며, **최소 3 이상**이어야 합니다.
+ * ### Usage Requirements
+ * - `maze_t` must be created using the `maze_create_full()` function.
+ * - Both `width` and `height` must be **odd numbers** and **at least 3**.
  *
- * ### 사용 예시
+ * ### Example Usage
  * @code
  * maze_t* maze = maze_create_full(0, 0, 9, 9, MAZE_TYPE_ALDOUS_BRODER);
  * maze_make_aldous_broder(maze);
  * navgrid_add_maze(navgrid, maze);
  * @endcode
  *
- * 함수 실행이 완료되면 `maze->blocked`에 벽 좌표가 삽입되고,  
- * `maze->type`은 `MAZE_TYPE_ALDOUS_BRODER`로 설정됩니다.
+ * After execution, wall coordinates are stored in `maze->blocked`,  
+ * and `maze->type` is set to `MAZE_TYPE_ALDOUS_BRODER`.
  *
- * @param maze 미로를 생성할 대상 maze_t 포인터
+ * @param maze Pointer to the `maze_t` structure where the maze will be generated
  */
 BYUL_API void maze_make_aldous_broder(maze_t* maze);
 
 /**
- * @brief Wilson 알고리즘을 사용하여 미로를 생성합니다.
+ * @brief Generates a maze using the Wilson algorithm.
  *
- * 이 함수는 **Wilson 알고리즘(Wilson's Algorithm)**을 사용하여  
- * 완전한 연결성을 가지며, **편향 없는(uniform)** 미로를 생성합니다.  
- * 알고리즘의 핵심은 **Loop-Erased Random Walk (LERW)** 방식으로,  
- * 중복 경로를 제거하면서 순수한 트리 형태의 미로를 구성합니다.
+ * This function generates a **uniform, unbiased** maze  
+ * using **Wilson's Algorithm**.  
+ * The key concept is **Loop-Erased Random Walk (LERW)**,  
+ * which removes loops during random walks to create a pure tree structure.
  *
- * ### 알고리즘 개요
- * - 모든 셀 중 하나를 **기초 셀(initial cell)**로 설정하고 방문 처리합니다.
- * - 나머지 방문하지 않은 셀들 중 하나를 무작위로 선택하여 **무작위 순회**를 시작합니다.
- * - 이미 방문한 셀에 도달할 때까지 이동하며, 
- *      중간에 **루프가 생기면 제거(loop erase)**합니다.
- * - 최종적으로 얻어진 경로를 미로에 **통로(PASSAGE)**로 반영하고, 방문 처리합니다.
- * - 이 과정을 **모든 셀이 포함될 때까지 반복**하여 하나의 
- *      완전한 spanning tree를 만듭니다.
+ * ### Algorithm Overview
+ * - Choose one cell as the **initial cell** and mark it as visited.
+ * - Pick any unvisited cell and start a **random walk**.
+ * - Continue moving until reaching a visited cell,  
+ *   and erase loops that form during the random walk (loop erase).
+ * - Add the resulting path as **PASSAGES** and mark those cells as visited.
+ * - Repeat this process **until all cells are included**,  
+ *   forming a complete spanning tree.
  *
- * > 📌 이 알고리즘은 이론적으로 **가장 공정한(균등 분포)** 미로를 생성합니다.
- * > 단점은 속도가 느릴 수 있고, 복잡한 구현이 필요하다는 점입니다.
+ * Note: This algorithm theoretically generates the **most fair (uniform distribution)** mazes.
+ * The drawback is that it can be slow and is more complex to implement.
  *
  * ---
  *
- * ### 사용 조건
- * - `maze_t`는 반드시 `maze_create_full()` 함수를 통해 생성되어야 합니다.
- * - 가로(`width`)와 세로(`height`)는 반드시 **홀수 값**이어야 하며, 
- *      **3 이상**이어야 합니다.
+ * ### Usage Requirements
+ * - `maze_t` must be created using the `maze_create_full()` function.
+ * - Both `width` and `height` must be **odd numbers** and at least **3**.
  *
- * ### 외곽 벽 처리
- * - 이 알고리즘은 외곽을 벽으로 강제하지 않으며,  
- *   필요하다면 `maze_make()` 또는 후처리 단계에서 외곽 벽을 추가해야 합니다.
+ * ### Outer Wall Handling
+ * - This algorithm does not enforce outer walls.  
+ *   Use `maze_make()` or post-processing to add walls if needed.
  *
- * ### 사용 예시
+ * ### Example
  * @code
  * maze_t* maze = maze_create_full(0, 0, 9, 9, MAZE_TYPE_WILSON);
  * maze_make_wilson(maze);
  * navgrid_add_maze(navgrid, maze);
  * @endcode
  *
- * 함수 호출이 완료되면 `maze->blocked`에 벽 좌표가 기록되고,  
- * `maze->type` 필드는 `MAZE_TYPE_WILSON`으로 설정됩니다.
+ * After execution, wall coordinates are stored in `maze->blocked`,  
+ * and `maze->type` is set to `MAZE_TYPE_WILSON`.
  *
- * @param maze 미로를 생성할 대상 maze_t 포인터
+ * @param maze Pointer to the `maze_t` structure where the maze will be generated
  */
 BYUL_API void maze_make_wilson(maze_t* maze);
 
 /**
- * @brief Hunt-and-Kill 알고리즘을 사용하여 미로를 생성합니다.
+ * @brief Generates a maze using the Hunt-and-Kill algorithm.
  *
- * 이 함수는 **Hunt-and-Kill 알고리즘**을 기반으로 지정된 `maze_t` 구조체에  
- * 깊이 없는 랜덤 워크 방식의 미로를 생성합니다.  
- * DFS(깊이 우선 탐색)보다 간단하며, 
- *      자연스러운 **트리 형태의 미로**를 빠르게 만들 수 있습니다.
+ * This function generates a maze within the specified `maze_t` structure
+ * using the **Hunt-and-Kill algorithm**, which is a depthless random walk method.
+ * It is simpler than DFS (Depth-First Search) and can quickly create
+ * a natural **tree-shaped maze**.
  *
- * ### 알고리즘 개요
- * - **Kill Phase**: 무작위로 방향을 선택하여 방문하지 않은 
- *      이웃이 있다면 통로를 뚫고 이동합니다.
- * - 이웃이 없다면 탐색을 종료하고, 다음 단계로 넘어갑니다.
+ * ### Algorithm Overview
+ * - **Kill Phase**: Choose a random direction and move if there is
+ *   an unvisited neighbor, carving a passage.
+ * - If no unvisited neighbors are available, end the exploration
+ *   and proceed to the next step.
  *
- * - **Hunt Phase**: 전체 셀을 순회하며  
- *   아직 방문되지 않았지만 **인접한 방문 셀이 존재하는 셀**을 찾습니다.  
- *   해당 셀과 연결된 방향으로 통로를 뚫고 다시 Kill Phase로 진입합니다.
+ * - **Hunt Phase**: Scan all cells to find a cell that has
+ *   not been visited but is adjacent to a visited cell.  
+ *   Carve a passage between them and re-enter the Kill Phase.
  *
- * 이 과정을 **모든 셀이 방문될 때까지 반복**하며,  
- * 결과적으로 하나의 연결된 트리 형태의 미로를 생성합니다.
+ * This process is repeated **until all cells are visited**,  
+ * resulting in a fully connected tree-like maze.
  *
- * > ❗ 이 알고리즘은 구현이 간단하고 빠르며,  
- * > Dead-end가 많은 전형적인 나무 구조의 미로를 생성합니다.
+ * Note: This algorithm is simple, fast, and generates
+ * a typical tree maze with many dead-ends.
  *
- * > ❗ 외곽 벽은 알고리즘 내부에서 강제하지 않습니다.  
- * > 필요한 경우 외부에서 후처리로 추가해야 합니다.
+ * Note: Outer walls are not enforced by this algorithm.  
+ * They should be added with post-processing if needed.
  *
  * ---
  *
- * ### 사용 조건
- * - `maze_t`는 반드시 `maze_create_full()` 함수를 통해 생성되어야 합니다.
- * - 가로(`width`)와 세로(`height`)는 **홀수 값**이어야 하며, **3 이상**이어야 합니다.
+ * ### Usage Requirements
+ * - `maze_t` must be created using the `maze_create_full()` function.
+ * - Both `width` and `height` must be **odd numbers** and **at least 3**.
  *
- * ### 사용 예시
+ * ### Example Usage
  * @code
  * maze_t* maze = maze_create_full(0, 0, 9, 9, MAZE_TYPE_HUNT_AND_KILL);
  * maze_make_hunt_and_kill(maze);
  * navgrid_add_maze(navgrid, maze);
  * @endcode
  *
- * 함수 호출이 완료되면 `maze->blocked` 필드에는 벽 좌표가 기록되고,  
- * `maze->type` 필드는 `MAZE_TYPE_HUNT_AND_KILL`으로 설정됩니다.
+ * After execution, wall coordinates are recorded in `maze->blocked`,
+ * and `maze->type` is set to `MAZE_TYPE_HUNT_AND_KILL`.
  *
- * @param maze 미로를 생성할 대상 maze_t 포인터
+ * @param maze Pointer to the `maze_t` structure where the maze will be generated
  */
 BYUL_API void maze_make_hunt_and_kill(maze_t* maze);
 
 /**
- * @brief Sidewinder 알고리즘을 사용하여 미로를 생성합니다.
+ * @brief Generates a maze using the Sidewinder algorithm.
  *
- * 이 함수는 **Sidewinder 알고리즘**을 기반으로,  
- * 오른쪽 방향 중심의 통로 구조를 가진 미로를 생성합니다.  
- * Binary Tree 알고리즘을 수평 방향으로 확장한 구조이며,  
- * 긴 가로 통로와 적은 수직 연결로 인해 **열린 느낌의 미로**가 만들어집니다.
+ * This function generates a maze inside the specified `maze_t` structure  
+ * based on the **Sidewinder algorithm**, which creates passages with  
+ * a rightward bias. It can be considered a horizontal extension of the  
+ * Binary Tree algorithm, resulting in **open mazes with long horizontal  
+ * passages and fewer vertical connections**.
  *
- * ### 알고리즘 개요
- * - 미로를 **위에서 아래로 줄 단위(row-by-row)**로 처리합니다.
- * - 각 줄마다 **run set**을 유지하면서 오른쪽으로 연결할지 무작위로 결정합니다.
- * - 오른쪽으로 연결하지 않기로 결정되면,  
- *   run set에서 하나를 선택해 **위쪽으로 연결**하고 run을 초기화합니다.
- * - 이 과정을 모든 줄에 대해 반복합니다.
+ * ### Algorithm Overview
+ * - Process the maze **row by row from top to bottom**.
+ * - Maintain a **run set** for each row and randomly decide whether to connect to the right.
+ * - If not connecting to the right, select one cell from the run set and  
+ *   create a connection upward, then reset the run set.
+ * - Repeat this process for all rows.
  *
- * > ❗ 이 알고리즘은 사이클이 없는 트리 구조를 보장하며,  
- * > **Dead-end가 거의 없는 부드러운 미로**를 빠르게 생성합니다.
+ * Note: This algorithm guarantees a cycle-free tree structure and  
+ * creates **smooth mazes with very few dead-ends**.
  *
- * > ❗ 외곽 벽은 알고리즘 내부에서 강제하지 않으므로,  
- * > 필요할 경우 외부에서 후처리로 추가해야 합니다.
+ * Note: Outer walls are not enforced by the algorithm and  
+ * must be added separately if required.
  *
  * ---
  *
- * ### 사용 조건
- * - `maze_t`는 반드시 `maze_create_full()` 함수를 통해 생성되어야 합니다.
- * - 가로(`width`)와 세로(`height`)는 **홀수 값**이어야 하며, **3 이상**이어야 합니다.
+ * ### Usage Requirements
+ * - `maze_t` must be created using the `maze_create_full()` function.
+ * - Both `width` and `height` must be **odd values** and **at least 3**.
  *
- * ### 사용 예시
+ * ### Example
  * @code
  * maze_t* maze = maze_create_full(0, 0, 9, 9, MAZE_TYPE_SIDEWINDER);
  * maze_make_sidewinder(maze);
  * navgrid_add_maze(navgrid, maze);
  * @endcode
  *
- * 함수 호출이 완료되면 `maze->blocked` 필드에는 벽 좌표가 기록되며,  
- * `maze->type`은 `MAZE_TYPE_SIDEWINDER`로 설정됩니다.
+ * After execution, wall coordinates are stored in `maze->blocked`,  
+ * and `maze->type` is set to `MAZE_TYPE_SIDEWINDER`.
  *
- * @param maze 미로를 생성할 대상 maze_t 포인터
+ * @param maze Pointer to the `maze_t` structure where the maze will be generated
  */
 BYUL_API void maze_make_sidewinder(maze_t* maze);
 
 /**
- * @brief Recursive Division 알고리즘을 사용하여 미로를 생성합니다.
+ * @brief Generates a maze using the Recursive Division algorithm.
  *
- * 이 함수는 **Recursive Division (재귀적 분할)** 알고리즘을 기반으로  
- * 미로 공간을 벽으로 나누며, 각 영역에 무작위로 통로를 만들어  
- * 정돈된 건축적 구조의 미로를 생성합니다.
+ * This function uses the **Recursive Division** algorithm to divide the maze space
+ * with walls, creating passages at random locations to build an
+ * orderly, architectural-style maze.
  *
- * ### 🔹 알고리즘 개요
- * - 미로 전체 공간을 기준으로 무작위 방향(가로 또는 세로)의 벽을 세웁니다.
- * - 해당 벽에는 **통로를 하나 무작위 위치에 생성**합니다.
- * - 벽을 기준으로 나뉜 두 영역에 대해 **재귀적으로 같은 과정을 반복**합니다.
- * - 영역 크기가 충분히 작아지면 분할을 중단합니다.
+ * ### Algorithm Overview
+ * - Starting with the entire maze area, place a wall either horizontally or vertically.
+ * - Create **one random passage** through that wall.
+ * - Recursively repeat the same process for the two subregions divided by the wall.
+ * - Stop dividing when the region becomes too small.
  *
- * ### ⚠️ 중요한 특성
- * - 이 알고리즘은 **트리 기반 구조가 아니며**,  
- *   **Dead-end(막다른 길)가 거의 없는 개방형 구조**가 됩니다.
- * - 또한 **길의 연결이 보장되지 않습니다.**
- *   → 연결되지 않은 방이나 복도가 존재할 수 있으며,  
- *   이를 해결하려면 별도의 후처리(`fix_disconnected_regions()` 등)가 필요합니다.
+ * ### Important Characteristics
+ * - This algorithm **is not tree-based** and produces  
+ *   **open structures with very few dead-ends**.
+ * - It **does not guarantee connectivity**.  
+ *   -> Some rooms or corridors might remain disconnected,  
+ *   requiring additional post-processing (e.g., `fix_disconnected_regions()`).
  *
- * > 🔧 따라서, 탐색 가능한 단일 경로망이 필요한 경우에는  
- * > `MAZE_TYPE_PRIM`, `MAZE_TYPE_KRUSKAL` 등 
- *      트리 기반 알고리즘을 사용하는 것이 적절합니다.
+ * Therefore, if a fully connected path network is required,  
+ * tree-based algorithms like `MAZE_TYPE_PRIM` or `MAZE_TYPE_KRUSKAL` are recommended.
  *
  * ---
  *
- * ### 사용 조건
- * - `maze_t`는 반드시 `maze_create_full()`로 생성되어야 합니다.
- * - `width` 및 `height`는 **홀수이며 3 이상**이어야 합니다.
+ * ### Usage Requirements
+ * - `maze_t` must be created using `maze_create_full()`.
+ * - Both `width` and `height` must be **odd and at least 3**.
  *
- * ### 사용 예시
+ * ### Example
  * @code
  * maze_t* maze = maze_create_full(0, 0, 9, 9, MAZE_TYPE_RECURSIVE_DIVISION);
  * maze_make_recursive_division(maze);
  * navgrid_add_maze(navgrid, maze);
  * @endcode
  *
- * 함수 실행 후:
- * - `maze->blocked` 필드에 벽 좌표가 기록됩니다.
- * - `maze->type`은 `MAZE_TYPE_RECURSIVE_DIVISION`으로 설정됩니다.
+ * After execution:
+ * - Wall coordinates are recorded in `maze->blocked`.
+ * - `maze->type` is set to `MAZE_TYPE_RECURSIVE_DIVISION`.
  *
- * @param maze 미로를 생성할 대상 maze_t 포인터
+ * @param maze Pointer to the `maze_t` structure where the maze will be generated
  */
 BYUL_API void maze_make_recursive_division(maze_t* maze);
 
 /**
- * @brief Kruskal 알고리즘을 사용하여 완전 연결된 미로를 생성합니다.
+ * @brief Generates a fully connected maze using the Kruskal algorithm.
  *
- * 이 함수는 **Kruskal’s Algorithm (크러스컬 알고리즘)**을 기반으로  
- * 최소 신장 트리(MST)를 구성하여 **사이클이 없는 완전한 미로**를 생성합니다.  
- * 각 통로 셀은 **서로 다른 집합**으로 시작하며,  
- * 인접한 셀을 잇는 벽들을 무작위 순서로 처리하며  
- * **두 셀이 다른 집합일 경우 벽을 허물고 병합**하는 방식으로 작동합니다.
+ * This function uses **Kruskal's Algorithm** to build a Minimum Spanning Tree (MST),
+ * creating a **fully connected maze without cycles**.
+ * Each passage cell starts as a **separate set**, and walls between
+ * adjacent cells are processed in random order.
+ * **If the two cells belong to different sets, the wall is removed
+ * and the sets are merged.**
  *
- * ### 🔹 알고리즘 개요
- * - 모든 홀수 좌표 셀을 PASSAGE로 초기화하고, 각각 별도 집합으로 지정합니다.
- * - 인접한 셀 사이의 벽을 간선으로 간주하여 리스트에 저장합니다.
- * - 이 벽 리스트를 **무작위로 섞은 후**, 한 벽씩 선택하면서:
- *   - 벽 양쪽 셀이 서로 다른 집합이면 → 벽을 제거하고 병합(union)
- *   - 같은 집합이면 → 무시
- * - 모든 셀이 하나의 집합으로 병합되면 종료됩니다.
+ * ### Algorithm Overview
+ * - Initialize all odd-coordinate cells as PASSAGE and assign each to a unique set.
+ * - Treat walls between adjacent cells as edges and store them in a list.
+ * - Shuffle the wall list randomly, then process each wall:
+ *   - If the cells on both sides belong to different sets -> remove the wall and union the sets.
+ *   - If they belong to the same set -> skip.
+ * - Stop when all cells are merged into one set.
  *
- * > ✅ 이 알고리즘은 항상 **모든 셀이 하나의 경로망으로 연결**되는  
- * > **연결 보장형 미로**를 생성합니다.
+ * Note: This algorithm always **connects all cells into a single path network**,
+ * guaranteeing a **fully connected maze**.
  *
- * > ✅ 사이클이 존재하지 않으며, **Dead-end가 풍부한 트리 구조**가 형성됩니다.
+ * Note: There are no cycles, and the result is a **tree structure with many dead-ends**.
  *
  * ---
  *
- * ### 사용 조건
- * - `maze_t`는 반드시 `maze_create_full()`로 생성되어야 합니다.
- * - `width`, `height`는 **홀수이면서 3 이상**이어야 합니다.
+ * ### Usage Requirements
+ * - `maze_t` must be created using `maze_create_full()`.
+ * - Both `width` and `height` must be **odd and at least 3**.
  *
- * ### 사용 예시
+ * ### Example
  * @code
  * maze_t* maze = maze_create_full(0, 0, 9, 9, MAZE_TYPE_KRUSKAL);
  * maze_make_kruskal(maze);
  * navgrid_add_maze(navgrid, maze);
  * @endcode
  *
- * 함수 실행이 완료되면:
- * - `maze->blocked` 필드에 벽 좌표가 저장됩니다.
- * - `maze->type`은 `MAZE_TYPE_KRUSKAL`로 설정됩니다.
+ * After execution:
+ * - Wall coordinates are stored in `maze->blocked`.
+ * - `maze->type` is set to `MAZE_TYPE_KRUSKAL`.
  *
- * @param maze 미로를 생성할 대상 maze_t 포인터
+ * @param maze Pointer to the `maze_t` structure where the maze will be generated
  */
 BYUL_API void maze_make_kruskal(maze_t* maze);
+
 
 #ifdef __cplusplus
 }

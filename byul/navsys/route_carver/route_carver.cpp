@@ -12,7 +12,7 @@ int route_carve_beam(navgrid_t* navgrid,
 
     if(range <= 0){
         while(!coord_equal(cur, goal)){
-            // 해당 좌표만 제거한다.
+
             coord_t* next = coord_clone_next_to_goal(cur, goal);
 
             if (is_coord_blocked_navgrid(navgrid, next->x, next->y, nullptr)){
@@ -53,7 +53,7 @@ int route_carve_bomb(navgrid_t* navgrid, const coord_t* center, int range){
     int removed = 0;
 
     if (range <= 0){
-        // 해당 좌표만 제거한다.
+
         if (is_coord_blocked_navgrid(navgrid, center->x, center->y, nullptr)){
             navgrid_unblock_coord(navgrid, center->x, center->y);
             removed++;
@@ -61,13 +61,11 @@ int route_carve_bomb(navgrid_t* navgrid, const coord_t* center, int range){
         return removed;
     }
 
-    // 해당 좌표를 제거한다.
     if (is_coord_blocked_navgrid(navgrid, center->x, center->y, nullptr)){
         navgrid_unblock_coord(navgrid, center->x, center->y);
         removed++;
     }    
 
-    // 주변 좌표를 제거한다.
     coord_list_t* neighbors = navgrid_clone_adjacent_all_range(
         navgrid, center->x, center->y, range-1);
 

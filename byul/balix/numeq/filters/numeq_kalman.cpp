@@ -2,10 +2,6 @@
 #include <cmath>
 #include <cstring> // memset
 
-// =========================================================
-// 1. 스칼라 칼만 필터 (1D)
-// =========================================================
-
 void kalman_init(kalman_filter_t* kf) {
     if (!kf) return;
     kf->x = 0.0f;
@@ -25,9 +21,6 @@ void kalman_init_full(kalman_filter_t* kf, float init_x, float init_p,
     kf->k = 0.0f;
 }
 
-/**
- * @brief kalman_filter_t 복사
- */
 void kalman_assign(kalman_filter_t* dst, const kalman_filter_t* src) {
     if (!dst || !src) return;
     *dst = *src;
@@ -35,8 +28,8 @@ void kalman_assign(kalman_filter_t* dst, const kalman_filter_t* src) {
 
 void kalman_time_update(kalman_filter_t* kf) {
     if (!kf) return;
-    // x' = x (상태 자체는 변화 없음, 외부 모델링이 없다고 가정)
-    // P' = P + Q (오차 공분산 증가)
+    // x' = x 
+    // P' = P + Q 
     kf->p += kf->q;
 }
 
@@ -53,10 +46,6 @@ float kalman_measurement_update(kalman_filter_t* kf, float measured) {
 
     return kf->x;
 }
-
-// =========================================================
-// 2. 벡터 칼만 필터 (3D)
-// =========================================================
 
 void kalman_vec3_init(kalman_filter_vec3_t* kf) {
     if (!kf) return;
@@ -83,9 +72,6 @@ void kalman_vec3_init_full(kalman_filter_vec3_t* kf,
     kf->dt = (dt > 0) ? dt : 0.1f;
 }
 
-/**
- * @brief kalman_filter_vec3_t 복사
- */
 void kalman_vec3_assign(kalman_filter_vec3_t* dst,
                            const kalman_filter_vec3_t* src) {
     if (!dst || !src) return;
@@ -110,12 +96,10 @@ void kalman_vec3_measurement_update(kalman_filter_vec3_t* kf,
                                              const vec3_t* measured_pos) {
     if (!kf || !measured_pos) return;
 
-    // 각 축별 칼만 이득 계산
     float kx = kf->error_p.x / (kf->error_p.x + kf->r);
     float ky = kf->error_p.y / (kf->error_p.y + kf->r);
     float kz = kf->error_p.z / (kf->error_p.z + kf->r);
 
-    // 위치 보정
     float px = kf->position.x;
     float py = kf->position.y;
     float pz = kf->position.z;
@@ -124,12 +108,10 @@ void kalman_vec3_measurement_update(kalman_filter_vec3_t* kf,
     kf->position.y = py + ky * (measured_pos->y - py);
     kf->position.z = pz + kz * (measured_pos->z - pz);
 
-    // 속도 추정 (단순 차분 기반)
     kf->velocity.x = (kf->position.x - px) / kf->dt;
     kf->velocity.y = (kf->position.y - py) / kf->dt;
     kf->velocity.z = (kf->position.z - pz) / kf->dt;
 
-    // 공분산 갱신
     kf->error_p.x = (1.0f - kx) * kf->error_p.x;
     kf->error_p.y = (1.0f - ky) * kf->error_p.y;
     kf->error_p.z = (1.0f - kz) * kf->error_p.z;

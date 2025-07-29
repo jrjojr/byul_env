@@ -10,74 +10,74 @@
 extern "C" {
 #endif
 
-#define DIAGONAL_COST 1.4142135f  // √2 근사값
+#define DIAGONAL_COST 1.4142135f  // Approximation of sqrt 2
 
 /**
- * @brief 비용 함수 타입
+ * @brief Cost function type.
  * 
- * @param m 지도 객체
- * @param start 시작 좌표
- * @param goal 목표 좌표
- * @param userdata 사용자 정의 데이터
- * @return float 비용 값
+ * @param m        Map object.
+ * @param start    Start coordinate.
+ * @param goal     Goal coordinate.
+ * @param userdata User-defined data.
+ * @return float   Cost value.
  */
 typedef float (*cost_func)(
     const navgrid_t*, const coord_t*, const coord_t*, void*);
 
 /**
- * @brief 휴리스틱 함수 타입
+ * @brief Heuristic function type.
  * 
- * @param start 시작 좌표
- * @param goal 목표 좌표
- * @param userdata 사용자 정의 데이터
- * @return float 추정 거리
+ * @param start    Start coordinate.
+ * @param goal     Goal coordinate.
+ * @param userdata User-defined data.
+ * @return float   Estimated distance.
  */
 typedef float (*heuristic_func)(const coord_t*, const coord_t*, void*);
 
 /**
- * @brief 기본 비용 함수 (이동 가능 여부만 판단) 1.0 반환
+ * @brief Default cost function (always returns 1.0).
  */
 BYUL_API float default_cost(
     const navgrid_t*, const coord_t*, const coord_t*, void*);
 
 /**
- * @brief 0을 반환하는 비용 함수 (모든 경로 동일 비용)
+ * @brief Cost function returning 0 (all paths have equal cost).
  */
 BYUL_API float zero_cost(const navgrid_t*, const coord_t*, const coord_t*, void*);
 
 /**
- * @brief 대각선 이동 비용 함수 (√2 근사값 사용)
+ * @brief Diagonal movement cost function (uses sqrt 2 approximation).
  */
 BYUL_API float diagonal_cost(
     const navgrid_t*, const coord_t*, const coord_t*, void*);
 
 /**
- * @brief 유클리드 거리 휴리스틱
+ * @brief Euclidean distance heuristic.
  */
 BYUL_API float euclidean_heuristic(const coord_t*, const coord_t*, void*);
 
 /**
- * @brief 맨해튼 거리 휴리스틱
+ * @brief Manhattan distance heuristic.
  */
 BYUL_API float manhattan_heuristic(const coord_t*, const coord_t*, void*);
 
 /**
- * @brief 체비셰프 거리 휴리스틱
+ * @brief Chebyshev distance heuristic.
  */
 BYUL_API float chebyshev_heuristic(const coord_t*, const coord_t*, void*);
 
 /**
- * @brief 옥타일 거리 휴리스틱 (8방향 이동)
+ * @brief Octile distance heuristic (8-direction movement).
  */
 BYUL_API float octile_heuristic(const coord_t*, const coord_t*, void*);
 
 /**
- * @brief 항상 0을 반환하는 휴리스틱 (탐색 최소화용)
+ * @brief Heuristic function that always returns 0 (for minimal search).
  */
 BYUL_API float zero_heuristic(const coord_t*, const coord_t*, void*);
 
 /**
- * @brief 기본 휴리스틱 ( 유클리드)
+ * @brief Default heuristic (Euclidean).
  */
 BYUL_API float default_heuristic(const coord_t*, const coord_t*, void*);
 

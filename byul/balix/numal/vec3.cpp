@@ -1,4 +1,3 @@
-/* vec3.cpp */
 #include "vec3.h"
 #include "float_common.h"
 #include <cmath>
@@ -6,7 +5,6 @@
 #include <stdio.h>
 #include <cstring>
 
-// (x, y, z)로 초기화
 void vec3_init_full(vec3_t* out, float x, float y, float z) {
     if (!out) return;
     out->x = x;
@@ -14,12 +12,10 @@ void vec3_init_full(vec3_t* out, float x, float y, float z) {
     out->z = z;
 }
 
-// (0, 0, 0)으로 초기화
 void vec3_init(vec3_t* out) {
     vec3_init_full(out, 0.0f, 0.0f, 0.0f);
 }
 
-// src 벡터를 out에 복사
 void vec3_assign(vec3_t* out, const vec3_t* src) {
     if (!out || !src) return;
     *out = *src;
@@ -32,17 +28,6 @@ bool vec3_equal(const vec3_t* a, const vec3_t* b) {
            float_equal(a->z, b->z);
 }
 
-/* ---------------------------------------------------------
-// vec3_equal_tol
-// ---------------------------------------------------------
-/**
- * @brief vec3의 각 성분을 동일한 공차(tolerance)로 비교합니다.
- *
- * @param a   첫 번째 벡터
- * @param b   두 번째 벡터
- * @param tol 허용 오차 (모든 x,y,z에 동일하게 적용)
- * @return 모든 성분 차이가 tol 이하이면 true
- */
 bool vec3_equal_tol(const vec3_t* a, const vec3_t* b, float tol)
 {
     if (!a || !b) return false;
@@ -51,18 +36,6 @@ bool vec3_equal_tol(const vec3_t* a, const vec3_t* b, float tol)
            float_equal_tol(a->z, b->z, tol);
 }
 
-// ---------------------------------------------------------
-// vec3_equal_tol_all
-// ---------------------------------------------------------
-/**
- * @brief vec3의 각 성분을 양수/음수 방향의 개별 공차로 비교합니다.
- *
- * @param a        첫 번째 벡터
- * @param b        두 번째 벡터
- * @param tol_pos  양수 방향 공차 (b >= a일 때 허용 오차)
- * @param tol_neg  음수 방향 공차 (b < a일 때 허용 오차)
- * @return 모든 성분 차이가 개별 공차 내이면 true
- */
 bool vec3_equal_tol_all(
     const vec3_t* a, const vec3_t* b,
     float tol_pos, float tol_neg)
@@ -180,19 +153,17 @@ void vec3_normalize(vec3_t* a) {
 
 void vec3_unit(vec3_t* out, const vec3_t* src) {
     float len_sq = src->x * src->x + src->y * src->y + src->z * src->z;
-    if (len_sq > 1e-8f) { // 길이가 0에 가까운지 체크
+    if (len_sq > 1e-8f) {
         float inv_len = 1.0f / std::sqrt(len_sq);
         out->x = src->x * inv_len;
         out->y = src->y * inv_len;
         out->z = src->z * inv_len;
     } else {
-        // 길이가 0이라면 0 벡터 반환
         out->x = 0.0f;
         out->y = 0.0f;
         out->z = 0.0f;
     }
 }
-
 
 float vec3_distance(const vec3_t* a, const vec3_t* b) {
     vec3_t d;
@@ -221,9 +192,6 @@ bool vec3_is_zero(const vec3_t* v)
             float_zero(v->y) &&
             float_zero(v->z));
 }
-
-#include "vec3.h"
-#include <stdio.h>
 
 char* vec3_to_string(const vec3_t* v, char* buffer, size_t buffer_size) {
     if (!v || !buffer || buffer_size < 32) return NULL;

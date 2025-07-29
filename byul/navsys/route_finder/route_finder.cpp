@@ -258,7 +258,9 @@ route_t* route_finder_run_greedy_best_first(route_finder_t* a){
 }
 
 route_t* route_finder_run_ida_star(route_finder_t* a){
-    // ida는 유클리드가 아니라 맨하탄으로 휴리스틱을 설정해야 한다.
+    // For IDA*, the heuristic should be set to 
+    // Manhattan distance instead of Euclidean.
+
     route_finder_set_heuristic_func(a, manhattan_heuristic);
     return find_ida_star(a->navgrid, a->start, a->goal,
     a->cost_fn, a->heuristic_fn, a->max_retry, a->visited_logging);
@@ -286,21 +288,20 @@ route_t* route_finder_run_sma_star(route_finder_t* a) {
 
     if (a->userdata) {
         int val = *(int*)a->userdata;
-        // 유효 범위 검사 (적당한 하한선 및 상한선 예시)
+
         if (val >= 10 && val <= 1000000) {
             memory_limit = val;
         }
     }
 
-    // 비정상적인 값이면 맵 크기로 기본값 계산
     if (memory_limit <= 0) {
         int w = navgrid_get_width(a->navgrid);
         int h = navgrid_get_height(a->navgrid);
         int n = w * h;
 
-        // 기본 권장값: α = 0.02
+        // Recommended default value: a = 0.02
         memory_limit = (int)(n * 0.02f);
-        if (memory_limit < 20) memory_limit = 20; // 최소 한도
+        if (memory_limit < 20) memory_limit = 20;
     }
 
     return find_sma_star(a->navgrid, a->start, a->goal,

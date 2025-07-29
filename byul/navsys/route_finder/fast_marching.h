@@ -9,7 +9,7 @@
 extern "C" {
 #endif
 
-/// 최대 확산 반경 제한값 (0 이하 또는 이 값을 초과하는 반경은 MAX_RADIUS로 대체)
+/// Maximum propagation radius limit (values <= 0 or greater than this are replaced by MAX_RADIUS)
 #define MAX_RADIUS 1e6f
 
 typedef enum e_fmm_state {
@@ -20,62 +20,60 @@ typedef enum e_fmm_state {
 
 typedef struct s_fmm_cell {
     fmm_state_t state;
-    float value;  // 거리값 T
+    float value;  // Distance value T
 } fmm_cell_t;
 
 typedef struct {
     int width;
     int height;
-    coord_hash_t* cells;  // coord_t* → fmm_cell_t*
-    coord_list_t* visit_order;  //  방문 기록
+    coord_hash_t* cells;        // coord_t* -> fmm_cell_t*
+    coord_list_t* visit_order;  // Visit history
     int total_retry_count;
 } fmm_grid_t;
 
 /**
- * Fast Marching Method(FMM)를 이용해 시작 지점으로부터의 거리장을 계산합니다.
+ * Computes the distance field from the start point using the Fast Marching Method (FMM).
  *
- * @param m             맵 정보
- * @param start         시작 좌표
- * @param cost_fn       이동 비용 함수 (nullptr이면 1.0 고정)
- * @param radius_limit  최대 탐색 반경 (0 이하이면 MAX_RADIUS 사용)
- * @param max_retry     최대 반복 횟수 제한 (0 이하이면 무제한)
+ * @param m             Map information
+ * @param start         Start coordinate
+ * @param cost_fn       Movement cost function (if nullptr, fixed cost 1.0 is used)
+ * @param radius_limit  Maximum search radius (if <= 0, MAX_RADIUS is used)
+ * @param max_retry     Maximum iteration limit (if <= 0, unlimited)
  *
- * @return fmm_grid_t* 계산된 거리장 구조체 (동적 할당됨)
+ * @return fmm_grid_t*  The computed distance field structure (allocated dynamically)
  */
 BYUL_API fmm_grid_t* fmm_compute(const navgrid_t* m, const coord_t* start, 
     cost_func cost_fn, float radius_limit, int max_retry);
 
 /**
- * fmm_grid_t 구조체가 소유한 모든 동적 메모리를 해제합니다.
+ * Frees all dynamic memory owned by the fmm_grid_t structure.
  *
- * @param grid fmm_compute()에 의해 생성된 거리장 결과 구조체
+ * @param grid  The distance field structure created by fmm_compute()
  */
 BYUL_API void fmm_grid_destroy(fmm_grid_t* grid);
 
 /**
- * 거리장 결과를 ASCII 형태로 stdout에 출력합니다.
- * 셀이 존재하지 않는 경우 " .. " 로 표시되며,
- * 값이 있는 셀은 정수부만 표시됩니다.
+ * Dumps the distance field result as ASCII output to stdout.
+ * If a cell does not exist, " .. " is displayed,
+ * and if a value exists, only the integer part is shown.
  *
- * @param grid 거리장 구조체
+ * @param grid  The distance field structure
  */
 BYUL_API void fmm_dump_ascii(const fmm_grid_t* grid);
 
 /**
- * Fast Marching 기반으로 start → goal까지 최단 경로를 복원합니다.
- * 목표지점까지 도달 가능하지 않으면 실패한 route를 반환합니다.
- * visited_logging이 true일 경우, 
- * fmm_grid_t의 visit_order 순서대로 route->visited에 기록합니다.
+ * Reconstructs the shortest path from start -> goal based on the Fast Marching Method.
+ * Returns a failed route if the goal is unreachable.
+ * If visited_logging is true, visit order from fmm_grid_t is recorded into route->visited.
  *
- * @param m               맵 정보
- * @param start           시작 좌표
- * @param goal            목표 좌표
- * @param cost_fn         이동 비용 함수 (nullptr이면 1.0 고정)
- * @param max_retry     최대 반복 횟수 (무한 루프 방지를 위한 제한).
- *                      일반적으로 width * height 정도의 값을 권장합니다.
- * @param visited_logging 방문 좌표의 카운트 기록 여부 
+ * @param m               Map information
+ * @param start           Start coordinate
+ * @param goal            Goal coordinate
+ * @param cost_fn         Movement cost function (if nullptr, fixed cost 1.0 is used)
+ * @param max_retry       Maximum number of iterations (recommended: width * height)
+ * @param visited_logging Whether to log visited coordinates
  *
- * @return route_t* 경로 구조체 (성공 여부 포함)
+ * @return route_t*       Path structure (with success flag)
  */
 BYUL_API route_t* find_fast_marching(const navgrid_t* m, 
     const coord_t* start, const coord_t* goal,

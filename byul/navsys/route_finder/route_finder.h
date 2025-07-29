@@ -3,7 +3,6 @@
 
 #include "route_finder_common.h"
 
-// 모든 알고리즘 모듈 포함
 #include "astar.h"
 #include "bfs.h"
 #include "dfs.h"
@@ -62,7 +61,7 @@ typedef enum e_route_finder_type{
     ROUTE_FINDER_HCA_STAR,                // 2005
     ROUTE_FINDER_RTAA_STAR,               // 2006
     ROUTE_FINDER_THETA_STAR,              // 2007
-    ROUTE_FINDER_CONTRACTION_HIERARCHIES,// 2008
+    ROUTE_FINDER_CONTRACTION_HIERARCHIES, // 2008
 
     // 2010s
     ROUTE_FINDER_LAZY_THETA_STAR,         // 2010
@@ -73,40 +72,41 @@ typedef enum e_route_finder_type{
     ROUTE_FINDER_MHA_STAR,                // 2012
     ROUTE_FINDER_ANYA,                    // 2013
 
-    // 특수 목적 / 확장형
-    ROUTE_FINDER_DAG_SP,                  // 1960s (DAG 최단경로 O(V+E))
-    ROUTE_FINDER_MULTI_SOURCE_BFS,        // 2000s (복수 시작점 BFS)
+    // Special Purpose / Extended
+    ROUTE_FINDER_DAG_SP,                  // 1960s (DAG shortest path O(V+E))
+    ROUTE_FINDER_MULTI_SOURCE_BFS,        // 2000s (multi-source BFS)
     ROUTE_FINDER_MCTS                     // 2006
 } route_finder_type_t;
 
 BYUL_API const char* get_route_finder_name(route_finder_type_t pa);
 
 /** 
- * @brief 정적 길찾기 설정 구조체
+ * @brief Static pathfinding configuration structure.
  */
 typedef struct s_route_finder {
-    navgrid_t* navgrid;                        ///< 경로를 탐색할 지도
+    navgrid_t* navgrid;                        ///< Map for pathfinding
     route_finder_type_t type;
-    coord_t* start;                     ///< 시작 좌표
-    coord_t* goal;                      ///< 도착 좌표
-    cost_func cost_fn;                ///< 비용 함수
-    heuristic_func heuristic_fn;      ///< 휴리스틱 함수
-    int max_retry;                    ///< 최대 반복 횟수
-    bool visited_logging;             ///< 방문한 노드 로깅 여부
-    void* userdata;                   ///< 사용자 정의 데이터
+    coord_t* start;                            ///< Start coordinate
+    coord_t* goal;                             ///< Goal coordinate
+    cost_func cost_fn;                         ///< Cost function
+    heuristic_func heuristic_fn;               ///< Heuristic function
+    int max_retry;                             ///< Maximum iterations
+    bool visited_logging;                      ///< Log visited nodes
+    void* userdata;                            ///< User-defined data
 } route_finder_t;
 
 /**
- * @brief 기본 설정으로 route_finder_t 구조체를 생성합니다.
+ * @brief Creates a route_finder_t structure with default settings.
  *
- * 이 함수는 ROUTE_FINDER_ASTAR를 기본 알고리즘으로 설정하고,
- * 다음과 같은 기본값을 포함한 route_finder_t 객체를 생성합니다:
- * - cost 함수: default_cost
- * - 휴리스틱 함수: euclidean_heuristic
- * - 최대 반복 횟수: 10000
- * - 방문 노드 로깅: false
+ * This function sets ROUTE_FINDER_ASTAR as the default algorithm,
+ * and creates a route_finder_t object with the following defaults:
+ * - cost function: default_cost
+ * - heuristic function: euclidean_heuristic
+ * - max_retry: 10000
+ * - visited_logging: false
  *
- * @return 초기화된 route_finder_t 포인터 (heap에 생성되며, 사용 후 route_finder_destroy로 해제해야 함)
+ * @return A pointer to the initialized route_finder_t (allocated on heap).
+ *         Must be freed using route_finder_destroy.
  */
 BYUL_API route_finder_t* route_finder_create(navgrid_t* navgrid);
 
@@ -121,7 +121,7 @@ BYUL_API void route_finder_destroy(route_finder_t* a);
 BYUL_API route_finder_t* route_finder_copy(const route_finder_t* src);
 
 /**
- * @brief 설정값 세터/게터
+ * @brief Getters/Setters for route_finder_t configuration.
  */
 BYUL_API void route_finder_set_navgrid(route_finder_t* a, navgrid_t* navgrid);
 BYUL_API void route_finder_set_start(route_finder_t* a, const coord_t* start);
@@ -143,26 +143,27 @@ BYUL_API bool route_finder_is_visited_logging(route_finder_t* a);
 BYUL_API void route_finder_set_cost_func(route_finder_t* a, cost_func cost_fn);
 BYUL_API cost_func route_finder_get_cost_func(route_finder_t* a);
 
-BYUL_API void route_finder_set_heuristic_func(route_finder_t* a, heuristic_func heuristic_fn);
+BYUL_API void route_finder_set_heuristic_func(
+    route_finder_t* a, heuristic_func heuristic_fn);
 BYUL_API heuristic_func route_finder_get_heuristic_func(route_finder_t* a);
 
 BYUL_API void route_finder_set_max_retry(route_finder_t* a, int max_retry);
 BYUL_API int route_finder_get_max_retry(route_finder_t* a);
 
 /**
- * @brief 설정값 기본화 및 검증
+ * @brief Resets and validates the configuration.
  */
 BYUL_API void route_finder_clear(route_finder_t* a);
 
 /**
- * @brief route_finder_t 구조체의 기본값을 설정합니다.
+ * @brief Sets the default values for a route_finder_t structure.
  *
- * - cost 함수는 default_cost,
- * - 휴리스틱 함수는 euclidean_heuristic,
- * - 최대 반복 횟수는 10000,
- * - visited_logging은 false로 초기화됩니다.
+ * - cost function: default_cost
+ * - heuristic function: euclidean_heuristic
+ * - max_retry: 10000
+ * - visited_logging: false
  *
- * @param a 기본값을 설정할 route_finder_t 포인터
+ * @param a Pointer to the route_finder_t to initialize.
  */
 BYUL_API void route_finder_set_defaults(route_finder_t* a);
 
@@ -170,14 +171,14 @@ BYUL_API bool route_finder_is_valid(const route_finder_t* a);
 BYUL_API void route_finder_print(const route_finder_t* a);
 
 /**
- * @brief 정적 길찾기 실행 (알고리즘 유형 분기 포함)
+ * @brief Executes the pathfinding based on the specified algorithm type.
  */
 BYUL_API route_t* route_finder_run_type(route_finder_t* a, route_finder_type_t type);
 
 BYUL_API route_t* route_finder_run(route_finder_t* a);
 
 /**
- * @brief 알고리즘별 직접 실행 함수 (정적 길찾기 전용)
+ * @brief Direct run functions for specific algorithms.
  */
 BYUL_API route_t* route_finder_run_astar(route_finder_t* a);
 BYUL_API route_t* route_finder_run_bfs(route_finder_t* a);
@@ -185,17 +186,16 @@ BYUL_API route_t* route_finder_run_dfs(route_finder_t* a);
 BYUL_API route_t* route_finder_run_dijkstra(route_finder_t* a);
 
 /**
- * @brief Fringe Search 알고리즘을 실행합니다.
+ * @brief Runs the Fringe Search algorithm.
  *
- * 이 알고리즘은 fringe threshold를 넘기며 탐색하는 방식으로,
- * 탐색 효율을 높이기 위해 사용자 정의 매개변수 delta_epsilon을 사용합니다.
+ * This algorithm expands nodes by fringe threshold and
+ * uses delta_epsilon for controlling search efficiency.
  *
- * @param a 실행 설정이 포함된 route_finder_t 포인터
- *          - userdata는 float* 타입이며, fringe 확장 임계값인 
- *                  delta_epsilon을 가리켜야 합니다.
- *          - 추천값: 0.1 ~ 0.5 (기본값 없음, 사용자 설정 필요)
+ * @param a Pointer to route_finder_t containing execution settings.
+ *          - userdata should be a float* pointing to delta_epsilon.
+ *          - Recommended: 0.1 ~ 0.5 (no default, must be set by user).
  *
- * @return 계산된 경로(route_t*) 또는 실패 시 NULL
+ * @return Calculated route_t* or NULL on failure.
  */
 BYUL_API route_t* route_finder_run_fringe_search(route_finder_t* a);
 
@@ -204,45 +204,43 @@ BYUL_API route_t* route_finder_run_greedy_best_first(route_finder_t* a);
 BYUL_API route_t* route_finder_run_ida_star(route_finder_t* a);
 
 /**
- * @brief Real-Time A* (RTA*) 알고리즘을 실행합니다.
+ * @brief Runs Real-Time A* (RTA*) algorithm.
  *
- * 이 알고리즘은 제한된 탐색 깊이 내에서만 탐색을 진행하고
- * 실시간 반응성을 확보합니다.
+ * This algorithm performs limited-depth search for real-time responsiveness.
  *
- * @param a 실행 설정이 포함된 route_finder_t 포인터
- *          - userdata는 int* 타입이며, 탐색 깊이 제한(depth_limit)을 가리켜야 합니다.
- *          - 추천값: 3 ~ 10 (높을수록 정확하지만 느려짐)
+ * @param a Pointer to route_finder_t containing execution settings.
+ *          - userdata should be an int* pointing to depth_limit.
+ *          - Recommended: 3 ~ 10 (higher is more accurate but slower).
  *
- * @return 계산된 경로(route_t*) 또는 실패 시 NULL
+ * @return Calculated route_t* or NULL on failure.
  */
 BYUL_API route_t* route_finder_run_rta_star(route_finder_t* a);
 
 /**
-* memory_limit은 맵 크기 및 난이도에 따라 달라져야 하며,
- * 일반적으로 다음을 권장합니다:
- *   - memory_limit ≈ max(L × (1 + ε), N × α)
- *     (L: 예상 경로 길이, N: 맵 셀 수)
- *     (ε ∈ [0.5, 1.0], α ∈ [0.01, 0.05])
+* Memory limit should depend on map size and complexity. Recommended values:
+ *   - memory_limit === max(L × (1 + e), N x a)
+ *     (L: expected path length, N: number of map cells)
+ *     (e <== [0.5, 1.0], a <== [0.01, 0.05])
  *
- * @par 권장 메모리 제한 예시
- *   - 10x10 맵  : memory_limit ≈ 20 ~ 30
- *   - 100x100 맵: memory_limit ≈ 500 ~ 1000
- *   - 1000x1000 맵: memory_limit ≈ 50,000 ~ 100,000
+ * @par Example memory limits:
+ *   - 10x10 map  : memory_limit === 20 ~ 30
+ *   - 100x100 map: memory_limit === 500 ~ 1000
+ *   - 1000x1000 map: memory_limit === 50,000 ~ 100,000
  *
  */
 BYUL_API route_t* route_finder_run_sma_star(route_finder_t* a);
 
 /**
- * @brief Weighted A* 알고리즘을 실행합니다.
+ * @brief Runs the Weighted A* algorithm.
  *
- * 이 알고리즘은 A*의 휴리스틱에 가중치를 적용해
- * 더 빠른 경로 계산을 유도합니다.
+ * This algorithm applies a weight to the heuristic
+ * to speed up pathfinding.
  *
- * @param a 실행 설정이 포함된 route_finder_t 포인터
- *          - userdata는 float* 타입이며, 휴리스틱 가중치(weight)를 가리켜야 합니다.
- *          - 추천값: 1.0 (기본 A*), 1.2 ~ 2.5 (속도 향상), 5.0 이상은 부정확할 수 있음
+ * @param a Pointer to route_finder_t containing execution settings.
+ *          - userdata should be a float* pointing to the weight.
+ *          - Recommended: 1.0 (standard A*), 1.2 ~ 2.5 (faster), 5.0+ may be inaccurate.
  *
- * @return 계산된 경로(route_t*) 또는 실패 시 NULL
+ * @return Calculated route_t* or NULL on failure.
  */
 BYUL_API route_t* route_finder_run_weighted_astar(route_finder_t* a);
 

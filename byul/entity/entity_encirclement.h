@@ -8,19 +8,19 @@ extern "C" {
 #include "entity_dynamic.h"
 
 // ---------------------------------------------------------
-// 기초 유틸리티
+// Basic Utilities
 // ---------------------------------------------------------
 
 /**
- * @brief 적 중심으로 포위 좌표 후보를 계산합니다.
+ * @brief Generate candidate encirclement positions around an enemy.
  *
- * - 360°를 ally_count 개로 나누어 원형 포인트 생성
- * - Z축은 무시(2D 평면 기준)
+ * - Divide 360 degrees into ally_count segments to create circular points.
+ * - Ignore Z axis (assume 2D plane).
  *
- * @param target        적의 위치
- * @param ally_count    아군 수
- * @param L0            포위 반경
- * @param out_positions 결과 좌표 배열 (ally_count 크기)
+ * @param target        Position of the enemy.
+ * @param ally_count    Number of allies.
+ * @param L0            Encirclement radius.
+ * @param out_positions Output array of positions (size ally_count).
  */
 void entity_encirclement_generate_ring_positions(
     const vec3_t* target,
@@ -29,13 +29,13 @@ void entity_encirclement_generate_ring_positions(
     vec3_t* out_positions);
 
 /**
- * @brief 특정 좌표에 이미 동료가 자리잡았는지 확인
+ * @brief Check if a given spot is already occupied by an ally.
  *
- * @param allies        아군 엔티티 배열
- * @param ally_count    아군 수
- * @param position      확인할 포위 좌표
- * @param threshold     자리잡음으로 인정할 거리
- * @return true         가까운 동료가 해당 좌표 점유 중
+ * @param allies        Array of ally entities.
+ * @param ally_count    Number of allies.
+ * @param position      Encirclement position to check.
+ * @param threshold     Distance threshold to consider occupied.
+ * @return true         If a nearby ally is occupying this position.
  */
 bool entity_encirclement_is_spot_occupied(
     const entity_dynamic_t* allies,
@@ -44,15 +44,15 @@ bool entity_encirclement_is_spot_occupied(
     float threshold);
 
 /**
- * @brief 가장 가까운 빈 목표 좌표를 아군에게 할당
+ * @brief Assign the closest available target position to an ally.
  *
- * - out_index에 선택된 목표 좌표의 인덱스를 반환
+ * - Returns the index of the selected target position in out_index.
  *
- * @param ally_pos      아군의 현재 위치
- * @param targets       포위 목표 좌표 배열
- * @param target_count  목표 좌표 개수
- * @param used_flags    사용 여부 배열 (0=미사용, 1=사용)
- * @return              선택된 목표 인덱스 (없으면 -1)
+ * @param ally_pos      Current position of the ally.
+ * @param targets       Array of encirclement target positions.
+ * @param target_count  Number of target positions.
+ * @param used_flags    Usage flags array (0=unused, 1=used).
+ * @return              Index of selected target (or -1 if none).
  */
 int entity_encirclement_find_closest_available_target(
     const vec3_t* ally_pos,
@@ -61,21 +61,21 @@ int entity_encirclement_find_closest_available_target(
     int* used_flags);
 
 // ---------------------------------------------------------
-// 포위 목표 좌표 관리
+// Encirclement Target Management
 // ---------------------------------------------------------
 
 /**
- * @brief 아군들이 적을 기준으로 포위 목표 좌표를 최종 계산
+ * @brief Compute final encirclement targets for allies around the enemy.
  *
- * - 링 좌표 생성
- * - 자리잡은 아군 좌표 제외
- * - 남은 목표 좌표를 거리 기반으로 아군에게 배정
+ * - Generate ring positions.
+ * - Exclude spots already occupied by allies.
+ * - Assign remaining target positions to allies based on distance.
  *
- * @param allies        아군 엔티티 배열
- * @param ally_count    아군 수
- * @param target        적 위치
- * @param L0            포위 반경
- * @param out_positions 각 아군의 목표 좌표
+ * @param allies        Array of ally entities.
+ * @param ally_count    Number of allies.
+ * @param target        Enemy position.
+ * @param L0            Encirclement radius.
+ * @param out_positions Output target positions for each ally.
  */
 void entity_encirclement_find_targets(
     const entity_dynamic_t* allies,
@@ -85,16 +85,16 @@ void entity_encirclement_find_targets(
     vec3_t* out_positions);
 
 // ---------------------------------------------------------
-// 제어점 계산
+// Control Point Calculation
 // ---------------------------------------------------------
 /**
- * @brief 포위 이동을 위한 곡선 제어점(P1, P2)을 계산합니다.
+ * @brief Calculate curve control points (P1, P2) for encirclement movement.
  *
- * @param current_pos   현재 위치 (P0)
- * @param target_pos    목표 위치 (P3)
- * @param velocity      현재 속도 벡터
- * @param out_p1        계산된 제어점 P1
- * @param out_p2        계산된 제어점 P2
+ * @param current_pos   Current position (P0).
+ * @param target_pos    Target position (P3).
+ * @param velocity      Current velocity vector.
+ * @param out_p1        Computed control point P1.
+ * @param out_p2        Computed control point P2.
  */
 void entity_encirclement_calc_control_points(
     const vec3_t* current_pos,

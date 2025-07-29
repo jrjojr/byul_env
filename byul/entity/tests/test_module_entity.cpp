@@ -5,10 +5,10 @@ extern "C" {
 }
 
 // ---------------------------------------------------------
-// 테스트 케이스
+// Test cases
 // ---------------------------------------------------------
 
-TEST_CASE("entity_init 기본값 확인") {
+TEST_CASE("entity_init default values check") {
     entity_t e;
     entity_init(&e);
 
@@ -20,10 +20,9 @@ TEST_CASE("entity_init 기본값 확인") {
     CHECK(e.lifetime == doctest::Approx(0.0f));
 }
 
-TEST_CASE("entity_init_full 사용자 지정 초기화") {
+TEST_CASE("entity_init_full custom initialization") {
     entity_t e;
     coord_t c = {5, 7};
-    // entity_init_full(&e, &c, 42, (void*)0x1234, 1.5f, 10.0f);
     entity_init_full(&e, &c, 42, (void*)0x1234, 1.5f, 10.0f, 0, 0, 1.0);
 
     CHECK(e.id == 42);
@@ -36,7 +35,6 @@ TEST_CASE("entity_init_full 사용자 지정 초기화") {
 
 TEST_CASE("entity_init_full coord == NULL") {
     entity_t e;
-    // entity_init_full(&e, nullptr, 99, nullptr, 0.0f, 5.0f);
     entity_init_full(&e, nullptr, 99, nullptr, 0.0f, 5.0f, 0, 0, 1.0f);
 
     CHECK(e.coord.x == 0);
@@ -45,10 +43,9 @@ TEST_CASE("entity_init_full coord == NULL") {
     CHECK(e.lifetime == doctest::Approx(5.0f));
 }
 
-TEST_CASE("entity_assign 복사 테스트") {
+TEST_CASE("entity_assign copy test") {
     entity_t src;
     coord_t c = {3, 4};
-    // entity_init_full(&src, &c, 7, (void*)0x5678, 2.0f, 4.0f);
     entity_init_full(&src, &c, 7, (void*)0x5678, 2.0f, 4.0f, 0, 0, 1.0f);
 
     entity_t dst;
@@ -62,9 +59,8 @@ TEST_CASE("entity_assign 복사 테스트") {
     CHECK(dst.lifetime == doctest::Approx(4.0f));
 }
 
-TEST_CASE("entity_is_expired 및 tick") {
+TEST_CASE("entity_is_expired and tick") {
     entity_t e;
-    // entity_init_full(&e, nullptr, 1, nullptr, 0.0f, 1.0f);
     entity_init_full(&e, nullptr, 1, nullptr, 0.0f, 1.0f, 0, 0, 1.0f);
 
     CHECK(entity_is_expired(&e) == false);

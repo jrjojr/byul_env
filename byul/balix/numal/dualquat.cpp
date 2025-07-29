@@ -11,10 +11,6 @@ using Eigen::Vector3f;
 using Eigen::Matrix4f;
 using Eigen::Matrix3f;
 
-// ---------------------------------------------------------
-// 🔧 변환 유틸
-// ---------------------------------------------------------
-
 static inline Quaternionf to_eigen_quat(const quat_t* q) {
     return q ? Quaternionf(q->w, q->x, q->y, q->z) : Quaternionf::Identity();
 }
@@ -23,10 +19,6 @@ static inline void from_eigen_quat(quat_t* out, const Quaternionf& q) {
     if (!out) return;
     out->w = q.w(); out->x = q.x(); out->y = q.y(); out->z = q.z();
 }
-
-// ---------------------------------------------------------
-// 🎯 생성 / 초기화 / 복사
-// ---------------------------------------------------------
 
 void dualquat_init(dualquat_t* out) {
     if (!out) return;
@@ -45,7 +37,7 @@ void dualquat_init_quat_vec(dualquat_t* out,
         Vector3f t(vec->x, vec->y, vec->z);
         Quaternionf trans(0, t.x(), t.y(), t.z());
         dual = trans * real;
-        dual.coeffs() *= 0.5f; // 스케일 적용
+        dual.coeffs() *= 0.5f;
     }
 
     from_eigen_quat(&out->real, real);
@@ -81,10 +73,6 @@ void dualquat_assign(dualquat_t* out, const dualquat_t* src) {
     out->dual = src->dual;
 }
 
-// ---------------------------------------------------------
-// 🧪 비교 / 해시
-// ---------------------------------------------------------
-
 int dualquat_equal(const dualquat_t* a, const dualquat_t* b) {
     return quat_equal(&a->real, &b->real) && quat_equal(&a->dual, &b->dual);
 }
@@ -92,10 +80,6 @@ int dualquat_equal(const dualquat_t* a, const dualquat_t* b) {
 uint32_t dualquat_hash(const dualquat_t* dq) {
     return quat_hash(&dq->real) ^ (quat_hash(&dq->dual) << 1);
 }
-
-// ---------------------------------------------------------
-// 🔄 변환 / 추출
-// ---------------------------------------------------------
 
 void dualquat_to_quat_vec(const dualquat_t* dq, quat_t* rot, vec3_t* vec) {
     if (!dq) return;
@@ -134,10 +118,6 @@ void dualquat_to_mat3(const dualquat_t* dq, float* out_mat3) {
     Matrix3f m = to_eigen_quat(&dq->real).toRotationMatrix();
     memcpy(out_mat3, m.data(), sizeof(float) * 9);
 }
-
-// ---------------------------------------------------------
-// ➕ 연산
-// ---------------------------------------------------------
 
 void dualquat_normalize(dualquat_t* io) {
     if (!io) return;
@@ -227,10 +207,6 @@ void dualquat_align(dualquat_t* out, const dualquat_t* dq) {
     }
 }
 
-// ---------------------------------------------------------
-// 📐 보간
-// ---------------------------------------------------------
-
 void dualquat_lerp(dualquat_t* out, 
     const dualquat_t* a, const dualquat_t* b, float t) {
     dualquat_t b_aligned;
@@ -258,7 +234,6 @@ void dualquat_slerp(dualquat_t* out,
     quat_t r;
     quat_slerp(&r, &a->real, &b_aligned.real, t);
 
-    // 위치 부분 보간
     quat_t aconj, bconj;
     quat_conjugate(&aconj, &a->real);
     quat_conjugate(&bconj, &b_aligned.real);
@@ -298,10 +273,6 @@ void dualquat_blend_weighted(dualquat_t* out,
 
     *out = tmp1;
 }
-
-// ---------------------------------------------------------
-// 🚀 포인트 변환
-// ---------------------------------------------------------
 
 void dualquat_apply_to_point_inplace(const dualquat_t* dq, vec3_t* io_point) {
     if (!dq || !io_point) return;

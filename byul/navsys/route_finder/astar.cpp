@@ -20,9 +20,9 @@ route_t* find_astar(const navgrid_t* m, const coord_t* start, const coord_t* goa
     coord_hash_t* cost_so_far = coord_hash_create_full(
         (coord_hash_copy_func) float_copy,
         (coord_hash_destroy_func) float_destroy
-    );   // coord_t* → float*
+    );   // coord_t* -> float*
     
-    // coord_t* → coord_t*
+    // coord_t* -> coord_t*
     coord_hash_t* came_from = coord_hash_create_full(
         (coord_hash_copy_func) coord_copy, 
         (coord_hash_destroy_func) coord_destroy
@@ -83,7 +83,7 @@ route_t* find_astar(const navgrid_t* m, const coord_t* start, const coord_t* goa
         }
 
         coord_list_destroy(neighbors);
-        // if (!final) final = coord_copy(current);  // 마지막 방문 지점 저장
+
         if (final) coord_destroy(final);
         final = coord_copy(current);        
         delete current;
@@ -103,7 +103,6 @@ route_t* find_astar(const navgrid_t* m, const coord_t* start, const coord_t* goa
 
     cost_coord_pq_destroy(pq);
 
-    // 수동 해제: float* 값들
     // coord_list_t* keys = coord_hash_keys(cost_so_far);
     // int n = coord_list_length(keys);
     // for (int i = 0; i < n; ++i) {

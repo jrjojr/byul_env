@@ -1,16 +1,12 @@
-// Eigen 기반 재작성: quat.cpp
 #include "quat.h"
 #include <cmath>
 #include <cstring>
 #include <Eigen/Geometry>
 #include "float_common.h"
 
-// ---------------------------------------------------------
-// 🔧 변환 유틸
-// ---------------------------------------------------------
-
 static inline Eigen::Quaternionf to_eigen(const quat_t* q) {
-    return q ? Eigen::Quaternionf(q->w, q->x, q->y, q->z) : Eigen::Quaternionf::Identity();
+    return q ? Eigen::Quaternionf(q->w, q->x, q->y, q->z) 
+    : Eigen::Quaternionf::Identity();
 }
 
 static inline void from_eigen(quat_t* out, const Eigen::Quaternionf& q) {
@@ -31,10 +27,6 @@ static inline void eigen_to_vec3(vec3_t* out, const Eigen::Vector3f& v) {
     out->y = v.y();
     out->z = v.z();
 }
-
-// ---------------------------------------------------------
-// 🎯 생성 / 초기화
-// ---------------------------------------------------------
 
 void quat_init(quat_t* out) {
     if (!out) return;
@@ -85,7 +77,8 @@ void quat_init_two_vector(quat_t* out, const vec3_t* from, const vec3_t* to) {
     from_eigen(out, Eigen::Quaternionf(aa));
 }
 
-void quat_init_euler(quat_t* out, float rx, float ry, float rz, euler_order_t order) {
+void quat_init_euler(quat_t* out, 
+    float rx, float ry, float rz, euler_order_t order) {
     if (!out) return;
     Eigen::Quaternionf qx(Eigen::AngleAxisf(rx, Eigen::Vector3f::UnitX()));
     Eigen::Quaternionf qy(Eigen::AngleAxisf(ry, Eigen::Vector3f::UnitY()));
@@ -104,7 +97,9 @@ void quat_init_euler(quat_t* out, float rx, float ry, float rz, euler_order_t or
     from_eigen(out, q);
 }
 
-void quat_init_euler_deg(quat_t* out, float deg_x, float deg_y, float deg_z, euler_order_t order) {
+void quat_init_euler_deg(quat_t* out, 
+    float deg_x, float deg_y, float deg_z, euler_order_t order) {
+
     quat_init_euler(out,
         deg_x * static_cast<float>(M_PI) / 180.0f,
         deg_y * static_cast<float>(M_PI) / 180.0f,
@@ -137,7 +132,6 @@ void quat_init_axes(quat_t* out,
     from_eigen(out, q.normalized());
 }
 
-
 void quat_assign(quat_t* out, const quat_t* src) {
     if (!out || !src) return;
     *out = *src;
@@ -147,7 +141,9 @@ void quat_reset(quat_t* out) {
     quat_init(out);
 }
 
-void quat_get(const quat_t* src, float* out_w, float* out_x, float* out_y, float* out_z) {
+void quat_get(const quat_t* src, 
+    float* out_w, float* out_x, float* out_y, float* out_z) {
+
     if (!src) return;
     if (out_w) *out_w = src->w;
     if (out_x) *out_x = src->x;
@@ -162,10 +158,6 @@ void quat_set(quat_t* out, float w, float x, float y, float z) {
     out->y = y;
     out->z = z;
 }
-
-// ---------------------------------------------------------
-// 🧪 비교 / 유효성
-// ---------------------------------------------------------
 
 int quat_equal(const quat_t* a, const quat_t* b) {
     return a && b &&
@@ -193,10 +185,6 @@ int quat_is_valid(const quat_t* q) {
     return q && (to_eigen(q).norm() > 0.0001f);
 }
 
-// ---------------------------------------------------------
-// 🔄 행렬 변환
-// ---------------------------------------------------------
-
 void quat_to_mat3(const quat_t* q, float* out_mat3x3) {
     if (!q || !out_mat3x3) return;
     Eigen::Matrix3f m = to_eigen(q).toRotationMatrix();
@@ -222,10 +210,6 @@ void quat_init_from_mat4(quat_t* out, const float* mat4x4) {
     from_eigen(out, Eigen::Quaternionf(m.block<3,3>(0,0)));
 }
 
-// ---------------------------------------------------------
-// 🔁 벡터 회전
-// ---------------------------------------------------------
-
 void quat_rotate_vector(const quat_t* q, const vec3_t* v, vec3_t* out) {
     if (!out || !q || !v) return;
     eigen_to_vec3(out, to_eigen(q) * vec3_to_eigen(v));
@@ -234,10 +218,6 @@ void quat_rotate_vector(const quat_t* q, const vec3_t* v, vec3_t* out) {
 void quat_apply_to_vec3(const quat_t* q, const vec3_t* v, vec3_t* out) {
     quat_rotate_vector(q, v, out);
 }
-
-// ---------------------------------------------------------
-// ➕ 연산
-// ---------------------------------------------------------
 
 void quat_add(quat_t* out, const quat_t* a, const quat_t* b) {
     if (!out || !a || !b) return;
@@ -298,10 +278,6 @@ void quat_identity(quat_t* out) {
     quat_init(out);
 }
 
-// ---------------------------------------------------------
-// 📐 보간
-// ---------------------------------------------------------
-
 void quat_lerp(quat_t* out, const quat_t* a, const quat_t* b, float t) {
     if (!out || !a || !b) return;
     Eigen::Quaternionf qa = to_eigen(a);
@@ -319,10 +295,6 @@ void quat_slerp(quat_t* out, const quat_t* a, const quat_t* b, float t) {
     if (!out || !a || !b) return;
     from_eigen(out, to_eigen(a).slerp(t, to_eigen(b)));
 }
-
-// ---------------------------------------------------------
-// 🔍 해석
-// ---------------------------------------------------------
 
 void quat_to_axis_angle(const quat_t* q, vec3_t* axis, float* radians) {
     if (!q || !axis || !radians) return;
@@ -346,7 +318,9 @@ void quat_get_right(const quat_t* q, vec3_t* out_dir) {
     eigen_to_vec3(out_dir, to_eigen(q) * Eigen::Vector3f(1, 0, 0));
 }
 
-void quat_to_euler(const quat_t* q, float* x, float* y, float* z, euler_order_t order) {
+void quat_to_euler(const quat_t* q, 
+    float* x, float* y, float* z, euler_order_t order) {
+        
     if (!q || !x || !y || !z) return;
     Eigen::Matrix3f m = to_eigen(q).toRotationMatrix();
     switch (order) {

@@ -32,8 +32,8 @@ TEST_CASE("route_carve_beam - wide beam carve") {
     coord_t start = { 2, 2 };
     coord_t goal = { 7, 7 };
 
-    int removed = route_carve_beam(navgrid, &start, &goal, 1);  // 넓은 beam
-    CHECK(removed >= 20);  // 충분한 영역 제거 예상
+    int removed = route_carve_beam(navgrid, &start, &goal, 1); // wide beam
+    CHECK(removed >= 20);
 
 navgrid_print_ascii(navgrid);
 
@@ -47,9 +47,9 @@ TEST_CASE("route_carve_bomb - center explosion") {
     obstacle_apply_to_navgrid(obs, navgrid);
 
     coord_t center = { 5, 5 };
-    int removed = route_carve_bomb(navgrid, &center, 2);  // 5x5 제거
+    int removed = route_carve_bomb(navgrid, &center, 2);  // 5x5 remove
 
-    CHECK(removed == 25);  // 정확한 폭파 크기
+    CHECK(removed == 25);  // precise bomb size
 navgrid_print_ascii(navgrid);
 
     obstacle_destroy(obs);

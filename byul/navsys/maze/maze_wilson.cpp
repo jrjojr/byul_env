@@ -55,7 +55,6 @@ void maze_make_wilson(maze_t* maze) {
 
     std::uniform_int_distribution<size_t> pick_cell(0, all_cells.size() - 1);
 
-    // 시작 셀 하나 포함
     Cell start = all_cells[pick_cell(rng)];
     grid[start.y][start.x] = PASSAGE;
     visited.insert(start);
@@ -64,7 +63,6 @@ void maze_make_wilson(maze_t* maze) {
     const int dy[4] = { -2, 2, 0, 0 };
 
     while (visited.size() < all_cells.size()) {
-        // 아직 포함되지 않은 셀 중 하나 선택
         Cell current;
         do {
             current = all_cells[pick_cell(rng)];
@@ -89,7 +87,6 @@ void maze_make_wilson(maze_t* maze) {
             }
         }
 
-        // 루프 제거하며 경로 따라가며 PASSAGE 설정
         walk = current;
         while (visited.count(walk) == 0) {
             visited.insert(walk);
@@ -104,7 +101,6 @@ void maze_make_wilson(maze_t* maze) {
         }
     }
 
-    // 벽 삽입
     for (int y = 0; y < h; ++y) {
         for (int x = 0; x < w; ++x) {
             if (grid[y][x] != PASSAGE) {

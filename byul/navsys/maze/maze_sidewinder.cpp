@@ -42,12 +42,11 @@ void maze_make_sidewinder(maze_t* maze) {
                     int pick = run[rng() % run.size()];
                     grid[y - 1][pick] = PASSAGE;
                 }
-                run.clear(); // 새로운 run 시작
+                run.clear();
             }
         }
     }
 
-    // 벽 삽입
     for (int y = 0; y < h; ++y) {
         for (int x = 0; x < w; ++x) {
             if (grid[y][x] != PASSAGE) {

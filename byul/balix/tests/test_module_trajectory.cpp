@@ -6,23 +6,16 @@ extern "C" {
 #include "trajectory.h"
 }
 
-// ---------------------------------------------------------
-// 헬퍼 함수: motion_state_t 기본값 생성
-// ---------------------------------------------------------
 static motion_state_t make_motion_state(float px, float py, float pz) {
     motion_state_t state{};
     state.linear.position = {px, py, pz};
     state.linear.velocity = {0.0f, 0.0f, 0.0f};
     state.linear.acceleration = {0.0f, 0.0f, 0.0f};
-    state.angular.orientation = {0.0f, 0.0f, 0.0f, 1.0f};  // 단위 쿼터니언
+    state.angular.orientation = {0.0f, 0.0f, 0.0f, 1.0f};
     state.angular.angular_velocity = {0.0f, 0.0f, 0.0f};
     state.angular.angular_acceleration = {0.0f, 0.0f, 0.0f};
     return state;
 }
-
-// ---------------------------------------------------------
-// 테스트 케이스
-// ---------------------------------------------------------
 
 TEST_CASE("trajectory_create allocates memory and initializes") {
     trajectory_t* traj = trajectory_create_full(5);
@@ -49,7 +42,6 @@ TEST_CASE("trajectory_add_sample stores motion states") {
     CHECK(traj->count == 2);
     CHECK(traj->samples[1].state.linear.position.y == doctest::Approx(5.0f));
 
-    // capacity 초과
     motion_state_t s3 = make_motion_state(7.0f, 8.0f, 9.0f);
     CHECK(trajectory_add_sample(traj, 0.3f, &s3) == true);
     motion_state_t s4 = make_motion_state(10.0f, 11.0f, 12.0f);

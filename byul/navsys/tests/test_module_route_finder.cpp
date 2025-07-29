@@ -23,7 +23,7 @@ TEST_CASE("default: route finder") {
     route_finder_set_start(rf, &start);
     route_finder_set_goal(rf, &goal);
 
-    // 장애물 삽입 (세로 차단)
+    // obstacle input  (vertical blocking)
     for (int y = 1; y < 10; ++y)
         navgrid_block_coord(m, 5, y);
 
@@ -42,7 +42,8 @@ TEST_CASE("default: route finder") {
 TEST_CASE("BFS: simple route") {
     // navgrid_t* m = navgrid_create();
     std::cout << "BFS: simple route\n";
-    navgrid_t* m = navgrid_create_full(10, 10, NAVGRID_DIR_8, is_coord_blocked_navgrid);
+    navgrid_t* m = navgrid_create_full(
+        10, 10, NAVGRID_DIR_8, is_coord_blocked_navgrid);
     coord_t* start = coord_create_full(0, 0);
     coord_t* goal = coord_create_full(9, 9);
 
@@ -63,13 +64,14 @@ TEST_CASE("BFS: simple route") {
 TEST_CASE("BFS: blocked route") {
     std::cout << "BFS: blocked route\n";
     // navgrid_t* m = navgrid_create();
-    navgrid_t* m = navgrid_create_full(10, 10, NAVGRID_DIR_8, is_coord_blocked_navgrid);
+    navgrid_t* m = navgrid_create_full(
+        10, 10, NAVGRID_DIR_8, is_coord_blocked_navgrid);
     coord_t* start = coord_create_full(0, 0);
     coord_t* goal = coord_create_full(9, 9);
 
     REQUIRE_FALSE(coord_equal(start, goal));
 
-    // 장애물 삽입 (세로 차단)
+    // obstacle input  (vertical blocking)
     for (int y = 1; y < 10; ++y)
         navgrid_block_coord(m, 5, y);
 
@@ -91,13 +93,14 @@ TEST_CASE("BFS: blocked route") {
 TEST_CASE("BFS: blocked route force failed") {
     std::cout << "BFS: blocked route force failed\n";
     // navgrid_t* m = navgrid_create();
-    navgrid_t* m = navgrid_create_full(10, 10, NAVGRID_DIR_8, is_coord_blocked_navgrid);
+    navgrid_t* m = navgrid_create_full(
+        10, 10, NAVGRID_DIR_8, is_coord_blocked_navgrid);
     coord_t* start = coord_create_full(0, 0);
     coord_t* goal = coord_create_full(9, 9);
 
     REQUIRE_FALSE(coord_equal(start, goal));
 
-    // 장애물 삽입 (세로 차단)
+    // obstacle input  (vertical blocking)
     for (int y = 1; y < 10; ++y)
         navgrid_block_coord(m, 5, y);
 
@@ -118,7 +121,8 @@ TEST_CASE("BFS: blocked route force failed") {
 
 TEST_CASE("DFS: simple route") {
     // navgrid_t* m = navgrid_create();
-    navgrid_t* m = navgrid_create_full(10, 10, NAVGRID_DIR_8, is_coord_blocked_navgrid);
+    navgrid_t* m = navgrid_create_full(
+        10, 10, NAVGRID_DIR_8, is_coord_blocked_navgrid);
     coord_t* start = coord_create_full(0, 0);
     coord_t* goal = coord_create_full(9, 9);
 
@@ -138,13 +142,14 @@ TEST_CASE("DFS: simple route") {
 
 TEST_CASE("DFS: blocked route") {
     // navgrid_t* m = navgrid_create();
-    navgrid_t* m = navgrid_create_full(10, 10, NAVGRID_DIR_8, is_coord_blocked_navgrid);
+    navgrid_t* m = navgrid_create_full(
+        10, 10, NAVGRID_DIR_8, is_coord_blocked_navgrid);
     coord_t* start = coord_create_full(0, 0);
     coord_t* goal = coord_create_full(9, 9);
 
     REQUIRE_FALSE(coord_equal(start, goal));
 
-    // 장애물 삽입 (세로 차단)
+    // obstacle input  (vertical blocking)
     for (int y = 1; y < 10; ++y)
         navgrid_block_coord(m, 5, y);
 
@@ -164,13 +169,14 @@ TEST_CASE("DFS: blocked route") {
 
 TEST_CASE("DFS: blocked route force failed") {
     // navgrid_t* m = navgrid_create();
-    navgrid_t* m = navgrid_create_full(10, 10, NAVGRID_DIR_8, is_coord_blocked_navgrid);
+    navgrid_t* m = navgrid_create_full(
+        10, 10, NAVGRID_DIR_8, is_coord_blocked_navgrid);
     coord_t* start = coord_create_full(0, 0);
     coord_t* goal = coord_create_full(9, 9);
 
     REQUIRE_FALSE(coord_equal(start, goal));
 
-    // 장애물 삽입 (세로 차단)
+    // obstacle input  (vertical blocking)
     for (int y = 1; y < 10; ++y)
         navgrid_block_coord(m, 5, y);
 
@@ -190,7 +196,8 @@ TEST_CASE("DFS: blocked route force failed") {
 
 TEST_CASE("dijkstra: simple route") {
     // navgrid_t* m = navgrid_create();
-    navgrid_t* m = navgrid_create_full(10, 10, NAVGRID_DIR_8, is_coord_blocked_navgrid);
+    navgrid_t* m = navgrid_create_full(
+        10, 10, NAVGRID_DIR_8, is_coord_blocked_navgrid);
     coord_t* start = coord_create_full(0, 0);
     coord_t* goal = coord_create_full(9, 9);
 
@@ -210,13 +217,14 @@ TEST_CASE("dijkstra: simple route") {
 
 TEST_CASE("dijkstra: blocked route") {
     // navgrid_t* m = navgrid_create();
-    navgrid_t* m = navgrid_create_full(10, 10, NAVGRID_DIR_8, is_coord_blocked_navgrid);
+    navgrid_t* m = navgrid_create_full(
+        10, 10, NAVGRID_DIR_8, is_coord_blocked_navgrid);
     coord_t* start = coord_create_full(0, 0);
     coord_t* goal = coord_create_full(9, 9);
 
     REQUIRE_FALSE(coord_equal(start, goal));
 
-    // 장애물 삽입 (세로 차단)
+    // obstacle input  (vertical blocking)
     for (int y = 1; y < 10; ++y)
         navgrid_block_coord(m, 5, y);
 
@@ -236,13 +244,14 @@ TEST_CASE("dijkstra: blocked route") {
 
 TEST_CASE("dijkstra: blocked route force failed") {
     // navgrid_t* m = navgrid_create();
-    navgrid_t* m = navgrid_create_full(10, 10, NAVGRID_DIR_8, is_coord_blocked_navgrid);
+    navgrid_t* m = navgrid_create_full(
+        10, 10, NAVGRID_DIR_8, is_coord_blocked_navgrid);
     coord_t* start = coord_create_full(0, 0);
     coord_t* goal = coord_create_full(9, 9);
 
     REQUIRE_FALSE(coord_equal(start, goal));
 
-    // 장애물 삽입 (세로 차단)
+    // obstacle input  (vertical blocking)
     for (int y = 1; y < 10; ++y)
         navgrid_block_coord(m, 5, y);
 
@@ -262,7 +271,8 @@ TEST_CASE("dijkstra: blocked route force failed") {
 
 TEST_CASE("astar: simple route") {
     // navgrid_t* m = navgrid_create();
-    navgrid_t* m = navgrid_create_full(10, 10, NAVGRID_DIR_8, is_coord_blocked_navgrid);
+    navgrid_t* m = navgrid_create_full(
+        10, 10, NAVGRID_DIR_8, is_coord_blocked_navgrid);
     coord_t* start = coord_create_full(0, 0);
     coord_t* goal = coord_create_full(9, 9);
 
@@ -289,7 +299,7 @@ TEST_CASE("astar: blocked route") {
 
     REQUIRE_FALSE(coord_equal(start, goal));
 
-    // 장애물 삽입 (세로 차단)
+    // obstacle input  (vertical blocking)
     for (int y = 1; y < 10; ++y)
         navgrid_block_coord(m, 5, y);
 
@@ -310,13 +320,14 @@ TEST_CASE("astar: blocked route") {
 
 TEST_CASE("astar: blocked route force failed ") {
     // navgrid_t* m = navgrid_create();
-    navgrid_t* m = navgrid_create_full(10, 10, NAVGRID_DIR_8, is_coord_blocked_navgrid);
+    navgrid_t* m = navgrid_create_full(
+        10, 10, NAVGRID_DIR_8, is_coord_blocked_navgrid);
     coord_t* start = coord_create_full(0, 0);
     coord_t* goal = coord_create_full(9, 9);
 
     REQUIRE_FALSE(coord_equal(start, goal));
 
-    // 장애물 삽입 (세로 차단)
+    // obstacle input  (vertical blocking)
     for (int y = 1; y < 10; ++y)
         navgrid_block_coord(m, 5, y);
 
@@ -338,7 +349,8 @@ TEST_CASE("astar: blocked route force failed ") {
 TEST_CASE("fast_marching: simple route") {
     std::cout << "fast_marching: simple route\n";
     // navgrid_t* m = navgrid_create();
-    navgrid_t* m = navgrid_create_full(10, 10, NAVGRID_DIR_8, is_coord_blocked_navgrid);
+    navgrid_t* m = navgrid_create_full(
+        10, 10, NAVGRID_DIR_8, is_coord_blocked_navgrid);
     coord_t* start = coord_create_full(0, 0);
     coord_t* goal = coord_create_full(9, 9);
 
@@ -361,13 +373,14 @@ TEST_CASE("fast_marching: blocked route") {
     // navgrid_t* m = navgrid_create();
     std::cout << "fast_marching: blocked route\n";
 
-    navgrid_t* m = navgrid_create_full(10, 10, NAVGRID_DIR_8, is_coord_blocked_navgrid);
+    navgrid_t* m = navgrid_create_full(
+        10, 10, NAVGRID_DIR_8, is_coord_blocked_navgrid);
     coord_t* start = coord_create_full(0, 0);
     coord_t* goal = coord_create_full(9, 9);
 
     REQUIRE_FALSE(coord_equal(start, goal));
 
-    // 장애물 삽입 (세로 차단)
+    // obstacle input  (vertical blocking)
     for (int y = 1; y < 10; ++y)
         navgrid_block_coord(m, 5, y);
 
@@ -389,13 +402,14 @@ TEST_CASE("fast_marching: blocked route") {
 TEST_CASE("fast_marching: blocked route force failed ") {
     std::cout << "fast_marching: blocked route force failed\n";
     // navgrid_t* m = navgrid_create();
-    navgrid_t* m = navgrid_create_full(10, 10, NAVGRID_DIR_8, is_coord_blocked_navgrid);
+    navgrid_t* m = navgrid_create_full(
+        10, 10, NAVGRID_DIR_8, is_coord_blocked_navgrid);
     coord_t* start = coord_create_full(0, 0);
     coord_t* goal = coord_create_full(9, 9);
 
     REQUIRE_FALSE(coord_equal(start, goal));
 
-    // 장애물 삽입 (세로 차단)
+    // obstacle input  (vertical blocking)
     for (int y = 1; y < 10; ++y)
         navgrid_block_coord(m, 5, y);
 
@@ -418,7 +432,8 @@ TEST_CASE("greedy_best_first: simple route") {
     std::cout << "greedy_best_first: simple route\n";
 
     // navgrid_t* m = navgrid_create();
-    navgrid_t* m = navgrid_create_full(10, 10, NAVGRID_DIR_8, is_coord_blocked_navgrid);
+    navgrid_t* m = navgrid_create_full(
+        10, 10, NAVGRID_DIR_8, is_coord_blocked_navgrid);
     coord_t* start = coord_create_full(0, 0);
     coord_t* goal = coord_create_full(9, 9);
 
@@ -441,13 +456,14 @@ TEST_CASE("greedy_best_first: blocked route") {
     std::cout << "greedy_best_first: blocked route\n";
 
     // navgrid_t* m = navgrid_create();
-    navgrid_t* m = navgrid_create_full(10, 10, NAVGRID_DIR_8, is_coord_blocked_navgrid);
+    navgrid_t* m = navgrid_create_full(
+        10, 10, NAVGRID_DIR_8, is_coord_blocked_navgrid);
     coord_t* start = coord_create_full(0, 0);
     coord_t* goal = coord_create_full(9, 9);
 
     REQUIRE_FALSE(coord_equal(start, goal));
 
-    // 장애물 삽입 (세로 차단)
+    // obstacle input  (vertical blocking)
     for (int y = 1; y < 10; ++y)
         navgrid_block_coord(m, 5, y);
 
@@ -470,13 +486,14 @@ TEST_CASE("greedy_best_first: blocked route force failed ") {
     std::cout << "greedy_best_first: blocked route force failed\n";
 
     // navgrid_t* m = navgrid_create();
-    navgrid_t* m = navgrid_create_full(10, 10, NAVGRID_DIR_8, is_coord_blocked_navgrid);
+    navgrid_t* m = navgrid_create_full(
+        10, 10, NAVGRID_DIR_8, is_coord_blocked_navgrid);
     coord_t* start = coord_create_full(0, 0);
     coord_t* goal = coord_create_full(9, 9);
 
     REQUIRE_FALSE(coord_equal(start, goal));
 
-    // 장애물 삽입 (세로 차단)
+    // obstacle input  (vertical blocking)
     for (int y = 1; y < 10; ++y)
         navgrid_block_coord(m, 5, y);
 
@@ -499,7 +516,8 @@ TEST_CASE("ida_star: simple route") {
     std::cout << "ida_star: simple route\n";
 
     // navgrid_t* m = navgrid_create();
-    navgrid_t* m = navgrid_create_full(10, 10, NAVGRID_DIR_8, is_coord_blocked_navgrid);
+    navgrid_t* m = navgrid_create_full(
+        10, 10, NAVGRID_DIR_8, is_coord_blocked_navgrid);
     coord_t* start = coord_create_full(0, 0);
     coord_t* goal = coord_create_full(9, 9);
 
@@ -522,13 +540,14 @@ TEST_CASE("ida_star: blocked route") {
     std::cout << "ida_star: blocked route\n";
 
     // navgrid_t* m = navgrid_create();
-    navgrid_t* m = navgrid_create_full(10, 10, NAVGRID_DIR_8, is_coord_blocked_navgrid);
+    navgrid_t* m = navgrid_create_full(
+        10, 10, NAVGRID_DIR_8, is_coord_blocked_navgrid);
     coord_t* start = coord_create_full(0, 0);
     coord_t* goal = coord_create_full(9, 9);
 
     REQUIRE_FALSE(coord_equal(start, goal));
 
-    // 장애물 삽입 (세로 차단)
+    // obstacle input  (vertical blocking)
     for (int y = 1; y < 10; ++y)
         navgrid_block_coord(m, 5, y);
 
@@ -551,13 +570,14 @@ TEST_CASE("ida_star: blocked route force failed ") {
     std::cout << "ida_star: blocked route force failed\n";
 
     // navgrid_t* m = navgrid_create();
-    navgrid_t* m = navgrid_create_full(10, 10, NAVGRID_DIR_8, is_coord_blocked_navgrid);
+    navgrid_t* m = navgrid_create_full(
+        10, 10, NAVGRID_DIR_8, is_coord_blocked_navgrid);
     coord_t* start = coord_create_full(0, 0);
     coord_t* goal = coord_create_full(9, 9);
 
     REQUIRE_FALSE(coord_equal(start, goal));
 
-    // 장애물 삽입 (세로 차단)
+    // obstacle input  (vertical blocking)
     for (int y = 1; y < 10; ++y)
         navgrid_block_coord(m, 5, y);
 
@@ -580,7 +600,8 @@ TEST_CASE("fringe_search: simple route") {
     std::cout << "fringe_search: simple route\n";
 
     // navgrid_t* m = navgrid_create();
-    navgrid_t* m = navgrid_create_full(10, 10, NAVGRID_DIR_8, is_coord_blocked_navgrid);
+    navgrid_t* m = navgrid_create_full(
+        10, 10, NAVGRID_DIR_8, is_coord_blocked_navgrid);
     coord_t* start = coord_create_full(0, 0);
     coord_t* goal = coord_create_full(9, 9);
 
@@ -604,13 +625,14 @@ TEST_CASE("fringe_search: blocked route") {
     std::cout << "fringe_search: blocked route\n";
 
     // navgrid_t* m = navgrid_create();
-    navgrid_t* m = navgrid_create_full(10, 10, NAVGRID_DIR_8, is_coord_blocked_navgrid);
+    navgrid_t* m = navgrid_create_full(
+        10, 10, NAVGRID_DIR_8, is_coord_blocked_navgrid);
     coord_t* start = coord_create_full(0, 0);
     coord_t* goal = coord_create_full(9, 9);
 
     REQUIRE_FALSE(coord_equal(start, goal));
 
-    // 장애물 삽입 (세로 차단)
+    // obstacle input  (vertical blocking)
     for (int y = 1; y < 10; ++y)
         navgrid_block_coord(m, 5, y);
 
@@ -635,13 +657,14 @@ TEST_CASE("fringe_search: blocked route force failed ") {
     std::cout << "fringe_search: blocked route force failed\n";
 
     // navgrid_t* m = navgrid_create();
-    navgrid_t* m = navgrid_create_full(10, 10, NAVGRID_DIR_8, is_coord_blocked_navgrid);
+    navgrid_t* m = navgrid_create_full(
+        10, 10, NAVGRID_DIR_8, is_coord_blocked_navgrid);
     coord_t* start = coord_create_full(0, 0);
     coord_t* goal = coord_create_full(9, 9);
 
     REQUIRE_FALSE(coord_equal(start, goal));
 
-    // 장애물 삽입 (세로 차단)
+    // obstacle input  (vertical blocking)
     for (int y = 1; y < 10; ++y)
         navgrid_block_coord(m, 5, y);
 
@@ -666,7 +689,8 @@ TEST_CASE("weighted_astar: simple route") {
     std::cout << "weighted_astar: simple route\n";
 
     // navgrid_t* m = navgrid_create();
-    navgrid_t* m = navgrid_create_full(10, 10, NAVGRID_DIR_8, is_coord_blocked_navgrid);
+    navgrid_t* m = navgrid_create_full(
+        10, 10, NAVGRID_DIR_8, is_coord_blocked_navgrid);
     coord_t* start = coord_create_full(0, 0);
     coord_t* goal = coord_create_full(9, 9);
 
@@ -690,13 +714,14 @@ TEST_CASE("weighted_astar: blocked route") {
     std::cout << "weighted_astar: blocked route\n";
 
     // navgrid_t* m = navgrid_create();
-    navgrid_t* m = navgrid_create_full(10, 10, NAVGRID_DIR_8, is_coord_blocked_navgrid);
+    navgrid_t* m = navgrid_create_full(
+        10, 10, NAVGRID_DIR_8, is_coord_blocked_navgrid);
     coord_t* start = coord_create_full(0, 0);
     coord_t* goal = coord_create_full(9, 9);
 
     REQUIRE_FALSE(coord_equal(start, goal));
 
-    // 장애물 삽입 (세로 차단)
+    // obstacle input  (vertical blocking)
     for (int y = 1; y < 10; ++y)
         navgrid_block_coord(m, 5, y);
 
@@ -721,13 +746,14 @@ TEST_CASE("weighted_astar: blocked route force failed ") {
     std::cout << "weighted_astar: blocked route force failed\n";
 
     // navgrid_t* m = navgrid_create();
-    navgrid_t* m = navgrid_create_full(10, 10, NAVGRID_DIR_8, is_coord_blocked_navgrid);
+    navgrid_t* m = navgrid_create_full(
+        10, 10, NAVGRID_DIR_8, is_coord_blocked_navgrid);
     coord_t* start = coord_create_full(0, 0);
     coord_t* goal = coord_create_full(9, 9);
 
     REQUIRE_FALSE(coord_equal(start, goal));
 
-    // 장애물 삽입 (세로 차단)
+    // obstacle input  (vertical blocking)
     for (int y = 1; y < 10; ++y)
         navgrid_block_coord(m, 5, y);
 
@@ -752,7 +778,8 @@ TEST_CASE("rta_star: simple route") {
     std::cout << "rta_star: simple route\n";
 
     // navgrid_t* m = navgrid_create();
-    navgrid_t* m = navgrid_create_full(10, 10, NAVGRID_DIR_8, is_coord_blocked_navgrid);
+    navgrid_t* m = navgrid_create_full(
+        10, 10, NAVGRID_DIR_8, is_coord_blocked_navgrid);
     coord_t* start = coord_create_full(0, 0);
     coord_t* goal = coord_create_full(9, 9);
 
@@ -776,13 +803,14 @@ TEST_CASE("rta_star: blocked route") {
     std::cout << "rta_star: blocked route\n";
 
     // navgrid_t* m = navgrid_create();
-    navgrid_t* m = navgrid_create_full(10, 10, NAVGRID_DIR_8, is_coord_blocked_navgrid);
+    navgrid_t* m = navgrid_create_full(
+        10, 10, NAVGRID_DIR_8, is_coord_blocked_navgrid);
     coord_t* start = coord_create_full(0, 0);
     coord_t* goal = coord_create_full(9, 9);
 
     REQUIRE_FALSE(coord_equal(start, goal));
 
-    // 장애물 삽입 (세로 차단)
+    // obstacle input  (vertical blocking)
     for (int y = 1; y < 10; ++y)
         navgrid_block_coord(m, 5, y);
 
@@ -807,13 +835,14 @@ TEST_CASE("rta_star: blocked route force failed ") {
     std::cout << "rta_star: blocked route force failed\n";
 
     // navgrid_t* m = navgrid_create();
-    navgrid_t* m = navgrid_create_full(10, 10, NAVGRID_DIR_8, is_coord_blocked_navgrid);
+    navgrid_t* m = navgrid_create_full(
+        10, 10, NAVGRID_DIR_8, is_coord_blocked_navgrid);
     coord_t* start = coord_create_full(0, 0);
     coord_t* goal = coord_create_full(9, 9);
 
     REQUIRE_FALSE(coord_equal(start, goal));
 
-    // 장애물 삽입 (세로 차단)
+    // obstacle input  (vertical blocking)
     for (int y = 1; y < 10; ++y)
         navgrid_block_coord(m, 5, y);
 
@@ -838,7 +867,8 @@ TEST_CASE("sma_star: simple route") {
     std::cout << "sma_star: simple route\n";
 
     // navgrid_t* m = navgrid_create();
-    navgrid_t* m = navgrid_create_full(10, 10, NAVGRID_DIR_8, is_coord_blocked_navgrid);
+    navgrid_t* m = navgrid_create_full(
+        10, 10, NAVGRID_DIR_8, is_coord_blocked_navgrid);
     coord_t* start = coord_create_full(0, 0);
     coord_t* goal = coord_create_full(9, 9);
 
@@ -862,13 +892,14 @@ TEST_CASE("sma_star: blocked route") {
     std::cout << "sma_star: blocked route\n";
 
     // navgrid_t* m = navgrid_create();
-    navgrid_t* m = navgrid_create_full(10, 10, NAVGRID_DIR_8, is_coord_blocked_navgrid);
+    navgrid_t* m = navgrid_create_full(
+        10, 10, NAVGRID_DIR_8, is_coord_blocked_navgrid);
     coord_t* start = coord_create_full(0, 0);
     coord_t* goal = coord_create_full(9, 9);
 
     REQUIRE_FALSE(coord_equal(start, goal));
 
-    // 장애물 삽입 (세로 차단)
+    // obstacle input  (vertical blocking)
     for (int y = 1; y < 10; ++y)
         navgrid_block_coord(m, 5, y);
 
@@ -893,13 +924,14 @@ TEST_CASE("sma_star: blocked route force failed ") {
     std::cout << "sma_star: blocked route force failed\n";
 
     // navgrid_t* m = navgrid_create();
-    navgrid_t* m = navgrid_create_full(10, 10, NAVGRID_DIR_8, is_coord_blocked_navgrid);
+    navgrid_t* m = navgrid_create_full(
+        10, 10, NAVGRID_DIR_8, is_coord_blocked_navgrid);
     coord_t* start = coord_create_full(0, 0);
     coord_t* goal = coord_create_full(9, 9);
 
     REQUIRE_FALSE(coord_equal(start, goal));
 
-    // 장애물 삽입 (세로 차단)
+    // obstacle input  (vertical blocking)
     for (int y = 1; y < 10; ++y)
         navgrid_block_coord(m, 5, y);
 
@@ -928,7 +960,7 @@ TEST_CASE("route_finder_all: blocked route") {
 
     std::cout << "default\n";
     navgrid_t* m = navgrid_create();
-    // 장애물 삽입 (세로 차단)
+    // obstacle input  (vertical blocking)
     for (int y = 1; y < 10; ++y)
         navgrid_block_coord(m, 5, y);
 
@@ -948,7 +980,7 @@ TEST_CASE("route_finder_all: blocked route") {
     navgrid_destroy(m);
 
     m = navgrid_create_full(10, 10, NAVGRID_DIR_8, is_coord_blocked_navgrid);
-    // 장애물 삽입 (세로 차단)
+    // obstacle input  (vertical blocking)
     for (int y = 1; y < 10; ++y)
         navgrid_block_coord(m, 5, y);
 

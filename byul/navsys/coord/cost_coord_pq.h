@@ -11,38 +11,38 @@ extern "C" {
 
 typedef struct s_cost_coord_pq cost_coord_pq_t;
 
-// ------------------------ 생성/해제 ------------------------
+// ------------------------ Create / Destroy ------------------------
 
-/// @brief float 우선순위 기반 coord_t* 저장 큐 생성
+/// @brief Create a queue that stores coord_t* based on float priority
 BYUL_API cost_coord_pq_t* cost_coord_pq_create();
 
-/// @brief 큐 해제
+/// @brief Destroy the queue
 BYUL_API void cost_coord_pq_destroy(cost_coord_pq_t* pq);
 
-// ------------------------ 삽입/조회 ------------------------
+// ------------------------ Insert / Retrieve ------------------------
 
-/// @brief (비용, 좌표) 쌍 삽입
+/// @brief Insert a (cost, coordinate) pair
 BYUL_API void cost_coord_pq_push(cost_coord_pq_t* pq, float cost, 
     const coord_t* c);
 
-/// @brief 현재 최소 비용 좌표 조회 (삭제하지 않음)
+/// @brief Get the current minimum-cost coordinate (does not remove)
 BYUL_API coord_t* cost_coord_pq_peek(cost_coord_pq_t* pq);
 
-/// @brief 현재 최소 비용 좌표 제거 후 반환
+/// @brief Remove and return the current minimum-cost coordinate
 BYUL_API coord_t* cost_coord_pq_pop(cost_coord_pq_t* pq);
 
-/// @brief 최소 비용 값 (float)만 조회
+/// @brief Get only the minimum cost value (float)
 BYUL_API float cost_coord_pq_peek_cost(cost_coord_pq_t* pq);
 
-// ------------------------ 검사/삭제 ------------------------
+// ------------------------ Check / Remove ------------------------
 
-/// @brief 큐가 비었는지 여부
+/// @brief Check if the queue is empty
 BYUL_API bool cost_coord_pq_is_empty(cost_coord_pq_t* pq);
 
-/// @brief 해당 좌표가 큐에 존재하는지 확인
+/// @brief Check if a given coordinate exists in the queue
 BYUL_API bool cost_coord_pq_contains(cost_coord_pq_t* pq, const coord_t* c);
 
-/// @brief 해당 좌표의 비용을 제거 (비용 값은 알아야 함)
+/// @brief Remove a coordinate with the given cost (cost value must match)
 BYUL_API bool cost_coord_pq_remove(
     cost_coord_pq_t* pq, float cost, const coord_t* c);
 

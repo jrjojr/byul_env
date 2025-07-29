@@ -187,7 +187,6 @@ route_t* find_fast_marching(const navgrid_t* m,
 
     route_t* route = route_create();
 
-    // 방문한 셀 순서대로 기록
     if (visited_logging && grid->visit_order) {
         int vlen = coord_list_length(grid->visit_order);
         for (int i = 0; i < vlen; ++i) {
@@ -200,13 +199,13 @@ route_t* find_fast_marching(const navgrid_t* m,
 
     const coord_t* fallback = nullptr;
     if (!goal_cell) {
-        // visit_order에서 마지막 셀을 fallback으로 사용
+
         int len = coord_list_length(grid->visit_order);
         if (len > 0) {
             fallback = coord_list_get(grid->visit_order, len - 1);
             goal = fallback;
             goal_cell = (fmm_cell_t*)coord_hash_get(grid->cells, goal);
-            route_set_success(route, false);  // fallback이므로 실패로 간주
+            route_set_success(route, false);
         } else {
             route_set_success(route, false);
             fmm_grid_destroy(grid);
@@ -214,7 +213,6 @@ route_t* find_fast_marching(const navgrid_t* m,
         }
     }
 
-    // 역추적 시작
     coord_t* current = coord_copy(goal);
     route_insert(route, 0, current);
 

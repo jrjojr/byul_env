@@ -60,7 +60,7 @@ void maze_make_aldous_broder(maze_t* maze) {
             if (!is_inside(nx, ny, w, h)) continue;
 
             if (!visited[ny][nx]) {
-                // 뚫기: 중간 벽 + 다음 셀
+
                 int mx = (current.x + nx) / 2;
                 int my = (current.y + ny) / 2;
                 grid[my][mx] = PASSAGE;
@@ -69,14 +69,12 @@ void maze_make_aldous_broder(maze_t* maze) {
                 visited_count++;
             }
 
-            // 이동 (항상)
             current.x = nx;
             current.y = ny;
             break;
         }
     }
 
-    // 벽 삽입
     for (int y = 0; y < h; ++y) {
         for (int x = 0; x < w; ++x) {
             if (grid[y][x] != PASSAGE) {

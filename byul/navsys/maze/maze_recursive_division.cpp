@@ -30,8 +30,8 @@ static void divide(std::vector<std::vector<int>>& grid,
     bool horizontal = (w < h) ? true : (w > h) ? false : (rng() % 2 == 0);
 
     if (horizontal) {
-        int wall_y = random_even(y + 2, y + h - 3, rng);  // 내부 짝수 y
-        int passage_x = random_odd(x + 1, x + w - 2, rng); // 내부 홀수 x
+        int wall_y = random_even(y + 2, y + h - 3, rng);
+        int passage_x = random_odd(x + 1, x + w - 2, rng);
 
         for (int i = x; i < x + w; ++i)
             grid[wall_y][i] = WALL;
@@ -41,8 +41,8 @@ static void divide(std::vector<std::vector<int>>& grid,
         divide(grid, x, y, w, wall_y - y, rng);
         divide(grid, x, wall_y + 1, w, y + h - wall_y - 1, rng);
     } else {
-        int wall_x = random_even(x + 2, x + w - 3, rng); // 내부 짝수 x
-        int passage_y = random_odd(y + 1, y + h - 2, rng); // 내부 홀수 y
+        int wall_x = random_even(x + 2, x + w - 3, rng);
+        int passage_y = random_odd(y + 1, y + h - 2, rng);
 
         for (int i = y; i < y + h; ++i)
             grid[i][wall_x] = WALL;
@@ -66,14 +66,12 @@ void maze_make_recursive_division(maze_t* maze) {
     std::vector<std::vector<int>> grid(h, std::vector<int>(w, WALL));
     std::mt19937 rng(static_cast<unsigned int>(time(nullptr)));
 
-    // 홀수 셀만 통로로 초기화
     for (int y = 1; y < h; y += 2)
         for (int x = 1; x < w; x += 2)
             grid[y][x] = PASSAGE;
 
     divide(grid, 0, 0, w, h, rng);
 
-    // 외곽 벽 강제 고정
     for (int y = 0; y < h; ++y) {
         grid[y][0] = WALL;
         grid[y][w - 1] = WALL;

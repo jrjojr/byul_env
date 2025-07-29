@@ -25,11 +25,11 @@ TEST_CASE("Scalar PID: Full PID output (Kp, Ki, Kd)") {
     pid_reset(&pid);
 
     float out1 = pid_update(&pid, 4.0f, 1.0f);  // error = 3
-    // P = 6, I = 1.5, D = 3 → total = 10.5
+    // P = 6, I = 1.5, D = 3 -> total = 10.5
     CHECK(out1 == doctest::Approx(10.5f));
 
     float out2 = pid_update(&pid, 4.0f, 3.0f);  // error = 1
-    // P = 2, I = 2.0, D = -2 → total = 2.0
+    // P = 2, I = 2.0, D = -2 -> total = 2.0
     CHECK(out2 == doctest::Approx(2.0f));
 }
 
@@ -39,10 +39,10 @@ TEST_CASE("Scalar PID: Output limit + Anti-windup") {
     pid.output_limit = 2.0f;
     pid.anti_windup = true;
 
-    float ctrl1 = pid_update(&pid, 10.0f, 0.0f);  // error = 10, output = 10 + 10 = 20 → clamp
+    float ctrl1 = pid_update(&pid, 10.0f, 0.0f);  // error = 10, output = 10 + 10 = 20 -> clamp
     CHECK(ctrl1 <= 2.0f);
 
-    float ctrl2 = pid_update(&pid, 10.0f, 0.0f);  // windup 없으면 적분 계속 증가
+    float ctrl2 = pid_update(&pid, 10.0f, 0.0f);  // no windup then integrate out wave
     CHECK(ctrl2 <= 2.0f);
 }
 
@@ -67,7 +67,7 @@ TEST_CASE("Scalar PID: Preview should not change state") {
     float before_integral = pid.integral;
     float preview = pid_preview(&pid, 4.0f, 1.0f);
     CHECK(preview > 0.0f);
-    CHECK(pid.integral == before_integral);  // 상태 유지
+    CHECK(pid.integral == before_integral);
 }
 
 // -------------------- Vec3 PID Tests --------------------
@@ -99,7 +99,6 @@ TEST_CASE("Vec3 PID: Preview vs Update state check") {
     vec3_t ctrl_real = {0};
     pid_vec3_update(&pid, &target, &measured, &ctrl_real);
 
-    // preview와 update의 값은 같아야 하지만 내부 상태는 update만 바뀜
     CHECK(ctrl_prev.x == doctest::Approx(ctrl_real.x));
 }
 
@@ -157,13 +156,13 @@ TEST_CASE("pid_update_with_integral_and_derivative") {
     float target = 10.0f;
     float measured = 8.0f;
 
-    // 첫 번째 업데이트
+    // first updat3
     float control1 = pid_update(&pid, target, measured);
 
     CHECK(control1 == doctest::Approx(4.1f)); // P + I + D = 4.1
 
 
-    // 두 번째 업데이트 (오차 변화 확인)
+    // second update (tol diff view)
     measured = 9.0f; // error = 1
     float control2 = pid_update(&pid, target, measured);
     // P = 1 * 1 = 1
@@ -174,16 +173,16 @@ TEST_CASE("pid_update_with_integral_and_derivative") {
 
 TEST_CASE("pid_output_limit_and_anti_windup") {
     pid_controller_t pid;
-    pid_init_full(&pid, 10.0f, 5.0f, 0.0f, 0.1f); // 강한 P, I
-    pid.output_limit = 5.0f; // 출력 제한
-    pid.anti_windup = true;  // 적분항 제한 활성화
+    pid_init_full(&pid, 10.0f, 5.0f, 0.0f, 0.1f); // strong P, I
+    pid.output_limit = 5.0f; // OUTPUT LIMIT
+    pid.anti_windup = true;  // INTEGRATE LIMIT ENABLE
 
     float target = 10.0f;
     float measured = 0.0f;
 
     for (int i = 0; i < 10; ++i) {
         float control = pid_update(&pid, target, measured);
-        CHECK(control <= 5.0f); // 출력이 5.0을 초과하지 않음
+        CHECK(control <= 5.0f);
     }
 }
 
@@ -197,5 +196,5 @@ TEST_CASE("pid_preview_test") {
     float preview = pid_preview(&pid, target, measured);
     float control = pid_update(&pid, target, measured);
 
-    CHECK(std::fabs(preview - control) < 1e-4f); // preview는 update와 같은 결과
+    CHECK(std::fabs(preview - control) < 1e-4f);
 }

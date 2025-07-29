@@ -12,12 +12,10 @@ layout(std430, binding = 1) buffer Result {
     vec4 rotated;
 };
 
-// 회전 벡터 (초기값)
 const vec3 origin = vec3(0.0, 0.5, 0.0);
 // const vec3 origin = vec3(0.0, 0.0, -0.5);
 // const vec3 origin = vec3(1.0, 0.0, 0.0);
 
-// 단순 slerp 구현
 vec4 quat_slerp(vec4 qa, vec4 qb, float t) {
     float cos_theta = dot(qa, qb);
     if (cos_theta < 0.0) {
@@ -38,7 +36,6 @@ vec4 quat_slerp(vec4 qa, vec4 qb, float t) {
     return normalize(k0 * qa + k1 * qb);
 }
 
-// 쿼터니언으로 벡터 회전
 vec3 quat_rotate(vec4 q, vec3 v) {
     vec3 u = q.xyz;
     float s = q.w;

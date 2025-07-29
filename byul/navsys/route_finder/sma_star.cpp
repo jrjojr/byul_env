@@ -95,13 +95,11 @@ route_t* find_sma_star(const navgrid_t* m,
         int n = cost_coord_pq_length(frontier) - memory_limit;
 
         if (n > 0) {
-            // 제거 우선순위는 높은 f값
             cost_coord_pq_trim_worst(frontier, n);
         }
     }
 
     if (!final) {
-        // 목표를 찾지 못한 경우 가장 낮은 f를 가진 노드로부터 역추적 시도
         final = cost_coord_pq_peek(frontier);
         if (final) final = coord_copy(final);
     }

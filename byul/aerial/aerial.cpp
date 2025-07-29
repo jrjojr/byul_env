@@ -3,7 +3,7 @@
 #include "propulsion.h"
 #include "guidance.h"
 #include "entity_dynamic.h"
-#include <math.h>    // sqrtf 등
+#include <math.h>    // sqrtf
 
 typedef struct s_shell_projectile {
     projectile_t proj;
@@ -12,26 +12,22 @@ typedef struct s_shell_projectile {
 
 typedef struct s_rocket {
     shell_projectile_t base;
-    propulsion_t propulsion;       ///< 추진기 (유도 없음)
+    propulsion_t propulsion;
 } rocket_t;
 
 typedef struct s_missile {
     rocket_t base;
     guidance_func guidance;        ///< guidance_point / guidance_lead
-    void* guidance_userdata;       ///< 벡터 타겟
+    void* guidance_userdata;       ///< vector target
 } missile_t;
 
 typedef struct s_patriot {
     missile_t base;
     guidance_func guidance;        ///< guidance_predict_accel / accel_env
-    void* guidance_userdata;       ///< 엔티티 타겟
+    void* guidance_userdata;       ///< entity target
 } patriot_t;
 
 typedef struct s_aerial_vehicle {
-    /**
-     * @brief 동적 엔티티 기반 구조체.
-     * @details 위치, 속도, 회전 등 물리 정보를 포함합니다.
-     */
     entity_dynamic_t base;
     
     propulsion_t propulsion;
@@ -43,10 +39,6 @@ typedef struct s_aerial_vehicle {
     float drag_coefficient;
 } aerial_vehicle_t;
 
-
-// ---------------------------------------------------------
-// 기본 발사체
-// ---------------------------------------------------------
 bool projectile_launch(
     const projectile_t* proj,
     const vec3_t* target,
@@ -59,7 +51,6 @@ bool projectile_launch(
     entity_dynamic_init(&entdyn);
     entdyn.xf.pos = *target;
 
-    // 환경 영향 없음
     return projectile_predict(out, proj, &entdyn, 5.0f, 0.01f, 
         NULL, NULL, NULL);
 }

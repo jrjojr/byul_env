@@ -11,52 +11,13 @@
 #include <string.h>
 #include <assert.h>
 
-// ----------------------------------------
-// ✅ 내부 상태
-// ----------------------------------------
-
 static SDL_Window* window = nullptr;
 static SDL_GLContext gl_context = nullptr;
-
-// ----------------------------------------
-// 🖼️ GPU 초기화 / 종료
-// ----------------------------------------
-
-// int gpu_init(int width, int height, const char* title) {
-//     if (SDL_Init(SDL_INIT_VIDEO) != 0) {
-//         fprintf(stderr, "[GPU] SDL_Init failed: %s\n", SDL_GetError());
-//         return -1;
-//     }
-
-//     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
-//     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 3);
-//     SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
-
-//     window = SDL_CreateWindow(title,
-//                               SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
-//                               width, height, SDL_WINDOW_OPENGL);
-//     if (!window) {
-//         fprintf(stderr, "[GPU] SDL_CreateWindow failed\n");
-//         return -1;
-//     }
-
-//     gl_context = SDL_GL_CreateContext(window);
-//     if (!gl_context) {
-//         fprintf(stderr, "[GPU] SDL_GL_CreateContext failed\n");
-//         return -1;
-//     }
-
-//     if (!gladLoadGL((GLADloadfunc)SDL_GL_GetProcAddress)) {
-//         fprintf(stderr, "[GPU] gladLoadGL failed\n");
-//         return -1;
-//     }
-
-//     return 0;
-// }
 
 int gpu_init(int width, int height, const char* title) {
 #ifdef USE_SDL3
     if (SDL_Init(SDL_INIT_VIDEO) < 0) {
+
         fprintf(stderr, "[GPU] SDL3_Init failed: %s\n", SDL_GetError());
         return -1;
     }
@@ -120,7 +81,7 @@ int gpu_init(int width, int height, const char* title) {
 void gpu_terminate(void) {
 #ifdef USE_SDL3
     if (window) {
-        SDL_DestroyWindow(window);  // OpenGL context 포함 파괴됨
+        SDL_DestroyWindow(window);
         window = NULL;
     }
     SDL_Quit();
@@ -141,19 +102,38 @@ void* gpu_get_window(void) {
     return (void*)window;
 }
 
-// ----------------------------------------
-// 🔧 셰이더 로딩 유틸
-// ----------------------------------------
-
 static char* read_file(const char* path) {
-    FILE* f = fopen(path, "rb");
+    FILE* f = NULL;
+
+    // MSVC GCC/Clang
+#if defined(_MSC_VER)
+    if (fopen_s(&f, path, "rb") != 0) return NULL;
+#else
+    f = fopen(path, "rb");
     if (!f) return NULL;
-    fseek(f, 0, SEEK_END);
+#endif
+
+    if (fseek(f, 0, SEEK_END) != 0) {
+        fclose(f);
+        return NULL;
+    }
+
     long size = ftell(f);
+    if (size < 0) {
+        fclose(f);
+        return NULL;
+    }
     rewind(f);
-    char* buffer = (char*)malloc(size + 1);
-    fread(buffer, 1, size, f);
-    buffer[size] = 0;
+
+    char* buffer = (char*)malloc((size_t)size + 1);
+    if (!buffer) {
+        fclose(f);
+        return NULL;
+    }
+
+    size_t read_bytes = fread(buffer, 1, (size_t)size, f);
+    buffer[read_bytes] = '\0';
+
     fclose(f);
     return buffer;
 }

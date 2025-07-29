@@ -5,9 +5,6 @@
 #include <cstring>
 #include <string>
 
-// ---------------------------------------------------------
-// 기본 초기화 테스트
-// ---------------------------------------------------------
 TEST_CASE("propulsion basic init test") {
     propulsion_t p;
     propulsion_init(&p);
@@ -21,9 +18,6 @@ TEST_CASE("propulsion basic init test") {
     CHECK(p.active);
 }
 
-// ---------------------------------------------------------
-// 상세 초기화 테스트
-// ---------------------------------------------------------
 TEST_CASE("propulsion full init test") {
     propulsion_t p;
     propulsion_init_full(&p, 200.0f, 150.0f, 2.0f, nullptr, true);
@@ -35,9 +29,6 @@ TEST_CASE("propulsion full init test") {
     CHECK(p.active);
 }
 
-// ---------------------------------------------------------
-// 예측 함수 테스트
-// ---------------------------------------------------------
 TEST_CASE("propulsion predict functions") {
     propulsion_t p;
     propulsion_init_full(&p, 100.0f, 100.0f, 1.0f, nullptr, true);
@@ -54,9 +45,6 @@ TEST_CASE("propulsion predict functions") {
     CHECK(max_thrust <= 100.0f);
 }
 
-// ---------------------------------------------------------
-// 연료 보충 및 소비 테스트
-// ---------------------------------------------------------
 TEST_CASE("propulsion refuel and consume") {
     propulsion_t p;
     propulsion_init(&p);
@@ -73,9 +61,6 @@ TEST_CASE("propulsion refuel and consume") {
     CHECK_FALSE(p.active);
 }
 
-// ---------------------------------------------------------
-// 문자열 및 JSON 출력 테스트
-// ---------------------------------------------------------
 TEST_CASE("propulsion string and json") {
     propulsion_t p;
     propulsion_init_full(&p, 100.0f, 100.0f, 1.0f, nullptr, true);
@@ -96,9 +81,6 @@ TEST_CASE("propulsion string and json") {
     CHECK(std::string(json).find("fuel") != std::string::npos);
 }
 
-// ---------------------------------------------------------
-// PID, MPC, Bang-Bang 컨트롤러 테스트
-// ---------------------------------------------------------
 TEST_CASE("propulsion with PID, MPC, and Bang-Bang controller simulation") {
     const float dt = 1.0f;
     const float target_thrust = 80.0f;

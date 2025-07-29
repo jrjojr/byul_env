@@ -9,17 +9,11 @@ set(EXTERNAL_DIR ${CMAKE_SOURCE_DIR}/../external)
 message(STATUS "${PROJECT_NAME} : EXTERNAL_DIR = ${EXTERNAL_DIR}")
 
 
-# ✅ C++17 이상 사용
-set(CMAKE_CXX_STANDARD 17)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
-set(CMAKE_CXX_EXTENSIONS OFF) # gnu++17이 아닌 순수 c++17 사용
 
 # ----------------------------------------
 # 🛠️ 공통 설정
 # ----------------------------------------
 enable_testing()
-set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
-set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 # GLSL 셰이더 런타임 디렉토리 (define으로 넘김)
 set(SHADER_DIR "${CMAKE_INSTALL_PREFIX}/glsl")

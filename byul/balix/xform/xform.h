@@ -2,7 +2,7 @@
 #define XFORM_H
 
 #include "vec3.h"
-#include "quat.h"       // euler_order_t 정의
+#include "quat.h"       // euler_order_t definition
 #include "byul_common.h"
 
 #ifdef __cplusplus
@@ -10,34 +10,34 @@ extern "C" {
 #endif
 
 // ---------------------------------------------------------
-// xform 위치 좌표 한계값 정의 (무한맵용 범위)
+// xform position coordinate limits (for infinite maps)
 // ---------------------------------------------------------
 #ifndef XFORM_POS_MAX
-#define XFORM_POS_MAX   (99999.0f)   ///< xform 위치 좌표 최대값
+#define XFORM_POS_MAX   (99999.0f)   ///< Maximum xform position value
 #endif
 
 #ifndef XFORM_POS_MIN
-#define XFORM_POS_MIN   (-99999.0f)  ///< xform 위치 좌표 최소값
+#define XFORM_POS_MIN   (-99999.0f)  ///< Minimum xform position value
 #endif
 
 /**
- * @brief 위치(Position), 회전(Rotation), 스케일(Scale)을 통합 표현하는 변환 구조체.
+ * @brief Transform structure representing Position, Rotation, and Scale.
  *
- * - 위치: vec3_t pos
- * - 회전: quat_t rot
- * - 스케일: 기본값 (1,1,1)
+ * - Position: vec3_t pos
+ * - Rotation: quat_t rot
+ * - Scale: default (1,1,1)
  *
- * @note 위치 좌표는 항상 [XFORM_POS_MIN, XFORM_POS_MAX] 범위를 유지해야 합니다.
- *       xform_set_position(), xform_translate() 등에서 자동으로 클램프(clamp) 처리가 필요합니다.
+ * @note Position coordinates must always remain within [XFORM_POS_MIN, XFORM_POS_MAX].
+ *       Functions like xform_set_position() and xform_translate() should apply clamp automatically.
  */
 typedef struct s_xform {
-    vec3_t pos;     ///< 위치
-    quat_t rot;     ///< 회전
-    vec3_t scale;   ///< 스케일 (기본값: 1,1,1)
+    vec3_t pos;     ///< Position
+    quat_t rot;     ///< Rotation
+    vec3_t scale;   ///< Scale (default: 1,1,1)
 } xform_t;
 
 // ---------------------------------------------------------
-// 📌 생성 / 복사 / 비교
+// Create / Copy / Compare
 // ---------------------------------------------------------
 
 BYUL_API void xform_init(xform_t* out);
@@ -67,7 +67,7 @@ BYUL_API void xform_assign(xform_t* out, const xform_t* src);
 BYUL_API bool xform_equal(const xform_t* a, const xform_t* b);
 
 // ---------------------------------------------------------
-// 📌 위치 / 회전 / 스케일 Get/Set
+// Position / Rotation / Scale Get/Set
 // ---------------------------------------------------------
 
 BYUL_API void xform_get_position(const xform_t* xf, vec3_t* out);
@@ -105,7 +105,7 @@ BYUL_API void xform_set_scale(xform_t* xf, float sx, float sy, float sz);
 BYUL_API void xform_get_scale(const xform_t* xf, vec3_t* out_scale);
 
 // ---------------------------------------------------------
-// 📌 이동 / 회전 조작
+// Translation / Rotation Operations
 // ---------------------------------------------------------
 
 BYUL_API void xform_translate(xform_t* xf, const vec3_t* delta_world);
@@ -122,7 +122,7 @@ BYUL_API void xform_rotate_local_axis_angle_deg(
     xform_t* xf, const vec3_t* axis, float degrees);
 
 // ---------------------------------------------------------
-// 📌 고급 변환 유틸 (Inverse / Mul / LookAt)
+// Advanced Transform Utilities (Inverse / Mul / LookAt)
 // ---------------------------------------------------------
 
 BYUL_API void xform_inverse(xform_t* out, const xform_t* src);
@@ -143,7 +143,7 @@ BYUL_API void xform_align_vectors(
     const vec3_t* to);
 
 // ---------------------------------------------------------
-// 📌 적용 (좌표 변환)
+// Application (Coordinate Transform)
 // ---------------------------------------------------------
 
 BYUL_API void xform_apply_to_point(
@@ -157,7 +157,7 @@ BYUL_API void xform_apply_to_direction_inverse(
     const xform_t* xf, const vec3_t* world_dir, vec3_t* out_local_dir);
 
 // ---------------------------------------------------------
-// 📌 행렬 변환 (GPU / 디버깅용)
+// Matrix Conversion (for GPU / Debug)
 // ---------------------------------------------------------
 
 BYUL_API void xform_to_mat4(const xform_t* xf, float* out_mat4_16);
@@ -175,7 +175,7 @@ BYUL_API void xform_apply_inverse(xform_t* out,
     const xform_t* parent, const xform_t* world);
 
 // ---------------------------------------------------------
-// 📌 디버깅
+// Debug
 // ---------------------------------------------------------
 
 BYUL_API void xform_print(const xform_t* xf);

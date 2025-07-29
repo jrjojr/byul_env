@@ -66,7 +66,7 @@ TEST_CASE("quat_mul") {
 TEST_CASE("quat_rotate_vector") {
     vec3_t axis = {0.0f, 0.0f, 1.0f};
     quat_t q;
-    quat_init_axis_angle(&q, &axis, 3.1415926f); // Z축 180도 회전
+    quat_init_axis_angle(&q, &axis, 3.1415926f); // 180 DEG ROTATE
 
     vec3_t org = {1.0f, 0.0f, 0.0f};
     vec3_t result;
@@ -80,7 +80,7 @@ TEST_CASE("quat_lerp / slerp") {
     quat_identity(&a);
 
     vec3_t axis = {0.0f, 1.0f, 0.0f};
-    quat_init_axis_angle(&b, &axis, 3.1415926f); // 180도 회전
+    quat_init_axis_angle(&b, &axis, 3.1415926f); // 180 DEG ROTATE
 
     quat_lerp(&l, &a, &b, 0.5f);
     quat_slerp(&s, &a, &b, 0.5f);

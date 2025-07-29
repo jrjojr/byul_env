@@ -14,15 +14,13 @@ TEST_CASE("Room + Maze Blending Algorithm") {
     const coord_hash_t* blocked = maze_get_blocked_coords(maze);
     int n_blocked = coord_hash_length(blocked);
 
-    // 벽이 전혀 없는 경우는 잘못된 미로
     CHECK(n_blocked > (width * height / 4));
     CHECK(n_blocked < (width * height));
 
-    // 맵에 적용 후 확인
     navgrid_t* navgrid = navgrid_create_full(width, height, NAVGRID_DIR_4, nullptr);
     REQUIRE(navgrid != nullptr);
 
-    maze_apply_to_navgrid(maze, navgrid);  // 기존 maze_to_navgrid 이름 변경 기준
+    maze_apply_to_navgrid(maze, navgrid);
     navgrid_print_ascii(navgrid);
 
     navgrid_destroy(navgrid);

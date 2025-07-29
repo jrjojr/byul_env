@@ -6,24 +6,24 @@
 #include <functional>  // for std::hash
 #include <ostream>     // for operator<<
 
-// ------------------------ 비교 연산자 ------------------------
+// ------------------------ Comparison Operators ------------------------
 
-/// @brief 값 동등 비교 (coord_equal() 사용)
+/// @brief Equality comparison (uses coord_equal())
 inline bool operator==(const coord_t& a, const coord_t& b) {
     return coord_equal(&a, &b);
 }
 
-/// @brief 값 비동등 비교
+/// @brief Inequality comparison
 inline bool operator!=(const coord_t& a, const coord_t& b) {
     return !coord_equal(&a, &b);
 }
 
-/// @brief 정렬용 비교 연산자 (x 우선, 같으면 y)
+/// @brief Comparison operator for sorting (x first, then y if equal)
 inline bool operator<(const coord_t& a, const coord_t& b) {
     return coord_compare(&a, &b) < 0;
 }
 
-/// @brief 디버깅 출력용
+/// @brief Debug output operator
 inline std::ostream& operator<<(std::ostream& os, const coord_t& c) {
     int x = coord_get_x(&c);
     int y = coord_get_y(&c);
@@ -42,7 +42,7 @@ struct CoordEqual {
     }
 };
 
-// ------------------------ 해시 연산자는 std에 있어야 함 ------------------------
+// ------------------------ Hash operator specialization must be in std ------------------------
 
 namespace std {
     template<>

@@ -3,7 +3,8 @@
 #include <string.h>
 #include <time.h>
 
-obstacle_t* obstacle_make_rect_all_blocked(int x0, int y0, int width, int height) {
+obstacle_t* obstacle_make_rect_all_blocked(
+    int x0, int y0, int width, int height) {
     if (width <= 0 || height <= 0) return nullptr;
 
     obstacle_t* obstacle = obstacle_create_full(x0, y0, width, height);
@@ -99,7 +100,7 @@ obstacle_t* obstacle_make_torus(
     int height = max_y - min_y + 1;
 
     if (width <= thickness * 2 || height <= thickness * 2)
-        return NULL; // 내부 구멍이 생기지 않음
+        return NULL;
 
     obstacle_t* obs = obstacle_create_full(min_x, min_y, width, height);
 
@@ -142,13 +143,11 @@ obstacle_t* obstacle_make_enclosure(
         for (int y = 0; y < height; ++y) {
             bool block = false;
 
-            // 테두리 여부
             bool is_top = (y < thickness);
             bool is_bottom = (y >= height - thickness);
             bool is_left = (x < thickness);
             bool is_right = (x >= width - thickness);
 
-            // 기본적으로 테두리는 막되, 열린 방향은 열어둔다
             if (is_top && open != ENCLOSURE_OPEN_UP)
                 block = true;
             else if (is_bottom && open != ENCLOSURE_OPEN_DOWN)
@@ -183,19 +182,15 @@ obstacle_t* obstacle_make_cross(
     obstacle_t* obs = obstacle_create_full(min_x, min_y, width, height);
     if (!obs) return NULL;
 
-    // 중심점만 block하는 경우
     if (length == 0 && range == 0) {
         obstacle_block_coord(obs, center->x, center->y);
         return obs;
     }
 
-    // 중심점 포함, 상하좌우로 뻗는 십자형
     for (int d = -length; d <= length; ++d) {
-        // 수직 방향 (↑↓)
         for (int r = -range; r <= range; ++r) {
             obstacle_block_coord(obs, center->x + r, center->y + d);
         }
-        // 수평 방향 (←→)
         for (int r = -range; r <= range; ++r) {
             obstacle_block_coord(obs, center->x + d, center->y + r);
         }
@@ -226,11 +221,10 @@ obstacle_t* obstacle_make_spiral(
     obstacle_t* obs = obstacle_create_full(min_x, min_y, width, height);
     if (!obs) return NULL;
 
-    // 방향 설정
-    const int dx_cw[4]  = { 1, 0, -1,  0}; // → ↓ ← ↑
+    const int dx_cw[4]  = { 1, 0, -1,  0};
     const int dy_cw[4]  = { 0, 1,  0, -1};
 
-    const int dx_ccw[4] = { 0, 1,  0, -1}; // ↓ → ↑ ←
+    const int dx_ccw[4] = { 0, 1,  0, -1};
     const int dy_ccw[4] = { 1, 0, -1,  0};
 
     const int* dx = (direction == SPIRAL_COUNTER_CLOCKWISE) ? dx_ccw : dx_cw;
@@ -239,19 +233,17 @@ obstacle_t* obstacle_make_spiral(
     int cx = center->x;
     int cy = center->y;
 
-    int len = 1;           // 현재 방향으로 이동할 길이
-    int dir = 0;           // 0~3 (방향 인덱스)
+    int len = 1;
+    int dir = 0;
     int step = 0;
     int max_steps = turns * 4;
 
-    // 중심점부터 블로킹
     if (range == 0)
         obstacle_block_coord(obs, cx, cy);
     else
         obstacle_block_range(obs, cx, cy, range);
 
     while (step < max_steps) {
-        // 현재 step이 gap 조건에 해당하면 블로킹 생략
         bool active_turn = (gap == 0 || step % (gap + 1) == 0);
 
         for (int i = 0; i < len; ++i) {
@@ -277,7 +269,8 @@ obstacle_t* obstacle_make_spiral(
     return obs;
 }
 
-static bool is_point_in_triangle(int px, int py, const coord_t* a, const coord_t* b, const coord_t* c) {
+static bool is_point_in_triangle(int px, int py, 
+    const coord_t* a, const coord_t* b, const coord_t* c) {
     int ax = a->x, ay = a->y;
     int bx = b->x, by = b->y;
     int cx = c->x, cy = c->y;
@@ -314,7 +307,6 @@ obstacle_t* obstacle_make_triangle(
     int min_y = a->y;
     int max_y = a->y;
 
-    // 전체 경계 계산
     const coord_t* pts[3] = {a, b, c};
     for (int i = 1; i < 3; ++i) {
         if (pts[i]->x < min_x) min_x = pts[i]->x;
@@ -340,7 +332,9 @@ obstacle_t* obstacle_make_triangle(
     return obs;
 }
 
-static void block_line_segment(obstacle_t* obs, int x0, int y0, int x1, int y1, int thickness) {
+static void block_line_segment(obstacle_t* obs, 
+    int x0, int y0, int x1, int y1, int thickness) {
+
     int dx = abs(x1 - x0), sx = (x0 < x1) ? 1 : -1;
     int dy = -abs(y1 - y0), sy = (y0 < y1) ? 1 : -1;
     int err = dx + dy;
@@ -366,7 +360,6 @@ obstacle_t* obstacle_make_triangle_torus(
 {
     if (!a || !b || !c || thickness < 0) return NULL;
 
-    // 전체 영역 계산 (a, b, c 중 최대/최소 좌표)
     int min_x = a->x, max_x = a->x;
     int min_y = a->y, max_y = a->y;
 
@@ -381,10 +374,11 @@ obstacle_t* obstacle_make_triangle_torus(
     int width = max_x - min_x + 1 + thickness * 2;
     int height = max_y - min_y + 1 + thickness * 2;
 
-    obstacle_t* obs = obstacle_create_full(min_x - thickness, min_y - thickness, width, height);
+    obstacle_t* obs = obstacle_create_full(
+        min_x - thickness, min_y - thickness, width, height);
+
     if (!obs) return NULL;
 
-    // 삼각형 외곽 세 선분만 block
     block_line_segment(obs, a->x, a->y, b->x, b->y, thickness);
     block_line_segment(obs, b->x, b->y, c->x, c->y, thickness);
     block_line_segment(obs, c->x, c->y, a->x, a->y, thickness);

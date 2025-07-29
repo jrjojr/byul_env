@@ -11,17 +11,17 @@ extern "C" {
 #endif
 
 // ---------------------------------------------------------
-// 제어기 타입
+// Controller Types
 // ---------------------------------------------------------
 typedef enum e_controller_type {
-    CONTROLLER_NONE = 0,   /**< 제어 없음 */
-    CONTROLLER_BANGBANG,   /**< Bang-Bang 제어 */
-    CONTROLLER_PID,        /**< PID 제어 */
+    CONTROLLER_NONE = 0,   /**< No control */
+    CONTROLLER_BANGBANG,   /**< Bang-Bang control */
+    CONTROLLER_PID,        /**< PID control */
     CONTROLLER_MPC         /**< Model Predictive Control */
 } controller_type_t;
 
 // ---------------------------------------------------------
-// 제어기 공통 인터페이스
+// Common Controller Interface
 // ---------------------------------------------------------
 typedef struct s_controller controller_t;
 
@@ -31,142 +31,140 @@ typedef float (*controller_compute_func)(
 typedef void (*controller_reset_func)(controller_t* ctrl);
 
 // ---------------------------------------------------------
-// 제어기 구조체
+// Controller Structures
 // ---------------------------------------------------------
 
-// PID 구현체
+// PID implementation
 typedef struct s_pid_impl {
     pid_controller_t pid;
     float output_limit;
 } pid_impl_t;
 
 /**
- * @brief pid_impl_t 기본 초기화
+ * @brief Initialize pid_impl_t with default values.
  *
- * PID 구현체(`pid_impl_t`)를 기본값으로 초기화합니다.
+ * Initializes PID implementation (`pid_impl_t`) with default settings.
  *
- * @param impl 초기화할 pid_impl_t 구조체 포인터
+ * @param impl Pointer to the pid_impl_t structure to initialize.
  *
- * @note 내부적으로 `pid_init()`를 호출하여 PID 컨트롤러가 초기화됩니다.
+ * @note Internally calls `pid_init()` to initialize the PID controller.
  */
 BYUL_API void pid_impl_init(pid_impl_t* impl);
 
 /**
- * @brief pid_impl_t를 지정값으로 초기화
+ * @brief Initialize pid_impl_t with specified values.
  *
- * 사용자가 지정한 PID 파라미터(Kp, Ki, Kd, dt)와
- * 출력 제한값(output_limit)을 기반으로 `pid_impl_t`를 초기화합니다.
+ * Initializes `pid_impl_t` with user-specified PID parameters (Kp, Ki, Kd, dt) 
+ * and output limit.
  *
- * @param impl 초기화할 pid_impl_t 구조체 포인터
- * @param kp 비례 계수 (권장 범위: 0.0 ~ 10.0)
- * @param ki 적분 계수 (권장 범위: 0.0 ~ 1.0)
- * @param kd 미분 계수 (권장 범위: 0.0 ~ 1.0)
- * @param dt 제어 주기(초) (권장 범위: 0.001 ~ 0.1)
- * @param output_limit 출력 제한값 (0 이하이면 제한 없음)
+ * @param impl Pointer to the pid_impl_t structure to initialize.
+ * @param kp Proportional gain (recommended range: 0.0 ~ 10.0).
+ * @param ki Integral gain (recommended range: 0.0 ~ 1.0).
+ * @param kd Derivative gain (recommended range: 0.0 ~ 1.0).
+ * @param dt Control period (sec) (recommended range: 0.001 ~ 0.1).
+ * @param output_limit Output limit (no limit if <= 0).
  *
- * @note 내부적으로 `pid_init_full()`을 호출하여 PID 컨트롤러를 세팅합니다.
+ * @note Internally calls `pid_init_full()` to configure the PID controller.
  */
 BYUL_API void pid_impl_init_full(pid_impl_t* impl,
                                  float kp, float ki, float kd,
                                  float dt, float output_limit);
 
 /**
- * @brief pid_impl_t 상태 복사
+ * @brief Copy pid_impl_t state.
  *
- * 원본 `src`의 PID 파라미터와 내부 상태를
- * 대상 `dst`로 깊은 복사합니다.
+ * Deep copies PID parameters and internal states from `src` to `dst`.
  *
- * @param dst 복사 대상 pid_impl_t
- * @param src 원본 pid_impl_t
+ * @param dst Destination pid_impl_t.
+ * @param src Source pid_impl_t.
  *
- * @note `dst`와 `src`가 모두 유효한 포인터여야 합니다.
+ * @note Both `dst` and `src` must be valid pointers.
  */
 BYUL_API void pid_impl_assign(pid_impl_t* dst, const pid_impl_t* src);
 
-// Bang-Bang 구현체
+// Bang-Bang implementation
 typedef struct s_bangbang_impl {
     float max_output;
 } bangbang_impl_t;
 
 /**
- * @brief bangbang_impl_t 기본 초기화
+ * @brief Initialize bangbang_impl_t with default values.
  *
- * Bang-Bang 제어기를 기본값으로 초기화합니다.
+ * Initializes Bang-Bang controller with default settings.
  * - max_output = 1.0f
  *
- * @param impl 초기화할 bangbang_impl_t 구조체 포인터
+ * @param impl Pointer to the bangbang_impl_t structure to initialize.
  *
- * @note Bang-Bang 제어는 목표값보다 작으면 +max_output,
- *       크면 -max_output을 출력하는 단순 제어입니다.
+ * @note Bang-Bang control outputs +max_output if below target,
+ *       or -max_output if above target.
  */
 BYUL_API void bangbang_impl_init(bangbang_impl_t* impl);
 
 /**
- * @brief bangbang_impl_t를 지정값으로 초기화
+ * @brief Initialize bangbang_impl_t with specified values.
  *
- * 사용자가 지정한 최대 출력값(max_output)을
- * Bang-Bang 제어기 구조체에 설정합니다.
+ * Sets the user-defined maximum output (max_output) for the Bang-Bang controller.
  *
- * @param impl 초기화할 bangbang_impl_t 구조체 포인터
- * @param max_output 제어기의 최대 출력값 (권장 범위: 0.0 이상)
+ * @param impl Pointer to the bangbang_impl_t structure to initialize.
+ * @param max_output Maximum output value (recommended: >= 0.0).
  *
- * @note max_output은 절댓값 기준으로 제어기의 양방향 최대 출력으로 사용됩니다.
+ * @note max_output is used as the maximum absolute output in both directions.
  */
 BYUL_API void bangbang_impl_init_full(bangbang_impl_t* impl, float max_output);
 
 /**
- * @brief bangbang_impl_t 상태 복사
+ * @brief Copy bangbang_impl_t state.
  *
- * 원본 `src`의 max_output 값을 대상 `dst`로 복사합니다.
+ * Copies the `max_output` value from `src` to `dst`.
  *
- * @param dst 복사 대상 bangbang_impl_t
- * @param src 원본 bangbang_impl_t
+ * @param dst Destination bangbang_impl_t.
+ * @param src Source bangbang_impl_t.
  *
- * @note `dst`와 `src`는 모두 유효한 포인터여야 합니다.
+ * @note Both `dst` and `src` must be valid pointers.
  */
 BYUL_API void bangbang_impl_assign(bangbang_impl_t* dst,
-                                 const bangbang_impl_t* src);
+                                   const bangbang_impl_t* src);
 
-// MPC 구현체
+// MPC implementation
 typedef struct s_mpc_impl {
-    mpc_config_t config;   // MPC 설정
-    motion_state_t target;         // 목표 속도/위치 (x방향 기준)
-    environ_t env;     // 환경 정보 (필요 시 세팅)
-    bodyprops_t body;// 물리 속성 (질량 등)
+    mpc_config_t config;   // MPC configuration
+    motion_state_t target; // Target velocity/position (x-axis based)
+    environ_t env;         // Environment information (if required)
+    bodyprops_t body;      // Physical properties (mass, etc.)
     mpc_cost_func cost_fn;
 } mpc_impl_t;
 
 /**
- * @brief mpc_impl_t 기본 초기화
+ * @brief Initialize mpc_impl_t with default values.
  *
- * MPC(Model Predictive Control) 제어기를 기본값으로 초기화합니다.
- * - `mpc_config_t`는 `mpc_config_init()`로 초기화됩니다.
- * - `motion_state_t`는 `motion_state_init()`으로 초기화됩니다.
- * - `environ_t`는 `environment_init()`으로 초기화됩니다.
- * - `bodyprops_t`는 `body_properties_init()`으로 초기화됩니다.
- * - `cost_fn`은 numeq_mpc_cost_default 로 설정됩니다.
+ * Initializes MPC (Model Predictive Control) with default settings:
+ * - `mpc_config_t` is initialized via `mpc_config_init()`.
+ * - `motion_state_t` is initialized via `motion_state_init()`.
+ * - `environ_t` is initialized via `environment_init()`.
+ * - `bodyprops_t` is initialized via `body_properties_init()`.
+ * - `cost_fn` is set to `numeq_mpc_cost_default`.
  *
- * @param impl 초기화할 mpc_impl_t 구조체 포인터
+ * @param impl Pointer to the mpc_impl_t structure to initialize.
  *
- * @note 이 함수는 모든 내부 구조체를 기본값으로 초기화합니다.
+ * @note This function initializes all internal structures with default values.
  */
 BYUL_API void mpc_impl_init(mpc_impl_t* impl);
 
 /**
- * @brief mpc_impl_t를 지정값으로 초기화
+ * @brief Initialize mpc_impl_t with specified values.
  *
- * 사용자가 지정한 MPC 설정(config), 목표 상태(target),
- * 환경(env), 물체 속성(body), 비용 함수(cost_fn)를 복사하여
- * mpc_impl_t를 초기화합니다.
+ * Initializes `mpc_impl_t` with user-specified MPC settings (config),
+ * target state (target), environment (env), body properties (body),
+ * and cost function (cost_fn).
  *
- * @param impl 초기화할 mpc_impl_t 구조체 포인터
- * @param cfg   MPC 설정 (NULL이면 기본값으로 초기화)
- * @param target 목표 운동 상태 (NULL이면 기본값)
- * @param env 환경 정보 (NULL이면 기본값)
- * @param body 물체 속성 (NULL이면 기본값)
- * @param cost_fn 비용 함수 포인터 NULL 시 numeq_mpc_cost_default 가 설정
+ * @param impl Pointer to the mpc_impl_t structure to initialize.
+ * @param cfg   MPC configuration (NULL uses default values).
+ * @param target Target motion state (NULL uses default values).
+ * @param env Environment information (NULL uses default values).
+ * @param body Physical properties (NULL uses default values).
+ * @param cost_fn Cost function pointer (NULL sets numeq_mpc_cost_default).
  *
- * @note 각 파라미터가 NULL이면 해당 항목은 기본 초기화 함수로 설정됩니다.
+ * @note Any NULL parameter is replaced by its default initialization.
  */
 BYUL_API void mpc_impl_init_full(mpc_impl_t* impl,
                                  const mpc_config_t* cfg,
@@ -176,67 +174,66 @@ BYUL_API void mpc_impl_init_full(mpc_impl_t* impl,
                                  mpc_cost_func cost_fn);
 
 /**
- * @brief mpc_impl_t 상태 복사
+ * @brief Copy mpc_impl_t state.
  *
- * 원본 `src`의 MPC 설정, 목표 상태, 환경, 물체 속성, 비용 함수 포인터를
- * 대상 `dst`로 깊은 복사합니다.
+ * Deep copies MPC configuration, target state, environment, body properties,
+ * and cost function pointer from `src` to `dst`.
  *
- * @param dst 복사 대상 mpc_impl_t
- * @param src 원본 mpc_impl_t
+ * @param dst Destination mpc_impl_t.
+ * @param src Source mpc_impl_t.
  *
- * @note `dst`와 `src`가 유효한 포인터여야 하며,
- *       내부 구조체(mpc_config_t, motion_state_t 등)는 값 복사됩니다.
+ * @note Both `dst` and `src` must be valid pointers.
  */
 BYUL_API void mpc_impl_assign(mpc_impl_t* dst, const mpc_impl_t* src);
 
 struct s_controller {
-    controller_type_t type;          /**< 제어기 종류 */
-    void* impl;                      /**< 구체적 제어기 데이터 (PID, MPC 등) */
-    controller_compute_func compute; /**< 제어 출력 계산 함수 */
-    controller_reset_func reset;     /**< 내부 상태 초기화 */
-    void* userdata;                  /**< 사용자 데이터 (옵션) */
+    controller_type_t type;          /**< Controller type */
+    void* impl;                      /**< Implementation data (PID, MPC, etc.) */
+    controller_compute_func compute; /**< Control output calculation function */
+    controller_reset_func reset;     /**< Reset internal states */
+    void* userdata;                  /**< User-defined data (optional) */
 };
 
 // ---------------------------------------------------------
-// 컨트롤러 생성 / 초기화
+// Controller Creation / Initialization
 // ---------------------------------------------------------
 
 /**
- * @brief PID 컨트롤러 생성
+ * @brief Create a PID controller.
  */
 BYUL_API controller_t* controller_create_pid(
     float kp, float ki, float kd, float dt, float output_limit);
 
 /**
- * @brief Bang-Bang 컨트롤러 생성
- * @param max_output 최대 출력
+ * @brief Create a Bang-Bang controller.
+ * @param max_output Maximum output.
  */
 BYUL_API controller_t* controller_create_bangbang(float max_output);
 
 /**
- * @brief MPC 컨트롤러 생성 (미래 예측 기반)
+ * @brief Create an MPC controller (Model Predictive Control).
  */
 BYUL_API controller_t* controller_create_mpc(
-    const mpc_config_t*      config,
-    const environ_t*     env,
+    const mpc_config_t* config,
+    const environ_t* env,
     const bodyprops_t* body);
 
 /**
- * @brief 컨트롤러 해제
+ * @brief Destroy a controller.
  */
 BYUL_API void controller_destroy(controller_t* ctrl);
 
 // ---------------------------------------------------------
-// 제어기 공통 함수
+// Common Controller Functions
 // ---------------------------------------------------------
 
 /**
- * @brief 제어기 출력 계산
- * @param ctrl 컨트롤러
- * @param target 목표 값
- * @param measured 현재 측정 값
- * @param dt 시간 간격
- * @return 제어 출력
+ * @brief Compute control output.
+ * @param ctrl Controller.
+ * @param target Target value.
+ * @param measured Current measured value.
+ * @param dt Time step.
+ * @return Control output.
  */
 static inline float controller_compute(
     controller_t* ctrl, float target, float measured, float dt) {
@@ -245,7 +242,7 @@ static inline float controller_compute(
 }
 
 /**
- * @brief 컨트롤러 상태 리셋
+ * @brief Reset controller state.
  */
 static inline void controller_reset(controller_t* ctrl) {
     if (ctrl && ctrl->reset) ctrl->reset(ctrl);

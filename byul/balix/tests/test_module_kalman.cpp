@@ -14,9 +14,9 @@ TEST_CASE("Scalar Kalman: Initialization and update") {
     CHECK(kf.p == doctest::Approx(1.0f));
 
     float m1 = 1.0f;
-    float x1 = kalman_measurement_update(&kf, m1);  // 측정값 = 1.0
+    float x1 = kalman_measurement_update(&kf, m1);  // measurement = 1.0
     CHECK(x1 > 0.0f);
-    CHECK(x1 < 1.0f);  // 초기 추정이 0 → 보정 후 중간값
+    CHECK(x1 < 1.0f);  // initial estimate is 0 -> corrected to a mid-value
 }
 
 TEST_CASE("Scalar Kalman: Predict should increase uncertainty") {
@@ -25,7 +25,7 @@ TEST_CASE("Scalar Kalman: Predict should increase uncertainty") {
 
     float prev_p = kf.p;
     kalman_time_update(&kf);
-    CHECK(kf.p > prev_p);  // 예측은 불확실성을 늘림
+    CHECK(kf.p > prev_p);  // prediction increases uncertainty
 }
 
 // -------------------- Vector Kalman --------------------
@@ -37,14 +37,14 @@ TEST_CASE("Vec3 Kalman: Initialization and basic time_update") {
 
     kalman_vec3_init_full(&kf, &init_pos, &init_vel, 0.1f, 1.0f, 1.0f);  // dt = 1.0
 
-    kalman_vec3_time_update(&kf);  // 위치 += 속도 * dt
+    kalman_vec3_time_update(&kf);  // position += velocity * dt
 
     CHECK(kf.position.x == doctest::Approx(1.0f));
     CHECK(kf.position.y == doctest::Approx(2.0f));
     CHECK(kf.position.z == doctest::Approx(3.0f));
 }
 
-TEST_CASE("Vec3 Kalman: Update brings time_update closer to measurement") {
+TEST_CASE("Vec3 Kalman: Update moves prediction closer to measurement") {
     kalman_filter_vec3_t kf;
     vec3_t init_pos = {0.0f, 0.0f, 0.0f};
     vec3_t init_vel = {1.0f, 0.0f, 0.0f};
@@ -52,10 +52,10 @@ TEST_CASE("Vec3 Kalman: Update brings time_update closer to measurement") {
 
     kalman_vec3_time_update(&kf);
 
-    vec3_t measured = {2.0f, 0.0f, 0.0f};  // 측정값이 더 멀리 있음
+    vec3_t measured = {2.0f, 0.0f, 0.0f};  // measurement is further
     kalman_vec3_measurement_update(&kf, &measured);
 
-    CHECK(kf.position.x > 1.0f);   // 보정 후 위치는 예측과 측정 사이
+    CHECK(kf.position.x > 1.0f);   // corrected position is between prediction and measurement
     CHECK(kf.position.x < 2.0f);
 }
 
@@ -70,7 +70,7 @@ TEST_CASE("Vec3 Kalman: Project future position") {
 
     CHECK(out.x == doctest::Approx(2.0f));
     CHECK(out.y == doctest::Approx(3.0f));
-    CHECK(out.z == doctest::Approx(3.0f));  // 속도 0이므로 유지
+    CHECK(out.z == doctest::Approx(3.0f));  // velocity 0, so stays constant
 }
 
 TEST_CASE("Vec3 Kalman: Copy state") {
@@ -92,14 +92,14 @@ TEST_CASE("Vec3 Kalman: Copy state") {
 
 TEST_CASE("Scalar Kalman: Covariance P decreases after update") {
     kalman_filter_t kf;
-    kalman_init_full(&kf, 0.0f, 10.0f, 0.1f, 1.0f);  // 큰 초기 오차 공분산
+    kalman_init_full(&kf, 0.0f, 10.0f, 0.1f, 1.0f);  // large initial covariance
 
     float p_before = kf.p;
     float z = 5.0f;
     kalman_measurement_update(&kf, z);
     float p_after = kf.p;
 
-    CHECK(p_after < p_before);  // update 후에는 항상 줄어야 함
+    CHECK(p_after < p_before);  // P should decrease after update
 }
 
 TEST_CASE("Scalar Kalman: Random noisy measurements converge to true value") {
@@ -107,7 +107,7 @@ TEST_CASE("Scalar Kalman: Random noisy measurements converge to true value") {
     kalman_init_full(&kf, 0.0f, 1.0f, 0.01f, 0.5f);
 
     std::default_random_engine rng(42);
-    std::normal_distribution<float> noise(0.0f, 0.5f);  // 측정 노이즈
+    std::normal_distribution<float> noise(0.0f, 0.5f);  // measurement noise
 
     const float true_value = 3.14f;
     float last_estimate = 0.0f;
@@ -117,7 +117,7 @@ TEST_CASE("Scalar Kalman: Random noisy measurements converge to true value") {
         last_estimate = kalman_measurement_update(&kf, noisy_measured);
     }
 
-    CHECK(last_estimate == doctest::Approx(true_value).epsilon(0.05));  // 약 5% 오차 이내 수렴
+    CHECK(last_estimate == doctest::Approx(true_value).epsilon(0.05));  // converges within about 5%
 }
 
 TEST_CASE("Vec3 Kalman: error_p decreases after update") {

@@ -11,118 +11,118 @@ extern "C" {
 BYUL_API obstacle_t* obstacle_make_rect_all_blocked(
     int x0, int y0, int width, int height);
 
-// ratio는 0.0 ~ 1.0의 범위 1.0이면 풀 블락
+// ratio range is 0.0 ~ 1.0; 1.0 means fully blocked
 BYUL_API obstacle_t* obstacle_make_rect_random_blocked(
     int x0, int y0, int width, int height, float ratio);
 
-// range 0 : 해당 좌표만 , 1이상 주변까지 포함해서 장애물 생성한다.
-// start, goal의 가상의 라인을 따라서...
+// range 0 : only the given coordinate, 
+// 1 or more includes surrounding area
+// Creates obstacles along the virtual line from start to goal
 BYUL_API obstacle_t* obstacle_make_beam(
     const coord_t* start, const coord_t* goal, int range);
 
 /**
- * @brief 도넛(토러스) 형태의 폐쇄 장애물을 생성합니다.
+ * @brief Creates a torus (donut)-shaped obstacle.
  *
- * 이 함수는 사각형 영역 내에서 안쪽은 비워두고, 
- * 바깥 경계만 일정한 두께로 막는 고리형(토러스) 장애물을 생성합니다.
- * 내부와 외부는 완전히 분리되어 있어 경로가 없습니다.
+ * This function creates a ring-shaped (torus) obstacle within a rectangular
+ * area, leaving the inner part empty while blocking the outer boundary.
+ * The inner and outer areas are completely separated with no path.
  * 
- * @note 최소 생성 크기: 
- *       - 너비(width) ≥ thickness × 2 + 1
- *       - 높이(height) ≥ thickness × 2 + 1
- *       이보다 작을 경우 내부 공간이 없어 도넛 구조를 만들 수 없습니다.
+ * @note Minimum size:
+ *       - width >= thickness × 2 + 1
+ *       - height >= thickness × 2 + 1
+ *       If smaller, there will be no inner space to form a donut shape.
  *
- * @note `thickness` 값이 너무 커서 내부 공간이 생성되지 못할 경우,
- *       함수는 NULL을 반환합니다.
+ * @note If `thickness` is too large and no inner space can be formed,
+ *       the function returns NULL.
  *
- * @param start      사각형 영역의 한 꼭짓점 좌표입니다.
- * @param goal       반대편 꼭짓점 좌표입니다.
- * @param thickness  경계 벽의 두께 (1 이상). 
- *                   이 값이 클수록 외곽 고리의 너비가 두꺼워집니다.
+ * @param start      One corner coordinate of the rectangular area
+ * @param goal       Opposite corner coordinate
+ * @param thickness  Thickness of the boundary wall (>=1)
+ *                   A larger value creates a thicker outer ring
  *
- * @return torus 형태의 장애물 포인터 (성공 시), 또는 NULL (실패 시).
+ * @return A pointer to the torus-shaped obstacle on success, or NULL on failure
  */
 BYUL_API obstacle_t* obstacle_make_torus(
     const coord_t* start, const coord_t* goal, int thickness);
 
-typedef enum e_enclosure_open_dir{
+typedef enum e_enclosure_open_dir {
     ENCLOSURE_OPEN_UNKNOWN,
     ENCLOSURE_OPEN_RIGHT,
     ENCLOSURE_OPEN_UP,
     ENCLOSURE_OPEN_LEFT,
     ENCLOSURE_OPEN_DOWN,
-}enclosure_open_dir_t;
+} enclosure_open_dir_t;
 
 /**
- * @brief 한쪽이 열린 사각형 외곽 장애물을 생성합니다.
+ * @brief Creates a rectangular enclosure obstacle with one open side.
  *
- * 이 함수는 사각형 경계의 네 면 중 하나를 개방한 
- * "냄비", "U자형" 형태의 장애물을 만듭니다.
- * 플레이어나 NPC가 내부로 출입할 수 있는 구조를 만들 때 유용합니다.
+ * This function creates a "pot" or "U-shaped" obstacle by leaving one of
+ * the four sides of a rectangular boundary open. Useful for creating 
+ * structures where a player or NPC can enter or exit.
  *
- * @note 최소 생성 크기:
- *       - 너비(width) ≥ thickness × 2 + 1
- *       - 높이(height) ≥ thickness × 2 + 1
- *       벽을 설치할 수 있는 여유 공간이 없으면 생성이 실패할 수 있습니다.
+ * @note Minimum size:
+ *       - width >= thickness × 2 + 1
+ *       - height >= thickness × 2 + 1
+ *       If there is no space for walls, creation may fail.
  * 
- * `open` 인자를 통해 열린 방향을 지정할 수 있으며, 
- * ENCLOSURE_OPEN_UNKNOWN 을 전달하면 네 면 모두를 막습니다.
+ * The `open` argument specifies the open direction.
+ * If ENCLOSURE_OPEN_UNKNOWN is passed, all sides are closed.
  *
- * @param start      사각형 영역의 한 꼭짓점 좌표입니다.
- * @param goal       반대편 꼭짓점 좌표입니다.
- * @param thickness  벽 두께 (1 이상). 
- *                   값이 커질수록 각 면의 벽이 두꺼워집니다.
- * @param open       열려 있을 방향 (위, 아래, 왼쪽, 오른쪽 중 선택).
+ * @param start      One corner coordinate of the rectangular area
+ * @param goal       Opposite corner coordinate
+ * @param thickness  Wall thickness (>=1)
+ *                   Larger values create thicker walls
+ * @param open       Direction to be left open (up, down, left, right)
  *
- * @return enclosure 형태의 장애물 포인터 (성공 시), 또는 NULL (실패 시).
+ * @return A pointer to the enclosure obstacle on success, or NULL on failure
  */
 BYUL_API obstacle_t* obstacle_make_enclosure(
     const coord_t* start, const coord_t* goal, int thickness, 
     enclosure_open_dir_t open);
 
 /**
- * @brief 중심 좌표를 기준으로 십자(+)형 장애물을 생성합니다.
+ * @brief Creates a cross (+)-shaped obstacle centered at a given coordinate.
  *
- * 이 함수는 `center`를 기준으로 상하좌우 방향으로 `length`만큼 뻗은
- * 십자형 구조를 생성하며, 각 팔의 두께는 반경`range`로 설정됩니다.
+ * This function creates a cross shape extending `length` units
+ * from `center` in four directions. The thickness of each arm is 
+ * defined by `range`.
  *
- * @param center    십자의 중심 좌표
- * @param length    각 팔의 길이 (0 이면 점만 찍는다)
- * @param range 각 팔의 너비 (0이면 해당 좌표만 ,1 이상 주변 좌표)
+ * @param center    Center coordinate of the cross
+ * @param length    Length of each arm (0 means only the center point)
+ * @param range     Width of each arm (0 means only center, >=1 includes neighbors)
  *
- * @return 생성된 obstacle_t 포인터 또는 실패 시 NULL
+ * @return A pointer to the created obstacle, or NULL on failure
  */
 BYUL_API obstacle_t* obstacle_make_cross(
     const coord_t* center, int length, int range);
 
-
 typedef enum e_spiral_dir {
-    SPIRAL_CLOCKWISE,        ///< 시계 방향 (기본)
-    SPIRAL_COUNTER_CLOCKWISE ///< 반시계 방향
+    SPIRAL_CLOCKWISE,        ///< Clockwise (default)
+    SPIRAL_COUNTER_CLOCKWISE ///< Counterclockwise
 } spiral_dir_t;
 
 /**
- * @brief 중심을 기준으로 나선형(spiral) 장애물을 생성합니다.
+ * @brief Creates a spiral-shaped obstacle centered around a coordinate.
  *
- * 이 함수는 격자 기반의 정사각형 나선 구조를 생성하며, 
- * 시계 또는 반시계 방향으로 회전하면서 각 경로를 장애물로 블로킹합니다.
- * 회전 수(`turns`)에 따라 전체 나선의 길이가 결정되며, 
- * `gap`을 설정하면 회전 사이에 공백을 두어 공간성을 확보할 수 있습니다.
+ * This function creates a grid-based square spiral structure, blocking
+ * cells along a path that rotates clockwise or counterclockwise.
+ * The number of rotations (`turns`) determines the total spiral length.
+ * Setting `gap` adds spacing between rotations to create open areas.
  *
- * `range`를 사용하면 경로의 중심 외에도 주변까지 넓게 블로킹할 수 있습니다.
- * 방향은 `direction`을 통해 시계 또는 반시계로 지정할 수 있습니다.
+ * `range` defines the thickness of blocked cells around the spiral path.
  *
- * @param center   나선의 중심 좌표입니다.
- * @param radius   나선이 퍼질 수 있는 최대 반지름 (격자 거리 기준)
- * @param turns    전체 회전 수 (1회전 = 4방향 회전). 최소 1 이상
- * @param range    각 경로의 반경 (0이면 경로 중심점만 block, 1 이상이면 면적 포함)
- * @param gap      회전 단계 간 간격 (0이면 연속 회전, 1 이상이면 일부 회전 건너뜀)
- * @param direction 회전 방향 (SPIRAL_CLOCKWISE 또는 SPIRAL_COUNTER_CLOCKWISE)
+ * @param center    Center coordinate of the spiral
+ * @param radius    Maximum spiral radius (in grid distance)
+ * @param turns     Total number of rotations (1 rotation = 4 directional turns)
+ * @param range     Path radius (0 blocks only the path center, >=1 includes area)
+ * @param gap       Spacing between rotations (0 means continuous)
+ * @param direction Rotation direction (SPIRAL_CLOCKWISE or SPIRAL_COUNTER_CLOCKWISE)
  *
- * @return 생성된 obstacle_t 포인터 (성공 시), 또는 실패 시 NULL
+ * @return A pointer to the created obstacle, or NULL on failure
  *
- * @note gap이 클수록 회전 사이에 여백이 생기며,
- *       range가 클수록 장애물의 두께가 넓어집니다.
+ * @note Larger `gap` creates more spacing between rotations,
+ *       larger `range` creates thicker obstacles.
  */
 BYUL_API obstacle_t* obstacle_make_spiral(
     const coord_t* center,
@@ -134,16 +134,15 @@ BYUL_API obstacle_t* obstacle_make_spiral(
 );
 
 /**
- * @brief 주어진 세 꼭짓점으로 구성된 삼각형 영역을 블로킹하는 장애물을 생성합니다.
+ * @brief Creates a triangle-shaped obstacle that blocks the area inside.
  *
- * 이 함수는 `a`, `b`, `c` 세 좌표를 꼭짓점으로 하는 삼각형 내부를
- * 격자 기반으로 블로킹하여 triangle-shaped obstacle을 생성합니다.
+ * This function blocks the grid area defined by the three vertices `a`, `b`, `c`.
  *
- * @param a  첫 번째 꼭짓점
- * @param b  두 번째 꼭짓점
- * @param c  세 번째 꼭짓점
+ * @param a  First vertex
+ * @param b  Second vertex
+ * @param c  Third vertex
  *
- * @return 생성된 obstacle_t 포인터 또는 실패 시 NULL
+ * @return A pointer to the created obstacle, or NULL on failure
  */
 BYUL_API obstacle_t* obstacle_make_triangle(
     const coord_t* a,
@@ -151,18 +150,18 @@ BYUL_API obstacle_t* obstacle_make_triangle(
     const coord_t* c);
 
 /**
- * @brief 삼각형 외곽만 블로킹한 torus 형태의 장애물을 생성합니다.
+ * @brief Creates a triangle torus obstacle, blocking only the outer boundary.
  *
- * 주어진 세 꼭짓점 `a`, `b`, `c`로 정의된 삼각형의 외곽을 따라
- * 선형 경계를 구성하고, 내부는 block하지 않습니다.
- * `thickness`가 1 이상일 경우, 각 선분 경계를 기준으로 주변까지 두껍게 막습니다.
+ * This function follows the edges of the triangle defined by `a`, `b`, `c`
+ * and blocks the boundary line, leaving the interior unblocked.
+ * If `thickness` >= 1, the boundary lines are thickened accordingly.
  *
- * @param a         삼각형 꼭짓점 A
- * @param b         삼각형 꼭짓점 B
- * @param c         삼각형 꼭짓점 C
- * @param thickness 외곽선 블록 두께 (0이면 선만, 1 이상이면 주변도 포함)
+ * @param a         Triangle vertex A
+ * @param b         Triangle vertex B
+ * @param c         Triangle vertex C
+ * @param thickness Boundary line thickness (0 = line only, >=1 includes area)
  *
- * @return 생성된 obstacle_t 포인터 또는 실패 시 NULL
+ * @return A pointer to the created obstacle, or NULL on failure
  */
 BYUL_API obstacle_t* obstacle_make_triangle_torus(
     const coord_t* a,
@@ -171,31 +170,30 @@ BYUL_API obstacle_t* obstacle_make_triangle_torus(
     int thickness);
 
 /**
- * @brief 주어진 다각형 꼭짓점 리스트를 기반으로 내부를 블로킹하는 장애물을 생성합니다.
+ * @brief Creates a polygon-shaped obstacle that blocks the inside area.
  *
- * 리스트에 포함된 좌표들을 순서대로 연결하여 폐곡선을 형성하고,
- * 그 내부 영역을 모두 블로킹합니다. 최소 3개 이상의 좌표가 필요하며,
- * 리스트는 자동으로 폐곡선으로 간주됩니다 (마지막 → 첫점 연결).
+ * This function connects the coordinates in the list to form a closed shape
+ * and blocks the inside area. At least 3 coordinates are required.
+ * The polygon is considered closed automatically (last -> first).
  *
- * @param list  다각형 꼭짓점 리스트 (coord_list_t*)
- * @return 생성된 obstacle_t 포인터 또는 실패 시 NULL
+ * @param list  Polygon vertex list (coord_list_t*)
+ * @return A pointer to the created obstacle, or NULL on failure
  */
 BYUL_API obstacle_t* obstacle_make_polygon(coord_list_t* list);
 
 /**
- * @brief 다각형 꼭짓점 리스트를 기반으로 외곽선만 블로킹하는 torus 장애물을 생성합니다.
+ * @brief Creates a polygon torus obstacle, blocking only the boundary.
  *
- * 리스트에 포함된 좌표들을 순서대로 연결하여 폐곡선을 구성한 후,
- * 각 선분을 따라 외곽선만 블로킹하며 내부는 비워둡니다.
- * `thickness`가 1 이상일 경우 외곽선의 두께를 확장할 수 있습니다.
+ * This function connects the coordinates in the list to form a closed shape,
+ * and blocks along the boundary lines only, leaving the inside unblocked.
+ * If `thickness` >= 1, the boundary thickness can be expanded.
  *
- * @param list       다각형 꼭짓점 리스트 (최소 3점)
- * @param thickness  외곽선의 블로킹 두께 (0이면 선만, 1 이상은 영역)
- * @return 생성된 obstacle_t 포인터 또는 실패 시 NULL
+ * @param list       Polygon vertex list (at least 3 points)
+ * @param thickness  Boundary thickness (0 = line only, >=1 includes area)
+ * @return A pointer to the created obstacle, or NULL on failure
  */
 BYUL_API obstacle_t* obstacle_make_polygon_torus(
     coord_list_t* list, int thickness);
-
 
 #ifdef __cplusplus
 }

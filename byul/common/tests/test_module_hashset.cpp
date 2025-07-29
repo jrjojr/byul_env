@@ -10,7 +10,7 @@ TEST_CASE("hashset: basic operations") {
 
     CHECK(hashset_add(set, (hashkey)"apple"));
     CHECK(hashset_contains(set, (hashkey)"apple"));
-    CHECK_FALSE(hashset_add(set, (hashkey)"apple"));  // 중복
+    CHECK_FALSE(hashset_add(set, (hashkey)"apple"));
     CHECK(hashset_size(set) == 1);
     CHECK(hashset_remove(set, (hashkey)"apple"));
     CHECK(hashset_size(set) == 0);

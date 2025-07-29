@@ -9,7 +9,7 @@ extern "C" {
 
 TEST_CASE("Quadratic solver returns correct real roots") {
     float x1, x2;
-      // x^2 -3x + 2 = 0 → x=1,2
+      // x^2 -3x + 2 = 0 -> x=1,2
     bool ok = numeq_solve_quadratic(1.0f, -3.0f, 2.0f, &x1, &x2);
     CHECK(ok);
     CHECK((x1 == doctest::Approx(1.0f) || x2 == doctest::Approx(1.0f)));
@@ -82,7 +82,7 @@ TEST_CASE("Solve time when projectile stops (horizontal motion)") {
     float t;
     bool ok = numeq_solve_stop_time(&state, 0.01f, &t);
     CHECK(ok);
-    CHECK(t > 4.0f);  // v = 0.5, a = -0.1 → t ≈ 5
+    CHECK(t > 4.0f);  // v = 0.5, a = -0.1 -> t ≈ 5
 }
 
 TEST_CASE("Solve vec3 function to approach target") {
@@ -91,7 +91,7 @@ TEST_CASE("Solve vec3 function to approach target") {
         out->y = t * t;
         out->z = 0.0f;
     };
-    vec3_t target = {2.0f, 4.0f, 0.0f};  // y = x^2 → 최소점 t = 2
+    vec3_t target = {2.0f, 4.0f, 0.0f};  // y = x^2 -> MIN t = 2
     float t_min;
     bool ok = numeq_solve_time_for_vec3(
         moving_func, nullptr, &target, 0.0f, 5.0f, 1e-4f, &t_min);

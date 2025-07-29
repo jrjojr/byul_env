@@ -45,7 +45,6 @@ void maze_make_kruskal(maze_t* maze) {
     std::vector<std::vector<int>> parent(h, std::vector<int>(w, 0));
     std::vector<Wall> walls;
 
-    // 각 셀을 PASSAGE로 만들고 부모 초기화
     for (int y = 1; y < h; y += 2) {
         for (int x = 1; x < w; x += 2) {
             grid[y][x] = PASSAGE;
@@ -68,7 +67,6 @@ void maze_make_kruskal(maze_t* maze) {
         }
     }
 
-    // 벽을 blocked에 삽입
     for (int y = 0; y < h; ++y) {
         for (int x = 0; x < w; ++x) {
             if (grid[y][x] == WALL) {

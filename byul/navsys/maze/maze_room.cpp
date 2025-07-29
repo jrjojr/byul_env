@@ -7,7 +7,6 @@
 #include <algorithm>
 #include <random>
 
-// 내부 상수
 static const int WALL = 1;
 static const int PASSAGE = 0;
 

@@ -9,7 +9,6 @@
 #include <float.h>
 #include <cmath>
 
-// 반복 기반 lookahead 평가 함수
 static float rta_iterative_eval(const navgrid_t* m,
     const coord_t* start, const coord_t* goal, int max_depth,
     cost_func cost_fn, heuristic_func heuristic_fn,

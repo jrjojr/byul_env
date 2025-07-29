@@ -2,20 +2,21 @@
 #define HASHSET_H
 
 #include "byul_common.h"
+#include <stddef.h>   // size_t
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-// ---------------------- hashset_t 타입 정의 ----------------------
+// ---------------------- hashset_t type definition ----------------------
 
 typedef void* hashkey;
 typedef void* valueptr;
 
-/// @brief 사용자 정의 순회 콜백
+/// @brief User-defined iteration callback
 typedef void (*hashset_func)(hashkey item, valueptr userdata);
 
-/// @brief opaque 포인터: C++ 구현체를 감싼 구조
+/// @brief Opaque pointer: Structure wrapping the C++ implementation
 typedef struct s_hashset hashset_t;
 
 BYUL_API hashset_t* hashset_create();

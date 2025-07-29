@@ -1,29 +1,31 @@
 /**
  * @file numeq_mpc.h
- * @brief Model Predictive Control (MPC) 제어 모듈 헤더 (motion_state_t 기반)
+ * @brief Model Predictive Control (MPC) module header (based on motion_state_t).
  *
- * 이 헤더는 물리 기반 시뮬레이션에서 **위치 + 회전 예측**, 목표 추적, 유도 제어를 위해
- * Model Predictive Control(MPC) 알고리즘을 제공합니다.
+ * This header provides the Model Predictive Control (MPC) algorithm for
+ * physics-based simulations, including **position + rotation prediction**, 
+ * target tracking, and guidance control.
  *
- * ## ✅ MPC 개요
- * Model Predictive Control은 다음과 같이 동작합니다:
- * 1. **현재 motion_state_t에서 여러 가속도/각가속도 후보를 적용하여 미래 상태를 예측**
- * 2. **예측된 결과와 목표 지점/자세 간의 비용(cost)을 계산**
- * 3. **비용이 가장 낮은 제어 입력을 선택하여 적용**
- * 4. **다음 프레임에서 다시 반복**
+ * ## Overview of MPC
+ * Model Predictive Control works as follows:
+ * 1. **Predict future states by applying multiple candidate accelerations/ang. accelerations 
+ *    from the current motion_state_t.**
+ * 2. **Calculate the cost between the predicted result and the target position/orientation.**
+ * 3. **Select and apply the control input with the lowest cost.**
+ * 4. **Repeat this process at the next frame.**
  *
- * MPC는 다음과 같은 상황에 적합합니다:
- * - 포탄/미사일 궤적 + 회전 제어
- * - 환경 변화(바람, 중력) 대응
- * - 목표 위치 + 방향/자세 추종
- * - 제약 조건(최대 가속도/각가속도, 속도 등)
+ * MPC is suitable for the following:
+ * - Projectile/missile trajectory and rotation control
+ * - Handling environmental changes (wind, gravity)
+ * - Target position + orientation tracking
+ * - Constraints (max acceleration/angular acceleration, speed, etc.)
  *
- * 본 모듈은 다음을 지원합니다:
- * - 🔹 단일 목표점 기반 MPC (`numeq_mpc_solve`)
- * - 🔹 다중 waypoint 기반 경로 추종 (`numeq_mpc_solve_route`)
- * - 🔹 방향 유지형 목표 제어 (`numeq_mpc_solve_directional`)
- * - 🔹 사용자 정의 비용 함수 (`mpc_cost_func`)
- * - 🔹 trajectory 예측 결과 저장 및 디버깅
+ * This module supports:
+ * - Single target point MPC (numeq_mpc_solve)
+ * - Multi-waypoint path following (numeq_mpc_solve_route)
+ * - Direction-holding target control (numeq_mpc_solve_directional)
+ * - Custom cost functions (mpc_cost_func)
+ * - Trajectory prediction and debugging
  */
 
 #ifndef NUMEQ_MPC_H
@@ -38,152 +40,88 @@ extern "C" {
 #endif
 
 // ---------------------------------------------------------
-// 🎯 핵심 구조체 정의
+// Core Structures
 // ---------------------------------------------------------
 
 /**
  * @struct mpc_config_t
- * @brief MPC(Model Predictive Control) 시뮬레이션 구성 파라미터
+ * @brief MPC (Model Predictive Control) configuration parameters.
  *
- * 이 구조체는 MPC 기반 경로 예측 및 제어 알고리즘에서 사용되는 다양한 파라미터를 정의합니다.
- * 주로 시간 범위, 속도/가속도 제한, 비용 함수 가중치 등이 포함됩니다.
+ * This structure defines various parameters used in MPC-based path prediction
+ * and control algorithms, including time horizon, speed/acceleration limits,
+ * and cost weights.
  *
- * **변수 설명 및 기본값:**
+ * **Variable descriptions and defaults:**
  * - horizon_sec = 1.0f  
- *   예측 시간 범위(초 단위). MPC가 미래를 예측하는 총 시간 구간입니다.  
- *   예: horizon_sec = 1.0f → 1초 후까지의 경로 예측.
+ *   Prediction time horizon (seconds). Example: horizon_sec = 1.0f predicts 1 second ahead.
  *
  * - step_dt = 0.05f  
- *   시뮬레이션 시간 간격. horizon_sec을 이 값으로 나누어 예측 스텝 수를 계산합니다.  
- *   예: horizon_sec = 1.0f, step_dt = 0.05f → 20스텝 예측.
+ *   Simulation step interval. The total number of prediction steps is horizon_sec / step_dt.
  *
  * - max_accel = 10.0f  
- *   최대 선형 가속도 크기 제한 (m/s²). MPC 후보 액션에서 선형 가속도를 이 값 이하로 제한합니다.
+ *   Maximum linear acceleration (m/s^2).
  *
  * - max_ang_accel = 5.0f  
- *   최대 각가속도 크기 제한 (rad/s²).
+ *   Maximum angular acceleration (rad/s^2).
  *
  * - max_speed = 50.0f  
- *   최대 선형 속도 제한 (m/s).  
- *   MPC가 경로 최적화 시 속도를 이 범위 안에서 유지하도록 강제합니다.
+ *   Maximum linear speed (m/s).
  *
  * - max_ang_speed = 10.0f  
- *   최대 각속도 제한 (rad/s).
+ *   Maximum angular speed (rad/s).
  *
  * - weight_distance = 1.0f  
- *   목표 거리 오차에 대한 비용 가중치.  
- *   값이 클수록 목표 위치에 빠르게 접근하도록 제어됩니다.
+ *   Cost weight for target distance error.
  *
  * - weight_orientation = 0.5f  
- *   목표 회전(자세) 오차에 대한 비용 가중치.  
- *   값이 클수록 목표 자세(쿼터니언)에 맞추려는 힘이 강해집니다.
+ *   Cost weight for orientation error.
  *
  * - weight_velocity = 0.1f  
- *   속도 안정성을 위한 비용 가중치.  
- *   속도 변화를 최소화하도록 유도합니다.
+ *   Cost weight for velocity stability.
  *
  * - weight_accel = 0.1f  
- *   가속도 변화에 대한 비용 가중치.  
- *   급격한 가속/감속을 줄이려면 값을 높입니다.
+ *   Cost weight for acceleration.
  *
  * - weight_ang_accel = 0.1f  
- *   각가속도 변화에 대한 비용 가중치.
+ *   Cost weight for angular acceleration.
  *
  * - max_iter = 10  
- *   내부 최적화 반복 횟수.  
- *   MPC가 후보 가속도를 반복 탐색할 횟수를 제한합니다.
+ *   Maximum internal optimization iterations.
  *
  * - output_trajectory = false  
- *   true로 설정하면 예측 경로(trajectory)를 외부에 출력/저장합니다.
+ *   If true, the predicted trajectory is stored externally.
  *
  * - candidate_step = 0.5f  
- *   선형 가속도 후보 간격.  
- *   예: -max_accel ~ max_accel 범위를 0.5 단위로 샘플링.
+ *   Step size between linear acceleration candidates.
  *
  * - ang_candidate_step = 0.1f  
- *   각가속도 후보 간격.
+ *   Step size between angular acceleration candidates.
  */
 typedef struct s_mpc_config {
-    float horizon_sec;          /**< 예측 시간 범위 (초 단위) */
-    float step_dt;              /**< 시뮬레이션 시간 간격 (예: 0.05초) */
-    float max_accel;            /**< 최대 선형 가속도 크기 제한 */
-    float max_ang_accel;        /**< 최대 각가속도 크기 제한 */
-    float max_speed;            /**< 최대 선형 속도 제한 */
-    float max_ang_speed;        /**< 최대 각속도 제한 */
-    float weight_distance;      /**< 거리 오차 비용 가중치 */
-    float weight_orientation;   /**< 회전 오차 비용 가중치 */
+    float horizon_sec;
+    float step_dt;
+    float max_accel;
+    float max_ang_accel;
+    float max_speed;
+    float max_ang_speed;
+    float weight_distance;
+    float weight_orientation;
     float weight_velocity;
-    float weight_accel;         /**< 가속도 비용 가중치 */
-    float weight_ang_accel;     /**< 각가속도 비용 가중치 */
-    int max_iter;               /**< 내부 반복 횟수 제한 */
-    bool output_trajectory;     /**< 예측 경로 출력 여부 */
-    float candidate_step;       /**< 가속도 후보 간격 */
-    float ang_candidate_step;   /**< 각가속도 후보 간격 */
+    float weight_accel;
+    float weight_ang_accel;
+    int max_iter;
+    bool output_trajectory;
+    float candidate_step;
+    float ang_candidate_step;
 } mpc_config_t;
 
 /**
- * @brief mpc_config_t 기본값 초기화
- *
- * 기본값:
- * - horizon_sec = 1.0f
- * - step_dt = 0.05f
- * - max_accel = 10.0f
- * - max_ang_accel = 5.0f
- * - max_speed = 50.0f
- * - max_ang_speed = 10.0f
- * - weight_distance = 1.0f
- * - weight_orientation = 0.5f
- * - weight_velocity = 0.1f
- * - weight_accel = 0.1f
- * - weight_ang_accel = 0.1f
- * - max_iter = 10
- * - output_trajectory = false
- * - candidate_step = 0.5f
- * - ang_candidate_step = 0.1f
- *
- * @param cfg 초기화할 mpc_config_t 구조체
+ * @brief Initialize mpc_config_t with default values.
  */
 BYUL_API void mpc_config_init(mpc_config_t* cfg);
 
 /**
- * @brief mpc_config_t를 지정한 값으로 초기화
- *
- * 이 함수는 전달된 파라미터로 mpc_config_t 구조체를 초기화합니다.
- * 지정하지 않은 항목은 다음 기본값을 참고하여 설정할 수 있습니다.
- *
- * **기본값:**
- * - horizon_sec = 1.0f (미래 1초 동안의 예측)
- * - step_dt = 0.05f (50ms 간격 스텝)
- * - max_accel = 10.0f (최대 선형 가속도 [m/s²])
- * - max_ang_accel = 5.0f (최대 각가속도 [rad/s²])
- * - max_speed = 50.0f (최대 선형 속도 [m/s])
- * - max_ang_speed = 10.0f (최대 각속도 [rad/s])
- * - weight_distance = 1.0f (목표 위치 오차 비용 가중치)
- * - weight_orientation = 0.5f (목표 회전 오차 비용 가중치)
- * - weight_velocity = 0.1f (속도 안정화 비용 가중치)
- * - weight_accel = 0.1f (가속도 비용 가중치)
- * - weight_ang_accel = 0.1f (각가속도 비용 가중치)
- * - max_iter = 10 (MPC 내부 최적화 반복 횟수)
- * - output_trajectory = false (예측 경로 출력 여부)
- * - candidate_step = 0.5f (선형 가속도 후보 간격)
- * - ang_candidate_step = 0.1f (각가속도 후보 간격)
- *
- * @param cfg 초기화할 구조체
- * @param horizon_sec 예측 시간 범위 (초)
- * @param step_dt 시뮬레이션 스텝 간격 (초)
- * @param max_accel 최대 선형 가속도 [m/s²]
- * @param max_ang_accel 최대 각가속도 [rad/s²]
- * @param max_speed 최대 선형 속도 [m/s]
- * @param max_ang_speed 최대 각속도 [rad/s]
- * @param weight_distance 거리 오차 비용 가중치
- * @param weight_orientation 회전 오차 비용 가중치
- * @param weight_velocity 속도 비용 가중치
- * @param weight_accel 가속도 비용 가중치
- * @param weight_ang_accel 각가속도 비용 가중치
- * @param max_iter 내부 반복 횟수
- * @param output_trajectory 예측 경로 출력 여부
- * @param candidate_step 가속도 후보 간격
- * @param ang_candidate_step 각가속도 후보 간격
+ * @brief Initialize mpc_config_t with custom values.
  */
 BYUL_API void mpc_config_init_full(mpc_config_t* cfg,
                           float horizon_sec,
@@ -203,225 +141,85 @@ BYUL_API void mpc_config_init_full(mpc_config_t* cfg,
                           float ang_candidate_step);
 
 /**
- * @brief mpc_config_t 복사
+ * @brief Copy mpc_config_t.
  */
 BYUL_API void mpc_config_assign(mpc_config_t* out, const mpc_config_t* src);
 
 /**
- * @brief 다중 지점 기반 목표 경로
+ * @brief Multi-waypoint target route.
  */
 typedef struct s_mpc_target_route {
-    const vec3_t* points;       /**< 목표 지점 배열 */
+    const vec3_t* points;
     int count;
     bool loop;
 } mpc_target_route_t;
 
-// ---------------------------------------------------------
-// mpc_target_route_t 유틸리티
-// ---------------------------------------------------------
-
-/**
- * @brief mpc_target_route_t 기본값 초기화
- */
 BYUL_API void mpc_target_route_init(mpc_target_route_t* route);
-
-/**
- * @brief mpc_target_route_t 지정 값 초기화
- */
 BYUL_API void mpc_target_route_init_full(mpc_target_route_t* route,
                                 const vec3_t* points,
                                 int count,
                                 bool loop);
-
-/**
- * @brief mpc_target_route_t 복사
- */
 BYUL_API void mpc_target_route_assign(mpc_target_route_t* out,
                            const mpc_target_route_t* src);
 
 /**
- * @brief 방향 유지 기반 제어 목표
+ * @brief Direction-holding target.
  */
 typedef struct s_mpc_direction_target {
-    vec3_t direction;           /**< 단위 벡터 (목표 진행 방향) */
-    quat_t orientation;         /**< 목표 회전 (옵션) */
-    float weight_dir;           /**< 방향 유지 비용 가중치 */
-    float weight_rot;           /**< 회전 유지 비용 가중치 */
-    float duration;             /**< 유지 시간 */
+    vec3_t direction;
+    quat_t orientation;
+    float weight_dir;
+    float weight_rot;
+    float duration;
 } mpc_direction_target_t;
 
-// ---------------------------------------------------------
-// mpc_direction_target_t 유틸리티
-// ---------------------------------------------------------
-
-/**
- * @brief mpc_direction_target_t 기본값 초기화
- */
 BYUL_API void mpc_direction_target_init(mpc_direction_target_t* target);
-
-/**
- * @brief mpc_direction_target_t 지정 값 초기화
- */
 void mpc_direction_target_init_full(mpc_direction_target_t* target,
                                     const vec3_t* direction,
                                     const quat_t* orientation,
                                     float weight_dir,
                                     float weight_rot,
                                     float duration);
-/**
- * @brief mpc_direction_target_t 복사
- */
 void mpc_direction_target_assign(mpc_direction_target_t* out,
                                const mpc_direction_target_t* src);
 
-
 /**
- * @brief MPC 제어 결과 출력 구조체
- * 
- * MPC 연산 후 즉시 적용 가능한 선형/회전 가속도와
- * 예측된 미래 타겟, 비용을 포함합니다.
+ * @brief MPC output result structure.
  */
 typedef struct s_mpc_output {
-    vec3_t desired_accel;       /**< 최종 선택된 선형 가속도 */
-    vec3_t desired_ang_accel;   /**< 최종 선택된 각가속도 */
-    motion_state_t future_state;/**< 예측된 미래 상태 (위치+회전) */
-    float cost;                 /**< 총 비용 함수 결과 (낮을수록 우수) */
+    vec3_t desired_accel;
+    vec3_t desired_ang_accel;
+    motion_state_t future_state;
+    float cost;
 } mpc_output_t;
 
-// ---------------------------------------------------------
-// 📐 사용자 정의 비용 함수 타입
-// ---------------------------------------------------------
-
 /**
- * @brief 사용자 정의 비용 함수 타입
- *
- * 이 함수 포인터는 MPC에서 특정 가속도 및 각가속도 후보에 대한 비용을 계산하기 위해 사용됩니다.
- * 사용자는 @ref numeq_mpc_cost_default 와 같은 기본 구현을 사용하거나,
- * 새로운 비용 함수를 정의하여 MPC의 최적화 전략을 변경할 수 있습니다.
- *
- * @param sim_state   시뮬레이션 상태 (현재 위치, 속도, 가속도, 자세 포함)
- * @param target      목표 상태 (목표 위치, 목표 속도, 목표 자세 포함)
- * @param userdata    외부 데이터 포인터 (가중치 등 사용자 정의 파라미터)
- * @return float      계산된 비용 값 (작을수록 더 우수한 후보)
+ * @brief Cost function type for MPC.
  */
 typedef float (*mpc_cost_func)(
-    const motion_state_t* sim_state, /**< 시뮬레이션 상태 */
-    const motion_state_t* target,    /**< 목표 상태 */
-    void* userdata);                 /**< 외부 데이터 */
+    const motion_state_t* sim_state,
+    const motion_state_t* target,
+    void* userdata);
 
-/**
- * @brief 기본 비용 함수 (거리 + 회전)
- *
- * 시뮬레이션 상태와 목표 상태 간의 위치 오차 및 회전 오차를 계산하여 비용을 산출합니다.
- * 가속도에 대한 제약도 포함됩니다.
- *
- * 비용 공식:
- * @f[
- *   cost = w_{dist} \cdot ||p - p_{target}||^2
- *        + w_{rot} \cdot (\Delta \theta)^2
- *        + w_{acc} \cdot ||a||^2
- *        + w_{ang} \cdot ||\alpha||^2
- * @f]
- *
- * @param sim_state   시뮬레이션 상태 (현재 위치, 속도, 가속도, 자세 포함)
- * @param target      목표 상태 (목표 위치 및 자세)
- * @param userdata    mpc_config_t* 또는 사용자 정의 데이터
- * @return float      계산된 비용 값
- */
 BYUL_API float numeq_mpc_cost_default(
     const motion_state_t* sim_state,
     const motion_state_t* target,
     void* userdata);
 
-/**
- * @brief 속력 중심 비용 함수
- *
- * 현재 속도 크기와 목표 속도 크기의 차이를 기반으로 비용을 계산합니다.
- * 위치 오차는 고려하지 않고, 속도를 특정 범위에 맞추는 데 집중합니다.
- *
- * 비용 공식:
- * @f[
- *   cost = w_{speed} \cdot (||v|| - v_{target})^2
- *        + w_{acc} \cdot ||a||^2
- * @f]
- *
- * @param sim_state   시뮬레이션 상태 (현재 속도 포함)
- * @param target      목표 상태 (target.linear.velocity.x = 목표 속도)
- * @param userdata    mpc_config_t* 또는 사용자 정의 데이터
- * @return float      계산된 비용 값
- */
 BYUL_API float numeq_mpc_cost_speed(
     const motion_state_t* sim_state,
     const motion_state_t* target,
     void* userdata);
 
-/**
- * @brief 하이브리드 비용 함수 (거리 + 속도 + 회전)
- *
- * 위치 오차, 속도 오차, 회전 오차를 종합적으로 고려하여 비용을 산출합니다.
- * @ref numeq_mpc_cost_default 와 @ref numeq_mpc_cost_speed 의 조합 형태입니다.
- *
- * 비용 공식:
- * @f[
- *   cost = w_{dist} \cdot ||p - p_{target}||^2
- *        + w_{vel} \cdot ||v - v_{target}||^2
- *        + w_{rot} \cdot (\Delta \theta)^2
- *        + w_{acc} \cdot ||a||^2
- *        + w_{ang} \cdot ||\alpha||^2
- * @f]
- *
- * @param sim_state   시뮬레이션 상태 (현재 위치, 속도, 가속도, 자세 포함)
- * @param target      목표 상태 (목표 위치, 목표 속도, 목표 자세)
- * @param userdata    mpc_config_t* 또는 사용자 정의 데이터
- * @return float      계산된 비용 값
- */    
 BYUL_API float numeq_mpc_cost_hybrid(
     const motion_state_t* sim_state,
     const motion_state_t* target,
     void* userdata);
 
 // ---------------------------------------------------------
-// 🧠 메인 MPC 함수들
+// Main MPC Functions
 // ---------------------------------------------------------
 
-/**
- * @brief Model Predictive Control(MPC)을 이용해 최적 가속도 벡터를 탐색하고, 
- *        미래 궤적(trajectory)을 예측한다.
- *
- * 이 함수는 현재 상태(`current_state`)에서 목표 상태(`target_state`)로 이동하기 위해 
- * 지정된 시간 구간(`config->horizon_sec`) 동안 후보 가속도 조합을 시뮬레이션하며, 
- * 비용 함수(`cost_fn`)를 사용해 최소 비용을 제공하는 제어 입력을 찾는다.
- * 
- * 선택된 제어 입력(`desired_accel`, `desired_ang_accel`)과 
- * 예측된 미래 상태(`future_state`)는 `out_result`에 저장된다.
- * `config->output_trajectory`가 활성화된 경우, `out_traj`에 
- * 미래 궤적 샘플이 기록된다.
- *
- * @param current_state   현재 물체의 상태 (위치, 속도, 가속도 등).
- * @param target_state    목표로 하는 상태 (위치, 속도, 방향).
- * @param env             외부 환경 요소 (중력, 바람, 항력 등), NULL 허용.
- * @param body            물체의 물리 특성(질량, 공기저항 계수 등), NULL 허용.
- * @param config          MPC 설정 값 (가속도 제한, 시뮬레이션 horizon, step 간격 등).
- * @param out_result      최적화 결과가 저장될 출력 구조체 (NULL 불가).
- * @param out_traj        미래 궤적 샘플을 기록할 구조체 (config->output_trajectory=true일 때만 사용).
- * @param cost_fn         후보 시뮬레이션의 비용을 평가하는 사용자 정의 함수 포인터 (NULL 가능).
- *                        - 형식: float cost_fn(const motion_state_t* sim_state,
- *                                                const motion_state_t* target_state,
- *                                                void* userdata)
- * @param cost_userdata   비용 함수에 전달되는 사용자 데이터 포인터.
- *
- * @return true  성공적으로 MPC 최적화를 수행한 경우.
- * @return false 입력 파라미터가 유효하지 않거나 계산 실패 시.
- *
- * @note
- * - 가속도 후보는 `-config->max_accel, 0, +config->max_accel`의 
- *   전수 탐색으로 이루어진다.
- * - `numeq_integrate_motion_rk4()`를 사용하여 물리 시뮬레이션을 수행한다.
- * - 실시간 제어에서는 후보 수와 `horizon_sec` 값을 최소화하거나 
- *   QP 기반 알고리즘으로 대체하는 것을 권장한다.
- *
- * @see mpc_output_t, trajectory_t, mpc_cost_func
- */
 BYUL_API bool numeq_mpc_solve(
     const motion_state_t* current_state,
     const motion_state_t* target_state,
@@ -433,52 +231,6 @@ BYUL_API bool numeq_mpc_solve(
     mpc_cost_func cost_fn,
     void* cost_userdata);
 
-/**
- * @brief 최적화된 단일 목표 MPC (Fast Version)
- *
- * 기존 `numeq_mpc_solve()`의 **전수 탐색 방식**은 매우 많은 후보를 탐색하여
- * 높은 연산량을 유발합니다. 이를 개선하기 위해 Fast MPC는 **후보군을 대폭 줄이고,**
- * **계산 효율화(Early Exit, Warm Start)를 적용**하여 실시간 성능을 확보합니다.
- *
- * ---
- *
- * ### **알고리즘 개요**
- * 1. **후보군 축소:**  
- *    각 축별 가속도 후보를 `{0, ±max_accel}`로 제한하여 총 3³=27개만 탐색.
- * 2. **Warm Start:**  
- *    이전 스텝의 최적 가속도를 초기 후보로 사용하여,
- *    주변 후보군을 우선 탐색해 불필요한 시뮬레이션을 최소화.
- * 3. **Early Exit:**  
- *    탐색 중 비용이 현재 `best_cost`를 초과하면 해당 후보는 바로 중단.
- *
- * ---
- *
- * ### **장점**
- * - **속도:** 표준 MPC 대비 **최대 10~20배 이상 빠름** (1ms~2ms 수준).
- * - **실시간 제어에 적합:** 60Hz~120Hz 제어 루프에서도 안정적으로 사용 가능.
- * - **Warm Start 활용:** 이전 결과를 활용해 수렴 속도 향상.
- *
- * ### **단점**
- * - **정밀도 부족:**  
- *   후보가 적어 **글로벌 최적해를 놓칠 수 있음.**
- * - **미세 튜닝 불가:**  
- *   `0` 또는 `±max_accel` 수준의 단순 가속도만 고려하므로
- *   **Fine Control이 어렵다.**
- *
- * ---
- *
- * @param[in]  current_state  현재 모션 상태
- * @param[in]  target_state   목표 모션 상태
- * @param[in]  env            환경 정보 (NULL 가능)
- * @param[in]  body           물리 속성 (NULL 가능)
- * @param[in]  config         MPC 설정
- * @param[out] out_result     결과 저장 구조체
- * @param[out] out_traj       예측 궤적 (NULL 가능)
- * @param[in]  cost_fn        비용 함수 포인터
- * @param[in]  cost_userdata  비용 함수 사용자 데이터
- *
- * @return true = 성공, false = 실패
- */
 BYUL_API bool numeq_mpc_solve_fast(
     const motion_state_t* current_state,
     const motion_state_t* target_state,
@@ -490,54 +242,6 @@ BYUL_API bool numeq_mpc_solve_fast(
     mpc_cost_func cost_fn,
     void* cost_userdata);
 
-/**
- * @brief 2단계(Coarse-to-Fine) 탐색을 적용한 단일 목표 MPC
- *
- * Fast MPC는 빠르지만 **후보군이 너무 단순**해서 최적해를 찾지 못할 수 있습니다.
- * Coarse2Fine MPC는 이를 보완하기 위해 **2단계 탐색(Coarse Search → Fine Search)**을 적용,
- * **정밀도와 속도의 균형**을 맞춥니다.
- *
- * ---
- *
- * ### **알고리즘 개요**
- * 1. **Coarse Search:**  
- *    각 축별로 `{ -max, 0, +max }` 후보군을 사용해  
- *    대략적인 최적 가속도 방향을 탐색.
- * 2. **Fine Search:**  
- *    Coarse 단계에서 찾은 **best_accel** 주변에서 **±delta 범위**를 작은 단위로 세분화해  
- *    최적해를 한 번 더 탐색.
- *
- * ---
- *
- * ### **장점**
- * - **정밀도:**  
- *   Fast MPC보다 더 **정확한 가속도 벡터를 찾을 가능성 높음.**
- * - **안정성:**  
- *   전역 탐색(coarse) + 국소 최적화(fine)로 **잡음이나 작은 오차에 강함.**
- * - **커스터마이징 용이:**  
- *   coarse와 fine 단계의 해상도를 각각 조절 가능.
- *
- * ### **단점**
- * - **속도 저하:**  
- *   coarse(27 후보) × fine(27 후보) → 총 729회 시뮬레이션 발생 가능.  
- *   현재 벤치마크에서 Fast MPC(1ms) 대비 약 **20~30배 느림** (약 28ms).
- * - **튜닝 복잡성:**  
- *   fine search delta와 step 수 조절이 필요.
- *
- * ---
- *
- * @param[in]  current_state  현재 모션 상태
- * @param[in]  target_state   목표 모션 상태
- * @param[in]  env            환경 정보 (NULL 가능)
- * @param[in]  body           물리 속성 (NULL 가능)
- * @param[in]  config         MPC 설정
- * @param[out] out_result     결과 저장 구조체
- * @param[out] out_traj       예측 궤적 (NULL 가능)
- * @param[in]  cost_fn        비용 함수 포인터
- * @param[in]  cost_userdata  비용 함수 사용자 데이터
- *
- * @return true = 성공, false = 실패
- */
 BYUL_API bool numeq_mpc_solve_coarse2fine(
     const motion_state_t* current_state,
     const motion_state_t* target_state,
@@ -549,9 +253,6 @@ BYUL_API bool numeq_mpc_solve_coarse2fine(
     mpc_cost_func cost_fn,
     void* cost_userdata);
 
-/**
- * @brief 경유점 기반 MPC
- */
 BYUL_API bool numeq_mpc_solve_route(
     const motion_state_t* current_state,
     const mpc_target_route_t* route,
@@ -563,9 +264,6 @@ BYUL_API bool numeq_mpc_solve_route(
     mpc_cost_func cost_fn,
     void* cost_userdata);
 
-/**
- * @brief 방향 유지형 MPC
- */
 BYUL_API bool numeq_mpc_solve_directional(
     const motion_state_t* current_state,
     const mpc_direction_target_t* direction_target,

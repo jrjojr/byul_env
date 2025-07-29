@@ -70,7 +70,6 @@ route_t* find_ida_star(const navgrid_t* m,
                 continue;
             }
 
-            // 추적 중 가장 유망한 좌표 저장
             if (f < best_f) {
                 best_f = f;
                 if (best_coord) coord_destroy(best_coord);
@@ -128,7 +127,7 @@ route_t* find_ida_star(const navgrid_t* m,
         coord_hash_destroy(visited);
 
         if (found && final) {
-            //    route_clear_path(result);  // ✅ 중복 제거
+
             route_reconstruct_path(result, came_from, start, final);
             route_set_success(result, true);
             coord_destroy(final);
@@ -137,7 +136,7 @@ route_t* find_ida_star(const navgrid_t* m,
             if (best_coord) coord_destroy(best_coord);
             return result;
         } else if (best_coord) {
-            //    route_clear_path(result);  // ✅ 중복 제거
+
             route_reconstruct_path(result, came_from, start, best_coord);
             coord_destroy(best_coord);
             best_coord = nullptr;

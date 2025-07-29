@@ -6,35 +6,39 @@
 int main(int argc, char** argv) {
 #ifdef _WIN32
     UINT original_cp = GetConsoleOutputCP();
-    SetConsoleOutputCP(65001);                          // UTF-8 출력용
-    setlocale(LC_ALL, "ko_KR.UTF-8");                   // UTF-8 로케일
+    SetConsoleOutputCP(65001);                          // Set console to UTF-8 output
+    setlocale(LC_ALL, "en_US.UTF-8");                   // Set UTF-8 locale
 #else
-    setlocale(LC_ALL, "ko_KR.UTF-8");                   // 리눅스/맥에서도 설정
+    setlocale(LC_ALL, "en_US.UTF-8");                   // Linux/Mac locale setting
 #endif
 
-    std::cout << u8"🌟 UTF-8 콘솔 코드페이지로 전환하고 테스트 시작!\n";
+    std::cout << "UTF-8 console code page set. Starting tests...\n";
 
     doctest::Context context;
     context.applyCommandLine(argc, argv);
 
-    // context.setOption("success", true);      // 성공한 테스트도 출력
-    // context.setOption("durations", true);    // 각 테스트 케이스 시간 출력
+    // --- Forced default options ---
+    // context.setOption("success", true);      // Show all successful tests
+    // context.setOption("no-skip", true);      // Show skipped tests
+    // context.setOption("reporters", "console");
+    // context.setOption("no-colors", true);
+    // context.setOption("durations", true);    // Show execution time for each test
 
     int res = context.run();
 
     if (context.shouldExit()) {
-        std::cout << u8"🌙 테스트 끝! 콘솔 코드페이지 원래대로 복구했습니다.\n";
+        std::cout << "Tests finished. Console code page restored.\n";
 #ifdef _WIN32
-        SetConsoleOutputCP(original_cp);                // 원래 코드페이지 복원
-        setlocale(LC_ALL, "");                          // 기본 로케일로 복귀
+        SetConsoleOutputCP(original_cp);                // Restore original code page
+        setlocale(LC_ALL, "");                          // Restore default locale
 #endif
         return res;
     }
 
-    std::cout << u8"🌙 테스트 종료. 콘솔 상태 복원 완료.\n";
+    std::cout << "Tests complete. Console state restored.\n";
 #ifdef _WIN32
     SetConsoleOutputCP(original_cp);
-    setlocale(LC_ALL, "");                              // 로케일 복원
+    setlocale(LC_ALL, "");                              // Restore locale
 #endif
 
     return res;

@@ -1,4 +1,4 @@
-//test_coord.cpp
+// test_coord.cpp
 
 #include "doctest.h"
 #include <locale.h>
@@ -9,7 +9,7 @@ extern "C" {
 #include "console.h"
 }
 
-TEST_CASE("미로 생성 및 맵 적용") {
+TEST_CASE("Maze generation and map application") {
     maze_t* maze = maze_create_full(5, 5, 9, 9);
     CHECK(maze != nullptr);
 
@@ -30,7 +30,7 @@ TEST_CASE("미로 생성 및 맵 적용") {
     navgrid_destroy(navgrid);
 }
 
-TEST_CASE("Prim 미로 생성 테스트") {
+TEST_CASE("Prim Maze Generation Test") {
     int x0 = 0, y0 = 0, width = 9, height = 9;
     maze_t* maze = maze_create_full(x0, y0, width, height);
     CHECK(maze != nullptr);
@@ -40,11 +40,11 @@ TEST_CASE("Prim 미로 생성 테스트") {
     navgrid_t* navgrid = navgrid_create_full(width, height, NAVGRID_DIR_4, nullptr);
     maze_apply_to_navgrid(maze, navgrid);
 
-    // 미로 블럭이 너무 적거나 너무 많은지 체크
+    // Check if the maze has a reasonable number of blocks
     const coord_hash_t* blocked = maze_get_blocked_coords(maze);
     int n_blocked = coord_hash_length(blocked);
-    CHECK(n_blocked > (width * height / 3)); // 최소한 일부 벽은 있어야 함
-    CHECK(n_blocked < (width * height));     // 전부 막혀 있으면 안됨
+    CHECK(n_blocked > (width * height / 3)); // Must have some walls
+    CHECK(n_blocked < (width * height));     // Cannot be fully blocked
 
     navgrid_print_ascii(navgrid);
 
@@ -67,7 +67,7 @@ TEST_CASE("Binary Tree Maze Generation") {
     maze_destroy(maze);
 }
 
-TEST_CASE("Eller's Algorithm Maze Generation") {
+TEST_CASE("Eller Algorithm Maze Generation") {
     maze_t* maze = maze_create_full(0, 0, 9, 9);
     REQUIRE(maze != nullptr);
 
@@ -99,8 +99,8 @@ TEST_CASE("Aldous-Broder Maze Generation") {
     const coord_hash_t* blocked = maze_get_blocked_coords(maze);
     int n_blocked = coord_hash_length(blocked);
 
-    CHECK(n_blocked > (width * height / 3)); // 벽이 너무 적지 않음
-    CHECK(n_blocked < (width * height));     // 전부 막혀 있지 않음
+    CHECK(n_blocked > (width * height / 3)); // Must not have too few walls
+    CHECK(n_blocked < (width * height));     // Cannot be fully blocked
 
     navgrid_print_ascii(navgrid);
 
@@ -108,7 +108,7 @@ TEST_CASE("Aldous-Broder Maze Generation") {
     maze_destroy(maze);
 }
 
-TEST_CASE("Wilson's Algorithm Maze Generation") {
+TEST_CASE("Wilson Algorithm Maze Generation") {
     int x0 = 0, y0 = 0, width = 9, height = 9;
     maze_t* maze = maze_create_full(x0, y0, width, height);
     REQUIRE(maze != nullptr);
@@ -123,8 +123,8 @@ TEST_CASE("Wilson's Algorithm Maze Generation") {
     const coord_hash_t* blocked = maze_get_blocked_coords(maze);
     int n_blocked = coord_hash_length(blocked);
 
-    CHECK(n_blocked > (width * height / 3)); // 벽이 너무 적지 않음
-    CHECK(n_blocked < (width * height));     // 전부 막혀 있지 않음
+    CHECK(n_blocked > (width * height / 3)); // Must not have too few walls
+    CHECK(n_blocked < (width * height));     // Cannot be fully blocked
 
     navgrid_print_ascii(navgrid);
 
@@ -147,8 +147,8 @@ TEST_CASE("Hunt-and-Kill Maze Generation") {
     const coord_hash_t* blocked = maze_get_blocked_coords(maze);
     int n_blocked = coord_hash_length(blocked);
 
-    CHECK(n_blocked > (width * height / 3)); // 벽이 너무 적지 않아야 함
-    CHECK(n_blocked < (width * height));     // 전체가 벽으로만 되어있으면 안됨
+    CHECK(n_blocked > (width * height / 3)); // Must not have too few walls
+    CHECK(n_blocked < (width * height));     // Cannot be fully blocked
 
     navgrid_print_ascii(navgrid);
 
@@ -171,8 +171,8 @@ TEST_CASE("Sidewinder Maze Generation") {
     const coord_hash_t* blocked = maze_get_blocked_coords(maze);
     int n_blocked = coord_hash_length(blocked);
 
-    CHECK(n_blocked > (width * height / 3)); // 벽이 너무 적지 않아야 함
-    CHECK(n_blocked < (width * height));     // 전부 벽이면 안 됨
+    CHECK(n_blocked > (width * height / 3)); // Must not have too few walls
+    CHECK(n_blocked < (width * height));     // Cannot be fully blocked
 
     navgrid_print_ascii(navgrid);
 
@@ -195,8 +195,8 @@ TEST_CASE("Recursive Division Maze Generation") {
     const coord_hash_t* blocked = maze_get_blocked_coords(maze);
     int n_blocked = coord_hash_length(blocked);
 
-    CHECK(n_blocked > (width * height / 3)); // 벽이 너무 적지 않음
-    CHECK(n_blocked < (width * height));     // 전체가 벽이면 안 됨
+    CHECK(n_blocked > (width * height / 3)); // Must not have too few walls
+    CHECK(n_blocked < (width * height));     // Cannot be fully blocked
 
     navgrid_print_ascii(navgrid);
 
@@ -204,7 +204,7 @@ TEST_CASE("Recursive Division Maze Generation") {
     maze_destroy(maze);
 }
 
-TEST_CASE("Kruskal's Algorithm Maze Generation") {
+TEST_CASE("Kruskal Algorithm Maze Generation") {
     int width = 9, height = 9;
 
     maze_t* maze = maze_create_full(0, 0, width, height);
@@ -212,22 +212,22 @@ TEST_CASE("Kruskal's Algorithm Maze Generation") {
 
     maze_make_kruskal(maze);
 
-    // 맵 변환
+    // Map conversion
     navgrid_t* navgrid = navgrid_create_full(width, height, NAVGRID_DIR_4, nullptr);
     REQUIRE(navgrid != nullptr);
 
     maze_apply_to_navgrid(maze, navgrid);
 
-    // 벽 개수 확인 (너무 적거나 많으면 안 됨)
+    // Check wall count (must not be too few or too many)
     const coord_hash_t* blocked = maze_get_blocked_coords(maze);
     int n_blocked = coord_hash_length(blocked);
     CHECK(n_blocked > (width * height / 4));
     CHECK(n_blocked < (width * height));
 
-    // 출력 확인
+    // Display output
     navgrid_print_ascii(navgrid);
 
-    // 메모리 해제
+    // Free memory
     navgrid_destroy(navgrid);
     maze_destroy(maze);
 }

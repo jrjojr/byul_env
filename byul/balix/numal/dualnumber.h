@@ -1,24 +1,26 @@
 /**
  * @file dualnumber.h
- * @brief DualNumber는 자동 미분(Forward-mode automatic differentiation)을 위한 핵심 구조입니다.
+ * @brief DualNumber structure for forward-mode automatic differentiation.
  *
- * DualNumber는 a + bε 형식을 가지며, ε는 무한소(infinitesimal)로 정의됩니다.
- * 가장 중요한 성질은 ε² = 0 입니다. 따라서 ε항은 남지만, 그 제곱 이상은 모두 사라지게 됩니다.
+ * DualNumber is represented as a + b * eps, where eps is an infinitesimal value.
+ * The key property is eps^2 = 0. Therefore, all terms above eps^2 vanish.
  *
- * 📌 핵심 개념:
- *   - 실수 부분(re): 함수의 원래 값
- *   - 듀얼 부분(du): 미분 값 (함수의 기울기)
+ * Core concepts:
+ *   - re: real part (function value)
+ *   - du: dual part (derivative value)
  *
- * 예: f(x) = x³, x = 2.0 + 1ε 를 넣으면
- *     f(x + ε) = 8 + 12ε  → 여기서 12는 f'(2) = 3·2²
+ * Example:
+ *   For f(x) = x^3, with x = 2.0 + 1*eps,
+ *   f(x + eps) = 8 + 12*eps  -> Here 12 is f'(2) = 3 * 2^2.
  *
- * 사용 예시:
- *   dualnumber_t* x = dualnumber_create_full(2.0f, 1.0f); // ε항 계수는 항상 1
- *   dualnumber_t* y = dualnumber_powf(x, 3.0f);        // f(x) = x³
- *   printf("f(x)=%.1f, f'(x)=%.1f\\n", y->re, y->du);  // 결과: 8.0, 12.0
+ * Usage example:
+ *   dualnumber_t* x = dualnumber_create_full(2.0f, 1.0f); // eps coefficient is 1
+ *   dualnumber_t* y = dualnumber_powf(x, 3.0f);           // f(x) = x^3
+ *   printf("f(x)=%.1f, f'(x)=%.1f\n", y->re, y->du);      // Result: 8.0, 12.0
  *
- * 이 구조는 최적화, 물리 시뮬레이션, 미분방정식 해석 등 다양한 분야에 쓰입니다.
- * GPU 가속 이전의 수치해석 구조로도 활용 가능합니다.
+ * This structure is useful for optimization, physics simulations,
+ * and solving differential equations. It can also be used for numeric
+ * analysis before GPU acceleration.
  */
 #ifndef DUALNUMBER_H
 #define DUALNUMBER_H

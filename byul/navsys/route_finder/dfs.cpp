@@ -11,7 +11,7 @@ route_t* find_dfs(const navgrid_t* m, const coord_t* start, const coord_t* goal,
 
     if (!m || !start || !goal || max_retry <= 0) return NULL;
 
-    coord_list_t* frontier = coord_list_create();  // 스택
+    coord_list_t* frontier = coord_list_create();
     coord_hash_t* visited = coord_hash_create();
     coord_hash_t* came_from = coord_hash_create_full(
         (coord_hash_copy_func) coord_copy,
@@ -32,7 +32,7 @@ route_t* find_dfs(const navgrid_t* m, const coord_t* start, const coord_t* goal,
     int retry = 0;
 
     while (!coord_list_empty(frontier) && retry++ < max_retry) {
-        coord_t* current = coord_list_pop_front(frontier);  // 스택: pop_head
+        coord_t* current = coord_list_pop_front(frontier);
 
         if (coord_equal(current, goal)) {
             found = true;
@@ -61,7 +61,7 @@ route_t* find_dfs(const navgrid_t* m, const coord_t* start, const coord_t* goal,
         }
 
         coord_list_destroy(neighbors);
-        // if (!final) final = current); // 최종 시도한 노드 기록
+
         if (final) coord_destroy(final);
         final = coord_copy(current);
         coord_destroy(current);

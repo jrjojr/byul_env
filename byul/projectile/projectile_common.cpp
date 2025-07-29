@@ -2,9 +2,6 @@
 #include "projectile_common.h"
 #include <math.h>
 
-// ---------------------------------------------------------
-// 초기화 함수
-// ---------------------------------------------------------
 void projectile_init(projectile_t* proj)
 {
     if (!proj) return;
@@ -44,16 +41,12 @@ void projectile_assign(projectile_t* out, const projectile_t* src)
     *out = *src;
 }
 
-// ---------------------------------------------------------
-// 업데이트 함수
-// ---------------------------------------------------------
 void projectile_update(projectile_t* proj, float dt)
 {
     if (!proj || dt <= 0.0f) return;
 
     entity_dynamic_update(&proj->base, dt);
 
-    // 수명 체크 후 on_hit 호출
     if (proj->base.base.lifetime > 0.0f &&
         proj->base.base.age >= proj->base.base.lifetime)
     {

@@ -2,14 +2,6 @@ cmake_minimum_required(VERSION 3.20)
 project(test_byul)
 
 # ─────────────────────────────────────────────
-# 기본 설정
-# ─────────────────────────────────────────────
-set(CMAKE_CXX_STANDARD 17)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
-set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
-set(CMAKE_POSITION_INDEPENDENT_CODE ON)
-
-# ─────────────────────────────────────────────
 # 테스트 소스 초기화
 # ─────────────────────────────────────────────
 set(TEST_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/main.cpp)

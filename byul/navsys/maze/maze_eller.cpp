@@ -25,7 +25,6 @@ void maze_make_eller(maze_t* maze) {
 
     int next_set = 1;
 
-    // 첫 줄 초기화
     for (int x = 1; x < w; x += 2) {
         set_id[0][x] = next_set++;
         grid[0][x] = PASSAGE;
@@ -33,7 +32,7 @@ void maze_make_eller(maze_t* maze) {
 
     for (int y = 0; y < h; y += 2) {
         if (y > 0) {
-            // 새 줄의 셋 ID 설정 (아래로 연결된 경우 유지)
+
             for (int x = 1; x < w; x += 2) {
                 if (set_id[y][x] == 0) {
                     set_id[y][x] = next_set++;
@@ -42,13 +41,13 @@ void maze_make_eller(maze_t* maze) {
             }
         }
 
-        // 수평 연결
+
         for (int x = 1; x < w - 2; x += 2) {
             if (set_id[y][x] != set_id[y][x + 2] && coin(rng)) {
                 int from = set_id[y][x + 2];
                 int to = set_id[y][x];
 
-                // 병합
+
                 for (int i = 1; i < w; i += 2) {
                     if (set_id[y][i] == from) set_id[y][i] = to;
                 }
@@ -60,7 +59,6 @@ void maze_make_eller(maze_t* maze) {
 
         if (y + 2 >= h) break;
 
-        // 수직 연결
         std::map<int, std::vector<int>> sets;
         for (int x = 1; x < w; x += 2) {
             sets[set_id[y][x]].push_back(x);
@@ -79,7 +77,6 @@ void maze_make_eller(maze_t* maze) {
                 }
             }
 
-            // 최소 1개는 수직 연결
             if (down_cells.empty()) {
                 int x = xs[rng() % xs.size()];
                 set_id[y + 2][x] = sid;
@@ -90,7 +87,6 @@ void maze_make_eller(maze_t* maze) {
         }
     }
 
-    // 마지막 줄 병합
     int y = h - 1;
     for (int x = 1; x < w - 2; x += 2) {
         if (set_id[y][x] != set_id[y][x + 2]) {
@@ -104,7 +100,6 @@ void maze_make_eller(maze_t* maze) {
         }
     }
 
-    // 벽만 blocked에 기록
     for (int yy = 0; yy < h; ++yy) {
         for (int xx = 0; xx < w; ++xx) {
             if (grid[yy][xx] != PASSAGE) {

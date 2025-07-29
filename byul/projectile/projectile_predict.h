@@ -16,114 +16,111 @@ extern "C" {
 
 /**
  * @struct projectile_result_t
- * @brief 발사체 궤적 예측 결과 구조체
+ * @brief Structure for projectile trajectory prediction results
  *
- * 이 구조체는 발사체의 시작/타겟 정보, 궤적(trajectory),
- * 예측 충돌 시각 및 충돌 위치를 포함합니다.
+ * This structure contains the projectile's start/target information,
+ * trajectory data, predicted impact time, and impact position.
  */
 typedef struct s_projectile_result {
-    // 입력 메타데이터
-    vec3_t start_pos;         /**< 발사체 시작 위치 (월드 좌표) */
-    vec3_t target_pos;        /**< 목표 위치 (월드 좌표, 벡터) */
-    vec3_t initial_velocity;  /**< 초기 속도 벡터 (m/s) */
+    // Input metadata
+    vec3_t start_pos;         /**< Projectile start position (world coordinates) */
+    vec3_t target_pos;        /**< Target position (world coordinates, vector) */
+    vec3_t initial_velocity;  /**< Initial velocity vector (m/s) */
 
-    // 결과 정보
-    float impact_time;        /**< 예측 충돌 시각 (초 단위) */
-    vec3_t impact_pos;        /**< 예측 충돌 위치 (월드 좌표) */
-    bool valid;               /**< 예측 결과의 유효 여부 (true면 충돌 발생) */
+    // Result data
+    float impact_time;        /**< Predicted impact time (seconds) */
+    vec3_t impact_pos;        /**< Predicted impact position (world coordinates) */
+    bool valid;               /**< Whether the prediction is valid (true if impact occurs) */
 
-    trajectory_t* trajectory; /**< 예측된 궤적 데이터 (동적 메모리 할당됨) */
+    trajectory_t* trajectory; /**< Predicted trajectory data (dynamically allocated) */
 } projectile_result_t;
 
 
 // ---------------------------------------------------------
-// projectile_result_t 관리 함수
+// projectile_result_t Management Functions
 // ---------------------------------------------------------
 
 /**
- * @brief 기본 projectile_result_t 객체를 생성합니다.
+ * @brief Creates a default projectile_result_t object.
  *
- * 기본 용량(capacity = 100)을 갖는 trajectory를 내부적으로 생성하고,
- * impact_time, impact_pos, valid 값을 초기화합니다.
+ * Internally creates a trajectory with a default capacity (100)
+ * and initializes impact_time, impact_pos, and valid values.
  *
- * @return 생성된 projectile_result_t 포인터 (동적 메모리 할당됨)
- * @note 사용 후 반드시 projectile_result_destroy()로 해제해야 합니다.
+ * @return Pointer to the created projectile_result_t (dynamically allocated).
+ * @note Must be freed with projectile_result_destroy() after use.
  */
 BYUL_API projectile_result_t* projectile_result_create();
 
 /**
- * @brief 지정된 capacity로 trajectory를 생성하는 
- *      projectile_result_t 객체를 생성합니다.
+ * @brief Creates a projectile_result_t object with a specified trajectory capacity.
  *
- * @param capacity trajectory에 할당할 최대 샘플 개수
- * @return 생성된 projectile_result_t 포인터 (동적 메모리 할당됨)
- * @note 사용 후 반드시 projectile_result_destroy()로 해제해야 합니다.
+ * @param capacity Maximum number of samples allocated to trajectory.
+ * @return Pointer to the created projectile_result_t (dynamically allocated).
+ * @note Must be freed with projectile_result_destroy() after use.
  */
 BYUL_API projectile_result_t* projectile_result_create_full(int capacity);
 
 /**
- * @brief 기존 projectile_result_t 객체를 깊은 복사(Deep Copy)합니다.
+ * @brief Creates a deep copy of an existing projectile_result_t.
  *
- * @param src 원본 projectile_result_t (NULL 불가)
- * @return 복제된 projectile_result_t 포인터 (동적 메모리 할당됨)
- * @note 사용 후 반드시 projectile_result_destroy()로 해제해야 합니다.
+ * @param src Source projectile_result_t (must not be NULL).
+ * @return Pointer to the cloned projectile_result_t (dynamically allocated).
+ * @note Must be freed with projectile_result_destroy() after use.
  */
 BYUL_API projectile_result_t* projectile_result_copy(
     const projectile_result_t* src);
 
 /**
- * @brief projectile_result_t 객체를 초기화 상태로 되돌립니다.
+ * @brief Resets a projectile_result_t object to its initial state.
  *
- * - impact_time, impact_pos, valid 값을 초기화.
- * - trajectory는 유지하되 내부 데이터를 clear.
+ * - Resets impact_time, impact_pos, and valid values.
+ * - Keeps the trajectory but clears its internal data.
  *
- * @param res 초기화할 projectile_result_t 포인터 (NULL 가능)
+ * @param res Pointer to the projectile_result_t to reset (may be NULL).
  */
 BYUL_API void projectile_result_reset(projectile_result_t* res);
 
 /**
- * @brief trajectory의 메모리를 해제하고 새로운 capacity로 재할당합니다.
+ * @brief Frees and reallocates trajectory memory with a new capacity.
  *
- * @param res 변경할 projectile_result_t 포인터 (NULL 불가)
- * @param new_capacity 새로 할당할 샘플 최대 개수
+ * @param res         Pointer to the projectile_result_t (must not be NULL).
+ * @param new_capacity New maximum number of samples to allocate.
  */
 BYUL_API void projectile_result_resize(projectile_result_t* res, int new_capacity);
 
 /**
- * @brief projectile_result_t 객체를 완전 해제하고 NULL로 초기화.
+ * @brief Fully frees a projectile_result_t object and resets it to NULL.
  *
- * - reset과 비슷하지만 trajectory도 완전 free.
- * - destroy와의 호환성을 위해 제공.
+ * - Similar to reset but also frees trajectory.
  *
- * @param res 해제할 projectile_result_t 포인터 (NULL 가능)
+ * @param res Pointer to the projectile_result_t to free (may be NULL).
  */
 BYUL_API void projectile_result_free(projectile_result_t* res);
 
 /**
- * @brief projectile_result_t 객체와 내부 trajectory를 해제합니다.
+ * @brief Frees a projectile_result_t object and its internal trajectory.
  *
- * @param res 해제할 projectile_result_t 포인터 (NULL 가능)
- * @note trajectory_destroy()가 내부적으로 호출되며 res 자체도 free됩니다.
+ * @param res Pointer to the projectile_result_t to free (may be NULL).
+ * @note Internally calls trajectory_destroy() and frees res itself.
  */
 BYUL_API void projectile_result_destroy(projectile_result_t* res);
 
 /**
- * @brief projectile_result_t 내용을 표준 출력으로 출력합니다.
+ * @brief Prints the contents of a projectile_result_t to standard output.
  *
- * @param result 출력할 projectile_result_t 포인터
+ * @param result Pointer to the projectile_result_t to print.
  */
 BYUL_API void projectile_result_print(const projectile_result_t* result);
 
-
-/// 문자열 변환에 필요한 권장 버퍼 크기
+/// Recommended buffer size for string conversion
 #define PROJECTILE_RESULT_STR_BUFSIZE 512
 /**
- * @brief projectile_result_t 내용을 문자열로 변환합니다.
+ * @brief Converts a projectile_result_t to a string.
  *
- * @param result       변환할 projectile_result_t 포인터
- * @param buffer       결과를 저장할 버퍼
- * @param buffer_size  버퍼 크기 (권장값: PROJECTILE_RESULT_STR_BUFSIZE)
- * @return buffer 포인터를 반환 (체이닝 용도)
+ * @param result       Pointer to the projectile_result_t to convert.
+ * @param buffer       Buffer to store the result string.
+ * @param buffer_size  Buffer size (recommended: PROJECTILE_RESULT_STR_BUFSIZE).
+ * @return Pointer to buffer (for chaining).
  */
 BYUL_API char* projectile_result_to_string(
     const projectile_result_t* result,
@@ -131,27 +128,28 @@ BYUL_API char* projectile_result_to_string(
     size_t buffer_size);
 
 /**
- * @brief projectile_result_t의 상세 정보를 출력합니다.
+ * @brief Prints detailed information of a projectile_result_t.
  *
- * - result의 기본 정보(valid, impact_time, impact_pos)
- * - trajectory가 존재하면 trajectory_print()까지 호출
+ * - Prints basic data (valid, impact_time, impact_pos).
+ * - Calls trajectory_print() if trajectory exists.
  *
- * @param result 출력할 projectile_result_t 포인터
+ * @param result Pointer to the projectile_result_t to print.
  */
 BYUL_API void projectile_result_print_detailed(
     const projectile_result_t* result);
 
 /**
- * @brief projectile_result_t의 상세 정보를 문자열로 변환합니다.
+ * @brief Converts detailed information of a projectile_result_t to a string.
  *
- * 이 함수는 기본 정보(valid, impact_time, impact_pos) 외에도 trajectory의 모든 포인트를
- * 문자열로 포함합니다. trajectory 포인트가 많으면 매우 큰 문자열이 생성될 수 있으므로
- * 충분히 큰 버퍼(권장: PROJECTILE_RESULT_STR_BUFSIZE * 100 이상)를 사용해야 합니다.
+ * This function includes all trajectory points in addition to basic data
+ * (valid, impact_time, impact_pos). If trajectory has many points,
+ * the resulting string can be large. Use a sufficiently large buffer
+ * (recommended: PROJECTILE_RESULT_STR_BUFSIZE * 100 or more).
  *
- * @param result       변환할 projectile_result_t 포인터 (NULL 허용 안 됨)
- * @param buffer       결과를 저장할 버퍼 (NULL 허용 안 됨)
- * @param buffer_size  버퍼 크기 (trajectory 데이터 크기에 따라 25KB 이상 권장)
- * @return buffer 포인터를 반환 (체이닝 또는 printf와 함께 사용 가능)
+ * @param result       Pointer to the projectile_result_t to convert (must not be NULL).
+ * @param buffer       Buffer to store the result string (must not be NULL).
+ * @param buffer_size  Buffer size (recommend at least 25KB for large trajectory data).
+ * @return Pointer to buffer (for chaining or printf).
  */
 BYUL_API char* projectile_result_to_string_detailed(
     const projectile_result_t* result,
@@ -159,43 +157,43 @@ BYUL_API char* projectile_result_to_string_detailed(
     size_t buffer_size);
 
 /**
- * @brief trajectory의 초기 두 샘플로부터 초기 힘을 계산합니다.
+ * @brief Calculates the initial force using the first two samples of the trajectory.
  *
- * F = m * a, a = (v1 - v0) / Δt
- * 여기서 v0, v1은 trajectory의 0번과 1번 샘플의 속도 벡터입니다.
+ * F = m * a, a = (v1 - v0) / delta t  
+ * where v0 and v1 are the velocity vectors of trajectory sample 0 and 1.
  *
- * @param result  궤적 데이터가 포함된 projectile_result_t (NULL 허용 안됨)
- * @param mass    발사체 질량 (kg)
- * @return 초기 힘 (뉴턴, N). 유효하지 않으면 0.0f 반환.
+ * @param result  Projectile_result_t containing trajectory data (must not be NULL).
+ * @param mass    Projectile mass (kg).
+ * @return Initial force (Newtons, N). Returns 0.0f if invalid.
  */
 BYUL_API float projectile_result_calc_initial_force(
     const projectile_result_t* result,
     float mass);    
 
 // ---------------------------------------------------------
-// 발사체 궤적 예측
+// Projectile Trajectory Prediction
 // ---------------------------------------------------------
 
 /**
- * @brief 발사체 궤적을 시뮬레이션하여 충돌 여부와 궤적 데이터를 계산합니다.
+ * @brief Simulates a projectile trajectory and calculates collision and trajectory data.
  *
- * 이 함수는 발사체의 초기 상태(`projectile_t`)와 주어진 환경 정보를 기반으로
- * 궤적을 예측하고, 타겟 충돌 여부를 확인합니다.
- * - **유도 함수(`guidance_func`)**를 이용해 발사체의 방향을 실시간 조정할 수 있습니다.
- * - **추진력(`propulsion_t`)**이 있으면 추진 가속도가 적용됩니다.
- * - **환경 정보(`environ_t`)**를 통해 중력, 바람, 공기 저항 등의 외부 힘이 반영됩니다.
+ * This function predicts the trajectory based on the initial state of the projectile (`projectile_t`)
+ * and the given environment information, and checks if a target collision occurs.
+ * - **Guidance function (`guidance_func`)** can adjust projectile direction in real time.
+ * - **Propulsion (`propulsion_t`)** applies thrust acceleration if provided.
+ * - **Environment (`environ_t`)** accounts for gravity, wind, drag, and other forces.
  *
- * @param[out] out          발사체 궤적 및 충돌 결과를 저장할 구조체 (NULL 불가)
- * @param[in]  proj         초기 발사체 상태 (위치, 속도, 질량 등)
- * @param[in]  entdyn       타겟 동적 정보 (NULL이면 목표 없음)
- * @param[in]  max_time     시뮬레이션 최대 시간 (초)
- * @param[in]  time_step    시뮬레이션 간격 (초)
- * @param[in]  env          환경 정보 (NULL이면 환경 영향 없음)
- * @param[in]  propulsion   추진력 정보 (NULL이면 추진력 없음)
- * @param[in]  guidance_fn  유도 함수 포인터 (NULL이면 유도 없음)
+ * @param[out] out          Structure to store trajectory and collision results (must not be NULL).
+ * @param[in]  proj         Initial projectile state (position, velocity, mass, etc.).
+ * @param[in]  entdyn       Target dynamic data (NULL if no target).
+ * @param[in]  max_time     Maximum simulation time (seconds).
+ * @param[in]  time_step    Simulation time step (seconds).
+ * @param[in]  env          Environment data (NULL if no environmental effects).
+ * @param[in]  propulsion   Propulsion data (NULL if no propulsion).
+ * @param[in]  guidance_fn  Guidance function pointer (NULL if no guidance).
  *
- * @retval true   충돌 발생 (타겟 또는 지면과의 충돌)
- * @retval false  충돌 없음 (최대 시뮬레이션 시간까지 도달하지 않음)
+ * @retval true   Collision occurs (with target or ground).
+ * @retval false  No collision (did not hit within max simulation time).
  */
 BYUL_API bool projectile_predict(
     projectile_result_t* out,
@@ -208,35 +206,33 @@ BYUL_API bool projectile_predict(
     guidance_func guidance_fn);
 
 /**
- * @brief Kalman 필터를 적용한 발사체 궤적 예측.
+ * @brief Projectile trajectory prediction using a Kalman filter.
  *
- * `projectile_predict()`의 기본 시뮬레이션 로직에
- * **3차원 칼만 필터(`kalman_filter_vec3_t`)**를 적용하여
- * 위치 및 속도를 보정하면서 궤적을 예측합니다.
+ * Applies a **3D Kalman filter (`kalman_filter_vec3_t`)** on top of the basic
+ * `projectile_predict()` simulation logic to correct position and velocity.
  *
- * - 노이즈가 많은 환경(바람, 측정 오차)에서 궤적 예측 정확도를 향상.
- * - Kalman Filter의 `process_noise`, 
- *   `measurement_noise`는 함수 내부에서 기본값으로 초기화되며,
- *   필요시 커스터마이징할 수 있습니다.
+ * - Improves trajectory prediction accuracy in noisy environments (wind, measurement errors).
+ * - The Kalman filter's `process_noise` and `measurement_noise`
+ *   are initialized to default values but can be customized.
  *
  * @warning
- * **실험적인 기능입니다.**
- * 이 함수는 칼만 필터를 궤적 예측 루프에 인위적으로 삽입하여 사용하지만,
- * 실제 필터링은 **동적인 실시간 `update()` 
- * 루프에서 측정 데이터를 기반으로 수행**하는 것이 권장됩니다.
- * 본 함수는 테스트 및 시뮬레이션 검증 목적으로만 사용하세요.
+ * **Experimental feature.**
+ * This function manually inserts the Kalman filter into the trajectory loop,
+ * but in real applications, filtering is recommended to be performed
+ * within a dynamic real-time `update()` loop with actual measurements.
+ * Use this only for testing and validation purposes.
  *
- * @param[out] out          발사체 궤적 및 충돌 결과를 저장할 구조체
- * @param[in]  proj         초기 발사체 상태
- * @param[in]  entdyn       타겟 동적 정보
- * @param[in]  max_time     시뮬레이션 최대 시간 (초)
- * @param[in]  time_step    시뮬레이션 간격 (초)
- * @param[in]  env          환경 정보
- * @param[in]  propulsion   추진력 정보
- * @param[in]  guidance_fn  유도 함수 포인터
+ * @param[out] out          Structure to store trajectory and collision results.
+ * @param[in]  proj         Initial projectile state.
+ * @param[in]  entdyn       Target dynamic data.
+ * @param[in]  max_time     Maximum simulation time (seconds).
+ * @param[in]  time_step    Simulation time step (seconds).
+ * @param[in]  env          Environment data.
+ * @param[in]  propulsion   Propulsion data.
+ * @param[in]  guidance_fn  Guidance function pointer.
  *
- * @retval true   충돌 발생
- * @retval false  충돌 없음
+ * @retval true   Collision occurs.
+ * @retval false  No collision.
  */
 BYUL_API bool projectile_predict_with_kalman_filter(
     projectile_result_t* out,
@@ -249,35 +245,35 @@ BYUL_API bool projectile_predict_with_kalman_filter(
     guidance_func guidance_fn);
 
 /**
- * @brief 공통 필터 인터페이스(`filter_interface_t`)를 적용한 발사체 궤적 예측.
+ * @brief Projectile trajectory prediction with a generic filter interface (`filter_interface_t`).
  *
- * `projectile_predict()`와 동일한 궤적 시뮬레이션을 수행하되,
- * Kalman, EKF, UKF 등 다양한 필터를 **`filter_interface_t`**를 통해 삽입하여
- * 위치 및 속도 데이터를 보정합니다.
+ * Performs the same trajectory simulation as `projectile_predict()`,
+ * but applies filters like Kalman, EKF, or UKF through **`filter_interface_t`**
+ * to correct position and velocity data.
  *
- * - 필터는 `filter_if->time_update()`와 
- *   `filter_if->measurement_update()`를 통해 갱신됩니다.
- * - 필터링된 상태(`get_state`)가 매 스텝에서 `state.linear`에 반영됩니다.
+ * - The filter is updated using `filter_if->time_update()` and
+ *   `filter_if->measurement_update()`.
+ * - The filtered state (`get_state`) is applied to `state.linear` at each step.
  *
  * @warning
- * **실험적인 기능입니다.**
- * 이 함수는 궤적 예측 루프 내에 필터링을 직접 포함하고 있으나,
- * 실제 사용 시에는 **동적 루프에서 실시간 측정 데이터와 함께 필터를 적용**하는 것이 
- * 더 올바른 접근입니다.
- * 본 함수는 테스트 및 알고리즘 비교 목적으로만 활용하세요.
+ * **Experimental feature.**
+ * This function integrates filtering directly into the prediction loop,
+ * but in actual applications, filtering should be applied in a dynamic loop
+ * with real-time measurement data.  
+ * Use this for testing and algorithm comparison purposes only.
  *
- * @param[out] out          발사체 궤적 및 충돌 결과를 저장할 구조체
- * @param[in]  proj         초기 발사체 상태
- * @param[in]  entdyn       타겟 동적 정보
- * @param[in]  max_time     시뮬레이션 최대 시간 (초)
- * @param[in]  time_step    시뮬레이션 간격 (초)
- * @param[in]  env          환경 정보
- * @param[in]  propulsion   추진력 정보
- * @param[in]  guidance_fn  유도 함수 포인터
- * @param[in]  filter_if    필터 인터페이스 (NULL이면 필터 미적용)
+ * @param[out] out          Structure to store trajectory and collision results.
+ * @param[in]  proj         Initial projectile state.
+ * @param[in]  entdyn       Target dynamic data.
+ * @param[in]  max_time     Maximum simulation time (seconds).
+ * @param[in]  time_step    Simulation time step (seconds).
+ * @param[in]  env          Environment data.
+ * @param[in]  propulsion   Propulsion data.
+ * @param[in]  guidance_fn  Guidance function pointer.
+ * @param[in]  filter_if    Filter interface (NULL means no filtering).
  *
- * @retval true   충돌 발생
- * @retval false  충돌 없음
+ * @retval true   Collision occurs.
+ * @retval false  No collision.
  */
 BYUL_API bool projectile_predict_with_filter(
     projectile_result_t* out,
@@ -292,49 +288,45 @@ BYUL_API bool projectile_predict_with_filter(
 
 /**
  * @struct launch_param_t
- * @brief 발사체를 목표로 발사하기 위해 필요한 초기 파라미터를 정의합니다.
+ * @brief Defines initial parameters required to launch a projectile toward a target.
  *
- * - **direction**: 목표를 향한 발사 방향 (단위 벡터)
- * - **force**: 발사 순간 적용되는 초기 힘 (뉴턴, N)
- *      - 1 N = 1 kg × 1 m/s² (뉴턴)
- *      - 예시 권장값:
- *      * 1 kg 발사체 → 10~100 N (10~30 m/s 초기 속도)
- *      * 10 kg 발사체 → 500~5000 N (20~100 m/s 초기 속도)* 
- * - **time_to_hit**: 목표에 도달할 것으로 예상되는 시간 (초)
+ * - **direction**: Launch direction toward the target (unit vector).
+ * - **force**: Initial force applied at launch (Newton, N).
+ *      - 1 N = 1 kg * 1 m/s^2.
+ *      - Example recommended values:
+ *        * 1 kg projectile -> 10 ~ 100 N (10 ~ 30 m/s initial velocity).
+ *        * 10 kg projectile -> 500 ~ 5000 N (20 ~ 100 m/s initial velocity).
+ * - **time_to_hit**: Estimated time to reach the target (seconds).
  *
  * @note
- * - direction은 항상 단위 벡터로 보장됩니다.
- * - force 값은 질량 및 발사체 특성에 따라 실제 초기 속도 벡터로 환산됩니다.
+ * - direction is always normalized.
+ * - force is converted into the actual initial velocity vector
+ *   based on mass and projectile properties.
  */
 typedef struct s_launch_param {
-    vec3_t direction;    ///< 발사 방향 (단위 벡터)
-    float  force;        ///< 초기 발사 힘 (뉴턴, N)
-    float  time_to_hit;  ///< 목표 도달 예상 시간 (초)
+    vec3_t direction;    ///< Launch direction (unit vector)
+    float  force;        ///< Initial launch force (Newton, N)
+    float  time_to_hit;  ///< Estimated time to hit target (seconds)
 } launch_param_t;
 
 
 /**
- * @brief 포탄이 주어진 target 위치에 도달하기 위한 발사 파라미터를 계산합니다.
+ * @brief Calculates launch parameters for a projectile to reach the given target position.
  *
- * 이 함수는 **환경 요소(중력, 바람 등)를 전혀 고려하지 않고**,  
- * 발사체의 **자체 특성(질량, 마찰계수 등)**만을 기반으로 계산을 수행합니다.
+ * This function ignores **environmental factors (gravity, wind, etc.)**  
+ * and only considers the projectile's **own properties (mass, friction, etc.)**.
  * 
- * - 발사 후 속도는 마찰계수에 의해 서서히 감소하며, 중력 효과가 없기 때문에
- *   바닥으로 떨어지지 않습니다.
- * - 속도가 0이 되면 발사체는 그 위치에 그대로 정지합니다.
- * - 초기 힘(`force`)과 방향(`direction`)을 계산하여 `out`에 저장하며,
- *   목표에 도달하기 위해 필요한 예상 도달 시간(`time_to_hit`)을 함께 제공합니다.
+ * - After launch, velocity decreases gradually due to friction but does not drop
+ *   because of gravity.
+ * - Once velocity reaches 0, the projectile stops at its location.
+ * - Calculates initial force (`force`), direction (`direction`),
+ *   and expected time to hit (`time_to_hit`).
  *
- * @param[out] out           계산 결과 (발사 방향, 초기 힘, 도달 시간)
- * @param[in]  proj          발사체 정보 (시작 위치, 질량, 마찰계수 등)
- * @param[in]  target        목표 지점의 세계 좌표
- * @param[in]  initial_force 발사 순간 적용되는 초기 힘 (뉴턴, N)
- *                           - 1 N = 1 kg × 1 m/s² (뉴턴)
- *                           - 예시 권장값:
- *                             * 1 kg 발사체 → 10~100 N
- *                             * 10 kg 발사체 → 500~5000 N
- *
- * @return `true` = 계산 성공, `false` = 주어진 힘으로 목표에 도달 불가
+ * @param[out] out           Calculation result (direction, initial force, time_to_hit).
+ * @param[in]  proj          Projectile info (start position, mass, friction, etc.).
+ * @param[in]  target        Target position (world coordinates).
+ * @param[in]  initial_force Initial force at launch (Newton, N).
+ * @return `true` if calculation succeeded, `false` if target cannot be reached with given force.
  */
 BYUL_API bool projectile_calc_launch_param(
     launch_param_t* out,
@@ -344,18 +336,18 @@ BYUL_API bool projectile_calc_launch_param(
 );
 
 /**
- * @brief 환경 요소를 고려하여 목표에 도달하기 위한 발사 파라미터를 계산합니다.
+ * @brief Calculates launch parameters to reach a target while considering environment factors.
  *
- * 중력, 바람, 공기 저항 등 환경 요소(`environ_t`)를 반영하여,
- * 초기 발사 방향(`direction`)과 힘(`force`), 도달 시간(`time_to_hit`)을 계산합니다.
+ * Accounts for gravity, wind, air drag, and other environmental data (`environ_t`)
+ * to calculate initial launch direction (`direction`), force (`force`),
+ * and time-to-hit (`time_to_hit`).
  *
- * @param[out] out           계산 결과 (발사 방향, 힘, 도달 시간)
- * @param[in]  proj          발사체 정보 (시작 위치, 질량 등)
- * @param[in]  env           환경 정보 (중력, 바람, 공기 저항 등)
- * @param[in]  target        목표 지점의 세계 좌표
- * @param[in]  initial_force 발사 순간 적용되는 초기 힘 (뉴턴, N)
- *
- * @return `true` = 계산 성공, `false` = 해당 환경 조건에서 목표 도달 불가
+ * @param[out] out           Calculation result (direction, force, time_to_hit).
+ * @param[in]  proj          Projectile info (start position, mass, etc.).
+ * @param[in]  env           Environment info (gravity, wind, drag, etc.).
+ * @param[in]  target        Target position (world coordinates).
+ * @param[in]  initial_force Initial force at launch (Newton, N).
+ * @return `true` if calculation succeeded, `false` if target cannot be reached under given conditions.
  */
 BYUL_API bool projectile_calc_launch_param_env(
     launch_param_t* out,
@@ -367,23 +359,21 @@ BYUL_API bool projectile_calc_launch_param_env(
 
 
 /**
- * @brief 목표 위치와 도달 시간(hit_time)이 주어졌을 때 필요한 발사 파라미터를 역으로 계산합니다.
+ * @brief Calculates required launch parameters (inverse calculation) for a given target and hit time.
  *
- * 이 함수는 **환경 요소(중력, 바람 등)를 고려하지 않고**,  
- * 발사체의 **시작 위치와 목표 위치** 및 **지정된 도달 시간(hit_time)**을 기반으로
- * 초기 발사 방향(`direction`)과 필요한 초기 힘(`force`)을 역산합니다.
+ * This function ignores **environmental factors (gravity, wind, etc.)**,  
+ * and calculates the initial launch direction (`direction`) and required initial force (`force`)
+ * based on the **projectile's start position, target position, and given hit_time**.
  *
- * - 발사체는 자체 마찰계수로만 속도가 감소하며, 중력에 의해 바닥으로 떨어지지 않습니다.
- * - hit_time 동안 정확히 목표에 도달하기 위해 필요한 힘(force)을 계산하고,
- *   발사 방향은 시작 위치와 목표 위치를 연결하는 벡터를 단위화하여 설정됩니다.
- * - 계산된 도달 시간(`time_to_hit`)은 입력된 hit_time과 동일합니다.
+ * - Projectile velocity decreases only due to friction, without gravity effects.
+ * - force is calculated so the projectile reaches the target exactly at hit_time.
+ * - time_to_hit is set to the input hit_time.
  *
- * @param[out] out      계산 결과 (발사 방향, 초기 힘, 도달 시간)
- * @param[in]  proj     발사체 정보 (시작 위치, 질량, 마찰계수 등)
- * @param[in]  target   목표 지점의 세계 좌표
- * @param[in]  hit_time 목표 도달 시간 (초, 0 이하이면 실패)
- *
- * @return `true` = 계산 성공, `false` = 주어진 시간으로 목표 도달 불가
+ * @param[out] out      Calculation result (direction, force, time_to_hit).
+ * @param[in]  proj     Projectile info (start position, mass, friction, etc.).
+ * @param[in]  target   Target position (world coordinates).
+ * @param[in]  hit_time Desired time to hit the target (seconds, must be > 0).
+ * @return `true` if calculation succeeded, `false` if the target cannot be reached within given time.
  */
 BYUL_API bool projectile_calc_launch_param_inverse(
     launch_param_t* out,
@@ -393,20 +383,18 @@ BYUL_API bool projectile_calc_launch_param_inverse(
 );
 
 /**
- * @brief 환경 요소를 고려하여 목표 위치와 도달 시간(hit_time)에 
- * 맞춘 발사 파라미터를 역으로 계산합니다.
+ * @brief Calculates required launch parameters (inverse calculation) considering environment factors.
  *
- * 중력, 바람, 공기 저항 등 환경 요소를 반영하여
- * 목표 지점과 도달 시간(hit_time)을 만족하는 
- * 초기 발사 방향(`direction`)과 힘(`force`)을 계산합니다.
+ * Accounts for gravity, wind, and air drag (`environ_t`) to calculate
+ * the initial launch direction (`direction`) and force (`force`)
+ * to reach the target at a given hit_time.
  *
- * @param[out] out      계산 결과 (방향, 힘, 입력된 도달 시간)
- * @param[in]  proj     발사체 정보 (시작 위치, 질량 등)
- * @param[in]  env      환경 정보 (중력, 바람, 공기 저항 등)
- * @param[in]  target   목표 지점의 세계 좌표
- * @param[in]  hit_time 목표 도달 시간 (초)
- *
- * @return `true` = 계산 성공, `false` = 주어진 조건에서 목표 도달 불가
+ * @param[out] out      Calculation result (direction, force, time_to_hit).
+ * @param[in]  proj     Projectile info (start position, mass, etc.).
+ * @param[in]  env      Environment info (gravity, wind, drag, etc.).
+ * @param[in]  target   Target position (world coordinates).
+ * @param[in]  hit_time Desired time to hit the target (seconds).
+ * @return `true` if calculation succeeded, `false` if target cannot be reached under given conditions.
  */
 BYUL_API bool projectile_calc_launch_param_inverse_env(
     launch_param_t* out,

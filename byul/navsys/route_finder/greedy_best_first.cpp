@@ -61,7 +61,7 @@ route_t* find_greedy_best_first(const navgrid_t* m,
             if (coord_hash_contains(visited, next)) continue;
 
             float h = heuristic_fn(next, goal, nullptr);
-            float f = h; // g값 무시, h만 사용
+            float f = h;
 
             cost_coord_pq_push(frontier, f, next);
             coord_hash_replace(came_from, next, current);

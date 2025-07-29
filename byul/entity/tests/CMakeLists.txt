@@ -2,8 +2,6 @@ cmake_minimum_required(VERSION 3.20)
 
 project(test_entity)
 
-set(CMAKE_C_STANDARD 99)
-set(CMAKE_CXX_STANDARD 17)
 
 # 소스 파일 설정
 set(SOURCES

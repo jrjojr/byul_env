@@ -19,7 +19,8 @@ TEST_CASE("test_dstar_lite_basic") {
         coord_t* goal = coord_create_full(9, 9);
 
         // navgrid_t* m = navgrid_create();
-        navgrid_t* m = navgrid_create_full(10, 10, NAVGRID_DIR_8, is_coord_blocked_navgrid);
+        navgrid_t* m = navgrid_create_full(
+            10, 10, NAVGRID_DIR_8, is_coord_blocked_navgrid);
 
         dstar_lite_t* dsl = dstar_lite_create_full(m,start,
             dstar_lite_cost, dstar_lite_heuristic, true);
@@ -48,7 +49,8 @@ TEST_CASE("test_dstar_lite_blocked_route") {
     coord_t* start = coord_create_full(0, 0);
     coord_t* goal = coord_create_full(9, 9);
 
-    navgrid_t* m = navgrid_create_full(10, 10, NAVGRID_DIR_8, is_coord_blocked_navgrid);
+    navgrid_t* m = navgrid_create_full(
+        10, 10, NAVGRID_DIR_8, is_coord_blocked_navgrid);
 
     dstar_lite_t* dsl = dstar_lite_create_full(m, start,
         dstar_lite_cost, dstar_lite_heuristic, true);
@@ -78,7 +80,8 @@ TEST_CASE("test_dstar_lite_blocked_route_refind_ub1") {
     coord_t* start = coord_create_full(0, 0);
     coord_t* goal = coord_create_full(9, 9);
 
-    navgrid_t* m = navgrid_create_full(10, 10, NAVGRID_DIR_8, is_coord_blocked_navgrid);
+    navgrid_t* m = navgrid_create_full(
+        10, 10, NAVGRID_DIR_8, is_coord_blocked_navgrid);
     dstar_lite_t* dsl = dstar_lite_create_full(m, start,
         dstar_lite_cost, dstar_lite_heuristic, true);
 
@@ -128,7 +131,8 @@ TEST_CASE("test_dstar_lite_blocked_route_refind_ub2") {
     coord_t* start = coord_create_full(0, 0);
     coord_t* goal = coord_create_full(9, 9);
 
-    navgrid_t* m = navgrid_create_full(10, 10, NAVGRID_DIR_8, is_coord_blocked_navgrid);
+    navgrid_t* m = navgrid_create_full(
+        10, 10, NAVGRID_DIR_8, is_coord_blocked_navgrid);
     dstar_lite_t* dsl = dstar_lite_create_full(m, start,
         dstar_lite_cost, dstar_lite_heuristic, true);
 
@@ -154,9 +158,6 @@ TEST_CASE("test_dstar_lite_blocked_route_refind_ub2") {
     dstar_lite_update_vertex_range(dsl, c0, 1);
     dstar_lite_update_vertex_range(dsl, c2, 1);    
     
-    // 기존 경로 기반 update
-    // dstar_lite_update_vertex_by_route(dsl, p);
-
     route_t* p1 = dstar_lite_find(dsl);
 
     route_print(p);        
@@ -179,7 +180,8 @@ TEST_CASE("test_dstar_lite_blocked_route_refind_ub3") {
     coord_t* start = coord_create_full(0, 0);
     coord_t* goal = coord_create_full(9, 9);
 
-    navgrid_t* m = navgrid_create_full(10, 10, NAVGRID_DIR_8, is_coord_blocked_navgrid);
+    navgrid_t* m = navgrid_create_full(
+        10, 10, NAVGRID_DIR_8, is_coord_blocked_navgrid);
     dstar_lite_t* dsl = dstar_lite_create_full(m, start,
         dstar_lite_cost, dstar_lite_heuristic, true);
 
@@ -205,9 +207,6 @@ TEST_CASE("test_dstar_lite_blocked_route_refind_ub3") {
     dstar_lite_update_vertex_range(dsl, c0, 1);
     dstar_lite_update_vertex_range(dsl, c3, 1);    
     
-    // 기존 경로 기반 update
-    // dstar_lite_update_vertex_by_route(dsl, p);
-
     route_t* p1 = dstar_lite_find(dsl);
 
     route_print(p);        
@@ -230,7 +229,8 @@ TEST_CASE("test_dstar_lite_blocked_route_refind_ub4") {
     coord_t* start = coord_create_full(0, 0);
     coord_t* goal = coord_create_full(9, 9);
 
-    navgrid_t* m = navgrid_create_full(10, 10, NAVGRID_DIR_8, is_coord_blocked_navgrid);
+    navgrid_t* m = navgrid_create_full(
+        10, 10, NAVGRID_DIR_8, is_coord_blocked_navgrid);
     dstar_lite_t* dsl = dstar_lite_create_full(m, start,
         dstar_lite_cost, dstar_lite_heuristic, true);
 
@@ -277,7 +277,8 @@ TEST_CASE("test_dstar_lite_blocked_route_refind_ub5") {
     coord_t* start = coord_create_full(0, 0);
     coord_t* goal = coord_create_full(9, 9);
 
-    navgrid_t* m = navgrid_create_full(10, 10, NAVGRID_DIR_8, is_coord_blocked_navgrid);
+    navgrid_t* m = navgrid_create_full(
+        10, 10, NAVGRID_DIR_8, is_coord_blocked_navgrid);
     dstar_lite_t* dsl = dstar_lite_create_full(m, start,
         dstar_lite_cost, dstar_lite_heuristic, true);
 
@@ -325,7 +326,8 @@ TEST_CASE("test_dstar_lite_blocked_route_default") {
     coord_t* start = coord_create_full(5, 5);
     coord_t* goal = coord_create_full(5, 5);
 
-    navgrid_t* m = navgrid_create_full(10, 10, NAVGRID_DIR_8, is_coord_blocked_navgrid);
+    navgrid_t* m = navgrid_create_full(
+        10, 10, NAVGRID_DIR_8, is_coord_blocked_navgrid);
     dstar_lite_t* dsl = dstar_lite_create(m);
     dstar_lite_set_real_loop_max_retry(dsl, 20);
 
@@ -359,14 +361,14 @@ TEST_CASE("test_dstar_lite_block_unblock_recover") {
     coord_t* start = coord_create_full(0, 0);
     coord_t* goal = coord_create_full(9, 9);
 
-    navgrid_t* m = navgrid_create_full(10, 10, NAVGRID_DIR_8, is_coord_blocked_navgrid);
+    navgrid_t* m = navgrid_create_full(
+        10, 10, NAVGRID_DIR_8, is_coord_blocked_navgrid);
     dstar_lite_t* dsl = dstar_lite_create_full(m, start,
         dstar_lite_cost, dstar_lite_heuristic, true);
 
         dstar_lite_set_start(dsl, start);
         dstar_lite_set_goal(dsl, goal);
 
-    // 🔹 1. 최초 경로
     route_t* p = dstar_lite_find(dsl);
     CHECK(p);
     CHECK(route_get_success(p));
@@ -380,7 +382,6 @@ TEST_CASE("test_dstar_lite_block_unblock_recover") {
     coord_t* c0 = coord_create_full(3, 3);
     coord_t* c1 = coord_create_full(4, 3);
 
-    // 🔹 2. 장애물 추가
     navgrid_block_coord(dsl->m, c->x, c->y);
     navgrid_block_coord(dsl->m, c0->x, c0->y);
     navgrid_block_coord(dsl->m, c1->x, c1->y);
@@ -394,7 +395,6 @@ TEST_CASE("test_dstar_lite_block_unblock_recover") {
     route_destroy(p);
     p = NULL;
 
-    // 🔹 3. 장애물 제거
     navgrid_unblock_coord(dsl->m, c->x, c->y);
     dstar_lite_update_vertex_range(dsl, c, 1);
 
@@ -433,7 +433,8 @@ TEST_CASE("test_dstar_lite_find_loop") {
     coord_t* start = coord_create_full(0, 0);
     coord_t* goal = coord_create_full(9, 9);
 
-    navgrid_t* m = navgrid_create_full(10, 10, NAVGRID_DIR_8, is_coord_blocked_navgrid);
+    navgrid_t* m = navgrid_create_full(
+        10, 10, NAVGRID_DIR_8, is_coord_blocked_navgrid);
     dstar_lite_t* dsl = dstar_lite_create_full(m, start,
         dstar_lite_cost, dstar_lite_heuristic, true);
 
@@ -532,14 +533,11 @@ for (int i = 0; i < 5; i++) {
     route_print(p);
     dsl_print_ascii_update_count(dsl, p, 5);
 
-    coord_destroy(coord_i);  // 원본 해제
+    coord_destroy(coord_i);
 }
 
-// 정리
 coord_list_destroy((coord_list_t*)dsl->changed_coords_fn_userdata);
 // g_list_destroy_full(route_list, (GDestroyNotify)route_destroy);
-
-
 
     coord_destroy(c);
     coord_destroy(c0);
@@ -573,7 +571,6 @@ printf("Generating the initial static path with dstar_lite_find()\n");
     route_destroy(p);
     dstar_lite_reset(dsl);
 
-    // 🔹 장애물 추가 후 경로 재계산
     coord_t* c = coord_create_full(4, 4);
     coord_t* c0 = coord_create_full(3, 3);
     coord_t* c1 = coord_create_full(4, 3);
@@ -622,7 +619,6 @@ printf("Changing goal to (7, 6) and generating real-time path using dstar_lite_f
     route_print(dsl->real_route);
     dsl_print_ascii_update_count(dsl, dsl->real_route, 5);    
 
-    // 정리
     coord_destroy(c); coord_destroy(c0); coord_destroy(c1); coord_destroy(c2);
     coord_destroy(start); coord_destroy(goal);
     dstar_lite_destroy(dsl);
@@ -631,7 +627,7 @@ printf("Changing goal to (7, 6) and generating real-time path using dstar_lite_f
 
 static void* run_find_loop(void* data) {
     dstar_lite_t* dsl = (dstar_lite_t*)data;
-    dstar_lite_find_loop(dsl);  // 무한 루프
+    dstar_lite_find_loop(dsl);
     return NULL;
 }
 
@@ -639,32 +635,29 @@ TEST_CASE("test_dstar_lite_find_dynamic") {
     coord_t* start = coord_create_full(0, 0);
     coord_t* goal = coord_create_full(7, 6);
 
-    navgrid_t* m = navgrid_create_full(10, 10, NAVGRID_DIR_8, is_coord_blocked_navgrid);
+    navgrid_t* m = navgrid_create_full(
+        10, 10, NAVGRID_DIR_8, is_coord_blocked_navgrid);
+
     dstar_lite_t* dsl = dstar_lite_create_full(m, start,
         dstar_lite_cost, dstar_lite_heuristic, true);
 
         dstar_lite_set_start(dsl, start);
         dstar_lite_set_goal(dsl, goal);
 
-    // 초기 경로
     dstar_lite_find_proto(dsl);
     CHECK(dsl->proto_route);
     route_print(dsl->proto_route);
     dsl_print_ascii_update_count(dsl, dsl->proto_route, 5);
 
-    // 설정
     int interval_msec = 100;
     dstar_lite_set_interval_msec(dsl, interval_msec);
 
     dsl->move_fn = move_to;
     dsl->changed_coords_fn = get_changed_coords;
 
-    // 🔹 별도 쓰레드에서 loop 시작
-
     std::thread loop_thread([&]() {
         run_find_loop((void*)dsl);
     });    
-
 
     coord_t* coord_i = NULL;
     coord_list_t* changed_coords = NULL;
@@ -673,7 +666,7 @@ TEST_CASE("test_dstar_lite_find_dynamic") {
     std::this_thread::sleep_for(std::chrono::milliseconds(interval_msec * 30));        
 
 
-printf("%dms passed — checking for dynamic changes\n", i * interval_msec);
+printf("%dms passed：checking for dynamic changes\n", i * interval_msec);
 
         if (i == 2) {
             coord_i = coord_create_full(i + 1, i);
@@ -693,19 +686,16 @@ printf("%dms passed — checking for dynamic changes\n", i * interval_msec);
             coord_i = NULL;
         }
 
-        // 실시간 경로 출력
         if (dsl->real_route) {
             route_print(dsl->real_route);
             dsl_print_ascii_update_count(dsl, dsl->real_route, 5);
         }
-        if (dsl->real_route->success) {
+        if (dsl->real_route && dsl->real_route->success) {
             printf("Pathfinding successful\n");
-
             break;
         }
     }
 
-        // 종료 대기
     loop_thread.join();
 
     dsl_print_ascii_only_navgrid(dsl);
@@ -727,7 +717,8 @@ TEST_CASE("test_dstar_lite_block_all_around_start") {
     coord_t* start = coord_create_full(0, 0);
     coord_t* goal = coord_create_full(-9, -9);
 
-    navgrid_t* m = navgrid_create_full(0, 0, NAVGRID_DIR_8, is_coord_blocked_navgrid);
+    navgrid_t* m = navgrid_create_full(
+        0, 0, NAVGRID_DIR_8, is_coord_blocked_navgrid);
     dstar_lite_t* dsl = dstar_lite_create_full(m, start,
         dstar_lite_cost, dstar_lite_heuristic, true);
 

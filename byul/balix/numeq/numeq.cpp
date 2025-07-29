@@ -1,2 +1,3 @@
-// 이 파일은 비어 있어도 무방하며, byul 라이브러리를 구성하기 위한 형식적인 존재입니다.
+#include "numeq.h"
+
 void __numeq_dummy__() {}

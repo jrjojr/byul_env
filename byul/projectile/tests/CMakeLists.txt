@@ -2,8 +2,6 @@ cmake_minimum_required(VERSION 3.20)
 
 project(test_projectile)
 
-set(CMAKE_C_STANDARD 99)
-set(CMAKE_CXX_STANDARD 17)
 
 # 소스 파일 설정
 set(SOURCES
@@ -98,7 +96,6 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
 if(UNIX)
     target_link_libraries(${PROJECT_NAME} PRIVATE m)
 endif()
-
 
 # coord는 STATIC 라이브러리이므로 필요 시 심볼 정의
 target_compile_definitions(${PROJECT_NAME} PRIVATE BYUL_STATIC)

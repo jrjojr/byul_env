@@ -18,7 +18,6 @@ TEST_CASE("xform: identity transform") {
     CHECK(pos.x == doctest::Approx(0.0f));
     CHECK(pos.y == doctest::Approx(0.0f));
     CHECK(pos.z == doctest::Approx(0.0f));
-
 }
 
 TEST_CASE("xform: axis-angle roundtrip") {
@@ -41,8 +40,6 @@ TEST_CASE("xform: axis-angle roundtrip") {
     CHECK(got_pos.z == doctest::Approx(pos.z));
     CHECK(got_radians == doctest::Approx(radians));
     CHECK(got_axis.y == doctest::Approx(1.0f));
-
-
 }
 
 TEST_CASE("xform: translate and apply") {
@@ -60,8 +57,6 @@ TEST_CASE("xform: translate and apply") {
     CHECK(world.x == doctest::Approx(6.0f));
     CHECK(world.y == doctest::Approx(0.0f));
     CHECK(world.z == doctest::Approx(0.0f));
-
-
 }
 
 TEST_CASE("xform_equal works correctly") {
@@ -73,6 +68,7 @@ TEST_CASE("xform_equal works correctly") {
 
     CHECK(xform_equal(&a, &b));
 }
+
 TEST_CASE("xform: identity and clone") {
     xform_t xf;
     xform_init(&xf);
@@ -130,7 +126,6 @@ TEST_CASE("xform: position setter and getter") {
     CHECK(got.x == doctest::Approx(5.0f));
     CHECK(got.y == doctest::Approx(10.0f));
     CHECK(got.z == doctest::Approx(15.0f));
-
 }
 
 TEST_CASE("xform: translation") {
@@ -138,7 +133,7 @@ TEST_CASE("xform: translation") {
     xform_init(&xf);
 
     vec3_t delta = {0, 0, 5};
-    xform_set_euler(&xf, 0, 3.14159f / 2.0f, 0, EULER_ORDER_ZYX); // 90도 yaw 회전
+    xform_set_euler(&xf, 0, 3.14159f / 2.0f, 0, EULER_ORDER_ZYX); // 90 deg yaw rotate
 
     xform_translate(&xf, &delta);
 
@@ -147,15 +142,13 @@ TEST_CASE("xform: translation") {
     CHECK(pos.x == doctest::Approx(0.0f).epsilon(0.01));
     CHECK(pos.y == doctest::Approx(0.0f).epsilon(0.01));
     CHECK(pos.z == doctest::Approx(5.0f).epsilon(0.01));
-
-
 }
 
 TEST_CASE("xform: translate local") {
     xform_t xf;
     xform_init(&xf);
     vec3_t delta = {0, 0, 5};
-    xform_set_euler(&xf, 0, 3.14159f / 2.0f, 0, EULER_ORDER_ZYX); // 90도 yaw 회전
+    xform_set_euler(&xf, 0, 3.14159f / 2.0f, 0, EULER_ORDER_ZYX); // 90 deg yaw rotate
 
     xform_translate_local(&xf, &delta);
 
@@ -186,31 +179,23 @@ TEST_CASE("xform: local translate with yaw 90deg") {
     xform_t xf;
     xform_init(&xf);
 
-    // Yaw 90도 회전 (Z축 기준 회전)
+    // Yaw 90 deg rotate (Z axis base rotation)
     float yaw_deg = 90.0f;
     float yaw_rad = 3.1415926f / 2.0f;
     xform_set_euler(&xf, 0.0f, yaw_rad, 0.0f, EULER_ORDER_ZYX);
 
-    // 로컬 Z축 +5 이동 → 월드 -X 방향 이동 기대
+    // Local Z axis +5 should move world +X direction
     vec3_t delta_local = {0.0f, 0.0f, 5.0f};
     xform_translate_local(&xf, &delta_local);
 
-    // 위치 확인
     vec3_t pos;
     xform_get_position(&xf, &pos);
-
-    // 회전값 확인용
-    float yaw, pitch, roll;
-    xform_get_euler(&xf, &yaw, &pitch, &roll, EULER_ORDER_ZYX);
-
-    // std::cout << "yaw (rad): " << yaw << ", pitch: " << pitch << ", roll: " << roll << std::endl;
-    // std::cout << "translated position: (" << pos.x << ", " << pos.y << ", " << pos.z << ")" << std::endl;
 
     CHECK(pos.x == doctest::Approx(5.0f).epsilon(0.01f));
     CHECK(pos.y == doctest::Approx(0.0f).epsilon(0.01f));
     CHECK(pos.z == doctest::Approx(0.0f).epsilon(0.01f));
-
 }
+
 TEST_CASE("quat rotation: yaw 90deg rotates +Z to -X") {
     quat_t q;
     quat_init_euler(&q, M_PI / 2.0f, 0.0f, 0.0f, EULER_ORDER_ZYX);
@@ -224,9 +209,9 @@ TEST_CASE("quat rotation: yaw 90deg rotates +Z to -X") {
     CHECK(rotated.z == doctest::Approx(0.0f).epsilon(0.01f));
 }
 
-TEST_CASE("quat rotation: yaw 90deg rotates +Z to -X v1") {
+TEST_CASE("quat rotation: yaw 90deg rotates +Z to +X v1") {
     quat_t q;
-    quat_init_euler(&q, 0.0f, M_PI / 2.0f, 0.0f, EULER_ORDER_ZYX); // yaw=90도
+    quat_init_euler(&q, 0.0f, M_PI / 2.0f, 0.0f, EULER_ORDER_ZYX); // yaw = 90 degrees
 
     vec3_t forward = {0, 0, 1}; // +Z
     vec3_t rotated;
@@ -239,7 +224,7 @@ TEST_CASE("quat rotation: yaw 90deg rotates +Z to -X v1") {
 
 TEST_CASE("quat rotation: yaw -90deg rotates +Z to -X v2") {
     quat_t q;
-    quat_init_euler(&q, 0.0f, -M_PI / 2.0f, 0.0f, EULER_ORDER_ZYX); // yaw = -90도
+    quat_init_euler(&q, 0.0f, -M_PI / 2.0f, 0.0f, EULER_ORDER_ZYX); // yaw = -90 degrees
 
     vec3_t forward = {0, 0, 1}; // +Z
     vec3_t rotated;
@@ -250,45 +235,41 @@ TEST_CASE("quat rotation: yaw -90deg rotates +Z to -X v2") {
     CHECK(rotated.z == doctest::Approx(0.0f).epsilon(0.01f));
 }
 
-
 TEST_CASE("xform: translate after euler rotation affects world, not local") {
     xform_t xf;
     xform_init(&xf);
 
-    // 1. 오일러 회전: Yaw 90도 (Z축 회전)
-    xform_set_euler(&xf, M_PI_2, 0, 0, EULER_ORDER_ZYX);  // Yaw = 90도
+    // 1. Euler rotation: yaw 90 degrees (rotation around Z axis)
+    xform_set_euler(&xf, M_PI_2, 0, 0, EULER_ORDER_ZYX);  // yaw = 90 degrees
 
-    // 2. 이동 벡터 (월드 기준으로 이동)
-    vec3_t delta = {0, 0, 5}; // Z+ 방향
+    // 2. Translation vector (world space)
+    vec3_t delta = {0, 0, 5}; // +Z direction
 
-    // 3. 월드 기준 이동 → 회전과 상관없이 Z축으로 이동해야 함
+    // 3. Translation in world space should not depend on rotation
     xform_translate(&xf, &delta);
 
-    // 4. 위치 확인
+    // 4. Position check
     vec3_t pos;
     xform_get_position(&xf, &pos);
 
-    // ✅ Z축으로 이동했는지 확인 (월드 기준 이동이기 때문에 Z만 변해야 함)
     CHECK(pos.x == doctest::Approx(0.0f));
     CHECK(pos.y == doctest::Approx(0.0f));
-    CHECK(pos.z == doctest::Approx(5.0f));  // ← 회전과 무관하게 Z+ 방향
-
-
+    CHECK(pos.z == doctest::Approx(5.0f));  // movement along +Z, independent of rotation
 }
-TEST_CASE("xform: set_euler → get_euler roundtrip (ZYX)") {
+
+TEST_CASE("xform: set_euler -> get_euler roundtrip (ZYX)") {
     xform_t xf;
     xform_init(&xf);
 
-    float yaw_in = M_PI_2;     // 90도
-    float pitch_in = M_PI / 4; // 45도
-    float roll_in = M_PI / 6;  // 30도
+    float yaw_in = M_PI_2;     // 90 degrees
+    float pitch_in = M_PI / 4; // 45 degrees
+    float roll_in = M_PI / 6;  // 30 degrees
 
     xform_set_euler(&xf, yaw_in, pitch_in, roll_in, EULER_ORDER_ZYX);
 
     float yaw_out, pitch_out, roll_out;
     xform_get_euler(&xf, &yaw_out, &pitch_out, &roll_out, EULER_ORDER_ZYX);
 
-    // ⚠️ 오차는 쿼터니언 변환 과정에서 약간 있을 수 있음 (0.01 라디안 허용)
     CHECK(yaw_out == doctest::Approx(yaw_in).epsilon(0.01));
     CHECK(pitch_out == doctest::Approx(pitch_in).epsilon(0.01));
     CHECK(roll_out == doctest::Approx(roll_in).epsilon(0.01));
@@ -296,11 +277,11 @@ TEST_CASE("xform: set_euler → get_euler roundtrip (ZYX)") {
 
 TEST_CASE("xform_lerp should interpolate position and rotation linearly") {
     vec3_t pos_a = {0, 0, 0};
-    vec3_t axis_a = {0, 1, 0}; // Y축
+    vec3_t axis_a = {0, 1, 0}; // Y axis
     float rad_a = 0.0f;
 
     vec3_t pos_b = {10, 0, 0};
-    vec3_t axis_b = {0, 1, 0}; // Y축
+    vec3_t axis_b = {0, 1, 0}; // Y axis
     float rad_b = (float)M_PI;
 
     xform_t a, b, mid;
@@ -313,8 +294,6 @@ TEST_CASE("xform_lerp should interpolate position and rotation linearly") {
     vec3_t mid_pos;
     xform_get_position(&mid, &mid_pos);
     vec3_t v3 = {5, 0, 0};
-    vec3_print(&mid_pos);
-    vec3_print(&v3);
     CHECK(vec3_equal(&mid_pos, &v3));
 
     vec3_t axis;
@@ -325,7 +304,7 @@ TEST_CASE("xform_lerp should interpolate position and rotation linearly") {
 
 TEST_CASE("xform_slerp should interpolate position linearly and rotation via slerp") {
     vec3_t pos_a = {0, 0, 0};
-    vec3_t axis_a = {0, 1, 0}; // Y축
+    vec3_t axis_a = {0, 1, 0}; // Y axis
     float rad_a = 0.0f;
 
     vec3_t pos_b = {10, 0, 0};
@@ -351,18 +330,18 @@ TEST_CASE("xform_slerp should interpolate position linearly and rotation via sle
 }
 
 // ---------------------------------------------------------
-// 헬퍼 함수
+// Helper function
 // ---------------------------------------------------------
 static vec3_t make_vec3(float x, float y, float z) {
     vec3_t v = {x, y, z};
     return v;
 }
 
-TEST_CASE("xform_set_position: 범위 클램프 테스트") {
+TEST_CASE("xform_set_position: clamp test for range") {
     xform_t xf;
     xform_init(&xf);
 
-    // 범위를 초과하는 값 입력
+    // Values exceeding the range
     vec3_t pos_outside = make_vec3(
         XFORM_POS_MAX + 100.0f,
         XFORM_POS_MIN - 50.0f,
@@ -379,14 +358,14 @@ TEST_CASE("xform_set_position: 범위 클램프 테스트") {
     CHECK(pos_after.z == doctest::Approx(XFORM_POS_MAX));
 }
 
-TEST_CASE("xform_translate: 이동 후 범위 유지") {
+TEST_CASE("xform_translate: range clamped after movement") {
     xform_t xf;
     xform_init(&xf);
 
     vec3_t start = make_vec3(XFORM_POS_MAX - 1.0f, 0.0f, 0.0f);
     xform_set_position(&xf, &start);
 
-    // X축 +10 이동 → MAX에 클램프
+    // X axis +10 should clamp to MAX
     vec3_t delta = make_vec3(10.0f, 0.0f, 0.0f);
     xform_translate(&xf, &delta);
 
@@ -395,14 +374,14 @@ TEST_CASE("xform_translate: 이동 후 범위 유지") {
     CHECK(pos_after.x == doctest::Approx(XFORM_POS_MAX));
 }
 
-TEST_CASE("xform_translate_local: 이동 후 범위 유지") {
+TEST_CASE("xform_translate_local: range clamped after movement") {
     xform_t xf;
     xform_init(&xf);
 
     vec3_t start = make_vec3(0.0f, XFORM_POS_MIN + 1.0f, 0.0f);
     xform_set_position(&xf, &start);
 
-    // Y축 -10 이동 → MIN에 클램프
+    // Y axis -10 should clamp to MIN
     vec3_t delta = make_vec3(0.0f, -10.0f, 0.0f);
     xform_translate_local(&xf, &delta);
 
@@ -411,7 +390,7 @@ TEST_CASE("xform_translate_local: 이동 후 범위 유지") {
     CHECK(pos_after.y == doctest::Approx(XFORM_POS_MIN));
 }
 
-TEST_CASE("xform_lerp: 보간 후 범위 유지") {
+TEST_CASE("xform_lerp: range clamped after interpolation") {
     xform_t a, b, mid;
     xform_init(&a);
     xform_init(&b);
@@ -421,7 +400,7 @@ TEST_CASE("xform_lerp: 보간 후 범위 유지") {
     xform_set_position(&a, &pos_a);
     xform_set_position(&b, &pos_b);
 
-    // 보간 t=0.5
+    // Interpolation t=0.5
     xform_lerp(&mid, &a, &b, 0.5f);
 
     vec3_t pos_mid;

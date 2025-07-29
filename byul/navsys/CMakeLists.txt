@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.20)
 
 project(navsys)
 
-message(STATUS "Build type: ${CMAKE_BUILD_TYPE}")
+
 
 # ─────────────────────────────────────────────
 # 소스 파일

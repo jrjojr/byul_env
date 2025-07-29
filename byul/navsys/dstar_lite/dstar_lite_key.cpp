@@ -41,8 +41,6 @@ unsigned int dstar_lite_key_hash(const dstar_lite_key_t* key) {
     return (u1.u * 31) ^ u2.u;
 }
 
-// ------------------------ 생성/복사/해제 ------------------------
-
 dstar_lite_key_t* dstar_lite_key_create() {
     return new dstar_lite_key_t{0.0f, 0.0f};
 }

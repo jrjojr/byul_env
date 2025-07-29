@@ -30,9 +30,6 @@ struct DstarLiteKeyLess {
     }
 };
 
-
-// ------------------------ 해시 함수 (std namespace) ------------------------
-
 namespace std {
     template<>
     struct hash<dstar_lite_key_t> {
@@ -41,8 +38,6 @@ namespace std {
         }
     };
 }
-
-// ------------------------ 포인터 기반 큐 구조 ------------------------
 
 struct dstar_lite_key_ptr_less {
     bool operator()(

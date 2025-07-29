@@ -4,7 +4,7 @@ cmake_minimum_required(VERSION 3.20)
 project(entity)
 
 enable_testing()
-set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+
 
 # 소스 파일 설정
 set(SOURCES

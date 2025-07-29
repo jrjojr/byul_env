@@ -1,10 +1,3 @@
-// byul.h
-//
-// Copyright (c) 2025 별이아빠 (byuldev@outlook.kr)
-// This file is part of the Byul World project.
-// Licensed under the Byul World 공개 라이선스 v1.0
-// See the LICENSE file for details.
-
 #include "dstar_lite.h"
 #include "navgrid.h"
 #include "route.h"
@@ -37,8 +30,8 @@ static int auto_reconstruct_max_retry(const coord_t* start, const coord_t* goal)
     return r;
 }
 
-float dstar_lite_cost(
-    const navgrid_t* m, const coord_t* start, const coord_t* goal, void* userdata) {
+float dstar_lite_cost(const navgrid_t* m, 
+    const coord_t* start, const coord_t* goal, void* userdata) {
 
     if (!m || !start || !goal)
         return FLT_MAX;
@@ -48,7 +41,7 @@ float dstar_lite_cost(
 
     float dx = (float)(start->x - goal->x);
     float dy = (float)(start->y - goal->y);
-    return hypotf(dx, dy);  // ✅ 더 안전한 방식
+    return hypotf(dx, dy);
 }
 
 cost_func dstar_lite_get_cost_func(const dstar_lite_t* dsl) {
@@ -106,7 +99,7 @@ float dstar_lite_heuristic(
 
     float dx = (float)(start->x - goal->x);
     float dy = (float)(start->y - goal->y);
-    return hypotf(dx, dy);  // ✅ 더 정확하고 안정적
+    return hypotf(dx, dy);
 }
 
 heuristic_func dstar_lite_get_heuristic_func(const dstar_lite_t* dsl) {
@@ -294,21 +287,17 @@ dstar_lite_t* dstar_lite_copy(dstar_lite_t* src) {
 
     dstar_lite_t* copy = new dstar_lite_t();
     
-    // 맵과 좌표 복사
     copy->m     = navgrid_copy(src->m);
     copy->start = coord_copy(src->start);
     copy->goal  = coord_copy(src->goal);
     copy->km    = src->km;
 
-    // 테이블 복사 (key: coord_t**, value: float*)
     copy->g_table = coord_hash_copy(src->g_table);
 
     copy->rhs_table = coord_hash_copy(src->rhs_table);
 
-    // 우선순위 큐 복사 (주의: shallow copy로 충분한지에 따라 결정)
     copy->frontier = dstar_lite_pqueue_copy(src->frontier);
 
-    // 콜백 함수와 유저 데이터는 그대로 유지
     copy->cost_fn               = src->cost_fn;
     copy->cost_fn_userdata      = src->cost_fn_userdata;
     copy->is_blocked_fn         = src->is_blocked_fn;
@@ -320,11 +309,9 @@ dstar_lite_t* dstar_lite_copy(dstar_lite_t* src) {
     copy->changed_coords_fn     = src->changed_coords_fn;
     copy->changed_coords_fn_userdata = src->changed_coords_fn_userdata;
 
-    // 경로 복사
     copy->proto_route = route_copy(src->proto_route);
     copy->real_route  = route_copy(src->real_route);
 
-    // 일반 설정 복사
     copy->interval_msec           = src->interval_msec;
     copy->real_loop_max_retry     = src->real_loop_max_retry;
     copy->compute_max_retry       = src->compute_max_retry;
@@ -337,7 +324,6 @@ dstar_lite_t* dstar_lite_copy(dstar_lite_t* src) {
     copy->max_range              = src->max_range;
     copy->debug_mode_enabled     = src->debug_mode_enabled;
 
-    // update_count_table 복사 (key: coord_t**, value: int*)
     copy->update_count_table = coord_hash_copy(src->update_count_table);
 
     return copy;
@@ -484,7 +470,6 @@ const route_t* dstar_lite_get_real_route(const dstar_lite_t* dsl) {
 }
 
 void dstar_lite_reset(dstar_lite_t* dsl) {
-    // 🔥 해시테이블 완전 삭제 및 재생성
     coord_hash_destroy(dsl->g_table);
     coord_hash_destroy(dsl->rhs_table);
     coord_hash_destroy(dsl->update_count_table);
@@ -511,19 +496,8 @@ void dstar_lite_reset(dstar_lite_t* dsl) {
         dsl->real_route = NULL;
     }    
         
-    // ♻️ 우선순위 큐도 완전 교체
     dstar_lite_pqueue_destroy(dsl->frontier);
     dsl->frontier = dstar_lite_pqueue_create();
-
-    // 🎯 시작 / 목표 좌표 초기화
-    // coord_set(dsl->start, 0, 0);
-    // coord_set(dsl->goal, 0, 0);
-
-    // ⚙️ 설정 값 초기화
-    // dsl->km = 0.0f;
-    // dsl->max_range = 0;
-    // dsl->real_loop_max_retry = 0;
-    // dsl->interval_msec = 0;
 
     dsl->proto_compute_retry_count = 0;
     dsl->real_compute_retry_count = 0;
@@ -567,12 +541,6 @@ dstar_lite_key_t* dstar_lite_calc_key(dstar_lite_t* dsl, const coord_t* s) {
 void dstar_lite_init(dstar_lite_t* dsl) {
     dsl->km = 0.0f;
 
-    // for s in all_states:
-    //     g[s] = float('inf')
-    //     rhs[s] = float('inf')    
-    // dstar_lite_cost()함수가 기본적으로 무한대를 할당하고 있다.
-
-    // rhs[goal] = 0    
     float* rhs_goal_ptr = new float();
     *rhs_goal_ptr = 0.0f;
     coord_hash_replace(dsl->rhs_table, dsl->goal, rhs_goal_ptr);
@@ -587,7 +555,6 @@ void dstar_lite_init(dstar_lite_t* dsl) {
 void dstar_lite_update_vertex(dstar_lite_t* dsl, const coord_t* u) {
     if (!dsl || !u) return;
 
-    // ✅ 디버그용: update 횟수 기록
     if (dsl->debug_mode_enabled)
         dstar_lite_add_update_count(dsl, u);
 
@@ -738,11 +705,6 @@ void dstar_lite_compute_shortest_route(dstar_lite_t* dsl) {
     dstar_lite_key_t* top_key = dstar_lite_pqueue_top_key(dsl->frontier);
     do {
         loop++;
-        // printf("dstar_lite_compute_shortest_route "
-        //     "내부에서 루프 %d 시작.\n", loop);
-
-        // print_all_dsl_byul(
-        //     m, start, goal, km, g_table, rhs_table, frontier);
 
         if (k_old) {
             dstar_lite_key_destroy(k_old);
@@ -938,8 +900,6 @@ route_t* dstar_lite_reconstruct_route(dstar_lite_t* dsl) {
         (loop < dsl->reconstruct_max_retry)) {
 
         loop++;
-        // printf("dstar_lite_reconstruct_route "
-        //     "내부에서 루프 %d 시작.\n", loop);
 
         coord_list_t* neighbors = navgrid_clone_adjacent_all(
             dsl->m, current->x, current->y);
@@ -960,14 +920,14 @@ route_t* dstar_lite_reconstruct_route(dstar_lite_t* dsl) {
             if (total_cost < min_cost) {
                 min_cost = total_cost;
                 
-                if (next) coord_destroy(next);  // 기존 next 해제
+                if (next) coord_destroy(next);
                 next = coord_copy(s);
                 // next = s;
             }
         }
         coord_list_destroy(neighbors);
 
-        if (!next) {  // 더 이상 진행할 수 없음
+        if (!next) {
             coord_destroy(current);
             // route_destroy(p);
             route_set_success(p, false);
@@ -1061,8 +1021,6 @@ void dstar_lite_find_loop(dstar_lite_t* dsl) {
         (loop < dsl->real_loop_max_retry) && !dsl->force_quit) {
 
         loop++;
-        // printf("dstar_lite_find_loop "
-        //     "내부에서 루프 %d 시작.\n", loop);
 
         rhs_start_ptr = (float*) coord_hash_get(dsl->rhs_table, dsl->start);
         if (rhs_start_ptr) {
@@ -1078,7 +1036,6 @@ void dstar_lite_find_loop(dstar_lite_t* dsl) {
             return;
         }
         
-        // 다음 이동 위치 선택
         min_cost = FLT_MAX;
         successors_start = navgrid_clone_adjacent_all(
             dsl->m, start->x, start->y);
@@ -1096,7 +1053,7 @@ void dstar_lite_find_loop(dstar_lite_t* dsl) {
                 min_cost = total_cost;
 
                 // next = s;
-                if (next) coord_destroy(next);  // 기존 next 해제
+                if (next) coord_destroy(next);
                 next = coord_copy(s);
             }
         }
@@ -1111,26 +1068,15 @@ void dstar_lite_find_loop(dstar_lite_t* dsl) {
         route_add_coord(dsl->real_route, next);
 
         if (dsl->force_quit) break;
-        // move callback을 실행한다.
-        // if (dsl->move_fn) dsl->move_fn(coord_copy(next),
-        //     dsl->move_fn_userdata);
 
         if (dsl->move_fn) dsl->move_fn(next,
             dsl->move_fn_userdata);            
 
-        // 이동 간 대기 시간 적용
-        // time.sleep(dsl->interval_msec / 1000.0);
-        // g_usleep(dsl->interval_msec * 1000);  // 밀리초 → 마이크로초
-        // if (dsl->interval_msec <= 0)
-        //     //쓰레드에서도 안전하게
-        //     g_thread_yield();   // 틱 양보
-        // else
-        //     g_usleep(dsl->interval_msec * 1000);
-
         if (dsl->interval_msec <= 0)
-            std::this_thread::yield();  // ✅ C++ 안전한 쓰레드 양보
+            std::this_thread::yield();
         else
-            std::this_thread::sleep_for(std::chrono::milliseconds(dsl->interval_msec));            
+            std::this_thread::sleep_for(
+                std::chrono::milliseconds(dsl->interval_msec));            
 
         if (dsl->force_quit) break;
 
@@ -1138,7 +1084,6 @@ void dstar_lite_find_loop(dstar_lite_t* dsl) {
         if(start) coord_destroy(start);
         start = coord_copy(next);
 
-        // 환경 변화 감지 및 반영
         if (dsl->changed_coords_fn) {
             changed_coords = dsl->changed_coords_fn(
                 dsl->changed_coords_fn_userdata);
@@ -1169,7 +1114,6 @@ void dstar_lite_find_loop(dstar_lite_t* dsl) {
     if (next) coord_destroy(next);
 
     if (loop >= dsl->real_loop_max_retry) {
-        // 길을 못찾고 루프가 한계에 도달했다.
         if (s_last) {
             if (!coord_equal(s_last, dsl->goal)) {
                 route_set_success(dsl->real_route, false);

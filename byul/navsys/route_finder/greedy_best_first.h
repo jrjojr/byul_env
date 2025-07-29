@@ -8,25 +8,25 @@ extern "C" {
 #endif
 
 /**
- * @brief Greedy Best-First Search 알고리즘으로 경로를 탐색합니다.
+ * @brief Finds a path using the Greedy Best-First Search algorithm.
  *
- * 이 알고리즘은 누적 비용(g)을 무시하고, 휴리스틱(h) 값만을 기준으로
- * 우선순위 큐를 사용하여 목적지까지 가장 "가까워 보이는" 경로를 탐색합니다.
+ * This algorithm ignores the accumulated cost (g) and searches for the path
+ * that appears "closest" to the goal based solely on the heuristic value (h),
+ * using a priority queue for node selection.
  *
- * - heuristic_fn은 반드시 설정되어야 합니다 (예: default_heuristic).
- * - 퍼포먼스 제한을 위해 max_retry 이상 반복되면 탐색을 종료합니다.
- * - visited_logging이 true이면 route->visited에 탐색 순서가 기록됩니다.
+ * - The heuristic function (heuristic_fn) must be provided (e.g., default_heuristic).
+ * - The search terminates if the number of iterations exceeds max_retry.
+ * - If visited_logging is true, the search order is recorded in route->visited.
  *
- * @param m               맵 정보
- * @param start           시작 좌표
- * @param goal            도착 좌표
- * @param heuristic_fn    휴리스틱 함수 (필수)
- * @param max_retry       최대 반복 횟수 (0 이하이면 무제한)
- * @param visited_logging 탐색 순서 기록 여부
+ * @param m               Map information
+ * @param start           Start coordinate
+ * @param goal            Goal coordinate
+ * @param heuristic_fn    Heuristic function (required)
+ * @param max_retry       Maximum iteration count (if <= 0, unlimited)
+ * @param visited_logging Whether to log the search order
  *
- * @return route_t* 경로 결과. 실패 시 success == false로 설정됨
+ * @return route_t* The resulting path. If the search fails, success == false.
  */
-
 BYUL_API route_t* find_greedy_best_first(const navgrid_t* m, 
     const coord_t* start, const coord_t* goal,
     heuristic_func heuristic_fn,

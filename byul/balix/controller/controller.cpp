@@ -7,14 +7,9 @@
 static void   controller_mpc_reset(controller_t* ctrl);
 static float  controller_mpc_compute(controller_t* ctrl, const vec3_t* target);
 
-// ---------------------------------------------------------
-// 내부 구현체 구조체
-// ---------------------------------------------------------
-
-// ---------------------- PID ----------------------
 void pid_impl_init(pid_impl_t* impl) {
     if (!impl) return;
-    pid_init(&impl->pid);        // PID 기본 초기화 (Kp=1, Ki=0, Kd=0)
+    pid_init(&impl->pid);
     impl->output_limit = 0.0f;
 }
 
@@ -79,7 +74,6 @@ void mpc_impl_init_full(mpc_impl_t* impl,
     if (body) bodyprops_assign(&impl->body, body);
     else bodyprops_init(&impl->body);
 
-    // 비용 함수 설정
     impl->cost_fn = (cost_fn) ? cost_fn : numeq_mpc_cost_default;
 }
 
@@ -92,21 +86,15 @@ void mpc_impl_assign(mpc_impl_t* dst, const mpc_impl_t* src) {
     dst->cost_fn = src->cost_fn;
 }
 
-
-// ---------------------------------------------------------
-// PID 컨트롤러 함수
-// ---------------------------------------------------------
 static float controller_pid_compute(
     controller_t* ctrl, float target, float measured, float dt) {
 
     pid_impl_t* impl = (pid_impl_t*)ctrl->impl;
     if (!impl) return 0.0f;
 
-    // PID dt 업데이트
     impl->pid.dt = dt;
     float output = pid_update(&impl->pid, target, measured);
 
-    // 출력 제한
     if (impl->output_limit > 0.0f) {
         if (output > impl->output_limit) output = impl->output_limit;
         if (output < -impl->output_limit) output = -impl->output_limit;
@@ -119,9 +107,6 @@ static void controller_pid_reset(controller_t* ctrl) {
     if (impl) pid_reset(&impl->pid);
 }
 
-// ---------------------------------------------------------
-// Bang-Bang 컨트롤러 함수
-// ---------------------------------------------------------
 static float controller_bangbang_compute(
     controller_t* ctrl, float target, float measured, float dt) {
 
@@ -129,40 +114,26 @@ static float controller_bangbang_compute(
     bangbang_impl_t* impl = (bangbang_impl_t*)ctrl->impl;
     if (!impl) return 0.0f;
 
-    // Bang-Bang 로직: 목표보다 크면 -max, 작으면 +max
     return (measured < target) ? impl->max_output : -impl->max_output;
 }
 
 static void controller_bangbang_reset(controller_t* ctrl) {
     (void)ctrl;
-    // Bang-Bang은 내부 상태 없음
 }
 
-// ---------------------------------------------------------
-// MPC 컨트롤러 함수
-// ---------------------------------------------------------
 static float controller_mpc_compute(
     controller_t* ctrl, float target, float measured, float dt) 
 {
     mpc_impl_t* impl = (mpc_impl_t*)ctrl->impl;
     if (!impl) return 0.0f;
 
-    // -----------------------------------------------------
-    // 1. 현재 상태 설정 (x축 속도만 측정값으로 사용)
-    // -----------------------------------------------------
     motion_state_t current_state;
     motion_state_init(&current_state);
 
-    // -----------------------------------------------------
-    // 2. 목표 상태 설정 (target 위치를 x축에 설정)
-    // -----------------------------------------------------
     motion_state_t target_state;
     motion_state_init(&target_state);
     target_state.linear.position = {target, 0.0f, 0.0f};
 
-    // -----------------------------------------------------
-    // 3. MPC 계산 실행
-    // -----------------------------------------------------
     mpc_output_t out;
     bool ok = numeq_mpc_solve_fast(
         &current_state,
@@ -171,16 +142,13 @@ static float controller_mpc_compute(
         &impl->body,
         &impl->config,
         &out,
-        NULL,  // trajectory는 디버깅 시만
+        NULL,
         impl->cost_fn,
-        &impl->config  // userdata로 config 전달
+        &impl->config
     );
 
-    // -----------------------------------------------------
-    // 4. 결과 처리
-    // -----------------------------------------------------
     if (ok) {
-        return out.desired_accel.x;  // x방향 가속도만 출력
+        return out.desired_accel.x;
     }
     return 0.0f;
 }
@@ -190,23 +158,16 @@ static void controller_mpc_reset(controller_t* ctrl) {
 
     mpc_impl_t* impl = (mpc_impl_t*)ctrl->impl;
 
-    // 선형 상태 초기화
     impl->target.linear.position = vec3_t{0.0f, 0.0f, 0.0f};
     impl->target.linear.velocity = vec3_t{0.0f, 0.0f, 0.0f};
     impl->target.linear.acceleration = vec3_t{0.0f, 0.0f, 0.0f};
 
-    // 각 상태 초기화
     quat_t oq;
     quat_identity(&oq);
-    impl->target.angular.orientation = oq; // 단위 쿼터니언
+    impl->target.angular.orientation = oq;
     impl->target.angular.angular_velocity = vec3_t{0.0f, 0.0f, 0.0f};
     impl->target.angular.angular_acceleration = vec3_t{0.0f, 0.0f, 0.0f};
 }
-
-
-// ---------------------------------------------------------
-// 컨트롤러 생성 및 해제
-// ---------------------------------------------------------
 
 controller_t* controller_create_pid(
     float kp, float ki, float kd, float dt, float output_limit) {
@@ -217,7 +178,6 @@ controller_t* controller_create_pid(
 
     pid_impl_t* impl = (pid_impl_t*)malloc(sizeof(pid_impl_t));
     if (!impl) {
-        // 메모리 할당 실패 처리
         return NULL;
     }    
 

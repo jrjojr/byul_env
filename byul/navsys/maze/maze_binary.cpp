@@ -14,7 +14,6 @@ void maze_make_binary(maze_t* maze) {
     int w = maze->width;
     int h = maze->height;
 
-    // 초기화: 전체 영역을 벽으로 설정
     coord_hash_clear(maze->blocked);
     for (int y = 0; y < h; ++y) {
         for (int x = 0; x < w; ++x) {
@@ -23,7 +22,7 @@ void maze_make_binary(maze_t* maze) {
         }
     }
 
-    // 각 셀을 기준으로 남쪽 또는 동쪽을 랜덤으로 뚫음
+    // Randomly open either south or east for each cell
     for (int y = 1; y < h; y += 2) {
         for (int x = 1; x < w; x += 2) {
             coord_hash_remove(maze->blocked, make_tmp_coord(x0 + x, y0 + y));

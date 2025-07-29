@@ -33,7 +33,7 @@ TEST_CASE("coord_hash: replace with int values (new/delete)") {
     CHECK(*found3 == 300);
 
     coord_destroy(c);
-    delete v1;  // 입력용 포인터는 hash 내부에서 복사됐기 때문에 직접 해제 필요
+    delete v1;
     delete v2;
     delete v3;
     coord_hash_destroy(hash);

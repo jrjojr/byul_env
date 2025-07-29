@@ -12,27 +12,29 @@ extern "C" {
 #endif
 
 /**
- * @brief Dijkstra 알고리즘을 사용하여 최단 경로를 탐색합니다.
+ * @brief Finds the shortest path using the Dijkstra algorithm.
  *
- * 이 함수는 휴리스틱 없이 실제 누적 비용만을 기준으로 경로를 탐색하는
- * Dijkstra 알고리즘을 구현합니다.  
- * 각 인접 좌표에 대한 이동 비용은 @p cost_fn 함수에 따라 계산되며,  
- * 이를 누적하여 가장 낮은 총 비용 경로를 찾습니다.
+ * This function implements the Dijkstra algorithm, which explores paths
+ * based solely on the actual accumulated cost without heuristics.
+ * The movement cost for each adjacent coordinate is determined by @p cost_fn,
+ * and the algorithm accumulates these costs to find the path with the lowest total cost.
  *
- * A* 알고리즘과 달리 휴리스틱을 사용하지 않기 때문에 항상 최단 경로를 보장하지만,  
- * 탐색에 필요한 노드 수가 많아질 수 있습니다.
+ * Unlike A*, since it does not use a heuristic, it always guarantees the shortest path,
+ * but it may explore more nodes in the process.
  *
- * 함수는 내부적으로 우선순위 큐, 비용 테이블, 경로 추적 테이블을 생성 및 관리하며,  
- * 입력으로는 맵, 시작/목표 좌표, 그리고 비용 함수만 제공하면 됩니다.
+ * Internally, the function constructs and manages a priority queue, cost table,
+ * and path tracing table. The input requires the map, start/goal coordinates,
+ * and an optional cost function.
  *
- * @param m         탐색 대상 맵
- * @param start     시작 좌표
- * @param goal      목표 좌표
- * @param cost_fn   좌표 간 이동 비용을 계산하는 함수. 
- *                  NULL인 경우 기본 비용 1.0f가 사용됩니다.
- * @return          경로 객체.  
- *                  @c route_get_success(route_t*) 가 
- *                  TRUE인 경우 탐색에 성공한 것입니다.
+ * @param m              The map to search.
+ * @param start          Start coordinate.
+ * @param goal           Goal coordinate.
+ * @param cost_fn        Function to calculate the movement cost between coordinates.
+ *                       If NULL, a default cost of 1.0f is used.
+ * @param max_retry      Maximum number of iterations (for loop prevention).
+ * @param visited_logging Whether to log visited coordinates.
+ * @return               A pointer to a route_t object.
+ *                       If @c route_get_success(route_t*) is TRUE, the search succeeded.
  */
 BYUL_API route_t* find_dijkstra(const navgrid_t* m, 
     const coord_t* start, const coord_t* goal, cost_func cost_fn,

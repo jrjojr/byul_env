@@ -8,41 +8,43 @@ extern "C" {
 #include "entity_dynamic.h"
 
 /**
- * @brief 현재 coord와 xform의 상대 좌표를 더해 절대 좌표(coord_t)를 계산합니다.
+ * @brief Calculate the absolute coordinate (coord_t) by adding
+ *        the relative position of xform to the current coord.
  *
- * 절대좌표 = base.coord + round(xform.translation)
+ * absolute_coord = base.coord + round(xform.translation)
  *
- * @param[in]  ed   기준 엔티티 (coord와 xform 정보 포함)
- * @param[out] out  계산된 절대 좌표
+ * @param[in]  ed   Reference entity (contains coord and xform)
+ * @param[out] out  Calculated absolute coordinate
  *
- * @note wrap-around는 coord 연산에서 자동 처리됩니다.
+ * @note Wrap-around is automatically handled in coord operations.
  */
 BYUL_API void entity_dynamic_get_world_coord(
     const entity_dynamic_t* ed, coord_t* out);
 
 /**
- * @brief xform 이동 적용 후 coord를 갱신
+ * @brief Commit xform translation to coord.
  *
- * xform.translation이 1 셀 이상 누적되면 coord에 반영하고
- * xform.translation은 남은 소수점 이동량만 유지.
+ * If xform.translation accumulates by at least 1 cell, it is
+ * reflected in coord, and xform.translation keeps the remaining fraction.
  *
- * @note coord가 COORD_MAX 또는 COORD_MIN을 초과하면 wrap-around 처리.
+ * @note If coord exceeds COORD_MAX or COORD_MIN, wrap-around is applied.
  */
 BYUL_API void entity_dynamic_commit_coord(entity_dynamic_t* ed);
 
 /**
- * @brief 두 엔티티의 coord 기반 거리 계산 (XFORM_MAX,MIN 초과 시 실패)
+ * @brief Calculate the distance between two entities based on their coords.
  *
- * @return 거리 (float), 범위 초과 시 INFINITY 반환
- * @note 좌표 차이가 COORD_MAX/COORD_MIN을 넘어가면 wrap 고려 후 계산 취소.
+ * @return Distance (float), returns INFINITY if the range is exceeded.
+ * @note If coordinate difference exceeds COORD_MAX or COORD_MIN,
+ *       calculation is aborted with wrap consideration.
  */
 BYUL_API float entity_dynamic_coord_distance(
     const entity_dynamic_t* a, const entity_dynamic_t* b);
 
 /**
- * @brief 두 엔티티의 coord 거리가 유효 범위(XFORM_MAX,MIN) 내인지 체크
+ * @brief Check if the distance between two entity coords is within valid range.
  *
- * @return true = 범위 내, false = 범위 초과
+ * @return true = within range, false = out of range.
  */
 BYUL_API bool entity_dynamic_coord_in_range(
     const entity_dynamic_t* a, const entity_dynamic_t* b);

@@ -4,19 +4,19 @@
 #include <stdio.h>
 #include "float_common.h"
 
-// ------------------------ 내부 유틸리티 ------------------------
+// ------------------------ Internal Utilities ------------------------
 
 /**
- * @brief COORD_MIN ~ COORD_MAX 범위를 넘어가면 wrap-around 처리
+ * @brief Wrap-around handling if value exceeds COORD_MIN ~ COORD_MAX range
  */
 static inline int coord_wrap_value(int v) {
     const int RANGE = COORD_MAX - COORD_MIN + 1;
     int offset = v - COORD_MIN;
-    offset = ((offset % RANGE) + RANGE) % RANGE; // 항상 0~RANGE-1
+    offset = ((offset % RANGE) + RANGE) % RANGE; // Always in 0~RANGE-1
     return COORD_MIN + offset;
 }
 
-// ------------------------ 생성/해제 ------------------------
+// ------------------------ Creation/Destruction ------------------------
 
 coord_t* coord_create_full(int x, int y) {
     coord_t* c = new coord_t;
@@ -44,7 +44,7 @@ coord_t* coord_copy(const coord_t* c) {
     return new_c;
 }
 
-// ------------------------ 초기화 및 복사 ------------------------
+// ------------------------ Initialization and Copy ------------------------
 
 void coord_init(coord_t* c) {
     if (!c) return;
@@ -64,7 +64,7 @@ void coord_assign(coord_t* dst, const coord_t* src) {
     dst->y = src->y;
 }
 
-// ------------------------ 가감승제 ------------------------
+// ------------------------ Arithmetic Operations ------------------------
 
 void coord_add(coord_t* dst, const coord_t* a, const coord_t* b) {
     if (!dst || !a || !b) return;
@@ -90,7 +90,7 @@ void coord_div(coord_t* dst, const coord_t* a, int scalar) {
     dst->y = coord_wrap_value(a->y / scalar);
 }
 
-// ------------------------ 자기 연산 ------------------------
+// ------------------------ In-place Operations ------------------------
 
 void coord_iadd(coord_t* c, const coord_t* other) {
     if (!c || !other) return;
@@ -116,7 +116,7 @@ void coord_idiv(coord_t* c, int scalar) {
     c->y = coord_wrap_value(c->y / scalar);
 }
 
-// ------------------------ 비교/해시 ------------------------
+// ------------------------ Comparison/Hash ------------------------
 
 unsigned coord_hash(const coord_t* c) {
     if (!c) return 0;
@@ -134,7 +134,7 @@ int coord_compare(const coord_t* c1, const coord_t* c2) {
     return c1->x - c2->x;
 }
 
-// ------------------------ 거리 계산 ------------------------
+// ------------------------ Distance Calculation ------------------------
 
 float coord_distance(const coord_t* a, const coord_t* b) {
     if (!a || !b) return 0.0f;
@@ -161,7 +161,7 @@ double coord_degree(const coord_t* a, const coord_t* b) {
     return coord_angle(a, b) * (180.0 / M_PI);
 }
 
-// ------------------------ 목표 방향 ------------------------
+// ------------------------ Next Step Towards Goal ------------------------
 
 void coord_next_to_goal(coord_t* out, const coord_t* start, const coord_t* goal) {
     if (!out || !start || !goal) return;
@@ -174,7 +174,7 @@ void coord_next_to_goal(coord_t* out, const coord_t* start, const coord_t* goal)
     else if (start->y > goal->y) out->y = coord_wrap_value(start->y - 1);
 }
 
-// ------------------------ 좌표 접근자 ------------------------
+// ------------------------ Accessors ------------------------
 
 int coord_get_x(const coord_t* c) {
     return c ? c->x : 0;
@@ -206,7 +206,7 @@ void coord_fetch(const coord_t* c, int* out_x, int* out_y) {
     if (out_y) *out_y = c->y;
 }
 
-// ------------------------ 호환성 함수 ------------------------
+// ------------------------ Compatibility Functions ------------------------
 
 const coord_t* make_tmp_coord(int x, int y) {
     static coord_t tmp;

@@ -2,18 +2,10 @@
 #include "coord.h"
 #include <math.h>
 
-// ---------------------------------------------------------
-// 내부 유틸
-// ---------------------------------------------------------
-
 static inline int round_to_int(float x) {
-    // 일반 반올림 (0.5 -> 1, -0.5 -> -1)
+    // (0.5 -> 1, -0.5 -> -1)
     return (int)llroundf(x);
 }
-
-// ---------------------------------------------------------
-// 구현부
-// ---------------------------------------------------------
 
 void entity_dynamic_get_world_pos(
     const entity_dynamic_t* ed, float* out_x, float* out_y) {
@@ -22,7 +14,6 @@ void entity_dynamic_get_world_pos(
     vec3_t pos;
     xform_get_position(&ed->xf, &pos);
 
-    // coord에 xform.translation 반올림 적용
     *out_x = (float)(ed->base.coord.x + round_to_int(pos.x));
     *out_y = (float)(ed->base.coord.y + round_to_int(pos.y));
 }
@@ -55,10 +46,8 @@ void entity_dynamic_commit_coord(entity_dynamic_t* ed) {
         coord_t delta;
         coord_init_full(&delta, dx, dy);
 
-        // coord_add는 내부에서 wrap-around 적용
         coord_iadd(&ed->base.coord, &delta);
 
-        // 남은 소수점 이동량 유지
         pos.x -= (float)dx;
         pos.y -= (float)dy;
         xform_set_position(&ed->xf, &pos);

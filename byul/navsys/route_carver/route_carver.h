@@ -1,40 +1,45 @@
-#ifndef ROUTE_FORGE_H
-#define ROUTE_FORGE_H
+#ifndef ROUTE_CARVER_H
+#define ROUTE_CARVER_H
 
 #include "byul_common.h"
-#include "navgrid.h"     // navgrid_t 정의 필요
-#include "coord.h"   // coord_t 정의 필요
+#include "navgrid.h"     // navgrid_t definition required
+#include "coord.h"       // coord_t definition required
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
 /**
- * @brief start → goal 직선 방향으로, 반경 range 안의 장애물을 직선으로 제거합니다.
- *        넓은 영역을 직진 관통하며 개척합니다.
+ * @brief Removes obstacles in a straight line from start -> 
+ * goal within the given radius (range),
+ *        carving a direct passage through a wide area.
  *
- * @param navgrid 대상 맵
- * @param start 시작 좌표
- * @param goal 목표 좌표
- * @param range 선 중심의 반경 (0=좌표만, 1이상 주변 반경)
- * @return 제거된 장애물 수
+ * @param navgrid Target map
+ * @param start   Start coordinate
+ * @param goal    Goal coordinate
+ * @param range   Radius around the line (
+ * 0 = only coordinates, 1 or more includes surrounding cells)
+ * @return Number of obstacles removed
  */
 BYUL_API int route_carve_beam(navgrid_t* navgrid, 
     const coord_t* start, const coord_t* goal, int range);
 
 /**
- * @brief 지정된 중심 좌표를 기준으로 반경 range 내 block 셀을 폭격하여 제거합니다.
- *        장애물이 흩어진 곳을 강제로 열거나, 공간 확보용으로 사용됩니다.
+ * @brief Bombards and clears block cells within the given radius around 
+ * a specified center coordinate.
+ *        Used to forcefully open scattered obstacles or to secure space.
  *
- * @param navgrid 대상 맵
- * @param center 중심 좌표
- * @param range 폭파 반경 (0 : 해당 좌표만,  1이상 주변 반경)
- * @return 제거된 장애물 수
+ * @param navgrid Target map
+ * @param center  Center coordinate
+ * @param range   Explosion radius (0 = only this coordinate,
+ *  1 or more includes surrounding cells)
+ * @return Number of obstacles removed
  */
-BYUL_API int route_carve_bomb(navgrid_t* navgrid, const coord_t* center, int range);
+BYUL_API int route_carve_bomb(
+    navgrid_t* navgrid, const coord_t* center, int range);
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif // ROUTE_FORGE_H
+#endif // ROUTE_CARVER_H

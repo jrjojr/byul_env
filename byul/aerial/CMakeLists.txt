@@ -4,7 +4,7 @@ cmake_minimum_required(VERSION 3.20)
 project(aerial)
 
 enable_testing()
-set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+
 
 # 외부 include 경로 설정
 set(EXTERNAL_DIR ${CMAKE_SOURCE_DIR}/../external)

@@ -1,2 +1,10 @@
-// 이 파일은 비어 있어도 무방하며, byul 라이브러리를 구성하기 위한 형식적인 존재입니다.
-void __byul_dummy__() {}
+// #include "byul.h"
+#include <stdio.h>
+// byul.cpp
+// This file can remain empty; 
+// it exists only as a formal placeholder for building the byul library.
+void byul_init() {
+	// Initialization code can be added here if needed in the future.
+	// Currently, this function serves as a placeholder.
+	printf("this function serves as a placeholder.\n");
+}

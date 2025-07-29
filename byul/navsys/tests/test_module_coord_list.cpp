@@ -5,7 +5,7 @@ extern "C" {
 #include "coord.h"
 }
 
-TEST_CASE("coord_list: 생성 및 기초 확인") {
+TEST_CASE("coord_list") {
     coord_list_t* list = coord_list_create();
     REQUIRE(list != nullptr);
     CHECK(coord_list_length(list) == 0);
@@ -134,7 +134,7 @@ TEST_CASE("coord_list: contains, find, sublist") {
 
     CHECK(coord_list_contains(list, b));
     CHECK(coord_list_find(list, b) == 1);
-    CHECK(coord_list_find(list, make_tmp_coord(999, 999)) == -1);  // 임시 객체이므로 해제 필요 없음
+    CHECK(coord_list_find(list, make_tmp_coord(999, 999)) == -1);
 
     coord_list_t* sub = coord_list_sublist(list, 1, 3);
     CHECK(coord_list_length(sub) == 2);

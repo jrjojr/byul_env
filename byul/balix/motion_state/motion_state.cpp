@@ -4,9 +4,6 @@
 #include <cmath>
 #include <stdexcept>
 
-// ---------------------------------------------------------
-// linear_state_t 유틸리티
-// ---------------------------------------------------------
 void linear_state_init(linear_state_t* out) {
     if (!out) return;
     vec3_zero(&out->position);
@@ -29,9 +26,6 @@ void linear_state_assign(linear_state_t* out, const linear_state_t* src) {
     *out = *src;
 }
 
-// ---------------------------------------------------------
-// attitude_state_t 유틸리티
-// ---------------------------------------------------------
 void attitude_state_init(attitude_state_t* out) {
     if (!out) return;
     quat_identity(&out->orientation);
@@ -54,9 +48,6 @@ void attitude_state_assign(attitude_state_t* out, const attitude_state_t* src) {
     *out = *src;
 }
 
-// ---------------------------------------------------------
-// motion_state_t 유틸리티
-// ---------------------------------------------------------
 void motion_state_init(motion_state_t* out) {
     if (!out) return;
     linear_state_init(&out->linear);

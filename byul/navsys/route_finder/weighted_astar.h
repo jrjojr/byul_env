@@ -14,40 +14,40 @@ extern "C" {
 #endif
 
 /**
- * @brief Weighted A* 알고리즘을 사용하여 경로를 탐색합니다.
+ * @brief Finds a path using the Weighted A* algorithm.
  *
- * Weighted A*는 고전적인 A* 알고리즘에서 휴리스틱 h(n)의 영향력을 
- * 조절할 수 있도록 가중치(weight)를 도입한 확장 알고리즘입니다.
- * f-score 계산식은 다음과 같습니다:
+ * Weighted A* is an extension of the classic A* algorithm that introduces
+ * a weight parameter to adjust the influence of the heuristic h(n).
+ * The f-score is calculated as follows:
  *
- *     f(n) = g(n) + weight × h(n)
+ *     f(n) = g(n) + weight * h(n)
  *
- * - g(n): 시작점부터 현재 노드까지의 누적 비용
- * - h(n): 현재 노드에서 목표 지점까지의 휴리스틱 추정값
- * - weight: h(n)의 영향력을 조절하는 계수 (1.0 이상 권장)
+ * - g(n): The accumulated cost from the start node to the current node.
+ * - h(n): The heuristic estimate from the current node to the goal.
+ * - weight: A coefficient that adjusts the influence of h(n) (recommended >= 1.0).
  *
- * 일반 A*는 weight = 1.0일 때와 동일하며, 이보다 높은 값을 사용할수록
- * 휴리스틱 기반의 빠른 탐색을 유도하지만 경로 품질은 떨어질 수 있습니다.
+ * When weight = 1.0, this behaves like standard A*. Higher values speed up
+ * the search by relying more on the heuristic but may reduce path quality.
  *
- * @par 추천 가중치 범위
- * - weight = 1.0 : 기본 A* (경로 최적화, 느릴 수 있음)
- * - weight = 1.2 ~ 2.5 : 적절한 성능-품질 균형
- * - weight = 5.0 이상 : Greedy 탐색에 가까움 (비최적 경로 가능)
+ * @par Recommended weight range
+ * - weight = 1.0 : Standard A* (optimal path, potentially slower)
+ * - weight = 1.2 ~ 2.5 : Balanced tradeoff between performance and path quality
+ * - weight >= 5.0 : Approaches greedy search (non-optimal paths possible)
  *
  * @note
- * - @c weight <= 0.0 이면 내부적으로 1.0으로 보정됩니다.
- * - @c cost_fn, @c heuristic_fn 이 nullptr인 경우 내부 기본 함수가 사용됩니다.
- * - 실패 시에도 가능한 최종 좌표까지 경로를 복원합니다.
+ * - If @c weight <= 0.0, it is internally corrected to 1.0.
+ * - If @c cost_fn or @c heuristic_fn is nullptr, default internal functions are used.
+ * - Even if the search fails, the best possible partial path to the last reached node is returned.
  *
- * @param m               맵 정보
- * @param start           시작 좌표
- * @param goal            도착 좌표
- * @param cost_fn         이동 비용 함수 (nullptr 가능)
- * @param heuristic_fn    휴리스틱 함수 (nullptr 가능)
- * @param weight          휴리스틱에 곱해지는 가중치 계수
- * @param max_retry       최대 반복 횟수 (0 이하이면 무제한)
- * @param visited_logging 방문 셀 기록 여부
- * @return route_t*       경로 객체 (성공 여부는 success 필드로 확인)
+ * @param m               Map information
+ * @param start           Start coordinate
+ * @param goal            Goal coordinate
+ * @param cost_fn         Cost function (can be nullptr)
+ * @param heuristic_fn    Heuristic function (can be nullptr)
+ * @param weight          Weight applied to the heuristic
+ * @param max_retry       Maximum number of iterations (0 or less means unlimited)
+ * @param visited_logging Whether to log visited cells
+ * @return route_t*       Path object (check the success field for the result)
  */
 BYUL_API route_t* find_weighted_astar(const navgrid_t* m,
     const coord_t* start, const coord_t* goal,

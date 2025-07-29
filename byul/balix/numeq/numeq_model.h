@@ -1,18 +1,18 @@
 /**
  * @file numeq_model.h
- * @brief 수치 방정식을 통한 물리 상태 예측 모듈
+ * @brief Numerical equation-based module for predicting physical states.
  *
- * 이 모듈은 주어진 초기 운동 상태(linear_state_t), 환경(environ_t), 
- * 물체의 물리 속성(bodyprops_t)을 기반으로 다음을 제공합니다:
+ * This module, based on the given initial motion state (linear_state_t), 
+ * environment (environ_t), and body physical properties (bodyprops_t), provides:
  *
- * - **위치 p(t)**, **속도 v(t)**, **가속도 a(t)** 예측 (포물선 운동 + 항력 반영)
- * - t초 후의 전체 선형 상태(linear_state_t) 계산
- * - 공기 저항력(Drag) 계산 (F_drag = 0.5 * ρ * v² * Cd * A)
- * - 운동 상태의 최고점, 착지 여부 판단
- * - 충돌 반발(bounce) 계산 인터페이스 제공
+ * - Prediction of **position p(t)**, **velocity v(t)**, **acceleration a(t)** (parabolic motion + drag).
+ * - Computation of the complete linear state (linear_state_t) after t seconds.
+ * - Calculation of air drag (F_drag = 0.5 * rho * v^2 * Cd * A).
+ * - Determination of apex (highest point) and landing conditions.
+ * - Collision bounce (reflection) interface.
  *
- * @note 이 모듈은 회전 운동(attitude_state_t)은 다루지 않으며, 
- * 선형 운동(위치/속도/가속도)만을 처리합니다.
+ * @note This module does not handle rotational motion (attitude_state_t),
+ * and deals only with linear motion (position/velocity/acceleration).
  */
 #ifndef NUMEQ_MODEL_H
 #define NUMEQ_MODEL_H
@@ -27,18 +27,18 @@ extern "C" {
 #endif
 
 // ---------------------------------------------------------
-// 공기 저항력 계산 (a = F / m)
+// Air drag calculation (a = F / m)
 // ---------------------------------------------------------
 
 /**
- * @brief 물체에 작용하는 공기 저항 가속도를 계산합니다.
+ * @brief Calculates the air drag acceleration acting on a body.
  *
- * @param state0       초기 선형 상태 (위치, 속도)
- * @param env          환경 정보 (공기 밀도, 바람)
- * @param body         물체의 물리 속성 (질량, 항력계수 등)
- * @param[out] out_drag_accel 계산된 항력 가속도 (m/s²)
+ * @param state0        Initial linear state (position, velocity).
+ * @param env           Environment data (air density, wind).
+ * @param body          Body properties (mass, drag coefficient, etc.).
+ * @param[out] out_drag_accel Computed drag acceleration (m/s^2).
  *
- * @note 드래그는 상대 속도 (v - wind)에 따라 계산됩니다.
+ * @note Drag is calculated using the relative velocity (v - wind).
  */
 BYUL_API void numeq_model_drag_accel(const linear_state_t* state0,
                         const environ_t* env,
@@ -46,14 +46,14 @@ BYUL_API void numeq_model_drag_accel(const linear_state_t* state0,
                         vec3_t* out_drag_accel);
 
 /**
- * @brief 현재 시점의 총 가속도를 계산합니다.
+ * @brief Calculates the total acceleration at the current time.
  *
- * @param state        현재 선형 상태
- * @param env          환경 정보
- * @param body         물체의 물리 속성
- * @param[out] out_accel 계산된 총 가속도 (m/s²)
+ * @param state         Current linear state.
+ * @param env           Environment data.
+ * @param body          Body properties.
+ * @param[out] out_accel Computed total acceleration (m/s^2).
  *
- * @note 총 가속도는 중력, 항력 및 환경 보정을 포함합니다.
+ * @note Total acceleration includes gravity, drag, and environmental adjustments.
  */
 BYUL_API void numeq_model_accel(const linear_state_t* state,
                        const environ_t* env,
@@ -61,15 +61,15 @@ BYUL_API void numeq_model_accel(const linear_state_t* state,
                        vec3_t* out_accel);
 
 /**
- * @brief 중력을 제외한 외력 가속도(drag + wind + state.accel)를 계산합니다.
+ * @brief Calculates external acceleration excluding gravity (drag + wind + state.accel).
  *
- * numeq_model_accel()이 중력(env->gravity)을 포함한 전체 가속도를 계산하는 것과 달리,
- * 이 함수는 drag, 바람, 물체 자체 가속도 등 중력을 제외한 모든 외력을 합산합니다.
+ * Unlike numeq_model_accel(), which includes gravity (env->gravity),
+ * this function sums all external forces excluding gravity.
  *
- * @param[in]  state      선형 상태 (속도, 현재 가속도)
- * @param[in]  env        환경 데이터 (바람, 습도, 기압 등)
- * @param[in]  body       물체 특성 (질량, 항력 계수 등)
- * @param[out] out_accel  계산된 외력 가속도 벡터 (중력 제외)
+ * @param[in]  state     Linear state (velocity, current acceleration).
+ * @param[in]  env       Environment data (wind, humidity, pressure, etc.).
+ * @param[in]  body      Body properties (mass, drag coefficient, etc.).
+ * @param[out] out_accel Computed external acceleration vector (gravity excluded).
  */
 BYUL_API void numeq_model_accel_except_gravity(
     const linear_state_t* state,
@@ -78,20 +78,19 @@ BYUL_API void numeq_model_accel_except_gravity(
     vec3_t* out_accel);
 
 // ---------------------------------------------------------
-// 가속도 계산: a(t)
+// Acceleration: a(t)
 // ---------------------------------------------------------
 
 /**
- * @brief t초 후의 가속도를 계산합니다.
+ * @brief Calculates the acceleration after t seconds.
  *
- * @param t            미래 예측 시간 (초)
- * @param state0       초기 상태
- * @param env          환경 정보
- * @param body         물체의 물리 속성
- * @param[out] out_accel t초 후 예상 가속도 (m/s²)
+ * @param t             Prediction time (seconds).
+ * @param state0        Initial state.
+ * @param env           Environment data.
+ * @param body          Body properties.
+ * @param[out] out_accel Predicted acceleration after t seconds (m/s^2).
  *
- * @note 내부적으로 `numeq_model_vel_at()`를 호출하여 
- * t 시점 속도를 기반으로 항력을 재계산합니다.
+ * @note Internally calls numeq_model_vel_at() to recalculate drag at time t.
  */
 BYUL_API void numeq_model_accel_at(float t,
                           const linear_state_t* state0,
@@ -100,19 +99,19 @@ BYUL_API void numeq_model_accel_at(float t,
                           vec3_t* out_accel);
 
 // ---------------------------------------------------------
-// 위치 계산: p(t)
+// Position: p(t)
 // ---------------------------------------------------------
 
 /**
- * @brief t초 후의 위치를 계산합니다. (선형 근사)
+ * @brief Calculates the position after t seconds (linear approximation).
  *
- * @param t            미래 예측 시간 (초)
- * @param state0       초기 상태
- * @param env          환경 정보
- * @param body         물체의 물리 속성
- * @param[out] out_position t초 후 예상 위치 (m)
+ * @param t             Prediction time (seconds).
+ * @param state0        Initial state.
+ * @param env           Environment data.
+ * @param body          Body properties.
+ * @param[out] out_position Predicted position after t seconds (m).
  *
- * @note 등가속도 근사를 사용하며, p(t) = p₀ + v₀t + 0.5a₀t² 공식을 적용합니다.
+ * @note Uses constant acceleration approximation: p(t) = p0 + v0*t + 0.5*a0*t^2.
  */
 BYUL_API void numeq_model_pos_at(float t,
                         const linear_state_t* state0,
@@ -121,19 +120,19 @@ BYUL_API void numeq_model_pos_at(float t,
                         vec3_t* out_position);
 
 // ---------------------------------------------------------
-// 속도 계산: v(t)
+// Velocity: v(t)
 // ---------------------------------------------------------
 
 /**
- * @brief t초 후의 속도를 계산합니다. (선형 근사)
+ * @brief Calculates the velocity after t seconds (linear approximation).
  *
- * @param t            미래 예측 시간 (초)
- * @param state0       초기 상태
- * @param env          환경 정보
- * @param body         물체의 물리 속성
- * @param[out] out_velocity t초 후 예상 속도 (m/s)
+ * @param t             Prediction time (seconds).
+ * @param state0        Initial state.
+ * @param env           Environment data.
+ * @param body          Body properties.
+ * @param[out] out_velocity Predicted velocity after t seconds (m/s).
  *
- * @note 등가속도 근사를 사용하며, v(t) = v₀ + a₀t 공식을 적용합니다.
+ * @note Uses constant acceleration approximation: v(t) = v0 + a0*t.
  */
 BYUL_API void numeq_model_vel_at(float t,
                         const linear_state_t* state0,
@@ -142,17 +141,17 @@ BYUL_API void numeq_model_vel_at(float t,
                         vec3_t* out_velocity);
 
 // ---------------------------------------------------------
-// 전체 상태 예측: state(t)
+// Full state prediction: state(t)
 // ---------------------------------------------------------
 
 /**
- * @brief t초 후의 선형 상태 (위치, 속도, 가속도)를 계산합니다.
+ * @brief Calculates the linear state (position, velocity, acceleration) after t seconds.
  *
- * @param t            미래 예측 시간 (초)
- * @param state0       초기 상태
- * @param env          환경 정보
- * @param body         물체의 물리 속성
- * @param[out] out_state t초 후 예상 선형 상태
+ * @param t             Prediction time (seconds).
+ * @param state0        Initial state.
+ * @param env           Environment data.
+ * @param body          Body properties.
+ * @param[out] out_state Predicted linear state after t seconds.
  */
 BYUL_API void numeq_model_calc(float t,
                          const linear_state_t* state0,
@@ -161,16 +160,16 @@ BYUL_API void numeq_model_calc(float t,
                          linear_state_t* out_state);
 
 /**
- * @brief RK4 적분 기반으로 t초 후 선형 상태를 예측합니다.
+ * @brief Predicts the linear state after t seconds using RK4 integration.
  *
- * @param t            미래 예측 시간 (초)
- * @param state0       초기 상태
- * @param env          환경 정보
- * @param body         물체의 물리 속성
- * @param steps        적분 스텝 수 (예: t=1초, steps=60 → dt=1/60)
- * @param[out] out_state t초 후 RK4 기반 선형 상태
+ * @param t             Prediction time (seconds).
+ * @param state0        Initial state.
+ * @param env           Environment data.
+ * @param body          Body properties.
+ * @param steps         Number of integration steps (e.g., t=1 sec, steps=60 -> dt=1/60).
+ * @param[out] out_state Predicted linear state after t seconds using RK4.
  *
- * @note drag, 중력, 환경 영향이 시간에 따라 변할 때 더 높은 정확도를 제공합니다.
+ * @note Provides higher accuracy when drag, gravity, or environmental factors vary over time.
  */
 BYUL_API void numeq_model_calc_rk4(
     float t,
@@ -181,18 +180,18 @@ BYUL_API void numeq_model_calc_rk4(
     linear_state_t* out_state);
 
 // ---------------------------------------------------------
-// 기본 충돌 반발
+// Basic collision bounce
 // ---------------------------------------------------------
 
 /**
- * @brief 벡터 반사를 이용한 기본 충돌 반발 속도를 계산합니다.
+ * @brief Computes the basic collision reflection velocity using vector reflection.
  *
- * @param velocity_in   충돌 전 속도 벡터
- * @param normal        충돌 표면의 법선 (정규화 필요)
- * @param restitution   반발 계수 (0~1)
- * @param[out] out_velocity_out 반발 후 속도 벡터
+ * @param velocity_in   Velocity before impact.
+ * @param normal        Surface normal (must be normalized).
+ * @param restitution   Restitution coefficient (0 to 1).
+ * @param[out] out_velocity_out Velocity after bounce.
  *
- * @return 계산 성공 시 true
+ * @return true on success.
  */
 bool numeq_model_bounce(const vec3_t* velocity_in,
                         const vec3_t* normal,
@@ -200,17 +199,17 @@ bool numeq_model_bounce(const vec3_t* velocity_in,
                         vec3_t* out_velocity_out);
 
 /**
- * @brief 두 객체가 충돌할 시점을 예측합니다.
+ * @brief Predicts the collision time between two objects.
  *
- * @param my_state      나의 선형 상태
- * @param other_state   상대 선형 상태
- * @param radius_sum    두 객체의 반경 합 (충돌 임계값)
- * @param[out] out_time 충돌 예상 시간 (초)
- * @param[out] out_point 충돌 예상 지점
+ * @param my_state      My linear state.
+ * @param other_state   Other object's linear state.
+ * @param radius_sum    Combined radius of both objects (collision threshold).
+ * @param[out] out_time Predicted collision time (seconds).
+ * @param[out] out_point Predicted collision point.
  *
- * @return 충돌이 예상되면 true, 아니면 false
+ * @return true if a collision is predicted, false otherwise.
  *
- * @note 현재 구현은 등속/등가속도를 가정한 근사 계산입니다.
+ * @note The current implementation assumes constant or uniform acceleration.
  */
 bool numeq_model_calc_collision(
     const linear_state_t* my_state,

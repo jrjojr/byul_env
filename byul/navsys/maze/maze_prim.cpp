@@ -29,12 +29,11 @@ void maze_make_prim(maze_t* maze) {
 
     std::mt19937 rng(static_cast<unsigned int>(time(nullptr)));
 
-    // 홀수 좌표 리스트 생성 (유효 시작점 범위 보장)
     std::vector<int> odd_x, odd_y;
     for (int i = 1; i < w - 1; i += 2) odd_x.push_back(i);
     for (int i = 1; i < h - 1; i += 2) odd_y.push_back(i);
 
-    if (odd_x.empty() || odd_y.empty()) return; // 너무 작은 맵
+    if (odd_x.empty() || odd_y.empty()) return;
 
     std::uniform_int_distribution<size_t> pick_x(0, odd_x.size() - 1);
     std::uniform_int_distribution<size_t> pick_y(0, odd_y.size() - 1);
@@ -45,7 +44,6 @@ void maze_make_prim(maze_t* maze) {
     const int dx[4] = { 0, 0, -1, 1 };
     const int dy[4] = { -1, 1, 0, 0 };
 
-    // 시작점 주변 벽 추가
     for (int d = 0; d < 4; ++d) {
         int wx = sx + dx[d];
         int wy = sy + dy[d];
@@ -54,14 +52,12 @@ void maze_make_prim(maze_t* maze) {
         }
     }
 
-    // Prim 확장
     while (!wall_list.empty()) {
         std::uniform_int_distribution<size_t> pick(0, wall_list.size() - 1);
         size_t idx = pick(rng);
         Cell wall = wall_list[idx];
         wall_list.erase(wall_list.begin() + idx);
 
-        // 벽 기준 앞뒤 셀 검사
         for (int d = 0; d < 4; ++d) {
             int fx = wall.x + dx[d];
             int fy = wall.y + dy[d];
@@ -103,7 +99,6 @@ void maze_make_prim(maze_t* maze) {
         }
     }
 
-    // 벽 좌표를 blocked에 기록
     for (int y = 0; y < h; ++y) {
         for (int x = 0; x < w; ++x) {
             if (grid[y][x] == WALL) {

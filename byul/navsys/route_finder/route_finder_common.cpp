@@ -7,8 +7,6 @@
 #include <vector>
 #include <limits>
 
-// 비용 함수
-
 float default_cost(const navgrid_t* m, 
     const coord_t* start, const coord_t* goal, void* userdata) {
     return 1.0f;
@@ -26,8 +24,6 @@ float diagonal_cost(const navgrid_t* m,
     int dy = std::abs(start->y - goal->y);
     return (dx != 0 && dy != 0) ? DIAGONAL_COST : 1.0f;
 }
-
-// 휴리스틱 함수
 
 float euclidean_heuristic(
     const coord_t* start, const coord_t* goal, void* userdata) {

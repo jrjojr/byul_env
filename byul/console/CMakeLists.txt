@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 3.20)
 # 프로젝트 이름과 언어 설정
 project(console)
 
-set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+
 
 # 소스 파일 설정
 set(SOURCES
