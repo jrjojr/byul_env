@@ -127,7 +127,7 @@ int trajectory_capacity(const trajectory_t* traj) {
 }
 
 char* trajectory_to_string(
-    const trajectory_t* traj, char* buffer, size_t size) {
+    const trajectory_t* traj, size_t size, char* buffer) {
 
     if (!traj || !buffer || size == 0) return buffer;
     size_t offset = 0;

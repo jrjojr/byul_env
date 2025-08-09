@@ -159,12 +159,12 @@ BYUL_API float quat_length(const quat_t* a);
 BYUL_API void quat_identity(quat_t* out);
 
 /**
- * @brief 회전을 특정 점을 기준으로 수행합니다.
+ * @brief Rotates a point around a given pivot using a quaternion.
  *
- * @param q       회전 쿼터니언
- * @param point   회전될 대상 위치 (입력값)
- * @param pivot   회전 중심점
- * @param out     회전된 결과 위치
+ * @param q       The rotation quaternion
+ * @param point   The input position to be rotated
+ * @param pivot   The center point of rotation
+ * @param out     The resulting rotated position
  */
 BYUL_API void quat_rotate_around_pivot(
     const quat_t* q,

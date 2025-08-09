@@ -11,6 +11,7 @@ set(${PROJECT_NAME}_SOURCES
     ${CMAKE_CURRENT_SOURCE_DIR}/test_module_guidance.cpp    
     ${CMAKE_CURRENT_SOURCE_DIR}/test_module_projectile_predict.cpp    
     ${CMAKE_CURRENT_SOURCE_DIR}/test_module_projectile.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/test_module_projectile_tick.cpp    
 
 CACHE INTERNAL "${PROJECT_NAME} source files"  FORCE
 )
@@ -56,10 +57,11 @@ message(STATUS "${PROJECT_NAME} : EXTERNAL_DIR = ${EXTERNAL_DIR}")
 
 target_include_directories(${PROJECT_NAME} PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}
-    ${CMAKE_BINARY_DIR}/include/byul
     ${EXTERNAL_DIR}
 
     ${CMAKE_SOURCE_DIR}
+
+    ${CMAKE_SOURCE_DIR}/byul_tick
 
     ${CMAKE_SOURCE_DIR}/navsys/coord
 

@@ -6,6 +6,7 @@
 #include <functional>
 #include <mutex>
 #include "numeq_solver.h"
+#include "geom.h"
 
 // ---------------------------------------------------------
 // drag_accel = -0.5 * ρ * v|v| * Cd * A / m
@@ -114,8 +115,8 @@ void numeq_model_accel_except_gravity(
     vec3_add(out_accel, out_accel, &state->acceleration);
 }
 
-void numeq_model_accel_at(
-    float t,
+void numeq_model_accel_predict(
+    float time,
     const linear_state_t* state0,
     const environ_t* env,
     const bodyprops_t* body,
@@ -123,22 +124,22 @@ void numeq_model_accel_at(
 {
     if (!state0 || !out_accel) return;
 
-    if (t <= 0.0f) {
+    if (time <= 0.0f) {
         numeq_model_accel(state0, env, body, out_accel);
         return;
     }
 
     vec3_t vel;
-    numeq_model_vel_at(t, state0, env, body, &vel);
+    numeq_model_vel_predict(time, state0, env, body, &vel);
 
     numeq_model_accel_internal(&vel, env, body, out_accel);
 }
 
 // ---------------------------------------------------------
-// velocity v(t) = v0 + (a0 + state0.acceleration) * t
+// velocity v(time) = v0 + (a0 + state0.acceleration) * time
 // ---------------------------------------------------------
-void numeq_model_vel_at(
-    float t,
+void numeq_model_vel_predict(
+    float time,
     const linear_state_t* state0,
     const environ_t* env,
     const bodyprops_t* body,
@@ -150,17 +151,17 @@ void numeq_model_vel_at(
     numeq_model_accel(state0, env, body, &a0);
 
     vec3_t vel = state0->velocity;
-    bodyprops_apply_friction(&vel, body, t);
+    bodyprops_apply_friction(&vel, body, time);
 
     Vec3 v0(vel);
-    *out_velocity = v0 + Vec3(a0) * t;
+    *out_velocity = v0 + Vec3(a0) * time;
 }
 
 // ---------------------------------------------------------
-// pos p(t) = p0 + v0 * t + 0.5 * (a0 + state0.acceleration) * t²
+// pos p(time) = p0 + v0 * time + 0.5 * (a0 + state0.acceleration) * t²
 // ---------------------------------------------------------
-void numeq_model_pos_at(
-    float t,
+void numeq_model_pos_predict(
+    float time,
     const linear_state_t* state0,
     const environ_t* env,
     const bodyprops_t* body,
@@ -173,27 +174,27 @@ void numeq_model_pos_at(
 
     Vec3 p0(state0->position);
     Vec3 v0(state0->velocity);
-    *out_position = p0 + v0 * t + Vec3(a0) * (0.5f * t * t);
+    *out_position = p0 + v0 * time + Vec3(a0) * (0.5f * time * time);
 }
 
-void numeq_model_calc(float t,
+void numeq_model_predict(float time,
                          const linear_state_t* state0,
                          const environ_t* env,
                          const bodyprops_t* body,
                          linear_state_t* out_state) {
-    numeq_model_pos_at(t, state0, env, body, &out_state->position);
-    numeq_model_vel_at(t, state0, env, body, &out_state->velocity);
-    numeq_model_accel_at(t, state0, env, body, &out_state->acceleration);
+    numeq_model_pos_predict(time, state0, env, body, &out_state->position);
+    numeq_model_vel_predict(time, state0, env, body, &out_state->velocity);
+    numeq_model_accel_predict(time, state0, env, body, &out_state->acceleration);
 }
 
-void numeq_model_calc_rk4(float t,
+void numeq_model_predict_rk4(float time,
                              const linear_state_t* state0,
                              const environ_t* env,
                              const bodyprops_t* body,
                              int steps,
                              linear_state_t* out_state)
 {
-    if (!state0 || !out_state || steps <= 0 || t <= 0.0f) {
+    if (!state0 || !out_state || steps <= 0 || time <= 0.0f) {
         if (out_state) {
             linear_state_assign(out_state, state0);
         }
@@ -204,19 +205,21 @@ void numeq_model_calc_rk4(float t,
     motion_state_init(&current);
     current.linear = *state0;
 
-    integrator_config_t cfg;
-    integrator_config_init_full(&cfg, INTEGRATOR_RK4_ENV,
-                                        t / (float)steps,  // dt,
+    integrator_t intgr = {};
+    integrator_init_full(&intgr, INTEGRATOR_RK4_ENV,
+                                        time / (float)steps,  // dt,
+                                        &current,
                                         nullptr,
                                         env, 
-                                        body, 
-                                        nullptr);
+                                        body);
     
     for (int i = 0; i < steps; ++i) {
-        numeq_integrate(&current, &cfg);
+        integrator_step(&intgr);
     }
 
+    current = intgr.state;
     *out_state = current.linear;
+    integrator_free(&intgr);
 }
 
 bool numeq_model_bounce(const vec3_t* velocity_in,
@@ -247,7 +250,7 @@ bool numeq_model_bounce(const vec3_t* velocity_in,
     return true;
 }
 
-bool numeq_model_calc_collision(
+bool numeq_model_predict_collision(
     const linear_state_t* my_state,
     const linear_state_t* other_state,
     float radius_sum,
@@ -283,14 +286,14 @@ bool numeq_model_calc_collision(
         if (!numeq_solve_quadratic(A, B, C, &x1, &x2))
             return false;
 
-        float t = (x1 >= 0.0f) ? x1 : (x2 >= 0.0f ? x2 : -1.0f);
-        if (t < 0.0f) return false;
+        float time = (x1 >= 0.0f) ? x1 : (x2 >= 0.0f ? x2 : -1.0f);
+        if (time < 0.0f) return false;
 
-        if (out_time) *out_time = t;
+        if (out_time) *out_time = time;
         if (out_point) {
             vec3_t pa, pb;
-            vec3_scale(&pa, &my_state->velocity, t);
-            vec3_scale(&pb, &other_state->velocity, t);
+            vec3_scale(&pa, &my_state->velocity, time);
+            vec3_scale(&pb, &other_state->velocity, time);
             vec3_add(&pa, &pa, &my_state->position);
             vec3_add(&pb, &pb, &other_state->position);
             vec3_add(out_point, &pa, &pb);
@@ -300,4 +303,63 @@ bool numeq_model_calc_collision(
     }
 
     return false;
+}
+
+bool numeq_model_predict_collision_plane(
+    const linear_state_t* my_state,
+    const vec3_t* plane_point,
+    const vec3_t* plane_normal,
+    float radius_sum,
+    float* out_time,
+    vec3_t* out_point)
+{
+    if (!my_state || !plane_point || !plane_normal) return false;
+
+    if (out_time) *out_time = -1.0f;
+    if (out_point) vec3_zero(out_point);
+
+    // 평면이 움직이는 경우는 지원하지 않음 (정적 평면 가정)
+
+    // 1. 현재 위치가 평면에 닿아있는지 확인
+    float dist = vec3_point_plane_distance(
+        &my_state->position,
+        plane_point,
+        plane_normal);
+
+    if (fabsf(dist) <= radius_sum)
+    {
+        if (out_time) *out_time = 0.0f;
+        if (out_point) *out_point = my_state->position;
+        return true;
+    }
+
+    // 2. 속도가 0이거나 평면에 평행한 경우
+    if (vec3_is_zero(&my_state->velocity)) return false;
+
+    // 3. 속도 방향 기준으로 평면과 충돌 예상 여부 판단
+    float denom = vec3_dot(&my_state->velocity, plane_normal);
+    if (fabsf(denom) < FLOAT_EPSILON) return false;  // 평면에 평행한 경우
+
+    // 4. 반지름 보정된 평면 점 계산
+    vec3_t offset_plane_point = *plane_point;
+    vec3_t scaled_normal;
+    vec3_scale(&scaled_normal, plane_normal, -radius_sum); // 안쪽으로 이동
+    vec3_add(&offset_plane_point, &offset_plane_point, &scaled_normal);
+
+    // 5. ray-plane 교차 계산
+    float time;
+    vec3_t hit;
+    bool intersect = vec3_ray_plane_intersect(
+        &my_state->position,
+        &my_state->velocity,
+        &offset_plane_point,
+        plane_normal,
+        &time,
+        &hit);
+
+    if (!intersect || time < 0.0f) return false;
+
+    if (out_time) *out_time = time;
+    if (out_point) *out_point = hit;
+    return true;
 }

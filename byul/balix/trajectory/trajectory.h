@@ -235,8 +235,8 @@ BYUL_API bool trajectory_estimate_acceleration(
  * into a formatted string stored in the provided buffer.
  *
  * @param traj    Pointer to trajectory_t (NULL returns "(null)").
- * @param buffer  Buffer to store the string (NULL returns NULL).
  * @param size    Buffer size (recommend TRAJECTORY_STR_BUFSIZE or larger).
+ * @param buffer  Buffer to store the string (NULL returns NULL). 
  * @return buffer Pointer to the provided buffer.
  *
  * @note
@@ -244,7 +244,7 @@ BYUL_API bool trajectory_estimate_acceleration(
  * - Output may be truncated if the buffer is too small.
  */
 BYUL_API char* trajectory_to_string(
-    const trajectory_t* traj, char* buffer, size_t size);
+    const trajectory_t* traj, size_t size, char* buffer);
 
 /**
  * @brief Prints the trajectory content to console.

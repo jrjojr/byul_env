@@ -171,6 +171,12 @@ float vec3_distance(const vec3_t* a, const vec3_t* b) {
     return vec3_length(&d);
 }
 
+float vec3_distance_sq(const vec3_t* a, const vec3_t* b) {
+    vec3_t d;
+    vec3_sub(&d, a, b);
+    return vec3_length_sq(&d);
+}
+
 void vec3_lerp(vec3_t* out, const vec3_t* a, const vec3_t* b, float t) {
     out->x = a->x + (b->x - a->x) * t;
     out->y = a->y + (b->y - a->y) * t;
@@ -193,7 +199,7 @@ bool vec3_is_zero(const vec3_t* v)
             float_zero(v->z));
 }
 
-char* vec3_to_string(const vec3_t* v, char* buffer, size_t buffer_size) {
+char* vec3_to_string(const vec3_t* v, size_t buffer_size, char* buffer) {
     if (!v || !buffer || buffer_size < 32) return NULL;
     snprintf(buffer, buffer_size, "(%.3f, %.3f, %.3f)", v->x, v->y, v->z);
     return buffer;

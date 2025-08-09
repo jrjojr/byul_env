@@ -25,7 +25,8 @@ typedef struct {
  * connects them with **corridors**,  
  * and then fills the remaining space using a **backtracking maze algorithm**.
  * 
- * The result is a hybrid **RPG-style map** composed of rooms, corridors, and maze paths.
+ * The result is a hybrid **RPG-style map** composed of rooms, corridors, 
+ * and maze paths.
  *
  * ---
  *
@@ -36,7 +37,8 @@ typedef struct {
  * 
  * 2. **Corridor Digging**  
  *    - Corridors are generated between the centers of consecutive rooms.  
- *    - The corridors are shaped like an "L" (horizontal-first or vertical-first, chosen randomly).
+ *    - The corridors are shaped like an "L" 
+ * (horizontal-first or vertical-first, chosen randomly).
  * 
  * 3. **Maze Filling**  
  *    - Any remaining wall area not covered by rooms or corridors is filled
@@ -48,30 +50,15 @@ typedef struct {
  * ### Features
  * - **Rooms are open areas**, **corridors are long and narrow**,  
  *   **mazes fill the remaining space with tight paths.**
- * - As maze generation is a later step, **the result is not strictly tree-like**.
+ * - As maze generation is a later step, 
+ * **the result is not strictly tree-like**.
  * - Dead-ends may exist but are limited,  
  *   making this ideal for **centralized level layouts**.
  *
  * ---
  *
- * ### Usage Requirements
- * - `maze_t` must be created using `maze_create_full()`.
- * - `width` and `height` must be **odd numbers** and **at least 9**.
- *
- * ---
- *
- * ### Example
- * @code
- * maze_t* maze = maze_create_full(0, 0, 31, 21, MAZE_TYPE_ROOM_BLEND);
- * maze_make_room_blend(maze);
- * navgrid_add_maze(navgrid, maze);
- * @endcode
- *
- * ---
- *
- * @param maze Pointer to the target maze structure to generate
  */
-BYUL_API void maze_make_room_blend(maze_t* maze);
+BYUL_API maze_t* maze_make_room_blend(int x0, int y0, int width, int height);
 
 #ifdef __cplusplus
 }

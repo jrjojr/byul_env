@@ -10,6 +10,7 @@ project(test_byul)
 # ─────────────────────────────────────────────
 set(TEST_SOURCES 
     ${CMAKE_CURRENT_SOURCE_DIR}/main.cpp
+  
 )
 
 set(TEST_INC_DIRS "")
@@ -59,7 +60,7 @@ add_module(projectile)
 # ─────────────────────────────────────────────
 add_executable(${PROJECT_NAME} 
     ${TEST_SOURCES}
-    ${CMAKE_CURRENT_SOURCE_DIR}/test_module_byul.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/test_module_byul.cpp    
 )
 
 # 외부 include 경로 설정
@@ -72,6 +73,7 @@ target_include_directories(${PROJECT_NAME} PRIVATE
     ${CMAKE_SOURCE_DIR}
     ${CMAKE_CURRENT_SOURCE_DIR}
     ${CMAKE_SOURCE_DIR}/common
+    ${CMAKE_SOURCE_DIR}/byul_tick
     ${CMAKE_SOURCE_DIR}/console
     ${CMAKE_SOURCE_DIR}/navsys
     ${CMAKE_SOURCE_DIR}/balix

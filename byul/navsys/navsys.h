@@ -80,7 +80,7 @@ BYUL_API route_t* navsys_find_rta_star(navgrid_t* ng,
 
 /**
 * Memory limit should depend on map size and complexity. Recommended values:
- *   - memory_limit === max(L × (1 + e), N x a)
+ *   - memory_limit === max(L x (1 + e), N x a)
  *     (L: expected path length, N: number of map cells)
  *     (e <== [0.5, 1.0], a <== [0.01, 0.05])
  *
@@ -110,6 +110,12 @@ BYUL_API route_t* navsys_find_sma_star(navgrid_t* ng,
  */
 BYUL_API route_t* navsys_find_weighted_astar(navgrid_t* ng, 
     const coord_t* start, const coord_t* goal, float weight);
+
+// D* Lite is specialized for dynamic replanning,
+// but it can also be used for static pathfinding like A*.
+// However, this is not the true use case of D* Lite.
+BYUL_API route_t* navsys_find_dstar_lite(navgrid_t* ng,
+    const coord_t* start, const coord_t* goal);
 
 #ifdef __cplusplus
 }

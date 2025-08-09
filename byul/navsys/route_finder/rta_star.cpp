@@ -23,7 +23,7 @@ static float rta_iterative_eval(const navgrid_t* m,
     for (int d = 0; d < max_depth; ++d) {
         if (coord_equal(current, goal)) break;
 
-        coord_list_t* neighbors = navgrid_copy_adjacent(m, current->x, current->y);
+        coord_list_t* neighbors = navgrid_copy_neighbors(m, current->x, current->y);
         coord_t* best = nullptr;
         float best_f = FLT_MAX;
 
@@ -86,7 +86,7 @@ route_t* find_rta_star(const navgrid_t* m,
 
     int retry = 0;
     while (!coord_equal(current, goal) && retry++ < max_retry) {
-        coord_list_t* neighbors = navgrid_copy_adjacent(m, current->x, current->y);
+        coord_list_t* neighbors = navgrid_copy_neighbors(m, current->x, current->y);
         coord_t* best = nullptr;
         float best_f = FLT_MAX;
 

@@ -9,6 +9,7 @@ set(${PROJECT_NAME}_SOURCES
     ${CMAKE_CURRENT_SOURCE_DIR}/test_module_entity.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/test_module_entity_dynamic.cpp    
     ${CMAKE_CURRENT_SOURCE_DIR}/test_module_entity_spring.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/test_module_entity_interaction.cpp
 
 CACHE INTERNAL "${PROJECT_NAME} source files"  FORCE
 )

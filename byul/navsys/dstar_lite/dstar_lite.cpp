@@ -9,6 +9,50 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <thread>
+#include <climits>
+
+bool dstar_lite_fetch_next(const dstar_lite_t* dsl, 
+    const coord_t* start, coord_t* out) {
+    
+    if(!dsl || !start || !out) return false;
+        
+    coord_list_t* successors 
+    = navgrid_copy_neighbors_all(dsl->navgrid, start->x, start->y);
+
+    int len = coord_list_length(successors);
+
+    float min_cost = FLT_MAX;
+    coord_t best = *start;  // fallback:
+
+    for (int i = 0; i < len; i++) {
+        coord_t s = *coord_list_get(successors, i);
+
+        float g_s = FLT_MAX;
+        float cost = FLT_MAX;
+        float total = FLT_MAX;
+
+        float* g_ptr = (float*)coord_hash_get(dsl->g_table, &s);
+        if (g_ptr) g_s = *g_ptr;
+
+        cost = dsl->cost_fn(
+            dsl->navgrid, start, &s, dsl->proto_route->visited_count);
+        total = g_s + cost;
+
+        int visit = 0;
+        if (coord_hash_contains(dsl->proto_route->visited_count, &s)) {
+            visit = *(int*)coord_hash_get(dsl->proto_route->visited_count, &s);
+        }
+
+        if (total < min_cost) {
+            min_cost = total;
+            best = s;
+        }
+    }
+
+    coord_list_destroy(successors);
+    *out = best;
+    return true;
+}
 
 static int auto_max_range(const coord_t* start, const coord_t* goal) {
     int dx = abs(goal->x - start->x);
@@ -30,18 +74,94 @@ static int auto_reconstruct_max_retry(const coord_t* start, const coord_t* goal)
     return r;
 }
 
-float dstar_lite_cost(const navgrid_t* m, 
+float dstar_lite_cost(const navgrid_t* navgrid, 
     const coord_t* start, const coord_t* goal, void* userdata) {
 
-    if (!m || !start || !goal)
+    if (!navgrid || !start || !goal)
         return FLT_MAX;
 
-    if (m->is_coord_blocked_fn(m, goal->x, goal->y, nullptr))
+    if (navgrid->is_coord_blocked_fn(navgrid, goal->x, goal->y, nullptr))
         return FLT_MAX;
 
     float dx = (float)(start->x - goal->x);
     float dy = (float)(start->y - goal->y);
     return hypotf(dx, dy);
+}
+
+float dstar_lite_dynamic_cost(const navgrid_t* navgrid, 
+    const coord_t* start, const coord_t* goal, void* userdata) 
+{
+    if (!navgrid || !start || !goal)
+        return FLT_MAX;
+
+    if (navgrid->is_coord_blocked_fn &&
+        navgrid->is_coord_blocked_fn(navgrid, goal->x, goal->y, NULL)) {
+        return FLT_MAX;
+    }
+
+    float dx = (float)(start->x - goal->x);
+    float dy = (float)(start->y - goal->y);
+    float base_cost = hypotf(dx, dy);
+
+    int visit_count = 0;
+    if (userdata) {
+        coord_hash_t* visit_table = (coord_hash_t*)userdata;
+        int* count_ptr = (int*)coord_hash_get(visit_table, goal);
+        if (count_ptr) visit_count = *count_ptr;
+    }
+
+    float penalty = 0.25f * (float)visit_count;
+
+    return base_cost + penalty;
+}
+
+
+float dstar_lite_heuristic(
+    const coord_t* start, const coord_t* goal, void* userdata) {
+
+    if (!start || !goal)
+        return FLT_MAX;
+
+    float dx = (float)(start->x - goal->x);
+    float dy = (float)(start->y - goal->y);
+    return hypotf(dx, dy);
+}
+
+void move_to(const coord_t* c, void* userdata) {
+    printf("move to (%d, %d) in finder.\n", c->x, c->y);
+    // coord_destroy(c);
+}
+
+coord_list_t* get_changed_coord(void* userdata) {
+    if (!userdata) {
+        // g_warning("changed_coords: userdata is NULL");
+        printf("changed_coord userdata(coord_t*) is NULL\n");
+        return NULL;
+    }
+
+    coord_t* c = (coord_t*)userdata;
+
+    coord_list_t* list = coord_list_create();
+    coord_list_push_back(list, c);
+
+    printf("changed_coord: changed coord is (%d, %d).\n",
+        c->x, c->y);
+    return list;
+}
+
+coord_list_t* get_changed_coords(void* userdata) {
+    if (!userdata) {
+        // g_warning("changed_coords: userdata is NULL");
+        printf("changed_coords: userdata is NULL\n");
+        return NULL;
+    }
+
+    coord_list_t* src = (coord_list_t*)userdata;
+    coord_list_t* copy = coord_list_copy(src);
+
+    printf("changed_coords: %d changed coords copied and returned.\n",
+        coord_list_length(copy));
+    return copy;
 }
 
 cost_func dstar_lite_get_cost_func(const dstar_lite_t* dsl) {
@@ -62,46 +182,6 @@ void dstar_lite_set_cost_func_userdata(dstar_lite_t* dsl, void* userdata) {
     dsl->cost_fn_userdata = userdata;
 }
 
-bool dstar_lite_is_blocked(
-    dstar_lite_t* dsl, int x, int y, void* userdata) {
-        
-    if (!dsl || !dsl->is_blocked_fn) return false;
-    return dsl->m->is_coord_blocked_fn(dsl->m, x, y, nullptr);
-}
-
-is_coord_blocked_func dstar_lite_get_is_blocked_func(dstar_lite_t* dsl) {
-    if (!dsl) return NULL;
-    return dsl->is_blocked_fn;
-}
-
-void dstar_lite_set_is_blocked_func(
-    dstar_lite_t* dsl, is_coord_blocked_func fn) {
-    if (!dsl) return;
-    dsl->is_blocked_fn = fn;
-}
-
-void* dstar_lite_get_is_blocked_func_userdata(dstar_lite_t* dsl) {
-    if (!dsl) return NULL;
-    return dsl->is_blocked_fn_userdata;
-}
-
-void dstar_lite_set_is_blocked_func_userdata(
-    dstar_lite_t* dsl, void* userdata) {
-    if (!dsl) return;
-    dsl->is_blocked_fn_userdata = userdata;
-}
-
-float dstar_lite_heuristic(
-    const coord_t* start, const coord_t* goal, void* userdata) {
-
-    if (!start || !goal)
-        return FLT_MAX;
-
-    float dx = (float)(start->x - goal->x);
-    float dy = (float)(start->y - goal->y);
-    return hypotf(dx, dy);
-}
-
 heuristic_func dstar_lite_get_heuristic_func(const dstar_lite_t* dsl) {
     return dsl->heuristic_fn;
 }
@@ -116,11 +196,6 @@ void* dstar_lite_get_heuristic_func_userdata(const dstar_lite_t* dsl) {
 
 void dstar_lite_set_heuristic_func_userdata(dstar_lite_t* dsl, void* userdata) {
     dsl->heuristic_fn_userdata = userdata;
-}
-
-void move_to(const coord_t* c, void* userdata) {
-    printf("move to (%d, %d) in finder.\n", c->x, c->y);
-    // coord_destroy(c);
 }
 
 move_func dstar_lite_get_move_func(const dstar_lite_t* dsl) {
@@ -143,27 +218,6 @@ void dstar_lite_set_move_func_userdata(
     
     if (!dsl) return;
     dsl->move_fn_userdata = userdata;
-}
-
-coord_list_t* get_changed_coords(void* userdata) {
-    if (!userdata) {
-        // g_warning("changed_coords: userdata is NULL");
-        printf("changed_coords: userdata is NULL\n");
-        return NULL;
-    }
-
-    coord_list_t* original = (coord_list_t*)userdata;
-    coord_list_t* copy = NULL;
-
-    int len = coord_list_length(original);
-    for (int i =0 ; i < len; i++){
-        const coord_t* c = coord_list_get(original, i);
-        coord_list_push_back(copy, c);
-    }
-
-    printf("changed_coords: %d changed coords copied and returned.\n",
-        coord_list_length(copy));
-    return copy;
 }
 
 changed_coords_func dstar_lite_get_changed_coords_func(
@@ -194,11 +248,11 @@ void dstar_lite_set_changed_coords_func_userdata(
     dsl->changed_coords_fn_userdata = userdata;
 }
 
-dstar_lite_t* dstar_lite_create(navgrid_t* m) {
-    if (!m) return NULL;
+dstar_lite_t* dstar_lite_create(navgrid_t* navgrid) {
+    if (!navgrid) return NULL;
 
     coord_t* c = coord_create();
-    dstar_lite_t* dsl = dstar_lite_create_full(m, c,
+    dstar_lite_t* dsl = dstar_lite_create_full(navgrid, c, c,
         dstar_lite_cost, dstar_lite_heuristic,        
         false);
     coord_destroy(c);
@@ -206,18 +260,20 @@ dstar_lite_t* dstar_lite_create(navgrid_t* m) {
     return dsl;
 }
 
-dstar_lite_t* dstar_lite_create_full(navgrid_t* m, coord_t* start,
+dstar_lite_t* dstar_lite_create_full(navgrid_t* navgrid, 
+    const coord_t* start,
+    const coord_t* goal,
     cost_func cost_fn, heuristic_func heuristic_fn,
     bool debug_mode_enabled) {
 
-    if (!m) return NULL;
+    if (!navgrid) return NULL;
 
     dstar_lite_t* dsl = new dstar_lite_t();
-    dsl->m = m;
-    // printf("[dsl->m assigned] %p\n", m);
+    dsl->navgrid = navgrid;
+    // printf("[dsl->navgrid assigned] %p\n", navgrid);
 
-    dsl->start = coord_copy(start);
-    dsl->goal = coord_copy(start);
+    dsl->start = *start;
+    dsl->goal = *goal;
     
     dsl->km = 0.0f;
     dsl->max_range = 100;
@@ -243,12 +299,9 @@ dstar_lite_t* dstar_lite_create_full(navgrid_t* m, coord_t* start,
         (coord_hash_destroy_func) float_destroy        
     );
 
-    dsl->update_count_table = coord_hash_create();
-
     dsl->frontier = dstar_lite_pqueue_create();
 
-    dsl->interval_msec = 0;
-    dsl->proto_route = NULL;
+    dsl->proto_route = route_create();
     dsl->real_route = NULL;
 
     dsl->move_fn = NULL;
@@ -266,30 +319,30 @@ dstar_lite_t* dstar_lite_create_full(navgrid_t* m, coord_t* start,
 
     dsl->real_loop_retry_count = 0;
 
+    dsl->interval_sec = 0.0f;
+
     return dsl;
 }
 
 void dstar_lite_destroy(dstar_lite_t* dsl) {
     if (!dsl) return;
-    coord_destroy(dsl->start);
-    coord_destroy(dsl->goal);
     coord_hash_destroy(dsl->g_table);
     coord_hash_destroy(dsl->rhs_table);
-    coord_hash_destroy(dsl->update_count_table);
     dstar_lite_pqueue_destroy(dsl->frontier);
     if (dsl->proto_route) route_destroy(dsl->proto_route);
     if (dsl->real_route) route_destroy(dsl->real_route);
+
     delete dsl;
 }
 
-dstar_lite_t* dstar_lite_copy(dstar_lite_t* src) {
+dstar_lite_t* dstar_lite_copy(const dstar_lite_t* src) {
     if (!src) return NULL;
 
     dstar_lite_t* copy = new dstar_lite_t();
     
-    copy->m     = navgrid_copy(src->m);
-    copy->start = coord_copy(src->start);
-    copy->goal  = coord_copy(src->goal);
+    copy->navgrid     = navgrid_copy(src->navgrid);
+    copy->start = src->start;
+    copy->goal  = src->goal;
     copy->km    = src->km;
 
     copy->g_table = coord_hash_copy(src->g_table);
@@ -300,8 +353,6 @@ dstar_lite_t* dstar_lite_copy(dstar_lite_t* src) {
 
     copy->cost_fn               = src->cost_fn;
     copy->cost_fn_userdata      = src->cost_fn_userdata;
-    copy->is_blocked_fn         = src->is_blocked_fn;
-    copy->is_blocked_fn_userdata= src->is_blocked_fn_userdata;
     copy->heuristic_fn          = src->heuristic_fn;
     copy->heuristic_fn_userdata = src->heuristic_fn_userdata;
     copy->move_fn               = src->move_fn;
@@ -312,7 +363,7 @@ dstar_lite_t* dstar_lite_copy(dstar_lite_t* src) {
     copy->proto_route = route_copy(src->proto_route);
     copy->real_route  = route_copy(src->real_route);
 
-    copy->interval_msec           = src->interval_msec;
+    copy->interval_sec           = src->interval_sec;
     copy->real_loop_max_retry     = src->real_loop_max_retry;
     copy->max_retry       = src->max_retry;
     copy->reconstruct_max_retry   = src->reconstruct_max_retry;
@@ -324,27 +375,29 @@ dstar_lite_t* dstar_lite_copy(dstar_lite_t* src) {
     copy->max_range              = src->max_range;
     copy->debug_mode_enabled     = src->debug_mode_enabled;
 
-    copy->update_count_table = coord_hash_copy(src->update_count_table);
-
     return copy;
 }
 
-coord_t* dstar_lite_get_start(const dstar_lite_t* dsl) {
-    return dsl->start;
+int dstar_lite_fetch_start(const dstar_lite_t* dsl, coord_t* out) {
+    if (!dsl) return -1;
+    *out = dsl->start;
+    return 0;
 }
 
 void dstar_lite_set_start(dstar_lite_t* dsl, const coord_t* c) {
     // dsl->start = c;
-    coord_set(dsl->start, c->x, c->y);
+    coord_set(&dsl->start, c->x, c->y);
 }
 
-coord_t* dstar_lite_get_goal(const dstar_lite_t* dsl) {
-    return dsl->goal;
+int dstar_lite_fetch_goal(const dstar_lite_t* dsl, coord_t* out) {
+    if (!dsl) return -1;
+    *out = dsl->goal;
+    return 0;
 }
 
 void dstar_lite_set_goal(dstar_lite_t* dsl, const coord_t* c) {
     // dsl->goal = c;
-    coord_set(dsl->goal, c->x, c->y);
+    coord_set(&dsl->goal, c->x, c->y);
 }
 
 coord_hash_t* dstar_lite_get_g_table(const dstar_lite_t* dsl) {
@@ -428,37 +481,12 @@ void dstar_lite_enable_debug_mode(dstar_lite_t* dsl, bool enabled) {
     dsl->debug_mode_enabled = enabled;
 }
 
-coord_hash_t* dstar_lite_get_update_count_table(const dstar_lite_t* dsl) {
-    return dsl->update_count_table;
-}
-
-void dstar_lite_add_update_count(dstar_lite_t* dsl, const coord_t* c) {
-    void* val = coord_hash_get(dsl->update_count_table, c);
-    if (!val) {
-        int* count =  new int(1);
-        *count = 1;
-        coord_hash_replace(dsl->update_count_table, c, count);
-        delete count;
-    } else {
-        (*(int*)val)++;
-    }
-}
-
-void dstar_lite_clear_update_count(dstar_lite_t* dsl) {
-    coord_hash_remove_all(dsl->update_count_table);
-}
-
-int dstar_lite_get_update_count(dstar_lite_t* dsl, const coord_t* c) {
-    void* val = coord_hash_get(dsl->update_count_table, c);
-    return val ? *((int*)val) : 0;
-}
-
 const navgrid_t* dstar_lite_get_navgrid(const dstar_lite_t* dsl) {
-    return dsl->m;
+    return dsl->navgrid;
 }
 
-void    dstar_lite_set_navgrid(dstar_lite_t* dsl, navgrid_t* m) {
-    dsl->m = m;
+void    dstar_lite_set_navgrid(dstar_lite_t* dsl, navgrid_t* navgrid) {
+    dsl->navgrid = navgrid;
 }
 
 const route_t* dstar_lite_get_proto_route(const dstar_lite_t* dsl) {
@@ -472,7 +500,6 @@ const route_t* dstar_lite_get_real_route(const dstar_lite_t* dsl) {
 void dstar_lite_reset(dstar_lite_t* dsl) {
     coord_hash_destroy(dsl->g_table);
     coord_hash_destroy(dsl->rhs_table);
-    coord_hash_destroy(dsl->update_count_table);
 
     dsl->g_table = coord_hash_create_full(
         (coord_hash_copy_func) float_copy,
@@ -484,11 +511,9 @@ void dstar_lite_reset(dstar_lite_t* dsl) {
         (coord_hash_destroy_func) float_destroy        
     );
 
-    dsl->update_count_table = coord_hash_create();
-
     if (dsl->proto_route) {
         route_destroy(dsl->proto_route);
-        dsl->proto_route = NULL;
+        dsl->proto_route = route_create();
     }
 
     if (dsl->real_route) {
@@ -507,13 +532,13 @@ void dstar_lite_reset(dstar_lite_t* dsl) {
     dstar_lite_init(dsl);
 }
 
-void dstar_lite_set_interval_msec(dstar_lite_t* dsl, int msec) {
+void dstar_lite_set_interval_sec(dstar_lite_t* dsl, float sec) {
     if (!dsl) return;
-    dsl->interval_msec = msec;
+    dsl->interval_sec = sec;
 }
 
-int dstar_lite_get_interval_msec(const dstar_lite_t* dsl) {
-    return dsl ? dsl->interval_msec : 0;
+float dstar_lite_get_interval_sec(const dstar_lite_t* dsl) {
+    return dsl ? dsl->interval_sec : 0.0f;
 }
 
 dstar_lite_key_t* dstar_lite_calc_key(dstar_lite_t* dsl, const coord_t* s) {
@@ -531,7 +556,7 @@ dstar_lite_key_t* dstar_lite_calc_key(dstar_lite_t* dsl, const coord_t* s) {
     }
 
     float k2 = fminf(g_val, rhs_val);
-    float h = dsl->heuristic_fn(dsl->start, s, NULL);
+    float h = dsl->heuristic_fn(&dsl->start, s, NULL);
     float k1 = k2 + h + dsl->km;
 
     dstar_lite_key_t* key = dstar_lite_key_create_full( k1, k2 );
@@ -543,20 +568,23 @@ void dstar_lite_init(dstar_lite_t* dsl) {
 
     float* rhs_goal_ptr = new float();
     *rhs_goal_ptr = 0.0f;
-    coord_hash_replace(dsl->rhs_table, dsl->goal, rhs_goal_ptr);
+    coord_hash_replace(dsl->rhs_table, &dsl->goal, rhs_goal_ptr);
     delete rhs_goal_ptr;
     
     // U.insert(goal, calc_key(goal))
-    dstar_lite_key_t* calc_key_goal = dstar_lite_calc_key(dsl, dsl->start);
-    dstar_lite_pqueue_push(dsl->frontier, calc_key_goal, dsl->goal);
+    dstar_lite_key_t* calc_key_goal = dstar_lite_calc_key(dsl, &dsl->start);
+    dstar_lite_pqueue_push(dsl->frontier, calc_key_goal, &dsl->goal);
     dstar_lite_key_destroy(calc_key_goal);
 }
 
 void dstar_lite_update_vertex(dstar_lite_t* dsl, const coord_t* u) {
     if (!dsl || !u) return;
 
-    if (dsl->debug_mode_enabled)
-        dstar_lite_add_update_count(dsl, u);
+    if (dsl->debug_mode_enabled){
+        if (dsl->proto_route){
+            route_add_visited(dsl->proto_route, u);
+        }
+    }
 
     float min_rhs = FLT_MAX;
     coord_list_t* successors_s = NULL;
@@ -572,8 +600,8 @@ void dstar_lite_update_vertex(dstar_lite_t* dsl, const coord_t* u) {
     float* rhs_u_ptr = NULL;
     float rhs_u = FLT_MAX;
 
-    if (!coord_equal(u, dsl->goal)) {
-        successors_s = navgrid_copy_adjacent_all(dsl->m, u->x, u->y);
+    if (!coord_equal(u, &dsl->goal)) {
+        successors_s = navgrid_copy_neighbors_all(dsl->navgrid, u->x, u->y);
         int len = coord_list_length(successors_s);
         for(int i=0; i<len; i++){
             const coord_t* s = coord_list_get(successors_s, i);
@@ -585,7 +613,7 @@ void dstar_lite_update_vertex(dstar_lite_t* dsl, const coord_t* u) {
                 g_s = FLT_MAX;
             }
 
-            cost = dsl->cost_fn(dsl->m, u, s, NULL) + g_s;
+            cost = dsl->cost_fn(dsl->navgrid, u, s, NULL) + g_s;
 
             if (cost < min_rhs)
                 min_rhs = cost;
@@ -632,7 +660,7 @@ void dstar_lite_update_vertex_range(dstar_lite_t* dsl,
         return;
     }    
 
-    coord_list_t* neighbors = navgrid_copy_adjacent_all_range(dsl->m, 
+    coord_list_t* neighbors = navgrid_copy_neighbors_all_range(dsl->navgrid, 
         s->x, s->y, max_range);
 
     int len = coord_list_length(neighbors);
@@ -665,306 +693,189 @@ void dstar_lite_update_vertex_by_route(dstar_lite_t* dsl, const route_t* p) {
 void dstar_lite_compute_shortest_route(dstar_lite_t* dsl) {
     if (!dsl) return;
 
-    coord_t* u = NULL;
-
-    float* g_u_ptr = NULL;
-    float g_u = FLT_MAX;
-    
-    float* rhs_u_ptr = NULL;
-    float rhs_u = FLT_MAX;
-
-    dstar_lite_key_t* calc_key = NULL;
-
-    coord_list_t* predecessors_u = NULL;
-
-    float g_old = FLT_MAX;
-
-    float cost_s_u = FLT_MAX;
-    float* rhs_s_ptr = NULL;
-    float rhs_s = FLT_MAX;
-
-    float min = FLT_MAX;   
-
-    float min_old = FLT_MAX;
-    float cost_s_s_prime = FLT_MAX;
-    
-    float* g_s_prime_ptr = NULL;
-    float g_s_prime = FLT_MAX;    
-
-    coord_list_t* successors_s = NULL;
-
-    float g_start = FLT_MAX;
-    float rhs_start = FLT_MAX;
-    float* g_start_ptr = NULL;
-    float* rhs_start_ptr = NULL;
-
     int loop = 0;
 
-    dstar_lite_key_t* calc_key_start = NULL;
-    dstar_lite_key_t* k_old = NULL;
-    dstar_lite_key_t* top_key = dstar_lite_pqueue_top_key(dsl->frontier);
-    do {
-        loop++;
+    while (loop < dsl->max_retry) {
+        ++loop;
 
-        if (k_old) {
-            dstar_lite_key_destroy(k_old);
-            k_old = NULL;
-        }
-        k_old = dstar_lite_key_copy(top_key);
-        u = dstar_lite_pqueue_pop(dsl->frontier);
-        if (!u) {
-            // dstar_lite_key_destroy(k_old);
+        coord_t* u = dstar_lite_pqueue_pop(dsl->frontier);
+        if (!u) break;
+
+        float* g_u_ptr = (float*)coord_hash_get(dsl->g_table, u);
+        float g_u = g_u_ptr ? *g_u_ptr : FLT_MAX;
+
+        float* rhs_u_ptr = (float*)coord_hash_get(dsl->rhs_table, u);
+        float rhs_u = rhs_u_ptr ? *rhs_u_ptr : FLT_MAX;
+
+        dstar_lite_key_t* top_key = dstar_lite_calc_key(dsl, u);
+        dstar_lite_key_t* start_key = dstar_lite_calc_key(dsl, &dsl->start);
+
+        float* g_start_ptr = (float*)coord_hash_get(dsl->g_table, &dsl->start);
+        float g_start = g_start_ptr ? *g_start_ptr : FLT_MAX;
+
+        float* rhs_start_ptr = (float*)coord_hash_get(dsl->rhs_table, &dsl->start);
+        float rhs_start = rhs_start_ptr ? *rhs_start_ptr : FLT_MAX;
+
+        if (dstar_lite_key_compare(top_key, start_key) >= 0 &&
+            float_equal(rhs_start, g_start)) {
+            dstar_lite_key_destroy(top_key);
+            dstar_lite_key_destroy(start_key);
+            coord_destroy(u);
             break;
         }
 
-        g_u_ptr = (float*) coord_hash_get(dsl->g_table, u);
-        if (g_u_ptr) {
-            g_u = *(float*)g_u_ptr;
-        } else {
-            g_u = FLT_MAX;
-        }
+        dstar_lite_key_destroy(start_key);
 
-        rhs_u_ptr = (float*) coord_hash_get(dsl->rhs_table, u);
-        if (rhs_u_ptr) {
-            rhs_u = *rhs_u_ptr;
-        } else {
-            rhs_u = FLT_MAX;
-        }
-
-        if(calc_key) {
-            dstar_lite_key_destroy(calc_key);
-            calc_key = NULL;
-        }
-        calc_key = dstar_lite_calc_key(dsl, u);
-        if (dstar_lite_key_compare(k_old, calc_key) < 0) {
-            dstar_lite_pqueue_push(dsl->frontier, calc_key, u);
-        } else if ( g_u > rhs_u) {
-            // g_u = rhs_u;
+        if (g_u > rhs_u) {
+            // Case 1: g(u) > rhs(u) -> g(u) <- rhs(u)
+            float * rhs_u_ptr = new float{rhs_u};
+            coord_hash_replace(dsl->g_table, u, rhs_u_ptr);
+            delete rhs_u_ptr;
             
-            float* new_g = new float();
-            *new_g = rhs_u;
-            coord_hash_replace(dsl->g_table, u, new_g);
-            delete new_g;
-
-            // for s in predecessors(u):
-            //     update_vertex(s)
-            predecessors_u = navgrid_copy_adjacent_all(
-                dsl->m, u->x, u->y);
-
-            int len = coord_list_length(predecessors_u);
-            for (int i=0; i<len; i++){
-                const coord_t* s = coord_list_get(predecessors_u, i);
+            coord_list_t* preds = navgrid_copy_neighbors_all(dsl->navgrid, u->x, u->y);
+            for (int i = 0; i < coord_list_length(preds); ++i) {
+                const coord_t* s = coord_list_get(preds, i);
                 dstar_lite_update_vertex(dsl, s);
             }
-
-            coord_list_destroy(predecessors_u);
+            coord_list_destroy(preds);
         } else {
-            float* g_old_ptr = (float*) coord_hash_get(dsl->g_table, u);
-            if (g_old_ptr) {
-                g_old = *g_old_ptr;
-            } else {
-                g_old = FLT_MAX;
-            }
+            // Case 2: g(u) <= rhs(u) -> g(u) <- INF, rhs(preds)
+            float* inf_ptr = new float{FLT_MAX};
+            coord_hash_replace(dsl->g_table, u, inf_ptr);
+            delete inf_ptr;
 
-            float* new_g = new float();
-            *new_g = FLT_MAX;
-            coord_hash_replace(dsl->g_table, u, new_g);
-            delete new_g;
+            coord_list_t* preds = navgrid_copy_neighbors_all(dsl->navgrid, u->x, u->y);
+            coord_list_push_back(preds, u); // preds U {u}
 
-            // for s in predecessors(u) | {u}:            
-            predecessors_u = navgrid_copy_adjacent_all(
-                dsl->m, u->x, u->y);
-            coord_list_push_back(predecessors_u, u);
+            for (int i = 0; i < coord_list_length(preds); ++i) {
+                const coord_t* s = coord_list_get(preds, i);
 
-            int len = coord_list_length(predecessors_u);
-            for (int i=0; i<len; i++){
-                const coord_t* s = coord_list_get(predecessors_u, i);
+                float* rhs_s_ptr = (float*)coord_hash_get(dsl->rhs_table, s);
+                float rhs_s = rhs_s_ptr ? *rhs_s_ptr : FLT_MAX;
 
-                cost_s_u = dsl->cost_fn(dsl->m, s, u, NULL);
+                float cost = dsl->cost_fn(dsl->navgrid, s, u, NULL);
 
-                rhs_s_ptr = (float*) coord_hash_get(dsl->rhs_table, s);
-                if (rhs_s_ptr) {
-                    rhs_s = *rhs_s_ptr;
-                } else {
-                    rhs_s = FLT_MAX;
-                }
-
-                if (float_equal(rhs_s, cost_s_u + g_old)) {
-                    if (!coord_equal(s, dsl->goal)) {
-
-                        successors_s = navgrid_copy_adjacent_all(
-                            dsl->m, s->x, s->y);
-                        
-                        int len = coord_list_length(successors_s);
-                        for (int i=0; i<len; i++){
-                            const coord_t* s_prime = coord_list_get(successors_s, i);
-
-                            cost_s_s_prime = dsl->cost_fn(dsl->m, s, s_prime, NULL);
-                            g_s_prime_ptr = (float*) coord_hash_get(
-                                dsl->g_table, s_prime);
-
-                            if ( g_s_prime_ptr ) {
-                                g_s_prime = *g_s_prime_ptr;
-                            } else {
-                                g_s_prime = FLT_MAX;
-                            }
-
-                            min = fminf(min, cost_s_s_prime + g_s_prime);
-
-                            float* min_ptr = new float(1.0);
-                            *min_ptr = min;
-                            coord_hash_replace(dsl->rhs_table, s, min_ptr);
-                            delete min_ptr;
+                if (float_equal(rhs_s, cost + g_u)) {
+                    if (!coord_equal(s, &dsl->goal)) {
+                        float min_rhs = FLT_MAX;
+                        coord_list_t* succs = navgrid_copy_neighbors_all(dsl->navgrid, s->x, s->y);
+                        for (int j = 0; j < coord_list_length(succs); ++j) {
+                            const coord_t* s2 = coord_list_get(succs, j);
+                            float* g_s2_ptr = (float*)coord_hash_get(dsl->g_table, s2);
+                            float g_s2 = g_s2_ptr ? *g_s2_ptr : FLT_MAX;
+                            float c = dsl->cost_fn(dsl->navgrid, s, s2, NULL);
+                            min_rhs = fminf(min_rhs, c + g_s2);
                         }
-                        coord_list_destroy(successors_s);
+                        coord_list_destroy(succs);
+                        float* min_rhs_ptr = new float{min_rhs};
+                        coord_hash_replace(dsl->rhs_table, s, min_rhs_ptr);
+                        delete min_rhs_ptr;
                     }
                     dstar_lite_update_vertex(dsl, s);
                 }
             }
-            coord_list_destroy(predecessors_u);
+
+            coord_list_destroy(preds);
         }
+
+        dstar_lite_key_destroy(top_key);
         coord_destroy(u);
-
-        if (top_key) dstar_lite_key_destroy(top_key);
-        top_key = dstar_lite_pqueue_top_key(dsl->frontier);
-        if (!top_key) break;
-
-        if (calc_key_start) {
-            dstar_lite_key_destroy(calc_key_start);
-            calc_key_start = NULL;
-        }
-        calc_key_start = dstar_lite_calc_key(dsl, dsl->start);
-                    
-        g_start_ptr = (float*)coord_hash_get(dsl->g_table, dsl->start);
-        if ( g_start_ptr ) {
-            g_start = *g_start_ptr;
-        } else {
-            g_start = FLT_MAX;
-        }
-
-        rhs_start_ptr = (float*)coord_hash_get(
-            dsl->rhs_table, dsl->start);
-
-        if ( rhs_start_ptr ) {
-            rhs_start = *rhs_start_ptr;
-        } else {
-            rhs_start = FLT_MAX;
-        }
-
-    } while ((loop < dsl->max_retry) && 
-        ( (dstar_lite_key_compare(top_key, calc_key_start) < 0) || 
-            (!float_equal(rhs_start, g_start) ) ) );
-
-    if (calc_key_start) {
-        dstar_lite_key_destroy(calc_key_start);
-        calc_key_start = NULL;
-    }            
-    if (k_old) {
-        dstar_lite_key_destroy(k_old);
-        k_old = NULL;
     }
-    if(calc_key) {
-        dstar_lite_key_destroy(calc_key);
-        calc_key = NULL;
-    }
-    if(top_key) dstar_lite_key_destroy(top_key);
 
-    // if dsl->proto_route == NULL
-    if (dsl->proto_route == NULL) {
+    if (dsl->proto_route == NULL)
         dsl->proto_compute_retry_count = loop;
-    } else {
+    else
         dsl->real_compute_retry_count = loop;
-    }
 }
 
-route_t* dstar_lite_reconstruct_route(dstar_lite_t* dsl) {
-    if (!dsl) return NULL;
+bool dstar_lite_reconstruct_route(dstar_lite_t* dsl) {
+    if (!dsl) return false;
 
-    route_t* p = route_create();
-    route_add_coord(p, dsl->start);    
+    // route_t* p = route_create();
+    route_t* p = dsl->proto_route;
+    route_add_coord(p, &dsl->start);    
 
-    float* g_start_ptr = (float*) coord_hash_get(dsl->g_table, dsl->start);
+    float* g_start_ptr = (float*) coord_hash_get(dsl->g_table, &dsl->start);
     if (!g_start_ptr || float_equal(*g_start_ptr, FLT_MAX)) {
         if (dsl->debug_mode_enabled) {
             // p->visited_count = coord_hash_copy(dsl->update_count_table);
             p->total_retry_count = dstar_lite_proto_compute_retry_count(dsl);
         }
-        return p;
+        return false;
     }
 
-    coord_t* current = coord_copy(dsl->start);
+    coord_t current = dsl->start;
     // coord_t* current = start;
 
     int loop = 0;
-    while (!coord_equal(current, dsl->goal) && 
+    while (!coord_equal(&current, &dsl->goal) && 
         (loop < dsl->reconstruct_max_retry)) {
 
         loop++;
 
-        coord_list_t* neighbors = navgrid_copy_adjacent_all(
-            dsl->m, current->x, current->y);
+        coord_list_t* neighbors = navgrid_copy_neighbors_all(
+            dsl->navgrid, current.x, current.y);
 
         int len = coord_list_length(neighbors);
 
         float min_cost = FLT_MAX;
-        coord_t* next = NULL;
+        coord_t next = dsl->start;
 
         for (int i=0; i<len; i++){
-            const coord_t* s = coord_list_get(neighbors, i);
+            coord_t s = *coord_list_get(neighbors, i);
 
-            float cost_current_s = dsl->cost_fn(dsl->m, current, s, NULL);
-            float* g_s_ptr = (float*) coord_hash_get(dsl->g_table, s);
+            float cost_current_s = dsl->cost_fn(dsl->navgrid, &current, &s, NULL);
+            float* g_s_ptr = (float*) coord_hash_get(dsl->g_table, &s);
             float g_s = (g_s_ptr) ? *g_s_ptr : FLT_MAX;
 
             float total_cost = cost_current_s + g_s;
             if (total_cost < min_cost) {
                 min_cost = total_cost;
                 
-                if (next) coord_destroy(next);
-                next = coord_copy(s);
+                next = s;
                 // next = s;
             }
         }
         coord_list_destroy(neighbors);
 
-        if (!next) {
-            coord_destroy(current);
+        if (coord_equal(&next, &dsl->start)) {
+            // coord_destroy(current);
             // route_destroy(p);
             route_set_success(p, false);
             if (dsl->debug_mode_enabled){
                 // p->visited_count = coord_hash_copy(dsl->update_count_table);
     p->total_retry_count = dstar_lite_proto_compute_retry_count(dsl);                
             }
-            return p;
+            return false;
         }
 
-        float* g_next_ptr = (float*) coord_hash_get(dsl->g_table, next);
+        float* g_next_ptr = (float*) coord_hash_get(dsl->g_table, &next);
         if (!g_next_ptr || float_equal(*g_next_ptr, FLT_MAX)) {
-            coord_destroy(current);
-            coord_destroy(next);
+            // coord_destroy(current);
+            // coord_destroy(next);
             // route_destroy(p);
             route_set_success(p, false);
             if (dsl->debug_mode_enabled){
                 // p->visited_count = coord_hash_copy(dsl->update_count_table);  
 p->total_retry_count = dstar_lite_proto_compute_retry_count(dsl);                
             }          
-            return p;
+            return false;
         }
 
-        route_add_coord(p, next);
-        coord_destroy(current);
+        route_add_coord(p, &next);
+        // coord_destroy(current);
         current = next;
     }
 
     dsl->reconstruct_retry_count = loop;
 
-    coord_destroy(current);
+    // coord_destroy(current);
     route_set_success(p, true);    
     if (dsl->debug_mode_enabled){
         // p->visited_count = coord_hash_copy(dsl->update_count_table);    
 p->total_retry_count = dstar_lite_proto_compute_retry_count(dsl);        
     }
-    return p;
+    return true;
 }
 
 route_t* dstar_lite_find(dstar_lite_t* dsl) {
@@ -973,7 +884,8 @@ route_t* dstar_lite_find(dstar_lite_t* dsl) {
     dstar_lite_reset(dsl);
 
     dstar_lite_compute_shortest_route(dsl);
-    return dstar_lite_reconstruct_route(dsl);
+    bool result = dstar_lite_reconstruct_route(dsl);
+    return route_copy(dsl->proto_route);
 }
 
 void dstar_lite_find_full(dstar_lite_t* dsl) {
@@ -982,153 +894,79 @@ void dstar_lite_find_full(dstar_lite_t* dsl) {
     dstar_lite_find_loop(dsl);
 }
 
-void dstar_lite_find_proto(dstar_lite_t* dsl) {
-    if (!dsl) return;
-    // dstar_lite_reset(dsl);
-    dsl->proto_route = dstar_lite_find(dsl);
+bool dstar_lite_find_proto(dstar_lite_t* dsl) {
+    if (!dsl) return false;
+
+    dstar_lite_reset(dsl);
+
+    dstar_lite_compute_shortest_route(dsl);
+    return dstar_lite_reconstruct_route(dsl);
 }
- 
+
 void dstar_lite_find_loop(dstar_lite_t* dsl) {
     if (!dsl) return;
 
-    // if (!dsl->proto_route) dstar_lite_find_proto(dsl);
-
-    coord_t* s_last = coord_copy(dsl->start);
-    coord_t* start = coord_copy(dsl->start);
+    coord_t s_last = dsl->start;
+    coord_t current = dsl->start;
+    coord_t next = {0};
 
     dsl->real_route = route_create();
-    route_add_coord(dsl->real_route, start);
+    route_add_coord(dsl->real_route, &current);
 
-    float* rhs_start_ptr = NULL;
-    float rhs_start = FLT_MAX;
-
-    coord_list_t* successors_start = NULL;
-    coord_list_t* l = NULL;
-
-    float min_cost = FLT_MAX;
-    coord_t* next = NULL;
-
-    coord_t* s = NULL;
-    float* g_s_ptr = NULL;
-    float g_s = FLT_MAX;
-    float cost_start_s = FLT_MAX;
-    float total_cost = FLT_MAX;
-
-    coord_list_t* changed_coords = NULL;
-
-    int loop = 0;
-    while (!coord_equal(start, dsl->goal) && 
-        (loop < dsl->real_loop_max_retry) && !dsl->force_quit) {
-
-        loop++;
-
-        rhs_start_ptr = (float*) coord_hash_get(dsl->rhs_table, dsl->start);
-        if (rhs_start_ptr) {
-            rhs_start = *rhs_start_ptr;
-        } else {
-            rhs_start = FLT_MAX;
-        }
-
-        if (float_equal(rhs_start, FLT_MAX)) {
-            route_set_success(dsl->real_route, false);
+    for (int loop = 0; loop < dsl->real_loop_max_retry && !dsl->force_quit; ++loop) {
+        if (coord_equal(&current, &dsl->goal)) {
+            route_set_success(dsl->real_route, true);
             dsl->real_loop_retry_count = loop;
-            dsl->force_quit = false;
             return;
         }
-        
-        min_cost = FLT_MAX;
-        successors_start = navgrid_copy_adjacent_all(
-            dsl->m, start->x, start->y);
 
-        int len = coord_list_length(successors_start);
-        for (int i=0; i<len; i++){
-            const coord_t* s = coord_list_get(successors_start, i);
-
-            g_s_ptr = (float*)coord_hash_get(dsl->g_table, s);
-            g_s = (g_s_ptr) ? *g_s_ptr : FLT_MAX;
-            cost_start_s = dsl->cost_fn(dsl->m, start, s, NULL);
-            total_cost = cost_start_s + g_s;
-
-            if (total_cost < min_cost) {
-                min_cost = total_cost;
-
-                // next = s;
-                if (next) coord_destroy(next);
-                next = coord_copy(s);
-            }
-        }
-        coord_list_destroy(successors_start);
-
-        if (!next) {
+        float* rhs_ptr = (float*)coord_hash_get(dsl->rhs_table, &current);
+        float rhs_val = rhs_ptr ? *rhs_ptr : FLT_MAX;
+        if (float_equal(rhs_val, FLT_MAX)) {
             route_set_success(dsl->real_route, false);
             dsl->real_loop_retry_count = loop;
-            dsl->force_quit = false;
             return;
         }
-        route_add_coord(dsl->real_route, next);
 
-        if (dsl->force_quit) break;
+        bool found = dstar_lite_fetch_next(dsl, &current, &next);
 
-        if (dsl->move_fn) dsl->move_fn(next,
-            dsl->move_fn_userdata);            
+        if (!found || coord_equal(&next, &current)) {
+            route_set_success(dsl->real_route, false);
+            dsl->real_loop_retry_count = loop;
+            return;
+        }
 
-        if (dsl->interval_msec <= 0)
+        route_add_coord(dsl->real_route, &next);
+
+        if (dsl->move_fn)
+            dsl->move_fn(&next, dsl->move_fn_userdata);
+
+        if (dsl->interval_sec <= 0.0f)
             std::this_thread::yield();
         else
-            std::this_thread::sleep_for(
-                std::chrono::milliseconds(dsl->interval_msec));            
-
-        if (dsl->force_quit) break;
-
-
-        if(start) coord_destroy(start);
-        start = coord_copy(next);
+            std::this_thread::sleep_for(std::chrono::duration<float>(dsl->interval_sec));
 
         if (dsl->changed_coords_fn) {
-            changed_coords = dsl->changed_coords_fn(
-                dsl->changed_coords_fn_userdata);
+            coord_list_t* changed = dsl->changed_coords_fn(dsl->changed_coords_fn_userdata);
+            if (changed && coord_list_length(changed) > 0) {
+                dsl->km += dsl->heuristic_fn(&s_last, &next, NULL);
+                s_last = next;
 
-            if (changed_coords) {
-                dsl->km += dsl->heuristic_fn(s_last, start, NULL);
-
-                if (s_last) coord_destroy(s_last);
-                s_last = coord_copy(start);
-
-                // for u in changed_coords:
-                    // update_vertex(u)
-                int len = coord_list_length(changed_coords);
-                for (int i=0; i<len; i++){
-                    const coord_t* s = coord_list_get(changed_coords, i);
-                    dstar_lite_update_vertex(dsl, s);
+                for (int i = 0; i < coord_list_length(changed); ++i) {
+                    const coord_t* c = coord_list_get(changed, i);
+                    dstar_lite_update_vertex(dsl, c);
                 }
-            }
-            // if (changed_coords) {
-            //     g_list_destroy_full(changed_coords, (GDestroyNotify)coord_destroy);
-            // }
-            dstar_lite_compute_shortest_route(dsl);
-        }
-        loop++;
-    }
-    dsl->force_quit = false;
-    if (start) coord_destroy(start);
-    if (next) coord_destroy(next);
 
-    if (loop >= dsl->real_loop_max_retry) {
-        if (s_last) {
-            if (!coord_equal(s_last, dsl->goal)) {
-                route_set_success(dsl->real_route, false);
-                dsl->real_loop_retry_count = loop;
-                coord_destroy(s_last);
-                    dsl->force_quit = false;
-                return;
+                coord_list_destroy(changed);
+                dstar_lite_compute_shortest_route(dsl);
             }
         }
+
+        current = next;
     }
-    route_set_success(dsl->real_route, true);
-    dsl->real_loop_retry_count = loop;
-    if (s_last) coord_destroy(s_last);    
-        dsl->force_quit = false;
-    return;    
+
+    route_set_success(dsl->real_route, false);
+    dsl->real_loop_retry_count = dsl->real_loop_max_retry;
 }
 
 void dstar_lite_force_quit(dstar_lite_t* dsl) {
@@ -1142,4 +980,3 @@ bool dstar_lite_is_quit_forced(dstar_lite_t* dsl) {
 void dstar_lite_set_force_quit(dstar_lite_t* dsl, bool v) {
     dsl->force_quit = v;
 }
-

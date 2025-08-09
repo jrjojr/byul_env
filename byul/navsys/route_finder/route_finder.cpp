@@ -50,22 +50,36 @@ const char* get_route_finder_name(route_finder_type_t pa) {
     }
 }
 
-route_finder_t* route_finder_create_full(navgrid_t* navgrid, 
-    route_finder_type_t type, 
-    const coord_t* start, const coord_t* goal,
-    cost_func cost_fn, heuristic_func heuristic_fn,
-    int max_retry, bool debug_mode_enabled, void* userdata) {
+route_finder_t* route_finder_create_full(
+    navgrid_t* navgrid, 
+    const coord_t* start, 
+    const coord_t* goal,
+    route_finder_type_t type,     
+    void* typedata,
+    int max_retry, 
+    bool debug_mode_enabled,
+    cost_func cost_fn,
+    void* cost_fn_userdata,
 
-    route_finder_t* a = new route_finder_t;
-    a->type = type;
+    heuristic_func heuristic_fn,
+    void* heuristic_fn_userdata    
+) {
+
+    route_finder_t* a = new route_finder_t{};
+
     a->navgrid = navgrid;
     a->start = *start;
     a->goal = *goal;
-    a->cost_fn = cost_fn;
-    a->heuristic_fn = heuristic_fn;
+    a->type = type;
+    a->typedata = typedata;    
     a->max_retry = max_retry;
     a->debug_mode_enabled = debug_mode_enabled;
-    a->userdata = userdata;
+
+    a->cost_fn = cost_fn;
+    a->cost_fn_userdata = cost_fn_userdata;
+
+    a->heuristic_fn = heuristic_fn;
+    a->heuristic_fn_userdata = heuristic_fn_userdata;
     return a;
 }
 
@@ -73,8 +87,12 @@ route_finder_t* route_finder_create(navgrid_t* navgrid) {
     coord_t start;
     start.x = 0;
     start.y = 0;
-    return route_finder_create_full(navgrid, ROUTE_FINDER_ASTAR, &start, &start, 
-        default_cost, euclidean_heuristic, MAX_RETRY, false, nullptr);
+    return route_finder_create_full(
+        navgrid, &start, &start, 
+        ROUTE_FINDER_ASTAR, nullptr,
+        MAX_RETRY, false, 
+        default_cost, nullptr,
+        euclidean_heuristic, nullptr);
 }
 
 int route_finder_init(route_finder_t* out, navgrid_t* navgrid){
@@ -85,12 +103,21 @@ int route_finder_init(route_finder_t* out, navgrid_t* navgrid){
     return 0;
 }
 
-int  route_finder_init_full(route_finder_t* out, 
+int  route_finder_init_full(
+    route_finder_t* out, 
     navgrid_t* navgrid, 
-    route_finder_type_t type, 
-    const coord_t* start, const coord_t* goal,
-    cost_func cost_fn, heuristic_func heuristic_fn,
-    int max_retry, bool debug_mode_enabled, void* userdata){
+    const coord_t* start, 
+    const coord_t* goal,
+    route_finder_type_t type,     
+    void* typedata,
+    int max_retry, 
+    bool debug_mode_enabled,
+    cost_func cost_fn,
+    void* cost_fn_userdata,
+
+    heuristic_func heuristic_fn,
+    void* heuristic_fn_userdata        
+){
 
     if(!out || !navgrid) return -1;
     
@@ -102,7 +129,7 @@ int  route_finder_init_full(route_finder_t* out,
     out->heuristic_fn = heuristic_fn;
     out->max_retry = max_retry;
     out->debug_mode_enabled = debug_mode_enabled;
-    out->userdata = userdata;
+    out->typedata = typedata;
 
     return 0;
 }
@@ -125,14 +152,17 @@ route_finder_t* route_finder_copy(const route_finder_t* src) {
     if (!src) return nullptr;
     return route_finder_create_full(
         src->navgrid,
-        src->type,
         &src->start,
         &src->goal,
-        src->cost_fn,
-        src->heuristic_fn,
+        src->type,
+        src->typedata,
         src->max_retry,
         src->debug_mode_enabled,
-        src->userdata
+        src->cost_fn,
+        src->cost_fn_userdata,
+
+        src->heuristic_fn,
+        src->heuristic_fn_userdata
     );
 }
 
@@ -159,15 +189,15 @@ void route_finder_print(const route_finder_t* a) {
     }
 
     printf("route_finder_t {\n");
-    printf("  type:        %s\n", get_route_finder_name(a->type));
     printf("  navgrid:         %p\n", (void*)a->navgrid);
     printf("  start:       (%d, %d)\n", a->start.x, a->start.y);
     printf("  goal:        (%d, %d)\n", a->goal.x, a->goal.y);
-    printf("  cost_fn:     %p\n", (void*)a->cost_fn);
-    printf("  heuristic_fn:%p\n", (void*)a->heuristic_fn);
+    printf("  type:        %s\n", get_route_finder_name(a->type));
+    printf("  typedata:    %p\n", a->typedata);
     printf("  max_retry:   %d\n", a->max_retry);
     printf("  logging:     %s\n", a->debug_mode_enabled ? "true" : "false");
-    printf("  userdata:    %p\n", a->userdata);
+    printf("  cost_fn:     %p\n", (void*)a->cost_fn);
+    printf("  heuristic_fn:%p\n", (void*)a->heuristic_fn);    
     printf("}\n");
 }
 
@@ -197,20 +227,28 @@ int route_finder_fetch_goal(const route_finder_t* a, coord_t* out) {
     return 0;
 }
 
-void route_finder_set_userdata(route_finder_t* a, void* userdata){
-    a->userdata = userdata;
-}
-
-void* route_finder_get_userdata(const route_finder_t* a){
-    return a->userdata;
-}
-
 void route_finder_set_type(route_finder_t* a, route_finder_type_t type){
     a->type = type;
 }
 
 route_finder_type_t route_finder_get_type(const route_finder_t* a){
     return a->type;
+}
+
+void route_finder_set_typedata(route_finder_t* a, void* typedata){
+    a->typedata = typedata;
+}
+
+void* route_finder_get_typedata(const route_finder_t* a){
+    return a->typedata;
+}
+
+void route_finder_set_max_retry(route_finder_t* a, int max_retry){
+    a->max_retry;
+}
+
+int route_finder_get_max_retry(route_finder_t* a){
+    return a->max_retry;
 }
 
 void route_finder_enable_debug_mode(route_finder_t* a, bool is_logging){
@@ -229,6 +267,14 @@ cost_func route_finder_get_cost_func(route_finder_t* a){
     return a->cost_fn;
 }
 
+void route_finder_set_cost_fn_userdata(route_finder_t* a, void* userdata){
+    a->cost_fn_userdata = userdata;
+}
+
+void* route_finder_get_cost_fn_userdata(const route_finder_t* a){
+    return a->cost_fn_userdata;
+}
+
 void route_finder_set_heuristic_func(
     route_finder_t* a, heuristic_func heuristic_fn){
     a->heuristic_fn = heuristic_fn;
@@ -238,12 +284,12 @@ heuristic_func route_finder_get_heuristic_func(route_finder_t* a){
     return a->heuristic_fn;
 }
 
-void route_finder_set_max_retry(route_finder_t* a, int max_retry){
-    a->max_retry;
+void route_finder_set_heuristic_fn_userdata(route_finder_t* a, void* userdata){
+    a->heuristic_fn_userdata = userdata;
 }
 
-int route_finder_get_max_retry(route_finder_t* a){
-    return a->max_retry;
+void* route_finder_get_heuristic_fn_userdata(const route_finder_t* a){
+    return a->heuristic_fn_userdata;
 }
 
 static route_t* route_finder_run_astar(route_finder_t* a){
@@ -269,8 +315,8 @@ static route_t* route_finder_run_dijkstra(route_finder_t* a){
 static route_t* route_finder_run_fringe_search(route_finder_t* a) {
     float delta_epsilon = 0.3f;
 
-    if (a->userdata) {
-        float v = *(float*)a->userdata;
+    if (a->typedata) {
+        float v = *(float*)a->typedata;
         if (v >= 0.001f && v <= 5.0f) {
             delta_epsilon = v;
         }
@@ -298,8 +344,8 @@ static route_t* route_finder_run_ida_star(route_finder_t* a){
 static route_t* route_finder_run_rta_star(route_finder_t* a) {
     int depth_limit = 5;
 
-    if (a->userdata) {
-        int v = *(int*)a->userdata;
+    if (a->typedata) {
+        int v = *(int*)a->typedata;
         if (v >= 1 && v <= 100) {
             depth_limit = v;
         }
@@ -315,8 +361,8 @@ static route_t* route_finder_run_sma_star(route_finder_t* a) {
 
     int memory_limit = 0;
 
-    if (a->userdata) {
-        int val = *(int*)a->userdata;
+    if (a->typedata) {
+        int val = *(int*)a->typedata;
 
         if (val >= 10 && val <= 1000000) {
             memory_limit = val;
@@ -341,8 +387,8 @@ static route_t* route_finder_run_sma_star(route_finder_t* a) {
 static route_t* route_finder_run_weighted_astar(route_finder_t* a) {
     float weight = 1.5f;
 
-    if (a->userdata) {
-        float v = *(float*)a->userdata;
+    if (a->typedata) {
+        float v = *(float*)a->typedata;
         if (v >= 0.1f && v <= 10.0f) {
             weight = v;
         }

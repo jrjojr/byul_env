@@ -63,7 +63,7 @@ TEST_CASE("projectile_predict - ground collision") {
     trajectory_print(result->trajectory);
     char buf[64];
     printf("impact time : %f, impact pos : %s\n", result->impact_time, 
-        vec3_to_string(&result->impact_pos, buf, 64));    
+        vec3_to_string(&result->impact_pos, 64, buf));    
     projectile_result_destroy(result);
 }
 
@@ -81,8 +81,8 @@ TEST_CASE("projectile_predict - static target hit") {
     bool hit = projectile_predict(result, 
                                     &proj,
                                   &target,
-                                  50.0f,
-                                  2.0f,
+                                  150.0f,
+                                  1.0f,
                                   nullptr,
                                   nullptr,
                                 guidance_point);
@@ -98,7 +98,7 @@ TEST_CASE("projectile_predict - static target hit") {
     trajectory_print(result->trajectory);
     char buf[64];
     printf("impact time : %f, impact pos : %s\n", result->impact_time, 
-        vec3_to_string(&result->impact_pos, buf, 64));    
+        vec3_to_string(&result->impact_pos, 64, buf));    
 
     projectile_result_destroy(result);
 }
@@ -129,7 +129,7 @@ TEST_CASE("projectile_predict - moving target with lead guidance") {
 
     char buf[64];
     printf("impact time : %f, impact pos : %s\n", result->impact_time, 
-        vec3_to_string(&result->impact_pos, buf, 64));        
+        vec3_to_string(&result->impact_pos, 64, buf));        
 
     projectile_result_destroy(result);
 }
@@ -150,7 +150,7 @@ TEST_CASE("projectile_predict - moving target with lead guidance with propulsion
                                   &target,
                                   5.0f,
                                   0.1f,
-                                  nullptr,
+                                  NULL,
                                   &propulsion,
                                  guidance_lead
 
@@ -163,7 +163,7 @@ TEST_CASE("projectile_predict - moving target with lead guidance with propulsion
     trajectory_print(result->trajectory);
     char buf[64];
     printf("impact time : %f, impact pos : %s\n", result->impact_time, 
-        vec3_to_string(&result->impact_pos, buf, 64));        
+        vec3_to_string(&result->impact_pos, 64, buf));        
     projectile_result_destroy(result);
 }
 
@@ -193,7 +193,7 @@ TEST_CASE("projectile_predict - moving target lead vs propulsion") {
 
     char buf[64];
     printf("result_no_prop impact time : %f, impact pos : %s\n", result_no_prop->impact_time, 
-        vec3_to_string(&result_no_prop->impact_pos, buf, 64));            
+        vec3_to_string(&result_no_prop->impact_pos, 64, buf));            
     projectile_result_destroy(result_no_prop);
 
     projectile_result_t* result_prop = projectile_result_create();
@@ -224,7 +224,7 @@ TEST_CASE("projectile_predict - moving target lead vs propulsion") {
 
     printf("result_prop impact time : %f, impact pos : %s\n", 
         result_prop->impact_time, 
-        vec3_to_string(&result_prop->impact_pos, buf, 64));            
+        vec3_to_string(&result_prop->impact_pos, 64, buf));            
     projectile_result_destroy(result_prop);
 
     CHECK(impact_time_prop <= impact_time_no_prop);

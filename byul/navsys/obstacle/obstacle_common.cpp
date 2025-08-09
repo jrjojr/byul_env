@@ -82,9 +82,9 @@ void obstacle_apply_to_navgrid(const obstacle_t* obstacle, navgrid_t* navgrid) {
 
     coord_hash_iter_t* iter = coord_hash_iter_create(
         (coord_hash_t*)obstacle->blocked);
-    coord_t* key;
+    coord_t key;
     while (coord_hash_iter_next(iter, &key, NULL)) {
-        navgrid_block_coord(navgrid, key->x, key->y);
+        navgrid_block_coord(navgrid, key.x, key.y);
     }
     coord_hash_iter_destroy(iter);
 }
@@ -94,9 +94,9 @@ void obstacle_remove_from_navgrid(const obstacle_t* obstacle, navgrid_t* navgrid
 
     coord_hash_iter_t* iter = coord_hash_iter_create(
         (coord_hash_t*)obstacle->blocked);
-    coord_t* key;
+    coord_t key;
     while (coord_hash_iter_next(iter, &key, NULL)) {
-        navgrid_unblock_coord(navgrid, key->x, key->y);
+        navgrid_unblock_coord(navgrid, key.x, key.y);
     }
     coord_hash_iter_destroy(iter);
 }
@@ -167,7 +167,9 @@ coord_list_t* obstacle_clone_neighbors_all(
         int nx = x + dx[i];
         int ny = y + dy[i];
         if (!obstacle_is_inside(obs, nx, ny)) continue;
-        coord_list_push_back(list, make_tmp_coord(nx, ny));
+
+        coord_t tmp = {nx, ny};
+        coord_list_push_back(list, &tmp);
     }
     return list;
 }
@@ -295,7 +297,9 @@ coord_list_t* obstacle_clone_neighbors_at_degree_range(
 bool obstacle_is_coord_blocked(const obstacle_t* obstacle, int x, int y){
     if (!obstacle) return false;
 
-    return coord_hash_contains(obstacle->blocked, make_tmp_coord(x, y));
+    coord_t tmp = {x, y};
+
+    return coord_hash_contains(obstacle->blocked, &tmp);
 }
 
 void obstacle_block_range(obstacle_t* obs, int x, int y, int range) {

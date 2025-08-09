@@ -5,7 +5,7 @@
 #include "xform.h"
 #include "bodyprops.h"
 #include "trajectory.h"
-#include "numeq_model.h"
+#include "numeq_model_motion.h"
 
 void entity_dynamic_init(entity_dynamic_t* d)
 {
@@ -84,7 +84,7 @@ void entity_dynamic_calc_accel_env(
     state0.velocity = curr->velocity;
     state0.acceleration = accel;
 
-    numeq_model_accel_at(dt, &state0, env, &curr->props, out_accel);
+    numeq_model_accel_predict(dt, &state0, env, &curr->props, out_accel);
 }
 
 void entity_dynamic_calc_drag_accel(
@@ -235,7 +235,7 @@ void entity_dynamic_calc_position_env(
     entity_dynamic_to_motion_state(d, &state0, NULL, NULL);
 
     vec3_t a0 = {0, 0, 0};
-    numeq_model_accel(&state0.linear, env, &d->props, &a0);
+    numeq_model_motion_accel(&state0, env, &d->props, dt, &a0);
 
     // delta_p = v0 * t + 0.5 * a0 * t^2
     vec3_t term_v, term_a;
@@ -258,7 +258,7 @@ void entity_dynamic_calc_velocity_env(
     motion_state_t state0 = {};
     entity_dynamic_to_motion_state(d, &state0, nullptr, nullptr);
 
-    numeq_model_vel_at(dt, &state0.linear, env, &d->props, out_vel);
+    numeq_model_vel_predict(dt, &state0.linear, env, &d->props, out_vel);
 }
 
 void entity_dynamic_calc_state_env(

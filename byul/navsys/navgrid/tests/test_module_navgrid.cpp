@@ -36,7 +36,7 @@ TEST_CASE("navgrid neighbors filtering") {
     navgrid_block_coord(m, 3, 2);
     navgrid_block_coord(m, 2, 3);
 
-    coord_list_t* neighbors = navgrid_copy_adjacent(m, 2, 2);
+    coord_list_t* neighbors = navgrid_copy_neighbors(m, 2, 2);
     REQUIRE(neighbors);
 
     int expected = (navgrid_get_mode(m) == NAVGRID_DIR_8) ? 6 : 2;
@@ -86,7 +86,7 @@ TEST_CASE("navgrid cone neighbor range") {
     coord_t* center = coord_create_full(2, 2);
     coord_t* goal = coord_create_full(4, 2);
 
-    coord_list_t* result = navgrid_copy_adjacent_at_degree_range(
+    coord_list_t* result = navgrid_copy_neighbors_at_degree_range(
         m, center, goal, -45.0, 45.0, 1);
 
     int count = coord_list_length(result);

@@ -21,6 +21,7 @@ set(${PROJECT_NAME}_SOURCES
     ${CMAKE_CURRENT_SOURCE_DIR}/numeq/filters/numeq_kalman.cpp
 
     ${CMAKE_CURRENT_SOURCE_DIR}/numeq/numeq_model.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/numeq/numeq_model_motion.cpp
 
     ${CMAKE_CURRENT_SOURCE_DIR}/numeq/numeq_mpc.cpp
 
@@ -56,6 +57,7 @@ set(${PROJECT_NAME}_HEADERS
     ${CMAKE_CURRENT_SOURCE_DIR}/numeq/filters/numeq_kalman.h
 
     ${CMAKE_CURRENT_SOURCE_DIR}/numeq/numeq_model.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/numeq/numeq_model_motion.h
 
     ${CMAKE_CURRENT_SOURCE_DIR}/numeq/numeq_mpc.h
 

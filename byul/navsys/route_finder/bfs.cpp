@@ -16,7 +16,7 @@ route_t* find_bfs(const navgrid_t* m, const coord_t* start, const coord_t* goal,
     coord_hash_t* came_from = coord_hash_create_full(
         (coord_hash_copy_func)coord_copy, 
         (coord_hash_destroy_func) coord_destroy);
-    route_t* result = route_create_full(0.0f);
+    route_t* result = route_create();
 
     coord_list_push_back(frontier, start);
 
@@ -41,7 +41,7 @@ route_t* find_bfs(const navgrid_t* m, const coord_t* start, const coord_t* goal,
             break;
         }
 
-        coord_list_t* neighbors = navgrid_copy_adjacent(m, current.x, current.y);
+        coord_list_t* neighbors = navgrid_copy_neighbors(m, current.x, current.y);
         int len = coord_list_length(neighbors);
         for (int i = 0; i < len; ++i) {
             const coord_t* next = coord_list_get(neighbors, i);
@@ -65,7 +65,7 @@ route_t* find_bfs(const navgrid_t* m, const coord_t* start, const coord_t* goal,
         //coord_destroy(&current);
     }
 
-    if (route_reconstruct_path(result, came_from, start, final)) {
+    if (route_reconstruct(result, came_from, start, final)) {
         route_set_success(result, found);
     } else {
         route_set_success(result, false);

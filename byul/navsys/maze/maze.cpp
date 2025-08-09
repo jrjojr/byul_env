@@ -2,35 +2,61 @@
 #include <string.h>
 
 #include "maze.h"
-#include "maze_room.h"
 
-void maze_make(maze_t* maze, maze_type_t type) {
-    if (!maze) return;
+#include "maze_recursive.h"
+#include "maze_prim.h"
+#include "maze_binary.h"
+#include "maze_eller.h"
+
+#include "maze_aldous_broder.h"
+#include "maze_wilson.h"
+#include "maze_hunt_and_kill.h"
+#include "maze_sidewinder.h"
+
+#include "maze_recursive_division.h"
+#include "maze_kruskal.h"
+#include "maze_room_blend.h"
+
+maze_t* maze_make(int x0, int y0, int width, int height, maze_type_t type) {
+    maze_t* maze = nullptr;
 
     switch (type) {
         case MAZE_TYPE_RECURSIVE:
-            maze_make_recursive(maze); break;
+            maze = maze_make_recursive(x0, y0, width, height); 
+            return maze;
         case MAZE_TYPE_PRIM:
-            maze_make_prim(maze); break;
+            maze = maze_maze_prim(x0, y0, width, height); 
+            return maze;
         case MAZE_TYPE_BINARY:
-            maze_make_binary(maze); break;
+            maze = maze_make_binary(x0, y0, width, height); 
+            return maze;
         case MAZE_TYPE_ELLER:
-            maze_make_eller(maze); break;
+            maze = maze_make_eller(x0, y0, width, height); 
+            return maze;
         case MAZE_TYPE_ALDOUS_BRODER:
-            maze_make_aldous_broder(maze); break;
+            maze = maze_make_aldous_broder(x0, y0, width, height); 
+            return maze;
         case MAZE_TYPE_WILSON:
-            maze_make_wilson(maze); break;
+            maze = maze_make_wilson(x0, y0, width, height); 
+            return maze;
         case MAZE_TYPE_HUNT_AND_KILL:
-            maze_make_hunt_and_kill(maze); break;
+            maze = maze_make_hunt_and_kill(x0, y0, width, height); 
+            return maze;
         case MAZE_TYPE_SIDEWINDER:
-            maze_make_sidewinder(maze); break;
+            maze = maze_make_sidewinder(x0, y0, width, height); 
+            return maze;
         case MAZE_TYPE_RECURSIVE_DIVISION:
-            maze_make_recursive_division(maze); break;
+            maze = maze_make_recursive_division(x0, y0, width, height); 
+            return maze;            
         case MAZE_TYPE_KRUSKAL:
-            maze_make_kruskal(maze); break;
+            maze = maze_make_kruskal(x0, y0, width, height);
+            return maze;            
         case MAZE_TYPE_ROOM_BLEND:
-            maze_make_room_blend(maze); break;
+            maze = maze_make_room_blend(x0, y0, width, height);
+            return maze;                        
         default:
-            maze_make_kruskal(maze); break;
+            maze = maze_make_kruskal(x0, y0, width, height);
+            return maze;            
     }
+    return nullptr;
 }

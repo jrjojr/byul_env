@@ -5,6 +5,7 @@
 #include "coord.h"
 #include "coord_list.h"
 #include "coord_hash.h"
+#include "navcell.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -16,7 +17,8 @@ extern "C" {
  * This function determines whether a specific coordinate `(x, y)`
  * is an impassable cell for pathfinding or range operations.
  *
- * @param context External data required for coordinate checking (e.g., navgrid, map)
+ * @param context External data required for coordinate checking (
+ * e.g., navgrid, map)
  * @param x X coordinate to check
  * @param y Y coordinate to check
  * @param userdata Optional user-defined data
@@ -52,9 +54,10 @@ struct s_navgrid {
     int height;
     navgrid_dir_mode_t mode;
 
-    coord_hash_t* blocked_coords;
+    coord_hash_t* cell_map;           // coord -> navcell_t*
 
     is_coord_blocked_func is_coord_blocked_fn;
+    void* is_coord_blocked_fn_userdata;
 };
 
 typedef struct s_navgrid navgrid_t;
@@ -85,7 +88,6 @@ typedef struct s_navgrid navgrid_t;
  */
 BYUL_API navgrid_t* navgrid_create();
 
-
 /**
  * @brief Creates a new navigation grid with custom dimensions and settings.
  *
@@ -109,59 +111,65 @@ BYUL_API navgrid_t* navgrid_create_full(int width, int height,
     navgrid_dir_mode_t mode,
     is_coord_blocked_func is_coord_blocked_fn);
 
-BYUL_API void navgrid_destroy(navgrid_t* m);
+BYUL_API void navgrid_destroy(navgrid_t* navgrid);
 
 // Copy and Comparison
-BYUL_API navgrid_t* navgrid_copy(const navgrid_t* m);
-BYUL_API uint32_t navgrid_hash(const navgrid_t* m);
+BYUL_API navgrid_t* navgrid_copy(const navgrid_t* navgrid);
+BYUL_API uint32_t navgrid_hash(const navgrid_t* navgrid);
 BYUL_API bool navgrid_equal(const navgrid_t* a, const navgrid_t* b);
 
 // Property Access
-BYUL_API int navgrid_get_width(const navgrid_t* m);
-BYUL_API void navgrid_set_width(navgrid_t* m, int width);
+BYUL_API int navgrid_get_width(const navgrid_t* navgrid);
+BYUL_API void navgrid_set_width(navgrid_t* navgrid, int width);
 
-BYUL_API int navgrid_get_height(const navgrid_t* m);
-BYUL_API void navgrid_set_height(navgrid_t* m, int height);
+BYUL_API int navgrid_get_height(const navgrid_t* navgrid);
+BYUL_API void navgrid_set_height(navgrid_t* navgrid, int height);
 
 BYUL_API void navgrid_set_is_coord_blocked_func(
-    navgrid_t* m, is_coord_blocked_func fn);
+    navgrid_t* navgrid, is_coord_blocked_func fn);
 
 BYUL_API is_coord_blocked_func navgrid_get_is_coord_blocked_fn(
-    const navgrid_t* m);
+    const navgrid_t* navgrid);
 
-BYUL_API navgrid_dir_mode_t navgrid_get_mode(const navgrid_t* m);
-BYUL_API void navgrid_set_mode(navgrid_t* m);
+BYUL_API navgrid_dir_mode_t navgrid_get_mode(const navgrid_t* navgrid);
+BYUL_API void navgrid_set_mode(navgrid_t* navgrid);
 
 // Obstacle Management
-BYUL_API bool navgrid_block_coord(navgrid_t* m, int x, int y);
-BYUL_API bool navgrid_unblock_coord(navgrid_t* m, int x, int y);
-BYUL_API bool navgrid_is_inside(const navgrid_t* m, int x, int y);
-// BYUL_API bool navgrid_is_blocked(const navgrid_t* m, int x, int y);
-BYUL_API void navgrid_clear(navgrid_t* m);
+BYUL_API bool navgrid_block_coord(navgrid_t* navgrid, int x, int y);
+BYUL_API bool navgrid_unblock_coord(navgrid_t* navgrid, int x, int y);
+BYUL_API bool navgrid_is_inside(const navgrid_t* navgrid, int x, int y);
+// BYUL_API bool navgrid_is_blocked(const navgrid_t* navgrid, int x, int y);
+BYUL_API void navgrid_clear(navgrid_t* navgrid);
 
-// Get blocked coordinates
-BYUL_API const coord_hash_t* navgrid_get_blocked_coords(const navgrid_t* m);
+// Cell Map Access
+BYUL_API bool navgrid_set_cell(
+    navgrid_t* navgrid, int x, int y, const navcell_t* cell);
+
+BYUL_API int navgrid_fetch_cell(
+    const navgrid_t* navgrid, int x, int y, navcell_t* out);
+
+BYUL_API const coord_hash_t* navgrid_get_cell_map(const navgrid_t* navgrid);
 
 // Neighbor Search
-BYUL_API coord_list_t* navgrid_copy_adjacent(
-    const navgrid_t* m, int x, int y);
+BYUL_API coord_list_t* navgrid_copy_neighbors(
+    const navgrid_t* navgrid, int x, int y);
 
-BYUL_API coord_list_t* navgrid_copy_adjacent_all(
-    const navgrid_t* m, int x, int y);
+BYUL_API coord_list_t* navgrid_copy_neighbors_all(
+    const navgrid_t* navgrid, int x, int y);
 
 // If max_range is 0, 
-// it behaves the same as navgrid_copy_adjacent_all (only checks neighbors)
-BYUL_API coord_list_t* navgrid_copy_adjacent_all_range(
-    navgrid_t* m, int x, int y, int range);
+// it behaves the same as navgrid_copy_neighbors_all (only checks neighbors)
+BYUL_API coord_list_t* navgrid_copy_neighbors_all_range(
+    navgrid_t* navgrid, int x, int y, int range);
 
-BYUL_API coord_t* navgrid_copy_neighbor_at_degree(const navgrid_t* m, 
+BYUL_API coord_t* navgrid_copy_neighbor_at_degree(const navgrid_t* navgrid, 
     int x, int y, double degree);
     
-BYUL_API coord_t* navgrid_copy_neighbor_at_goal(const navgrid_t* m, 
+BYUL_API coord_t* navgrid_copy_neighbor_at_goal(const navgrid_t* navgrid, 
     const coord_t* center, const coord_t* goal);
 
-BYUL_API coord_list_t* navgrid_copy_adjacent_at_degree_range(
-    const navgrid_t* m,
+BYUL_API coord_list_t* navgrid_copy_neighbors_at_degree_range(
+    const navgrid_t* navgrid,
     const coord_t* center, const coord_t* goal,
     double start_deg, double end_deg,
     int range);

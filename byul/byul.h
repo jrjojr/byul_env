@@ -13,6 +13,7 @@
 #include "balix.h"
 #include "entity.h"
 #include "projectile.h"
+#include "byul_tick.h"
 
 #ifdef __cplusplus
 extern "C" {

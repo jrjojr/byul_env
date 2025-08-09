@@ -1,4 +1,4 @@
-#include "maze.h"
+#include "maze_eller.h"
 #include "obstacle.h"
 #include <vector>
 #include <map>
@@ -8,14 +8,15 @@
 static const int WALL = 1;
 static const int PASSAGE = 0;
 
-void maze_make_eller(maze_t* maze) {
-    if (!maze || maze->width < 3 || maze->height < 3) return;
-    if (maze->width % 2 == 0 || maze->height % 2 == 0) return;
+maze_t* maze_make_eller(int x0, int y0, int width, int height)
+{
+    if (width < 3 || height < 3) return nullptr;
+    if (width % 2 == 0 || height % 2 == 0) return nullptr;
+
+    maze_t* maze = maze_create_full(x0, y0, width, height);
 
     int w = maze->width;
     int h = maze->height;
-    int x0 = maze->x0;
-    int y0 = maze->y0;
 
     std::vector<std::vector<int>> set_id(h, std::vector<int>(w, 0));
     std::vector<std::vector<int>> grid(h, std::vector<int>(w, WALL));
@@ -103,12 +104,14 @@ void maze_make_eller(maze_t* maze) {
     for (int yy = 0; yy < h; ++yy) {
         for (int xx = 0; xx < w; ++xx) {
             if (grid[yy][xx] != PASSAGE) {
+                coord_t tmp = {x0 + xx, y0 + yy};
                 coord_hash_insert(
                     maze->blocked,
-                    make_tmp_coord(x0 + xx, y0 + yy),
+                    &tmp,
                     nullptr
                 );
             }
         }
     }
+    return maze;
 }

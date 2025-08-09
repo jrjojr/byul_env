@@ -166,7 +166,7 @@ BYUL_API void     coord_set(coord_t* c, int x, int y);
 BYUL_API void     coord_fetch(const coord_t* c, int* out_x, int* out_y);
 
 // For backward compatibility, will be removed later.
-BYUL_API const coord_t* make_tmp_coord(int x, int y);
+BYUL_API coord_t make_tmp_coord(int x, int y);
 
 // For backward compatibility, will be removed later.
 // Returns the closest neighbor moving from start to goal.
@@ -176,12 +176,12 @@ BYUL_API coord_t* coord_clone_next_to_goal(
 /**
  * @brief Convert coord value to a string
  * @param c coord to convert
- * @param buffer output buffer (recommend at least 32 bytes)
  * @param buffer_size buffer size
+ * @param buffer output buffer (recommend at least 32 bytes) 
  * @return buffer (returned for convenience)
  */
 BYUL_API char* coord_to_string(
-    const coord_t* c, char* buffer, size_t buffer_size);
+    const coord_t* c, size_t buffer_size, char* buffer);
 
 /**
  * @brief Print coord value to console

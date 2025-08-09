@@ -4,6 +4,7 @@
 #include "guidance.h"
 #include "float_common.h"
 #include "numeq_filters.h"
+#include <numeq_model_motion.h>
 
 // ---------------------------------------------------------
 // projectile_result_create
@@ -215,8 +216,7 @@ void projectile_result_print_detailed(const projectile_result_t* result)
 
 char* projectile_result_to_string_detailed(
     const projectile_result_t* result,
-    char* buffer,
-    size_t buffer_size)
+    size_t buffer_size, char* buffer)
 {
     if (!buffer || buffer_size == 0) return NULL;
 
@@ -237,8 +237,8 @@ char* projectile_result_to_string_detailed(
         if (remaining > 1) {
             buffer[offset++] = '\n';
             trajectory_to_string(result->trajectory,
-                                 buffer + offset,
-                                 remaining - 1);
+                                 remaining - 1,
+                                buffer + offset);
         }
     } else {
         snprintf(buffer + offset, buffer_size - offset, "\nTrajectory: (none)\n");
@@ -285,7 +285,7 @@ static bool solve_ground_hit_time_interval(
     return true;
 }
 
-static bool detect_ground_collision_precise(
+bool detect_ground_collision_precise(
     const vec3_t* pos_prev,
     const vec3_t* pos_curr,
     const vec3_t* vel_prev,
@@ -355,7 +355,7 @@ static bool solve_entity_hit_time(
     return true;
 }
 
-static bool detect_entity_collision_precise(
+bool detect_entity_collision_precise(
     const vec3_t* proj_pos_prev,
     const vec3_t* proj_vel_prev,
     const vec3_t* proj_accel,
@@ -380,7 +380,7 @@ static bool detect_entity_collision_precise(
 
     float d_prev = vec3_length(&rel_p);
     vec3_t rel_curr;
-    numeq_model_pos_at(dt, &state_prev, NULL, NULL, &rel_curr);
+    numeq_model_pos_predict(dt, &state_prev, NULL, NULL, &rel_curr);
     float d_curr = vec3_length(&rel_curr);
 
     if (d_prev <= target_radius) {
@@ -388,18 +388,16 @@ static bool detect_entity_collision_precise(
         *impact_pos = *proj_pos_prev;
         return true;
     }
-
     float t_local;
     if (solve_entity_hit_time(
         &rel_p, &rel_v, &rel_a, target_radius, dt, &t_local)) {
         if (t_local >= 0.0f && t_local <= dt) {
             *impact_time = t_prev + t_local;
-            numeq_model_pos_at(t_local, &state_prev, NULL, NULL, impact_pos);
+            numeq_model_pos_predict(t_local, &state_prev, NULL, NULL, impact_pos);
             vec3_add(impact_pos, impact_pos, target_pos);
             return true;
         }
     }
-
     // --- Additional check based on distance reduction 
     // (for cases with large sample intervals) ---
     if (d_prev > target_radius && d_curr < target_radius) {
@@ -411,15 +409,14 @@ static bool detect_entity_collision_precise(
         if (approx_t > dt) approx_t = dt;
 
         *impact_time = t_prev + approx_t;
-        numeq_model_pos_at(approx_t, &state_prev, NULL, NULL, impact_pos);
+        numeq_model_pos_predict(approx_t, &state_prev, NULL, NULL, impact_pos);
         vec3_add(impact_pos, impact_pos, target_pos);
         return true;
     }
-
     return false;
 }
 
-float projectile_result_calc_initial_force(
+float projectile_result_calc_initial_force_scalar(
     const projectile_result_t* result,
     float mass)
 {
@@ -449,7 +446,7 @@ float projectile_result_calc_initial_force(
 bool projectile_predict(
     projectile_result_t* out,
     const projectile_t* proj,
-    const entity_dynamic_t* entdyn,
+    const entity_dynamic_t* target,
     float max_time,
     float dt,
     const environ_t* env,
@@ -459,8 +456,8 @@ bool projectile_predict(
     if (!proj || !out || dt <= 0.0f) return false;
     trajectory_clear(out->trajectory);
 
-    vec3_t target_pos = entdyn ? entdyn->xf.pos : vec3_t{0, 0, 0};
-    float target_radius = entdyn ? entity_size(&entdyn->base) : 0.0f;
+    vec3_t target_pos = target ? target->xf.pos : vec3_t{0, 0, 0};
+    float target_radius = target ? entity_size(&target->base) : 0.0f;
 
     motion_state_t state;
     entity_dynamic_to_motion_state(&proj->base, &state, NULL, NULL);
@@ -468,15 +465,20 @@ bool projectile_predict(
     projectile_t temp_proj = *proj;
     float mass = (proj->base.props.mass > 0.0f) 
     ? proj->base.props.mass : 1.0f;
-    float fuel = propulsion ? propulsion->fuel_remaining : 0.0f;
 
     float t = 0.0f;
     const int max_steps = (int)ceilf(max_time / dt);
 
     out->start_pos = proj->base.xf.pos;
-    out->target_pos = entdyn->xf.pos;
+    out->target_pos = target->xf.pos;
     out->initial_velocity = proj->base.velocity;
     out->valid = false;
+
+
+    integrator_t intgr = {};
+    integrator_init_full(
+        &intgr, INTEGRATOR_RK4_ENV,
+        dt, &state, nullptr, env, &proj->base.props);
 
     for (int step = 0; step < max_steps; ++step, t += dt) {
         vec3_t pos_prev = state.linear.position;
@@ -487,38 +489,35 @@ bool projectile_predict(
             // entity_dynamic_calc_accel_env(
             //     &proj->base, &vel_prev, dt, env, &env_accel);
             
-            env->environ_fn(env, dt, env->userdata, &env_accel);
+            env->environ_fn(env, env->userdata, &env_accel);
         }
 
         vec3_t thrust_accel = {0, 0, 0};
-        if (propulsion && fuel > 0.0f) {
+        if (propulsion && propulsion->fuel_remaining > 0.0f) {
             vec3_t guidance = {0, 0, 0};
-            if (entdyn) {
-                vec3_sub(&guidance, &entdyn->xf.pos, &state.linear.position);
+            if (target) {
+                vec3_sub(&guidance, &target->xf.pos, &state.linear.position);
                 vec3_normalize(&guidance);
             }
             if (guidance_fn) {
                 guidance_target_info_t info = {};
                 if (env) info.env = *env;
-                if (entdyn) info.target = *entdyn;
+                if (target) info.target = *target;
                 vec3_t vec;
                 const vec3_t* g = guidance_fn(
                     &temp_proj.base, dt, &info, &vec);
                 if (g) vec3_unit(&guidance, g);
             }
-            propulsion_update(propulsion, 100.0f, dt);
+            propulsion_update(propulsion, dt);
             float thrust = propulsion_get_thrust(propulsion);
             vec3_scale(&thrust_accel, &guidance, thrust / mass);
-            fuel -= propulsion->burn_rate * dt;
         }
 
         vec3_add(&state.linear.acceleration, &env_accel, &thrust_accel);
 
-        integrator_config_t config;
-        integrator_config_init_full(
-            &config, INTEGRATOR_RK4_ENV,
-            dt, nullptr, env, &proj->base.props, nullptr);
-        numeq_integrate(&state, &config);
+        intgr.state = state;
+        integrator_step(&intgr);
+        state = intgr.state;
 
         bodyprops_apply_friction(
             &state.linear.velocity, &proj->base.props, dt);
@@ -531,22 +530,21 @@ bool projectile_predict(
             ground_hit = true;
         }
 
-        if (entdyn) {
-            float dist_prev = vec3_distance(&pos_prev, &target_pos);
+        if (target) {
+            float dist_prev = vec3_distance(&pos_prev, &target->xf.pos);
             float dist_curr = vec3_distance(
-                &state.linear.position, &target_pos);
+                &state.linear.position, &target->xf.pos);
 
-            // if(dist_curr <= target_radius){
-                if (detect_entity_collision_precise(
-                        &pos_prev, &vel_prev, 
-                        &state.linear.acceleration,
-                        &target_pos, target_radius,
-                        dt, t-dt, &out->impact_pos, &out->impact_time))
-                {
-                    out->valid = true;
-                    goto finalize;
-                }
+            if (detect_entity_collision_precise(
+                    &pos_prev, &vel_prev, 
+                    &state.linear.acceleration,
+                    &target->xf.pos, target_radius,
+                    dt, t-dt, &out->impact_pos, &out->impact_time))
+            {
+                out->valid = true;
+                goto finalize;
             }
+        }
 
         if(ground_hit){
             if(detect_ground_collision_precise(
@@ -563,6 +561,7 @@ bool projectile_predict(
     out->valid = false;
 
 finalize:
+    integrator_free(&intgr);
     return out->valid;
 }
 
@@ -587,7 +586,6 @@ bool projectile_predict_with_kalman_filter(
 
     projectile_t temp_proj = *proj;
     float mass = (proj->base.props.mass > 0.0f) ? proj->base.props.mass : 1.0f;
-    float fuel = propulsion ? propulsion->fuel_remaining : 0.0f;
 
     kalman_filter_vec3_t kf;
     kalman_vec3_init_full(
@@ -607,11 +605,12 @@ bool projectile_predict_with_kalman_filter(
 
         vec3_t env_accel = {0, 0, 0};
         if (env) {
-            numeq_model_accel(&state.linear, env, &proj->base.props, &env_accel);
+            numeq_model_motion_accel(&state, 
+                env, &proj->base.props, dt, &env_accel);
         }
 
         vec3_t thrust_accel = {0, 0, 0};
-        if (propulsion && fuel > 0.0f) {
+        if (propulsion && propulsion->fuel_remaining > 0.0f) {
             vec3_t guidance = {0, 0, 0};
             if (entdyn) {
                 vec3_sub(&guidance, &entdyn->xf.pos, &state.linear.position);
@@ -627,7 +626,6 @@ bool projectile_predict_with_kalman_filter(
             }
             float thrust = propulsion_get_thrust(propulsion);
             vec3_scale(&thrust_accel, &guidance, thrust / mass);
-            fuel -= propulsion->burn_rate * dt;
         }
 
         vec3_add(&state.linear.acceleration, &env_accel, &thrust_accel);
@@ -641,12 +639,12 @@ bool projectile_predict_with_kalman_filter(
 
         trajectory_add_sample(out->trajectory, t, &state);
 
-        integrator_config_t config;
-        integrator_config_init_full(
-            &config, INTEGRATOR_MOTION_RK4_ENV,
-            dt, nullptr, env, &proj->base.props, nullptr);
+        integrator_t intgr;
+        integrator_init_full(
+            &intgr, INTEGRATOR_MOTION_RK4_ENV,
+            dt, &state, nullptr, env, &proj->base.props);
 
-        numeq_integrate(&state, &config);
+        integrator_step(&intgr);
 
         if (entdyn) {
             float dist_prev = vec3_distance(&pos_prev, &target_pos);
@@ -701,7 +699,6 @@ bool projectile_predict_with_filter(
 
     projectile_t temp_proj = *proj;
     float mass = (proj->base.props.mass > 0.0f) ? proj->base.props.mass : 1.0f;
-    float fuel = propulsion ? propulsion->fuel_remaining : 0.0f;
 
     float t = 0.0f;
     const int max_steps = (int)ceilf(max_time / dt);
@@ -712,11 +709,12 @@ bool projectile_predict_with_filter(
 
         vec3_t env_accel = {0, 0, 0};
         if (env) {
-            numeq_model_accel(&state.linear, env, &proj->base.props, &env_accel);
+            numeq_model_motion_accel(&state, env, 
+                &proj->base.props, dt, &env_accel);
         }
 
         vec3_t thrust_accel = {0, 0, 0};
-        if (propulsion && fuel > 0.0f) {
+        if (propulsion && propulsion->fuel_remaining > 0.0f) {
             vec3_t guidance = {0, 0, 0};
             if (entdyn) {
                 vec3_sub(&guidance, &entdyn->xf.pos, &state.linear.position);
@@ -732,7 +730,6 @@ bool projectile_predict_with_filter(
             }
             float thrust = propulsion_get_thrust(propulsion);
             vec3_scale(&thrust_accel, &guidance, thrust / mass);
-            fuel -= propulsion->burn_rate * dt;
         }
 
         vec3_add(&state.linear.acceleration, &env_accel, &thrust_accel);
@@ -753,11 +750,11 @@ bool projectile_predict_with_filter(
 
         trajectory_add_sample(out->trajectory, t, &state);
 
-        integrator_config_t config;
-        integrator_config_init_full(&config, INTEGRATOR_MOTION_RK4_ENV,
-                                    dt, nullptr, env, &proj->base.props, nullptr);
-        config.dt = dt;
-        numeq_integrate(&state, &config);
+        integrator_t intgr;
+        integrator_init_full(&intgr, INTEGRATOR_MOTION_RK4_ENV,
+                                    dt, &state, nullptr, env, &proj->base.props);
+        intgr.dt = dt;
+        integrator_step(&intgr);
 
         if (entdyn) {
             float dist_prev = vec3_distance(&pos_prev, &target_pos);
@@ -787,172 +784,3 @@ bool projectile_predict_with_filter(
     return false;
 }
 
-static inline float projectile_safe_mass(const projectile_t* proj) {
-    return (proj && proj->base.props.mass > 1e-6f) 
-    ? proj->base.props.mass : 1.0f;
-}
-
-static inline bool projectile_calc_horizontal(
-    vec3_t* dir_out, 
-    float* R_out, 
-    const vec3_t* start, 
-    const vec3_t* target) {
-
-    vec3_t diff;
-    vec3_sub(&diff, target, start);
-
-    float R = sqrtf(diff.x * diff.x + diff.z * diff.z);
-    if (R < 1e-6f) return false;
-
-    if (dir_out) {
-        dir_out->x = diff.x / R;
-        dir_out->y = 0.0f;
-        dir_out->z = diff.z / R;
-    }
-    if (R_out) *R_out = R;
-    return true;
-}
-
-bool projectile_calc_launch_param(
-    launch_param_t* out,
-    const projectile_t* proj,
-    const vec3_t* target,
-    float initial_force)
-{
-    if (!out || !proj || !target) return false;
-
-    vec3_t start;
-    xform_get_position(&proj->base.xf, &start);
-
-    vec3_t dir;
-    float R;
-    if (!projectile_calc_horizontal(&dir, &R, &start, target)) return false;
-
-    float Dy = target->y - start.y;
-    float mass = projectile_safe_mass(proj);
-    float a0 = initial_force / mass;
-    float v0 = sqrtf(2.0f * a0 * R);
-    float g = 9.8f;
-
-    float under_sqrt = v0 * v0 * v0 * v0 - g * (g * R * R + 2 * Dy * v0 * v0);
-    if (under_sqrt < 0.0f) return false;
-
-    float theta = atanf((v0 * v0 - sqrtf(under_sqrt)) / (g * R));
-
-    out->direction.x = cosf(theta) * dir.x;
-    out->direction.y = sinf(theta);
-    out->direction.z = cosf(theta) * dir.z;
-    vec3_normalize(&out->direction);
-
-    out->force = initial_force;
-    out->time_to_hit = R / (v0 * cosf(theta));
-    return true;
-}
-
-bool projectile_calc_launch_param_env(
-    launch_param_t* out,
-    const projectile_t* proj,
-    const environ_t* env,
-    const vec3_t* target,
-    float initial_force)
-{
-    if (!out || !proj || !env || !target) return false;
-
-    vec3_t start;
-    xform_get_position(&proj->base.xf, &start);
-
-    vec3_t dir;
-    float R;
-    if (!projectile_calc_horizontal(&dir, &R, &start, target)) return false;
-
-    float Dy = target->y - start.y;
-    float mass = projectile_safe_mass(proj);
-    float a0 = initial_force / mass;
-    float g = fabsf(env->gravity.y) > 1e-6f ? fabsf(env->gravity.y) : 9.8f;
-
-    float v0 = sqrtf(2.0f * a0 * R);
-    float under_sqrt = v0 * v0 * v0 * v0 - g * (g * R * R + 2 * Dy * v0 * v0);
-    if (under_sqrt < 0.0f) return false;
-
-    float theta = atanf((v0 * v0 - sqrtf(under_sqrt)) / (g * R));
-
-    out->direction.x = cosf(theta) * dir.x;
-    out->direction.y = sinf(theta);
-    out->direction.z = cosf(theta) * dir.z;
-    vec3_normalize(&out->direction);
-
-    float wind_h 
-    = sqrtf(env->wind.x * env->wind.x + env->wind.z * env->wind.z);
-    float v_h = v0 * cosf(theta) + wind_h;
-    out->force = initial_force;
-    out->time_to_hit = R / (v_h > 1e-3f ? v_h : 1e-3f);
-
-    return true;
-}
-
-bool projectile_calc_launch_param_inverse(
-    launch_param_t* out,
-    const projectile_t* proj,
-    const vec3_t* target,
-    float hit_time)
-{
-    if (!out || !proj || !target || hit_time <= 0.0f) return false;
-
-    vec3_t start;
-    xform_get_position(&proj->base.xf, &start);
-
-    vec3_t delta;
-    vec3_sub(&delta, target, &start);
-
-    vec3_t gravity_term = { 0.0f, -0.5f * 9.81f * hit_time * hit_time, 0.0f };
-
-    vec3_t required_vel = {
-        (delta.x - gravity_term.x) / hit_time,
-        (delta.y - gravity_term.y) / hit_time,
-        (delta.z - gravity_term.z) / hit_time
-    };
-
-    float mass = projectile_safe_mass(proj);
-    float required_force = mass * vec3_length(&required_vel);
-
-    vec3_unit(&out->direction, &required_vel);
-    out->force = required_force;
-    out->time_to_hit = hit_time;
-    return true;
-}
-
-bool projectile_calc_launch_param_inverse_env(
-    launch_param_t* out,
-    const projectile_t* proj,
-    const environ_t* env,
-    const vec3_t* target,
-    float hit_time)
-{
-    if (!out || !proj || !env || !target || hit_time <= 0.0f) return false;
-
-    vec3_t start;
-    xform_get_position(&proj->base.xf, &start);
-
-    vec3_t delta;
-    vec3_sub(&delta, target, &start);
-
-    vec3_t gravity_term = {
-        0.0f,
-        -0.5f * fabsf(env->gravity.y) * hit_time * hit_time,
-        0.0f
-    };
-
-    vec3_t required_vel = {
-        (delta.x - gravity_term.x - env->wind.x * hit_time) / hit_time,
-        (delta.y - gravity_term.y - env->wind.y * hit_time) / hit_time,
-        (delta.z - gravity_term.z - env->wind.z * hit_time) / hit_time
-    };
-
-    float mass = projectile_safe_mass(proj);
-    float required_force = mass * vec3_length(&required_vel);
-
-    vec3_unit(&out->direction, &required_vel);
-    out->force = required_force;
-    out->time_to_hit = hit_time;
-    return true;
-}

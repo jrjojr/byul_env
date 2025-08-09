@@ -75,45 +75,75 @@ BYUL_API const char* get_route_finder_name(route_finder_type_t pa);
  */
 typedef struct s_route_finder {
     navgrid_t* navgrid;                        ///< Map for pathfinding
-    route_finder_type_t type;
     coord_t start;                            ///< Start coordinate
     coord_t goal;                             ///< Goal coordinate
-    cost_func cost_fn;                         ///< Cost function
-    heuristic_func heuristic_fn;               ///< Heuristic function
+
+    route_finder_type_t type;
+    void* typedata;
+
     int max_retry;                             ///< Maximum iterations
-    bool debug_mode_enabled;                      ///< Log visited nodes
-    void* userdata;                            ///< User-defined data
+    bool debug_mode_enabled;                      ///< Log visited nodes    
+
+    cost_func cost_fn;                         ///< Cost function
+    void* cost_fn_userdata;
+
+    heuristic_func heuristic_fn;               ///< Heuristic function
+    void* heuristic_fn_userdata;
 } route_finder_t;
 
 /**
  * @brief Creates a route_finder_t structure with default settings.
  *
- * This function sets ROUTE_FINDER_ASTAR as the default algorithm,
- * and creates a route_finder_t object with the following defaults:
+ * This function uses ROUTE_FINDER_ASTAR as the default pathfinding algorithm
+ * and initializes the route_finder_t object with the following defaults:
  * - cost function: default_cost
  * - heuristic function: euclidean_heuristic
  * - max_retry: MAX_RETRY
  * - debug_mode_enabled: false
+ * - typedata: nullptr by default, used for algorithm-specific data
  *
+ * @param navgrid The navigation grid to use
  * @return A pointer to the initialized route_finder_t (allocated on heap).
  *         Must be freed using route_finder_destroy.
  */
 BYUL_API route_finder_t* route_finder_create(navgrid_t* navgrid);
 
-BYUL_API route_finder_t* route_finder_create_full(navgrid_t* navgrid, 
-    route_finder_type_t type, 
-    const coord_t* start, const coord_t* goal,
-    cost_func cost_fn, heuristic_func heuristic_fn,
-    int max_retry, bool debug_mode_enabled, void* userdata);
+BYUL_API route_finder_t* route_finder_create_full(
+    navgrid_t* navgrid, 
+    const coord_t* start, 
+    const coord_t* goal,
+    
+    route_finder_type_t type,
+    void* typedata,
+
+    int max_retry, 
+    bool debug_mode_enabled,
+
+    cost_func cost_fn,
+    void* cost_fn_userdata,
+
+    heuristic_func heuristic_fn,
+    void* heuristic_fn_userdata
+);
 
 BYUL_API int route_finder_init(route_finder_t* out, navgrid_t* navgrid);
 
-BYUL_API int route_finder_init_full(route_finder_t* out, 
+BYUL_API int route_finder_init_full(
+    route_finder_t* out, 
     navgrid_t* navgrid, 
+    const coord_t* start, 
+    const coord_t* goal,
     route_finder_type_t type, 
-    const coord_t* start, const coord_t* goal,
-    cost_func cost_fn, heuristic_func heuristic_fn,
-    int max_retry, bool debug_mode_enabled, void* userdata);
+    void* typedata,    
+    int max_retry, 
+    bool debug_mode_enabled,
+    
+    cost_func cost_fn,
+    void* cost_fn_userdata,
+
+    heuristic_func heuristic_fn,
+    void* heuristic_fn_userdata    
+);
 
 BYUL_API int route_finder_free(route_finder_t* out);
 
@@ -132,24 +162,44 @@ BYUL_API const navgrid_t* route_finder_get_navgrid(const route_finder_t* a);
 BYUL_API int route_finder_fetch_start(const route_finder_t* a, coord_t* out);
 BYUL_API int route_finder_fetch_goal(const route_finder_t* a, coord_t* out);
 
-BYUL_API void route_finder_set_userdata(route_finder_t* a, void* userdata);
-BYUL_API void* route_finder_get_userdata(const route_finder_t* a);
+BYUL_API void route_finder_set_type(
+    route_finder_t* a, route_finder_type_t type);
 
-BYUL_API void route_finder_set_type(route_finder_t* a, route_finder_type_t type);
 BYUL_API route_finder_type_t route_finder_get_type(const route_finder_t* a);
 
-BYUL_API void route_finder_enable_debug_mode(route_finder_t* a, bool is_logging);
-BYUL_API bool route_finder_is_debug_mode_enabled(route_finder_t* a);
+BYUL_API void route_finder_set_typedata(
+    route_finder_t* a, void* typedata);
 
-BYUL_API void route_finder_set_cost_func(route_finder_t* a, cost_func cost_fn);
-BYUL_API cost_func route_finder_get_cost_func(route_finder_t* a);
-
-BYUL_API void route_finder_set_heuristic_func(
-    route_finder_t* a, heuristic_func heuristic_fn);
-BYUL_API heuristic_func route_finder_get_heuristic_func(route_finder_t* a);
+BYUL_API void* route_finder_get_typedata(const route_finder_t* a);    
 
 BYUL_API void route_finder_set_max_retry(route_finder_t* a, int max_retry);
 BYUL_API int route_finder_get_max_retry(route_finder_t* a);
+
+BYUL_API void route_finder_enable_debug_mode(
+    route_finder_t* a, bool is_logging);
+
+BYUL_API bool route_finder_is_debug_mode_enabled(route_finder_t* a);
+
+BYUL_API void route_finder_set_cost_func(
+    route_finder_t* a, cost_func cost_fn);
+
+BYUL_API cost_func route_finder_get_cost_func(route_finder_t* a);
+
+BYUL_API void route_finder_set_cost_fn_userdata(
+    route_finder_t* a, void* cost_fn_userdata);
+
+BYUL_API void* route_finder_get_cost_fn_userdata(const route_finder_t* a);
+
+BYUL_API void route_finder_set_heuristic_func(
+    route_finder_t* a, heuristic_func heuristic_fn);
+
+BYUL_API heuristic_func route_finder_get_heuristic_func(route_finder_t* a);
+
+BYUL_API void route_finder_set_heuristic_fn_userdata(
+    route_finder_t* a, void* heuristic_fn_userdata);
+
+BYUL_API void* route_finder_get_heuristic_fn_userdata(
+    const route_finder_t* a);
 
 /**
  * @brief Resets and validates the configuration.

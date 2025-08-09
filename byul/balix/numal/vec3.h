@@ -125,6 +125,8 @@ BYUL_API void vec3_unit(vec3_t* out, const vec3_t* src);
 
 BYUL_API float vec3_distance(const vec3_t* a, const vec3_t* b);
 
+BYUL_API float vec3_distance_sq(const vec3_t* a, const vec3_t* b);
+
 /**
  * @brief Calculate linear interpolation between start and goal.
  * 
@@ -158,12 +160,12 @@ BYUL_API bool vec3_is_zero(const vec3_t* v);
 /**
  * @brief Convert vec3 to string.
  * @param v Vector to convert
- * @param buffer Output buffer (at least 64 bytes recommended)
  * @param buffer_size Buffer size
+ * @param buffer Output buffer (at least 64 bytes recommended)
  * @return buffer (for convenience)
  */
 BYUL_API char* vec3_to_string(
-    const vec3_t* v, char* buffer, size_t buffer_size);
+    const vec3_t* v, size_t buffer_size, char* buffer);
 
 /**
  * @brief Print vec3 to console.

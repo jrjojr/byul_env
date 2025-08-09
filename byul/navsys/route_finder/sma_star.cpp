@@ -60,7 +60,7 @@ route_t* find_sma_star(const navgrid_t* m,
         float* g_ptr = (float*)coord_hash_get(cost_so_far, current);
         float g = g_ptr ? *g_ptr : 0.0f;
 
-        coord_list_t* neighbors = navgrid_copy_adjacent(
+        coord_list_t* neighbors = navgrid_copy_neighbors(
             m, current->x, current->y);
 
         int len = coord_list_length(neighbors);
@@ -105,7 +105,7 @@ route_t* find_sma_star(const navgrid_t* m,
     }
 
     if (final) {
-        if (route_reconstruct_path(result, came_from, start, final)) {
+        if (route_reconstruct(result, came_from, start, final)) {
             route_set_success(result, coord_equal(final, goal));
         } else {
             route_set_success(result, false);

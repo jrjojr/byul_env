@@ -58,7 +58,7 @@ BYUL_API void aerial_assign(aerial_t* patriot, const aerial_t* src);
 BYUL_API bool aerial_launch(
     const aerial_t* aerial,
     const vec3_t* target,
-    float initial_force,
+    float initial_force_scalar,
     const environ_t* env,
     projectile_result_t* out    
 );

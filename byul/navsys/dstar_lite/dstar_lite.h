@@ -35,6 +35,7 @@
 #define DSTAR_LITE_H
 
 #include "byul_common.h"
+
 #include "float_common.h"
 
 #include "navgrid.h"
@@ -44,7 +45,7 @@
 #include "route.h"
 #include "dstar_lite_key.h"
 #include "dstar_lite_pqueue.h"
-#include "route_finder_common.h"
+#include "route_finder.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -54,26 +55,64 @@ typedef void (*move_func)(const coord_t* c, void* userdata);
 
 typedef coord_list_t* (*changed_coords_func)(void* userdata);
 
+BYUL_API float dstar_lite_cost(
+    const navgrid_t* navgrid, 
+    const coord_t* start, 
+    const coord_t* goal, 
+    void* userdata);
+
+/**
+ * @brief Cost function for dynamic D* Lite pathfinding.
+ *
+ * Returns Euclidean distance between two coordinates.
+ * If goal is an obstacle, returns FLT_MAX.
+ *
+ * The userdata can provide a coord_hash_t* that holds visit counts
+ * to penalize repeatedly visited nodes and avoid route loops.
+ */
+BYUL_API float dstar_lite_dynamic_cost(
+    const navgrid_t* navgrid,
+    const coord_t* start,
+    const coord_t* goal,
+    void* userdata);
+
+BYUL_API float dstar_lite_heuristic(
+    const coord_t* start, const coord_t* goal, void* userdata);
+
+BYUL_API void move_to(const coord_t* c, void* userdata);
+
+// Default implementation for changed_coords_func function pointer.
+// Provides a single coordinate. 
+// userdata: coord* c
+BYUL_API coord_list_t* get_changed_coord(void* userdata);
+
+// Default implementation for changed_coords_func function pointer.
+// Provides multiple coordinates via a coord_list.
+// userdata: coord_list_t* list
+BYUL_API coord_list_t* get_changed_coords(void* userdata);
+
 typedef struct s_dstar_lite {
-    navgrid_t* m;
-
-    coord_t* start;
-    coord_t* goal;
-
-    float km;
-    coord_hash_t* g_table;    // coord_t** -> float*
-    coord_hash_t* rhs_table;  // coord_t** -> float*
-    
-    dstar_lite_pqueue_t*        frontier;
+    // Shared members with route_finder
+    // Intended to be unified into route_finder later
+    navgrid_t* navgrid;
+    coord_t start;
+    coord_t goal;
 
     cost_func cost_fn;
     void* cost_fn_userdata;
 
-    is_coord_blocked_func is_blocked_fn;
-    void* is_blocked_fn_userdata;
-
     heuristic_func heuristic_fn;
-    void* heuristic_fn_userdata;    
+    void* heuristic_fn_userdata;
+
+    int max_retry;
+    bool debug_mode_enabled;
+
+    // D* Lite specific members
+    float km;
+    coord_hash_t* g_table;    // coord_t** -> float*
+    coord_hash_t* rhs_table;  // coord_t** -> float*
+
+    dstar_lite_pqueue_t* frontier;
 
     move_func move_fn;
     void* move_fn_userdata;
@@ -82,32 +121,24 @@ typedef struct s_dstar_lite {
     void* changed_coords_fn_userdata;
 
     route_t* proto_route;
-
     route_t* real_route;
 
-    int interval_msec;
-
     int real_loop_max_retry;
-
-    int max_retry;
-
     int reconstruct_max_retry;
 
     int proto_compute_retry_count;
-
     int real_compute_retry_count;
-
     int real_loop_retry_count;
-
     int reconstruct_retry_count;
-    
-    bool force_quit;
-    
+
     int max_range;
 
-    bool debug_mode_enabled;
+    // Loop timing interval (in seconds)
+    float interval_sec;
 
-    coord_hash_t* update_count_table;  // key: coord_t** -> value: int*
+    // Forced termination flag (used during loops)
+    bool force_quit;
+
 } dstar_lite_t;
 
 /**
@@ -132,7 +163,7 @@ typedef struct s_dstar_lite {
  * @return Newly created dstar_lite_t* object.
  *         Must be freed using dstar_lite_destroy() after use.
  */
-BYUL_API dstar_lite_t* dstar_lite_create(navgrid_t* m);
+BYUL_API dstar_lite_t* dstar_lite_create(navgrid_t* navgrid);
 
 /**
  * @brief Creates a D* Lite configuration object with user-defined settings.
@@ -143,19 +174,23 @@ BYUL_API dstar_lite_t* dstar_lite_create(navgrid_t* m);
  * @return Newly created dstar_lite_t* object.
  *         Must be freed using dstar_lite_destroy() after use.
  */
-BYUL_API dstar_lite_t* dstar_lite_create_full(navgrid_t* m, coord_t* start, 
-    cost_func cost_fn, heuristic_func heuristic_fn,
+BYUL_API dstar_lite_t* dstar_lite_create_full(
+    navgrid_t* navgrid, 
+    const coord_t* start, 
+    const coord_t* goal, 
+    cost_func cost_fn, 
+    heuristic_func heuristic_fn,
     bool debug_mode_enabled);
 
 BYUL_API void dstar_lite_destroy(dstar_lite_t* dsl);
 
-BYUL_API dstar_lite_t* dstar_lite_copy(dstar_lite_t* src);
+BYUL_API dstar_lite_t* dstar_lite_copy(const dstar_lite_t* src);
 
-BYUL_API coord_t* dstar_lite_get_start(const dstar_lite_t* dsl);
+BYUL_API int dstar_lite_fetch_start(const dstar_lite_t* dsl, coord_t* out);
 
 BYUL_API void  dstar_lite_set_start(dstar_lite_t* dsl, const coord_t* c);
 
-BYUL_API coord_t* dstar_lite_get_goal(const dstar_lite_t* dsl);
+BYUL_API int dstar_lite_fetch_goal(const dstar_lite_t* dsl, coord_t* out);
 
 BYUL_API void  dstar_lite_set_goal(dstar_lite_t* dsl, const coord_t* c);
 
@@ -177,7 +212,7 @@ BYUL_API void   dstar_lite_set_max_range(dstar_lite_t* dsl, int value);
 
 // Maximum number of loops inside the find_loop function
 // When moving in real-time at 4 km/h, it loops continuously
-// for the time equal to interval_msec multiplied by this value.
+// for the time equal to interval_sec multiplied by this value.
 // This needs improvement; for a 10x10 map, around 100 might be needed.
 BYUL_API int   dstar_lite_get_real_loop_max_retry(const dstar_lite_t* dsl);
 BYUL_API void  dstar_lite_set_real_loop_max_retry(
@@ -205,20 +240,8 @@ BYUL_API bool dstar_lite_is_debug_mode_enabled(const dstar_lite_t* dsl);
 BYUL_API void     dstar_lite_enable_debug_mode(
     dstar_lite_t* dsl, bool enabled);
 
-BYUL_API coord_hash_t* dstar_lite_get_update_count_table(
-    const dstar_lite_t* dsl);
-
-BYUL_API void         dstar_lite_add_update_count(
-    dstar_lite_t* dsl, const coord_t* c);
-
-BYUL_API void         dstar_lite_clear_update_count(dstar_lite_t* dsl);
-
-BYUL_API int         dstar_lite_get_update_count(
-    dstar_lite_t* dsl, const coord_t* c);
-
 BYUL_API const navgrid_t*    dstar_lite_get_navgrid(const dstar_lite_t* dsl);
-BYUL_API void    dstar_lite_set_navgrid(dstar_lite_t* dsl, navgrid_t* m);
-
+BYUL_API void    dstar_lite_set_navgrid(dstar_lite_t* dsl, navgrid_t* navgrid);
 
 BYUL_API const route_t* dstar_lite_get_proto_route(const dstar_lite_t* dsl);
 
@@ -228,13 +251,10 @@ BYUL_API const route_t* dstar_lite_get_real_route(const dstar_lite_t* dsl);
 // as well as hash tables and the priority queue.
 BYUL_API void dstar_lite_reset(dstar_lite_t* dsl);
 
-BYUL_API int dstar_lite_get_interval_msec(dstar_lite_t* dsl);
+BYUL_API float dstar_lite_get_interval_sec(dstar_lite_t* dsl);
 
-BYUL_API void dstar_lite_set_interval_msec(
-    dstar_lite_t* dsl, int interval_msec);
-
-BYUL_API float dstar_lite_cost(const navgrid_t* m, 
-    const coord_t* start, const coord_t* goal, void* userdata);
+BYUL_API void dstar_lite_set_interval_sec(
+    dstar_lite_t* dsl, float interval_sec);
 
 BYUL_API cost_func    dstar_lite_get_cost_func(const dstar_lite_t* dsl);
 BYUL_API void dstar_lite_set_cost_func(dstar_lite_t* dsl, cost_func fn);
@@ -244,20 +264,6 @@ BYUL_API void*    dstar_lite_get_cost_func_userdata(const dstar_lite_t* dsl);
 BYUL_API void dstar_lite_set_cost_func_userdata(
     dstar_lite_t* dsl, void* userdata);    
 
-BYUL_API bool dstar_lite_is_blocked(
-    dstar_lite_t* dsl, int x, int y, void* userdata);    
-
-BYUL_API is_coord_blocked_func dstar_lite_get_is_blocked_func(
-    dstar_lite_t* dsl);
-
-BYUL_API void dstar_lite_set_is_blocked_func(
-    dstar_lite_t* dsl, is_coord_blocked_func fn);
-BYUL_API void* dstar_lite_get_is_blocked_func_userdata(dstar_lite_t* dsl);
-BYUL_API void dstar_lite_set_is_blocked_func_userdata(
-    dstar_lite_t* dsl, void* userdata);
-
-BYUL_API float dstar_lite_heuristic(
-    const coord_t* start, const coord_t* goal, void* userdata);
 BYUL_API heuristic_func dstar_lite_get_heuristic_func(
     const dstar_lite_t* dsl);
 BYUL_API void         dstar_lite_set_heuristic_func(
@@ -266,14 +272,12 @@ BYUL_API void* dstar_lite_get_heuristic_func_userdata(dstar_lite_t* dsl);
 BYUL_API void dstar_lite_set_heuristic_func_userdata(
     dstar_lite_t* dsl, void* userdata);    
 
-BYUL_API void move_to(const coord_t* c, void* userdata);
 BYUL_API move_func dstar_lite_get_move_func(const dstar_lite_t* dsl);
 BYUL_API void dstar_lite_set_move_func(dstar_lite_t* dsl, move_func fn);
 BYUL_API void* dstar_lite_get_move_func_userdata(const dstar_lite_t* dsl);
 BYUL_API void dstar_lite_set_move_func_userdata(
     dstar_lite_t* dsl, void* userdata);
 
-BYUL_API coord_list_t* get_changed_coords(void* userdata);
 BYUL_API changed_coords_func dstar_lite_get_changed_coords_func(
     const dstar_lite_t* dsl);
 BYUL_API void dstar_lite_set_changed_coords_func(
@@ -342,9 +346,8 @@ BYUL_API void dstar_lite_compute_shortest_route(dstar_lite_t* dsl);
  * If the condition is not satisfied, NULL is returned.
  *
  * @param dsl Algorithm context
- * @return route_t* A valid route object, or NULL if it fails
  */
-BYUL_API route_t* dstar_lite_reconstruct_route(dstar_lite_t* dsl);
+BYUL_API bool dstar_lite_reconstruct_route(dstar_lite_t* dsl);
 
 // One-time pathfinding in its simplest form, 
 // equivalent to static pathfinding.
@@ -354,7 +357,7 @@ BYUL_API route_t* dstar_lite_find(dstar_lite_t* dsl);
 BYUL_API void dstar_lite_find_full(dstar_lite_t* dsl);
 
 // Generates an initial route for dynamic pathfinding.
-BYUL_API void dstar_lite_find_proto(dstar_lite_t* dsl);
+BYUL_API bool dstar_lite_find_proto(dstar_lite_t* dsl);
 
 // Using the initial route created by dstar_lite_find_proto, 
 // this function searches for a dynamic route.
@@ -387,6 +390,9 @@ BYUL_API void dstar_lite_force_quit(dstar_lite_t* dsl);
 BYUL_API bool dstar_lite_is_quit_forced(dstar_lite_t* dsl);
 
 BYUL_API void dstar_lite_set_force_quit(dstar_lite_t* dsl, bool v);
+
+BYUL_API bool dstar_lite_fetch_next(
+    const dstar_lite_t* dsl, const coord_t* start, coord_t* out);
 
 #ifdef __cplusplus
 }

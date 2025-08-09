@@ -108,16 +108,49 @@ BYUL_API bool entity_tick(entity_t* e, float dt);
  * @brief Calculate the effective size of the entity.
  *
  * - Combines width_range and height_range using Euclidean distance.
- * - Applies influence_ratio as a scaling factor.
- * - Ensures the minimum size is 0.
+ * - Ensures the minimum size is 1.
  *
  * Formula:
- *   sqrt(1 + width_range^2 + height_range^2) * influence_ratio
+ *   sqrt(1 + width_range^2 + height_range^2)
  *
  * @param[in] e  Entity to calculate size for.
  * @return The size with influence applied (float).
  */
 BYUL_API float entity_size(const entity_t* e);
+
+/**
+ * @brief Calculates the effective influence radius of an entity.
+ *
+ * The influence radius is derived from the base entity size and an influence ratio:
+ *
+ *     influence_radius = entity_size * influence_ratio
+ *
+ * All entities start with a default size of 1.0.
+ * The influence ratio starts at 0.0.
+ *
+ * For example:
+ * - If the size is 1.0 and influence_ratio is 10.0,
+ *   the influence radius becomes 10.0.
+ *
+ * However, this influence radius is not necessarily used for collision detection.
+ * It may be used for gameplay mechanics such as sensing, aura effects, etc.
+ *
+ * Possible use cases include:
+ * - Determining whether another entity can detect this entity
+ * - Representing an aura around the entity that affects nearby entities
+ *   (e.g., draining or boosting health of nearby units)
+ *
+ * If influence_ratio is 0, then the entity has no influence regardless of size.
+ * Even during collisions, if influence radius is 0, it may result in no interaction.
+ *
+ * Note: This is primarily a design feature for gameplay logic,
+ * such as detection or aura effects, not for physical collision by default.
+ *
+ * @param e Pointer to the entity
+ * @return Calculated influence radius
+ */
+BYUL_API float entity_influence_radius(const entity_t* e);
+
 
 #ifdef __cplusplus
 }

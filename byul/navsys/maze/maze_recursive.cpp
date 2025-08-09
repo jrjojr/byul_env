@@ -1,4 +1,4 @@
-#include "maze.h"
+#include "maze_recursive.h"
 #include "coord.h"
 #include <stdlib.h>
 #include <time.h>
@@ -29,29 +29,35 @@ static void carve_passage(maze_t* maze, int cx, int cy, bool** visited) {
         if (is_valid_cell(maze, nx, ny) && !visited[ny][nx]) {
             int wall_x = cx + DX[dir];
             int wall_y = cy + DY[dir];
-            coord_hash_remove(maze->blocked, 
-                make_tmp_coord(maze->x0 + wall_x, maze->y0 + wall_y));            
 
+            coord_t tmp_wall = {maze->x0 + wall_x, maze->y0 + wall_y};
             coord_hash_remove(maze->blocked, 
-                make_tmp_coord(maze->x0 + nx, maze->y0 + ny));
+                &tmp_wall);
+
+            coord_t tmp_n = {maze->x0 + nx, maze->y0 + ny};
+            coord_hash_remove(maze->blocked, 
+                &tmp_n);
 
             carve_passage(maze, nx, ny, visited);
         }
     }
 }
 
-void maze_make_recursive(maze_t* maze) {
-    if (!maze) return;
+maze_t* maze_make_recursive(int x0, int y0, int width, int height) {
 
     srand((unsigned int)time(NULL));
 
-    int w = maze->width;
-    int h = maze->height;
+    maze_t* out = nullptr;
+    out = maze_create_full(x0, y0, width, height);
 
-    for (int y = 0; y < h; ++y) {
-        for (int x = 0; x < w; ++x) {
-            coord_hash_insert(maze->blocked, 
-                make_tmp_coord(maze->x0 + x, maze->y0 + y), NULL);
+    int w = width;
+    int h = height;
+
+    for (int y = y0; y < h; ++y) {
+        for (int x = x0; x < w; ++x) {
+            coord_t tmp = {out->x0 + x, out->y0 + y};
+            coord_hash_insert(out->blocked, 
+                &tmp, NULL);
         }
     }
 
@@ -60,10 +66,12 @@ void maze_make_recursive(maze_t* maze) {
         visited[i] = (bool*)calloc(w, sizeof(bool));
     }
 
-    carve_passage(maze, 1, 1, visited);
+    carve_passage(out, 1, 1, visited);
 
     for (int i = 0; i < h; ++i) {
         free(visited[i]);
     }
     free(visited);
+
+    return out;
 }

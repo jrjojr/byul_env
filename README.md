@@ -1,44 +1,35 @@
 # Byul's World – Simulation & Pathfinding Engine
 
-`byul` started as a **pathfinding engine**,  
-and has evolved to include **maze generation, projectile trajectory prediction, control systems (MPC/PID), and numerical analysis**,  
-making it a **lightweight and high-performance simulation engine**.
-
-> 💖 If you enjoy this project, consider supporting development at [paypal.me/jrjojr](https://paypal.me/jrjojr)
+`byul` is a **high-performance simulation engine** that began as a pathfinding core, and has grown into a modular system supporting **maze generation, projectile trajectory prediction, control systems (MPC/PID), and numerical simulation**.
 
 ---
 
-## ✨ Key Features
+## ✨ Features
 - **Pathfinding**  
-  Supports A*, Dijkstra, BFS, D* Lite for both static and dynamic pathfinding.
+  Supports A*, Dijkstra, BFS, D* Lite for static and dynamic routefinding.
 - **Maze Generation**  
-  Includes Binary Tree, Eller, Kruskal, and other maze generation algorithms.
-- **Projectile Trajectory Prediction**  
-  Predicts projectile paths with gravity, drag, and wind using RK4/Verlet integration.
+  Includes Kruskal, Eller, Binary Tree, and other algorithms.
+- **Projectile Prediction**  
+  Simulates projectile motion under gravity, wind, and drag using RK4, Verlet, and Euler integrators.
 - **Control Systems**  
-  PID and Model Predictive Control (MPC) for path and motion control.
-- **Numerical Core**  
-  Implements vec3, quat, dualquat, dualnumber-based 3D math operations.
+  Includes PID, Bang-Bang, and MPC controllers.
+- **Numerical Engine**  
+  Provides 3D math primitives: vec3, quat, dualquat, and dualnumber.
 - **Modular Architecture**  
-  Includes `numeq`, `controller`, `motion_state`, and `trajectory` as independent modules.
+  Organized into modules: `numeq`, `controller`, `trajectory`, `motion_state`, etc.
 
 ---
 
-## 📜 Project Evolution
-1. **Pathfinding Engine**  
-   Implemented A*, Dijkstra, D* Lite → 2D testing with `PySide6`.
-2. **Maze Generation**  
-   Added Binary Tree, Prim, Eller, Kruskal algorithms.
-3. **Numerical & Physics Core**  
-   Introduced vec3, quat, dualquat, and motion_state for 3D math and physics.
-4. **Control Systems**  
-   Integrated PID, Bang-Bang, and MPC-based control.
-5. **Projectile Trajectory Prediction**  
-   Added Euler, Semi-Implicit, Verlet, RK4 integrators with trajectory recording.
+## 📈 Project Timeline
+1. **Pathfinding Core**: A*, Dijkstra, D* Lite with PySide6 visualization.
+2. **Maze Generator**: Binary Tree → Prim → Eller → Kruskal.
+3. **Numerical Kernel**: vec3, quat, dualquat, motion_state.
+4. **Control Theory**: PID, Bang-Bang, and MPC control structures.
+5. **Trajectory System**: Integrators + impact prediction.
 
 ---
 
-## 🚀 Build & Run
+## 🛠 Build Instructions
 ### Linux / macOS
 ```bash
 git clone https://github.com/jrjojr/byul_env.git
@@ -61,41 +52,48 @@ ctest
 
 ---
 
-## 🧪 Test Examples
-### Pathfinding (A*)
-```c
-    navgrid_t* m = navgrid_create();
+## 🧪 Tests
+### A* Routefinding
+```cpp
+TEST_CASE("navsys: find astar") {
+    navgrid_t* navgrid = navgrid_create();
+    coord_t start = {0, 0};
+    coord_t goal = {9, 9};
 
-    coord_t start;
-    coord_init_full(&start, 0, 0);
-
-    coord_t goal; 
-    coord_init_full(&goal, 9, 9);
-
-    route_finder_t* rf = route_finder_create(m);
-    route_finder_set_start(rf, &start);
-    route_finder_set_goal(rf, &goal);
-
-    // Obstacle insertion (vertical barrier)
     for (int y = 1; y < 10; ++y)
-        navgrid_block_coord(m, 5, y);
+        navgrid_block_coord(navgrid, 5, y);
 
-    route_t* p = route_finder_run(rf);
-
+    route_t* p = navsys_find_astar(navgrid, &start, &goal);
     CHECK(route_get_success(p) == true);
 
     route_print(p);
-    navgrid_print_ascii_with_visited_count(m, p, 5);
+    navgrid_print_ascii_with_route(navgrid, p, 2);
 
     route_destroy(p);
-    route_finder_destroy(rf);
-    navgrid_destroy(m);
+    navgrid_destroy(navgrid);
+}
 ```
 
-### Projectile Trajectory Prediction (RK4)
-```c
+### Maze Generation (Kruskal)
+```cpp
+TEST_CASE("Kruskal Algorithm Maze Generation") {
+    maze_t* maze = maze_make_kruskal(0, 0, 19, 19);
+    REQUIRE(maze != nullptr);
+
+    navgrid_t* navgrid = navgrid_create();
+    REQUIRE(navgrid != nullptr);
+
+    maze_apply_to_navgrid(maze, navgrid);
+    navgrid_print_ascii(navgrid);
+
+    navgrid_destroy(navgrid);
+    maze_destroy(maze);
+}
+```
+
+### Projectile Prediction (RK4)
+```cpp
 TEST_CASE("projectile_predict - ground collision") {
-    MESSAGE("\nprojectile_predict - ground collision");
     vec3_t start_pos = {0, 500, 0};
     vec3_t target_pos = {0, 0, 0};
     projectile_t proj;
@@ -107,20 +105,11 @@ TEST_CASE("projectile_predict - ground collision") {
     entdyn.xf.pos = target_pos;
 
     projectile_result_t* result = projectile_result_create();
-
     environ_t env;
     environ_init(&env);
 
     bool hit = projectile_predict(
-        result,          // [out] Stores the predicted trajectory and impact information
-        &proj,           // [in]  Projectile entity
-        &entdyn,         // [in]  Target entity (collision check target)
-        500.0f,          // [in]  max_time: Maximum prediction time (seconds)
-        1.0f,            // [in]  dt: Simulation sampling interval (seconds)
-        &env,            // [in]  Environment data (gravity, wind, etc.)
-        nullptr,         // [in]  Propulsion system (null if none)
-        guidance_none    // [in]  Guidance function pointer (guidance_none or nullptr)
-    );
+        result, &proj, &entdyn, 500.0f, 1.0f, &env, nullptr, guidance_none);
 
     CHECK(hit == true);
     CHECK(result->valid == true);
@@ -129,39 +118,36 @@ TEST_CASE("projectile_predict - ground collision") {
 
     trajectory_print(result->trajectory);
     char buf[64];
-    printf("impact time : %f, impact pos : %s\n", result->impact_time, 
-        vec3_to_string(&result->impact_pos, buf, 64));    
+    printf("impact time : %f, impact pos : %s\n", result->impact_time,
+           vec3_to_string(&result->impact_pos, 64, buf));
     projectile_result_destroy(result);
 }
 ```
 
 ---
 
-## 📘 Why `route` instead of `path`?
+## 📘 Why `route`, not `path`?
 
-In Byul's World, the term **`route`** is used instead of `path` for the following reasons:
-
-- `path` is commonly associated with filesystem paths, which can be confusing.
-- `route` better reflects the **"strategic path to a destination"** in the context of games.
-- The distinction between **static search (`route_finder`)** and **dynamic search (`dstar_lite`)** is clearer with `route`.
-
-> This terminology is part of the design philosophy and is used consistently across the project.
+The term `route` is intentionally used instead of `path`:
+- `path` is often associated with filesystems.
+- `route` better expresses a **planned motion path** in a game simulation.
+- Used consistently across `route_finder`, `dstar_lite`, and `navsys`.
 
 ---
 
-Contact: **byuldev@outlook.kr**
+## 📩 Contact
+**byuldev@outlook.kr**
 
 ---
 
 ## 📄 License
 - **Byul World Public License v1.0**  
-  - Free for personal learning and research  
-  - Commercial use and redistribution are prohibited  
+  - Free for personal use and academic research  
+  - Commercial use is prohibited  
   - See the LICENSE file for details
 
 ---
 
 ## 💬 Developer’s Note
-> `byul` has evolved beyond simple pathfinding to become a **real-time simulation engine**.  
-> From pathfinding to projectile trajectory prediction,  
-> this project serves as the foundation for creating **Byul's World**.
+> `byul` is not just a pathfinding tool. It has become a **real-time simulation core** 
+> for creating the future foundation of **Byul's World**.

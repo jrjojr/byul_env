@@ -84,7 +84,7 @@ route_t* find_ida_star(const navgrid_t* m,
                 break;
             }
 
-            coord_list_t* neighbors = navgrid_copy_adjacent(
+            coord_list_t* neighbors = navgrid_copy_neighbors(
                 m, current->x, current->y);
 
             int len = coord_list_length(neighbors);
@@ -128,7 +128,7 @@ route_t* find_ida_star(const navgrid_t* m,
 
         if (found && final) {
 
-            route_reconstruct_path(result, came_from, start, final);
+            route_reconstruct(result, came_from, start, final);
             route_set_success(result, true);
             coord_destroy(final);
             coord_hash_destroy(came_from);
@@ -137,7 +137,7 @@ route_t* find_ida_star(const navgrid_t* m,
             return result;
         } else if (best_coord) {
 
-            route_reconstruct_path(result, came_from, start, best_coord);
+            route_reconstruct(result, came_from, start, best_coord);
             coord_destroy(best_coord);
             best_coord = nullptr;
         }

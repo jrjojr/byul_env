@@ -1,5 +1,5 @@
-#include "maze.h"
-#include "obstacle.h"
+#include "maze_kruskal.h"
+
 #include <vector>
 #include <random>
 #include <ctime>
@@ -32,14 +32,14 @@ static void merge(int x1, int y1, int x2, int y2,
     if (p1 != p2) parent[p2 / parent[0].size()][p2 % parent[0].size()] = p1;
 }
 
-void maze_make_kruskal(maze_t* maze) {
-    if (!maze || maze->width < 3 || maze->height < 3) return;
-    if (maze->width % 2 == 0 || maze->height % 2 == 0) return;
+maze_t* maze_make_kruskal(int x0, int y0, int width, int height) {
+    if (width < 3 || height < 3) return nullptr;
+    if (width % 2 == 0 || height % 2 == 0) return nullptr;
 
-    int w = maze->width;
-    int h = maze->height;
-    int x0 = maze->x0;
-    int y0 = maze->y0;
+    maze_t* maze = maze_create_full(x0, y0, width, height);
+
+    int w = width;
+    int h = height;
 
     std::vector<std::vector<int>> grid(h, std::vector<int>(w, WALL));
     std::vector<std::vector<int>> parent(h, std::vector<int>(w, 0));
@@ -70,12 +70,14 @@ void maze_make_kruskal(maze_t* maze) {
     for (int y = 0; y < h; ++y) {
         for (int x = 0; x < w; ++x) {
             if (grid[y][x] == WALL) {
+                coord_t tmp = {x + x0, y + y0};
                 coord_hash_insert(
                     maze->blocked,
-                    make_tmp_coord(x + x0, y + y0),
+                    &tmp,
                     nullptr
                 );
             }
         }
     }
+    return maze;
 }

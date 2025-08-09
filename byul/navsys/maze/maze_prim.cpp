@@ -1,5 +1,5 @@
-#include "maze.h"
-#include "obstacle.h"
+#include "maze_prim.h"
+
 #include <vector>
 #include <random>
 #include <ctime>
@@ -16,13 +16,12 @@ static bool is_inside(int x, int y, int w, int h) {
     return x > 0 && y > 0 && x < w - 1 && y < h - 1;
 }
 
-void maze_make_prim(maze_t* maze) {
-    if (!maze) return;
+maze_t* maze_maze_prim(int x0, int y0, int width, int height){    
+    maze_t* maze = maze_create_full(x0, y0, width, height);
+    if (!maze) return nullptr;
 
     int w = maze->width;
     int h = maze->height;
-    int x0 = maze->x0;
-    int y0 = maze->y0;
 
     std::vector<std::vector<int>> grid(h, std::vector<int>(w, WALL));
     std::vector<Cell> wall_list;
@@ -33,7 +32,7 @@ void maze_make_prim(maze_t* maze) {
     for (int i = 1; i < w - 1; i += 2) odd_x.push_back(i);
     for (int i = 1; i < h - 1; i += 2) odd_y.push_back(i);
 
-    if (odd_x.empty() || odd_y.empty()) return;
+    if (odd_x.empty() || odd_y.empty()) return nullptr;
 
     std::uniform_int_distribution<size_t> pick_x(0, odd_x.size() - 1);
     std::uniform_int_distribution<size_t> pick_y(0, odd_y.size() - 1);
@@ -102,12 +101,15 @@ void maze_make_prim(maze_t* maze) {
     for (int y = 0; y < h; ++y) {
         for (int x = 0; x < w; ++x) {
             if (grid[y][x] == WALL) {
+                coord_t tmp = {x + x0, y + y0};
                 coord_hash_insert(
                     maze->blocked,
-                    make_tmp_coord(x + x0, y + y0),
+                    &tmp,
                     nullptr
                 );
             }
         }
     }
+
+    return maze;
 }

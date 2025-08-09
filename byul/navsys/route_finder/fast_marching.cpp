@@ -92,7 +92,7 @@ fmm_grid_t* fmm_grid_create_full(const navgrid_t* m, const coord_t* start,
 
         coord_list_push_back(grid->visit_order, current);
 
-        coord_list_t* neighbors = navgrid_copy_adjacent(
+        coord_list_t* neighbors = navgrid_copy_neighbors(
             m, current->x, current->y);
 
         int len = coord_list_length(neighbors);
@@ -224,7 +224,7 @@ route_t* find_fast_marching(const navgrid_t* m,
     route_insert(route, 0, current);
 
     while (!coord_equal(current, start)) {
-        coord_list_t* neighbors = navgrid_copy_adjacent(m, current->x, current->y);
+        coord_list_t* neighbors = navgrid_copy_neighbors(m, current->x, current->y);
         int len = coord_list_length(neighbors);
 
         float best_val = FLT_MAX;

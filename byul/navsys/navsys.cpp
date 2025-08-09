@@ -1,6 +1,7 @@
 #include <iostream>
 
 #include "navsys.h"
+#include "dstar_lite_tick.h"
 
 // navgrid, start, goal
 route_t* navsys_find_astar(
@@ -14,9 +15,11 @@ route_t* navsys_find_astar(
     }
 
     route_finder_t rf;
-    route_finder_init_full(&rf, ng, ROUTE_FINDER_ASTAR, 
-        &a_start, goal, default_cost, euclidean_heuristic,
-        MAX_RETRY, false, nullptr);
+    route_finder_init_full(&rf, ng, 
+        &a_start, goal, ROUTE_FINDER_ASTAR, nullptr,
+        MAX_RETRY, false, 
+        default_cost, nullptr,
+        euclidean_heuristic, nullptr);
 
     return route_finder_run(&rf);
 }
@@ -32,9 +35,11 @@ route_t* navsys_find_bfs(
     }
 
     route_finder_t rf;
-    route_finder_init_full(&rf, ng, ROUTE_FINDER_BFS, 
-        &a_start, goal, default_cost, euclidean_heuristic,
-        MAX_RETRY, false, nullptr);
+    route_finder_init_full(&rf, ng, 
+        &a_start, goal, ROUTE_FINDER_BFS, nullptr,
+        MAX_RETRY, false, 
+        default_cost, nullptr,
+        euclidean_heuristic, nullptr);
 
     return route_finder_run(&rf);        
 }
@@ -50,9 +55,11 @@ route_t* navsys_find_dfs(
     }
 
     route_finder_t rf;
-    route_finder_init_full(&rf, ng, ROUTE_FINDER_DFS, 
-        &a_start, goal, default_cost, euclidean_heuristic,
-        MAX_RETRY, false, nullptr);
+    route_finder_init_full(&rf, ng, 
+        &a_start, goal, ROUTE_FINDER_DFS, nullptr,
+        MAX_RETRY, false, 
+        default_cost, nullptr, 
+        euclidean_heuristic, nullptr);
 
     return route_finder_run(&rf);        
 }
@@ -68,9 +75,12 @@ route_t* navsys_find_dijkstra(
     }
 
     route_finder_t rf;
-    route_finder_init_full(&rf, ng, ROUTE_FINDER_DIJKSTRA, 
-        &a_start, goal, default_cost, euclidean_heuristic,
-        MAX_RETRY, false, nullptr);
+    route_finder_init_full(&rf, ng, 
+        &a_start, goal, ROUTE_FINDER_DIJKSTRA, nullptr, 
+        MAX_RETRY, false,
+        default_cost, nullptr,
+        euclidean_heuristic, nullptr
+        );
 
     return route_finder_run(&rf);        
 }
@@ -85,9 +95,13 @@ route_t* navsys_find_greedy_best_first(
     }
 
     route_finder_t rf;
-    route_finder_init_full(&rf, ng, ROUTE_FINDER_GREEDY_BEST_FIRST, 
-        &a_start, goal, default_cost, euclidean_heuristic,
-        MAX_RETRY, false, nullptr);
+    route_finder_init_full(&rf, ng, 
+        &a_start, goal, 
+        ROUTE_FINDER_GREEDY_BEST_FIRST, nullptr,
+        MAX_RETRY, false,
+        default_cost, nullptr,
+        euclidean_heuristic, nullptr
+);
 
     return route_finder_run(&rf);        
 }
@@ -103,9 +117,13 @@ route_t* navsys_find_ida_star(
     }
 
     route_finder_t rf;
-    route_finder_init_full(&rf, ng, ROUTE_FINDER_IDA_STAR, 
-        &a_start, goal, default_cost, manhattan_heuristic,
-        MAX_RETRY, false, nullptr);
+    route_finder_init_full(&rf, ng, 
+        &a_start, goal, 
+        ROUTE_FINDER_IDA_STAR, nullptr,
+        MAX_RETRY, false,
+        default_cost, nullptr,
+        manhattan_heuristic, nullptr
+        );
 
     return route_finder_run(&rf);        
 }
@@ -121,9 +139,12 @@ route_t* navsys_find_fast_marching(
     }
 
     route_finder_t rf;
-    route_finder_init_full(&rf, ng, ROUTE_FINDER_FAST_MARCHING, 
-        &a_start, goal, default_cost, euclidean_heuristic,
-        MAX_RETRY, false, nullptr);
+    route_finder_init_full(&rf, ng, 
+        &a_start, goal, 
+        ROUTE_FINDER_FAST_MARCHING, nullptr, 
+        MAX_RETRY, false, 
+        default_cost, nullptr,
+        euclidean_heuristic, nullptr);
 
     return route_finder_run(&rf);        
 }
@@ -141,11 +162,13 @@ route_t* navsys_find_fringe_search(navgrid_t* ng,
     float* spec = new float{delta_epsilon};
 
     route_finder_t rf;
-    route_finder_init_full(&rf, ng, ROUTE_FINDER_FRINGE_SEARCH, 
-        &a_start, goal,
-        default_cost, euclidean_heuristic,
+    route_finder_init_full(&rf, ng, 
+        &a_start, goal, 
+        ROUTE_FINDER_FRINGE_SEARCH, spec,
         MAX_RETRY, false,
-        spec);
+        default_cost, nullptr,
+        euclidean_heuristic, nullptr
+        );
 
     route_t* result = route_finder_run(&rf);
 
@@ -177,11 +200,13 @@ route_t* navsys_find_rta_star(navgrid_t* ng,
     int* spec = new int{depth_limit};
 
     route_finder_t rf;
-    route_finder_init_full(&rf, ng, ROUTE_FINDER_RTA_STAR, 
-        &a_start, goal,
-        default_cost, euclidean_heuristic,
+    route_finder_init_full(&rf, ng, 
+        &a_start, goal, 
+        ROUTE_FINDER_RTA_STAR, spec,
         MAX_RETRY, false,
-        spec);
+        default_cost, nullptr,
+        euclidean_heuristic, nullptr
+        );
 
     route_t* result = route_finder_run(&rf);
 
@@ -214,11 +239,13 @@ route_t* navsys_find_sma_star(navgrid_t* ng,
     int* spec = new int{memory_limit};
 
     route_finder_t rf;
-    route_finder_init_full(&rf, ng, ROUTE_FINDER_SMA_STAR, 
-        &a_start, goal,
-        default_cost, euclidean_heuristic,
+    route_finder_init_full(&rf, ng, 
+        &a_start, goal, 
+        ROUTE_FINDER_SMA_STAR, spec,
         MAX_RETRY, false,
-        spec);
+        default_cost, nullptr,
+        euclidean_heuristic, nullptr
+    );
 
     route_t* result = route_finder_run(&rf);
 
@@ -254,15 +281,30 @@ route_t* navsys_find_weighted_astar(navgrid_t* ng,
     float* spec = new float{weight};
 
     route_finder_t rf;
-    route_finder_init_full(&rf, ng, ROUTE_FINDER_WEIGHTED_ASTAR, 
-        &a_start, goal,
-        default_cost, euclidean_heuristic,
+    route_finder_init_full(&rf, ng, 
+        &a_start, goal, 
+        ROUTE_FINDER_WEIGHTED_ASTAR, spec,
         MAX_RETRY, false,
-        spec);
+        default_cost, nullptr,
+        euclidean_heuristic, nullptr
+        );
 
     route_t* result = route_finder_run(&rf);
 
     delete spec;
     
+    return result;
+}
+
+route_t* navsys_find_dstar_lite(navgrid_t* ng, 
+    const coord_t* start, const coord_t* goal){
+
+    dstar_lite_t *dsl = dstar_lite_create_full(ng, start, goal,
+        dstar_lite_cost,
+        dstar_lite_heuristic, false);
+
+    route_t* result = dstar_lite_find(dsl);
+    dstar_lite_destroy(dsl);
+
     return result;
 }

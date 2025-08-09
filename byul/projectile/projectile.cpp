@@ -144,7 +144,7 @@ void patriot_assign(patriot_t* patriot, const patriot_t* src)
  * @param[in]  force    Applied initial force (in Newtons)
  * @param[in]  mass     Mass of the projectile (in kilograms)
  */
-void calc_suitable_dt(
+static void calc_suitable_dt(
     float* dt_out, const vec3_t* dir, float force, float mass)
 {
     if (!dt_out || !dir || mass <= 0.0f) return;
@@ -161,7 +161,7 @@ void calc_suitable_dt(
     if (sample_count < 32) sample_count = 32;
     if (sample_count > 4096) sample_count = 4096;
 
-    // Compute dt = total_distance / (sample_count × velocity)
+    // Compute dt = total_distance / (sample_count x velocity)
     float estimated_dt = XFORM_MAX_DISTANCE / (sample_count * velocity);
 
     // Clamp dt to acceptable range
@@ -187,7 +187,7 @@ void calc_suitable_dt(
  * @param[in]  force        Applied initial force (Newtons)
  * @param[in]  mass         Mass of the projectile (kilograms)
  */
-void calc_suitable_max_time(
+static void calc_suitable_max_time(
     float* max_time_out, const vec3_t* dir, float force, float mass)
 {
     if (!max_time_out || !dir || mass <= 0.0f) return;
@@ -205,43 +205,38 @@ void calc_suitable_max_time(
 
 bool projectile_launch(
     const projectile_t* proj,
-    const vec3_t* dir,               // normalized
-    float initial_force,             // 입력된 힘 (N)
-    const environ_t* env,            // 환경 (update_func 포함 가능)
+    const vec3_t* dir,
+    float initial_force_scalar,
+    const environ_t* env,
     projectile_result_t* out)
 {
     if (!proj || !dir || !out) return false;
 
-    // 기본 시뮬레이션 설정
-    float max_time = MAX_SIM_TIME;  // 예: 100.0f
-    float dt = DELTA_TIME;          // 예: 0.048828f
+    float max_time = MAX_SIM_TIME;  // 100.0f
+    float dt = DELTA_TIME;          // 0.048828f
 
-    calc_suitable_dt(&dt, dir, initial_force, proj->base.props.mass);
+    calc_suitable_dt(&dt, dir, initial_force_scalar, proj->base.props.mass);
 
     calc_suitable_max_time(
-        &max_time, dir, initial_force, proj->base.props.mass);    
+        &max_time, dir, initial_force_scalar, proj->base.props.mass);    
 
-    // 질량이 있어야 힘을 속도로 변환 가능
     float mass = proj->base.props.mass;
     if (mass <= 0.0f) return false;
 
     // a = F / m
     vec3_t accel;
-    vec3_scale(&accel, dir, initial_force / mass);
+    vec3_scale(&accel, dir, initial_force_scalar / mass);
 
     // v = a * dt
     vec3_t velocity;
     vec3_scale(&velocity, &accel, dt);
 
-    // 발사체 복사 및 초기 속도 설정
     projectile_t self;
     projectile_assign(&self, proj);
     self.base.velocity = velocity;
 
-    // 목표 엔티티: 궤적 계산 시 필요하므로 기본 위치만 지정
     entity_dynamic_t target;
     entity_dynamic_init(&target);
-    // 필요시 target.xf.pos 설정 가능
 
     return projectile_predict(
         out,
@@ -258,45 +253,40 @@ bool projectile_launch(
 // ---------------------------------------------------------
 // Shell
 // ---------------------------------------------------------
-BYUL_API bool shell_projectile_launch(
+bool shell_projectile_launch(
     const shell_projectile_t* shell,
-    const vec3_t* dir,             // normalized
-    float initial_force,               // 초기 힘 크기
-    const environ_t* env,       // 환경 + update_func 포함 가능
+    const vec3_t* dir,
+    float initial_force_scalar,
+    const environ_t* env,
     projectile_result_t* out)
 {
     if (!shell || !dir || !out) return false;
 
-    // 기본 시뮬레이션 설정
-    float max_time = MAX_SIM_TIME;  // 예: 100.0f
-    float dt = DELTA_TIME;          // 예: 0.048828f
+    float max_time = MAX_SIM_TIME;  // 100.0f
+    float dt = DELTA_TIME;          // 0.048828f
 
-    calc_suitable_dt(&dt, dir, initial_force, shell->proj.base.props.mass);
+    calc_suitable_dt(&dt, dir, initial_force_scalar, shell->proj.base.props.mass);
     
     calc_suitable_max_time(
-        &max_time, dir, initial_force, shell->proj.base.props.mass);    
+        &max_time, dir, initial_force_scalar, shell->proj.base.props.mass);    
 
-    // 질량이 있어야 힘을 속도로 변환 가능
     float mass = shell->proj.base.props.mass;
     if (mass <= 0.0f) return false;
 
     // a = F / m
     vec3_t accel;
-    vec3_scale(&accel, dir, initial_force / mass);
+    vec3_scale(&accel, dir, initial_force_scalar / mass);
 
     // v = a * dt
     vec3_t velocity;
     vec3_scale(&velocity, &accel, dt);
 
-    // 발사체 복사 및 초기 속도 설정
     projectile_t self;
     projectile_assign(&self, &shell->proj);
     self.base.velocity = velocity;
 
-    // 목표 엔티티: 궤적 계산 시 필요하므로 기본 위치만 지정
     entity_dynamic_t target;
     entity_dynamic_init(&target);
-    // 필요시 target.xf.pos 설정 가능
 
     return projectile_predict(
         out,
@@ -316,37 +306,34 @@ BYUL_API bool shell_projectile_launch(
 bool rocket_launch(
     rocket_t* rocket,
     const vec3_t* target,
-    float initial_force,
+    float initial_force_scalar,
     const environ_t* env,
     projectile_result_t* out)
 {
     if (!rocket || !target || !out) return false;
 
-    // 기본 시뮬레이션 설정
-    float max_time = MAX_SIM_TIME;  // 예: 100.0f
-    float dt = DELTA_TIME;          // 예: 0.048828f
+    float max_time = MAX_SIM_TIME;  // 100.0f
+    float dt = DELTA_TIME;          // 0.048828f
 
     vec3_t dir;
     vec3_unit(&dir, target);
-    calc_suitable_dt(&dt, &dir, initial_force, 
+    calc_suitable_dt(&dt, &dir, initial_force_scalar, 
         rocket->base.proj.base.props.mass);
     
     calc_suitable_max_time(
-        &max_time, &dir, initial_force, rocket->base.proj.base.props.mass);    
+        &max_time, &dir, initial_force_scalar, rocket->base.proj.base.props.mass);    
 
-    // 질량이 있어야 힘을 속도로 변환 가능
     float mass = rocket->base.proj.base.props.mass;
     if (mass <= 0.0f) return false;
 
     // a = F / m
     vec3_t accel;
-    vec3_scale(&accel, &dir, initial_force / mass);
+    vec3_scale(&accel, &dir, initial_force_scalar / mass);
 
     // v = a * dt
     vec3_t velocity;
     vec3_scale(&velocity, &accel, dt);
 
-    // 발사체 복사 및 초기 속도 설정
     projectile_t self;
     projectile_assign(&self, &rocket->base.proj);
     self.base.velocity = velocity;
@@ -373,38 +360,35 @@ bool rocket_launch(
 bool missile_launch(
     missile_t* missile,
     const vec3_t* target,
-    float initial_force,
+    float initial_force_scalar,
     const environ_t* env,
     projectile_result_t* out)
 {
     if (!missile || !target || !out) return false;
 
-    // 기본 시뮬레이션 설정
-    float max_time = MAX_SIM_TIME;  // 예: 100.0f
-    float dt = DELTA_TIME;          // 예: 0.048828f
+    float max_time = MAX_SIM_TIME;  //  100.0f
+    float dt = DELTA_TIME;          //  0.048828f
 
     vec3_t dir;
     vec3_unit(&dir, target);
-    calc_suitable_dt(&dt, &dir, initial_force, 
+    calc_suitable_dt(&dt, &dir, initial_force_scalar, 
         missile->base.base.proj.base.props.mass);
     
     calc_suitable_max_time(
-        &max_time, &dir, initial_force, 
+        &max_time, &dir, initial_force_scalar, 
         missile->base.base.proj.base.props.mass);    
 
-    // 질량이 있어야 힘을 속도로 변환 가능
     float mass = missile->base.base.proj.base.props.mass;
     if (mass <= 0.0f) return false;
 
     // a = F / m
     vec3_t accel;
-    vec3_scale(&accel, &dir, initial_force / mass);
+    vec3_scale(&accel, &dir, initial_force_scalar / mass);
 
     // v = a * dt
     vec3_t velocity;
     vec3_scale(&velocity, &accel, dt);
 
-    // 발사체 복사 및 초기 속도 설정
     projectile_t self;
     projectile_assign(&self, &missile->base.base.proj);
     self.base.velocity = velocity;
@@ -424,39 +408,36 @@ bool missile_launch(
 bool patriot_launch(
     patriot_t* patriot,
     const entity_dynamic_t* target,
-    float initial_force,
+    float initial_force_scalar,
     const environ_t* env,
     projectile_result_t* out)
 {
     if (!patriot || !target || !out) return false;
 
-    // 기본 시뮬레이션 설정
-    float max_time = MAX_SIM_TIME;  // 예: 100.0f
-    float dt = DELTA_TIME;          // 예: 0.048828f
+    float max_time = MAX_SIM_TIME;  // 100.0f
+    float dt = DELTA_TIME;          // 0.048828f
 
     vec3_t dir;
     vec3_sub(&dir, &target->xf.pos, &patriot->base.base.base.proj.base.xf.pos);
     vec3_normalize(&dir);
-    calc_suitable_dt(&dt, &dir, initial_force, 
+    calc_suitable_dt(&dt, &dir, initial_force_scalar, 
         patriot->base.base.base.proj.base.props.mass);
     
     calc_suitable_max_time(
-        &max_time, &dir, initial_force, 
+        &max_time, &dir, initial_force_scalar, 
         patriot->base.base.base.proj.base.props.mass);    
 
-    // 질량이 있어야 힘을 속도로 변환 가능
     float mass = patriot->base.base.base.proj.base.props.mass;
     if (mass <= 0.0f) return false;
 
     // a = F / m
     vec3_t accel;
-    vec3_scale(&accel, &dir, initial_force / mass);
+    vec3_scale(&accel, &dir, initial_force_scalar / mass);
 
     // v = a * dt
     vec3_t velocity;
     vec3_scale(&velocity, &accel, dt);
 
-    // 발사체 복사 및 초기 속도 설정
     projectile_t self;
     projectile_assign(&self, &patriot->base.base.base.proj);
     self.base.velocity = velocity;

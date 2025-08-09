@@ -16,6 +16,7 @@ extern "C" {
 typedef struct s_propulsion {
     // --- Basic Performance ---
     float max_thrust;            ///< Maximum thrust (N). Must be >= 0.0f
+    float target_thrust;         ///< target thrust (N). Must be >= 0.0f
     float current_thrust;        ///< Current thrust (calculated by controller)
     float fuel_capacity;         ///< Total fuel capacity (kg)
     float fuel_remaining;        ///< Remaining fuel (kg)
@@ -55,8 +56,10 @@ typedef struct s_propulsion {
  *
  * ### Default Settings:
  * - **max_thrust = 120.0f**  
- *   - Max thrust in N (small rocket engine or drone motor level)
+ * - Max thrust in N (small rocket engine or drone motor level)
  *
+ * - **target_thrust = max_thrust**
+ * 
  * - **current_thrust = 0.0f**  
  * - **fuel_capacity = 50.0f** (kg)
  * - **fuel_remaining = 50.0f** (kg)
@@ -89,6 +92,7 @@ BYUL_API void propulsion_init(propulsion_t* p);
  *
  * @param p Pointer to propulsion_t (does nothing if NULL)
  * @param max_thrust Maximum thrust (N)
+ * @param target_thrust setpoint(sp) thrust (N)
  * @param fuel_capacity Total fuel (kg)
  * @param burn_rate Fuel consumption rate (kg/s)
  * @param ctrl Controller pointer (optional)
@@ -96,6 +100,7 @@ BYUL_API void propulsion_init(propulsion_t* p);
  */
 BYUL_API void propulsion_init_full(propulsion_t* p,
                                    float max_thrust,
+                                   float target_thrust,
                                    float fuel_capacity,
                                    float burn_rate,
                                    controller_t* ctrl,
@@ -131,10 +136,15 @@ BYUL_API void propulsion_reset(propulsion_t* p);
  * 6. Update heat and wear.
  *
  * @param p Pointer to propulsion_t (does nothing if NULL)
- * @param target_thrust Target thrust (N), within 0 ~ max_thrust
  * @param dt Time interval (s), must be > 0
  */
-BYUL_API void propulsion_update(propulsion_t* p, float target_thrust, float dt);
+BYUL_API void propulsion_update(propulsion_t* p, float dt);
+
+// setpoint is target get
+BYUL_API float propulsion_get_target(const propulsion_t* p);
+
+// set setpoint(sp) is target
+BYUL_API void propulsion_set_target(propulsion_t* p, float target);
 
 /**
  * @brief Returns current thrust (N)
@@ -242,7 +252,7 @@ BYUL_API void propulsion_print(const propulsion_t* p);
  * @brief Convert current propulsion status to string
  */
 BYUL_API const char* propulsion_to_string(
-    const propulsion_t* p, char* buffer, size_t buffer_size);
+    const propulsion_t* p, size_t buffer_size, char* buffer);
 
 /**
  * @brief Convert current propulsion status to JSON format string

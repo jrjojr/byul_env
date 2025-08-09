@@ -53,10 +53,12 @@ add_subdirectory(balix)
 add_subdirectory(entity)
 add_subdirectory(projectile)
 add_subdirectory(gpu_comp_tester)
+add_subdirectory(byul_tick)
 
 set(${PROJECT_NAME}_SOURCES 
     ${CMAKE_CURRENT_SOURCE_DIR}/byul.cpp
 
+    ${byul_tick_SOURCES}
     ${common_SOURCES}
     ${console_SOURCES}
     ${navsys_SOURCES}
@@ -72,6 +74,7 @@ set(${PROJECT_NAME}_HEADERS
     ${CMAKE_CURRENT_SOURCE_DIR}/byul.h
     ${CMAKE_CURRENT_SOURCE_DIR}/byul_common.h
 
+    ${byul_tick_HEADERS}
     ${common_HEADERS}
     ${console_HEADERS}
     ${navsys_HEADERS}
@@ -111,6 +114,8 @@ target_include_directories(${PROJECT_NAME} PRIVATE
     ${CMAKE_SOURCE_DIR}
     ${EXTERNAL_DIR}
 
+    ${CMAKE_SOURCE_DIR}/byul_tick
+    
     ${COMMON_HDR_DIRS}
     ${CONSOLE_HDR_DIRS}
 

@@ -5,8 +5,9 @@ project(test_maze)
 set(${PROJECT_NAME}_SOURCES
 
     ${CMAKE_CURRENT_SOURCE_DIR}/main.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/test_module_maze.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/test_module_maze_discrete.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/test_module_maze_room.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/test_module_maze.cpp
 
 CACHE INTERNAL "${PROJECT_NAME} source files"  FORCE
 )

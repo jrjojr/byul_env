@@ -31,7 +31,7 @@ BYUL_API void double_destroy(void* p);
 BYUL_API coord_hash_t* coord_hash_create();  
 
 BYUL_API coord_hash_t* coord_hash_create_full(coord_hash_copy_func copy_func,
-                                  coord_hash_destroy_func free_func);
+                                  coord_hash_destroy_func destroy_func);
     
 BYUL_API void          coord_hash_destroy(coord_hash_t* hash);
 BYUL_API coord_hash_t* coord_hash_copy(const coord_hash_t* original);
@@ -137,7 +137,7 @@ BYUL_API coord_hash_iter_t* coord_hash_iter_create(
     const coord_hash_t* hash);
 
 BYUL_API bool coord_hash_iter_next(
-    coord_hash_iter_t* iter, coord_t** key_out, void** val_out);
+    coord_hash_iter_t* iter, coord_t* key_out, void** val_out);
 
 BYUL_API void coord_hash_iter_destroy(
     coord_hash_iter_t* iter);

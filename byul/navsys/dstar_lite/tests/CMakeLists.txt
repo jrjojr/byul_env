@@ -7,6 +7,7 @@ set(${PROJECT_NAME}_SOURCES
     ${CMAKE_CURRENT_SOURCE_DIR}/main.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/test_module_dstar_lite.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/test_module_dstar_lite_pqueue.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/test_module_dstar_lite_tick.cpp
 
 CACHE INTERNAL "${PROJECT_NAME} source files"  FORCE
 )
@@ -56,6 +57,7 @@ target_include_directories(${PROJECT_NAME} PRIVATE
     ${CMAKE_SOURCE_DIR}
     ${CMAKE_SOURCE_DIR}/common
     ${CMAKE_SOURCE_DIR}/console
+    ${CMAKE_SOURCE_DIR}/byul_tick
 
     ${CMAKE_SOURCE_DIR}/navsys/coord
     ${CMAKE_SOURCE_DIR}/navsys/route
@@ -74,6 +76,7 @@ target_link_directories(${PROJECT_NAME} PRIVATE
 target_link_libraries(${PROJECT_NAME} PRIVATE
     common
     console
+    byul_tick
     
     coord
     route

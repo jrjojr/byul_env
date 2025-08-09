@@ -9,19 +9,19 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 set(${PROJECT_NAME}_SOURCES
 
     ${CMAKE_CURRENT_SOURCE_DIR}/maze.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/maze_common.cpp
 
     ${CMAKE_CURRENT_SOURCE_DIR}/maze_aldous_broder.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/maze_binary.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/maze_common.cpp
-
     ${CMAKE_CURRENT_SOURCE_DIR}/maze_eller.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/maze_hunt_and_kill.cpp
+
     ${CMAKE_CURRENT_SOURCE_DIR}/maze_kruskal.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/maze_prim.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/maze_recursive_division.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/maze_recursive.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/maze_room.cpp
-
+    
+    ${CMAKE_CURRENT_SOURCE_DIR}/maze_room_blend.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/maze_sidewinder.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/maze_wilson.cpp
 
@@ -31,10 +31,21 @@ CACHE INTERNAL "${PROJECT_NAME} source files"  FORCE
 set(${PROJECT_NAME}_HEADERS
 
     ${CMAKE_CURRENT_SOURCE_DIR}/maze.h
-
     ${CMAKE_CURRENT_SOURCE_DIR}/maze_common.h
 
-    ${CMAKE_CURRENT_SOURCE_DIR}/maze_room.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/maze_recursive.h    
+    ${CMAKE_CURRENT_SOURCE_DIR}/maze_prim.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/maze_binary.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/maze_eller.h    
+
+    ${CMAKE_CURRENT_SOURCE_DIR}/maze_aldous_broder.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/maze_wilson.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/maze_hunt_and_kill.h    
+    ${CMAKE_CURRENT_SOURCE_DIR}/maze_sidewinder.h    
+
+    ${CMAKE_CURRENT_SOURCE_DIR}/maze_recursive_division.h    
+    ${CMAKE_CURRENT_SOURCE_DIR}/maze_kruskal.h    
+    ${CMAKE_CURRENT_SOURCE_DIR}/maze_room_blend.h
 
 CACHE INTERNAL "${PROJECT_NAME} header files"  FORCE
 )

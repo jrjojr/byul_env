@@ -1,4 +1,4 @@
-#include "maze.h"
+#include "maze_wilson.h"
 #include "obstacle.h"
 #include <vector>
 #include <unordered_map>
@@ -33,14 +33,14 @@ static bool is_inside(int x, int y, int w, int h) {
     return x > 0 && y > 0 && x < w - 1 && y < h - 1 && x % 2 == 1 && y % 2 == 1;
 }
 
-void maze_make_wilson(maze_t* maze) {
-    if (!maze || maze->width < 3 || maze->height < 3) return;
-    if (maze->width % 2 == 0 || maze->height % 2 == 0) return;
+maze_t* maze_make_wilson(int x0, int y0, int width, int height){
+    if (width < 3 || height < 3) return nullptr;
+    if (width % 2 == 0 || height % 2 == 0) return nullptr;
+
+    maze_t* maze = maze_create_full(x0, y0, width, height);
 
     int w = maze->width;
     int h = maze->height;
-    int x0 = maze->x0;
-    int y0 = maze->y0;
 
     std::vector<std::vector<int>> grid(h, std::vector<int>(w, WALL));
     std::unordered_set<Cell> visited;
@@ -104,12 +104,14 @@ void maze_make_wilson(maze_t* maze) {
     for (int y = 0; y < h; ++y) {
         for (int x = 0; x < w; ++x) {
             if (grid[y][x] != PASSAGE) {
+                coord_t tmp = {x + x0, y + y0};
                 coord_hash_insert(
                     maze->blocked,
-                    make_tmp_coord(x + x0, y + y0),
+                    &tmp,
                     nullptr
                 );
             }
         }
     }
+    return maze;
 }

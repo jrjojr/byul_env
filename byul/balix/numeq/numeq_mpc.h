@@ -32,8 +32,10 @@
 #define NUMEQ_MPC_H
 
 #include "trajectory.h"
-#include "numeq_model.h"
+
 #include "numal.h"
+#include "environ.h"
+#include "bodyprops.h"
 
 #ifdef __cplusplus
 extern "C" {

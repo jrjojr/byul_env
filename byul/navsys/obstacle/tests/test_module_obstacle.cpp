@@ -443,11 +443,21 @@ TEST_CASE("obstacle_make_triangle_torus") {
 TEST_CASE("obstacle_make_polygon") {
     SUBCASE("generic pentagon polygon generate") {
         coord_list_t* list = coord_list_create();
-        coord_list_push_back(list, make_tmp_coord(10, 10));
-        coord_list_push_back(list, make_tmp_coord(15, 10));
-        coord_list_push_back(list, make_tmp_coord(17, 15));
-        coord_list_push_back(list, make_tmp_coord(12, 18));
-        coord_list_push_back(list, make_tmp_coord(8, 14));
+
+        coord_t tmp = {10, 10};
+        coord_list_push_back(list, &tmp);
+
+        tmp = {15, 10};        
+        coord_list_push_back(list, &tmp);
+
+        tmp = {17, 15};        
+        coord_list_push_back(list, &tmp);
+
+        tmp = {12, 18};
+        coord_list_push_back(list, &tmp);
+        
+        tmp = {8, 14};
+        coord_list_push_back(list, &tmp);
 
         REQUIRE(coord_list_length(list) == 5);
 
@@ -468,8 +478,12 @@ TEST_CASE("obstacle_make_polygon") {
 
     SUBCASE("lack of input (2 point )") {
         coord_list_t* list = coord_list_create();
-        coord_list_push_back(list, make_tmp_coord(0, 0));
-        coord_list_push_back(list, make_tmp_coord(1, 1));
+
+        coord_t tmp = {0, 0};
+        coord_list_push_back(list, &tmp);
+
+        tmp = {1, 1};
+        coord_list_push_back(list, &tmp);
 
         REQUIRE(coord_list_length(list) == 2);
 
@@ -488,11 +502,21 @@ TEST_CASE("obstacle_make_polygon") {
 TEST_CASE("obstacle_make_polygon_torus") {
     SUBCASE("basic pentagon torus generate - thickness = 0") {
         coord_list_t* list = coord_list_create();
-        coord_list_push_back(list, make_tmp_coord(10, 10));
-        coord_list_push_back(list, make_tmp_coord(15, 10));
-        coord_list_push_back(list, make_tmp_coord(17, 15));
-        coord_list_push_back(list, make_tmp_coord(12, 18));
-        coord_list_push_back(list, make_tmp_coord(8, 14));
+
+        coord_t tmp = {10, 10};
+        coord_list_push_back(list, &tmp);
+
+        tmp = {15, 10};
+        coord_list_push_back(list, &tmp);
+
+        tmp = {17, 15};
+        coord_list_push_back(list, &tmp);
+
+        tmp = {12, 18};
+        coord_list_push_back(list, &tmp);
+
+        tmp = {8, 14};
+        coord_list_push_back(list, &tmp);        
 
         REQUIRE(coord_list_length(list) == 5);
 
@@ -513,11 +537,21 @@ TEST_CASE("obstacle_make_polygon_torus") {
 
     SUBCASE("thickness = 1 more fat") {
         coord_list_t* list = coord_list_create();
-        coord_list_push_back(list, make_tmp_coord(5, 5));
-        coord_list_push_back(list, make_tmp_coord(10, 5));
-        coord_list_push_back(list, make_tmp_coord(12, 10));
-        coord_list_push_back(list, make_tmp_coord(7, 13));
-        coord_list_push_back(list, make_tmp_coord(3, 9));
+
+        coord_t tmp = {5, 5};
+        coord_list_push_back(list, &tmp);
+
+        tmp = {10, 5};
+        coord_list_push_back(list, &tmp);
+
+        tmp = {12, 10};
+        coord_list_push_back(list, &tmp);
+
+        tmp = {7, 13};
+        coord_list_push_back(list, &tmp);
+
+        tmp = {3, 9};
+        coord_list_push_back(list, &tmp);
 
         obstacle_t* obs = obstacle_make_polygon_torus(list, 1);
         REQUIRE(obs != nullptr);
@@ -536,8 +570,12 @@ TEST_CASE("obstacle_make_polygon_torus") {
 
     SUBCASE("lack of coord (2 point)") {
         coord_list_t* list = coord_list_create();
-        coord_list_push_back(list, make_tmp_coord(0, 0));
-        coord_list_push_back(list, make_tmp_coord(1, 1));
+
+        coord_t tmp = {0, 0};
+        coord_list_push_back(list, &tmp);
+
+        tmp = {1, 1};
+        coord_list_push_back(list, &tmp);
 
         obstacle_t* obs = obstacle_make_polygon_torus(list, 0);
         CHECK(obs == nullptr);
@@ -551,9 +589,15 @@ TEST_CASE("obstacle_make_polygon_torus") {
 
     SUBCASE("minus thickness is fail") {
         coord_list_t* list = coord_list_create();
-        coord_list_push_back(list, make_tmp_coord(0, 0));
-        coord_list_push_back(list, make_tmp_coord(1, 0));
-        coord_list_push_back(list, make_tmp_coord(1, 1));
+        
+        coord_t tmp = {0, 0};
+        coord_list_push_back(list, &tmp);
+       
+        tmp = {1, 0};
+        coord_list_push_back(list, &tmp);
+        
+        tmp = {1, 1};
+        coord_list_push_back(list, &tmp);        
 
         obstacle_t* obs = obstacle_make_polygon_torus(list, -1);
         CHECK(obs == nullptr);

@@ -46,7 +46,7 @@ void xform_init_axis_angle(xform_t* out,
     quat_init_axis_angle(&out->rot, axis, radians);
 }
 
-void xform_init_axis_angle_deg(xform_t* out, 
+void xform_init_axis_deg(xform_t* out, 
     const vec3_t* pos, const vec3_t* axis, float degrees) {
 
     xform_init_axis_angle(out, pos, axis, degrees * (M_PI / 180.0f));
@@ -100,7 +100,7 @@ void xform_get_axis_angle(const xform_t* xf,
     quat_to_axis_angle(&xf->rot, out_axis, out_radians);
 }
 
-void xform_get_axis_angle_deg(const xform_t* xf, 
+void xform_get_axis_deg(const xform_t* xf, 
     vec3_t* out_axis, float* out_degrees) {
 
     float rad = 0.0f;
@@ -113,7 +113,7 @@ void xform_set_axis_angle(xform_t* xf, const vec3_t* axis, float radians) {
     quat_init_axis_angle(&xf->rot, axis, radians);
 }
 
-void xform_set_axis_angle_deg(xform_t* xf, const vec3_t* axis, float degrees) {
+void xform_set_axis_deg(xform_t* xf, const vec3_t* axis, float degrees) {
     xform_set_axis_angle(xf, axis, degrees * (M_PI / 180.0f));
 }
 
@@ -183,7 +183,7 @@ void xform_rotate_axis_angle(xform_t* xf, const vec3_t* axis, float radians) {
     quat_mul(&xf->rot, &q, &xf->rot);
 }
 
-void xform_rotate_axis_angle_deg(xform_t* xf, 
+void xform_rotate_axis_deg(xform_t* xf, 
     const vec3_t* axis, float degrees) {
 
     xform_rotate_axis_angle(xf, axis, degrees * (M_PI / 180.0f));
@@ -198,7 +198,7 @@ void xform_rotate_local_axis_angle(xform_t* xf,
     quat_mul(&xf->rot, &xf->rot, &q);
 }
 
-void xform_rotate_local_axis_angle_deg(xform_t* xf, 
+void xform_rotate_local_axis_deg(xform_t* xf, 
     const vec3_t* axis, float degrees) {
 
     xform_rotate_local_axis_angle(xf, axis, degrees * (M_PI / 180.0f));
@@ -416,18 +416,17 @@ void xform_rotate_around_pivot(
     const quat_t* q,
     const vec3_t* pivot)
 {
-    // 1. pos 기준 회전
     vec3_t relative;
     vec3_sub(&relative, &xf->pos, pivot);              // local = pos - pivot
 
     vec3_t rotated;
-    quat_rotate_vector(q, &relative, &rotated);        // 회전
+    quat_rotate_vector(q, &relative, &rotated);
 
     vec3_add(&xf->pos, &rotated, pivot);               // world = rotated + pivot
 
-    // 2. rot 갱신 (q * old)
-    quat_mul(&xf->rot, q, &xf->rot);                   // 새로운 rot = q * old
-    quat_normalize(&xf->rot);                          // 정규화 안정성
+    // 2. rot (q * old)
+    quat_mul(&xf->rot, q, &xf->rot);                   // rot = q * old
+    quat_normalize(&xf->rot);                          
 }
 
 void xform_slerp_pivot(
@@ -437,22 +436,19 @@ void xform_slerp_pivot(
     float t,
     const vec3_t* pivot)
 {
-    // 1. 회전 보간
     quat_t rot_interp;
     quat_slerp(&rot_interp, &a->rot, &b->rot, t);
 
-    // 2. 피벗 기준 위치 보간
     vec3_t offset;
     vec3_sub(&offset, &a->pos, pivot);               // offset = a->pos - pivot
 
     vec3_t rotated_offset;
-    quat_apply_to_vec3(&rot_interp, &offset, &rotated_offset);  // 회전 적용
+    quat_apply_to_vec3(&rot_interp, &offset, &rotated_offset);
 
     vec3_add(&out->pos, pivot, &rotated_offset);     // new_pos = pivot + rotated_offset
 
-    // 3. 회전과 스케일 설정
     out->rot = rot_interp;
-    vec3_lerp(&out->scale, &a->scale, &b->scale, t);  // 스케일도 선형 보간
+    vec3_lerp(&out->scale, &a->scale, &b->scale, t);
 }
 
 void xform_look_at_pivot(

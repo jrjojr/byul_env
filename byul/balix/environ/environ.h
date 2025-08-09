@@ -17,14 +17,13 @@ typedef struct s_projectile projectile_t;
  * @brief Function pointer for calculating external acceleration.
  *
  * @param[in] env        Environment data pointer.
- * @param[in] dt         Time step (seconds).
+ * @param[in] delta_time         Time step (seconds).
  * @param[in] userdata   User-defined data.
  * @param[out] out_accel Calculated acceleration vector.
  * @return Pointer to the calculated acceleration vector.
  */
 typedef const vec3_t* (*environ_func)(
     const struct s_environ* env,
-    float dt,
     void* userdata,
     vec3_t* out_accel
 );
@@ -150,19 +149,19 @@ BYUL_API void environ_adjust_accel_gsplit(
  * @brief Environment function with zero external acceleration.
  */
 BYUL_API const vec3_t* environ_calc_none(
-    const environ_t* env, float dt, void* userdata, vec3_t* out_accel);
+    const environ_t* env, void* userdata, vec3_t* out_accel);
 
 /**
  * @brief Environment function applying standard gravity only.
  */
 BYUL_API const vec3_t* environ_calc_gravity(
-    const environ_t* env, float dt, void* userdata, vec3_t* out_accel);
+    const environ_t* env, void* userdata, vec3_t* out_accel);
 
 /**
  * @brief Environment function applying gravity + fixed wind.
  */
 BYUL_API const vec3_t* environ_calc_gravity_wind(
-    const environ_t* env, float dt, void* userdata, vec3_t* out_accel);
+    const environ_t* env, void* userdata, vec3_t* out_accel);
 
 // ---------------------------------------------------------
 // Periodic environment
@@ -175,7 +174,8 @@ typedef struct s_environ_periodic {
     vec3_t base_wind;      ///< Base wind vector.
     vec3_t gust_amplitude; ///< Wind variation amplitude.
     float gust_frequency;  ///< Wind frequency (Hz).
-    float time;            ///< Elapsed time (s).
+    float elapsed;            ///< Elapsed time (s).
+    float delta_time;
     vec3_t gravity;        ///< Gravity vector (default {0, -9.81, 0}).
 } environ_periodic_t;
 
@@ -214,7 +214,7 @@ BYUL_API void environ_periodic_assign(
  * @brief Environment function applying periodic wind and gravity.
  */
 BYUL_API const vec3_t* environ_calc_periodic(
-    const environ_t* env, float dt, void* userdata, vec3_t* out_accel);
+    const environ_t* env, void* userdata, vec3_t* out_accel);
 
 #ifdef __cplusplus
 }

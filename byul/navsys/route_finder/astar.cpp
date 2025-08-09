@@ -58,7 +58,7 @@ route_t* find_astar(const navgrid_t* m, const coord_t* start, const coord_t* goa
         float* current_cost_ptr = (float*)coord_hash_get(cost_so_far, current);
         float current_cost = current_cost_ptr ? *current_cost_ptr : 0.0f;
 
-        coord_list_t* neighbors = navgrid_copy_adjacent(m, current->x, current->y);
+        coord_list_t* neighbors = navgrid_copy_neighbors(m, current->x, current->y);
         int len = coord_list_length(neighbors);
 
         for (int i = 0; i < len; ++i) {
@@ -90,14 +90,14 @@ route_t* find_astar(const navgrid_t* m, const coord_t* start, const coord_t* goa
     }
 
     // if (final) {
-        if (route_reconstruct_path(result, came_from, start, final)) {
+        if (route_reconstruct(result, came_from, start, final)) {
             route_set_success(result, found);
         } else {
             route_set_success(result, false);
         }
         delete final;
     // } else {
-    //     route_reconstruct_path(result, came_from, start, final);
+    //     route_reconstruct(result, came_from, start, final);
     //     route_set_success(result, false);
     // }
 

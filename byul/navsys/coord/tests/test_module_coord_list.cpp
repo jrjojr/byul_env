@@ -132,7 +132,8 @@ TEST_CASE("coord_list: contains, find, sublist") {
 
     CHECK(coord_list_contains(list, b));
     CHECK(coord_list_find(list, b) == 1);
-    CHECK(coord_list_find(list, make_tmp_coord(999, 999)) == -1);
+    coord_t tmp = {999, 999};
+    CHECK(coord_list_find(list, &tmp) == -1);
 
     coord_list_t* sub = coord_list_sublist(list, 1, 3);
     CHECK(coord_list_length(sub) == 2);

@@ -118,14 +118,13 @@ BYUL_API void projectile_result_print(const projectile_result_t* result);
  * @brief Converts a projectile_result_t to a string.
  *
  * @param result       Pointer to the projectile_result_t to convert.
- * @param buffer       Buffer to store the result string.
  * @param buffer_size  Buffer size (recommended: PROJECTILE_RESULT_STR_BUFSIZE).
+ * @param buffer       Buffer to store the result string.
  * @return Pointer to buffer (for chaining).
  */
 BYUL_API char* projectile_result_to_string(
     const projectile_result_t* result,
-    char* buffer,
-    size_t buffer_size);
+    size_t buffer_size, char* buffer);
 
 /**
  * @brief Prints detailed information of a projectile_result_t.
@@ -166,7 +165,7 @@ BYUL_API char* projectile_result_to_string_detailed(
  * @param mass    Projectile mass (kg).
  * @return Initial force (Newtons, N). Returns 0.0f if invalid.
  */
-BYUL_API float projectile_result_calc_initial_force(
+BYUL_API float projectile_result_calc_initial_force_scalar(
     const projectile_result_t* result,
     float mass);    
 
@@ -185,7 +184,7 @@ BYUL_API float projectile_result_calc_initial_force(
  *
  * @param[out] out          Structure to store trajectory and collision results (must not be NULL).
  * @param[in]  proj         Initial projectile state (position, velocity, mass, etc.).
- * @param[in]  entdyn       Target dynamic data (NULL if no target).
+ * @param[in]  target       Target dynamic data (NULL if no target).
  * @param[in]  max_time     Maximum simulation time (seconds).
  * @param[in]  dt    Simulation time step (seconds).
  * @param[in]  env          Environment data (NULL if no environmental effects).
@@ -198,129 +197,12 @@ BYUL_API float projectile_result_calc_initial_force(
 BYUL_API bool projectile_predict(
     projectile_result_t* out,
     const projectile_t* proj,
-    const entity_dynamic_t* entdyn,
+    const entity_dynamic_t* target,
     float max_time,
     float dt,
     const environ_t* env,
     propulsion_t* propulsion,
     guidance_func guidance_fn);
-
-/**
- * @struct launch_param_t
- * @brief Defines initial parameters required to launch a projectile toward a target.
- *
- * - **direction**: Launch direction toward the target (unit vector).
- * - **force**: Initial force applied at launch (Newton, N).
- *      - 1 N = 1 kg * 1 m/s^2.
- *      - Example recommended values:
- *        * 1 kg projectile -> 10 ~ 100 N (10 ~ 30 m/s initial velocity).
- *        * 10 kg projectile -> 500 ~ 5000 N (20 ~ 100 m/s initial velocity).
- * - **time_to_hit**: Estimated time to reach the target (seconds).
- *
- * @note
- * - direction is always normalized.
- * - force is converted into the actual initial velocity vector
- *   based on mass and projectile properties.
- */
-typedef struct s_launch_param {
-    vec3_t direction;    ///< Launch direction (unit vector)
-    float  force;        ///< Initial launch force (Newton, N)
-    float  time_to_hit;  ///< Estimated time to hit target (seconds)
-} launch_param_t;
-
-
-/**
- * @brief Calculates launch parameters for a projectile to reach the given target position.
- *
- * This function ignores **environmental factors (gravity, wind, etc.)**  
- * and only considers the projectile's **own properties (mass, friction, etc.)**.
- * 
- * - After launch, velocity decreases gradually due to friction but does not drop
- *   because of gravity.
- * - Once velocity reaches 0, the projectile stops at its location.
- * - Calculates initial force (`force`), direction (`direction`),
- *   and expected time to hit (`time_to_hit`).
- *
- * @param[out] out           Calculation result (direction, initial force, time_to_hit).
- * @param[in]  proj          Projectile info (start position, mass, friction, etc.).
- * @param[in]  target        Target position (world coordinates).
- * @param[in]  initial_force Initial force at launch (Newton, N).
- * @return `true` if calculation succeeded, `false` if target cannot be reached with given force.
- */
-BYUL_API bool projectile_calc_launch_param(
-    launch_param_t* out,
-    const projectile_t* proj,
-    const vec3_t* target,
-    float initial_force
-);
-
-/**
- * @brief Calculates launch parameters to reach a target while considering environment factors.
- *
- * Accounts for gravity, wind, air drag, and other environmental data (`environ_t`)
- * to calculate initial launch direction (`direction`), force (`force`),
- * and time-to-hit (`time_to_hit`).
- *
- * @param[out] out           Calculation result (direction, force, time_to_hit).
- * @param[in]  proj          Projectile info (start position, mass, etc.).
- * @param[in]  env           Environment info (gravity, wind, drag, etc.).
- * @param[in]  target        Target position (world coordinates).
- * @param[in]  initial_force Initial force at launch (Newton, N).
- * @return `true` if calculation succeeded, `false` if target cannot be reached under given conditions.
- */
-BYUL_API bool projectile_calc_launch_param_env(
-    launch_param_t* out,
-    const projectile_t* proj,
-    const environ_t* env,
-    const vec3_t* target,
-    float initial_force
-);
-
-/**
- * @brief Calculates required launch parameters (inverse calculation) for a given target and hit time.
- *
- * This function ignores **environmental factors (gravity, wind, etc.)**,  
- * and calculates the initial launch direction (`direction`) and required initial force (`force`)
- * based on the **projectile's start position, target position, and given hit_time**.
- *
- * - Projectile velocity decreases only due to friction, without gravity effects.
- * - force is calculated so the projectile reaches the target exactly at hit_time.
- * - time_to_hit is set to the input hit_time.
- *
- * @param[out] out      Calculation result (direction, force, time_to_hit).
- * @param[in]  proj     Projectile info (start position, mass, friction, etc.).
- * @param[in]  target   Target position (world coordinates).
- * @param[in]  hit_time Desired time to hit the target (seconds, must be > 0).
- * @return `true` if calculation succeeded, `false` if the target cannot be reached within given time.
- */
-BYUL_API bool projectile_calc_launch_param_inverse(
-    launch_param_t* out,
-    const projectile_t* proj,
-    const vec3_t* target,
-    float hit_time
-);
-
-/**
- * @brief Calculates required launch parameters (inverse calculation) considering environment factors.
- *
- * Accounts for gravity, wind, and air drag (`environ_t`) to calculate
- * the initial launch direction (`direction`) and force (`force`)
- * to reach the target at a given hit_time.
- *
- * @param[out] out      Calculation result (direction, force, time_to_hit).
- * @param[in]  proj     Projectile info (start position, mass, etc.).
- * @param[in]  env      Environment info (gravity, wind, drag, etc.).
- * @param[in]  target   Target position (world coordinates).
- * @param[in]  hit_time Desired time to hit the target (seconds).
- * @return `true` if calculation succeeded, `false` if target cannot be reached under given conditions.
- */
-BYUL_API bool projectile_calc_launch_param_inverse_env(
-    launch_param_t* out,
-    const projectile_t* proj,
-    const environ_t* env,    
-    const vec3_t* target,
-    float hit_time
-);
 
 /**
  * @brief Projectile trajectory prediction using a Kalman filter.
@@ -341,7 +223,7 @@ BYUL_API bool projectile_calc_launch_param_inverse_env(
  *
  * @param[out] out          Structure to store trajectory and collision results.
  * @param[in]  proj         Initial projectile state.
- * @param[in]  entdyn       Target dynamic data.
+ * @param[in]  target       Target dynamic data.
  * @param[in]  max_time     Maximum simulation time (seconds).
  * @param[in]  dt    Simulation time step (seconds).
  * @param[in]  env          Environment data.
@@ -354,7 +236,7 @@ BYUL_API bool projectile_calc_launch_param_inverse_env(
 BYUL_API bool projectile_predict_with_kalman_filter(
     projectile_result_t* out,
     const projectile_t* proj,
-    entity_dynamic_t* entdyn,
+    entity_dynamic_t* target,
     float max_time,
     float dt,
     const environ_t* env,
@@ -381,7 +263,7 @@ BYUL_API bool projectile_predict_with_kalman_filter(
  *
  * @param[out] out          Structure to store trajectory and collision results.
  * @param[in]  proj         Initial projectile state.
- * @param[in]  entdyn       Target dynamic data.
+ * @param[in]  target       Target dynamic data.
  * @param[in]  max_time     Maximum simulation time (seconds).
  * @param[in]  dt    Simulation time step (seconds).
  * @param[in]  env          Environment data.
@@ -395,13 +277,34 @@ BYUL_API bool projectile_predict_with_kalman_filter(
 BYUL_API bool projectile_predict_with_filter(
     projectile_result_t* out,
     const projectile_t* proj,
-    entity_dynamic_t* entdyn,
+    entity_dynamic_t* target,
     float max_time,
     float dt,
     const environ_t* env,
     const propulsion_t* propulsion,
     guidance_func guidance_fn,
     const filter_interface_t* filter_if);
+
+BYUL_API bool detect_ground_collision_precise(
+    const vec3_t* pos_prev,
+    const vec3_t* pos_curr,
+    const vec3_t* vel_prev,
+    const vec3_t* accel,
+    float t_prev,
+    float dt,
+    vec3_t* impact_pos,
+    float* impact_time);    
+
+BYUL_API bool detect_entity_collision_precise(
+    const vec3_t* proj_pos_prev,
+    const vec3_t* proj_vel_prev,
+    const vec3_t* proj_accel,
+    const vec3_t* target_pos,
+    float target_radius,
+    float dt,
+    float t_prev,
+    vec3_t* impact_pos,
+    float* impact_time);    
 
 #ifdef __cplusplus
 }

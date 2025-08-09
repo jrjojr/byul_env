@@ -40,8 +40,8 @@ struct s_route {
 typedef struct s_route route_t;
 
 /** Creation and Destruction **/
-BYUL_API route_t* route_create(void);
-BYUL_API route_t* route_create_full(float cost);
+BYUL_API route_t* route_create();
+
 BYUL_API void  route_destroy(route_t* p);
 
 /** Copy and Comparison **/
@@ -137,14 +137,14 @@ BYUL_API void route_update_average_vector_by_index(
 BYUL_API route_dir_t calc_direction(
     const coord_t* start, const coord_t* goal);
 
-/// @brief Reconstruct the path by following came_from from goal -> start 
+/// @brief Reconstruct the route by following came_from from goal -> start 
 ///        and fill it into the route.
 /// @param route Output route structure
 /// @param came_from coord_hash_t* (coord* -> coord*)
 /// @param start Start coordinate
 /// @param goal Goal coordinate
 /// @return Success status (true: reconstruction successful, false: failed)
-BYUL_API bool route_reconstruct_path(
+BYUL_API bool route_reconstruct(
     route_t* route, const coord_hash_t* came_from,
     const coord_t* start, const coord_t* goal);
 

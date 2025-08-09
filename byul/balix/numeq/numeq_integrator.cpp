@@ -3,42 +3,61 @@
 #include "vec3.hpp"
 #include <cassert>
 
-void integrator_config_init(integrator_config_t* cfg) {
-    if (!cfg) return;
-    cfg->type = INTEGRATOR_RK4_ENV;
-    cfg->dt = 0.016f;
-    cfg->prev_state = nullptr;
-    cfg->env = nullptr;
-    cfg->body = nullptr;
-    cfg->userdata = nullptr;
+void integrator_init(integrator_t* intgr) {
+    if (!intgr) return;
+    motion_state_t state;
+    motion_state_init(&state);
+    intgr->type = INTEGRATOR_RK4_ENV;
+    intgr->dt = 0.016f;
+    intgr->state = state;    
+    intgr->prev_state = {};
+    intgr->env = {};
+    intgr->body = {};
 }
 
-void integrator_config_init_full(integrator_config_t* cfg,
-                                 integrator_type_t type,
-                                 float dt,
-                                 motion_state_t* prev_state,
-                                 const environ_t* env,
-                                 const bodyprops_t* body,
-                                 void* userdata)
+void integrator_init_full(integrator_t* intgr,
+                                   const integrator_type_t type,
+                                   const float dt,
+                                   const motion_state_t* state,
+                                   const motion_state_t* prev_state,
+                                   const environ_t* env,
+                                   const bodyprops_t* body)
 {
-    if (!cfg) return;
+    if (!intgr) return;
 
-    cfg->type = type;
-    cfg->dt = dt;
-    cfg->prev_state = prev_state;
-    cfg->env = env;
-    cfg->body = body;
-    cfg->userdata = userdata;
+    intgr->type = type;
+    intgr->dt = dt;
+    intgr->state = *state;    
+
+    motion_state_assign(&intgr->prev_state, prev_state);
+    environ_assign(&intgr->env, env);
+    bodyprops_assign(&intgr->body, body);
 }
 
-void integrator_config_assign(
-    integrator_config_t* out, const integrator_config_t* src) {
+void integrator_assign(
+    integrator_t* out, const integrator_t* src) {
 
     if (!out || !src) return;
     *out = *src;
 }
 
-void numeq_integrate_euler(
+void integrator_clear(integrator_t* intgr){
+    if(!intgr) return;
+
+    intgr->prev_state = {};
+    intgr->env = {};
+    intgr->body = {};
+
+    intgr->dt = 0.0f;
+    intgr->state = {};
+    intgr->type = INTEGRATOR_RK4_ENV;
+}
+
+void integrator_free(integrator_t* intgr){
+    integrator_clear(intgr);
+}
+
+void integrator_step_euler(
     motion_state_t* state, float dt) {
 
     Vec3 v(state->linear.velocity);
@@ -48,12 +67,12 @@ void numeq_integrate_euler(
     Vec3 v_next = v + a * dt;
     Vec3 p_next = p + v * dt;
 
-    state->linear.velocity = v_next;
-    state->linear.position = p_next;
-    state->linear.acceleration = a;
+    state->linear.velocity = v_next.v;
+    state->linear.position = p_next.v;
+    state->linear.acceleration = a.v;
 }
 
-void numeq_integrate_semi_implicit(
+void integrator_step_semi_implicit(
     motion_state_t* state, float dt) {
 
     Vec3 a = Vec3(state->linear.acceleration);
@@ -65,7 +84,7 @@ void numeq_integrate_semi_implicit(
     state->linear.acceleration = a;
 }
 
-void numeq_integrate_verlet(
+void integrator_step_verlet(
     motion_state_t* state, const motion_state_t* prev_state, float dt) {
         
     assert(state && prev_state);
@@ -83,7 +102,7 @@ void numeq_integrate_verlet(
     state->linear.velocity = vel;
 }
 
-void numeq_integrate_rk4(
+void integrator_step_rk4(
     motion_state_t* state, float dt) {
     Vec3 v0(state->linear.velocity);
     Vec3 a0(state->linear.acceleration);
@@ -108,7 +127,7 @@ void numeq_integrate_rk4(
     state->linear.acceleration = a0;
 }
 
-void numeq_integrate_rk4_env(motion_state_t* state,
+void integrator_step_rk4_env(motion_state_t* state,
                              float dt,
                              const environ_t* env,
                              const bodyprops_t* body)
@@ -116,19 +135,16 @@ void numeq_integrate_rk4_env(motion_state_t* state,
     assert(state);
 
     if (!env && !body) {
-        numeq_integrate_rk4(state, dt);
+        integrator_step_rk4(state, dt);
         return;
     }
     
-    environ_t a_env = env ? *env : environ_t{0};
-    bodyprops_t a_body = body ? *body : bodyprops_t{0};
-
     Vec3 p0(state->linear.position);
     Vec3 v0(state->linear.velocity);
 
     // k1
     vec3_t a1;
-    numeq_model_accel_at(0.0f, &state->linear, env, body, &a1);
+    numeq_model_accel_predict(0.0f, &state->linear, env, body, &a1);
     Vec3 k1_p = v0 * dt;
     Vec3 k1_v = Vec3(a1) * dt;
 
@@ -137,7 +153,7 @@ void numeq_integrate_rk4_env(motion_state_t* state,
     tmp2.velocity = v0 + k1_v * 0.5f;
 
     vec3_t a2;
-    numeq_model_accel_at(dt * 0.5f, &tmp2, env, body, &a2);
+    numeq_model_accel_predict(dt * 0.5f, &tmp2, env, body, &a2);
     Vec3 k2_p = (v0 + k1_v * 0.5f) * dt;
     Vec3 k2_v = Vec3(a2) * dt;
 
@@ -148,7 +164,7 @@ void numeq_integrate_rk4_env(motion_state_t* state,
                       v0.v.z + 0.5f * k2_v.v.z};
     tmp3.velocity = v_half3;
     vec3_t a3;
-    numeq_model_accel_at(dt * 0.5f, &tmp3, env, body, &a3);
+    numeq_model_accel_predict(dt * 0.5f, &tmp3, env, body, &a3);
     Vec3 k3_p = (v0 + k2_v * 0.5f) * dt;
     Vec3 k3_v = Vec3(a3) * dt;
 
@@ -159,7 +175,7 @@ void numeq_integrate_rk4_env(motion_state_t* state,
                      v0.v.z + k3_v.v.z};
     tmp4.velocity = v_full;
     vec3_t a4;
-    numeq_model_accel_at(dt, &tmp4, env, body, &a4);
+    numeq_model_accel_predict(dt, &tmp4, env, body, &a4);
     Vec3 k4_p = (v0 + k3_v) * dt;
     Vec3 k4_v = Vec3(a4) * dt;
 
@@ -171,7 +187,7 @@ void numeq_integrate_rk4_env(motion_state_t* state,
     state->linear.acceleration = a4;
 }
 
-void numeq_integrate_attitude_euler(motion_state_t* state, float dt) {
+void integrator_step_attitude_euler(motion_state_t* state, float dt) {
     if (!state) return;
     vec3_t* w = &state->angular.angular_velocity;
     vec3_t* a = &state->angular.angular_acceleration;
@@ -187,7 +203,7 @@ void numeq_integrate_attitude_euler(motion_state_t* state, float dt) {
     quat_normalize(&state->angular.orientation);
 }
 
-void numeq_integrate_attitude_semi_implicit(
+void integrator_step_attitude_semi_implicit(
     motion_state_t* state, float dt) {
 
     if (!state) return;
@@ -206,7 +222,7 @@ void numeq_integrate_attitude_semi_implicit(
     quat_normalize(&state->angular.orientation);
 }
 
-void numeq_integrate_attitude_rk4(
+void integrator_step_attitude_rk4(
     motion_state_t* state, float dt) {
 
     if (!state) return;
@@ -230,7 +246,7 @@ void numeq_integrate_attitude_rk4(
     quat_normalize(&state->angular.orientation);
 }
 
-void numeq_integrate_attitude_rk4_env(motion_state_t* state,
+void integrator_step_attitude_rk4_env(motion_state_t* state,
                                       float dt,
                                       const environ_t* env,
                                       const bodyprops_t* body)
@@ -238,7 +254,7 @@ void numeq_integrate_attitude_rk4_env(motion_state_t* state,
     if (!state) return;
 
     if(!env  || !body){
-        numeq_integrate_attitude_rk4(state, dt);
+        integrator_step_attitude_rk4(state, dt);
         return;
     }
 
@@ -274,7 +290,7 @@ void numeq_integrate_attitude_rk4_env(motion_state_t* state,
     quat_normalize(&state->angular.orientation);
 }
 
-void numeq_integrate_attitude_verlet(
+void integrator_step_attitude_verlet(
     motion_state_t* state, const motion_state_t* prev_state, float dt) {
 
     assert(state && prev_state);
@@ -294,7 +310,7 @@ void numeq_integrate_attitude_verlet(
     quat_normalize(&state->angular.orientation);
 }
 
-void numeq_integrate_motion_verlet(
+void integrator_step_motion_verlet(
     motion_state_t* state,
     motion_state_t* prev_state,
     float dt) {
@@ -326,7 +342,7 @@ void numeq_integrate_motion_verlet(
     quat_normalize(&state->angular.orientation);
 }
 
-void numeq_integrate_motion_euler(motion_state_t* state, float dt) {
+void integrator_step_motion_euler(motion_state_t* state, float dt) {
     assert(state);
 
     vec3_t* v = &state->linear.velocity;
@@ -358,7 +374,7 @@ void numeq_integrate_motion_euler(motion_state_t* state, float dt) {
     quat_normalize(&state->angular.orientation);
 }
 
-void numeq_integrate_motion_semi_implicit(motion_state_t* state, float dt) {
+void integrator_step_motion_semi_implicit(motion_state_t* state, float dt) {
     assert(state);
 
     vec3_t* v = &state->linear.velocity;
@@ -390,7 +406,7 @@ void numeq_integrate_motion_semi_implicit(motion_state_t* state, float dt) {
     quat_normalize(&state->angular.orientation);
 }
 
-void numeq_integrate_motion_rk4(motion_state_t* state, float dt) {
+void integrator_step_motion_rk4(motion_state_t* state, float dt) {
     assert(state);
 
     Vec3 v0(state->linear.velocity);
@@ -433,7 +449,7 @@ void numeq_integrate_motion_rk4(motion_state_t* state, float dt) {
     quat_normalize(&state->angular.orientation);
 }
 
-void numeq_integrate_motion_rk4_env(motion_state_t* state,
+void integrator_step_motion_rk4_env(motion_state_t* state,
                                     float dt,
                                     const environ_t* env,
                                     const bodyprops_t* body)
@@ -441,7 +457,7 @@ void numeq_integrate_motion_rk4_env(motion_state_t* state,
     assert(state);
 
     if (!env || !body) {
-        numeq_integrate_motion_rk4(state, dt);
+        integrator_step_motion_rk4(state, dt);
         return;
     }
 
@@ -504,53 +520,44 @@ void numeq_integrate_motion_rk4_env(motion_state_t* state,
     quat_normalize(&state->angular.orientation);
 }
 
-void numeq_integrate(
-    motion_state_t* state, const integrator_config_t* config) {
+void integrator_step(integrator_t* intgr) {
 
-    switch (config->type) {
+    switch (intgr->type) {
         case INTEGRATOR_EULER:
-            numeq_integrate_euler(state, config->dt);
+            integrator_step_euler(&intgr->state, intgr->dt);
             break;
         case INTEGRATOR_SEMI_IMPLICIT:
-            numeq_integrate_semi_implicit(state, config->dt);
+            integrator_step_semi_implicit(&intgr->state, intgr->dt);
             break;
         case INTEGRATOR_RK4:
-            numeq_integrate_rk4(state, config->dt);
+            integrator_step_rk4(&intgr->state, intgr->dt);
             break;
         case INTEGRATOR_RK4_ENV:
-            numeq_integrate_rk4_env(
-                state, config->dt, config->env, config->body);
+            integrator_step_rk4_env(
+                &intgr->state, intgr->dt, &intgr->env, &intgr->body);
             break;            
         case INTEGRATOR_VERLET:
-            if (config->prev_state) {
-                numeq_integrate_verlet(state, config->prev_state, 
-                    config->dt);
-            } else {
-                assert(false && "Verlet integration requires prev_state");
-            }
+            integrator_step_verlet(&intgr->state, &intgr->prev_state, 
+                    intgr->dt);
             break;
         case INTEGRATOR_MOTION_EULER:
-            numeq_integrate_motion_euler(state, config->dt);
+            integrator_step_motion_euler(&intgr->state, intgr->dt);
             break;
         case INTEGRATOR_MOTION_SEMI_IMPLICIT:
-            numeq_integrate_motion_semi_implicit(state, config->dt);
+            integrator_step_motion_semi_implicit(&intgr->state, intgr->dt);
             break;
         case INTEGRATOR_MOTION_RK4:
-            numeq_integrate_motion_rk4(state, config->dt);
+            integrator_step_motion_rk4(&intgr->state, intgr->dt);
             break;
         case INTEGRATOR_MOTION_RK4_ENV:
-            numeq_integrate_motion_rk4_env(
-                state, config->dt, config->env, config->body);
+            integrator_step_motion_rk4_env(
+                &intgr->state, intgr->dt, &intgr->env, &intgr->body);
             break;
 
         case INTEGRATOR_MOTION_VERLET:
-            if (config->prev_state) {
-                numeq_integrate_motion_verlet(state, config->prev_state, 
-                    config->dt);
-            } else {
-                assert(
-                    false && "Motion Verlet integration requires prev_state");
-            }
+            integrator_step_motion_verlet(&intgr->state, &intgr->prev_state, 
+                intgr->dt);
+
             break;
         default:
             assert(false && "Unknown integration type");

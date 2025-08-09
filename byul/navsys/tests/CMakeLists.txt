@@ -54,6 +54,7 @@ target_include_directories(${PROJECT_NAME} PRIVATE
     ${CMAKE_SOURCE_DIR}
     ${CMAKE_SOURCE_DIR}/common
     ${CMAKE_SOURCE_DIR}/console
+    ${CMAKE_SOURCE_DIR}/byul_tick
 
     ${CMAKE_SOURCE_DIR}/navsys
     ${CMAKE_SOURCE_DIR}/navsys/coord

@@ -15,7 +15,7 @@ TEST_CASE("Euler Integration: basic update") {
     vec3_t accel = {0, 0, 0};
     float dt = 1.0f;
 
-    numeq_integrate_euler(&state, dt);
+    integrator_step_euler(&state, dt);
 
     CHECK(state.linear.velocity.x == doctest::Approx(1.0f));
     CHECK(state.linear.position.x == doctest::Approx(1.0f));
@@ -31,7 +31,7 @@ TEST_CASE("Semi-Implicit Euler: acceleration applied first") {
     };
     float dt = 0.5f;
 
-    numeq_integrate_semi_implicit(&state, dt);
+    integrator_step_semi_implicit(&state, dt);
 
     CHECK(state.linear.velocity.x == doctest::Approx(1.0f));
     CHECK(state.linear.position.x == doctest::Approx(0.5f));
@@ -50,7 +50,7 @@ TEST_CASE("Verlet Integration: past position affects update") {
     vec3_t accel = {0.0f, 0.0f, 0.0f};
     float dt = 1.0f;
 
-    numeq_integrate_verlet(&state, &prev_state, dt);
+    integrator_step_verlet(&state, &prev_state, dt);
 
     CHECK(state.linear.position.x == doctest::Approx(2.0f));
 }
@@ -65,7 +65,7 @@ TEST_CASE("RK4 Integration: acceleration effect (simple)") {
     };
 
     float dt = 1.0f;
-    numeq_integrate_motion_rk4(&state, dt);
+    integrator_step_motion_rk4(&state, dt);
 
     CHECK(state.linear.velocity.x > 0.9f);
     CHECK(state.linear.position.x > 0.4f);
@@ -73,48 +73,49 @@ TEST_CASE("RK4 Integration: acceleration effect (simple)") {
 
 
 TEST_CASE("Unified integrator selector dispatches correctly") {
-    integrator_config_t cfg = {
-        .type = INTEGRATOR_EULER,
-        .dt = 1.0f,
-        .prev_state = nullptr
-    };
-    motion_state_t state = {
-        .linear = {
-            .position = {0, 0, 0},
-            .velocity = {1, 0, 0},
-            .acceleration = {0, 0, 0}
-        }
-    };
+    integrator_t intgr = {};
 
-    numeq_integrate(&state, &cfg);
+    motion_state_t state = {};
+    motion_state_init(&state);
+    state.linear.velocity = {1.0f, 0.0f, 0.0f};
+
+    integrator_init_full(&intgr, INTEGRATOR_EULER, 1.0f, &state, nullptr, nullptr, nullptr);
+
+
+    integrator_step(&intgr);
+    state = intgr.state;
 
     CHECK(state.linear.position.x == doctest::Approx(1.0f));
 }
 
 TEST_CASE("Unified integrator selector dispatches correctly v1") {
-    integrator_config_t cfg;
-    integrator_config_init(&cfg);
-    cfg.dt = 1.0f;
+    integrator_t intgr;
 
-    motion_state_t state;
-    state.linear.position = {0.0f, 0.0f, 0.0f};
+    motion_state_t state = {};
     state.linear.velocity = {1.0f, 0.0f, 0.0f};
-    state.linear.acceleration = {0.0f, 0.0f, 0.0f};
 
-    numeq_integrate(&state, &cfg);
+    integrator_init(&intgr);
+    intgr.dt = 1.0f;
+    motion_state_assign(&intgr.state, &state);
+
+    integrator_step(&intgr);
+    state = intgr.state;
 
     CHECK(state.linear.position.x == doctest::Approx(1.0f));
 }
 
 TEST_CASE("Unified integrator selector dispatches correctly v2") {
-    integrator_config_t cfg;
-    integrator_config_init(&cfg);  // default config (RK4, dt=0.016f)
+    integrator_t intgr;
 
     motion_state_t state;
     motion_state_init(&state);     // position=(0,0,0), velocity=(0,0,0)
-    state.linear.velocity = {1.0f, 0.0f, 0.0f};
+    state.linear.velocity = {1.0f, 0.0f, 0.0f};    
 
-    numeq_integrate(&state, &cfg);
+    integrator_init(&intgr);  // default config (RK4, dt=0.016f)
+    motion_state_assign(&intgr.state, &state);
 
-    CHECK(state.linear.position.x == doctest::Approx(cfg.dt));
+    integrator_step(&intgr);
+    state = intgr.state;
+
+    CHECK(state.linear.position.x == doctest::Approx(intgr.dt));
 }

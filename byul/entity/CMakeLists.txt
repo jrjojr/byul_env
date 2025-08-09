@@ -12,6 +12,7 @@ set(${PROJECT_NAME}_SOURCES
     ${CMAKE_CURRENT_SOURCE_DIR}/entity_dynamic.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/entity_dynamic_coord.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/entity_spring.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/entity_interaction.cpp
 
 CACHE INTERNAL "${PROJECT_NAME} source files"  FORCE
 )
@@ -21,6 +22,7 @@ set(${PROJECT_NAME}_HEADERS
     ${CMAKE_CURRENT_SOURCE_DIR}/entity_dynamic.h
     ${CMAKE_CURRENT_SOURCE_DIR}/entity_dynamic_coord.h
     ${CMAKE_CURRENT_SOURCE_DIR}/entity_spring.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/entity_interaction.h
 
 CACHE INTERNAL "${PROJECT_NAME} header files"  FORCE
 )

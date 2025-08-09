@@ -21,15 +21,11 @@ static const int ROUTE_DIRECTION_VECTORS[9][2] = {
 };
 
 route_t* route_create(void) {
-    return route_create_full(0.0);
-}
-
-route_t* route_create_full(float cost) {
     route_t* r = new route_t();
     r->coords = coord_list_create();
     r->visited_order = coord_list_create();
     r->visited_count = coord_hash_create();
-    r->cost = cost;
+    r->cost = 0.0f;
     r->success = false;
     r->total_retry_count = 0;
 
@@ -47,10 +43,25 @@ void route_destroy(route_t* p) {
     delete p;
 }
 
-
 route_t* route_copy(const route_t* p) {
     if (!p) return nullptr;
-    return new route_t(*p);  
+
+    route_t* r = new route_t();
+
+    // Deep copies
+    r->coords = coord_list_copy(p->coords);
+    r->visited_order = coord_list_copy(p->visited_order);
+    r->visited_count = coord_hash_copy(p->visited_count);
+
+    // Primitive values
+    r->cost = p->cost;
+    r->success = p->success;
+    r->total_retry_count = p->total_retry_count;
+    r->avg_vec_x = p->avg_vec_x;
+    r->avg_vec_y = p->avg_vec_y;
+    r->vec_count = p->vec_count;
+
+    return r;
 }
 
 uintptr_t route_hash(const route_t* p) {
@@ -476,7 +487,7 @@ void route_update_average_vector_by_index(route_t* p,
     route_update_average_vector(p, from, to);
 }
 
-bool route_reconstruct_path(route_t* route, const coord_hash_t* came_from,
+bool route_reconstruct(route_t* route, const coord_hash_t* came_from,
                             const coord_t* start, const coord_t* goal) {
     if (!route || !came_from || !start || !goal) return false;
 

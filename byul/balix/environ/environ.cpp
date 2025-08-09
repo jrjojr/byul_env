@@ -103,20 +103,20 @@ void environ_adjust_accel_gsplit(
 }
 
 const vec3_t* environ_calc_none(const environ_t* env,
-                                    float dt,
                                     void* userdata,
                                     vec3_t* out) {
-    (void)env; (void)dt; (void)userdata;
+    (void)env;
+    (void)userdata;
+
     static vec3_t zero = {0, 0, 0};
     if (out) { *out = zero; return out; }
     return &zero;
 }
 
 const vec3_t* environ_calc_gravity(const environ_t* env,
-                                       float dt,
                                        void* userdata,
                                        vec3_t* out) {
-    (void)dt; (void)userdata;
+(void)userdata;
     static vec3_t result;
     result = env ? env->gravity : vec3_t{0.0f, -9.81f, 0.0f};
     environ_adjust_accel(env, &result);
@@ -125,10 +125,9 @@ const vec3_t* environ_calc_gravity(const environ_t* env,
 }
 
 const vec3_t* environ_calc_gravity_wind(const environ_t* env,
-                                            float dt,
                                             void* userdata,
                                             vec3_t* out) {
-    (void)dt; (void)userdata;
+    (void)userdata;
     static vec3_t result;
     if (env) {
         result.x = env->gravity.x + env->wind.x;
@@ -147,7 +146,7 @@ void environ_periodic_init(environ_periodic_t* out) {
     out->base_wind = vec3_t{0.0f, 0.0f, 0.0f};
     out->gust_amplitude = vec3_t{0.5f, 0.0f, 0.5f};
     out->gust_frequency = 1.0f;
-    out->time = 0.0f;
+    out->elapsed = 0.0f;
     out->gravity = vec3_t{0.0f, -9.81f, 0.0f};
 }
 
@@ -161,7 +160,7 @@ void environ_periodic_init_full(const vec3_t* base_wind,
     out->gust_amplitude = gust_amp ? *gust_amp : vec3_t{0.5f, 0.0f, 0.5f};
     out->gust_frequency = (gust_freq < 0.0f) ? 0.0f : gust_freq;
     out->gravity = gravity ? *gravity : vec3_t{0.0f, -9.81f, 0.0f};
-    out->time = 0.0f;
+    out->elapsed = 0.0f;
 }
 
 void environ_periodic_assign(const environ_periodic_t* src,
@@ -171,7 +170,6 @@ void environ_periodic_assign(const environ_periodic_t* src,
 }
 
 const vec3_t* environ_calc_periodic(const environ_t* env,
-                                        float dt,
                                         void* userdata,
                                         vec3_t* out) {
     static vec3_t result;
@@ -184,8 +182,8 @@ const vec3_t* environ_calc_periodic(const environ_t* env,
         return target;
     }
 
-    pdata->time += dt;
-    float phase = 2.0f * (float)M_PI * pdata->gust_frequency * pdata->time;
+    pdata->elapsed += pdata->delta_time;
+    float phase = 2.0f * (float)M_PI * pdata->gust_frequency * pdata->elapsed;
 
     target->x = pdata->base_wind.x + pdata->gust_amplitude.x * sinf(phase);
     target->y = pdata->gravity.y + pdata->gust_amplitude.y * sinf(phase);

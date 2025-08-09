@@ -20,10 +20,17 @@ void coord_list_destroy(coord_list_t* list) {
 
 coord_list_t* coord_list_copy(const coord_list_t* list) {
     if (!list) return nullptr;
-    coord_list_t* copy = new s_coord_list();
-    copy->data = list->data;
+
+    coord_list_t* copy = coord_list_create();
+
+    int len = coord_list_length(list);
+    for (int i =0 ; i < len; i++){
+        coord_t c = list->data[i];
+        copy->data.push_back(c);
+    }
     return copy;
 }
+
 
 int coord_list_length(const coord_list_t* list) {
     return list ? static_cast<int>(list->data.size()) : 0;

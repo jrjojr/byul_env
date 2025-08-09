@@ -120,7 +120,7 @@ TEST_CASE("guidance_predict_accel handles acceleration") {
     CHECK(result == &dir);
     char buf[64];
     vec3_print(&dir);
-    printf("guidance_predict_accel :%s\n", vec3_to_string(&dir, buf, 64));
+    printf("guidance_predict_accel :%s\n", vec3_to_string(&dir, 64, buf));
     CHECK(fabsf(vec3_length(&dir) - 1.0f) <= 1e-5f);
     CHECK(dir.x >= 0.0f);
 }

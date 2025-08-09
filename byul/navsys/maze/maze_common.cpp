@@ -91,10 +91,18 @@ const coord_hash_t* maze_get_blocked_coords(const maze_t* maze) {
 void maze_apply_to_navgrid(const maze_t* maze, navgrid_t* navgrid) {
     if (!maze || !navgrid) return;
 
+    int maze_width = maze_get_width(maze);
+    int maze_height = maze_get_height(maze);
+    if(navgrid_get_width(navgrid) < maze_width) {
+        navgrid_set_width(navgrid, maze_width);
+    }
+    if(navgrid_get_height(navgrid) < maze_height){
+        navgrid_set_height(navgrid, maze_height);
+    }
     coord_hash_iter_t* iter = coord_hash_iter_create((coord_hash_t*)maze->blocked);
-    coord_t* key;
+    coord_t key;
     while (coord_hash_iter_next(iter, &key, NULL)) {
-        navgrid_block_coord(navgrid, key->x, key->y);
+        navgrid_block_coord(navgrid, key.x, key.y);
     }
     coord_hash_iter_destroy(iter);
 }
@@ -103,9 +111,9 @@ void maze_remove_from_navgrid(const maze_t* maze, navgrid_t* navgrid) {
     if (!maze || !navgrid) return;
 
     coord_hash_iter_t* iter = coord_hash_iter_create((coord_hash_t*)maze->blocked);
-    coord_t* key;
+    coord_t key;
     while (coord_hash_iter_next(iter, &key, NULL)) {
-        navgrid_unblock_coord(navgrid, key->x, key->y);
+        navgrid_unblock_coord(navgrid, key.x, key.y);
     }
     coord_hash_iter_destroy(iter);
 }

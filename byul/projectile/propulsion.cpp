@@ -7,6 +7,7 @@ void propulsion_init(propulsion_t* p) {
     if (!p) return;
 
     p->max_thrust = 120.0f;
+    p->target_thrust = p->max_thrust;
     p->current_thrust = 0.0f;
     p->fuel_capacity = 50.0f;
     p->fuel_remaining = 50.0f;
@@ -30,6 +31,7 @@ void propulsion_init(propulsion_t* p) {
 
 void propulsion_init_full(propulsion_t* p,
                           float max_thrust,
+                          float target_thrust,
                           float fuel_capacity,
                           float burn_rate,
                           controller_t* ctrl,
@@ -37,6 +39,7 @@ void propulsion_init_full(propulsion_t* p,
     if (!p) return;
     propulsion_init(p);
     p->max_thrust = (max_thrust > 0.0f) ? max_thrust : 100.0f;
+    p->target_thrust = (target_thrust > 0.0f) ? target_thrust : 100.0f;
     p->fuel_capacity = (fuel_capacity > 0.0f) ? fuel_capacity : 100.0f;
     p->fuel_remaining = p->fuel_capacity;
     p->burn_rate = (burn_rate > 0.0f) ? burn_rate : 1.0f;
@@ -56,7 +59,7 @@ void propulsion_reset(propulsion_t* p) {
     p->active = false;
 }
 
-void propulsion_update(propulsion_t* p, float target_thrust, float dt) {
+void propulsion_update(propulsion_t* p, float dt) {
     if (!p || dt <= 0.0f) return;
 
     if (!p->active || p->fuel_remaining <= 0.0f) {
@@ -65,13 +68,10 @@ void propulsion_update(propulsion_t* p, float target_thrust, float dt) {
         return;
     }
 
-    if (target_thrust > p->max_thrust) target_thrust = p->max_thrust;
-    if (target_thrust < 0.0f) target_thrust = 0.0f;
-
-    float desired_thrust = target_thrust;
+    float desired_thrust = p->target_thrust;
     if (p->controller) {
         float control = controller_compute(
-            p->controller, target_thrust, p->current_thrust, dt);
+            p->controller, desired_thrust, p->current_thrust, dt);
         if (control > p->max_thrust) control = p->max_thrust;
         if (control < 0.0f) control = 0.0f;
         desired_thrust = control;
@@ -102,6 +102,16 @@ void propulsion_update(propulsion_t* p, float target_thrust, float dt) {
 
     p->wear_level += 0.0001f * p->current_thrust * dt;
     if (p->wear_level > 1.0f) p->wear_level = 1.0f;
+}
+
+// setpoint is target get
+float propulsion_get_target(const propulsion_t* p){
+    return p->target_thrust;
+}
+
+// set setpoint(sp) is target
+void propulsion_set_target(propulsion_t* p, float target){
+    p->target_thrust = target;
 }
 
 float propulsion_get_thrust(const propulsion_t* p) {
@@ -183,7 +193,7 @@ void propulsion_print(const propulsion_t* p) {
 }
 
 const char* propulsion_to_string(
-    const propulsion_t* p, char* buffer, size_t buffer_size) {
+    const propulsion_t* p, size_t buffer_size, char* buffer) {
     if (!p || !buffer || buffer_size == 0) return NULL;
     snprintf(buffer, buffer_size,
              "Thrust=%.2fN, Fuel=%.2f/%.2fkg, Active=%d",

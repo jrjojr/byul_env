@@ -20,7 +20,7 @@ TEST_CASE("Model: a(t) under gravity only") {
     bodyprops_init(&test_body_no_drag);
 
     vec3_t a;
-    numeq_model_accel_at(0.0f, &state, &test_env, &test_body_no_drag, &a);
+    numeq_model_accel_predict(0.0f, &state, &test_env, &test_body_no_drag, &a);
     CHECK(a.x == doctest::Approx(0.0f).epsilon(0.5f));
     CHECK(a.y == doctest::Approx(-9.8f).epsilon(0.5f));
 }
@@ -31,7 +31,7 @@ TEST_CASE("Model: v(t) includes acceleration (gravity)") {
     state.velocity = { 1.0f, 0.0f, 0.0f };
     
     vec3_t v;
-    numeq_model_vel_at(1.0f, &state, &test_env, &test_body_no_drag, &v);
+    numeq_model_vel_predict(1.0f, &state, &test_env, &test_body_no_drag, &v);
     CHECK(v.x == doctest::Approx(1.0f).epsilon(0.5f));
     CHECK(v.y == doctest::Approx(-9.8f).epsilon(0.5f));
 }
@@ -42,7 +42,7 @@ TEST_CASE("Model: p(t) includes velocity and gravity") {
     state.velocity = { 0, 10, 0 };
     
     vec3_t p;
-    numeq_model_pos_at(1.0f, &state, &test_env, &test_body_no_drag, &p);
+    numeq_model_pos_predict(1.0f, &state, &test_env, &test_body_no_drag, &p);
     CHECK(p.y == doctest::Approx(10.0f - 0.5f * 9.8f).epsilon(0.5f));
 }
 
@@ -71,11 +71,11 @@ TEST_CASE("Model: predict vs predict_rk4 (no gravity, no drag)") {
 
     // --- Predict state after 1 second (basic formula) ---
     linear_state_t out_basic;
-    numeq_model_calc(1.0f, &state0, &env_no_gravity, &body_no_drag, &out_basic);
+    numeq_model_predict(1.0f, &state0, &env_no_gravity, &body_no_drag, &out_basic);
 
     // --- Predict state after 1 second (RK4 integration, 60 steps = 60Hz) ---
     linear_state_t out_rk4;
-    numeq_model_calc_rk4(1.0f, &state0, &env_no_gravity, &body_no_drag, 60, &out_rk4);
+    numeq_model_predict_rk4(1.0f, &state0, &env_no_gravity, &body_no_drag, 60, &out_rk4);
 
     // --- Comparison: should be equal in no-gravity and no-drag case ---
     CHECK(out_basic.position.x == doctest::Approx(out_rk4.position.x).epsilon(1e-4));
@@ -96,11 +96,11 @@ TEST_CASE("Model: predict_rk4 convergence test (no gravity)") {
 
     // RK4 with 10 steps
     linear_state_t out_rk4_10;
-    numeq_model_calc_rk4(1.0f, &state0, &env_no_gravity, &body_no_drag, 10, &out_rk4_10);
+    numeq_model_predict_rk4(1.0f, &state0, &env_no_gravity, &body_no_drag, 10, &out_rk4_10);
 
     // RK4 with 100 steps (should be more precise)
     linear_state_t out_rk4_100;
-    numeq_model_calc_rk4(1.0f, &state0, &env_no_gravity, &body_no_drag, 100, &out_rk4_100);
+    numeq_model_predict_rk4(1.0f, &state0, &env_no_gravity, &body_no_drag, 100, &out_rk4_100);
 
     // Difference between results should be small (convergence)
     CHECK(out_rk4_10.position.x == doctest::Approx(out_rk4_100.position.x).epsilon(1e-3));
@@ -132,7 +132,7 @@ TEST_CASE("Model: collision prediction between two moving objects") {
     vec3_t collision_point;
 
     // --- 2. Collision prediction (equation-based) ---
-    bool hit = numeq_model_calc_collision(
+    bool hit = numeq_model_predict_collision(
         &my_state, &other_state,
         radius_sum,
         &collision_time, &collision_point
@@ -164,7 +164,7 @@ TEST_CASE("Model: no collision when objects diverge") {
     float collision_time;
     vec3_t collision_point;
 
-    bool hit = numeq_model_calc_collision(
+    bool hit = numeq_model_predict_collision(
         &my_state, &other_state,
         0.5f,
         &collision_time, &collision_point
@@ -189,11 +189,11 @@ TEST_CASE("Model: predict vs predict_rk4 under gravity (difference check)") {
 
     // --- Predict after 1 second (basic constant acceleration formula) ---
     linear_state_t out_basic;
-    numeq_model_calc(1.0f, &state0, &env_gravity, &body_no_drag, &out_basic);
+    numeq_model_predict(1.0f, &state0, &env_gravity, &body_no_drag, &out_basic);
 
     // --- Predict after 1 second (RK4 integration, 60 steps = 60Hz) ---
     linear_state_t out_rk4;
-    numeq_model_calc_rk4(1.0f, &state0, &env_gravity, &body_no_drag, 60, &out_rk4);
+    numeq_model_predict_rk4(1.0f, &state0, &env_gravity, &body_no_drag, 60, &out_rk4);
 
     // --- Output comparison ---
     MESSAGE("Basic (p, v): (", out_basic.position.x, ", ", out_basic.position.y, "), (", 

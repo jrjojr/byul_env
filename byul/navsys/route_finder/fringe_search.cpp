@@ -92,7 +92,7 @@ route_t* find_fringe_search(const navgrid_t* m,
                 break;
             }
 
-            coord_list_t* neighbors = navgrid_copy_adjacent(m, current->x, current->y);
+            coord_list_t* neighbors = navgrid_copy_neighbors(m, current->x, current->y);
             int len = coord_list_length(neighbors);
             for (int j = 0; j < len; ++j) {
                 const coord_t* next = coord_list_get(neighbors, j);
@@ -137,7 +137,7 @@ route_t* find_fringe_search(const navgrid_t* m,
     }
 
     if (final) {
-        route_reconstruct_path(result, came_from, start, final);
+        route_reconstruct(result, came_from, start, final);
         route_set_success(result, found);
         coord_destroy(final);
     } else {

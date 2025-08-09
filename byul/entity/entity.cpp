@@ -73,5 +73,9 @@ float entity_size(const entity_t* e)
                        (float)(e->width_range * e->width_range) +
                        (float)(e->height_range * e->height_range));
 
-    return diag * e->influence_ratio;
+    return diag;
+}
+
+float entity_influence_radius(const entity_t* e){
+    return entity_size(e) * e->influence_ratio;
 }

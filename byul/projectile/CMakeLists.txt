@@ -18,6 +18,7 @@ set(${PROJECT_NAME}_SOURCES
     ${CMAKE_CURRENT_SOURCE_DIR}/propulsion.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/guidance.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/projectile_predict.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/projectile_tick.cpp
 
 CACHE INTERNAL "${PROJECT_NAME} source files"  FORCE
 )
@@ -28,6 +29,7 @@ set(${PROJECT_NAME}_HEADERS
     ${CMAKE_CURRENT_SOURCE_DIR}/propulsion.h
     ${CMAKE_CURRENT_SOURCE_DIR}/guidance.h
     ${CMAKE_CURRENT_SOURCE_DIR}/projectile_predict.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/projectile_tick.h    
 
 CACHE INTERNAL "${PROJECT_NAME} header files"  FORCE
 )
@@ -42,6 +44,7 @@ target_include_directories(${PROJECT_NAME} PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}    
     ${CMAKE_SOURCE_DIR}    
     ${CMAKE_SOURCE_DIR}/common
+    ${CMAKE_SOURCE_DIR}/byul_tick
 
     ${CMAKE_SOURCE_DIR}/balix/numal
     ${CMAKE_SOURCE_DIR}/balix/controller

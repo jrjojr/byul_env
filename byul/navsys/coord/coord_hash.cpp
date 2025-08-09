@@ -45,11 +45,11 @@ coord_hash_t* coord_hash_create() {
 }
 
 coord_hash_t* coord_hash_create_full(coord_hash_copy_func copy_func,
-    coord_hash_destroy_func free_func) {
+    coord_hash_destroy_func destroy_func) {
     auto* h = new s_coord_hash;
     h->data.clear();
     h->value_copy_func = copy_func;
-    h->value_destroy_func = free_func;
+    h->value_destroy_func = destroy_func;
     return h;
 }
 
@@ -163,11 +163,11 @@ uint32_t coord_hash_hash(const coord_hash_t* h) {
     if (!h) return 0;
     uint32_t hash = 0;
     coord_hash_iter_t* it = coord_hash_iter_create(h);
-    coord_t* key;
+    coord_t key;
     void* val;
     while (coord_hash_iter_next(it, &key, &val)) {
-        uint32_t h1 = (uint32_t)key->x * 73856093;
-        uint32_t h2 = (uint32_t)key->y * 19349663;
+        uint32_t h1 = (uint32_t)key.x * 73856093;
+        uint32_t h2 = (uint32_t)key.y * 19349663;
         hash ^= (h1 ^ h2);
     }
     coord_hash_iter_destroy(it);
@@ -252,9 +252,9 @@ coord_hash_iter_t* coord_hash_iter_create(const coord_hash_t* hash) {
     return iter;
 }
 
-bool coord_hash_iter_next(coord_hash_iter_t* iter, coord_t** key_out, void** val_out) {
+bool coord_hash_iter_next(coord_hash_iter_t* iter, coord_t* key_out, void** val_out) {
     if (!iter || iter->it == iter->end) return false;
-    if (key_out) *key_out = const_cast<coord_t*>(&iter->it->first);
+    if (key_out) *key_out = iter->it->first;
     if (val_out) *val_out = iter->it->second;
     ++(iter->it);
     return true;
@@ -272,10 +272,10 @@ char* coord_hash_to_string(const coord_hash_t* hash) {
     if (!buffer) return NULL;
     buffer[0] = '\0';
     coord_hash_iter_t* iter = coord_hash_iter_create((coord_hash_t*)hash);
-    coord_t* key;
+    coord_t key;
     while (coord_hash_iter_next(iter, &key, NULL)) {
         char entry[64];
-        snprintf(entry, sizeof(entry), "(%d,%d) ", key->x, key->y);
+        snprintf(entry, sizeof(entry), "(%d,%d) ", key.x, key.y);
         size_t entry_len = strlen(entry);
         if (len + entry_len + 1 >= buf_size) {
             buf_size *= 2;
@@ -296,10 +296,10 @@ void coord_hash_print(const coord_hash_t* hash) {
     char* str = coord_hash_to_string(hash);
     int len = coord_hash_length(hash);
     if (str) {
-        printf("Blocked coords(len: %d): %s\n", len, str);
+        printf("coords(len: %d): %s\n", len, str);
         free(str);
     }
     else {
-        printf("Blocked coords: (null or empty)\n");
+        printf("coords: (null or empty)\n");
     }
 }

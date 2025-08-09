@@ -248,6 +248,122 @@ BYUL_API void projectile_update(projectile_t* proj, float dt);
 BYUL_API void projectile_default_hit_cb(
     const void* projectile, void* userdata);
 
+/**
+ * @struct launch_param_t
+ * @brief Defines initial parameters required to launch a projectile toward a target.
+ *
+ * - **direction**: Launch direction toward the target (unit vector).
+ * - **force**: Initial force applied at launch (Newton, N).
+ *      - 1 N = 1 kg * 1 m/s^2.
+ *      - Example recommended values:
+ *        * 1 kg projectile -> 10 ~ 100 N (10 ~ 30 m/s initial velocity).
+ *        * 10 kg projectile -> 500 ~ 5000 N (20 ~ 100 m/s initial velocity).
+ * - **time_to_hit**: Estimated time to reach the target (seconds).
+ *
+ * @note
+ * - direction is always normalized.
+ * - force is converted into the actual initial velocity vector
+ *   based on mass and projectile properties.
+ */
+typedef struct s_launch_param {
+    vec3_t direction;    ///< Launch direction (unit vector)
+    float  force;        ///< Initial launch force (Newton, N)
+    float  time_to_hit;  ///< Estimated time to hit target (seconds)
+} launch_param_t;
+
+
+/**
+ * @brief Calculates launch parameters for a projectile to reach the given target position.
+ *
+ * This function ignores **environmental factors (gravity, wind, etc.)**  
+ * and only considers the projectile's **own properties (mass, friction, etc.)**.
+ * 
+ * - After launch, velocity decreases gradually due to friction but does not drop
+ *   because of gravity.
+ * - Once velocity reaches 0, the projectile stops at its location.
+ * - Calculates initial force (`force`), direction (`direction`),
+ *   and expected time to hit (`time_to_hit`).
+ *
+ * @param[out] out           Calculation result (direction, initial force, time_to_hit).
+ * @param[in]  proj          Projectile info (start position, mass, friction, etc.).
+ * @param[in]  target        Target position (world coordinates).
+ * @param[in]  initial_force_scalar Initial force at launch (Newton, N).
+ * @return `true` if calculation succeeded, `false` if target cannot be reached with given force.
+ */
+BYUL_API bool projectile_calc_launch_param(
+    launch_param_t* out,
+    const projectile_t* proj,
+    const vec3_t* target,
+    float initial_force_scalar
+);
+
+/**
+ * @brief Calculates launch parameters to reach a target while considering environment factors.
+ *
+ * Accounts for gravity, wind, air drag, and other environmental data (`environ_t`)
+ * to calculate initial launch direction (`direction`), force (`force`),
+ * and time-to-hit (`time_to_hit`).
+ *
+ * @param[out] out           Calculation result (direction, force, time_to_hit).
+ * @param[in]  proj          Projectile info (start position, mass, etc.).
+ * @param[in]  env           Environment info (gravity, wind, drag, etc.).
+ * @param[in]  target        Target position (world coordinates).
+ * @param[in]  initial_force_scalar Initial force at launch (Newton, N).
+ * @return `true` if calculation succeeded, `false` if target cannot be reached under given conditions.
+ */
+BYUL_API bool projectile_calc_launch_param_env(
+    launch_param_t* out,
+    const projectile_t* proj,
+    const environ_t* env,
+    const vec3_t* target,
+    float initial_force_scalar
+);
+
+/**
+ * @brief Calculates required launch parameters (inverse calculation) for a given target and hit time.
+ *
+ * This function ignores **environmental factors (gravity, wind, etc.)**,  
+ * and calculates the initial launch direction (`direction`) and required initial force (`force`)
+ * based on the **projectile's start position, target position, and given hit_time**.
+ *
+ * - Projectile velocity decreases only due to friction, without gravity effects.
+ * - force is calculated so the projectile reaches the target exactly at hit_time.
+ * - time_to_hit is set to the input hit_time.
+ *
+ * @param[out] out      Calculation result (direction, force, time_to_hit).
+ * @param[in]  proj     Projectile info (start position, mass, friction, etc.).
+ * @param[in]  target   Target position (world coordinates).
+ * @param[in]  hit_time Desired time to hit the target (seconds, must be > 0).
+ * @return `true` if calculation succeeded, `false` if the target cannot be reached within given time.
+ */
+BYUL_API bool projectile_calc_launch_param_inverse(
+    launch_param_t* out,
+    const projectile_t* proj,
+    const vec3_t* target,
+    float hit_time
+);
+
+/**
+ * @brief Calculates required launch parameters (inverse calculation) considering environment factors.
+ *
+ * Accounts for gravity, wind, and air drag (`environ_t`) to calculate
+ * the initial launch direction (`direction`) and force (`force`)
+ * to reach the target at a given hit_time.
+ *
+ * @param[out] out      Calculation result (direction, force, time_to_hit).
+ * @param[in]  proj     Projectile info (start position, mass, etc.).
+ * @param[in]  env      Environment info (gravity, wind, drag, etc.).
+ * @param[in]  target   Target position (world coordinates).
+ * @param[in]  hit_time Desired time to hit the target (seconds).
+ * @return `true` if calculation succeeded, `false` if target cannot be reached under given conditions.
+ */
+BYUL_API bool projectile_calc_launch_param_inverse_env(
+    launch_param_t* out,
+    const projectile_t* proj,
+    const environ_t* env,    
+    const vec3_t* target,
+    float hit_time
+);
 
 #ifdef __cplusplus
 }

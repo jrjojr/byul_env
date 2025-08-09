@@ -1,5 +1,5 @@
 #include "maze.h"
-#include "maze_room.h"
+#include "maze_room_blend.h"
 #include <vector>
 #include <cstdlib>
 #include <ctime>
@@ -27,7 +27,9 @@ static void dig_room(std::vector<std::vector<int>>& grid, const Room& r) {
     }
 }
 
-static void dig_corridor(std::vector<std::vector<int>>& grid, int x1, int y1, int x2, int y2) {
+static void dig_corridor(std::vector<std::vector<int>>& grid, 
+    int x1, int y1, int x2, int y2) {
+
     if (rand() % 2) {
         for (int x = std::min(x1, x2); x <= std::max(x1, x2); ++x)
             grid[y1][x] = PASSAGE;
@@ -86,13 +88,13 @@ static void fill_with_maze(std::vector<std::vector<int>>& grid, int w, int h) {
     }
 }
 
-void maze_make_room_blend(maze_t* maze) {
-    if (!maze || maze->width < 9 || maze->height < 9) return;
+maze_t* maze_make_room_blend(int x0, int y0, int width, int height) {
+    if (width < 9 || height < 9) return nullptr;
+
+    maze_t* maze = maze_create_full(x0, y0, width, height);
 
     int w = maze->width;
     int h = maze->height;
-    int x0 = maze->x0;
-    int y0 = maze->y0;
 
     std::vector<std::vector<int>> grid(h, std::vector<int>(w, WALL));
     std::vector<Room> rooms;
@@ -134,11 +136,13 @@ void maze_make_room_blend(maze_t* maze) {
     for (int y = 0; y < h; ++y) {
         for (int x = 0; x < w; ++x) {
             if (grid[y][x] == WALL) {
+                coord_t tmp = {x + x0, y + y0};
                 coord_hash_insert(maze->blocked,
-                    make_tmp_coord(x + x0, y + y0), nullptr);
+                    &tmp, nullptr);
             }
         }
     }
 
     // maze->type = MAZE_TYPE_ROOM_BLEND;
+    return maze;
 }

@@ -46,7 +46,7 @@ BYUL_API void xform_init_axis_angle(
     xform_t* out, const vec3_t* pos,
     const vec3_t* axis, float radians);
 
-BYUL_API void xform_init_axis_angle_deg(
+BYUL_API void xform_init_axis_deg(
     xform_t* out, const vec3_t* pos,
     const vec3_t* axis, float degrees);
 
@@ -75,12 +75,12 @@ BYUL_API void xform_set_position(xform_t* xf, const vec3_t* pos);
 
 BYUL_API void xform_get_axis_angle(
     const xform_t* xf, vec3_t* out_axis, float* out_radians);
-BYUL_API void xform_get_axis_angle_deg(
+BYUL_API void xform_get_axis_deg(
     const xform_t* xf, vec3_t* out_axis, float* out_degrees);
 
 BYUL_API void xform_set_axis_angle(
     xform_t* xf, const vec3_t* axis, float radians);
-BYUL_API void xform_set_axis_angle_deg(
+BYUL_API void xform_set_axis_deg(
     xform_t* xf, const vec3_t* axis, float degrees);
 
 BYUL_API void xform_set_euler(
@@ -113,12 +113,12 @@ BYUL_API void xform_translate_local(xform_t* xf, const vec3_t* delta_local);
 
 BYUL_API void xform_rotate_axis_angle(
     xform_t* xf, const vec3_t* axis, float radians);
-BYUL_API void xform_rotate_axis_angle_deg(
+BYUL_API void xform_rotate_axis_deg(
     xform_t* xf, const vec3_t* axis, float degrees);
 
 BYUL_API void xform_rotate_local_axis_angle(
     xform_t* xf, const vec3_t* axis, float radians);
-BYUL_API void xform_rotate_local_axis_angle_deg(
+BYUL_API void xform_rotate_local_axis_deg(
     xform_t* xf, const vec3_t* axis, float degrees);
 
 // ---------------------------------------------------------
@@ -184,11 +184,11 @@ BYUL_API void xform_apply_inverse(xform_t* out,
     const xform_t* parent, const xform_t* world);
 
 /**
- * @brief 회전 중심점(pivot)을 기준으로 xform을 회전시킵니다.
+ * @brief Rotates a transform (xform) around a given pivot point.
  *
- * @param xf 회전될 트랜스폼 (in/out)
- * @param q  회전 쿼터니언
- * @param pivot 회전 중심점 (world space)
+ * @param xf    The transform to be rotated (in/out)
+ * @param q     The rotation quaternion
+ * @param pivot The pivot point in world space
  */
 BYUL_API void xform_rotate_around_pivot(
     xform_t* xf,
@@ -250,7 +250,7 @@ BYUL_API void xform_look_to(
 BYUL_API void xform_align_axis(
     xform_t* xf,
     int axis_index,              // 0:x, 1:y, 2:z
-    const vec3_t* target_dir);   // 정렬할 방향
+    const vec3_t* target_dir);
 
 /**
  * @brief Reflects a transform across a plane defined by a point and normal.

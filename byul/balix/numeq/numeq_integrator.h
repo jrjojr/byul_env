@@ -17,19 +17,25 @@
  *
  * @note INTEGRATOR_EULER is the simplest but can be unstable.
  *       For general game physics, INTEGRATOR_SEMI_IMPLICIT or RK4 is recommended.
+ *
+ * @warning Integration functions in this module perform only **single-step updates** using the given `dt`.
+ *          If you want to simulate motion over a longer time (e.g., 100 seconds), you must call the integrator
+ *          repeatedly in a loop, accumulating small steps (e.g., 100 iterations with dt = 1.0f).
+ *
+ * @attention This module provides only integrators, not predictors.
+ *            For long-term prediction or trajectory generation, you must build your own loop
+ *            using the integrators provided here.
  */
 #ifndef NUMEQ_INTEGRATOR_H
 #define NUMEQ_INTEGRATOR_H
 
 #include "motion_state.h"
+#include "environ.h"
+#include "bodyprops.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
-
-// Forward declarations
-typedef struct s_bodyprops bodyprops_t;
-typedef struct s_environ environ_t;
 
 // ---------------------------------------------------------
 // Integrator Types (simulation method selection)
@@ -52,79 +58,85 @@ typedef enum e_integrator_type {
 } integrator_type_t;
 
 /**
- * @brief Configuration structure for integration.
+ * @brief Configuration structure for single-step motion integration.
  *
- * This structure manages settings for various integrators (Euler, RK4, etc.)
- * including time step, environment, and physical body properties.
+ * This structure holds settings for an integrator instance, such as
+ * method type, time step, environmental forces, and body properties.
  *
- * ### Mean Range
- * - The `dt` is typically set to 0.016f (60Hz).
- *   It does not need to be perfectly fixed as long as it stays
- *   close to the average.
- * - Small variations (+/-10 to 20%) generally do not affect stability.
- * - If `dt` is too large, accuracy drops; if too small, computation
- *   costs increase.
+ * Usage:
+ * - This is **not** a predictor. It only holds the configuration for one integration step.
+ * - Use `integrator_step()` repeatedly to simulate over longer durations.
+ *
+ * Time Step (`dt`):
+ * - Typically set to 0.016f for 60Hz simulation.
+ * - Slight variations (±10~20%) are acceptable.
+ * - Large dt reduces accuracy; small dt increases computational cost.
  */
-typedef struct s_integrator_config {
-    integrator_type_t type;           ///< Integration method to use
-    float dt;                  ///< Time step (dt), typically 0.016f for 60Hz
-    motion_state_t* prev_state;       ///< Previous state for Verlet method
-    const environ_t* env;             ///< Environment data (gravity, wind, etc.)
-    const bodyprops_t* body;          ///< Physical body properties (mass, drag, etc.)
-    void* userdata;                   ///< Optional user-defined data
-} integrator_config_t;
+typedef struct s_integrator {
+    motion_state_t state;             ///< Current state to integrate
+    integrator_type_t type;            ///< Integration method
+    float dt;                          ///< Time step (single step only)
+
+    motion_state_t prev_state;       ///< Required for Verlet
+    environ_t env;             ///< Gravity, wind, etc.
+    bodyprops_t body;          ///< Physical properties (mass, drag)
+} integrator_t;
 
 /**
- * @brief Initialize integrator_config_t with default values.
+ * @brief Initializes the integrator with default settings.
  *
- * Details:
- * - `type` is initialized to INTEGRATOR_MOTION_RK4.
- * - `dt` is set to 0.016f (60Hz).
- * - `prev_state`, `env`, `body`, `userdata` are set to NULL.
- *
- * @param[out] cfg Pointer to integrator_config_t to initialize.
+ * Sets the integration type to RK4 and time step to 0.016f.
  */
-BYUL_API void integrator_config_init(integrator_config_t* cfg);
+BYUL_API void integrator_init(integrator_t* intgr);
 
 /**
- * @brief Initialize integrator_config_t with specified values.
+ * @brief Fully initializes an integrator configuration.
  *
- * @param[out] cfg         Configuration structure to initialize.
- * @param[in]  type        Integrator type to use.
- * @param[in]  dt   Time step (dt, typically 0.016f for 60Hz).
- * @param[in]  prev_state  Previous state for Verlet method (NULL if not used).
- * @param[in]  env         Environment data (gravity, wind, etc.).
- * @param[in]  body        Physical body properties (mass, drag, etc.).
- * @param[in]  userdata    User-defined data pointer.
+ * This function sets up an integrator_t structure for single-step motion integration.
+ * It assigns the integration method, time step, and associated motion/environment properties.
  *
- * @note dt outside the typical range can still work, but too large values
- *       reduce accuracy while too small values increase computational cost.
+ * @param[out] intgr         Target integrator structure to initialize (must not be NULL).
+ * @param[in]  type          Integration method to use (e.g., Euler, RK4, Verlet).
+ * @param[in]  dt            Time step for a single integration step (e.g., 0.016f for 60Hz).
+ * @param[in]  state         Pointer to current motion state (required, must not be NULL).
+ * @param[in]  prev_state    Pointer to previous motion state (required for Verlet).
+ *                           Can be NULL if not using Verlet.
+ * @param[in]  env           Pointer to environment configuration (gravity, wind, etc.).
+ *                           Can be NULL to assume zero environment.
+ * @param[in]  body          Pointer to body physical properties (mass, drag, etc.).
+ *                           Can be NULL to use default properties.
+ *
+ * @note This function does not allocate or deep-copy the provided pointers.
+ *       The caller must ensure that all pointers remain valid during use.
+ *       For Verlet integration, `prev_state` must be provided and non-NULL.
  */
-BYUL_API void integrator_config_init_full(integrator_config_t* cfg,
-                                          integrator_type_t type,
-                                          float dt,
-                                          motion_state_t* prev_state,
-                                          const environ_t* env,
-                                          const bodyprops_t* body,
-                                          void* userdata);
+BYUL_API void integrator_init_full(integrator_t* intgr,
+                                   const integrator_type_t type,
+                                   const float dt,
+                                   const motion_state_t* state,
+                                   const motion_state_t* prev_state,
+                                   const environ_t* env,
+                                   const bodyprops_t* body);
 
-BYUL_API void integrator_config_assign(
-    integrator_config_t* out, const integrator_config_t* src);
+// Frees all variables allocated internally and reinitializes them.
+BYUL_API void integrator_clear(integrator_t* intgr);
 
-// ---------------------------------------------------------
-// Common Interface
-// ---------------------------------------------------------
+// Frees all variables allocated internally and reinitializes them.
+BYUL_API void integrator_free(integrator_t* intgr);
+
+BYUL_API void integrator_assign(
+    integrator_t* out, const integrator_t* src);
 
 /**
- * @brief Integrate motion state over time according to the configuration.
+ * @brief Performs a single integration step according to the configuration.
  *
- * @param state      [in/out] Motion state (position, velocity, acceleration).
- * @param config     [in] Integration configuration including type and dt.
+ * This function dispatches to the appropriate integration method (Euler, RK4, etc.)
+ * based on the `type` field inside `integrator_t`.
  *
- * @note Internally dispatches to the selected integration method.
+ * @note This updates the state by one step of `dt`. To simulate over longer time spans,
+ *       you must call this function repeatedly.
  */
-BYUL_API void numeq_integrate(
-    motion_state_t* state, const integrator_config_t* config);
+BYUL_API void integrator_step(integrator_t* intgr);
 
 // ---------------------------------------------------------
 // Numerical Integration Methods
@@ -138,7 +150,7 @@ BYUL_API void numeq_integrate(
  *
  * Simple but less accurate and can be unstable.
  */
-BYUL_API void numeq_integrate_euler(motion_state_t* state, float dt);
+BYUL_API void integrator_step_euler(motion_state_t* state, float dt);
 
 /**
  * @brief Semi-Implicit Euler integration.
@@ -148,7 +160,7 @@ BYUL_API void numeq_integrate_euler(motion_state_t* state, float dt);
  *
  * More stable and recommended for most real-time simulations.
  */
-BYUL_API void numeq_integrate_semi_implicit(
+BYUL_API void integrator_step_semi_implicit(
     motion_state_t* state, float dt);
 
 /**
@@ -159,7 +171,7 @@ BYUL_API void numeq_integrate_semi_implicit(
  * Requires previous position.
  * Useful for damping oscillations or trail effects.
  */
-BYUL_API void numeq_integrate_verlet(motion_state_t* state,
+BYUL_API void integrator_step_verlet(motion_state_t* state,
     const motion_state_t* prev_state, float dt);
 
 /**
@@ -168,47 +180,47 @@ BYUL_API void numeq_integrate_verlet(motion_state_t* state,
  * High accuracy for physics predictions.
  * Used in MPC, guided missiles, and complex dynamics.
  */
-BYUL_API void numeq_integrate_rk4(motion_state_t* state, float dt);
+BYUL_API void integrator_step_rk4(motion_state_t* state, float dt);
 
-BYUL_API void numeq_integrate_rk4_env(motion_state_t* state,
+BYUL_API void integrator_step_rk4_env(motion_state_t* state,
                                 float dt,
                                 const environ_t* env,
                                 const bodyprops_t* body);
 
-BYUL_API void numeq_integrate_attitude_euler(
+BYUL_API void integrator_step_attitude_euler(
     motion_state_t* state, float dt);
 
 // ---------------------------------------------------------
 // Rotational Integration (Semi-Implicit Euler)
 // ---------------------------------------------------------
-BYUL_API void numeq_integrate_attitude_semi_implicit(
+BYUL_API void integrator_step_attitude_semi_implicit(
     motion_state_t* state, float dt);
 
 // ---------------------------------------------------------
 // Rotational Integration (RK4)
 // ---------------------------------------------------------
-BYUL_API void numeq_integrate_attitude_rk4(
+BYUL_API void integrator_step_attitude_rk4(
     motion_state_t* state, float dt);
 
-BYUL_API void numeq_integrate_attitude_rk4_env(motion_state_t* state,
+BYUL_API void integrator_step_attitude_rk4_env(motion_state_t* state,
                                 float dt,
                                 const environ_t* env,
                                 const bodyprops_t* body);
 
 // Rotational (attitude) Verlet integration
-BYUL_API void numeq_integrate_attitude_verlet(motion_state_t* state,
+BYUL_API void integrator_step_attitude_verlet(motion_state_t* state,
     const motion_state_t* prev_state, float dt);
 
 // Combined linear + rotational Verlet integrator
-BYUL_API void numeq_integrate_motion_verlet(motion_state_t* state,
+BYUL_API void integrator_step_motion_verlet(motion_state_t* state,
     const motion_state_t* prev_state, float dt);
 
 // Combined linear + rotational Euler integrator
-BYUL_API void numeq_integrate_motion_euler(
+BYUL_API void integrator_step_motion_euler(
     motion_state_t* state, float dt);
 
 // Combined linear + rotational Semi-Implicit Euler integrator
-BYUL_API void numeq_integrate_motion_semi_implicit(
+BYUL_API void integrator_step_motion_semi_implicit(
     motion_state_t* state, float dt);
 
 /**
@@ -223,9 +235,9 @@ BYUL_API void numeq_integrate_motion_semi_implicit(
  * @param dt    [in] Integration time step (in seconds).
  *
  * @note For external effects (gravity, drag, etc.), use
- *       numeq_integrate_motion_rk4_env instead.
+ *       integrator_step_motion_rk4_env instead.
  */
-BYUL_API void numeq_integrate_motion_rk4(
+BYUL_API void integrator_step_motion_rk4(
     motion_state_t* state, float dt);
 
 /**
@@ -245,7 +257,7 @@ BYUL_API void numeq_integrate_motion_rk4(
  *
  * @note Provides stable prediction even for nonlinear forces like drag or external torque.
  */
-BYUL_API void numeq_integrate_motion_rk4_env(motion_state_t* state,
+BYUL_API void integrator_step_motion_rk4_env(motion_state_t* state,
                                 float dt,
                                 const environ_t* env,
                                 const bodyprops_t* body);

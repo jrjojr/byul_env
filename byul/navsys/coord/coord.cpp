@@ -208,12 +208,13 @@ void coord_fetch(const coord_t* c, int* out_x, int* out_y) {
 
 // ------------------------ Compatibility Functions ------------------------
 
-const coord_t* make_tmp_coord(int x, int y) {
-    static coord_t tmp;
-    tmp.x = coord_wrap_value(x);
-    tmp.y = coord_wrap_value(y);
-    return &tmp;
+coord_t make_tmp_coord(int x, int y) {
+    coord_t c;
+    c.x = coord_wrap_value(x);
+    c.y = coord_wrap_value(y);
+    return c;
 }
+
 
 coord_t* coord_clone_next_to_goal(
     const coord_t* start, const coord_t* goal) {
@@ -222,7 +223,7 @@ coord_t* coord_clone_next_to_goal(
     return out;
 }
 
-char* coord_to_string(const coord_t* c, char* buffer, size_t buffer_size) {
+char* coord_to_string(const coord_t* c, size_t buffer_size, char* buffer) {
     if (!c || !buffer || buffer_size < 16) return NULL;
     snprintf(buffer, buffer_size, "(%d, %d)", c->x, c->y);
     return buffer;

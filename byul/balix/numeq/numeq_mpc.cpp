@@ -15,6 +15,7 @@
 #include "numeq_mpc.h"
 #include "numeq_integrator.h"
 #include "numeq_solver.h"
+#include "numeq_model_motion.h"
 #include <Eigen/Dense>
 #include <vector>
 #include <limits>
@@ -309,8 +310,8 @@ bool numeq_mpc_solve(
                             for (int step = 0; step < horizon_sec; step++) {
                                 vec3_t external_accel = {0, 0, 0};
                                 if (env && body) {
-                                    numeq_model_accel(&sim_state.linear,
-                                        env, body, &external_accel);
+                                    numeq_model_motion_accel(&sim_state,
+                                        env, body, dt, &external_accel);
                                 } else if (env) {
                                     environ_adjust_accel_gsplit(env, true, &external_accel);
                                 }
@@ -322,7 +323,7 @@ bool numeq_mpc_solve(
                                 sim_state.linear.acceleration = total_accel;
                                 sim_state.angular.angular_acceleration = ang_accel;
 
-                                numeq_integrate_motion_rk4(&sim_state, dt);
+                                integrator_step_motion_rk4(&sim_state, dt);
 
                                 if (cost_fn) {
                                     total_cost += cost_fn(
@@ -354,8 +355,8 @@ bool numeq_mpc_solve(
         for (int step = 0; step < horizon_sec; step++) {
             vec3_t external_accel = {0, 0, 0};
             if (env && body) {
-                numeq_model_accel(&sim_state.linear,
-                    env, body, &external_accel);
+                numeq_model_motion_accel(&sim_state,
+                    env, body, dt, &external_accel);
 
             } else if (env) {
                 environ_adjust_accel_gsplit(env, true, &external_accel);
@@ -366,7 +367,7 @@ bool numeq_mpc_solve(
             sim_state.linear.acceleration = total_accel;
             sim_state.angular.angular_acceleration = best_ang_accel;
 
-            numeq_integrate_motion_rk4(&sim_state, dt);
+            integrator_step_motion_rk4(&sim_state, dt);
             trajectory_add_sample(out_traj, step * dt, &sim_state);
         }
 
@@ -437,8 +438,8 @@ bool numeq_mpc_solve_fast(
 
                                 vec3_t external_accel = {0, 0, 0};
                                 if (env && body) {
-                                    numeq_model_accel(&sim_state.linear,
-                                        env, body, &external_accel);
+                                    numeq_model_motion_accel(&sim_state,
+                                        env, body, dt, &external_accel);
 
                                 } else if (env) {
                                     environ_adjust_accel_gsplit(env, true, &external_accel);
@@ -449,7 +450,7 @@ bool numeq_mpc_solve_fast(
                                 sim_state.linear.acceleration = total_accel;
                                 sim_state.angular.angular_acceleration = ang_accel;
 
-                                numeq_integrate_motion_rk4(&sim_state, dt);
+                                integrator_step_motion_rk4(&sim_state, dt);
 
                                 if (cost_fn) {
                                     total_cost += cost_fn(
@@ -484,8 +485,8 @@ bool numeq_mpc_solve_fast(
         for (int step = 0; step < horizon_sec; step++) {
             vec3_t external_accel = {0, 0, 0};
             if (env && body) {
-                numeq_model_accel(&sim_state.linear,
-                    env, body, &external_accel);
+                numeq_model_motion_accel(&sim_state,
+                    env, body, dt, &external_accel);
 
             } else if (env) {
                 environ_adjust_accel_gsplit(env, true, &external_accel);
@@ -496,7 +497,7 @@ bool numeq_mpc_solve_fast(
             sim_state.linear.acceleration = total_accel;
             sim_state.angular.angular_acceleration = best_ang_accel;
 
-            numeq_integrate_motion_rk4(&sim_state, dt);
+            integrator_step_motion_rk4(&sim_state, dt);
             trajectory_add_sample(out_traj, step * dt, &sim_state);
         }
 
@@ -531,8 +532,8 @@ static float evaluate_cost(
 
         vec3_t external_accel = {0, 0, 0};
         if (env && body) {
-            numeq_model_accel(&sim_state.linear,
-                env, body, &external_accel);
+            numeq_model_motion_accel(&sim_state,
+                env, body, dt, &external_accel);
 
         } else if (env) {
             environ_adjust_accel_gsplit(env, true, &external_accel);
@@ -542,7 +543,7 @@ static float evaluate_cost(
         vec3_add(&total_accel, accel, &external_accel);
         sim_state.linear.acceleration = total_accel;
 
-        numeq_integrate_motion_rk4(&sim_state, dt);
+        integrator_step_motion_rk4(&sim_state, dt);
 
         if (cost_fn) {
             total_cost += cost_fn(&sim_state, target_state, cost_userdata);
@@ -643,8 +644,8 @@ bool numeq_mpc_solve_coarse2fine(
         for (int step = 0; step < horizon_sec; step++) {
             vec3_t external_accel = {0, 0, 0};
             if (env && body) {
-                numeq_model_accel(&sim_state.linear,
-                    env, body, &external_accel);
+                numeq_model_motion_accel(&sim_state,
+                    env, body, dt, &external_accel);
 
             } else if (env) {
                 environ_adjust_accel_gsplit(env, true, &external_accel);
@@ -655,7 +656,7 @@ bool numeq_mpc_solve_coarse2fine(
             sim_state.linear.acceleration = total_accel;
             sim_state.angular.angular_acceleration = best_ang_accel;
 
-            numeq_integrate_motion_rk4(&sim_state, dt);
+            integrator_step_motion_rk4(&sim_state, dt);
             trajectory_add_sample(out_traj, step * dt, &sim_state);
         }
 

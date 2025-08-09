@@ -53,6 +53,8 @@ target_include_directories(${PROJECT_NAME} PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}    
     ${CMAKE_SOURCE_DIR}
 
+    ${CMAKE_SOURCE_DIR}/byul_tick
+
     ${CMAKE_CURRENT_SOURCE_DIR}/coord
     ${CMAKE_CURRENT_SOURCE_DIR}/route
     ${CMAKE_CURRENT_SOURCE_DIR}/navgrid
@@ -64,6 +66,10 @@ target_include_directories(${PROJECT_NAME} PRIVATE
     ${CMAKE_SOURCE_DIR}/common
 
     ${CMAKE_SOURCE_DIR}/navsys/route_carver
+)
+
+target_link_libraries(${PROJECT_NAME} PRIVATE
+    byul_tick
 )
 
 add_subdirectory(tests)
