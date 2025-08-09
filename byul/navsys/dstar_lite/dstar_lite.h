@@ -44,7 +44,7 @@
 #include "route.h"
 #include "dstar_lite_key.h"
 #include "dstar_lite_pqueue.h"
-#include "route_finder.h"
+#include "route_finder_common.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -55,7 +55,6 @@ typedef void (*move_func)(const coord_t* c, void* userdata);
 typedef coord_list_t* (*changed_coords_func)(void* userdata);
 
 typedef struct s_dstar_lite {
-    // map
     navgrid_t* m;
 
     coord_t* start;
@@ -90,7 +89,7 @@ typedef struct s_dstar_lite {
 
     int real_loop_max_retry;
 
-    int compute_max_retry;
+    int max_retry;
 
     int reconstruct_max_retry;
 
@@ -116,7 +115,8 @@ typedef struct s_dstar_lite {
  *
  * Returns NULL if navgrid is not provided.
  * 
- * This function creates a D* Lite configuration structure with the following default values:
+ * This function creates a D* Lite configuration structure 
+ * with the following default values:
  * - start : (0, 0)
  * - goal : (0, 0)
  * - km : 0.0f
@@ -125,7 +125,8 @@ typedef struct s_dstar_lite {
  * - width : 0 (infinite map)
  * - height : 0 (infinite map)
  *
- * 8-directional movement, Euclidean distance, D* Lite cost, debug mode disabled.
+ * 8-directional movement, Euclidean distance, 
+ * D* Lite cost, debug mode disabled.
  * The created configuration object is then used by the algorithm.
  *
  * @return Newly created dstar_lite_t* object.
@@ -162,7 +163,8 @@ BYUL_API coord_hash_t* dstar_lite_get_g_table(const dstar_lite_t* dsl);
 
 BYUL_API coord_hash_t* dstar_lite_get_rhs_table(const dstar_lite_t* dsl);
 
-BYUL_API dstar_lite_pqueue_t* dstar_lite_get_frontier(const dstar_lite_t* dsl);
+BYUL_API dstar_lite_pqueue_t* dstar_lite_get_frontier(
+    const dstar_lite_t* dsl);
 
 BYUL_API void     dstar_lite_set_frontier(
     dstar_lite_t* dsl, dstar_lite_pqueue_t* frontier);
@@ -183,8 +185,8 @@ BYUL_API void  dstar_lite_set_real_loop_max_retry(
 BYUL_API int   dstar_lite_real_loop_retry_count(const dstar_lite_t* dsl);
 
 // On a 10x10 map, 100 seems to work well.
-BYUL_API int dstar_lite_get_compute_max_retry(const dstar_lite_t* dsl);
-BYUL_API void dstar_lite_set_compute_max_retry(
+BYUL_API int dstar_lite_get_max_retry(const dstar_lite_t* dsl);
+BYUL_API void dstar_lite_set_max_retry(
     dstar_lite_t* dsl, int v);
 
 BYUL_API int dstar_lite_proto_compute_retry_count(const dstar_lite_t* dsl);
@@ -198,12 +200,13 @@ BYUL_API int dstar_lite_get_reconstruct_max_retry(const dstar_lite_t* dsl);
 BYUL_API void dstar_lite_set_reconstruct_max_retry(dstar_lite_t* dsl, int v);
 BYUL_API int dstar_lite_reconstruct_retry_count(const dstar_lite_t* dsl);
 
-BYUL_API bool dstar_lite_get_debug_mode_enabled(const dstar_lite_t* dsl);
+BYUL_API bool dstar_lite_is_debug_mode_enabled(const dstar_lite_t* dsl);
 
-BYUL_API void     dstar_lite_set_debug_mode_enabled(
+BYUL_API void     dstar_lite_enable_debug_mode(
     dstar_lite_t* dsl, bool enabled);
 
-BYUL_API coord_hash_t* dstar_lite_get_update_count_table(const dstar_lite_t* dsl);
+BYUL_API coord_hash_t* dstar_lite_get_update_count_table(
+    const dstar_lite_t* dsl);
 
 BYUL_API void         dstar_lite_add_update_count(
     dstar_lite_t* dsl, const coord_t* c);
@@ -227,19 +230,26 @@ BYUL_API void dstar_lite_reset(dstar_lite_t* dsl);
 
 BYUL_API int dstar_lite_get_interval_msec(dstar_lite_t* dsl);
 
-BYUL_API void dstar_lite_set_interval_msec(dstar_lite_t* dsl, int interval_msec);
+BYUL_API void dstar_lite_set_interval_msec(
+    dstar_lite_t* dsl, int interval_msec);
 
-BYUL_API float dstar_lite_cost(
-    const navgrid_t* m, const coord_t* start, const coord_t* goal, void* userdata);
+BYUL_API float dstar_lite_cost(const navgrid_t* m, 
+    const coord_t* start, const coord_t* goal, void* userdata);
+
 BYUL_API cost_func    dstar_lite_get_cost_func(const dstar_lite_t* dsl);
 BYUL_API void dstar_lite_set_cost_func(dstar_lite_t* dsl, cost_func fn);
+
 BYUL_API void*    dstar_lite_get_cost_func_userdata(const dstar_lite_t* dsl);
+
 BYUL_API void dstar_lite_set_cost_func_userdata(
     dstar_lite_t* dsl, void* userdata);    
 
 BYUL_API bool dstar_lite_is_blocked(
     dstar_lite_t* dsl, int x, int y, void* userdata);    
-BYUL_API is_coord_blocked_func dstar_lite_get_is_blocked_func(dstar_lite_t* dsl);
+
+BYUL_API is_coord_blocked_func dstar_lite_get_is_blocked_func(
+    dstar_lite_t* dsl);
+
 BYUL_API void dstar_lite_set_is_blocked_func(
     dstar_lite_t* dsl, is_coord_blocked_func fn);
 BYUL_API void* dstar_lite_get_is_blocked_func_userdata(dstar_lite_t* dsl);
@@ -283,19 +293,22 @@ BYUL_API void dstar_lite_set_changed_coords_func_userdata(
  * @param s   Target coordinate
  * @return Calculated dstar_lite_key_t structure
  */
-BYUL_API dstar_lite_key_t* dstar_lite_calc_key(dstar_lite_t* dsl, const coord_t* s);
+BYUL_API dstar_lite_key_t* dstar_lite_calc_key(
+    dstar_lite_t* dsl, const coord_t* s);
 
 BYUL_API void dstar_lite_init(dstar_lite_t* dsl);
 
 /**
- * @brief Recalculates the rhs value of the given node and updates the open list if necessary
+ * @brief Recalculates the rhs value of the given node 
+ *      and updates the open list if necessary
  * @param al Algorithm context
  * @param u  Coordinate to update
  */
 BYUL_API void dstar_lite_update_vertex(dstar_lite_t* dsl, const coord_t* u);
 
 /**
- * @brief Performs update_vertex() for all coordinates within the given range from a center coordinate
+ * @brief Performs update_vertex() for all coordinates 
+ *      within the given range from a center coordinate
  * 
  * @param al         Algorithm context
  * @param s          Center coordinate
@@ -305,7 +318,8 @@ BYUL_API void dstar_lite_update_vertex_range(dstar_lite_t* dsl,
     const coord_t* s, int max_range);
 
 /**
- * @brief Executes update_vertex_range() based on the max_range defined in the config
+ * @brief Executes update_vertex_range() 
+ *      based on the max_range defined in the config
  * 
  * @param al Algorithm context
  * @param s  Center coordinate
@@ -323,7 +337,8 @@ BYUL_API void dstar_lite_compute_shortest_route(dstar_lite_t* dsl);
 /**
  * @brief Reconstructs the route between two coordinates.
  *
- * When the condition g ~= rhs is satisfied, the actual route is extracted and returned.
+ * When the condition g ~= rhs is satisfied, 
+ * the actual route is extracted and returned.
  * If the condition is not satisfied, NULL is returned.
  *
  * @param dsl Algorithm context
@@ -331,7 +346,8 @@ BYUL_API void dstar_lite_compute_shortest_route(dstar_lite_t* dsl);
  */
 BYUL_API route_t* dstar_lite_reconstruct_route(dstar_lite_t* dsl);
 
-// One-time pathfinding in its simplest form, equivalent to static pathfinding.
+// One-time pathfinding in its simplest form, 
+// equivalent to static pathfinding.
 BYUL_API route_t* dstar_lite_find(dstar_lite_t* dsl);
 
 // Integrated pathfinding, combining find_proto and find_loop.
@@ -346,7 +362,8 @@ BYUL_API void dstar_lite_find_proto(dstar_lite_t* dsl);
 // Otherwise, pathfinding will fail.
 // If asked why find_proto must be called separately, 
 // the answer is that this is for advanced users.
-// Some users may want to perform certain operations between find_proto and find_loop.
+// Some users may want to perform certain operations 
+// between find_proto and find_loop.
 // If asked why callbacks are not used, 
 // the answer is that refactoring for that is undesirable for now.
 // Callback support may be added later.
@@ -354,12 +371,14 @@ BYUL_API void dstar_lite_find_proto(dstar_lite_t* dsl);
 BYUL_API void dstar_lite_find_loop(dstar_lite_t* dsl);
 
 /**
- * @brief Executes update_vertex for all coordinates included in the given route.
+ * @brief Executes update_vertex for all coordinates 
+ * included in the given route.
  *
  * @param al Algorithm context
  * @param p  Route to update
  */
-BYUL_API void dstar_lite_update_vertex_by_route(dstar_lite_t* dsl, route_t* p);
+BYUL_API void dstar_lite_update_vertex_by_route(
+    dstar_lite_t* dsl, route_t* p);
 
 // Forcefully terminates the loop.
 BYUL_API void dstar_lite_force_quit(dstar_lite_t* dsl);

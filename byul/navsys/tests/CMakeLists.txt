@@ -3,27 +3,17 @@ cmake_minimum_required(VERSION 3.20)
 project(test_navsys)
 
 # 소스 파일 설정
-set(SOURCES
-    main.cpp
-    test_module_coord.cpp
-    test_module_coord_list.cpp
-    test_module_coord_hash.cpp
+set(${PROJECT_NAME}_SOURCES
+    ${CMAKE_CURRENT_SOURCE_DIR}/main.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/test_module_route_carver.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/test_module_navsys.cpp
 
-    test_module_cost_coord_pq.cpp
-    test_module_dstar_lite_pqueue.cpp
-    test_module_dstar_lite.cpp
-    test_module_maze_room.cpp
-    test_module_maze.cpp
-    test_module_navgrid.cpp
-    test_module_obstacle.cpp
-    test_module_route_finder.cpp
-    test_module_route.cpp
-    test_module_route_carver.cpp
+CACHE INTERNAL "${PROJECT_NAME} source files"  FORCE
 )
 
 # ------------------- 테스트 실행 파일 -------------------
 add_executable(${PROJECT_NAME}
-    ${SOURCES}
+    ${${PROJECT_NAME}_SOURCES}
 )
 
 # ─────────────────────────────────────────────
@@ -65,6 +55,7 @@ target_include_directories(${PROJECT_NAME} PRIVATE
     ${CMAKE_SOURCE_DIR}/common
     ${CMAKE_SOURCE_DIR}/console
 
+    ${CMAKE_SOURCE_DIR}/navsys
     ${CMAKE_SOURCE_DIR}/navsys/coord
     ${CMAKE_SOURCE_DIR}/navsys/route
     ${CMAKE_SOURCE_DIR}/navsys/navgrid
@@ -113,3 +104,6 @@ else()
         ARCHIVE DESTINATION lib/${PROJECT_NAME}
     )
 endif()
+
+# win11 에서는 무조건 설정해야 한다 dll과 static 간에 문제때문에 링크가 안된다.
+target_compile_definitions(${PROJECT_NAME} PRIVATE BYUL_STATIC)

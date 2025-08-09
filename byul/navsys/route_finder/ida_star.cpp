@@ -12,7 +12,7 @@
 route_t* find_ida_star(const navgrid_t* m,
     const coord_t* start, const coord_t* goal,
     cost_func cost_fn, heuristic_func heuristic_fn,
-    int max_retry, bool visited_logging) {
+    int max_retry, bool debug_mode_enabled) {
 
     if (!m || !start || !goal) return nullptr;
     if (!heuristic_fn) heuristic_fn = manhattan_heuristic;
@@ -50,7 +50,7 @@ route_t* find_ida_star(const navgrid_t* m,
         delete new_int;
 
         cost_coord_pq_push(frontier, 0.0f, start);
-        if (visited_logging)
+        if (debug_mode_enabled)
             route_add_visited(result, start);
 
         bool found = false;
@@ -84,7 +84,7 @@ route_t* find_ida_star(const navgrid_t* m,
                 break;
             }
 
-            coord_list_t* neighbors = navgrid_clone_adjacent(
+            coord_list_t* neighbors = navgrid_copy_adjacent(
                 m, current->x, current->y);
 
             int len = coord_list_length(neighbors);
@@ -113,7 +113,7 @@ route_t* find_ida_star(const navgrid_t* m,
 
                 cost_coord_pq_push(frontier, new_cost, next);
 
-                if (visited_logging)
+                if (debug_mode_enabled)
                     route_add_visited(result, next);
             }
 

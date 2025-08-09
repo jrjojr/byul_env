@@ -49,13 +49,11 @@ TEST_CASE("coord_list: pop_back, pop_front") {
     coord_list_push_back(list, b);
     coord_list_push_back(list, c);
 
-    coord_t* back = coord_list_pop_back(list);
-    CHECK(coord_equal(back, c));
-    coord_destroy(back);
+    coord_t back = coord_list_pop_back(list);
+    CHECK(coord_equal(&back, c));
 
-    coord_t* front = coord_list_pop_front(list);
-    CHECK(coord_equal(front, a));
-    coord_destroy(front);
+    coord_t front = coord_list_pop_front(list);
+    CHECK(coord_equal(&front, a));
 
     CHECK(coord_list_length(list) == 1);
     CHECK(coord_equal(coord_list_front(list), b));

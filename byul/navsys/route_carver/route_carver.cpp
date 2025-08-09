@@ -30,7 +30,7 @@ int route_carve_beam(navgrid_t* navgrid,
     // while(cur != goal){
     while(!coord_equal(cur, goal)){
         coord_t* next = coord_clone_next_to_goal(cur, goal);
-        coord_list_t* neighbors = navgrid_clone_adjacent_all_range(
+        coord_list_t* neighbors = navgrid_copy_adjacent_all_range(
             navgrid, next->x, next->y, range-1);
         for(int i=0; i < coord_list_length(neighbors); i++){
             const coord_t* c = coord_list_get(neighbors, i);
@@ -66,7 +66,7 @@ int route_carve_bomb(navgrid_t* navgrid, const coord_t* center, int range){
         removed++;
     }    
 
-    coord_list_t* neighbors = navgrid_clone_adjacent_all_range(
+    coord_list_t* neighbors = navgrid_copy_adjacent_all_range(
         navgrid, center->x, center->y, range-1);
 
     for(int i=0; i < coord_list_length(neighbors); i++){

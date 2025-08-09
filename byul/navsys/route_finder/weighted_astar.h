@@ -46,14 +46,14 @@ extern "C" {
  * @param heuristic_fn    Heuristic function (can be nullptr)
  * @param weight          Weight applied to the heuristic
  * @param max_retry       Maximum number of iterations (0 or less means unlimited)
- * @param visited_logging Whether to log visited cells
+ * @param debug_mode_enabled Whether to log visited cells
  * @return route_t*       Path object (check the success field for the result)
  */
 BYUL_API route_t* find_weighted_astar(const navgrid_t* m,
     const coord_t* start, const coord_t* goal,
     cost_func cost_fn, heuristic_func heuristic_fn,
     float weight,
-    int max_retry, bool visited_logging);
+    int max_retry, bool debug_mode_enabled);
 
 #ifdef __cplusplus
 }

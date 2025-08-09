@@ -1,10 +1,10 @@
-// #include "byul.h"
 #include <stdio.h>
-// byul.cpp
-// This file can remain empty; 
-// it exists only as a formal placeholder for building the byul library.
-void byul_init() {
-	// Initialization code can be added here if needed in the future.
-	// Currently, this function serves as a placeholder.
-	printf("this function serves as a placeholder.\n");
+#include "byul.h"
+
+const char* byul_version_string() {
+    return BYUL_VERSION_STRING;
+}
+
+void byul_print_version() {
+    printf("byul version %s (%d)\n", BYUL_VERSION_STRING, BYUL_VERSION);
 }

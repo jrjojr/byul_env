@@ -343,9 +343,9 @@ TEST_CASE("xform_set_position: clamp test for range") {
 
     // Values exceeding the range
     vec3_t pos_outside = make_vec3(
-        XFORM_POS_MAX + 100.0f,
-        XFORM_POS_MIN - 50.0f,
-        XFORM_POS_MAX + 1.0f
+        XFORM_MAX_POS + 100.0f,
+        XFORM_MIN_POS - 50.0f,
+        XFORM_MAX_POS + 1.0f
     );
 
     xform_set_position(&xf, &pos_outside);
@@ -353,16 +353,16 @@ TEST_CASE("xform_set_position: clamp test for range") {
     vec3_t pos_after;
     xform_get_position(&xf, &pos_after);
 
-    CHECK(pos_after.x == doctest::Approx(XFORM_POS_MAX));
-    CHECK(pos_after.y == doctest::Approx(XFORM_POS_MIN));
-    CHECK(pos_after.z == doctest::Approx(XFORM_POS_MAX));
+    CHECK(pos_after.x == doctest::Approx(XFORM_MAX_POS));
+    CHECK(pos_after.y == doctest::Approx(XFORM_MIN_POS));
+    CHECK(pos_after.z == doctest::Approx(XFORM_MAX_POS));
 }
 
 TEST_CASE("xform_translate: range clamped after movement") {
     xform_t xf;
     xform_init(&xf);
 
-    vec3_t start = make_vec3(XFORM_POS_MAX - 1.0f, 0.0f, 0.0f);
+    vec3_t start = make_vec3(XFORM_MAX_POS - 1.0f, 0.0f, 0.0f);
     xform_set_position(&xf, &start);
 
     // X axis +10 should clamp to MAX
@@ -371,14 +371,14 @@ TEST_CASE("xform_translate: range clamped after movement") {
 
     vec3_t pos_after;
     xform_get_position(&xf, &pos_after);
-    CHECK(pos_after.x == doctest::Approx(XFORM_POS_MAX));
+    CHECK(pos_after.x == doctest::Approx(XFORM_MAX_POS));
 }
 
 TEST_CASE("xform_translate_local: range clamped after movement") {
     xform_t xf;
     xform_init(&xf);
 
-    vec3_t start = make_vec3(0.0f, XFORM_POS_MIN + 1.0f, 0.0f);
+    vec3_t start = make_vec3(0.0f, XFORM_MIN_POS + 1.0f, 0.0f);
     xform_set_position(&xf, &start);
 
     // Y axis -10 should clamp to MIN
@@ -387,7 +387,7 @@ TEST_CASE("xform_translate_local: range clamped after movement") {
 
     vec3_t pos_after;
     xform_get_position(&xf, &pos_after);
-    CHECK(pos_after.y == doctest::Approx(XFORM_POS_MIN));
+    CHECK(pos_after.y == doctest::Approx(XFORM_MIN_POS));
 }
 
 TEST_CASE("xform_lerp: range clamped after interpolation") {
@@ -395,8 +395,8 @@ TEST_CASE("xform_lerp: range clamped after interpolation") {
     xform_init(&a);
     xform_init(&b);
 
-    vec3_t pos_a = make_vec3(XFORM_POS_MIN, XFORM_POS_MIN, XFORM_POS_MIN);
-    vec3_t pos_b = make_vec3(XFORM_POS_MAX + 100.0f, XFORM_POS_MAX, XFORM_POS_MAX);
+    vec3_t pos_a = make_vec3(XFORM_MIN_POS, XFORM_MIN_POS, XFORM_MIN_POS);
+    vec3_t pos_b = make_vec3(XFORM_MAX_POS + 100.0f, XFORM_MAX_POS, XFORM_MAX_POS);
     xform_set_position(&a, &pos_a);
     xform_set_position(&b, &pos_b);
 
@@ -405,6 +405,57 @@ TEST_CASE("xform_lerp: range clamped after interpolation") {
 
     vec3_t pos_mid;
     xform_get_position(&mid, &pos_mid);
-    CHECK(pos_mid.x <= XFORM_POS_MAX);
-    CHECK(pos_mid.x >= XFORM_POS_MIN);
+    CHECK(pos_mid.x <= XFORM_MAX_POS);
+    CHECK(pos_mid.x >= XFORM_MIN_POS);
+}
+
+TEST_CASE("xform_look_at_pivot generates correct forward direction") {
+    xform_t xf;
+    vec3_t pivot = {0.0f, 0.0f, 0.0f};
+    vec3_t target = {1.0f, 0.0f, 0.0f};
+    vec3_t up = {0.0f, 0.0f, 1.0f};
+
+    xform_look_at_pivot(&xf, &target, &up, &pivot);
+
+    vec3_t forward;
+    quat_get_forward(&xf.rot, &forward);
+
+    CHECK(doctest::Approx(forward.x) == -1.0f);
+    CHECK(doctest::Approx(forward.y) == 0.0f);
+    CHECK(doctest::Approx(forward.z) == 0.0f);
+}
+
+TEST_CASE("xform_rotate_local_around_pivot rotates position correctly") {
+    xform_t xf;
+    xform_init(&xf);
+
+    vec3_t src = {1.0f, 0.0f, 0.0f};
+    vec3_assign(&xf.pos, &src);
+
+    quat_t q;
+    vec3_init_full(&src, 0, 0, 1);
+    quat_init_axis_deg(&q, &src, 90.0f);
+
+    vec3_t pivot = {0.0f, 0.0f, 0.0f};
+    xform_rotate_local_around_pivot(&xf, &q, &pivot);
+
+    CHECK(doctest::Approx(xf.pos.x).epsilon(0.001) == 0.0f);
+    CHECK(doctest::Approx(xf.pos.y).epsilon(0.001) == 1.0f);
+}
+
+TEST_CASE("xform_reflect reflects position across plane") {
+    xform_t src;
+    xform_init(&src);
+    vec3_t vec3 = {1.0f, 0.0f, 0.0f};
+    vec3_assign(&src.pos, &vec3);
+
+    xform_t out;
+    vec3_t plane_point = {0.0f, 0.0f, 0.0f};
+    vec3_t plane_normal = {1.0f, 0.0f, 0.0f};
+
+    xform_reflect(&out, &src, &plane_point, &plane_normal);
+
+    CHECK(doctest::Approx(out.pos.x).epsilon(0.001) == -1.0f);
+    CHECK(doctest::Approx(out.pos.y).epsilon(0.001) == 0.0f);
+    CHECK(doctest::Approx(out.pos.z).epsilon(0.001) == 0.0f);
 }

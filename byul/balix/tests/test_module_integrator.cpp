@@ -75,7 +75,7 @@ TEST_CASE("RK4 Integration: acceleration effect (simple)") {
 TEST_CASE("Unified integrator selector dispatches correctly") {
     integrator_config_t cfg = {
         .type = INTEGRATOR_EULER,
-        .time_step = 1.0f,
+        .dt = 1.0f,
         .prev_state = nullptr
     };
     motion_state_t state = {
@@ -94,7 +94,7 @@ TEST_CASE("Unified integrator selector dispatches correctly") {
 TEST_CASE("Unified integrator selector dispatches correctly v1") {
     integrator_config_t cfg;
     integrator_config_init(&cfg);
-    cfg.time_step = 1.0f;
+    cfg.dt = 1.0f;
 
     motion_state_t state;
     state.linear.position = {0.0f, 0.0f, 0.0f};
@@ -116,5 +116,5 @@ TEST_CASE("Unified integrator selector dispatches correctly v2") {
 
     numeq_integrate(&state, &cfg);
 
-    CHECK(state.linear.position.x == doctest::Approx(cfg.time_step));
+    CHECK(state.linear.position.x == doctest::Approx(cfg.dt));
 }

@@ -23,10 +23,6 @@ if(CMAKE_BUILD_TYPE STREQUAL "Debug")
     message(STATUS "DEBUG mode enabled")
 endif()
 
-# lib가 위치할 디렉토리 생성
-# set(BYUL_LIB_DIR ${CMAKE_BINARY_DIR}/lib)
-# file(MAKE_DIRECTORY ${BYUL_LIB_DIR})
-
 # -----------------------------------------------------------------------------
 # MSVC specific settings
 # -----------------------------------------------------------------------------
@@ -58,92 +54,73 @@ add_subdirectory(entity)
 add_subdirectory(projectile)
 add_subdirectory(gpu_comp_tester)
 
-set(SOURCES 
-    ${PROJECT_NAME}.cpp
+set(${PROJECT_NAME}_SOURCES 
+    ${CMAKE_CURRENT_SOURCE_DIR}/byul.cpp
+
+    ${common_SOURCES}
+    ${console_SOURCES}
+    ${navsys_SOURCES}
+    ${balix_SOURCES}
+    ${entity_SOURCES}
+    ${projectile_SOURCES}
+
+
+CACHE INTERNAL "${PROJECT_NAME} source files"  FORCE
 )
 
-set(HEADERS
-    ${PROJECT_NAME}.h
-    byul_common.h
+set(${PROJECT_NAME}_HEADERS
+    ${CMAKE_CURRENT_SOURCE_DIR}/byul.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/byul_common.h
+
+    ${common_HEADERS}
+    ${console_HEADERS}
+    ${navsys_HEADERS}
+    ${balix_HEADERS}
+    ${entity_HEADERS}
+    ${projectile_HEADERS}
+
+CACHE INTERNAL "${PROJECT_NAME} header files"  FORCE
 )
 
 # -----------------------------------------------------------------------------
-# Create final DLL
+# DLL 생성
 # -----------------------------------------------------------------------------
-add_library(${PROJECT_NAME} SHARED ${SOURCES})
+add_library(${PROJECT_NAME} SHARED ${${PROJECT_NAME}_SOURCES})
 
 target_compile_definitions(${PROJECT_NAME} PRIVATE BYUL_EXPORTS)
 
-# 루트 CMakeLists.txt
-# add_compile_definitions(BYUL_EXPORTS)
+# 외부 include 경로 설정
+set(EXTERNAL_DIR ${CMAKE_SOURCE_DIR}/../external)
+message(STATUS "${PROJECT_NAME} : EXTERNAL_DIR = ${EXTERNAL_DIR}")
 
+include(${CMAKE_SOURCE_DIR}/cmake/project_manager.cmake)
+extract_header_dirs(common_HEADERS  COMMON_HDR_DIRS)
+extract_header_dirs(console_HEADERS  CONSOLE_HDR_DIRS)
 
+extract_header_dirs(navsys_HEADERS  NAVSYS_HDR_DIRS)
+extract_header_dirs(balix_HEADERS  BALIX_HDR_DIRS)
+
+extract_header_dirs(entity_HEADERS  ENTITY_HDR_DIRS)
+extract_header_dirs(projectile_HEADERS  PROJ_HDR_DIRS)
+
+# -----------------------------------------------------------------------------
+# include 디렉토리 추가 (최상위 소스 + 하위 헤더 경로)
+# -----------------------------------------------------------------------------
 target_include_directories(${PROJECT_NAME} PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}
     ${CMAKE_SOURCE_DIR}
+    ${EXTERNAL_DIR}
 
-    ${CMAKE_SOURCE_DIR}/common
+    ${COMMON_HDR_DIRS}
+    ${CONSOLE_HDR_DIRS}
 
-    ${CMAKE_SOURCE_DIR}/navsys
-    ${CMAKE_SOURCE_DIR}/navsys/coord
-    ${CMAKE_SOURCE_DIR}/navsys/dstar_lite
-    ${CMAKE_SOURCE_DIR}/navsys/maze
-    ${CMAKE_SOURCE_DIR}/navsys/navgrid
-    ${CMAKE_SOURCE_DIR}/navsys/obstacle
-    ${CMAKE_SOURCE_DIR}/navsys/route
-    ${CMAKE_SOURCE_DIR}/navsys/route_carver
-    ${CMAKE_SOURCE_DIR}/navsys/route_finder
-
-    ${CMAKE_SOURCE_DIR}/balix
-    ${CMAKE_SOURCE_DIR}/balix/bodyprops
-    ${CMAKE_SOURCE_DIR}/balix/controller
-    ${CMAKE_SOURCE_DIR}/balix/environ
-    ${CMAKE_SOURCE_DIR}/balix/motion_state
-    ${CMAKE_SOURCE_DIR}/balix/numal
-    
-    ${CMAKE_SOURCE_DIR}/balix/numeq
-    ${CMAKE_SOURCE_DIR}/balix/numeq/filters
-
-    ${CMAKE_SOURCE_DIR}/balix/tests
-    ${CMAKE_SOURCE_DIR}/balix/trajectory
-    ${CMAKE_SOURCE_DIR}/balix/xform    
-
-    ${CMAKE_SOURCE_DIR}/entity
-    ${CMAKE_SOURCE_DIR}/projectile
-
+    ${NAVSYS_HDR_DIRS}
+    ${BALIX_HDR_DIRS}
+    ${ENTITY_HDR_DIRS}
+    ${PROJ_HDR_DIRS}
 )
 
-# tests require ${PROJECT_NAME} library
 add_subdirectory(tests)
-
-target_link_directories(${PROJECT_NAME} PRIVATE
-    ${CMAKE_BINARY_DIR}/common
-)
-
-set(SUB_LIBS
-    common
-    console
-    navsys
-    balix
-    entity
-    projectile
-)
-
-if (CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
-    target_link_libraries(${PROJECT_NAME} PRIVATE
-        -Wl,--whole-archive
-        ${SUB_LIBS}
-        -Wl,--no-whole-archive
-    )
-elseif (MSVC)
-    foreach(module ${SUB_LIBS})
-        set(MSVC_WHOLEARCHIVE_FLAGS "${MSVC_WHOLEARCHIVE_FLAGS} /WHOLEARCHIVE:${module}")
-    endforeach()
-    set_target_properties(${PROJECT_NAME} PROPERTIES LINK_FLAGS "${MSVC_WHOLEARCHIVE_FLAGS}")
-    target_link_libraries(${PROJECT_NAME} PRIVATE ${SUB_LIBS})
-else()
-    target_link_libraries(${PROJECT_NAME} PRIVATE ${SUB_LIBS})
-endif()
 
 # -----------------------------------------------------------------------------
 # Platform-specific settings and DLL handling
@@ -184,15 +161,19 @@ elseif (WIN32)
     )    
 
 elseif (CMAKE_SYSTEM_NAME STREQUAL "Linux")
-    # Ubuntu native build
     set(HOME_DIR "$ENV{HOME}")
     message(STATUS "Ubuntu build (HOME_DIR=${HOME_DIR})")
 
-    # Apply ASan/LSan
-    message(STATUS "${PROJECT_NAME} Applying ASan + LSan for Linux")
-    target_compile_options(${PROJECT_NAME} PRIVATE -fsanitize=address -fsanitize=leak -g -O1)
-    target_link_options(${PROJECT_NAME} PRIVATE -fsanitize=address -fsanitize=leak)
-
+    if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+        message(STATUS "${PROJECT_NAME} Applying ASan + LSan (Debug only)")
+        target_compile_options(${PROJECT_NAME} PRIVATE -fsanitize=address -fsanitize=leak -g -O1)
+        target_link_options(${PROJECT_NAME} PRIVATE -fsanitize=address -fsanitize=leak)
+    else()
+        message(STATUS "${PROJECT_NAME} Release mode: no sanitizer")
+        target_compile_options(${PROJECT_NAME} PRIVATE -O3 -DNDEBUG -g0)
+        target_link_options(${PROJECT_NAME} PRIVATE -s)
+    endif()
+    
 else()
     message(FATAL_ERROR "Unknown platform: ${CMAKE_SYSTEM_NAME}")
 endif()
@@ -242,7 +223,7 @@ else()
     )
 endif()
 
-install(FILES ${HEADERS}
+install(FILES ${${PROJECT_NAME}_HEADERS}
     DESTINATION include/${CMAKE_PROJECT_NAME}
 )
 

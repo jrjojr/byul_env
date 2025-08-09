@@ -116,7 +116,7 @@ TEST_CASE("projectile_predict - ground collision") {
         &proj,           // [in]  Projectile entity
         &entdyn,         // [in]  Target entity (collision check target)
         500.0f,          // [in]  max_time: Maximum prediction time (seconds)
-        1.0f,            // [in]  time_step: Simulation sampling interval (seconds)
+        1.0f,            // [in]  dt: Simulation sampling interval (seconds)
         &env,            // [in]  Environment data (gravity, wind, etc.)
         nullptr,         // [in]  Propulsion system (null if none)
         guidance_none    // [in]  Guidance function pointer (guidance_none or nullptr)

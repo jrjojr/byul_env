@@ -193,7 +193,7 @@ BYUL_API void numeq_model_calc_rk4(
  *
  * @return true on success.
  */
-bool numeq_model_bounce(const vec3_t* velocity_in,
+BYUL_API bool numeq_model_bounce(const vec3_t* velocity_in,
                         const vec3_t* normal,
                         float restitution,
                         vec3_t* out_velocity_out);
@@ -211,7 +211,7 @@ bool numeq_model_bounce(const vec3_t* velocity_in,
  *
  * @note The current implementation assumes constant or uniform acceleration.
  */
-bool numeq_model_calc_collision(
+BYUL_API bool numeq_model_calc_collision(
     const linear_state_t* my_state,
     const linear_state_t* other_state,
     float radius_sum,

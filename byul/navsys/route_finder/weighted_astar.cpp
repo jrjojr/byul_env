@@ -13,7 +13,7 @@ route_t* find_weighted_astar(const navgrid_t* m,
     const coord_t* start, const coord_t* goal,
     cost_func cost_fn, heuristic_func heuristic_fn,
     float weight,
-    int max_retry, bool visited_logging) {
+    int max_retry, bool debug_mode_enabled) {
 
     if (!m || !start || !goal || max_retry <= 0)
         return nullptr;
@@ -44,7 +44,7 @@ route_t* find_weighted_astar(const navgrid_t* m,
     float f_start = weight * h_start;
     cost_coord_pq_push(frontier, f_start, start);
 
-    if (visited_logging)
+    if (debug_mode_enabled)
         route_add_visited(result, start);
 
     bool found = false;
@@ -65,7 +65,7 @@ route_t* find_weighted_astar(const navgrid_t* m,
         float* g_ptr = (float*)coord_hash_get(cost_so_far, current);
         float g = g_ptr ? *g_ptr : 0.0f;
 
-        coord_list_t* neighbors = navgrid_clone_adjacent(m, current->x, current->y);
+        coord_list_t* neighbors = navgrid_copy_adjacent(m, current->x, current->y);
         int len = coord_list_length(neighbors);
 
         for (int i = 0; i < len; ++i) {
@@ -86,7 +86,7 @@ route_t* find_weighted_astar(const navgrid_t* m,
                 float f = new_g + weight * h;
                 cost_coord_pq_push(frontier, f, next);
 
-                if (visited_logging)
+                if (debug_mode_enabled)
                     route_add_visited(result, next);
             }
         }

@@ -63,7 +63,6 @@ TEST_CASE("route direction and angle") {
     coord_t* dir = route_make_direction(p, 0);
     CHECK(coord_get_x(dir) == 1);
     CHECK(coord_get_y(dir) == 0);
-    coord_destroy(dir);
 
     CHECK(route_get_direction_by_dir_coord(dir) == ROUTE_DIR_RIGHT);
     CHECK(route_get_direction_by_index(p, 0) == ROUTE_DIR_RIGHT);
@@ -85,6 +84,7 @@ TEST_CASE("route direction and angle") {
     coord_destroy(to1);
     coord_destroy(to2);
     route_destroy(p);
+    coord_destroy(dir);    
 }
 
 TEST_CASE("route insert, remove, find") {

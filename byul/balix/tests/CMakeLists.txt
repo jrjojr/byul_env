@@ -4,26 +4,25 @@ project(test_balix)
 
 
 # 소스 파일 설정
-set(SOURCES
-    main.cpp
+set(${PROJECT_NAME}_SOURCES
+    ${CMAKE_CURRENT_SOURCE_DIR}/main.cpp
 
-    test_module_dualnumber.cpp
-    test_module_quat.cpp
-    test_module_dualquat.cpp
-    test_module_controller.cpp
-    test_module_integrator.cpp
-    test_module_kalman.cpp
-    test_module_model.cpp
-    test_module_pid.cpp
-    test_module_solver.cpp
-    test_module_trajectory.cpp
-    test_module_xform.cpp
-    test_module_mpc.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/test_module_controller.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/test_module_integrator.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/test_module_kalman.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/test_module_model.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/test_module_pid.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/test_module_solver.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/test_module_trajectory.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/test_module_xform.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/test_module_mpc.cpp
+
+CACHE INTERNAL "${PROJECT_NAME} source files"  FORCE
 )
 
 # ------------------- 테스트 실행 파일 -------------------
 add_executable(${PROJECT_NAME}
-    ${SOURCES}
+    ${${PROJECT_NAME}_SOURCES}
 )
 
 # ─────────────────────────────────────────────
@@ -121,3 +120,6 @@ else()
         ARCHIVE DESTINATION lib/${PROJECT_NAME}
     )
 endif()
+
+# win11 에서는 무조건 설정해야 한다 dll과 static 간에 문제때문에 링크가 안된다.
+target_compile_definitions(${PROJECT_NAME} PRIVATE BYUL_STATIC)

@@ -1,0 +1,145 @@
+cmake_minimum_required(VERSION 3.20)
+
+project(navsys)
+
+# 공통 프로젝트 초기화 함수
+include(${CMAKE_SOURCE_DIR}/cmake/project_manager.cmake)
+init_project(${PROJECT_NAME})
+
+add_subdirectory(coord)
+
+add_sub(coord)
+
+add_srcs(
+    ${CMAKE_CURRENT_SOURCE_DIR}/navsys.cpp
+
+    ${CMAKE_CURRENT_SOURCE_DIR}/coord/coord.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/coord/coord_hash.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/coord/coord_list.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/coord/cost_coord_pq.cpp
+
+    ${CMAKE_CURRENT_SOURCE_DIR}/route/route.cpp
+
+    ${CMAKE_CURRENT_SOURCE_DIR}/navgrid/navgrid.cpp
+
+    ${CMAKE_CURRENT_SOURCE_DIR}/route_carver/route_carver.cpp
+
+    ${CMAKE_CURRENT_SOURCE_DIR}/dstar_lite/dstar_lite_key.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/dstar_lite/dstar_lite_pqueue.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/dstar_lite/dstar_lite.cpp
+
+    ${CMAKE_CURRENT_SOURCE_DIR}/route_finder/route_finder.cpp    
+    ${CMAKE_CURRENT_SOURCE_DIR}/route_finder/route_finder_common.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/route_finder/astar.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/route_finder/bfs.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/route_finder/dfs.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/route_finder/dijkstra.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/route_finder/fast_marching.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/route_finder/fringe_search.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/route_finder/greedy_best_first.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/route_finder/ida_star.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/route_finder/rta_star.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/route_finder/sma_star.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/route_finder/weighted_astar.cpp
+
+    ${CMAKE_CURRENT_SOURCE_DIR}/obstacle/obstacle_common.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/obstacle/obstacle.cpp    
+
+    ${CMAKE_CURRENT_SOURCE_DIR}/maze/maze_aldous_broder.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/maze/maze_binary.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/maze/maze_common.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/maze/maze_eller.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/maze/maze_hunt_and_kill.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/maze/maze_kruskal.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/maze/maze_prim.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/maze/maze_recursive_division.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/maze/maze_recursive.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/maze/maze_room.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/maze/maze_sidewinder.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/maze/maze_wilson.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/maze/maze.cpp
+)
+
+add_hdrs(
+    ${CMAKE_CURRENT_SOURCE_DIR}/navsys.h
+
+    ${CMAKE_CURRENT_SOURCE_DIR}/coord/coord.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/coord/coord_hash.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/coord/coord_list.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/coord/cost_coord_pq.h
+
+    ${CMAKE_CURRENT_SOURCE_DIR}/route/route.h
+
+    ${CMAKE_CURRENT_SOURCE_DIR}/navgrid/navgrid.h
+
+    ${CMAKE_CURRENT_SOURCE_DIR}/route_carver/route_carver.h
+
+    ${CMAKE_CURRENT_SOURCE_DIR}/dstar_lite/dstar_lite_key.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/dstar_lite/dstar_lite_pqueue.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/dstar_lite/dstar_lite.h
+
+    ${CMAKE_CURRENT_SOURCE_DIR}/route_finder/route_finder.h    
+    ${CMAKE_CURRENT_SOURCE_DIR}/route_finder/route_finder_common.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/route_finder/astar.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/route_finder/bfs.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/route_finder/dfs.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/route_finder/dijkstra.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/route_finder/fast_marching.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/route_finder/fringe_search.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/route_finder/greedy_best_first.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/route_finder/ida_star.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/route_finder/rta_star.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/route_finder/sma_star.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/route_finder/weighted_astar.h
+
+    ${CMAKE_CURRENT_SOURCE_DIR}/obstacle/obstacle_common.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/obstacle/obstacle.h    
+
+    ${CMAKE_CURRENT_SOURCE_DIR}/maze/maze_room.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/maze/maze.h
+)
+
+add_library(${PROJECT_NAME} STATIC ${${PROJECT_NAME}_SOURCES})
+
+# ─────────────────────────────────────────────
+# include 경로
+# ─────────────────────────────────────────────
+target_include_directories(${PROJECT_NAME} PRIVATE
+    ${CMAKE_CURRENT_SOURCE_DIR}    
+    ${CMAKE_SOURCE_DIR}
+    ${CMAKE_SOURCE_DIR}/common
+    ${CMAKE_SOURCE_DIR}/navsys/coord
+    ${CMAKE_SOURCE_DIR}/navsys/dstar_lite
+    ${CMAKE_SOURCE_DIR}/navsys/maze
+    ${CMAKE_SOURCE_DIR}/navsys/navgrid
+    ${CMAKE_SOURCE_DIR}/navsys/obstacle
+    ${CMAKE_SOURCE_DIR}/navsys/route
+    ${CMAKE_SOURCE_DIR}/navsys/route_carver
+    ${CMAKE_SOURCE_DIR}/navsys/route_finder
+)
+
+# ─────────────────────────────────────────────
+# 하위 모듈 링크
+# ─────────────────────────────────────────────
+set(LIBS
+
+)
+
+target_link_libraries(${PROJECT_NAME} PRIVATE ${LIBS})
+
+# ─────────────────────────────────────────────
+# 병합 관련 (루트에서 처리 가능)
+# ─────────────────────────────────────────────
+# list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake")
+# include(merge_static_libs)
+# merge_static_libraries(${PROJECT_NAME} ${LIBS})
+
+add_subdirectory(tests)
+
+
+# win11 에서는 무조건 설정해야 한다 dll과 static 간에 문제때문에 링크가 안된다.
+target_compile_definitions(${PROJECT_NAME} PRIVATE BYUL_STATIC)
+
+# install(FILES ${${PROJECT_NAME}_HEADERS}
+#     DESTINATION include/${CMAKE_PROJECT_NAME}
+# )

@@ -65,5 +65,5 @@ bool entity_dynamic_coord_in_range(
     if (!a || !b) return false;
 
     float dist = coord_distance(&a->base.coord, &b->base.coord);
-    return (dist <= XFORM_POS_MAX);
+    return (dist <= XFORM_MAX_POS);
 }

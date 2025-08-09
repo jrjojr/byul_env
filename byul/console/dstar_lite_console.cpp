@@ -40,7 +40,7 @@ void dsl_debug_print_rhs_table(const navgrid_t* m, coord_hash_t* rhs_table) {
 void dsl_print_info(const dstar_lite_t* dsl){
     printf("print dsl info\n");
     printf("dsl->max_range : %d\n", dsl->max_range);
-    printf("dsl->compute_max_retry : %d\n", dsl->compute_max_retry);
+    printf("dsl->max_retry : %d\n", dsl->max_retry);
     printf("dsl->real_loop_max_retry : %d\n", dsl->real_loop_max_retry);
     printf("dsl->reconstruct_max_retry : %d\n", dsl->reconstruct_max_retry);
 

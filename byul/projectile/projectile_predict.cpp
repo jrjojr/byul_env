@@ -443,7 +443,6 @@ float projectile_result_calc_initial_force(
     return mass * vec3_length(&dv);
 }
 
-
 // ---------------------------------------------------------
 // projectile_predict()
 // ---------------------------------------------------------
@@ -452,12 +451,12 @@ bool projectile_predict(
     const projectile_t* proj,
     const entity_dynamic_t* entdyn,
     float max_time,
-    float time_step,
+    float dt,
     const environ_t* env,
     propulsion_t* propulsion,
     guidance_func guidance_fn)
 {
-    if (!proj || !out || time_step <= 0.0f) return false;
+    if (!proj || !out || dt <= 0.0f) return false;
     trajectory_clear(out->trajectory);
 
     vec3_t target_pos = entdyn ? entdyn->xf.pos : vec3_t{0, 0, 0};
@@ -472,21 +471,23 @@ bool projectile_predict(
     float fuel = propulsion ? propulsion->fuel_remaining : 0.0f;
 
     float t = 0.0f;
-    const int max_steps = (int)ceilf(max_time / time_step);
+    const int max_steps = (int)ceilf(max_time / dt);
 
     out->start_pos = proj->base.xf.pos;
     out->target_pos = entdyn->xf.pos;
     out->initial_velocity = proj->base.velocity;
     out->valid = false;
 
-    for (int step = 0; step < max_steps; ++step, t += time_step) {
+    for (int step = 0; step < max_steps; ++step, t += dt) {
         vec3_t pos_prev = state.linear.position;
         vec3_t vel_prev = state.linear.velocity;
 
         vec3_t env_accel = {0, 0, 0};
         if (env) {
-            entity_dynamic_calc_accel_env(
-                &proj->base, &vel_prev, time_step, env, &env_accel);
+            // entity_dynamic_calc_accel_env(
+            //     &proj->base, &vel_prev, dt, env, &env_accel);
+            
+            env->environ_fn(env, dt, env->userdata, &env_accel);
         }
 
         vec3_t thrust_accel = {0, 0, 0};
@@ -502,13 +503,13 @@ bool projectile_predict(
                 if (entdyn) info.target = *entdyn;
                 vec3_t vec;
                 const vec3_t* g = guidance_fn(
-                    &temp_proj.base, time_step, &info, &vec);
+                    &temp_proj.base, dt, &info, &vec);
                 if (g) vec3_unit(&guidance, g);
             }
-            propulsion_update(propulsion, 100.0f, time_step);
+            propulsion_update(propulsion, 100.0f, dt);
             float thrust = propulsion_get_thrust(propulsion);
             vec3_scale(&thrust_accel, &guidance, thrust / mass);
-            fuel -= propulsion->burn_rate * time_step;
+            fuel -= propulsion->burn_rate * dt;
         }
 
         vec3_add(&state.linear.acceleration, &env_accel, &thrust_accel);
@@ -516,11 +517,11 @@ bool projectile_predict(
         integrator_config_t config;
         integrator_config_init_full(
             &config, INTEGRATOR_RK4_ENV,
-            time_step, nullptr, env, &proj->base.props, nullptr);
+            dt, nullptr, env, &proj->base.props, nullptr);
         numeq_integrate(&state, &config);
 
         bodyprops_apply_friction(
-            &state.linear.velocity, &proj->base.props, time_step);
+            &state.linear.velocity, &proj->base.props, dt);
 
         trajectory_add_sample(out->trajectory, t, &state);
 
@@ -540,7 +541,7 @@ bool projectile_predict(
                         &pos_prev, &vel_prev, 
                         &state.linear.acceleration,
                         &target_pos, target_radius,
-                        time_step, t-time_step, &out->impact_pos, &out->impact_time))
+                        dt, t-dt, &out->impact_pos, &out->impact_time))
                 {
                     out->valid = true;
                     goto finalize;
@@ -551,7 +552,7 @@ bool projectile_predict(
             if(detect_ground_collision_precise(
                 &pos_prev, &state.linear.position,
                 &vel_prev, &state.linear.acceleration,
-                t, time_step, &out->impact_pos, &out->impact_time)){
+                t, dt, &out->impact_pos, &out->impact_time)){
 
                 out->valid = true;
                goto finalize;
@@ -570,12 +571,12 @@ bool projectile_predict_with_kalman_filter(
     const projectile_t* proj,
     entity_dynamic_t* entdyn,
     float max_time,
-    float time_step,
+    float dt,
     const environ_t* env,
     const propulsion_t* propulsion,
     guidance_func guidance_fn)
 {
-    if (!proj || !out || time_step <= 0.0f) return false;
+    if (!proj || !out || dt <= 0.0f) return false;
     trajectory_clear(out->trajectory);
 
     vec3_t target_pos = entdyn ? entdyn->xf.pos : vec3_t{0, 0, 0};
@@ -595,12 +596,12 @@ bool projectile_predict_with_kalman_filter(
         &state.linear.velocity,
         0.01f,
         1.0f,
-        time_step);
+        dt);
 
     float t = 0.0f;
-    const int max_steps = (int)ceilf(max_time / time_step);
+    const int max_steps = (int)ceilf(max_time / dt);
 
-    for (int step = 0; step < max_steps; ++step, t += time_step) {
+    for (int step = 0; step < max_steps; ++step, t += dt) {
         vec3_t pos_prev = state.linear.position;
         vec3_t vel_prev = state.linear.velocity;
 
@@ -621,12 +622,12 @@ bool projectile_predict_with_kalman_filter(
                 if (env) info.env = *env;
                 if (entdyn) info.target = *entdyn;
                 vec3_t vec;
-                const vec3_t* g = guidance_fn(&temp_proj.base, time_step, &info, &vec);
+                const vec3_t* g = guidance_fn(&temp_proj.base, dt, &info, &vec);
                 if (g) vec3_unit(&guidance, g);
             }
             float thrust = propulsion_get_thrust(propulsion);
             vec3_scale(&thrust_accel, &guidance, thrust / mass);
-            fuel -= propulsion->burn_rate * time_step;
+            fuel -= propulsion->burn_rate * dt;
         }
 
         vec3_add(&state.linear.acceleration, &env_accel, &thrust_accel);
@@ -643,7 +644,7 @@ bool projectile_predict_with_kalman_filter(
         integrator_config_t config;
         integrator_config_init_full(
             &config, INTEGRATOR_MOTION_RK4_ENV,
-            time_step, nullptr, env, &proj->base.props, nullptr);
+            dt, nullptr, env, &proj->base.props, nullptr);
 
         numeq_integrate(&state, &config);
 
@@ -656,7 +657,7 @@ bool projectile_predict_with_kalman_filter(
                         &pos_prev, &vel_prev, 
                         &state.linear.acceleration,
                         &target_pos, target_radius,
-                        time_step, t, &out->impact_pos, &out->impact_time))
+                        dt, t, &out->impact_pos, &out->impact_time))
                 {
                     out->valid = true;
                     return true;
@@ -667,7 +668,7 @@ bool projectile_predict_with_kalman_filter(
         if (detect_ground_collision_precise(
                 &pos_prev, &state.linear.position,
                 &vel_prev, &state.linear.acceleration,
-                t, time_step, &out->impact_pos, &out->impact_time))
+                t, dt, &out->impact_pos, &out->impact_time))
         {
             out->valid = true;
             return true;
@@ -683,13 +684,13 @@ bool projectile_predict_with_filter(
     const projectile_t* proj,
     entity_dynamic_t* entdyn,
     float max_time,
-    float time_step,
+    float dt,
     const environ_t* env,
     const propulsion_t* propulsion,
     guidance_func guidance_fn,
     const filter_interface_t* filter_if)
 {
-    if (!proj || !out || time_step <= 0.0f) return false;
+    if (!proj || !out || dt <= 0.0f) return false;
     trajectory_clear(out->trajectory);
 
     vec3_t target_pos = entdyn ? entdyn->xf.pos : vec3_t{0, 0, 0};
@@ -703,9 +704,9 @@ bool projectile_predict_with_filter(
     float fuel = propulsion ? propulsion->fuel_remaining : 0.0f;
 
     float t = 0.0f;
-    const int max_steps = (int)ceilf(max_time / time_step);
+    const int max_steps = (int)ceilf(max_time / dt);
 
-    for (int step = 0; step < max_steps; ++step, t += time_step) {
+    for (int step = 0; step < max_steps; ++step, t += dt) {
         vec3_t pos_prev = state.linear.position;
         vec3_t vel_prev = state.linear.velocity;
 
@@ -726,12 +727,12 @@ bool projectile_predict_with_filter(
                 if (env) info.env = *env;
                 if (entdyn) info.target = *entdyn;
                 vec3_t vec;
-                const vec3_t* g = guidance_fn(&temp_proj.base, time_step, &info, &vec);
+                const vec3_t* g = guidance_fn(&temp_proj.base, dt, &info, &vec);
                 if (g) vec3_unit(&guidance, g);
             }
             float thrust = propulsion_get_thrust(propulsion);
             vec3_scale(&thrust_accel, &guidance, thrust / mass);
-            fuel -= propulsion->burn_rate * time_step;
+            fuel -= propulsion->burn_rate * dt;
         }
 
         vec3_add(&state.linear.acceleration, &env_accel, &thrust_accel);
@@ -754,8 +755,8 @@ bool projectile_predict_with_filter(
 
         integrator_config_t config;
         integrator_config_init_full(&config, INTEGRATOR_MOTION_RK4_ENV,
-                                    time_step, nullptr, env, &proj->base.props, nullptr);
-        config.time_step = time_step;
+                                    dt, nullptr, env, &proj->base.props, nullptr);
+        config.dt = dt;
         numeq_integrate(&state, &config);
 
         if (entdyn) {
@@ -766,7 +767,7 @@ bool projectile_predict_with_filter(
                         &pos_prev, &vel_prev, 
                         &state.linear.acceleration,
                         &target_pos, target_radius,
-                        time_step, t, &out->impact_pos, &out->impact_time))
+                        dt, t, &out->impact_pos, &out->impact_time))
                 {
                     out->valid = true;
                     return true;
@@ -775,7 +776,7 @@ bool projectile_predict_with_filter(
         }
         if (detect_ground_collision_precise(&pos_prev, &state.linear.position,
                     &vel_prev, &state.linear.acceleration,
-                    t, time_step, &out->impact_pos, &out->impact_time))
+                    t, dt, &out->impact_pos, &out->impact_time))
         {
             out->valid = true;
             return true;

@@ -25,9 +25,9 @@ static void xform_from_dualquat(xform_t* xf,
 }
 
 static inline void xform_clamp_position(vec3_t* pos) {
-    pos->x = fminf(fmaxf(pos->x, XFORM_POS_MIN), XFORM_POS_MAX);
-    pos->y = fminf(fmaxf(pos->y, XFORM_POS_MIN), XFORM_POS_MAX);
-    pos->z = fminf(fmaxf(pos->z, XFORM_POS_MIN), XFORM_POS_MAX);
+    pos->x = fminf(fmaxf(pos->x, XFORM_MIN_POS), XFORM_MAX_POS);
+    pos->y = fminf(fmaxf(pos->y, XFORM_MIN_POS), XFORM_MAX_POS);
+    pos->z = fminf(fmaxf(pos->z, XFORM_MIN_POS), XFORM_MAX_POS);
 }
 
 void xform_init(xform_t* out) {
@@ -243,6 +243,34 @@ void xform_look_at(xform_t* out,
     xform_clamp_position(&out->pos);
 }
 
+/**
+ * @brief Constructs a transform from a forward and up direction.
+ *
+ * @param out Output transform.
+ * @param forward Forward direction vector.
+ * @param up Up direction vector.
+ */
+void xform_from_forward(
+    xform_t* out,
+    const vec3_t* forward,
+    const vec3_t* up)
+{
+    vec3_t zaxis = *forward;
+    vec3_normalize(&zaxis);
+
+    vec3_t xaxis;
+    vec3_cross(&xaxis, up, &zaxis);
+    vec3_normalize(&xaxis);
+
+    vec3_t yaxis;
+    vec3_cross(&yaxis, &zaxis, &xaxis);
+
+    quat_init_axes(&out->rot, &xaxis, &yaxis, &zaxis);
+    vec3_zero(&out->pos);
+    vec3_init_full(&out->scale, 1.0f, 1.0f, 1.0f);
+}
+
+
 void xform_align_vectors(xform_t* out, 
     const vec3_t* from, const vec3_t* to) {
 
@@ -381,4 +409,138 @@ void xform_print(const xform_t* xf) {
         << ") Rot(YPR rad): (" << yaw << ", " << pitch << ", " << roll
         << ") Scale: (" 
         << xf->scale.x << ", " << xf->scale.y << ", " << xf->scale.z << ")\n";
+}
+
+void xform_rotate_around_pivot(
+    xform_t* xf,
+    const quat_t* q,
+    const vec3_t* pivot)
+{
+    // 1. pos 기준 회전
+    vec3_t relative;
+    vec3_sub(&relative, &xf->pos, pivot);              // local = pos - pivot
+
+    vec3_t rotated;
+    quat_rotate_vector(q, &relative, &rotated);        // 회전
+
+    vec3_add(&xf->pos, &rotated, pivot);               // world = rotated + pivot
+
+    // 2. rot 갱신 (q * old)
+    quat_mul(&xf->rot, q, &xf->rot);                   // 새로운 rot = q * old
+    quat_normalize(&xf->rot);                          // 정규화 안정성
+}
+
+void xform_slerp_pivot(
+    xform_t* out,
+    const xform_t* a,
+    const xform_t* b,
+    float t,
+    const vec3_t* pivot)
+{
+    // 1. 회전 보간
+    quat_t rot_interp;
+    quat_slerp(&rot_interp, &a->rot, &b->rot, t);
+
+    // 2. 피벗 기준 위치 보간
+    vec3_t offset;
+    vec3_sub(&offset, &a->pos, pivot);               // offset = a->pos - pivot
+
+    vec3_t rotated_offset;
+    quat_apply_to_vec3(&rot_interp, &offset, &rotated_offset);  // 회전 적용
+
+    vec3_add(&out->pos, pivot, &rotated_offset);     // new_pos = pivot + rotated_offset
+
+    // 3. 회전과 스케일 설정
+    out->rot = rot_interp;
+    vec3_lerp(&out->scale, &a->scale, &b->scale, t);  // 스케일도 선형 보간
+}
+
+void xform_look_at_pivot(
+    xform_t* xf,
+    const vec3_t* target,
+    const vec3_t* up,
+    const vec3_t* pivot)
+{
+    vec3_t dir;
+    vec3_sub(&dir, target, pivot);
+    vec3_normalize(&dir);
+    xform_from_forward(xf, &dir, up);
+    vec3_assign(&xf->pos, pivot);
+}
+
+void xform_rotate_local_around_pivot(
+    xform_t* xf,
+    const quat_t* q,
+    const vec3_t* pivot)
+{
+    vec3_t local_offset;
+    vec3_sub(&local_offset, &xf->pos, pivot);
+    vec3_t rotated_offset;
+    quat_apply_to_vec3(q, &local_offset, &rotated_offset);
+    vec3_add(&xf->pos, pivot, &rotated_offset);
+
+    quat_t new_rot;
+    quat_mul(&new_rot, q, &xf->rot);
+    quat_assign(&xf->rot, &new_rot);
+}
+
+void xform_look_to(
+    xform_t* xf,
+    const vec3_t* direction,
+    const vec3_t* up)
+{
+    vec3_t norm_dir;
+    vec3_assign(&norm_dir, direction);
+    vec3_normalize(&norm_dir);
+    xform_from_forward(xf, &norm_dir, up);
+}
+
+void xform_align_axis(
+    xform_t* xf,
+    int axis_index,
+    const vec3_t* target_dir)
+{
+    vec3_t current_axis;
+    switch (axis_index) {
+        case 0: quat_get_right(&xf->rot, &current_axis); break;
+        case 1: quat_get_up(&xf->rot, &current_axis); break;
+        case 2: quat_get_forward(&xf->rot, &current_axis); break;
+        default: return; // Invalid axis
+    }
+
+    quat_t q_align;
+    quat_init_two_vector(&q_align, &current_axis, target_dir);
+    quat_t new_rot;
+    quat_mul(&new_rot, &q_align, &xf->rot);
+    quat_assign(&xf->rot, &new_rot);
+}
+
+void xform_reflect(
+    xform_t* out,
+    const xform_t* src,
+    const vec3_t* plane_point,
+    const vec3_t* plane_normal)
+{
+    // Reflect position
+    vec3_t diff;
+    vec3_sub(&diff, &src->pos, plane_point);
+    float dist = 2.0f * vec3_dot(&diff, plane_normal);
+    vec3_t reflect_offset;
+    vec3_scale(&reflect_offset, plane_normal, dist);
+    vec3_sub(&out->pos, &src->pos, &reflect_offset);
+
+    // Reflect rotation
+    vec3_t x, y, z;
+    quat_get_right(&src->rot, &x);
+    quat_get_up(&src->rot, &y);
+    quat_get_forward(&src->rot, &z);
+
+    vec3_reflect(&x, &x, plane_normal);
+    vec3_reflect(&y, &y, plane_normal);
+    vec3_reflect(&z, &z, plane_normal);
+
+    quat_init_axes(&out->rot, &x, &y, &z);
+
+    // Copy scale
+    vec3_assign(&out->scale, &src->scale);
 }

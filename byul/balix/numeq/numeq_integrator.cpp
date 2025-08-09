@@ -6,7 +6,7 @@
 void integrator_config_init(integrator_config_t* cfg) {
     if (!cfg) return;
     cfg->type = INTEGRATOR_RK4_ENV;
-    cfg->time_step = 0.016f;
+    cfg->dt = 0.016f;
     cfg->prev_state = nullptr;
     cfg->env = nullptr;
     cfg->body = nullptr;
@@ -15,7 +15,7 @@ void integrator_config_init(integrator_config_t* cfg) {
 
 void integrator_config_init_full(integrator_config_t* cfg,
                                  integrator_type_t type,
-                                 float time_step,
+                                 float dt,
                                  motion_state_t* prev_state,
                                  const environ_t* env,
                                  const bodyprops_t* body,
@@ -24,7 +24,7 @@ void integrator_config_init_full(integrator_config_t* cfg,
     if (!cfg) return;
 
     cfg->type = type;
-    cfg->time_step = time_step;
+    cfg->dt = dt;
     cfg->prev_state = prev_state;
     cfg->env = env;
     cfg->body = body;
@@ -509,44 +509,44 @@ void numeq_integrate(
 
     switch (config->type) {
         case INTEGRATOR_EULER:
-            numeq_integrate_euler(state, config->time_step);
+            numeq_integrate_euler(state, config->dt);
             break;
         case INTEGRATOR_SEMI_IMPLICIT:
-            numeq_integrate_semi_implicit(state, config->time_step);
+            numeq_integrate_semi_implicit(state, config->dt);
             break;
         case INTEGRATOR_RK4:
-            numeq_integrate_rk4(state, config->time_step);
+            numeq_integrate_rk4(state, config->dt);
             break;
         case INTEGRATOR_RK4_ENV:
             numeq_integrate_rk4_env(
-                state, config->time_step, config->env, config->body);
+                state, config->dt, config->env, config->body);
             break;            
         case INTEGRATOR_VERLET:
             if (config->prev_state) {
                 numeq_integrate_verlet(state, config->prev_state, 
-                    config->time_step);
+                    config->dt);
             } else {
                 assert(false && "Verlet integration requires prev_state");
             }
             break;
         case INTEGRATOR_MOTION_EULER:
-            numeq_integrate_motion_euler(state, config->time_step);
+            numeq_integrate_motion_euler(state, config->dt);
             break;
         case INTEGRATOR_MOTION_SEMI_IMPLICIT:
-            numeq_integrate_motion_semi_implicit(state, config->time_step);
+            numeq_integrate_motion_semi_implicit(state, config->dt);
             break;
         case INTEGRATOR_MOTION_RK4:
-            numeq_integrate_motion_rk4(state, config->time_step);
+            numeq_integrate_motion_rk4(state, config->dt);
             break;
         case INTEGRATOR_MOTION_RK4_ENV:
             numeq_integrate_motion_rk4_env(
-                state, config->time_step, config->env, config->body);
+                state, config->dt, config->env, config->body);
             break;
 
         case INTEGRATOR_MOTION_VERLET:
             if (config->prev_state) {
                 numeq_integrate_motion_verlet(state, config->prev_state, 
-                    config->time_step);
+                    config->dt);
             } else {
                 assert(
                     false && "Motion Verlet integration requires prev_state");

@@ -12,7 +12,7 @@
 route_t* find_sma_star(const navgrid_t* m,
     const coord_t* start, const coord_t* goal,
     cost_func cost_fn, heuristic_func heuristic_fn,
-    int memory_limit, int max_retry, bool visited_logging) {
+    int memory_limit, int max_retry, bool debug_mode_enabled) {
 
     if (!m || !start || !goal || memory_limit <= 0 || max_retry <= 0)
         return nullptr;
@@ -40,7 +40,7 @@ route_t* find_sma_star(const navgrid_t* m,
     float h_start = heuristic_fn(start, goal, nullptr);
     cost_coord_pq_push(frontier, h_start, start);
 
-    if (visited_logging)
+    if (debug_mode_enabled)
         route_add_visited(result, start);
 
     int retry = 0;
@@ -60,7 +60,7 @@ route_t* find_sma_star(const navgrid_t* m,
         float* g_ptr = (float*)coord_hash_get(cost_so_far, current);
         float g = g_ptr ? *g_ptr : 0.0f;
 
-        coord_list_t* neighbors = navgrid_clone_adjacent(
+        coord_list_t* neighbors = navgrid_copy_adjacent(
             m, current->x, current->y);
 
         int len = coord_list_length(neighbors);
@@ -84,7 +84,7 @@ route_t* find_sma_star(const navgrid_t* m,
                 float f = new_cost + h;
                 cost_coord_pq_push(frontier, f, next);
 
-                if (visited_logging)
+                if (debug_mode_enabled)
                     route_add_visited(result, next);
             }
         }

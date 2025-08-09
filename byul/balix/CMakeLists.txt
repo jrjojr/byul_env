@@ -2,100 +2,82 @@ cmake_minimum_required(VERSION 3.20)
 
 project(balix)
 
-
+add_subdirectory(numal)
 
 # ─────────────────────────────────────────────
 # 소스 파일 설정
 # ─────────────────────────────────────────────
-set(SOURCES
-    ${PROJECT_NAME}.cpp
+set(${PROJECT_NAME}_SOURCES
+    ${CMAKE_CURRENT_SOURCE_DIR}/balix.cpp
 
-    bodyprops/bodyprops.cpp    
-    environ/environ.cpp    
+    ${CMAKE_CURRENT_SOURCE_DIR}/bodyprops/bodyprops.cpp    
+    ${CMAKE_CURRENT_SOURCE_DIR}/environ/environ.cpp    
 
-    numal/dualnumber.cpp
+    ${numal_SOURCES}
 
-    numal/dualquat.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/numeq/numeq_integrator.cpp
 
-    numal/numal.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/numeq/filters/numeq_filters.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/numeq/filters/numeq_kalman.cpp
 
-    numal/quat.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/numeq/numeq_model.cpp
 
-    numal/vec3.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/numeq/numeq_mpc.cpp
 
-    numeq/numeq_integrator.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/numeq/numeq_pid_vec3.cpp
 
-    numeq/filters/numeq_filters.cpp
-    numeq/filters/numeq_kalman.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/numeq/numeq_pid.cpp
 
-    numeq/numeq_model.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/numeq/numeq_solver.cpp
 
-    numeq/numeq_mpc.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/numeq/numeq.cpp
 
-    numeq/numeq_pid_vec3.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/xform/xform.cpp
 
-    numeq/numeq_pid.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/trajectory/trajectory.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/motion_state/motion_state.cpp
 
-    numeq/numeq_solver.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/controller/controller.cpp
 
-    numeq/numeq.cpp
-
-
-    xform/xform.cpp
-
-    trajectory/trajectory.cpp
-    motion_state/motion_state.cpp
-
-    controller/controller.cpp
+CACHE INTERNAL "${PROJECT_NAME} source files"  FORCE
 )
 
-set(HEADERS
-    ${PROJECT_NAME}.h
+set(${PROJECT_NAME}_HEADERS
+    ${CMAKE_CURRENT_SOURCE_DIR}/balix.h
 
-    bodyprops/bodyprops.h    
-    environ/environ.h    
+    ${CMAKE_CURRENT_SOURCE_DIR}/bodyprops/bodyprops.h    
+    ${CMAKE_CURRENT_SOURCE_DIR}/environ/environ.h    
 
-    numal/dualnumber.h
+    ${numal_HEADERS}
 
-    numal/dualquat.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/numeq/numeq_integrator.h
 
-    numal/dualquat.hpp
-    numal/numal.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/numeq/filters/numeq_filters.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/numeq/filters/numeq_kalman.h
 
-    numal/quat.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/numeq/numeq_model.h
 
-    numal/quat.hpp
-    numal/vec3.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/numeq/numeq_mpc.h
 
-    numal/vec3.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/numeq/numeq_pid_vec3.h
 
-    numeq/numeq_integrator.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/numeq/numeq_pid.h
 
-    numeq/filters/numeq_filters.h
-    numeq/filters/numeq_kalman.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/numeq/numeq_solver.h
 
-    numeq/numeq_model.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/numeq/numeq.h
 
-    numeq/numeq_mpc.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/xform/xform.h
 
-    numeq/numeq_pid_vec3.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/trajectory/trajectory.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/motion_state/motion_state.h
 
-    numeq/numeq_pid.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/controller/controller.h
 
-    numeq/numeq_solver.h
-
-    numeq/numeq.h
-
-
-    xform/xform.h
-
-    trajectory/trajectory.h
-    motion_state/motion_state.h
-
-    controller/controller.h
+CACHE INTERNAL "${PROJECT_NAME} header files"  FORCE
 )
 
-add_library(${PROJECT_NAME} STATIC ${SOURCES})
+add_library(${PROJECT_NAME} STATIC ${${PROJECT_NAME}_SOURCES})
 
 # 외부 include 경로 설정
 set(EXTERNAL_DIR ${CMAKE_SOURCE_DIR}/../external)
@@ -155,6 +137,6 @@ add_subdirectory(tests)
 # win11 에서는 무조건 설정해야 한다 dll과 static 간에 문제때문에 링크가 안된다.
 target_compile_definitions(${PROJECT_NAME} PRIVATE BYUL_STATIC)
 
-install(FILES ${HEADERS}
-    DESTINATION include/${CMAKE_PROJECT_NAME}
-)
+# install(FILES ${${PROJECT_NAME}_HEADERS}
+#     DESTINATION include/${CMAKE_PROJECT_NAME}
+# )

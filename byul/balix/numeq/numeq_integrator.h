@@ -58,16 +58,16 @@ typedef enum e_integrator_type {
  * including time step, environment, and physical body properties.
  *
  * ### Mean Range
- * - The `time_step` is typically set to 0.016f (60Hz).
+ * - The `dt` is typically set to 0.016f (60Hz).
  *   It does not need to be perfectly fixed as long as it stays
  *   close to the average.
  * - Small variations (+/-10 to 20%) generally do not affect stability.
- * - If `time_step` is too large, accuracy drops; if too small, computation
+ * - If `dt` is too large, accuracy drops; if too small, computation
  *   costs increase.
  */
 typedef struct s_integrator_config {
     integrator_type_t type;           ///< Integration method to use
-    float time_step;                  ///< Time step (dt), typically 0.016f for 60Hz
+    float dt;                  ///< Time step (dt), typically 0.016f for 60Hz
     motion_state_t* prev_state;       ///< Previous state for Verlet method
     const environ_t* env;             ///< Environment data (gravity, wind, etc.)
     const bodyprops_t* body;          ///< Physical body properties (mass, drag, etc.)
@@ -79,7 +79,7 @@ typedef struct s_integrator_config {
  *
  * Details:
  * - `type` is initialized to INTEGRATOR_MOTION_RK4.
- * - `time_step` is set to 0.016f (60Hz).
+ * - `dt` is set to 0.016f (60Hz).
  * - `prev_state`, `env`, `body`, `userdata` are set to NULL.
  *
  * @param[out] cfg Pointer to integrator_config_t to initialize.
@@ -91,18 +91,18 @@ BYUL_API void integrator_config_init(integrator_config_t* cfg);
  *
  * @param[out] cfg         Configuration structure to initialize.
  * @param[in]  type        Integrator type to use.
- * @param[in]  time_step   Time step (dt, typically 0.016f for 60Hz).
+ * @param[in]  dt   Time step (dt, typically 0.016f for 60Hz).
  * @param[in]  prev_state  Previous state for Verlet method (NULL if not used).
  * @param[in]  env         Environment data (gravity, wind, etc.).
  * @param[in]  body        Physical body properties (mass, drag, etc.).
  * @param[in]  userdata    User-defined data pointer.
  *
- * @note time_step outside the typical range can still work, but too large values
+ * @note dt outside the typical range can still work, but too large values
  *       reduce accuracy while too small values increase computational cost.
  */
 BYUL_API void integrator_config_init_full(integrator_config_t* cfg,
                                           integrator_type_t type,
-                                          float time_step,
+                                          float dt,
                                           motion_state_t* prev_state,
                                           const environ_t* env,
                                           const bodyprops_t* body,

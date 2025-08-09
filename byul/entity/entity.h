@@ -17,7 +17,8 @@ extern "C" {
  * @brief Minimal common properties for all game objects + spatial influence.
  *
  * - coord: Center coordinate of the entity (grid-based).
- * - width_range, height_range: Influence range in horizontal/vertical directions (grid units).
+ * - width_range, height_range: 
+ *      Influence range in horizontal/vertical directions (grid units).
  *   * 0 means no additional range (single cell).
  *   * 1 means center cell + 1 cell on both sides (total 3 cells).
  * - influence_ratio:
@@ -72,7 +73,7 @@ BYUL_API void entity_init(entity_t* e);
  * @param[in]  height     Height range (grid units, minimum 0)
  * @param[in]  influence  Influence ratio (>= 0.0f)
  */
-void entity_init_full(
+BYUL_API void entity_init_full(
     entity_t* e,
     const coord_t* coord,
     int32_t id,

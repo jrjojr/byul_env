@@ -18,7 +18,8 @@
 extern "C" {
 #endif
 
-// BYUL_API void byul_init();
+BYUL_API const char* byul_version_string();
+BYUL_API void byul_print_version();
 
 #ifdef __cplusplus
 }

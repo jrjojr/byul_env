@@ -3,34 +3,39 @@ cmake_minimum_required(VERSION 3.20)
 # 프로젝트 이름과 언어 설정
 project(console)
 
-
-
 # 소스 파일 설정
-set(SOURCES
-    ${PROJECT_NAME}.cpp
-    dstar_lite_console.cpp    
+set(${PROJECT_NAME}_SOURCES
+    ${CMAKE_CURRENT_SOURCE_DIR}/console.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/dstar_lite_console.cpp    
+
+CACHE INTERNAL "${PROJECT_NAME} source files"  FORCE
 )
 
-set(HEADERS
-    ${PROJECT_NAME}.h
-    dstar_lite_console.h
+set(${PROJECT_NAME}_HEADERS
+    ${CMAKE_CURRENT_SOURCE_DIR}/console.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/dstar_lite_console.h
+
+CACHE INTERNAL "${PROJECT_NAME} header files"  FORCE
 )
 
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 # 스태틱 라이브러리 생성
-add_library(${PROJECT_NAME} STATIC ${SOURCES})
+add_library(${PROJECT_NAME} STATIC ${${PROJECT_NAME}_SOURCES})
 
 # 헤더 파일 디렉토리 추가
 target_include_directories(${PROJECT_NAME} PRIVATE 
     ${CMAKE_SOURCE_DIR}
+    ${CMAKE_CURRENT_SOURCE_DIR}
+
     ${CMAKE_SOURCE_DIR}/common
+    
     ${CMAKE_SOURCE_DIR}/navsys/coord
     ${CMAKE_SOURCE_DIR}/navsys/route
     ${CMAKE_SOURCE_DIR}/navsys/navgrid
     ${CMAKE_SOURCE_DIR}/navsys/dstar_lite
     ${CMAKE_SOURCE_DIR}/navsys/route_finder
-    ${CMAKE_CURRENT_SOURCE_DIR}    
+
 )
 
 # target_link_directories(${PROJECT_NAME} PRIVATE 
@@ -50,6 +55,6 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
 
 target_compile_definitions(${PROJECT_NAME} PRIVATE BYUL_STATIC)
 
-install(FILES ${HEADERS}
-    DESTINATION include/${CMAKE_PROJECT_NAME}
-)
+# install(FILES ${${PROJECT_NAME}_HEADERS}
+#     DESTINATION include/${CMAKE_PROJECT_NAME}
+# )

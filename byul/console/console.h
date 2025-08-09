@@ -37,7 +37,7 @@ BYUL_API void navgrid_print_ascii_with_route(
 /**
  * @brief Print the visit count in ASCII map format.
  *
- * Based on the visited_logging hash table inside route_t,
+ * Based on the debug_mode_enabled hash table inside route_t,
  * each coordinate's visit count is printed as a 2-digit number between 1 and 99.
  *
  * Output format:

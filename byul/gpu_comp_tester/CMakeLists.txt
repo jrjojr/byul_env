@@ -8,8 +8,6 @@ project(gpu_comp_tester LANGUAGES C CXX)
 set(EXTERNAL_DIR ${CMAKE_SOURCE_DIR}/../external)
 message(STATUS "${PROJECT_NAME} : EXTERNAL_DIR = ${EXTERNAL_DIR}")
 
-
-
 # ----------------------------------------
 # 🛠️ 공통 설정
 # ----------------------------------------
@@ -21,17 +19,19 @@ message(STATUS "SHADER_DIR : ${SHADER_DIR}")
 # ----------------------------------------
 # 📦 소스 목록
 # ----------------------------------------
-set(SOURCES
-    main.cpp
-    gpu.cpp
-    gpu_compute.cpp
+set(${PROJECT_NAME}_SOURCES
+    ${CMAKE_CURRENT_SOURCE_DIR}/main.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/gpu.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/gpu_compute.cpp
     ${EXTERNAL_DIR}/glad/src/gl.c
+
+CACHE INTERNAL "${PROJECT_NAME} source files"  FORCE
 )
 
 # ----------------------------------------
 # 🔧 바이너리 생성
 # ----------------------------------------
-add_executable(${PROJECT_NAME} ${SOURCES})
+add_executable(${PROJECT_NAME} ${${PROJECT_NAME}_SOURCES})
 
 # ─────────────────────────────────────────────
 # 플랫폼별 설정
@@ -64,36 +64,60 @@ else()
 endif()
 
 # ----------------------------------------
-# 🧭 플랫폼 확인 및 SDL2 / SDL3 자동 분기
+# 🧭 SDL2 / SDL3 자동 분기 (Linux vs Windows)
 # ----------------------------------------
-if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
+if (CMAKE_SYSTEM_NAME STREQUAL "Linux")
+    # Linux에서는 SDL2 사용
     find_package(SDL2 REQUIRED)
-    set(SDL_INCLUDE_DIRS ${SDL2_INCLUDE_DIRS})
-    set(SDL_LIBRARIES ${SDL2_LIBRARIES})
+    target_include_directories(${PROJECT_NAME} PRIVATE ${SDL2_INCLUDE_DIRS})
+    target_link_libraries(${PROJECT_NAME} PRIVATE ${SDL2_LIBRARIES})
+    message(STATUS "🐧 Using SDL2 on Linux: ${SDL2_LIBRARIES}")
 
-elseif(CMAKE_SYSTEM_NAME STREQUAL "Windows")
-    set(SDL3_DIR "${EXTERNAL_DIR}/SDL3-3.2.18/cmake")
-    find_package(SDL3 CONFIG REQUIRED)
+elseif (CMAKE_SYSTEM_NAME STREQUAL "Windows")
+    set(USE_SDL3 ON)  # Windows에서는 SDL3 사용
 
-    set(SDL_INCLUDE_DIRS ${EXTERNAL_DIR}/SDL3-3.2.18/x86_64-w64-mingw32/include)
-    set(SDL_LIBRARIES ${EXTERNAL_DIR}/SDL3-3.2.18/x86_64-w64-mingw32/bin/SDL3.dll)
-    message(STATUS "🪟 SDL3 경로 사용: ${SDL_INCLUDE_DIRS}")
-     message(STATUS "SDL_LIBRARIES : ${SDL_LIBRARIES}")
+    if (MSVC)
+        # -----------------------------
+        # MSVC 전용 SDL3 설정
+        # -----------------------------
+        set(SDL3_DIR "${EXTERNAL_DIR}/SDL3-3.2.18/msvc/cmake")
+        find_package(SDL3 CONFIG REQUIRED)
 
-    target_compile_definitions(${PROJECT_NAME} PRIVATE USE_SDL3=1)
+        target_compile_definitions(${PROJECT_NAME} PRIVATE USE_SDL3=1)
+        target_link_libraries(${PROJECT_NAME} PRIVATE SDL3::SDL3)
 
-    set(SDL3_DLL ${EXTERNAL_DIR}/SDL3-3.2.18/x86_64-w64-mingw32/bin/SDL3.dll)
-    add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E copy_if_different
-        "${SDL3_DLL}"
-        $<TARGET_FILE_DIR:${PROJECT_NAME}>
-    )
-    message(STATUS "🪟 SDL3.dll을 ${CMAKE_BINARY_DIR}/bin 으로 복사하도록 설정했습니다.")
+        # 실행 시 필요한 DLL 복사
+        set(SDL3_DLL ${EXTERNAL_DIR}/SDL3-3.2.18/msvc/bin/SDL3.dll)
+        add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+            COMMAND ${CMAKE_COMMAND} -E copy_if_different
+                "${SDL3_DLL}"
+                $<TARGET_FILE_DIR:${PROJECT_NAME}>
+        )
+        message(STATUS "🪟 SDL3.dll copied for MSVC build: ${SDL3_DLL}")
 
     else()
-    message(FATAL_ERROR "⚠️ Unknown platform: ${CMAKE_SYSTEM_NAME}")
-endif()
+        # -----------------------------
+        # MinGW 전용 SDL3 설정
+        # -----------------------------
+        set(SDL3_DIR "${EXTERNAL_DIR}/SDL3-3.2.18/mingw/cmake")
+        find_package(SDL3 CONFIG REQUIRED)
 
+        target_compile_definitions(${PROJECT_NAME} PRIVATE USE_SDL3=1)
+        target_link_libraries(${PROJECT_NAME} PRIVATE SDL3::SDL3)
+
+        # 실행 시 필요한 DLL 복사
+        set(SDL3_DLL ${EXTERNAL_DIR}/SDL3-3.2.18/mingw/x86_64-w64-mingw32/bin/SDL3.dll)
+        add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+            COMMAND ${CMAKE_COMMAND} -E copy_if_different
+                "${SDL3_DLL}"
+                $<TARGET_FILE_DIR:${PROJECT_NAME}>
+        )
+        message(STATUS "🪟 SDL3.dll copied for MinGW build: ${SDL3_DLL}")
+    endif()
+
+else()
+    message(FATAL_ERROR "⚠️ Unsupported platform: ${CMAKE_SYSTEM_NAME}")
+endif()
 
 # ----------------------------------------
 # 🔍 include 디렉토리
@@ -152,6 +176,15 @@ set(GPU_SHADER_FILES
     ${CMAKE_CURRENT_SOURCE_DIR}/shader.frag
 )
 
+# ----------------------------------------
+# GLSL 셰이더 복사 (CMAKE_BINARY_DIR/glsl)
+# ----------------------------------------
+file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/glsl)
+
+file(COPY ${GPU_SHADER_FILES}
+    DESTINATION ${CMAKE_BINARY_DIR}/glsl
+)
+
 # ─────────────────────────────────────────────
 # 공통 결과물 설치
 # ─────────────────────────────────────────────
@@ -176,11 +209,11 @@ install(FILES ${GPU_SHADER_FILES}
 # SDL DLL (Windows에서만 설치)
 if(CMAKE_SYSTEM_NAME STREQUAL "Windows")
     install(FILES
-        ${EXTERNAL_DIR}/SDL3-3.2.18/x86_64-w64-mingw32/bin/SDL3.dll
+        ${EXTERNAL_DIR}/SDL3-3.2.18/mingw/x86_64-w64-mingw32/bin/SDL3.dll
         DESTINATION bin
     )
     install(FILES
-        ${EXTERNAL_DIR}/SDL3-3.2.18/LICENSE.txt
+        ${EXTERNAL_DIR}/SDL3-3.2.18/mingw/LICENSE.txt
         DESTINATION share/sdl
     )
 endif()

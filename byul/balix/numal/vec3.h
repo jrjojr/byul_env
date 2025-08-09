@@ -211,6 +211,14 @@ BYUL_API void vec3_madd(vec3_t* out, const vec3_t* a, const vec3_t* b, float sca
 BYUL_API void vec3_project(vec3_t* out, const vec3_t* p,
                            const vec3_t* v, const vec3_t* a, float t);
 
+/**
+ * @brief Reflects a vector across a plane defined by a normal.
+ *
+ * @param out Output reflected vector.
+ * @param v   Input vector to reflect.
+ * @param n   Normal vector of the plane (must be normalized).
+ */
+BYUL_API void vec3_reflect(vec3_t* out, const vec3_t* v, const vec3_t* n);                           
 #ifdef __cplusplus
 }
 #endif

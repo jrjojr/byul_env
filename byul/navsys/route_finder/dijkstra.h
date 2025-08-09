@@ -32,13 +32,13 @@ extern "C" {
  * @param cost_fn        Function to calculate the movement cost between coordinates.
  *                       If NULL, a default cost of 1.0f is used.
  * @param max_retry      Maximum number of iterations (for loop prevention).
- * @param visited_logging Whether to log visited coordinates.
+ * @param debug_mode_enabled Whether to log visited coordinates.
  * @return               A pointer to a route_t object.
  *                       If @c route_get_success(route_t*) is TRUE, the search succeeded.
  */
 BYUL_API route_t* find_dijkstra(const navgrid_t* m, 
     const coord_t* start, const coord_t* goal, cost_func cost_fn,
-    int max_retry, bool visited_logging);
+    int max_retry, bool debug_mode_enabled);
 
 #ifdef __cplusplus
 }

@@ -30,7 +30,8 @@ TEST_CASE("Shell projectile launch simulation") {
     projectile_result_t * result = projectile_result_create();
 
     vec3_t target = {10.0f, 0.0f, 0.0f};
-    bool hit = shell_projectile_launch(&shell, &target, 30.0f, &env, result);
+    bool hit = shell_projectile_launch(
+        &shell, &target, 30.0f, &env, result);
 
     projectile_result_print_detailed(result);
     CHECK(result->trajectory->count > 0);

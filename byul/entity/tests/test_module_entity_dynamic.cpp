@@ -251,7 +251,7 @@ TEST_CASE("entity_dynamic_coord_in_range: range check") {
 
     CHECK(entity_dynamic_coord_in_range(&a, &b) == true);
 
-    entity_dynamic_t c = make_dynamic_entity((int)XFORM_POS_MAX + 1000, 0, 0, 0);
+    entity_dynamic_t c = make_dynamic_entity((int)XFORM_MAX_POS + 1000, 0, 0, 0);
     CHECK(entity_dynamic_coord_in_range(&a, &c) == false);
 }
 

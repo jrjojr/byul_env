@@ -239,3 +239,18 @@ void vec3_project(vec3_t* out,
     out->y = p->y + v->y * t + 0.5f * a->y * t * t;
     out->z = p->z + v->z * t + 0.5f * a->z * t * t;
 }
+
+/**
+ * @brief Reflects a vector across a plane defined by a normal.
+ *
+ * @param out Output reflected vector.
+ * @param v   Input vector to reflect.
+ * @param n   Normal vector of the plane (must be normalized).
+ */
+void vec3_reflect(vec3_t* out, const vec3_t* v, const vec3_t* n)
+{
+    float dot2 = 2.0f * vec3_dot(v, n);
+    vec3_t proj;
+    vec3_scale(&proj, n, dot2);
+    vec3_sub(out, v, &proj);
+}

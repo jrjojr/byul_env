@@ -7,28 +7,31 @@ enable_testing()
 
 
 # 소스 파일 설정
-set(SOURCES
-    ${PROJECT_NAME}.cpp
-    entity_dynamic.cpp
-    entity_dynamic_coord.cpp
-    entity_spring.cpp
+set(${PROJECT_NAME}_SOURCES
+    ${CMAKE_CURRENT_SOURCE_DIR}/entity.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/entity_dynamic.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/entity_dynamic_coord.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/entity_spring.cpp
+
+CACHE INTERNAL "${PROJECT_NAME} source files"  FORCE
 )
 
-set(HEADERS
-    ${PROJECT_NAME}.h
-    entity_dynamic.h
-    entity_dynamic_coord.h
-    entity_spring.h
+set(${PROJECT_NAME}_HEADERS
+    ${CMAKE_CURRENT_SOURCE_DIR}/entity.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/entity_dynamic.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/entity_dynamic_coord.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/entity_spring.h
+
+CACHE INTERNAL "${PROJECT_NAME} header files"  FORCE
 )
 
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 # 스태틱 라이브러리 생성
-add_library(${PROJECT_NAME} STATIC ${SOURCES})
+add_library(${PROJECT_NAME} STATIC ${${PROJECT_NAME}_SOURCES})
 
 # 헤더 파일 디렉토리 추가
 target_include_directories(${PROJECT_NAME} PRIVATE 
-    ${CMAKE_BINARY_DIR}/include/byul
     ${CMAKE_CURRENT_SOURCE_DIR}    
     ${CMAKE_SOURCE_DIR}
     ${CMAKE_SOURCE_DIR}/common
@@ -56,8 +59,9 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
 
 add_subdirectory(tests)
 
+# win11 에서는 무조건 설정해야 한다 dll과 static 간에 문제때문에 링크가 안된다.
 target_compile_definitions(${PROJECT_NAME} PRIVATE BYUL_STATIC)
 
-install(FILES ${HEADERS}
-    DESTINATION include/${CMAKE_PROJECT_NAME}
-)
+# install(FILES ${${PROJECT_NAME}_HEADERS}
+#     DESTINATION include/${CMAKE_PROJECT_NAME}
+# )

@@ -42,7 +42,7 @@ typedef struct s_aerial_vehicle {
 bool projectile_launch(
     const projectile_t* proj,
     const vec3_t* target,
-    float initial_speed,
+    float initial_force,
     projectile_result_t* out)
 {
     if (!proj || !target || !out) return false;

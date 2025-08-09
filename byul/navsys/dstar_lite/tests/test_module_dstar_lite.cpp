@@ -743,7 +743,7 @@ TEST_CASE("test_dstar_lite_block_all_around_start") {
     navgrid_block_coord(dsl->m, -1, 1);
     navgrid_block_coord(dsl->m, 0, 1);
 
-    dstar_lite_set_compute_max_retry(dsl, 200);
+    dstar_lite_set_max_retry(dsl, 200);
 
     p = dstar_lite_find(dsl);
     CHECK(p);

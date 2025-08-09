@@ -12,7 +12,7 @@
 static float rta_iterative_eval(const navgrid_t* m,
     const coord_t* start, const coord_t* goal, int max_depth,
     cost_func cost_fn, heuristic_func heuristic_fn,
-    route_t* route, bool visited_logging) {
+    route_t* route, bool debug_mode_enabled) {
 
     if (!cost_fn) cost_fn = default_cost;
     if (!heuristic_fn) heuristic_fn = default_heuristic;
@@ -23,7 +23,7 @@ static float rta_iterative_eval(const navgrid_t* m,
     for (int d = 0; d < max_depth; ++d) {
         if (coord_equal(current, goal)) break;
 
-        coord_list_t* neighbors = navgrid_clone_adjacent(m, current->x, current->y);
+        coord_list_t* neighbors = navgrid_copy_adjacent(m, current->x, current->y);
         coord_t* best = nullptr;
         float best_f = FLT_MAX;
 
@@ -34,7 +34,7 @@ static float rta_iterative_eval(const navgrid_t* m,
             float h = heuristic_fn(next, goal, nullptr);
             float f = g + cost + h;
 
-            // if (visited_logging) route_add_visited(route, coord_copy(next));
+            // if (debug_mode_enabled) route_add_visited(route, coord_copy(next));
 
             if (f < best_f) {
                 best_f = f;
@@ -47,7 +47,7 @@ static float rta_iterative_eval(const navgrid_t* m,
         coord_list_destroy(neighbors);
         if (!best) break;
 
-        if (visited_logging) route_add_visited(route, best);        
+        if (debug_mode_enabled) route_add_visited(route, best);        
 
         g += cost_fn(m, current, best, nullptr);
 
@@ -64,7 +64,7 @@ static float rta_iterative_eval(const navgrid_t* m,
 route_t* find_rta_star(const navgrid_t* m,
     const coord_t* start, const coord_t* goal,
     cost_func cost_fn, heuristic_func heuristic_fn,
-    int depth_limit, int max_retry, bool visited_logging) {
+    int depth_limit, int max_retry, bool debug_mode_enabled) {
 
     if (!m || !start || !goal || max_retry <= 0)
         return nullptr;
@@ -82,11 +82,11 @@ route_t* find_rta_star(const navgrid_t* m,
     coord_hash_replace(visited, current, new_int);
     delete new_int;
 
-    if (visited_logging) route_add_visited(result, current);
+    if (debug_mode_enabled) route_add_visited(result, current);
 
     int retry = 0;
     while (!coord_equal(current, goal) && retry++ < max_retry) {
-        coord_list_t* neighbors = navgrid_clone_adjacent(m, current->x, current->y);
+        coord_list_t* neighbors = navgrid_copy_adjacent(m, current->x, current->y);
         coord_t* best = nullptr;
         float best_f = FLT_MAX;
 
@@ -96,7 +96,7 @@ route_t* find_rta_star(const navgrid_t* m,
             if (coord_hash_get(visited, next)) continue;
 
             float eval = rta_iterative_eval(m, next, goal, depth_limit - 1, 
-                cost_fn, heuristic_fn, result, visited_logging);
+                cost_fn, heuristic_fn, result, debug_mode_enabled);
 
             if (eval < best_f) {
                 best_f = eval;
@@ -117,7 +117,7 @@ route_t* find_rta_star(const navgrid_t* m,
         coord_hash_replace(visited, current, new_int);
         delete new_int;
 
-        if (visited_logging) route_add_visited(result, current);
+        if (debug_mode_enabled) route_add_visited(result, current);
     }
 
     if (coord_equal(current, goal)) {

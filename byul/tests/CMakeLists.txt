@@ -1,10 +1,17 @@
 cmake_minimum_required(VERSION 3.20)
 project(test_byul)
 
+# set(CMAKE_CXX_STANDARD 17)
+# set(CMAKE_CXX_STANDARD_REQUIRED ON)
+# set(CMAKE_CXX_EXTENSIONS OFF)
+
 # ─────────────────────────────────────────────
 # 테스트 소스 초기화
 # ─────────────────────────────────────────────
-set(TEST_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/main.cpp)
+set(TEST_SOURCES 
+    ${CMAKE_CURRENT_SOURCE_DIR}/main.cpp
+)
+
 set(TEST_INC_DIRS "")
 
 # ─────────────────────────────────────────────
@@ -50,7 +57,10 @@ add_module(projectile)
 # ─────────────────────────────────────────────
 # 테스트 실행 파일 생성
 # ─────────────────────────────────────────────
-add_executable(${PROJECT_NAME} ${TEST_SOURCES})
+add_executable(${PROJECT_NAME} 
+    ${TEST_SOURCES}
+    ${CMAKE_CURRENT_SOURCE_DIR}/test_module_byul.cpp
+)
 
 # 외부 include 경로 설정
 set(EXTERNAL_DIR ${CMAKE_SOURCE_DIR}/../external)
@@ -60,10 +70,13 @@ target_include_directories(${PROJECT_NAME} PRIVATE
     ${EXTERNAL_DIR}
     ${TEST_INC_DIRS}
     ${CMAKE_SOURCE_DIR}
+    ${CMAKE_CURRENT_SOURCE_DIR}
     ${CMAKE_SOURCE_DIR}/common
     ${CMAKE_SOURCE_DIR}/console
-    ${CMAKE_SOURCE_DIR}/projectile
+    ${CMAKE_SOURCE_DIR}/navsys
+    ${CMAKE_SOURCE_DIR}/balix
     ${CMAKE_SOURCE_DIR}/entity
+    ${CMAKE_SOURCE_DIR}/projectile    
 )
 
 target_link_directories(${PROJECT_NAME} PRIVATE 

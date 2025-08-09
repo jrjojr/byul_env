@@ -60,7 +60,7 @@ TEST_CASE("numeq_mpc_solve_coarse2fine basic test") {
     mpc_config_init(&config);
     config.max_accel = 5.0f;
     config.max_ang_accel = 0.0f;
-    config.horizon_sec = 5;   // 더 길게 예측
+    config.horizon_sec = 5;
     config.step_dt = 0.1f;
     config.output_trajectory = true;
 

@@ -7,20 +7,24 @@ project(common)
 # message(STATUS "${PROJECT_NAME} : EXTERNAL_DIR = ${EXTERNAL_DIR}")
 
 # 소스 파일 설정
-set(SOURCES
-    float_common.cpp
-    hashset.cpp
+set(${PROJECT_NAME}_SOURCES
+    ${CMAKE_CURRENT_SOURCE_DIR}/float_common.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/strset.cpp
+
+CACHE INTERNAL "${PROJECT_NAME} source files"  FORCE
 )
 
-set(HEADERS
-    float_common.h
-    hashset.h
+set(${PROJECT_NAME}_HEADERS
+    ${CMAKE_CURRENT_SOURCE_DIR}/float_common.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/strset.h
+
+CACHE INTERNAL "${PROJECT_NAME} header files"  FORCE
 )
 
 
 
 # 스태틱 라이브러리 생성
-add_library(${PROJECT_NAME} STATIC ${SOURCES})
+add_library(${PROJECT_NAME} STATIC ${${PROJECT_NAME}_SOURCES})
 
 # 헤더 파일 디렉토리 추가
 target_include_directories(${PROJECT_NAME} PRIVATE
@@ -37,6 +41,6 @@ add_subdirectory(tests)
 
 target_compile_definitions(${PROJECT_NAME} PRIVATE BYUL_STATIC)
 
-install(FILES ${HEADERS}
-    DESTINATION include/${CMAKE_PROJECT_NAME}
-)
+# install(FILES ${${PROJECT_NAME}_HEADERS}
+#     DESTINATION include/${CMAKE_PROJECT_NAME}
+# )

@@ -8,7 +8,7 @@
 
 route_t* find_dijkstra(const navgrid_t* m,
     const coord_t* start, const coord_t* goal, cost_func cost_fn,
-    int max_retry, bool visited_logging) {
+    int max_retry, bool debug_mode_enabled) {
 
     if (!m || !start || !goal || max_retry <= 0) return nullptr;
 
@@ -28,7 +28,7 @@ route_t* find_dijkstra(const navgrid_t* m,
 
     route_t* result = route_create();
 
-    if (visited_logging)
+    if (debug_mode_enabled)
         route_add_visited(result, start);
 
     float* zero = new float(0.0f);
@@ -55,7 +55,7 @@ route_t* find_dijkstra(const navgrid_t* m,
         float* current_cost_ptr = (float*)coord_hash_get(cost_so_far, current);
         float current_cost = current_cost_ptr ? *current_cost_ptr : 0.0f;
 
-        coord_list_t* neighbors = navgrid_clone_adjacent(
+        coord_list_t* neighbors = navgrid_copy_adjacent(
             m, current->x, current->y);
 
         int len = coord_list_length(neighbors);
@@ -74,7 +74,7 @@ route_t* find_dijkstra(const navgrid_t* m,
                 coord_hash_replace(
                     came_from, next, current);
 
-                if (visited_logging)
+                if (debug_mode_enabled)
                     route_add_visited(result, next);
             }
         }

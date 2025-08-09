@@ -12,7 +12,7 @@
 route_t* find_greedy_best_first(const navgrid_t* m,
     const coord_t* start, const coord_t* goal,
     heuristic_func heuristic_fn,
-    int max_retry, bool visited_logging) {
+    int max_retry, bool debug_mode_enabled) {
 
     if (!m || !start || !goal) return nullptr;
 
@@ -35,7 +35,7 @@ route_t* find_greedy_best_first(const navgrid_t* m,
     coord_hash_replace(visited, start, new_int);
     delete new_int;
 
-    if (visited_logging)
+    if (debug_mode_enabled)
         route_add_visited(result, start);
 
     bool found = false;
@@ -53,7 +53,7 @@ route_t* find_greedy_best_first(const navgrid_t* m,
             break;
         }
 
-        coord_list_t* neighbors = navgrid_clone_adjacent(m, current->x, current->y);
+        coord_list_t* neighbors = navgrid_copy_adjacent(m, current->x, current->y);
         int len = coord_list_length(neighbors);
 
         for (int i = 0; i < len; ++i) {
@@ -70,7 +70,7 @@ route_t* find_greedy_best_first(const navgrid_t* m,
             coord_hash_replace(visited, next, new_int);
             delete new_int;
 
-            if (visited_logging)
+            if (debug_mode_enabled)
                 route_add_visited(result, next);
         }
 

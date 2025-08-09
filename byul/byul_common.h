@@ -1,9 +1,6 @@
 #ifndef BYUL_COMMON_H
 #define BYUL_COMMON_H
 
-// ─────────────────────────────
-// 플랫폼 감지
-// ─────────────────────────────
 #if defined(_WIN32) || defined(_WIN64)
   #define BYUL_PLATFORM_WINDOWS 1
 #else
@@ -22,9 +19,6 @@
   #define BYUL_PLATFORM_MACOS 0
 #endif
 
-// ─────────────────────────────
-// DLL Export/Import 매크로
-// ─────────────────────────────
 #if defined(BYUL_STATIC)
   #define BYUL_API
 #else
@@ -39,32 +33,28 @@
   #endif
 #endif
 
-// ─────────────────────────────
-// 버전 정보
-// ─────────────────────────────
-#define BYUL_VERSION_MAJOR 0
-#define BYUL_VERSION_MINOR 1
+#define BYUL_VERSION_MAJOR 1
+#define BYUL_VERSION_MINOR 0
 #define BYUL_VERSION_PATCH 0
-#define BYUL_VERSION "0.1.0"
+#define BYUL_VERSION_TWEAK 0
 
-// ─────────────────────────────
-// 디버그 여부
-// ─────────────────────────────
+#define BYUL_VERSION (BYUL_VERSION_MAJOR * 1000 + BYUL_VERSION_MINOR * 100 + BYUL_VERSION_PATCH * 10 + BYUL_VERSION_TWEAK)
+
+#define BYUL_VERSION_STRING \
+    BYUL_TOSTRING(BYUL_VERSION_MAJOR) "." \
+    BYUL_TOSTRING(BYUL_VERSION_MINOR) "." \
+    BYUL_TOSTRING(BYUL_VERSION_PATCH) "." \
+    BYUL_TOSTRING(BYUL_VERSION_TWEAK)
+
 #ifdef DEBUG
   #define BYUL_DEBUG 1
 #else
   #define BYUL_DEBUG 0
 #endif
 
-// ─────────────────────────────
-// 문자열 매크로
-// ─────────────────────────────
 #define BYUL_STRINGIFY(x) #x
 #define BYUL_TOSTRING(x) BYUL_STRINGIFY(x)
 
-// ─────────────────────────────
-// 디버깅 출력 매크로
-// ─────────────────────────────
 #if BYUL_DEBUG
   #include <stdio.h>
   #define DBG_PRINT(...) printf(__VA_ARGS__)

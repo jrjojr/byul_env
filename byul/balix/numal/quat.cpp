@@ -357,3 +357,15 @@ void quat_to_euler(const quat_t* q,
         default: *x = *y = *z = 0.0f; break;
     }
 }
+
+void quat_rotate_around_pivot(
+    const quat_t* q,
+    const vec3_t* point,
+    const vec3_t* pivot,
+    vec3_t* out)
+{
+    vec3_t local, rotated;
+    vec3_sub(&local, point, pivot);                 // Step 1
+    quat_rotate_vector(q, &local, &rotated);        // Step 2
+    vec3_add(out, &rotated, pivot);                 // Step 3
+}

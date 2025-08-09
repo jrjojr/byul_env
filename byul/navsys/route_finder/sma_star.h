@@ -31,7 +31,7 @@ extern "C" {
  * @param memory_limit  Maximum number of nodes to keep in memory during search.
  *                      (0 or too small values may cause search failure.)
  * @param max_retry     Maximum number of retries if the path fails (0 means single attempt).
- * @param visited_logging If TRUE, logs the number of visited cells internally.
+ * @param debug_mode_enabled If TRUE, logs the number of visited cells internally.
  *
  * @return route_t* path result
  *         - On success: route_get_success(route_t*) == true
@@ -54,7 +54,7 @@ BYUL_API route_t* find_sma_star(const navgrid_t* m,
     const coord_t* start, const coord_t* goal,
     cost_func cost_fn, heuristic_func heuristic_fn,
     int memory_limit,
-    int max_retry, bool visited_logging);
+    int max_retry, bool debug_mode_enabled);
 
 #ifdef __cplusplus
 }

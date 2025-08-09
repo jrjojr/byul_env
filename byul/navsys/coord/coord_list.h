@@ -29,10 +29,10 @@ BYUL_API const coord_t* coord_list_back(const coord_list_t* list);
 BYUL_API int coord_list_push_back(coord_list_t* list, const coord_t* c);
 
 /// @brief Removes and returns the last element of the list (NULL if none)
-BYUL_API coord_t* coord_list_pop_back(coord_list_t* list);
+BYUL_API coord_t coord_list_pop_back(coord_list_t* list);
 
 /// @brief Removes and returns the first element of the list (NULL if none)
-BYUL_API coord_t* coord_list_pop_front(coord_list_t* list);
+BYUL_API coord_t coord_list_pop_front(coord_list_t* list);
 
 BYUL_API int coord_list_insert(coord_list_t* list, int index, const coord_t* c);
 BYUL_API void coord_list_remove_at(coord_list_t* list, int index);

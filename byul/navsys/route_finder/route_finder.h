@@ -3,21 +3,11 @@
 
 #include "route_finder_common.h"
 
-#include "astar.h"
-#include "bfs.h"
-#include "dfs.h"
-#include "dijkstra.h"
-#include "fast_marching.h"
-#include "fringe_search.h"
-#include "greedy_best_first.h"
-#include "ida_star.h"
-#include "rta_star.h"
-#include "sma_star.h"
-#include "weighted_astar.h"
-
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+#define MAX_RETRY 1000
 
 typedef enum e_route_finder_type{
     ROUTE_FINDER_UNKNOWN = 0,
@@ -86,12 +76,12 @@ BYUL_API const char* get_route_finder_name(route_finder_type_t pa);
 typedef struct s_route_finder {
     navgrid_t* navgrid;                        ///< Map for pathfinding
     route_finder_type_t type;
-    coord_t* start;                            ///< Start coordinate
-    coord_t* goal;                             ///< Goal coordinate
+    coord_t start;                            ///< Start coordinate
+    coord_t goal;                             ///< Goal coordinate
     cost_func cost_fn;                         ///< Cost function
     heuristic_func heuristic_fn;               ///< Heuristic function
     int max_retry;                             ///< Maximum iterations
-    bool visited_logging;                      ///< Log visited nodes
+    bool debug_mode_enabled;                      ///< Log visited nodes
     void* userdata;                            ///< User-defined data
 } route_finder_t;
 
@@ -102,8 +92,8 @@ typedef struct s_route_finder {
  * and creates a route_finder_t object with the following defaults:
  * - cost function: default_cost
  * - heuristic function: euclidean_heuristic
- * - max_retry: 10000
- * - visited_logging: false
+ * - max_retry: MAX_RETRY
+ * - debug_mode_enabled: false
  *
  * @return A pointer to the initialized route_finder_t (allocated on heap).
  *         Must be freed using route_finder_destroy.
@@ -112,11 +102,22 @@ BYUL_API route_finder_t* route_finder_create(navgrid_t* navgrid);
 
 BYUL_API route_finder_t* route_finder_create_full(navgrid_t* navgrid, 
     route_finder_type_t type, 
-    coord_t* start, coord_t* goal,
+    const coord_t* start, const coord_t* goal,
     cost_func cost_fn, heuristic_func heuristic_fn,
-    int max_retry, bool visited_logging, void* userdata);
+    int max_retry, bool debug_mode_enabled, void* userdata);
 
-BYUL_API void route_finder_destroy(route_finder_t* a);
+BYUL_API int route_finder_init(route_finder_t* out, navgrid_t* navgrid);
+
+BYUL_API int route_finder_init_full(route_finder_t* out, 
+    navgrid_t* navgrid, 
+    route_finder_type_t type, 
+    const coord_t* start, const coord_t* goal,
+    cost_func cost_fn, heuristic_func heuristic_fn,
+    int max_retry, bool debug_mode_enabled, void* userdata);
+
+BYUL_API int route_finder_free(route_finder_t* out);
+
+BYUL_API int route_finder_destroy(route_finder_t* a);
 
 BYUL_API route_finder_t* route_finder_copy(const route_finder_t* src);
 
@@ -127,9 +128,9 @@ BYUL_API void route_finder_set_navgrid(route_finder_t* a, navgrid_t* navgrid);
 BYUL_API void route_finder_set_start(route_finder_t* a, const coord_t* start);
 BYUL_API void route_finder_set_goal(route_finder_t* a, const coord_t* goal);
 
-BYUL_API navgrid_t* route_finder_get_navgrid(const route_finder_t* a);
-BYUL_API coord_t* route_finder_get_start(const route_finder_t* a);
-BYUL_API coord_t* route_finder_get_goal(const route_finder_t* a);
+BYUL_API const navgrid_t* route_finder_get_navgrid(const route_finder_t* a);
+BYUL_API int route_finder_fetch_start(const route_finder_t* a, coord_t* out);
+BYUL_API int route_finder_fetch_goal(const route_finder_t* a, coord_t* out);
 
 BYUL_API void route_finder_set_userdata(route_finder_t* a, void* userdata);
 BYUL_API void* route_finder_get_userdata(const route_finder_t* a);
@@ -137,8 +138,8 @@ BYUL_API void* route_finder_get_userdata(const route_finder_t* a);
 BYUL_API void route_finder_set_type(route_finder_t* a, route_finder_type_t type);
 BYUL_API route_finder_type_t route_finder_get_type(const route_finder_t* a);
 
-BYUL_API void route_finder_set_visited_logging(route_finder_t* a, bool is_logging);
-BYUL_API bool route_finder_is_visited_logging(route_finder_t* a);
+BYUL_API void route_finder_enable_debug_mode(route_finder_t* a, bool is_logging);
+BYUL_API bool route_finder_is_debug_mode_enabled(route_finder_t* a);
 
 BYUL_API void route_finder_set_cost_func(route_finder_t* a, cost_func cost_fn);
 BYUL_API cost_func route_finder_get_cost_func(route_finder_t* a);
@@ -161,7 +162,7 @@ BYUL_API void route_finder_clear(route_finder_t* a);
  * - cost function: default_cost
  * - heuristic function: euclidean_heuristic
  * - max_retry: 10000
- * - visited_logging: false
+ * - debug_mode_enabled: false
  *
  * @param a Pointer to the route_finder_t to initialize.
  */
@@ -171,80 +172,10 @@ BYUL_API bool route_finder_is_valid(const route_finder_t* a);
 BYUL_API void route_finder_print(const route_finder_t* a);
 
 /**
- * @brief Executes the pathfinding based on the specified algorithm type.
- */
-BYUL_API route_t* route_finder_run_type(route_finder_t* a, route_finder_type_t type);
-
-BYUL_API route_t* route_finder_run(route_finder_t* a);
-
-/**
  * @brief Direct run functions for specific algorithms.
  */
-BYUL_API route_t* route_finder_run_astar(route_finder_t* a);
-BYUL_API route_t* route_finder_run_bfs(route_finder_t* a);
-BYUL_API route_t* route_finder_run_dfs(route_finder_t* a);
-BYUL_API route_t* route_finder_run_dijkstra(route_finder_t* a);
+BYUL_API route_t* route_finder_run(route_finder_t* a);
 
-/**
- * @brief Runs the Fringe Search algorithm.
- *
- * This algorithm expands nodes by fringe threshold and
- * uses delta_epsilon for controlling search efficiency.
- *
- * @param a Pointer to route_finder_t containing execution settings.
- *          - userdata should be a float* pointing to delta_epsilon.
- *          - Recommended: 0.1 ~ 0.5 (no default, must be set by user).
- *
- * @return Calculated route_t* or NULL on failure.
- */
-BYUL_API route_t* route_finder_run_fringe_search(route_finder_t* a);
-
-BYUL_API route_t* route_finder_run_greedy_best_first(route_finder_t* a);
-
-BYUL_API route_t* route_finder_run_ida_star(route_finder_t* a);
-
-/**
- * @brief Runs Real-Time A* (RTA*) algorithm.
- *
- * This algorithm performs limited-depth search for real-time responsiveness.
- *
- * @param a Pointer to route_finder_t containing execution settings.
- *          - userdata should be an int* pointing to depth_limit.
- *          - Recommended: 3 ~ 10 (higher is more accurate but slower).
- *
- * @return Calculated route_t* or NULL on failure.
- */
-BYUL_API route_t* route_finder_run_rta_star(route_finder_t* a);
-
-/**
-* Memory limit should depend on map size and complexity. Recommended values:
- *   - memory_limit === max(L × (1 + e), N x a)
- *     (L: expected path length, N: number of map cells)
- *     (e <== [0.5, 1.0], a <== [0.01, 0.05])
- *
- * @par Example memory limits:
- *   - 10x10 map  : memory_limit === 20 ~ 30
- *   - 100x100 map: memory_limit === 500 ~ 1000
- *   - 1000x1000 map: memory_limit === 50,000 ~ 100,000
- *
- */
-BYUL_API route_t* route_finder_run_sma_star(route_finder_t* a);
-
-/**
- * @brief Runs the Weighted A* algorithm.
- *
- * This algorithm applies a weight to the heuristic
- * to speed up pathfinding.
- *
- * @param a Pointer to route_finder_t containing execution settings.
- *          - userdata should be a float* pointing to the weight.
- *          - Recommended: 1.0 (standard A*), 1.2 ~ 2.5 (faster), 5.0+ may be inaccurate.
- *
- * @return Calculated route_t* or NULL on failure.
- */
-BYUL_API route_t* route_finder_run_weighted_astar(route_finder_t* a);
-
-BYUL_API route_t* route_finder_run_fast_marching(route_finder_t* a);
 
 #ifdef __cplusplus
 }

@@ -12,12 +12,12 @@ extern "C" {
 // ---------------------------------------------------------
 // xform position coordinate limits (for infinite maps)
 // ---------------------------------------------------------
-#ifndef XFORM_POS_MAX
-#define XFORM_POS_MAX   (99999.0f)   ///< Maximum xform position value
+#ifndef XFORM_MAX_POS
+#define XFORM_MAX_POS   (99999.0f)   ///< Maximum xform position value
 #endif
 
-#ifndef XFORM_POS_MIN
-#define XFORM_POS_MIN   (-99999.0f)  ///< Minimum xform position value
+#ifndef XFORM_MIN_POS
+#define XFORM_MIN_POS   (-99999.0f)  ///< Minimum xform position value
 #endif
 
 /**
@@ -27,7 +27,7 @@ extern "C" {
  * - Rotation: quat_t rot
  * - Scale: default (1,1,1)
  *
- * @note Position coordinates must always remain within [XFORM_POS_MIN, XFORM_POS_MAX].
+ * @note Position coordinates must always remain within [XFORM_MIN_POS, XFORM_MAX_POS].
  *       Functions like xform_set_position() and xform_translate() should apply clamp automatically.
  */
 typedef struct s_xform {
@@ -133,10 +133,19 @@ BYUL_API void xform_look_at(
     const vec3_t* eye,
     const vec3_t* target,
     const vec3_t* up);
+
+/**
+ * @brief Constructs a transform from a forward and up direction.
+ *
+ * @param out Output transform.
+ * @param forward Forward direction vector.
+ * @param up Up direction vector.
+ */
 BYUL_API void xform_from_forward(
     xform_t* out,
     const vec3_t* forward,
     const vec3_t* up);
+
 BYUL_API void xform_align_vectors(
     xform_t* out,
     const vec3_t* from,
@@ -173,6 +182,89 @@ BYUL_API void xform_apply(xform_t* out,
     const xform_t* parent, const xform_t* local);
 BYUL_API void xform_apply_inverse(xform_t* out,
     const xform_t* parent, const xform_t* world);
+
+/**
+ * @brief 회전 중심점(pivot)을 기준으로 xform을 회전시킵니다.
+ *
+ * @param xf 회전될 트랜스폼 (in/out)
+ * @param q  회전 쿼터니언
+ * @param pivot 회전 중심점 (world space)
+ */
+BYUL_API void xform_rotate_around_pivot(
+    xform_t* xf,
+    const quat_t* q,
+    const vec3_t* pivot);
+
+BYUL_API void xform_slerp_pivot(
+    xform_t* out,
+    const xform_t* a,
+    const xform_t* b,
+    float t,
+    const vec3_t* pivot);
+
+/**
+ * @brief Generates a transform that looks at a target from a pivot point.
+ *
+ * @param xf Output transform.
+ * @param target Target position to look at.
+ * @param up Up direction vector.
+ * @param pivot Position to place the transform and rotate from.
+ */    
+BYUL_API void xform_look_at_pivot(
+    xform_t* xf,
+    const vec3_t* target,
+    const vec3_t* up,
+    const vec3_t* pivot);
+
+/**
+ * @brief Rotates a transform around a pivot point using a local-space rotation.
+ *
+ * @param xf Transform to rotate (in/out).
+ * @param q  Rotation quaternion to apply.
+ * @param pivot Pivot point in world coordinates.
+ */    
+BYUL_API void xform_rotate_local_around_pivot(
+    xform_t* xf,
+    const quat_t* q,
+    const vec3_t* pivot);
+
+/**
+ * @brief Orients the transform to face a given direction.
+ *
+ * @param xf Transform to modify.
+ * @param direction Forward direction to face.
+ * @param up World up direction.
+ */    
+BYUL_API void xform_look_to(
+    xform_t* xf,
+    const vec3_t* direction,
+    const vec3_t* up);
+
+/**
+ * @brief Aligns one of the transform's local axes to a target direction.
+ *
+ * @param xf Transform to modify.
+ * @param axis_index Axis to align (0:x, 1:y, 2:z).
+ * @param target_dir Target direction to align the axis with.
+ */    
+BYUL_API void xform_align_axis(
+    xform_t* xf,
+    int axis_index,              // 0:x, 1:y, 2:z
+    const vec3_t* target_dir);   // 정렬할 방향
+
+/**
+ * @brief Reflects a transform across a plane defined by a point and normal.
+ *
+ * @param out Output reflected transform.
+ * @param src Source transform to reflect.
+ * @param plane_point A point on the reflection plane.
+ * @param plane_normal Normal vector of the reflection plane.
+ */    
+BYUL_API void xform_reflect(
+    xform_t* out,
+    const xform_t* src,
+    const vec3_t* plane_point,
+    const vec3_t* plane_normal);
 
 // ---------------------------------------------------------
 // Debug

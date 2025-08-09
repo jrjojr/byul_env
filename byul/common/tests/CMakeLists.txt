@@ -4,15 +4,17 @@ project(test_common)
 
 
 # 소스 파일 설정
-set(SOURCES
-    main.cpp
-    test_module_common.cpp
-    test_module_hashset.cpp    
+set(${PROJECT_NAME}_SOURCES
+    ${CMAKE_CURRENT_SOURCE_DIR}/main.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/test_module_common.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/test_module_strset.cpp    
+
+CACHE INTERNAL "${PROJECT_NAME} source files"
 )
 
 # ------------------- 테스트 실행 파일 -------------------
 add_executable(${PROJECT_NAME}
-    ${SOURCES}
+    ${${PROJECT_NAME}_SOURCES}
 )
 
 
@@ -97,3 +99,6 @@ else()
         ARCHIVE DESTINATION lib/${PROJECT_NAME}
     )
 endif()
+
+# win11 에서는 무조건 설정해야 한다 dll과 static 간에 문제때문에 링크가 안된다.
+target_compile_definitions(${PROJECT_NAME} PRIVATE BYUL_STATIC)

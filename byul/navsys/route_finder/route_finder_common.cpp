@@ -7,6 +7,7 @@
 #include <vector>
 #include <limits>
 
+
 float default_cost(const navgrid_t* m, 
     const coord_t* start, const coord_t* goal, void* userdata) {
     return 1.0f;
@@ -72,3 +73,4 @@ float default_heuristic(
         
     return euclidean_heuristic(start, goal, userdata);
 }
+

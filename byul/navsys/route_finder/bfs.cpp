@@ -7,7 +7,7 @@
 #include <stdint.h>
 
 route_t* find_bfs(const navgrid_t* m, const coord_t* start, const coord_t* goal, 
-    int max_retry, bool visited_logging) {
+    int max_retry, bool debug_mode_enabled) {
 
     if (!m || !start || !goal || max_retry <= 0) return nullptr;
 
@@ -24,24 +24,24 @@ route_t* find_bfs(const navgrid_t* m, const coord_t* start, const coord_t* goal,
     coord_hash_replace(visited, start, new_int);
     delete new_int;
 
-    if (visited_logging) route_add_visited(result, start);
+    if (debug_mode_enabled) route_add_visited(result, start);
 
     bool found = false;
     coord_t* final = nullptr;
     int retry = 0;
 
     while (!coord_list_empty(frontier) && retry++ < max_retry) {
-        coord_t* current = coord_list_pop_front(frontier);
+        coord_t current = coord_list_pop_front(frontier);
 
-        if (coord_equal(current, goal)) {
+        if (coord_equal(&current, goal)) {
             found = true;
             if (final) coord_destroy(final);
-            final = coord_copy(current);
-            coord_destroy(current);
+            final = coord_copy(&current);
+            //coord_destroy(&current);
             break;
         }
 
-        coord_list_t* neighbors = navgrid_clone_adjacent(m, current->x, current->y);
+        coord_list_t* neighbors = navgrid_copy_adjacent(m, current.x, current.y);
         int len = coord_list_length(neighbors);
         for (int i = 0; i < len; ++i) {
             const coord_t* next = coord_list_get(neighbors, i);
@@ -53,16 +53,16 @@ route_t* find_bfs(const navgrid_t* m, const coord_t* start, const coord_t* goal,
                 coord_hash_replace(visited, next, new_int);
                 delete new_int;
 
-                coord_hash_replace(came_from, next, current);
-                if (visited_logging) route_add_visited(result, next);
+                coord_hash_replace(came_from, next, &current);
+                if (debug_mode_enabled) route_add_visited(result, next);
             }
         }
 
         coord_list_destroy(neighbors);
 
         if (final) coord_destroy(final);
-        final = coord_copy(current);
-        coord_destroy(current);
+        final = coord_copy(&current);
+        //coord_destroy(&current);
     }
 
     if (route_reconstruct_path(result, came_from, start, final)) {

@@ -37,7 +37,7 @@ extern "C" {
  * @param heuristic_fn    Heuristic function (if NULL, default_heuristic is used)
  * @param delta_epsilon   Threshold tolerance (if <= 0, defaults to 0.5f)
  * @param max_retry       Maximum iteration count (if <= 0, unlimited)
- * @param visited_logging Whether to log visited nodes (true logs visit order into the route)
+ * @param debug_mode_enabled Whether to log visited nodes (true logs visit order into the route)
  *
  * @return route_t* The search result. If success is true, a path was found.
  *         Even on failure, the path to the last explored node is recorded.
@@ -45,7 +45,7 @@ extern "C" {
 BYUL_API route_t* find_fringe_search(const navgrid_t* m, 
     const coord_t* start, const coord_t* goal,
     cost_func cost_fn, heuristic_func heuristic_fn, float delta_epsilon,
-    int max_retry, bool visited_logging);
+    int max_retry, bool debug_mode_enabled);
 
 #ifdef __cplusplus
 }

@@ -39,7 +39,7 @@ typedef bool (*is_coord_blocked_func)(
  * @return true - The coordinate is blocked  
  *         false - The coordinate is passable
  */
-bool is_coord_blocked_navgrid(
+BYUL_API bool is_coord_blocked_navgrid(
     const void* context, int x, int y, void* userdata);
 
 typedef enum {
@@ -61,10 +61,52 @@ typedef struct s_navgrid navgrid_t;
 
 // Constructors and Destructors
 
-// Default: 0 x 0 , NAVGRID_DIR_8
+/**
+ * @brief Creates a navigation grid with default parameters.
+ *
+ * This function initializes a `navgrid_t` object with 
+ * the following default settings:
+ * - Grid size: `0 × 0` (interpreted as **infinite** width and height)
+ * - Direction mode: `NAVGRID_DIR_8` (8-way movement)
+ * - No obstacle-checking function (all coordinates considered traversable)
+ *
+ * A size of `0 × 0` indicates an **unbounded grid**, 
+ * which may be useful for procedural or open-world environments.
+ * However, infinite grids can lead to unbounded node expansion 
+ * in some pathfinding algorithms.
+ *
+ * @warning Algorithms without heuristic guidance 
+ * (e.g., BFS, DFS, Fringe Search) may enter infinite exploration
+ *          on an unbounded grid unless a retry limit is enforced. 
+ *          The system uses `MAX_RETRY` as a safeguard (default: 1000).
+ *
+ * @return Pointer to a newly allocated `navgrid_t` instance, 
+ *          or `NULL` on failure.
+ */
 BYUL_API navgrid_t* navgrid_create();
 
-BYUL_API navgrid_t* navgrid_create_full(int width, int height, navgrid_dir_mode_t mode,
+
+/**
+ * @brief Creates a new navigation grid with custom dimensions and settings.
+ *
+ * This function allocates and initializes a `navgrid_t` object 
+ * using the specified
+ * width, height, and direction mode. 
+ * It also allows the caller to optionally provide
+ * a custom function to determine whether a given coordinate is blocked.
+ *
+ * @param width               Grid width (number of columns)
+ * @param height              Grid height (number of rows)
+ * @param mode                Directional mode (NAVGRID_DIR_4 or NAVGRID_DIR_8)
+ * @param is_coord_blocked_fn Optional user-defined function to determine 
+ *      if a coordinate is blocked.
+ *      If NULL, all coordinates are assumed walkable by default.
+ *
+ * @return A pointer to the newly created navgrid_t object, 
+ * or NULL on allocation failure.
+ */
+BYUL_API navgrid_t* navgrid_create_full(int width, int height, 
+    navgrid_dir_mode_t mode,
     is_coord_blocked_func is_coord_blocked_fn);
 
 BYUL_API void navgrid_destroy(navgrid_t* m);
@@ -81,8 +123,11 @@ BYUL_API void navgrid_set_width(navgrid_t* m, int width);
 BYUL_API int navgrid_get_height(const navgrid_t* m);
 BYUL_API void navgrid_set_height(navgrid_t* m, int height);
 
-BYUL_API void navgrid_set_is_coord_blocked_func(navgrid_t* m, is_coord_blocked_func fn);
-BYUL_API is_coord_blocked_func navgrid_get_is_coord_blocked_fn(const navgrid_t* m);
+BYUL_API void navgrid_set_is_coord_blocked_func(
+    navgrid_t* m, is_coord_blocked_func fn);
+
+BYUL_API is_coord_blocked_func navgrid_get_is_coord_blocked_fn(
+    const navgrid_t* m);
 
 BYUL_API navgrid_dir_mode_t navgrid_get_mode(const navgrid_t* m);
 BYUL_API void navgrid_set_mode(navgrid_t* m);
@@ -98,20 +143,24 @@ BYUL_API void navgrid_clear(navgrid_t* m);
 BYUL_API const coord_hash_t* navgrid_get_blocked_coords(const navgrid_t* m);
 
 // Neighbor Search
-BYUL_API coord_list_t* navgrid_clone_adjacent(const navgrid_t* m, int x, int y);
-BYUL_API coord_list_t* navgrid_clone_adjacent_all(const navgrid_t* m, int x, int y);
+BYUL_API coord_list_t* navgrid_copy_adjacent(
+    const navgrid_t* m, int x, int y);
 
-// If max_range is 0, it behaves the same as navgrid_clone_adjacent_all (only checks neighbors)
-BYUL_API coord_list_t* navgrid_clone_adjacent_all_range(
+BYUL_API coord_list_t* navgrid_copy_adjacent_all(
+    const navgrid_t* m, int x, int y);
+
+// If max_range is 0, 
+// it behaves the same as navgrid_copy_adjacent_all (only checks neighbors)
+BYUL_API coord_list_t* navgrid_copy_adjacent_all_range(
     navgrid_t* m, int x, int y, int range);
 
-BYUL_API coord_t* navgrid_clone_neighbor_at_degree(const navgrid_t* m, 
+BYUL_API coord_t* navgrid_copy_neighbor_at_degree(const navgrid_t* m, 
     int x, int y, double degree);
     
-BYUL_API coord_t* navgrid_clone_neighbor_at_goal(const navgrid_t* m, 
+BYUL_API coord_t* navgrid_copy_neighbor_at_goal(const navgrid_t* m, 
     const coord_t* center, const coord_t* goal);
 
-BYUL_API coord_list_t* navgrid_clone_adjacent_at_degree_range(
+BYUL_API coord_list_t* navgrid_copy_adjacent_at_degree_range(
     const navgrid_t* m,
     const coord_t* center, const coord_t* goal,
     double start_deg, double end_deg,

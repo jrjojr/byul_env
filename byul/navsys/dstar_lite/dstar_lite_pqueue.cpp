@@ -58,7 +58,8 @@ void dstar_lite_pqueue_push(dstar_lite_pqueue_t* q,
     for (auto& [k, vec] : q->key_to_coords) {
         if (dstar_lite_key_equal(k, key)) {
             vec.push_back(coord_copy(c));
-            coord_hash_replace(q->coord_to_key, c, k);
+            //coord_hash_replace(q->coord_to_key, c, k);
+			coord_hash_replace_xy(q->coord_to_key, c->x, c->y, k);
             return;
         }
     }

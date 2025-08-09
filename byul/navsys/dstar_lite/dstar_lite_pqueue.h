@@ -15,7 +15,8 @@ BYUL_API dstar_lite_pqueue_t* dstar_lite_pqueue_create(void);
 
 BYUL_API void dstar_lite_pqueue_destroy(dstar_lite_pqueue_t* q);
 
-BYUL_API dstar_lite_pqueue_t* dstar_lite_pqueue_copy(const dstar_lite_pqueue_t* src);
+BYUL_API dstar_lite_pqueue_t* dstar_lite_pqueue_copy(
+    const dstar_lite_pqueue_t* src);
 
 BYUL_API void dstar_lite_pqueue_push(
     dstar_lite_pqueue_t* q,
@@ -28,7 +29,8 @@ BYUL_API coord_t* dstar_lite_pqueue_pop(dstar_lite_pqueue_t* q);
 
 BYUL_API bool dstar_lite_pqueue_is_empty(dstar_lite_pqueue_t* q);
 
-BYUL_API bool dstar_lite_pqueue_remove(dstar_lite_pqueue_t* q, const coord_t* u);
+BYUL_API bool dstar_lite_pqueue_remove(
+    dstar_lite_pqueue_t* q, const coord_t* u);
 
 BYUL_API bool dstar_lite_pqueue_remove_full(
     dstar_lite_pqueue_t* q,

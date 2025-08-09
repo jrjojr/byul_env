@@ -10,6 +10,29 @@
 #include <cmath>
 #include <stdio.h>
 
+void fmm_cell_init(fmm_cell_t* out){
+    if (!out) return;
+
+    out->state = FMM_FAR;
+    out->value = 0.0f;
+}
+
+void fmm_cell_init_full(
+    fmm_cell_t* out, fmm_state_t state, float value){
+
+    if (!out) return;
+
+    out->state = state;
+    out->value = value;
+}
+
+void fmm_cell_assign(fmm_cell_t* out, const fmm_cell_t* src){
+    if (!out || !src) return;
+
+    out->state = src->state;
+    out->value = src->value;
+}
+
 void* fmm_cell_copy(const void* p) {
     if (!p) return nullptr;
     auto* in = static_cast<const fmm_cell_t*>(p);
@@ -22,21 +45,7 @@ void fmm_cell_destroy(void* p) {
     delete static_cast<fmm_cell_t*>(p);
 }
 
-fmm_cell_t* fmm_cell_create() {
-    auto* cell = new fmm_cell_t;
-    cell->state = FMM_FAR;
-    cell->value = 0.0f;
-    return cell;
-}
-
-fmm_cell_t* fmm_cell_create_full(fmm_state_t state, float value) {
-    auto* cell = new fmm_cell_t;
-    cell->state = state;
-    cell->value = value;
-    return cell;
-}
-
-fmm_grid_t* fmm_compute(const navgrid_t* m, const coord_t* start, 
+fmm_grid_t* fmm_grid_create_full(const navgrid_t* m, const coord_t* start, 
     cost_func cost_fn, float radius_limit, int max_retry) {
     if (!m || !start) return nullptr;
 
@@ -57,9 +66,9 @@ fmm_grid_t* fmm_compute(const navgrid_t* m, const coord_t* start,
 
     cost_coord_pq_t* narrow_band = cost_coord_pq_create();
 
-    fmm_cell_t* start_cell = new fmm_cell_t{FMM_NARROW, 0.0f};
-    coord_hash_replace(grid->cells, start, start_cell);
-    fmm_cell_destroy(start_cell);
+    fmm_cell_t start_cell;
+    fmm_cell_init_full(&start_cell, FMM_NARROW, 0.0f);
+    coord_hash_replace(grid->cells, start, &start_cell);
 
     coord_list_push_back(grid->visit_order, start);
     cost_coord_pq_push(narrow_band, 0.0f, start);
@@ -70,22 +79,20 @@ fmm_grid_t* fmm_compute(const navgrid_t* m, const coord_t* start,
 
         coord_t* current = cost_coord_pq_pop(narrow_band);
 
-        fmm_cell_t* current_cell = (fmm_cell_t*)coord_hash_get(
-            grid->cells, current);
+        fmm_cell_t current_cell;
+        current_cell = *(fmm_cell_t*)coord_hash_get(grid->cells, current);
 
-        if (!current_cell) current_cell = new fmm_cell_t{FMM_KNOWN, FLT_MAX};
-        current_cell->state = FMM_KNOWN;
-        coord_hash_replace(grid->cells, current, current_cell);
-        // fmm_cell_destroy(current_cell);
+        current_cell.state = FMM_KNOWN;
+        coord_hash_replace(grid->cells, current, &current_cell);
 
-        if (current_cell->value > radius_limit) {
+        if (current_cell.value > radius_limit) {
             coord_destroy(current);
             continue;
         }
 
         coord_list_push_back(grid->visit_order, current);
 
-        coord_list_t* neighbors = navgrid_clone_adjacent(
+        coord_list_t* neighbors = navgrid_copy_adjacent(
             m, current->x, current->y);
 
         int len = coord_list_length(neighbors);
@@ -179,15 +186,15 @@ void fmm_dump_ascii(const fmm_grid_t* grid) {
 
 route_t* find_fast_marching(const navgrid_t* m,
     const coord_t* start, const coord_t* goal,
-    cost_func cost_fn, int max_retry, bool visited_logging) {
+    cost_func cost_fn, int max_retry, bool debug_mode_enabled) {
 
     float radius = coord_distance(start, goal) * 1.5f;
-    fmm_grid_t* grid = fmm_compute(m, start, cost_fn, radius, max_retry);
+    fmm_grid_t* grid = fmm_grid_create_full(m, start, cost_fn, radius, max_retry);
     if (!grid) return nullptr;
 
     route_t* route = route_create();
 
-    if (visited_logging && grid->visit_order) {
+    if (debug_mode_enabled && grid->visit_order) {
         int vlen = coord_list_length(grid->visit_order);
         for (int i = 0; i < vlen; ++i) {
             const coord_t* c = coord_list_get(grid->visit_order, i);
@@ -217,7 +224,7 @@ route_t* find_fast_marching(const navgrid_t* m,
     route_insert(route, 0, current);
 
     while (!coord_equal(current, start)) {
-        coord_list_t* neighbors = navgrid_clone_adjacent(m, current->x, current->y);
+        coord_list_t* neighbors = navgrid_copy_adjacent(m, current->x, current->y);
         int len = coord_list_length(neighbors);
 
         float best_val = FLT_MAX;

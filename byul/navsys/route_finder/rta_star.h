@@ -101,14 +101,14 @@ BYUL_API void rta_star_config_destroy(rta_star_config cfg);
  * @param heuristic_fn  Heuristic function
  * @param depth_limit   Lookahead search depth limit
  * @param max_retry     Maximum number of iterations
- * @param visited_logging Whether to log visited nodes
+ * @param debug_mode_enabled Whether to log visited nodes
  * @return route_t* Path result. success == true if a path is found, false otherwise.
  */
 BYUL_API route_t* find_rta_star(const navgrid_t* m,
     const coord_t* start, const coord_t* goal,
     cost_func cost_fn, heuristic_func heuristic_fn,
     int depth_limit,
-    int max_retry, bool visited_logging);
+    int max_retry, bool debug_mode_enabled);
 
 #ifdef __cplusplus
 }

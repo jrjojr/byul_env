@@ -24,13 +24,13 @@ extern "C" {
  *
  * - If a path is found: a route from start -> goal is returned, and success is true.
  * - If no path is found: a route up to the last explored coordinate is returned, and success is false.
- * - If @p visited_logging is true, visit counts for all visited coordinates are recorded.
+ * - If @p debug_mode_enabled is true, visit counts for all visited coordinates are recorded.
  *
  * @param m                The map object for pathfinding.
  * @param start            Start coordinate.
  * @param goal             Goal coordinate.
  * @param max_retry        Maximum number of iterations (recommended: width * height).
- * @param visited_logging  Whether to log visited coordinate counts.
+ * @param debug_mode_enabled  Whether to log visited coordinate counts.
  * 
  * @return A @c route_t* object.  
  *         - If @c route_get_success(result) is true, the route successfully reached the goal.
@@ -38,7 +38,7 @@ extern "C" {
  */
 BYUL_API route_t* find_dfs(const navgrid_t* m, 
     const coord_t* start, const coord_t* goal, 
-    int max_retry, bool visited_logging);
+    int max_retry, bool debug_mode_enabled);
 
 #ifdef __cplusplus
 }

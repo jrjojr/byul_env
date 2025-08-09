@@ -4,13 +4,15 @@ project(test_aerial)
 
 
 # 소스 파일 설정
-set(SOURCES
-    main.cpp
+set(${PROJECT_NAME}_SOURCES
+    ${CMAKE_CURRENT_SOURCE_DIR}/main.cpp
+
+CACHE INTERNAL "${PROJECT_NAME} source files"  FORCE    
 )
 
 # ------------------- 테스트 실행 파일 -------------------
 add_executable(${PROJECT_NAME}
-    ${SOURCES}
+    ${${PROJECT_NAME}_SOURCES}
 )
 
 # ─────────────────────────────────────────────

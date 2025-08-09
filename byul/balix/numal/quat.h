@@ -158,6 +158,21 @@ BYUL_API float quat_length(const quat_t* a);
 
 BYUL_API void quat_identity(quat_t* out);
 
+/**
+ * @brief 회전을 특정 점을 기준으로 수행합니다.
+ *
+ * @param q       회전 쿼터니언
+ * @param point   회전될 대상 위치 (입력값)
+ * @param pivot   회전 중심점
+ * @param out     회전된 결과 위치
+ */
+BYUL_API void quat_rotate_around_pivot(
+    const quat_t* q,
+    const vec3_t* point,
+    const vec3_t* pivot,
+    vec3_t* out);
+
+
 #ifdef __cplusplus
 }
 #endif

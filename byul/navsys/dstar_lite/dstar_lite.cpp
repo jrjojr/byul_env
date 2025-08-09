@@ -16,7 +16,7 @@ static int auto_max_range(const coord_t* start, const coord_t* goal) {
     return dx + dy;
 }
 
-static int auto_compute_max_retry(const coord_t* start, const coord_t* goal) {
+static int auto_max_retry(const coord_t* start, const coord_t* goal) {
     int dx = abs(goal->x - start->x);
     int dy = abs(goal->y - start->y);
     int r = dx * dy;
@@ -224,7 +224,7 @@ dstar_lite_t* dstar_lite_create_full(navgrid_t* m, coord_t* start,
     
     dsl->real_loop_max_retry = 3000;
 
-    dsl->compute_max_retry = 3000;
+    dsl->max_retry = 3000;
     
     dsl->reconstruct_max_retry = 300;
 
@@ -314,7 +314,7 @@ dstar_lite_t* dstar_lite_copy(dstar_lite_t* src) {
 
     copy->interval_msec           = src->interval_msec;
     copy->real_loop_max_retry     = src->real_loop_max_retry;
-    copy->compute_max_retry       = src->compute_max_retry;
+    copy->max_retry       = src->max_retry;
     copy->reconstruct_max_retry   = src->reconstruct_max_retry;
     copy->proto_compute_retry_count = src->proto_compute_retry_count;
     copy->real_compute_retry_count  = src->real_compute_retry_count;
@@ -391,13 +391,13 @@ int dstar_lite_real_loop_retry_count(const dstar_lite_t* dsl) {
     return dsl->real_loop_retry_count;
 }
 
-int dstar_lite_get_compute_max_retry(const dstar_lite_t* dsl) {
-    return dsl->compute_max_retry;
+int dstar_lite_get_max_retry(const dstar_lite_t* dsl) {
+    return dsl->max_retry;
 }
-void dstar_lite_set_compute_max_retry(
+void dstar_lite_set_max_retry(
     dstar_lite_t* dsl, int v) {
         
-    dsl->compute_max_retry = v;
+    dsl->max_retry = v;
 }
 
 int dstar_lite_proto_compute_retry_count(const dstar_lite_t* dsl) {
@@ -420,11 +420,11 @@ int dstar_lite_reconstruct_retry_count(const dstar_lite_t* dsl) {
     return dsl->reconstruct_retry_count;
 }
 
-bool dstar_lite_get_debug_mode_enabled(const dstar_lite_t* dsl) {
+bool dstar_lite_is_debug_mode_enabled(const dstar_lite_t* dsl) {
     return dsl->debug_mode_enabled;
 }
 
-void dstar_lite_set_debug_mode_enabled(dstar_lite_t* dsl, bool enabled) {
+void dstar_lite_enable_debug_mode(dstar_lite_t* dsl, bool enabled) {
     dsl->debug_mode_enabled = enabled;
 }
 
@@ -573,7 +573,7 @@ void dstar_lite_update_vertex(dstar_lite_t* dsl, const coord_t* u) {
     float rhs_u = FLT_MAX;
 
     if (!coord_equal(u, dsl->goal)) {
-        successors_s = navgrid_clone_adjacent_all(dsl->m, u->x, u->y);
+        successors_s = navgrid_copy_adjacent_all(dsl->m, u->x, u->y);
         int len = coord_list_length(successors_s);
         for(int i=0; i<len; i++){
             const coord_t* s = coord_list_get(successors_s, i);
@@ -632,7 +632,7 @@ void dstar_lite_update_vertex_range(dstar_lite_t* dsl,
         return;
     }    
 
-    coord_list_t* neighbors = navgrid_clone_adjacent_all_range(dsl->m, 
+    coord_list_t* neighbors = navgrid_copy_adjacent_all_range(dsl->m, 
         s->x, s->y, max_range);
 
     int len = coord_list_length(neighbors);
@@ -748,7 +748,7 @@ void dstar_lite_compute_shortest_route(dstar_lite_t* dsl) {
 
             // for s in predecessors(u):
             //     update_vertex(s)
-            predecessors_u = navgrid_clone_adjacent_all(
+            predecessors_u = navgrid_copy_adjacent_all(
                 dsl->m, u->x, u->y);
 
             int len = coord_list_length(predecessors_u);
@@ -772,7 +772,7 @@ void dstar_lite_compute_shortest_route(dstar_lite_t* dsl) {
             delete new_g;
 
             // for s in predecessors(u) | {u}:            
-            predecessors_u = navgrid_clone_adjacent_all(
+            predecessors_u = navgrid_copy_adjacent_all(
                 dsl->m, u->x, u->y);
             coord_list_push_back(predecessors_u, u);
 
@@ -792,7 +792,7 @@ void dstar_lite_compute_shortest_route(dstar_lite_t* dsl) {
                 if (float_equal(rhs_s, cost_s_u + g_old)) {
                     if (!coord_equal(s, dsl->goal)) {
 
-                        successors_s = navgrid_clone_adjacent_all(
+                        successors_s = navgrid_copy_adjacent_all(
                             dsl->m, s->x, s->y);
                         
                         int len = coord_list_length(successors_s);
@@ -851,7 +851,7 @@ void dstar_lite_compute_shortest_route(dstar_lite_t* dsl) {
             rhs_start = FLT_MAX;
         }
 
-    } while ((loop < dsl->compute_max_retry) && 
+    } while ((loop < dsl->max_retry) && 
         ( (dstar_lite_key_compare(top_key, calc_key_start) < 0) || 
             (!float_equal(rhs_start, g_start) ) ) );
 
@@ -901,7 +901,7 @@ route_t* dstar_lite_reconstruct_route(dstar_lite_t* dsl) {
 
         loop++;
 
-        coord_list_t* neighbors = navgrid_clone_adjacent_all(
+        coord_list_t* neighbors = navgrid_copy_adjacent_all(
             dsl->m, current->x, current->y);
 
         int len = coord_list_length(neighbors);
@@ -1037,7 +1037,7 @@ void dstar_lite_find_loop(dstar_lite_t* dsl) {
         }
         
         min_cost = FLT_MAX;
-        successors_start = navgrid_clone_adjacent_all(
+        successors_start = navgrid_copy_adjacent_all(
             dsl->m, start->x, start->y);
 
         int len = coord_list_length(successors_start);

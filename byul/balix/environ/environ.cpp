@@ -43,7 +43,7 @@ void environ_init(environ_t* env) {
     env->humidity = 50.0f;
     env->temperature = 20.0f;
     env->pressure = 101325.0f;
-    env->environ_fn = environ_calc_gravity;
+    env->environ_fn = environ_calc_gravity_wind;
     env->userdata = NULL;
 }
 
@@ -64,7 +64,7 @@ void environ_init_full(environ_t* env,
     env->humidity = humidity;
     env->temperature = temperature;
     env->pressure = pressure;
-    env->environ_fn = environ_fn ? environ_fn : environ_calc_gravity;
+    env->environ_fn = environ_fn ? environ_fn : environ_calc_gravity_wind;
     env->userdata = userdata;
 }
 

@@ -12,10 +12,10 @@ bool is_coord_blocked_navgrid(const void* context,
     int x, int y, void* userdata) {
 
     if (!context) return false;
-    coord_t* c = coord_create_full(x, y);
+    coord_t c;
+    coord_init_full(&c, x, y);
     bool result = coord_hash_contains(
-        (const coord_hash_t*)((const navgrid_t*)context)->blocked_coords, c);
-    coord_destroy(c);
+        (const coord_hash_t*)((const navgrid_t*)context)->blocked_coords, &c);
     return result;
 }
 
@@ -98,17 +98,17 @@ void navgrid_set_mode(navgrid_t* m, navgrid_dir_mode_t mode) {
 
 bool navgrid_block_coord(navgrid_t* m, int x, int y) {
     if (!m) return false;
-    coord_t* c = coord_create_full(x, y);
-    coord_hash_replace(m->blocked_coords, c, nullptr);
-    coord_destroy(c);
+    coord_t c;
+    coord_init_full(&c, x, y);
+    coord_hash_replace(m->blocked_coords, &c, nullptr);
     return true;
 }
 
 bool navgrid_unblock_coord(navgrid_t* m, int x, int y) {
     if (!m) return false;
-    coord_t* c = coord_create_full(x, y);
-    bool result = coord_hash_remove(m->blocked_coords, c);
-    coord_destroy(c);
+    coord_t c;
+    coord_init_full(&c, x, y);
+    bool result = coord_hash_remove(m->blocked_coords, &c);
     return result;
 }
 
@@ -135,7 +135,7 @@ const coord_hash_t* navgrid_get_blocked_coords(const navgrid_t* m) {
     return m ? m->blocked_coords : nullptr;
 }
 
-coord_list_t* navgrid_clone_adjacent(const navgrid_t* m, int x, int y) {
+coord_list_t* navgrid_copy_adjacent(const navgrid_t* m, int x, int y) {
     if (!m) return nullptr;
     coord_list_t* list = coord_list_create();
     static const int dx4[] = {0, -1, 1, 0};
@@ -153,12 +153,14 @@ coord_list_t* navgrid_clone_adjacent(const navgrid_t* m, int x, int y) {
         if (!navgrid_is_inside(m, nx, ny)) continue;
         if (m->is_coord_blocked_fn(m, nx, ny, nullptr)) 
             continue;
-        coord_list_push_back(list, make_tmp_coord(nx, ny));
+
+        coord_t tmp = coord_t{nx, ny};
+        coord_list_push_back(list, &tmp);
     }
     return list;
 }
 
-coord_list_t* navgrid_clone_adjacent_all(const navgrid_t* m, int x, int y) {
+coord_list_t* navgrid_copy_adjacent_all(const navgrid_t* m, int x, int y) {
     if (!m) return nullptr;
     coord_list_t* list = coord_list_create();
     static const int dx4[] = {0, -1, 1, 0};
@@ -174,12 +176,14 @@ coord_list_t* navgrid_clone_adjacent_all(const navgrid_t* m, int x, int y) {
         int nx = x + dx[i];
         int ny = y + dy[i];
         if (!navgrid_is_inside(m, nx, ny)) continue;
-        coord_list_push_back(list, make_tmp_coord(nx, ny));
+
+        coord_t tmp = coord_t{nx, ny};
+        coord_list_push_back(list, &tmp);
     }
     return list;
 }
 
-coord_list_t* navgrid_clone_adjacent_all_range(
+coord_list_t* navgrid_copy_adjacent_all_range(
     navgrid_t* m, int x, int y, int range) {
 
     if (!m || range < 0) return nullptr;
@@ -189,7 +193,7 @@ coord_list_t* navgrid_clone_adjacent_all_range(
             int cx = x + dx;
             int cy = y + dy;
             if (!navgrid_is_inside(m, cx, cy)) continue;
-            coord_list_t* part = navgrid_clone_adjacent_all(m, cx, cy);
+            coord_list_t* part = navgrid_copy_adjacent_all(m, cx, cy);
             int len = coord_list_length(part);
             for (int i = 0; i < len; ++i) {
                 const coord_t* c = coord_list_get(part, i);
@@ -204,7 +208,7 @@ coord_list_t* navgrid_clone_adjacent_all_range(
     return result;
 }
 
-coord_t* navgrid_clone_neighbor_at_degree(
+coord_t* navgrid_copy_neighbor_at_degree(
     const navgrid_t* m, int x, int y, double degree) {
     if (!m) return nullptr;
     static const int dx8[] = {1,  1, 0, -1, -1, -1,  0, 1};
@@ -213,13 +217,14 @@ coord_t* navgrid_clone_neighbor_at_degree(
     int best_index = -1;
     double min_diff = 360.0;
 
-    coord_t* origin = coord_create_full(x, y);
+    coord_t origin;
+    coord_init_full(&origin, x, y);
     for (int i = 0; i < count; ++i) {
         int nx = x + dx8[i];
         int ny = y + dy8[i];
         if (!navgrid_is_inside(m, nx, ny)) continue;
         coord_t* target = coord_create_full(nx, ny);
-        double deg = coord_degree(origin, target);
+        double deg = coord_degree(&origin, target);
         double diff = fabs(degree - deg);
         if (diff > 180.0) diff = 360.0 - diff;
         if (diff < min_diff) {
@@ -228,17 +233,17 @@ coord_t* navgrid_clone_neighbor_at_degree(
         }
         coord_destroy(target);
     }
-    coord_destroy(origin);
+
     if (best_index == -1) return nullptr;
     return coord_create_full(x + dx8[best_index], y + dy8[best_index]);
 }
 
-coord_t* navgrid_clone_neighbor_at_goal(
+coord_t* navgrid_copy_neighbor_at_goal(
     const navgrid_t* m, const coord_t* center, const coord_t* goal) {
     if (!m || !center || !goal) return nullptr;
     int x = coord_get_x(center);
     int y = coord_get_y(center);
-    coord_list_t* neighbors = navgrid_clone_adjacent_all(m, x, y);
+    coord_list_t* neighbors = navgrid_copy_adjacent_all(m, x, y);
     if (!neighbors) return nullptr;
     double target_deg = coord_degree(center, goal);
     coord_t* best = nullptr;
@@ -260,7 +265,7 @@ coord_t* navgrid_clone_neighbor_at_goal(
     return best;
 }
 
-coord_list_t* navgrid_clone_adjacent_at_degree_range(
+coord_list_t* navgrid_copy_adjacent_at_degree_range(
     const navgrid_t* m,
     const coord_t* center, const coord_t* goal,
     double start_deg, double end_deg,
@@ -282,14 +287,14 @@ coord_list_t* navgrid_clone_adjacent_at_degree_range(
             int nx = cx + dx;
             int ny = cy + dy;
             if (!navgrid_is_inside(m, nx, ny)) continue;
-            coord_t* target = coord_create_full(nx, ny);
-            double deg = coord_degree(center, target);
+            coord_t target;
+            coord_init_full(&target, nx, ny);
+            double deg = coord_degree(center, &target);
             bool in_range = (!wraps) ? (deg >= deg_min && deg <= deg_max)
                                      : (deg >= deg_min || deg <= deg_max);
-            if (in_range && !coord_hash_contains(seen, target)) {
-                coord_hash_replace(seen, target, nullptr);
+            if (in_range && !coord_hash_contains(seen, &target)) {
+                coord_hash_replace(seen, &target, nullptr);
             }
-            coord_destroy(target);
         }
     }
     coord_list_t* result = coord_hash_to_list(seen);

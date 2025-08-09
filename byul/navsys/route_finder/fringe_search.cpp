@@ -12,7 +12,7 @@
 route_t* find_fringe_search(const navgrid_t* m,
     const coord_t* start, const coord_t* goal,
     cost_func cost_fn, heuristic_func heuristic_fn, float delta_epsilon,
-    int max_retry, bool visited_logging) {
+    int max_retry, bool debug_mode_enabled) {
 
     if (!m || !start || !goal) return nullptr;
     if (!heuristic_fn) heuristic_fn = default_heuristic;
@@ -47,7 +47,7 @@ route_t* find_fringe_search(const navgrid_t* m,
     delete new_int;
 
     cost_coord_pq_push(frontier, f_start, start);
-    if (visited_logging)
+    if (debug_mode_enabled)
         route_add_visited(result, start);
 
     bool found = false;
@@ -92,7 +92,7 @@ route_t* find_fringe_search(const navgrid_t* m,
                 break;
             }
 
-            coord_list_t* neighbors = navgrid_clone_adjacent(m, current->x, current->y);
+            coord_list_t* neighbors = navgrid_copy_adjacent(m, current->x, current->y);
             int len = coord_list_length(neighbors);
             for (int j = 0; j < len; ++j) {
                 const coord_t* next = coord_list_get(neighbors, j);
@@ -114,7 +114,7 @@ route_t* find_fringe_search(const navgrid_t* m,
                     coord_hash_replace(visited, next, new_int);
                     delete new_int;
 
-                    if (visited_logging)
+                    if (debug_mode_enabled)
                         route_add_visited(result, next);
                     expanded = true;
                 }

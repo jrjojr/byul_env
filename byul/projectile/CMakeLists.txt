@@ -12,26 +12,30 @@ message(STATUS "${PROJECT_NAME} : EXTERNAL_DIR = ${EXTERNAL_DIR}")
 
 
 # 소스 파일 설정
-set(SOURCES
-    ${PROJECT_NAME}.cpp
-    projectile_common.cpp
-    propulsion.cpp
-    guidance.cpp
-    projectile_predict.cpp
+set(${PROJECT_NAME}_SOURCES
+    ${CMAKE_CURRENT_SOURCE_DIR}/projectile.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/projectile_common.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/propulsion.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/guidance.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/projectile_predict.cpp
+
+CACHE INTERNAL "${PROJECT_NAME} source files"  FORCE
 )
 
-set(HEADERS
-    ${PROJECT_NAME}.h
-    projectile_common.h
-    propulsion.h
-    guidance.h
-    projectile_predict.h
+set(${PROJECT_NAME}_HEADERS
+    ${CMAKE_CURRENT_SOURCE_DIR}/projectile.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/projectile_common.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/propulsion.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/guidance.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/projectile_predict.h
+
+CACHE INTERNAL "${PROJECT_NAME} header files"  FORCE
 )
 
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 # 스태틱 라이브러리 생성
-add_library(${PROJECT_NAME} STATIC ${SOURCES})
+add_library(${PROJECT_NAME} STATIC ${${PROJECT_NAME}_SOURCES})
 
 # 헤더 파일 디렉토리 추가
 target_include_directories(${PROJECT_NAME} PRIVATE 
@@ -76,6 +80,6 @@ add_subdirectory(tests)
 
 target_compile_definitions(${PROJECT_NAME} PRIVATE BYUL_STATIC)
 
-install(FILES ${HEADERS}
-    DESTINATION include/${CMAKE_PROJECT_NAME}
-)
+# install(FILES ${${PROJECT_NAME}_HEADERS}
+#     DESTINATION include/${CMAKE_PROJECT_NAME}
+# )

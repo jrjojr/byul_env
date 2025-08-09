@@ -4,18 +4,20 @@ project(test_projectile)
 
 
 # 소스 파일 설정
-set(SOURCES
-    main.cpp
-    test_module_projectile_common.cpp    
-    test_module_propulsion.cpp    
-    test_module_guidance.cpp    
-    test_module_projectile_predict.cpp    
-    test_module_projectile.cpp
+set(${PROJECT_NAME}_SOURCES
+    ${CMAKE_CURRENT_SOURCE_DIR}/main.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/test_module_projectile_common.cpp    
+    ${CMAKE_CURRENT_SOURCE_DIR}/test_module_propulsion.cpp    
+    ${CMAKE_CURRENT_SOURCE_DIR}/test_module_guidance.cpp    
+    ${CMAKE_CURRENT_SOURCE_DIR}/test_module_projectile_predict.cpp    
+    ${CMAKE_CURRENT_SOURCE_DIR}/test_module_projectile.cpp
+
+CACHE INTERNAL "${PROJECT_NAME} source files"  FORCE
 )
 
 # ------------------- 테스트 실행 파일 -------------------
 add_executable(${PROJECT_NAME}
-    ${SOURCES}
+    ${${PROJECT_NAME}_SOURCES}
 )
 
 # ─────────────────────────────────────────────
