@@ -7,6 +7,7 @@
 #include <string.h>  // memset, memcpy
 #include <iostream>
 
+
 // ---------------------------------------------------------
 // Shell Projectile
 // ---------------------------------------------------------
@@ -17,6 +18,7 @@ void shell_projectile_init(shell_projectile_t* shell)
     projectile_init(&shell->proj);
     shell->explosion_radius = 10.0f;
     shell->proj.on_hit = shell_projectile_hit_cb;
+    shell->proj.hit_userdata = &shell->explosion_radius;
 }
 
 void shell_projectile_init_full(
@@ -126,99 +128,17 @@ void patriot_assign(patriot_t* patriot, const patriot_t* src)
 
 
 
-/**
- * @brief Calculates an appropriate simulation time step (dt) based 
- *  on force and mass.
- *
- * This function estimates the suitable dt for 
- * trajectory simulation to balance
- * accuracy and performance. It uses the initial applied 
- * force and mass to compute
- * acceleration and velocity, then determines dt to 
- * ensure an adequate number of
- * samples across the expected travel distance.
- *
- * @param[out] dt_out   Pointer to the output dt value (in seconds)
- * @param[in]  dir      Direction vector (normalized, 
- *     not used internally but kept for future use)
- * @param[in]  force    Applied initial force (in Newtons)
- * @param[in]  mass     Mass of the projectile (in kilograms)
- */
-static void calc_suitable_dt(
-    float* dt_out, const vec3_t* dir, float force, float mass)
-{
-    if (!dt_out || !dir || mass <= 0.0f) return;
-
-    // Estimate acceleration and velocity
-    float acceleration = force / mass;
-    float velocity = acceleration * DELTA_TIME;
-
-    // Estimate how far the projectile moves per frame
-    float distance_per_step = velocity * DELTA_TIME;
-
-    // Estimate appropriate sample count
-    int sample_count = (int)(XFORM_MAX_DISTANCE / distance_per_step);
-    if (sample_count < 32) sample_count = 32;
-    if (sample_count > 4096) sample_count = 4096;
-
-    // Compute dt = total_distance / (sample_count x velocity)
-    float estimated_dt = XFORM_MAX_DISTANCE / (sample_count * velocity);
-
-    // Clamp dt to acceptable range
-    if (estimated_dt < MIN_DELTA_TIME) estimated_dt = MIN_DELTA_TIME;
-    if (estimated_dt > MAX_DELTA_TIME) estimated_dt = MAX_DELTA_TIME;
-
-    *dt_out = estimated_dt;
-}
-
-/**
- * @brief Estimates a suitable simulation max time based on 
- * initial force and mass.
- *
- * This function computes the total expected simulation time 
- * (max_time) required
- * for a projectile to travel a predefined distance, 
- * based on its mass and the applied force.
- * It uses estimated velocity to calculate 
- * how long it would take to cover the full range.
- *
- * @param[out] max_time_out Pointer to output value (in seconds)
- * @param[in]  dir          Normalized direction vector (currently unused)
- * @param[in]  force        Applied initial force (Newtons)
- * @param[in]  mass         Mass of the projectile (kilograms)
- */
-static void calc_suitable_max_time(
-    float* max_time_out, const vec3_t* dir, float force, float mass)
-{
-    if (!max_time_out || !dir || mass <= 0.0f) return;
-
-    float acceleration = force / mass;
-    float velocity = acceleration * DELTA_TIME;
-
-    float estimated_time = XFORM_MAX_DISTANCE / velocity;
-
-    if (estimated_time < MIN_SIM_TIME) estimated_time = MIN_SIM_TIME;
-    if (estimated_time > MAX_SIM_TIME) estimated_time = MAX_SIM_TIME;
-
-    *max_time_out = estimated_time;
-}
-
 bool projectile_launch(
     const projectile_t* proj,
     const vec3_t* dir,
     float initial_force_scalar,
     const environ_t* env,
+    const ground_t* ground,    
     projectile_result_t* out)
 {
     if (!proj || !dir || !out) return false;
 
-    float max_time = MAX_SIM_TIME;  // 100.0f
     float dt = DELTA_TIME;          // 0.048828f
-
-    calc_suitable_dt(&dt, dir, initial_force_scalar, proj->base.props.mass);
-
-    calc_suitable_max_time(
-        &max_time, dir, initial_force_scalar, proj->base.props.mass);    
 
     float mass = proj->base.props.mass;
     if (mass <= 0.0f) return false;
@@ -239,15 +159,51 @@ bool projectile_launch(
     entity_dynamic_init(&target);
 
     return projectile_predict(
-        out,
         &self,
-        &target,
-        max_time,
         dt,
+        &target,
         env,
+        ground,
         NULL,  // propulsion
-        NULL   // guidance
+        NULL,   // guidance
+        out
     );
+}
+
+bool projectile_launch_tick(
+    const projectile_t* proj,
+    const vec3_t* dir,
+	float initial_force_scalar,
+    const environ_t* env,
+    const ground_t* ground,    
+    projectile_tick_t* prt)
+{
+    if (!proj || !dir || !prt) return false;
+
+    // prt->bool_impacted = true;
+    // prt->trajectory = trajectory_create_full(MAX_SAMPLE_COUNT);
+    // prt->env = env;
+    environ_assign(prt->env, env);
+
+    // prt->proj = proj;
+    projectile_assign(&prt->proj, proj);
+
+    vec3_t target_vel = proj->base.xf.pos;
+    // f = ma; a = f/m; vel = v0 + a(t)
+    // a = initial_Force / mass
+    float accel = initial_force_scalar / proj->base.props.mass;
+    
+    vec3_t a_dir = *dir;
+    vec3_normalize(&a_dir);
+    vec3_madd(&target_vel, &target_vel, &a_dir, accel);
+
+    entity_dynamic_t target = {};
+    target.velocity = target_vel;
+
+    // prt->target = &target;
+    entity_dynamic_assign(&prt->target, &target);
+
+    return projectile_tick_prepare(prt, prt->tick);
 }
 
 // ---------------------------------------------------------
@@ -258,17 +214,12 @@ bool shell_projectile_launch(
     const vec3_t* dir,
     float initial_force_scalar,
     const environ_t* env,
+    const ground_t* ground,    
     projectile_result_t* out)
 {
     if (!shell || !dir || !out) return false;
 
-    float max_time = MAX_SIM_TIME;  // 100.0f
     float dt = DELTA_TIME;          // 0.048828f
-
-    calc_suitable_dt(&dt, dir, initial_force_scalar, shell->proj.base.props.mass);
-    
-    calc_suitable_max_time(
-        &max_time, dir, initial_force_scalar, shell->proj.base.props.mass);    
 
     float mass = shell->proj.base.props.mass;
     if (mass <= 0.0f) return false;
@@ -278,25 +229,27 @@ bool shell_projectile_launch(
     vec3_scale(&accel, dir, initial_force_scalar / mass);
 
     // v = a * dt
-    vec3_t velocity;
+    vec3_t velocity = {};
     vec3_scale(&velocity, &accel, dt);
 
-    projectile_t self;
-    projectile_assign(&self, &shell->proj);
-    self.base.velocity = velocity;
+    shell_projectile_t self = {};
+    shell_projectile_assign(&self, shell);
+    self.proj.base.velocity = velocity;
 
     entity_dynamic_t target;
     entity_dynamic_init(&target);
 
     return projectile_predict(
-        out,
-        &self,
-        &target,
-        max_time,
+        &self.proj,
         dt,
+
+        &target,
         env,
+        ground,
         NULL,  // propulsion
-        NULL   // guidance
+        NULL,   // guidance
+
+        out
     );
 }
 
@@ -308,20 +261,15 @@ bool rocket_launch(
     const vec3_t* target,
     float initial_force_scalar,
     const environ_t* env,
+    const ground_t* ground,    
     projectile_result_t* out)
 {
     if (!rocket || !target || !out) return false;
 
-    float max_time = MAX_SIM_TIME;  // 100.0f
     float dt = DELTA_TIME;          // 0.048828f
 
     vec3_t dir;
     vec3_unit(&dir, target);
-    calc_suitable_dt(&dt, &dir, initial_force_scalar, 
-        rocket->base.proj.base.props.mass);
-    
-    calc_suitable_max_time(
-        &max_time, &dir, initial_force_scalar, rocket->base.proj.base.props.mass);    
 
     float mass = rocket->base.proj.base.props.mass;
     if (mass <= 0.0f) return false;
@@ -343,14 +291,14 @@ bool rocket_launch(
     entdyn.xf.pos = *target;
 
     return projectile_predict(
-        out,
         &self,
-        &entdyn,
-        max_time,
         dt,
+        &entdyn,
         env,
+        ground,
         &rocket->propulsion,  // propulsion
-        NULL   // guidance
+        NULL,   // guidance
+        out        
     );
 }
 
@@ -362,21 +310,15 @@ bool missile_launch(
     const vec3_t* target,
     float initial_force_scalar,
     const environ_t* env,
+    const ground_t* ground,    
     projectile_result_t* out)
 {
     if (!missile || !target || !out) return false;
 
-    float max_time = MAX_SIM_TIME;  //  100.0f
     float dt = DELTA_TIME;          //  0.048828f
 
     vec3_t dir;
     vec3_unit(&dir, target);
-    calc_suitable_dt(&dt, &dir, initial_force_scalar, 
-        missile->base.base.proj.base.props.mass);
-    
-    calc_suitable_max_time(
-        &max_time, &dir, initial_force_scalar, 
-        missile->base.base.proj.base.props.mass);    
 
     float mass = missile->base.base.proj.base.props.mass;
     if (mass <= 0.0f) return false;
@@ -397,9 +339,15 @@ bool missile_launch(
     entity_dynamic_init(&entdyn);
     entdyn.xf.pos = *target;
 
-    return projectile_predict(out, &self, &entdyn,
-                              MAX_SIM_TIME, DELTA_TIME, env,
-                              &missile->base.propulsion, missile->guidance);
+    return projectile_predict(
+        &self, 
+        dt,
+        &entdyn,
+        env,
+        ground,
+        &missile->base.propulsion, 
+        missile->guidance,
+        out);
 }
 
 // ---------------------------------------------------------
@@ -410,22 +358,16 @@ bool patriot_launch(
     const entity_dynamic_t* target,
     float initial_force_scalar,
     const environ_t* env,
+    const ground_t* ground,    
     projectile_result_t* out)
 {
     if (!patriot || !target || !out) return false;
 
-    float max_time = MAX_SIM_TIME;  // 100.0f
     float dt = DELTA_TIME;          // 0.048828f
 
     vec3_t dir;
     vec3_sub(&dir, &target->xf.pos, &patriot->base.base.base.proj.base.xf.pos);
     vec3_normalize(&dir);
-    calc_suitable_dt(&dt, &dir, initial_force_scalar, 
-        patriot->base.base.base.proj.base.props.mass);
-    
-    calc_suitable_max_time(
-        &max_time, &dir, initial_force_scalar, 
-        patriot->base.base.base.proj.base.props.mass);    
 
     float mass = patriot->base.base.base.proj.base.props.mass;
     if (mass <= 0.0f) return false;
@@ -442,17 +384,25 @@ bool patriot_launch(
     projectile_assign(&self, &patriot->base.base.base.proj);
     self.base.velocity = velocity;
 
-    return projectile_predict(out, &self, target,
-                              MAX_SIM_TIME, DELTA_TIME, env,
-                              &patriot->base.base.propulsion, 
-                              patriot->guidance);
+    return projectile_predict(
+        &self, 
+        dt,         
+        target,
+        env,
+        ground,
+        &patriot->base.base.propulsion, 
+        patriot->guidance,
+        out
+        );
 }
 
-void shell_projectile_hit_cb(const void* projectile, void* userdata)
+void shell_projectile_hit_cb(const projectile_t* projectile, void* userdata)
 {
     (void)userdata;
 
-    const shell_projectile_t* proj = (const shell_projectile_t*)projectile;
+    const projectile_t* proj = projectile;
+    float explosion_radius = *(float*)userdata;
+
     if (!proj) {
         printf("[shell projectile] hit callback called with null projectile\n");
         return;
@@ -460,5 +410,5 @@ void shell_projectile_hit_cb(const void* projectile, void* userdata)
 
     printf(
     "[shell projectile] hit cb damaged : %.3f, explosion_radius : %.3f\n", 
-    proj->proj.damage, proj->explosion_radius);
+    proj->damage, explosion_radius);
 }

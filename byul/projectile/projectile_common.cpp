@@ -10,6 +10,7 @@ void projectile_init(projectile_t* proj)
     proj->on_hit = projectile_default_hit_cb;
     proj->hit_userdata = NULL;
     proj->damage = 1.0f;
+    proj->base.base.lifetime = 60.0f;
 }
 
 void projectile_init_full(
@@ -56,17 +57,32 @@ void projectile_update(projectile_t* proj, float dt)
     }
 }
 
-void projectile_default_hit_cb(const void* projectile, void* userdata)
+void projectile_default_hit_cb(const projectile_t* projectile, void* userdata)
 {
     (void)userdata;
 
-    const projectile_t* proj = (const projectile_t*)projectile;
+    const projectile_t* proj = projectile;
     if (!proj) {
         printf("[projectile] hit callback called with null projectile\n");
         return;
     }
 
     printf("[projectile] default hit cb damaged : %.2f\n", proj->damage);
+}
+
+void projectile_default_expire_cb(
+    const projectile_t* projectile, void* userdata)
+{
+    (void)userdata;
+
+    const projectile_t* proj = projectile;
+    if (!proj) {
+        printf("[projectile] expire callback called with null projectile\n");
+        return;
+    }
+
+    printf("[projectile] lifetime expired without collision. damage : %.2f\n",
+           proj->damage);
 }
 
 static inline float projectile_safe_mass(const projectile_t* proj) {
@@ -164,7 +180,7 @@ bool projectile_calc_launch_param_env(
     vec3_normalize(&out->direction);
 
     float wind_h 
-    = sqrtf(env->wind.x * env->wind.x + env->wind.z * env->wind.z);
+    = sqrtf(env->wind_vel.x * env->wind_vel.x + env->wind_vel.z * env->wind_vel.z);
     float v_h = v0 * cosf(theta) + wind_h;
     out->force = initial_force_scalar;
     out->time_to_hit = R / (v_h > 1e-3f ? v_h : 1e-3f);
@@ -225,9 +241,9 @@ bool projectile_calc_launch_param_inverse_env(
     };
 
     vec3_t required_vel = {
-        (delta.x - gravity_term.x - env->wind.x * hit_time) / hit_time,
-        (delta.y - gravity_term.y - env->wind.y * hit_time) / hit_time,
-        (delta.z - gravity_term.z - env->wind.z * hit_time) / hit_time
+        (delta.x - gravity_term.x - env->wind_vel.x * hit_time) / hit_time,
+        (delta.y - gravity_term.y - env->wind_vel.y * hit_time) / hit_time,
+        (delta.z - gravity_term.z - env->wind_vel.z * hit_time) / hit_time
     };
 
     float mass = projectile_safe_mass(proj);

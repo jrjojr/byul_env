@@ -138,7 +138,7 @@ TEST_CASE("guidance_predict_accel_env with gravity and wind") {
     environ_t env;
     environ_init(&env);
     env.gravity = {0, -9.8f, 0};
-    env.wind = {0.5f, 0, 0};
+    env.wind_vel = {0.5f, 0, 0};
 
     guidance_target_info_t info;
     info.target =target;

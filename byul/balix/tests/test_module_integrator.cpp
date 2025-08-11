@@ -79,10 +79,10 @@ TEST_CASE("Unified integrator selector dispatches correctly") {
     motion_state_init(&state);
     state.linear.velocity = {1.0f, 0.0f, 0.0f};
 
-    integrator_init_full(&intgr, INTEGRATOR_EULER, 1.0f, &state, nullptr, nullptr, nullptr);
+    integrator_init_full(&intgr, INTEGRATOR_EULER, &state, nullptr, nullptr, nullptr);
 
 
-    integrator_step(&intgr);
+    integrator_step(&intgr, 1.0f);
     state = intgr.state;
 
     CHECK(state.linear.position.x == doctest::Approx(1.0f));
@@ -95,10 +95,9 @@ TEST_CASE("Unified integrator selector dispatches correctly v1") {
     state.linear.velocity = {1.0f, 0.0f, 0.0f};
 
     integrator_init(&intgr);
-    intgr.dt = 1.0f;
     motion_state_assign(&intgr.state, &state);
 
-    integrator_step(&intgr);
+    integrator_step(&intgr, 1.0f);
     state = intgr.state;
 
     CHECK(state.linear.position.x == doctest::Approx(1.0f));
@@ -111,11 +110,11 @@ TEST_CASE("Unified integrator selector dispatches correctly v2") {
     motion_state_init(&state);     // position=(0,0,0), velocity=(0,0,0)
     state.linear.velocity = {1.0f, 0.0f, 0.0f};    
 
-    integrator_init(&intgr);  // default config (RK4, dt=0.016f)
+    integrator_init(&intgr);  // default config (RK4)
     motion_state_assign(&intgr.state, &state);
 
-    integrator_step(&intgr);
+    integrator_step(&intgr, 1.0f);
     state = intgr.state;
 
-    CHECK(state.linear.position.x == doctest::Approx(intgr.dt));
+    CHECK(state.linear.position.x == doctest::Approx(1.0f));
 }

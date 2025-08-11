@@ -4,6 +4,7 @@
 #include <cmath>
 #include <stdexcept>
 
+
 trajectory_t* trajectory_create_full(int capacity) {
     if (capacity <= 0) return nullptr;
 
@@ -11,6 +12,9 @@ trajectory_t* trajectory_create_full(int capacity) {
     traj->samples = new trajectory_sample_t[capacity];
     traj->count = 0;
     traj->capacity = capacity;
+
+    traj->impact_time = 0.0f;
+    traj->impact_pos = {};
 
     return traj;
 }
@@ -25,6 +29,9 @@ void trajectory_free(trajectory_t* traj){
     traj->samples = nullptr;
     traj->count = 0;
     traj->capacity = 0;    
+
+    traj->impact_time = 0.0f;
+    traj->impact_pos = {};    
 }
 
 void trajectory_init(trajectory_t* traj) {
@@ -36,6 +43,9 @@ void trajectory_init(trajectory_t* traj) {
     traj->capacity = 100;
     traj->samples = new trajectory_sample_t[traj->capacity];
     traj->count = 0;
+
+    traj->impact_time = 0.0f;
+    traj->impact_pos = {};    
 }
 
 void trajectory_init_full(trajectory_t* traj, int capacity) {
@@ -46,6 +56,9 @@ void trajectory_init_full(trajectory_t* traj, int capacity) {
     traj->capacity = capacity;
     traj->samples = new trajectory_sample_t[traj->capacity];
     traj->count = 0;
+
+    traj->impact_time = 0.0f;
+    traj->impact_pos = {};    
 }
 
 void trajectory_destroy(trajectory_t* traj){
@@ -62,6 +75,8 @@ void trajectory_assign(trajectory_t* out, const trajectory_t* src) {
         out->capacity = src->capacity;
     }
     out->count = src->count;
+    out->impact_pos = src->impact_pos;
+    out->impact_time = src->impact_time;
     memcpy(out->samples, src->samples,
            sizeof(trajectory_sample_t) * src->count);
 }
@@ -71,6 +86,8 @@ trajectory_t* trajectory_copy(const trajectory_t* src) {
 
     trajectory_t* traj = trajectory_create_full(src->capacity);
     traj->count = src->count;
+    traj->impact_pos = src->impact_pos;
+    traj->impact_time = src->impact_time;    
 
     if (src->count > 0 && src->samples) {
         memcpy(traj->samples, src->samples,
@@ -83,6 +100,9 @@ trajectory_t* trajectory_copy(const trajectory_t* src) {
 void trajectory_clear(trajectory_t* traj) {
     if (!traj) return;
     traj->count = 0;
+
+    traj->impact_time = 0.0f;
+    traj->impact_pos = {};    
     if (traj->samples) {
         memset(traj->samples, 0,
                sizeof(trajectory_sample_t) * traj->capacity);
@@ -147,6 +167,12 @@ char* trajectory_to_string(
         if (n < 0) break;
         offset += static_cast<size_t>(n);
     }
+    char buf[64];
+    n = snprintf(buffer + offset, size - offset,
+        "impact time : %f, impact pos : %s\n", traj->impact_time, 
+        vec3_to_string(&traj->impact_pos, 64, buf));        
+    
+    offset += static_cast<size_t>(n);        
     return buffer;
 }
 
@@ -163,6 +189,11 @@ void trajectory_print(const trajectory_t* traj) {
         printf(" %6.3f   (%.3f, %.3f, %.3f)   (%.3f, %.3f, %.3f)\n",
                s->t, p->x, p->y, p->z, v->x, v->y, v->z);
     }
+
+    char buf[64];
+    printf("impact time : %f, impact pos : %s\n", traj->impact_time, 
+        vec3_to_string(&traj->impact_pos, 64, buf));
+        
     printf("-----------------------------------------------------------\n");
 }
 
@@ -282,4 +313,235 @@ bool trajectory_estimate_acceleration(
         }
     }
     return false;
+}
+
+static inline int clamp_count(int n, int maxc){ return (n < maxc) ? n : maxc; }
+
+int trajectory_export_pos(
+    const trajectory_t* traj,
+    float* out_times, vec3_t* out_positions,
+    int max_count)
+{
+    if (!traj || traj->count <= 0 || max_count <= 0) return 0;
+    const int n = clamp_count(traj->count, max_count);
+    for (int i = 0; i < n; ++i) {
+        if (out_times)      out_times[i]      = traj->samples[i].t;
+        if (out_positions)  out_positions[i]  = traj->samples[i].state.linear.position;
+    }
+    return n;
+}
+
+int trajectory_export_until_impact(
+    const trajectory_t* traj,
+    float* out_times, vec3_t* out_positions,
+    int max_count)
+{
+    if (!traj || traj->count <= 0 || max_count <= 0) return 0;
+
+    float t_cut = traj->impact_time;
+    const bool has_cut = (t_cut > 0.0f);
+
+    int written = 0;
+    for (int i = 0; i < traj->count && written < max_count; ++i) {
+        const float ti = traj->samples[i].t;
+        const vec3_t pi = traj->samples[i].state.linear.position;
+
+        if (!has_cut || ti <= t_cut) {
+            if (out_times)     out_times[written]     = ti;
+            if (out_positions) out_positions[written] = pi;
+            ++written;
+        } else {
+            // cut between samples[i-1] and samples[i]
+            if (i > 0 && written < max_count) {
+                const float t0 = traj->samples[i-1].t;
+                const float t1 = ti;
+                const vec3_t p0 = traj->samples[i-1].state.linear.position;
+                const vec3_t p1 = pi;
+                const float u = (t1 > t0) ? (t_cut - t0) / (t1 - t0) : 0.0f;
+                vec3_t pcut;
+                vec3_lerp(&pcut, &p0, &p1, (u < 0.0f ? 0.0f : (u > 1.0f ? 1.0f : u)));
+                if (out_times)     out_times[written]     = t_cut;
+                if (out_positions) out_positions[written] = pcut;
+                ++written;
+            }
+            break;
+        }
+    }
+    return written;
+}
+
+int trajectory_export_resample_time(
+    const trajectory_t* traj,
+    float dt,
+    float* out_times, vec3_t* out_positions,
+    int max_count)
+{
+    if (!traj || traj->count <= 0 || max_count <= 0) return 0;
+    if (dt <= 0.0f) 
+        return trajectory_export_until_impact(
+            traj, out_times, out_positions, max_count);
+
+    const float t0 = traj->samples[0].t;
+    const float tN_full = traj->samples[traj->count - 1].t;
+    const float tN = (traj->impact_time > 0.0f && traj->impact_time < tN_full)
+                   ? traj->impact_time : tN_full;
+
+    int i = 0; // segment index
+    int written = 0;
+
+    for (float t = t0; t <= tN + 1e-6f && written < max_count; t += dt) {
+        // advance segment that contains t
+        while (i + 1 < traj->count && traj->samples[i+1].t < t) {
+            ++i;
+        }
+
+        // last exact sample or beyond
+        if (i + 1 >= traj->count) {
+            const vec3_t p = traj->samples[traj->count - 1].state.linear.position;
+            if (out_times)     out_times[written]     = tN;
+            if (out_positions) out_positions[written] = p;
+            ++written;
+            break;
+        }
+
+        const float t0s = traj->samples[i].t;
+        const float t1s = traj->samples[i+1].t;
+        const vec3_t p0 = traj->samples[i].state.linear.position;
+        const vec3_t p1 = traj->samples[i+1].state.linear.position;
+
+        float u = (t1s > t0s) ? (t - t0s) / (t1s - t0s) : 0.0f;
+        if (u < 0.0f) u = 0.0f; else if (u > 1.0f) u = 1.0f;
+
+        vec3_t p; vec3_lerp(&p, &p0, &p1, u);
+
+        if (out_times)     out_times[written]     = t;
+        if (out_positions) out_positions[written] = p;
+        ++written;
+    }
+
+    // ensure last cut at impact exactly present
+    if (traj->impact_time > 0.0f 
+        && traj->impact_time < tN_full 
+        && written < max_count) {
+
+        // add impact point exactly
+        float tcut = traj->impact_time;
+        // find segment containing tcut
+        int j = 0;
+        while (j + 1 < traj->count && traj->samples[j+1].t < tcut) ++j;
+        if (j + 1 < traj->count) {
+            const float ta = traj->samples[j].t;
+            const float tb = traj->samples[j+1].t;
+            const vec3_t pa = traj->samples[j].state.linear.position;
+            const vec3_t pb = traj->samples[j+1].state.linear.position;
+            const float u = (tb > ta) ? (tcut - ta) / (tb - ta) : 0.0f;
+            vec3_t pc; vec3_lerp(&pc, &pa, &pb, (u < 0.0f ? 0.0f : (u > 1.0f ? 1.0f : u)));
+            if (out_times)     out_times[written]     = tcut;
+            if (out_positions) out_positions[written] = pc;
+            ++written;
+        }
+    }
+
+    return written;
+}
+
+int trajectory_export_resample_distance(
+    const trajectory_t* traj,
+    float spacing,
+    float* out_times, vec3_t* out_positions,
+    int max_count)
+{
+    if (!traj || traj->count <= 0 || max_count <= 0) return 0;
+    if (spacing <= 0.0f) 
+        return trajectory_export_until_impact(
+            traj, out_times, out_positions, max_count);
+
+    const int N = traj->count;
+    const float tN_full = traj->samples[N - 1].t;
+    const float t_cut = (traj->impact_time > 0.0f && traj->impact_time < tN_full)
+                      ? traj->impact_time : tN_full;
+    // write first point
+    int written = 0;
+    if (out_times)     out_times[written]     = traj->samples[0].t;
+    if (out_positions) out_positions[written] = traj->samples[0].state.linear.position;
+    ++written;
+
+    float carry = 0.0f;
+    vec3_t last_p = traj->samples[0].state.linear.position;
+    float last_t  = traj->samples[0].t;
+
+    for (int i = 1; i < N && written < max_count; ++i) {
+        // stop at cut time if needed
+        if (traj->samples[i].t > t_cut) {
+            // interpolate to exact cut
+            const float t0 = traj->samples[i-1].t;
+            const float t1 = traj->samples[i].t;
+            const vec3_t p0 = traj->samples[i-1].state.linear.position;
+            const vec3_t p1 = traj->samples[i].state.linear.position;
+            const float ucut = (t1 > t0) ? (t_cut - t0) / (t1 - t0) : 0.0f;
+            vec3_t pcut; vec3_lerp(&pcut, &p0, &p1, (ucut < 0.0f ? 0.0f : (ucut > 1.0f ? 1.0f : ucut)));
+
+            // fill remaining spaced points up to cut
+            float seg_len = vec3_distance(&last_p, &pcut);
+            while (written < max_count && carry + seg_len >= spacing) {
+                const float need = spacing - carry;
+                const float u = (seg_len > 0.0f) ? (need / seg_len) : 1.0f;
+                vec3_t q; vec3_lerp(&q, &last_p, &pcut, u);
+                float tq = last_t + (t_cut - last_t) * u;
+                if (out_times)     out_times[written]     = tq;
+                if (out_positions) out_positions[written] = q;
+                ++written;
+                // advance within this partial segment
+                last_p = q;
+                last_t = tq;
+                seg_len = vec3_distance(&last_p, &pcut);
+                carry = 0.0f;
+            }
+
+            // 마지막 지점으로 스냅
+            if (written < max_count) {
+                if (out_times)     out_times[written]     = t_cut;
+                if (out_positions) out_positions[written] = pcut;
+                ++written;
+            }
+            return written;
+        }
+
+        // regular segment i-1 -> i
+        const vec3_t cur_p = traj->samples[i].state.linear.position;
+        const float  cur_t = traj->samples[i].t;
+
+        float seg_len = vec3_distance(&last_p, &cur_p);
+        // 채워 넣을 수 있을 만큼 반복
+        while (written < max_count && carry + seg_len >= spacing) {
+            const float need = spacing - carry;
+            const float u = (seg_len > 0.0f) ? (need / seg_len) : 1.0f;
+
+            vec3_t q; vec3_lerp(&q, &last_p, &cur_p, u);
+            float tq = last_t + (cur_t - last_t) * u;
+
+            if (out_times)     out_times[written]     = tq;
+            if (out_positions) out_positions[written] = q;
+            ++written;
+
+            // 다음 간격 계산 준비
+            last_p = q;
+            last_t = tq;
+            seg_len = vec3_distance(&last_p, &cur_p);
+            carry = 0.0f;
+        }
+
+        // 간격이 남았다면 누적
+        carry += seg_len;
+        last_p = cur_p;
+        last_t = cur_t;
+    }
+
+    // cut이 없고 마지막 점이 아직 아니면 마지막 점 보장
+    if (written < max_count) {
+        if (out_times)     out_times[written]     = last_t;
+        if (out_positions) out_positions[written] = last_p;
+        ++written;
+    }
+    return written;
 }

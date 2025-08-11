@@ -6,6 +6,14 @@
 
 #include "byul_common.h"
 
+// World-scale absolute tolerances (tune in one place)
+#ifndef VEC3_ABS_EPS_LEN
+#define VEC3_ABS_EPS_LEN 1e-6f      // actual length threshold
+#endif
+#ifndef VEC3_ABS_EPS_LEN2
+#define VEC3_ABS_EPS_LEN2 (VEC3_ABS_EPS_LEN * VEC3_ABS_EPS_LEN)  // 1e-12f
+#endif
+
 #ifdef __cplusplus
 extern "C" {
 #endif

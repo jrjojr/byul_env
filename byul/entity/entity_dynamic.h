@@ -224,7 +224,7 @@ BYUL_API void entity_dynamic_calc_state(
 /**
  * @brief Predict position after t seconds (with environment effects).
  *
- * Considers gravity (env->gravity), wind (env->wind), and drag (air resistance)
+ * Considers gravity (env->gravity), wind (env->wind_vel), and drag (air resistance)
  * using p = p0 + v0 * t + 0.5 * a * t^2.
  *
  * @note

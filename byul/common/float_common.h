@@ -18,6 +18,8 @@ extern "C" {
 // CHECK(float_equal(1.00001f, 1.000001f));
 // CHECK_FALSE(float_equal(1.00001f, 1.000020f));
 // CHECK_FALSE(float_equal(1.00001f, 1.000000f));
+// Relative epsilon for float comparisons near magnitude ~1.
+// Do not confuse with absolute zero thresholds.
 #define FLOAT_EPSILON 1e-5f
 
 /**

@@ -54,6 +54,7 @@ add_module(navsys)
 add_module(balix)
 add_module(entity)
 add_module(projectile)
+add_module(ground)
 
 # ─────────────────────────────────────────────
 # 테스트 실행 파일 생성
@@ -76,6 +77,7 @@ target_include_directories(${PROJECT_NAME} PRIVATE
     ${CMAKE_SOURCE_DIR}/byul_tick
     ${CMAKE_SOURCE_DIR}/console
     ${CMAKE_SOURCE_DIR}/navsys
+    ${CMAKE_SOURCE_DIR}/ground
     ${CMAKE_SOURCE_DIR}/balix
     ${CMAKE_SOURCE_DIR}/entity
     ${CMAKE_SOURCE_DIR}/projectile    

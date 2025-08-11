@@ -1,7 +1,8 @@
 #ifndef NUMEQ_SOLVER_H
 #define NUMEQ_SOLVER_H
 
-#include "trajectory.h"
+#include "byul_common.h"
+#include "vec3.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -31,28 +32,88 @@ extern "C" {
 BYUL_API bool numeq_solve_linear(float a, float b, float* out_x);
 
 /**
- * @brief Solve a quadratic equation ax^2 + bx + c = 0 (real roots only).
+ * @brief Solve a quadratic equation a*x^2 + b*x + c = 0 (real roots only).
  *
- * @param a  Coefficient of x^2 (a != 0)
- * @param b  Coefficient of x
- * @param c  Constant term
- * @param[out] out_x1  First root (smallest)
- * @param[out] out_x2  Second root (largest)
+ * Finds the real roots of the quadratic (or linear when |a| is negligible)
+ * and returns them in ascending order. Degenerate and edge cases are handled:
+ * - If |a| < eps, the equation is treated as linear b*x + c = 0.
+ * - If the discriminant is negative, no real roots exist.
+ * - If the discriminant is zero, both outputs receive the same root.
  *
- * @return true if real roots exist, false if discriminant < 0
+ * @param a        Coefficient of x^2
+ * @param b        Coefficient of x
+ * @param c        Constant term
+ * @param[out] out_x1  Smallest root (for linear case, out_x1 = out_x2)
+ * @param[out] out_x2  Largest root
  *
- * @note If a == 0, it is treated as a linear equation bx + c = 0.
+ * @return true if at least one real root exists; false otherwise.
  *
- * Example:
+ * @note
+ * - Roots are ordered so that *out_x1 <= *out_x2.
+ * - Linear fallback occurs when |a| < eps (implementation-defined epsilon).
+ * - This non-stable variant may suffer from cancellation when |b| ~ sqrt(D).
+ *   Prefer numeq_solve_quadratic_stable for high-accuracy timing (e.g., TOI).
+ *
+ * @warning
+ * - Passing NULL pointers for outputs yields false.
+ * - Behavior is undefined for NaN inputs.
+ *
+ * @see numeq_solve_quadratic_stable
+ *
  * @code
  * float x1, x2;
  * if (numeq_solve_quadratic(1.0f, -3.0f, 2.0f, &x1, &x2)) {
- *     // x1 = 1.0, x2 = 2.0
+ *     // x1 == 1.0f, x2 == 2.0f
+ * }
+ * // Linear example: 0*x^2 + 2*x - 8 = 0  => x = 4
+ * if (numeq_solve_quadratic(0.0f, 2.0f, -8.0f, &x1, &x2)) {
+ *     // x1 == x2 == 4.0f
  * }
  * @endcode
  */
 BYUL_API bool numeq_solve_quadratic(
     float a, float b, float c, float* out_x1, float* out_x2);
+
+/**
+ * @brief Solve A*t^2 + B*t + C = 0 using a numerically stable formulation.
+ *
+ * Uses the stable form:
+ *   q  = -0.5 * (B + sign(B) * sqrt(B^2 - 4AC))
+ *   t0 = q / A
+ *   t1 = C / q
+ * which greatly reduces cancellation when |B| ~ sqrt(discriminant).
+ * The roots are returned in ascending order.
+ *
+ * @param A    Quadratic coefficient (must satisfy |A| >= eps)
+ * @param B    Linear coefficient
+ * @param C    Constant term
+ * @param[out] t0  Smallest root
+ * @param[out] t1  Largest root
+ *
+ * @return true if real roots exist and |A| >= eps; false otherwise.
+ *
+ * @note
+ * - This function does not handle the linear case; callers should branch to a
+ *   linear solver when |A| < eps (implementation-defined epsilon).
+ * - Roots are ordered so that *t0 <= *t1.
+ * - Recommended for collision timing and other precision-critical code paths.
+ *
+ * @warning
+ * - Passing NULL pointers for outputs yields false.
+ * - If the discriminant is slightly negative due to floating-point noise,
+ *   consider clamping with a small epsilon before calling this function.
+ *
+ * @see numeq_solve_quadratic
+ *
+ * @code
+ * float r0, r1;
+ * if (numeq_solve_quadratic_stable(1.0f, -3.0f, 2.0f, &r0, &r1)) {
+ *     // r0 == 1.0f, r1 == 2.0f (ordered)
+ * }
+ * @endcode
+ */
+BYUL_API bool numeq_solve_quadratic_stable(
+    float A, float B, float C, float* t0, float* t1);
 
 /**
  * @brief Solve a cubic equation ax^3 + bx^2 + cx + d = 0 (real roots only).
@@ -97,62 +158,6 @@ BYUL_API bool numeq_solve_bisection(numeq_func_f32 func,
                            float a, float b,
                            float tol,
                            float* out_root);
-
-// ---------------------------------------------------------
-// 2. Physics-based ballistic equation solvers
-// ---------------------------------------------------------
-
-/**
- * @brief Solve time t when y(t) = target_y.
- */
-BYUL_API bool numeq_solve_time_for_y(const linear_state_t* state,
-                            float target_y,
-                            float* out_time);
-
-/**
- * @brief Solve time t when |pos(t).xz - target.xz| < epsilon.
- */
-BYUL_API bool numeq_solve_time_for_position(const linear_state_t* state,
-                                   const vec3_t* target_pos,
-                                   float tolerance,
-                                   float max_time,
-                                   float* out_time);
-
-/**
- * @brief Solve velocity needed to reach a given horizontal distance.
- */
-BYUL_API bool numeq_solve_velocity_for_range(float distance,
-                                    float gravity,
-                                    float* out_velocity);
-
-/**
- * @brief Solve apex time and position (when vy(t) == 0).
- */
-BYUL_API bool numeq_solve_apex(const linear_state_t* state,
-                      vec3_t* out_apex_pos,
-                      float* out_apex_time);
-
-/**
- * @brief Solve time when projectile stops (velocity = 0).
- */
-BYUL_API bool numeq_solve_stop_time(const linear_state_t* state,
-                           float tolerance,
-                           float* out_time);
-
-// ---------------------------------------------------------
-// 3. Vector-based root finding (future extension)
-// ---------------------------------------------------------
-
-/**
- * @brief Find t that minimizes |f(t) - target_vec|.
- */
-typedef void (*numeq_vec3_func)(float t, vec3_t* out, void* userdata);
-BYUL_API bool numeq_solve_time_for_vec3(numeq_vec3_func func,
-                               void* userdata,
-                               const vec3_t* target,
-                               float t_min, float t_max,
-                               float tol,
-                               float* out_t);
 
 #ifdef __cplusplus
 }

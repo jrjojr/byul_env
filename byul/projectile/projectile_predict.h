@@ -11,6 +11,7 @@ extern "C" {
 #include "propulsion.h"
 #include "guidance.h"
 #include "environ.h"
+#include "ground.h"
 #include "entity_dynamic.h"
 #include "numeq_filters.h"
 
@@ -30,11 +31,10 @@ typedef struct s_projectile_result {
     // Result data
     float impact_time;        /**< Predicted impact time (seconds) */
     vec3_t impact_pos;        /**< Predicted impact position (world coordinates) */
-    bool valid;               /**< Whether the prediction is valid (true if impact occurs) */
+    bool bool_impacted;               /**< Whether the prediction is bool_impacted (true if impact occurs) */
 
     trajectory_t* trajectory; /**< Predicted trajectory data (dynamically allocated) */
 } projectile_result_t;
-
 
 // ---------------------------------------------------------
 // projectile_result_t Management Functions
@@ -44,7 +44,7 @@ typedef struct s_projectile_result {
  * @brief Creates a default projectile_result_t object.
  *
  * Internally creates a trajectory with a default capacity (100)
- * and initializes impact_time, impact_pos, and valid values.
+ * and initializes impact_time, impact_pos, and bool_impacted values.
  *
  * @return Pointer to the created projectile_result_t (dynamically allocated).
  * @note Must be freed with projectile_result_destroy() after use.
@@ -73,7 +73,7 @@ BYUL_API projectile_result_t* projectile_result_copy(
 /**
  * @brief Resets a projectile_result_t object to its initial state.
  *
- * - Resets impact_time, impact_pos, and valid values.
+ * - Resets impact_time, impact_pos, and bool_impacted values.
  * - Keeps the trajectory but clears its internal data.
  *
  * @param res Pointer to the projectile_result_t to reset (may be NULL).
@@ -129,7 +129,7 @@ BYUL_API char* projectile_result_to_string(
 /**
  * @brief Prints detailed information of a projectile_result_t.
  *
- * - Prints basic data (valid, impact_time, impact_pos).
+ * - Prints basic data (bool_impacted, impact_time, impact_pos).
  * - Calls trajectory_print() if trajectory exists.
  *
  * @param result Pointer to the projectile_result_t to print.
@@ -141,7 +141,7 @@ BYUL_API void projectile_result_print_detailed(
  * @brief Converts detailed information of a projectile_result_t to a string.
  *
  * This function includes all trajectory points in addition to basic data
- * (valid, impact_time, impact_pos). If trajectory has many points,
+ * (bool_impacted, impact_time, impact_pos). If trajectory has many points,
  * the resulting string can be large. Use a sufficiently large buffer
  * (recommended: PROJECTILE_RESULT_STR_BUFSIZE * 100 or more).
  *
@@ -163,7 +163,7 @@ BYUL_API char* projectile_result_to_string_detailed(
  *
  * @param result  Projectile_result_t containing trajectory data (must not be NULL).
  * @param mass    Projectile mass (kg).
- * @return Initial force (Newtons, N). Returns 0.0f if invalid.
+ * @return Initial force (Newtons, N). Returns 0.0f if inbool_impacted.
  */
 BYUL_API float projectile_result_calc_initial_force_scalar(
     const projectile_result_t* result,
@@ -174,137 +174,44 @@ BYUL_API float projectile_result_calc_initial_force_scalar(
 // ---------------------------------------------------------
 
 /**
- * @brief Simulates a projectile trajectory and calculates collision and trajectory data.
+ * @brief Simulates a projectile trajectory 
+ * and calculates collision and trajectory data.
  *
- * This function predicts the trajectory based on the initial state of the projectile (`projectile_t`)
- * and the given environment information, and checks if a target collision occurs.
- * - **Guidance function (`guidance_func`)** can adjust projectile direction in real time.
+ * This function predicts the trajectory based 
+ * on the initial state of the projectile (`projectile_t`)
+ * and the given environment information, 
+ * and checks if a target collision occurs.
+ * - **Guidance function (`guidance_func`)** 
+ * can adjust projectile direction in real time.
  * - **Propulsion (`propulsion_t`)** applies thrust acceleration if provided.
- * - **Environment (`environ_t`)** accounts for gravity, wind, drag, and other forces.
+ * - **Environment (`environ_t`)** accounts for gravity, 
+ * wind, drag, and other forces.
  *
- * @param[out] out          Structure to store trajectory and collision results (must not be NULL).
- * @param[in]  proj         Initial projectile state (position, velocity, mass, etc.).
+ * @param[in]  proj         Initial projectile state 
+ * @param[in]  time_step    Simulation time step (seconds).
+ * (position, velocity, mass, etc.).
  * @param[in]  target       Target dynamic data (NULL if no target).
- * @param[in]  max_time     Maximum simulation time (seconds).
- * @param[in]  dt    Simulation time step (seconds).
- * @param[in]  env          Environment data (NULL if no environmental effects).
- * @param[in]  propulsion   Propulsion data (NULL if no propulsion).
+ * @param[in]  env          Environment data  default : NULL
+ * @param[in]  ground          Ground data  default : NULL
+ * (NULL if no environmental effects).
+ * @param[in]  propulsion   Propulsion data default : NULL
+ * (NULL if no propulsion).
  * @param[in]  guidance_fn  Guidance function pointer (NULL if no guidance).
+ * @param[out] out          Structure to store trajectory 
+ *      and collision results (must not be NULL). 
  *
  * @retval true   Collision occurs (with target or ground).
  * @retval false  No collision (did not hit within max simulation time).
  */
 BYUL_API bool projectile_predict(
-    projectile_result_t* out,
     const projectile_t* proj,
+    float time_step,
     const entity_dynamic_t* target,
-    float max_time,
-    float dt,
     const environ_t* env,
+    const ground_t* ground,
     propulsion_t* propulsion,
-    guidance_func guidance_fn);
-
-/**
- * @brief Projectile trajectory prediction using a Kalman filter.
- *
- * Applies a **3D Kalman filter (`kalman_filter_vec3_t`)** on top of the basic
- * `projectile_predict()` simulation logic to correct position and velocity.
- *
- * - Improves trajectory prediction accuracy in noisy environments (wind, measurement errors).
- * - The Kalman filter's `process_noise` and `measurement_noise`
- *   are initialized to default values but can be customized.
- *
- * @warning
- * **Experimental feature.**
- * This function manually inserts the Kalman filter into the trajectory loop,
- * but in real applications, filtering is recommended to be performed
- * within a dynamic real-time `update()` loop with actual measurements.
- * Use this only for testing and validation purposes.
- *
- * @param[out] out          Structure to store trajectory and collision results.
- * @param[in]  proj         Initial projectile state.
- * @param[in]  target       Target dynamic data.
- * @param[in]  max_time     Maximum simulation time (seconds).
- * @param[in]  dt    Simulation time step (seconds).
- * @param[in]  env          Environment data.
- * @param[in]  propulsion   Propulsion data.
- * @param[in]  guidance_fn  Guidance function pointer.
- *
- * @retval true   Collision occurs.
- * @retval false  No collision.
- */
-BYUL_API bool projectile_predict_with_kalman_filter(
-    projectile_result_t* out,
-    const projectile_t* proj,
-    entity_dynamic_t* target,
-    float max_time,
-    float dt,
-    const environ_t* env,
-    const propulsion_t* propulsion,
-    guidance_func guidance_fn);
-
-/**
- * @brief Projectile trajectory prediction with a generic filter interface (`filter_interface_t`).
- *
- * Performs the same trajectory simulation as `projectile_predict()`,
- * but applies filters like Kalman, EKF, or UKF through **`filter_interface_t`**
- * to correct position and velocity data.
- *
- * - The filter is updated using `filter_if->time_update()` and
- *   `filter_if->measurement_update()`.
- * - The filtered state (`get_state`) is applied to `state.linear` at each step.
- *
- * @warning
- * **Experimental feature.**
- * This function integrates filtering directly into the prediction loop,
- * but in actual applications, filtering should be applied in a dynamic loop
- * with real-time measurement data.  
- * Use this for testing and algorithm comparison purposes only.
- *
- * @param[out] out          Structure to store trajectory and collision results.
- * @param[in]  proj         Initial projectile state.
- * @param[in]  target       Target dynamic data.
- * @param[in]  max_time     Maximum simulation time (seconds).
- * @param[in]  dt    Simulation time step (seconds).
- * @param[in]  env          Environment data.
- * @param[in]  propulsion   Propulsion data.
- * @param[in]  guidance_fn  Guidance function pointer.
- * @param[in]  filter_if    Filter interface (NULL means no filtering).
- *
- * @retval true   Collision occurs.
- * @retval false  No collision.
- */
-BYUL_API bool projectile_predict_with_filter(
-    projectile_result_t* out,
-    const projectile_t* proj,
-    entity_dynamic_t* target,
-    float max_time,
-    float dt,
-    const environ_t* env,
-    const propulsion_t* propulsion,
     guidance_func guidance_fn,
-    const filter_interface_t* filter_if);
-
-BYUL_API bool detect_ground_collision_precise(
-    const vec3_t* pos_prev,
-    const vec3_t* pos_curr,
-    const vec3_t* vel_prev,
-    const vec3_t* accel,
-    float t_prev,
-    float dt,
-    vec3_t* impact_pos,
-    float* impact_time);    
-
-BYUL_API bool detect_entity_collision_precise(
-    const vec3_t* proj_pos_prev,
-    const vec3_t* proj_vel_prev,
-    const vec3_t* proj_accel,
-    const vec3_t* target_pos,
-    float target_radius,
-    float dt,
-    float t_prev,
-    vec3_t* impact_pos,
-    float* impact_time);    
+    projectile_result_t* out);
 
 #ifdef __cplusplus
 }

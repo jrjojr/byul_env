@@ -38,7 +38,7 @@ static float environ_calc_factor(const environ_t* env) {
 void environ_init(environ_t* env) {
     if (!env) return;
     env->gravity = vec3_t{0.0f, -9.81f, 0.0f};
-    vec3_zero(&env->wind);
+    vec3_zero(&env->wind_vel);
     env->air_density = 1.225f;
     env->humidity = 50.0f;
     env->temperature = 20.0f;
@@ -49,7 +49,7 @@ void environ_init(environ_t* env) {
 
 void environ_init_full(environ_t* env,
                            const vec3_t* gravity,
-                           const vec3_t* wind,
+                           const vec3_t* wind_vel,
                            float air_density,
                            float humidity,
                            float temperature,
@@ -59,7 +59,7 @@ void environ_init_full(environ_t* env,
     if (!env) return;
 
     env->gravity = gravity ? *gravity : vec3_t{0.0f, -9.81f, 0.0f};
-    env->wind = wind ? *wind : vec3_t{0.0f, 0.0f, 0.0f};
+    env->wind_vel = wind_vel ? *wind_vel : vec3_t{0.0f, 0.0f, 0.0f};
     env->air_density = air_density;
     env->humidity = humidity;
     env->temperature = temperature;
@@ -73,20 +73,27 @@ void environ_assign(environ_t* out, const environ_t* src) {
     *out = *src;
 }
 
-void environ_adjust_accel( const environ_t* env, vec3_t* accel) {
-    if (!env || !accel) return;
-
-    environ_adjust_accel_gsplit(env, true, accel);
+void environ_apply_wind(
+    environ_t* env, const vec3_t* accel, float dt)
+{
+    if (!env || !accel || dt <= 0.0f) return;
+    vec3_madd(&env->wind_vel, &env->wind_vel, accel, dt);
 }
 
-void environ_adjust_accel_gsplit(
-    const environ_t* env, bool has_gravity, vec3_t* accel)
+void environ_distort_accel( const environ_t* env, vec3_t* accel) {
+    if (!env || !accel) return;
+
+    environ_distort_accel_except_gravity(env, true, accel);
+}
+
+void environ_distort_accel_except_gravity(
+    const environ_t* env, bool include_gravity, vec3_t* accel)
 {
     if (!env || !accel) return;
 
     vec3_t non_gravity = *accel;
 
-    if (has_gravity) {
+    if (include_gravity) {
         vec3_sub(&non_gravity, &non_gravity, &env->gravity);
     }
 
@@ -95,7 +102,7 @@ void environ_adjust_accel_gsplit(
     non_gravity.y *= factor;
     non_gravity.z *= factor;
 
-    if (has_gravity) {
+    if (include_gravity) {
         vec3_add(accel, &non_gravity, &env->gravity);
     } else {
         *accel = non_gravity;
@@ -119,7 +126,7 @@ const vec3_t* environ_calc_gravity(const environ_t* env,
 (void)userdata;
     static vec3_t result;
     result = env ? env->gravity : vec3_t{0.0f, -9.81f, 0.0f};
-    environ_adjust_accel(env, &result);
+    environ_distort_accel(env, &result);
     if (out) { *out = result; return out; }
     return &result;
 }
@@ -130,10 +137,10 @@ const vec3_t* environ_calc_gravity_wind(const environ_t* env,
     (void)userdata;
     static vec3_t result;
     if (env) {
-        result.x = env->gravity.x + env->wind.x;
-        result.y = env->gravity.y + env->wind.y;
-        result.z = env->gravity.z + env->wind.z;
-        environ_adjust_accel(env, &result);
+        result.x = env->gravity.x + env->wind_vel.x;
+        result.y = env->gravity.y + env->wind_vel.y;
+        result.z = env->gravity.z + env->wind_vel.z;
+        environ_distort_accel(env, &result);
     } else {
         result = vec3_t{0.0f, -9.81f, 0.0f};
     }
@@ -178,7 +185,7 @@ const vec3_t* environ_calc_periodic(const environ_t* env,
     environ_periodic_t* pdata = (environ_periodic_t*)userdata;
     if (!pdata) {
         *target = env ? env->gravity : vec3_t{0.0f, -9.81f, 0.0f};
-        environ_adjust_accel(env, target);
+        environ_distort_accel(env, target);
         return target;
     }
 
@@ -189,6 +196,6 @@ const vec3_t* environ_calc_periodic(const environ_t* env,
     target->y = pdata->gravity.y + pdata->gust_amplitude.y * sinf(phase);
     target->z = pdata->base_wind.z + pdata->gust_amplitude.z * sinf(phase);
 
-    environ_adjust_accel(env, target);
+    environ_distort_accel(env, target);
     return target;
 }

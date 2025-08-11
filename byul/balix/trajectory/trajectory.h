@@ -10,6 +10,7 @@
 extern "C" {
 #endif
 
+
 // ---------------------------------------------------------
 // Flight Path Samples (Time + State)
 // ---------------------------------------------------------
@@ -31,6 +32,9 @@ typedef struct s_trajectory {
     trajectory_sample_t* samples; /**< Array of predicted trajectory samples */
     int count;                    /**< Number of valid samples */
     int capacity;                 /**< Allocated sample capacity */
+
+    float impact_time;
+    vec3_t impact_pos;
 } trajectory_t;
 
 // ---------------------------------------------------------
@@ -271,6 +275,44 @@ BYUL_API int trajectory_get_positions(
  */
 BYUL_API int trajectory_get_speeds(
     const trajectory_t* traj, float* out_list, int max);
+
+/**
+ * @brief Export all (t, pos) pairs. Returns count written.
+ * out_times or out_positions는 NULL 가능(둘 중 하나만 받아도 됨).
+ */
+BYUL_API int trajectory_export_pos(
+    const trajectory_t* traj,
+    float* out_times, vec3_t* out_positions,
+    int max_count);
+
+/**
+ * @brief Resample by fixed time step. t0..tN 구간을 dt 간격으로 보간.
+ * impact_time가 유효하면 그 지점까지만 내보냄.
+ */
+BYUL_API int trajectory_export_resample_time(
+    const trajectory_t* traj,
+    float dt,
+    float* out_times, vec3_t* out_positions,
+    int max_count);
+
+/**
+ * @brief Resample by travel distance. 누적 거리 spacing마다 위치를 선형 보간.
+ * 첫 점과 마지막 점(또는 임팩트 시점)은 항상 포함.
+ */
+BYUL_API int trajectory_export_resample_distance(
+    const trajectory_t* traj,
+    float spacing,
+    float* out_times, vec3_t* out_positions,
+    int max_count);
+
+/**
+ * @brief 임팩트 이전 구간만 잘라서 내보내기. 임팩트가 없으면 전체.
+ */
+BYUL_API int trajectory_export_until_impact(
+    const trajectory_t* traj,
+    float* out_times, vec3_t* out_positions,
+    int max_count);
+
 
 #ifdef __cplusplus
 }

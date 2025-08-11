@@ -86,7 +86,7 @@ float numeq_model_motion_drag_scale(
     if (!state || !env) return 1.0f;
 
     vec3_t rel_vel;
-    vec3_sub(&rel_vel, &state->linear.velocity, &env->wind);
+    vec3_sub(&rel_vel, &state->linear.velocity, &env->wind_vel);
 
     float v_sq = vec3_length_sq(&rel_vel);
     float w_sq = vec3_length_sq(&state->angular.angular_velocity);

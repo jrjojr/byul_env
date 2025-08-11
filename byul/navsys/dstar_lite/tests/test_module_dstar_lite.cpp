@@ -660,7 +660,7 @@ TEST_CASE("test_dstar_lite_find_dynamic") {
         run_find_loop((void*)dsl);
     });    
 
-    coord_t coord_i;
+    coord_t coord_i = {};
     coord_list_t* changed_coords = NULL;
     for (int i = 0; i < 50; i++) {
 

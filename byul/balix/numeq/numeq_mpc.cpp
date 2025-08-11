@@ -313,7 +313,7 @@ bool numeq_mpc_solve(
                                     numeq_model_motion_accel(&sim_state,
                                         env, body, dt, &external_accel);
                                 } else if (env) {
-                                    environ_adjust_accel_gsplit(env, true, &external_accel);
+                                    environ_distort_accel_except_gravity(env, true, &external_accel);
                                 }
 
                                 vec3_t total_accel;
@@ -359,7 +359,7 @@ bool numeq_mpc_solve(
                     env, body, dt, &external_accel);
 
             } else if (env) {
-                environ_adjust_accel_gsplit(env, true, &external_accel);
+                environ_distort_accel_except_gravity(env, true, &external_accel);
             }
 
             vec3_t total_accel;
@@ -442,7 +442,7 @@ bool numeq_mpc_solve_fast(
                                         env, body, dt, &external_accel);
 
                                 } else if (env) {
-                                    environ_adjust_accel_gsplit(env, true, &external_accel);
+                                    environ_distort_accel_except_gravity(env, true, &external_accel);
                                 }
 
                                 vec3_t total_accel;
@@ -489,7 +489,7 @@ bool numeq_mpc_solve_fast(
                     env, body, dt, &external_accel);
 
             } else if (env) {
-                environ_adjust_accel_gsplit(env, true, &external_accel);
+                environ_distort_accel_except_gravity(env, true, &external_accel);
             }
 
             vec3_t total_accel;
@@ -536,7 +536,7 @@ static float evaluate_cost(
                 env, body, dt, &external_accel);
 
         } else if (env) {
-            environ_adjust_accel_gsplit(env, true, &external_accel);
+            environ_distort_accel_except_gravity(env, true, &external_accel);
         }
 
         vec3_t total_accel;
@@ -648,7 +648,7 @@ bool numeq_mpc_solve_coarse2fine(
                     env, body, dt, &external_accel);
 
             } else if (env) {
-                environ_adjust_accel_gsplit(env, true, &external_accel);
+                environ_distort_accel_except_gravity(env, true, &external_accel);
             }
 
             vec3_t total_accel;

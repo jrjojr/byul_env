@@ -50,61 +50,8 @@ extern "C" {
 #include "vec3.h"
 #include "entity_dynamic.h"
 #include "environ.h"
-
-/**
-* @brief High-speed strategic projectile simulation settings
-*
-* This configuration defines the base resolution for projectile trajectory simulation.
-* It supports a wide range of speeds, from Mach 3 (supersonic missiles)
-* up to Mach 25 (strategic ICBMs).
-*
-* - Target distance: 99999.0 meters
-* - Total simulation time: 100.0 seconds
-* - Sample count: 2048 (dt ~= 0.0488 seconds)
-*
-* @section VelocityReference Speed Reference
-* - Average speed: 999.99 m/s
-* - Speed in km/h: approximately 3600 km/h
-* - In terms of Mach: Mach 2.92 (based on sea-level standard of 343 m/s)
-*
-* @section VelocityGrades Speed Grades
-* - Mach 3 or higher: High-speed missile class
-* - Mach 5 or higher: Hypersonic missile (e.g., DF-17, HGV)
-* - Mach 20 or higher: Strategic ICBM class (e.g., Trident II, Avangard)
-*
-* @section ExtendedSimulations Examples of Extended Configurations
-* - For Mach 5:   60 sec / 2048 samples / dt ~= 0.0293 sec
-* - For Mach 20:  15 sec / 3000 samples / dt ~= 0.0050 sec
-* - For Mach 25:  12 sec / 4096 samples / dt ~= 0.00293 sec
-*
-* @note The faster the object, the shorter the simulation time
-*       and the higher the number of samples required
-*       for precise trajectory resolution.
-*
-* @section VisualPerception Visual Perception in Byul's World
-* In the context of Byul's World, the most natural and comfortable speed
-* for human perception is around 3.6 to 4.0 km/h, which equals 1.0 m/s.
-*
-* @subsection VisualScales Monitor Resolution & Pixel Mapping
-* - 10 px = 1 m (1 px = 10 cm) -> 1.0 m/s = 10 px/sec
-* - 100 px = 1 m (1 px = 1 cm) -> 1.0 m/s = 100 px/sec
-* - 1000 px = 1 m (1 px = 1 mm) -> 1.0 m/s = 1000 px/sec
-*
-* @subsection PracticalView Realistic Viewing Speed
-* - On most monitors (e.g., 1920x1080), 50 ~ 100 px/sec is the ideal speed
-*   for smooth and visible movement.
-* - Therefore, "1.0 m/s (3.6 km/h)" equals about 100 px/sec with
-*   100 px/m resolution and feels like natural walking speed.
-*/
-#define MAX_SAMPLE_COUNT     2048
-#define MIN_SIM_TIME         1.0f
-#define MAX_SIM_TIME         100.0f    // 100 seconds
-#define DELTA_TIME           (MAX_SIM_TIME / MAX_SAMPLE_COUNT)   // ~= 0.048828125 seconds
-
-     // #define XFORM_MAX_DISTANCE   99999.0f   // Target prediction distance
-#define XFORM_MAX_DISTANCE   XFORM_MAX_POS  // Target prediction distance
-#define MIN_DELTA_TIME       0.002f     // Highest precision (500 Hz)
-#define MAX_DELTA_TIME       0.1f       // Lowest precision (10 Hz)
+#include "projectile_tick.h"
+#include "ground.h"
 
 // ---------------------------------------------------------
 // Forward Declarations
@@ -138,6 +85,7 @@ typedef struct s_patriot {
     void* guidance_userdata;       ///< Entity target
 } patriot_t;
 
+
 // ---------------------------------------------------------
 // General Projectile
 // ---------------------------------------------------------
@@ -146,6 +94,7 @@ BYUL_API bool projectile_launch(
     const vec3_t* dir,
 	float initial_force_scalar,
     const environ_t* env,
+    const ground_t* ground,
     projectile_result_t* out
 );
 
@@ -164,6 +113,7 @@ BYUL_API bool shell_projectile_launch(
     const vec3_t* dir,
     float initial_force_scalar,
     const environ_t* env,
+    const ground_t* ground,    
     projectile_result_t* out
 );
 
@@ -181,6 +131,7 @@ BYUL_API bool rocket_launch(
     const vec3_t* target,
     float initial_force_scalar,
     const environ_t* env,
+    const ground_t* ground,
     projectile_result_t* out
 );
 
@@ -198,6 +149,7 @@ BYUL_API bool missile_launch(
     const vec3_t* target,
     float initial_force_scalar,
     const environ_t* env,
+    const ground_t* ground,    
     projectile_result_t* out
 );
 
@@ -215,6 +167,7 @@ BYUL_API bool patriot_launch(
     const entity_dynamic_t* target,
     float initial_force_scalar,
     const environ_t* env,
+    const ground_t* ground,    
     projectile_result_t* out
 );
 
@@ -226,7 +179,7 @@ BYUL_API bool patriot_launch(
  * Prints damage on collision.
  */
 BYUL_API void shell_projectile_hit_cb(
-    const void* projectile, void* userdata);
+    const projectile_t* projectile, void* userdata);
 
 #ifdef __cplusplus
 }

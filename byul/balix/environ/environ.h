@@ -37,12 +37,12 @@ typedef const vec3_t* (*environ_func)(
  *
  * This structure defines external environmental factors considered during trajectory prediction 
  * for projectiles or entities.
- * - Stores **gravity**, **wind**, **air density**, etc.
+ * - Stores **gravity**, **wind_vel**, **air density**, etc.
  * - Uses `environ_func` to calculate dynamic or user-defined environmental acceleration.
  */
 typedef struct s_environ {
     vec3_t gravity;        /**< Gravitational acceleration (m/s²), default {0, -9.81, 0}. */
-    vec3_t wind;           /**< Wind acceleration (m/s²). */
+    vec3_t wind_vel;           /**< Wind velocity (m/s). */
     float air_density;     /**< Air density (kg/m³), default 1.225. */
     float humidity;        /**< Humidity [%]. */
     float temperature;     /**< Temperature [°C]. */
@@ -76,7 +76,7 @@ BYUL_API void environ_init(environ_t* env);
  *
  * @param[out] env        Environment structure to initialize.
  * @param[in] gravity     Gravity vector (NULL to use default).
- * @param[in] wind        Wind vector (NULL to use default).
+ * @param[in] wind_vel        Wind vector (NULL to use default).
  * @param[in] air_density Air density (kg/m³).
  * @param[in] humidity    Humidity [%].
  * @param[in] temperature Temperature [°C].
@@ -86,7 +86,7 @@ BYUL_API void environ_init(environ_t* env);
  */
 BYUL_API void environ_init_full(environ_t* env,
                                     const vec3_t* gravity,
-                                    const vec3_t* wind,
+                                    const vec3_t* wind_vel,
                                     float air_density,
                                     float humidity,
                                     float temperature,
@@ -102,45 +102,90 @@ BYUL_API void environ_init_full(environ_t* env,
 BYUL_API void environ_assign(environ_t* out, 
                                  const environ_t* src);
 
-// ---------------------------------------------------------
-// External force adjustments
-// ---------------------------------------------------------
-/**
- * @brief Apply consistent environmental adjustments to the given acceleration vector.
- *
- * The input acceleration (accel) may or may not include gravity. Regardless, 
- * environmental factors like drag, wind, humidity, temperature, and pressure 
- * are applied uniformly.
- *
- * @param[in]    env    Environment data (wind, humidity, temperature, etc.).
- * @param[inout] accel  Acceleration vector to adjust (gravity inclusion is ignored).
- */
-BYUL_API void environ_adjust_accel(
-    const environ_t* env, vec3_t* accel);
+// 환경에 바람을 추가한다 비동기로 사용자가 추가하던지 일정 루틴에 따라 바람이 분다던지
+/**< Wind acceleration (m/s^2). */
+BYUL_API void environ_apply_wind(
+    environ_t* env, const vec3_t* accel, float dt);
 
 /**
- * @brief Separate gravity from the acceleration vector, apply environmental adjustments to 
- *        external forces only, and then optionally reapply gravity.
+ * @brief Distort the acceleration vector by environmental effects 
+ * (uniformly, without separating gravity).
  *
- * The function supports both cases where the input acceleration vector includes gravity or not, 
- * based on the `has_gravity` flag.
+ * The function applies the environment's distortion model 
+ * (e.g., drag, cross-wind bias, density/humidity
+ * attenuation, temperature/pressure scaling) 
+ * directly to the input acceleration vector as-is.
+ * It does NOT attempt to separate or preserve gravity: 
+ * if gravity is mixed into @p accel, it is distorted
+ * together with the rest of the vector.
+ *
+ * Typical intent:
+ * // example: magnitude reduced, cross-wind added
+ *   accel = (100, 0, 0)  -->  distort -->  (80, -9.8, 10)   
+ *
+ * @param[in]    env    Environment parameters 
+ * (wind, density/humidity, temperature, pressure, gravity, etc.).
+ *                      Note: env->gravity is NOT separated in this API; 
+ * it may or may not influence the model
+ *                      depending on your distortion implementation, 
+ * but no gravity split is performed here.
+ * @param[inout] accel  Acceleration to distort. 
+ * On return, contains the distorted acceleration.
+ *
+ * @warning Use environ_distort_accel_except_gravity() 
+ * if you need gravity to remain physically intact
+ *          (i.e., only external forces are distorted).
+ */
+BYUL_API void environ_distort_accel(const environ_t* env, vec3_t* accel);
+
+/**
+ * @brief Distort only the external-force component of acceleration; 
+ * never distort gravity.
+ *
+ * This function optionally splits gravity from the input, 
+ * applies environmental distortion ONLY to the
+ * external part, and then decides whether to include gravity 
+ * in the output based on @p include_gravity.
+ *
+ * Definitions:
+ *   Let g = env->gravity, D(.) = environment distortion operator (
+ * drag, wind, humidity, etc.).
  *
  * Workflow:
- * - has_gravity = true:
- *    1) Subtract env->gravity from accel to extract external forces.
- *    2) Apply environmental adjustments (factor) to the external forces.
- *    3) Re-add env->gravity after adjustment.
- * - has_gravity = false:
- *    1) Treat accel as external forces.
- *    2) Apply environmental adjustments (factor).
- *    3) Do not add gravity.
+ *   if (include_gravity == true)
+ *     Input is assumed to include gravity:           a_in  = a_ext + g
+ *     External forces are distorted only:            a_out = D(a_ext) + g
+ *   else
+ *     Input is assumed external-only (no gravity):   a_in  = a_ext
+ *     Output excludes gravity by design:             a_out = D(a_ext)
  *
- * @param[in]    env            Environment data (gravity, wind, etc.).
- * @param[in]    has_gravity    true if accel includes gravity, false if it only has external forces.
- * @param[inout] accel          Acceleration vector to adjust.
+ * Examples (g = (0, -9.8, 0)):
+ *   include_gravity = true:
+ *     accel = (100, -9.8, 0)  ->  split -> a_ext=(100,0,0)  
+ * ->  D -> (80,0,10)  -> re-add g -> (80, -9.8, 10)
+ *   include_gravity = false:
+ *     accel = (100, 0, 0)     ->  treat as a_ext           
+ * ->  D -> (80,0,10)   -> no gravity in output
+ *
+ * @param[in]    env          Environment parameters 
+ * (gravity, wind, density/humidity, temperature, pressure).
+ * @param[in]    include_gravity  true  = input @p accel includes gravity 
+ * and the output must include gravity;
+ *                            false = input is external-only 
+ * and the output must exclude gravity.
+ * @param[inout] accel        On input, the raw acceleration 
+ * as defined by @p include_gravity.
+ *     On return, the distorted result per the policy above.
+ *
+ * @note This API guarantees that gravity is never distorted. 
+ * Only the external component is passed through D(.).
+ * @warning If @p include_gravity does not reflect 
+ * the actual composition of @p accel, the result will be inconsistent.
+ *          Ensure the flag matches your integrator's convention.
  */
-BYUL_API void environ_adjust_accel_gsplit(
-    const environ_t* env, bool has_gravity, vec3_t* accel);
+BYUL_API void environ_distort_accel_except_gravity(
+    const environ_t* env, bool include_gravity, vec3_t* accel);
+
 
 // ---------------------------------------------------------
 // Default environment functions

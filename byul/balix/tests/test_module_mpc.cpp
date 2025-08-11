@@ -120,7 +120,7 @@ static float run_mpc_test(
     environ_t env;
     environ_init(&env);
     env.gravity = {0.0f, -9.8f, 0.0f};
-    env.wind = {0.0f, 0.0f, 0.0f};
+    env.wind_vel = {0.0f, 0.0f, 0.0f};
 
     bodyprops_t body;
     bodyprops_init(&body);

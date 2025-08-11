@@ -3,6 +3,7 @@
 
 #include "vec3.h"
 #include "environ.h"
+#include "ground.h"
 
 TEST_CASE("Shell projectile basic initialization") {
     shell_projectile_t shell;
@@ -21,17 +22,20 @@ TEST_CASE("Shell projectile basic initialization") {
 }
 
 TEST_CASE("Shell projectile launch simulation") {
-    shell_projectile_t shell;
+    shell_projectile_t shell= {};
     shell_projectile_init_full(&shell, 1.0f, 10.0f);
 
     environ_t env;
     environ_init(&env);
 
+    ground_t ground;
+    ground_init(&ground);
+
     projectile_result_t * result = projectile_result_create();
 
     vec3_t target = {10.0f, 0.0f, 0.0f};
     bool hit = shell_projectile_launch(
-        &shell, &target, 30.0f, &env, result);
+        &shell, &target, 30.0f, &env, &ground, result);
 
     projectile_result_print_detailed(result);
     CHECK(result->trajectory->count > 0);
@@ -57,10 +61,14 @@ TEST_CASE("Missile initialization and launch") {
     environ_t env;
     environ_init(&env);
 
+    ground_t ground;
+    ground_init(&ground);
+
     vec3_t target = {15.0f, 0.0f, 0.0f};
 
     projectile_result_t * result = projectile_result_create();
-    bool launched = missile_launch(&missile, &target, 30.0f, &env, result);
+    bool launched = missile_launch(&missile, &target, 30.0f, 
+        &env, &ground, result);
 
     projectile_result_print_detailed(result);
     CHECK(result->trajectory->count > 0);
@@ -78,13 +86,17 @@ TEST_CASE("Patriot initialization and launch") {
     environ_t env;
     environ_init(&env);
 
+    ground_t ground;
+    ground_init(&ground);
+
     entity_dynamic_t dummy_target;
     entity_dynamic_init(&dummy_target);
     dummy_target.xf.pos = {30.0f, 0.0f, 0.0f};
 
     projectile_result_t * result = projectile_result_create();
     
-    bool launched = patriot_launch(&patriot, &dummy_target, 40.0f, &env, result);
+    bool launched = patriot_launch(&patriot, &dummy_target, 40.0f, 
+        &env, &ground, result);
 
     projectile_result_print_detailed(result);
     CHECK(result->trajectory->count > 0);
@@ -101,7 +113,7 @@ TEST_CASE("shell_projectile_update") {
     proj.proj.base.base.lifetime = 0.5f;
 
     int userdata_val = 0;
-    proj.proj.on_hit = [](const void* p, void* ud) {
+    proj.proj.on_hit = [](const projectile_t* p, void* ud) {
         (void)p;
         int* val = static_cast<int*>(ud);
         *val = 999;
@@ -121,7 +133,7 @@ TEST_CASE("shell_projectile_default_hit_cb") {
     shell_projectile_t proj;
     shell_projectile_init(&proj);
 
-    shell_projectile_hit_cb(&proj, nullptr);
+    shell_projectile_hit_cb(&proj.proj, &proj.explosion_radius);
     CHECK(true);
 }
 
@@ -135,3 +147,4 @@ TEST_CASE("shell_projectile_update on_hit") {
 
     projectile_update(&proj.proj, 0.7f);
 }
+

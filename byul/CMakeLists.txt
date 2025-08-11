@@ -54,6 +54,7 @@ add_subdirectory(entity)
 add_subdirectory(projectile)
 add_subdirectory(gpu_comp_tester)
 add_subdirectory(byul_tick)
+add_subdirectory(ground)
 
 set(${PROJECT_NAME}_SOURCES 
     ${CMAKE_CURRENT_SOURCE_DIR}/byul.cpp
@@ -65,6 +66,7 @@ set(${PROJECT_NAME}_SOURCES
     ${balix_SOURCES}
     ${entity_SOURCES}
     ${projectile_SOURCES}
+    ${ground_SOURCES}
 
 
 CACHE INTERNAL "${PROJECT_NAME} source files"  FORCE
@@ -81,6 +83,7 @@ set(${PROJECT_NAME}_HEADERS
     ${balix_HEADERS}
     ${entity_HEADERS}
     ${projectile_HEADERS}
+    ${ground_HEADERS}
 
 CACHE INTERNAL "${PROJECT_NAME} header files"  FORCE
 )
@@ -112,6 +115,9 @@ extract_header_dirs(projectile_HEADERS  PROJ_HDR_DIRS)
 target_include_directories(${PROJECT_NAME} PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}
     ${CMAKE_SOURCE_DIR}
+
+    ${CMAKE_SOURCE_DIR}/ground
+    
     ${EXTERNAL_DIR}
 
     ${CMAKE_SOURCE_DIR}/byul_tick

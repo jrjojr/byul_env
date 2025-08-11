@@ -62,6 +62,7 @@ target_include_directories(${PROJECT_NAME} PRIVATE
     ${CMAKE_SOURCE_DIR}
 
     ${CMAKE_SOURCE_DIR}/byul_tick
+    ${CMAKE_SOURCE_DIR}/ground
 
     ${CMAKE_SOURCE_DIR}/navsys/coord
 
@@ -79,6 +80,8 @@ target_include_directories(${PROJECT_NAME} PRIVATE
     ${CMAKE_SOURCE_DIR}/balix/environ
 
     ${CMAKE_SOURCE_DIR}/balix/trajectory
+
+    ${CMAKE_SOURCE_DIR}/balix/collision    
     
     ${CMAKE_SOURCE_DIR}/projectile
 

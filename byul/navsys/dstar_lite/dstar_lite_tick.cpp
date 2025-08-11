@@ -216,6 +216,6 @@ void dstar_lite_tick_update(dstar_lite_tick_t* dst, float dt) {
 
 void dstar_lite_tick_complete(dstar_lite_tick_t* dst, tick_t* tk) {
     if (!dst || !tk) return;
-    tick_detach(tk, dstar_lite_tick_proxy, dst);
+    tick_request_detach(tk, dstar_lite_tick_proxy, dst);
     dst->ticked = false;
 }

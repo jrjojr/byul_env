@@ -114,7 +114,7 @@ TEST_CASE("projectile_predict - ground collision") {
         result, &proj, &entdyn, 500.0f, 1.0f, &env, nullptr, guidance_none);
 
     CHECK(hit == true);
-    CHECK(result->valid == true);
+    CHECK(result->bool_impacted == true);
     CHECK(result->impact_time > 0.0f);
     CHECK(result->impact_pos.y == doctest::Approx(0.0f).epsilon(1.0f));
 

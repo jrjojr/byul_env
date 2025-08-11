@@ -37,7 +37,7 @@ void numeq_model_drag_accel(const linear_state_t* state,
     if (!state || !body || !out_drag_accel) return;
 
     vec3_t rel_vel = state->velocity;
-    if (env) vec3_sub(&rel_vel, &state->velocity, &env->wind);
+    if (env) vec3_sub(&rel_vel, &state->velocity, &env->wind_vel);
 
     float air_density = env ? env->air_density : 1.225f;
     compute_drag_accel(&rel_vel, body, air_density, out_drag_accel);
@@ -60,7 +60,7 @@ static inline void numeq_model_accel_internal(
     numeq_model_drag_accel(&state, env, body, &drag_accel);
     vec3_add(out_accel, out_accel, &drag_accel);
 
-    environ_adjust_accel(env, out_accel);
+    environ_distort_accel(env, out_accel);
 }
 
 static inline void numeq_model_accel_except_gravity_internal(
@@ -80,7 +80,7 @@ static inline void numeq_model_accel_except_gravity_internal(
     numeq_model_drag_accel(&state, env, body, &drag_accel);
     vec3_add(out_accel, out_accel, &drag_accel);
 
-    environ_adjust_accel_gsplit(env, true, out_accel);
+    environ_distort_accel_except_gravity(env, true, out_accel);
 }
 
 void numeq_model_accel(
@@ -207,14 +207,13 @@ void numeq_model_predict_rk4(float time,
 
     integrator_t intgr = {};
     integrator_init_full(&intgr, INTEGRATOR_RK4_ENV,
-                                        time / (float)steps,  // dt,
                                         &current,
                                         nullptr,
                                         env, 
                                         body);
-    
+    float dt = time / (float)steps;
     for (int i = 0; i < steps; ++i) {
-        integrator_step(&intgr);
+        integrator_step(&intgr, dt);
     }
 
     current = intgr.state;

@@ -64,6 +64,17 @@ BYUL_API int tick_detach(tick_t* tick, tick_func func, void* context);
  */
 BYUL_API int tick_list_attached(tick_t* tick, tick_entry_t* out, int max_count);
 
+/**
+ * @brief Request to detach a tick entry without removing it immediately.
+ * The actual removal will happen during the next tick_update.
+ *
+ * @param tick Pointer to the tick object.
+ * @param func Function pointer to detach.
+ * @param context Context pointer to match.
+ * @return 0 if request added, -1 if invalid, -2 if already requested.
+ */
+BYUL_API int tick_request_detach(tick_t* tick, tick_func func, void* context);
+
 #ifdef __cplusplus
 }
 #endif

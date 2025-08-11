@@ -19,8 +19,8 @@ typedef struct s_projectile projectile_t;
  * @param proj      The projectile that collided
  * @param userdata  User-defined data
  */
-// typedef void (*projectile_hit_cb)(const projectile_t* proj, void* userdata);
-typedef void (*projectile_hit_cb)(const void* projectile, void* userdata);
+typedef void (*projectile_hit_cb)(const projectile_t* proj, void* userdata);
+// typedef void (*projectile_hit_cb)(const void* projectile, void* userdata);
 
 
 /**
@@ -246,7 +246,24 @@ BYUL_API void projectile_update(projectile_t* proj, float dt);
  * Prints the damage on collision.
  */
 BYUL_API void projectile_default_hit_cb(
-    const void* projectile, void* userdata);
+    const projectile_t* projectile, void* userdata);
+
+/**
+ * @brief Default expiration callback
+ *
+ * Called when a projectile reaches the end of its lifetime without a collision.
+ * Typical behavior: trigger detonation, spawn VFX/SFX, apply radial damage,
+ * and mark the projectile as finished.
+ *
+ * Notes:
+ * - Should be invoked exactly once per projectile lifetime.
+ * - Must not fire if a hit already consumed the projectile (guard with state).
+ *
+ * @param projectile  Read-only pointer to the projectile data.
+ * @param userdata    Opaque user data passed at registration time.
+ */
+BYUL_API void projectile_default_expire_cb(
+    const projectile_t* projectile, void* userdata);
 
 /**
  * @struct launch_param_t

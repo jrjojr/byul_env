@@ -37,7 +37,7 @@ bool float_equal_tol_all(
 }
 
 bool float_zero(float x) {
-    return std::fabs(x) <= FLOAT_EPSILON;
+    return std::fabs(x) <= FLOAT_EPSILON_TINY;
 }
 
 float float_safe_div(float a, float b, float fallback) {

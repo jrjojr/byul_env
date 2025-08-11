@@ -14,6 +14,8 @@ set(${PROJECT_NAME}_SOURCES
 
     ${CMAKE_CURRENT_SOURCE_DIR}/geom.cpp
 
+    ${CMAKE_CURRENT_SOURCE_DIR}/plane.cpp
+
     ${CMAKE_CURRENT_SOURCE_DIR}/numal.cpp
 
     ${CMAKE_CURRENT_SOURCE_DIR}/quat.cpp
@@ -31,6 +33,8 @@ set(${PROJECT_NAME}_HEADERS
     ${CMAKE_CURRENT_SOURCE_DIR}/dualquat.hpp
 
     ${CMAKE_CURRENT_SOURCE_DIR}/geom.h
+
+    ${CMAKE_CURRENT_SOURCE_DIR}/plane.h
 
     ${CMAKE_CURRENT_SOURCE_DIR}/numal.h
 

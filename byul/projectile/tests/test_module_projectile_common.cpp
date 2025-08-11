@@ -26,7 +26,7 @@ TEST_CASE("projectile_init_full") {
     base_dyn.base.id = 77;
     base_dyn.velocity = {1.0f, 2.0f, 3.0f};
 
-    auto on_hit_test = [](const void* p, void* ud) {
+    auto on_hit_test = [](const projectile_t* p, void* ud) {
         (void)p;
         int* val = static_cast<int*>(ud);
         *val = 123;
@@ -64,7 +64,7 @@ TEST_CASE("projectile_update") {
     proj.base.base.lifetime = 0.5f;
 
     int userdata_val = 0;
-    proj.on_hit = [](const void* p, void* ud) {
+    proj.on_hit = [](const projectile_t* p, void* ud) {
         (void)p;
         int* val = static_cast<int*>(ud);
         *val = 999;
