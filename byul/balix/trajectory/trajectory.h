@@ -277,8 +277,8 @@ BYUL_API int trajectory_get_speeds(
     const trajectory_t* traj, float* out_list, int max);
 
 /**
- * @brief Export all (t, pos) pairs. Returns count written.
- * out_times or out_positions는 NULL 가능(둘 중 하나만 받아도 됨).
+ * @brief Export all (t, pos) pairs. Returns the number of pairs written.
+ * @note out_times or out_positions can be NULL (only one of them is required).
  */
 BYUL_API int trajectory_export_pos(
     const trajectory_t* traj,
@@ -286,8 +286,8 @@ BYUL_API int trajectory_export_pos(
     int max_count);
 
 /**
- * @brief Resample by fixed time step. t0..tN 구간을 dt 간격으로 보간.
- * impact_time가 유효하면 그 지점까지만 내보냄.
+ * @brief Resample using a fixed time step. Interpolates the range t0..tN at intervals of dt.
+ * @note If impact_time is valid, output is limited up to the impact point.
  */
 BYUL_API int trajectory_export_resample_time(
     const trajectory_t* traj,
@@ -296,8 +296,8 @@ BYUL_API int trajectory_export_resample_time(
     int max_count);
 
 /**
- * @brief Resample by travel distance. 누적 거리 spacing마다 위치를 선형 보간.
- * 첫 점과 마지막 점(또는 임팩트 시점)은 항상 포함.
+ * @brief Resample using travel distance. Performs linear interpolation every 'spacing' units of accumulated distance.
+ * @note The first and last point (or the impact point) is always included.
  */
 BYUL_API int trajectory_export_resample_distance(
     const trajectory_t* traj,
@@ -306,13 +306,12 @@ BYUL_API int trajectory_export_resample_distance(
     int max_count);
 
 /**
- * @brief 임팩트 이전 구간만 잘라서 내보내기. 임팩트가 없으면 전체.
+ * @brief Export only the segment before impact. If there is no impact, exports the entire trajectory.
  */
 BYUL_API int trajectory_export_until_impact(
     const trajectory_t* traj,
     float* out_times, vec3_t* out_positions,
     int max_count);
-
 
 #ifdef __cplusplus
 }

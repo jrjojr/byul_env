@@ -396,7 +396,7 @@ static bool ground_raycast_uniform(
     float denom = vec3_dot(&n, dir);
     const float eps = 1e-6f;
     if (fabsf(denom) <= eps) {
-        // 평행: 이미 평면 위(sd ~ 0)이면 t=0 히트로 취급할지 정책 결정
+		// 3a) ray is parallel to plane
         if (fabsf(sd) <= eps) {
             if (out_t) *out_t = 0.0f;
             if (out_point) *out_point = *origin;

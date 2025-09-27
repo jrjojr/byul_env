@@ -83,7 +83,7 @@ typedef struct s_ground {
 /* Lifecycle                                                          */
 /* ------------------------------------------------------------------ */
 
-// 기본 유니폼 그라운드
+// normal (0, 1,0) plane at y=0
 BYUL_API void ground_init(ground_t* g);
 
 /**

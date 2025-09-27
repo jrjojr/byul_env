@@ -41,11 +41,11 @@ typedef const vec3_t* (*environ_func)(
  * - Uses `environ_func` to calculate dynamic or user-defined environmental acceleration.
  */
 typedef struct s_environ {
-    vec3_t gravity;        /**< Gravitational acceleration (m/s²), default {0, -9.81, 0}. */
+    vec3_t gravity;        /**< Gravitational acceleration (m/s^2), default {0, -9.81, 0}. */
     vec3_t wind_vel;           /**< Wind velocity (m/s). */
-    float air_density;     /**< Air density (kg/m³), default 1.225. */
+    float air_density;     /**< Air density (kg/m^3), default 1.225. */
     float humidity;        /**< Humidity [%]. */
-    float temperature;     /**< Temperature [°C]. */
+    float temperature;     /**< Temperature [degC]. */
     float pressure;        /**< Atmospheric pressure [Pa]. */
 
     environ_func environ_fn;
@@ -61,9 +61,9 @@ typedef struct s_environ {
  *
  * - Gravity: {0, -9.81, 0}
  * - Wind: {0, 0, 0}
- * - Air density: 1.225 kg/m³
+ * - Air density: 1.225 kg/m^3
  * - Humidity: 50 %
- * - Temperature: 20 °C
+ * - Temperature: 20 degC
  * - Pressure: 101,325 Pa
  * - environ_func: environ_calc_gravity
  *
@@ -77,9 +77,9 @@ BYUL_API void environ_init(environ_t* env);
  * @param[out] env        Environment structure to initialize.
  * @param[in] gravity     Gravity vector (NULL to use default).
  * @param[in] wind_vel        Wind vector (NULL to use default).
- * @param[in] air_density Air density (kg/m³).
+ * @param[in] air_density Air density (kg/m^3).
  * @param[in] humidity    Humidity [%].
- * @param[in] temperature Temperature [°C].
+ * @param[in] temperature Temperature [degC].
  * @param[in] pressure    Atmospheric pressure [Pa].
  * @param[in] environ_fn  External acceleration function pointer (NULL to use default).
  * @param[in] userdata    User data passed to the acceleration function.
@@ -102,7 +102,6 @@ BYUL_API void environ_init_full(environ_t* env,
 BYUL_API void environ_assign(environ_t* out, 
                                  const environ_t* src);
 
-// 환경에 바람을 추가한다 비동기로 사용자가 추가하던지 일정 루틴에 따라 바람이 분다던지
 /**< Wind acceleration (m/s^2). */
 BYUL_API void environ_apply_wind(
     environ_t* env, const vec3_t* accel, float dt);

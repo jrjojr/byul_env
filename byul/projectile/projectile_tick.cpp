@@ -51,10 +51,6 @@ void calc_suitable_max_time(
 
 
 
-// ─────────────────────────────────────────────────────────
-// Tick update callback (등록용)
-// ─────────────────────────────────────────────────────────
-
 static void projectile_tick_update_cb(void* context, float dt)
 {
     if (!context || dt <= 0.0f) return;
@@ -74,11 +70,11 @@ void projectile_tick_init(projectile_tick_t* prt) {
     // integrator_init(&prt->intgr);
 
     prt->impact_pos = {};
-    prt->trajectory = NULL;
-    prt->env = NULL;
-    prt->ground = NULL;
-    prt->propulsion = NULL;
-    prt->guidance_fn = NULL;
+    prt->trajectory = nullptr;
+    prt->env = nullptr;
+    prt->ground = nullptr;
+    prt->propulsion = nullptr;
+    prt->guidance_fn = nullptr;
     prt->proj.base.base.age = 0.0f;
     prt->impact_time = -1.0f;
     prt->bool_impacted = false;
@@ -100,7 +96,6 @@ void projectile_tick_init_full(projectile_tick_t* prt,
 {
     if (!prt || !proj || !target) return;
 
-    // 기본값 초기화
     projectile_tick_init(prt);
     projectile_assign(&prt->proj, proj);
     // motion_state_assign(&prt->state, state);
@@ -113,7 +108,7 @@ void projectile_tick_init_full(projectile_tick_t* prt,
         &state, nullptr, env, &proj->base.props);
 
     prt->bool_debug = bool_debug;
-    // 포인터 기반 인자들 복사 (존재할 경우)
+
     if (env) {
         prt->env = new environ_t;
         if (prt->env) environ_assign(prt->env, env);
@@ -130,14 +125,10 @@ void projectile_tick_init_full(projectile_tick_t* prt,
     }
 
     if (guidance_fn) {
-        prt->guidance_fn = guidance_fn;  // 함수 포인터 복사 (값 복사만으로 충분)
+        prt->guidance_fn = guidance_fn;
     }
 
     if (bool_debug){
-        // trajectory를 기록한다.
-        // dt, max_time, sample_count를 알아야 한다.
-        // 현재 제공된건 max_time, target_entdyn 해상도를 적당히 설정해야하는데
-        // 2048로 하면 화면 픽셀 어느정도 커버
         prt->trajectory = trajectory_create_full(MAX_SAMPLE_COUNT);
     }
 
@@ -148,22 +139,22 @@ void projectile_tick_free(projectile_tick_t* prt) {
 
     if (prt->env) {
         delete prt->env;
-        prt->env = NULL;
+        prt->env = nullptr;
     }
 
     if (prt->ground) {
         delete prt->ground;
-        prt->ground = NULL;
+        prt->ground = nullptr;
     }
 
     if (prt->propulsion) {
         delete prt->propulsion;
-        prt->propulsion = NULL;
+        prt->propulsion = nullptr;
     }
 
     if (prt->bool_debug && prt->trajectory) {
         trajectory_destroy(prt->trajectory);
-        prt->trajectory = NULL;
+        prt->trajectory = nullptr;
         prt->bool_debug = false;
     }
 
@@ -177,7 +168,6 @@ void projectile_tick_assign(
 
     if (!out || !src) return;
 
-    // 값 복사
     projectile_assign(&out->proj, &src->proj);
     // motion_state_assign(&out->state, &src->state);
     entity_dynamic_assign(&out->target, &src->target);
@@ -186,13 +176,12 @@ void projectile_tick_assign(
 
     out->impact_time = src->impact_time;
 
-    // 포인터 복사 (깊은 복사 대상)
     if (src->env) {
         if (!out->env) out->env = new environ_t;
         if (out->env) environ_assign(out->env, src->env);
 
     } else {
-        out->env = NULL;
+        out->env = nullptr;
     }
 
     if (src->ground) {
@@ -200,7 +189,7 @@ void projectile_tick_assign(
         if (out->ground) ground_assign(out->ground, src->ground);
 
     } else {
-        out->ground = NULL;
+        out->ground = nullptr;
     }    
 
     if (src->propulsion) {
@@ -208,13 +197,11 @@ void projectile_tick_assign(
         if (out->propulsion) 
             propulsion_assign(out->propulsion, src->propulsion);
     } else {
-        out->propulsion = NULL;
+        out->propulsion = nullptr;
     }
 
-    // 함수 포인터는 값 복사만으로 충분
     out->guidance_fn = src->guidance_fn;
 
-    // trajectory는 소유하지 않음 → 얕은 복사
     if (src->trajectory) {
         out->trajectory = src->trajectory;
     }
@@ -226,10 +213,6 @@ void projectile_tick_assign(
     out->impact_pos = src->impact_pos;
     
 }
-
-// ─────────────────────────────────────────────────────────
-// Tick prepare: tick_attach만 수행
-// ─────────────────────────────────────────────────────────
 
 bool projectile_tick_prepare(
     projectile_tick_t* prt,
@@ -258,7 +241,7 @@ bool projectile_tick_prepare_full(
     if (!prt || !target || !tk) return false;
 
     motion_state_t state;
-    entity_dynamic_to_motion_state(&prt->proj.base, &state, NULL, NULL);
+    entity_dynamic_to_motion_state(&prt->proj.base, &state, nullptr, nullptr);
     entity_dynamic_assign(&prt->target, target);
 
     prt->tick = tk;
@@ -288,12 +271,10 @@ bool projectile_tick_prepare_full(
 //     }
 
 //     motion_state_t state;
-//     entity_dynamic_to_motion_state(&prt->proj.base, &state, NULL, NULL);
+//     entity_dynamic_to_motion_state(&prt->proj.base, &state, nullptr, nullptr);
 
 //     prt->proj.base.base.age += dt;
 //     if (prt->proj.base.base.age >= prt->proj.base.base.lifetime){
-//         // 본인의 수명이 다했다.
-//         // 셀프 폭발
 //         // projectile_default_expire_cb
 //         prt->proj.on_hit = projectile_default_expire_cb;
 //         projectile_tick_complete(prt, prt->tick);
@@ -406,7 +387,7 @@ bool projectile_tick(
 
     /* current state snapshot */
     motion_state_t state;
-    entity_dynamic_to_motion_state(&prt->proj.base, &state, NULL, NULL);
+    entity_dynamic_to_motion_state(&prt->proj.base, &state, nullptr, nullptr);
 
     /* age and expire check */
     prt->proj.base.base.age += dt;
@@ -494,7 +475,7 @@ bool projectile_tick(
             vec3_t hit_p, hit_n;
             float  t_hit = 0.0f;
             if (ground_raycast(prt->ground, &pos_prev, &dir_step, seg_len,
-                               &hit_p, &hit_n, NULL, &t_hit))
+                               &hit_p, &hit_n, nullptr, &t_hit))
             {
                 prt->impact_pos  = hit_p;
                 prt->impact_time = (prt->proj.base.base.age - dt) + t_hit;
@@ -519,10 +500,6 @@ finalize_hit:
 }
 
 
-// ─────────────────────────────────────────────────────────
-// Tick complete: trajectory 저장 + tick_detach
-// ─────────────────────────────────────────────────────────
-
 bool projectile_tick_complete(
     projectile_tick_t* prt,
     tick_t* tk)
@@ -533,7 +510,6 @@ bool projectile_tick_complete(
 
     if (tk)
     {
-        // 등록된 tick_func를 제거
         tick_request_detach(tk, projectile_tick_update_cb, (void*)prt);
     }
 

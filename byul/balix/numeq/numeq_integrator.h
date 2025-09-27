@@ -21,7 +21,7 @@
  * stable for oscillations and trail effects, but velocity is approximate.
  * - **Velocity Verlet**: No previous position needed, 
  * accurate velocity tracking, stable for most real-time simulations.
- * - **RK4**: Fourth-order Runge–Kutta, 
+ * - **RK4**: Fourth-order Runge-Kutta, 
  * high accuracy for complex or fast-changing forces, 
  * best for offline trajectory calculation.
  *
@@ -99,7 +99,7 @@ typedef enum e_integrator_type {
  *
  * Time Step (`dt`):
  * - Typically set to 0.016f for 60Hz simulation.
- * - Slight variations (±10~20%) are acceptable.
+ * - Slight variations (+-10~20%) are acceptable.
  * - Large dt reduces accuracy; small dt increases computational cost.
  */
 typedef struct s_integrator {

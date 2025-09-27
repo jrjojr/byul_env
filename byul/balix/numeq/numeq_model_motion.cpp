@@ -14,10 +14,8 @@ void numeq_model_motion_predict(
 {
     if (!state0 || !env || !body || !out_state) return;
 
-    // 1. 기본 선형 예측 (drag 포함 상태)
     numeq_model_predict(time, &state0->linear, env, body, &out_state->linear);
 
-    // 2. 회전에 의한 유도 가속도 계산 (Magnus, Gyro)
     vec3_t spin_accel = {0};
     calc_spin_accel(
         &spin_accel,
@@ -29,16 +27,12 @@ void numeq_model_motion_predict(
         body->k_gyro
     );
 
-    // 3. drag 보정 계수 계산
     float drag_scale = numeq_model_motion_drag_scale(state0, env);
 
-    // 4. 선형 가속도에 drag 보정 계수 적용
     vec3_iscale(&out_state->linear.acceleration, drag_scale);
 
-    // 5. 회전 유도 가속도 추가
     vec3_iadd(&out_state->linear.acceleration, &spin_accel);
 
-    // 6. 회전 상태 복사
     attitude_state_assign(&out_state->angular, &state0->angular);
 }
 
@@ -54,7 +48,6 @@ void numeq_model_motion_predict_rk4(
 
     linear_state_t temp = state0->linear;
 
-    // 회전 유도 가속도 추가
     vec3_t spin_accel = {0};
     calc_spin_accel(
         &spin_accel,
@@ -66,10 +59,8 @@ void numeq_model_motion_predict_rk4(
         body->k_gyro
     );
 
-    // 3. drag 보정 계수 계산
     float drag_scale = numeq_model_motion_drag_scale(state0, env);
 
-    // 4. 선형 가속도에 drag 보정 계수 적용
     vec3_iscale(&out_state->linear.acceleration, drag_scale);
 
     vec3_iadd(&temp.acceleration, &spin_accel);
@@ -149,29 +140,20 @@ void numeq_model_motion_accel(
     if (!state || !env || !body || !out_accel || time <= 0.0f)
         return;
 
-    // ---------------------------------------------
-    // 1. 기본 가속도 (중력, 공기저항 포함)
-    // ---------------------------------------------
     vec3_t base_accel = {0};
     numeq_model_accel(&state->linear, env, body, &base_accel);
 
-    // ---------------------------------------------
-    // 2. 회전으로 인한 유도 가속도 (Magnus, Gyro)
-    // ---------------------------------------------
     vec3_t spin_accel = {0};
     calc_spin_accel(
         &spin_accel,
-        &state->linear.velocity,                 // 진행 방향 속도
-        &state->angular.angular_velocity,        // 회전 속도
-        &state->angular.angular_acceleration,    // 회전 가속도
+        &state->linear.velocity,
+        &state->angular.angular_velocity,
+        &state->angular.angular_acceleration,
         time,
         body->k_magnus,
         body->k_gyro
     );
 
-    // ---------------------------------------------
-    // 3. 총합 가속도
-    // ---------------------------------------------
     vec3_add(out_accel, &base_accel, &spin_accel);
 }
 
@@ -191,14 +173,14 @@ void calc_spin_accel(
     }
 
     // -------------------------------
-    // 1. Magnus-like effect: a_magnus = k_magnus * (ω × v)
+    // 1. Magnus-like effect: a_magnus = k_magnus * (omega × v)
     // -------------------------------
     vec3_t magnus_accel;
     vec3_cross(&magnus_accel, angular_velocity, process_dir_speed_sec);
     vec3_iscale(&magnus_accel, k_magnus);
 
     // -------------------------------
-    // 2. Angular acceleration induced effect: a_gyro = k_gyro * time * (α × v)
+    // 2. Angular acceleration induced effect: a_gyro = k_gyro * time * (alpha × v)
     // -------------------------------
     vec3_t gyro_accel;
     vec3_cross(&gyro_accel, angular_accel, process_dir_speed_sec);

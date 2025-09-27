@@ -139,7 +139,7 @@ typedef struct s_projectile_tick {
 BYUL_API void projectile_tick_init(projectile_tick_t* prt);
 
 /*
-env, propulsion, guidance_fn nullptr 가능
+env, propulsion, guidance_fn nullptr
 */
 BYUL_API void projectile_tick_init_full(projectile_tick_t* prt,
     const projectile_t* proj, 
@@ -154,11 +154,8 @@ BYUL_API void projectile_tick_init_full(projectile_tick_t* prt,
     bool bool_debug
 );
 
-// 내부에서 메모리 할당된 변수들만 해제한다.
-// prt는 건들지 않는다 메모리 해제하지 않는다.
 BYUL_API void projectile_tick_free(projectile_tick_t* prt);
 
-// 깊은 복사한다.
 BYUL_API void projectile_tick_assign(
     projectile_tick_t* out, const projectile_tick_t* src);
 

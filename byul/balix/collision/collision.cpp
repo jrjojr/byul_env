@@ -3,6 +3,7 @@
 #include "geom.h"
 
 #include <cmath>
+#include <algorithm>
 
 // -----------------------------------------------------------------------------
 // Add near top of collision.cpp (or a suitable private header)
@@ -773,7 +774,7 @@ static inline bool tri_contains_point_barycentric(
 
 /**
  * Projectile vs moving triangle (both translating, constant acceleration), loop-free TOI.
- * Plane normal is fixed; triangle rotation은 제외
+ * Plane normal is fixed; triangle rotation
  */
 bool detect_triangle_collision_moving(
     // projectile state at t_prev

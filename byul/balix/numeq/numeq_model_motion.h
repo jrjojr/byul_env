@@ -111,22 +111,22 @@ BYUL_API void numeq_model_motion_accel(
  * This function calculates additional acceleration 
  * components resulting from rotational
  * motion, which affect the linear trajectory. These effects include:
- * - **Magnus effect**: Lift-like acceleration caused by spin (ω × v).
- * - **Gyroscopic drift**: Acceleration caused by increasing spin (α × v).
+ * - **Magnus effect**: Lift-like acceleration caused by spin (omega x v).
+ * - **Gyroscopic drift**: Acceleration caused by increasing spin (alpha x v).
  *
  * This is useful for simulating curved motion in 
  * spinning objects (e.g., balls, shells, drones).
  *
  * @param[out] out_accel
- *     Final acceleration vector induced by angular motion (in m/s²).
+ *     Final acceleration vector induced by angular motion (in m/s^2).
  * @param[in] process_dir_speed_sec
  *     Current linear velocity vector (m/s). 
  * This represents the direction and speed of motion.
  * @param[in] angular_velocity
  *     Angular velocity vector (rad/s), used to compute Magnus-like force.
  * @param[in] angular_accel
- *     Angular acceleration vector (rad/s²), used to compute gyroscopic drift.
- * @param[in]  time             Time step (seconds) — 
+ *     Angular acceleration vector (rad/s^2), used to compute gyroscopic drift.
+ * @param[in]  time             Time step (seconds) - 
  * duration for which angular acceleration acts.
  * Typically between 0.01 and 0.1 for high-speed physics.
  * @param[in] k_magnus
@@ -151,12 +151,12 @@ BYUL_API void numeq_model_motion_accel(
  *
  * @note The final acceleration is computed as:
  *
- *       a = (k_magnus) * (angular_velocity × velocity)
- *         + (k_gyro) * time * (angular_acceleration × velocity)
+ *       a = (k_magnus) * (angular_velocity x velocity)
+ *         + (k_gyro) * time * (angular_acceleration x velocity)
  *
  *       Where:
- *       - angular_velocity × velocity     : represents Magnus-like force
- *       - angular_acceleration × velocity : represents gyroscopic deflection
+ *       - angular_velocity x velocity     : represents Magnus-like force
+ *       - angular_acceleration x velocity : represents gyroscopic deflection
  *
  * @warning Exceeding the recommended maximums 
  * (k_magnus > 5.0, k_gyro > 4.0) may cause unrealistic

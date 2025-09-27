@@ -18,7 +18,7 @@ extern "C" {
 BYUL_API bool vec3_colinear(const vec3_t* a, const vec3_t* b, float cos_eps);
 
 // -----------------------------------------------------------------------------
-// Colinearity: cross 기반 대안(각도 대신 면적비 사용, 노이즈에 강함)
+// Collinearity: cross-product based alternative (use area ratio instead of angles; robust to noise)
 // -----------------------------------------------------------------------------
 /**
  * @brief Near-colinearity using cross-product magnitude: 
@@ -106,9 +106,6 @@ BYUL_API bool vec3_segment_triangle_intersect(
     const vec3_t* ta, const vec3_t* tb, const vec3_t* tc,
     bool cull_backface, float* out_s, vec3_t* out_point);
 
-// -----------------------------------------------------------------------------
-// Sphere helpers (확장형 출력)
-// -----------------------------------------------------------------------------
 /**
  * @brief Segment-sphere test with outputs (earliest hit).
  * @param[out] out_s  Segment param s in [0,1]

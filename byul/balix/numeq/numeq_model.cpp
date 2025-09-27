@@ -9,7 +9,7 @@
 #include "geom.h"
 
 // ---------------------------------------------------------
-// drag_accel = -0.5 * ρ * v|v| * Cd * A / m
+// drag_accel = -0.5 * p * v|v| * Cd * A / m
 // ---------------------------------------------------------
 static inline void compute_drag_accel(const vec3_t* velocity,
                                       const bodyprops_t* body,
@@ -22,7 +22,7 @@ static inline void compute_drag_accel(const vec3_t* velocity,
         *out_drag_accel = {0, 0, 0};
         return;
     }
-    Vec3 drag_dir = v * (-1.0f / v_mag); // 반대 방향
+    Vec3 drag_dir = v * (-1.0f / v_mag);
     float drag_mag = 0.5f * air_density * v_mag * v_mag *
                      body->drag_coef * body->cross_section;
     float accel_mag = float_safe_div(drag_mag, body->mass, 0.0f);
@@ -158,7 +158,7 @@ void numeq_model_vel_predict(
 }
 
 // ---------------------------------------------------------
-// pos p(time) = p0 + v0 * time + 0.5 * (a0 + state0.acceleration) * t²
+// pos p(time) = p0 + v0 * time + 0.5 * (a0 + state0.acceleration) * t^2
 // ---------------------------------------------------------
 void numeq_model_pos_predict(
     float time,
@@ -317,9 +317,6 @@ bool numeq_model_predict_collision_plane(
     if (out_time) *out_time = -1.0f;
     if (out_point) vec3_zero(out_point);
 
-    // 평면이 움직이는 경우는 지원하지 않음 (정적 평면 가정)
-
-    // 1. 현재 위치가 평면에 닿아있는지 확인
     float dist = vec3_point_plane_distance(
         &my_state->position,
         plane_point,
@@ -332,20 +329,16 @@ bool numeq_model_predict_collision_plane(
         return true;
     }
 
-    // 2. 속도가 0이거나 평면에 평행한 경우
     if (vec3_is_zero(&my_state->velocity)) return false;
 
-    // 3. 속도 방향 기준으로 평면과 충돌 예상 여부 판단
     float denom = vec3_dot(&my_state->velocity, plane_normal);
-    if (fabsf(denom) < FLOAT_EPSILON) return false;  // 평면에 평행한 경우
+    if (fabsf(denom) < FLOAT_EPSILON) return false;
 
-    // 4. 반지름 보정된 평면 점 계산
     vec3_t offset_plane_point = *plane_point;
     vec3_t scaled_normal;
-    vec3_scale(&scaled_normal, plane_normal, -radius_sum); // 안쪽으로 이동
+    vec3_scale(&scaled_normal, plane_normal, -radius_sum);
     vec3_add(&offset_plane_point, &offset_plane_point, &scaled_normal);
 
-    // 5. ray-plane 교차 계산
     float time;
     vec3_t hit;
     bool intersect = vec3_ray_plane_intersect(

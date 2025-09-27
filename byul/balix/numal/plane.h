@@ -47,23 +47,23 @@ BYUL_API bool  plane_segment_intersect(const plane_t* p,
     float* out_s, vec3_t* out_point);
 
 
-// 회전: 축-각(원점 기준)
+// Rotation: Axis-angle (origin-based)
 BYUL_API bool plane_rotate_axis_angle_origin(
     plane_t* p, const vec3_t* axis_unit, float angle_rad);
 
-// 회전: 축-각(피벗 기준, 피벗을 지나 회전)
-BYUL_API bool plane_rotate_axis_angle_pivot(plane_t* p, 
+// Rotation: Axis-angle (pivot-based, rotation through pivot)
+BYUL_API bool plane_rotate_axis_angle_pivot(plane_t* p,
     const vec3_t* axis_unit, float angle_rad, const vec3_t* pivot);
 
-// 복사본으로 회전 결과 받기
-BYUL_API bool plane_rotated_axis_angle_origin(plane_t* out, 
+// Apply rotation and store the result in a copy
+BYUL_API bool plane_rotated_axis_angle_origin(plane_t* out,
     const plane_t* in, const vec3_t* axis_unit, float angle_rad);
 
-BYUL_API bool plane_rotated_axis_angle_pivot(plane_t* out, 
-    const plane_t* in, const vec3_t* axis_unit, 
+BYUL_API bool plane_rotated_axis_angle_pivot(plane_t* out,
+    const plane_t* in, const vec3_t* axis_unit,
     float angle_rad, const vec3_t* pivot);
 
-// 선택: 3x3 회전행렬 사용(열 우선 m[9] 가정: [c0 c1 c2])
+// Alternative: Use a 3x3 rotation matrix (assume column-major m[9]: [c0 c1 c2])
 BYUL_API bool plane_rotate_mat3_origin(
     plane_t* p, const float m3x3[9]);
 
