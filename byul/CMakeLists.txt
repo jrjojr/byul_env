@@ -47,6 +47,7 @@ enable_testing()
 # Add modules (STATIC libraries)
 # -----------------------------------------------------------------------------
 add_subdirectory(common)
+add_subdirectory(rng)
 add_subdirectory(console)
 add_subdirectory(navsys)
 add_subdirectory(balix)

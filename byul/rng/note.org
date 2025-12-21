@@ -1,0 +1,9 @@
+random number generator
+
+rng/
+ ├─ rng_state.h      // PRNG core
+ ├─ roll.h           // roll(), pick(), check()
+ ├─ shuffle.h        // shuffle
+ ├─ distribution.h  // weighted / alias
+ ├─ dice.h           // 2d6, 1d20 DSL
+ └─ noise.h          // world noise
