@@ -1,7 +1,7 @@
 #ifndef BODYPROPS_H
 #define BODYPROPS_H
 
-#include "byul_common.h"
+#include "byul_config.h"
 #include "vec3.h"
 
 #ifdef __cplusplus

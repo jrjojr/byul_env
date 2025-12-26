@@ -42,8 +42,8 @@ extern "C" {
 #endif
 
 #include <stdbool.h>
-#include "byul_common.h"
-#include "projectile_common.h"
+#include "byul_config.h"
+#include "projectile_core.h"
 #include "propulsion.h"
 #include "guidance.h"
 #include "projectile_predict.h"

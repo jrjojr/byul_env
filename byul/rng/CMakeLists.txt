@@ -8,21 +8,23 @@ project(rng)
 
 # 소스 파일 설정
 set(${PROJECT_NAME}_SOURCES
-    ${CMAKE_CURRENT_SOURCE_DIR}/rng.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/rng_core.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/roll.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/shuffle.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/distributions.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/rng_fill.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/rng.cpp
 
 CACHE INTERNAL "${PROJECT_NAME} source files"  FORCE
 )
 
 set(${PROJECT_NAME}_HEADERS
-    ${CMAKE_CURRENT_SOURCE_DIR}/rng.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/rng_core.h
     ${CMAKE_CURRENT_SOURCE_DIR}/roll.h
     ${CMAKE_CURRENT_SOURCE_DIR}/shuffle.h
     ${CMAKE_CURRENT_SOURCE_DIR}/distributions.h
     ${CMAKE_CURRENT_SOURCE_DIR}/rng_fill.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/rng.h
 
 CACHE INTERNAL "${PROJECT_NAME} header files"  FORCE
 )

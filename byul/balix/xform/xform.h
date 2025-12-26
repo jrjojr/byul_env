@@ -3,7 +3,7 @@
 
 #include "vec3.h"
 #include "quat.h"       // euler_order_t definition
-#include "byul_common.h"
+#include "byul_config.h"
 
 #ifdef __cplusplus
 extern "C" {

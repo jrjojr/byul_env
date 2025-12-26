@@ -9,7 +9,7 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 set(${PROJECT_NAME}_SOURCES
 
     ${CMAKE_CURRENT_SOURCE_DIR}/maze.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/maze_common.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/maze_core.cpp
 
     ${CMAKE_CURRENT_SOURCE_DIR}/maze_aldous_broder.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/maze_binary.cpp
@@ -31,7 +31,7 @@ CACHE INTERNAL "${PROJECT_NAME} source files"  FORCE
 set(${PROJECT_NAME}_HEADERS
 
     ${CMAKE_CURRENT_SOURCE_DIR}/maze.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/maze_common.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/maze_core.h
 
     ${CMAKE_CURRENT_SOURCE_DIR}/maze_recursive.h    
     ${CMAKE_CURRENT_SOURCE_DIR}/maze_prim.h
@@ -56,7 +56,7 @@ target_include_directories(${PROJECT_NAME} PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}    
     ${CMAKE_SOURCE_DIR}
     
-    ${CMAKE_SOURCE_DIR}/common
+    ${CMAKE_SOURCE_DIR}/core
 
     ${CMAKE_SOURCE_DIR}/navsys/coord
     ${CMAKE_SOURCE_DIR}/navsys/route
@@ -65,7 +65,7 @@ target_include_directories(${PROJECT_NAME} PRIVATE
 )
 
 target_link_libraries(${PROJECT_NAME} PRIVATE 
-    common
+    core
     coord
     route
     navgrid

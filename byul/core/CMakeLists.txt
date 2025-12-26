@@ -1,21 +1,21 @@
 cmake_minimum_required(VERSION 3.20)
 
 # Project name
-project(common)
+project(core)
 
 # set(EXTERNAL_DIR ${CMAKE_SOURCE_DIR}/../external)
 # message(STATUS "${PROJECT_NAME} : EXTERNAL_DIR = ${EXTERNAL_DIR}")
 
 # 소스 파일 설정
 set(${PROJECT_NAME}_SOURCES
-    ${CMAKE_CURRENT_SOURCE_DIR}/float_common.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/float_core.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/strset.cpp
 
 CACHE INTERNAL "${PROJECT_NAME} source files"  FORCE
 )
 
 set(${PROJECT_NAME}_HEADERS
-    ${CMAKE_CURRENT_SOURCE_DIR}/float_common.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/float_core.h
     ${CMAKE_CURRENT_SOURCE_DIR}/strset.h
 
 CACHE INTERNAL "${PROJECT_NAME} header files"  FORCE

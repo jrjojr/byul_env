@@ -124,7 +124,7 @@ endif()
 # ----------------------------------------
 target_include_directories(${PROJECT_NAME} PRIVATE
     ${CMAKE_SOURCE_DIR}
-    ${CMAKE_SOURCE_DIR}/common
+    ${CMAKE_SOURCE_DIR}/core
 
     ${CMAKE_SOURCE_DIR}/navsys/dstar_lite
 

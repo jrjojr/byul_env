@@ -1,7 +1,7 @@
 #ifndef MAZE_ALDOUS_BRODER_H
 #define MAZE_ALDOUS_BRODER_H
 
-#include "maze_common.h"
+#include "maze_core.h"
 
 #ifdef __cplusplus
 extern "C" {

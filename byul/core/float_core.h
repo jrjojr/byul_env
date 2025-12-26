@@ -1,11 +1,11 @@
-#ifndef FLOAT_COMMON_H
-#define FLOAT_COMMON_H
+#ifndef FLOAT_CORE_H
+#define FLOAT_CORE_H
 
 #include <stdint.h>
 #include <stdbool.h>
 #include <stddef.h>
 
-#include "byul_common.h"
+#include "byul_config.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -203,4 +203,4 @@ BYUL_API float float_smoothstep(float edge0, float edge1, float x);
 }
 #endif
 
-#endif // FLOAT_COMMON_H
+#endif // FLOAT_CORE_H

@@ -29,7 +29,7 @@
 extern "C" {
 #endif
 
-#include "byul_common.h"
+#include "byul_config.h"
 #include <math.h>
 
 // DualNumber: a + b * eps, where eps^2 = 0

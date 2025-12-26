@@ -2,7 +2,7 @@
 #include <cstdlib>
 #include <cstring>
 #include <unordered_set>
-#include "float_common.h"
+#include "float_core.h"
 #include "dstar_lite_console.h"
 #include "coord.h"
 #include "dstar_lite_key.h"

@@ -1,6 +1,6 @@
 #include "doctest.h"
 
-#include "float_common.h"
+#include "float_core.h"
 
 TEST_CASE("float_equal: similar and dissimilar values") {
     CHECK(float_equal(1.000001f, 1.000002f));

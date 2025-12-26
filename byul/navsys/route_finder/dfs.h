@@ -1,12 +1,12 @@
 #ifndef DFS_H
 #define DFS_H
 
-#include "byul_common.h"
-#include "float_common.h"
+#include "byul_config.h"
+#include "float_core.h"
 #include "coord.h"
 #include "navgrid.h"
 #include "route.h"
-#include "route_finder_common.h"
+#include "route_finder_core.h"
 
 #ifdef __cplusplus
 extern "C" {

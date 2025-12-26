@@ -28,7 +28,7 @@ target_include_directories(${PROJECT_NAME} PRIVATE
     ${CMAKE_SOURCE_DIR}
     ${CMAKE_CURRENT_SOURCE_DIR}
 
-    ${CMAKE_SOURCE_DIR}/common
+    ${CMAKE_SOURCE_DIR}/core
     ${CMAKE_SOURCE_DIR}/byul_tick
     
     ${CMAKE_SOURCE_DIR}/navsys/coord
@@ -43,12 +43,12 @@ target_include_directories(${PROJECT_NAME} PRIVATE
 #     ${CMAKE_BINARY_DIR}/coord
 #     ${CMAKE_BINARY_DIR}/navgrid
 #     ${CMAKE_BINARY_DIR}/route
-#     ${CMAKE_BINARY_DIR}/common
+#     ${CMAKE_BINARY_DIR}/core
 # )
 
 # 링크 라이브러리 설정
 target_link_libraries(${PROJECT_NAME} PRIVATE
-    common
+    core
     navsys
 )
 

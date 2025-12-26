@@ -2,7 +2,7 @@
 #include <cmath>
 #include <cstring>
 #include <Eigen/Geometry>
-#include "float_common.h"
+#include "float_core.h"
 
 static inline Eigen::Quaternionf to_eigen(const quat_t* q) {
     return q ? Eigen::Quaternionf(q->w, q->x, q->y, q->z) 

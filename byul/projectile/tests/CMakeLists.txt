@@ -6,7 +6,7 @@ project(test_projectile)
 # 소스 파일 설정
 set(${PROJECT_NAME}_SOURCES
     ${CMAKE_CURRENT_SOURCE_DIR}/main.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/test_module_projectile_common.cpp    
+    ${CMAKE_CURRENT_SOURCE_DIR}/test_module_projectile_core.cpp    
     ${CMAKE_CURRENT_SOURCE_DIR}/test_module_propulsion.cpp    
     ${CMAKE_CURRENT_SOURCE_DIR}/test_module_guidance.cpp    
     ${CMAKE_CURRENT_SOURCE_DIR}/test_module_projectile_predict.cpp    

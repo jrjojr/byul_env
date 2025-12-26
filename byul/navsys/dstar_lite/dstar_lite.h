@@ -34,9 +34,9 @@
 #ifndef DSTAR_LITE_H
 #define DSTAR_LITE_H
 
-#include "byul_common.h"
+#include "byul_config.h"
 
-#include "float_common.h"
+#include "float_core.h"
 
 #include "navgrid.h"
 #include "coord.h"

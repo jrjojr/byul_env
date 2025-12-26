@@ -23,7 +23,7 @@
 #include <stdint.h>
 #include <stddef.h>
 
-#include "rng.h" /* byul_rng_t */
+#include "rng_core.h" /* byul_rng_t */
 
 #ifdef __cplusplus
 extern "C" {

@@ -1,7 +1,7 @@
 #include "geom.h"
 #include <math.h>
 #include <float.h>
-#include "float_common.h"
+#include "float_core.h"
 
 bool vec3_colinear(const vec3_t* a, const vec3_t* b, float cos_eps) {
     float la2 = vec3_length_sq(a); 

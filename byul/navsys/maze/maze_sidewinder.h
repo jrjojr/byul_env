@@ -1,7 +1,7 @@
 #ifndef MAZE_SIDEWINDER_H
 #define MAZE_SIDEWINDER_H
 
-#include "maze_common.h"
+#include "maze_core.h"
 
 #ifdef __cplusplus
 extern "C" {

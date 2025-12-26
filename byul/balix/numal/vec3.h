@@ -4,7 +4,7 @@
 #include <stdint.h>
 #include <stddef.h>
 
-#include "byul_common.h"
+#include "byul_config.h"
 
 // World-scale absolute tolerances (tune in one place)
 #ifndef VEC3_ABS_EPS_LEN

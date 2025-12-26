@@ -1,7 +1,7 @@
 #ifndef MAZE_HUNT_AND_KILL_H
 #define MAZE_HUNT_AND_KILL_H
 
-#include "maze_common.h"
+#include "maze_core.h"
 
 #ifdef __cplusplus
 extern "C" {

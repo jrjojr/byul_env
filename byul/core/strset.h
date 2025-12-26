@@ -1,7 +1,7 @@
 #ifndef STRSET_H
 #define STRSET_H
 
-#include "byul_common.h"
+#include "byul_config.h"
 #include <stddef.h>   // size_t
 
 #ifdef __cplusplus

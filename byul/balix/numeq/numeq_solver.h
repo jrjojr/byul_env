@@ -1,7 +1,7 @@
 #ifndef NUMEQ_SOLVER_H
 #define NUMEQ_SOLVER_H
 
-#include "byul_common.h"
+#include "byul_config.h"
 #include "vec3.h"
 
 #ifdef __cplusplus

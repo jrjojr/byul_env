@@ -1,7 +1,7 @@
 #ifndef BYUL_TICK_H
 #define BYUL_TICK_H
 
-#include "byul_common.h"
+#include "byul_config.h"
 
 #ifdef __cplusplus
 extern "C" {

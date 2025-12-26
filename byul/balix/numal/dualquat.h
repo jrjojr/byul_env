@@ -3,7 +3,7 @@
 
 #include "quat.h"
 #include "vec3.h"
-#include "byul_common.h"
+#include "byul_config.h"
 
 #ifdef __cplusplus
 extern "C" {

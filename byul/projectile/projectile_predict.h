@@ -5,8 +5,8 @@
 extern "C" {
 #endif
 
-#include "byul_common.h"
-#include "projectile_common.h"
+#include "byul_config.h"
+#include "projectile_core.h"
 #include "trajectory.h"
 #include "propulsion.h"
 #include "guidance.h"

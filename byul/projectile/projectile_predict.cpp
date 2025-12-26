@@ -2,7 +2,7 @@
 #include <cstdio>
 #include "projectile_predict.h"
 #include "guidance.h"
-#include "float_common.h"
+#include "float_core.h"
 #include "numeq_filters.h"
 #include <numeq_model_motion.h>
 

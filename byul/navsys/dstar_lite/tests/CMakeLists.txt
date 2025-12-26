@@ -55,7 +55,7 @@ target_include_directories(${PROJECT_NAME} PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}
 
     ${CMAKE_SOURCE_DIR}
-    ${CMAKE_SOURCE_DIR}/common
+    ${CMAKE_SOURCE_DIR}/core
     ${CMAKE_SOURCE_DIR}/console
     ${CMAKE_SOURCE_DIR}/byul_tick
 
@@ -74,7 +74,7 @@ target_link_directories(${PROJECT_NAME} PRIVATE
 )
 
 target_link_libraries(${PROJECT_NAME} PRIVATE
-    common
+    core
     console
     byul_tick
     

@@ -1,6 +1,6 @@
 /* distributions.h
  *
- * Statistical distribution samplers built on top of rng.h.
+ * Statistical distribution samplers built on top of rng_core.h.
  *
  * Design goals:
  * - English-only (MSVC friendly)
@@ -26,7 +26,7 @@
 #include <stddef.h>
 #include <stdbool.h>
 
-#include "rng.h"
+#include "rng_core.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -51,7 +51,7 @@ double byul_dist_uniform_f64(byul_rng_t* rng, double min, double max);
  * Implementation note:
  * - A typical implementation uses Box–Muller or Marsaglia polar method.
  * - If a cached spare sample is used, the cache must be stored outside of byul_rng_t
- *   (or in a separate distribution state struct) to keep rng.h minimal.
+ *   (or in a separate distribution state struct) to keep rng_core.h minimal.
  */
 double byul_dist_normal_f64(byul_rng_t* rng, double mean, double stddev);
 

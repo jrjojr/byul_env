@@ -1,5 +1,5 @@
 #include "maze.h"
-#include "maze_common.h"
+#include "maze_core.h"
 #include <stdlib.h>
 #include <string.h>
 

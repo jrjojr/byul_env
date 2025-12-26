@@ -1,5 +1,5 @@
-#ifndef BYUL_COMMON_H
-#define BYUL_COMMON_H
+#ifndef BYUL_CONFIG_H
+#define BYUL_CONFIG_H
 
 #if defined(_WIN32) || defined(_WIN64)
   #define BYUL_PLATFORM_WINDOWS 1
@@ -62,4 +62,4 @@
   #define DBG_PRINT(...) ((void)0)
 #endif
 
-#endif // BYUL_COMMON_H
+#endif // BYUL_CONFIG_H

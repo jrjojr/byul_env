@@ -1,5 +1,5 @@
 #include "doctest.h"
-#include "maze_common.h"
+#include "maze_core.h"
 #include "maze_room_blend.h"
 #include "navgrid.h"
 #include "console.h"

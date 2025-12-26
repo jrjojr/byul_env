@@ -1,7 +1,7 @@
-#ifndef MAZE_COMMON_H
-#define MAZE_COMMON_H
+#ifndef MAZE_CORE_H
+#define MAZE_CORE_H
 
-#include "byul_common.h"
+#include "byul_config.h"
 #include "navgrid.h"
 #include "coord.h"
 #include "coord_hash.h"
@@ -53,4 +53,4 @@ BYUL_API void maze_remove_from_navgrid(const maze_t* maze, navgrid_t* navgrid);
 }
 #endif
 
-#endif // MAZE_COMMON_H
+#endif // MAZE_CORE_H

@@ -6,11 +6,11 @@ extern "C" {
 #endif
 
 #include <stdbool.h>
-#include "byul_common.h"
+#include "byul_config.h"
 #include "vec3.h"
 #include "entity_dynamic.h"
 #include "environ.h"
-#include "projectile_common.h"
+#include "projectile_core.h"
 #include "propulsion.h"
 #include "guidance.h"
 

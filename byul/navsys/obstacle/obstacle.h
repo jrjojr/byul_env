@@ -1,8 +1,8 @@
 #ifndef OBSTACLE_H
 #define OBSTACLE_H
 
-#include "byul_common.h"
-#include "obstacle_common.h"
+#include "byul_config.h"
+#include "obstacle_core.h"
 
 #ifdef __cplusplus
 extern "C" {

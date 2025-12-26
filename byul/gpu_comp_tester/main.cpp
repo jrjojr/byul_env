@@ -19,7 +19,7 @@
 #define SHADER_DIR "../glsl"
 #endif
 
-#include "float_common.h"
+#include "float_core.h"
 #include <filesystem>
 
 static GLuint vao = 0, vbo = 0, vbo_type = 0;

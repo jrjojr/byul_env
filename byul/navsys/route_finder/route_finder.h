@@ -1,7 +1,7 @@
 #ifndef ROUTE_FINDER_H
 #define ROUTE_FINDER_H
 
-#include "route_finder_common.h"
+#include "route_finder_core.h"
 
 #ifdef __cplusplus
 extern "C" {

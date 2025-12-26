@@ -5,7 +5,7 @@
 extern "C" {
 #endif
 
-#include "byul_common.h"
+#include "byul_config.h"
 #include "vec3.h"
 
 // Forward declarations

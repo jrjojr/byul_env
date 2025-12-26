@@ -14,7 +14,7 @@ message(STATUS "${PROJECT_NAME} : EXTERNAL_DIR = ${EXTERNAL_DIR}")
 # 소스 파일 설정
 set(${PROJECT_NAME}_SOURCES
     ${CMAKE_CURRENT_SOURCE_DIR}/projectile.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/projectile_common.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/projectile_core.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/propulsion.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/guidance.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/projectile_predict.cpp
@@ -25,7 +25,7 @@ CACHE INTERNAL "${PROJECT_NAME} source files"  FORCE
 
 set(${PROJECT_NAME}_HEADERS
     ${CMAKE_CURRENT_SOURCE_DIR}/projectile.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/projectile_common.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/projectile_core.h
     ${CMAKE_CURRENT_SOURCE_DIR}/propulsion.h
     ${CMAKE_CURRENT_SOURCE_DIR}/guidance.h
     ${CMAKE_CURRENT_SOURCE_DIR}/projectile_predict.h
@@ -43,7 +43,7 @@ add_library(${PROJECT_NAME} STATIC ${${PROJECT_NAME}_SOURCES})
 target_include_directories(${PROJECT_NAME} PRIVATE 
     ${CMAKE_CURRENT_SOURCE_DIR}    
     ${CMAKE_SOURCE_DIR}    
-    ${CMAKE_SOURCE_DIR}/common
+    ${CMAKE_SOURCE_DIR}/core
     ${CMAKE_SOURCE_DIR}/byul_tick
     ${CMAKE_SOURCE_DIR}/ground
 

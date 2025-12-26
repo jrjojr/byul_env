@@ -1,6 +1,6 @@
 /* roll.h
  *
- * "Roll" helpers built on top of rng.h.
+ * "Roll" helpers built on top of rng_core.h.
  *
  * Design goals:
  * - English-only (MSVC friendly)
@@ -16,7 +16,7 @@
 #include <stddef.h>
 #include <stdbool.h>
 
-#include "rng.h"
+#include "rng_core.h"
 
 #ifdef __cplusplus
 extern "C" {

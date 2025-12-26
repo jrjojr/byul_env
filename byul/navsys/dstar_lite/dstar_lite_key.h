@@ -1,7 +1,7 @@
 #ifndef DSTAR_LITE_KEY_H
 #define DSTAR_LITE_KEY_H
 
-#include "byul_common.h"
+#include "byul_config.h"
 #include "coord.h"
 
 #ifdef __cplusplus

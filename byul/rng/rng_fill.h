@@ -13,7 +13,7 @@
  * - The caller owns the output buffers and their sizes.
  *
  * Module contrast:
- * - rng.h            : raw random numbers (u32/u64/f32/f64, bounded ranges)
+ * - rng_core.h            : raw random numbers (u32/u64/f32/f64, bounded ranges)
  * - rng_fill.h       : batch generation into arrays (fill buffers)
  * - roll.h           : discrete selection helpers (pick, weighted pick, take)
  * - shuffle.h        : in-place permutation (Fisher–Yates)
@@ -26,7 +26,7 @@
 #include <stdint.h>
 #include <stddef.h>
 
-#include "rng.h"
+#include "rng_core.h"
 
 #ifdef __cplusplus
 extern "C" {

@@ -1,5 +1,5 @@
 #include "plane.h"
-#include "float_common.h"   // float_zero, FLOAT_EPSILON_TINY
+#include "float_core.h"   // float_zero, FLOAT_EPSILON_TINY
 #include <math.h>
 
 static inline bool plane_safe_normalize(vec3_t* n_unit)

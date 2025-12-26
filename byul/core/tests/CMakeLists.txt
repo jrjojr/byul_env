@@ -1,12 +1,12 @@
 cmake_minimum_required(VERSION 3.20)
 
-project(test_common)
+project(test_core)
 
 
 # 소스 파일 설정
 set(${PROJECT_NAME}_SOURCES
     ${CMAKE_CURRENT_SOURCE_DIR}/main.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/test_module_common.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/test_module_core.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/test_module_strset.cpp    
 
 CACHE INTERNAL "${PROJECT_NAME} source files"
@@ -23,10 +23,10 @@ set(EXTERNAL_DIR ${CMAKE_SOURCE_DIR}/../external)
 message(STATUS "${PROJECT_NAME} : EXTERNAL_DIR = ${EXTERNAL_DIR}")
 
 # 포함 디렉토리
-# float_common.h, doctest.h 등 경로 포함
+# float_core.h, doctest.h 등 경로 포함
 target_include_directories(${PROJECT_NAME} PRIVATE
     ${CMAKE_SOURCE_DIR}                         # 프로젝트 루트
-    ${CMAKE_SOURCE_DIR}/common
+    ${CMAKE_SOURCE_DIR}/core
     ${CMAKE_CURRENT_SOURCE_DIR}                 # 현재 테스트 디렉토리
     ${CMAKE_BINARY_DIR}/include/byul     # 빌드시 생성되는 헤더
     ${EXTERNAL_DIR}                     
@@ -34,11 +34,11 @@ target_include_directories(${PROJECT_NAME} PRIVATE
 
 # ------------------- 라이브러리 링크 -------------------
 target_link_directories(${PROJECT_NAME} PRIVATE
-    ${CMAKE_BINARY_DIR}/common
+    ${CMAKE_BINARY_DIR}/core
 )
 
 target_link_libraries(${PROJECT_NAME} PRIVATE
-    common
+    core
 )
 
 # 수학 라이브러리 링크 (리눅스/유닉스 전용)

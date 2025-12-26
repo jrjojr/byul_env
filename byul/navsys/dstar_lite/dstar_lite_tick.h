@@ -20,7 +20,7 @@
 #ifndef DSTAR_LITE_TICK_H
 #define DSTAR_LITE_TICK_H
 
-#include "byul_common.h"
+#include "byul_config.h"
 #include "byul_tick.h"
 #include "dstar_lite.h"
 #include "coord.h"

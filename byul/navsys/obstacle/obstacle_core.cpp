@@ -1,4 +1,4 @@
-#include "obstacle_common.h"
+#include "obstacle_core.h"
 #include <stdlib.h>
 #include <string.h>
 #include <cmath>

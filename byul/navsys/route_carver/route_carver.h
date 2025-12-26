@@ -1,7 +1,7 @@
 #ifndef ROUTE_CARVER_H
 #define ROUTE_CARVER_H
 
-#include "byul_common.h"
+#include "byul_config.h"
 #include "navgrid.h"     // navgrid_t definition required
 #include "coord.h"       // coord_t definition required
 

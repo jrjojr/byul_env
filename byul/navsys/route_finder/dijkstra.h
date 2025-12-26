@@ -1,11 +1,11 @@
 #ifndef DIJKSTRA_H
 #define DIJKSTRA_H
 
-#include "byul_common.h"
+#include "byul_config.h"
 #include "coord.h"
 #include "navgrid.h"
 #include "route.h"
-#include "route_finder_common.h"
+#include "route_finder_core.h"
 
 #ifdef __cplusplus
 extern "C" {

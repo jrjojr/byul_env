@@ -46,7 +46,7 @@ enable_testing()
 # -----------------------------------------------------------------------------
 # Add modules (STATIC libraries)
 # -----------------------------------------------------------------------------
-add_subdirectory(common)
+add_subdirectory(core)
 add_subdirectory(rng)
 add_subdirectory(console)
 add_subdirectory(navsys)
@@ -61,7 +61,7 @@ set(${PROJECT_NAME}_SOURCES
     ${CMAKE_CURRENT_SOURCE_DIR}/byul.cpp
 
     ${byul_tick_SOURCES}
-    ${common_SOURCES}
+    ${core_SOURCES}
     ${console_SOURCES}
     ${navsys_SOURCES}
     ${balix_SOURCES}
@@ -75,10 +75,10 @@ CACHE INTERNAL "${PROJECT_NAME} source files"  FORCE
 
 set(${PROJECT_NAME}_HEADERS
     ${CMAKE_CURRENT_SOURCE_DIR}/byul.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/byul_common.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/byul_config.h
 
     ${byul_tick_HEADERS}
-    ${common_HEADERS}
+    ${core_HEADERS}
     ${console_HEADERS}
     ${navsys_HEADERS}
     ${balix_HEADERS}
@@ -101,7 +101,7 @@ set(EXTERNAL_DIR ${CMAKE_SOURCE_DIR}/../external)
 message(STATUS "${PROJECT_NAME} : EXTERNAL_DIR = ${EXTERNAL_DIR}")
 
 include(${CMAKE_SOURCE_DIR}/cmake/project_manager.cmake)
-extract_header_dirs(common_HEADERS  COMMON_HDR_DIRS)
+extract_header_dirs(core_HEADERS  COMMON_HDR_DIRS)
 extract_header_dirs(console_HEADERS  CONSOLE_HDR_DIRS)
 
 extract_header_dirs(navsys_HEADERS  NAVSYS_HDR_DIRS)

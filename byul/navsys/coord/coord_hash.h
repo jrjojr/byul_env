@@ -3,7 +3,7 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "byul_common.h"
+#include "byul_config.h"
 #include "coord.h"
 #include "coord_list.h"  // for coord_list_t
 

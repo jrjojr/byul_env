@@ -1,7 +1,7 @@
 #ifndef IDA_STAR_H
 #define IDA_STAR_H
 
-#include "route_finder_common.h"
+#include "route_finder_core.h"
 
 #ifdef __cplusplus
 extern "C" {

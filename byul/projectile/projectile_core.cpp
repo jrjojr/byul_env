@@ -1,5 +1,5 @@
 #include <iostream>
-#include "projectile_common.h"
+#include "projectile_core.h"
 #include <math.h>
 
 void projectile_init(projectile_t* proj)

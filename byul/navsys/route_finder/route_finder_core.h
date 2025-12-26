@@ -1,7 +1,7 @@
-#ifndef ROUTE_FINDER_COMMON_H
-#define ROUTE_FINDER_COMMON_H
+#ifndef ROUTE_FINDER_CORE_H
+#define ROUTE_FINDER_CORE_H
 
-#include "byul_common.h"
+#include "byul_config.h"
 #include "navgrid.h"
 #include "coord.h"
 #include "route.h"
@@ -85,4 +85,4 @@ BYUL_API float default_heuristic(const coord_t*, const coord_t*, void*);
 }
 #endif
 
-#endif // ROUTE_FINDER_COMMON_H
+#endif // ROUTE_FINDER_CORE_H

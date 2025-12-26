@@ -2,7 +2,7 @@
 #include <cmath>
 
 #include "coord.h"
-#include "float_common.h"
+#include "float_core.h"
 
 TEST_CASE("Wrap-Around Test") {
     coord_t a;

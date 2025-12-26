@@ -9,7 +9,7 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 set(${PROJECT_NAME}_SOURCES
 
     ${CMAKE_CURRENT_SOURCE_DIR}/obstacle.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/obstacle_common.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/obstacle_core.cpp
 
 CACHE INTERNAL "${PROJECT_NAME} source files"  FORCE
 )
@@ -17,7 +17,7 @@ CACHE INTERNAL "${PROJECT_NAME} source files"  FORCE
 set(${PROJECT_NAME}_HEADERS
 
     ${CMAKE_CURRENT_SOURCE_DIR}/obstacle.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/obstacle_common.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/obstacle_core.h
 
 CACHE INTERNAL "${PROJECT_NAME} header files"  FORCE
 )
@@ -28,7 +28,7 @@ target_include_directories(${PROJECT_NAME} PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}    
     ${CMAKE_SOURCE_DIR}
     
-    ${CMAKE_SOURCE_DIR}/common
+    ${CMAKE_SOURCE_DIR}/core
 
     ${CMAKE_SOURCE_DIR}/navsys/coord
     ${CMAKE_SOURCE_DIR}/navsys/route
@@ -36,7 +36,7 @@ target_include_directories(${PROJECT_NAME} PRIVATE
 )
 
 target_link_libraries(${PROJECT_NAME} PRIVATE 
-    common
+    core
     coord
     route
     navgrid

@@ -1,7 +1,7 @@
 #ifndef MAZE_WILSON_H
 #define MAZE_WILSON_H
 
-#include "maze_common.h"
+#include "maze_core.h"
 
 #ifdef __cplusplus
 extern "C" {

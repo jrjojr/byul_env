@@ -1,7 +1,7 @@
 #ifndef NAVCELL_H
 #define NAVCELL_H
 
-#include "byul_common.h"
+#include "byul_config.h"
 
 #ifdef __cplusplus
 extern "C" {

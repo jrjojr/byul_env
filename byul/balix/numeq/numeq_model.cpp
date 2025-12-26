@@ -1,6 +1,6 @@
 #include "numeq_model.h"
 #include "vec3.hpp"
-#include "float_common.h"
+#include "float_core.h"
 #include "numeq_integrator.h"
 #include <cmath>
 #include <functional>

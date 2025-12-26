@@ -4,7 +4,7 @@
 #include <stdbool.h>
 #include "numal.h"
 #include "motion_state.h"
-#include "byul_common.h"
+#include "byul_config.h"
 
 #ifdef __cplusplus
 extern "C" {

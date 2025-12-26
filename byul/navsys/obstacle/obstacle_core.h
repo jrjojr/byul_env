@@ -1,7 +1,7 @@
-#ifndef OBSTACLE_COMMON_H
-#define OBSTACLE_COMMON_H
+#ifndef OBSTACLE_CORE_H
+#define OBSTACLE_CORE_H
 
-#include "byul_common.h"
+#include "byul_config.h"
 #include "coord.h"
 #include "coord_hash.h"
 #include "navgrid.h"
@@ -106,4 +106,4 @@ BYUL_API void obstacle_block_straight(obstacle_t* obs,
 }
 #endif
 
-#endif // OBSTACLE_COMMON_H
+#endif // OBSTACLE_CORE_H

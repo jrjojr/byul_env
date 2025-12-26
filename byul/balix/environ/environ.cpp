@@ -1,7 +1,7 @@
 #include "environ.h"
 #include "numeq_model.h"
 #include "vec3.h"
-#include "float_common.h"
+#include "float_core.h"
 #include <math.h>
 #include <string.h>
 

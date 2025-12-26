@@ -2,7 +2,7 @@
 #define COST_COORD_PQ_H
 
 #include "coord.h"   // coord_t
-#include "byul_common.h"
+#include "byul_config.h"
 #include <stdbool.h>
 
 #ifdef __cplusplus

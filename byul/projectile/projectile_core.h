@@ -1,12 +1,12 @@
-#ifndef PROJECTILE_COMMON_H
-#define PROJECTILE_COMMON_H
+#ifndef PROJECTILE_CORE_H
+#define PROJECTILE_CORE_H
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
 #include <stdbool.h>
-#include "byul_common.h"
+#include "byul_config.h"
 #include "entity_dynamic.h"
 
 // ---------------------------------------------------------
@@ -386,4 +386,4 @@ BYUL_API bool projectile_calc_launch_param_inverse_env(
 }
 #endif
 
-#endif // PROJECTILE_COMMON_H
+#endif // PROJECTILE_CORE_H

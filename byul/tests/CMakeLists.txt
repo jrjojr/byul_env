@@ -48,7 +48,7 @@ function(add_module MODULE_NAME)
 endfunction()
 
 # 테스트 모듈 등록
-add_module(common)
+add_module(core)
 add_module(console)
 add_module(navsys)
 add_module(balix)
@@ -73,7 +73,7 @@ target_include_directories(${PROJECT_NAME} PRIVATE
     ${TEST_INC_DIRS}
     ${CMAKE_SOURCE_DIR}
     ${CMAKE_CURRENT_SOURCE_DIR}
-    ${CMAKE_SOURCE_DIR}/common
+    ${CMAKE_SOURCE_DIR}/core
     ${CMAKE_SOURCE_DIR}/byul_tick
     ${CMAKE_SOURCE_DIR}/console
     ${CMAKE_SOURCE_DIR}/navsys
@@ -85,13 +85,13 @@ target_include_directories(${PROJECT_NAME} PRIVATE
 
 target_link_directories(${PROJECT_NAME} PRIVATE 
     # byul
-    # ${CMAKE_BINARY_DIR}/common
+    # ${CMAKE_BINARY_DIR}/core
     # ${CMAKE_BINARY_DIR}/console
 )
 
 target_link_libraries(${PROJECT_NAME} PRIVATE 
     byul
-    # common
+    # core
     # console
 )
 

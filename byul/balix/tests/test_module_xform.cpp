@@ -7,7 +7,7 @@ extern "C" {
 }
 
 #include "vec3.hpp"
-#include "float_common.h"
+#include "float_core.h"
 
 TEST_CASE("xform: identity transform") {
     xform_t xf;

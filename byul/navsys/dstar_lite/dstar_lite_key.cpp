@@ -1,5 +1,5 @@
 #include "dstar_lite_key.h"
-#include "float_common.h"
+#include "float_core.h"
 #include <cmath>
 #include <cstdint>
 

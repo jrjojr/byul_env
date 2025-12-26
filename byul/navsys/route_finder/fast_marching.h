@@ -1,7 +1,7 @@
 #ifndef FAST_MARCHING_H
 #define FAST_MARCHING_H
 
-#include "route_finder_common.h"
+#include "route_finder_core.h"
 #include "cost_coord_pq.h"
 #include "navgrid.h"
 

@@ -96,7 +96,7 @@ target_include_directories(${PROJECT_NAME} PRIVATE
     ${EXTERNAL_DIR}
     ${CMAKE_CURRENT_SOURCE_DIR}
     ${CMAKE_SOURCE_DIR}
-    ${CMAKE_SOURCE_DIR}/common
+    ${CMAKE_SOURCE_DIR}/core
     ${CMAKE_SOURCE_DIR}/byul_tick
     
     ${CMAKE_SOURCE_DIR}/navsys
@@ -128,7 +128,7 @@ set(LIBS
     # xform
     # trajectory
     # controller
-    common
+    core
 )
 
 target_link_libraries(${PROJECT_NAME} PRIVATE ${LIBS})

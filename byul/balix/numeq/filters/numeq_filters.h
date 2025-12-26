@@ -52,7 +52,7 @@
 extern "C" {
 #endif
 
-#include "byul_common.h"
+#include "byul_config.h"
 #include "numeq_kalman.h"  // Includes Kalman basic implementation
 
 // =========================================================

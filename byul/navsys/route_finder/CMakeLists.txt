@@ -24,7 +24,7 @@ set(${PROJECT_NAME}_SOURCES
 
     ${CMAKE_CURRENT_SOURCE_DIR}/ida_star.cpp
 
-    ${CMAKE_CURRENT_SOURCE_DIR}/route_finder_common.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/route_finder_core.cpp
 
     ${CMAKE_CURRENT_SOURCE_DIR}/route_finder.cpp
 
@@ -55,7 +55,7 @@ set(${PROJECT_NAME}_HEADERS
 
     ${CMAKE_CURRENT_SOURCE_DIR}/ida_star.h
 
-    ${CMAKE_CURRENT_SOURCE_DIR}/route_finder_common.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/route_finder_core.h
 
     ${CMAKE_CURRENT_SOURCE_DIR}/route_finder.h
 
@@ -74,14 +74,14 @@ target_include_directories(${PROJECT_NAME} PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}    
     ${CMAKE_SOURCE_DIR}
     
-    ${CMAKE_SOURCE_DIR}/common
+    ${CMAKE_SOURCE_DIR}/core
     ${CMAKE_SOURCE_DIR}/navsys/coord
     ${CMAKE_SOURCE_DIR}/navsys/route
     ${CMAKE_SOURCE_DIR}/navsys/navgrid
 )
 
 target_link_libraries(${PROJECT_NAME} PRIVATE 
-    common
+    core
     coord
     route
     navgrid

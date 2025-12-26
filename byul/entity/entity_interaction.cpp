@@ -1,5 +1,5 @@
 #include "entity_interaction.h"
-#include "float_common.h"
+#include "float_core.h"
 #include <math.h>
 
 void entity_interact_apply_force(

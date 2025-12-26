@@ -5,7 +5,7 @@
 #include <vector>
 #include "numeq_solver.h"
 #include "vec3.hpp"
-#include "float_common.h"
+#include "float_core.h"
 
 bool numeq_solve_linear(float a, float b, float* out_x)
 {
