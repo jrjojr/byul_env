@@ -1,5 +1,5 @@
 #include "plane.h"
-#include "float_core.h"   // float_zero, FLOAT_EPSILON_TINY
+#include "scalar.h"   // scalar_zero, SCALAR_EPSILON_TINY
 #include <math.h>
 
 static inline bool plane_safe_normalize(vec3_t* n_unit)
@@ -127,7 +127,7 @@ bool plane_ray_intersect(const plane_t* p, const vec3_t* ro, const vec3_t* rd,
                          float* out_t, vec3_t* out_point){
     if (!p || !ro || !rd) return false;
     float denom = vec3_dot(rd, &p->normal_unit);
-    if (fabsf(denom) <= FLOAT_EPSILON_TINY) return false; // almost parallel
+    if (fabsf(denom) <= SCALAR_EPSILON_TINY) return false; // almost parallel
     float t = -(vec3_dot(&p->normal_unit, ro) + p->d) / denom;
     if (t < 0.0f) return false;
     if (out_t) *out_t = t;
@@ -149,7 +149,7 @@ bool plane_segment_intersect(
     float db = plane_signed_distance(p, b);
     float denom = db - da;
     // parallel or both on plane    
-    if (fabsf(denom) <= FLOAT_EPSILON_TINY) return false; 
+    if (fabsf(denom) <= SCALAR_EPSILON_TINY) return false; 
     float s = -da / denom;
     if (s < 0.0f || s > 1.0f) return false;
     if (out_s) *out_s = s;

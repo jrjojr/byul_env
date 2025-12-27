@@ -2,7 +2,7 @@
 
 extern "C" {
     #include "numeq_model.h"
-    #include "float_core.h"
+    #include "scalar.h"
 }
 
 // Environment: gravity only, no wind

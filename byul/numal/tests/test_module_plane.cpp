@@ -1,7 +1,7 @@
 // tests/test_plane.cpp
 #include "doctest.h"
 #include "plane.h"
-#include "float_core.h"
+#include "scalar.h"
 #include <math.h>
 
 TEST_CASE("plane: init default and full")

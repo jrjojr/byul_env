@@ -2,7 +2,7 @@
 #include <cmath>
 
 #include "coord.h"
-#include "float_core.h"
+#include "scalar.h"
 
 TEST_CASE("Wrap-Around Test") {
     coord_t a;
@@ -86,8 +86,8 @@ TEST_CASE("Angle in Radian Test") {
     coord_init_full(&west, -1, 0);
     coord_init_full(&south, 0, -1);
 
-     CHECK(doctest::Approx(coord_angle(&origin, &east)).epsilon(FLOAT_EPSILON) == 0.0);
-    CHECK(doctest::Approx(coord_angle(&origin, &north)).epsilon(FLOAT_EPSILON) == M_PI / 2.0);
-    CHECK(doctest::Approx(coord_angle(&origin, &west)).epsilon(FLOAT_EPSILON) == M_PI);
-    CHECK(doctest::Approx(coord_angle(&origin, &south)).epsilon(FLOAT_EPSILON) == 3.0 * M_PI / 2.0);
+     CHECK(doctest::Approx(coord_angle(&origin, &east)).epsilon(SCALAR_EPSILON) == 0.0);
+    CHECK(doctest::Approx(coord_angle(&origin, &north)).epsilon(SCALAR_EPSILON) == M_PI / 2.0);
+    CHECK(doctest::Approx(coord_angle(&origin, &west)).epsilon(SCALAR_EPSILON) == M_PI);
+    CHECK(doctest::Approx(coord_angle(&origin, &south)).epsilon(SCALAR_EPSILON) == 3.0 * M_PI / 2.0);
 }

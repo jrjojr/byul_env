@@ -6,7 +6,6 @@ project(test_core)
 # 소스 파일 설정
 set(${PROJECT_NAME}_SOURCES
     ${CMAKE_CURRENT_SOURCE_DIR}/main.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/test_module_core.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/test_module_strset.cpp    
 
 CACHE INTERNAL "${PROJECT_NAME} source files"
@@ -23,7 +22,7 @@ set(EXTERNAL_DIR ${CMAKE_SOURCE_DIR}/../external)
 message(STATUS "${PROJECT_NAME} : EXTERNAL_DIR = ${EXTERNAL_DIR}")
 
 # 포함 디렉토리
-# float_core.h, doctest.h 등 경로 포함
+# scalar.h, doctest.h 등 경로 포함
 target_include_directories(${PROJECT_NAME} PRIVATE
     ${CMAKE_SOURCE_DIR}                         # 프로젝트 루트
     ${CMAKE_SOURCE_DIR}/core
@@ -40,12 +39,6 @@ target_link_directories(${PROJECT_NAME} PRIVATE
 target_link_libraries(${PROJECT_NAME} PRIVATE
     core
 )
-
-# 수학 라이브러리 링크 (리눅스/유닉스 전용)
-if(UNIX)
-    target_link_libraries(${PROJECT_NAME} PRIVATE m)
-endif()
-
 
 target_compile_definitions(${PROJECT_NAME} PRIVATE BYUL_STATIC)
 

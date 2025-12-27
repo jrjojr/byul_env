@@ -61,7 +61,7 @@ target_include_directories(${PROJECT_NAME} PRIVATE
 
     ${CMAKE_SOURCE_DIR}/navsys/coord
 
-    ${CMAKE_SOURCE_DIR}/balix/numal
+    ${CMAKE_SOURCE_DIR}/numal
     ${CMAKE_SOURCE_DIR}/balix/xform
     ${CMAKE_SOURCE_DIR}/balix/bodyprops
     ${CMAKE_SOURCE_DIR}/balix/environ

@@ -36,7 +36,7 @@
 
 #include "byul_config.h"
 
-#include "float_core.h"
+// #include "scalar.h"
 
 #include "navgrid.h"
 #include "coord.h"

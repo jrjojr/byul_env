@@ -5,7 +5,7 @@
 #include <vector>
 #include "numeq_solver.h"
 #include "vec3.hpp"
-#include "float_core.h"
+#include "scalar.h"
 
 bool numeq_solve_linear(float a, float b, float* out_x)
 {
@@ -17,7 +17,7 @@ bool numeq_solve_linear(float a, float b, float* out_x)
 bool numeq_solve_quadratic(float a, float b, float c, 
     float* out_x1, float* out_x2) {
 
-    if (!out_x1 || !out_x2 || float_equal(a,0.0f) ) return false;
+    if (!out_x1 || !out_x2 || scalar_equal(a,0.0f) ) return false;
     float D = b * b - 4 * a * c;
     if (D < 0.0f) return false;
     float sqrtD = std::sqrt(D);

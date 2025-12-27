@@ -2,7 +2,7 @@
 #include <cmath>
 #include <cstdlib>
 #include <stdio.h>
-#include "float_core.h"
+// #include "scalar.h"
 
 // ------------------------ Internal Utilities ------------------------
 

@@ -1,5 +1,5 @@
 #include "vec3.h"
-#include "float_core.h"
+#include "scalar.h"
 #include <cmath>
 #include <new>
 #include <stdio.h>
@@ -23,17 +23,17 @@ void vec3_assign(vec3_t* out, const vec3_t* src) {
 
 bool vec3_equal(const vec3_t* a, const vec3_t* b) {
     if (!a || !b) return false;
-    return float_equal(a->x, b->x) &&
-           float_equal(a->y, b->y) &&
-           float_equal(a->z, b->z);
+    return scalar_equal(a->x, b->x) &&
+           scalar_equal(a->y, b->y) &&
+           scalar_equal(a->z, b->z);
 }
 
 bool vec3_equal_tol(const vec3_t* a, const vec3_t* b, float tol)
 {
     if (!a || !b) return false;
-    return float_equal_tol(a->x, b->x, tol) &&
-           float_equal_tol(a->y, b->y, tol) &&
-           float_equal_tol(a->z, b->z, tol);
+    return scalar_equal_tol(a->x, b->x, tol) &&
+           scalar_equal_tol(a->y, b->y, tol) &&
+           scalar_equal_tol(a->z, b->z, tol);
 }
 
 bool vec3_equal_tol_all(
@@ -41,9 +41,9 @@ bool vec3_equal_tol_all(
     float tol_pos, float tol_neg)
 {
     if (!a || !b) return false;
-    return float_equal_tol_all(a->x, b->x, tol_pos, tol_neg) &&
-           float_equal_tol_all(a->y, b->y, tol_pos, tol_neg) &&
-           float_equal_tol_all(a->z, b->z, tol_pos, tol_neg);
+    return scalar_equal_tol_all(a->x, b->x, tol_pos, tol_neg) &&
+           scalar_equal_tol_all(a->y, b->y, tol_pos, tol_neg) &&
+           scalar_equal_tol_all(a->z, b->z, tol_pos, tol_neg);
 }
 
 uint32_t vec3_hash(const vec3_t* v) {
@@ -88,9 +88,9 @@ void vec3_mul(vec3_t* out, const vec3_t* a, const vec3_t* b) {
 void vec3_div(vec3_t* out, const vec3_t* a, const vec3_t* b) {
     if (!out || !a || !b) return;
 
-    out->x = (fabsf(b->x) > FLOAT_EPSILON) ? (a->x / b->x) : INFINITY;
-    out->y = (fabsf(b->y) > FLOAT_EPSILON) ? (a->y / b->y) : INFINITY;
-    out->z = (fabsf(b->z) > FLOAT_EPSILON) ? (a->z / b->z) : INFINITY;
+    out->x = (fabsf(b->x) > SCALAR_EPSILON) ? (a->x / b->x) : INFINITY;
+    out->y = (fabsf(b->y) > SCALAR_EPSILON) ? (a->y / b->y) : INFINITY;
+    out->z = (fabsf(b->z) > SCALAR_EPSILON) ? (a->z / b->z) : INFINITY;
 
 #ifdef DEBUG
     if (b->x == 0.0f || b->y == 0.0f || b->z == 0.0f) {
@@ -194,9 +194,9 @@ void vec3_to_mat4(const vec3_t* v, float out[16]) {
 bool vec3_is_zero(const vec3_t* v)
 {
     if (!v) return true;
-    return (float_zero(v->x) &&
-            float_zero(v->y) &&
-            float_zero(v->z));
+    return (scalar_zero(v->x) &&
+            scalar_zero(v->y) &&
+            scalar_zero(v->z));
 }
 
 char* vec3_to_string(const vec3_t* v, size_t buffer_size, char* buffer) {

@@ -1,5 +1,5 @@
 #include "entity_interaction.h"
-#include "float_core.h"
+#include "scalar.h"
 #include <math.h>
 
 void entity_interact_apply_force(
@@ -34,7 +34,7 @@ void entity_interact_resolve_bounce(
     entity_dynamic_t* a,
     entity_dynamic_t* b)
 {
-    if (!a || !b || float_equal(a->props.mass + b->props.mass, 0.0f))
+    if (!a || !b || scalar_equal(a->props.mass + b->props.mass, 0.0f))
         return;
 
     vec3_t v1 = a->velocity;

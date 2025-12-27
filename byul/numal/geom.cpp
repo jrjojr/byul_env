@@ -1,7 +1,7 @@
 #include "geom.h"
 #include <math.h>
 #include <float.h>
-#include "float_core.h"
+#include "scalar.h"
 
 bool vec3_colinear(const vec3_t* a, const vec3_t* b, float cos_eps) {
     float la2 = vec3_length_sq(a); 
@@ -62,7 +62,7 @@ void vec3_barycentric(vec3_t* uvw, const vec3_t* p,
     float d21 = vec3_dot(&v2, &v1);
 
     float denom = d00 * d11 - d01 * d01;
-    if (fabsf(denom) <= FLOAT_EPSILON_TINY) {
+    if (fabsf(denom) <= SCALAR_EPSILON_TINY) {
         // Degenerate triangle -> pick A
         uvw->x = 1.0f; uvw->y = 0.0f; uvw->z = 0.0f;
         return;
@@ -78,7 +78,7 @@ bool vec3_barycentric_inside(const vec3_t* uvw, float eps){
     // inside if u>=-eps, v>=-eps, w>=-eps and u+v+w ~= 1
     if (uvw->x < -eps || uvw->y < -eps || uvw->z < -eps) return false;
     float s = uvw->x + uvw->y + uvw->z;
-    return fabsf(s - 1.0f) <= fmaxf(eps, FLOAT_EPSILON);
+    return fabsf(s - 1.0f) <= fmaxf(eps, SCALAR_EPSILON);
 }
 
 // -----------------------------------------------------------------------------
@@ -88,7 +88,7 @@ float vec3_point_plane_signed_distance(
     const vec3_t* point, const vec3_t* plane_point, const vec3_t* plane_normal){
     vec3_t r; vec3_sub(&r, point, plane_point);
     float n2 = vec3_length_sq(plane_normal);
-    if (n2 <= FLOAT_EPSILON_TINY) return 0.0f;
+    if (n2 <= SCALAR_EPSILON_TINY) return 0.0f;
     float invn = 1.0f / sqrtf(n2);
     vec3_t nunit = *plane_normal; vec3_iscale(&nunit, invn);
     return vec3_dot(&r, &nunit);
@@ -111,7 +111,7 @@ bool vec3_segment_plane_intersect(
     float* out_s, vec3_t* out_point){
     vec3_t ab; vec3_sub(&ab, b, a);
     float denom = vec3_dot(plane_normal, &ab);
-    if (fabsf(denom) <= FLOAT_EPSILON_TINY) return false; // parallel
+    if (fabsf(denom) <= SCALAR_EPSILON_TINY) return false; // parallel
 
     vec3_t ap0; vec3_sub(&ap0, plane_point, a);
     float s = vec3_dot(plane_normal, &ap0) / denom;
@@ -133,7 +133,7 @@ bool vec3_ray_triangle_intersect(
     const vec3_t* ray_origin, const vec3_t* ray_dir,
     const vec3_t* a, const vec3_t* b, const vec3_t* c,
     bool cull_backface, float* out_t, vec3_t* out_uv, vec3_t* out_point){
-    const float EPS = FLOAT_EPSILON_TINY;
+    const float EPS = SCALAR_EPSILON_TINY;
 
     vec3_t e1, e2;
     vec3_sub(&e1, b, a);
@@ -265,7 +265,7 @@ bool vec3_triangle_normal(vec3_t* out_n,
     vec3_sub(&e2, c, a);
     vec3_cross(out_n, &e1, &e2);
     float n2 = vec3_length_sq(out_n);
-    if (n2 <= FLOAT_EPSILON_TINY) return false;
+    if (n2 <= SCALAR_EPSILON_TINY) return false;
     if (normalize){
         float inv = 1.0f / sqrtf(n2);
         vec3_iscale(out_n, inv);
@@ -307,7 +307,7 @@ bool vec3_segment_intersect_closest(
     vec3_t diff;
     vec3_sub(&diff, &out->point_a, &out->point_b);
     out->distance = vec3_length(&diff);
-    out->intersect = (out->distance < FLOAT_EPSILON);
+    out->intersect = (out->distance < SCALAR_EPSILON);
 
     return out->intersect;
 }
@@ -357,7 +357,7 @@ bool vec3_ray_plane_intersect(
     vec3_t* out_point)
 {
     float denom = vec3_dot(ray_dir, plane_normal);
-    if (fabsf(denom) < FLOAT_EPSILON) return false;
+    if (fabsf(denom) < SCALAR_EPSILON) return false;
 
     vec3_t diff;
     vec3_sub(&diff, plane_point, ray_origin);

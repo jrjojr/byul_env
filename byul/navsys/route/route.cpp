@@ -1,6 +1,6 @@
 #include "route.h"
 #include "coord.hpp"
-#include "float_core.h"
+#include "scalar.h"
 #include "coord_list.h"
 
 #include <vector>
@@ -370,7 +370,7 @@ int route_has_changed(route_t* p,
     float dx = (float)(coord_get_x(to) - coord_get_x(from));
     float dy = (float)(coord_get_y(to) - coord_get_y(from));
     float len = std::sqrt(dx * dx + dy * dy);
-    if (len < FLOAT_EPSILON) return 0;
+    if (len < SCALAR_EPSILON) return 0;
 
     float curr_x = dx / len;
     float curr_y = dy / len;
@@ -394,7 +394,7 @@ int route_has_changed_with_angle(route_t* p,
     float dx = (float)(coord_get_x(to) - coord_get_x(from));
     float dy = (float)(coord_get_y(to) - coord_get_y(from));
     float len = std::sqrt(dx * dx + dy * dy);
-    if (len < FLOAT_EPSILON) {
+    if (len < SCALAR_EPSILON) {
         *out_angle_deg = 0.0f;
         return 0;
     }
@@ -413,7 +413,7 @@ int route_has_changed_with_angle(route_t* p,
     float avg_len = std::sqrt(
         p->avg_vec_x * p->avg_vec_x + p->avg_vec_y * p->avg_vec_y);
         
-    if (avg_len < FLOAT_EPSILON) {
+    if (avg_len < SCALAR_EPSILON) {
         *out_angle_deg = 0.0f;
         return 0;
     }
@@ -465,7 +465,7 @@ void route_update_average_vector(route_t* p,
     float dx = (float)(coord_get_x(to) - coord_get_x(from));
     float dy = (float)(coord_get_y(to) - coord_get_y(from));
     float len = std::sqrt(dx * dx + dy * dy);
-    if (len < FLOAT_EPSILON) return;
+    if (len < SCALAR_EPSILON) return;
 
     p->avg_vec_x += dx / len;
     p->avg_vec_y += dy / len;

@@ -22,10 +22,11 @@ set(EXTERNAL_DIR ${CMAKE_SOURCE_DIR}/../external)
 message(STATUS "${PROJECT_NAME} : EXTERNAL_DIR = ${EXTERNAL_DIR}")
 
 # 포함 디렉토리
-# float_core.h, doctest.h 등 경로 포함
+# scalar.h, doctest.h 등 경로 포함
 target_include_directories(${PROJECT_NAME} PRIVATE
     ${CMAKE_SOURCE_DIR}                         # 프로젝트 루트
     ${CMAKE_SOURCE_DIR}/core
+    ${CMAKE_SOURCE_DIR}/numal
     ${CMAKE_SOURCE_DIR}/byul_tick
     ${CMAKE_CURRENT_SOURCE_DIR}                 # 현재 테스트 디렉토리
     ${CMAKE_BINARY_DIR}/include/byul     # 빌드시 생성되는 헤더

@@ -18,8 +18,8 @@ route_t* find_astar(const navgrid_t* m, const coord_t* start, const coord_t* goa
 
     cost_coord_pq_t* pq = cost_coord_pq_create();
     coord_hash_t* cost_so_far = coord_hash_create_full(
-        (coord_hash_copy_func) float_copy,
-        (coord_hash_destroy_func) float_destroy
+        (coord_hash_copy_func) scalar_copy,
+        (coord_hash_destroy_func) scalar_destroy
     );   // coord_t* -> float*
     
     // coord_t* -> coord_t*

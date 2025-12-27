@@ -3,6 +3,7 @@
 #include "route.h"
 #include "dstar_lite_pqueue.h"
 #include "dstar_lite_key.h"
+#include "scalar.h"
 
 #include <float.h>
 #include <math.h>
@@ -290,13 +291,13 @@ dstar_lite_t* dstar_lite_create_full(navgrid_t* navgrid,
     dsl->debug_mode_enabled = debug_mode_enabled;
 
     dsl->g_table = coord_hash_create_full(
-        (coord_hash_copy_func) float_copy,
-        (coord_hash_destroy_func) float_destroy
+        (coord_hash_copy_func) scalar_copy,
+        (coord_hash_destroy_func) scalar_destroy
     );
 
     dsl->rhs_table = coord_hash_create_full(
-        (coord_hash_copy_func) float_copy,
-        (coord_hash_destroy_func) float_destroy        
+        (coord_hash_copy_func) scalar_copy,
+        (coord_hash_destroy_func) scalar_destroy        
     );
 
     dsl->frontier = dstar_lite_pqueue_create();
@@ -502,13 +503,13 @@ void dstar_lite_reset(dstar_lite_t* dsl) {
     coord_hash_destroy(dsl->rhs_table);
 
     dsl->g_table = coord_hash_create_full(
-        (coord_hash_copy_func) float_copy,
-        (coord_hash_destroy_func) float_destroy        
+        (coord_hash_copy_func) scalar_copy,
+        (coord_hash_destroy_func) scalar_destroy        
     );
 
     dsl->rhs_table = coord_hash_create_full(
-        (coord_hash_copy_func) float_copy,
-        (coord_hash_destroy_func) float_destroy        
+        (coord_hash_copy_func) scalar_copy,
+        (coord_hash_destroy_func) scalar_destroy        
     );
 
     if (dsl->proto_route) {
@@ -643,7 +644,7 @@ void dstar_lite_update_vertex(dstar_lite_t* dsl, const coord_t* u) {
         rhs_u = FLT_MAX;
     }
 
-    if (!float_equal(g_u, rhs_u)) {
+    if (!scalar_equal(g_u, rhs_u)) {
         dstar_lite_key_t* key = dstar_lite_calc_key(dsl, u);
         dstar_lite_pqueue_push(dsl->frontier, key, u);
         dstar_lite_key_destroy(key);
@@ -717,7 +718,7 @@ void dstar_lite_compute_shortest_route(dstar_lite_t* dsl) {
         float rhs_start = rhs_start_ptr ? *rhs_start_ptr : FLT_MAX;
 
         if (dstar_lite_key_compare(top_key, start_key) >= 0 &&
-            float_equal(rhs_start, g_start)) {
+            scalar_equal(rhs_start, g_start)) {
             dstar_lite_key_destroy(top_key);
             dstar_lite_key_destroy(start_key);
             coord_destroy(u);
@@ -755,7 +756,7 @@ void dstar_lite_compute_shortest_route(dstar_lite_t* dsl) {
 
                 float cost = dsl->cost_fn(dsl->navgrid, s, u, NULL);
 
-                if (float_equal(rhs_s, cost + g_u)) {
+                if (scalar_equal(rhs_s, cost + g_u)) {
                     if (!coord_equal(s, &dsl->goal)) {
                         float min_rhs = FLT_MAX;
                         coord_list_t* succs = navgrid_copy_neighbors_all(dsl->navgrid, s->x, s->y);
@@ -796,7 +797,7 @@ bool dstar_lite_reconstruct_route(dstar_lite_t* dsl) {
     route_add_coord(p, &dsl->start);    
 
     float* g_start_ptr = (float*) coord_hash_get(dsl->g_table, &dsl->start);
-    if (!g_start_ptr || float_equal(*g_start_ptr, FLT_MAX)) {
+    if (!g_start_ptr || scalar_equal(*g_start_ptr, FLT_MAX)) {
         if (dsl->debug_mode_enabled) {
             // p->visited_count = coord_hash_copy(dsl->update_count_table);
             p->total_retry_count = dstar_lite_proto_compute_retry_count(dsl);
@@ -850,7 +851,7 @@ bool dstar_lite_reconstruct_route(dstar_lite_t* dsl) {
         }
 
         float* g_next_ptr = (float*) coord_hash_get(dsl->g_table, &next);
-        if (!g_next_ptr || float_equal(*g_next_ptr, FLT_MAX)) {
+        if (!g_next_ptr || scalar_equal(*g_next_ptr, FLT_MAX)) {
             // coord_destroy(current);
             // coord_destroy(next);
             // route_destroy(p);
@@ -922,7 +923,7 @@ void dstar_lite_find_loop(dstar_lite_t* dsl) {
 
         float* rhs_ptr = (float*)coord_hash_get(dsl->rhs_table, &current);
         float rhs_val = rhs_ptr ? *rhs_ptr : FLT_MAX;
-        if (float_equal(rhs_val, FLT_MAX)) {
+        if (scalar_equal(rhs_val, FLT_MAX)) {
             route_set_success(dsl->real_route, false);
             dsl->real_loop_retry_count = loop;
             return;

@@ -9,6 +9,7 @@
 #define BYUL_H
 
 #include "byul_config.h"
+#include "numal.h"
 #include "navsys.h"
 #include "balix.h"
 #include "entity.h"

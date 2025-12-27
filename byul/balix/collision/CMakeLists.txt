@@ -34,7 +34,7 @@ target_include_directories(${PROJECT_NAME} PRIVATE
     ${CMAKE_SOURCE_DIR}    
     ${CMAKE_SOURCE_DIR}/core
 
-    ${CMAKE_SOURCE_DIR}/balix/numal
+    ${CMAKE_SOURCE_DIR}/numal
     
     ${CMAKE_SOURCE_DIR}/balix/numeq
 
@@ -51,6 +51,7 @@ target_include_directories(${PROJECT_NAME} PRIVATE
 # 링크 라이브러리 설정
 target_link_libraries(${PROJECT_NAME} PRIVATE 
     # balix
+    numal
 )
 
 # 수학 라이브러리 링크 (리눅스/유닉스 전용)

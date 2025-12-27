@@ -1,5 +1,5 @@
-#ifndef FLOAT_CORE_H
-#define FLOAT_CORE_H
+#ifndef SCALAR_H
+#define SCALAR_H
 
 #include <stdint.h>
 #include <stdbool.h>
@@ -14,19 +14,19 @@ extern "C" {
 /// @brief Epsilon value for float comparison
 // This is relative error, not absolute error, which is why it is 1e-5f instead of 1e-6f.
 // For example, 1.000001 and 1.000002 are considered the same.
-// CHECK(float_equal(1.00001f, 1.000019f));
-// CHECK(float_equal(1.00001f, 1.000001f));
-// CHECK_FALSE(float_equal(1.00001f, 1.000020f));
-// CHECK_FALSE(float_equal(1.00001f, 1.000000f));
+// CHECK(scalar_equal(1.00001f, 1.000019f));
+// CHECK(scalar_equal(1.00001f, 1.000001f));
+// CHECK_FALSE(scalar_equal(1.00001f, 1.000020f));
+// CHECK_FALSE(scalar_equal(1.00001f, 1.000000f));
 // Relative epsilon for float comparisons near magnitude ~1.
 // Do not confuse with absolute zero thresholds.
-#define FLOAT_EPSILON 1e-5f
+#define SCALAR_EPSILON 1e-5f
 
 /**
- * @def FLOAT_EPSILON_TINY
+ * @def SCALAR_EPSILON_TINY
  * @brief Absolute lower bound used for checking very small values
  */
-#define FLOAT_EPSILON_TINY      1e-8f
+#define SCALAR_EPSILON_TINY      1e-8f
 
 #define SQRT2_INV 0.70710678118f
 
@@ -59,7 +59,7 @@ extern "C" {
  */
 #define RAD2DEG(rad)  ((rad) * 57.29577951308232f)
 
-BYUL_API int  float_compare(float a, float b, void* userdata);
+BYUL_API int  scalar_compare(float a, float b, void* userdata);
 
 BYUL_API int  int_compare(int a, int b, void* userdata);
 
@@ -73,7 +73,7 @@ BYUL_API int  int_compare(int a, int b, void* userdata);
  * @param b Second value
  * @return true if values are sufficiently close
  */
-BYUL_API bool float_equal(float a, float b);
+BYUL_API bool scalar_equal(float a, float b);
 
 /**
  * @brief Compare floats using a tolerance
@@ -83,7 +83,7 @@ BYUL_API bool float_equal(float a, float b);
  * @param tol Allowed tolerance (e.g., 1e-5f)
  * @return true if the difference is within tol
  */
-BYUL_API bool float_equal_tol(float a, float b, float tol);
+BYUL_API bool scalar_equal_tol(float a, float b, float tol);
 
 /**
  * @brief Check if b is within positive/negative tolerance around a
@@ -102,7 +102,7 @@ BYUL_API bool float_equal_tol(float a, float b, float tol);
  *
  * @note If tol_pos or tol_neg is negative, fabsf() is automatically applied.
  */
-BYUL_API bool float_equal_tol_all(
+BYUL_API bool scalar_equal_tol_all(
     float a, float b, float tol_pos, float tol_neg);
 
 /**
@@ -110,7 +110,7 @@ BYUL_API bool float_equal_tol_all(
  * @param x Value to check
  * @return true if |x| < EPSILON
  */
-BYUL_API bool float_zero(float x);
+BYUL_API bool scalar_zero(float x);
 
 /**
  * @brief Safe division
@@ -119,33 +119,33 @@ BYUL_API bool float_zero(float x);
  * @param fallback Value to return if b is zero
  * @return a / b or fallback
  */
-BYUL_API float float_safe_div(float a, float b, float fallback);
+BYUL_API float scalar_safe_div(float a, float b, float fallback);
 
 /**
  * @brief Calculate square (x²)
  */
-BYUL_API float float_square(float x);
+BYUL_API float scalar_square(float x);
 
 /**
  * @brief Clamp a value to a specified range
  */
-BYUL_API float float_clamp(float x, float min_val, float max_val);
+BYUL_API float scalar_clamp(float x, float min_val, float max_val);
 
 /**
  * @brief Get the sign of a value
  * @return 1.0f if positive, -1.0f if negative, 0.0f if zero
  */
-BYUL_API float float_sign(float x);
+BYUL_API float scalar_sign(float x);
 
 /**
  * @brief Convert degrees to radians
  */
-BYUL_API float float_deg2rad(float deg);
+BYUL_API float scalar_deg2rad(float deg);
 
 /**
  * @brief Convert radians to degrees
  */
-BYUL_API float float_rad2deg(float rad);
+BYUL_API float scalar_rad2deg(float rad);
 
 /**
  * @brief Linear interpolation
@@ -153,7 +153,7 @@ BYUL_API float float_rad2deg(float rad);
  * @param b End value
  * @param t Interpolation factor in [0,1]
  */
-BYUL_API float float_lerp(float a, float b, float t);
+BYUL_API float scalar_lerp(float a, float b, float t);
 
 /**
  * @brief Inverse linear interpolation
@@ -162,7 +162,7 @@ BYUL_API float float_lerp(float a, float b, float t);
  * @param value Value to evaluate
  * @return Position of value within [a,b] as a percentage (0~1)
  */
-BYUL_API float float_inv_lerp(float a, float b, float value);
+BYUL_API float scalar_inv_lerp(float a, float b, float value);
 
 /**
  * @brief Remap a value from one range to another
@@ -173,7 +173,7 @@ BYUL_API float float_inv_lerp(float a, float b, float value);
  * @param value Input value
  * @return Remapped output value
  */
-BYUL_API float float_remap(float in_min, float in_max, 
+BYUL_API float scalar_remap(float in_min, float in_max, 
                      float out_min, float out_max, float value);
 
 /**
@@ -188,7 +188,7 @@ BYUL_API float float_remap(float in_min, float in_max,
  *
  * @note Equivalent to clamp(x, 0.0f, 1.0f).
  */
-BYUL_API float float_clamp01(float x);
+BYUL_API float scalar_clamp01(float x);
 
 /**
  * @brief Smoothstep interpolation
@@ -197,10 +197,10 @@ BYUL_API float float_clamp01(float x);
  * @param x Current value
  * @return Smoothly interpolated result (0~1)
  */
-BYUL_API float float_smoothstep(float edge0, float edge1, float x);
+BYUL_API float scalar_smoothstep(float edge0, float edge1, float x);
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif // FLOAT_CORE_H
+#endif // SCALAR_H

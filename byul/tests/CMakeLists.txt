@@ -49,6 +49,7 @@ endfunction()
 
 # 테스트 모듈 등록
 add_module(core)
+add_module(numal)
 add_module(console)
 add_module(navsys)
 add_module(balix)
@@ -74,6 +75,7 @@ target_include_directories(${PROJECT_NAME} PRIVATE
     ${CMAKE_SOURCE_DIR}
     ${CMAKE_CURRENT_SOURCE_DIR}
     ${CMAKE_SOURCE_DIR}/core
+    ${CMAKE_SOURCE_DIR}/numal
     ${CMAKE_SOURCE_DIR}/byul_tick
     ${CMAKE_SOURCE_DIR}/console
     ${CMAKE_SOURCE_DIR}/navsys

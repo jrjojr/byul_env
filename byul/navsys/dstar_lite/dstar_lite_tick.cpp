@@ -1,4 +1,5 @@
 #include "dstar_lite_tick.h"
+#include "scalar.h"
 
 #include <float.h>
 #include <math.h>
@@ -157,7 +158,7 @@ void dstar_lite_tick_update(dstar_lite_tick_t* dst, float dt) {
 
         float* rhs_start_ptr = (float*)coord_hash_get(dst->base->rhs_table, &start);
         float rhs_start = rhs_start_ptr ? *rhs_start_ptr : FLT_MAX;
-        if (float_equal(rhs_start, FLT_MAX)) {
+        if (scalar_equal(rhs_start, FLT_MAX)) {
             route_set_success(dst->base->real_route, false);
             dst->ticked = false;
             return;

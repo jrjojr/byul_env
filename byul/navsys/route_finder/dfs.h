@@ -2,7 +2,7 @@
 #define DFS_H
 
 #include "byul_config.h"
-#include "float_core.h"
+#include "scalar.h"
 #include "coord.h"
 #include "navgrid.h"
 #include "route.h"

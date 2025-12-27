@@ -4,6 +4,7 @@ project(test_numal)
 
 set(${PROJECT_NAME}_SOURCES
     ${CMAKE_CURRENT_SOURCE_DIR}/main.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/test_module_scalar.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/test_module_dualnumber.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/test_module_quat.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/test_module_dualquat.cpp
@@ -57,7 +58,7 @@ target_include_directories(${PROJECT_NAME} PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}
     ${CMAKE_SOURCE_DIR}/core
     ${CMAKE_SOURCE_DIR}/console
-    ${CMAKE_SOURCE_DIR}/balix/numal
+    ${CMAKE_SOURCE_DIR}/numal
 
     ${EXTERNAL_DIR}
 )

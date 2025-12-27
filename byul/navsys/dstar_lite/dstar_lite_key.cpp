@@ -1,5 +1,5 @@
 #include "dstar_lite_key.h"
-#include "float_core.h"
+#include "scalar.h"
 #include <cmath>
 #include <cstdint>
 
@@ -8,8 +8,8 @@ bool dstar_lite_key_equal(
 
     if (!dsk0 || !dsk1) return false;
 
-    return (float_equal(dsk0->k1, dsk1->k1)) &&
-           (float_equal(dsk0->k2, dsk1->k2));
+    return (scalar_equal(dsk0->k1, dsk1->k1)) &&
+           (scalar_equal(dsk0->k2, dsk1->k2));
 }
 
 int dstar_lite_key_compare(

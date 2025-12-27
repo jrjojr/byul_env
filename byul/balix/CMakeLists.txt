@@ -2,8 +2,6 @@ cmake_minimum_required(VERSION 3.20)
 
 project(balix)
 
-add_subdirectory(numal)
-
 add_subdirectory(collision)
 
 # ─────────────────────────────────────────────
@@ -97,6 +95,7 @@ target_include_directories(${PROJECT_NAME} PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}
     ${CMAKE_SOURCE_DIR}
     ${CMAKE_SOURCE_DIR}/core
+    ${CMAKE_SOURCE_DIR}/numal
     ${CMAKE_SOURCE_DIR}/byul_tick
     
     ${CMAKE_SOURCE_DIR}/navsys
@@ -106,7 +105,6 @@ target_include_directories(${PROJECT_NAME} PRIVATE
     ${CMAKE_SOURCE_DIR}/balix/controller
     ${CMAKE_SOURCE_DIR}/balix/environ
     ${CMAKE_SOURCE_DIR}/balix/motion_state
-    ${CMAKE_SOURCE_DIR}/balix/numal
     
     ${CMAKE_SOURCE_DIR}/balix/numeq
     ${CMAKE_SOURCE_DIR}/balix/numeq/filters
@@ -123,12 +121,12 @@ target_include_directories(${PROJECT_NAME} PRIVATE
 # ─────────────────────────────────────────────
 set(LIBS
     # environ
-    # numal
     # numeq
     # xform
     # trajectory
     # controller
     core
+    numal    
 )
 
 target_link_libraries(${PROJECT_NAME} PRIVATE ${LIBS})

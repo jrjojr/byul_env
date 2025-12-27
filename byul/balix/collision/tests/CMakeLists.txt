@@ -60,8 +60,10 @@ target_include_directories(${PROJECT_NAME} PRIVATE
 
     ${CMAKE_SOURCE_DIR}/navsys/coord
 
+    ${CMAKE_SOURCE_DIR}/numal    
+
     ${CMAKE_SOURCE_DIR}/balix
-    ${CMAKE_SOURCE_DIR}/balix/numal
+
     ${CMAKE_SOURCE_DIR}/balix/numeq
     ${CMAKE_SOURCE_DIR}/balix/numeq/filters 
 

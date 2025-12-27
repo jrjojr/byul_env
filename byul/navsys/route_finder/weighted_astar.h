@@ -2,7 +2,7 @@
 #define WEIGHTED_ASTAR_H
 
 #include "byul_config.h"
-#include "float_core.h"
+#include "scalar.h"
 
 #include "route_finder_core.h"
 #include "navgrid.h"

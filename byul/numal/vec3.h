@@ -97,7 +97,7 @@ BYUL_API void vec3_mul(vec3_t* out, const vec3_t* a, const vec3_t* b);
  * @brief Divide a vector by another vector (element-wise division).
  *
  * Each component performs a / b.  
- * If any component of b is 0.0f or less than FLOAT_EPSILON, the result for that component is set to INFINITY.
+ * If any component of b is 0.0f or less than SCALAR_EPSILON, the result for that component is set to INFINITY.
  *
  * @param[out] out Result vector
  * @param[in]  a   Input vector
@@ -110,7 +110,7 @@ BYUL_API void vec3_div(vec3_t* out, const vec3_t* a, const vec3_t* b);
  *
  * @param[out] out   Result vector
  * @param[in]  a     Input vector
- * @param[in]  scalar Divisor (if 0.0f or <= FLOAT_EPSILON, result is INFINITY)
+ * @param[in]  scalar Divisor (if 0.0f or <= SCALAR_EPSILON, result is INFINITY)
  */
 BYUL_API void vec3_div_scalar(vec3_t* out, const vec3_t* a, float scalar);
 

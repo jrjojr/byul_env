@@ -64,12 +64,14 @@ target_include_directories(${PROJECT_NAME} PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/dstar_lite
 
     ${CMAKE_SOURCE_DIR}/core
+    ${CMAKE_SOURCE_DIR}/numal
 
     ${CMAKE_SOURCE_DIR}/navsys/route_carver
 )
 
 target_link_libraries(${PROJECT_NAME} PRIVATE
     byul_tick
+    numal
 )
 
 add_subdirectory(tests)

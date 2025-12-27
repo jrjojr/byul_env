@@ -7,7 +7,7 @@ extern "C" {
 #include "projectile.h"
 #include "controller.h"
 
-#include "float_core.h"
+#include "scalar.h"
 }
 
 TEST_CASE("PID controller basic response") {

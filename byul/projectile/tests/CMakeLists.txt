@@ -67,7 +67,7 @@ target_include_directories(${PROJECT_NAME} PRIVATE
     ${CMAKE_SOURCE_DIR}/navsys/coord
 
     ${CMAKE_SOURCE_DIR}/balix
-    ${CMAKE_SOURCE_DIR}/balix/numal
+    ${CMAKE_SOURCE_DIR}/numal
     ${CMAKE_SOURCE_DIR}/balix/numeq
     ${CMAKE_SOURCE_DIR}/balix/numeq/filters 
 
@@ -97,6 +97,7 @@ target_link_directories(${PROJECT_NAME} PRIVATE
 target_link_libraries(${PROJECT_NAME} PRIVATE
     projectile
     entity
+    numal
 )
 
 # 수학 라이브러리 링크 (리눅스/유닉스 전용)

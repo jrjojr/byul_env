@@ -7,7 +7,7 @@ extern "C" {
 #include "vec3.h"
 #include "xform.h"
 #include "bodyprops.h"
-#include "float_core.h"
+#include "scalar.h"
 }
 
 TEST_CASE("entity_dynamic_init") {

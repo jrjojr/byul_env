@@ -1,0 +1,111 @@
+#include "doctest.h"
+
+#include "scalar.h"
+
+TEST_CASE("scalar_equal: similar and dissimilar values") {
+    CHECK(scalar_equal(1.000001f, 1.000002f));
+    CHECK(scalar_equal(1.000001f, 1.000003f));
+    CHECK(scalar_equal(1.000001f, 1.000009f));
+
+    CHECK(scalar_equal(1.00001f, 1.000019f));
+    CHECK(scalar_equal(1.00001f, 1.000001f));
+
+    CHECK_FALSE(scalar_equal(1.00001f, 1.000020f));
+    CHECK_FALSE(scalar_equal(1.00001f, 1.000000f));
+
+    CHECK_FALSE(scalar_equal(1.0f, 1.1f));
+}
+
+TEST_CASE("scalar_compare: ordering (value-based)") {
+    CHECK(scalar_compare(1.0f, 2.0f, nullptr) < 0);
+    CHECK(scalar_compare(2.0f, 1.0f, nullptr) > 0);
+    CHECK(scalar_compare(1.0f, 1.0f, nullptr) == 0);
+}
+
+TEST_CASE("int_compare: ordering (value-based)") {
+    CHECK(int_compare(3, 7, nullptr) < 0);
+    CHECK(int_compare(10, 5, nullptr) > 0);
+    CHECK(int_compare(42, 42, nullptr) == 0);
+}
+
+TEST_CASE("scalar_equal tests") {
+    CHECK(scalar_equal(1.00001f, 1.000019f));
+    CHECK(scalar_equal(1.00001f, 1.000001f));
+    CHECK_FALSE(scalar_equal(1.00001f, 1.000020f));
+    CHECK_FALSE(scalar_equal(1.00001f, 1.000000f));
+}
+
+TEST_CASE("scalar_zero tests") {
+    CHECK(scalar_zero(1e-9f));
+    CHECK_FALSE(scalar_zero(1e-4f));
+}
+
+TEST_CASE("scalar_safe_div tests") {
+    CHECK(scalar_safe_div(10.0f, 2.0f, -1.0f) == doctest::Approx(5.0f));
+    CHECK(scalar_safe_div(10.0f, 0.0f, -1.0f) == doctest::Approx(-1.0f));
+}
+
+TEST_CASE("square, clamp, sign") {
+    CHECK(scalar_square(3.0f) == doctest::Approx(9.0f));
+    CHECK(scalar_clamp(5.0f, 1.0f, 4.0f) == doctest::Approx(4.0f));
+    CHECK(scalar_clamp(-2.0f, -1.0f, 1.0f) == doctest::Approx(-1.0f));
+    CHECK(scalar_sign(3.0f) == doctest::Approx(1.0f));
+    CHECK(scalar_sign(-3.0f) == doctest::Approx(-1.0f));
+    CHECK(scalar_sign(0.0f) == doctest::Approx(0.0f));
+}
+
+TEST_CASE("deg2rad, rad2deg") {
+    CHECK(scalar_deg2rad(180.0f) == doctest::Approx(3.1415926f).epsilon(0.001f));
+    CHECK(scalar_rad2deg(3.1415926f) == doctest::Approx(180.0f).epsilon(0.001f));
+}
+
+TEST_CASE("lerp and inverse lerp") {
+    CHECK(scalar_lerp(0.0f, 10.0f, 0.5f) == doctest::Approx(5.0f));
+    CHECK(scalar_inv_lerp(0.0f, 10.0f, 5.0f) == doctest::Approx(0.5f));
+}
+
+TEST_CASE("remap and clamp01") {
+    CHECK(scalar_remap(0.0f, 10.0f, 100.0f, 200.0f, 5.0f) == doctest::Approx(150.0f));
+    CHECK(scalar_clamp01(1.2f) == doctest::Approx(1.0f));
+    CHECK(scalar_clamp01(-0.2f) == doctest::Approx(0.0f));
+    CHECK(scalar_clamp01(0.5f) == doctest::Approx(0.5f));
+}
+
+TEST_CASE("smoothstep") {
+    CHECK(scalar_smoothstep(0.0f, 1.0f, 0.0f) == doctest::Approx(0.0f));
+    CHECK(scalar_smoothstep(0.0f, 1.0f, 0.5f) == doctest::Approx(0.5f).epsilon(0.1f));
+    CHECK(scalar_smoothstep(0.0f, 1.0f, 1.0f) == doctest::Approx(1.0f));
+}
+
+TEST_CASE("scalar_equal_tol") {
+    CHECK(scalar_equal_tol(1.0f, 1.00001f, 1e-4f) == true);
+
+    CHECK(scalar_equal_tol(1.0f, 0.99991f, 1e-4f) == true);
+
+    CHECK(scalar_equal_tol(1.0f, 1.0002f, 1e-4f) == false);
+    CHECK(scalar_equal_tol(1.0f, 0.9998f, 1e-4f) == false);
+
+    CHECK(scalar_equal_tol(1.0f, 1.00005f, -1e-4f) == true);
+}
+
+TEST_CASE("scalar_equal_tol_all") {
+    float a = 1.0f;
+
+    // tol_pos = 0.002, tol_neg = 0.001
+    CHECK(scalar_equal_tol_all(a, 1.002f, 0.002f, 0.001f) == true);
+    CHECK(scalar_equal_tol_all(a, 1.003f, 0.002f, 0.001f) == false);
+    CHECK(scalar_equal_tol_all(a, 0.999f, 0.002f, 0.001f) == true);
+    CHECK(scalar_equal_tol_all(a, 0.998f, 0.002f, 0.001f) == false);
+
+    CHECK(scalar_equal_tol_all(a, 1.001f, -0.002f, -0.001f) == true);
+}
+
+TEST_CASE("scalar_equal_tol_all 1") {
+    float a = 1.0f;
+
+    CHECK(scalar_equal_tol_all(a, 1.002f, 0.002f, 0.001f) == true);
+    CHECK(scalar_equal_tol_all(a, 0.999f, 0.002f, 0.001f) == true);
+
+    CHECK(scalar_equal_tol_all(a, 1.0021f, 0.002f, 0.001f) == false);
+    CHECK(scalar_equal_tol_all(a, 0.9989f, 0.002f, 0.001f) == false);
+}

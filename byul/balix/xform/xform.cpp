@@ -2,7 +2,7 @@
 #include "quat.h"
 #include "vec3.h"
 #include "dualquat.h"
-#include "float_core.h"
+#include "scalar.h"
 #include <iostream>
 #include <cmath>
 #include <iomanip>

@@ -2,7 +2,7 @@
 #include <cmath>
 #include <cstring>
 #include <Eigen/Geometry>
-#include "float_core.h"
+#include "scalar.h"
 
 static inline Eigen::Quaternionf to_eigen(const quat_t* q) {
     return q ? Eigen::Quaternionf(q->w, q->x, q->y, q->z) 
@@ -161,10 +161,10 @@ void quat_set(quat_t* out, float w, float x, float y, float z) {
 
 int quat_equal(const quat_t* a, const quat_t* b) {
     return a && b &&
-        float_equal(a->w, b->w) &&
-        float_equal(a->x, b->x) &&
-        float_equal(a->y, b->y) &&
-        float_equal(a->z, b->z);
+        scalar_equal(a->w, b->w) &&
+        scalar_equal(a->x, b->x) &&
+        scalar_equal(a->y, b->y) &&
+        scalar_equal(a->z, b->z);
 }
 
 uint32_t quat_hash(const quat_t* q) {

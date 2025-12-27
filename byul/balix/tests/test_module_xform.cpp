@@ -7,7 +7,7 @@ extern "C" {
 }
 
 #include "vec3.hpp"
-#include "float_core.h"
+#include "scalar.h"
 
 TEST_CASE("xform: identity transform") {
     xform_t xf;
@@ -299,7 +299,7 @@ TEST_CASE("xform_lerp should interpolate position and rotation linearly") {
     vec3_t axis;
     float rad;
     xform_get_axis_angle(&mid, &axis, &rad);
-    CHECK(float_equal(rad, (float)M_PI / 2));
+    CHECK(scalar_equal(rad, (float)M_PI / 2));
 }
 
 TEST_CASE("xform_slerp should interpolate position linearly and rotation via slerp") {
@@ -326,7 +326,7 @@ TEST_CASE("xform_slerp should interpolate position linearly and rotation via sle
     vec3_t axis;
     float rad;
     xform_get_axis_angle(&mid, &axis, &rad);
-    CHECK(float_equal(rad, (float)M_PI / 2));
+    CHECK(scalar_equal(rad, (float)M_PI / 2));
 }
 
 // ---------------------------------------------------------

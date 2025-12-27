@@ -19,8 +19,8 @@ typedef void  (*coord_hash_destroy_func)(void* value);
 BYUL_API void* int_copy(const void* p);
 BYUL_API void int_destroy(void* p);
 
-BYUL_API void* float_copy(const void* p);
-BYUL_API void float_destroy(void* p);
+BYUL_API void* scalar_copy(const void* p);
+BYUL_API void scalar_destroy(void* p);
 
 BYUL_API void* double_copy(const void* p);
 BYUL_API void double_destroy(void* p);

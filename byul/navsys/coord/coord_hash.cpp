@@ -15,12 +15,12 @@ void int_destroy(void* p) {
     if (p) delete reinterpret_cast<int*>(p);
 }
 
-void* float_copy(const void* p) {
+void* scalar_copy(const void* p) {
     if (!p) return nullptr;
     return new float(*reinterpret_cast<const float*>(p));
 }
 
-void float_destroy(void* p) {
+void scalar_destroy(void* p) {
     if (p) delete reinterpret_cast<float*>(p);
 }
 

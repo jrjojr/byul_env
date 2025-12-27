@@ -1,6 +1,6 @@
 #include "numeq_model.h"
 #include "vec3.hpp"
-#include "float_core.h"
+#include "scalar.h"
 #include "numeq_integrator.h"
 #include <cmath>
 #include <functional>
@@ -18,14 +18,14 @@ static inline void compute_drag_accel(const vec3_t* velocity,
 {
     Vec3 v(*velocity);
     float v_mag = v.length();
-    if (float_zero(v_mag)) {
+    if (scalar_zero(v_mag)) {
         *out_drag_accel = {0, 0, 0};
         return;
     }
     Vec3 drag_dir = v * (-1.0f / v_mag);
     float drag_mag = 0.5f * air_density * v_mag * v_mag *
                      body->drag_coef * body->cross_section;
-    float accel_mag = float_safe_div(drag_mag, body->mass, 0.0f);
+    float accel_mag = scalar_safe_div(drag_mag, body->mass, 0.0f);
     *out_drag_accel = drag_dir * accel_mag;
 }
 
@@ -234,7 +234,7 @@ bool numeq_model_bounce(const vec3_t* velocity_in,
     Vec3 v(*velocity_in);
     Vec3 n(*normal);
     float n_len = n.length();
-    if (float_zero(n_len)) {
+    if (scalar_zero(n_len)) {
         *out_velocity_out = v;
         return false;
     }
@@ -332,7 +332,7 @@ bool numeq_model_predict_collision_plane(
     if (vec3_is_zero(&my_state->velocity)) return false;
 
     float denom = vec3_dot(&my_state->velocity, plane_normal);
-    if (fabsf(denom) < FLOAT_EPSILON) return false;
+    if (fabsf(denom) < SCALAR_EPSILON) return false;
 
     vec3_t offset_plane_point = *plane_point;
     vec3_t scaled_normal;

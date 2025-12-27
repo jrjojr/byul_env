@@ -8,6 +8,8 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 
 set(${PROJECT_NAME}_SOURCES
 
+    ${CMAKE_CURRENT_SOURCE_DIR}/scalar.cpp
+
     ${CMAKE_CURRENT_SOURCE_DIR}/dualnumber.cpp
 
     ${CMAKE_CURRENT_SOURCE_DIR}/dualquat.cpp
@@ -26,6 +28,8 @@ CACHE INTERNAL "${PROJECT_NAME} source files"  FORCE
 )
 
 set(${PROJECT_NAME}_HEADERS
+
+    ${CMAKE_CURRENT_SOURCE_DIR}/scalar.h
 
     ${CMAKE_CURRENT_SOURCE_DIR}/dualnumber.h
 
@@ -57,14 +61,16 @@ target_include_directories(${PROJECT_NAME} PRIVATE
     ${EXTERNAL_DIR}
     ${CMAKE_CURRENT_SOURCE_DIR}    
     ${CMAKE_SOURCE_DIR}
-    ${CMAKE_SOURCE_DIR}/core
-
-    ${CMAKE_SOURCE_DIR}/balix/numal    
 )
 
 target_link_libraries(${PROJECT_NAME} PRIVATE 
-    core
+
 )
+
+# 수학 라이브러리 링크 (리눅스/유닉스 전용)
+if(UNIX)
+    target_link_libraries(${PROJECT_NAME} PRIVATE m)
+endif()
 
 add_subdirectory(tests)
 

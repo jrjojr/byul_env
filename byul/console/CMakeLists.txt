@@ -29,6 +29,7 @@ target_include_directories(${PROJECT_NAME} PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}
 
     ${CMAKE_SOURCE_DIR}/core
+    ${CMAKE_SOURCE_DIR}/numal
     ${CMAKE_SOURCE_DIR}/byul_tick
     
     ${CMAKE_SOURCE_DIR}/navsys/coord
@@ -49,6 +50,7 @@ target_include_directories(${PROJECT_NAME} PRIVATE
 # 링크 라이브러리 설정
 target_link_libraries(${PROJECT_NAME} PRIVATE
     core
+    numal
     navsys
 )
 
