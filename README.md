@@ -2,6 +2,13 @@
 
 Language: [English](README.md) | [한국어](README.ko.md)
 
+> **License notice**
+>
+> This repository is **source-available, not open source**.
+> Personal learning, academic research, and non-commercial technical evaluation are permitted.
+> Commercial use, redistribution, resale, public mirroring, and packaging as a library are prohibited without prior written permission.
+> See [LICENSE](LICENSE) for the full terms.
+
 `byul` is a C++17-based simulation engine for **Byul's World**.
 
 It is implemented in C++ for internal flexibility, but exposes a C-compatible ABI through `extern "C"` and `BYUL_API` so that the engine can be used as a stable DLL interface from Unreal Engine, C/C++ applications, and other FFI-based environments.
@@ -459,11 +466,16 @@ The project is moving from a route/pathfinding engine toward a broader simulatio
 
 ## License
 
-Byul World Public License v1.0
+Byul World Source-Available Non-Commercial License v1.0
 
-- Free for personal use and academic research.
-- Commercial use is prohibited.
-- See the `LICENSE` file for details.
+This repository is source-available, not open source.
+
+- Personal learning, academic research, technical review, feedback, and non-commercial evaluation are permitted.
+- GitHub forks are permitted only for personal study, issue reporting, contribution discussion, or non-commercial technical review.
+- Commercial use, redistribution, resale, public mirroring, sublicensing, and packaging as a library, SDK, plugin, or service are prohibited without prior written permission.
+- Third-party components, if any, remain under their respective licenses.
+
+See [LICENSE](LICENSE) for the full terms.
 
 ---
 
