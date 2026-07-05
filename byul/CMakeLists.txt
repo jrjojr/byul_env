@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.20)
 
-project(byul VERSION 1.0 LANGUAGES CXX)
+project(byul VERSION 1.0 LANGUAGES C CXX)
 
 include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/project_manager.cmake)
 byul_apply_common_settings()
@@ -16,6 +16,7 @@ enable_testing()
 add_subdirectory(core)
 add_subdirectory(numal)
 add_subdirectory(rng)
+add_subdirectory(number_theory)
 add_subdirectory(console)
 add_subdirectory(navsys)
 add_subdirectory(balix)
@@ -31,6 +32,7 @@ set(${PROJECT_NAME}_SOURCES
     ${numal_SOURCES}
     ${byul_tick_SOURCES}
     ${core_SOURCES}
+    ${number_theory_SOURCES}
     ${console_SOURCES}
     ${navsys_SOURCES}
     ${balix_SOURCES}
@@ -48,6 +50,7 @@ set(${PROJECT_NAME}_HEADERS
     ${numal_HEADERS}
     ${byul_tick_HEADERS}
     ${core_HEADERS}
+    ${number_theory_HEADERS}
     ${console_HEADERS}
     ${navsys_HEADERS}
     ${balix_HEADERS}
@@ -69,6 +72,7 @@ message(STATUS "${PROJECT_NAME} : EXTERNAL_DIR = ${EXTERNAL_DIR}")
 
 byul_extract_header_dirs(BYUL_HEADER_DIRS
     core_HEADERS
+    number_theory_HEADERS
     numal_HEADERS
     byul_tick_HEADERS
     console_HEADERS

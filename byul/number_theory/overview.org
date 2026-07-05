@@ -1,0 +1,61 @@
+#+TITLE: BYUL Number Theory Module Overview
+#+LANGUAGE: en
+#+OPTIONS: toc:t num:nil
+
+* Purpose
+
+The =number_theory= module provides small C99 prime-number utilities for BYUL.
+It is registered as a normal BYUL module and participates in the
+root CMake build, module tests, integrated tests, install, and package_zip flow.
+
+The current scope is limited to unsigned 32-bit integer helpers:
+
+- primality test for =uint32_t=
+- next-prime search for =uint32_t=
+- callback-based factorization for =uint32_t=
+- segmented prime emission over a =uint32_t= range
+
+* Files
+
+#+begin_src text
+byul/number_theory/
+  CMakeLists.txt
+  number_theory.h
+  byul_compiler.h
+  byul_base_primes_65535.h
+  byul_prime32.h
+  byul_prime32.c
+  byul_prime_segmented_u32.h
+  byul_prime_segmented_u32.c
+  overview.org
+
+byul/number_theory/tests/
+  CMakeLists.txt
+  main.cpp
+  test_module_number_theory.cpp
+
+byul/number_theory/tools/
+  gen.base_primes_65535.py
+  gen.base_primes_65535.c
+#+end_src
+
+* Generated Base Prime Table
+
+=byul_base_primes_65535.h= is a generated header containing all primes less
+than or equal to 65535. This range is enough for trial division and base-prime
+construction for unsigned 32-bit values, because =sqrt(UINT32_MAX) <= 65535=.
+
+The table generator is kept in =byul/number_theory/tools/=. The Python generator is the
+primary generator. The C generator is retained as a portable C99 alternative.
+
+* Build Status
+
+This module is registered from the root =byul/CMakeLists.txt= via
+=add_subdirectory(number_theory)=. It builds a development static library,
+contributes its sources to the final =byul= shared library, installs its public
+headers, and provides =test_number_theory= for module-level verification.
+
+* Future Work
+
+- Decide whether 64-bit prime helpers are needed before adding =u64= files.
+- Add more number theory utilities only when they have a concrete BYUL use case.

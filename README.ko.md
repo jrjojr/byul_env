@@ -87,6 +87,7 @@ byul
 ├─ core
 ├─ numal
 ├─ rng
+├─ number_theory
 ├─ console
 ├─ navsys
 ├─ balix
@@ -102,6 +103,7 @@ byul
 ```c
 #include "byul_config.h"
 #include "numal.h"
+#include "number_theory.h"
 #include "navsys.h"
 #include "balix.h"
 #include "entity.h"
@@ -407,7 +409,7 @@ Windows MinGW native 빌드, Windows MSVC 빌드를 포함합니다.
   공개 헤더
 ```
 
-기본 build target은 최종 shared library만 만들지 않습니다. `core`, `numal`,
+기본 build target은 최종 shared library만 만들지 않습니다. `core`, `numal`, `number_theory`,
 `dstar_lite` 같은 모듈 static library와 `test_core`, `test_numal`,
 `test_dstar_lite`, `test_byul` 같은 테스트 실행 파일도 함께 만듭니다. 이
 테스트 실행 파일들은 개발 검증용 산출물이며, 기본 공개 배포 표면은 아닙니다.
@@ -500,6 +502,7 @@ Makefile 계열 generator로 configure한 뒤 자주 쓰는 target은 다음과 
 all              library, 보조 실행 파일, 테스트 실행 파일을 빌드
 byul             최종 shared library target만 빌드
 test_core        core 모듈 테스트 실행 파일 빌드
+test_number_theory  number_theory 모듈 테스트 실행 파일 빌드
 test_dstar_lite  D* Lite 모듈 테스트 실행 파일 빌드
 test_byul        통합 테스트 실행 파일 빌드
 test             등록된 CTest 테스트 실행
