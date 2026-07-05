@@ -1,5 +1,7 @@
 # Byul's World / BYUL Engine
 
+Language: [English](README.md) | [한국어](README.ko.md)
+
 `byul` is a C++17-based simulation engine for **Byul's World**.
 
 It is implemented in C++ for internal flexibility, but exposes a C-compatible ABI through `extern "C"` and `BYUL_API` so that the engine can be used as a stable DLL interface from Unreal Engine, C/C++ applications, and other FFI-based environments.
@@ -300,7 +302,7 @@ The result contains:
 
 ```text
 start_pos
- target_pos
+target_pos
 initial_velocity
 impact_time
 impact_pos
