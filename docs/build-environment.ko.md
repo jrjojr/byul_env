@@ -1,6 +1,8 @@
 # BYUL 빌드 환경 구성
 
 이 문서는 BYUL을 빌드하기 위한 최소 구성 요건과 설치 방법을 정리합니다.
+빌드 후 테스트 실행 파일과 `byul.dll`/`libbyul.so`를 실행 파일에 연결하는 방법은 [실행 방법](runtime-execution.ko.md)을 확인합니다.
+
 현재 권장 작업 환경은 Ubuntu입니다. Linux 빌드와 Windows MinGW 크로스 빌드는
 대부분 Ubuntu에서 실행하고, MSVC 빌드는 Windows Visual Studio 환경에서
 확인하는 구조입니다.

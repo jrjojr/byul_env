@@ -1,7 +1,9 @@
 # BYUL Build Environment
 
 This document describes the minimum build requirements and installation steps
-for BYUL. The primary development machine is Ubuntu. Most Linux and Windows
+for BYUL. For running test executables and linking `byul.dll`/`libbyul.so`, see [Runtime And Test Execution](runtime-execution.md).
+
+The primary development machine is Ubuntu. Most Linux and Windows
 MinGW cross builds are expected to run from Ubuntu, while MSVC builds require a
 Windows Visual Studio environment.
 
