@@ -1,27 +1,99 @@
-Byul World Public License v1.0 (2025)
+Byul World Source-Available Non-Commercial License v1.0 (2025)
 
-This software is part of the "Byul World" project and is released under the following terms:
+Copyright (c) 2025 ByulPapa (byuldev@outlook.kr)
+All rights reserved except as expressly permitted below.
 
-Permitted Actions:
+This software is part of the "Byul World" project.
+This license applies only to original BYUL project code, documentation, project-specific API design, original naming, and original worldbuilding material authored by ByulPapa, unless otherwise stated.
 
-* Viewing the source code and structure of this software
-* Executing the program for personal learning, analysis, research, or feedback
-* Using the demo for non-commercial evaluation and technical demonstration
+This repository is source-available, but it is not open source.
+Viewing, studying, and limited non-commercial evaluation are permitted under the terms below.
+Commercial use, redistribution, sublicensing, and republishing are prohibited unless separate written permission is granted by ByulPapa.
 
-Prohibited Actions:
+1. Definitions
 
-* Any commercial use (including direct or indirect profit-making activities)
-* Redistribution, republishing, public hosting, resale, or packaging as a library
-* Using without proper credit or falsely claiming authorship
+"Software" means the source code, headers, build scripts, documentation, examples, and related original materials included in this repository.
 
-Copyright:
+"Commercial Use" means any use that is intended for, connected to, or reasonably likely to support direct or indirect commercial advantage, monetary compensation, revenue generation, paid services, client work, internal business operations, commercial game development, commercial simulation tools, paid training, resale, or product integration.
 
-* Copyright (c) 2025 ByulPapa (byuldev@outlook.kr)
-* The worldbuilding, system architecture, algorithms, and UI design in this project are protected as original creative work by ByulPapa
+"Non-Commercial Use" means personal learning, private study, academic research, technical review, feedback, or evaluation that is not connected to Commercial Use.
 
-For Licensing or Commercial Use:
+"Redistribution" means copying, publishing, mirroring, repackaging, hosting, uploading, selling, sublicensing, or otherwise making the Software or a modified version available to third parties.
 
-* For commercial collaboration, paid project integration, or licensing inquiries,
-  please contact: byuldev@outlook.kr
+2. Permitted Use
 
-All rights reserved.
+Subject to the restrictions in this license, you may:
+
+- view and study the source code and structure of the Software;
+- build and execute the Software for personal learning, analysis, academic research, technical review, or feedback;
+- use the demo or examples for non-commercial evaluation and technical demonstration;
+- create local private modifications for personal or academic non-commercial study;
+- cite this repository and publish non-commercial benchmark results, analysis, or commentary, provided that you do not redistribute the Software itself.
+
+3. GitHub Forks
+
+Forking this repository through GitHub is permitted only for personal study, issue reporting, contribution discussion, or non-commercial technical review.
+
+A permitted GitHub fork must not be used to:
+
+- rebrand the Software as another project;
+- publish modified releases;
+- distribute binaries or packages;
+- provide the Software as a library, SDK, plugin, service, or dependency;
+- support Commercial Use;
+- remove copyright notices, license text, or attribution.
+
+Public mirroring outside GitHub, reposting to other platforms, or republishing modified copies is not permitted without prior written permission.
+
+4. Prohibited Use
+
+You may not, without prior written permission from ByulPapa:
+
+- use the Software for Commercial Use;
+- redistribute, republish, mirror, host, sell, sublicense, or package the Software;
+- distribute modified versions, binaries, libraries, SDKs, plugins, or derivative packages;
+- integrate the Software into commercial products, paid services, client projects, or internal business systems;
+- use the Software in revenue-generating games, simulations, tools, or applications;
+- remove or alter copyright, license, or attribution notices;
+- falsely claim authorship or ownership of the Software;
+- use the names "Byul", "Byul World", "BYUL Engine", or related project-specific names in a way that implies endorsement or official affiliation without permission.
+
+5. Attribution
+
+Any permitted public reference, review, analysis, benchmark, or academic citation must give appropriate credit to:
+
+ByulPapa (byuldev@outlook.kr)
+Byul World / BYUL Engine
+
+6. Third-Party Components
+
+Third-party components, libraries, tools, or assets, if any, remain under their respective licenses.
+This license does not grant rights to third-party materials that may be included, referenced, or required by the Software.
+
+7. Contributions
+
+Unless a separate written agreement exists, by submitting a contribution, patch, pull request, issue suggestion, or code proposal to this repository, you grant ByulPapa a perpetual, worldwide, royalty-free, non-exclusive license to use, modify, reproduce, distribute, sublicense, and relicense that contribution as part of the BYUL project.
+
+You represent that you have the right to submit the contribution and that it does not knowingly violate third-party rights.
+
+8. Commercial Licensing
+
+For commercial collaboration, paid project integration, business evaluation, commercial game use, simulation use, SDK/library packaging, or separate licensing inquiries, contact:
+
+byuldev@outlook.kr
+
+9. No Warranty
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, ACCURACY, RELIABILITY, OR ERROR-FREE OPERATION.
+
+10. Limitation of Liability
+
+IN NO EVENT SHALL BYULPAPA BE LIABLE FOR ANY CLAIM, DAMAGE, LOSS, LIABILITY, COST, OR EXPENSE ARISING FROM OR RELATED TO THE SOFTWARE, WHETHER IN CONTRACT, TORT, NEGLIGENCE, STRICT LIABILITY, OR OTHERWISE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+11. Termination
+
+If you violate this license, your permission to use, view, build, execute, or evaluate the Software terminates automatically. Upon termination, you must stop using the Software and delete any copies or modifications in your possession, except where retention is required by law.
+
+12. Reservation of Rights
+
+All rights not expressly granted in this license are reserved by ByulPapa.
