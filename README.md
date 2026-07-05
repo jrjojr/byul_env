@@ -388,45 +388,17 @@ TEST_CASE("projectile_predict - basic prediction") {
 
 ## Build
 
-BYUL uses CMake as the primary cross-platform build system. The source tree
-contains many module-level `CMakeLists.txt` files, but they are all assembled by
-`byul/CMakeLists.txt`. Platform selection is handled through
-`byul/CMakePresets.json`, including Linux, Windows MinGW cross builds, Windows
-MinGW native builds, and Windows MSVC builds.
+BYUL is built around CMake presets. The primary workflow runs most builds from
+Ubuntu, including Linux builds and Windows MinGW cross builds. MSVC builds are
+kept as Windows Visual Studio builds.
 
-The build currently has two surfaces:
+Minimum requirements, Ubuntu installation commands, Windows MinGW cross builds,
+Windows native builds, and MSVC limitations are documented separately.
 
-```text
-Development build:
-  internal static libraries
-  module test executables
-  integration test executable
-  helper executables
-  byul shared library
+- [Build Environment](docs/build-environment.md)
+- [Korean Build Environment](docs/build-environment.ko.md)
 
-Distribution surface:
-  byul.dll / libbyul.so
-  public headers
-```
-
-The default build target builds more than the final shared library. It also
-builds module static libraries and test executables such as `test_core`,
-`test_numal`, `test_dstar_lite`, and `test_byul`. These test executables are
-development verification artifacts. They are intentionally not the preferred
-public deployment surface.
-
-The final public output remains:
-
-```text
-byul.dll / libbyul.so
-```
-
-### Preset Build
-
-The recommended build path is to use `CMakePresets.json` from the `byul`
-directory. Build presets create a fresh package by running `package_zip`; that
-target updates `all` first, installs into a temporary package layout, and then
-creates `byul.zip`.
+Quick Ubuntu Debug package build:
 
 ```bash
 cd byul_env/byul
@@ -434,88 +406,8 @@ cmake --preset linux-debug
 cmake --build --preset build-linux-debug
 ```
 
-Common presets:
-
-```text
-linux-debug          Ubuntu Debug build
-linux-release        Ubuntu Release build
-win-release          Windows DLL build from Linux using MinGW64 cross compile
-win_sdl_release      Windows SDL executable build from Linux using MinGW64
-win-native           Windows native MSYS2 MinGW Release build
-win-native-debug     Windows native MSYS2 MinGW Debug build
-win-msvc-release     Windows Visual Studio 2022 Release build
-win-msvc-debug       Windows Visual Studio 2022 Debug build
-```
-
-Build preset names are the configure preset names with a `build-` prefix:
-
-```bash
-cmake --preset linux-release
-cmake --build --preset build-linux-release
-
-cmake --preset win-release
-cmake --build --preset build-win-release
-
-cmake --preset win-native
-cmake --build --preset build-win-native
-
-cmake --preset win-msvc-release
-cmake --build --preset build-win-msvc-release
-```
-
-### Running Tests
-
-The repository currently uses direct CTest commands rather than CMake test
-presets. After configuring and building a preset, run CTest against that build
-directory.
-
-```bash
-ctest --test-dir ../build_debug --output-on-failure
-ctest --test-dir ../build_release --output-on-failure
-ctest --test-dir ../build_win_release --output-on-failure
-```
-
-For multi-config MSVC builds, pass the configuration when needed:
-
-```bash
-ctest --test-dir ../build_win_msvc_release -C Release --output-on-failure
-ctest --test-dir ../build_win_msvc_debug -C Debug --output-on-failure
-```
-
-### Manual Build
-
-Manual generator commands are still possible, but presets are preferred because
-they keep the Linux, Windows cross-compile, Windows native, and MSVC build
-directories consistent.
-
-```bash
-cd byul_env/byul
-mkdir build
-cd build
-cmake ..
-cmake --build . --target package_zip
-ctest --output-on-failure
-```
-
-### Useful Targets
-
-After configuring with a Makefile-like generator, common targets include:
-
-```text
-all              build libraries, helper executables, and test executables
-byul             build only the final shared library target
-test_core        build the core module test executable
-test_dstar_lite  build the D* Lite module test executable
-test_byul        build the integration test executable
-test             run registered CTest tests
-install          install into CMAKE_INSTALL_PREFIX
-package_zip      update all, install into a package layout, and create byul.zip
-uninstall        remove installed files recorded by CMake
-```
-
-`package_zip` can be run directly. It first updates the `all` target, then
-installs into the temporary package layout and creates the zip from current build
-outputs.
+The `package_zip` target can be run directly. It updates `all`, installs into a
+temporary package layout, and creates `byul.zip`.
 
 ---
 

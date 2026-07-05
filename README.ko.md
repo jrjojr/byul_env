@@ -388,44 +388,17 @@ TEST_CASE("projectile_predict - basic prediction") {
 
 ## 빌드
 
-BYUL은 CMake를 기본 크로스플랫폼 빌드 시스템으로 사용합니다. 소스 트리에는
-모듈별 `CMakeLists.txt`가 여러 개 있지만, 최종적으로는
-`byul/CMakeLists.txt`에서 모두 조립됩니다. 플랫폼 선택은
-`byul/CMakePresets.json`에서 관리하며 Linux, Windows MinGW 크로스 컴파일,
-Windows MinGW native 빌드, Windows MSVC 빌드를 포함합니다.
+BYUL은 CMake preset 중심으로 빌드합니다. 현재 작업 기준은 Ubuntu에서 대부분의
+빌드와 Windows MinGW 크로스 빌드를 수행하고, MSVC는 Windows Visual Studio
+환경에서 확인하는 구조입니다.
 
-현재 빌드는 두 가지 표면을 가집니다.
+최소 설치 요건, Ubuntu 설치 명령, Windows MinGW 크로스 빌드, Windows native
+빌드, MSVC 가능 여부와 한계는 별도 문서에 정리되어 있습니다.
 
-```text
-개발 빌드:
-  내부 static library
-  모듈별 test 실행 파일
-  통합 test 실행 파일
-  보조 실행 파일
-  byul shared library
+- [빌드 환경 구성](docs/build-environment.ko.md)
+- [Build Environment](docs/build-environment.md)
 
-배포 표면:
-  byul.dll / libbyul.so
-  공개 헤더
-```
-
-기본 build target은 최종 shared library만 만들지 않습니다. `core`, `numal`, `number_theory`,
-`dstar_lite` 같은 모듈 static library와 `test_core`, `test_numal`,
-`test_dstar_lite`, `test_byul` 같은 테스트 실행 파일도 함께 만듭니다. 이
-테스트 실행 파일들은 개발 검증용 산출물이며, 기본 공개 배포 표면은 아닙니다.
-
-최종 공개 산출물은 계속 다음 하나의 shared library입니다.
-
-```text
-byul.dll / libbyul.so
-```
-
-### Preset 빌드
-
-권장 빌드 방법은 `byul` 디렉토리에서 `CMakePresets.json`을 사용하는 것입니다.
-빌드 preset은 `package_zip`을 실행해 새 패키지를 만듭니다. `package_zip` target은
-먼저 `all`을 최신 상태로 갱신하고, 임시 package layout에 설치한 뒤 `byul.zip`을
-생성합니다.
+빠른 Ubuntu Debug 패키지 빌드:
 
 ```bash
 cd byul_env/byul
@@ -433,86 +406,8 @@ cmake --preset linux-debug
 cmake --build --preset build-linux-debug
 ```
 
-주요 preset은 다음과 같습니다.
-
-```text
-linux-debug          Ubuntu Debug 빌드
-linux-release        Ubuntu Release 빌드
-win-release          Linux에서 MinGW64로 Windows DLL 크로스 컴파일
-win_sdl_release      Linux에서 MinGW64로 Windows SDL 실행 파일 빌드
-win-native           Windows native MSYS2 MinGW Release 빌드
-win-native-debug     Windows native MSYS2 MinGW Debug 빌드
-win-msvc-release     Windows Visual Studio 2022 Release 빌드
-win-msvc-debug       Windows Visual Studio 2022 Debug 빌드
-```
-
-빌드 preset 이름은 configure preset 이름 앞에 `build-`를 붙인 형태입니다.
-
-```bash
-cmake --preset linux-release
-cmake --build --preset build-linux-release
-
-cmake --preset win-release
-cmake --build --preset build-win-release
-
-cmake --preset win-native
-cmake --build --preset build-win-native
-
-cmake --preset win-msvc-release
-cmake --build --preset build-win-msvc-release
-```
-
-### 테스트 실행
-
-현재 저장소는 CMake test preset 대신 CTest 명령을 직접 사용합니다. preset으로
-configure와 build를 마친 뒤 해당 build directory를 대상으로 CTest를 실행합니다.
-
-```bash
-ctest --test-dir ../build_debug --output-on-failure
-ctest --test-dir ../build_release --output-on-failure
-ctest --test-dir ../build_win_release --output-on-failure
-```
-
-MSVC처럼 multi-config build에서는 필요할 때 configuration을 함께 지정합니다.
-
-```bash
-ctest --test-dir ../build_win_msvc_release -C Release --output-on-failure
-ctest --test-dir ../build_win_msvc_debug -C Debug --output-on-failure
-```
-
-### 수동 빌드
-
-수동 generator 명령도 가능하지만, Linux, Windows 크로스 컴파일, Windows native,
-MSVC 빌드 디렉토리를 일관되게 유지하려면 preset 사용을 권장합니다.
-
-```bash
-cd byul_env/byul
-mkdir build
-cd build
-cmake ..
-cmake --build . --target package_zip
-ctest --output-on-failure
-```
-
-### 주요 Target
-
-Makefile 계열 generator로 configure한 뒤 자주 쓰는 target은 다음과 같습니다.
-
-```text
-all              library, 보조 실행 파일, 테스트 실행 파일을 빌드
-byul             최종 shared library target만 빌드
-test_core        core 모듈 테스트 실행 파일 빌드
-test_number_theory  number_theory 모듈 테스트 실행 파일 빌드
-test_dstar_lite  D* Lite 모듈 테스트 실행 파일 빌드
-test_byul        통합 테스트 실행 파일 빌드
-test             등록된 CTest 테스트 실행
-install          CMAKE_INSTALL_PREFIX 아래로 설치
-package_zip      all 갱신, package layout 설치, byul.zip 생성
-uninstall        CMake가 기록한 설치 파일 제거
-```
-
-`package_zip`은 단독으로 실행해도 됩니다. 먼저 `all` target을 최신 상태로
-갱신한 뒤 임시 package layout에 설치하고, 그 최신 빌드 결과로 zip을 만듭니다.
+`package_zip` target은 단독 실행 대상입니다. 먼저 `all`을 최신 상태로 갱신한 뒤
+임시 package layout에 설치하고 `byul.zip`을 생성합니다.
 
 ---
 
