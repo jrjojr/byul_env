@@ -1,0 +1,609 @@
+#+TITLE: BYUL Android arm64-v8a 빌드 TODO
+#+TODO_PARENT: todo-init.org
+#+AUTHOR: ByulPapa / Codex
+#+LANGUAGE: ko
+#+OPTIONS: toc:t num:nil
+
+* 목적
+
+이 문서는 BYUL을 Android 전용 shared library로 빌드하기 위한 실행 계획서이다.
+대상 기기는 Samsung Galaxy S24 Ultra이며, 1차 ABI는 =arm64-v8a= 로 한정한다.
+
+Android에서는 Windows의 =byul.dll= 이 아니라 Android NDK shared library인
+=libbyul.so= 를 만든다. Android 앱에서는 라이브러리 이름 =byul= 로 로드하는
+구조를 목표로 한다.
+
+이 문서는 코드 구현을 포함하지 않는다. 사용자가 별도로 "진행하라"고 지시하기
+전까지 실제 CMake, C/C++ 코드, 문서 파일을 수정하지 않는다.
+
+* 대상 기기와 1차 산출물
+
+- 대상 기기: Samsung Galaxy S24 Ultra
+- 1차 CPU/ABI: =arm64-v8a=
+- Android native 산출물: =libbyul.so=
+- Android 앱 배치 위치: =app/src/main/jniLibs/arm64-v8a/libbyul.so=
+- Java/Kotlin 로드 이름: =byul=
+- 1차 빌드 호스트: Ubuntu
+- 1차 toolchain: Android NDK CMake toolchain
+
+* 현재 저장소 진단
+
+현재 저장소는 Linux, Windows MinGW cross, Windows native, MSVC 중심으로 구성되어
+있다. Android를 추가하려면 다음 지점이 막힌다.
+
+** 루트 CMake 구성
+
+- 대상 파일: =byul/CMakeLists.txt=
+- 현재 프로젝트 언어는 =C= 와 =CXX= 이므로 Android NDK 빌드 자체는 가능하다.
+- 현재 =gpu_comp_tester= 가 항상 =add_subdirectory= 로 추가된다.
+- Android에서는 보조 실행 파일, SDL/GPU/Vulkan 관련 target이 먼저 빌드를
+  깨뜨릴 가능성이 있다.
+- Android용 1차 목표는 전체 도구 빌드가 아니라 =byul= shared library 빌드이다.
+- 테스트 실행 파일은 Android 호스트에서 바로 실행할 수 없으므로 빌드/실행
+  정책을 분리해야 한다.
+
+** 플랫폼 공통 CMake helper
+
+- 대상 파일: =byul/cmake/project_manager.cmake=
+- 현재 =byul_apply_library_platform_settings= 는 Windows와 Linux만 명시적으로
+  처리한다.
+- Android는 현재 =Unknown platform= 경로로 떨어질 가능성이 있다.
+- 현재 =byul_apply_test_platform_settings= 도 Linux와 Windows만 처리한다.
+- Android에서 test executable을 만들지, 빌드만 하고 실행을 별도 adb로 할지
+  먼저 정책을 정해야 한다.
+- =byul_install_target= 은 Android를 non-Windows로 처리하므로 기본 설치 자체는
+  가능하지만 Android package layout에는 맞지 않을 수 있다.
+- =byul_copy_mingw_runtime= 은 Android에서는 동작하지 않아야 하며 현재 조건상
+  MinGW 변수가 없으면 빈 동작이므로 큰 문제는 없을 가능성이 높다.
+
+** CMake preset
+
+- 대상 파일: =byul/CMakePresets.json=
+- 현재 Android preset이 없다.
+- Android NDK toolchain 경로는 환경 변수 =ANDROID_NDK_HOME= 또는
+  =ANDROID_NDK_ROOT= 기준으로 잡는 것이 좋다.
+- Galaxy S24 Ultra 1차 preset은 =android-arm64-release= 와
+  =android-arm64-debug= 두 개면 충분하다.
+- Android용 build preset의 1차 target은 =package_zip= 이 아니라 =byul= 또는
+  Android 전용 package target이어야 한다.
+
+** 공개 ABI
+
+- 대상 파일: =byul/byul_config.h=
+- Windows에서는 =BYUL_API= 가 =__declspec= 로 export/import를 구분한다.
+- non-Windows에서는 현재 =BYUL_API= 가 비어 있다.
+- Android에서도 동작은 가능하지만, 공개 심볼 관리와 ABI 명확성을 위해
+  =visibility= 정책을 검토해야 한다.
+- Android 1차 단계에서는 기존 동작을 유지할 수 있다.
+- Android 정식화 단계에서는 숨길 심볼과 공개할 심볼을 분리하는 정책을 세운다.
+
+** 테스트
+
+- 현재 테스트는 doctest 기반 native executable이다.
+- Ubuntu Linux에서는 =test_byul=, =test_number_theory= 같은 실행 파일을 바로
+  실행할 수 있다.
+- Android target으로 빌드한 test executable은 Ubuntu에서 바로 실행할 수 없다.
+- Android 테스트는 다음 중 하나를 선택해야 한다.
+  - native test executable을 device에 올리고 =adb shell= 로 실행한다.
+  - Android 앱/JNI wrapper를 만들고 instrumentation test로 확인한다.
+  - 1차 Android 빌드에서는 테스트 실행을 제외하고, Linux test 통과와 Android
+    shared library 빌드 성공을 완료 기준으로 둔다.
+
+* 작업 범위
+
+** 포함하는 작업
+
+- Android NDK 빌드 환경 문서화
+- Galaxy S24 Ultra 기준 =arm64-v8a= preset 추가 계획
+- Android 플랫폼 분기 추가 계획
+- Android에서 불필요한 보조 target 비활성화 계획
+- Android shared library 산출물 위치와 앱 연동 방식 문서화
+- Android device 실행 검증 절차 설계
+- Android 빌드 완료 기준 정의
+
+** 포함하지 않는 작업
+
+- Android 앱 프로젝트 생성
+- Java/Kotlin wrapper 구현
+- JNI binding 구현
+- Vulkan/SDL Android 실행 파일 대응
+- Play Store 배포
+- 모든 Android ABI 동시 지원
+- Android에서 모든 doctest 실행 파일을 완전 자동화하는 작업
+
+* 1단계: Android 빌드 정책 결정
+
+** 목표
+
+Android 대응의 1차 목표를 작게 고정한다.
+
+** 결정할 정책
+
+- 1차 ABI는 =arm64-v8a= 로 고정한다.
+- 1차 산출물은 =libbyul.so= 하나로 둔다.
+- Android preset에서는 =gpu_comp_tester= 를 빌드하지 않는다.
+- Android preset에서는 모듈별 test executable을 기본 빌드 대상에서 제외한다.
+- Android preset에서는 =package_zip= 대신 Android shared library 산출물 확인을
+  우선한다.
+- Android device 실행 검증은 별도 단계로 분리한다.
+
+** 완료 기준
+
+- Android 1차 목표가 =Galaxy S24 Ultra / arm64-v8a / libbyul.so= 로 문서상
+  확정되어 있다.
+- 빌드 대상과 제외 대상이 명확하다.
+- 테스트 실행 방식이 Ubuntu native와 Android device 실행으로 분리되어 있다.
+
+* 2단계: Android 개발 환경 설치 계획
+
+** 목표
+
+Ubuntu에서 Android NDK로 =arm64-v8a= 대상 =libbyul.so= 를 빌드할 수 있는 개발
+환경을 준비한다. 이 단계는 실제 설치 실행이 아니라 설치 순서와 확인 기준을
+정하는 계획이다.
+
+** 설치 방식 결정
+
+Android 개발 환경은 두 가지 방식 중 하나로 준비할 수 있다.
+
+- Android Studio 기반 설치
+- command line tools 기반 설치
+
+1차 권장 방식은 Android Studio 기반 설치이다. 이유는 SDK Manager에서 SDK,
+NDK, CMake, platform-tools 버전을 한 화면에서 확인할 수 있고, Galaxy S24 Ultra
+연결과 device 로그 확인도 같이 처리하기 쉽기 때문이다.
+
+command line tools 방식은 서버나 CI 환경에서 사용하기 위한 후속 후보로 둔다.
+처음 Android 대응을 시작할 때는 Android Studio 기반으로 설치 성공 기준을 먼저
+만든 뒤, 필요한 경우 CLI 설치 절차를 문서화한다.
+
+** Ubuntu 기본 패키지 준비 계획
+
+Android Studio와 NDK를 쓰기 전에 Ubuntu 기본 도구를 확인한다.
+
+- Java runtime 또는 JDK 사용 가능 여부
+- =unzip= 사용 가능 여부
+- =curl= 또는 다운로드 도구 사용 가능 여부
+- =git= 사용 가능 여부
+- 기존 BYUL Linux 빌드에 필요한 =cmake=, =make=, =gcc=, =g++= 유지 여부
+- USB device 접근을 위한 =udev= 규칙 필요 여부
+- 현재 사용자 계정이 USB 연결된 Android 기기를 볼 수 있는지 여부
+
+완료 기준은 Ubuntu에서 Android Studio 또는 SDK tools를 실행할 수 있고,
+기본 BYUL Linux preset도 계속 사용할 수 있는 상태이다.
+
+** Android Studio 설치 계획
+
+Android Studio 설치 시 확인할 항목은 다음과 같다.
+
+- Android Studio 설치 위치
+- Android SDK 위치
+- SDK Manager 접근 가능 여부
+- SDK Platform 설치 여부
+- SDK Platform-Tools 설치 여부
+- Android SDK Build-Tools 설치 여부
+- Android NDK 설치 여부
+- CMake for Android 설치 여부
+- Android Emulator 설치 여부는 선택 사항
+
+Galaxy S24 Ultra 실기기를 1차 대상으로 하므로 Emulator는 필수 설치 항목이
+아니다. 다만 후속 =x86_64= emulator ABI 검증을 계획한다면 Emulator도 설치
+후보에 둔다.
+
+** Android SDK 구성 계획
+
+SDK 구성에서는 다음 항목을 확인한다.
+
+- 최신 안정 SDK platform이 설치되어 있는가
+- BYUL Android 최소 API로 사용할 platform이 설치되어 있는가
+- =platform-tools= 에 =adb= 가 포함되어 있는가
+- =build-tools= 버전이 Android Studio와 호환되는가
+- SDK 경로가 공백이나 한글 경로를 포함하지 않는가
+
+SDK 경로는 장기적으로 자동화에 쓰이므로 가능하면 안정적인 ASCII 경로를 사용한다.
+
+** Android NDK 구성 계획
+
+NDK 구성에서는 다음 항목을 확인한다.
+
+- 설치된 NDK 버전
+- NDK 경로
+- NDK의 CMake toolchain 파일 존재 여부
+- =ANDROID_NDK_HOME= 또는 =ANDROID_NDK_ROOT= 중 어떤 환경 변수를 기준으로
+  사용할지 결정
+- CMake preset에서 환경 변수를 참조할 방식
+- 여러 NDK 버전이 설치된 경우 BYUL에서 사용할 고정 버전
+
+1차 계획에서는 하나의 NDK 버전을 고정한다. 여러 버전을 동시에 허용하면
+빌드 재현성이 떨어질 수 있으므로, 성공한 NDK 버전을 문서에 기록한다.
+
+** CMake for Android 확인 계획
+
+Android Studio SDK Manager에서 설치하는 CMake와 Ubuntu system CMake가 동시에
+존재할 수 있다. BYUL preset에서는 다음 기준을 확인한다.
+
+- configure에 사용할 CMake 실행 파일
+- Android NDK toolchain이 요구하는 CMake 최소 버전
+- 현재 =byul/CMakePresets.json= 의 =cmakeMinimumRequired= 와 호환 여부
+- Android Studio 내장 CMake를 쓸지, system CMake를 쓸지 결정
+
+1차 계획에서는 Ubuntu system CMake로 NDK toolchain을 호출하는 방식을 우선
+검토한다. Android Studio 프로젝트 연동은 후속 단계로 둔다.
+
+** 환경 변수 계획
+
+Android 빌드 자동화를 위해 다음 환경 변수를 검토한다.
+
+- =ANDROID_HOME=
+- =ANDROID_SDK_ROOT=
+- =ANDROID_NDK_HOME=
+- =ANDROID_NDK_ROOT=
+- =PATH= 에 =platform-tools= 포함 여부
+
+BYUL CMake preset에서는 NDK 경로가 가장 중요하다. 1차 기준 변수는
+=ANDROID_NDK_HOME= 으로 두고, 필요하면 =ANDROID_NDK_ROOT= 를 보조로 인정한다.
+
+환경 변수 완료 기준은 새 터미널을 열어도 NDK와 =adb= 경로를 다시 찾을 수 있는
+상태이다.
+
+** Galaxy S24 Ultra 기기 준비 계획
+
+실기기 검증을 위해 Galaxy S24 Ultra에서 다음을 준비한다.
+
+- 개발자 옵션 활성화
+- USB debugging 활성화
+- USB 연결 시 파일 전송 또는 디버깅 허용 상태 확인
+- PC RSA fingerprint 허용
+- =adb devices= 에서 기기가 =device= 상태로 표시되는지 확인
+- =unauthorized= 상태가 나오면 휴대폰에서 권한 승인 여부 확인
+- =no permissions= 상태가 나오면 Ubuntu udev 규칙 확인
+
+완료 기준은 Ubuntu에서 Galaxy S24 Ultra를 안정적으로 인식하고, adb shell에
+접속 가능한 상태이다.
+
+** 설치 후 검증 계획
+
+개발 환경 설치 후에는 다음 순서로 확인한다.
+
+- Android Studio 실행 가능 여부
+- SDK Manager에서 SDK, NDK, CMake, platform-tools 설치 상태 확인
+- NDK toolchain 파일 위치 확인
+- =adb= 로 Galaxy S24 Ultra 인식 확인
+- BYUL 기존 Linux Debug preset이 계속 동작하는지 기준점 확인
+- Android preset 추가 전에도 현재 저장소 상태가 깨지지 않았는지 확인
+
+이 검증은 Android 코드 변경 전에 수행한다. 환경 문제와 CMake 문제를 섞지
+않기 위함이다.
+
+** 문서화 대상
+
+설치 계획과 실제 확인 결과는 다음 문서에 반영한다.
+
+- =docs/ko/build-environment.ko.md=
+- =docs/ko/runtime-execution.ko.md=
+- =docs/en/build-environment.md=
+- =docs/en/runtime-execution.md=
+
+문서에는 설치 명령 자체보다 다음 정보를 우선 기록한다.
+
+- 필요한 도구 목록
+- 권장 설치 방식
+- 환경 변수 기준
+- Galaxy S24 Ultra 연결 확인 기준
+- Android NDK 빌드가 가능한 상태인지 판단하는 완료 기준
+
+** 완료 기준
+
+- Android Studio 또는 SDK tools 설치 방식이 결정되어 있다.
+- Android SDK, NDK, CMake, platform-tools 준비 기준이 정리되어 있다.
+- =ANDROID_NDK_HOME= 또는 =ANDROID_NDK_ROOT= 사용 정책이 정해져 있다.
+- Galaxy S24 Ultra adb 연결 준비 절차가 정리되어 있다.
+- Android preset을 추가하기 전에 확인할 환경 체크리스트가 정리되어 있다.
+- 설치 결과를 반영할 문서 위치가 정리되어 있다.
+
+* 3단계: CMake option 설계
+
+** 목표
+
+Android에서 필요 없는 target을 안전하게 끌 수 있도록 CMake option을 설계한다.
+
+** 추가 검토할 option 후보
+
+- =BYUL_BUILD_TESTS=: 모듈별 테스트와 통합 테스트 빌드 여부
+- =BYUL_BUILD_GPU_COMP_TESTER=: GPU/SDL 보조 실행 파일 빌드 여부
+- =BYUL_BUILD_TOOLS=: 보조 도구 target 빌드 여부
+- =BYUL_ENABLE_INSTALL=: install target 유지 여부
+- =BYUL_ENABLE_PACKAGE_ZIP=: zip 패키징 target 유지 여부
+- =BYUL_ANDROID_PACKAGE_LAYOUT=: Android jniLibs 배치용 별도 package target 여부
+
+** 적용 후보 파일
+
+- =byul/CMakeLists.txt=
+- =byul/gpu_comp_tester/CMakeLists.txt=
+- =byul/tests/CMakeLists.txt=
+- 각 모듈의 =tests/CMakeLists.txt=
+- =byul/cmake/project_manager.cmake=
+
+** 판단 기준
+
+- Linux/Windows 기존 빌드는 기본값 변경 없이 유지되어야 한다.
+- Android preset에서만 테스트와 보조 실행 파일이 꺼져야 한다.
+- Android 1차 목표인 =byul= shared library는 항상 빌드되어야 한다.
+- option 이름은 다른 플랫폼에도 자연스럽게 읽혀야 한다.
+
+** 완료 기준
+
+- 어떤 option을 추가할지 확정되어 있다.
+- 각 option의 기본값과 Android preset에서의 값이 정리되어 있다.
+- option 적용 대상 파일이 정리되어 있다.
+
+* 4단계: project_manager Android 분기 설계
+
+** 목표
+
+Android가 =Unknown platform= 으로 실패하지 않게 플랫폼 분기를 설계한다.
+
+** 수정 후보 함수
+
+- =byul_apply_library_platform_settings=
+- =byul_apply_test_platform_settings=
+- =byul_set_target_output_dirs=
+- =byul_install_target=
+- =byul_add_package_zip_target=
+
+** Android library 설정 정책
+
+- =CMAKE_SYSTEM_NAME= 이 =Android= 일 때 별도 분기로 처리한다.
+- Android Release는 크기와 성능을 우선한다.
+- Android Debug는 디버그 심볼과 device 로그 확인을 우선한다.
+- Linux 전용 sanitizer 옵션을 Android에 그대로 적용하지 않는다.
+- Android에서는 =HOME_DIR= 을 일반 설치 prefix보다 Android package layout 기준으로
+  다룰지 검토한다.
+
+** Android test 설정 정책
+
+- 1차 단계에서는 Android preset에서 test target 생성을 끄는 방향을 우선한다.
+- 나중에 device 실행 테스트를 추가할 경우 =adb= 실행 전용 target을 별도로
+  설계한다.
+
+** 완료 기준
+
+- Android 플랫폼 분기에서 fatal error가 발생하지 않는 설계가 정리되어 있다.
+- Linux/Windows/MSVC 기존 분기와 충돌하지 않는다.
+- Android에서는 MinGW runtime 복사나 Linux RPATH 정책이 잘못 적용되지 않는다.
+
+* 5단계: Android CMake preset 설계
+
+** 목표
+
+Galaxy S24 Ultra용 Android preset을 추가할 설계를 확정한다.
+
+** configure preset 후보
+
+- =android-arm64-debug=
+- =android-arm64-release=
+
+** build preset 후보
+
+- =build-android-arm64-debug=
+- =build-android-arm64-release=
+
+** 주요 preset 값
+
+- =CMAKE_SYSTEM_NAME= 은 Android NDK toolchain이 설정한다.
+- =CMAKE_TOOLCHAIN_FILE= 은 Android NDK의 CMake toolchain을 사용한다.
+- =ANDROID_ABI= 는 =arm64-v8a= 로 둔다.
+- =ANDROID_PLATFORM= 은 최소 API 기준을 정해 사용한다.
+- =BYUL_BUILD_TESTS= 는 1차 단계에서 off로 둔다.
+- =BYUL_BUILD_GPU_COMP_TESTER= 는 off로 둔다.
+- =BYUL_ENABLE_PACKAGE_ZIP= 은 1차 단계에서 off 또는 Android 전용 target으로
+  대체한다.
+
+** Android API level 판단
+
+- Galaxy S24 Ultra 자체는 높은 Android 버전을 사용한다.
+- 라이브러리 호환성은 기기 버전보다 낮은 최소 API를 잡을 수 있다.
+- 1차 후보는 =android-24= 또는 그 이상이다.
+- 실제 최소 API는 사용하는 C/C++ 표준 라이브러리, NDK, 배포 대상 범위를 보고
+  결정한다.
+
+** 완료 기준
+
+- Android preset 이름과 build directory 이름이 확정되어 있다.
+- Debug/Release preset의 차이가 정리되어 있다.
+- Android preset에서 빌드할 target과 제외할 target이 명확하다.
+
+* 6단계: Android 산출물 배치 설계
+
+** 목표
+
+빌드된 =libbyul.so= 를 Android 앱에서 사용할 수 있는 위치로 복사하는 방식을
+정한다.
+
+** 기본 배치
+
+- Android ABI별 배치 위치는 =jniLibs/arm64-v8a/libbyul.so= 이다.
+- BYUL 단독 저장소에서는 Android 앱 프로젝트가 없으므로, 1차 단계에서는
+  별도 staging directory를 만든다.
+
+** staging layout 후보
+
+- =build_android_arm64_release/android_package/jniLibs/arm64-v8a/libbyul.so=
+- =build_android_arm64_debug/android_package/jniLibs/arm64-v8a/libbyul.so=
+
+** 포함할 파일
+
+- =libbyul.so=
+- public headers
+- Android 연동 설명 문서
+
+** 포함하지 않을 파일
+
+- Linux test executable
+- Windows executable
+- MinGW runtime DLL
+- Android 앱 소스
+
+** 완료 기준
+
+- Android 앱에 복사 가능한 =jniLibs= 구조가 정의되어 있다.
+- Android package layout이 기존 =package_zip= 과 충돌하지 않는다.
+- Galaxy S24 Ultra에 넣을 파일이 명확하다.
+
+* 7단계: Android 실행 검증 설계
+
+** 목표
+
+Android에서 실제로 =libbyul.so= 가 로드되는지 확인하는 절차를 설계한다.
+
+** 검증 방법 후보
+
+- 최소 Android 앱에서 =byul= 을 로드한다.
+- JNI wrapper에서 =byul_version_string= 같은 단순 API를 호출한다.
+- device 로그에서 로드 성공과 반환값을 확인한다.
+- native test executable을 별도 산출물로 만들고 =adb shell= 로 실행한다.
+
+** 1차 권장 검증
+
+- Java/Kotlin 레벨에서 라이브러리 로드 성공 확인
+- JNI wrapper에서 버전 문자열 호출 확인
+- Galaxy S24 Ultra 실기기에서 확인
+
+** 추후 검증
+
+- =adb push= 기반 native doctest 실행
+- Android emulator 검증
+- GitHub Actions 또는 별도 CI의 Android NDK build 검증
+
+** 완료 기준
+
+- =libbyul.so= 가 Galaxy S24 Ultra에서 로드된다.
+- 최소 public API 하나가 JNI 경유로 정상 호출된다.
+- 실패 시 ABI 불일치, 라이브러리 경로, 누락 심볼을 구분해 진단할 수 있다.
+
+* 8단계: 공개 ABI와 심볼 정책 검토
+
+** 목표
+
+Android shared library에서 공개 API가 명확하게 노출되는지 확인한다.
+
+** 검토 대상
+
+- =byul/byul_config.h=
+- =BYUL_API= 매크로
+- =extern "C"= 경계
+- public header의 C ABI 준수 여부
+- C++ STL type이 public ABI에 노출되는지 여부
+
+** Android 1차 정책
+
+- Windows 외 플랫폼에서 기존처럼 =BYUL_API= 를 비워 두어도 우선 빌드 가능하다.
+- 정식 Android 배포 전에는 symbol visibility 정책을 다시 검토한다.
+- 필요하면 non-Windows public symbol export attribute를 도입한다.
+
+** 완료 기준
+
+- Android =libbyul.so= 에 필요한 public symbol이 존재한다.
+- 앱/JNI에서 호출할 함수가 C ABI 이름으로 접근 가능하다.
+- public ABI가 C++ 예외나 STL 타입을 외부로 노출하지 않는다.
+
+* 9단계: 문서 갱신 계획
+
+** 목표
+
+Android 빌드와 실행 방법을 기존 문서 체계에 반영한다.
+
+** 수정 후보 문서
+
+- =docs/ko/build-environment.ko.md=
+- =docs/ko/runtime-execution.ko.md=
+- =docs/en/build-environment.md=
+- =docs/en/runtime-execution.md=
+- =docs/ko/README.ko.md=
+- =README.md=
+
+** 문서화할 내용
+
+- Android에서는 =byul.dll= 이 아니라 =libbyul.so= 를 만든다는 점
+- Galaxy S24 Ultra 1차 ABI가 =arm64-v8a= 라는 점
+- Ubuntu에서 Android NDK로 빌드한다는 점
+- Android 앱 배치 위치가 =jniLibs/arm64-v8a/libbyul.so= 라는 점
+- 테스트 실행은 Ubuntu native test와 Android device test로 나뉜다는 점
+- MSVC/MinGW/Android 산출물 이름과 실행 방식이 다르다는 점
+
+** 완료 기준
+
+- README는 링크 중심으로 유지된다.
+- 상세 Android 빌드/실행 내용은 docs 문서에 들어간다.
+- 한국어 문서는 =docs/ko=, 영어 문서는 =docs/en= 구조를 따른다.
+
+* 10단계: 완료 기준
+
+Android 1차 대응은 다음 조건을 모두 만족할 때 완료로 본다.
+
+- Ubuntu에서 Android NDK preset configure가 성공한다.
+- =android-arm64-release= 또는 동등한 preset으로 =libbyul.so= 가 생성된다.
+- 생성된 산출물은 =arm64-v8a= 대상이다.
+- Linux/Windows 기존 preset 빌드 흐름이 깨지지 않는다.
+- Android preset에서 불필요한 test executable과 GPU/SDL 보조 실행 파일이 기본으로
+  빌드되지 않는다.
+- Android staging layout에 =jniLibs/arm64-v8a/libbyul.so= 가 준비된다.
+- Galaxy S24 Ultra에서 최소 앱 또는 JNI 검증으로 라이브러리 로드가 확인된다.
+- Android 빌드와 실행 문서가 갱신되어 있다.
+- 남은 작업과 제외한 작업이 별도 후속 TODO로 분리되어 있다.
+
+* 위험 요소와 대응
+
+** gpu_comp_tester 빌드 실패
+
+- 위험: Android NDK에서 SDL, Vulkan, shader 관련 target이 실패할 수 있다.
+- 대응: Android preset에서는 보조 실행 파일을 기본 off로 둔다.
+
+** test executable 실행 혼동
+
+- 위험: Android용 test executable을 Ubuntu에서 실행하려고 할 수 있다.
+- 대응: Android test는 device 실행 또는 JNI test로 별도 문서화한다.
+
+** package_zip 재사용 혼동
+
+- 위험: 기존 =package_zip= 이 Linux/Windows 중심 layout을 만든다.
+- 대응: Android는 =jniLibs= staging layout을 별도 설계한다.
+
+** BYUL_API 심볼 노출 혼동
+
+- 위험: Android에서 필요한 public symbol이 숨겨질 수 있다.
+- 대응: 1차 빌드 후 symbol 확인을 완료 기준에 포함한다.
+
+** Android NDK 경로 차이
+
+- 위험: 개발자마다 NDK 설치 위치가 다르다.
+- 대응: =ANDROID_NDK_HOME= 또는 =ANDROID_NDK_ROOT= 중 하나를 기준으로 문서화한다.
+
+** ABI 불일치
+
+- 위험: x86_64나 armeabi-v7a 산출물을 S24 Ultra에 넣는 실수가 생긴다.
+- 대응: 1차 산출물 이름과 폴더를 =arm64-v8a= 로 고정한다.
+
+* 후속 확장 후보
+
+- =x86_64= Android emulator ABI 추가
+- =armeabi-v7a= 지원 여부 검토
+- Android native doctest 실행 자동화
+- Gradle externalNativeBuild 연동
+- Kotlin/JNI sample app 추가
+- Android CI 추가
+- Android symbol visibility 정식화
+- Android package target 추가
+- Vulkan/SDL Android 실행 파일 대응
+
+* 진행 조건
+
+이 문서는 계획서이다. 실제 작업은 사용자가 "진행하라" 또는 이에 준하는 명시적
+지시를 한 뒤 시작한다.
+
+진행 시 첫 작업은 코드 수정이 아니라 다음 확인이어야 한다.
+
+- Android NDK 설치 여부 확인
+- =ANDROID_NDK_HOME= 또는 =ANDROID_NDK_ROOT= 확인
+- Galaxy S24 Ultra adb 연결 가능 여부 확인
+- 현재 Linux preset이 계속 정상인지 기준점 확인
