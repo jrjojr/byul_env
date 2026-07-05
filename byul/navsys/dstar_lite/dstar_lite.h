@@ -10,7 +10,7 @@
  *      and nodes within a certain range (max_range) of the changed
  *      obstacle location must be updated.
  *
- * 2. Practical Guidelines for max_range (by Byeol Mom)
+ * 2. Practical Guidelines for max_range (by Byul Mom)
  *    - A suitable max_range depends on the map size and obstacle distribution.
  *    - Generally, the following guidelines can be used:
  *
@@ -28,7 +28,7 @@
  *      If it is too small, a route may not be found; if it is too large,
  *      the computation cost can be excessive.
  *
- *    - Byeol Mom recommends using 10 as the initial setting.
+ *    - Byul Mom recommends using 10 as the initial setting.
  */
 
 #ifndef DSTAR_LITE_H
