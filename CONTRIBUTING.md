@@ -10,7 +10,7 @@ This repository is licensed under the Byul World Source-Available Non-Commercial
 
 - Personal learning, academic research, technical review, feedback, and non-commercial evaluation are permitted.
 - Commercial use, redistribution, resale, public mirroring, sublicensing, and packaging as a library, SDK, plugin, or service are prohibited without prior written permission.
-- See [`LICENSE`](../../LICENSE) for the full terms.
+- See [`LICENSE`](LICENSE) for the full terms.
 
 ## Contribution Grant
 

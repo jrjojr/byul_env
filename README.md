@@ -1,6 +1,6 @@
 # Byul's World / BYUL Engine
 
-Language: [English](README.md) | [한국어](README.ko.md)
+Language: [English](README.md) | [한국어](docs/ko/README.ko.md)
 
 > **License notice**
 >

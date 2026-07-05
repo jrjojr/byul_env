@@ -42,7 +42,7 @@ BYUL 작업을 시작할 때는 작업 성격에 맞게 다음 문서를 먼저 
 
 ```text
 docs/ko/byul-project-rules.ko.md
-README.ko.md
+docs/ko/README.ko.md
 docs/ko/build-environment.ko.md
 docs/ko/runtime-execution.ko.md
 ```
@@ -93,9 +93,22 @@ build_debug/bin/test_number_theory
 
 ## 문서 작성 기준
 
-BYUL 문서는 기본적으로 `docs/en/` 또는 `docs/ko/` 아래에 둡니다.
+BYUL 문서는 루트 대표 문서와 언어별 상세 문서로 나눕니다.
 
-- 한국어 문서는 `.ko.md`를 사용한다.
+루트에는 저장소 관례상 먼저 발견되어야 하는 대표 문서만 둡니다.
+
+```text
+README.md
+LICENSE
+CONTRIBUTING.md
+THIRD_PARTY_NOTICES.md
+```
+
+언어별 상세 문서, 번역, 요약, 빌드/실행 가이드, 진단 기록은
+`docs/en/` 또는 `docs/ko/` 아래에 둡니다.
+
+- 한국어 문서는 `docs/ko/` 아래에 두고 `.ko.md`를 사용한다.
+- 한국어 라이선스 번역은 `docs/ko/LICENSE.ko`에 둔다.
 - 파일명은 영문 소문자, 숫자, 하이픈을 사용한다.
 - 빌드/테스트/진단/규칙 문서는 공개 README와 분리한다.
 - 이미 확인한 사실과 후속 수정 후보를 구분해서 쓴다.

@@ -2,7 +2,7 @@
 
 This is a plain-language summary of the BYUL license.
 
-The legally controlling document is the root [`LICENSE`](../../LICENSE) file. If this summary conflicts with the license text, the root `LICENSE` controls.
+The legally controlling document is the root [`LICENSE`](../../../LICENSE) file. If this summary conflicts with the license text, the root `LICENSE` controls.
 
 ## License Type
 
@@ -66,13 +66,13 @@ byuldev@outlook.kr
 
 Third-party components, if any, remain under their own licenses.
 
-See [`THIRD_PARTY_NOTICES.md`](THIRD_PARTY_NOTICES.md).
+See [`THIRD_PARTY_NOTICES.md`](../../../THIRD_PARTY_NOTICES.md).
 
 ## Contributions
 
 Contributions are accepted only under the contribution policy.
 
-See [`CONTRIBUTING.md`](CONTRIBUTING.md).
+See [`CONTRIBUTING.md`](../../../CONTRIBUTING.md).
 
 ## Warranty
 

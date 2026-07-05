@@ -2,7 +2,7 @@
 
 이 문서는 BYUL 라이선스를 쉽게 이해하기 위한 요약입니다.
 
-법적으로 우선하는 문서는 루트의 [`LICENSE`](../../LICENSE) 파일입니다. 이 요약과 원문 라이선스 내용이 충돌하면 루트의 `LICENSE`가 우선합니다.
+법적으로 우선하는 문서는 루트의 영문 [`LICENSE`](../../../LICENSE) 파일입니다. 한국어 번역은 [`LICENSE.ko`](../LICENSE.ko)에서 확인할 수 있습니다. 이 요약 또는 한국어 번역과 영문 원문이 충돌하면 영문 원문 `LICENSE`가 우선합니다.
 
 ## 라이선스 종류
 
@@ -66,13 +66,13 @@ byuldev@outlook.kr
 
 제3자 구성 요소가 있다면 해당 구성 요소는 각자의 라이선스를 따릅니다.
 
-[`THIRD_PARTY_NOTICES.md`](../../en/legal/THIRD_PARTY_NOTICES.md)를 확인하십시오.
+[`THIRD_PARTY_NOTICES.md`](../../../THIRD_PARTY_NOTICES.md)를 확인하십시오.
 
 ## 기여
 
 기여는 기여 정책에 따라 받습니다.
 
-[`CONTRIBUTING.md`](../../en/legal/CONTRIBUTING.md)를 확인하십시오.
+[`CONTRIBUTING.md`](../../../CONTRIBUTING.md)를 확인하십시오.
 
 ## 보증 없음
 

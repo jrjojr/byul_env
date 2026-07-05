@@ -1,13 +1,13 @@
 # 별이의 세계 / BYUL 엔진
 
-언어: [English](README.md) | [한국어](README.ko.md)
+언어: [English](../../README.md) | [한국어](README.ko.md)
 
 > **라이선스 안내**
 >
 > 이 저장소는 **오픈소스가 아니라 source-available 프로젝트**입니다.
 > 개인 학습, 학술 연구, 비상업적 기술 검토와 평가는 허용됩니다.
 > 상업적 사용, 재배포, 재판매, 공개 미러링, 라이브러리 패키징은 사전 서면 허가 없이는 금지됩니다.
-> 자세한 내용은 [LICENSE](LICENSE)를 확인하십시오.
+> 자세한 내용은 [LICENSE.ko](LICENSE.ko)를 확인하십시오.
 
 `byul`은 **별이의 세계**를 위한 C++17 기반 시뮬레이션 엔진입니다.
 
@@ -395,8 +395,8 @@ BYUL은 CMake preset 중심으로 빌드합니다. 현재 작업 기준은 Ubunt
 최소 설치 요건, Ubuntu 설치 명령, Windows MinGW 크로스 빌드, Windows native
 빌드, MSVC 가능 여부와 한계는 별도 문서에 정리되어 있습니다.
 
-- [빌드 환경 구성](docs/ko/build-environment.ko.md)
-- [실행 방법](docs/ko/runtime-execution.ko.md)
+- [빌드 환경 구성](build-environment.ko.md)
+- [실행 방법](runtime-execution.ko.md)
 
 빠른 Ubuntu Debug 패키지 빌드:
 
@@ -462,7 +462,7 @@ Byul World Source-Available Non-Commercial License v1.0
 - 상업적 사용, 재배포, 재판매, 공개 미러링, 재라이선스, 라이브러리·SDK·플러그인·서비스 패키징은 사전 서면 허가 없이는 금지됩니다.
 - 제3자 구성 요소가 있다면 해당 구성 요소는 각자의 라이선스를 따릅니다.
 
-전체 조건은 [LICENSE](LICENSE)를 확인하십시오.
+전체 조건은 [LICENSE.ko](LICENSE.ko)를 확인하십시오.
 
 ---
 
