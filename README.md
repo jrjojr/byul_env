@@ -395,10 +395,8 @@ kept as Windows Visual Studio builds.
 Minimum requirements, Ubuntu installation commands, Windows MinGW cross builds,
 Windows native builds, and MSVC limitations are documented separately.
 
-- [Build Environment](docs/build-environment.md)
-- [Runtime And Test Execution](docs/runtime-execution.md)
-- [Korean Build Environment](docs/build-environment.ko.md)
-- [Korean Runtime And Test Execution](docs/runtime-execution.ko.md)
+- [Build Environment](docs/en/build-environment.md)
+- [Runtime And Test Execution](docs/en/runtime-execution.md)
 
 Quick Ubuntu Debug package build:
 

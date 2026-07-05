@@ -66,13 +66,13 @@ byuldev@outlook.kr
 
 제3자 구성 요소가 있다면 해당 구성 요소는 각자의 라이선스를 따릅니다.
 
-[`THIRD_PARTY_NOTICES.md`](THIRD_PARTY_NOTICES.md)를 확인하십시오.
+[`THIRD_PARTY_NOTICES.md`](../../en/legal/THIRD_PARTY_NOTICES.md)를 확인하십시오.
 
 ## 기여
 
 기여는 기여 정책에 따라 받습니다.
 
-[`CONTRIBUTING.md`](CONTRIBUTING.md)를 확인하십시오.
+[`CONTRIBUTING.md`](../../en/legal/CONTRIBUTING.md)를 확인하십시오.
 
 ## 보증 없음
 

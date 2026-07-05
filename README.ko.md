@@ -395,10 +395,8 @@ BYUL은 CMake preset 중심으로 빌드합니다. 현재 작업 기준은 Ubunt
 최소 설치 요건, Ubuntu 설치 명령, Windows MinGW 크로스 빌드, Windows native
 빌드, MSVC 가능 여부와 한계는 별도 문서에 정리되어 있습니다.
 
-- [빌드 환경 구성](docs/build-environment.ko.md)
-- [실행 방법](docs/runtime-execution.ko.md)
-- [Build Environment](docs/build-environment.md)
-- [Runtime And Test Execution](docs/runtime-execution.md)
+- [빌드 환경 구성](docs/ko/build-environment.ko.md)
+- [실행 방법](docs/ko/runtime-execution.ko.md)
 
 빠른 Ubuntu Debug 패키지 빌드:
 

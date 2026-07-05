@@ -41,16 +41,16 @@ C 호환 public ABI
 BYUL 작업을 시작할 때는 작업 성격에 맞게 다음 문서를 먼저 확인합니다.
 
 ```text
-docs/byul-project-rules.ko.md
+docs/ko/byul-project-rules.ko.md
 README.ko.md
-docs/build-environment.ko.md
-docs/runtime-execution.ko.md
+docs/ko/build-environment.ko.md
+docs/ko/runtime-execution.ko.md
 ```
 
 테스트 실행 결과나 논리 검증 관련 작업이면 다음 문서도 확인합니다.
 
 ```text
-docs/test-byul-result.ko.md
+docs/ko/test-byul-result.ko.md
 ```
 
 특정 모듈 작업이면 해당 모듈의 `CMakeLists.txt`, public header, tests 디렉터리를
@@ -78,7 +78,7 @@ build_debug/bin/test_number_theory
 ```
 
 실행 파일과 `byul.dll`/`libbyul.so`의 런타임 연결 방식은
-`docs/runtime-execution.ko.md`를 기준으로 확인합니다.
+`docs/ko/runtime-execution.ko.md`를 기준으로 확인합니다.
 
 전체 테스트가 통과하더라도 논리적으로 충분히 검증하는지 따로 확인합니다.
 특히 다음 유형을 주의합니다.
@@ -88,12 +88,12 @@ build_debug/bin/test_number_theory
 - 결과 객체를 검사하면서 다른 객체를 출력하는 경우
 - 경로 탐색, 충돌, trajectory처럼 허용 오차와 좌표 의미가 중요한 경우
 
-테스트 결과를 문서에 남길 때는 `docs/` 아래에 한국어 문서로 기록하고,
+테스트 결과를 문서에 남길 때는 `docs/ko/` 아래에 한국어 문서로 기록하고,
 실패 여부와 논리 검증 항목을 분리합니다.
 
 ## 문서 작성 기준
 
-BYUL 문서는 기본적으로 `docs/` 아래에 둡니다.
+BYUL 문서는 기본적으로 `docs/en/` 또는 `docs/ko/` 아래에 둡니다.
 
 - 한국어 문서는 `.ko.md`를 사용한다.
 - 파일명은 영문 소문자, 숫자, 하이픈을 사용한다.
@@ -101,7 +101,7 @@ BYUL 문서는 기본적으로 `docs/` 아래에 둡니다.
 - 이미 확인한 사실과 후속 수정 후보를 구분해서 쓴다.
 
 README는 프로젝트 소개와 사용자가 바로 알아야 할 큰 구조를 담고, 세부 진단이나
-작업 규칙은 `docs/` 문서로 분리합니다.
+작업 규칙은 `docs/ko/` 문서로 분리합니다.
 
 ## TODO와 후속 작업
 
@@ -109,9 +109,9 @@ BYUL의 후속 작업은 코드 수정 대상과 문서 기록 대상을 먼저 
 
 후속 작업은 다음 중 알맞은 방식으로 남깁니다.
 
-- 짧은 진단 기록: `docs/*result*.ko.md`
-- 빌드/환경 지식: `docs/build-environment.ko.md`
-- 프로젝트 공통 규칙: `docs/byul-project-rules.ko.md`
+- 짧은 진단 기록: `docs/ko/*result*.ko.md`
+- 빌드/환경 지식: `docs/ko/build-environment.ko.md`
+- 프로젝트 공통 규칙: `docs/ko/byul-project-rules.ko.md`
 - 실제 코드 수정이 필요한 항목: 테스트 또는 관련 코드 주석이 아니라 별도 문서에
   먼저 정리한 뒤 수정한다.
 
