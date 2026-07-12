@@ -28,8 +28,31 @@ tools/python/byul_wrapper/generate_wrapper_abi.sh
 tools\python\byul_wrapper\generate_wrapper_abi.bat --check
 ```
 
+등록된 header의 선언과 구조화 Doxygen metadata 검사:
+
+```bat
+tools\python\byul_wrapper\generate_wrapper_abi.bat --audit
+```
+
+모든 `BYUL_API` header를 검사하고 JSON coverage report 생성:
+
+```bat
+tools\python\byul_wrapper\generate_wrapper_abi.bat --audit --all-headers ^
+  --json-output build\byul-wrapper-abi-audit.json
+```
+
+개별 lint 오류까지 console에 출력하려면 `--verbose`를 추가합니다. Audit은
+`header-declaration-rules.org`와 `header-comment-rules.org` 중 현재 구현된 구조화
+규칙을 실행하며 오류가 하나라도 있으면 exit code 1을 반환합니다. 일반 설명문에서
+소유권이나 callback 의미를 추론하지 않습니다. 아직 구현되지 않은 buffer, callback,
+storage 상호 규칙은 audit 결과만으로 통과했다고 판단하지 않습니다.
+
 생성기는 `MODULE_HEADERS`에 등록된 public header를 읽고 각 module의 첫 번째
 `ffi.cdef()` block을 교체합니다. 생성 block을 직접 수정하지 않습니다.
+
+Header parser와 linter 구현은 `byul_wrapper_generator/header_parser.py`에 있습니다.
+규칙 문서의 원문을 Python에 복제하지 않고, 알려진 `@byul.*` tag와 선언 계약만
+실행 가능한 코드로 구현합니다.
 
 ## 새 wrapper 추가 절차
 

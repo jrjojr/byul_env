@@ -138,12 +138,12 @@ typedef struct s_route route_t;
 
 class c_route:
     def __init__(self, raw_ptr=None, cost=None, own=False):
+        self._c = ffi.NULL
+        self._own = False
+        self._finalizer = None
         if raw_ptr:
             self._c = raw_ptr
             self._own = own
-        elif cost is not None:
-            self._c = C.route_create_full(cost)
-            self._own = True
         else:
             self._c = C.route_create()
             self._own = True
@@ -153,8 +153,8 @@ class c_route:
 
         if self._own:
             self._finalizer = weakref.finalize(self, C.route_destroy, self._c)
-        else:
-            self._finalizer = None
+        if cost is not None:
+            C.route_set_cost(self._c, cost)
 
     def cost(self):
         return C.route_get_cost(self._c)
@@ -281,7 +281,7 @@ class c_route:
         self.close()
 
     def close(self):
-        if self._own and self._finalizer and self._finalizer.alive:
+        if getattr(self, "_own", False) and self._finalizer and self._finalizer.alive:
             self._finalizer()
 
     def __enter__(self):

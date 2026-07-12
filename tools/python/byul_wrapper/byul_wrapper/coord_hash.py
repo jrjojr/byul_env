@@ -213,12 +213,12 @@ class c_coord_hash_iter:
         return self
 
     def __next__(self):
-        key_ptr = ffi.new("coord_t**")
+        key_ptr = ffi.new("coord_t*")
         val_ptr = ffi.new("void**")
         if not C.coord_hash_iter_next(self._iter, key_ptr, val_ptr):
             self.close()
             raise StopIteration
-        return c_coord(raw_ptr=key_ptr[0]), val_ptr[0]
+        return c_coord(raw_ptr=key_ptr), val_ptr[0]
 
     def close(self):
         if self._iter:

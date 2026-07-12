@@ -45,6 +45,24 @@ BYUL_API void sample_set(sample_t* sample, int value);
         self.assertNotIn("old();", result)
         self.assertIn("class Wrapper:\n    pass", result)
 
+    def test_registered_headers_are_unique_and_exist(self):
+        headers = GENERATOR.registered_headers()
+
+        self.assertEqual(len(headers), len(set(headers)))
+        self.assertTrue(headers)
+        for relative in headers:
+            self.assertTrue((GENERATOR.BYUL_ROOT / relative).is_file(), relative)
+
+    def test_public_headers_include_unregistered_apis(self):
+        registered = set(GENERATOR.registered_headers())
+        public = {
+            path.relative_to(GENERATOR.BYUL_ROOT).as_posix()
+            for path in GENERATOR.public_headers()
+        }
+
+        self.assertTrue(registered <= public)
+        self.assertTrue(public - registered)
+
 
 if __name__ == "__main__":
     unittest.main()
