@@ -8,9 +8,12 @@ callback lifetime cannot be inferred reliably from a C declaration.
 from __future__ import annotations
 
 import argparse
+import json
 from pathlib import Path
 import re
 import sys
+
+from byul_wrapper_generator import audit_header
 
 
 ROOT = Path(__file__).resolve().parent
@@ -36,7 +39,6 @@ MODULE_HEADERS: dict[str, tuple[str, ...]] = {
     "route.py": ("navsys/route/route.h",),
     "route_finder_common.py": ("navsys/route_finder/route_finder_core.h",),
     "route_finder.py": (
-        "navsys/coord/cost_coord_pq.h",
         "navsys/route_finder/route_finder.h",
         *tuple(
             str(path.relative_to(BYUL_ROOT)).replace("\\", "/")
@@ -145,6 +147,72 @@ def generate(check: bool) -> int:
     return 0
 
 
+def registered_headers() -> tuple[str, ...]:
+    """Return the deterministic set of public headers in the generation manifest."""
+    return tuple(sorted({header for headers in MODULE_HEADERS.values() for header in headers}))
+
+
+def public_headers() -> tuple[Path, ...]:
+    """Return repository headers that contain at least one exported declaration."""
+    result = []
+    for path in BYUL_ROOT.rglob("*.h"):
+        if "BYUL_API" in path.read_text(encoding="utf-8", errors="replace"):
+            result.append(path)
+    return tuple(sorted(result))
+
+
+def audit(all_headers: bool, json_output: Path | None, verbose: bool) -> int:
+    """Audit structured header contracts without guessing missing semantics."""
+    paths = (
+        public_headers()
+        if all_headers
+        else tuple(BYUL_ROOT / relative for relative in registered_headers())
+    )
+    reports = tuple(audit_header(path) for path in paths)
+    registered = set(registered_headers())
+    all_public = {
+        path.relative_to(BYUL_ROOT).as_posix() for path in public_headers()
+    }
+    payload = {
+        "headers": len(reports),
+        "declarations": sum(len(report.declarations) for report in reports),
+        "errors": sum(report.error_count for report in reports),
+        "registered_headers": len(registered),
+        "public_headers": len(all_public),
+        "unregistered_headers": sorted(all_public - registered),
+        "issues": [
+            {
+                "header": report.path.relative_to(BYUL_ROOT).as_posix(),
+                "severity": issue.severity,
+                "code": issue.code,
+                "symbol": issue.symbol,
+                "message": issue.message,
+            }
+            for report in reports
+            for issue in report.issues
+        ],
+    }
+    if json_output is not None:
+        json_output.write_text(
+            json.dumps(payload, ensure_ascii=False, indent=2) + "\n",
+            encoding="utf-8",
+            newline="\n",
+        )
+    print(
+        "[AUDIT] "
+        f"headers={payload['headers']} declarations={payload['declarations']} "
+        f"errors={payload['errors']} registered={payload['registered_headers']}/"
+        f"{payload['public_headers']}"
+    )
+    if verbose:
+        for item in payload["issues"]:
+            print(
+                f"[{item['severity'].upper()}] {item['header']}:"
+                f"{item['symbol'] or '-'} {item['code']}: {item['message']}"
+            )
+    return 1 if payload["errors"] else 0
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(
         description="Generate BYUL Grid ffi.cdef blocks from BYUL public headers."
@@ -154,7 +222,39 @@ def main() -> int:
         action="store_true",
         help="report stale generated declarations without modifying files",
     )
+    parser.add_argument(
+        "--audit",
+        action="store_true",
+        help="lint registered header declarations and structured Doxygen metadata",
+    )
+    parser.add_argument(
+        "--all-headers",
+        action="store_true",
+        help="with --audit, inspect every header containing BYUL_API",
+    )
+    parser.add_argument(
+        "--json-output",
+        type=Path,
+        help="with --audit, write a machine-readable coverage and lint report",
+    )
+    parser.add_argument(
+        "--verbose",
+        action="store_true",
+        help="with --audit, print every lint issue",
+    )
     args = parser.parse_args()
+    if args.all_headers and not args.audit:
+        parser.error("--all-headers requires --audit")
+    if args.json_output is not None and not args.audit:
+        parser.error("--json-output requires --audit")
+    if args.verbose and not args.audit:
+        parser.error("--verbose requires --audit")
+    if args.audit:
+        return audit(
+            all_headers=args.all_headers,
+            json_output=args.json_output,
+            verbose=args.verbose,
+        )
     return generate(check=args.check)
 
 

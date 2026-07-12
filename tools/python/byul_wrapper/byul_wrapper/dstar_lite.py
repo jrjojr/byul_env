@@ -246,6 +246,10 @@ class c_dstar_lite:
                  raw_ptr=None, 
                  own=False):
 
+        self._c = ffi.NULL
+        self._own = False
+        self._finalizer = None
+
         if raw_ptr:
             self._c = raw_ptr
             self._own = own
@@ -486,11 +490,11 @@ class c_dstar_lite:
 
     # ───── 메모리 관리 ─────
     def __del__(self):
-        if self._own and self._finalizer and self._finalizer.alive:
+        if getattr(self, "_own", False) and self._finalizer and self._finalizer.alive:
             self._finalizer()
 
     def close(self):
-        if self._own and self._finalizer and self._finalizer.alive:
+        if getattr(self, "_own", False) and self._finalizer and self._finalizer.alive:
             self._finalizer()
 
     def __enter__(self):

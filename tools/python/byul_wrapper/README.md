@@ -22,6 +22,8 @@ with c_coord(10, 20) as coord:
 - [설치와 사용법](docs/usage.ko.md)
 - [구조와 설계 원칙](docs/architecture.ko.md)
 - [개발 및 ABI 자동 생성](docs/development.ko.md)
+- [DLL과 Python Wrapper 테스트](docs/testing.ko.md)
+- [완전 자동 생성 TODO](docs/todo.ko.md)
 - [전체 DLL 지원 로드맵](docs/roadmap.ko.md)
 - [Wrapper 자동 생성 상세 규칙](docs/wrapper-rules.org)
 - [Public C Header 선언 규칙](../../../docs/ko/byul-sdk/header-declaration-rules.org)

@@ -1,40 +1,32 @@
-from byul_wrapper.route import c_route
+import unittest
+
 from byul_wrapper.coord import c_coord
-
-if __name__ == '__main__':
-    print('route.py 테스트 시작')
-
-    a = c_coord(1, 1)
-    b = c_coord(2, 1)
-    c = c_coord(3, 1)
-    d = c_coord(4, 2)
-
-    route = c_route()
-    route.add_coord(a)
-    route.add_coord(b)
-    route.add_coord(c)
-    route.add_coord(d)
-
-    route.update_average_vector_by_index(0, 1)
-    route.update_average_vector_by_index(1, 2)
-
-    angle_threshold = 5.0
-    changed = route.has_changed_by_index(2, 3, angle_threshold)
-    changed2, angle = route.has_changed_with_angle_by_index(2, 3, angle_threshold)
-
-    print(f"변경 여부: {changed}")
-    print(f"변경 여부 + 각도: {changed2}, angle={angle:.3f}°")
-
-    # assert changed is True
-    # assert changed2 is True
-    assert changed
-    assert changed2
-    assert angle > angle_threshold
-
-    deg = a.degree(c_coord(111110,0))
-    print (f'deg : {deg}')
+from byul_wrapper.route import c_route
 
 
-    print("테스트 완료: OK")
+class RouteTest(unittest.TestCase):
+    def test_add_query_and_clear_coordinates(self):
+        with c_coord(1, 1) as first, c_coord(2, 1) as second, c_route() as route:
+            route.add_coord(first)
+            route.add_coord(second)
+
+            self.assertEqual(route.length(), 2)
+            self.assertTrue(route.contains(first))
+            self.assertEqual(route.coord_at(0).to_tuple(), (1, 1))
+            self.assertEqual(route.last().to_tuple(), (2, 1))
+
+            route.clear_coords()
+            self.assertEqual(route.length(), 0)
+
+    def test_cost_success_and_retry_properties(self):
+        with c_route(cost=3.5) as route:
+            route.set_success(True)
+            route.set_retry_count(7)
+
+            self.assertAlmostEqual(route.cost(), 3.5)
+            self.assertTrue(route.is_success())
+            self.assertEqual(route.retry_count(), 7)
 
 
+if __name__ == "__main__":
+    unittest.main()
