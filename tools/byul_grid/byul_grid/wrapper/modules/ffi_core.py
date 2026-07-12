@@ -42,7 +42,7 @@ def _find_library() -> Path:
     if system == "Windows":
         candidates.append(
             repository_root
-            / "build_win_msvc_release"
+            / "build_win_msvc"
             / "bin"
             / "Release"
             / library_name

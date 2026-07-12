@@ -4,7 +4,12 @@
 #include <stdlib.h>
 
 static char* read_file(const char* path) {
-    FILE* f = fopen(path, "rb");
+    FILE* f = NULL;
+#if defined(_MSC_VER)
+    if (fopen_s(&f, path, "rb") != 0) return NULL;
+#else
+    f = fopen(path, "rb");
+#endif
     if (!f) return NULL;
     fseek(f, 0, SEEK_END);
     long len = ftell(f);
@@ -61,7 +66,9 @@ void gpu_dispatch_compute(unsigned int program, int x, int y, int z) {
 }
 
 void gpu_memory_barrier(void) {
-    glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
+    glMemoryBarrier(
+        GL_SHADER_STORAGE_BARRIER_BIT |
+        GL_BUFFER_UPDATE_BARRIER_BIT);
 }
 
 unsigned int gpu_create_ssbo(uint32_t size, uint32_t binding_index) {
@@ -80,12 +87,12 @@ void gpu_update_ssbo(unsigned int ssbo, const void* data, uint32_t size) {
     glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
 }
 
-void* gpu_navgrid_ssbo(unsigned int ssbo) {
+void* gpu_map_ssbo(unsigned int ssbo) {
     glBindBuffer(GL_SHADER_STORAGE_BUFFER, ssbo);
     return glMapBuffer(GL_SHADER_STORAGE_BUFFER, GL_READ_ONLY);
 }
 
-void gpu_unnavgrid_ssbo(unsigned int ssbo) {
+void gpu_unmap_ssbo(unsigned int ssbo) {
     glBindBuffer(GL_SHADER_STORAGE_BUFFER, ssbo);
     glUnmapBuffer(GL_SHADER_STORAGE_BUFFER);
     glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);

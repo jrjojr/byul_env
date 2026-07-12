@@ -40,7 +40,7 @@ if SYSTEM == "Windows":
     library_name = "byul.dll"
     default_library_path = (
         REPOSITORY_ROOT
-        / "build_win_msvc_release"
+        / "build_win_msvc"
         / "bin"
         / "Release"
         / library_name

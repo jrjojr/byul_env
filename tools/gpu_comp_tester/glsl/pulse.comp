@@ -1,0 +1,29 @@
+#version 430
+layout (local_size_x = 1) in;
+
+layout(std140, binding = 0) uniform RotatorLerp {
+    vec4 a;
+    vec4 b;
+    vec4 params; // x: interpolation, y: elapsed seconds
+} ubo;
+
+layout(std430, binding = 1) buffer Result {
+    vec4 rotated;
+};
+
+const vec3 origin = vec3(0.0, 0.5, 0.0);
+
+vec3 quat_rotate(vec4 q, vec3 v) {
+    vec3 u = q.xyz;
+    float s = q.w;
+    return 2.0 * dot(u, v) * u
+         + (s * s - dot(u, u)) * v
+         + 2.0 * s * cross(u, v);
+}
+
+void main() {
+    vec4 target = dot(ubo.a, ubo.b) < 0.0 ? -ubo.b : ubo.b;
+    vec4 q = normalize(mix(ubo.a, target, ubo.params.x));
+    float scale = 0.45 + 0.45 * (0.5 + 0.5 * sin(ubo.params.y * 4.0));
+    rotated = vec4(quat_rotate(q, origin) * scale / 0.5, 1.0);
+}

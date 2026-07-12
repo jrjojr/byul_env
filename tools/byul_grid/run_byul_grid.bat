@@ -5,7 +5,7 @@ set "PROJECT_ROOT=%~dp0"
 set "ENTRYPOINT=%PROJECT_ROOT%byul_grid\byul_grid.py"
 set "VENV_PYTHON=%PROJECT_ROOT%.venv\Scripts\python.exe"
 set "BYUL_SOURCE=%PROJECT_ROOT%..\..\byul"
-set "BYUL_BUILD=%PROJECT_ROOT%..\..\build_win_msvc_release"
+set "BYUL_BUILD=%PROJECT_ROOT%..\..\build_win_msvc"
 set "BYUL_DLL=%BYUL_BUILD%\bin\Release\byul.dll"
 set "CMAKE_EXE=cmake"
 

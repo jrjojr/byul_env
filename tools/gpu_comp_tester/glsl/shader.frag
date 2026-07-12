@@ -5,7 +5,7 @@ flat in int vHandType;
 
 void main() {
     if (vHandType == 0)
-        FragColor = vec4(1, 0, 0, 1); // SLERP
+        FragColor = vec4(1, 0, 0, 1); // GPU SLERP
     else
-        FragColor = vec4(0, 0.5, 1, 1); // LERP
+        FragColor = vec4(0, 0.5, 1, 1); // CPU LERP
 }

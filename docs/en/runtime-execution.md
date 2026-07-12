@@ -22,7 +22,7 @@ Windows MinGW cross:
   package_tmp/.../lib/   import/static archives
 ```
 
-For deployment checks, prefer the `sdk_zip` layout or the generated zip over
+For deployment checks, prefer the `byul_sdk_zip` layout or the generated zip over
 raw build-tree paths.
 
 ## Run Tests With CTest

@@ -8,17 +8,7 @@ byul_apply_common_settings()
 # -----------------------------------------------------------------------------
 # Testing support
 # -----------------------------------------------------------------------------
-enable_testing()
-
-option(BYUL_BUILD_EXPERIMENTS
-    "Build experimental BYUL programs"
-    OFF
-)
-
-option(BYUL_INSTALL_EXPERIMENTS
-    "Install experimental BYUL programs"
-    OFF
-)
+include(CTest)
 
 # -----------------------------------------------------------------------------
 # Add modules
@@ -35,12 +25,11 @@ add_subdirectory(projectile)
 add_subdirectory(byul_tick)
 add_subdirectory(ground)
 
-if(BYUL_BUILD_EXPERIMENTS)
-    add_subdirectory(
-        "${CMAKE_CURRENT_SOURCE_DIR}/../experiments/gpu_comp_tester"
-        "${CMAKE_BINARY_DIR}/experiments/gpu_comp_tester"
-    )
-endif()
+add_subdirectory(
+    "${CMAKE_CURRENT_SOURCE_DIR}/../tools/gpu_comp_tester"
+    "${CMAKE_BINARY_DIR}/tools/gpu_comp_tester"
+    EXCLUDE_FROM_ALL
+)
 
 set(${PROJECT_NAME}_SOURCES
     ${CMAKE_CURRENT_SOURCE_DIR}/byul.cpp
@@ -136,13 +125,20 @@ install(FILES ${${PROJECT_NAME}_HEADERS}
 # -----------------------------------------------------------------------------
 byul_add_uninstall_target(${CMAKE_CURRENT_SOURCE_DIR}/cmake_uninstall.cmake.in)
 
-# sdk_zip stages the CMake install tree under the build directory and archives
-# it. grid_zip separately creates a portable cx_Freeze application. Neither ZIP
-# target installs files into CMAKE_INSTALL_PREFIX.
+# byul_sdk_zip stages the CMake install tree under the build directory and
+# archives it. byul_grid_zip and gpu_comp_tester_zip create portable application
+# packages separately.
+# None of the ZIP targets install files into CMAKE_INSTALL_PREFIX.
 byul_add_sdk_zip_target(${PROJECT_NAME})
 byul_add_grid_zip_target(
     ${PROJECT_NAME}
     "0.1.0"
     "${CMAKE_CURRENT_SOURCE_DIR}/../tools/byul_grid"
+)
+byul_add_gpu_zip_target(
+    gpu_comp_tester
+    "0.1.0"
+    "${CMAKE_CURRENT_SOURCE_DIR}/../tools/gpu_comp_tester"
+    "${CMAKE_CURRENT_SOURCE_DIR}/.."
 )
 byul_add_help_target()

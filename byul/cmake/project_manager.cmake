@@ -254,7 +254,7 @@ function(byul_add_sdk_zip_target package_name)
         set(PACKAGE_BUILD_CONFIG_ARGS)
     endif()
 
-    add_custom_target(sdk_build
+    add_custom_target(byul_sdk_build
         COMMAND ${CMAKE_COMMAND} -E echo "[BUILD] Building all targets before packaging..."
         COMMAND ${CMAKE_COMMAND} -E env MAKEFLAGS=
             ${CMAKE_COMMAND} --build "${CMAKE_BINARY_DIR}"
@@ -264,7 +264,7 @@ function(byul_add_sdk_zip_target package_name)
         COMMENT "[BUILD] all targets are up to date"
     )
 
-    add_custom_target(sdk_zip
+    add_custom_target(byul_sdk_zip
         COMMAND ${CMAKE_COMMAND} -E echo "[CLEAN] Removing ${PACKAGE_DIR}..."
         COMMAND ${CMAKE_COMMAND} -E remove_directory "${PACKAGE_DIR}"
         COMMAND ${CMAKE_COMMAND} -E echo "[INSTALL] Creating ${PACKAGE_DIR}..."
@@ -279,7 +279,7 @@ function(byul_add_sdk_zip_target package_name)
         COMMAND ${CMAKE_COMMAND} -E chdir "${PACKAGE_DIR}/${ZIP_INNER}/../"
             ${CMAKE_COMMAND} -E tar cf
             "${CMAKE_BINARY_DIR}/${PACKAGE_FILE_NAME}" --format=zip .
-        DEPENDS sdk_build
+        DEPENDS byul_sdk_build
         COMMENT "[ZIP] ${PACKAGE_FILE_NAME} created"
     )
 endfunction()
@@ -287,7 +287,7 @@ endfunction()
 function(byul_add_grid_zip_target target_name grid_version grid_root)
     if(CMAKE_CROSSCOMPILING)
         message(STATUS
-            "grid_zip is unavailable while cross-compiling; "
+            "byul_grid_zip is unavailable while cross-compiling; "
             "cx_Freeze must run on the target operating system"
         )
         return()
@@ -310,7 +310,7 @@ function(byul_add_grid_zip_target target_name grid_version grid_root)
         )
     endif()
 
-    add_custom_target(grid_build
+    add_custom_target(byul_grid_build
         COMMAND ${CMAKE_COMMAND} -E env
             "BYUL_LIBRARY_PATH=$<TARGET_FILE:${target_name}>"
             ${GRID_BUILD_COMMAND}
@@ -321,26 +321,101 @@ function(byul_add_grid_zip_target target_name grid_version grid_root)
         VERBATIM
     )
 
-    add_custom_target(grid_zip
+    add_custom_target(byul_grid_zip
         COMMAND ${CMAKE_COMMAND} -E remove -f
             "${CMAKE_BINARY_DIR}/${GRID_PACKAGE_FILE_NAME}"
         COMMAND ${CMAKE_COMMAND} -E tar cf
             "${CMAKE_BINARY_DIR}/${GRID_PACKAGE_FILE_NAME}"
             --format=zip byul_grid
         WORKING_DIRECTORY "${GRID_BUILD_ROOT}"
-        DEPENDS grid_build
+        DEPENDS byul_grid_build
         COMMENT "[GRID] ${GRID_PACKAGE_FILE_NAME} created"
         VERBATIM
     )
 endfunction()
 
+function(byul_add_gpu_zip_target target_name app_version app_root repository_root)
+    byul_get_package_tags(PACKAGE_PLATFORM_TAG PACKAGE_TOOLCHAIN_TAG)
+    set(GPU_PACKAGE_ROOT "${CMAKE_BINARY_DIR}/gpu_package")
+    set(GPU_OUTPUT "${GPU_PACKAGE_ROOT}/gpu_comp_tester")
+    file(MAKE_DIRECTORY "${GPU_PACKAGE_ROOT}")
+    set(GPU_PACKAGE_FILE_NAME
+        "gpu-comp-tester-${app_version}-${PACKAGE_PLATFORM_TAG}-$<LOWER_CASE:$<CONFIG>>.zip"
+    )
+
+    set(GPU_STAGE_COMMANDS
+        COMMAND ${CMAKE_COMMAND} -E remove_directory "${GPU_OUTPUT}"
+        COMMAND ${CMAKE_COMMAND} -E make_directory "${GPU_OUTPUT}/glsl"
+        COMMAND ${CMAKE_COMMAND} -E make_directory "${GPU_OUTPUT}/licenses"
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different
+            "$<TARGET_FILE:${target_name}>" "${GPU_OUTPUT}/"
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different
+            "${app_root}/glsl/clock.comp"
+            "${app_root}/glsl/nlerp.comp"
+            "${app_root}/glsl/pulse.comp"
+            "${app_root}/glsl/lissajous.comp"
+            "${app_root}/glsl/shader.vert"
+            "${app_root}/glsl/shader.frag"
+            "${GPU_OUTPUT}/glsl/"
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different
+            "${repository_root}/LICENSE"
+            "${repository_root}/THIRD_PARTY_NOTICES.md"
+            "${GPU_OUTPUT}/licenses/"
+    )
+
+    if(WIN32)
+        list(APPEND GPU_STAGE_COMMANDS
+            COMMAND ${CMAKE_COMMAND} -E copy_if_different
+                "$<TARGET_FILE_DIR:${target_name}>/SDL3.dll"
+                "${GPU_OUTPUT}/"
+        )
+
+        if(MSVC)
+            set(SDL3_PACKAGE_LICENSE
+                "${repository_root}/external/SDL3-3.2.18/msvc/LICENSE.txt"
+            )
+        else()
+            set(SDL3_PACKAGE_LICENSE
+                "${repository_root}/external/SDL3-3.2.18/mingw/LICENSE.txt"
+            )
+        endif()
+
+        list(APPEND GPU_STAGE_COMMANDS
+            COMMAND ${CMAKE_COMMAND} -E copy_if_different
+                "${SDL3_PACKAGE_LICENSE}"
+                "${GPU_OUTPUT}/licenses/SDL3-LICENSE.txt"
+        )
+    endif()
+
+    add_custom_target(gpu_comp_tester_zip
+        ${GPU_STAGE_COMMANDS}
+        COMMAND ${CMAKE_COMMAND} -E remove -f
+            "${CMAKE_BINARY_DIR}/${GPU_PACKAGE_FILE_NAME}"
+        COMMAND ${CMAKE_COMMAND} -E tar cf
+            "${CMAKE_BINARY_DIR}/${GPU_PACKAGE_FILE_NAME}"
+            --format=zip gpu_comp_tester
+        WORKING_DIRECTORY "${GPU_PACKAGE_ROOT}"
+        DEPENDS ${target_name}
+        COMMENT "[GPU] ${GPU_PACKAGE_FILE_NAME} created"
+        VERBATIM
+    )
+endfunction()
+
 function(byul_add_help_target)
-    add_custom_target(byul_help
+    set(BYUL_HELP_COMMANDS
         COMMAND ${CMAKE_COMMAND} -E echo "BYUL build and distribution targets:"
-        COMMAND ${CMAKE_COMMAND} -E echo "  sdk_build  - update SDK libraries and test executables"
-        COMMAND ${CMAKE_COMMAND} -E echo "  sdk_zip    - build, stage CMake install rules, and create byul-sdk-*.zip"
-        COMMAND ${CMAKE_COMMAND} -E echo "  grid_build - build the standalone BYUL Grid directory with cx_Freeze"
-        COMMAND ${CMAKE_COMMAND} -E echo "  grid_zip   - build and create the portable byul-grid-*.zip"
+        COMMAND ${CMAKE_COMMAND} -E echo "  byul_sdk_build  - update SDK libraries and test executables"
+        COMMAND ${CMAKE_COMMAND} -E echo "  byul_sdk_zip    - build, stage CMake install rules, and create byul-sdk-*.zip"
+        COMMAND ${CMAKE_COMMAND} -E echo "  byul_grid_build - build the standalone BYUL Grid directory with cx_Freeze"
+        COMMAND ${CMAKE_COMMAND} -E echo "  byul_grid_zip   - build and create the portable byul-grid-*.zip"
+    )
+    if(TARGET gpu_comp_tester_zip)
+        list(APPEND BYUL_HELP_COMMANDS
+            COMMAND ${CMAKE_COMMAND} -E echo "  gpu_comp_tester       - build the GPU Compute Tester executable"
+            COMMAND ${CMAKE_COMMAND} -E echo "  gpu_comp_tester_zip   - build and create the portable gpu-comp-tester-*.zip"
+        )
+    endif()
+    list(APPEND BYUL_HELP_COMMANDS
         COMMAND ${CMAKE_COMMAND} -E echo "  uninstall  - remove files recorded by the last standard CMake install"
         COMMAND ${CMAKE_COMMAND} -E echo ""
         COMMAND ${CMAKE_COMMAND} -E echo "Standard local SDK install (does not create a ZIP):"
@@ -348,8 +423,16 @@ function(byul_add_help_target)
         COMMAND ${CMAKE_COMMAND} -E echo "  cmake --install BUILD_DIR --config Release --prefix INSTALL_DIR"
         COMMAND ${CMAKE_COMMAND} -E echo ""
         COMMAND ${CMAKE_COMMAND} -E echo "Distribution examples:"
-        COMMAND ${CMAKE_COMMAND} -E echo "  cmake --build BUILD_DIR --target sdk_zip --config Release"
-        COMMAND ${CMAKE_COMMAND} -E echo "  cmake --build BUILD_DIR --target grid_zip --config Release"
+        COMMAND ${CMAKE_COMMAND} -E echo "  cmake --build BUILD_DIR --target byul_sdk_zip --config Release"
+        COMMAND ${CMAKE_COMMAND} -E echo "  cmake --build BUILD_DIR --target byul_grid_zip --config Release"
+    )
+    if(TARGET gpu_comp_tester_zip)
+        list(APPEND BYUL_HELP_COMMANDS
+            COMMAND ${CMAKE_COMMAND} -E echo "  cmake --build BUILD_DIR --target gpu_comp_tester_zip --config Release"
+        )
+    endif()
+    add_custom_target(byul_help
+        ${BYUL_HELP_COMMANDS}
         COMMENT "Show BYUL target help"
         VERBATIM
     )

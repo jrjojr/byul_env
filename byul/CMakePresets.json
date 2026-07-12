@@ -69,25 +69,14 @@
             }
         },
         {
-            "name": "win-msvc-release",
-            "displayName": "Windows 11 (MSVC Release)",
-            "description": "Visual Studio 2022 (x64) Release 빌드",
+            "name": "win-msvc",
+            "displayName": "Windows 11 (MSVC)",
+            "description": "Visual Studio 2022 (x64) 다중 구성 빌드",
             "generator": "Visual Studio 17 2022",
             "cmakeExecutable": "C:/Program Files/Microsoft Visual Studio/2022/Community/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/bin/cmake.exe",
-            "binaryDir": "${sourceDir}/../build_win_msvc_release",
+            "binaryDir": "${sourceDir}/../build_win_msvc",
             "cacheVariables": {
-                "CMAKE_BUILD_TYPE": "Release"
-            }
-        },
-        {
-            "name": "win-msvc-debug",
-            "displayName": "Windows 11 (MSVC Debug)",
-            "description": "Visual Studio 2022 (x64) Debug 빌드",
-            "generator": "Visual Studio 17 2022",
-            "cmakeExecutable": "C:/Program Files/Microsoft Visual Studio/2022/Community/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/bin/cmake.exe",
-            "binaryDir": "${sourceDir}/../build_win_msvc_debug",
-            "cacheVariables": {
-                "CMAKE_BUILD_TYPE": "Debug"
+                "CMAKE_CONFIGURATION_TYPES": "Debug;Release"
             }
         }
     ],
@@ -98,7 +87,7 @@
             "description": "로컬 Ubuntu Debug 빌드",
             "jobs": 8,
             "targets": [
-                "sdk_zip"
+                "byul_sdk_zip"
             ]
         },
         {
@@ -107,7 +96,7 @@
             "description": "로컬 Ubuntu Release 빌드",
             "jobs": 8,
             "targets": [
-                "sdk_zip"
+                "byul_sdk_zip"
             ]
         },
         {
@@ -116,7 +105,7 @@
             "description": "Windows용 DLL 빌드 preset",
             "jobs": 8,
             "targets": [
-                "sdk_zip"
+                "byul_sdk_zip"
             ]
         },
         {
@@ -125,7 +114,7 @@
             "description": "Windows SDL 실행파일 빌드 (MinGW64)",
             "jobs": 8,
             "targets": [
-                "sdk_zip"
+                "byul_sdk_zip"
             ]
         },
         {
@@ -134,7 +123,7 @@
             "description": "Windows native 용 DLL 빌드 preset",
             "jobs": 8,
             "targets": [
-                "sdk_zip"
+                "byul_sdk_zip"
             ]
         },
         {
@@ -143,27 +132,46 @@
             "description": "Windows native Debug 빌드 preset",
             "jobs": 8,
             "targets": [
-                "sdk_zip"
+                "byul_sdk_zip"
             ]
         },
         {
             "name": "build-win-msvc-release",
-            "configurePreset": "win-msvc-release",
+            "configurePreset": "win-msvc",
             "description": "Windows MSVC Release 빌드",
+            "configuration": "Release",
             "jobs": 8,
             "targets": [
-                "sdk_zip"
+                "byul_sdk_zip"
             ]
         },
         {
             "name": "build-win-msvc-debug",
-            "configurePreset": "win-msvc-debug",
+            "configurePreset": "win-msvc",
             "description": "Windows MSVC Debug 빌드",
+            "configuration": "Debug",
             "jobs": 8,
             "targets": [
-                "sdk_zip"
+                "byul_sdk_zip"
             ]
         }
     ],
-    "testPresets": []
+    "testPresets": [
+        {
+            "name": "test-win-msvc-release",
+            "configurePreset": "win-msvc",
+            "configuration": "Release",
+            "output": {
+                "outputOnFailure": true
+            }
+        },
+        {
+            "name": "test-win-msvc-debug",
+            "configurePreset": "win-msvc",
+            "configuration": "Debug",
+            "output": {
+                "outputOnFailure": true
+            }
+        }
+    ]
 }

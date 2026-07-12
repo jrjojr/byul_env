@@ -31,10 +31,10 @@ unsigned int gpu_create_ssbo(uint32_t size, uint32_t binding_index);
 void gpu_update_ssbo(unsigned int ssbo, const void* data, uint32_t size);
 
 // Map SSBO (for read access)
-void* gpu_navgrid_ssbo(unsigned int ssbo);
+void* gpu_map_ssbo(unsigned int ssbo);
 
 // Unmap SSBO (must be called after mapping)
-void gpu_unnavgrid_ssbo(unsigned int ssbo);
+void gpu_unmap_ssbo(unsigned int ssbo);
 
 #ifdef __cplusplus
 }

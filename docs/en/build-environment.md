@@ -14,13 +14,14 @@ BYUL uses CMake presets.
 ```text
 Primary work environment: Ubuntu
 Primary build command: cmake --preset ... / cmake --build --preset ...
-SDK ZIP target: sdk_zip
-BYUL Grid ZIP target: grid_zip
+SDK ZIP target: byul_sdk_zip
+BYUL Grid ZIP target: byul_grid_zip
+GPU Compute Tester ZIP target: gpu_comp_tester_zip (separate from the default build)
 Public output: byul.dll or libbyul.so, public headers
 Development output: module static libraries, module test executables, integration test executable
 ```
 
-`sdk_zip` can be run directly. It updates `all`, installs into a temporary
+`byul_sdk_zip` can be run directly. It updates `all`, installs into a temporary
 package layout, and creates `byul.zip`.
 
 ## Ubuntu Requirements
@@ -98,7 +99,7 @@ pacman -S --needed \
 
 ## MSVC Build Analysis
 
-The `win-msvc-release` and `win-msvc-debug` presets use the Visual Studio 2022
+The `win-msvc` preset uses the Visual Studio 2022
 generator and a Windows `cmake.exe` path. They cannot run directly on Ubuntu in
 the current configuration.
 
@@ -128,8 +129,8 @@ ctest --test-dir ../build_release --output-on-failure
 For MSVC multi-config builds on Windows:
 
 ```bash
-ctest --test-dir ../build_win_msvc_release -C Release --output-on-failure
-ctest --test-dir ../build_win_msvc_debug -C Debug --output-on-failure
+ctest --preset test-win-msvc-release
+ctest --preset test-win-msvc-debug
 ```
 
 ## Presets
@@ -141,6 +142,5 @@ win-release          Windows DLL cross build from Ubuntu with MinGW64
 win_sdl_release      Windows SDL executable cross build from Ubuntu with MinGW64
 win-native           Windows MSYS2 MinGW Release build
 win-native-debug     Windows MSYS2 MinGW Debug build
-win-msvc-release     Windows Visual Studio 2022 Release build
-win-msvc-debug       Windows Visual Studio 2022 Debug build
+win-msvc             Windows Visual Studio 2022 multi-config build
 ```

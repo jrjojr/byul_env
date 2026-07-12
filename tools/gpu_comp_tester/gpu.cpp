@@ -16,13 +16,13 @@ static SDL_GLContext gl_context = nullptr;
 
 int gpu_init(int width, int height, const char* title) {
 #ifdef USE_SDL3
-    if (SDL_Init(SDL_INIT_VIDEO) < 0) {
+    if (!SDL_Init(SDL_INIT_VIDEO)) {
 
         fprintf(stderr, "[GPU] SDL3_Init failed: %s\n", SDL_GetError());
         return -1;
     }
 
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 4);
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 3);
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
 
@@ -44,7 +44,7 @@ int gpu_init(int width, int height, const char* title) {
         return -1;
     }
 
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 4);
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 3);
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
 
@@ -79,15 +79,12 @@ int gpu_init(int width, int height, const char* title) {
 // }
 
 void gpu_terminate(void) {
-#ifdef USE_SDL3
-    if (window) {
-        SDL_DestroyWindow(window);
-        window = NULL;
-    }
-    SDL_Quit();
-#else
     if (gl_context) {
+#ifdef USE_SDL3
+        SDL_GL_DestroyContext(gl_context);
+#else
         SDL_GL_DeleteContext(gl_context);
+#endif
         gl_context = NULL;
     }
     if (window) {
@@ -95,7 +92,6 @@ void gpu_terminate(void) {
         window = NULL;
     }
     SDL_Quit();
-#endif
 }
 
 void* gpu_get_window(void) {

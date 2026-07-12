@@ -33,6 +33,12 @@ CACHE INTERNAL "${PROJECT_NAME} source files"  FORCE
 # ----------------------------------------
 add_executable(${PROJECT_NAME} ${${PROJECT_NAME}_SOURCES})
 
+if(WIN32)
+    target_sources(${PROJECT_NAME} PRIVATE
+        ${CMAKE_CURRENT_SOURCE_DIR}/gpu_comp_tester.rc
+    )
+endif()
+
 # ─────────────────────────────────────────────
 # 플랫폼별 설정
 # ─────────────────────────────────────────────
@@ -59,6 +65,7 @@ elseif(CMAKE_SYSTEM_NAME STREQUAL "Windows")
         LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin
         ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib/${PROJECT_NAME}
     )
+
 else()
     message(FATAL_ERROR "⚠️ Unknown platform: ${CMAKE_SYSTEM_NAME}")
 endif()
@@ -173,10 +180,14 @@ target_compile_definitions(${PROJECT_NAME} PRIVATE
 # ----------------------------------------
 # 📁 GLSL 셰이더 파일
 # ----------------------------------------
+set(GPU_SHADER_DIR ${CMAKE_CURRENT_SOURCE_DIR}/glsl)
 set(GPU_SHADER_FILES
-    ${CMAKE_CURRENT_SOURCE_DIR}/clock.comp
-    ${CMAKE_CURRENT_SOURCE_DIR}/shader.vert
-    ${CMAKE_CURRENT_SOURCE_DIR}/shader.frag
+    ${GPU_SHADER_DIR}/clock.comp
+    ${GPU_SHADER_DIR}/nlerp.comp
+    ${GPU_SHADER_DIR}/pulse.comp
+    ${GPU_SHADER_DIR}/lissajous.comp
+    ${GPU_SHADER_DIR}/shader.vert
+    ${GPU_SHADER_DIR}/shader.frag
 )
 
 # ----------------------------------------
@@ -187,32 +198,3 @@ file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/glsl)
 file(COPY ${GPU_SHADER_FILES}
     DESTINATION ${CMAKE_BINARY_DIR}/glsl
 )
-
-# ─────────────────────────────────────────────
-# 공통 결과물 설치
-# ─────────────────────────────────────────────
-if(BYUL_INSTALL_EXPERIMENTS)
-if(WIN32)
-    install(TARGETS ${PROJECT_NAME}
-        RUNTIME DESTINATION bin
-        LIBRARY DESTINATION bin
-        ARCHIVE DESTINATION lib/${PROJECT_NAME}
-    )
-else()
-    install(TARGETS ${PROJECT_NAME}
-        RUNTIME DESTINATION bin
-        LIBRARY DESTINATION lib
-        ARCHIVE DESTINATION lib/${PROJECT_NAME}
-    )
-endif()
-
-install(FILES ${GPU_SHADER_FILES}
-    DESTINATION glsl
-)
-
-# SDL DLL (Windows에서만 설치)
-if(CMAKE_SYSTEM_NAME STREQUAL "Windows")
-    install(FILES "${SDL3_DLL}" DESTINATION bin)
-    install(FILES "${SDL3_LICENSE}" DESTINATION share/sdl)
-endif()
-endif()

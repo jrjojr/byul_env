@@ -14,17 +14,20 @@ BYUL은 CMake preset 중심으로 빌드합니다.
 ```text
 주 작업 환경: Ubuntu
 주 빌드 명령: cmake --preset ... / cmake --build --preset ...
-SDK ZIP target: sdk_zip
-BYUL Grid ZIP target: grid_zip
+SDK ZIP target: byul_sdk_zip
+BYUL Grid ZIP target: byul_grid_zip
+GPU Compute Tester ZIP target: gpu_comp_tester_zip (기본 빌드와 분리)
 최종 배포물: byul.dll 또는 libbyul.so, public headers
 개발 산출물: 모듈 static library, 모듈별 test exe, 통합 test exe
 ```
 
-`sdk_zip`은 단독 실행 대상입니다. 먼저 `all` target을 최신 상태로 만든 뒤
+`byul_sdk_zip`은 단독 실행 대상입니다. 먼저 `all` target을 최신 상태로 만든 뒤
 임시 package layout에 설치하고
 `byul-sdk-<version>-<platform>-<toolchain>-<configuration>.zip`을 생성합니다. BYUL
-Grid는 별도 `grid_zip` target으로
+Grid는 별도 `byul_grid_zip` target으로
 `byul-grid-<version>-<platform>-<configuration>.zip`을 생성합니다.
+`gpu_comp_tester_zip` target으로 일반 빌드와 별도로
+`gpu-comp-tester-<version>-<platform>-<configuration>.zip`을 생성할 수 있습니다.
 
 ## Ubuntu 최소 요건
 
@@ -98,7 +101,7 @@ cmake --preset linux-release
 cmake --build --preset build-linux-release
 ```
 
-빌드 preset은 `sdk_zip`을 실행합니다. 결과물은 build directory의 package
+빌드 preset은 `byul_sdk_zip`을 실행합니다. 결과물은 build directory의 package
 layout과 `byul-sdk-<version>-<platform>-<toolchain>-<configuration>.zip`에 생성됩니다.
 
 ## Ubuntu에서 Windows MinGW 크로스 빌드
@@ -161,8 +164,7 @@ cmake --build --preset build-win-native
 현재 preset은 다음과 같습니다.
 
 ```text
-win-msvc-release
-win-msvc-debug
+win-msvc
 ```
 
 이 preset은 Visual Studio 2022 generator를 사용하고, `cmakeExecutable`도 Windows
@@ -214,8 +216,8 @@ Windows MinGW 크로스 빌드 산출물은 Ubuntu에서 바로 실행하지 않
 MSVC multi-config 빌드는 Windows에서 configuration을 지정합니다.
 
 ```bash
-ctest --test-dir ../build_win_msvc_release -C Release --output-on-failure
-ctest --test-dir ../build_win_msvc_debug -C Debug --output-on-failure
+ctest --preset test-win-msvc-release
+ctest --preset test-win-msvc-debug
 ```
 
 ## 주요 preset
@@ -227,8 +229,7 @@ win-release          Ubuntu에서 MinGW64로 Windows DLL 크로스 빌드
 win_sdl_release      Ubuntu에서 MinGW64로 Windows SDL 실행 파일 크로스 빌드
 win-native           Windows MSYS2 MinGW Release 빌드
 win-native-debug     Windows MSYS2 MinGW Debug 빌드
-win-msvc-release     Windows Visual Studio 2022 Release 빌드
-win-msvc-debug       Windows Visual Studio 2022 Debug 빌드
+win-msvc             Windows Visual Studio 2022 다중 구성 빌드
 ```
 
 ## 주요 target
@@ -242,10 +243,11 @@ test_dstar_lite     D* Lite 모듈 테스트 실행 파일 빌드
 test_byul           통합 테스트 실행 파일 빌드
 test                등록된 CTest 테스트 실행
 install             CMAKE_INSTALL_PREFIX 아래로 설치
-sdk_zip             all 갱신, package layout 설치, byul-sdk ZIP 생성
-grid_zip            현재 byul shared library로 portable BYUL Grid ZIP 생성
+byul_sdk_zip         all 갱신, package layout 설치, byul-sdk ZIP 생성
+byul_grid_zip        현재 byul shared library로 portable BYUL Grid ZIP 생성
+gpu_comp_tester_zip  GPU Compute Tester 별도 빌드 및 portable ZIP 생성
 uninstall           CMake가 기록한 설치 파일 제거
-byul_help           install, SDK ZIP, Grid ZIP 명령과 차이 출력
+byul_help           install과 사용 가능한 배포 target 명령 출력
 ```
 
 도움말 실행:
