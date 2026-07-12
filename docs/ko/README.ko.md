@@ -401,7 +401,7 @@ BYUL은 CMake preset 중심으로 빌드합니다. 현재 작업 기준은 Ubunt
 
 - [빌드 환경 구성](build-environment.ko.md)
 - [실행 방법](runtime-execution.ko.md)
-- [BYUL Grid cx_Freeze 패키징과 버그 수정 기록](cx-freeze-packaging.ko.md)
+- [BYUL Grid cx_Freeze 패키징과 버그 수정 기록](../../tools/python/byul_grid/docs/cx-freeze-packaging.ko.md)
 
 빠른 Ubuntu Debug 패키지 빌드:
 

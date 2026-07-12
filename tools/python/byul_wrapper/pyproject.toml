@@ -1,0 +1,21 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "byul-wrapper"
+version = "0.1.0"
+description = "Python CFFI bindings for the BYUL native library"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = ["cffi>=1.17"]
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["byul_wrapper*"]
+
+[tool.setuptools.package-data]
+byul_wrapper = ["bin/*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

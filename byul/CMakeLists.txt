@@ -133,7 +133,7 @@ byul_add_sdk_zip_target(${PROJECT_NAME})
 byul_add_grid_zip_target(
     ${PROJECT_NAME}
     "0.1.0"
-    "${CMAKE_CURRENT_SOURCE_DIR}/../tools/byul_grid"
+    "${CMAKE_CURRENT_SOURCE_DIR}/../tools/python/byul_grid"
 )
 byul_add_gpu_zip_target(
     gpu_comp_tester

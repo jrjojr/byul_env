@@ -132,7 +132,8 @@ BYUL_API is_coord_blocked_func navgrid_get_is_coord_blocked_fn(
     const navgrid_t* navgrid);
 
 BYUL_API navgrid_dir_mode_t navgrid_get_mode(const navgrid_t* navgrid);
-BYUL_API void navgrid_set_mode(navgrid_t* navgrid);
+BYUL_API void navgrid_set_mode(
+    navgrid_t* navgrid, navgrid_dir_mode_t mode);
 
 // Obstacle Management
 BYUL_API bool navgrid_block_coord(navgrid_t* navgrid, int x, int y);
