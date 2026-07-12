@@ -227,6 +227,15 @@ function(byul_get_package_tags out_platform out_toolchain)
     set(${out_toolchain} "${toolchain_name}" PARENT_SCOPE)
 endfunction()
 
+function(byul_cleanup_staging_after_archive target_name staging_dir)
+    add_custom_command(TARGET ${target_name} POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E echo
+            "[CLEAN] Removing ${staging_dir} after successful archive..."
+        COMMAND ${CMAKE_COMMAND} -E remove_directory "${staging_dir}"
+        VERBATIM
+    )
+endfunction()
+
 function(byul_add_sdk_zip_target package_name)
     set(PACKAGE_DIR "${CMAKE_BINARY_DIR}/package_tmp")
     byul_get_package_tags(PACKAGE_PLATFORM_TAG PACKAGE_TOOLCHAIN_TAG)
@@ -282,6 +291,7 @@ function(byul_add_sdk_zip_target package_name)
         DEPENDS byul_sdk_build
         COMMENT "[ZIP] ${PACKAGE_FILE_NAME} created"
     )
+    byul_cleanup_staging_after_archive(byul_sdk_zip "${PACKAGE_DIR}")
 endfunction()
 
 function(byul_add_grid_zip_target target_name grid_version grid_root)
@@ -324,26 +334,27 @@ function(byul_add_grid_zip_target target_name grid_version grid_root)
     add_custom_target(byul_grid_zip
         COMMAND ${CMAKE_COMMAND} -E remove -f
             "${CMAKE_BINARY_DIR}/${GRID_PACKAGE_FILE_NAME}"
-        COMMAND ${CMAKE_COMMAND} -E tar cf
+        COMMAND ${CMAKE_COMMAND} -E chdir "${GRID_BUILD_ROOT}"
+            ${CMAKE_COMMAND} -E tar cf
             "${CMAKE_BINARY_DIR}/${GRID_PACKAGE_FILE_NAME}"
             --format=zip byul_grid
-        WORKING_DIRECTORY "${GRID_BUILD_ROOT}"
         DEPENDS byul_grid_build
         COMMENT "[GRID] ${GRID_PACKAGE_FILE_NAME} created"
         VERBATIM
     )
+    byul_cleanup_staging_after_archive(byul_grid_zip "${GRID_BUILD_ROOT}")
 endfunction()
 
 function(byul_add_gpu_zip_target target_name app_version app_root repository_root)
     byul_get_package_tags(PACKAGE_PLATFORM_TAG PACKAGE_TOOLCHAIN_TAG)
     set(GPU_PACKAGE_ROOT "${CMAKE_BINARY_DIR}/gpu_package")
     set(GPU_OUTPUT "${GPU_PACKAGE_ROOT}/gpu_comp_tester")
-    file(MAKE_DIRECTORY "${GPU_PACKAGE_ROOT}")
     set(GPU_PACKAGE_FILE_NAME
         "gpu-comp-tester-${app_version}-${PACKAGE_PLATFORM_TAG}-$<LOWER_CASE:$<CONFIG>>.zip"
     )
 
     set(GPU_STAGE_COMMANDS
+        COMMAND ${CMAKE_COMMAND} -E make_directory "${GPU_PACKAGE_ROOT}"
         COMMAND ${CMAKE_COMMAND} -E remove_directory "${GPU_OUTPUT}"
         COMMAND ${CMAKE_COMMAND} -E make_directory "${GPU_OUTPUT}/glsl"
         COMMAND ${CMAKE_COMMAND} -E make_directory "${GPU_OUTPUT}/licenses"
@@ -391,14 +402,15 @@ function(byul_add_gpu_zip_target target_name app_version app_root repository_roo
         ${GPU_STAGE_COMMANDS}
         COMMAND ${CMAKE_COMMAND} -E remove -f
             "${CMAKE_BINARY_DIR}/${GPU_PACKAGE_FILE_NAME}"
-        COMMAND ${CMAKE_COMMAND} -E tar cf
+        COMMAND ${CMAKE_COMMAND} -E chdir "${GPU_PACKAGE_ROOT}"
+            ${CMAKE_COMMAND} -E tar cf
             "${CMAKE_BINARY_DIR}/${GPU_PACKAGE_FILE_NAME}"
             --format=zip gpu_comp_tester
-        WORKING_DIRECTORY "${GPU_PACKAGE_ROOT}"
         DEPENDS ${target_name}
         COMMENT "[GPU] ${GPU_PACKAGE_FILE_NAME} created"
         VERBATIM
     )
+    byul_cleanup_staging_after_archive(gpu_comp_tester_zip "${GPU_PACKAGE_ROOT}")
 endfunction()
 
 function(byul_add_help_target)
