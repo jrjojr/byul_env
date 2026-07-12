@@ -1,0 +1,238 @@
+from ffi_core import ffi, C
+import weakref
+
+from coord import c_coord
+from coord_list import c_coord_list
+
+ffi.cdef("""
+typedef struct s_coord_hash coord_hash_t;
+
+typedef void* (*coord_hash_copy_func)(const void* value);
+typedef void  (*coord_hash_destroy_func)(void* value);
+
+void* int_copy(const void* p);
+void int_destroy(void* p);
+
+void* float_copy(const void* p);
+void float_destroy(void* p);
+
+void* double_copy(const void* p);
+void double_destroy(void* p);
+
+// Creation/Destruction
+
+// Default type (int)
+coord_hash_t* coord_hash_create();  
+
+coord_hash_t* coord_hash_create_full(coord_hash_copy_func copy_func,
+                                  coord_hash_destroy_func free_func);
+    
+void          coord_hash_destroy(coord_hash_t* hash);
+coord_hash_t* coord_hash_copy(const coord_hash_t* original);
+
+uint32_t coord_hash_hash(const coord_hash_t* h);
+
+// Basic Operations
+int   coord_hash_length(const coord_hash_t* hash);
+bool  coord_hash_is_empty(const coord_hash_t* hash);
+
+void* coord_hash_get(const coord_hash_t* hash, const coord_t* key);
+
+void* coord_hash_get_xy(const coord_hash_t* hash, int x, int y);
+
+bool  coord_hash_contains(
+    const coord_hash_t* hash, const coord_t* key);
+
+// Set/Modify
+void  coord_hash_set(coord_hash_t* hash, 
+    const coord_t* key, void* value); 
+
+bool  coord_hash_insert(coord_hash_t* hash, 
+    const coord_t* key, void* value); 
+
+bool coord_hash_insert_xy(
+    coord_hash_t* hash, int x, int y, void* value);
+
+// Keep the key but change its value. If the key already exists
+bool coord_hash_replace(coord_hash_t* hash, 
+    const coord_t* key, void* value);    
+
+bool coord_hash_replace_xy(
+    coord_hash_t* hash, int x, int y, void* value);
+    
+bool  coord_hash_remove(coord_hash_t* hash, const coord_t* key);
+void  coord_hash_clear(coord_hash_t* hash);
+void  coord_hash_remove_all(coord_hash_t* hash);
+
+// Comparison
+bool  coord_hash_equal(const coord_hash_t* a, const coord_hash_t* b);
+
+// Key/Value Access
+coord_list_t* coord_hash_keys(const coord_hash_t* hash);
+void**        coord_hash_values(
+    const coord_hash_t* hash, int* out_count);
+
+// Iteration
+typedef void (*coord_hash_func)(
+    const coord_t* key, void* value, void* user_data);
+
+void  coord_hash_foreach(
+    coord_hash_t* hash, coord_hash_func func, void* user_data);
+
+// Conversion
+coord_list_t* coord_hash_to_list(const coord_hash_t* hash);
+
+// Export
+void coord_hash_export(
+    const coord_hash_t* hash,
+    coord_list_t* keys_out,
+    void** values_out,
+    int* count_out);
+
+typedef struct s_coord_hash_iter coord_hash_iter_t;
+
+coord_hash_iter_t* coord_hash_iter_create(
+    const coord_hash_t* hash);
+
+bool coord_hash_iter_next(
+    coord_hash_iter_t* iter, coord_t** key_out, void** val_out);
+
+void coord_hash_iter_destroy(
+    coord_hash_iter_t* iter);
+
+char* coord_hash_to_string(const coord_hash_t* hash);
+void coord_hash_print(const coord_hash_t* hash);
+
+
+""")
+
+class c_coord_hash:
+    def __init__(self, raw_ptr=None, own=False):
+        if raw_ptr is not None:
+            self._c = raw_ptr
+            self._own = own
+        else:
+            self._c = C.coord_hash_create()
+            if not self._c:
+                raise MemoryError("coord_hash allocation failed")
+            self._own = True
+
+        if self._own:
+            self._finalizer = weakref.finalize(self, C.coord_hash_destroy, self._c)
+        else:
+            self._finalizer = None
+
+    def __len__(self):
+        return C.coord_hash_length(self._c)
+
+    def empty(self):
+        return C.coord_hash_is_empty(self._c)
+
+    def get(self, key: c_coord):
+        return C.coord_hash_get(self._c, key.ptr())
+
+    def contains(self, key: c_coord):
+        return C.coord_hash_contains(self._c, key.ptr())
+
+    def set(self, key: c_coord, value):
+        C.coord_hash_set(self._c, key.ptr(), value)
+
+    def insert(self, key: c_coord, value):
+        return C.coord_hash_insert(self._c, key.ptr(), value)
+
+    def replace(self, key: c_coord, value):
+        return C.coord_hash_replace(self._c, key.ptr(), value)
+
+    def remove(self, key: c_coord):
+        return C.coord_hash_remove(self._c, key.ptr())
+
+    def clear(self):
+        C.coord_hash_clear(self._c)
+
+    def remove_all(self):
+        C.coord_hash_remove_all(self._c)
+
+    def copy(self):
+        return c_coord_hash(raw_ptr=C.coord_hash_copy(self._c), own=True)
+
+    def equals(self, other):
+        return isinstance(other, c_coord_hash) and C.coord_hash_equal(self._c, other._c)
+
+    def keys(self):
+        ptr = C.coord_hash_keys(self._c)
+        return c_coord_list(raw_ptr=ptr, own=True) if ptr != ffi.NULL else None
+
+    def values(self):
+        out_count = ffi.new("int*")
+        val_ptr = C.coord_hash_values(self._c, out_count)
+        return [val_ptr[i] for i in range(out_count[0])] if val_ptr != ffi.NULL else []
+
+    def to_list(self):
+        ptr = C.coord_hash_to_list(self._c)
+        return c_coord_list(raw_ptr=ptr, own=True) if ptr != ffi.NULL else None
+
+    def export(self):
+        out_count = ffi.new("int*")
+        keys_out = C.coord_hash_keys(self._c)
+        values_out = ffi.new("void*[]", len(self))
+        C.coord_hash_export(self._c, keys_out, values_out, out_count)
+        keys = c_coord_list(raw_ptr=keys_out, own=True)
+        values = [values_out[i] for i in range(out_count[0])]
+        return keys, values
+
+    def foreach(self, func):
+        if not callable(func):
+            raise TypeError("foreach requires a callable")
+
+        @ffi.callback("void(const coord_t*, void*, void*)")
+        def callback(c_key, c_val, _):
+            func(c_coord(raw_ptr=c_key), c_val)
+
+        C.coord_hash_foreach(self._c, callback, ffi.NULL)
+
+    def __iter__(self):
+        return c_coord_hash_iter(self)
+
+    def ptr(self):
+        return self._c
+
+    def close(self):
+        if self._own and self._finalizer and self._finalizer.alive:
+            self._finalizer()
+
+    def __del__(self):
+        self.close()
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        self.close()
+
+    def __repr__(self):
+        return f"c_coord_hash(len={len(self)})"
+
+class c_coord_hash_iter:
+    def __init__(self, hash_obj: c_coord_hash):
+        self._iter = C.coord_hash_iter_create(hash_obj.ptr())
+        if not self._iter:
+            raise MemoryError("coord_hash_iter allocation failed")
+
+    def __iter__(self):
+        return self
+
+    def __next__(self):
+        key_ptr = ffi.new("coord_t**")
+        val_ptr = ffi.new("void**")
+        if not C.coord_hash_iter_next(self._iter, key_ptr, val_ptr):
+            self.close()
+            raise StopIteration
+        return c_coord(raw_ptr=key_ptr[0]), val_ptr[0]
+
+    def close(self):
+        if self._iter:
+            C.coord_hash_iter_destroy(self._iter)
+            self._iter = None
+
+    def __del__(self):
+        self.close()

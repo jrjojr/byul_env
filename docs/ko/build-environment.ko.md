@@ -14,13 +14,17 @@ BYUL은 CMake preset 중심으로 빌드합니다.
 ```text
 주 작업 환경: Ubuntu
 주 빌드 명령: cmake --preset ... / cmake --build --preset ...
-패키지 target: package_zip
+SDK ZIP target: sdk_zip
+BYUL Grid ZIP target: grid_zip
 최종 배포물: byul.dll 또는 libbyul.so, public headers
 개발 산출물: 모듈 static library, 모듈별 test exe, 통합 test exe
 ```
 
-`package_zip`은 단독 실행 대상입니다. 먼저 `all` target을 최신 상태로 만든 뒤
-임시 package layout에 설치하고 `byul.zip`을 생성합니다.
+`sdk_zip`은 단독 실행 대상입니다. 먼저 `all` target을 최신 상태로 만든 뒤
+임시 package layout에 설치하고
+`byul-sdk-<version>-<platform>-<toolchain>-<configuration>.zip`을 생성합니다. BYUL
+Grid는 별도 `grid_zip` target으로
+`byul-grid-<version>-<platform>-<configuration>.zip`을 생성합니다.
 
 ## Ubuntu 최소 요건
 
@@ -94,8 +98,8 @@ cmake --preset linux-release
 cmake --build --preset build-linux-release
 ```
 
-빌드 preset은 `package_zip`을 실행합니다. 결과물은 build directory의 package
-layout과 `byul.zip`에 생성됩니다.
+빌드 preset은 `sdk_zip`을 실행합니다. 결과물은 build directory의 package
+layout과 `byul-sdk-<version>-<platform>-<toolchain>-<configuration>.zip`에 생성됩니다.
 
 ## Ubuntu에서 Windows MinGW 크로스 빌드
 
@@ -238,6 +242,14 @@ test_dstar_lite     D* Lite 모듈 테스트 실행 파일 빌드
 test_byul           통합 테스트 실행 파일 빌드
 test                등록된 CTest 테스트 실행
 install             CMAKE_INSTALL_PREFIX 아래로 설치
-package_zip         all 갱신, package layout 설치, byul.zip 생성
+sdk_zip             all 갱신, package layout 설치, byul-sdk ZIP 생성
+grid_zip            현재 byul shared library로 portable BYUL Grid ZIP 생성
 uninstall           CMake가 기록한 설치 파일 제거
+byul_help           install, SDK ZIP, Grid ZIP 명령과 차이 출력
+```
+
+도움말 실행:
+
+```bash
+cmake --build <build-directory> --target byul_help
 ```

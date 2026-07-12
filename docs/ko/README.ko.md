@@ -95,7 +95,13 @@ byul
 ├─ projectile
 ├─ ground
 ├─ byul_tick
-└─ gpu_comp_tester
+```
+
+개발용 프로그램은 엔진 모듈과 분리해서 관리합니다.
+
+```text
+tools/byul_grid                 # Grid/내비게이션 시각화 도구
+experiments/gpu_comp_tester    # 선택적 GPU 계산 실험
 ```
 
 최상위 `byul.h`는 우산 헤더 역할을 합니다.
@@ -397,6 +403,7 @@ BYUL은 CMake preset 중심으로 빌드합니다. 현재 작업 기준은 Ubunt
 
 - [빌드 환경 구성](build-environment.ko.md)
 - [실행 방법](runtime-execution.ko.md)
+- [BYUL Grid cx_Freeze 패키징과 버그 수정 기록](cx-freeze-packaging.ko.md)
 
 빠른 Ubuntu Debug 패키지 빌드:
 
@@ -406,8 +413,13 @@ cmake --preset linux-debug
 cmake --build --preset build-linux-debug
 ```
 
-`package_zip` target은 단독 실행 대상입니다. 먼저 `all`을 최신 상태로 갱신한 뒤
-임시 package layout에 설치하고 `byul.zip`을 생성합니다.
+`sdk_zip` target은 단독 실행 대상입니다. 먼저 `all`을 최신 상태로 갱신한 뒤
+임시 package layout에 설치하고 플랫폼별
+`byul-sdk-<version>-<platform>-<toolchain>-<configuration>.zip`을 생성합니다. 별도의
+`grid_zip` target은 portable 애플리케이션 패키지인
+`byul-grid-<version>-<platform>-<configuration>.zip`을 생성합니다.
+표준 로컬 SDK 설치와 SDK/Grid 배포 target의 차이는 `byul_help` target으로 바로
+확인할 수 있습니다.
 
 ---
 

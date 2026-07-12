@@ -32,12 +32,15 @@ secrets.txt
 # vscode 환경 폴더
 .vscode/
 .venv/
+.venv-package/
 
 # zip 파일
 *.zip
 
 # image file
 images/
+!tools/byul_grid/assets/images/
+!tools/byul_grid/assets/images/**
 
 # 노트.org
 byul/docs/

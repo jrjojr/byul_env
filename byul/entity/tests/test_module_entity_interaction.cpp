@@ -73,7 +73,8 @@ TEST_CASE("entity_dynamic_predict_collision_time_env computes approx with gravit
     entity_dynamic_t a, b;
     entity_dynamic_init(&a);
     entity_dynamic_init(&b);
-    environ_t env = { .gravity = {0.0f, -9.8f, 0.0f} };
+    environ_t env = {};
+    env.gravity = {0.0f, -9.8f, 0.0f};
 
     vec3_init_full(&a.xf.pos, 0.0f, 0.0f, 0.0f);
     vec3_init_full(&b.xf.pos, 10.0f, 0.0f, 0.0f);
@@ -89,7 +90,8 @@ TEST_CASE("entity_dynamic_collision_point_env returns collision point with env")
     entity_dynamic_t a, b;
     entity_dynamic_init(&a);
     entity_dynamic_init(&b);
-    environ_t env = { .gravity = {0.0f, -9.8f, 0.0f} };
+    environ_t env = {};
+    env.gravity = {0.0f, -9.8f, 0.0f};
 
     vec3_init_full(&a.xf.pos, 0.0f, 0.0f, 0.0f);
     vec3_init_full(&b.xf.pos, 10.0f, 0.0f, 0.0f);

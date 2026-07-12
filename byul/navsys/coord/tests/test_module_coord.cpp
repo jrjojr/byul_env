@@ -4,6 +4,10 @@
 #include "coord.h"
 #include "scalar.h"
 
+namespace {
+constexpr double kPi = 3.14159265358979323846;
+}
+
 TEST_CASE("Wrap-Around Test") {
     coord_t a;
     coord_init_full(&a, COORD_MAX, 0);
@@ -87,7 +91,7 @@ TEST_CASE("Angle in Radian Test") {
     coord_init_full(&south, 0, -1);
 
      CHECK(doctest::Approx(coord_angle(&origin, &east)).epsilon(SCALAR_EPSILON) == 0.0);
-    CHECK(doctest::Approx(coord_angle(&origin, &north)).epsilon(SCALAR_EPSILON) == M_PI / 2.0);
-    CHECK(doctest::Approx(coord_angle(&origin, &west)).epsilon(SCALAR_EPSILON) == M_PI);
-    CHECK(doctest::Approx(coord_angle(&origin, &south)).epsilon(SCALAR_EPSILON) == 3.0 * M_PI / 2.0);
+    CHECK(doctest::Approx(coord_angle(&origin, &north)).epsilon(SCALAR_EPSILON) == kPi / 2.0);
+    CHECK(doctest::Approx(coord_angle(&origin, &west)).epsilon(SCALAR_EPSILON) == kPi);
+    CHECK(doctest::Approx(coord_angle(&origin, &south)).epsilon(SCALAR_EPSILON) == 3.0 * kPi / 2.0);
 }

@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.20)
 
-project(byul VERSION 1.0 LANGUAGES C CXX)
+project(byul VERSION 1.0.0 LANGUAGES C CXX)
 
 include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/project_manager.cmake)
 byul_apply_common_settings()
@@ -9,6 +9,16 @@ byul_apply_common_settings()
 # Testing support
 # -----------------------------------------------------------------------------
 enable_testing()
+
+option(BYUL_BUILD_EXPERIMENTS
+    "Build experimental BYUL programs"
+    OFF
+)
+
+option(BYUL_INSTALL_EXPERIMENTS
+    "Install experimental BYUL programs"
+    OFF
+)
 
 # -----------------------------------------------------------------------------
 # Add modules
@@ -22,9 +32,15 @@ add_subdirectory(navsys)
 add_subdirectory(balix)
 add_subdirectory(entity)
 add_subdirectory(projectile)
-add_subdirectory(gpu_comp_tester)
 add_subdirectory(byul_tick)
 add_subdirectory(ground)
+
+if(BYUL_BUILD_EXPERIMENTS)
+    add_subdirectory(
+        "${CMAKE_CURRENT_SOURCE_DIR}/../experiments/gpu_comp_tester"
+        "${CMAKE_BINARY_DIR}/experiments/gpu_comp_tester"
+    )
+endif()
 
 set(${PROJECT_NAME}_SOURCES
     ${CMAKE_CURRENT_SOURCE_DIR}/byul.cpp
@@ -106,6 +122,9 @@ set(CMAKE_INSTALL_PREFIX "${HOME_DIR}/${PROJECT_NAME}"
 # -----------------------------------------------------------------------------
 # Install common outputs
 # -----------------------------------------------------------------------------
+# Standard CMake install is a local SDK installation. It copies the shared
+# library, import/static library, public headers, and installed test programs
+# directly to CMAKE_INSTALL_PREFIX. It does not create either distribution ZIP.
 byul_install_target(${PROJECT_NAME})
 
 install(FILES ${${PROJECT_NAME}_HEADERS}
@@ -113,7 +132,17 @@ install(FILES ${${PROJECT_NAME}_HEADERS}
 )
 
 # -----------------------------------------------------------------------------
-# Uninstall and ZIP packaging
+# Uninstall, distribution ZIPs, and command help
 # -----------------------------------------------------------------------------
 byul_add_uninstall_target(${CMAKE_CURRENT_SOURCE_DIR}/cmake_uninstall.cmake.in)
-byul_add_package_zip_target(${PROJECT_NAME})
+
+# sdk_zip stages the CMake install tree under the build directory and archives
+# it. grid_zip separately creates a portable cx_Freeze application. Neither ZIP
+# target installs files into CMAKE_INSTALL_PREFIX.
+byul_add_sdk_zip_target(${PROJECT_NAME})
+byul_add_grid_zip_target(
+    ${PROJECT_NAME}
+    "0.1.0"
+    "${CMAKE_CURRENT_SOURCE_DIR}/../tools/byul_grid"
+)
+byul_add_help_target()

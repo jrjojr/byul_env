@@ -197,16 +197,45 @@ function(byul_copy_mingw_runtime target_name out_var)
     endif()
 endfunction()
 
-function(byul_add_package_zip_target package_name)
+function(byul_get_package_tags out_platform out_toolchain)
+    if(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
+        set(system_name "macos")
+    else()
+        string(TOLOWER "${CMAKE_SYSTEM_NAME}" system_name)
+    endif()
+    string(TOLOWER "${CMAKE_SYSTEM_PROCESSOR}" processor_name)
+
+    if(processor_name MATCHES "^(amd64|x86_64|x64)$")
+        set(processor_name "x86_64")
+    elseif(processor_name MATCHES "^(aarch64|arm64)$")
+        set(processor_name "arm64")
+    endif()
+
+    if(MSVC)
+        set(toolchain_name "msvc")
+    elseif(MINGW)
+        set(toolchain_name "mingw")
+    elseif(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+        set(toolchain_name "gcc")
+    elseif(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+        set(toolchain_name "clang")
+    else()
+        string(TOLOWER "${CMAKE_CXX_COMPILER_ID}" toolchain_name)
+    endif()
+
+    set(${out_platform} "${system_name}-${processor_name}" PARENT_SCOPE)
+    set(${out_toolchain} "${toolchain_name}" PARENT_SCOPE)
+endfunction()
+
+function(byul_add_sdk_zip_target package_name)
     set(PACKAGE_DIR "${CMAKE_BINARY_DIR}/package_tmp")
+    byul_get_package_tags(PACKAGE_PLATFORM_TAG PACKAGE_TOOLCHAIN_TAG)
+    set(PACKAGE_FILE_NAME
+        "${package_name}-sdk-${PROJECT_VERSION}-${PACKAGE_PLATFORM_TAG}-${PACKAGE_TOOLCHAIN_TAG}-$<LOWER_CASE:$<CONFIG>>.zip"
+    )
 
     message(STATUS "PACKAGE_DIR : ${PACKAGE_DIR}")
     message(STATUS "CMAKE_INSTALL_PREFIX : ${CMAKE_INSTALL_PREFIX}")
-
-    find_program(ZIP_EXECUTABLE zip)
-    if(NOT ZIP_EXECUTABLE)
-        message(FATAL_ERROR "zip command not found. Please install zip.")
-    endif()
 
     set(INSTALL_PREFIX "${CMAKE_INSTALL_PREFIX}")
     string(REGEX REPLACE "^[A-Za-z]:/" "" INSTALL_PREFIX_NO_DRIVE "${INSTALL_PREFIX}")
@@ -217,35 +246,112 @@ function(byul_add_package_zip_target package_name)
     set(ZIP_INNER "${INSTALL_PREFIX_NO_DRIVE}")
     message(STATUS "ZIP_INNER : ${ZIP_INNER}")
 
-    add_custom_target(package_clean
-        COMMAND ${CMAKE_COMMAND} -E echo "[CLEAN] Removing ${PACKAGE_DIR}..."
-        COMMAND ${CMAKE_COMMAND} -E remove_directory "${PACKAGE_DIR}"
-        COMMENT "[CLEAN] package_tmp deleted"
-    )
+    if(CMAKE_CONFIGURATION_TYPES)
+        set(PACKAGE_BUILD_TARGET ALL_BUILD)
+        set(PACKAGE_BUILD_CONFIG_ARGS --config $<CONFIG>)
+    else()
+        set(PACKAGE_BUILD_TARGET all)
+        set(PACKAGE_BUILD_CONFIG_ARGS)
+    endif()
 
-    add_custom_target(package_build
+    add_custom_target(sdk_build
         COMMAND ${CMAKE_COMMAND} -E echo "[BUILD] Building all targets before packaging..."
-        COMMAND ${CMAKE_COMMAND} -E env MAKEFLAGS= ${CMAKE_COMMAND} --build "${CMAKE_BINARY_DIR}" --target all --parallel
+        COMMAND ${CMAKE_COMMAND} -E env MAKEFLAGS=
+            ${CMAKE_COMMAND} --build "${CMAKE_BINARY_DIR}"
+            --target ${PACKAGE_BUILD_TARGET}
+            ${PACKAGE_BUILD_CONFIG_ARGS}
+            --parallel
         COMMENT "[BUILD] all targets are up to date"
     )
 
-    add_custom_target(package_install
+    add_custom_target(sdk_zip
+        COMMAND ${CMAKE_COMMAND} -E echo "[CLEAN] Removing ${PACKAGE_DIR}..."
+        COMMAND ${CMAKE_COMMAND} -E remove_directory "${PACKAGE_DIR}"
         COMMAND ${CMAKE_COMMAND} -E echo "[INSTALL] Creating ${PACKAGE_DIR}..."
         COMMAND ${CMAKE_COMMAND} -E make_directory "${PACKAGE_DIR}"
         COMMAND ${CMAKE_COMMAND} -E env DESTDIR="${PACKAGE_DIR}"
-            ${CMAKE_COMMAND} -P ${CMAKE_BINARY_DIR}/cmake_install.cmake
-        DEPENDS package_build package_clean
-        COMMENT "[INSTALL] package_tmp created and files installed"
+            ${CMAKE_COMMAND}
+            -DCMAKE_INSTALL_CONFIG_NAME=$<CONFIG>
+            -P ${CMAKE_BINARY_DIR}/cmake_install.cmake
+        COMMAND ${CMAKE_COMMAND} -E echo "[ZIP] Removing old zip file..."
+        COMMAND ${CMAKE_COMMAND} -E remove -f "${CMAKE_BINARY_DIR}/${PACKAGE_FILE_NAME}"
+        COMMAND ${CMAKE_COMMAND} -E echo "[ZIP] Compressing ${package_name}/bin folder..."
+        COMMAND ${CMAKE_COMMAND} -E chdir "${PACKAGE_DIR}/${ZIP_INNER}/../"
+            ${CMAKE_COMMAND} -E tar cf
+            "${CMAKE_BINARY_DIR}/${PACKAGE_FILE_NAME}" --format=zip .
+        DEPENDS sdk_build
+        COMMENT "[ZIP] ${PACKAGE_FILE_NAME} created"
+    )
+endfunction()
+
+function(byul_add_grid_zip_target target_name grid_version grid_root)
+    if(CMAKE_CROSSCOMPILING)
+        message(STATUS
+            "grid_zip is unavailable while cross-compiling; "
+            "cx_Freeze must run on the target operating system"
+        )
+        return()
+    endif()
+
+    byul_get_package_tags(PACKAGE_PLATFORM_TAG PACKAGE_TOOLCHAIN_TAG)
+    set(GRID_BUILD_ROOT "${CMAKE_BINARY_DIR}/grid_package")
+    set(GRID_OUTPUT "${GRID_BUILD_ROOT}/byul_grid")
+    set(GRID_PACKAGE_FILE_NAME
+        "byul-grid-${grid_version}-${PACKAGE_PLATFORM_TAG}-$<LOWER_CASE:$<CONFIG>>.zip"
     )
 
-    add_custom_target(package_zip
-        COMMAND ${CMAKE_COMMAND} -E echo "[ZIP] Removing old zip file..."
-        COMMAND ${CMAKE_COMMAND} -E remove -f "${CMAKE_BINARY_DIR}/${package_name}.zip"
-        COMMAND ${CMAKE_COMMAND} -E echo "[ZIP] Compressing ${package_name}/bin folder..."
-        COMMAND ${ZIP_EXECUTABLE} -r "${CMAKE_BINARY_DIR}/${package_name}.zip" .
-            WORKING_DIRECTORY "${PACKAGE_DIR}/${ZIP_INNER}/../"
-        DEPENDS package_install
-        COMMENT "[ZIP] ${package_name}.zip created"
+    if(WIN32)
+        set(GRID_BUILD_COMMAND
+            cmd /c "${grid_root}/build_byul_grid.bat"
+        )
+    else()
+        set(GRID_BUILD_COMMAND
+            sh "${grid_root}/build_byul_grid.sh"
+        )
+    endif()
+
+    add_custom_target(grid_build
+        COMMAND ${CMAKE_COMMAND} -E env
+            "BYUL_LIBRARY_PATH=$<TARGET_FILE:${target_name}>"
+            ${GRID_BUILD_COMMAND}
+            --output "${GRID_OUTPUT}"
+            --on-locked cancel
+        DEPENDS ${target_name}
+        COMMENT "[GRID] Building the standalone BYUL Grid package"
+        VERBATIM
+    )
+
+    add_custom_target(grid_zip
+        COMMAND ${CMAKE_COMMAND} -E remove -f
+            "${CMAKE_BINARY_DIR}/${GRID_PACKAGE_FILE_NAME}"
+        COMMAND ${CMAKE_COMMAND} -E tar cf
+            "${CMAKE_BINARY_DIR}/${GRID_PACKAGE_FILE_NAME}"
+            --format=zip byul_grid
+        WORKING_DIRECTORY "${GRID_BUILD_ROOT}"
+        DEPENDS grid_build
+        COMMENT "[GRID] ${GRID_PACKAGE_FILE_NAME} created"
+        VERBATIM
+    )
+endfunction()
+
+function(byul_add_help_target)
+    add_custom_target(byul_help
+        COMMAND ${CMAKE_COMMAND} -E echo "BYUL build and distribution targets:"
+        COMMAND ${CMAKE_COMMAND} -E echo "  sdk_build  - update SDK libraries and test executables"
+        COMMAND ${CMAKE_COMMAND} -E echo "  sdk_zip    - build, stage CMake install rules, and create byul-sdk-*.zip"
+        COMMAND ${CMAKE_COMMAND} -E echo "  grid_build - build the standalone BYUL Grid directory with cx_Freeze"
+        COMMAND ${CMAKE_COMMAND} -E echo "  grid_zip   - build and create the portable byul-grid-*.zip"
+        COMMAND ${CMAKE_COMMAND} -E echo "  uninstall  - remove files recorded by the last standard CMake install"
+        COMMAND ${CMAKE_COMMAND} -E echo ""
+        COMMAND ${CMAKE_COMMAND} -E echo "Standard local SDK install (does not create a ZIP):"
+        COMMAND ${CMAKE_COMMAND} -E echo "  cmake --install BUILD_DIR --config Release"
+        COMMAND ${CMAKE_COMMAND} -E echo "  cmake --install BUILD_DIR --config Release --prefix INSTALL_DIR"
+        COMMAND ${CMAKE_COMMAND} -E echo ""
+        COMMAND ${CMAKE_COMMAND} -E echo "Distribution examples:"
+        COMMAND ${CMAKE_COMMAND} -E echo "  cmake --build BUILD_DIR --target sdk_zip --config Release"
+        COMMAND ${CMAKE_COMMAND} -E echo "  cmake --build BUILD_DIR --target grid_zip --config Release"
+        COMMENT "Show BYUL target help"
+        VERBATIM
     )
 endfunction()
 

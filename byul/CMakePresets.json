@@ -98,7 +98,7 @@
             "description": "로컬 Ubuntu Debug 빌드",
             "jobs": 8,
             "targets": [
-                "package_zip"
+                "sdk_zip"
             ]
         },
         {
@@ -107,7 +107,7 @@
             "description": "로컬 Ubuntu Release 빌드",
             "jobs": 8,
             "targets": [
-                "package_zip"
+                "sdk_zip"
             ]
         },
         {
@@ -116,7 +116,7 @@
             "description": "Windows용 DLL 빌드 preset",
             "jobs": 8,
             "targets": [
-                "package_zip"
+                "sdk_zip"
             ]
         },
         {
@@ -125,7 +125,7 @@
             "description": "Windows SDL 실행파일 빌드 (MinGW64)",
             "jobs": 8,
             "targets": [
-                "package_zip"
+                "sdk_zip"
             ]
         },
         {
@@ -134,7 +134,7 @@
             "description": "Windows native 용 DLL 빌드 preset",
             "jobs": 8,
             "targets": [
-                "package_zip"
+                "sdk_zip"
             ]
         },
         {
@@ -143,7 +143,7 @@
             "description": "Windows native Debug 빌드 preset",
             "jobs": 8,
             "targets": [
-                "package_zip"
+                "sdk_zip"
             ]
         },
         {
@@ -152,7 +152,7 @@
             "description": "Windows MSVC Release 빌드",
             "jobs": 8,
             "targets": [
-                "package_zip"
+                "sdk_zip"
             ]
         },
         {
@@ -161,7 +161,7 @@
             "description": "Windows MSVC Debug 빌드",
             "jobs": 8,
             "targets": [
-                "package_zip"
+                "sdk_zip"
             ]
         }
     ],

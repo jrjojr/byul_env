@@ -1,0 +1,4 @@
+-r requirements.txt
+
+# Standalone application packaging
+cx_Freeze==8.6.4

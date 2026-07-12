@@ -4,6 +4,10 @@
 #include <stdio.h>
 // #include "scalar.h"
 
+namespace {
+constexpr double kPi = 3.14159265358979323846;
+}
+
 // ------------------------ Internal Utilities ------------------------
 
 /**
@@ -153,12 +157,12 @@ double coord_angle(const coord_t* a, const coord_t* b) {
     double dx = static_cast<double>(b->x - a->x);
     double dy = static_cast<double>(b->y - a->y);
     double angle = atan2(dy, dx);
-    if (angle < 0) angle += 2.0 * M_PI;
+    if (angle < 0) angle += 2.0 * kPi;
     return angle;
 }
 
 double coord_degree(const coord_t* a, const coord_t* b) {
-    return coord_angle(a, b) * (180.0 / M_PI);
+    return coord_angle(a, b) * (180.0 / kPi);
 }
 
 // ------------------------ Next Step Towards Goal ------------------------

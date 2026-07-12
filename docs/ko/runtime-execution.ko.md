@@ -22,7 +22,8 @@ Windows MinGW cross:
   package_tmp/.../lib/   import/static archive
 ```
 
-`package_zip`을 실행하면 임시 package layout과 `byul.zip`이 만들어집니다. 실제
+`sdk_zip`을 실행하면 임시 package layout과 플랫폼별 `byul-sdk-*.zip`이
+만들어집니다. 실제
 배포나 다른 PC 확인은 build tree보다 package layout 또는 zip을 기준으로 보는
 것이 안전합니다.
 
@@ -201,7 +202,7 @@ app/
 MSVC 빌드라면 Visual Studio가 생성한 `.lib` import library로 링크하고,
 실행 시 `byul.dll`을 `exe` 옆이나 `PATH`에 둡니다.
 
-## package_zip 결과 확인
+## sdk_zip 결과 확인
 
 패키지를 만든 뒤에는 zip 내부를 기준으로 실행 구조를 확인합니다.
 
@@ -213,7 +214,7 @@ cmake --build --preset build-linux-debug
 또는 직접 target을 실행합니다.
 
 ```bash
-cmake --build ../build_debug --target package_zip -- -j8
+cmake --build ../build_debug --target sdk_zip -- -j8
 ```
 
 Linux package layout 예:

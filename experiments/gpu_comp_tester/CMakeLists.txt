@@ -87,7 +87,8 @@ elseif (CMAKE_SYSTEM_NAME STREQUAL "Windows")
         target_link_libraries(${PROJECT_NAME} PRIVATE SDL3::SDL3)
 
         # 실행 시 필요한 DLL 복사
-        set(SDL3_DLL ${EXTERNAL_DIR}/SDL3-3.2.18/msvc/bin/SDL3.dll)
+        set(SDL3_DLL ${EXTERNAL_DIR}/SDL3-3.2.18/msvc/lib/x64/SDL3.dll)
+        set(SDL3_LICENSE ${EXTERNAL_DIR}/SDL3-3.2.18/msvc/LICENSE.txt)
         add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
             COMMAND ${CMAKE_COMMAND} -E copy_if_different
                 "${SDL3_DLL}"
@@ -107,6 +108,7 @@ elseif (CMAKE_SYSTEM_NAME STREQUAL "Windows")
 
         # 실행 시 필요한 DLL 복사
         set(SDL3_DLL ${EXTERNAL_DIR}/SDL3-3.2.18/mingw/x86_64-w64-mingw32/bin/SDL3.dll)
+        set(SDL3_LICENSE ${EXTERNAL_DIR}/SDL3-3.2.18/mingw/LICENSE.txt)
         add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
             COMMAND ${CMAKE_COMMAND} -E copy_if_different
                 "${SDL3_DLL}"
@@ -189,6 +191,7 @@ file(COPY ${GPU_SHADER_FILES}
 # ─────────────────────────────────────────────
 # 공통 결과물 설치
 # ─────────────────────────────────────────────
+if(BYUL_INSTALL_EXPERIMENTS)
 if(WIN32)
     install(TARGETS ${PROJECT_NAME}
         RUNTIME DESTINATION bin
@@ -209,12 +212,7 @@ install(FILES ${GPU_SHADER_FILES}
 
 # SDL DLL (Windows에서만 설치)
 if(CMAKE_SYSTEM_NAME STREQUAL "Windows")
-    install(FILES
-        ${EXTERNAL_DIR}/SDL3-3.2.18/mingw/x86_64-w64-mingw32/bin/SDL3.dll
-        DESTINATION bin
-    )
-    install(FILES
-        ${EXTERNAL_DIR}/SDL3-3.2.18/mingw/LICENSE.txt
-        DESTINATION share/sdl
-    )
+    install(FILES "${SDL3_DLL}" DESTINATION bin)
+    install(FILES "${SDL3_LICENSE}" DESTINATION share/sdl)
+endif()
 endif()

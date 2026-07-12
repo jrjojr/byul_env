@@ -6,15 +6,11 @@
 #include "distributions.h"
 
 #include <stdint.h>
-#include <math.h>
+#include <cmath>
 
 static inline bool byul__isfinite(double x)
 {
-#if defined(_MSC_VER)
-    return _finite(x) != 0;
-#else
-    return isfinite(x) != 0;
-#endif
+    return std::isfinite(x);
 }
 
 TEST_CASE("dist_uniform_f64: returns within [min,max) and handles swapped bounds")

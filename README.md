@@ -95,7 +95,13 @@ byul
 ├─ projectile
 ├─ ground
 ├─ byul_tick
-└─ gpu_comp_tester
+```
+
+Developer-facing programs are kept outside the engine modules:
+
+```text
+tools/byul_grid                 # Grid/navigation visualization tool
+experiments/gpu_comp_tester    # Optional GPU compute experiment
 ```
 
 The top-level `byul.h` acts as an umbrella header:
@@ -406,8 +412,13 @@ cmake --preset linux-debug
 cmake --build --preset build-linux-debug
 ```
 
-The `package_zip` target can be run directly. It updates `all`, installs into a
-temporary package layout, and creates `byul.zip`.
+The `sdk_zip` target can be run directly. It updates `all`, installs into a
+temporary package layout, and creates a platform-specific
+`byul-sdk-<version>-<platform>-<toolchain>-<configuration>.zip`. The separate
+`grid_zip` target creates the portable
+`byul-grid-<version>-<platform>-<configuration>.zip` application package.
+Run the `byul_help` target to print the difference between standard local SDK
+installation and the SDK/Grid distribution targets.
 
 ---
 

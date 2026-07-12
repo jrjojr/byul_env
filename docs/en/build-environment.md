@@ -14,12 +14,13 @@ BYUL uses CMake presets.
 ```text
 Primary work environment: Ubuntu
 Primary build command: cmake --preset ... / cmake --build --preset ...
-Package target: package_zip
+SDK ZIP target: sdk_zip
+BYUL Grid ZIP target: grid_zip
 Public output: byul.dll or libbyul.so, public headers
 Development output: module static libraries, module test executables, integration test executable
 ```
 
-`package_zip` can be run directly. It updates `all`, installs into a temporary
+`sdk_zip` can be run directly. It updates `all`, installs into a temporary
 package layout, and creates `byul.zip`.
 
 ## Ubuntu Requirements
