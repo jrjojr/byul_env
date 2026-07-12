@@ -39,8 +39,8 @@ secrets.txt
 
 # image file
 images/
-!tools/byul_grid/assets/images/
-!tools/byul_grid/assets/images/**
+!tools/python/byul_grid/assets/images/
+!tools/python/byul_grid/assets/images/**
 
 # 노트.org
 byul/docs/
