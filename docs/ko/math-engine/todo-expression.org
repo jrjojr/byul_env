@@ -1,0 +1,376 @@
+#+TITLE: BYUL 임베디드 공학 계산기 표현식·Parser TODO
+#+TODO_PARENT: todo-math-engine.org
+#+AUTHOR: ByulPapa / Codex
+#+LANGUAGE: ko
+#+OPTIONS: toc:t num:nil
+
+* 목적
+
+이 문서는 BYUL 임베디드 공학용 CAS 그래프 계산기의 독립 =expression= 계층을
+구축하기 위한 계획서이다. lexer, parser, source 진단, immutable AST, bytecode,
+함수 registry와 제한적 CAS 실행 경계를 다룬다.
+
+=expression= 은 =numal=, =numeq= 와 =mathunits= 의 public API를 사용한다. GUI,
+renderer, 게임과 물리 시스템에는 의존하지 않는다. parser backend가 바뀌어도 AST,
+오류, evaluator와 public C ABI는 유지되어야 한다.
+
+* 전체 구조
+
+#+begin_src text
+source text
+  -> lexer
+  -> parser
+  -> immutable AST
+  -> validation / type and dimension analysis
+  -> bytecode or executable expression
+  -> evaluator / CAS / numeq callback
+#+end_src
+
+#+begin_src text
+expression
+  source          UTF-8 source, span과 diagnostics
+  lexer           token과 literal
+  parser          Pratt 또는 Flex/Bison backend
+  ast             immutable node와 ownership
+  semantic        name, arity, type와 dimension 검사
+  bytecode        반복 수치 평가
+  registry        built-in과 사용자 함수
+  evaluator       precision context와 계산 예산
+  cas             제한적 rewrite와 exact 결과
+  serialize       worksheet용 versioned 표현
+#+end_src
+
+* 책임 경계
+
+** 포함
+
+- UTF-8 수학 입력의 tokenization과 source span
+- operator precedence와 associativity
+- 숫자, identifier, call, vector/matrix와 unit literal
+- immutable AST와 반복 평가 bytecode
+- 변수 scope, =Ans= 와 사용자 함수
+- 함수 registry와 overload 선택
+- exact, approximate, conditional과 unevaluated 결과
+- 계산 예산, 재귀 제한, 취소와 allocation 실패
+- parser backend 공통 diagnostic와 conformance corpus
+- 제한적 공학 CAS
+
+** 제외
+
+- 숫자·행렬과 특수함수의 실제 구현
+- root, 적분과 ODE 알고리즘
+- 단위 registry와 변환 상수
+- 수식 편집 widget, keypad와 graph renderer
+- 범용 theorem prover와 무제한 CAS
+
+* =cmake_starter_1040= 평가
+
+** 참고할 자산
+
+=tools/cmake_starter_1040= 의 Flex/Bison template은 다음 경험을 보유한다.
+
+- Flex =reentrant=, =noyywrap=, =nodefault= 와 Windows =nounistd=
+- Bison pure parser와 scanner/context parameter
+- token prefix와 detailed parse error
+- semantic value destructor
+- precedence declaration
+- generated header와 source 분리
+- Flex/Bison 전용 test scaffold
+
+이 항목들은 BYUL prototype의 checklist와 회귀 기준으로 사용한다.
+
+** 전체 흡수 금지
+
+=starter.cmake= 전체를 =byul/cmake/project_manager.cmake= 에 include하거나 대체하지
+않는다. 이유는 다음과 같다.
+
+- Windows 도구 경로가 =~/apps/local/bin/win_flex.exe= 와 =win_bison.exe= 로 고정됨
+- Linux와 Windows 외 platform 탐색이 완성되지 않음
+- =addSub= 가 parent/children 관계를 전역 CMake cache에 저장함
+- configure 중 CMakeLists, source, config와 tester 파일을 생성할 수 있음
+- =start_project/do_project/end_project= lifecycle이 BYUL target 구조와 충돌함
+- =LIBAPI=, =DLL_EXPORT= 과 generated config가 =BYUL_API= 계약과 충돌함
+- install, CPack과 output directory 규칙이 BYUL SDK ZIP 정책과 중복됨
+- =add_custom_target= 기반 generator가 output timestamp와 stale 상태를 추적하지 못함
+- Bison target과 Flex target 사이 생성 순서가 완전하게 표현되지 않음
+- =setup.py= 가 1040 내부에서도 =cmake_starter_1039= 경로를 참조함
+- =All Rights Reserved=/=Proprietary= 표기의 BYUL 사용 권한을 확인해야 함
+
+직접 복사할 template이 있다면 권리와 BYUL 표준 license를 먼저 확인한다. 권리가
+불명확하면 원칙만 참고해 새로 작성한다.
+
+** 기존 template의 기술적 한계
+
+- C skeleton과 C union 중심이라 C++17 RAII AST에 직접 맞지 않음
+- 괄호 내부를 문자열 token으로 모아 =parse_string= 으로 재귀 호출함
+- line, column, byte offset과 end span을 제공하지 않음
+- nested 문자열 상태가 scanner extra context로 명시되지 않음
+- =realloc= 실패와 계산 메모리 예산 처리가 없음
+- integer 사칙연산 중심으로 실제 계산기 문법을 표현하지 않음
+- generated source stale 검사와 generator version 고정이 없음
+
+* 1단계: 공통 source와 diagnostic 모델
+
+- byte offset, line, column과 end span
+- UTF-8 code point와 화면 column 정책 분리
+- error, warning과 note severity
+- stable diagnostic code와 locale 독립 기본 message
+- unexpected token, expected token set와 related span
+- parser가 source buffer를 소유하는지 명시
+- 잘못된 UTF-8, NUL과 입력 최대 길이
+- GUI가 오류 위치를 강조할 수 있는 C ABI 구조
+
+parser backend는 내부 message를 직접 public ABI로 노출하지 않고 공통 diagnostic으로
+변환한다.
+
+* 2단계: 최소 문법 명세
+
+1차 공통 문법:
+
+#+begin_src text
+literal       integer, rational candidate, f32/f64와 scientific notation
+identifier    variable, constant와 function name
+operator      + - * / % ^
+group         ( expression )
+call          name(arg0, arg1, ...)
+assignment    name = expression 후보
+unit literal  9.81 m/s^2 후보
+#+end_src
+
+필수 precedence 사례:
+
+- =-2^2= 와 =(-2)^2=
+- =2^3^2= 의 right associativity
+- unary plus/minus
+- division과 implicit unit multiplication
+- function call과 power
+- postfix factorial 후보
+
+implicit multiplication =2x=, =3 sin(x)= 는 오진 가능성과 unit suffix 충돌을 비교한
+뒤 도입한다.
+
+decimal literal 후보:
+
+#+begin_src text
+0.1d
+1.234567890123456789dec
+decimal("0.1")
+#+end_src
+
+- literal source에서 직접 =numal= decimal을 생성
+- =f64= 로 parse한 뒤 decimal로 변환하지 않음
+- rational literal과 finite decimal literal 구분
+- literal suffix, expression context와 function overload 충돌 규칙
+- worksheet serialization에 canonical decimal과 필요한 원문 metadata 보존
+
+* 3단계: handwritten lexer와 Pratt parser
+
+- 작은 immutable token 또는 token view
+- binding power table
+- prefix, infix와 postfix parse function
+- arena 또는 caller-provided AST workspace
+- source span 보존
+- error 후 무한 loop 방지
+- 깊이 제한과 iterative parse 후보
+- parser instance의 전역 상태 금지
+- allocation 실패 시 생성된 AST 전체 정리
+
+이 backend를 1차 기준 구현으로 사용한다.
+
+* 4단계: Flex/Bison C++ prototype
+
+동일 최소 문법을 별도 prototype으로 구현한다.
+
+권장 Bison 설정 후보:
+
+#+begin_src text
+%skeleton "lalr1.cc"
+%define api.value.type variant
+%define api.token.constructor
+%define parse.error detailed
+%locations
+#+end_src
+
+권장 Flex 원칙:
+
+#+begin_src text
+%option reentrant
+%option noyywrap
+%option nodefault
+%option nounistd
+#+end_src
+
+- scanner extra context에 source offset, line, column과 error sink 저장
+- AST owning raw pointer를 semantic value로 전달하지 않음
+- parser와 scanner prefix로 다른 generated parser와 symbol 충돌 방지
+- Bison C++ exception이 public C ABI 밖으로 나가지 않게 adapter에서 차단
+- generated warning과 conflict 수를 CI에서 검사
+- error recovery 중 AST node leak 검사
+- parser header를 lexer가 필요로 하는 명시적 생성 dependency
+
+* 5단계: BYUL 전용 code generation
+
+=starter.cmake= 대신 작은 =byul/cmake/byul_parser_codegen.cmake= 후보를 작성한다.
+일반 build와 maintainer regeneration을 분리한다.
+
+#+begin_src text
+일반 사용자 build
+  repository의 generated C++ source compile
+  Flex/Bison 설치 불필요
+
+maintainer regeneration
+  expression.l + expression.y
+  -> 고정 version Flex/Bison
+  -> generated source
+  -> stale check
+  -> conformance와 fuzz test
+#+end_src
+
+필요 target 후보:
+
+#+begin_src text
+expression_regenerate_parser
+expression_check_generated
+expression_parser_conformance
+expression_parser_fuzz
+#+end_src
+
+code generation helper 요구사항:
+
+- =find_package(FLEX)= 와 =find_package(BISON)= 또는 명시적 executable cache 변수
+- Windows, Linux와 macOS 지원
+- generator executable과 version 기록
+- =add_custom_command(OUTPUT ... DEPENDS ... VERBATIM)= 사용
+- Bison output 후 Flex output의 명시적 순서
+- source tree 변경 target은 명시적 maintainer 호출에서만 실행
+- generated 파일에 직접 수정 금지와 generation manifest
+- 동일 version 재생성 시 diff 없음
+- cross compile과 일반 SDK build에서 generator 실행 금지
+
+* 6단계: backend 비교
+
+두 parser에 같은 token, AST expectation과 diagnostic corpus를 적용한다.
+
+- source와 generated code 크기
+- configure와 build 재현성
+- Windows/Linux/macOS regeneration
+- MCU flash, RAM과 stack 비용
+- precedence와 associativity
+- malformed input의 최초 오류 위치와 recovery
+- vector/matrix, unit literal과 special form 확장 비용
+- AST ownership과 allocation 실패
+- thread-safe 병렬 parse
+- compile 시간과 parse 시간
+- sanitizer와 fuzz 결과
+- 유지보수자가 grammar를 검토하는 난이도
+
+parse는 보통 식마다 1회 수행하므로 미세 속도보다 diagnostic, ownership, code size와
+재현 가능한 build를 우선한다.
+
+* 7단계: AST와 semantic analysis
+
+- immutable node와 stable node kind
+- literal 원문과 정규화된 값 분리
+- symbol resolution과 arity 검사
+- exact/approximate type propagation
+- scalar, complex, vector와 matrix shape 검사
+- =mathunits= 를 통한 dimension 분석
+- pure/deterministic와 batch 가능 metadata
+- constant folding 전 정의역·branch 보존
+- AST schema version과 worksheet serialization
+
+parser grammar에 built-in 함수 이름과 arity를 하드코딩하지 않는다.
+
+* 8단계: bytecode와 evaluator
+
+- AST compile 1회와 반복 평가
+- stack 또는 register bytecode 비교
+- precision context와 rounding mode
+- 변수 slot과 immutable constant pool
+- function registry dispatch
+- =numeq= callback adapter
+- graph batch 평가 fast path
+- 최대 instruction, recursion, allocation과 function evaluation 예산
+- cancellation token과 cooperative yield
+- non-finite, domain, dimension과 unsupported 상태
+- binary, fixed decimal과 mpdecimal arbitrary backend 선택
+- decimal precision, rounding, exponent와 exact-required context
+- decimal status를 식의 source span과 함께 diagnostic/result로 변환
+
+* 9단계: 함수 registry와 사용자 정의 함수
+
+- name, min/max arity와 callback
+- userdata lifetime와 thread-safety
+- overload와 backend selection
+- pure, deterministic와 batch flags
+- 사용자 함수 등록·제거와 충돌 정책
+- recursive call 제한
+- registry 변경 중 compiled expression의 안정성
+- embedded read-only registry profile
+
+* 10단계: 제한적 공학 CAS
+
+- exact integer와 rational 상수 folding
+- 기호 미분
+- 다항식 전개, 정규화와 제한적 인수분해
+- 유리식 약분
+- 선형·저차 다항 방정식 exact 해
+- 안전한 algebraic simplification
+- 알려진 rule table 기반 제한적 기호 적분
+- 정의역, complex branch와 조건 보존
+- rewrite step과 expression growth 예산
+- 지원하지 않는 결과는 unevaluated expression으로 보존
+
+CAS exact 계층은 integer/rational/algebraic expression을 사용한다. mpdecimal은 exact
+symbolic 표현을 대체하지 않고 다음 용도로만 사용한다.
+
+- =N(expression, precision)= 형태의 decimal approximation
+- exact symbolic 결과의 지정 자릿수 출력
+- decimal constant folding
+- binary backend 결과와 비교하는 고정밀 기준값
+
+* 테스트 기준
+
+- Pratt와 Flex/Bison 공통 conformance corpus
+- unary minus, power와 implicit multiplication
+- 함수 호출, unit literal, vector와 matrix
+- byte offset, line, column과 UTF-8 오류 span
+- malformed token, 닫히지 않은 괄호와 error recovery
+- deep nesting, 긴 identifier와 expression bomb
+- allocation 실패, 취소와 계산 예산
+- parser/scanner 병렬 실행과 전역 상태 부재
+- AST/bytecode serialization round-trip
+- direct math API와 expression 평가 결과 일치
+- CAS rewrite 전후 정의역과 수치 표본 비교
+- full, compact와 minimal embedded profile
+
+* backend 채택 기준
+
+1차 기본안은 handwritten lexer와 Pratt parser이다. 다음 조건이 실제로 발생하면
+Flex/Bison backend 채택을 다시 판단한다.
+
+- statement와 error recovery가 필수화됨
+- grammar conflict 자동 보고가 유지보수에 실질적으로 필요함
+- vector/matrix, piecewise, 사용자 함수와 scope로 production이 크게 증가함
+- 동일 corpus에서 Flex/Bison diagnostic 또는 유지보수성이 뚜렷하게 우수함
+- generated code와 regeneration 환경의 비용이 embedded profile에 허용됨
+
+도구 선호만으로 backend를 결정하지 않는다.
+
+* 완료 기준
+
+- =expression= 이 독립 target이며 GUI와 simulation에 의존하지 않는다.
+- parser backend가 공통 AST, diagnostic와 C ABI 뒤에 숨겨진다.
+- 같은 식을 parse 없이 반복·batch 평가할 수 있다.
+- 단위, shape와 함수 arity 오류를 실행 전에 진단한다.
+- 계산 예산, 취소와 allocation 실패가 명시적으로 보고된다.
+- limited CAS가 exact, conditional과 unevaluated 결과를 구분한다.
+- 일반 build는 Flex/Bison 설치 없이 재현된다.
+- maintainer regeneration은 고정 version과 stale 검사를 제공한다.
+- Pratt/Flex-Bison 비교 결과와 최종 선택 근거가 문서화된다.
+
+* 진행 조건
+
+첫 작업은 =cmake_starter_1040= 의 source 복사가 아니라 공통 최소 문법, diagnostic,
+AST expectation과 conformance corpus 작성이다. public header를 생성하거나 수정할 때는
+BYUL header 선언·comment·license 규칙을 먼저 읽고 따른다.

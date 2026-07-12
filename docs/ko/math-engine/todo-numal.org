@@ -1,0 +1,321 @@
+#+TITLE: BYUL 임베디드 공학 계산기 기초 수학 모듈 TODO
+#+TODO_PARENT: todo-math-engine.org
+#+AUTHOR: ByulPapa / Codex
+#+LANGUAGE: ko
+#+OPTIONS: toc:t num:nil
+
+* 목적
+
+이 문서는 재사용 가능한 BYUL 수학 엔진의 기초 계층인 =numal= 정리 계획서이다.
+=numal= 은 계산기, GUI, 게임과 물리 시스템을 모르며 수, 대수 자료형, 저수준 기하 기반,
+정수론과 정확한 십진 산술을 제공한다.
+
+임베디드 공학용 CAS 그래프 계산기에서는 이 계층이 숫자 표현, exact arithmetic,
+행렬, 단위 scale과 플랫폼 독립 직렬화의 기반이 된다. 계산기 UI, 문법과 CAS 변환
+규칙은 여전히 상위 계층의 책임이다.
+
+수치 미분, 적분, 근 찾기와 ODE는 =docs/ko/math-engine/todo-numeq.org= 에서 다룬다.
+표현식과 전체 엔진 구조는 =docs/ko/math-engine/todo-math-engine.org= 에서 다룬다.
+SI 단위, quantity와 공학 상수는 =docs/ko/math-engine/todo-mathunits.org= 에서 다룬다.
+곡선·곡면, 충돌·접촉, NURBS와 B-rep은 =docs/ko/math-engine/todo-geometry.org= 에서
+다룬다.
+
+이 문서는 코드 구현을 포함하지 않는다. 실제 작업은 사용자가 별도로 진행을
+지시한 뒤 시작한다.
+
+* 책임 경계
+
+** 포함
+
+- scalar와 정수 기본 연산
+- 유리수, 복소수와 다항식 계수 자료형
+- =f32=, =f64=, =f128= 및 임의 정밀도 backend의 값 표현
+- 십진 고정소수점과 임의 정밀도 decimal
+- vector, matrix, quaternion과 dual quaternion
+- vector/matrix, 좌표 변환, interval과 강건 기하 predicate의 저수준 기반
+- 소수, 인수분해, gcd, lcm과 모듈러 연산
+- 조합, 순열과 확률 계산에 필요한 기초 공식
+
+** 제외
+
+- 문자열 수식 parser와 evaluator
+- 수치 미분, 적분, 근 찾기와 ODE
+- GUI, 그래프 렌더링과 입력 장치
+- 물리 상태, 중력, 항력과 충돌 정책
+- 게임 보상, 아이템과 플레이어 정책
+
+* 기본 원칙
+
+- =numal= 은 상위 모듈에 의존하지 않는다.
+- public C header와 기존 ABI를 우선 유지한다.
+- C++ template와 외부 라이브러리 타입을 public header에 노출하지 않는다.
+- 단순한 기본 연산은 직접 구현하고 복잡한 알고리즘은 검증된 backend를 검토한다.
+- 모든 정수와 fixed-point 연산은 overflow 동작을 정의한다.
+- 암묵적인 정밀도 저하와 이진/십진 변환을 허용하지 않는다.
+
+* 목표 구조
+
+#+begin_src text
+byul/numal/
+  scalar          비교, clamp, 보간, 각도
+  integer         gcd, lcm, 정수 제곱근, overflow 검사
+  rational        정확한 유리수
+  complex         복소수와 기본 연산
+  decimal         고정소수점과 임의 정밀도 십진수
+  vector          vec2, vec3, vec4
+  matrix          고정·가변 크기 행렬
+  rotation        quaternion, dual quaternion
+  geometry_base   interval, tolerance, orientation과 robust predicate
+  number_theory   소수, 체, 인수분해, 모듈러 연산
+  combinatorics   factorial, permutation, combination
+#+end_src
+
+실제 디렉터리는 기능과 파일 수가 충분할 때만 분리한다. 작은 공식마다 별도 static
+library를 만들지 않는다.
+
+* 현재 저장소 진단
+
+- =byul/numal= 에 scalar, dual number, vec3, quaternion, dual quaternion, plane과
+  일부 기하 공식이 있다.
+- =numal.h= 는 현재 =geom.h= 와 =plane.h= 를 포함하지 않아 전체 공개 기능을
+  대표하지 않는다.
+- =byul/number_theory= 는 별도 모듈로 =uint32_t= 소수 판정, 다음 소수, 인수분해와
+  구간 소수 방출을 제공한다.
+- =byul/rng/distributions.cpp= 에 확률분포 관련 계산이 있으므로 난수 생성과 순수
+  확률 공식을 구분해야 한다.
+- 기하 공식 일부는 =balix/collision= 과 상위 모듈에도 존재한다.
+
+* 1단계: 기능과 의존성 목록 작성
+
+- =numal=, =number_theory=, =rng/distributions= 의 함수 목록 작성
+- =balix/collision=, =entity=, =projectile= 에 있는 순수 수학 helper 조사
+- public API, 내부 함수와 중복 공식을 구분
+- 각 함수의 목표 소유 모듈 기록
+
+완료 기준은 모든 기초 수학 함수의 소유 위치와 의존성이 표로 정리된 상태이다.
+
+* 2단계: scalar, 정수와 조합 공식 정리
+
+- 비교, tolerance, clamp와 보간 규약 통일
+- =gcd=, =lcm=, 정수 거듭제곱과 정수 제곱근
+- checked add, subtract, multiply와 divide
+- factorial, permutation과 combination
+- 입력 범위, overflow와 실패 반환 규약 정의
+
+암호학적 안전성을 보장하지 않는 정수론 API는 해당 제한을 문서화한다.
+
+* 3단계: 정수론 장기 위치 확정
+
+- 기존 =number_theory= 독립 target 유지 또는 =numal= 하위 편입 결정
+- =byul_prime_*= public API와 생성된 base-prime table 유지
+- =uint64_t= 소수 판정과 Miller-Rabin 필요성은 실제 사용 사례로 판단
+- generator의 재현성과 테스트 유지
+
+물리적 파일 이동 전 기존 빌드와 설치 경로의 호환 전략을 먼저 확정한다.
+
+* 4단계: 기하학 정리
+
+- 점과 선분 사이 거리 및 최근접점
+- 선분 간 거리와 최근접점
+- 평면 signed distance, 투영과 반사
+- ray/segment와 평면·삼각형·구 교차
+- barycentric 좌표와 삼각형 포함 판정
+- AABB, sphere 및 향후 OBB와 capsule
+- 퇴화 도형, 경계 포함 여부와 tolerance 규약
+
+시간, 속도와 가속도를 사용하는 충돌 검사는 =balix= 에 남기고, primitive와
+scalar만 사용하는 현재 공식은 우선 =numal/geometry= 로 정리한다. 장기적으로
+point/ray/primitive 교차와 최근접점은 독립 =geometry= target으로 이동하고 =numal= 에는
+vector, matrix, interval, tolerance와 orientation/in-circle 같은 robust predicate 기반만
+남긴다. 상세 범위와 마이그레이션은 =todo-geometry.org= 를 따른다.
+
+* 5단계: 정밀도 backend 설계
+
+** 이진 부동소수점
+
+- =f32=: 게임, GPU와 대량 계산
+- =f64=: 일반 계산기와 수치해석 기본값
+- =f128=: 우주·천문·고정밀 과학 계산
+- arbitrary precision: 기준 결과와 사용자 지정 정밀도
+
+=long double= 을 =f128= 로 가정하지 않는다. public ABI에는 컴파일러 전용
+고정밀 타입을 직접 노출하지 않고 opaque handle 또는 고정 계약 구조체를 사용한다.
+
+** 공통 구현
+
+내부에서는 template 또는 backend trait로 알고리즘을 공유할 수 있지만 public C
+API는 정밀도별 이름을 명시한다.
+
+#+begin_src c
+numal_result_t numal_complex_add_f32(...);
+numal_result_t numal_complex_add_f64(...);
+numal_result_t numal_complex_add_f128(...);
+#+end_src
+
+* 6단계: 금융용 십진·고정소수점
+
+** 목표
+
+금액, 세금, 이자와 회계 계산을 위한 정확한 십진 산술을 제공한다. 통화 코드와
+금융 정책은 상위 계층에 남긴다.
+
+** 값 모델
+
+- signed coefficient
+- decimal scale
+- 선택 가능한 precision
+- 명시적인 rounding mode
+- overflow와 inexact 상태
+
+** 필수 기능
+
+- parse와 format
+- add, subtract, multiply와 divide
+- compare, rescale, quantize와 round
+- =half_up=, =half_down=, =half_even=, floor, ceiling, toward-zero
+- exact-required 모드
+- 이진 부동소수점과의 명시적 변환
+- 플랫폼 독립 직렬화
+
+** 완료 기준
+
+- =0.1 + 0.2= 같은 십진 계산이 지정 scale에서 정확하다.
+- 나눗셈은 결과 scale과 rounding을 반드시 지정하거나 context에서 받는다.
+- overflow, divide-by-zero와 inexact를 구분한다.
+- 실제 은행·회계 적용은 국가별 규정과 별도 인증 대상임을 문서화한다.
+
+** mpdecimal 선택 backend
+
+=mpdecimal/libmpdec= 는 arbitrary precision decimal floating-point backend의 우선
+후보로 사용한다. fixed decimal과는 역할을 분리한다.
+
+#+begin_src text
+decimal_fixed
+  고정 coefficient와 scale
+  allocation 없는 embedded/minimal 경로
+
+decimal_mpdec
+  correctly-rounded arbitrary precision decimal
+  full calculator와 고정밀 decimal mode
+#+end_src
+
+- public C ABI에는 =mpd_t= 와 =mpd_context_t= 를 노출하지 않음
+- source 문자열에서 직접 decimal 생성하고 =double= 을 중간에 사용하지 않음
+- precision, exponent, rounding, clamp와 status를 BYUL context로 변환
+- 기본 trap handler의 =SIGFPE= 경로를 사용하지 않고 quiet 함수와 명시적 status 사용
+- invalid, divide-by-zero, overflow, underflow, subnormal, inexact, rounded, clamped와
+  allocation failure를 BYUL result로 mapping
+- opaque arbitrary decimal handle과 create/destroy ownership
+- fixed decimal과 arbitrary decimal의 명시적 변환
+- exact rational과 rounded decimal 결과를 구분
+- official conformance/vector test와 BYUL decimal corpus 적용
+
+권장 CMake option 후보:
+
+#+begin_src text
+BYUL_NUMAL_ENABLE_MPDECIMAL=OFF
+#+end_src
+
+기본 SDK와 minimal profile은 mpdecimal 없이 build되어야 한다. full profile에서는
+활성화하고 compact profile은 flash/RAM/latency 측정 후 선택한다.
+
+* 7단계: 확률 수학의 저수준 경계
+
+=reward= 같은 고수준 게임 정책은 포함하지 않는다.
+
+- PMF, CDF와 inverse CDF
+- Bernoulli, binomial, normal, Poisson 등 분포 공식
+- 기대값, 분산과 공분산
+- 주사위 합의 정확한 확률
+- 정수 가중치 정규화
+- 복원·비복원 표본 추출에 필요한 기초 계산
+
+난수 bit와 stream 생성은 =rng= 가 담당한다. 분포의 값 계산은 순수 확률 수학이고,
+실제 표본 추출은 =rng= 를 주입받는 sampling 계층으로 구분한다.
+
+* 8단계: 외부 라이브러리 판단
+
+- cglm: 3D 벡터·행렬·quaternion 내부 구현 후보
+- Eigen: 고급 선형대수 backend 후보
+- Boost.Multiprecision: =f128= 및 임의 정밀도 후보
+- Boost.Math: 특수함수와 확률분포 계산 후보
+- mpdecimal/libmpdec: arbitrary precision decimal과 IEEE decimal context 후보
+
+외부 타입은 public C header에 노출하지 않고 private 구현 의존성으로만 사용한다.
+
+mpdecimal의 Simplified BSD License, copyright와 notice를 =THIRD_PARTY_NOTICES.md= 와
+배포 package에 포함한다. 사용 version, build option과 patch를 기록한다.
+
+공식 확인 자료:
+
+- project와 release/license: =https://www.bytereef.org/mpdecimal/=
+- libmpdec API: =https://www.bytereef.org/mpdecimal/doc/libmpdec/=
+- context, rounding과 status: =https://www.bytereef.org/mpdecimal/doc/libmpdec/context.html=
+
+실제 적용 조건은 선택 release에 포함된 license 원문을 우선한다.
+
+* 9단계: batch·SIMD·GPU
+
+- 단일 scalar와 vector 연산은 CPU 유지
+- =*_batch= API를 별도로 설계
+- 작은 배열은 CPU/SIMD, 충분히 큰 배열은 GPU 후보
+- 데이터 전송과 동기화를 포함해 임계값 측정
+- GPU가 없어도 동일 계약의 CPU fallback 제공
+
+* 10단계: 임베디드 값 표현과 workspace
+
+- full, compact와 minimal profile별 지원 숫자 종류와 최대 크기 정의
+- 동적 matrix와 arbitrary precision 값은 opaque handle과 명시적 destroy 사용
+- heap이 제한된 profile을 위한 caller-provided buffer 또는 arena API
+- allocation 없이 사용하는 고정 크기 vector, matrix와 complex fast path
+- 값, context와 오류 상태의 alignment, endian과 직렬화 version 정의
+- RAM, stack과 flash 사용량을 target별 map file과 benchmark로 기록
+- 지원하지 않는 backend는 compile과 link 단계에서 완전히 제외
+- allocation 실패에서 부분 생성된 값의 정리와 원본 값 보존
+
+* 11단계: 단위 계산용 저수준 지원
+
+- SI 기본 차원의 정수 또는 제한된 유리수 지수 자료형
+- 단위 scale을 위한 rational, decimal과 arbitrary precision 연산
+- 차원 벡터의 곱셈, 나눗셈, 거듭제곱과 동등성 검사
+- affine unit 변환에 필요한 scale과 offset의 exact 표현
+- 단위 이름, parser, 표시와 공학 상수 database는 상위 =mathunits= 책임
+
+=tools/unit_1003= 의 =Unit=, =SiUnit=, =Units= 와 =Quantity= 를 =numal= public
+자료형으로 그대로 복사하지 않는다. bit-field와 union packing은 compiler별 ABI와
+직렬화가 달라질 수 있으므로 =numal= 은 명시적 signed exponent 배열, checked 연산과
+exact scale primitive만 제공한다. 기존 단위 이름과 변환 자료는 =mathunits= 가
+마이그레이션한다.
+
+* 테스트 기준
+
+- 경계값, 영값, NaN, infinity와 overflow
+- 기하 퇴화 입력과 tolerance
+- 플랫폼 간 정수·decimal 동일 결과
+- =f32/f64/f128= 허용 오차별 기준 결과
+- 정수론의 =UINT32_MAX= 및 향후 =UINT64_MAX= 경계
+- 통계적 sampling 테스트와 정확한 확률 공식 테스트 분리
+- 고정 workspace 부족, allocation 실패와 stack 상한
+- endian 독립 직렬화 round-trip과 schema version
+- full, compact와 minimal profile별 동일 연산 결과 계약
+- mpdecimal on/off build와 fixed/arbitrary decimal 공통 conformance
+- trap 없이 status로 보고되는 divide-by-zero, inexact와 allocation failure
+
+* 완료 기준
+
+- =numal= 의 책임이 자료형, 기초 공식과 순수 수학으로 제한된다.
+- =numal= 이 =numeq=, =balix=, expression 또는 GUI에 의존하지 않는다.
+- 기존 public C API와 ABI의 호환 전략이 적용된다.
+- 기하와 정수론의 중복 구현이 제거된다.
+- 고수준 기하와 collision은 독립 =geometry= 로 분리되고 =numal= 의 저수준 기반에만
+  의존한다.
+- =f32/f64/f128= 및 decimal 확장 경계가 정의된다.
+- 금융용 decimal의 scale, rounding과 오류 계약이 명시된다.
+- fixed decimal과 mpdecimal arbitrary backend의 역할·ABI·변환 경계가 명시된다.
+- 임베디드 profile별 숫자 종류, 최대 크기와 메모리 계약이 명시된다.
+- 단위 계층이 사용할 exact scale과 차원 지수 연산을 제공한다.
+- Windows, Linux와 macOS 테스트가 통과한다.
+
+* 진행 조건
+
+첫 구현 작업은 파일 이동이 아니라 기능·의존성 목록과 회귀 테스트 기준 작성이다.

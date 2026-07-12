@@ -1,0 +1,136 @@
+%top{
+/***************************************************************************
+*
+* Copyright 2024. Jungrai Jo <jungraijo@gmail.com> 
+* All Rights Reserved.
+*
+* ${PROJECT_NAME} 
+*
+* 이 파일로 헤더 파일 : ${aFlexHFilename}, 소스파일 : ${aFlexCFilename} 생성한다.
+* 헤더 파일과 소스 파일을 수정하고 싶으면, ${PROJECT_NAME}.l 파일을 수정한 뒤에
+* 아래 라인을 실행해서 헤더 파일과 소스 파일을 다시 생성하는 것이 정상적인 방법이다.
+*  ${aFlexPath} ${FLEX_ARGS}
+*
+* 그냥 헤더 파일과 소스 파일을 수정해도 되지만, 정상적인 방법이 아니다.
+* 이 코드 블럭은 헤더 파일과 소스파일 두 개의 파일에서 
+* 공통적으로 시작 라인에 적용되는 블럭이다.
+*
+***************************************************************************/   
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+// // windows에서 unistd.h를 지원하지 않아서 
+// // 사용하진 않는 다는 것을 확인하는 정의이다.
+// #ifndef YY_NO_UNISTD_H
+//    #define YY_NO_UNISTD_H
+// #endif
+
+#include "${PROJECT_NAME}/${PROJECT_NAME}_config.h"
+
+typedef struct s_extra{
+  int numchars;
+  int numwords;
+  int numlines;
+}extra_t;
+typedef extra_t Extra;
+typedef Extra* ExtraPtr;
+
+LIBAPI int init_extra(ExtraPtr tSelf);
+LIBAPI int release_extra(ExtraPtr tSelf);
+LIBAPI int lex_extra(ExtraPtr tSelf, const char* tStr);
+
+#ifdef __cplusplus
+}
+#endif
+
+}
+
+%{
+/***************************************************************************
+* Copyright 2024. Jungrai Jo <jungraijo@gmail.com> 
+* All Rights Reserved.
+*
+* 이 파일은 ${aFlexCFilename} 파일 생성본이다. 
+* configure_file()을 사용해서 ${PROJECT_NAME}.l 파일을 생성한 뒤에
+* 아래 라인을 실행해서 생성한 파일이다.
+*  ${aFlexPath} ${FLEX_ARGS}
+*
+* ${PROJECT_NAME} 
+*
+* 이 코드 블럭은 소스파일의 중간 부분에서 
+* 각종 flex 정의들이 적용되고 난 후에 위치한다.
+*
+***************************************************************************/   
+
+%}
+
+%option nounistd
+%option noyywrap
+%option 8bit
+%option reentrant
+%option extra-type="Extra *"
+
+/* %option bison-bridge */
+
+%%
+
+[\n]        { yyextra->numchars++;  yyextra->numlines++;         }
+[\r]        { yyextra->numchars++;                      }
+[^ \t\n]+   { yyextra->numwords++;  yyextra->numchars += yyleng; }
+.           { yyextra->numchars++;                      }
+
+%%
+
+/*
+ * additional C code start from here. This supplies
+ * all the argument processing etc.
+ */
+
+LIBAPI int init_extra(ExtraPtr tSelf){
+  tSelf->numchars = 0;
+  tSelf->numwords = 0;
+  tSelf->numlines = 0;
+  return 0;
+}
+
+LIBAPI int release_extra(ExtraPtr tSelf){
+  //메모리 할당작업이 있었으면 해제한다.
+  return 0;
+}
+
+LIBAPI int lex_extra(ExtraPtr tSelf, const char* tStr){
+  yyscan_t aScanner;
+  YY_BUFFER_STATE buf;
+
+    init_extra(tSelf);
+    yylex_init_extra( tSelf, &aScanner );
+
+  buf = yy_scan_string( tStr, aScanner );
+
+  yylex(aScanner);
+
+  yy_delete_buffer(buf, aScanner);
+  yylex_destroy( aScanner );
+
+  yyterminate();
+}
+
+int main(int argc, char *argv[])
+{
+   if(argc < 2){
+     fprintf(stderr, "not input arg %s \n",argv[0]);
+     exit(1);
+   }
+
+  Extra aExtra;
+  lex_extra(&aExtra, argv[1]);
+
+    fprintf(stdout,"lines %5d ",aExtra.numlines);
+    fprintf(stdout,"characters %5d ", aExtra.numchars);
+    fprintf(stdout,"words %5d ", aExtra.numwords);
+    fprintf(stdout,"\n");
+  
+  return 0;
+}

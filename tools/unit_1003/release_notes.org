@@ -1,0 +1,24 @@
+############################################################################
+# Copyright 2024. Jungrai Jo <jungraijo@gmail.com> 
+# All Rights Reserved.
+#
+# unit 
+# release notes
+#
+############################################################################
+
+* DONE 1.0.0.0
+    - 최초 발행
+
+* DONE 1.0.0.1 --[2024-8-1 Thu 15:57]
+    - 모든 euc_kr과 cp949의 파일들을 utf-8로 변환했다.
+
+* DONE 1.0.0.2 --[2024-8-8 Thu 22:39]
+    - cmake_starter_1039와 호환성을 위해 모든 CMakeLists.txt 개정
+
+* DONE 1.0.0.3 --[2024-8-15 Thu 8:28]
+** DONE LIBAPI 위치 변경
+    - void LIBAPI func(), int LIBAPI func() 등등을 
+    - LIBAPI void func , LIBAPI int func()으로 변경
+    - cpp, dll 등에서 LIBAPI가 제대로 동작하려면 변경해야 한다.
+    - 내가 몰라서 이런 일이 생겼다.

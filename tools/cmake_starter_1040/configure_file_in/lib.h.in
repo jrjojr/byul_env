@@ -1,0 +1,27 @@
+/***************************************************************************
+* Copyright 2024. Jungrai Jo <jungraijo@gmail.com> 
+* All Rights Reserved.
+*
+* ${PROJECT_NAME} 
+*
+***************************************************************************/
+
+#ifndef ${UPPER_CASE_PROJECT_NAME}_H
+#define ${UPPER_CASE_PROJECT_NAME}_H
+
+#include "${PROJECT_NAME}/${PROJECT_NAME}_config.h"
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+LIBAPI void ${PROJECT_NAME}_print_version();
+
+// buf에 16바이트 정도 메모리를 할당해야 한다.
+LIBAPI const char* ${PROJECT_NAME}_version(char* buf);
+
+#ifdef __cplusplus
+}
+#endif
+
+#endif // ${UPPER_CASE_PROJECT_NAME}_H

@@ -1,0 +1,36 @@
+/***************************************************************************
+* Copyright 2024. Jungrai Jo <jungraijo@gmail.com> 
+* All Rights Reserved.
+*
+* ${PROJECT_NAME} 
+*
+***************************************************************************/
+
+#define BOOST_TEST_MODULE ${PROJECT_NAME} tester
+#include <boost/test/included/unit_test.hpp>
+#include "${PROJECT_NAME}_tester.hpp"
+
+#include <iostream>
+
+#include "${PROJECT_NAME}.h"
+
+namespace ut = boost::unit_test;
+
+BOOST_AUTO_TEST_CASE(${PROJECT_NAME}_tester_first, 
+    * ut::fixture<Stopwatch>(std::string("${PROJECT_NAME}_tester_first"))
+    * ut::fixture<Logger>(std::string("${PROJECT_NAME}_tester_first"))
+){
+
+  // 여기부터 실제 테스트할 코드를 작성한다.      
+
+    std::string aStr("asdf asdf  asdf asdf asdf asdf dfa");
+    Extra aSelf;
+
+    lex_extra(&aSelf, aStr.c_str());
+  std::cout << "lines : " << aSelf.numlines;
+  std::cout << ", characters : " << aSelf.numchars;
+  std::cout << ", words : " << aSelf.numwords << std::endl;
+
+  // 여기까지 실제 테스트할 코드를 작성한다.
+  
+}

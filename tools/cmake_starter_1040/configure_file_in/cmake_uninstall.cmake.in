@@ -1,0 +1,75 @@
+############################################################################
+# Copyright 2024. Jungrai Jo <jungraijo@gmail.com> 
+# All Rights Reserved.
+#
+# ${PROJECT_NAME} 
+#
+###########################################################################///
+
+if(NOT EXISTS "@CMAKE_BINARY_DIR@/install_manifest.txt")
+    message(FATAL_ERROR "Cannot find install manifest: @CMAKE_BINARY_DIR@/install_manifest.txt")
+endif()
+
+file(READ "@CMAKE_BINARY_DIR@/install_manifest.txt" files)
+string(REGEX REPLACE "\n" ";" files "${files}")
+foreach(file ${files})
+    message(STATUS "Uninstalling $ENV{DESTDIR}${file}")
+    if(EXISTS "$ENV{DESTDIR}${file}")
+        execute_process(
+            COMMAND @CMAKE_COMMAND@ -E remove "$ENV{DESTDIR}${file}"
+            OUTPUT_VARIABLE rm_out
+            RESULT_VARIABLE rm_retval
+        )
+        if(NOT rm_retval EQUAL 0)
+            message(FATAL_ERROR "Problem when removing $ENV{DESTDIR}${file}")
+        endif()
+    else()
+        message(STATUS "File $ENV{DESTDIR}${file} does not exist.")
+    endif()
+endforeach()
+
+function(remove_dir tFilePath)
+    if(EXISTS ${tFilePath})
+        message(STATUS "${tFilePath} is exists.")
+        message(STATUS "if ${tFilePath} is directory and empty then remove.")
+
+        # 경로의 파일 이름 추출
+        get_filename_component(FILE_NAME ${tFilePath} NAME)
+
+        # 추출된 파일 이름이 디렉토리인지 확인
+        if(IS_DIRECTORY ${tFilePath})
+            message(STATUS "${FILE_NAME} is a directory.")
+
+            # 디렉토리가 비어 있는지 확인
+            file(GLOB DIR_CONTENTS "${tFilePath}/*")
+
+            if(NOT DIR_CONTENTS)
+                # 디렉토리가 비어 있으면 제거
+                message(STATUS "Removing empty directory: ${tFilePath}")
+                file(REMOVE_RECURSE "${tFilePath}")
+            else()
+                message(STATUS "${tFilePath} is not empty.")
+                message(STATUS "Directory list is downward.")
+                set(argc list(LENGTH ${DIR_CONTENTS}))
+                foreach( CONTENT ${DIR_CONTENTS})
+                    # message(STATUS "now, will remove ${CONTENT}")
+                    message(STATUS "${CONTENT}")
+                    remove_dir(${CONTENT})
+                    remove_dir(${tFilePath})
+                endforeach()
+                
+            endif()
+        else()
+            message(STATUS "${FILE_NAME} is not a directory.")
+        endif()
+    else()
+        message(STATUS "${tFilePath} is not exists.")
+    endif()
+
+endfunction(remove_dir)
+
+# 파일 또는 디렉토리 경로 설정
+set(FILEPATH @CMAKE_INSTALL_PREFIX@)
+# 이유는 모르나, set이 동작하지 않는다.
+message(STATUS "if @CMAKE_INSTALL_PREFIX@ is empty then, will removes.")
+remove_dir(@CMAKE_INSTALL_PREFIX@)

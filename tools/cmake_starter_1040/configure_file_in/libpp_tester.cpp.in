@@ -1,0 +1,37 @@
+/***************************************************************************
+* Copyright 2024. Jungrai Jo <jungraijo@gmail.com> 
+* All Rights Reserved.
+*
+* ${PROJECT_NAME} 
+*
+***************************************************************************/
+#define BOOST_TEST_MODULE ${PROJECT_NAME} tester
+#include <boost/test/included/unit_test.hpp>
+#include "${PROJECT_NAME}_tester.hpp"
+
+#include "${PROJECT_NAME}.${HEADER_SUFFIX}"
+
+#include <sstream>
+
+namespace ut = boost::unit_test;
+
+BOOST_AUTO_TEST_CASE(${PROJECT_NAME}_tester_first, 
+    * ut::fixture<Stopwatch>(std::string("${PROJECT_NAME}_tester_first"))
+    * ut::fixture<Logger>(std::string("${PROJECT_NAME}_tester_first"))
+    ){
+
+    // 여기부터 실제 테스트할 코드를 작성한다.
+
+    std::cout << "${PROJECT_NAME} version is below." << std::endl;
+    ${PROJECT_NAME}::print_version();
+
+    std::stringstream version;
+    version << ${UPPER_CASE_PROJECT_NAME}_VERSION_MAJOR << "." ;
+    version << ${UPPER_CASE_PROJECT_NAME}_VERSION_MINOR << "." ;
+    version << ${UPPER_CASE_PROJECT_NAME}_VERSION_PATCH << "." ;
+    version << ${UPPER_CASE_PROJECT_NAME}_VERSION_TWEAK;
+
+    BOOST_TEST(${PROJECT_NAME}::version() == version.str());
+
+    // 여기까지 실제 테스트할 코드를 작성한다.
+}

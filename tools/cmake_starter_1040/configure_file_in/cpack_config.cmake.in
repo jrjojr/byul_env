@@ -1,0 +1,20 @@
+############################################################################
+# Copyright 2024. Jungrai Jo <jungraijo@gmail.com> 
+# All Rights Reserved.
+#
+# @PROJECT_NAME@
+#
+###########################################################################//
+
+# set the install/uninstall icon used for the installer itself
+
+set (CPACK_NSIS_MUI_ICON
+     "@CMAKE_BINARY_DIR@\\resources\\ico\\@PROJECT_NAME@.ico")
+set (CPACK_NSIS_MUI_UNIICON
+    "@CMAKE_BINARY_DIR@\\resources\\ico\\@PROJECT_NAME@.ico")
+
+set (CPACK_PACKAGE_ICON
+    "@CMAKE_BINARY_DIR@\\resources\\bmp\\@PROJECT_NAME@.bmp")
+
+set (CPACK_RESOURCE_FILE_LICENSE
+     "@CMAKE_BINARY_DIR@\\resources\\txt\\license.txt")

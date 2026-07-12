@@ -1,0 +1,41 @@
+/***************************************************************************
+* Copyright 2024. Jungrai Jo <jungraijo@gmail.com> 
+* All Rights Reserved.
+*
+* ${PROJECT_NAME} 
+*
+***************************************************************************/
+
+#define BOOST_TEST_MODULE ${PROJECT_NAME} tester
+#include <boost/test/included/unit_test.hpp>
+#include "${PROJECT_NAME}_tester.hpp"
+
+#include <iostream>
+
+#include "${PROJECT_NAME}.h"
+
+namespace ut = boost::unit_test;
+
+BOOST_AUTO_TEST_CASE(${PROJECT_NAME}_tester_first, 
+    * ut::fixture<Stopwatch>(std::string("${PROJECT_NAME}_tester_first"))
+    * ut::fixture<Logger>(std::string("${PROJECT_NAME}_tester_first"))
+){
+
+  // 여기부터 실제 테스트할 코드를 작성한다.      
+
+  // Possibly enable parser runtime debugging.
+  bool yydebug = !!getenv ("YYDEBUG");
+
+  // stdin을 사용한다.
+  // result res = parse();
+
+  std::string aQuestion("123 + 456");
+  result res = parse_string (aQuestion.c_str());
+  std::cout << aQuestion << " = " << res.value << std::endl;
+  std::cout << "res.verbose : " << res.verbose;
+  std::cout << ", res.value : " << res.value;
+  std::cout << ", res.nerrs : " << res.nerrs << std::endl;
+
+  // 여기까지 실제 테스트할 코드를 작성한다.
+  
+}

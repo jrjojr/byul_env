@@ -1,0 +1,38 @@
+/***************************************************************************
+* Copyright 2024. Jungrai Jo <jungraijo@gmail.com> 
+* All Rights Reserved.
+*
+* ${PROJECT_NAME} 
+*
+***************************************************************************/
+
+#include "${PROJECT_NAME}.hpp"
+
+#include <iostream>
+#include <string>
+#include <sstream>
+
+namespace ${PROJECT_NAME}
+{
+
+LIBAPI void print_version(){
+    std::cout << "${PROJECT_NAME} version : " <<
+        ${UPPER_CASE_PROJECT_NAME}_VERSION_MAJOR << "." <<
+        ${UPPER_CASE_PROJECT_NAME}_VERSION_MINOR << "." <<
+        ${UPPER_CASE_PROJECT_NAME}_VERSION_PATCH << "." <<
+        ${UPPER_CASE_PROJECT_NAME}_VERSION_TWEAK << std::endl;
+
+}
+
+LIBAPI std::string version(){
+    std::stringstream version;
+    version << ${UPPER_CASE_PROJECT_NAME}_VERSION_MAJOR << "." ;
+    version << ${UPPER_CASE_PROJECT_NAME}_VERSION_MINOR << "." ;
+    version << ${UPPER_CASE_PROJECT_NAME}_VERSION_PATCH << "." ;
+    version << ${UPPER_CASE_PROJECT_NAME}_VERSION_TWEAK;
+
+    return version.str();
+}
+
+} // namespace ${PROJECT_NAME}
+

@@ -1,0 +1,20 @@
+/***************************************************************************
+* Copyright 2024. Jungrai Jo <jungraijo@gmail.com> 
+* All Rights Reserved.
+*
+* ${PROJECT_NAME} 
+*
+***************************************************************************/
+
+#include "${PROJECT_NAME}/${PROJECT_NAME}_config.h"
+#include <iostream>
+
+int main(int argc, char* argv[]){
+    std::cout << "${PROJECT_NAME}" << " version : ";
+    std::cout << ${UPPER_CASE_PROJECT_NAME}_VERSION_MAJOR << ".";
+    std::cout << ${UPPER_CASE_PROJECT_NAME}_VERSION_MINOR << ".";
+    std::cout << ${UPPER_CASE_PROJECT_NAME}_VERSION_PATCH << ".";
+    std::cout << ${UPPER_CASE_PROJECT_NAME}_VERSION_TWEAK;
+    std::cout << " starts." << std::endl;
+    return 0;
+}

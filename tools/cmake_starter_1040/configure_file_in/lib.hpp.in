@@ -1,0 +1,22 @@
+/***************************************************************************
+* Copyright 2024. Jungrai Jo <jungraijo@gmail.com> 
+* All Rights Reserved.
+*
+* ${PROJECT_NAME} 
+*
+***************************************************************************/
+
+#ifndef ${UPPER_CASE_PROJECT_NAME}_H
+#define ${UPPER_CASE_PROJECT_NAME}_H
+
+#include "${PROJECT_NAME}/${PROJECT_NAME}_config.h"
+#include <string>
+
+namespace ${PROJECT_NAME}
+{
+    LIBAPI void print_version();
+    LIBAPI std::string version();
+
+} // namespace ${PROJECT_NAME}
+
+#endif // ${UPPER_CASE_PROJECT_NAME}_H

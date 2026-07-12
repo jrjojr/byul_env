@@ -1,0 +1,290 @@
+#+TITLE: BYUL 임베디드 공학 계산기 단위·수량 모듈 TODO
+#+TODO_PARENT: todo-math-engine.org
+#+AUTHOR: ByulPapa / Codex
+#+LANGUAGE: ko
+#+OPTIONS: toc:t num:nil
+
+* 목적
+
+이 문서는 =tools/unit_1003= 을 기준 원본으로 사용해 BYUL 임베디드 공학용 CAS
+그래프 계산기의 독립 =mathunits= 모듈을 구축하기 위한 계획서이다.
+
+=mathunits= 는 SI 차원, 단위, prefix, 변환, quantity와 version이 있는 공학·물리
+상수를 제공한다. 숫자와 exact scale 연산은 =numal= 을 사용하며 =numeq=, expression,
+GUI와 물리 시스템에는 의존하지 않는다.
+
+#+begin_src text
+numal
+  숫자, rational, decimal과 checked arithmetic
+       ^
+mathunits
+  dimension, unit, prefix, quantity, registry와 constants
+       ^
+expression / CAS / graph calculator / simulation adapters
+#+end_src
+
+* 기준 원본
+
+=tools/unit_1003= 의 다음 자산을 기준으로 삼는다.
+
+- SI 기본·유도 단위와 quantity 분류
+- quetta부터 quecto까지의 SI prefix
+- SI와 함께 사용하는 비SI 단위
+- dimension 곱셈·나눗셈 개념
+- =DecReal + Units= quantity 모델
+- 단위 symbol과 이름 자료
+- Boost.Test 기반 기존 사례
+- prefix snap 정책과 engineering notation 후보
+
+기준 원본은 요구사항, 데이터와 회귀 사례로 보존한다. 기존 source를 새 public ABI로
+그대로 편입하지 않는다.
+
+* 책임 경계
+
+** 포함
+
+- SI 7개 기본 차원과 선택적 angle semantic dimension
+- signed 정수 및 제한된 유리수 차원 지수
+- SI 기본·유도 단위
+- SI prefix와 engineering notation
+- SI와 함께 사용하는 비SI 단위
+- scale·offset·conversion kind를 가진 단위 변환
+- 숫자 값과 단위를 결합한 quantity
+- 단위 registry, symbol, canonical name과 alias
+- 공학·물리 상수의 값, 단위, 불확도, 출처와 data version
+- locale 비의존 parse/format을 위한 단위 token 정보
+- 플랫폼 독립 직렬화와 임베디드 축소 table
+
+** 제외
+
+- 일반 숫자, decimal과 arbitrary precision 구현
+- 수치 미분, 적분, ODE와 최적화
+- expression grammar와 CAS rewrite
+- GUI 수식 편집기와 graph renderer
+- 물리 법칙, 재료 물성 정책과 게임 규칙
+- 법정 계량, 의료, 안전 또는 금융 인증
+
+* 현재 =unit_1003= 진단
+
+** 유지할 개념
+
+- 차원 벡터로 유도 단위를 표현하는 방식
+- 단위가 같은 quantity만 더하고 빼는 원칙
+- 곱셈과 나눗셈에서 차원 지수를 합성하는 원칙
+- prefix 이름·symbol과 engineering scale 자료
+- SI와 비SI 단위를 분리한 자료 구성
+
+** 재설계가 필요한 부분
+
+- =Unit= 은 bit-field와 union을 사용하므로 compiler별 layout과 signed 표현에 의존한다.
+- 기본 =Unit= 은 length, mass, time과 angle만 포함하고 =SiUnit= 이 나머지 차원을
+  별도 구조로 확장한다.
+- =SiUnit= 의 electric current, temperature, amount와 luminous intensity 지수가
+  unsigned bit-field라 음의 지수를 안전하게 표현하지 못한다.
+- 지수 범위가 =-7..7= 로 고정되어 있고 정수 외 지수 정책이 없다.
+- =pow_quantity= 가 숫자만 거듭제곱하고 단위 차원에는 지수를 적용하지 않는다.
+- 값 반환형 =quantity_sub= 가 내부적으로 덧셈 함수를 호출하는 경로가 있다.
+- 연산 도중 overflow가 발생할 때 입력 값이 부분 변경되지 않는다는 보장이 부족하다.
+- prefix와 일반 scale, affine offset과 logarithmic unit가 하나의 변환 모델로 분리되지
+  않았다.
+- =DecReal= 은 9자리 중심의 독자 표현이므로 BYUL precision context와 직접 호환되지
+  않는다.
+- public 함수의 buffer 크기 계약과 오류 enum이 BYUL ABI 규칙과 다르다.
+- build가 외부 =~/apps/cmake_starter= 와 생성 config header에 의존한다.
+- source의 =All Rights Reserved= 표기와 BYUL로의 코드·데이터 이전 권한을 확인해야
+  한다.
+
+* 1단계: inventory와 권리 확인
+
+- source, header, test, ODS와 deprecated 자료 목록 작성
+- 단위, symbol, alias, scale과 상수값을 machine-readable inventory로 추출
+- 기존 테스트를 정상 기준, 설계 한계와 알려진 bug 회귀로 구분
+- 저작권자가 BYUL에서 사용할 권한을 보유하는지 확인
+- 직접 이전할 파일과 개념만 참고해 재작성할 파일 구분
+- 원본 자료의 SI 판본, 상수 출처와 갱신 시점 기록
+
+코드 이전 권리가 불명확하면 구현을 복사하지 않고 공개 표준에 근거해 clean-room
+형태로 새로 작성한다.
+
+* 2단계: 차원 모델
+
+권장 public 표현은 compiler bit-field가 아닌 명시적 fixed-width signed 배열이다.
+
+#+begin_src c
+typedef struct math_dimension_t {
+    int8_t exponent[8];
+} math_dimension_t;
+#+end_src
+
+기본 순서는 ABI version과 함께 고정한다.
+
+#+begin_src text
+length, mass, time, electric current,
+temperature, amount of substance, luminous intensity, angle
+#+end_src
+
+- multiply는 exponent별 checked addition
+- divide는 exponent별 checked subtraction
+- integer power는 exponent별 checked multiplication
+- root와 rational power는 모든 결과 지수가 표현 가능한지 먼저 검사
+- 실패 시 출력과 입력을 변경하지 않는 strong failure guarantee
+- dimensionless와 angle semantic mode 구분
+- equality, hash와 endian 독립 직렬화
+
+SI strict mode에서는 angle을 dimensionless로 정규화할 수 있고 calculator-safe mode에서는
+삼각함수 입력 검사를 위해 angle semantic dimension을 유지할 수 있다.
+
+* 3단계: 단위 정의와 변환
+
+단위 정의는 차원과 표시 이름만이 아니라 canonical value로의 변환을 소유한다.
+
+#+begin_src text
+math_unit_desc_t
+  id
+  dimension
+  conversion kind
+  exact scale
+  exact 또는 approximate offset
+  canonical name
+  symbol
+  aliases
+  flags와 source version
+#+end_src
+
+변환 종류:
+
+- linear: =canonical = value * scale=
+- affine: =canonical = value * scale + offset=
+- logarithmic: neper, bel과 decibel을 위한 별도 계약
+- contextual: 달력 month처럼 고정 scale이 아닌 단위는 1차 범위에서 제외
+
+절대온도와 온도차를 구분하고 =degC=, =delta_degC= 같은 별도 unit id를 사용한다.
+
+단위 scale, affine offset, quantity 값과 공학 상수는 =numal= decimal API를 사용할 수
+있다. full profile의 arbitrary decimal은 mpdecimal backend 후보이고, =mathunits= 가
+=mpd_t= 또는 =mpd_context_t= 를 직접 include하지 않는다.
+
+- exact decimal 문자열을 binary float로 먼저 변환하지 않음
+- exact rational scale은 rational로 유지하고 필요할 때 decimal context로 평가
+- approximate 상수는 precision과 불확도를 함께 보존
+- unit conversion의 rounded/inexact 상태를 호출자에게 전달
+- fixed decimal, arbitrary decimal과 f64 변환을 명시적으로 구분
+
+* 4단계: prefix와 engineering notation
+
+- =10^-30..10^30= SI prefix table
+- prefix가 허용되는 단위와 금지되는 단위 metadata
+- kilogram처럼 prefix 기준이 특수한 SI 단위 처리
+- compound unit에서 prefix를 숫자 scale로 canonicalize
+- engineering notation에서 지수를 3의 배수로 선택
+- 사용자가 지정한 display unit과 자동 prefix 선택 분리
+- parser에서 =m= 이 metre인지 milli prefix인지 문맥으로 진단
+
+기존 prefix snap 정책은 표시 후보로 검증하되 수학적 단위 변환 정책과 분리한다.
+
+* 5단계: quantity
+
+=math_quantity_t= 는 BYUL =math_value_t= 와 unit id 또는 immutable unit handle을 결합한다.
+
+- add/subtract는 dimension 호환성을 검사한 뒤 공통 canonical unit에서 계산
+- multiply/divide는 값과 차원을 각각 합성
+- integer/rational power는 값과 차원을 함께 변환
+- compare는 호환 차원에서만 허용
+- exact 값은 가능한 한 exact scale 변환 유지
+- approximate 변환은 precision context와 inexact 상태 보고
+- affine quantity의 곱셈·나눗셈 제한
+- 원본 display unit 보존과 canonical storage 분리
+- create/destroy 또는 caller-provided storage의 명시적 ownership
+
+* 6단계: registry와 parser 지원
+
+- stable numeric unit id와 immutable built-in table
+- canonical name, symbol, ASCII alias와 Unicode alias
+- longest-match tokenization과 대소문자 구분
+- =m/s^2=, =kg*m/s^2= 와 괄호 단위식
+- 사용자 단위 등록 여부와 embedded read-only registry profile
+- 이름 충돌, ambiguous prefix와 source 위치 오류
+- parser가 아닌 registry가 이름과 unit id mapping 소유
+
+expression은 단위 token을 읽고 =mathunits= API를 호출하지만 =mathunits= 는 expression
+AST를 include하지 않는다.
+
+* 7단계: 공학·물리 상수
+
+- constant id, name, symbol, aliases와 설명
+- exact 또는 approximate 값
+- unit와 dimension
+- 표준 불확도와 exact 여부
+- 출처 기관, 문서와 data version
+- 상수 set version을 worksheet에 저장
+- 상수 갱신 시 이전 worksheet의 재현 모드
+
+상수와 재료 물성값을 구분한다. 보편 상수는 =mathunits/constants= 에 둘 수 있지만
+온도·압력에 따라 변하는 재료 물성은 별도 domain database의 책임이다.
+
+* 8단계: 임베디드 profile
+
+#+begin_src text
+full
+  전체 registry, Unicode alias, mpdecimal arbitrary scale와 constants metadata
+
+compact
+  공학 계산에 필요한 SI·비SI subset, f64/decimal scale와 read-only registry
+
+minimal
+  기본 SI 단위, 정적 table, ASCII symbol과 allocation 없는 conversion
+#+end_src
+
+- generated read-only unit table 후보
+- 사용하지 않는 단위와 문자열이 firmware에 link되지 않는 선택 기능
+- heap 없는 lookup과 caller-provided format buffer
+- table flash 크기, lookup latency와 stack 상한 측정
+- feature manifest로 단위 set과 data version 조회
+
+* 9단계: 기존 원본 마이그레이션
+
+1. =unit_1003= inventory와 기존 test 결과 고정
+2. 새 dimension conformance test 작성
+3. SI 기본·유도 단위를 새 table로 변환
+4. prefix와 비SI 단위 변환값 이식
+5. quantity 정상 사례를 새 API로 재작성
+6. 기존 subtraction, signed exponent와 power 문제의 회귀 test 추가
+7. expression unit literal과 conversion 연결
+8. desktop full profile 비교 검증
+9. compact/minimal table 생성과 자원 측정
+10. 기존 원본을 reference archive로 유지할지 제거할지 별도 결정
+
+* 테스트 기준
+
+- SI 7차원과 angle mode의 dimension equality
+- 음의 지수, overflow와 실패 시 원본 보존
+- derived unit와 base unit의 동등성
+- prefix와 exact scale round-trip
+- Celsius, Fahrenheit와 temperature difference
+- incompatible quantity add/subtract 거부
+- quantity multiply/divide/power의 값과 차원 동시 검증
+- mpdecimal precision/rounding별 unit conversion과 상수 문자열 round-trip
+- ambiguous symbol과 malformed unit expression
+- 상수값, 불확도와 data version
+- Windows, Linux와 macOS의 동일 직렬화
+- full, compact와 minimal profile별 conformance corpus
+- 고정 buffer 부족과 allocation 실패
+
+* 완료 기준
+
+- 독립 =mathunits= target이 존재하고 =numal= 에만 의존한다.
+- =unit_1003= 의 유효한 단위·prefix 자료와 테스트 사례가 추적 가능한 방식으로
+  마이그레이션된다.
+- public 차원 표현이 compiler bit-field layout에 의존하지 않는다.
+- 모든 기본 차원에서 음의 지수와 checked 연산을 지원한다.
+- linear, affine와 logarithmic 변환을 구분한다.
+- quantity 연산이 값과 차원을 함께 갱신하고 실패 시 원본을 보존한다.
+- 공학·물리 상수의 출처와 data version을 재현할 수 있다.
+- embedded profile별 기능, flash, RAM과 buffer 계약이 문서화된다.
+- expression, calculator와 simulation이 동일 public C API를 사용한다.
+
+* 진행 조건
+
+첫 구현은 기존 파일 복사가 아니라 inventory, 권리 확인, 오류 회귀 test와 새
+=math_dimension_t= 계약 작성이다. public header를 생성하거나 수정할 때는 BYUL header
+선언·comment·license 규칙을 먼저 읽고 따른다.

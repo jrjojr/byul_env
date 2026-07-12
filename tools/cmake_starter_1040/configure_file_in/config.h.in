@@ -1,0 +1,59 @@
+/***************************************************************************
+* Copyright 2024. Jungrai Jo <jungraijo@gmail.com> 
+* All Rights Reserved.
+*
+* ${PROJECT_NAME} 
+*
+***************************************************************************/
+
+#pragma once
+
+#ifndef ${UPPER_CASE_PROJECT_NAME}_CONFIG_H
+#define ${UPPER_CASE_PROJECT_NAME}_CONFIG_H
+
+// the configured options and settings for ${PROJECT_NAME}
+#define ${UPPER_CASE_PROJECT_NAME}_VERSION_MAJOR ${${PROJECT_NAME}_VERSION_MAJOR}
+
+#define ${UPPER_CASE_PROJECT_NAME}_VERSION_MINOR ${${PROJECT_NAME}_VERSION_MINOR}
+
+#define ${UPPER_CASE_PROJECT_NAME}_VERSION_PATCH ${${PROJECT_NAME}_VERSION_PATCH}
+
+#define ${UPPER_CASE_PROJECT_NAME}_VERSION_TWEAK ${${PROJECT_NAME}_VERSION_TWEAK}
+
+// #if defined(WIN64) || defined(_WIN64) || 
+//    defined(__WIN64__) || defined(__CYGWIN__)
+#if defined(IS_DLL)
+    #  define DLL_DECL_EXPORT __declspec(dllexport)
+    #  define DLL_DECL_IMPORT __declspec(dllimport)
+#else
+    #  define DLL_DECL_EXPORT
+    #  define DLL_DECL_IMPORT    
+#endif
+
+#ifdef DLL_EXPORT
+#  define LIBAPI  DLL_DECL_EXPORT
+#else
+#  define LIBAPI  DLL_DECL_IMPORT
+#endif
+
+#include <stdio.h>
+
+// debug시에만 문자열 출력하기
+#ifndef DEBUG_PRINT
+    #ifdef DEBUG
+        #define DEBUG_PRINT(fmt, ...) do { \
+                fprintf(stdout, fmt, __VA_ARGS__); \
+            } while (0)
+    #else
+        #define DEBUG_PRINT(fmt, ...) do { } while (0)
+    #endif // DEBUG
+#endif // DEBUG_PRINT
+
+// #ifndef DEFINE_BYTE
+// #define DEFINE_BYTE
+// typedef char byte;
+// #endif // DEFINE_BYTE
+#define SUCCESS     0
+#define FAIL        -1
+
+#endif //${UPPER_CASE_PROJECT_NAME}_CONFIG_H

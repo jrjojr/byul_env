@@ -1,0 +1,288 @@
+%code requires{
+/***************************************************************************
+*
+* Copyright 2024. Jungrai Jo <jungraijo@gmail.com> 
+* All Rights Reserved.
+*
+* ${PROJECT_NAME} 
+*
+* 이 파일로 헤더 파일 : ${aBisonHFilename}, 소스파일 : ${aBisonCFilename} 생성한다.
+* 헤더 파일과 소스 파일을 수정하고 싶으면, ${PROJECT_NAME}.y 파일을 수정한 뒤에
+* 아래 라인을 실행해서 헤더 파일과 소스 파일을 다시 생성하는 것이 정상적인 방법이다.
+*       ${aBisonPath} ${BISON_ARGS}
+*
+* 그냥 헤더 파일과 소스 파일을 수정해도 되지만, 정상적인 방법이 아니다.
+* 이 코드 블럭은 헤더 파일과 소스파일 두 개의 파일에서 
+* 공통적으로 파일의 가장 윗 부분에 적용되는 블럭이다.
+*
+* 헤더 파일에 정의된다. YYSTYPE이 정의되기 전에...
+*
+***************************************************************************/
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+#ifndef YY_TYPEDEF_YY_SCANNER_T
+# define YY_TYPEDEF_YY_SCANNER_T
+typedef void* yyscan_t;
+#endif
+
+#include "${PROJECT_NAME}/${PROJECT_NAME}_config.h"
+
+  typedef struct
+  {
+    // Whether to print the intermediate results.
+    int verbose;
+    // Value of the last computation.
+    int value;
+    // Number of errors.
+    int nerrs;
+  } result;
+
+  LIBAPI result parse_string (const char* cp);
+  LIBAPI result parse (void);
+
+#ifdef __cplusplus
+}
+#endif
+
+}
+
+%code provides{
+// 헤더 파일에 정의된다. YYSTYPE이 정의되고 난 후에.,..
+
+  // Tell Flex the expected prototype of yylex.
+  // The scanner argument must be named yyscanner.
+#define YY_DECL                                                         \
+  yytoken_kind_t yylex (YYSTYPE* yylval, yyscan_t yyscanner, result *res)
+  YY_DECL;
+
+  void yyerror (yyscan_t scanner, result *res, const char *msg, ...);
+
+}
+
+%code top {
+/***************************************************************************
+*
+* Copyright 2024. Jungrai Jo <jungraijo@gmail.com> 
+* All Rights Reserved.
+*
+* 이 파일은 ${PROJECT_NAME}.y 파일 생성본이다. configure_file()을 사용해서 생성했다.
+* ${PROJECT_NAME} 
+*
+* 이 파일로 헤더 파일 : ${aBisonHFilename}, 소스파일 : ${aBisonCFilename} 생성한다.
+* 헤더 파일과 소스 파일을 수정하고 싶으면, ${PROJECT_NAME}.y 파일을 수정한 뒤에
+* 아래 라인을 실행해서 헤더 파일과 소스 파일을 다시 생성하는 것이 정상적인 방법이다.
+*       ${aBisonPath} ${BISON_ARGS}
+*
+* 그냥 헤더 파일과 소스 파일을 수정해도 되지만, 정상적인 방법이 아니다.
+* 이 코드 블럭은 헤더 파일과 소스파일 두 개의 파일에서 
+* 공통적으로 파일의 가장 윗 부분에 적용되는 블럭이다.
+*
+* 정의된다. 소스파일의 윗부분에...
+***************************************************************************/
+
+#include <stdarg.h> // va_list.
+#include <stdio.h>  // printf.
+#include <stdlib.h> // getenv.
+
+}
+
+%{
+/***************************************************************************
+*
+* Prologue
+* 프롤로그 
+* 정의된다. 토큰들이 정의 되기 전에... 소스파일 윗 부분에...
+*
+***************************************************************************/     
+
+%}
+
+/* Bison declarations */
+
+%code {
+/***************************************************************************
+*
+* 프롤로그와 같이 소스파일에 추가된다..
+* 차이는 토큰들이 정의되고나서 추가된다.
+* Bison declarations을 정의하고 상호작용하는 함수나 매크로를 정의를 하면 된다.
+* 정의된다. 토큰들이 정의 되고 난 후에... 소스파일 중간 부분에...
+* Bison 토큰 들과 상호 작용하는 코드를 정의한다.
+* 
+***************************************************************************/
+
+// 아래 코멘트처럼 Bison declarations을 사용할 수 있다.
+// static void print_token (yytoken_kind_t token);
+
+
+
+}
+
+/* Bison declarations */
+
+// %token <float> tok_val
+
+// char*에 값을 넣으려면 malloc으로 할당해야 한다.
+// free()는 항상 malloc뒤에 있어야 한다.
+// %token <char*> STR "string"
+// %destructor { free ($$); } <char*>
+
+// Generate YYSTYPE from the types assigned to symbols.
+%define api.value.type union
+
+%token
+  PLUS   "+"
+  MINUS  "-"
+  STAR   "*"
+  SLASH  "/"
+  EOL    "end-of-line"
+  EOF 0  "end-of-file"
+;
+
+%token <int> NUM "number"
+%type <int> exp
+%printer { fprintf (yyo, "%d", $$); } <int>
+
+%token <char*> STR "string"
+%printer { fprintf (yyo, "\"%s\"", $$); } <char*>
+%destructor { free ($$); } <char*>
+
+// Precedence (from lowest to highest) and associativity.
+%left "+" "-"
+%left "*" "/"
+%precedence UNARY
+
+// Include the header in the implementation rather than duplicating it.
+%define api.header.include {"${PROJECT_NAME}.h"}
+
+// Don't share global variables between the scanner and the parser.
+%define api.pure full
+
+// To avoid name clashes (e.g., with C's EOF) prefix token definitions
+// with TOK_ (e.g., TOK_EOF).
+%define api.token.prefix {TOK_}
+
+// Error messages with "unexpected XXX, expected XXX...".
+%define parse.error detailed
+
+// Enable run-time traces (yydebug).
+%define parse.trace
+
+// Generate the parser description file (parse.output).
+%verbose
+
+// Scanner and error count are exchanged between main, yyparse and yylex.
+%param {yyscan_t scanner}{result *res}
+
+%{
+/***************************************************************************
+*
+* 두번 째 프롤로그
+* 소스파일 윗 부분에 추가된다.
+* 프롤로그의 위치는 상관없다.
+* 프롤로그 들끼리 순서대로 위에서부터 차례대로 추가된다.
+* 토큰들이 정의 되기 전에 소스파일 윗 부분에 추가된다.
+*
+***************************************************************************/     
+
+%}
+
+%%
+
+/* Grammar rules */
+
+// Rules.
+input:
+  line
+| input line
+;
+
+line:
+  exp eol
+    {
+      res->value = $exp;
+      if (res->verbose)
+        printf ("%d\n", $exp);
+    }
+| error eol
+    {
+      yyerrok;
+    }
+;
+
+eol:
+  EOF
+| EOL
+;
+
+exp:
+  NUM           { $$ = $1; }
+| exp "+" exp   { $$ = $1 + $3; }
+| exp "-" exp   { $$ = $1 - $3; }
+| exp "*" exp   { $$ = $1 * $3; }
+| exp "/" exp
+  {
+    if ($3 == 0)
+      {
+        yyerror (scanner, res, "invalid division by zero");
+        YYERROR;
+      }
+    else
+      $$ = $1 / $3;
+  }
+| "+" exp %prec UNARY  { $$ = + $2; }
+| "-" exp %prec UNARY  { $$ = - $2; }
+| STR
+  {
+    result r = parse_string ($1);
+    free ($1);
+    if (r.nerrs)
+      {
+        res->nerrs += r.nerrs;
+        YYERROR;
+      }
+    else
+      $$ = r.value;
+  }
+;
+
+%%
+// Epilogue (C code).
+#include "${PROJECT_NAME}_lexer.h"
+
+LIBAPI result parse (void)
+{
+  yyscan_t scanner;
+  yylex_init (&scanner);
+  result res = {1, 0, 0};
+  yyparse (scanner, &res);
+  yylex_destroy (scanner);
+  return res;
+}
+
+LIBAPI result parse_string (const char *str)
+{
+  yyscan_t scanner;
+  yylex_init (&scanner);
+  YY_BUFFER_STATE buf = yy_scan_string (str ? str : "", scanner);
+  result res = {0, 0, 0};
+  yyparse (scanner, &res);
+  yy_delete_buffer (buf, scanner);
+  yylex_destroy (scanner);
+  return res;
+}
+
+void
+yyerror (yyscan_t scanner, result *res,
+         const char *msg, ...)
+{
+  (void) scanner;
+  va_list args;
+  va_start (args, msg);
+  vfprintf (stderr, msg, args);
+  va_end (args);
+  fputc ('\n', stderr);
+  res->nerrs += 1;
+}

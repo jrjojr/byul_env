@@ -1,0 +1,137 @@
+%top{
+/***************************************************************************
+*
+* Copyright 2024. Jungrai Jo <jungraijo@gmail.com> 
+* All Rights Reserved.
+*
+* ${PROJECT_NAME} 
+*
+* 이 파일로 헤더 파일 : ${aFlexHFilename}, 소스파일 : ${aFlexCFilename} 생성한다.
+* 헤더 파일과 소스 파일을 수정하고 싶으면, ${PROJECT_NAME}.l 파일을 수정한 뒤에
+* 아래 라인을 실행해서 헤더 파일과 소스 파일을 다시 생성하는 것이 정상적인 방법이다.
+*   ${aFlexPath} ${FLEX_ARGS}
+*
+* 그냥 헤더 파일과 소스 파일을 수정해도 되지만, 정상적인 방법이 아니다.
+* 이 코드 블럭은 헤더 파일과 소스파일 두 개의 파일에서 
+* 공통적으로 파일의 가장 윗 부분에 적용되는 블럭이다.
+*
+***************************************************************************/   
+
+// windows에서 unistd.h를 지원하지 않아서 
+// 사용하진 않는 다는 것을 확인하는 정의이다.
+// 헤더 파일에서 %option nounistd를 인식하지 못한다.
+// 헤더 파일을 사용해서 링크할 때에는 정의해야 한다.
+#ifndef YY_NO_UNISTD_H
+   #define YY_NO_UNISTD_H
+#endif
+
+#include "${PROJECT_NAME}/${PROJECT_NAME}_config.h"
+
+}
+
+%option nounistd
+%option noyywrap
+%option nodefault
+
+%option 8bit
+%option reentrant
+
+%{
+/***************************************************************************
+* Copyright 2024. Jungrai Jo <jungraijo@gmail.com> 
+* All Rights Reserved.
+*
+* 이 파일은 바이슨용 ${aFlexCFilename} 파일 생성본이다. 
+* configure_file()을 사용해서 ${PROJECT_NAME}.l 파일을 생성한 뒤에
+* 아래 라인을 실행해서 생성한 파일이다.
+*   ${aFlexPath} ${FLEX_ARGS}
+*
+* ${PROJECT_NAME} 
+*
+* 이 코드 블럭은 소스파일의 중간 부분에서 
+* 각종 bison용 flex 정의들이 적용되고 난 후에 위치한다.
+*
+***************************************************************************/     
+
+#include "${PROJECT_NAME}.h"
+
+#include <assert.h>
+#include <limits.h> // INT_MIN 
+#include <stdlib.h> // strtol
+
+%}
+
+%x SC_STRING
+
+%%
+%{
+  // Number of opened parentheses.
+  int nesting = 0;
+  // A buffer storing the text inside the outer parentheses.
+  char *str = NULL;
+  // Its allocated size.
+  int capacity = 0;
+  // Its used size.
+  int size = 0;
+#define STR_APPEND()                                    \
+  do {                                                  \
+    if (capacity < size + yyleng + 1)                   \
+      {                                                 \
+        do                                              \
+          capacity = capacity ? 2 * capacity : 128;     \
+        while (capacity < size + yyleng + 1);           \
+        str = realloc (str, (size_t) capacity);         \
+      }                                                 \
+    memcpy (str + size, yytext, (size_t) yyleng);       \
+    size += yyleng;                                     \
+    assert (size < capacity);                           \
+  } while (0)
+%}
+
+ // Rules.
+
+"+"      return TOK_PLUS;
+"-"      return TOK_MINUS;
+"*"      return TOK_STAR;
+"/"      return TOK_SLASH;
+
+"("      nesting += 1; BEGIN SC_STRING;
+
+ /* Scan an integer.  */
+[0-9]+   {
+  errno = 0;
+  long n = strtol (yytext, NULL, 10);
+  if (! (INT_MIN <= n && n <= INT_MAX && errno != ERANGE))
+    yyerror (yyscanner, res, "integer is out of range");
+  yylval->TOK_NUM = (int) n;
+  return TOK_NUM;
+}
+
+ /* Ignore white spaces. */
+[ \t]+   continue;
+
+"\n"     return TOK_EOL;
+
+.        yyerror (yyscanner, res, "syntax error, invalid character: %c", yytext[0]);
+
+<SC_STRING>
+{
+  "("+   nesting += yyleng; STR_APPEND ();
+  ")"    {
+    if (!--nesting)
+      {
+        BEGIN INITIAL;
+        if (str)
+          str[size] = 0;
+        yylval->TOK_STR = str;
+        return TOK_STR;
+      }
+    else
+      STR_APPEND ();
+  }
+  [^()]+  STR_APPEND ();
+}
+
+<<EOF>>  return TOK_EOF;
+%%
+/* Epilogue (C code). */

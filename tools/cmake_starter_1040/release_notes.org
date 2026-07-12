@@ -1,0 +1,665 @@
+#############################################################################
+# Copyright 2024. Jungrai Jo <jungraijo@gmail.com> 
+# All Rights Reserved.
+# 
+# cmake_starter release notes
+# 
+#############################################################################
+
+* 1.0.0.0
+    - 최초 발행
+
+* 1.0.0.1
+    - ${PROJECT_NAME}Config.h의 위치를 
+        inlcude/${PROJECT_NAME}Config.h에서
+        include/${PROJECT_NAME}/${PROJECT_NAME}Config.h로 옮겼다.
+        컴파일시에만 필요한 헤더라서, 내부로 숨겼다.
+    
+    - 실행 파일 컴파일에서 스태틱 라이브러리 컴파일로 바꿨다.
+        가장 자주 사용하게 될 컴파일로 변경한 것이다.
+        스태틱이 모여서 dll이 되고, dll이 모여서 exe가 된다.
+
+* 1.0.0.2
+    - 2024-05-11 08:29:02 개정
+    - addSrcs(list) 추가
+        - 소스 배열을 추가하기 위해 개정.
+    - addHeaders(list) 추가
+        - 헤더 배열을 추가하기 위해 개정.
+    - printSrcs() 추가
+        - 소스 배열을 출력해서 확인하기 위해 개정.
+    - printHeaders() 추가
+        - 헤더 배열을 출력해서 확인하기 위해 개정.
+
+* 1.0.0.3
+    - 2024-05-12 14:49:24 개정
+    - cmake_modules/starter.cmake 개정.
+        + addSrcDir를 addIncDir로 이름 변경.
+            - 본래 취지는 include 디렉토리를 추가하는 것이다.
+            - 본래 목적에 맞게 이름 변경한 것이다.
+        + getSubIncDirs(tDir tRetSubIncDirs)를 추가하기
+            - 루트 프로젝트에서 손자 서브의 include dirs를 인식 못한다.
+            - 손자 서브의 includeh가 제대로 동작할 수 있게 추가했다.
+            - 실제로 사용할 일은 없다. addSub함수 내부에서 작동할 것이다.
+        + endProject() macro
+            - 내부에서 사용하는 리스트에서 중첩된 값들을 제거하는 동작을 추가했다.
+
+    - CMakeLists.txt
+        + endProject() 선언 뒤에 각종 출력용 함수들을 입력한다.
+        + 출력시에 생길 수 있는 오류 제거용으로 개정했다.
+
+* 1.0.0.4
+    - 2024-05-12 18:31:40
+    - cmake_modules/starter.cmake 개정.
+        + addSub() 함수내부에 lib dirs 추가했다.
+            - 빌드 후에 sub/sub.lib를 못찾아서, 개선했다.
+        + endProject() macro
+            -   # 라이브러리의 출력 디렉토리 설정
+                set_target_properties(${PROJECT_NAME} PROPERTIES
+                    LIBRARY_OUTPUT_DIRECTORY 
+                        "${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_INSTALL_LIBDIR}"
+                    RUNTIME_OUTPUT_DIRECTORY 
+                        "${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_INSTALL_BINDIR}"
+                    ARCHIVE_OUTPUT_DIRECTORY 
+                        "${CMAKE_CURRENT_BINARY_DIR}/
+                            ${CMAKE_INSTALL_LIBDIR}/${PROJECT_NAME}"
+                )
+
+                    + ${CMAKE_BINARY_DIR} 에서 ${CMAKE_CURRENT_BINARY_DIR}로 변경
+                        - 서브 디렉토리의 규칙을 통일하기 위해 변경했다.
+    
+* 1.0.0.5
+    - 2024-05-14 17:23:13
+    - cmake_modules/starter.cmake 개정
+        + addLib() 함수 추가.
+            - tester 프로젝트를 내부에 추가했다.
+            - tester에서 루트 프로젝트의 결과물 라이브러리를 링크하기위해 추가했다.
+        
+        + addSub() 내부에서 서브가 실행파일일 때 링크 제외하기 위한 로직을 추가했다.
+        + 만약, 실행파일이면, 서브 라이브러리 디렉토리와 라이브러리를 링크하지 않는다.
+        + startProject내부에서 루트 inc 디렉토리를 추가했다.
+        + 서브 프로젝트 작업을 한 결과, starter.cmake는 루트에 하나만 있으면 된다.
+        
+    - tester 폴더 추가
+        + 단위 테스트를 위해 라이브러리와 라이브러리 테스트용 실행파일 컴파일
+    
+    - CMakeLists.txt
+        + addSub()함수의 위치를 endProject()뒤에 마지막으로 옮겼다.
+
+* 1.0.0.6
+    - 2024-05-14 21:49:14
+    - tester 관련 내용은 전부 지웠다.
+    - tester 실행파일 프로젝트가 라이브러리 프로젝트의 내부에 있으면 안되겠다.
+    - configure_file에 사용하는 .in 파일을 전부 cmake_modules로 옮겼다.
+    - 내부 함수는 안보이는게 깔끔하다.
+
+* 1.0.0.7
+    - 2024-05-15 00:02:06
+    - cmake_modules/starter.cmake 개정
+        + macro(addExternalLib libPath lib) 추가했다.
+            - 외부 라이브러리리를 추가하기 위해...
+
+    - CMakeLists.txt
+        + addExternalLib()함수의 위치를 endProject()전으로 옮겼다.
+            - addSub()도 마찬가지로 endProject() 전으로 옮겨야 겠다.
+
+* 1.0.0.8
+    - 2024-05-15 08:58:57
+    - tester를 프로젝트에 포함시켰다.
+        + lib와 inc를 tester 프로젝트에 추가하고, 
+        + add_subdirectory(tester)를 프로젝트에 추가했다. 
+
+    -cmake_modules 디렉토리에서 자동으로 tester 프로젝트를 생성한다.
+
+    - cmake_modules/starter.cmake 개정
+        + configure_file()을 테스터용으로 추가했다.
+        + startTester()와 endTester()를 추가했다.
+
+* 1.0.0.9
+    - 2024-05-15 11:54:00
+    - cmake_modules/starter.cmake 개정    
+        - startTester()와 endTester() 개정.
+            +tester 프로젝트에서 부모 프로젝트의 헤더파일을 못찾음.
+
+    - CMakeLists.txt
+        + addSub()의 위치를 endProject() 이전으로 옮김.
+            - 위치에 따라서 내부 변수들에 저장되는 값들이 달라짐
+        
+        + add_subdirectory()는 endProject 이후에 호출.
+            - 확인된건 아니지만, endProject()이후에 있어야 오류 발생 적어짐.
+
+* 1.0.1.0
+    - 2024-05-15 13:39:38
+    - cmake_modules/starter.cmake 개정    
+        + tester프로젝트에 이미 파일이 있으면, configure_file()로 복사 방지 추가.
+        + license.txt가 이미 있으면, 복사 방지 추가.
+        + 코드에 내용을 적어도 configure_file때문에 내용 다 날라감.
+        + startTester()와 startProject() 개선
+            - tester에서 부모의 lib를 인식 못함.
+        + printLibs() 추가
+        + function(getSubLibsByProjectName tProjectName tRetSubLibs) 추가
+        + function(getSubLibs tDir tRetSubLibs) 추가
+            - 있어야 되는 데  없어서...
+    - starter.cmake는 루트에 있는 것만 동작한다.
+        + 서브 디렉토리의 starter.cmake는 변경해도 결과가 안 변하더라...
+    - cmake_modules/tester.cpp.in 개정    
+        + 프로젝트 이름과 연동되도록 변경함.
+            - BOOST_TEST_AUTO_CASE(...${PROJECT_NAME}...)
+
+* 1.0.1.1
+    - 2024-05-16 10:33:23
+    - 프로젝트가 units에서 spirit로 바꾸면서 약간의 조정을 했다.
+    - CMakeListe.txt 좀 더 깔끔하게...
+    - 프로젝트 이름.h .cpp를 내부 함수에서 생성한다. 라이브러리가 기본값이다.
+    - configure_file에서 사용하는 
+    - in 파일들을 cmake_modules/configure_file_in으로 이동
+        + 좀 더 정리된 모습을 보기 위해...
+
+* DONE : 테스터가 실행될 때, 부모 라이브러리가 없다고 링크 오류 발생
+    - 2024-05-16 11:39:37
+    - CMakeLists.txt의 내용을 바꾸고 다시 컨피그하고,
+    - 빌드하면, 테스터가 정상적으로 실행됨
+    - 처음 빌드할때 테스터가 먼저 빌드되고, 
+    - 부모 라이브러리가 나중에 빌드되서 링크가 안되는거 같다.
+        + 부모가 빌드되고 나중에 테스터가 빌드되도록 변경해야한다.
+    - 빌드 순서는 최하위 서브 프로젝트가 제일 먼저이다.
+    - 형제들중에는 입력한 순서대로...
+    - 형제들은 add_dependencies(curTarget otherTargetPrior)로 순서 지정 가능
+    - 테스터 프로젝트에서 project.lib와 project.lib_d를 구분해서 추가해야 한다.
+        + project.lib의 디버그 타입 정보는 $<CONFIG>로 알아내야 한다.
+            - 빌드 시에만 알수 있따.
+            - config시에는 알 수 없다.
+
+* 1.0.1.2
+    - 2024-05-16 19:04:21
+    - cmake_modules/starter.cmake 개정
+        + endTester() 내부의 마지막에 아래 라인 추가.
+            # parent의 프로젝트 이름을 알아낸다.
+            # 규칙대로만 했으면, 
+            string(REPLACE "_tester" "" aRetParentName ${PROJECT_NAME})
+            message("${PROJECT_NAME}::aRetParentName : ${aRetParentName}")
+            add_dependencies(${PROJECT_NAME} ${aRetParentName})
+
+        + macro(addExternalLib libPath lib) 제거했다.
+            - 사용하지 않는다.
+
+        + startProject(), endProject(), startTester, endTester() 개정
+            - install위치와 build 위치를 비슷하게 조정했다.
+                + build 디렉토리를 install의 루트 디렉토리로 바꿔도 된다.
+                + bin, lib, share, 등으로 이동시켰다.
+    
+    - cmake_modules/configure_file_in/main.cpp.in 추가.
+    - cmake_modules/configure_file_in/testerCMakeLists.txt.in 추가.
+        
+* 1.0.1.3
+    - 2024-05-17 09:52:51
+    - cmake_modules/starter.cmake 개정
+        + SUB_PROJECTE_NAME 변수 추가 
+            - addSub(서브)에서 사용할 프로젝트 이름 설정용.
+            - addSub 함수가 완료되면, 바로 삭제됨.
+        + addSub(서브) 개정
+            - 서브 디렉토리가 없으면, 추가하도록 개정
+        + start,end Projetct() start,end Tester() 개정
+    - cmake_modules/configure_file_in/subCMakeLists.txt 추가.
+        + addSub(서브)가 사용할 CMakeLists.txt 생성.
+
+* DONE : 2024-05-18 13:17:13
+    - sub_directory()가 여러 개일 때, 
+    - 두 번째 서브의 build_exe 옵션이 제대로 인식이 안된다.
+
+* 1.0.1.4
+    - 2024-05-18 13:13:01
+    - CMakeLists.txt 개정
+        + startProject(), endProject() option들 전부 코멘트로 비활성화했다.
+            - vscode 시작시에 자동으로 cmake configure가 실행되서 
+            - 원하지 않는 결과가 나온다.
+        + addSub()와 addSubExe()는 endProject() 이 후에 호출한다.
+    - cmake_modules/starter.cmake 개정
+        + addSubExe()를 추가햇다.
+            - addSub()는 라이브러리 전용
+            - addSubExe()는 실행파일 전용
+
+* DONE : 자동으로  main.cpp 추가되는 걸 변경해야할 필요가 있다.
+    - flex bison으로 c 파일 들을 만들고 거기에 main()함수가 있어서 변경해야 한다.
+    
+* 1.0.1.5
+    - 2024-05-19 21:28:37
+    - cmake_modules/py_modules/gen_parser.py 추가.
+        + flex bison 자동으로 실행하는 모듈
+    - cmake_modules/starter.cmake 개정
+        + startProject()에서 main.cpp 생성하는 기능으 제거했다.
+    
+    - CMakeLists.txt 개정
+        + startProject()와 endProject()사이에 addSrcs에 main.cpp 추가해야 한다.
+
+    - cmake_modules/starter.cmake 개정
+        + createMain() 추가.
+            - 자동으로 main.cpp추가가 아니라 수동으로 추가한다.
+
+* 1.0.1.6
+    - 2024-05-20 12:07:24
+    - cmake_modules/py_modules/gen_parser.py 개정
+        + execute(tFilename) 추가
+            - 렉스와 파서로 c언어용 헤더파일과 소스파일이 생성한다.
+    - CMakeLists.txt 개정
+        + add_custom_command() 추가
+            - 렉서와 파서로 먼저 파일을 만든 후에
+            - 빌드를 실행하면, 렉서와 파서 파일이 변경되도 자동으로 
+            - 변경된 파일을 생성한 뒤에 빌드를 시작한다.
+            - configure_file()은 add_executable()이 시작되기 전에 
+            - 버퍼용으로 추가했다. 없으면, 
+            - 빌드시에 새로 추가된 파서와 렉서를 인식하지 못한다.
+        + createMain 추가하고 코멘트 처리함.            
+    - cmake_modules/starter.cmake 개정
+        + createMain() 추가.
+            - 자동으로 main.cpp추가가 아니라 수동으로 추가한다.
+
+* 1.0.1.7
+    - 2024-05-20 15:19:22
+    - cmake_modules/starter.cmake 개정
+        + createLib(), createLibTester() 추가
+            - 자동으로 추가되는 라이브러리와 테스터를 수동으로 추가한다.
+    - cmake_modules/configure_file_in/subExeCMakeLists.txt.in 개정
+        + createLib()와 createLibTester()를 추가한뒤에 코멘트 했다.
+
+* DONE : flex와 bison파일을 자동으로 추가하는 방법이 필요하다.
+    - 2024-05-20 23:28:53
+    - addFlexWithHeader(), addBisonWithHeader(), addFlex(), addBison()
+    - gen_lexer.py tLexFilePath, gen_parser.py tParserFilePath
+
+* 1.0.1.8
+    - 2024-05-23 22:53:23
+    - cmake_modules/starter.cmake 개정
+        + cpp, c, lib, dll, flex, bison, main_flex, main_bison 옵션 추가 
+            - 디폴트 cpp
+            - ${PROJECT_NAME}_PROJECT_TYPE 추가 
+                + 기존 BUILD_EXE BUILD_SHARED_LIB 옵션 대체
+            - start_${${PROJECT_NAME}_PROJECT_TYPE} end_ create_ 추가
+        + create_tester() 추가 
+            - 기존 tester 생성 함수 대체
+            - ${PROJECT_NAME}_BUILD_TESTER 옵션을 ON하면,
+            - 자동으로 추가됨
+            - 내부적으로 동작하는 함수이다.
+        + HAS_MAIN 옵션 추가
+            - create_main() 실행시에 자동으로 설정됨.
+            - 따로 신경 쓸 일이 없음.
+            - 내부적으로 동작하는 옵션이다.
+    - cmake_modules/configure_file_in/ 내부 파일들 추가 및 개정
+        + bison.l.in bison.y.in flex.l.in lib.cpp.in lib.hpp.in main.c.in 추가
+    - CMakeLists.txt 개정
+        + set(${PROJECT_NAME}_PROJECT_TYPE flex) 옵션 대체 변수 추가
+            - 여기서 빌드할 프로젝트 타입을 정해야 한다.
+            - 기본 옵션은 cpp
+        + cmake_dependent_option(${PROJECT_NAME}_BUILD_TESTER 옵션 추가
+            - main 함수가 없는 라이브러리들에 테스터 빌드를 추가 할 지 결정하는 옵션.
+
+* 1.0.1.9
+    - 2024-05-25 12:44:05
+    - cmake_modules/configure_file_in/ 내부 파일들 추가 및 개정
+        + lib.h.in lib.c.in에 c와 c++에 일관되게 사용 가능하게 extern "C" 추가.
+        + LIBAPI를 정의하는 
+        + ${CMAKE_PROJECT_NAME}/${CMAKE_PROJECT_NAME}_config.h.in 추가
+            - ${PROJECT_NAME}/${PROJECT_NAME}Config.h.in 대체.
+            - lib.h.in과 lib.hpp.in 두개 변경.
+    - CMakeLists.txt 개정
+        + addSub()의 위치를 end_project() 전으로 이동
+        + create_base()를 CMakeLists.txt에 추가하고 코멘트 처리
+            - create_main()함수 대체
+            - 프로젝트를 시작하면 자동으로 소스파일과 헤더파일이 추가 되는 걸 방지
+        + set(${PROJECT_NAME}_PROJECT_TYPE lib
+            CACHE STRING 
+            "project type : 
+                main | lib | dll | flex | bison | main_flex | main_bison | 
+                    libpp | dllpp" 
+            FORCE 
+            )
+            - 기존 프로젝트 타입에 libpp, dllpp 추가
+                + cpp 전용 lib와 dll입니다. 
+    - cmake_modules/starter.cmake 개정
+        + 프로젝트 타입에 libpp, dllpp 추가되면서 필요한 코드 추가.
+            - start_libpp, _dllpp ,create_libpp _dllpp, end_libpp, dllpp() 추가.
+        + 자동으로 base 소스 파일과 헤더파일이 추가되는 걸 수동으로 추가되도록 개정
+            - create_base()를 CMakeLists.txt에 추가해야 된다.
+    
+* 1.0.2.0
+    - 2024-05-25 19:26:43
+    - cmake_modules/configure_file_in/ 내부 파일들 개정
+        + 각종 *(c | cpp | lib | flex | bison).in 파일에 DEBUG_PRINT 추가
+            - 디버그 시에만 문자열 출력한다.
+        + flex_tester와 bison_tester.cpp.in  추가
+            - flex와 bison 전용 테스터 소스입니다.
+    - CMakeLists.txt 개정
+        + addSub()의 위치를 end_project() 뒤로 이동
+            - addSub에서 프로젝트 이름 타겟이 필요한데, 
+            - add_library,add_executable 등을 호출하고 난 뒤에 얻을 수 있다.
+    * DONE CLOCK: [2024-5-26 Sun 11:40] --[2024-5-26 Sun 15:28] =>  3:48
+        - cmake_modules/starter.cmake 개정
+            + 디버그시에 #define DEBUG를 정의 추가.
+                - DEBUG_PRINT가 동작하도록 해야함
+                - 디버그시에는 ${PROJECT_NAME}_d.lib를 링크 해야함.
+            + get_sub_libs(tDir tRetSubLibs)추가.
+                - getSubLibs() 대체
+                    + 함수 이름을 규칙에 맞게 개정중에 있다.
+
+* 1.0.2.1
+    - 2024-05-26 17:13:09
+    - cmake_modules/configure_file_in/ 내부 파일들 개정
+        + DEBUG_PRINT를 config.h.in으로 이동
+        + 각종 소스와 헤더파일들에 config.h 추가
+            - 각종 소스와 헤더파일들에 DEBUG_PRINT 대체
+    - cmake_modules/ 개정
+        + inc dirs, lib dirs, 등등의 변수 개정
+            - ${CMAKE_PROJECT_NAME}_LIB,INC_DIRS에 현재의 프로젝트 디렉토리 추가.
+            - ${PROJECT_NAME}_변수들을 ${CMAKE_PROJECT_NAME}_변수들에 추가.
+
+* DONE : 2024-05-30 15:46:06
+    - 루트프로젝트에 모든 DIRS와 LIBS를 추가한다.
+    - 현재의 프로젝트에서 빌드 시에는 자기 자신의 LIB는 제외하고 나머지만 링크한다.
+        + target_link_libraries에서 본인의 lib는 제외하고 링크한다
+
+* 1.0.2.2
+    - 2024-05-30 16:27:46
+    - cmake_modules/starter.cmake 개정
+        + end_project() 개정
+            - target_link_libraries에 루트 프로젝트의 LIBS를 추가했다.
+                + target_link_libraries 호출 후에
+                + self 프로젝트 이름은 나중에 추가했다.
+    - CMakeLists.txt 개정
+        + addSub()의 위치를 end_project() 전으로 이동
+            - addSub에서 프로젝트 이름 타겟이 필요했었던 걸, 제거했다.
+            - addSub에는 단지 리스트에 서브 이름추가하는 것 뿐이다.
+            - 2024-06-02 20:19:34 전으로 이동하니 빌드 시에 헤더 파일을 못찾는다.
+                + DONE : 빌드시에도 찾게 해야한다.
+    - cmake_modules/configure_file_in/ 개정
+        + 테스터 거푸집cpp 시작 시간과 종료시간 연산해서 경과시간 출력으로 개정
+        + get_${PROJECT_NAME}_version 제거
+            - ${PRJECT_NAME}_version()으로 개정 읽기전용은 get이 없다.
+
+ * DONE : 1.0.2.3 CLOCK: [2024-6-7 Fri 19:12]  --[2024-6-7 Fri 22:20] =>  3:8
+    - 서브 프로젝트가 빌드시에 부모의 라이브러리를 링크하지 못한다.
+    - 부모 라이브러리는 서브 프로젝트 빌드 이후에 빌드가 되는 게 기본 순서이다.
+    - 서브 프로젝트에서 부모 라이브러리를링크시키려면 빌드 순서를 변경해야한다.
+    - add_dependencies를 이용해서 부모 라이브러리가 먼저 실행되도록 변경가능하다.
+    - 무한 링크가 걸릴 수 있으므로, 신경써야 한다.
+    - 형제 라이브들은 링크가 잘됨.
+    - 부모 자식관계에서만 링크 불가.
+    - 순리대로 하면 문제가 없는데 역행하려니까 문제가 생긴다.
+    - cmake_modules/starter.cmake 개정
+        + addSub()와  start_project() end_project()약간의 개정 
+            - 중복된 명령어 조금 제거.
+    - CMakeLists.txt 개정
+        + addSub()의 위치를 부모 프로젝트의  end_project()뒤로 이동
+            - addSub()의 위치는 end_project() 전'후 어디에나 있을 수 있다.
+            - 하지만, 프로젝트와 서브 프로젝트의 빌드 우선 순위도 변경되므로
+            - 신중하게 위치시켜야 한다.
+            - end_project() 전에 addSub()가 있으면 프로젝트가 서브의 의존적이다.
+                + 서브 빌드가 완료되어야 프로젝트가 빌드 된다는 의미이다.
+            - end_project() 후에 addSub()가 있으면, 서브가 프로젝트에 의존적이다.
+                + 프로젝트 빌드가 완료되어야 서브가 빌드되어야 한다는 의미이다.
+
+* DONE 1.0.2.4 2024-06-18 12:23:18
+    - cmake_modules/configure_file_in/tester.cpp.in 개정
+        + Logger fixture 추가
+            - 테스트의 결과를 stdout이 아니라 로그파일로 저장하기 위한 
+            - 테스트 결과가 너무 많아서 stdout에서 잘리는 경우에 사용하면 됩니다.
+        + Stopwatch fixture 추가.
+            - 테스트 경과 시간을 출력하는  fixture입니다.
+        + Progress class 추가
+            - 진행률의 표시를 위해 추가 했다.
+            - 추가 작업이 필요하다.
+                + 좀 더 사용 하기 쉽게 개정해야 한다.
+                + 하지만 여유가 없다. 다음에 여유가 생기면 개정하자.
+    - cmake_modules/configure_file_in/tester.hpp.in 추가
+        + tester.cpp.in이 너무 복잡해져서 분리했다.
+        + 아직 사용하진 못한다.
+        + starter.cmake를 개정해야 한다.
+
+* DONE 1.0.2.5 
+    **stater.cmake 개정 
+        *** tester.hpp.in을 사용하기 위하여...
+        *** tester.cpp.in에서 중복되는 코드 제거 해야 한다.
+
+* DONE release_notes.org.in 파일이 필요하다.
+    + 2024-06-18 22:26:20 
+    + release_notes.org.in 파일은 만들어서 configure_file_in에 집어넣었다.
+    + starter.cmake에 코드를 작성해야 한다. 2024-06-18 22:28:43
+        - 프로젝트 이름이 루트 프로젝트와 같을 때 release_notes.org를 생성한다.
+
+* DONE 1.0.2.6 2024-06-29 18:38:26 -- [2024-7-2 Tue 0:13]  =>  -19:35
+    - addSub() 할 때, 서브의 서브는 추가가 안된다.
+    - addSub() 할 때, 추가되는 디렉토리는 end_project()가 나오기 전에
+    - 추가된 서브들만 추가가 되다.
+    - end_project() 이후에 추가된 서브는 추가가 안된다.
+    - end_project() 이후에 추가된 서브는 현재 프로젝트를 의존한다.
+    - 이 순서를 바꾸면 의존이 무너진다.
+    - cmkae 콘피그 시에는 문제가 나오지 않는다.
+    - 빌드를 실행하면 서브의 서브 프로젝트의 디렉토리를 찾지 못한다.
+    - cmake_modules/starter.cmake 개정
+        + end_project 개정
+        + do_project 추가
+        + print_children, _children_libs, _children_srcs, _children_headers,
+            _children_inc_dirs, _children_lib_dirs 추가
+        + get_inc_dirs(), _lib_dirs(), _root_inc_dirs(), _root_lib_dirs 추가
+        + get_children_inc_dirs(), _children_lib_dirs(), 
+            _root_children_inc_dirs(), _root_children_lib_dirs() 추가
+        + is_target_available() 추가
+        + addSub() 개정
+    - CMakeLists.txt 개정
+        + end_project() 아래에 각종 프린트 함수 모아놓음
+        + do_project() 추가
+
+* DONE 1.0.2.7 --[2024-7-8 Mon 11:28]
+** DONE cmake_modules/starter.cmake 개정
+    - 개정 원인은 각종 서브들의 폴더들과 링크들이 제대로 작동이 안되어서...
+    - get_cur_inc_dirs(), get_cur_lib_dirs(), 
+    - get_all_inc_dirs_from(${CMAKE_PROJECT_NAME} aRetIncDirs), 
+    - get_all_lib_dirs_from(${CMAKE_PROJECT_NAME} aRetLibDirs),
+    - get_all_libs_from(${CMAKE_PROJECT_NAME} aRetLibs),
+    - get_parent(aRetParentName),
+    - names_to_libs(aNames aRetLibs), function(name_to_lib tName retLib),
+    - get_subs_from(${tProjectName} aRetSubs),
+    - get_name_from_dir(${aSub} aSubName),
+    - get_name(),
+    - function(get_all_subs_from_dir tDir retSubs),
+    - function(get_all_targets_from_dir tDir retTargets) 추가
+        + get_inc_dirs(), _lib_dirs(), _root_lib_dirs 
+        + get_children_inc_dirs(), _children_lib_dirs(), 
+            _root_children_inc_dirs(), _root_children_lib_dirs() 제거
+    - addSub(), start_project, end_project, startTester, endTester 개정
+
+* DONE cmake_modules/configure_file_in 개정
+** DONE lib.c.in, lib.cpp.in print, version 함수 개정
+*** DONE version을 config.h의 버전 매크로를 사용하는 걸로 개정
+    vesion을 고치기 위해 모든 파일을 전부 검색해야 하는 상황이라 통일시켰다.
+
+* DONE 1.0.2.8 --[2024-7-17 Wed 12:21]
+** DONE cmake_modules/starter.cmake 개정
+    - license.txt, release_notes.org 파일 인스톨 안되던거 가능하게 개정
+    - 설치 디렉토리/share/doc에 설치됨.
+** DONE cmake_modules/configure_file_in/ 각종 파일 개정
+    - config.cmake.in 변수가 값으로 안변하던거 cmake 홈페이지 참조해서 개정.
+
+* DONE 1.0.2.9 --[2024-7-18 Thu 8:46]
+** 모든 파일 encoding UTF-8로 변경하려다가 실패했다.
+
+* DONE 1.0.3.0 --[2024-7-21 Sun 20:7]
+** DONE all files를 EUC-KR에서 utf-8로 전부 변경했다.
+** DONE cmake_modules/py_modules/encoding_converter.py 추가
+    - 프로젝트의 모든 파일을 EUC-KR에서 utf-8로 변경하기 위해 추가했다.
+
+* DONE 1.0.3.1 --[2024-7-24 Wed 9:54]
+** DONE cmake_modules/configure_file_in/ bison, flex 파일들 개정
+    - flex 파일을 변경했다. 그래서 bison 파일도 바꿨다.
+        %option nounistd
+        %option noyywrap
+        %option 8bit
+        %option reentrant
+        %option extra-type="Extra *" 추가
+
+* DONE 1.0.3.2 --[2024-7-25 Thu 12:51]
+** DONE cmake_modules/configure_file_in/ 파일들 개정
+    - 약간의 버그들이 있어서 개정한것이다.
+    - 모든 파일들 LIBAPI의 위치를 함수의 시작위치로 변경했다.
+        + int LIBAPI func()를 LIBAPI int func()로 변경
+        + dll 프로젝트를 빌드시에 오류가 생겨서 chatgpt로 확인해서 이동함.
+    - libpp_tester.cpp.in 추가
+    - lib.h.in, lib.c.in 개정
+    - lib.hpp.in, lib.cpp.in 개정
+** DONE cmake_modules/starter.cmake 개정
+    - ${HEAER_SUFFIX} 변수를 추가 했다.
+        + cpp 프로젝트는 헤더가 hpp로 된다. 
+        + 프로젝트 c이면 ${HEAER_SUFFIX}는 h
+        + 프로젝트 cpp이면 ${HEAER_SUFFIX}는 hpp로 변경 된다.
+    - create_base에 모든 파일 생성을 통합시켰다.
+        + start_project()에 있던 파일 생성 함수들을 전부 create_base에 이동시켰다.
+        + 일관된 명령어를 위해 개정했다.
+    - add_tester()를 추가했다.
+        + addSub()로 tester를 추가하던 걸 tester전용으로 추가했다.
+        + add_tester()에서 create_tester()를 호출한다.
+        + 일관된 명령어를 위해 개정했다.
+
+** DONE cmake_modules/py_modules/encoding_converter.py 개정
+    - CP949와 EUC-KR을 Korean으로 통합해서 utf-8로 변경한다.
+    - to_utf8_from_korean si_units.l
+    - to_utf8_from_korean_all -t ../si_units_1002 ./
+    - 서브 명령어에 추가했다.
+
+* DONE 1.0.3.3 --[2024-7-27 Sat 11:32]
+** cmake_modules/configure_file_in/ 모든 파일들 개정
+    - #include "${CMAKE_PROJECT_NAME}/${CMAKE_PROJECT_NAME}_config.h"를 
+    - #include "${PROJECT_NAME}/${PROJECT_NAME}_config.h" 로 변경
+        + 다른 프로젝트와 통합할 때 일관된 코드를 위해 개정
+** cmake_modules/py_modules/ext_project_adder.py 추가
+    - 외부 프로젝트를 심링크로 추가하기 위해 추가
+** cmake_modules/starter.cmake 개정
+    - 프로젝트가 복잡해지면서 부모 자식 프로젝트간에 인식을 못해서 개정
+    - ${PROJECT_NAME}_PARENT CACHE 변수를 추가했다.
+    - get_tester_name_from_dir() 추가
+    - get_all_libs(), get_all_lib_dirs(), get_all_inc_dirs(), 
+    - get_all_names() 추가
+    - get_all_parent() 추가
+    - get_parent_dir, get_parent_dir_from 추가
+    - addSub(), start_project, end_project, startTester, endTester 개정
+        + get_all_inc_dirs_from() 제거
+        + get_all_lib_dirs_from()  제거
+        + get_all_libs_from(), 제거
+        + get_subs_from() get_name() get_all_subs_from_dir 제거
+        + print_children, _children_libs, _children_srcs, _children_headers,
+        + _children_inc_dirs, _children_lib_dirs 제거
+        + get_inc_dirs(), _lib_dirs(), _root_inc_dirs(), _root_lib_dirs 제거
+        + get_children_inc_dirs(), _children_lib_dirs(), 
+        + _root_children_inc_dirs(), _root_children_lib_dirs() 제거
+
+* DONE 1.0.3.4 --[2024-7-28 Sun 14:14]
+** DONE CPack과 NSIS로 win 설치 프로그램 제작 추가
+    *** DONE cmake_modules/starter.cmake 개정
+        - CPack을 사용하기 위해 create_base(), end_project(), endTester() 개정
+            + ${PROJECT_NAME}_cpack_config.cmake 파일을 추가하기 위해 개정
+        - uninstall 타겟을 제거했다.
+
+    *** DONE cmake_modules/configure_file_in/ 개정
+        - cpack_config.cmake.in 파일 추가
+            + 프로젝트 시작시에 수동으로 여러가지 설정을 해야한다.
+            + ico, bmp 등등의 파일들을 CPack 변수에 할당해야 한다.
+        - 필요없는 각종 cmake.in 파일들을 제거했다.
+    *** DONE cmake_modules/resources/ 폴더 추가
+        - CPack과 NSIS에 필요한 ico, bmp 등등의 파일을 저장하는 곳이다.
+
+* DONE 1.0.3.5 --[2024-7-31 Wed 10:45]
+    - Windows와 Linux에서 사용하도록 개정
+** DONE cmake_modules/starter.cmake 개정
+    - startTester 개정
+        + tester가 boost를 사용하는데 Windows와 Linux에서 다른 폴더를 추가한다.
+        + 원래는 testerCMakeLists.txt.in에서 boost를 추가했으나
+        + startTester에서 추가하도록 개정함.
+** DONE cmake_modules/configure_file_in/ 개정
+    - testerCMakeLists.txt.in 개정
+        + boost 헤더와 링크를 startTester에서 추가하도록 변경함
+    - flex와 bison 관련 함수들 개정
+        + create_flex, _bison 등을 개정
+        + 헤더 파일 설치 관련 개정.
+
+* DONE 1.0.3.6 --[2024-8-1 Thu 15:58]
+** DONE cmake_modules/py_modules/encoding_converter.py 개정
+    - to_utf8, to_euckr, to_utf8_all, to_euckr_all 서브 명령어 개정
+        + 파일을 복사가 아니라 파일 자체의 encoding을 변환해서 덮어쓰기로 변경
+
+* DONE 1.0.3.7 --[2024-8-3 Sat 12:59]
+** DONE cmake_modules/starter.cmake 개정
+    - ${HOME} 변수 추가
+        + 시스템의 홈 폴더를 확인한다.
+** DONE CMakeLists.txt 개정
+    - cmake_minimum_required(VERSION 3.21) 개정 
+        + 3.15 -> 3.21로 변경
+        + file(REAL_PATH <path> <out-var> EXPAND_TILDE)를 사용하기 위해 변경
+
+* DONE 1.0.3.8 --[2024-8-5 Mon 21:32]
+** DONE cmake_starter 패키지 생성
+    - 원하는 폴더로 이동해서 cmake_starter.bat를 실행하면 
+    - CMakeLists.txt가 생성되고,
+    - encoding을 korean과 utf-8을 상호 변환한다.
+    - 외부 프로젝트를 심링크로 추가한다.
+    - 사용법은 cmake_starter.bat -h  로 확인한다.
+    - 그러기 위해 cmake_starter/bin 폴더를 $env{Path}에 추가해야 한다.
+*** DONE cmake_modules/py_modules/cmake_stater.py 추가
+*** DONE cmake_modules/py_modules/cmake_lists_maker.py 추가
+*** DONE cmake_modules/bin/cmake_stater.bat 추가
+*** DONE cmake_modules -> cmake_starter 로 폴더 이름 변경
+*** DONE cmake_starter 폴더 ~/apps로 이동
+*** DONE ~/apps/cmake_starter/bin $env{Path}에 추가
+
+* DONE 1.0.3.9 --[2024-8-8 Thu 16:13]
+** DONE starter.cmake 개정
+*** DONE start_project() -> start_project(type)로 개정
+    - ${PROJECT_NAME}_PROJECT_TYPE을 CMakeLists.txt에서 제거하고
+    - type이 ${PROJECT_NAME}_PROJECT_TYPE으로 대입한다.
+    - ${PROJECT_NAME}_BUILD_TESTER 옵션을 ${PROJECT_NAME}_USE_TESTER로 개정
+** DONE py_modules/cmake_lists_maker.py 개정
+*** DONE make() 개정
+    - 일반적인 CMakeLists.txt를 생성할 때의 내용을 개정.
+    - start_project() -> start_proejct(type) 으로 개정
+    - ${PROJECT_NAME}_BUILD_TESTER 옵션을 ${PROJECT_NAME}_USE_TESTER로 개정
+
+* TODO add_ext() 추가해야한다
+    - 외부 프로젝트를 추가하려면 ...
+    - 파이썬 모듈은 완성했다. 
+    - 파이썬 모듈을 실행하면 외부 프로젝트가 심링크로 셀프에 폴더로 추가된다.
+    - 이걸 수동으로 파이썬 모듈을 실행하지 않고 자동으로 완성되게 만들어야 한다.
+
+* TODO cmake_modules/py_modules/encoding_converter.py 개정
+    copy_to_utf8, copy_to_utf8_all, 
+    copy_to_euckr, copy_to_euckr_all 서브 코맨드 추가예정.
+    현재는 원본 파일을 보존할 수 없다.
+    원본 파일을 보존하고 결과를 따로 출력하는 것이 좋다.
+    원래는 보존하고 결과를 따로 출력하는 것이었는데
+    복사하고 변환하고의 과정이 불편해서
+    원본을 바로 변환하도록 서브 코맨드를 변경했다.
+
+* TODO cmake_modules/py_modules/encoding_converter.py 개정
+    'encoding': 'UTF-8-SIG' 인식되는 함수에 추가
+    utf-8을 korean으로 변환할 때 'UTF-8-SIG' 비교함수 추가해야 한다.
+
+* TODO .vscode/launch.json py 실행시킬 때 args 확인해야 한다.
+    vscode가 업데이트 되면서 내용이 변경 된거 같다.
+    CLOCK: [2024-8-3 Sat 12:16]
+    old python을 사용해야 한다.
+    new python debugger를 사용하면 argparse에서 오류 생긴다.
+    "configurations": [
+        {
+            "name": "old Python Debugger: Current File with Arguments",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${file}",
+            "console": "integratedTerminal",
+            "args": "${command:pickArgs}"
+        },
+        {
+            "name": "new Python Debugger: Current File with Arguments",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${file}",
+            "console": "integratedTerminal",
+            "args": [
+                "${command:pickArgs}"
+            ]
+        }
+    ]

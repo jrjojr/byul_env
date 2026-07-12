@@ -1,0 +1,20 @@
+/***************************************************************************
+* Copyright 2024. Jungrai Jo <jungraijo@gmail.com> 
+* All Rights Reserved.
+*
+* ${PROJECT_NAME} 
+*
+***************************************************************************/
+
+#include "${PROJECT_NAME}/${PROJECT_NAME}_config.h"
+#include <stdio.h>
+
+int main(int argc, char* argv[]){
+    printf("%s version : %d.%d.%d.%d\n", 
+        "${PROJECT_NAME}", 
+        ${UPPER_CASE_PROJECT_NAME}_VERSION_MAJOR,
+        ${UPPER_CASE_PROJECT_NAME}_VERSION_MINOR,
+        ${UPPER_CASE_PROJECT_NAME}_VERSION_PATCH,
+        ${UPPER_CASE_PROJECT_NAME}_VERSION_TWEAK);
+    return 0;
+}

@@ -1,0 +1,30 @@
+/***************************************************************************
+* Copyright 2024. Jungrai Jo <jungraijo@gmail.com> 
+* All Rights Reserved.
+*
+* ${PROJECT_NAME} 
+*
+***************************************************************************/
+
+#include "${PROJECT_NAME}.h"
+
+#include <stdio.h>
+
+LIBAPI void ${PROJECT_NAME}_print_version(){
+    printf("%s version : %d.%d.%d.%d\n", 
+        "${PROJECT_NAME}", 
+        ${UPPER_CASE_PROJECT_NAME}_VERSION_MAJOR,
+        ${UPPER_CASE_PROJECT_NAME}_VERSION_MINOR,
+        ${UPPER_CASE_PROJECT_NAME}_VERSION_PATCH,
+        ${UPPER_CASE_PROJECT_NAME}_VERSION_TWEAK);
+}
+
+LIBAPI const char* ${PROJECT_NAME}_version(char* buf){
+    sprintf(buf, "%d.%d.%d.%d", 
+        ${UPPER_CASE_PROJECT_NAME}_VERSION_MAJOR,
+        ${UPPER_CASE_PROJECT_NAME}_VERSION_MINOR,
+        ${UPPER_CASE_PROJECT_NAME}_VERSION_PATCH,
+        ${UPPER_CASE_PROJECT_NAME}_VERSION_TWEAK
+        );
+    return buf;
+}
