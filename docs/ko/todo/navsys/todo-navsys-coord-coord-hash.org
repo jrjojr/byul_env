@@ -39,6 +39,9 @@ allocation의 해제 경로 부재다.
   분명히 해야 한다.
 - 현재 =hash/equal=은 value 내용을 비교하지 않는다. =equal=은 key 집합과
   NULL/non-NULL 여부만 비교해 이름이 의미를 과장한다.
+- =scalar_copy/scalar_destroy=는 Numal/Math Engine 함수가 아니라 =coord_hash.cpp=가
+  구현·export하는 Navsys legacy helper다. 이름 때문에 소유권이 잘못 보이므로
+  prefixed compatibility symbol 또는 internal typed callback으로 정리한다.
 
 * 현행 선언 전수 목록과 처분
 
@@ -242,12 +245,16 @@ BYUL_API navsys_status_t coord_hash_format(
 
 - 안전한 legacy symbol은 canonical API로 forward하고 위험 symbol은 deprecation 진단과
   정확한 제한을 문서화한다.
+- =scalar_copy/scalar_destroy=를 대표 type/module prefix가 있는 Navsys helper로
+  forwarding하거나 신규 production path에서 internal callback으로 대체한다. Math
+  Engine symbol로 이동하거나 해당 target을 link하지 않는다.
 - Python은 typed map 또는 명시적 codec만 노출하고 parent/lifetime을 retain한다.
 
 *** 완료 조건
 
 - =values/to_string= 반환 allocation leak와 =set= ownership 충돌이 없다.
 - old ABI symbol은 유지되지만 신규 production source가 사용하지 않는다.
+- Coord hash의 canonical 구현과 header에는 Numal 또는 Math Engine dependency가 없다.
 
 *** 검증
 

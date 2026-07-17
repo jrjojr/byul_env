@@ -23,6 +23,8 @@ color map, discover/tree/back/finish event, O(V+E)와 traversal semantics를 비
 
 - =find_dfs= 하나가 module/root/SDK/CFFI/dispatcher에 노출된다. Header는 사용하지 않는
   =scalar.h=와 evaluation core까지 include한다.
+- DFS 선언과 구현에는 Numal 또는 Math Engine type/function이 필요하지 않다.
+  =scalar.h= include는 제거 대상이며 다른 Math Engine include로 치환하지 않는다.
 - 구현은 iterative LIFO이지만 neighbor iteration/insert 순서가 path를 결정한다. “fast”라는
   설명 외에 completeness, non-optimal, deterministic order와 partial endpoint가 없다.
 - NULL 또는 =max_retry <= 0=은 NULL이며 budget 소진/no-path/OOM이 구분되지 않는다.
@@ -76,11 +78,14 @@ Tie/neighbor order, cycle detection, maximum expansion/depth, partial path와 ca
 
 - canonical status/out/stats/cancel adapter를 구현하고 debug route mutation을 observer로 분리한다.
 - allocation failure와 limit 시 partial endpoint/route validity를 정의한다.
+- 사용하지 않는 =scalar.h=와 불필요한 evaluation include를 제거하고 Numal/Math Engine
+  없이 standalone compile되게 한다.
 
 ** 완료 조건
 
 - no-path/limit/cancel/OOM이 분리되고 cycle에서 유한 종료한다.
 - 사용하지 않는 include와 transitive type 의존이 없다.
+- DFS header/source에 Numal 또는 Math Engine dependency가 없다.
 
 ** 검증
 

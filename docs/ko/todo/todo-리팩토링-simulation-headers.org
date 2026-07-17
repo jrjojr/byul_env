@@ -24,6 +24,43 @@ shared export를 모두 검증한다.
 [[file:math-engine/todo-balix-math-extraction.org][Balix 수학 추출 master]]와 아래 header별
 세부 TODO가 소유한다.
 
+* Header 명명 Gate
+
+32개 최초 header asset 모두 현행 경로와 명명 처분을 가진다. 단순 rename은 canonical
+basename/path를 가지지만 Math Engine으로 책임이 분리되는 header는 기존 Balix
+compatibility/adapter 경로와 =successor_headers[]=를 별도로 가진다. 최초 Balix header와
+새 Math Engine header를 일대일 rename으로 취급하지 않는다.
+
+대표 public type header는 type stem, 대표 type이 없는 public-component는
+=<public_module>_<responsibility>.h=를 사용한다. Project명, 상위 분류 directory와
+implementation directory chain을 basename에 기계적으로 연결하지 않고 SDK public
+basename의 전역 고유성을 검사한다.
+
+Math Engine successor의 canonical 이름은 Math Engine 소유 TODO에서 결정한다. 이 문서는
+그 이름을 중복 설계하지 않고 기존 Balix header의 =keep/rename/forward/split/internalize=
+처분, compatibility path와 successor link를 기록한다. 기존 공개 include는
+compatibility-forwarder와 제거 version 없이 삭제하지 않는다. 모든 32개와 새 successor가
+terminal 상태로 닫히기 전에는 이 하위 TODO를 완료하지 않는다.
+
+* Balix/Math Engine 공동 소유권 Gate
+
+| 대상 | 단일 design owner | 이 문서의 책임 |
+|------+-------------------+----------------|
+| Math 공식·kernel·neutral value/result | 연결된 Math Engine 세부 TODO | owner와 successor link 검증 |
+| 새 canonical Math Engine header/API | 연결된 Math Engine 세부 TODO | 이름·API를 재설계하지 않음 |
+| 기존 Balix public header/layout | 이 문서 | ABI/layout/install snapshot과 compatibility |
+| Balix DTO/lifecycle/adapter | 이 문서 또는 명시된 adapter TODO 하나 | callback, state와 forwarding |
+| legacy Balix include/symbol | 이 문서 | deprecation, forwarding과 제거 version |
+
+공동 manifest는 =asset_id/current_path/current_owner/disposition/compatibility_path=와
+=successor_headers[]=를 기록한다. 각 successor에는 =canonical_owner/design_todo=
+=install_target/export_target=을 기록한다. 하나의 symbol, source 또는 header에 design
+owner가 둘 이상이면 다음 단계로 진행하지 않는다.
+
+실행 순서는 공동 inventory 동결 → symbol/header별 owner 승인 → Math Engine successor
+설계 승인 → Balix compatibility/adapter mapping 승인 → 구현 → install/export/wrapper
+합류다. 두 오케스트레이션 문서가 독립적으로 같은 단계를 =DOING=으로 시작하지 않는다.
+
 * 32개 Header Inventory와 Disposition
 
 ** Balix module과 value/function component: 13개
@@ -77,10 +114,12 @@ shared export를 모두 검증한다.
 | =byul/balix/numeq/numeq_integrator.h= | [[file:math-engine/todo-balix-integrator-extraction.org][ODE·rigid integrator]] |
 | =byul/balix/trajectory/trajectory.h= | [[file:math-engine/todo-balix-trajectory-analysis-extraction.org][미분·보간·resampling]] |
 
-각 public symbol은 =Math Engine calculation=, =Balix orchestration/lifecycle= 또는
-=legacy forwarding shim= 중 정확히 하나의 canonical owner를 가진다. Collision 후보 감시,
-tick과 event dispatch는 Balix에 남고 snapshot 입력의 교차 좌표·선·면·TOI 계산만 Math
-Engine으로 이동한다.
+각 public symbol의 구현 책임은 =Math Engine calculation=,
+=Balix orchestration/lifecycle= 또는 =legacy forwarding shim= 중 정확히 하나다.
+Canonical Math symbol은 Math Engine owner 하나를 가지며 legacy Balix symbol은 별도의
+compatibility owner와 그 canonical forwarding target을 가진다. Forwarding shim을
+canonical 계산 owner로 기록하지 않는다. Collision 후보 감시, tick과 event dispatch는
+Balix에 남고 snapshot 입력의 교차 좌표·선·면·TOI 계산만 Math Engine으로 이동한다.
 
 ** Entity: 7개
 
@@ -151,6 +190,8 @@ Engine으로 이동한다.
 
 - 32개 header의 module/root/install/aggregate/wrapper/source definition 소비 경로를
   master manifest에 기록한다.
+- 각 최초 header에 disposition과 compatibility path를, 분리 대상에는
+  =successor_headers[]=, successor별 canonical owner와 design TODO를 기록한다.
 - public layout, enum/macro value, exported signature와 기존 source/binary consumer를
   snapshot한다.
 - 각 pointer/member/callback의 allocator, owner, borrow/retain, copy, invalidation과 destroy
@@ -167,6 +208,8 @@ Engine으로 이동한다.
 - 32개가 승인 role과 owner module을 가지며 numal/balix 중복 ownership이 해소된다.
 - Balix 수학 symbol은 header별 세부 TODO 하나에만 배정되고 감시·event 상태와 순수
   계산 query의 경계가 manifest에서 기계적으로 검사 가능하다.
+- 최초 header와 created successor가 별도 asset이며 symbol/source/header별 design owner
+  수가 정확히 하나다.
 - resource별 init/assign/copy/clear/free/destroy 상태 전이와 allocator가 하나의 표로 닫힌다.
 - orphan을 public SDK로 근거 없이 승격하지 않는다.
 
@@ -232,8 +275,10 @@ Engine으로 이동한다.
   PID/Kalman/model/MPC/solver와 collision query 계약을 ABI/layout manifest에 연결한다.
 - 이 문서에는 기존 layout/enum, export/install, optional output compatibility와 legacy
   forwarding만 남기고 공식·kernel·canonical API를 중복 설계하지 않는다.
-- generic =detect_*=, =calc_spin_accel=, interface maker와 string/buffer 이름에는 새
-  representative-prefix API를 추가하고 legacy forwarding을 둔다.
+- generic =detect_*=, =calc_spin_accel= 중 수학 공식·kernel API의 새 canonical 이름은
+  Math Engine owner TODO만 정한다. 이 문서는 Balix DTO/lifecycle/adapter에 속하는
+  interface maker와 string/buffer API만 대표 type/module prefix로 추가하고 legacy
+  forwarding을 둔다.
 - =balix.h=와 =numeq.h= aggregate를 승인 component 집합과 일치시킨다.
 
 ** 완료 조건

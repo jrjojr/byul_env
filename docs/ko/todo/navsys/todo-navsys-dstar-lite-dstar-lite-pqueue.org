@@ -51,6 +51,8 @@ Koenig/Likhachev [[https://publications.ri.cmu.edu/d-lite][D* Lite]]의 =Compute
   mutable key, =top_key=는 owned key copy다. 이름만으로 구분할 수 없다.
 - wrapper는 =pop=을 non-owning으로 감싸 leak하고, borrowed =get_key_by_coord=를 own=True로
   감싸 double-free/UAF를 만든다.
+- 구현은 사용하지 않는 Numal =scalar.h=를 include한다. Open-list는 exact D* Lite key
+  comparator만 소비하며 Numal 또는 Math Engine dependency가 필요하지 않다.
 
 * 현행 선언 전수 목록과 처분
 
@@ -173,11 +175,13 @@ peek/pop 실패 시 =out_entry=를 보존한다. 빈 queue, invalid key, not-fou
 
 - canonical key comparator와 by-value entry storage를 구현한다.
 - create/copy/upsert/peek_min/pop_min/find/remove를 status/strong guarantee로 구현한다.
+- 사용하지 않는 =scalar.h= include를 제거하고 key component만으로 compile/link한다.
 
 *** 완료 조건
 
 - coord당 live entry 수가 선택한 invariant와 일치한다.
 - 모든 canonical output이 caller-owned value이며 C++ 예외가 C 경계를 넘지 않는다.
+- Pqueue source/header/target에 Numal 또는 Math Engine dependency가 없다.
 
 *** 검증
 

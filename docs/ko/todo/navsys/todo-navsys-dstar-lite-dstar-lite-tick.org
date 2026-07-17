@@ -39,6 +39,8 @@ destroy UAF, double attach, 자동 detach 미실행, 미초기화 create/copy가
   해제할 수 없다.
 - =prepare= double attach, 기존 =real_route= leak와 partial initialization을 허용한다.
 - =speed_sec <= 0=, =unit_m <= 0=, NaN/Inf, negative =dt=를 검증하지 않는다.
+- 완료 판정은 Numal =scalar_equal=에 의존한다. Tick 상태 전이는 Navsys lifecycle
+  책임이므로 외부 Math Engine tolerance가 아니라 명시적인 Navsys 조건으로 교체한다.
 - multi-step while에서 local start를 갱신하지 않아 같은 origin에서 반복 이동할 수 있다.
 - =MAX_STEP=은 namespace 없는 macro이고 구현은 별도 literal 64를 사용한다.
 
@@ -180,11 +182,14 @@ tick module에 먼저 추가해야 하며 이를 숨겨서 free하지 않는다.
 
 - validated config, explicit state와 callback-independent =advance(dt)=를 구현한다.
 - 매 step마다 current start를 갱신하고 step/duration limit 결과를 status로 반환한다.
+- =scalar.h/scalar_equal=을 제거하고 goal/remaining-cost 판정을 planner result/status와
+  명시적인 Navsys numeric policy로 처리한다.
 
 *** 완료 조건
 
 - invalid/nonfinite config와 dt가 state/output을 변경하지 않는다.
 - 같은 dt sequence가 callback 유무와 관계없이 같은 position/state를 만든다.
+- Tick source/header는 Numal 또는 Math Engine을 include/link하지 않는다.
 
 *** 검증
 

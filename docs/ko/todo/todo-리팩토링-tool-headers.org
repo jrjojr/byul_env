@@ -24,6 +24,20 @@
 명시된 요구사항, 데이터와 regression reference다. 기존 source를 새 BYUL public ABI로
 직접 import하거나 원래 license를 BYUL license로 교체하지 않는다.
 
+* Header 명명 Gate
+
+31개 모두 현행 경로, 최종 canonical 경로와 명명 처분을 가진다. Active tool header는
+해당 tool의 안정된 module 경계와 responsibility가 드러나는 이름을 사용하되 BYUL SDK
+public module 이름을 가장하거나 물리 directory chain을 basename으로 복제하지 않는다.
+Public SDK로 승격되는 header만 중앙 public-component 명명 규칙과 SDK basename 전역
+고유성 검사를 적용한다.
+
+Immutable deprecated/reference corpus는 provenance와 regression 재현을 위해 원래 이름과
+경로를 유지할 수 있다. 이 예외는 role manifest에 =reference-keep=과 근거를 기록하고
+SDK install, wrapper와 public aggregate에서 제외한다. Generated 또는 migration output은
+산출물만 rename하지 않고 generator/template과 소비 경로를 함께 변경한다. 모든 31개의
+명명 처분이 terminal 상태가 아니면 이 하위 TODO를 완료하지 않는다.
+
 * 31개 Header Inventory와 Disposition
 
 ** GPU compute tester: private tool 2개

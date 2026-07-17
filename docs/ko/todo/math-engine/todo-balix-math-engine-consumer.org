@@ -1,10 +1,27 @@
 #+TITLE: Balix의 Math Engine 소비·감시·호환 Adapter TODO
 #+TODO: TODO DOING BLOCKED | DONE CANCELLED FAILED
 #+TODO_RULES: ../../../../external/rules/projects/byul/todo-rules.org
+#+PUBLIC_API_RULES: ../../../../external/rules/projects/byul/public-api-rules.org
+#+HEADER_DECLARATION_RULES: ../../../../external/rules/projects/byul/header-declaration-rules.org
+#+HEADER_AUTHORING_RULES: ../../../../external/rules/projects/byul/header-authoring-rules.org
+#+BUILD_RULES: ../../../../external/rules/projects/byul/build-rules.org
+#+TEST_RULES: ../../../../external/rules/projects/byul/test-rules.org
 #+TODO_PARENT: todo-balix-math-extraction.org
 #+AUTHOR: ByulPapa / Codex
 #+LANGUAGE: ko
 #+OPTIONS: toc:t num:nil
+
+* 공동 manifest와 소유권 제한
+
+이 문서는 새 canonical Math Engine header/API를 설계하지 않는다. Parent Math 추출
+master 또는 연결된 세부 TODO가 승인한 =successor_headers[]=와 canonical symbol을
+소비하며, 기존 Balix aggregate/include, DTO/lifecycle adapter, legacy forwarding,
+install/link와 제거 version만 소유한다.
+
+공동 manifest의 기존 Balix =asset_id=, =compatibility_path=와 successor별
+=canonical_owner/design_todo/install_target/export_target=이 승인되기 전에 aggregate
+include나 forwarding target을 확정하지 않는다. 하나의 기존 Balix header가 여러
+successor를 가질 수 있으며 이를 파일 하나의 rename으로 축약하지 않는다.
 
 * 실제 aggregate·source·build 범위
 
@@ -196,11 +213,14 @@ test를 수행한다.
 유지한다. =numeq.h=의 기존 6개 include에 3개 누락 header를 무단 추가하지 않고
 compatibility/deprecation 결정을 기록한다. Controller 13개 export는 controller 계획의
 adapter 결과를 합류시키며 old math symbol은 canonical API forwarding과 deprecation
-metadata를 가진다.
+metadata를 가진다. Forwarding target은 공동 manifest에서 승인된 Math Engine successor만
+사용하고 이 문서에서 별도 canonical 이름이나 계산 API를 만들지 않는다.
 
 *** 완료 조건
 
 ABI 1.x consumer가 동작하고 신규 Balix 구현은 old math symbol을 내부에서 사용하지 않는다.
+모든 compatibility include/symbol이 canonical owner 하나와 연결되고 orphan 또는 이중
+forwarding target이 없다.
 
 *** 검증
 

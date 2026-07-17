@@ -1,6 +1,12 @@
 #+TITLE: Balix 수학·물리 계산의 Math Engine 추출 Master TODO
 #+TODO: TODO DOING BLOCKED | DONE CANCELLED FAILED
 #+TODO_RULES: ../../../../external/rules/projects/byul/todo-rules.org
+#+PUBLIC_API_RULES: ../../../../external/rules/projects/byul/public-api-rules.org
+#+HEADER_DECLARATION_RULES: ../../../../external/rules/projects/byul/header-declaration-rules.org
+#+HEADER_COMMENT_RULES: ../../../../external/rules/projects/byul/header-comment-rules.org
+#+HEADER_AUTHORING_RULES: ../../../../external/rules/projects/byul/header-authoring-rules.org
+#+BUILD_RULES: ../../../../external/rules/projects/byul/build-rules.org
+#+TEST_RULES: ../../../../external/rules/projects/byul/test-rules.org
 #+TODO_PARENT: todo-math-engine.org
 #+AUTHOR: ByulPapa / Codex
 #+LANGUAGE: ko
@@ -14,6 +20,39 @@
 
 이 문서는 구현 계획이다. 현재 source를 이동하거나 public 함수를 변경하지 않았으며,
 각 단계의 회귀 corpus와 ABI gate가 닫힌 뒤에만 다음 단계로 진행한다.
+
+* 전체 Header 리팩터링과 공동 소유권
+
+이 문서는 새 canonical Math Engine 공식·kernel·neutral value/result, public header/API와
+그 source의 유일한 design owner다. 전체 header 리팩터링과 Simulation header TODO는
+기존 Balix header의 ABI/layout/install, DTO/lifecycle, adapter와 legacy forwarding을
+소유하며 같은 canonical Math API를 다시 설계하지 않는다.
+
+기존 Balix header와 새 Math Engine header는 일대일 rename 관계가 아니다. 하나의 Balix
+header가 기존 compatibility/adapter header로 남으면서 0개 이상의 Math Engine successor
+header로 분리될 수 있다. 공동 manifest는 다음 관계를 사용한다.
+
+#+begin_src text
+initial_asset:
+  asset_id
+  current_path
+  current_owner
+  disposition
+  compatibility_path
+  successor_headers[]
+
+created_successor:
+  canonical_path
+  canonical_owner
+  design_todo
+  install_target
+  export_target
+#+end_src
+
+각 symbol, source와 새 header의 canonical owner는 정확히 하나다. 이 문서는
+=successor_headers[]=의 이름과 내용을 승인하고, Simulation TODO는 해당 경로를 참조하여
+Balix compatibility mapping만 승인한다. 공동 inventory와 owner 승인이 끝나기 전에 두
+문서가 독립적으로 successor 설계나 source 이동을 시작하지 않는다.
 
 * 분류 기준
 
@@ -34,8 +73,12 @@ Math Engine이다.
 
 #+begin_src text
 math-engine -X-> balix / entity / projectile / ground / navsys / GUI
-balix and other consumers ---> math-engine
+navsys -X-> math-engine
+balix / approved simulation consumers ---> math-engine
 #+end_src
+
+Navsys는 이 추출의 consumer가 아니다. 기존 Numal scalar 결합은 Navsys 선행
+리팩터링에서 제거하며 Balix/Math Engine adapter를 Navsys에 추가하지 않는다.
 
 Math Engine public header에는 =motion_state_t=, =environ_t=, =bodyprops_t=,
 =trajectory_t=와 Balix callback type을 노출하지 않는다.
@@ -131,10 +174,18 @@ Math Engine public header에는 =motion_state_t=, =environ_t=, =bodyprops_t=,
 owner를 하나만 부여한다. =entity=, =projectile=, =ground=의 중복 계산도 읽기 전용으로
 추가 조사한다.
 
+각 기존 Balix header에는 전체 header 리팩터링 manifest와 같은 =asset_id=,
+=disposition=, =compatibility_path=와 =successor_headers[]=를 사용한다. 새 Math Engine
+header마다 canonical owner, 이 문서 또는 세부 design TODO, install/export target을
+기록한다.
+
 *** 완료 조건
 
 모든 Balix 계산 symbol이 세부 TODO 하나와 owner 하나에 연결되고 미구현·중복·ABI
 누락이 별도 상태로 표시된다.
+
+최초 Balix header와 created Math Engine header가 별도 asset으로 기록되고 각
+symbol/source/header의 canonical owner 수가 정확히 하나다.
 
 *** 검증
 
@@ -147,7 +198,8 @@ symbol 수와 중복 owner 수가 각각 0인지 검사한다.
 Math Engine C ABI용 value view, status, tolerance, unit/frame metadata, workspace,
 cancellation과 deterministic context를 정의한다. Balix struct를 직접 받지 않고
 caller-owned POD 또는 opaque handle만 사용한다. 실패 시 output 불변과 partial result
-규칙을 정한다.
+규칙을 정한다. 새 canonical header의 public module 경계와 basename은 중앙 header
+명명 규칙에 따라 이 문서 또는 연결된 세부 Math Engine TODO에서 승인한다.
 
 *** 완료 조건
 
