@@ -1,0 +1,469 @@
+#+TITLE: BYUL route_carver.h 정밀 리팩터링 TODO
+#+TODO: TODO DOING BLOCKED | DONE CANCELLED FAILED
+#+TODO_RULES: ../../../../external/rules/projects/byul/todo-rules.org
+#+PUBLIC_API_RULES: ../../../../external/rules/projects/byul/public-api-rules.org
+#+HEADER_DECLARATION_RULES: ../../../../external/rules/projects/byul/header-declaration-rules.org
+#+HEADER_COMMENT_RULES: ../../../../external/rules/projects/byul/header-comment-rules.org
+#+HEADER_AUTHORING_RULES: ../../../../external/rules/projects/byul/header-authoring-rules.org
+#+BUILD_RULES: ../../../../external/rules/projects/byul/build-rules.org
+#+TEST_RULES: ../../../../external/rules/projects/byul/test-rules.org
+#+TODO_PARENT: todo-리팩토링-navsys-headers.org
+#+LANGUAGE: ko
+#+OPTIONS: toc:3 num:nil
+
+* 문서 책임과 상위 결정
+
+- 대상은 =byul/navsys/route_carver/route_carver.h=와 그 선언을 구현하는
+  =route_carver.cpp=다. 다른 header의 API를 이 문서에서 대신 설계하지 않는다.
+- 이 component는 경로를 탐색하는 route finder가 아니다. 이미 주어진 선분 또는 중심 영역을
+  cell 집합으로 rasterize하고, 그 집합의 통행 상태를 변경하는 navgrid mutation utility다.
+  이름과 directory가 이 책임을 드러내도록 할지 구현 전에 결정한다.
+- =route_carver.cpp=는 navsys module static target에 직접 들어가고, 그 module이 root shared
+  library에 합류한다. header는 =navsys.h= aggregate와 install 경로에 노출된다. 따라서
+  "static 전용 helper"로 간주해 ABI 검토를 생략할 수 없다.
+- status, versioned options, cancellation, output 보존과 C symbol namespace의 최종 결정은
+  [[file:todo-navsys-industry-api-baseline.org][Navsys 업계 API 기준]]이 이 문서의 후보 signature보다 우선한다.
+  아래 =navsys_status_t=와 신규 symbol 이름은 그 공통 결정을 따르는 검토안이다.
+
+* Header public symbol 전수 inventory
+
+이 header가 직접 정의하는 semantic public type/enum/macro는 없고 include guard macro 하나만
+가진다. include를 통해 =navgrid_t=와 =coord_t=를 사용하며 직접 export하는 함수는 정확히
+두 개다.
+
+| kind | exact symbol | 현재 signature/의미 | disposition |
+|------+--------------+----------------------+-------------|
+| guard macro | =ROUTE_CARVER_H= | generic global macro | source macro: ABI 1.x: keep -> ABI-major: internalize; collision-safe guard companion: ABI 1.x: add |
+| function | =route_carve_beam= | =int(navgrid_t*,const coord_t*,const coord_t*,int)=, 제거 수 | legacy: ABI 1.x: deprecate-forward -> ABI-major: internalize; canonical line companion: ABI 1.x: add |
+| function | =route_carve_bomb= | =int(navgrid_t*,const coord_t*,int)=, 제거 수 | legacy: ABI 1.x: deprecate-forward -> ABI-major: internalize; canonical area companion: ABI 1.x: add |
+
+현재 선언은 다음과 같고, 반환값 하나에 성공 변경 수와 모든 실패가 합쳐져 있다.
+
+#+begin_src c
+BYUL_API int route_carve_beam(
+    navgrid_t* navgrid,
+    const coord_t* start,
+    const coord_t* goal,
+    int range);
+
+BYUL_API int route_carve_bomb(
+    navgrid_t* navgrid,
+    const coord_t* center,
+    int range);
+#+end_src
+
+삭제, rename 또는 signature 교체는 ABI 1.x에서 금지한다. 신규 API가 안정화되어도 기존
+symbol은 정해진 deprecation 기간 동안 동일 calling convention과 return type을 유지한다.
+
+* 현재 구현의 관찰 가능한 계약
+
+** =route_carve_beam=
+
+| 입력/단계 | 실제 동작 | 문제 또는 숨은 계약 |
+|-----------+-----------+----------------------|
+| NULL grid/start/goal | 즉시 =0= | invalid argument와 정상 no-change 구분 불가 |
+| =range <= 0= | thin mode로 처리 | 음수도 유효한 0처럼 처리되어 typo를 찾지 못함 |
+| step | x와 y를 각각 goal 방향으로 1씩 이동 | Euclidean/Bresenham 선이 아니라 8-neighbor sign-step staircase |
+| topology | =navgrid->mode=를 step에 사용하지 않음 | =NAVGRID_DIR_4=에서도 대각 한 번에 이동 |
+| endpoints | start는 검사하지 않고, 각 next와 goal은 검사 | start 제외·goal 포함이 문서에 없음 |
+| =range == 1= | 각 next의 직교/8방향 이웃만 검사 | centerline cell이 빠지는 고리 모양 beam |
+| =range > 1= | =navgrid_copy_neighbors_all_range(next, range-1)= | 폭이 metric이 아니라 이웃-union 구현 세부와 direction mode에 종속 |
+| bounds, thin | inside 검사를 하지 않음 | bounded grid 밖에도 NORMAL cell을 삽입할 수 있음 |
+| bounds, wide | neighbor helper가 후보를 clip | 같은 함수가 range에 따라 bounds 정책이 달라짐 |
+| 종료 | =cur == goal=까지 무제한 반복 | 최대 step, checked delta, cancel이 없고 비정규 raw coord에서 장시간/overflow 위험 |
+
+thin mode의 step 수는 정상 범위 좌표라면
+=max(abs(goal.x-start.x), abs(goal.y-start.y))=다. 그러나 차이를 안전한 넓은 정수로
+계산하지 않고, public =coord_t= field에는 범위 밖 =int=도 직접 넣을 수 있으며,
+=coord_next_to_goal= 내부 arithmetic/wrap에 의존한다. 그래서 종료 보장은 명시적 input
+domain과 checked step bound 없이는 public 계약으로 주장할 수 없다.
+
+** =route_carve_bomb=
+
+| 입력/단계 | 실제 동작 | 문제 또는 숨은 계약 |
+|-----------+-----------+----------------------|
+| NULL grid/center | 즉시 =0= | invalid와 no-change 구분 불가 |
+| =range <= 0= | center만 검사 | 음수도 radius 0으로 허용 |
+| =range == 1= | center + direction-mode 이웃 | 8방향이면 3x3, 4방향이면 십자형 |
+| =range >= 2= | center + neighbor-union | "radius"가 Chebyshev/Manhattan/Euclidean 중 무엇인지 불명확 |
+| center bounds | inside 검사를 하지 않음 | bounded grid 밖에 NORMAL cell 삽입 가능 |
+| 주변 bounds | helper가 clip | center와 주변의 bounds 정책이 서로 다름 |
+| 큰 range | 중첩 loop와 =x+dx=를 signed int로 계산 | overflow, 과도한 시간/메모리, cancel 부재 |
+
+현재 test의 =range=2가 8방향 10x10 grid에서 정확히 25개를 지운다는 사실만으로 일반
+metric 계약이 되지 않는다. 4방향 mode, 경계, center 밖, radius 1에서는 다른 footprint다.
+
+** 공통 mutation·resource 결함
+
+| 영역 | 현재 구현 | 영향 |
+|------+-----------+------|
+| blocked 판정 | =is_coord_blocked_navgrid(..., nullptr)=를 직접 호출 | grid에 bind한 custom callback/userdata를 무시 |
+| mutation | =navgrid_unblock_coord=가 NORMAL/height 0 cell로 replace | 기존 terrain, height, cost와 obstacle/maze overlay provenance를 파괴 |
+| result count | blocked였으면 unblock 결과를 확인하지 않고 =removed++= | allocation/hash 실패에도 변경했다고 보고할 수 있음 |
+| count type | signed =int= | 넓은 영역에서 overflow, status와 값 충돌 |
+| allocation | coord/list/hash allocation 결과 또는 C++ exception을 처리하지 않음 | NULL dereference, leak 또는 exception의 C ABI 경계 통과 |
+| partial write | cell마다 즉시 변경 | 중간 OOM/cancel을 도입하면 rollback 없는 부분 mutation |
+| duplicate | line step별 candidate를 다시 열거 | 결과는 대체로 중복 count를 피하지만 비용이 footprint overlap만큼 증가 |
+| thread | mutable grid와 callback 동기화 계약 없음 | 같은 grid 동시 query/mutation data race 위험 |
+| diagnostics | 변경 수 외에는 없음 | visited, clipped, already-open, still-blocked 원인을 관찰 불가 |
+
+* Build·consumer·test 노출 감사
+
+| surface | 현재 상태 | 리팩터링 gate |
+|---------+-----------+---------------|
+| module build | =byul/navsys/CMakeLists.txt= source/header 목록에 직접 등록 | static target에서 신규 source 누락 금지 |
+| root shared | navsys module을 통해 합류 | root export에서 선언/정의 1:1 확인 |
+| aggregate | =byul/navsys/navsys.h=가 =route_carver.h= include | standalone과 aggregate include 모두 확인 |
+| installed SDK | navsys public include directory에 노출 | clean C/C++ consumer link test 필요 |
+| native test | =test_module_route_carver.cpp= 3 case | invalid, bounds, topology, terrain, OOM, cancel이 전부 빠짐 |
+| wrapper | 전용 wrapper/manifest 등록 근거 없음 | 지원 제외인지 누락인지 명시적으로 결정 |
+
+기존 test는 thin beam에서 =removed >= 1=, wide beam에서 =removed >= 20=, 8방향 bomb
+=range 2=에서 =removed == 25=만 확인한다. 출력 ASCII는 assertion이 아니며 start/end, 실제
+footprint, custom callback, 이미 열린 cell, terrain 보존과 실패 원자성을 검증하지 않는다.
+
+* 업계 관행과 비교 기준
+
+- [[https://gdal.org/en/stable/api/gdal_alg.html][GDAL rasterization API]]는 geometry를
+  cell/pixel에 태울 때 center-hit와 all-touched 같은 rasterization policy를 구분한다.
+  BYUL도 "직선"이라는 말만 두고 어떤 cell이 포함되는지 구현 우연에 맡기지 않는다.
+- [[https://docs.godotengine.org/en/stable/classes/class_astargrid2d.html][Godot AStarGrid2D]]는
+  grid의 solid point, region과 diagonal mode를 별도 상태로 다룬다. 선의 coverage와 path
+  traversal topology는 같은 enum으로 암묵적으로 결합하지 않는다.
+- [[https://recastnav.com/classdtNavMeshQuery][Detour query API]]처럼 결과 count, caller가
+  정한 limit과 status/partial을 분리한다. mutation API는 no-change와 runtime failure를
+  같은 정수 =0=으로 돌려주지 않는다.
+- [[https://www.boost.org/doc/libs/1_87_0/libs/geometry/doc/html/geometry/reference/algorithms/covered_by/covered_by_2.html][Boost.Geometry covered_by]]처럼
+  boundary 포함 여부를 predicate 계약으로 고정한다. start/end와 footprint boundary의
+  포함 여부도 명시해야 한다.
+
+외부 API를 그대로 복제하지 않는다. BYUL에서는 integer cell, navgrid lifecycle과 중앙
+status 규칙에 맞추되 geometry 선택, mutation 선택, 실패를 서로 독립된 typed 계약으로 만든다.
+
+* 목표 geometry·mutation 계약
+
+** Geometry와 topology
+
+| 속성 | canonical 결정 후보 |
+|------+---------------------|
+| coordinate unit | integer cell coordinate; radius도 cell 단위 unsigned 값 |
+| line coverage | centerline Bresenham 또는 supercover를 explicit enum으로 선택 |
+| direction mode | candidate geometry와 분리; 4/8 path mode가 footprint를 바꾸지 않음 |
+| radius metric | Chebyshev square, Manhattan diamond, Euclidean disk를 explicit enum으로 선택 |
+| radius 0 | line은 선택된 centerline, area는 center 한 cell |
+| endpoints | start/end 포함 flag를 각각 명시; canonical default는 둘 다 포함 |
+| duplicate | 전체 operation에서 coordinate를 한 번만 방문·count |
+| bounds | reject-all 또는 clip flag를 명시; thin/wide와 center/주변이 동일 정책 |
+| arithmetic | =int64_t=/checked size arithmetic으로 delta, extent와 target count 검증 |
+| deterministic | 동일 grid snapshot/options/input이면 동일 candidate 순서와 결과 |
+| seed | 사용하지 않음; 이 algorithm은 random하지 않으며 seed option을 추가하지 않음 |
+
+supercover는 선분이 닿는 모든 cell을 포함하고 centerline은 tie rule에 따라 한 cell 폭을
+선택한다. endpoint가 cell center인지 cell square의 중심인지, corner만 닿은 cell을
+supercover에 포함하는지까지 작은-grid oracle로 고정한다.
+
+** Mutation과 provenance
+
+- "blocked"를 stored =TERRAIN_TYPE_FORBIDDEN=으로 한정할지 effective callback 결과까지
+  포함할지 selector로 구분한다. query-only callback이 막은 cell은 local NORMAL write로
+  해제되었다고 보고하지 않는다.
+- 기본 canonical operation은 cell 전체를 NORMAL/height 0으로 덮어쓰지 않는다. navgrid가
+  확정할 traversability layer 또는 overlay token을 제거하고 terrain/elevation/cost를 보존한다.
+- 다른 obstacle, maze 또는 terrain source가 같은 cell을 막고 있으면 한 source 제거 후에도
+  effective blocked일 수 있다. =changed_count=와 "최종 통행 가능 cell 수"를 혼동하지 않는다.
+- atomic mode는 candidate 열거, validation과 before-image 준비가 성공한 뒤 commit한다.
+  실패·cancel·limit이면 grid를 원래 상태로 보존한다.
+- non-atomic mode를 제공한다면 =INCOMPLETE=/=CANCELLED=/=LIMIT_REACHED=와 실제 변경 수를
+  함께 반환하고, 재시도/idempotency와 candidate order를 계약으로 고정한다.
+
+* 목표 API 검토안
+
+정확한 prefix와 공통 callback typedef owner는 상위 기준에서 확정한다. enum 값은 ABI
+manifest에 explicit value로 기록하고 unknown value/flag는 =UNSUPPORTED=로 거부한다.
+
+#+begin_src c
+typedef enum e_navgrid_carve_metric {
+    NAVGRID_CARVE_CHEBYSHEV_SQUARE = 0,
+    NAVGRID_CARVE_MANHATTAN_DIAMOND = 1,
+    NAVGRID_CARVE_EUCLIDEAN_DISK = 2
+} navgrid_carve_metric_t;
+
+typedef enum e_navgrid_line_coverage {
+    NAVGRID_LINE_CENTER_CELLS = 0,
+    NAVGRID_LINE_SUPERCOVER_CELLS = 1
+} navgrid_line_coverage_t;
+
+typedef enum e_navgrid_carve_match {
+    NAVGRID_CARVE_STORED_FORBIDDEN_ONLY = 0,
+    NAVGRID_CARVE_EFFECTIVE_BLOCKED = 1
+} navgrid_carve_match_t;
+
+enum {
+    NAVGRID_CARVE_INCLUDE_START = 1u << 0,
+    NAVGRID_CARVE_INCLUDE_END = 1u << 1,
+    NAVGRID_CARVE_CLIP_TO_EXTENT = 1u << 2,
+    NAVGRID_CARVE_ATOMIC = 1u << 3,
+    NAVGRID_CARVE_DRY_RUN = 1u << 4
+};
+
+typedef struct s_navgrid_carve_options {
+    uint32_t struct_size;
+    uint32_t radius_cells;
+    navgrid_carve_metric_t metric;
+    navgrid_line_coverage_t line_coverage;
+    navgrid_carve_match_t match;
+    uint32_t flags;
+    uint64_t max_cells;
+    navsys_cancel_func cancel_func;
+    void* cancel_userdata;
+} navgrid_carve_options_t;
+
+BYUL_API navsys_status_t navgrid_carve_line(
+    navgrid_t* grid,
+    const coord_t* start,
+    const coord_t* goal,
+    const navgrid_carve_options_t* options,
+    size_t* out_changed_count);
+
+BYUL_API navsys_status_t navgrid_carve_area(
+    navgrid_t* grid,
+    const coord_t* center,
+    const navgrid_carve_options_t* options,
+    size_t* out_changed_count);
+#+end_src
+
+** Parameter와 output 조건
+
+- =grid=, 좌표와 =out_changed_count=는 필수다. =options == NULL=의 default를 허용한다면
+  고정된 static default를 문서화하고 release마다 바꾸지 않는다.
+- =struct_size=보다 뒤의 field는 읽지 않는다. 너무 작은 struct, 알 수 없는 flag 조합,
+  line에서 무효인 coverage/area에서 무효인 option은 명시적으로 처리한다.
+- =max_cells == 0=의 의미를 unlimited로 정한다면 unbounded grid에서도 checked theoretical
+  upper bound가 표현 가능한 경우에만 허용한다. 안전한 project default limit가 더 적절한지
+  benchmark와 threat model로 결정한다.
+- atomic 실패에서 =*out_changed_count=는 0이고 grid는 보존된다. non-atomic outcome에서는
+  실제 commit된 unique cell 수다. dry-run은 mutation 없이 바뀔 cell 수를 반환한다.
+- 이미 목표 상태인 cell은 changed count에 포함하지 않는다. callback만 막는 cell, bounds로
+  clip된 cell과 mutation 후에도 막힌 cell의 상세 진단이 필요하면 versioned stats API를
+  additive하게 검토한다.
+
+* 종료·지원·오류·취소 matrix
+
+| 항목 | 요구 계약 |
+|------+-----------|
+| finite termination | line candidate 상한과 area footprint 상한을 mutation 전에 checked 계산 |
+| overflow | coordinate delta, radius 확장, =(2r+1)^2=와 byte size overflow면 mutation 전 error |
+| cancellation | line raster step, area row와 commit chunk에서 bounded 간격으로 poll |
+| max cells | candidate unique 수가 =max_cells=를 넘기 전에 =LIMIT_REACHED=; atomic이면 no-write |
+| bounded grid | reject 또는 clip flag에 따라 일관 처리; center만 예외로 쓰지 않음 |
+| unbounded grid | explicit finite radius/line과 max/overflow 조건을 만족하면 지원 |
+| =NAVGRID_DIR_4/8= | geometry는 둘 다 동일; traversal 연결성 보장은 별도 postcondition으로 검사 |
+| custom callback | userdata를 정확히 전달; query failure를 status로 전파; query-only block의 write 한계 명시 |
+| unsupported metric/flag | 기존 grid/output 보존 후 =UNSUPPORTED= |
+| OOM | C++ exception을 C ABI에서 포착; atomic no-write, non-atomic이면 partial count와 outcome |
+| cancel before commit | =CANCELLED=, changed 0, grid 보존 |
+| cancel during non-atomic commit | =CANCELLED=과 실제 changed count, deterministic resume 정책 |
+| start == goal | endpoint flag와 radius footprint에 따라 line 한 점 operation으로 정의 |
+| seed/replay | RNG 없음; deterministic candidate order를 golden/property test로 재현 |
+
+callback을 호출하는 동안 같은 grid를 mutation/destroy하거나 재진입할 수 있는지는 navgrid
+binding 계약과 함께 정한다. 최소 계약은 operation 동안 grid와 callback binding을 caller가
+동시에 변경하지 않는 것이다.
+
+* Legacy compatibility mapping
+
+| legacy call | ABI 1.x 보존 사항 | canonical과의 차이 처리 |
+|-------------+-------------------+--------------------------|
+| =route_carve_beam(...,range<=0)= | start 제외, goal 포함, sign-step, failure→0 | 신규 default로 조용히 변경하지 말고 private legacy profile 유지 |
+| =route_carve_beam(...,range>0)= | direction-mode neighbor-union과 centerline 누락까지 golden snapshot | 정확히 표현할 adapter가 없으면 기존 implementation을 격리 유지 |
+| =route_carve_bomb(...,range<=0)= | negative도 center 한 cell처럼 처리, failure→0 | 신규 API는 negative radius가 type상 불가; adapter만 legacy mapping |
+| =route_carve_bomb(...,range>0)= | 4/8 mode 종속 footprint 보존 | canonical metric으로 silent 치환 금지 |
+
+- ABI 1.x additive 단계에서는 신규 checked symbol만 추가한다.
+- deprecation 단계에서 old symbol은 동일 =int= return과 binary symbol을 유지한다. canonical
+  status를 =0=으로 축약할 수밖에 없는 실패는 documentation과 diagnostic hook에서 밝힌다.
+- 기존 geometry가 의도된 계약인지 bug인지 승인되기 전에는 forwarding을 이유로 behavior를
+  바꾸지 않는다. old/new 결과 차이는 migration note와 visual footprint 표로 제공한다.
+- ABI-major에서도 old symbol 제거는 consumer/wrapper inventory, release policy와 별도 승인을
+  거친다. 단순 header 정리는 삭제 권한이 아니다.
+
+* 세부 test 설계
+
+| 범주 | 필수 case/oracle |
+|------+------------------|
+| line footprint | 모든 start/goal이 포함된 7x7 exhaustive pair, center/supercover reference rasterizer 비교 |
+| octant/tie | 8 octant, horizontal/vertical, slope 1/2와 2/1, exact corner touch, reversed endpoints |
+| endpoints | include/exclude 네 조합, =start==goal= |
+| metric | radius 0..4의 square/diamond/disk exact coordinate set과 count |
+| topology | 동일 input에서 DIR_4/DIR_8 footprint 동일; 별도 connectivity expectation 검사 |
+| bounds | corner/edge/outside endpoints와 center, reject/clip, zero-sized/unbounded grid |
+| cell state | absent, NORMAL, FORBIDDEN, custom terrain/elevation/cost, overlapping overlay |
+| callback | userdata identity, virtual blocked, callback failure, callback reentrancy 금지 검출 |
+| count | duplicate overlap, already open, dry-run/commit equality, =size_t= upper boundary |
+| robustness | every allocation fault index, exception barrier, cancel at enumerate/precommit/commit |
+| atomicity | failure/cancel/limit 전후 grid hash와 full cell snapshot 동일 |
+| determinism | repeated/reversed invocation의 정해진 property, stable candidate order; seed 불필요 |
+| compatibility | old beam/bomb footprint와 return을 frozen fixture로 비교 |
+| packaging | C17/C++17 standalone include, static/root shared/install SDK direct link |
+
+performance는 correctness 뒤에 측정한다. line length, radius, unique candidates, overlap ratio,
+callback cost와 peak temporary memory를 함께 기록하고, 단순 wall time만으로 algorithm을
+선택하지 않는다.
+
+* TODO 1단계: 현재 ABI와 footprint 기준선 고정
+
+** 실행
+
+- 두 public 선언, definition, static/root export, aggregate/install과 모든 consumer를 자동
+  inventory로 snapshot한다.
+- range -1, 0, 1, 2와 DIR_4/DIR_8에서 beam/bomb exact coordinate footprint를 기록한다.
+- start/end/center가 안·경계·밖에 있을 때 map에 실제 삽입된 cell과 return을 frozen fixture로 만든다.
+
+** 완료 조건
+
+- 두 legacy 함수의 =ABI 1.x: deprecate-forward -> ABI-major: internalize= chain과
+  canonical companion =ABI 1.x: add= 처분이 승인된다.
+- 현재의 centerline 누락, topology 종속 폭, endpoint와 out-of-bounds write가 test로 재현된다.
+- 선언=정의=export와 wrapper 지원/제외 상태가 1:1 manifest에 기록된다.
+
+** 검증
+
+- old SDK C/C++ direct-link consumer와 module/root shared test를 실행한다.
+- test fixture를 current binary와 비교해 behavior snapshot이 의도대로 실패를 탐지하는지 확인한다.
+
+* TODO 2단계: Raster·metric 명세와 reference oracle 확정
+
+** 실행
+
+- centerline과 supercover의 cell-center/boundary/tie 규칙을 좌표 예제로 명시한다.
+- square, diamond, disk의 경계 포함 predicate를 넓은 정수 arithmetic으로 정의한다.
+- endpoint, radius, clip/reject와 direction mode 독립성을 options matrix로 확정한다.
+
+** 완료 조건
+
+- 모든 option 조합이 하나의 유일한 finite candidate set을 뜻한다.
+- DIR_4/DIR_8 mode가 geometry를 우연히 바꾸지 않으며 seed가 필요 없다는 결정이 기록된다.
+- tiny-grid reference implementation이 production code와 독립적으로 존재한다.
+
+** 검증
+
+- exhaustive 7x7 line pair와 radius 0..4를 reference set과 비교한다.
+- translation, endpoint reversal, 90도 회전과 metric symmetry metamorphic property를 검사한다.
+
+* TODO 3단계: Checked candidate 열거와 종료 보장
+
+** 실행
+
+- heap coord-per-step와 neighbor-union 호출을 checked integer raster/scan iterator로 교체한다.
+- 전체 operation unique dedup, theoretical bound, =max_cells=와 deterministic order를 구현한다.
+- coordinate/radius/count/byte overflow를 첫 mutation 전에 검출한다.
+
+** 완료 조건
+
+- 모든 accepted input은 계산된 유한 step 안에 끝나고 signed overflow/무제한 loop가 없다.
+- hot path에 cell당 library heap allocation이 없거나 workspace 사용량이 사전 계산된다.
+- limit/unsupported/invalid input에서 grid와 output 보존 조건을 만족한다.
+
+** 검증
+
+- coordinate/radius 경계, large thin line, huge rejected footprint와 fuzz/property test를 실행한다.
+- UBSan/ASan과 max-step instrumentation으로 overflow와 bound 초과가 없음을 확인한다.
+
+* TODO 4단계: Navgrid mutation·overlay·원자성 통합
+
+** 실행
+
+- stored/effective blocked selector와 callback/userdata 전달을 navgrid canonical query에 연결한다.
+- NORMAL/height 0 덮어쓰기를 traversability layer 또는 provenance-aware mutation으로 교체한다.
+- atomic prepare/commit/rollback과 optional dry-run/count를 구현한다.
+
+** 완료 조건
+
+- terrain/elevation/cost와 다른 source overlay가 보존되고 changed count가 실제 state change와 같다.
+- query-only callback으로 계속 막힌 cell을 "제거됨"으로 세지 않는다.
+- atomic OOM/cancel/limit에서 byte-for-byte equivalent grid snapshot이 보존된다.
+
+** 검증
+
+- overlapping obstacles, maze layer, custom terrain/elevation과 callback virtual block을 조합한다.
+- allocator fault를 모든 prepare/commit 지점에 주입하고 grid hash/full export를 비교한다.
+
+* TODO 5단계: Status·cancel·partial 결과 구현
+
+** 실행
+
+- invalid, unsupported, OOM, callback failure, cancel, limit와 success/no-change mapping을 구현한다.
+- enumerate/row/precommit/commit의 bounded polling 간격과 callback thread/reentrancy를 문서화한다.
+- atomic과 허용된 non-atomic mode의 =out_changed_count= 보존/partial 규칙을 구현한다.
+
+** 완료 조건
+
+- 정상 0-change가 어떤 failure와도 같은 status가 아니며 C++ exception이 C ABI를 넘지 않는다.
+- cancel latency가 정해진 candidate/commit chunk 상한을 넘지 않는다.
+- partial 결과가 있으면 정확한 changed count와 deterministic retry 규칙이 있다.
+
+** 검증
+
+- cancel을 첫 poll, 마지막 enumerate, precommit과 각 commit chunk에 주입한다.
+- callback failure/OOM/limit/status의 native와 wrapper round-trip을 검사한다.
+
+* TODO 6단계: Legacy symbol adapter와 migration
+
+** 실행
+
+- 기존 두 symbol의 exact behavior fixture를 유지한 private compatibility implementation을 격리한다.
+- canonical API로 loss 없이 표현 가능한 경우에만 adapter forwarding으로 교체한다.
+- old =range=와 신규 radius/metric/coverage/endpoints mapping 및 차이를 migration 표로 작성한다.
+
+** 완료 조건
+
+- 기존 binary와 source consumer는 동일 signature로 link되고 frozen legacy fixture를 통과한다.
+- 신규 consumer는 typed options/status만으로 geometry와 실패를 완전히 판별한다.
+- silent geometry change 없이 deprecation warning과 제거 가능 ABI-major가 구분된다.
+
+** 검증
+
+- old/new SDK를 각각 old/new library compatibility matrix에 연결한다.
+- beam/bomb legacy footprint golden과 canonical reference footprint를 의도된 차이까지 비교한다.
+
+* TODO 7단계: Header·문서·package surface 정규화
+
+** 실행
+
+- 표준 license, file Doxygen, collision-safe guard, direct include와 type/function metadata를 적용한다.
+- coordinate unit, metric, endpoint, bounds, ownership, thread, callback, status와 cancel 계약을
+  선언 근처에 기록한다.
+- static source, root shared export, aggregate/install과 wrapper manifest를 동시에 갱신한다.
+
+** 완료 조건
+
+- header audit 0 error이고 모든 public symbol의 declaration=definition=export가 성립한다.
+- wrapper를 지원하지 않으면 명시적 제외 사유가 있고, 지원하면 handwritten signature가 없다.
+- build graph에서 source가 중복 compile되거나 shared에 빠지지 않는다.
+
+** 검증
+
+- C17/C++17 standalone/aggregate include와 =-Werror= clean SDK consumer를 build한다.
+- module static, root shared, install tree와 wrapper audit/check/native-load gate를 실행한다.
+- module static =BYUL_STATIC=과 root shared =BYUL_EXPORTS=에서 legacy/canonical carve export를 각각 검증한다.
+
+* TODO 8단계: Correctness·robustness·성능 최종 gate
+
+** 실행
+
+- 세부 test matrix를 native property/fault/compatibility suite에 편입한다.
+- sanitizer와 benchmark fixture에 line length, radius, metric, callback cost와 seed-not-applicable
+  metadata를 기록한다.
+- 기존 neighbor-union 대비 allocation, unique candidate 처리량과 peak memory를 측정한다.
+
+** 완료 조건
+
+- exhaustive/reference/property/compatibility test와 ASan/LSan/UBSan이 모두 통과한다.
+- cancellation/limit의 bounded termination과 atomic rollback evidence가 남는다.
+- 성능 회귀 threshold를 만족하면서 correctness 또는 ABI gate를 완화하지 않는다.
+
+** 검증
+
+- debug/release, module/root, bounded/unbounded와 DIR_4/DIR_8 matrix를 실행한다.
+- clean checkout의 installed SDK consumer에서 두 legacy symbol과 두 canonical symbol을 직접
+  link/run하고 artifact manifest를 보존한다.

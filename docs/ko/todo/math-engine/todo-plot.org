@@ -1,0 +1,65 @@
+#+TITLE: Math Engine Graph 분석·Plot Data TODO
+#+TODO: TODO DOING BLOCKED | DONE CANCELLED FAILED
+#+TODO_RULES: ../../../../external/rules/projects/byul/todo-rules.org
+#+TODO_PARENT: todo-math-engine.org
+#+AUTHOR: ByulPapa / Codex
+#+LANGUAGE: ko
+#+OPTIONS: toc:t num:nil
+
+* 목적
+
+Compiled expression 또는 direct callback에서 renderer 독립 graph sample, root,
+교점, 극값과 불연속 후보를 계산한다. Display와 viewport interaction은 application
+책임이며 수치 미분·적분·보간은 =numeq=를 재사용한다.
+
+* 범위
+
+- Cartesian, parametric, polar와 implicit scalar field sampling
+- adaptive subdivision과 error estimate
+- root/intersection/minimum/maximum/inflection 후보
+- discontinuity와 asymptote 구간 분리
+- Marching Squares용 cell/segment data
+- progressive refinement, cancellation, budget와 deterministic cache key
+
+* 실행 절차
+
+** TODO 1. Graph query와 plot data 계약을 정의한다
+*** 실행
+
+Viewport, sample quality, unresolved interval, discontinuity, unit/frame과 buffer view를
+renderer type 없이 설계한다.
+
+*** 완료 조건
+
+GUI나 graphics dependency 없는 C ABI와 메모리 예산 계약이 존재한다.
+
+*** 검증
+
+C17/C++17 compile, forbidden include와 fixed-buffer failure test를 수행한다.
+
+** TODO 2. 1D adaptive sampling과 분석을 구현한다
+*** 실행
+
+Expression callback을 재parse 없이 평가하고 numeq root/derivative/minimizer를 조합한다.
+
+*** 완료 조건
+
+불연속에서 선분을 연결하지 않고 선언된 화면·함수 오차를 보고한다.
+
+*** 검증
+
+Known graph, pole, cusp, oscillation, tangent root와 budget exhaustion corpus를 실행한다.
+
+** TODO 3. Parametric·polar·implicit 경로를 추가한다
+*** 실행
+
+공통 sample/result를 유지하며 2D field와 Marching Squares 후보를 구현한다.
+
+*** 완료 조건
+
+교점과 topology ambiguity가 renderer 독립 상태로 표현된다.
+
+*** 검증
+
+Analytic curve/implicit contour와 refinement convergence를 검사한다.
+

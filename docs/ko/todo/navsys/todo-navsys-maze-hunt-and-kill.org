@@ -1,0 +1,123 @@
+#+TITLE: BYUL maze_hunt_and_kill.h 정밀 리팩터링 TODO
+#+TODO: TODO DOING BLOCKED | DONE CANCELLED FAILED
+#+TODO_RULES: ../../../../external/rules/projects/byul/todo-rules.org
+#+PUBLIC_API_RULES: ../../../../external/rules/projects/byul/public-api-rules.org
+#+HEADER_DECLARATION_RULES: ../../../../external/rules/projects/byul/header-declaration-rules.org
+#+HEADER_COMMENT_RULES: ../../../../external/rules/projects/byul/header-comment-rules.org
+#+HEADER_AUTHORING_RULES: ../../../../external/rules/projects/byul/header-authoring-rules.org
+#+BUILD_RULES: ../../../../external/rules/projects/byul/build-rules.org
+#+TEST_RULES: ../../../../external/rules/projects/byul/test-rules.org
+#+TODO_PARENT: todo-리팩토링-navsys-headers.org
+#+LANGUAGE: ko
+#+OPTIONS: toc:3 num:nil
+
+* 대상·기준
+
+- 대상: =maze_hunt_and_kill.h/.cpp=.
+- 공통 C ABI는 [[file:todo-navsys-industry-api-baseline.org][Navsys 업계 API 기준]]을 따른다.
+- [[https://weblog.jamisbuck.org/2011/1/24/maze-generation-hunt-and-kill-algorithm.html][Jamis Buck reference]]처럼 kill phase는 unvisited neighbor random walk,
+  hunt phase는 visited neighbor가 있는 unvisited cell을 찾아 한 edge로 tree에 붙여야 한다.
+
+* Public symbol inventory와 처분
+
+| kind | symbol | disposition |
+|------+--------+-------------|
+| guard macro | =MAZE_HUNT_AND_KILL_H= | source macro: ABI 1.x: keep -> ABI-major: internalize; collision-safe guard companion: ABI 1.x: add |
+| function | =maze_make_hunt_and_kill(int,int,int,int)= | legacy: ABI 1.x: deprecate-forward -> ABI-major: internalize; canonical companion: ABI 1.x: add |
+
+#+begin_src c
+BYUL_API navsys_status_t byul_maze_generate_hunt_and_kill(
+    int32_t origin_x, int32_t origin_y, uint32_t width, uint32_t height,
+    const byul_maze_generate_options_t* options, maze_t** out_maze);
+#+end_src
+
+* 함수 단위 감사
+
+| 단계 | 현재 | 결함/결정 |
+|------+-----+-----------|
+| validation | odd >=3 후 maze 생성 | maze allocation/hash failure 미검사 |
+| start | logical interior 범위 uniform pick | 적절하나 seed를 외부가 지정 못함 |
+| kill | shuffled 4 dirs 중 첫 unvisited valid | neighbor uniform, 한 edge씩 tree 확장 |
+| hunt | row-major 첫 candidate를 선택, visited neighbor만 random | hunt cell selection은 deterministic first라 미적 bias 존재; 문서에 없음 |
+| termination | hunt candidate가 없으면 종료 | visited count가 total인지 postcondition 검사 없음 |
+| RNG | =mt19937(time(nullptr))=, =rng()%adj.size= | seed collision/modulo bias |
+| result | WALL cell hash insertion | insertion/OOM failure 무시 |
+| test | count 범위와 print | phase transition, perfect topology, seed/cancel 없음 |
+
+* 목표 계약과 선택점
+
+- hunt selection policy를 =ROW_MAJOR_FIRST= 또는 =RANDOM_ELIGIBLE= typed option으로 노출할지
+  결정한다. 기존 adapter는 row-major first를 유지한다.
+- 결과는 perfect maze이나 UST가 아니며 long corridor/bias는 guarantee가 아니라 characteristic로 기록한다.
+- visited count가 logical cell count와 같아야 성공한다. 그렇지 않으면 corrupt-state status다.
+- cancel은 kill step과 hunt scan chunk마다 poll하며 max_steps에는 neighbor probe/hunt scan 중 무엇을
+  세는지 명시한다.
+
+* TODO 1단계: phase trace와 bias 기준선
+
+** 실행
+
+- RNG stub으로 kill dead-end, hunt resume와 final no-candidate trace를 만든다.
+- row-major hunt가 결과 분포에 주는 bias를 fixed seed corpus로 측정한다.
+- allocation/export/test/consumer 기준선을 동결한다.
+
+** 완료 조건
+
+- 각 phase의 progress invariant와 종료 조건이 state machine으로 승인된다.
+- option화할 hunt policy와 legacy default가 결정된다.
+
+** 검증
+
+- every carve가 unvisited vertex 하나를 기존 tree에 추가하는지 trace에서 검사한다.
+- 1-row/1-column logical grid와 nonzero origin을 검사한다.
+
+* TODO 2단계: status/options 구현
+
+** 실행
+
+- explicit seed, hunt policy, max steps/cancel과 output status API를 구현한다.
+- unbiased distribution과 checked allocation/hash insertion, exception barrier를 적용한다.
+- legacy symbol을 기존 policy adapter로 둔다.
+
+** 완료 조건
+
+- OOM/cancel/limit에서 partial maze가 노출되지 않고 visited/result temporary가 정리된다.
+- invalid option은 object를 만들기 전에 거부된다.
+
+** 검증
+
+- allocator fault index와 cancel at kill/hunt/materialize를 실행한다.
+- seed replay 및 old/new adapter equality를 검사한다.
+
+* TODO 3단계: topology·termination test
+
+** 실행
+
+- connectivity/no-cycle/edge count/border와 visited count를 assert한다.
+- max-step counter와 hunt scan worst-case O(V^2) 가능성을 benchmark한다.
+- large grid에는 indexed unvisited frontier 최적화를 검토하되 RNG semantic 변화는 별도 승인한다.
+
+** 완료 조건
+
+- 모든 success 결과가 perfect maze이며 termination reason이 관찰된다.
+- 성능 변경 전후 algorithm/result compatibility가 설명된다.
+
+** 검증
+
+- deterministic/property corpus, worst-case benchmark와 sanitizer를 실행한다.
+
+* TODO 4단계: Header·통합 gate
+
+** 실행
+
+- license/file/guard/direct include와 phase/RNG/ownership/thread metadata를 적용한다.
+- dispatcher/static/root/install/wrapper manifest를 동기화한다.
+
+** 완료 조건
+
+- audit 0 error, export 1:1과 deprecation note가 완료된다.
+
+** 검증
+
+- C/C++ standalone compile, native/root, SDK consumer와 wrapper audit를 실행한다.
+- module static =BYUL_STATIC=과 root shared =BYUL_EXPORTS=에서 legacy/canonical export를 각각 검증한다.

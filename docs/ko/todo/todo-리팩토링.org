@@ -1,0 +1,413 @@
+#+TITLE: BYUL 전체 헤더 리팩터링 TODO
+#+TODO: TODO DOING BLOCKED | DONE CANCELLED FAILED
+#+TODO_RULES: ../../../external/rules/projects/byul/todo-rules.org
+#+PUBLIC_API_RULES: ../../../external/rules/projects/byul/public-api-rules.org
+#+HEADER_DECLARATION_RULES: ../../../external/rules/projects/byul/header-declaration-rules.org
+#+HEADER_COMMENT_RULES: ../../../external/rules/projects/byul/header-comment-rules.org
+#+HEADER_AUTHORING_RULES: ../../../external/rules/projects/byul/header-authoring-rules.org
+#+BUILD_RULES: ../../../external/rules/projects/byul/build-rules.org
+#+TEST_RULES: ../../../external/rules/projects/byul/test-rules.org
+#+AUTHOR: ByulPapa / Codex
+#+LANGUAGE: ko
+#+OPTIONS: toc:t num:nil
+
+* 목적
+
+BYUL 저장소의 모든 =.h=, =.hpp= 파일을 중앙 =rules_env=의 선언, 주석, 작성,
+public ABI, build와 test 규칙에 맞게 단계적으로 리팩터링한다. 이 계획은 public header만
+다루지 않는다. SDK public, compatibility, internal/detail, generated, tool-only,
+reference/deprecated header를 모두 inventory에 넣고 각 파일의 역할과 소비자를 먼저
+확정한다.
+
+헤더 문구를 일괄 치환하는 작업이 아니다. 선언과 구현, module static target, root shared
+library, 설치 SDK, wrapper, 외부 C consumer가 같은 계약을 검증한 뒤에만 한 단계를 닫는다.
+
+* 규칙과 분석 기준
+
+- 규칙 checkout: =external/rules=
+- 검토한 중앙 규칙 revision: =b644b4cfa630534b755e1837f524753c7252b749=
+- 분석한 BYUL Git HEAD: =4b758193c922640a0804b2f1bb20ff8d648c5e55=
+- revision과 checkout 계약의 원본 기록: =rules-ref.org=
+- Markdown 규칙 복사본은 원본으로 사용하지 않는다.
+- 작업 시작 시 =common/init-rules.org=,
+  =common/project-bootstrap-rules.org=,
+  =projects/byul/byul-init-rules.org= 순서로 다시 확인한다.
+
+현재 working tree에는 이 분석 이전부터 존재한 변경이 있으므로 위 SHA만으로 파일
+내용을 재현할 수 있다고 가정하지 않는다. 1단계에서 dirty diff와 submodule 상태까지
+별도 artifact로 동결한다.
+
+* 비목표와 보호 조건
+
+- 이 TODO 작성 단계에서는 header나 구현을 일괄 수정하지 않는다.
+- 기존 public header, symbol, enum 값, struct layout과 호출 규약을 근거 없이 삭제하거나
+  바꾸지 않는다.
+- rename, parameter 재배치, opaque 전환은 새 canonical API를 먼저 추가하고 기존 API를
+  deprecated forwarding layer로 보존한다. 직접 전환은 승인된 ABI-major 단계에서만 한다.
+- =tools/unit_1003=의 기존 license를 BYUL license로 덮어쓰지 않는다. 이 tree는 현재
+  mathunits 작업의 요구사항, 데이터와 regression reference이며 BYUL public ABI가 아니다.
+- generated header는 산출물만 고치지 않고 generator와 재생성 검증을 함께 바꾼다.
+- feature 추가, 알고리즘 교체와 성능 개선은 header 계약을 검증하는 데 필요한 최소 범위를
+  넘지 않는다.
+
+* Static과 shared의 불변식
+
+BYUL native build의 기준 관계는 다음과 같다.
+
+#+begin_src text
+module source/header inventory
+  +-- module static target: 개발과 module test, BYUL_STATIC
+  +-- root shared target: 같은 inventory를 다시 compile, BYUL_EXPORTS
+                         Windows byul.dll / Unix libbyul.so
+#+end_src
+
+최종 runtime shared library는 module static archive를 평범하게 link하여 만들지 않는다.
+그 방식은 참조되지 않은 public object와 symbol을 linker가 제거할 수 있기 때문이다.
+object library 또는 whole-archive 방식으로 변경하려면 export, PIC, Windows/Linux/macOS
+symbol 검증을 먼저 추가한다. module static test 통과만으로 root shared 공개 API가
+완성됐다고 판정하지 않는다.
+
+Math Engine 분리는 두 phase로 실행한다. 중앙 규칙 변경 전에는 계산 source의 canonical
+소유권과 component static target을 분리하되 현행 root shared가 같은 inventory를 다시
+compile한다. [[file:math-engine/todo-math-engine-build-abi.org][Math Engine Build·DLL ABI TODO]]의
+규칙 변경과 =rules-ref.org= 갱신 gate를 통과한 뒤에는 canonical math symbol을 독립 Math
+Engine DLL 한 곳만 export하고 root/Balix는 link와 legacy forwarding만 수행한다.
+
+* 전체 Inventory 기준선
+
+2026-07-17 working tree에서 추적 대상으로 확인한 header는 135개다.
+
+| 영역 | 파일 수 | 줄 수 | 비고 |
+|------+--------+-------+------|
+| =byul/= |    104 | 13894 | =.h= 99, =.hpp= 5 |
+| =tools/= |     31 |  4828 | =.h= 22, =.hpp= 9 |
+| 합계 |    135 | 18722 | vendor, build 산출물 제외 |
+
+BYUL module별 기준선은 다음과 같다.
+
+| module | header | 줄 | =BYUL_API= token |
+|--------+--------+----+------------------|
+| root | 2 | 96 | 6 |
+| core | 1 | 55 | 15 |
+| numal | 11 | 1654 | 175 |
+| number_theory | 5 | 726 | 5 |
+| rng | 6 | 472 | 0 |
+| console | 2 | 141 | 11 |
+| byul_tick | 1 | 82 | 7 |
+| aerial | 1 | 70 | 4 |
+| navsys | 43 | 3853 | 425 |
+| balix | 18 | 3912 | 215 |
+| entity | 7 | 1211 | 47 |
+| projectile | 6 | 1431 | 80 |
+| ground | 1 | 191 | 10 |
+| =tools/gpu_comp_tester= | 2 | 74 | 해당 없음 |
+| =tools/unit_1003= | 29 | 4754 | 해당 없음 |
+
+각 파일은 다음 하위 TODO 중 정확히 하나에서 이름과 disposition을 가진다.
+
+- [[file:todo-리팩토링-foundation-headers.org][foundation, numal, number theory, RNG, console, tick, aerial: 29개]]
+- [[file:navsys/todo-리팩토링-navsys-headers.org][navsys: 43개]]
+- [[file:todo-리팩토링-simulation-headers.org][balix, entity, projectile, ground: 32개]]
+- [[file:todo-리팩토링-tool-headers.org][tool, reference, deprecated: 31개]]
+
+파일 disposition과 별도로 다음 cross-cutting 계획이 canonical 수학 의미와 source 이동을
+소유한다. 기존 header TODO는 layout/export/install/compatibility gate를 유지하고 같은
+공식이나 API 재설계를 중복 소유하지 않는다.
+
+- [[file:math-engine/todo-math-engine.org][Math Engine 전체 계획]]
+- [[file:math-engine/todo-numal-header-refactoring.org][Numal Math Engine API 계획]]
+- [[file:math-engine/todo-balix-math-extraction.org][Balix 수학 공식·kernel 추출 계획]]
+- [[file:math-engine/todo-balix-formula-constant-inventory.org][Balix 공식·상수·private helper 전수 inventory]]
+- [[file:math-engine/todo-unit-1003-migration.org][unit_1003 → Mathunits migration 계획]]
+
+* 자동 감사 기준선
+
+공식 wrapper ABI 감사의 현재 기준선은 다음과 같다.
+
+#+begin_src powershell
+tools/python/.venv/Scripts/python.exe `
+  tools/python/byul_wrapper/generate_wrapper_abi.py `
+  --audit --all-headers --verbose
+#+end_src
+
+- =BYUL_API=가 있는 header: 85개
+- 감사한 exported declaration: 940개
+- 오류: 2785개
+- wrapper manifest 등록: 26/85, 미등록: 59개
+
+| 오류 code | 수 |
+|-----------+----|
+| =missing-nullable= | 935 |
+| =missing-param-direction= | 631 |
+| =missing-doxygen= | 494 |
+| =missing-param= | 439 |
+| =missing-return-lifetime= | 78 |
+| =missing-return-nullable= | 78 |
+| =missing-return= | 61 |
+| =unnamed-parameter= | 32 |
+| =missing-brief= | 21 |
+| =unknown-param= | 16 |
+
+오류가 많은 module은 navsys 952, balix 826, numal 485, projectile 203,
+entity 190, ground 60 순이다. 현재 wrapper =--check= 통과는 등록된 26개만 검사하므로
+전체 coverage의 완료 근거가 아니다.
+
+정적 구조 기준선:
+
+- BYUL 104개 중 중앙 규칙의 정확한 표준 license block을 가진 파일: 0개
+- BYUL 104개 중 =BYUL_= prefix guard를 가진 파일: 14개
+- BYUL 104개 중 정확한 파일 수준 =@file=: 13개
+- BYUL 104개 중 =@brief=: 78개
+- quoted internal include edge: 287개, 확인된 cycle 0개, unresolved 0개
+- 현재 생성된 install script가 설치하는 BYUL header: 92개
+- 설치에서 빠진 BYUL header: 12개
+- root, module, install, wrapper를 함께 설명하는 header-role manifest: 없음
+- ABI version/fingerprint와 public type size/align/offset manifest: 없음
+
+감사기는 현재 =BYUL_API= 선언의 Doxygen 중심 검사이므로 license, guard, include 순서,
+standalone C/C++ compile, 역할, 설치 inventory, 선언-구현 signature와 export symbol을 모두
+검사하지 못한다. 3단계에서 이 사각지대를 먼저 자동화한다.
+
+* 확인된 P0 Blocker
+
+- =rng= 6개 header는 public API처럼 작성됐지만 =BYUL_API=가 없고 root shared/install에서
+  빠져 있다. public module인지 static-only internal인지 결정해야 한다.
+- =aerial=은 root =add_subdirectory=와 shared inventory에 없으며 header의 네 선언은
+  구현되지 않았다. source에는 반대로 header에 없는 함수가 있다.
+- =dstar_lite_console.h=의 두 public 선언은 구현이 없는데 wrapper가 호출한다.
+- =strset_pop=과 여러 navsys API는 library heap allocation을 반환하지만 대응 BYUL
+  destroy API나 소유권형 이름이 없어 Windows CRT 경계를 위반할 수 있다.
+- 공개 SDK에 C++ implementation helper인 =coord.hpp=,
+  =dstar_lite_key.hpp=와 numal global-namespace façade 세 개가 섞여 있다.
+- public struct가 owning/retained pointer를 노출하는 header가 광범위하며 ABI query가 없다.
+- operational enum의 실제 구현 지원 범위와 header 선언이 다르고 support query가 없다.
+- 현재 install에서 빠진 12개는 aerial 1, entity 2, navsys C++ 1,
+  number_theory internal/generated 2, RNG 6개다. 누락과 의도적 제외를 구분해야 한다.
+- root =byul.h= aggregate는 module inventory와 일치하지 않는다. 모든 module을 무조건
+  include하지 말고 module-entry와 public aggregate 역할을 먼저 확정한다.
+
+* 목표 Header 상태
+
+각 header는 machine-readable role manifest에서 정확히 하나의 primary role을 가진다.
+
+#+begin_src text
+public-foundation | public-module-entry | public-aggregate | public-component
+compatibility-forwarder | cpp-facade
+internal | generated | tool-only | reference | deprecated-reference
+#+end_src
+
+public C header의 완료 상태:
+
+- 표준 license가 첫 block이며 정확한 =@file=, =@brief=와 역할 설명이 뒤따른다.
+- =BYUL_= guard, direct standard/project include, include 순서, C linkage가 독립적이다.
+- exported function은 =BYUL_API=와 C ABI를 사용하며 C17/C++17에서 단독 include된다.
+- pointer direction, nullability, ownership/lifetime, invalidation, thread/reentrancy, error,
+  unit/range/nonfinite, buffer capacity와 callback userdata 계약이 =@byul.*= metadata와
+  Doxygen으로 표현된다.
+- value/resource/enum ABI는 size, align, offset, numeric value, support 범위와 fingerprint로
+  동결된다.
+- header, implementation signature, root export, wrapper와 installed SDK가 같은 inventory를
+  사용한다.
+
+* TODO 1단계: 재현 가능한 기준선과 역할 자료 동결
+
+** 실행
+
+- Git HEAD, dirty diff, submodule SHA, compiler/CMake/Python 환경을 artifact로 기록한다.
+- 135개 header의 path, SHA-256, line count, language, license, guard, role 후보,
+  module inventory, root inventory, install, umbrella, wrapper와 source definition을 추출한다.
+- 현재 DLL/SO export, public struct layout, enum numeric value, function signature와 legacy
+  consumer compile fixture를 저장한다.
+- 기존 소비 이력을 확인하지 못한 header는 임의로 internal 처리하지 않고
+  =decision-required=로 표시한다.
+
+** 완료 조건
+
+- 하나의 manifest에서 135개가 중복 없이 모두 나타나고 각 파일의 소비 경로와 근거를
+  역추적할 수 있다.
+- generated/install/export artifact를 fresh build에서 다시 만들 수 있다.
+- 현재 오류도 regression fixture로 보존하되 알려진 결함과 기대 동작을 구분한다.
+
+** 검증
+
+- =rg --files byul tools -g '*.h' -g '*.hpp'= 집합과 manifest path 집합을 비교한다.
+- manifest의 module/root/install/wrapper 집합 차이를 CI report로 출력한다.
+- 기존 SDK consumer와 ABI snapshot을 변경 전 build에서 실행한다.
+
+* TODO 2단계: Public, compatibility, internal 경계 승인
+
+** 실행
+
+- 하위 TODO의 모든 =decision-required=를 사용 이력과 build 근거로 판정한다.
+- 특히 RNG, aerial, 5개 BYUL =.hpp=, D* Lite diagnostic, generated prime table,
+  unused compiler header와 미설치 entity header를 결정한다.
+- public에서 제외할 기존 설치 header는 즉시 삭제하지 않고 compatibility 기간,
+  forwarding include 또는 별도 C++ package 경로를 정한다.
+- public resource struct의 additive API와 ABI-major opaque migration 순서를 기록한다.
+
+** 완료 조건
+
+- 모든 header가 승인된 primary role, owner module, install 여부와 wrapper 처리
+  (=generated/manual/excluded + reason=)를 가진다.
+- public surface 변경마다 source/ABI compatibility 판단과 deprecation 종료 조건이 있다.
+- module-entry, aggregate와 component include graph가 cycle 없이 확정된다.
+
+** 검증
+
+- role manifest schema와 집합 불변식을 자동 검사한다.
+- 기존 install tree와 새 의도 inventory의 차이를 사람 검토용 report로 생성한다.
+- 제거/이동 후보는 기존 include path consumer fixture가 있는 상태에서만 승인한다.
+
+* TODO 3단계: Header와 ABI 감사기를 완성
+
+** 실행
+
+- license, file Doxygen, guard, include 순서/direct include, C linkage와 =BYUL_API=를 검사한다.
+- 모든 public C header를 C17과 C++17 translation unit에서 각각 단독 compile한다.
+- header declaration과 implementation signature, declared-but-undefined symbol,
+  root export, role/install/wrapper manifest를 교차 검사한다.
+- struct size/align/offset, enum numeric value, ABI version/fingerprint snapshot을 추가한다.
+- =--audit --all-headers=가 public manifest 전체를 검사하고 explicit exclusion reason 없이는
+  누락을 허용하지 않게 한다.
+
+** 완료 조건
+
+- 하위 작업이 같은 검사기를 사용하고 새 header가 자동으로 inventory에 들어간다.
+- static test만 통과하거나 wrapper 일부만 등록된 상태를 success로 오판하지 않는다.
+- Windows, Linux와 macOS에 동일한 논리 gate와 플랫폼별 export 검사가 정의된다.
+
+** 검증
+
+- 규칙별 의도적 negative fixture가 각각 실패하고 수정 fixture가 통과한다.
+- manifest에서 header 하나, export 하나, wrapper row 하나를 제거한 mutation test가
+  해당 불일치를 탐지한다.
+
+* TODO 4단계: Foundation 계열 29개 실행
+
+** 실행
+
+[[file:todo-리팩토링-foundation-headers.org][foundation header 하위 TODO]]와 Numal의 canonical
+수학 계약을 소유하는
+[[file:math-engine/todo-numal-header-refactoring.org][Numal Public Header 세부 TODO]]를
+의존 순서대로 실행한다.
+
+** 완료 조건
+
+- 해당 문서의 모든 단계가 =DONE= 또는 근거와 후속 금지를 가진 terminal 상태다.
+- root/config/core, numal, number theory, RNG, console, tick, aerial의 경계와 계약이
+  root manifest에 합류한다.
+
+** 검증
+
+- 하위 문서의 최종 module static/root shared/install/wrapper/consumer gate 결과를 첨부한다.
+
+* TODO 5단계: Navsys 43개 실행
+
+** 실행
+
+[[file:navsys/todo-리팩토링-navsys-headers.org][navsys header 하위 TODO]]를 순서대로 실행한다.
+
+** 완료 조건
+
+- 43개 파일의 역할, ownership, callback, enum 지원과 compatibility 전환이 확정된다.
+- public C++ helper와 resource layout migration이 승인된 경계를 따르며 처리된다.
+
+** 검증
+
+- navsys static test, root shared export, wrapper와 clean SDK consumer 결과를 첨부한다.
+
+* TODO 6단계: Simulation 계열 32개 실행
+
+** 실행
+
+[[file:todo-리팩토링-simulation-headers.org][simulation header 하위 TODO]],
+[[file:math-engine/todo-balix-math-extraction.org][Balix 수학 추출 master]]와
+[[file:math-engine/todo-balix-math-engine-consumer.org][Balix Math Engine consumer TODO]]를
+의존 순서대로 실행한다.
+
+** 완료 조건
+
+- balix, entity, projectile와 ground의 value/resource/callback 계약과 module 경계가
+  구현 및 test와 일치한다.
+- dependency가 Balix → Math Engine 단방향이고 math source/symbol 중복 compile·export가
+  없다. Collision 감시/event는 Balix, 순수 교차 좌표·TOI query는 Math Engine에 남는다.
+
+** 검증
+
+- module test와 root integration, ABI snapshot, sanitizer 및 wrapper 결과를 첨부한다.
+
+* TODO 7단계: Tool과 reference 31개 실행
+
+** 실행
+
+[[file:todo-리팩토링-tool-headers.org][tool/reference header 하위 TODO]]와
+[[file:math-engine/todo-unit-1003-migration.org][unit_1003 migration TODO]]를 순서대로
+실행한다.
+
+** 완료 조건
+
+- tool-only와 reference/deprecated source가 BYUL SDK inventory와 분리되고 기존 권리,
+  provenance와 regression 가치가 보존된다.
+
+** 검증
+
+- tool build/test와 SDK exclusion 검사를 실행하고 reference migration 추적표를 확인한다.
+
+* TODO 8단계: Root shared, wrapper와 SDK 통합
+
+** 실행
+
+- 승인된 module source/header inventory를 root shared target과 install manifest에 반영한다.
+- module static과 root shared가 동일 inventory를 서로 다른 compile definition으로
+  compile한다는 것을 검사한다.
+- 독립 DLL cutover 전에는 현행 단일 root shared 규칙을 유지한다. 승인된 중앙 규칙과
+  =rules-ref.org= revision 갱신 후에는 root가 Math Engine import target을 link하고 같은
+  canonical math source를 재compile하지 않게 전환한다.
+- public export manifest, ABI version/fingerprint, layout/enum fixture와 wrapper manifest를
+  한 revisioned 계약으로 묶는다.
+- clean install/ZIP만 사용하는 외부 C consumer와 compatibility consumer를 작성한다.
+
+** 완료 조건
+
+- Cutover 전 public 선언은 정확히 한 root shared definition/export를 가진다. Cutover
+  후 canonical math 선언은 Math Engine DLL 한 곳에만 있고 root의 기존 symbol은 승인된
+  compatibility forwarder만 가진다. Internal symbol은 어느 DLL에서도 export되지 않는다.
+- wrapper는 모든 public header를 registered/manual/excluded로 설명하고 native library에
+  실제 load된다.
+- source tree include에 의존하지 않는 SDK consumer가 Windows/Linux/macOS에서 동작한다.
+
+** 검증
+
+- 각 module static test, root =test_byul=, =ctest= discovery를 실행한다.
+- Windows export table, Linux/macOS dynamic symbol table과 manifest를 비교한다.
+- Linux ASan/LSan 및 가능한 플랫폼 sanitizer를 실행한다.
+- wrapper =--audit --all-headers --verbose=, =--check=, unit/native-library test를 실행한다.
+- C17/C++17 standalone header compile와 clean SDK external consumer를 실행한다.
+
+* TODO 9단계: 공개 문서와 종료 감사
+
+** 실행
+
+- header role, ownership, error, thread, ABI/version과 deprecation 정책을 SDK 문서에 반영한다.
+- 공개 include path 또는 symbol 변화는 migration guide와 release-note 후보를 작성한다.
+- superseded header/TODO는 소비자가 전환되고 compatibility gate가 끝난 뒤에만 archive한다.
+- 1단계 기준선과 최종 상태의 차이를 signed-off report로 남긴다.
+
+** 완료 조건
+
+- 135개 최초 inventory가 최종 manifest의 유지/이동/생성/제외 기록으로 모두 닫힌다.
+- 자동 감사 오류가 0이며 waiver가 있다면 owner, 이유와 만료 조건이 명시된다.
+- 문서 예제와 배포 SDK가 동일 revision의 public surface를 사용한다.
+
+** 검증
+
+- Org link, rules reference와 TODO 상태를 검사한다.
+- fresh clone + submodule init부터 build, test, install, wrapper와 external consumer를 재현한다.
+- release 후보 artifact의 ABI fingerprint와 문서에 기록한 fingerprint를 비교한다.
+
+* 다음 단계 허용 조건
+
+각 순차 단계의 완료 조건과 검증 evidence가 없으면 다음 단계로 이동하지 않는다.
+=BLOCKED=, =CANCELLED= 또는 =FAILED=로 닫을 때는 이유, 영향, 복구 단계와
+=NEXT_STEP_ALLOWED= 여부를 같은 heading 아래 기록한다. 하위 TODO의 완료는 상위 통합
+gate를 대신하지 않는다.

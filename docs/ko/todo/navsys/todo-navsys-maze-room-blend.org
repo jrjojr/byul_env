@@ -1,0 +1,172 @@
+#+TITLE: BYUL maze_room_blend.h 정밀 리팩터링 TODO
+#+TODO: TODO DOING BLOCKED | DONE CANCELLED FAILED
+#+TODO_RULES: ../../../../external/rules/projects/byul/todo-rules.org
+#+PUBLIC_API_RULES: ../../../../external/rules/projects/byul/public-api-rules.org
+#+HEADER_DECLARATION_RULES: ../../../../external/rules/projects/byul/header-declaration-rules.org
+#+HEADER_COMMENT_RULES: ../../../../external/rules/projects/byul/header-comment-rules.org
+#+HEADER_AUTHORING_RULES: ../../../../external/rules/projects/byul/header-authoring-rules.org
+#+BUILD_RULES: ../../../../external/rules/projects/byul/build-rules.org
+#+TEST_RULES: ../../../../external/rules/projects/byul/test-rules.org
+#+TODO_PARENT: todo-리팩토링-navsys-headers.org
+#+LANGUAGE: ko
+#+OPTIONS: toc:3 num:nil
+
+* 대상과 역할 재설계
+
+- 대상: =maze_room_blend.h/.cpp=.
+- 이 header는 단일 fixed maze algorithm이라기보다 room placement, corridor connection,
+  backtracker fill을 결합한 dungeon generator다. =maze= family에 유지할지 별도 dungeon
+  component로 분리할지 role decision이 필요하다.
+- 공통 status/options/lifecycle은 [[file:todo-navsys-industry-api-baseline.org][Navsys 업계 API 기준]]을 따른다.
+- 비교 implementation은 established roguelike C/C++ library인 [[https://github.com/libtcod/libtcod][libtcod 공식 저장소]]의
+  map/path/BSP style 책임 분리와 Jamis Buck backtracker reference다.
+
+* Header public symbol/type inventory와 처분
+
+| kind | symbol | disposition | 이유 |
+|------+--------+-------------+------|
+| guard macro | =MAZE_ROOM_H= | source macro: ABI 1.x: keep -> ABI-major: internalize; collision-safe guard companion: ABI 1.x: add | filename/role과 불일치하지만 ABI 1.x source 관찰은 보존 |
+| typedef/layout | =room_t= | ABI 1.x: keep -> ABI-major: internalize | 어떤 public function도 받거나 반환하지 않고 구현은 별도 private C++ =Room= 사용 |
+| field | =room_t.x= | ABI 1.x: keep -> ABI-major: internalize | public value layout 일부; unit/bounds consumer 근거 없음 |
+| field | =room_t.y= | ABI 1.x: keep -> ABI-major: internalize | public value layout 일부; unit/bounds consumer 근거 없음 |
+| field | =room_t.w= | ABI 1.x: keep -> ABI-major: internalize | public value layout 일부; width unit consumer 근거 없음 |
+| field | =room_t.h= | ABI 1.x: keep -> ABI-major: internalize | public value layout 일부; height unit consumer 근거 없음 |
+| function | =maze_make_room_blend(int,int,int,int)= | legacy: ABI 1.x: deprecate-forward -> ABI-major: internalize; support path: conformance-block; canonical companion: ABI 1.x: add | fixed hidden policy를 versioned options로 대체 |
+
+#+begin_src c
+typedef struct byul_room_blend_options {
+    uint32_t struct_size;
+    uint32_t room_attempts;
+    uint32_t min_room_width;
+    uint32_t min_room_height;
+    uint32_t max_room_width;
+    uint32_t max_room_height;
+    uint32_t room_padding;
+    uint64_t seed;
+    uint64_t max_steps;
+    navsys_cancel_func cancel_func;
+    void* cancel_userdata;
+} byul_room_blend_options_t;
+
+BYUL_API navsys_status_t byul_maze_generate_room_blend(
+    int32_t origin_x, int32_t origin_y, uint32_t width, uint32_t height,
+    const byul_room_blend_options_t* options, maze_t** out_maze);
+#+end_src
+
+* P0 구현 감사
+
+| 단계 | 현재 | 구체 문제 |
+|------+-----+-----------|
+| includes | =coord_hash.h=와 aggregate =maze.h= | component→aggregate 역의존; core direct include로 교정 |
+| public room | =room_t= 선언 | implementation은 private =Room=만 사용해 dead ABI surface |
+| size validation | width/height >=9만 확인 | parity, max size, allocation failure 없음 |
+| room size | =3 + rand()%3*2 + 1= | 실제 4/6/8로 even; =room_min/max= 명칭/주석 의도와 불일치 |
+| room position | =rand()%((w-rw-1)/2)= | w=9,rw=8이면 divisor 0으로 UB/crash |
+| RNG | global =srand/rand= + fill의 =thread_local mt19937(random_device)= | 한 결과에 두 독립 RNG, seed replay 불가능, process-global race |
+| attempts | hardcoded 30 | grid 크기와 무관하고 관찰/설정 불가 |
+| overlap | strict rectangle overlap만 | padding/touch/boundary policy 없음 |
+| corridors | placement order consecutive centers, random L bend | connectivity는 기대되나 no-room/one-room, terrain/bounds test 없음 |
+| fill | each remaining odd component를 DFS carve | 기존 room/corridor와 연결된다는 guarantee가 없음; 여러 disconnected maze island 가능 |
+| result | blocked hash inserts | OOM failure 무시 |
+| test | non-NULL, blocked>0, ASCII | rooms/count/connectivity/zero-divisor/seed 미검증 |
+
+* 목표 algorithm 계약
+
+- placement 후보 범위를 checked arithmetic으로 계산하고 후보가 없으면 skip 또는 explicit
+  invalid-config status로 처리한다. modulo 0은 절대 호출하지 않는다.
+- room size parity를 목적에 맞게 명시한다. cell rectangle은 half-open world extent, padding과
+  boundary clearance를 options에 둔다.
+- 단일 per-call RNG stream 또는 명시적으로 분리된 named streams를 사용하고 replay metadata를 남긴다.
+- room connection graph를 sequential chain, MST, nearest-neighbor 중 typed policy로 정한다.
+  기본 legacy adapter는 placement-order chain을 유지한다.
+- fill component가 room/corridor network에 연결되는지 검사하고 필요하면 connector edge를
+  추가한다. 결과 connectivity/cycle/room reachability claim을 명확히 한다.
+- cancel은 placement attempt, corridor cell, DFS step, materialization마다 bounded poll한다.
+
+* TODO 1단계: crash·dead ABI·topology 기준선
+
+** 실행
+
+- 9x9에서 room size 8과 modulo-zero를 RNG stub/UBSan으로 재현한다.
+- =room_t= external/repository consumer를 전수 검색하고 internalize 가능성을 기록한다.
+- generated rooms/corridors/fill components를 debug trace로 분리해 connectivity를 측정한다.
+
+** 완료 조건
+
+- zero-divisor P0 test와 two-RNG non-replay fixture가 있다.
+- =room_t= keep/internalize/ABI-major 결정과 compatibility 근거가 승인된다.
+- component→aggregate include 역전 수정 계획이 있다.
+
+** 검증
+
+- size 9..20, even/odd/rectangular dimensions와 all room-size RNG branches를 sanitizer로 실행한다.
+- header/install/export/wrapper consumer inventory를 비교한다.
+
+* TODO 2단계: versioned options와 deterministic placement
+
+** 실행
+
+- checked option validation, eligible size/position sampling과 per-call RNG를 구현한다.
+- room attempts/size/padding/seed/cancel/limit을 target struct로 받는다.
+- placement output을 private room vector로 유지하고 exception/OOM을 status로 변환한다.
+
+** 완료 조건
+
+- 모든 valid options에서 modulo 0/overflow/OOB가 없고 동일 seed가 replay된다.
+- invalid config/OOM/cancel 때 partial maze가 반환되지 않는다.
+
+** 검증
+
+- option boundary matrix, allocator fault, parallel calls/global RNG non-interference를 검사한다.
+
+* TODO 3단계: corridor·fill topology 정규화
+
+** 실행
+
+- connection policy별 graph edge와 L-bend tie/RNG order를 명시한다.
+- corridor raster radius와 room boundary entry를 정의한다.
+- fill DFS가 기존 passage network에 연결되도록 frontier/connector 정책을 구현한다.
+
+** 완료 조건
+
+- 모든 room center가 서로 reachable이고 모든 intended passage component가 main network에 연결된다.
+- cycles 허용 여부, minimum corridor width와 border invariant가 capability와 일치한다.
+
+** 검증
+
+- 0/1/many room, touching/padding, rectangular and negative origin property tests를 실행한다.
+- graph component/cycle/room reachability oracle와 seed golden을 검사한다.
+
+* TODO 4단계: legacy API와 role migration
+
+** 실행
+
+- legacy hidden constants를 명시한 adapter options로 =maze_make_room_blend=를 forwarding한다.
+- dungeon component 분리 시 새 header/aggregate를 추가하고 기존 path는 deprecated forwarding한다.
+- unused =room_t=는 승인된 compatibility 기간 후 SDK에서 제외한다.
+
+** 완료 조건
+
+- old symbol은 동작하고 신규 API만으로 모든 policy가 typed 표현된다.
+- role 변경이 source/ABI/release note와 wrapper 제외 사유에 기록된다.
+
+** 검증
+
+- old/new SDK consumer, dispatcher and direct call equality를 검사한다.
+- root export/install manifest를 비교한다.
+
+* TODO 5단계: Header·robustness gate
+
+** 실행
+
+- license/file/guard/direct core include와 option/seed/topology/ownership/error metadata를 적용한다.
+- static/root/install/dispatcher/wrapper manifest를 합류한다.
+
+** 완료 조건
+
+- audit 0 error, C++ exception barrier, sanitizer 0 issue와 export 1:1이 충족된다.
+
+** 검증
+
+- C17/C++17 standalone include, module/root/property/fault tests와 clean SDK consumer를 실행한다.
+- module static =BYUL_STATIC=과 root shared =BYUL_EXPORTS=에서 role migration 전후 export를 각각 검증한다.

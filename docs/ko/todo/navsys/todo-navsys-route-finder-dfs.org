@@ -1,0 +1,104 @@
+#+TITLE: BYUL Navsys dfs.h 정밀 리팩터링 TODO
+#+TODO: TODO DOING BLOCKED | DONE CANCELLED FAILED
+#+TODO_RULES: ../../../../external/rules/projects/byul/todo-rules.org
+#+PUBLIC_API_RULES: ../../../../external/rules/projects/byul/public-api-rules.org
+#+HEADER_DECLARATION_RULES: ../../../../external/rules/projects/byul/header-declaration-rules.org
+#+HEADER_COMMENT_RULES: ../../../../external/rules/projects/byul/header-comment-rules.org
+#+HEADER_AUTHORING_RULES: ../../../../external/rules/projects/byul/header-authoring-rules.org
+#+BUILD_RULES: ../../../../external/rules/projects/byul/build-rules.org
+#+TEST_RULES: ../../../../external/rules/projects/byul/test-rules.org
+#+TODO_PARENT: todo-리팩토링-navsys-headers.org
+#+INDUSTRY_API_BASELINE: todo-navsys-industry-api-baseline.org
+#+AUTHOR: ByulPapa / Codex
+#+LANGUAGE: ko
+#+OPTIONS: toc:t num:nil
+
+* 대상과 비교 기준
+
+대상은 =dfs.h/dfs.cpp=다. [[file:todo-navsys-industry-api-baseline.org][공통 기준]]과
+[[https://www.boost.org/doc/libs/latest/libs/graph/doc/depth_first_search.html][Boost.Graph DFS]]의
+color map, discover/tree/back/finish event, O(V+E)와 traversal semantics를 비교한다.
+
+* 구현/소비와 결함
+
+- =find_dfs= 하나가 module/root/SDK/CFFI/dispatcher에 노출된다. Header는 사용하지 않는
+  =scalar.h=와 evaluation core까지 include한다.
+- 구현은 iterative LIFO이지만 neighbor iteration/insert 순서가 path를 결정한다. “fast”라는
+  설명 외에 completeness, non-optimal, deterministic order와 partial endpoint가 없다.
+- NULL 또는 =max_retry <= 0=은 NULL이며 budget 소진/no-path/OOM이 구분되지 않는다.
+- =debug_mode_enabled=는 방문 순서를 route 내부에 누적해 memory budget에 영향을 주지만
+  stats/observer 계약이 아니다.
+
+* 전체 Public Symbol Inventory와 disposition
+
+=DFS_H= include guard는 현재 macro inventory에 포함하고 ABI 영향 없이
+=BYUL_NAVSYS_ROUTE_FINDER_DFS_H=로 교체한다.
+
+| symbol | 현재 signature | wrapper | disposition |
+|--------+------------------+---------+-------------|
+| =find_dfs= | =route_t*(grid,start,goal,int max_retry,bool debug)= | generated CFFI | =ABI 1.x: deprecate-forward; companion: add -> ABI-major: internalize= |
+
+* 목표 Signature 후보
+
+#+begin_src c
+BYUL_API navsys_status_t route_finder_find_dfs_ex(
+    const navgrid_t* grid,
+    const coord_t* start,
+    const coord_t* goal,
+    const navsys_search_options_t* options,
+    route_t** out_route,
+    navsys_search_stats_t* out_stats);
+#+end_src
+
+Capability descriptor는 “reachable goal 발견 가능, shortest/least-cost 보장 없음”을 명시한다.
+Tie/neighbor order, cycle detection, maximum expansion/depth, partial path와 cancel semantics를
+고정한다.
+
+* TODO 1단계: Traversal 계약 동결
+
+** 실행
+
+- direct include/signature/export/CFFI와 neighbor ordering, visited/came-from/partial 동작을
+  snapshot한다.
+- cycle, disconnected, deep corridor, branch-order 반례와 non-optimal path fixture를 추가한다.
+
+** 완료 조건
+
+- completeness/non-optimal/determinism 주장과 budget 단위가 실제 구현에 대응한다.
+
+** 검증
+
+- Boost-style DFS event trace reference와 exhaustive tiny graph reachable set을 비교한다.
+
+* TODO 2단계: Status형 DFS와 observer 구현
+
+** 실행
+
+- canonical status/out/stats/cancel adapter를 구현하고 debug route mutation을 observer로 분리한다.
+- allocation failure와 limit 시 partial endpoint/route validity를 정의한다.
+
+** 완료 조건
+
+- no-path/limit/cancel/OOM이 분리되고 cycle에서 유한 종료한다.
+- 사용하지 않는 include와 transitive type 의존이 없다.
+
+** 검증
+
+- event ordering, exact limit, cancel/OOM, deep grid와 deterministic replay test를 실행한다.
+
+* TODO 3단계: Legacy forwarding/Internalize
+
+** 실행
+
+- =find_dfs=를 canonical implementation에 forwarding하고 deprecation/removal ABI를 기록한다.
+- direct algorithm header를 ABI 2 SDK/wrapper에서 제외한다.
+
+** 완료 조건
+
+- ABI 1 source/binary compatibility와 ABI 2 public boundary가 모두 검증된다.
+
+** 검증
+
+- module/root/export, old/new C consumer, wrapper audit/load와 sanitizer를 실행한다.
+- =module static BYUL_STATIC=와 =root shared BYUL_EXPORTS=를 각각 compile/run하고
+  symbol/export/behavior parity를 비교한다.

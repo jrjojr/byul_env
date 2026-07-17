@@ -1,0 +1,164 @@
+#+TITLE: Balix Environment 공식·상수 추출 TODO
+#+TODO: TODO DOING BLOCKED | DONE CANCELLED FAILED
+#+TODO_RULES: ../../../../external/rules/projects/byul/todo-rules.org
+#+TODO_PARENT: todo-balix-math-extraction.org
+#+AUTHOR: ByulPapa / Codex
+#+LANGUAGE: ko
+#+OPTIONS: toc:t num:nil
+
+* 분석 원본과 공개 범위
+
+- 공개 header: =byul/balix/environ/environ.h=
+- 구현 source: =byul/balix/environ/environ.cpp=
+- 공개 범위: 위 header의 =BYUL_API= 선언 13개. 아래 목록은 이름을 축약하거나
+  family wildcard로 묶지 않은 전수 목록이다.
+
+#+begin_src c
+BYUL_API void environ_init(environ_t* env);
+BYUL_API void environ_init_full(environ_t* env, const vec3_t* gravity,
+    const vec3_t* wind_vel, float air_density, float humidity,
+    float temperature, float pressure, environ_func environ_fn, void* userdata);
+BYUL_API void environ_assign(environ_t* out, const environ_t* src);
+BYUL_API void environ_apply_wind(environ_t* env, const vec3_t* accel, float dt);
+BYUL_API void environ_distort_accel(const environ_t* env, vec3_t* accel);
+BYUL_API void environ_distort_accel_except_gravity(
+    const environ_t* env, bool include_gravity, vec3_t* accel);
+BYUL_API const vec3_t* environ_calc_none(
+    const environ_t* env, void* userdata, vec3_t* out_accel);
+BYUL_API const vec3_t* environ_calc_gravity(
+    const environ_t* env, void* userdata, vec3_t* out_accel);
+BYUL_API const vec3_t* environ_calc_gravity_wind(
+    const environ_t* env, void* userdata, vec3_t* out_accel);
+BYUL_API void environ_periodic_init(environ_periodic_t* out);
+BYUL_API void environ_periodic_init_full(const vec3_t* base_wind,
+    const vec3_t* gust_amp, float gust_freq, const vec3_t* gravity,
+    environ_periodic_t* out);
+BYUL_API void environ_periodic_assign(
+    const environ_periodic_t* src, environ_periodic_t* out);
+BYUL_API const vec3_t* environ_calc_periodic(
+    const environ_t* env, void* userdata, vec3_t* out_accel);
+#+end_src
+
+* 공개 심볼 전수 분류
+
+분류는 최종 책임을 뜻한다. =Math Engine 순수 계산= 심볼도 현재 signature가
+=environ_t=를 노출하므로, 중립 parameter/view를 받는 canonical 계산을 추출한 뒤 기존
+=BYUL_API= 진입점은 Balix 호환 forwarding으로 남긴다. 새 canonical 함수명과 ABI는 실제
+Math Engine public-header 설계에서 결정하며 이 문서가 임의로 확정하지 않는다.
+
+| 공개 심볼 | 책임 분류 | 이전 기대 | 필수 검증 |
+|-----------+-----------+-----------+-----------|
+| =environ_init= | Balix lifecycle/orchestration/storage | Balix default preset과 callback binding만 초기화한다. =9.81=, =1.225=, =101325=의 출처는 Math Engine 상수 계약을 참조하되 preset 값 자체의 owner는 Balix로 둔다. | null no-op, 모든 field의 exact default, default callback이 header 설명과 구현 중 어느 계약을 따르는지, poison-memory 초기화를 검사한다. |
+| =environ_init_full= | Balix lifecycle/orchestration/storage | caller 값, nullable vector, callback과 userdata를 보관한다. 입력 검증 실패가 partial initialization을 만들지 않는 정책을 정한다. | 각 nullable 조합, finite/range 경계, userdata identity, default callback 선택과 전체 field overwrite를 검사한다. |
+| =environ_assign= | Balix lifecycle/orchestration/storage | POD state 복사를 유지하되 callback/userdata가 borrowed shallow copy라는 lifetime 계약을 명시한다. | null/self assign, 모든 scalar/vector field, callback identity와 userdata alias lifetime을 검사한다. |
+| =environ_apply_wind= | Balix lifecycle/orchestration/storage | wind state mutation과 tick의 =dt= 소유는 Balix에 둔다. =wind_vel + accel * dt= 벡터 계산만 Math Engine primitive를 사용한다. | constant acceleration analytic 값, =dt <= 0=, null, non-finite 입력, 여러 step의 deterministic 누적을 검사한다. |
+| =environ_distort_accel= | Math Engine 순수 계산 | atmosphere parameter와 caller-owned vector를 받는 canonical 계산으로 이동하고 기존 심볼은 변환·forwarding한다. header가 말하는 "gravity도 distortion"과 현재 구현의 gravity 분리 동작 중 canonical 의미를 먼저 결정한다. | factor 1 identity, gravity-only, external-only, mixed gravity, null/non-finite와 old/new differential을 검사한다. |
+| =environ_distort_accel_except_gravity= | Math Engine 순수 계산 | explicit gravity vector, empirical model parameter와 policy를 입력으로 받는 reentrant 계산으로 이동한다. 기존 =environ_t= ABI는 forwarding한다. | =include_gravity=true/false=의 분석식, arbitrary gravity 방향, zero gravity, factor clamp/range와 caller-owned output을 검사한다. |
+| =environ_calc_none= | legacy forwarding | callback signature는 Balix compatibility surface로 유지하고 zero-vector canonical 계산 또는 명시적 대입에 forwarding한다. static fallback 반환은 제거·deprecate 정책을 세운다. | caller output과 null-output 반환의 alias/lifetime, multi-thread/reentrancy, env/userdata 무관성을 검사한다. |
+| =environ_calc_gravity= | legacy forwarding | Balix가 callback/userdata를 해석하고 Math Engine gravity/distortion 계산을 호출한다. 기존 pointer-return ABI의 lifetime을 별도 호환 계층에서 처리한다. | null env default, arbitrary gravity, distortion policy, caller buffer identity, 동시 호출과 old/new differential을 검사한다. |
+| =environ_calc_gravity_wind= | legacy forwarding | gravity/wind state를 neutral input으로 투영한 뒤 Math Engine vector-field 계산을 호출한다. callback binding은 Balix에 남긴다. | gravity·wind 각 축 조합, zero wind, null env, distortion 적용 순서, caller buffer와 concurrency를 검사한다. |
+| =environ_periodic_init= | Balix lifecycle/orchestration/storage | periodic preset, elapsed와 tick state를 완전히 초기화한다. 신호 sample 식은 저장하지 않는다. | poison-memory에서 =base_wind/gust_amplitude/gust_frequency/elapsed/delta_time/gravity= 전 field를 검사한다. |
+| =environ_periodic_init_full= | Balix lifecycle/orchestration/storage | nullable preset 입력과 elapsed/tick state를 완전히 초기화한다. 음수 frequency의 reject/clamp 정책은 명시적으로 고정한다. | nullable 조합, negative/zero/non-finite frequency, =delta_time= 초기화, 전 field overwrite를 검사한다. |
+| =environ_periodic_assign= | Balix lifecycle/orchestration/storage | elapsed와 =delta_time=을 포함한 state copy 여부 및 callback userdata lifetime을 Balix 계약으로 명시한다. | null/self assign, 모든 field bit/value equality, source 독립 변경과 deterministic replay를 검사한다. |
+| =environ_calc_periodic= | Balix lifecycle/orchestration/storage | elapsed 갱신과 callback adaptation은 Balix에 남기고, explicit sample time의 sinusoid·vector composition·distortion은 Math Engine에서 계산한다. 기존 callback은 결과를 forwarding한다. | first-sample phase, =delta_time= 누적, Hz→rad 변환, 각 축의 base wind/gravity 의미, =t=0/주기 경계/large time, multi-instance/thread를 검사한다. |
+
+* 내부 계산의 소유권
+
+- =environ_calc_factor= heuristic은 public symbol이 아니며, 근거와 유효 범위를 갖춘
+  versioned empirical atmosphere model로 Math Engine이 소유한다.
+- gravity+wind vector composition과 periodic =2*pi*f*t= sine sample은 Math Engine의
+  순수 계산이다.
+- callback binding, userdata, elapsed와 =delta_time= 갱신은 Balix orchestration이다.
+
+보편 후보 =g0=, =rho0=와 =p0=는 =mathunits/constants=가 출처와 version을 소유한다.
+현재 =9.81=, =1.225=, =101325= 사용이 실제 표준 조건인지 product default인지 구분한다.
+
+* 현재 진단
+
+- Balix에는 environment 전용 module test file이 없다. 다른 module test에서 직접 호출되는
+  공개 심볼은 =environ_init=뿐이므로 나머지 12개 공개 심볼의 수치·lifecycle·thread 계약은
+  현재 direct regression으로 고정되지 않았다.
+- humidity, temperature, density와 pressure factor의 =0.3/0.7/0.8/1.2/0.85/0.5=
+  clamp는 출처, 단위와 유효 범위가 없는 magic heuristic이다.
+- =environ_calc_gravity=는 gravity-only callback인데도 distortion 진입점을 거친다. 현재
+  구현에서는 gravity 보존 때문에 결과가 우연히 그대로지만, 아래의 모순된 distortion
+  계약을 어느 쪽으로 고치느냐에 따라 gravity callback 동작까지 함께 바뀔 수 있다.
+- =environ_calc_none/gravity/gravity_wind/periodic=은 output이 없을 때 static buffer를
+  반환해 thread-safe/reentrant하지 않다.
+- =environ_distort_accel=의 header는 gravity를 분리하지 않고 함께 왜곡한다고 설명하지만
+  구현은 =environ_distort_accel_except_gravity(env, true, ...)=를 호출해 gravity를 빼고
+  외력만 왜곡한 뒤 gravity를 다시 더한다. 이름·문서·실제 식이 서로 다르다.
+- periodic callback이 계산과 동시에 =elapsed += delta_time=을 수행한다. 순수 signal
+  sample과 scheduler state가 결합됐다.
+- =environ_periodic_init=과 =environ_periodic_init_full=은 구조체의 =delta_time=을
+  초기화하지 않는다. Stack/heap 잔여값에 따라 elapsed와 phase가 비결정적으로 변하며
+  zero-init caller에서만 우연히 정지된 신호가 된다.
+- =environ_func= Doxygen은 =delta_time= 인자를 설명하지만 실제 function pointer에는 그
+  인자가 없다. 구현은 대신 userdata 내부의 미초기화 field를 읽으므로 문서·ABI·시간
+  source가 서로 다르다.
+- =environ.h=는 공개 signature에서 =bool=을 쓰지만 직접 또는 선행 include를 통해
+  =<stdbool.h>=를 제공하지 않는다. 독립 C17 header compile 계약을 확인해야 한다.
+- frequency는 Hz인데 phase는 rad로 변환되며 aliasing/Nyquist와 large-time precision
+  계약이 없다.
+- =environ_calc_periodic=은 x/z에는 base wind를 쓰고 y에는 =gravity.y=만 사용한다.
+  =base_wind.y=와 =gravity.x/z=가 사라지므로 3차원 vector composition 의도를 확정해야 한다.
+
+* 실행 절차
+
+** TODO 1. 상수·heuristic·state를 분류한다
+*** 실행
+
+각 literal의 출처, 단위, 유효 범위와 caller를 기록하고 universal constant, empirical
+model parameter, Balix preset으로 분류한다.
+
+*** 완료 조건
+
+모든 environment literal과 함수가 owner 하나를 갖고 gravity distortion 의미가 결정된다.
+
+*** 검증
+
+Literal/call graph와 mathunits constant inventory를 대조한다.
+
+** TODO 2. Pure atmosphere와 periodic signal API를 설계한다
+*** 실행
+
+Immutable parameter+explicit sample time 입력과 caller-owned output을 사용하고
+global/static state 없이 factor, vector field와 sinusoid를 계산한다.
+
+*** 완료 조건
+
+Math Engine API가 Balix callback/userdata/elapsed를 포함하지 않고 reentrant하다.
+
+*** 검증
+
+C17/C++17 compile, thread/reentrancy와 forbidden include test를 수행한다.
+
+** TODO 3. Model validation corpus를 작성한다
+*** 실행
+
+Dimension, standard-condition identity, symmetry/monotonicity가 의도된 범위, periodic
+phase/frequency와 large-time reduction을 검증한다.
+
+*** 완료 조건
+
+Empirical model은 근거와 오차 범위를 보고하고 범위 밖 silent extrapolation이 없다.
+
+*** 검증
+
+Known conditions, boundary/non-finite, phase periodicity와 dt-independent sample test를
+실행한다.
+
+** TODO 4. Balix state adapter를 전환한다
+*** 실행
+
+Balix가 elapsed와 callback lifecycle을 관리하고 각 tick에서 pure API를 호출하게 한다.
+Legacy static-return API는 caller-buffer canonical 함수로 forwarding하거나 deprecated한다.
+
+*** 완료 조건
+
+주기 업데이트는 Balix, 값 계산은 Math Engine이라는 경계가 source와 header에 일치한다.
+
+*** 검증
+
+미초기화 =delta_time= 재현, 멀티 instance/thread, deterministic replay, old/new
+differential와 root ABI test를 수행한다.

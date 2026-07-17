@@ -1,0 +1,124 @@
+#+TITLE: BYUL maze_prim.h 정밀 리팩터링 TODO
+#+TODO: TODO DOING BLOCKED | DONE CANCELLED FAILED
+#+TODO_RULES: ../../../../external/rules/projects/byul/todo-rules.org
+#+PUBLIC_API_RULES: ../../../../external/rules/projects/byul/public-api-rules.org
+#+HEADER_DECLARATION_RULES: ../../../../external/rules/projects/byul/header-declaration-rules.org
+#+HEADER_COMMENT_RULES: ../../../../external/rules/projects/byul/header-comment-rules.org
+#+HEADER_AUTHORING_RULES: ../../../../external/rules/projects/byul/header-authoring-rules.org
+#+BUILD_RULES: ../../../../external/rules/projects/byul/build-rules.org
+#+TEST_RULES: ../../../../external/rules/projects/byul/test-rules.org
+#+TODO_PARENT: todo-리팩토링-navsys-headers.org
+#+LANGUAGE: ko
+#+OPTIONS: toc:3 num:nil
+
+* 대상과 명명
+
+- 대상: =maze_prim.h/.cpp=.
+- 공통 API는 [[file:todo-navsys-industry-api-baseline.org][Navsys 업계 API 기준]]을 선행한다.
+- [[https://weblog.jamisbuck.org/2011/1/10/maze-generation-prim-s-algorithm.html][randomized Prim maze reference]]와
+  [[https://www.boost.org/doc/libs/latest/libs/graph/doc/prim_minimum_spanning_tree.html][Boost Prim MST]]를 비교한다. 현 구현은 random frontier wall을 뽑는 maze variant이며
+  weighted minimum spanning tree가 아니다.
+- public symbol의 =maze_maze_prim= 오타는 이미 ABI다. 즉시 rename/remove하지 않는다.
+
+* Public symbol inventory와 처분
+
+| kind | symbol | disposition |
+|------+--------+-------------|
+| guard macro | =MAZE_PRIM_H= | source macro: ABI 1.x: keep -> ABI-major: internalize; collision-safe guard companion: ABI 1.x: add |
+| function | =maze_maze_prim(int,int,int,int)= | legacy: ABI 1.x: deprecate-forward -> ABI-major: internalize; canonical companion: ABI 1.x: add; typo symbol은 ABI 1.x에서 보존 |
+
+#+begin_src c
+BYUL_API navsys_status_t byul_maze_generate_randomized_prim(
+    int32_t origin_x, int32_t origin_y, uint32_t width, uint32_t height,
+    const byul_maze_generate_options_t* options, maze_t** out_maze);
+#+end_src
+
+* 구현 결함 감사
+
+| 위치/단계 | 현재 | 위험 |
+|-----------+-----+------|
+| precondition | validation 없이 =maze_create_full= 및 =vector(h,w)= | 음수→huge size, even/small input, exception/C ABI 탈출 |
+| empty start | maze allocation 후 =odd_x/odd_y.empty=면 NULL | 이미 생성한 maze leak |
+| RNG | =mt19937(time(nullptr))= | 재현 불가/초 단위 collision |
+| frontier | wall cell vector, random index 후 O(n) erase | duplicate walls 가능, O(E²) worst-case |
+| opposite test | passage/WALL 양쪽 검사 | frontier 의미는 맞지만 logical visited set이 없어 duplicate/ambiguous state |
+| neighbor enqueue | =nx=by+dy, =ny=bx+dx= 후 인자를 다시 swap | x/y 교차 코드는 검증이 어렵고 rectangular grid에서 오류 가능성이 높음 |
+| result | blocked insert failure 무시 | partial/incomplete maze 성공 반환 |
+| test | block count 범위 | connectivity/no cycle/rectangular orientation/invalid input 없음 |
+
+* 목표 알고리즘
+
+- logical visited cell set과 frontier edge =(visited, unvisited, wall)=를 명시적으로 둔다.
+- random frontier edge를 선택해 unvisited vertex를 정확히 하나 추가한다. duplicate frontier는
+  indexed bag/set으로 제거하거나 stale edge를 skip하며 stats로 관찰한다.
+- result는 perfect maze, =V-1= accepted edges다. UST/minimum-weight claim은 금지한다.
+- seed/RNG/cancel/max-frontier-pops/OOM status와 rectangular width != height test를 필수화한다.
+
+* TODO 1단계: 현행 rectangular trace와 leak 고정
+
+** 실행
+
+- 5x9/9x5에서 swapped x/y enqueue를 trace하고 out-of-bounds/coverage를 확인한다.
+- odd_x empty 이후 maze leak과 invalid signed dimension exception을 재현한다.
+- current symbol typo, dispatcher/export/install/test 소비를 snapshot한다.
+
+** 완료 조건
+
+- 현 구현의 correctness 여부가 failing seed 또는 proof로 결정된다.
+- legacy typo symbol을 보존하는 migration 경로가 승인된다.
+
+** 검증
+
+- injected frontier choices로 four-direction expansion을 각각 강제한다.
+- ASan/LSan/UBSan invalid dimensions를 실행한다.
+
+* TODO 2단계: canonical frontier와 status API
+
+** 실행
+
+- explicit logical coordinate/edge type과 visited bitmap으로 구현한다.
+- uniform frontier selection, seed/options/cancel/limit과 checked allocation을 적용한다.
+- legacy typo function을 canonical 신규 symbol에 forwarding한다.
+
+** 완료 조건
+
+- C++ exception이 C ABI를 넘지 않고 failure 때 output은 NULL이다.
+- rectangular grid와 all boundary directions가 동일 representation으로 처리된다.
+
+** 검증
+
+- allocation fault/frontier duplicate/cancel each phase와 seed golden을 검사한다.
+- old/new ABI/export를 비교한다.
+
+* TODO 3단계: topology·성능 gate
+
+** 실행
+
+- connected/no cycle/edge count/border와 every-cell-visited를 assert한다.
+- frontier pop/peak size/stale count와 complexity를 benchmark한다.
+- randomized/non-uniform characteristic와 tie policy를 문서화한다.
+
+** 완료 조건
+
+- print와 block-count heuristic 없이 algorithm을 식별하는 test가 있다.
+- 성능 최적화가 seed contract를 바꾸면 별도 behavior version으로 관리된다.
+
+** 검증
+
+- deterministic/property corpus, sanitizer, large rectangular benchmark를 실행한다.
+
+* TODO 4단계: Header·SDK gate
+
+** 실행
+
+- license/file/guard와 name/ownership/RNG/topology/error metadata를 적용한다.
+- dispatcher, static/root/install/wrapper manifest와 deprecation note를 맞춘다.
+
+** 완료 조건
+
+- audit 0 error, legacy/canonical symbol 모두 정확히 export된다.
+
+** 검증
+
+- C17/C++17 include, module/root tests와 clean SDK consumer를 실행한다.
+- module static =BYUL_STATIC=과 root shared =BYUL_EXPORTS=에서 typo legacy/canonical export를 각각 검증한다.

@@ -1,0 +1,213 @@
+#+TITLE: Balix MPC·Optimization Kernel 추출 TODO
+#+TODO: TODO DOING BLOCKED | DONE CANCELLED FAILED
+#+TODO_RULES: ../../../../external/rules/projects/byul/todo-rules.org
+#+TODO_PARENT: todo-balix-math-extraction.org
+#+AUTHOR: ByulPapa / Codex
+#+LANGUAGE: ko
+#+OPTIONS: toc:t num:nil
+
+* 조사 범위와 경계
+
+공개 선언과 구현을 다음 파일에서 직접 대조한다.
+
+- 공개 header: =byul/balix/numeq/numeq_mpc.h=
+- 구현: =byul/balix/numeq/numeq_mpc.cpp=
+- Balix binding caller: =byul/balix/controller/controller.h=,
+  =byul/balix/controller/controller.cpp=
+- 현재 test: =byul/balix/tests/test_module_mpc.cpp=,
+  =byul/balix/tests/test_module_controller.cpp=,
+  =byul/projectile/tests/test_module_propulsion.cpp=
+
+Cost, dynamics rollout, candidate evaluation와 optimizer는 Math Engine =control/mpc=/
+=numeq/optimization=의 순수 kernel이다. Options/state/control/result는 Math Engine value/API다.
+Waypoint progression, route cursor/loop, direction intent를 target state로 바꾸는 정책, tick
+budget, environment/body snapshot binding과 actuator 적용은 Balix다. 현재 공개 solver는
+=motion_state_t=, =environ_t=, =bodyprops_t=, =trajectory_t=에 직접 결합하므로 canonical
+Math Engine solver가 아니라 이 둘을 섞은 legacy entry다. 독립 DLL 전환 뒤 기존 이름은
+neutral Math Engine API를 호출하는 Balix forwarding/adapter로 남긴다.
+
+* BYUL_API 전수 inventory
+
+아래 표는 =byul/balix/numeq/numeq_mpc.h=의 =BYUL_API= 선언 15개를 하나씩 기록한다.
+=ME-VALUE=는 순수 Math Engine value/options, =ME-KERNEL=은 순수 계산, =BALIX-BINDING=은
+route/scheduling/type binding, =LEGACY-FORWARD=는 기존 BYUL ABI 이름의 최종 역할이다.
+
+| 정확한 symbol | 분류 | 심볼별 이관 | 심볼별 검증 |
+|-------------+------+-------------+-------------|
+| =mpc_config_init= | ME-VALUE / LEGACY-FORWARD | canonical options default initializer로 전달하고 단위와 integer horizon steps를 새 type에서 분리한다. | 15개 field default, finite/range, struct layout와 forwarding parity를 검사한다. |
+| =mpc_config_init_full= | ME-VALUE / LEGACY-FORWARD | seconds, step =dt=, bounds, weights, iteration/candidate options를 검증하는 status 반환 initializer로 옮긴다. | null, =horizon_sec/step_dt= ratio, zero/negative/NaN/Inf, 모든 field가 실제 algorithm에 영향을 주는 mutation test를 수행한다. |
+| =mpc_config_assign= | ME-VALUE / LEGACY-FORWARD | validated POD options copy로 전달하고 self-assign/null 계약을 명시한다. | 모든 15개 field, self-assign, null과 ABI padding 비의존성을 검사한다. |
+| =mpc_target_route_init= | BALIX-BINDING / LEGACY-FORWARD | borrowed waypoint view와 route cursor/loop policy를 Balix route adapter에서 초기화한다. | null, empty route, pointer/count/loop defaults와 lifetime metadata를 검사한다. |
+| =mpc_target_route_init_full= | BALIX-BINDING / LEGACY-FORWARD | pointer/count/loop를 Balix에 보관하고 Math Engine에는 선택된 target snapshot만 넘긴다. | null points, negative/zero count, borrowed lifetime, loop true/false와 mutation 중 호출을 검사한다. |
+| =mpc_target_route_assign= | BALIX-BINDING / LEGACY-FORWARD | 현재 shallow borrowed-view copy를 명시하고 route cursor가 추가되면 deep/value copy와 구분한다. | pointer alias, count/loop, self-assign, null과 source lifetime 종료를 검사한다. |
+| =mpc_direction_target_init= | BALIX-BINDING / LEGACY-FORWARD | direction/orientation/duration intent의 Balix default를 만들고 neutral target state 생성기와 분리한다. | unit direction, identity quaternion, weights/duration defaults와 null을 검사한다. |
+| =numeq_mpc_cost_default= | ME-KERNEL / LEGACY-FORWARD | neutral state/control view를 받는 dimension-normalized stage/terminal cost로 옮긴다. | position/orientation/control 항별 hand oracle, null, q/-q, nonunit/zero quaternion, weight mutation과 finite result를 검사한다. |
+| =numeq_mpc_cost_speed= | ME-KERNEL / LEGACY-FORWARD | target speed scalar를 명시 input으로 받고 velocity magnitude/error 및 speed weight를 분리한다. | 현재 target =velocity.x= compatibility, 음수 x, same-magnitude directions, =weight_velocity= 대 =weight_distance= mapping을 검사한다. |
+| =numeq_mpc_cost_hybrid= | ME-KERNEL / LEGACY-FORWARD | position/velocity/orientation/control cost를 단위 scaling과 terminal/stage 구분이 있는 canonical cost로 옮긴다. | 각 항 zero/단독/복합 oracle, unit rescaling, q/-q, NaN/Inf와 non-negative invariant를 검사한다. |
+| =numeq_mpc_solve= | ME-KERNEL + BALIX-BINDING / LEGACY-FORWARD | optimizer는 neutral dynamics/cost callback과 workspace/result를 받게 하고 Balix adapter가 motion/environment/body/trajectory를 변환한다. | 3^6 candidate exhaustive oracle, horizon step count, null cost, bound/feasibility, result provenance, deterministic order와 allocation budget을 검사한다. |
+| =numeq_mpc_solve_fast= | ME-KERNEL + BALIX-BINDING / LEGACY-FORWARD | axis별 error/sign에서 후보를 만드는 pure strategy를 옮기고 Balix snapshot binding은 밖에 둔다. | x/y/z 및 angular axis 독립 regression, zero error, early-exit parity, exhaustive upper-bound, trajectory/result provenance를 검사한다. |
+| =numeq_mpc_solve_coarse2fine= | ME-KERNEL + BALIX-BINDING / LEGACY-FORWARD | coarse/fine candidate generator와 evaluator를 canonical workspace optimizer로 옮기고 모든 bounds를 재적용한다. | fine candidate가 max bound를 넘지 않는지, angular refinement 정책, small exhaustive oracle, deterministic tie와 budget을 검사한다. |
+| =numeq_mpc_solve_route= | BALIX-BINDING / LEGACY-FORWARD | nearest-point 선택을 optimizer에서 제거하고 Balix route cursor/progression이 고른 단일 target으로 canonical solve를 호출한다. | ordered progress, loop, backtrack, skip radius, null points/current/config, route mutation과 selected index를 검사한다. |
+| =numeq_mpc_solve_directional= | BALIX-BINDING / LEGACY-FORWARD | direction normalization, duration/horizon 의미와 orientation target 생성을 Balix intent adapter에서 확정한 뒤 canonical solve를 호출한다. | zero/nonunit direction, negative/non-finite duration, zero max speed/dt, weight usage, null current/config과 frame mapping을 검사한다. |
+
+* BYUL_API 누락 공개 선언
+
+다음 두 함수는 같은 public header에 선언되고 구현도 있지만 =BYUL_API=가 없다. 따라서
+header의 함수 surface는 17개지만 export 계약을 만족하는 선언은 15개다.
+
+| 정확한 symbol | 현재 상태 | 분류와 이관 | 검증 |
+|-------------+-----------+-------------+------|
+| =mpc_direction_target_init_full= | 선언·definition 존재, =BYUL_API= 누락 | BALIX-BINDING / LEGACY-FORWARD. nullable direction/orientation, normalization과 invalid duration 정책을 가진 Balix intent initializer로 정리한다. | Windows shared export, null direction/orientation, full field mapping, wrapper audit와 clean C consumer를 검사한다. |
+| =mpc_direction_target_assign= | 선언·definition 존재, =BYUL_API= 누락 | BALIX-BINDING / LEGACY-FORWARD. value copy와 self-assign/null 계약을 고정한다. | Windows shared export, all fields, self-assign/null, wrapper audit와 clean C consumer를 검사한다. |
+
+=mpc_config_t=, =mpc_target_route_t=, =mpc_direction_target_t=, =mpc_output_t=와
+=mpc_cost_func=도 public ABI surface다. 기존 layout에 status, workspace, route cursor나 result
+statistics를 끼워 넣지 않고 versioned Math Engine type을 새로 만든다. =mpc_output_t=의
+=future_state=와 =trajectory_t= storage는 Balix type이므로 canonical Math Engine result는
+neutral state/control buffer와 solution provenance를 사용한다.
+
+* Private helper inventory
+
+| 구현 helper | 현재 책임 | 이관 |
+|-------------+-----------+------|
+| =quat_angle_diff= | relative quaternion 각도 식 | normalization·clamp/status가 있는 Math Engine quaternion geodesic primitive |
+| =simulate_trajectory= | speed clamp와 sample 기록을 포함한 미사용 rollout | pure rollout은 Math Engine, =trajectory_t= 기록은 Balix adapter; dead helper 삭제 여부를 call graph로 결정 |
+| =signf= | fast candidate 부호 선택 | optimizer 내부 pure scalar helper |
+| =evaluate_cost= | environment/body acceleration, RK4, stage cost 누적 | neutral dynamics callback 기반 Math Engine candidate evaluator |
+
+* 현재 진단
+
+- =mpc_direction_target_init_full/assign=은 구현됐지만 =BYUL_API=가 없어 Windows export
+  hole이다.
+- horizon seconds와 step dt의 차원을 step count로 올바르게 변환하지 않아 기본 horizon이
+  사실상 한 step이 될 수 있다.
+- =max_iter=, candidate step과 angular candidate option 일부가 사용되지 않는다.
+- Null cost callback이면 모든 cost가 zero가 될 수 있어 첫 candidate를 성공처럼 선택한다.
+- Trajectory output을 요청하지 않을 때 =future_state=가 실제 best prediction이 아니라
+  target copy가 되는 경로가 있다.
+- Fast solver는 한 축 error 값을 여러 축 acceleration/rotation에 재사용하는 indexing
+  defect가 있다.
+- Cost는 position/velocity/orientation의 서로 다른 단위를 weight로 합치지만 weight
+  dimension과 normalization이 없다.
+- Exhaustive candidate search는 fixed 729 candidates를 budget/cancellation 없이 순회한다.
+  =Eigen/Dense=와 =vector= include는 현재 미사용이고, trajectory storage allocation도 caller
+  workspace/budget 계약과 분리되지 않았다.
+- =quat_angle_diff=는 relative quaternion을 normalize하지 않고 =abs(w)=를 =[0,1]=로
+  clamp하지 않은 채 =acos=에 전달해 drift·invalid quaternion에서 NaN cost가 가능하다.
+  이 식은 공용 quaternion geodesic primitive로 추출하고 clamp된 acos 또는
+  =2*atan2(length(v), abs(w))=와 zero/non-finite 상태를 비교해야 한다.
+- =numeq_mpc_solve_route=는 route 진행 순서가 아니라 현재 위치에서 가장 가까운 point를
+  매 호출 선택하므로 되돌아가기와 waypoint skip이 가능하다. 이는 optimizer가 아니라
+  Balix route progression 정책이어야 한다.
+- Directional target은 direction 길이를 검증·정규화하지 않고 duration, =step_dt=와
+  =max_speed=를 곱해 target displacement를 만든다. Direction magnitude가 숨은 speed
+  scale이 되고 duration/horizon 의미도 중복될 수 있다.
+- =numeq_mpc_solve=, =numeq_mpc_solve_fast=와
+  =numeq_mpc_solve_coarse2fine=은 =horizon_sec= float를 =int=로 truncate한 뒤 seconds가
+  아니라 loop count로 사용한다. Header의 =horizon_sec / step_dt= 계약과 구현·현재 test가
+  서로 다르다.
+- 세 solver는 =max_speed/max_ang_speed=를 실제 rollout에 적용하지 않는다. 이 clamp는
+  호출되지 않는 =simulate_trajectory=에만 있다. =candidate_step=,
+  =ang_candidate_step=, =max_iter=도 후보 생성/반복에 쓰이지 않는다.
+- =numeq_mpc_cost_speed=는 target speed로 velocity magnitude가 아니라
+  =target->linear.velocity.x=를 사용하고 speed error에 =weight_velocity=가 아니라
+  =weight_distance=를 적용한다.
+- Coarse-to-fine의 fine acceleration은 이미 =max_accel=인 coarse 해에 =25%=를 더해
+  bound의 125%까지 나갈 수 있고 angular acceleration은 fine phase에서 전혀 탐색하지 않는다.
+- =numeq_mpc_solve_route=는 =route->loop=를 사용하지 않고 =route->points=,
+  =current_state=, =config=를 검증하지 않는다. =numeq_mpc_solve_directional=도
+  =current_state/config= null을 검사하기 전에 역참조하고 =weight_dir/weight_rot=을 사용하지
+  않는다.
+- =mpc_direction_target_init_full=은 =direction/orientation= null을 검사하지 않고 즉시
+  역참조한다. Route assign은 borrowed pointer shallow copy지만 public lifetime 계약이 없다.
+- Trajectory sample time은 한 step 적분한 상태를 =t=0으로 기록한다. Sample allocation
+  실패나 zero count에서는 =future_state=가 초기화되지 않아도 solver가 =true=를 반환할 수
+  있다.
+
+* Industry 기준
+
+- Explicit discrete model =x[k+1]=f(x,u,dt)=와 horizon step count
+- Cost/constraint dimension, scaling와 terminal cost
+- Feasible/infeasible/max-iteration/cancelled result
+- Warm start, deterministic candidate order와 caller workspace
+- Prediction trajectory와 chosen control의 같은 solution provenance
+- Route orchestration은 optimizer 밖
+
+* 실행 절차
+
+** TODO 1. 실제 algorithm/options usage를 동결한다
+*** 실행
+
+모든 config field, cost term, candidate loop, output와 caller를 trace하고 사용/미사용,
+단위와 defect를 표로 만든다.
+
+*** 완료 조건
+
+15개 =BYUL_API= symbol, export macro가 누락된 공개 함수 2개와 private helper 4개가
+ME-VALUE, ME-KERNEL, BALIX-BINDING 또는 LEGACY-FORWARD에 배정된다.
+
+*** 검증
+
+15/15 =BYUL_API= header-to-inventory, 17/17 declaration-to-definition과 export 15/17 정적
+대조를 수행한다. Option mutation, horizon count, null callback, axis indexing,
+future-state, =q/-q=, =abs(w)= 1+ULP, nonunit/zero quaternion, route progression과
+direction scale regression을 실행한다.
+
+** TODO 2. Neutral model/cost/constraint API를 정의한다
+*** 실행
+
+State/control array view, dynamics callback, cost callback, bounds, horizon, workspace,
+budget/cancellation와 result statistics를 설계한다.
+
+*** 완료 조건
+
+Trajectory/body/environment/route Balix type 없이 optimizer를 호출할 수 있다.
+
+*** 검증
+
+C17/C++17 compile, callback lifetime, buffer/layout와 invalid option test를 수행한다.
+
+** TODO 3. Cost와 optimizer kernel을 구현한다
+*** 실행
+
+단위가 정규화된 cost, normalized quaternion angle, deterministic candidate search와
+coarse-to-fine/warm-start 후보를 구현한다.
+
+*** 완료 조건
+
+Best cost가 실제 feasible candidates의 minimum이고 output/state/trajectory provenance가
+일치한다.
+
+*** 검증
+
+Small exhaustive oracle, convex toy problem, infeasible/budget/cancelled와 deterministic
+repeat corpus를 실행한다.
+
+** TODO 4. Balix dynamics·route adapter를 구현한다
+*** 실행
+
+Motion/environment/body를 dynamics callback으로, route/direction을 target generator로
+변환한다. Waypoint index 변경은 Balix에서만 수행한다.
+
+*** 완료 조건
+
+Math Engine MPC가 Balix state와 route lifecycle을 include하지 않는다.
+
+*** 검증
+
+Route progress/loop/backtrack, target switch, zero/nonunit direction, duration/horizon,
+unit/frame mapping, old/new benchmark와 sanitizer를 실행한다.
+
+** TODO 5. Legacy ABI와 export를 전환한다
+*** 실행
+
+기존 cost 3개, solver 5개 호출을 canonical result로 forwarding하고 두 export hole을
+compatibility 정책에 맞게 처리한다.
+
+*** 완료 조건
+
+신규 consumer는 Math Engine API를 사용하고 ABI 1.x old consumer가 동작한다.
+
+*** 검증
+
+Export manifest, wrapper audit/check, controller integration와 clean consumer를 실행한다.

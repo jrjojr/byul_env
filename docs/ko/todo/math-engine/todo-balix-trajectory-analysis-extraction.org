@@ -1,0 +1,210 @@
+#+TITLE: Balix Trajectory 미분·보간·Resampling 추출 TODO
+#+TODO: TODO DOING BLOCKED | DONE CANCELLED FAILED
+#+TODO_RULES: ../../../../external/rules/projects/byul/todo-rules.org
+#+TODO_PARENT: todo-balix-math-extraction.org
+#+AUTHOR: ByulPapa / Codex
+#+LANGUAGE: ko
+#+OPTIONS: toc:t num:nil
+
+* 분석 원본과 공개 범위
+
+- 공개 header: =byul/balix/trajectory/trajectory.h=
+- 구현 source: =byul/balix/trajectory/trajectory.cpp=
+- 공개 범위: 위 header의 =BYUL_API= 선언 24개. 아래 목록은 lifecycle, query 또는 export
+  family를 wildcard로 축약하지 않은 전수 목록이다.
+
+#+begin_src c
+BYUL_API trajectory_t* trajectory_create_full(int capacity);
+BYUL_API trajectory_t* trajectory_create();
+BYUL_API void trajectory_init(trajectory_t* traj);
+BYUL_API void trajectory_init_full(trajectory_t* traj, int capacity);
+BYUL_API void trajectory_free(trajectory_t* traj);
+BYUL_API void trajectory_destroy(trajectory_t* traj);
+BYUL_API void trajectory_assign(trajectory_t* out, const trajectory_t* src);
+BYUL_API trajectory_t* trajectory_copy(const trajectory_t* src);
+BYUL_API void trajectory_clear(trajectory_t* traj);
+BYUL_API void trajectory_resize(trajectory_t* traj, int new_cap);
+BYUL_API bool trajectory_add_sample(
+    trajectory_t* traj, float t, const motion_state_t* state);
+BYUL_API int trajectory_length(const trajectory_t* traj);
+BYUL_API int trajectory_capacity(const trajectory_t* traj);
+BYUL_API bool trajectory_interpolate_position(
+    const trajectory_t* traj, float t, vec3_t* out_pos);
+BYUL_API bool trajectory_estimate_velocity(
+    const trajectory_t* traj, float t, vec3_t* out_vel);
+BYUL_API bool trajectory_estimate_acceleration(
+    const trajectory_t* traj, float t, vec3_t* out_acc);
+BYUL_API char* trajectory_to_string(
+    const trajectory_t* traj, size_t size, char* buffer);
+BYUL_API void trajectory_print(const trajectory_t* traj);
+BYUL_API int trajectory_get_positions(
+    const trajectory_t* traj, vec3_t* out_list, int max);
+BYUL_API int trajectory_get_speeds(
+    const trajectory_t* traj, float* out_list, int max);
+BYUL_API int trajectory_export_pos(const trajectory_t* traj,
+    float* out_times, vec3_t* out_positions, int max_count);
+BYUL_API int trajectory_export_resample_time(const trajectory_t* traj,
+    float dt, float* out_times, vec3_t* out_positions, int max_count);
+BYUL_API int trajectory_export_resample_distance(const trajectory_t* traj,
+    float spacing, float* out_times, vec3_t* out_positions, int max_count);
+BYUL_API int trajectory_export_until_impact(const trajectory_t* traj,
+    float* out_times, vec3_t* out_positions, int max_count);
+#+end_src
+
+* 분리 원칙
+
+Trajectory allocation, sample/history storage, impact metadata, formatting과 raw export는 Balix가
+소유한다. 보간, 미분, norm, time/arc-length resampling과 explicit cut 계산은 Math Engine의
+sampled-series 계산이다. 새 canonical API는 =trajectory_t= 대신 finite monotonic abscissa와
+strided point/value view, caller-owned output을 받는다.
+
+분류가 =Math Engine 순수 계산=인 기존 심볼은 =trajectory_t/motion_state_t=를 노출하므로
+그 선언 자체를 Math Engine DLL 계약으로 옮기지 않는다. Balix가 neutral view를 구성해
+canonical kernel을 호출하고 기존 =BYUL_API=는 legacy forwarding으로 유지한다. 구체적인 새
+함수명, interpolation kind와 result status는 public-header 설계 전에 임의로 정하지 않는다.
+
+* 공개 심볼 전수 분류
+
+| 공개 심볼 | 책임 분류 | 이전 기대 | 필수 검증 |
+|-----------+-----------+-----------+-----------|
+| =trajectory_create_full= | Balix lifecycle/orchestration/storage | trajectory object와 sample buffer의 allocation/ownership을 Balix allocator 계약으로 한정하고 실패를 C ABI status/null로 변환한다. | capacity 0/negative/large, object·buffer 각 allocation failure, leak, destroy pair와 allocator boundary를 검사한다. |
+| =trajectory_create= | Balix lifecycle/orchestration/storage | default capacity preset만 소유하고 =trajectory_create_full=의 단일 lifecycle 경로를 사용한다. | exact default capacity 100, delegated failure, empty metadata와 destroy를 검사한다. |
+| =trajectory_init= | Balix lifecycle/orchestration/storage | caller storage 초기화와 기존 resource 재초기화를 구분해 uninitialized memory를 읽지 않는 계약으로 고친다. | poison/uninitialized-like storage, zero-init, already initialized object, repeated init와 sanitizer를 검사한다. |
+| =trajectory_init_full= | Balix lifecycle/orchestration/storage | requested capacity로 caller storage를 완전히 초기화하며 invalid input과 allocation failure에서 partial object를 남기지 않는다. | capacity 경계, poison/zero/re-init, allocation failure rollback과 all-field postcondition을 검사한다. |
+| =trajectory_free= | Balix lifecycle/orchestration/storage | internal sample buffer만 생성 module에서 해제하고 empty reusable state로 만든다. | null, empty, populated, repeated free, count/capacity/pointer/impact reset과 sanitizer를 검사한다. |
+| =trajectory_destroy= | Balix lifecycle/orchestration/storage | create/copy가 반환한 object와 internal buffer를 같은 library allocator로 해제한다. | null, create/copy pair, repeated-use prohibition, leak/double-free instrumentation을 검사한다. |
+| =trajectory_assign= | Balix lifecycle/orchestration/storage | deep-copy와 destination reallocation을 Balix에 유지하고 실패 시 source 및 destination 보존 정책을 정한다. | null/self assign, grow/no-grow, empty source, allocation failure, samples와 impact metadata equality를 검사한다. |
+| =trajectory_copy= | Balix lifecycle/orchestration/storage | create+deep-copy의 ownership family를 유지하고 중간 allocation 실패를 회수한다. | null/empty/full source, invalid invariant 방어, 각 allocation failure, deep-copy 독립성과 destroy를 검사한다. |
+| =trajectory_clear= | Balix lifecycle/orchestration/storage | capacity를 유지한 채 logical history와 explicit impact state만 reset한다. 전체 unused buffer zeroing 필요성은 성능/보안 계약으로 결정한다. | null, populated, capacity/pointer 유지, count/impact reset, clear 후 add와 반복 clear를 검사한다. |
+| =trajectory_resize= | Balix lifecycle/orchestration/storage | storage grow/shrink와 truncation을 소유하고 잘린 sample 뒤의 impact metadata 처리 정책을 명시한다. | same/grow/shrink/invalid capacity, data prefix, allocation failure, truncated impact와 sanitizer를 검사한다. |
+| =trajectory_add_sample= | Balix lifecycle/orchestration/storage | append와 capacity는 Balix가 담당하고 Math Engine view 전제인 finite strict-monotonic time/frame/unit를 여기서 검증하거나 명시적으로 거부한다. | null/full, first sample, duplicate/decreasing/NaN/Inf time, state copy와 count atomicity를 검사한다. |
+| =trajectory_length= | Balix lifecycle/orchestration/storage | stored logical count query로 유지한다. | null=0, empty/populated, clear/resize 후 값과 invalid internal count 방어 정책을 검사한다. |
+| =trajectory_capacity= | Balix lifecycle/orchestration/storage | allocated sample capacity query로 유지한다. | null=0, create/resize/free 후 exact 값과 count≤capacity invariant를 검사한다. |
+| =trajectory_interpolate_position= | Math Engine 순수 계산 | Balix가 time/position view를 만들고 canonical interpolation/extrapolation policy에 forwarding한다. | empty/one point, exact knots, interior linear analytic 값, duplicate/nonmonotonic time, before/after range와 output-on-error를 검사한다. |
+| =trajectory_estimate_velocity= | Math Engine 순수 계산 | sampled-series derivative kernel로 이동한다. boundary에서 stored velocity를 쓰고 interior에서 position 차분을 쓰는 현재 혼합 의미는 하나의 explicit policy로 분리한다. | constant/linear/quadratic position, irregular spacing, exact/between knot, boundary policy, insufficient sample과 derivative unit를 검사한다. |
+| =trajectory_estimate_acceleration= | Math Engine 순수 계산 | nonuniform three-point second derivative의 evaluation point와 piecewise/interpolated 결과 정책을 명시한 kernel로 이동한다. | quadratic exactness, irregular positive spacing, duplicate/negative/non-finite interval, boundary/insufficient sample와 step refinement를 검사한다. |
+| =trajectory_to_string= | Balix lifecycle/orchestration/storage | presentation과 buffer formatting은 Balix에 남기고 required/written length, NUL termination와 truncation status를 명시한다. | null traj/buffer, size 0/1/exact/small, very large count, =snprintf= truncation canary와 UTF-8/NUL을 검사한다. |
+| =trajectory_print= | Balix lifecycle/orchestration/storage | console I/O는 Balix diagnostic/presentation 책임으로 유지하며 Math Engine DLL에 들어가지 않는다. | null, empty/populated, output redirection failure 정책과 no-math-engine-I/O dependency를 검사한다. |
+| =trajectory_get_positions= | Balix lifecycle/orchestration/storage | stored position의 raw bounded copy로 유지하고 written/required count 계약을 명시한다. | null pointers, max≤0, partial/full copy, order, canary와 source 불변성을 검사한다. |
+| =trajectory_get_speeds= | Math Engine 순수 계산 | Balix가 stored velocity view를 제공하고 Math Engine norm/batch kernel을 호출하며 기존 심볼은 forwarding한다. | zero/axis/general velocity, overflow/underflow/non-finite, partial buffer, units와 scalar reference differential을 검사한다. |
+| =trajectory_export_pos= | Balix lifecycle/orchestration/storage | raw time/position projection은 Balix storage export로 유지한다. 두 output이 모두 null일 때 count-query인지 오류인지 계약을 고정한다. | times-only/positions-only/both/neither, max 경계, order, canary와 written count를 검사한다. |
+| =trajectory_export_resample_time= | Math Engine 순수 계산 | index-based time grid, canonical interpolation과 explicit end/cut inclusion policy를 갖는 array kernel로 이동한다. 기존 symbol은 view와 impact policy를 forwarding한다. | dt≤0 compatibility, exact/nondivisible interval, duplicate knots, impact on/off-grid, buffer exhaustion, sorted/no-duplicate output을 검사한다. |
+| =trajectory_export_resample_distance= | Math Engine 순수 계산 | cumulative arc-length+bracket interpolation kernel로 이동하고 zero-length segment와 final/cut inclusion을 명시한다. | zero/all-zero segments, exact spacing endpoint, multi-segment carry, cut inside segment, max count, monotonic time와 spacing tolerance를 검사한다. |
+| =trajectory_export_until_impact= | Math Engine 순수 계산 | Balix의 explicit impact-presence/time을 neutral cut policy로 전달하고 Math Engine이 bracket/interpolation을 계산한다. | no impact, =t=0= impact, before first/at knot/between/after last, duplicate time, endpoint capacity와 sorted output을 검사한다. |
+
+* 현재 진단
+
+- =byul/balix/tests/test_module_trajectory.cpp=의 3개 test case가 직접 부르는 공개 심볼은
+  =trajectory_create_full=, =trajectory_destroy=, =trajectory_add_sample=,
+  =trajectory_clear=뿐이다. 나머지 20개 공개 심볼과 모든 보간·미분·resampling 경로는
+  direct regression이 없다.
+- sample time의 strict monotonicity, duplicate time, NaN과 unit/frame 계약이 없다.
+- acceleration의 =(v1-v0)/((dt0+dt1)/2)=는 중앙 sample에서의 표준 비균일 3-point
+  second derivative와 같은 식이다. 그러나 임의 query =t=를 evaluation point로 쓰지 않고
+  =s0.t <= t <= s2.t= 전 구간에 같은 값을 반환하며 =dt0/dt1=의 zero·negative·non-finite
+  검사가 없다.
+- boundary에서는 저장된 velocity/acceleration을 반환하고 내부에서는 position difference를
+  사용해 estimator 의미가 불연속이다.
+- time resampling은 floating loop 누적오차와 impact point 중복/비정렬 가능성이 있다.
+- distance resampling은 zero-length segment와 carry 의미가 API에 없고, spacing이 마지막
+  점 또는 impact cut에 정확히 닿아 이미 출력했어도 마지막/cut 점을 다시 append할 수 있다.
+  floating tolerance와 duplicate 억제 계약도 없다.
+- Linear interpolation만 지원하면서 error estimate, interpolation kind와 extrapolation
+  상태를 반환하지 않는다.
+- =trajectory_init/init_full=은 caller가 초기화하지 않은 구조체의 =samples/capacity=를
+  먼저 읽고 =delete[]=할 수 있어 invalid free가 가능하다. 이 lifecycle 결함은 Balix
+  container가 고쳐야 하지만 numeric view 전환 전에 sanitizer baseline으로 고정한다.
+- C ABI 함수가 =new/new[]=를 직접 사용하고 allocation failure를 status로 바꾸지 않아
+  C++ 예외가 ABI 밖으로 전파될 수 있다. =trajectory_create_full=의 object allocation 후
+  sample allocation이 실패하면 첫 allocation 회수 경로도 없다. 생성 DLL에서 해제하는
+  allocator 계약 역시 없다.
+- =trajectory_to_string=은 =snprintf=의 required length가 남은 buffer보다 클 때도
+  =offset += n=을 수행한다. 다음 =buffer + offset=과 =size - offset=이 범위를 벗어나거나
+  unsigned underflow할 수 있다.
+- =trajectory_to_string= header는 null trajectory에서 ="[Trajectory] (null)"=을 반환한다고
+  설명하지만 구현은 buffer를 쓰지 않고 그대로 반환한다.
+- =impact_time == 0=을 "impact 없음" sentinel로 사용해 실제 =t=0= impact를 표현하지 못한다.
+  별도 =has_impact= 상태와 endpoint 포함 정책이 필요하다.
+
+* Industry 기준
+
+- sorted finite abscissa와 duplicate policy
+- interpolation/extrapolation 명시
+- forward/backward/central 또는 nonuniform finite difference formula 구분
+- estimated order/error와 insufficient-neighborhood 상태
+- arc-length resampling은 cumulative length를 만들고 bracket+interpolation으로 평가
+- caller buffer의 required/written count와 partial result 계약
+
+* 실행 절차
+
+** TODO 1. Sample view와 현재 결과 baseline을 만든다
+*** 실행
+
+모든 trajectory call site, time ordering, frame/unit와 impact cut 의미를 inventory하고
+현재 오류를 검출하는 최소 corpus를 작성한다.
+
+*** 완료 조건
+
+Storage/lifecycle과 numeric kernel의 symbol mapping이 완전하고 known defect가 재현된다.
+
+*** 검증
+
+Uninitialized init/destroy, allocation failure, string truncation, =t=0= impact,
+duplicate/nonmonotonic/zero-dt와 distance-resample regression을 실행한다.
+
+** TODO 2. Generic interpolation/differentiation API를 정의한다
+*** 실행
+
+Time/value span, stride, interpolation kind, boundary policy, tolerance, workspace와
+result quality를 Balix type 없이 설계한다.
+
+*** 완료 조건
+
+Scalar와 vector series가 같은 contract를 쓰고 derivative의 단위와 order가 보고된다.
+
+*** 검증
+
+C17/C++17 compile, dimension test와 invalid view/buffer test를 수행한다.
+
+** TODO 3. 보간·미분 kernel을 구현한다
+*** 실행
+
+Linear/Hermite 후보와 uniform/nonuniform finite difference를 분석식 corpus로 구현한다.
+
+*** 완료 조건
+
+Polynomial degree별 expected exactness/order와 boundary policy를 만족한다.
+
+*** 검증
+
+상수/선형/이차/삼차, irregular spacing, noisy input와 step refinement를 검사한다.
+
+** TODO 4. 시간·거리 resampling을 구현한다
+*** 실행
+
+Index 기반 time grid와 cumulative arc-length bracket을 사용하고 impact cut을 explicit
+endpoint policy로 처리한다.
+
+*** 완료 조건
+
+Output time이 정렬되고 점 간 거리/시간 간격이 tolerance 내이며 무한 loop가 없다.
+
+*** 검증
+
+Zero-length segment, multiple cuts, exact endpoint, buffer exhaustion와 invariant corpus를
+실행한다.
+
+** TODO 5. Balix history adapter와 legacy ABI를 전환한다
+*** 실행
+
+Trajectory storage는 검증된 lifecycle과 explicit impact 상태를 소유하고 view를 만들어
+Math Engine에 전달한다. 기존 numeric symbol은 status/buffer 계약으로 forwarding한다.
+
+*** 완료 조건
+
+Balix trajectory source에 보간·미분·resampling 식이 남지 않는다.
+
+*** 검증
+
+Old/new differential, allocation failure, truncation canary, ownership/sanitizer,
+module/root/clean consumer test를 실행한다.

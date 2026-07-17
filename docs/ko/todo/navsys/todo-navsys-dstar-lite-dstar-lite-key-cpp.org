@@ -1,0 +1,188 @@
+#+TITLE: BYUL Navsys dstar_lite_key.hpp 정밀 리팩토링 TODO
+#+TODO: TODO DOING BLOCKED | DONE CANCELLED FAILED
+#+TODO_RULES: ../../../../external/rules/projects/byul/todo-rules.org
+#+PUBLIC_API_RULES: ../../../../external/rules/projects/byul/public-api-rules.org
+#+HEADER_DECLARATION_RULES: ../../../../external/rules/projects/byul/header-declaration-rules.org
+#+HEADER_COMMENT_RULES: ../../../../external/rules/projects/byul/header-comment-rules.org
+#+HEADER_AUTHORING_RULES: ../../../../external/rules/projects/byul/header-authoring-rules.org
+#+BUILD_RULES: ../../../../external/rules/projects/byul/build-rules.org
+#+TEST_RULES: ../../../../external/rules/projects/byul/test-rules.org
+#+TODO_PARENT: todo-리팩토링-navsys-headers.org
+#+AUTHOR: ByulPapa / Codex
+#+LANGUAGE: ko
+#+OPTIONS: toc:t num:nil
+
+* Build compile-definition 불변식
+
+- module static consumer는 =BYUL_STATIC=으로 C key ABI와 private comparator를 컴파일한다.
+- root shared source는 같은 helper를 =BYUL_EXPORTS= 경로에서 재컴파일한다. helper 자체는
+  export/install하지 않되 두 compile path의 exact ordering이 같음을 검사한다.
+
+* 문서 책임과 결론
+
+=byul/navsys/dstar_lite/dstar_lite_key.hpp=의 C++ helper를 전수 조사한다. 공통 기준은
+[[file:todo-navsys-industry-api-baseline.org][Navsys 업계 API 기준]]이다. 이 파일은 현재 D* Lite public header install 목록에 들어가지만
+실제 production consumer는 =dstar_lite_pqueue.cpp=뿐이다. 전 선언을 internalize하고
+설치 SDK에서 제거한다.
+
+* 현재 구조 결함
+
+- project license, =@file/@brief=, BYUL guard와 namespace가 없다.
+- 사용하지 않는 =coord.h=, =vector=, =map= include가 있다.
+- approximate =DstarLiteKeyEqual=, exact-bit hash, exact pointer less와
+  approximate-first C compare가 한 파일에 공존한다.
+- pointer functor가 NULL을 dereference하고 key lifetime을 container 밖에 의존한다.
+- =std::hash<dstar_lite_key_t>=가 public mutable struct에 process-wide specialization을
+  추가한다.
+
+* 현행 선언 전수 목록과 처분
+
+| 선언 | 현재 의미/결함 | 처분 |
+|------+----------------+------|
+| =DstarLiteKeyHash= | pointer exact hash | ABI 1.x: keep; conformance-block -> ABI-major: internalize |
+| =DstarLiteKeyEqual= | pointer approximate equality | ABI 1.x: keep; conformance-block -> ABI-major: internalize |
+| =DstarLiteKeyLess= | pointer exact lexicographic less | ABI 1.x: deprecate-forward -> ABI-major: internalize |
+| =std::hash<dstar_lite_key_t>= | global mutable-key specialization | ABI 1.x: keep; conformance-block -> ABI-major: internalize |
+| =dstar_lite_key_ptr_less= | C compare 기반 pointer less | ABI 1.x: deprecate-forward -> ABI-major: internalize |
+
+이 파일에는 위 다섯 선언 외 public macro/type/function이 없다. 이름을 유지해 public
+source contract로 승격하지 않는다.
+
+* 업계 기준과 목표 detail header
+
+- ordered comparator는
+  [[https://eel.is/c++draft/associative.reqmts][C++ associative requirements]]의 strict weak
+  ordering을 충족해야 한다. approximate equality는 사용할 수 없다.
+- queue entry는 key와 coord를 값으로 소유한다. pointer comparator와 heap key allocation을
+  함께 제거한다.
+- 한 exact canonical C compare를 C/C++ 양쪽이 공유하고 detail functor는 이를 호출한다.
+
+#+begin_src cpp
+#ifndef BYUL_NAVSYS_DSTAR_LITE_INTERNAL_KEY_ORDER_HPP
+#define BYUL_NAVSYS_DSTAR_LITE_INTERNAL_KEY_ORDER_HPP
+
+namespace byul::navsys::dstar_lite_detail {
+
+struct key_less final {
+    [[nodiscard]] bool operator()(
+        const dstar_lite_key_t& lhs,
+        const dstar_lite_key_t& rhs) const noexcept {
+        return dstar_lite_key_compare_exact(&lhs, &rhs) < 0;
+    }
+};
+
+struct key_equal final {
+    [[nodiscard]] bool operator()(
+        const dstar_lite_key_t& lhs,
+        const dstar_lite_key_t& rhs) const noexcept;
+};
+
+struct key_hash final {
+    [[nodiscard]] std::size_t operator()(
+        const dstar_lite_key_t& key) const noexcept;
+};
+
+} // namespace byul::navsys::dstar_lite_detail
+#endif
+#+end_src
+
+- less/equal/hash는 동일한 canonical ±0/Inf/NaN 정책을 공유한다.
+- 실제 pqueue가 ordered container만 사용하면 =key_equal/hash=도 만들지 않는다.
+  speculative helper를 보존하지 않는다.
+- C++ public convenience layer가 필요하면 별도 versioned header로 source compatibility,
+  namespace와 exception policy를 새로 심사한다.
+
+* CMake와 compatibility 계획
+
+- =dstar_lite/CMakeLists.txt=의 public =dstar_lite_HEADERS=에서
+  =dstar_lite_key.hpp=를 제거한다.
+- internal header는 source list 또는 private file set에만 두고 install/export/wrapper에서
+  제외한다. static module과 root shared는 같은 private file을 컴파일한다.
+- repository 검색상 production consumer는 pqueue 하나지만 clean installed SDK를 쓰는
+  external source fixture와 package history도 확인한다.
+- external consumer가 있으면 기존 path를 한 major 동안 deprecated forwarding header로
+  유지할 수 있다. 다만 broken approximate hash/equality를 계속 제공하는 대신 migration
+  compile error 또는 명시적 legacy namespace를 선택한다.
+- ABI 1은 inline C++ helper라 binary export보다 source compatibility가 문제다. 현행 설치
+  SDK를 사용한 source fixture를 보존하고, 확인된 소비자에는 deprecated forwarding path와
+  exact comparator migration을 제공한다.
+- ABI 2에서는 이 header와 다섯 global 선언을 public SDK에서 종료한다. module static과
+  root shared에 필요한 private detail만 남기고 wrapper/installed manifest에 exclusion
+  reason을 고정한다.
+
+* 검증 항목
+
+- exact comparator: irreflexive, asymmetric, transitive, equivalence transitive.
+- exact equality/hash: equal ⇒ same hash, ±0 canonical, 허용된 +Inf, NaN rejection.
+- include: C++17 standalone, 최소 include, include order, two-TU ODR.
+- inventory: public install에 없음, root export/C wrapper에 없음, static/root source는 동일.
+- performance: by-value key의 comparison/allocation 수를 현행 heap-pointer map과 비교한다.
+
+* 구현 순서
+
+** TODO 1단계: consumer와 install 사실 확정
+
+*** 실행
+
+- 다섯 선언을 repository, installed tree, external fixture에서 전수 검색한다.
+- public CMake header inventory와 wrapper manifest를 비교한다.
+
+*** 완료 조건
+
+- 각 consumer가 internal/test/external로 분류되고 forwarding 필요 여부가 결정된다.
+- 이 파일이 public contract가 아닌 근거가 manifest에 기록된다.
+
+*** 검증
+
+- clean install file list와 five-symbol source report를 자동 생성한다.
+- old SDK source fixture가 실제로 존재하면 별도 build한다.
+
+** TODO 2단계: exact by-value detail comparator 도입
+
+*** 실행
+
+- license/file docs/BYUL guard/namespace를 갖춘 private header를 만든다.
+- 필요한 최소 functor만 exact canonical C key API 위에 구현한다.
+
+*** 완료 조건
+
+- production comparator가 pointer, NULL, approximate equality를 사용하지 않는다.
+- unused include와 global namespace 선언이 없다.
+
+*** 검증
+
+- ordering/hash property test와 C++17 two-TU ODR test를 실행한다.
+- clang/gcc/msvc warning-as-error include audit를 실행한다.
+
+** TODO 3단계: pqueue와 build inventory 전환
+
+*** 실행
+
+- pqueue storage/comparator를 by-value detail type으로 전환한다.
+- CMake public header 목록에서 현행 =.hpp=를 제거하고 private path를 연결한다.
+
+*** 완료 조건
+
+- 현행 다섯 이름을 production source가 참조하지 않는다.
+- internal header가 설치, export 또는 Python ABI manifest에 나타나지 않는다.
+
+*** 검증
+
+- static D* Lite/root shared build와 clean install inventory를 실행한다.
+- forbidden symbol/path scan을 CI gate로 실행한다.
+
+** TODO 4단계: compatibility path 종료
+
+*** 실행
+
+- 확인된 external consumer에 migration note/필요한 forwarding 기간을 제공한다.
+- major version 종료 조건에 맞춰 기존 header를 제거한다.
+
+*** 완료 조건
+
+- filesystem/CMake/문서가 모두 private helper 역할에 일치한다.
+- approximate comparator/hash 조합이 어떤 compatibility path에도 남지 않는다.
+
+*** 검증
+
+- old fixture(필요 시), 새 pqueue, installed SDK consumer와 =git diff --check=를 통과한다.

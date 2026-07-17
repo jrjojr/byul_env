@@ -1,0 +1,137 @@
+#+TITLE: BYUL maze_aldous_broder.h 정밀 리팩터링 TODO
+#+TODO: TODO DOING BLOCKED | DONE CANCELLED FAILED
+#+TODO_RULES: ../../../../external/rules/projects/byul/todo-rules.org
+#+PUBLIC_API_RULES: ../../../../external/rules/projects/byul/public-api-rules.org
+#+HEADER_DECLARATION_RULES: ../../../../external/rules/projects/byul/header-declaration-rules.org
+#+HEADER_COMMENT_RULES: ../../../../external/rules/projects/byul/header-comment-rules.org
+#+HEADER_AUTHORING_RULES: ../../../../external/rules/projects/byul/header-authoring-rules.org
+#+BUILD_RULES: ../../../../external/rules/projects/byul/build-rules.org
+#+TEST_RULES: ../../../../external/rules/projects/byul/test-rules.org
+#+TODO_PARENT: todo-리팩토링-navsys-headers.org
+#+LANGUAGE: ko
+#+OPTIONS: toc:3 num:nil
+
+* 대상과 알고리즘 판정
+
+- 대상: =maze_aldous_broder.h/.cpp= 및 maze module tests.
+- 현재 구현은 odd interior cell graph에서 simple random walk를 수행하고 처음 방문한 edge만
+  carve한다. 유한 connected rectangular grid라면 uniform spanning tree를 생성한다.
+- [[https://epubs.siam.org/doi/abs/10.1137/0403039][Aldous의 원 논문]]과
+  [[https://www.boost.org/doc/libs/1_48_0/libs/graph/doc/random_spanning_tree.html][Boost random spanning tree API]]를 정확성/API 기준으로 사용한다.
+- 공통 status/options/cancellation은
+  [[file:todo-navsys-industry-api-baseline.org][Navsys 업계 API 기준]]을 따르며 아래 signature보다 우선한다.
+
+* Public symbol inventory와 처분
+
+| kind | symbol | disposition | 이유 |
+|------+--------+-------------+------|
+| guard macro | =MAZE_ALDOUS_BRODER_H= | source macro: ABI 1.x: keep -> ABI-major: internalize; collision-safe guard companion: ABI 1.x: add | 기존 guard 관찰 consumer를 ABI 1.x에서 보존 |
+| function | =maze_make_aldous_broder(int x0,int y0,int width,int height)= | legacy: ABI 1.x: deprecate-forward -> ABI-major: internalize; canonical companion: ABI 1.x: add | owned 반환은 유지하되 seed/status/cancel 없는 API를 신규 API로 대체 |
+
+Target 후보:
+
+#+begin_src c
+BYUL_API navsys_status_t byul_maze_generate_aldous_broder(
+    int32_t origin_x, int32_t origin_y,
+    uint32_t width, uint32_t height,
+    const byul_maze_generate_options_t* options,
+    maze_t** out_maze);
+#+end_src
+
+성공 0, invalid/OOM/cancel/step-limit 음수 status, 실패 시 =*out_maze=NULL=, 성공 결과는
+=maze_destroy= 소유권이다. legacy 함수는 nondeterministic options로 forwarding한다.
+
+* 구현 단위 감사
+
+| 단계 | 현재 구현 | 세부 결함/결정 |
+|------+-----------+----------------|
+| validation | width/height odd >=3 | signed overflow와 최대 allocation 크기 없음 |
+| allocation | =maze_create_full= 직후 dereference | maze/hash 실패 검사 없음 |
+| graph | =(1,1)..(w-2,h-2)= step 2, 4-neighbor | 이 topology를 public contract로 고정해야 uniform claim이 유효 |
+| start | 모든 interior odd cell vector 후 uniform pick | 후보 count overflow와 empty 방어를 status로 변환 |
+| RNG | =mt19937(time(nullptr))= | 초 단위 seed collision, caller seed 불가, engine/version 기록 불가 |
+| walk | 매 step directions shuffle 후 첫 valid neighbor | valid neighbor에 균등하지만 shuffle 비용; direct uniform index 가능 |
+| termination | visited count가 전체 cell 수가 될 때 | 이론상 almost-sure 종료이나 deterministic upper bound 없음 |
+| result | non-passage를 blocked hash에 insert | insert 실패 무시해 incomplete/잘못 열린 maze 반환 |
+| test | block count range와 print | tree/connectivity/uniform/reproducibility/termination 미검증 |
+
+* 목표 계약
+
+- 입력 topology는 odd >=3의 rectangular 4-neighbor cell graph이며 외곽은 wall이다.
+- 결과 passage graph는 =V-1= carved edge, connected, acyclic인 perfect maze다.
+- 모든 spanning tree가 동일 확률이라는 claim은 동일 graph에서 unbiased neighbor choice를 사용할
+  때만 허용한다. max-step로 중단된 결과는 반환하지 않는다.
+- seed와 RNG algorithm/version을 result provenance에 기록한다. 같은 seed 재현 범위는 명시된
+  engine/version/platform matrix에 한정한다.
+- cancel은 walk와 blocked materialization 양쪽에서 bounded interval로 poll한다.
+
+* TODO 1단계: 원 알고리즘과 현행 trace 동결
+
+** 실행
+
+- 3x3, 5x5, 9x9 cell graph에서 start, random choice, first-entry edge trace를 기록한다.
+- candidate/visited/grid/hash allocation failure 지점을 열거한다.
+- header/CMake/root export/install/test/wrapper 미등록 상태를 snapshot한다.
+
+** 완료 조건
+
+- 현 구현이 simple random walk인지와 uniform claim의 전제가 review로 확인된다.
+- legacy 동일 초 seed collision을 재현하는 fixture가 있다.
+
+** 검증
+
+- fixed injected RNG trace를 수작업 reference tree와 비교한다.
+- enum dispatcher와 direct 함수의 결과 contract가 일치하는지 검사한다.
+
+* TODO 2단계: seed·budget·status API 추가
+
+** 실행
+
+- caller-owned options에서 seed/RNG context/max_steps/cancel userdata를 받는다.
+- size multiplication과 allocation을 checked 연산으로 바꾸고 모든 insert 실패를 전파한다.
+- 신규 status/out API를 구현하고 legacy symbol을 forwarding한다.
+
+** 완료 조건
+
+- 같은 seed는 선언된 재현 범위에서 같은 blocked-coordinate hash를 만든다.
+- cancel/step-limit/OOM에서 maze가 반환되지 않고 모든 임시 allocation이 정리된다.
+
+** 검증
+
+- seed 0/MAX, 1-cell graph, huge dimensions, fault index별 test와 ASan/LSan을 실행한다.
+- legacy/new export와 wrapper audit exclusion 사유를 검사한다.
+
+* TODO 3단계: topology와 확률 품질 검증
+
+** 실행
+
+- passage graph connectivity, =edges=vertices-1=, no cycle, border wall을 직접 assert한다.
+- 작은 grid의 spanning-tree frequency를 다수 seed로 수집하되 flaky하지 않은 statistical bound를 정한다.
+- neighbor 선택이 degree별 uniform인지 RNG stub으로 exact frequency test한다.
+
+** 완료 조건
+
+- 문서의 uniform spanning tree claim이 test와 primary source에 의해 뒷받침된다.
+- 성능 지표에 walk step count/cover time을 기록하고 size별 budget 권고가 있다.
+
+** 검증
+
+- deterministic property corpus와 별도 statistical suite를 실행한다.
+- sanitizer와 cancel latency 상한 test를 실행한다.
+
+* TODO 4단계: Header·통합 gate
+
+** 실행
+
+- 표준 license/file Doxygen/BYUL guard/direct include와 ownership/nullability/RNG metadata를 적용한다.
+- static/root shared 동일 inventory, SDK와 dispatcher capability를 맞춘다.
+
+** 완료 조건
+
+- 모든 public declaration이 정확히 한 definition/export를 가지며 audit error가 0이다.
+- legacy deprecation과 uniformity/성능 주의가 release-note 후보에 있다.
+
+** 검증
+
+- C17/C++17 standalone compile, module/root tests, export diff와 clean SDK consumer를 실행한다.
+- module static =BYUL_STATIC=과 root shared =BYUL_EXPORTS=에서 legacy/canonical export를 각각 검증한다.

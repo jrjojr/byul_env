@@ -1,25 +1,27 @@
-<!--
-GENERATED FILE - DO NOT EDIT
-Source: docs/org/en/build-environment.org
-Source-SHA256: acd7d3daa473989c5120eb90501d56515c171e6e2082e7447f7cd81c6f145ac8
-Content-SHA256: 71ba195b92f19e3349d176cfa0cade32b97c04fb5966c36227107e59ebbc034e
-Generator: tools/docs/publish_docs.py
--->
-
-# BYUL Build Environment
+#+TITLE: BYUL Build Environment
+#+LANGUAGE: en
+#+OPTIONS: toc:2 num:nil
+#+DOCUMENT_KIND: configuration
+#+AUDIENCE: developer
+#+ACCESS: public
+#+SECTION: configuration
+#+SLUG: build-environment-en
+#+SOURCE_FORMAT_VERSION: 1
+#+GENERATED_TARGETS: docs/en/build-environment.md
 
 This document describes the minimum build requirements and installation steps
-for BYUL. For running test executables and linking `byul.dll`/`libbyul.so`, see [Runtime And Test Execution](runtime-execution.md).
+for BYUL. For running test executables and linking =byul.dll=/=libbyul.so=, see
+[[file:runtime-execution.org][Runtime And Test Execution]].
 
-The primary development environment is Ubuntu. Most Linux and Windows
-MinGW cross builds are expected to run from Ubuntu, while MSVC builds require a
+The primary development environment is Ubuntu. Most Linux and Windows MinGW
+cross builds are expected to run from Ubuntu, while MSVC builds require a
 Windows Visual Studio environment.
 
-## Build Model
+* Build Model
 
 BYUL uses CMake presets.
 
-```text
+#+begin_src text
 Primary work environment: Ubuntu
 Primary build command: cmake --preset ... / cmake --build --preset ...
 SDK ZIP target: byul_sdk_zip
@@ -27,23 +29,23 @@ BYUL Grid ZIP target: byul_grid_zip
 GPU Compute Tester ZIP target: gpu_comp_tester_zip (separate from the default build)
 Public output: byul.dll or libbyul.so, public headers
 Development output: module static libraries, module test executables, integration test executable
-```
+#+end_src
 
-`byul_sdk_zip` is a standalone target. It first updates the `all` target,
+=byul_sdk_zip= is a standalone target. It first updates the =all= target,
 installs into a temporary package layout, and creates
-`byul-sdk-<version>-<platform>-<toolchain>-<configuration>.zip`. The separate
-`byul_grid_zip` target creates
-`byul-grid-<version>-<platform>-<configuration>.zip`. The
-`gpu_comp_tester_zip` target creates
-`gpu-comp-tester-<version>-<platform>-<configuration>.zip` independently of the
+=byul-sdk-<version>-<platform>-<toolchain>-<configuration>.zip=. The separate
+=byul_grid_zip= target creates
+=byul-grid-<version>-<platform>-<configuration>.zip=. The
+=gpu_comp_tester_zip= target creates
+=gpu-comp-tester-<version>-<platform>-<configuration>.zip= independently of the
 normal build.
 
-## Ubuntu Requirements
+* Ubuntu Requirements
 
 The following tools are required to run both Linux builds and Windows MinGW
 cross builds on Ubuntu.
 
-```text
+#+begin_src text
 Required:
   cmake
   make
@@ -65,11 +67,11 @@ Windows MinGW cross build:
 When building graphics or SDL targets:
   libsdl2-dev or the SDL package required by the project
   Vulkan/OpenGL development packages
-```
+#+end_src
 
 Install the base toolchain:
 
-```bash
+#+begin_src bash
 sudo apt update
 sudo apt install -y \
   build-essential \
@@ -80,144 +82,144 @@ sudo apt install -y \
   gcc-mingw-w64-x86-64 \
   g++-mingw-w64-x86-64 \
   mingw-w64-tools
-```
+#+end_src
 
 For SDL or GPU helper targets, install the matching development packages:
 
-```bash
+#+begin_src bash
 sudo apt install -y libsdl2-dev libvulkan-dev mesa-common-dev
-```
+#+end_src
 
-The `win_sdl_release` preset expects `external/SDL3-3.2.18/cmake` to exist and
-uses it through `CMAKE_PREFIX_PATH`. Prepare that external SDL3 package at the
+The =win_sdl_release= preset expects =external/SDL3-3.2.18/cmake= to exist and
+uses it through =CMAKE_PREFIX_PATH=. Prepare that external SDL3 package at the
 same location before using the preset.
 
-## Ubuntu Linux Builds
+* Ubuntu Linux Builds
 
 Debug build:
 
-```bash
+#+begin_src bash
 cd byul_env/byul
 cmake --preset linux-debug
 cmake --build --preset build-linux-debug
-```
+#+end_src
 
 Release build:
 
-```bash
+#+begin_src bash
 cd byul_env/byul
 cmake --preset linux-release
 cmake --build --preset build-linux-release
-```
+#+end_src
 
-The build preset runs `byul_sdk_zip`. Outputs are written to the build
+The build preset runs =byul_sdk_zip=. Outputs are written to the build
 directory's package layout and to
-`byul-sdk-<version>-<platform>-<toolchain>-<configuration>.zip`.
+=byul-sdk-<version>-<platform>-<toolchain>-<configuration>.zip=.
 
-## Windows MinGW Cross Build From Ubuntu
+* Windows MinGW Cross Build From Ubuntu
 
 Build a Windows DLL with the MinGW64 cross toolchain:
 
-```bash
+#+begin_src bash
 cd byul_env/byul
 cmake --preset win-release
 cmake --build --preset build-win-release
-```
+#+end_src
 
 This preset uses the following toolchain file:
 
-```text
+#+begin_src text
 byul/cmake/toolchain-mingw64.cmake
-```
+#+end_src
 
 The toolchain expects these tools in PATH:
 
-```text
+#+begin_src text
 x86_64-w64-mingw32-gcc
 x86_64-w64-mingw32-g++
 x86_64-w64-mingw32-windres
-```
+#+end_src
 
-## Windows Native MinGW
+* Windows Native MinGW
 
 These presets run in a Windows MSYS2 MinGW shell, not on Ubuntu:
 
-```text
+#+begin_src text
 win-native
 win-native-debug
-```
+#+end_src
 
 Example MSYS2 packages:
 
-```bash
+#+begin_src bash
 pacman -S --needed \
   mingw-w64-x86_64-cmake \
   mingw-w64-x86_64-gcc \
   mingw-w64-x86_64-make \
   mingw-w64-x86_64-pkgconf \
   mingw-w64-x86_64-zip
-```
+#+end_src
 
 Example invocation:
 
-```bash
+#+begin_src bash
 cd /path/to/byul_env/byul
 cmake --preset win-native
 cmake --build --preset build-win-native
-```
+#+end_src
 
-## MSVC Build Analysis
+* MSVC Build Analysis
 
 The current preset is:
 
-```text
+#+begin_src text
 win-msvc
-```
+#+end_src
 
-This preset uses the Visual Studio 2022 generator and points `cmakeExecutable`
-at a Windows path.
+This preset uses the Visual Studio 2022 generator and points
+=cmakeExecutable= at a Windows path.
 
-```text
+#+begin_src text
 Visual Studio 17 2022
 C:/Program Files/Microsoft Visual Studio/2022/Community/.../cmake.exe
-```
+#+end_src
 
 The current configuration cannot run directly on Ubuntu because Ubuntu does not
 provide the Visual Studio generator or the MSVC compiler toolchain.
 
 Supported paths:
 
-```text
+#+begin_src text
 Use MinGW64 from Ubuntu for Windows DLL/EXE cross builds.
 Run the MSVC preset on a Windows machine, Windows VM, or GitHub Actions Windows runner.
 Run the MSVC preset on a remote Windows build server.
-```
+#+end_src
 
 Not currently configured or recommended:
 
-```text
+#+begin_src text
 Running Visual Studio CMake through Wine.
 Using Ubuntu clang-cl as an MSVC ABI replacement.
-```
+#+end_src
 
 A Windows environment or Windows CI is required to officially verify MSVC
-outputs. Running `win-msvc-*` presets directly on Ubuntu is not a current goal.
+outputs. Running =win-msvc-*= presets directly on Ubuntu is not a current goal.
 
-## Tests
+* Tests
 
 CMake test presets are currently empty, so run CTest directly.
 
 Linux Debug:
 
-```bash
+#+begin_src bash
 ctest --test-dir ../build_debug --output-on-failure
-```
+#+end_src
 
 Linux Release:
 
-```bash
+#+begin_src bash
 ctest --test-dir ../build_release --output-on-failure
-```
+#+end_src
 
 Windows MinGW cross-build outputs are not run directly on Ubuntu. Wine may run
 some executables, but it is not an official verification path at this time.
@@ -225,14 +227,14 @@ some executables, but it is not an official verification path at this time.
 For MSVC multi-config builds on Windows, select the configuration through the
 test preset:
 
-```bash
+#+begin_src bash
 ctest --preset test-win-msvc-release
 ctest --preset test-win-msvc-debug
-```
+#+end_src
 
-## Presets
+* Presets
 
-```text
+#+begin_src text
 linux-debug          Ubuntu Debug build
 linux-release        Ubuntu Release build
 win-release          Windows DLL cross build from Ubuntu with MinGW64
@@ -240,11 +242,11 @@ win_sdl_release      Windows SDL executable cross build from Ubuntu with MinGW64
 win-native           Windows MSYS2 MinGW Release build
 win-native-debug     Windows MSYS2 MinGW Debug build
 win-msvc             Windows Visual Studio 2022 multi-config build
-```
+#+end_src
 
-## Targets
+* Targets
 
-```text
+#+begin_src text
 all                 Build libraries, helper executables, and test executables
 byul                Build only the final shared-library target
 test_core           Build the core module test executable
@@ -258,10 +260,10 @@ byul_grid_zip        Create the portable BYUL Grid ZIP from the current shared l
 gpu_comp_tester_zip  Build GPU Compute Tester separately and create its portable ZIP
 uninstall           Remove files recorded by CMake installation
 byul_help           Print install and available distribution-target commands
-```
+#+end_src
 
 Display target help:
 
-```bash
+#+begin_src bash
 cmake --build <build-directory> --target byul_help
-```
+#+end_src

@@ -1,0 +1,171 @@
+#+TITLE: Balix Linear Physics Model 추출 TODO
+#+TODO: TODO DOING BLOCKED | DONE CANCELLED FAILED
+#+TODO_RULES: ../../../../external/rules/projects/byul/todo-rules.org
+#+TODO_PARENT: todo-balix-math-extraction.org
+#+AUTHOR: ByulPapa / Codex
+#+LANGUAGE: ko
+#+OPTIONS: toc:t num:nil
+
+* 실제 source·build 범위
+
+- 공개 header: =byul/balix/numeq/numeq_model.h=
+- 현재 구현: =byul/balix/numeq/numeq_model.cpp=
+- aggregate 노출: =byul/balix/numeq/numeq.h=, =byul/balix/balix.h=
+- 현재 source/header 집계와 static target: =byul/balix/CMakeLists.txt=
+- root shared 재집계: =byul/CMakeLists.txt=
+- 직접 검증: =byul/balix/tests/test_module_model.cpp=
+- production 소비자: =byul/balix/numeq/numeq_integrator.cpp=,
+  =byul/balix/numeq/numeq_model_motion.cpp=, =byul/entity/entity_dynamic.cpp=
+
+=numeq_model.h=의 직접 =BYUL_API= 선언은 정확히 11개다. 아래 표는 모든 선언을
+개별 행으로 기록한다. Canonical 계산은 전부 Math Engine 소유이고 기존
+위 표의 기존 11개 이름은 Balix/노출 root의 legacy forwarding ABI다.
+
+| =BYUL_API= 선언 | 정본 분류 | Math Engine component | 기존 symbol의 최종 운명 |
+|-----------------+-----------+-----------------------+--------------------------|
+| =numeq_model_drag_accel= | Math Engine pure calculation/value | =physics/aerodynamics= force evaluation | Balix legacy forwarding |
+| =numeq_model_accel= | Math Engine pure calculation/value | =physics/dynamics= force composition | Balix legacy forwarding |
+| =numeq_model_accel_except_gravity= | Math Engine pure calculation/value | =physics/dynamics= named force composition | Balix legacy forwarding |
+| =numeq_model_accel_predict= | Math Engine pure calculation/value | =physics/dynamics= state evaluation | Balix legacy forwarding |
+| =numeq_model_pos_predict= | Math Engine pure calculation/value | =physics/kinematics= constant-acceleration query | Balix legacy forwarding |
+| =numeq_model_vel_predict= | Math Engine pure calculation/value | =physics/kinematics= velocity query | Balix legacy forwarding |
+| =numeq_model_predict= | Math Engine pure calculation/value | =physics/kinematics= state query | Balix legacy forwarding |
+| =numeq_model_predict_rk4= | Math Engine pure calculation/value | =numeq/ode=와 =physics/dynamics= 합성 | Balix legacy forwarding |
+| =numeq_model_bounce= | Math Engine pure calculation/value | =physics/contact= point response | Balix legacy forwarding |
+| =numeq_model_predict_collision= | Math Engine pure calculation/value | =geometry/ccd= sphere/point TOI result | Balix legacy forwarding |
+| =numeq_model_predict_collision_plane= | Math Engine pure calculation/value | =geometry/ccd= sphere-plane TOI result | Balix legacy forwarding |
+
+Balix adapter는 =linear_state_t=, =environ_t=, =bodyprops_t=를 neutral state/force/contact
+parameter로 변환한다. 위 세 Balix type을 Math Engine public header에 노출하지 않는다.
+
+* Private 계산 inventory
+
+=numeq_model.cpp=의 export 밖 계산도 모두 Math Engine manifest에 포함한다.
+
+| 현재 private/static 구현 | 목표 소유권 | 이유 |
+|--------------------------+-------------+------|
+| =compute_drag_accel= | Math Engine pure calculation/value | =-0.5*rho*Cd*A*|v|v/m=의 핵심 drag 식이다. |
+| =numeq_model_accel_internal= | Math Engine pure calculation/value | gravity, drag와 environment distortion의 합성 순서를 결정한다. |
+| =numeq_model_accel_except_gravity_internal= | Math Engine pure calculation/value | named force composition과 gravity 제외 의미를 결정한다. |
+
+그 밖에 =scalar_zero=, =scalar_safe_div=, =vec3_point_plane_distance=,
+=vec3_ray_plane_intersect=, =numeq_solve_quadratic=와 integrator 호출은 canonical Math Engine
+component 사이 의존성으로 바꾼다. Balix adapter가 이를 직접 조합하지 않는다.
+
+* 공식·상수와 output 계약 inventory
+
+- drag: =0.5 * air_density * |v_rel|^2 * Cd * area / mass=, null environment의
+  density fallback =1.225f=
+- constant acceleration: =v=v0+a0*t=, =p=p0+v0*t+0.5*a0*t^2=
+- bounce: normalized normal에 대해 tangential 보존, normal 성분을
+  =-restitution=으로 반전하고 restitution을 [0, 1]에 clamp
+- sphere query: =|p_rel+v_rel*t|^2-radius_sum^2=0=의 quadratic; relative acceleration이
+  nonzero이면 현재 false
+- plane query: distance/radius 초기 overlap과 =plane_point-normal*radius= offset의
+  ray-plane intersection; =SCALAR_EPSILON= parallel gate
+
+=1.225f=처럼 물리 표준값으로 보이는 값은 온도·압력·습도 조건과 출처 없이 보편 상수로
+승격하지 않는다. Null environment fallback은 Balix legacy preset으로 보존하고 canonical
+Math Engine은 명시 parameter 또는 출처가 있는 atmosphere model을 요구한다.
+
+* Build·DLL 이행
+
+현재 =numeq_model.cpp=는 =balix_SOURCES=와 root shared source inventory에 포함되며
+Balix 내부 integrator/body/environment type에 직접 의존한다.
+
+- Static 과도기: pure source는 neutral API 기준 단일 Math Engine manifest로 이동하고
+  Balix는 11개 DTO/status forwarding shim만 소유한다. Root shared는 현행 중앙 규칙대로
+  같은 manifest를 직접 compile하고 기존 export를 보존한다.
+- 독립 DLL 전환: 중앙 규칙과 =rules-ref.org= revision 승인 뒤 canonical physics,
+  ODE와 CCD symbol은 Math Engine DLL에만 존재한다. BYUL DLL의 11개 기존 symbol은
+  imported Math Engine 호출로 forwarding하며 math source를 중복 포함하지 않는다.
+
+* 현재 진단
+
+- Drag 식은 방향상 =-0.5*rho*Cd*A*|v|v/m=이지만 body mass zero/negative, density/Cd/
+  area range와 unit status가 없다.
+- Environment distortion과 drag/gravity composition 순서가 model 이름에서 드러나지 않는다.
+- =accel_predict(time>0)=는 예측 velocity로 internal acceleration을 계산하면서
+  =state0.acceleration=을 누락해 =time<=0= 경로와 불연속이다.
+- Position/velocity 예측은 acceleration을 초기값에서 한 번 계산하지만 drag가 velocity에
+  의존하므로 closed-form처럼 보이는 이름과 실제 근사가 다르다.
+- Velocity prediction에 friction factor와 acceleration을 동시에 적용해 model
+  interpretation과 energy가 불명확하다.
+- Bounce는 tangential velocity를 보존하는 frictionless point response이며 normal
+  orientation/normalization과 separating contact 처리 계약이 없다.
+- Sphere collision은 상대 acceleration이 0이 아닐 때 문서 기대와 달리 false를 반환한다.
+- Plane collision의 radius offset 방향이 motion/normal side에 따라 일반적으로 달라질 수
+  있으나 고정 =-normal*radius=를 사용한다.
+
+* 실행 절차
+
+** TODO 1. Law, approximation과 query semantics를 분리한다
+*** 실행
+
+각 함수의 식, force dependence, integration approximation, unit/frame과 collision shape
+assumption을 기록한다.
+
+*** 완료 조건
+
+Physics, integrator, geometry owner가 겹치지 않고 legacy behavior가 재현 가능하게 기록된다.
+
+*** 검증
+
+Caller graph와 analytic/known-defect corpus를 비교한다.
+
+** TODO 2. Neutral force·kinematics·contact API를 정의한다
+*** 실행
+
+Velocity/density/area/mass parameter, state view, force callback와 contact result를 Balix
+type 없이 설계한다.
+
+*** 완료 조건
+
+Zero/negative/non-finite, normalization, unit/frame와 output failure 계약이 명확하다.
+
+*** 검증
+
+C17/C++17 compile, dimension/layout와 invalid parameter test를 수행한다.
+
+** TODO 3. Drag·kinematics·bounce kernel을 구현한다
+*** 실행
+
+순수 force evaluation과 constant-acceleration kinematics를 구분하고 velocity-dependent
+motion은 ODE integrator를 사용한다.
+
+*** 완료 조건
+
+방향·부호·에너지와 step refinement가 선언된 model을 만족한다.
+
+*** 검증
+
+Vacuum, terminal-velocity candidate, zero drag, restitution extremes, separating/approaching
+contact와 energy test를 실행한다.
+
+** TODO 4. Collision query를 geometry result로 전환한다
+*** 실행
+
+Point/sphere와 plane query를 공통 CCD result, local TOI, position, normal, feature와 residual로
+표현한다.
+
+*** 완료 조건
+
+Accelerated/degenerate cases가 unsupported 또는 검증된 계산 결과로 명시된다.
+
+*** 검증
+
+Analytic linear/accelerated query, root residual, side/normal reversal과 tangent corpus를
+실행한다.
+
+** TODO 5. Balix adapter와 legacy symbols를 전환한다
+*** 실행
+
+DTO mapping과 old bool/output 의미를 canonical status로 forwarding한다.
+
+*** 완료 조건
+
+=numeq_model.cpp=에 독자 계산식이 없고 ABI mapping이 문서화된다.
+
+*** 검증
+
+Old/new differential, model/integrator/collision integration과 root export를 실행한다.

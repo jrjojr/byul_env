@@ -1,0 +1,205 @@
+#+TITLE: BYUL Navsys coord.hpp 정밀 리팩토링 TODO
+#+TODO: TODO DOING BLOCKED | DONE CANCELLED FAILED
+#+TODO_RULES: ../../../../external/rules/projects/byul/todo-rules.org
+#+PUBLIC_API_RULES: ../../../../external/rules/projects/byul/public-api-rules.org
+#+HEADER_DECLARATION_RULES: ../../../../external/rules/projects/byul/header-declaration-rules.org
+#+HEADER_COMMENT_RULES: ../../../../external/rules/projects/byul/header-comment-rules.org
+#+HEADER_AUTHORING_RULES: ../../../../external/rules/projects/byul/header-authoring-rules.org
+#+BUILD_RULES: ../../../../external/rules/projects/byul/build-rules.org
+#+TEST_RULES: ../../../../external/rules/projects/byul/test-rules.org
+#+TODO_PARENT: todo-리팩토링-navsys-headers.org
+#+AUTHOR: ByulPapa / Codex
+#+LANGUAGE: ko
+#+OPTIONS: toc:t num:nil
+
+* Build compile-definition 불변식
+
+- module static consumer는 =BYUL_STATIC=으로 C ABI 선언과 이 helper를 함께 컴파일한다.
+- root shared는 같은 production source를 =BYUL_EXPORTS=로 재컴파일한다. internalize 뒤에도
+  두 경로가 같은 private helper를 사용하고 install에는 포함하지 않는지 따로 검사한다.
+
+* 문서 책임과 결론
+
+=byul/navsys/coord/coord.hpp=의 모든 C++ 선언을 조사한다. 공통 기준은
+[[file:todo-navsys-industry-api-baseline.org][Navsys 업계 API 기준]]이다. 결론은 이 파일을 public C++ SDK로 확장하는 것이 아니라
+구현 전용 =byul/navsys/coord/internal/coord_ops.hpp=로 이동하는 것이다. 현재 CMake public
+header inventory에는 없지만 source tree의 여러 구현이 include하므로, 설치 여부와 실제
+역할이 어긋난 상태를 끝낸다.
+
+* 현재 소비 경로
+
+- =coord_hash.cpp=, =coord_list.cpp=, =cost_coord_pq.cpp=, =route.cpp=와 여러
+  route-finder 구현이 연산자/hasher를 사용한다.
+- Python wrapper manifest는 C header만 읽으며 이 파일을 등록하지 않는다.
+- 파일에는 project license, =@file/@brief=, BYUL guard, namespace, ABI/export 정책이 없다.
+- 공개 C =coord_t=를 구현 편의상 C++ global namespace와 =std=에 주입한다.
+
+* 현행 선언 전수 목록과 처분
+
+| 선언 | 현재 의미/위험 | 처분 |
+|------+---------------+------|
+| =operator==(const coord_t&, const coord_t&)= | global equality, C 함수 호출 | ABI 1.x: deprecate-forward -> ABI-major: internalize |
+| =operator!=(const coord_t&, const coord_t&)= | global inequality | ABI 1.x: deprecate-forward -> ABI-major: internalize |
+| =operator<(const coord_t&, const coord_t&)= | global lexicographic order | ABI 1.x: deprecate-forward -> ABI-major: internalize |
+| =operator<<(std::ostream&, const coord_t&)= | global debug formatting | ABI 1.x: deprecate-forward -> ABI-major: internalize |
+| =CoordHash= | =coord_t*= 키, NULL/hash 의미 암묵 | ABI 1.x: deprecate-forward -> ABI-major: internalize |
+| =CoordEqual= | =coord_t*= 키, NULL/equality 의미 암묵 | ABI 1.x: deprecate-forward -> ABI-major: internalize |
+| =std::hash<coord_t>= | mutable C struct의 global specialization | ABI 1.x: deprecate-forward -> ABI-major: internalize |
+
+이 파일에는 macro/type alias/다른 함수 선언이 없다. 위 일곱 선언 모두 별도 external
+consumer가 확인되지 않는 한 ABI 2 public 약속으로 승격하지 않는다.
+
+* 업계 관행 비교와 목표 설계
+
+- associative container의 comparator는 strict weak ordering이어야 한다. C++ 표준의
+  [[https://eel.is/c++draft/associative.reqmts][associative container requirements]]와 SEI
+  [[https://wiki.sei.cmu.edu/confluence/display/cplusplus/CTR57-CPP.+Provide+a+valid+ordering+predicate][CTR57-CPP]]를 기준으로 한다.
+- pointer hasher/equal은 lifetime과 NULL을 추가로 떠안는다. 현재 map은 =coord_t=를 값으로
+  저장할 수 있으므로 by-value functor를 쓴다.
+- public C type에 대한 =std::hash= specialization은 문법상 가능해도 mutable key의 변경을
+  막지 못한다. 모든 내부 unordered container에 명시적 hasher를 전달한다.
+- debug 출력은 core public header의 global operator보다 project log/formatter 층이
+  적절하다. C의 =coord_format=과 동일한 textual contract를 사용한다.
+
+* 목표 internal 선언 초안
+
+#+begin_src cpp
+#ifndef BYUL_NAVSYS_COORD_INTERNAL_COORD_OPS_HPP
+#define BYUL_NAVSYS_COORD_INTERNAL_COORD_OPS_HPP
+
+namespace byul::navsys::detail {
+
+struct coord_equal final {
+    [[nodiscard]] bool operator()(
+        const coord_t& lhs, const coord_t& rhs) const noexcept;
+};
+
+struct coord_less final {
+    [[nodiscard]] bool operator()(
+        const coord_t& lhs, const coord_t& rhs) const noexcept;
+};
+
+struct coord_hash final {
+    [[nodiscard]] std::size_t operator()(
+        const coord_t& value) const noexcept;
+};
+
+} // namespace byul::navsys::detail
+#endif
+#+end_src
+
+- equality는 =x == x && y == y=, ordering은 =(x,y)= lexicographic, hash는 equality와
+  같은 두 field만 사용한다.
+- 모든 call operator는 by-value reference, =const=, =noexcept=이며 transparent lookup이
+  실제 필요한 경우에만 =is_transparent=와 명시적 overload를 추가한다.
+- operator sugar가 필요한 public C++ SDK는 이 파일을 재사용하지 않고 versioned
+  =byul/navsys/cpp/coord.hpp= 후보로 별도 ABI/source-compat review를 거친다.
+
+* 세부 마이그레이션
+
+** Global operators
+
+- 각 호출부를 명시적 =detail::coord_equal/less= 또는 C 함수로 교체한다.
+- 정렬/container 비교는 comparator를 template parameter로 전달한다.
+- stream 출력은 =coord_format= 또는 test-local formatter로 바꾼다.
+- ADL에 기대는 외부 source consumer가 있는지 설치 header 및 repository 밖 fixture로
+  조사한다. 발견되면 한 major 동안 deprecated compatibility header를 별도 제공한다.
+
+** Hash functors
+
+- =CoordHash/CoordEqual=의 pointer overload를 제거하고 container storage를 by-value로
+  바꾼다. pointer storage가 불가피한 곳은 명시적 dereference/lifetime adapter를 해당
+  implementation file에 둔다.
+- =std::hash<coord_t>=를 제거한 뒤 모든 =unordered_map/set= 선언이 explicit hasher를
+  갖도록 compile-time search gate를 둔다.
+- equal ⇒ same hash property와 deterministic process-local behavior를 검사한다. hash 값
+  자체를 persistent format/네트워크 ABI로 약속하지 않는다.
+
+* build, test와 호환성 영향
+
+- ABI 1은 public C =coord_t= layout과 exported C symbol을 바꾸지 않는다. 이 =.hpp=가
+  공식 install inventory에는 없더라도 확인된 source-tree/external include consumer가 있으면
+  deprecated forwarding path를 제공한 뒤 migration한다.
+- ABI 2에서만 기존 global operators/functors와 =std::hash<coord_t>= path를 종료하고
+  namespace가 있는 private detail header로 완전히 internalize한다.
+- =coord.hpp=가 현재 public CMake header list에 없다는 사실을 manifest에 기록하고,
+  clean install에 우연히 복사되는지 검사한다.
+- static =coord=와 root shared는 동일 internal header를 사용하되 internal header는
+  install/export/wrapper inventory에서 제외한다.
+- source compatibility가 필요한 경우 기존 path에는 deprecated forwarding header를
+  한시적으로 둘 수 있지만, 그 header가 =std::hash=를 다시 정의하게 두지 않는다.
+- compile test는 C++17, include-order permutation, 두 translation unit ODR, map/unordered
+  map lookup과 mutable-key misuse를 포함한다.
+
+* 구현 순서
+
+** TODO 1단계: 실제 public 여부와 소비자 확정
+
+*** 실행
+
+- repository, 설치 staging, generated package, external fixture에서 일곱 선언의 사용을
+  전수 검색한다.
+- CMake/install/export/wrapper inventory와 파일 역할을 비교한다.
+
+*** 완료 조건
+
+- 각 소비자가 internal, test-only, external source 중 하나로 분류된다.
+- forwarding header가 필요한 최소 source-compat 기간이 결정된다.
+
+*** 검증
+
+- clean install tree에 이 파일이 포함되는지 자동 검사한다.
+- 일곱 선언 이름의 repository consumer report를 보존한다.
+
+** TODO 2단계: value 기반 detail functor 도입
+
+*** 실행
+
+- namespace/BYUL guard/license/file comment를 갖춘 internal header를 만든다.
+- equality/order/hash 구현을 =constexpr= 가능성까지 검토하고 =noexcept=로 고정한다.
+
+*** 완료 조건
+
+- pointer lifetime과 NULL semantics가 functor 계약에서 사라진다.
+- order/equality/hash가 동일 field semantics를 공유한다.
+
+*** 검증
+
+- irreflexive/asymmetric/transitive/equivalence-transitive와 equal-hash property test를
+  경계 좌표에 대해 실행한다.
+- C++17 두 translation unit ODR/link test를 실행한다.
+
+** TODO 3단계: 호출부와 build inventory 전환
+
+*** 실행
+
+- 모든 implementation/container 선언을 explicit detail functor로 전환한다.
+- =operator<<= 호출은 canonical formatter 또는 test-local output으로 바꾼다.
+
+*** 완료 조건
+
+- production source가 global operator, =Coord*=, =std::hash<coord_t>=를 참조하지 않는다.
+- internal header가 install/export/wrapper에 노출되지 않는다.
+
+*** 검증
+
+- module static/root shared 전체 build와 clean installed SDK file inventory를 비교한다.
+- forbidden-symbol source scan을 CI gate로 실행한다.
+
+** TODO 4단계: 기존 path 종료
+
+*** 실행
+
+- external consumer가 없으면 =coord.hpp=를 제거하고, 있으면 기간이 명시된 deprecated
+  forwarding path와 migration note를 제공한다.
+- public C++ convenience layer가 필요하다는 별도 요구는 새 설계 문서로 분리한다.
+
+*** 완료 조건
+
+- public C ABI와 internal C++ helper의 경계가 CMake와 filesystem에서 일치한다.
+- legacy path 종료 조건과 major version이 명시된다.
+
+*** 검증
+
+- old source fixture(필요 시), 새 internal source, 설치 SDK consumer를 각각 build한다.
+- header audit와 =git diff --check=를 통과한다.

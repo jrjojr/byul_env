@@ -1,0 +1,24 @@
+#+TITLE: BYUL Canonical Rules 참조
+#+LANGUAGE: ko
+#+OPTIONS: toc:nil num:nil
+#+RULES_REPOSITORY: rules_env
+#+RULES_REMOTE: https://github.com/jrjojr/rules_env.git
+#+RULES_REVISION: b644b4cfa630534b755e1837f524753c7252b749
+#+RULES_PROJECT: byul
+#+RULES_DEFAULT_CHECKOUT: external/rules
+#+RULES_COMMON_ENTRYPOINT: common/init-rules.org
+#+RULES_ENTRYPOINT: projects/byul/byul-init-rules.org
+
+* 목적
+
+이 파일은 BYUL이 Git submodule로 사용하는 독립 Emacs Org 규칙 저장소의 원격,
+검토한 Git revision과 checkout을 기록한다. 규칙 본문을 복제하지 않는다.
+
+* Bootstrap
+
+1. =git submodule update --init external/rules=로 submodule을 준비한다.
+2. =RULES_DEFAULT_CHECKOUT=을 BYUL 저장소 root에서 resolve한다.
+3. 해당 directory의 =RULES_COMMON_ENTRYPOINT=와 =RULES_ENTRYPOINT=이 존재하는지 확인한다.
+4. Git =HEAD=가 =RULES_REVISION=과 다른 경우 오래된 local 규칙으로 fallback하지 않고
+   차이를 알린다.
+5. 공통 초기 규칙, project-bootstrap 부모와 BYUL entrypoint 순서로 읽는다.

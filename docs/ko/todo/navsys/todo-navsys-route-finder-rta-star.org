@@ -1,0 +1,128 @@
+#+TITLE: BYUL Navsys rta_star.h 정밀 리팩터링 TODO
+#+TODO: TODO DOING BLOCKED | DONE CANCELLED FAILED
+#+TODO_RULES: ../../../../external/rules/projects/byul/todo-rules.org
+#+PUBLIC_API_RULES: ../../../../external/rules/projects/byul/public-api-rules.org
+#+HEADER_DECLARATION_RULES: ../../../../external/rules/projects/byul/header-declaration-rules.org
+#+HEADER_COMMENT_RULES: ../../../../external/rules/projects/byul/header-comment-rules.org
+#+HEADER_AUTHORING_RULES: ../../../../external/rules/projects/byul/header-authoring-rules.org
+#+BUILD_RULES: ../../../../external/rules/projects/byul/build-rules.org
+#+TEST_RULES: ../../../../external/rules/projects/byul/test-rules.org
+#+TODO_PARENT: todo-리팩토링-navsys-headers.org
+#+INDUSTRY_API_BASELINE: todo-navsys-industry-api-baseline.org
+#+AUTHOR: ByulPapa / Codex
+#+LANGUAGE: ko
+#+OPTIONS: toc:t num:nil
+
+* 대상과 원전 기준
+
+대상은 =rta_star.h/.cpp=다. [[file:todo-navsys-industry-api-baseline.org][공통 기준]]과
+Korf의 [[https://doi.org/10.1016/0004-3702(90)90054-4][Real-Time Heuristic Search]] 및
+[[https://cdn.aaai.org/AAAI/1987/AAAI87-024.pdf][AAAI Real-Time Heuristic Search]]를
+algorithm identity 기준으로 삼는다.
+
+* P0 선언/구현 및 Algorithm Identity 결함
+
+- =rta_star_config_create()=와 =rta_star_config_create_full()=,
+  =rta_star_config_destroy()=는 public 선언/CFFI에는 있으나 =rta_star.cpp=에 정의가 없다.
+  Root shared symbol intersection에서 즉시 실패해야 한다.
+- Dispatcher는 config type을 사용하지 않고 =void* typedata=를 =int*=로 해석한다.
+- 현재 =rta_iterative_eval=은 한 greedy path를 depth만큼 따라가며 neighbor별 minimax/lookahead
+  tree와 heuristic backup/learning을 구현하지 않는다. 외부 loop는 visited node 재방문을
+  금지한다. Korf RTA*/LRTA*와 같은 guarantee를 주장할 수 없다.
+- Lookahead 중 debug visited를 result route에 섞고, =depth_limit <= 0=, callback userdata,
+  cost/heuristic numeric failure와 cancel/OOM을 검증하지 않는다.
+- Header example은 현재 =route_finder_create_full= signature와 맞지 않고 type 이름도
+  =route_finder=처럼 잘못 사용한다.
+
+* 전체 Public Symbol Inventory와 disposition
+
+=RTA_STAR_H= include guard는 현재 macro inventory에 포함하고 ABI 영향 없이
+=BYUL_NAVSYS_ROUTE_FINDER_RTA_STAR_H=로 교체한다.
+
+| symbol | 종류/현재 상태 | disposition | 목표 |
+|--------+----------------+-------------+------|
+| =rta_star_config_t= | public one-field value type | =ABI 1.x: keep; companion: add -> ABI-major: keep= | versioned typed config companion 추가 |
+| =depth_limit= | public =int= field | =ABI 1.x: keep; companion: add -> ABI-major: keep= | positive range와 expansion unit 명시 |
+| =rta_star_config= | pointer typedef alias | =ABI 1.x: keep -> ABI-major: internalize= | canonical value/config-view에서 제거 |
+| =rta_star_config_create= | 선언만 있고 정의 없음 | =ABI 1.x: keep -> ABI-major: internalize= | P0 legacy symbol 구현; canonical value에는 allocation 불필요 |
+| =rta_star_config_create_full= | 선언만 있고 정의 없음 | =ABI 1.x: keep; companion: add -> ABI-major: internalize= | P0 구현 후 =init/default= value API로 전환 |
+| =rta_star_config_destroy= | 선언만 있고 정의 없음 | =ABI 1.x: keep -> ABI-major: internalize= | legacy allocation 쌍 구현 후 canonical value에서 제거 |
+| =find_rta_star= | one-shot route pointer | =ABI 1.x: deprecate-forward; conformance-block -> ABI-major: internalize= | stateful RTA*/LRTA* conformance 전 facade 지원 금지 |
+
+* 목표 상태형 Signature 후보
+
+RTA*는 planning과 action을 interleave하므로 full route one-shot보다 stateful step을 우선 검토한다.
+
+#+begin_src c
+BYUL_API navsys_status_t route_finder_bind_rta_star_config(
+    route_finder_t* finder,
+    const rta_star_config_t* config);
+
+BYUL_API navsys_status_t route_finder_rta_star_begin(
+    route_finder_t* finder,
+    const coord_t* start,
+    const coord_t* goal,
+    const navsys_search_options_t* options);
+
+BYUL_API navsys_status_t route_finder_rta_star_step(
+    route_finder_t* finder,
+    coord_t* out_next,
+    navsys_search_stats_t* out_stats);
+#+end_src
+
+Heuristic learning table owner, reset/snapshot, per-action lookahead expansion bound와 execution 실패를
+정한다. Full route =find_rta_star=는 step을 반복하는 compatibility adapter일 뿐 실시간 latency
+보장을 대신하지 않는다.
+
+* TODO 1단계: Missing Symbol과 이름 판정 Gate
+
+** 실행
+
+- 두 type/4함수의 header-definition-export-CFFI intersection을 고정하고 세 missing symbol을
+  root load test로 재현한다.
+- Korf pseudocode와 current greedy rollout trace를 대조해 rewrite/rename/unsupported를 결정한다.
+- depth/visited/callback/partial 동작과 잘못된 example consumer를 snapshot한다.
+
+** 완료 조건
+
+- 선언만 있는 symbol이 없고 algorithm 이름 결정 전 capability는 false다.
+- 모든 public symbol에 정확한 compatibility disposition이 있다.
+
+** 검증
+
+- export/load, original-paper trace fixture와 adversarial heuristic depression map을 실행한다.
+
+* TODO 2단계: Stateful RTA*와 config 구현
+
+** 실행
+
+- typed depth/lookahead config, begin/step/reset과 heuristic backup state를 구현한다.
+- cost/heuristic binding, per-step budget/cancel/OOM/status와 deterministic tie policy를 추가한다.
+- config value init/default를 canonical로 하고 legacy heap create/destroy는 forwarding한다.
+
+** 완료 조건
+
+- 각 step latency/expansion bound와 next action이 관찰되고 state reset/snapshot owner가 명확하다.
+- callback failure나 invalid config가 기존 running state를 손상하지 않는다.
+
+** 검증
+
+- lookahead depth boundary, repeated trials/learning convergence, dead-end, cancel/OOM과 userdata를 검사한다.
+
+* TODO 3단계: Legacy/Wrapper/배포 Gate
+
+** 실행
+
+- =find_rta_star=와 config pointer alias를 canonical state machine에 forwarding/deprecate한다.
+- wrapper가 config lifetime과 finder state를 보관하고 step status를 Python에 노출하게 한다.
+
+** 완료 조건
+
+- conformance를 통과한 경우에만 enum support를 true로 바꾸고 old/new ABI 1 consumer가 동작한다.
+- ABI 2에는 pointer typedef와 direct implementation header가 남지 않는다.
+
+** 검증
+
+- static/root/export/wrapper/SDK consumer, sanitizer와 per-step p95 expansion/latency benchmark를 실행한다.
+- =module static BYUL_STATIC=와 =root shared BYUL_EXPORTS=를 각각 compile/run하고
+  symbol/export/behavior parity를 비교한다.

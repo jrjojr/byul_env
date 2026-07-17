@@ -1,0 +1,224 @@
+#+TITLE: Balix의 Math Engine 소비·감시·호환 Adapter TODO
+#+TODO: TODO DOING BLOCKED | DONE CANCELLED FAILED
+#+TODO_RULES: ../../../../external/rules/projects/byul/todo-rules.org
+#+TODO_PARENT: todo-balix-math-extraction.org
+#+AUTHOR: ByulPapa / Codex
+#+LANGUAGE: ko
+#+OPTIONS: toc:t num:nil
+
+* 실제 aggregate·source·build 범위
+
+- Balix aggregate header/source: =byul/balix/balix.h=, =byul/balix/balix.cpp=
+- Numeq compatibility aggregate/source: =byul/balix/numeq/numeq.h=,
+  =byul/balix/numeq/numeq.cpp=
+- Controller aggregate 소비 경계: =byul/balix/controller/controller.h=,
+  =byul/balix/controller/controller.cpp=
+- Balix static/source inventory: =byul/balix/CMakeLists.txt=
+- Root shared/source 재집계: =byul/CMakeLists.txt=
+- Balix test link: =byul/balix/tests/CMakeLists.txt=
+- Collision 별도 target: =byul/balix/collision/CMakeLists.txt=
+
+* Aggregate direct export inventory
+
+여기서 “직접 선언”은 해당 파일 본문에 실제로 적힌 =BYUL_API= 선언을 뜻한다. Include로
+노출되는 child header의 symbol owner와 혼동하지 않는다.
+
+| Header | 직접 =BYUL_API= 수 | 직접 export inventory | 단독 owner와 fate |
+|--------+-------------------+-----------------------+-------------------|
+| =byul/balix/balix.h= | 0 | 없음 | 새 symbol을 소유하지 않는 compatibility aggregate; child include와 link만 관리 |
+| =byul/balix/numeq/numeq.h= | 0 | 없음 | 새 symbol을 소유하지 않는 deprecated compatibility aggregate; canonical internal include로 사용 금지 |
+| =byul/balix/controller/controller.h= | 13 | controller adapter/lifecycle export 13개 | [[file:todo-balix-controller-adapter.org][Controller adapter 계획]]이 함수별 단독 소유; 이 문서는 aggregate/link 합류만 담당 |
+
+=balix.cpp=의 =__balix_dummy__=와 =numeq.cpp=의 =__numeq_dummy__=는 =BYUL_API=가 아니며
+public C ABI로 분류하지 않는다. Dummy translation unit의 존치 여부는 target이 실제
+adapter source를 가진 뒤 결정한다.
+
+* =balix.h= include 전수 inventory
+
+=balix.h= 본문에 있는 include는 정확히 8개다. 각 행의 숫자는 resolved child header
+자체에 직접 선언된 =BYUL_API= 수이며 transitive include 수가 아니다.
+
+| 현재 include | 실제 header 경로 | child 직접 export 수 | Adapter/link fate |
+|--------------+------------------+----------------------+-------------------|
+| =bodyprops.h= | =byul/balix/bodyprops/bodyprops.h= | 6 | Balix preset lifecycle와 legacy 계산 forwarding; [[file:todo-balix-bodyprops-extraction.org][bodyprops 계획]] |
+| =environ.h= | =byul/balix/environ/environ.h= | 13 | Balix state/callback lifecycle와 Math Engine formula adapter; [[file:todo-balix-environ-extraction.org][environment 계획]] |
+| =numal.h= | =byul/numal/numal.h= | 0 | 기존 aggregate include는 compatibility 기간만 유지; canonical 내부 코드는 Math Engine public target/header를 직접 사용 |
+| =numeq.h= | =byul/balix/numeq/numeq.h= | 0 | 아래 6개 child의 compatibility aggregate; 신규 내부 사용 금지와 deprecation 대상 |
+| =motion_state.h= | =byul/balix/motion_state/motion_state.h= | 11 | Balix DTO lifecycle와 CCD forwarding; [[file:todo-balix-motion-state-extraction.org][motion-state 계획]] |
+| =trajectory.h= | =byul/balix/trajectory/trajectory.h= | 24 | Balix storage/lifecycle와 Math Engine 분석 adapter; [[file:todo-balix-trajectory-analysis-extraction.org][trajectory 계획]] |
+| =controller.h= | =byul/balix/controller/controller.h= | 13 | Balix controller lifecycle/dispatch 유지, control kernel link; [[file:todo-balix-controller-adapter.org][controller 계획]] |
+| =xform.h= | =byul/balix/xform/xform.h= | 48 | Math Engine transform kernel과 기존 ABI forwarding; [[file:todo-balix-transform-extraction.org][transform 계획]] |
+
+=byul/balix/collision/collision.h=는 =balix_HEADERS=에는 들어가지만 현재 =balix.h=의 8개
+include에는 없다. Aggregate 정리 중 이를 조용히 추가하면 public source surface가
+확장되므로 collision plan과 API compatibility 승인을 거쳐야 한다.
+
+* =numeq.h= include 전수 inventory
+
+=numeq.h= 본문에 있는 include는 정확히 6개다.
+
+| 현재 include | 실제 header 경로 | child 직접 export 수 | Canonical owner와 fate |
+|--------------+------------------+----------------------+-------------------------|
+| =numeq_integrator.h= | =byul/balix/numeq/numeq_integrator.h= | 28 | Math Engine ODE/rotation kernel + Balix legacy adapter; [[file:todo-balix-integrator-extraction.org][integrator 계획]] |
+| =numeq_kalman.h= | =byul/balix/numeq/filters/numeq_kalman.h= | 11 | Math Engine estimation kernel + legacy forwarding; [[file:todo-balix-kalman-extraction.org][Kalman 계획]] |
+| =numeq_model.h= | =byul/balix/numeq/numeq_model.h= | 11 | Math Engine physics/geometry kernel + 11개 legacy forwarding; [[file:todo-balix-physics-model-extraction.org][physics-model 계획]] |
+| =numeq_mpc.h= | =byul/balix/numeq/numeq_mpc.h= | 15 | Math Engine control/optimization + Balix target adapter; [[file:todo-balix-mpc-extraction.org][MPC 계획]] |
+| =numeq_pid.h= | =byul/balix/numeq/numeq_pid.h= | 8 | Math Engine control kernel + legacy forwarding; [[file:todo-balix-pid-extraction.org][PID 계획]] |
+| =numeq_solver.h= | =byul/balix/numeq/numeq_solver.h= | 5 | Math Engine polynomial/root kernel + 5개 legacy forwarding; [[file:todo-balix-solver-extraction.org][solver 계획]] |
+
+=byul/balix/numeq/filters/numeq_filters.h=,
+=byul/balix/numeq/numeq_model_motion.h=와 =byul/balix/numeq/numeq_pid_vec3.h=는 현재
+=balix_HEADERS=에는 있지만 =numeq.h=의 6개 include에는 없다. Compatibility aggregate를
+정리한다는 이유로 자동 추가하지 않는다. 각 세부 계획의 독립 include/forwarding과
+breaking 여부를 먼저 결정한다. =numeq.h= 마지막 =#endif // NUMEQ_HS=는 guard 자체가
+아니라 comment typo지만 header 정리 때 declaration lint 대상으로 기록한다.
+
+* Controller adapter 합류 gate
+
+Controller의 13개 =BYUL_API=, 2개 header inline, enum/callback/public layout, private
+PID/Bang-Bang/MPC dispatch와 factory/allocator lifecycle은
+[[file:todo-balix-controller-adapter.org][todo-balix-controller-adapter.org]]가 전수 소유한다.
+이 문서는 다음 결과만 합류시킨다.
+
+- controller adapter source는 Balix target에 남는다.
+- PID/Bang-Bang/MPC 식과 optimizer는 Math Engine target에서만 compile된다.
+- =controller.h=를 공개하는 installed target은 필요한 Math Engine public dependency를
+  signature 노출 여부에 따라 =PUBLIC= 또는 구현 전용이면 =PRIVATE=로 정확히 설정한다.
+- Root BYUL export의 controller 13개가 유지되고 canonical control symbol은 Math Engine
+  manifest/DLL 한 곳에만 존재한다.
+
+* 현재 CMake graph와 결함
+
+현재 =byul/balix/CMakeLists.txt=는 다음을 동시에 수행한다.
+
+- =balix_SOURCES=에 =${numal_SOURCES}=와 =${collision_SOURCES}=를 흡수한다.
+- Body/environment, 모든 Numeq 구현, xform/trajectory/motion-state/controller source를
+  하나의 =balix STATIC=에 직접 넣는다.
+- =balix_HEADERS=에도 =${numal_HEADERS}=와 =${collision_HEADERS}=를 흡수한다.
+- =balix STATIC=은 =core=와 =numal=을 link하고 =BYUL_STATIC=을 사용한다.
+- =test_balix=는 =numal=, =balix=와 =entity=를 link하므로 독립 Math Engine consumer
+  graph를 검증하지 않는다.
+
+Root =byul/CMakeLists.txt=는 =numal_SOURCES=와 그 Numal source를 이미 포함한
+=balix_SOURCES=를 다시 같은 =byul SHARED= inventory에 펼친다. 즉 Balix가 Math Engine
+library를 소비하는 구조가 아니라 source를 흡수하며, source/header owner와 compile
+mode가 중복된다.
+
+* Target·DLL 이행 단계
+
+| 단계 | Math Engine canonical source | Balix | Root =byul= shared | Gate |
+|------+------------------------------+-------+--------------------+------|
+| 현재 | 별도 target 없음 | Numal/collision/Numeq source 흡수 | =numal_SOURCES + balix_SOURCES= 재집계 | 중복 제거 필요 |
+| Static 과도기 | 단일 manifest + =byul_math_engine_static= | source 흡수 제거, target link와 adapter만 소유 | 현 중앙 규칙에 따라 동일 manifest를 =BYUL_EXPORTS=로 직접 compile + legacy shim | module/root test와 source uniqueness |
+| Shared 병행 | 같은 manifest로 =byul_math_engine= shared 검증 | imported target 소비 후보 | 기존 root 계산 export와 비교, 아직 cutover 전 | 중앙 규칙·runtime/package 승인 |
+| 최종 cutover | Math Engine DLL이 canonical symbol 단독 소유 | imported shared target 소비 | canonical math source/symbol 제거, legacy shim만 유지 | =rules-ref.org= pin, export/import·two-DLL 검증 |
+
+현재 중앙 규칙이 root shared 하나를 요구하므로 Static 과도기까지만 현 revision에서
+진행할 수 있다. 독립 DLL 생성과 cutover는 중앙 Org 규칙 갱신 및 승인된
+=rules-ref.org= revision 없이는 수행하지 않는다.
+
+* Balix에 남는 책임
+
+- world/entity/body/environment/controller state와 lifecycle
+- tick attach/detach와 주기 실행
+- broad-phase 후보, pair cache와 contact persistence
+- collision event/callback, response와 impulse 적용
+- trajectory sample/impact history와 serialization
+- target, waypoint, sensor와 actuator policy
+- 기존 public include/symbol의 compatibility forwarding
+
+실제 projectile 주기 감시는 =projectile_tick.cpp=의 tick callback과 collision query 호출에
+있다. Math Engine은 이 loop를 소유하지 않고 한 번의 query result만 반환한다.
+
+* Adapter 원칙
+
+- Balix DTO를 Math Engine POD/view로 명시 변환
+- unit, world/local frame, time origin과 tolerance를 call site에서 지정
+- =bool=만 전달하지 않고 status와 quality를 Balix event policy로 mapping
+- Math Engine handle이 있으면 생성 library가 destroy
+- callback, registry, tick과 mutable world pointer를 Math Engine에 넘기지 않음
+- legacy wrapper 내부에서도 계산식을 다시 쓰지 않음
+
+* 실행 절차
+
+** TODO 1. 모든 Balix·consumer call site를 분류한다
+*** 실행
+
+Balix뿐 아니라 entity, projectile, ground와 aerial의 direct xform/numeq/collision/
+trajectory 호출을 조사해 adapter owner와 link visibility를 기록한다. 위 표의
+=balix.h= 8개 include, =numeq.h= 6개 include와 controller adapter 계획의 13개 export를
+같은 manifest에 연결한다.
+
+*** 완료 조건
+
+각 call site가 canonical Math Engine 호출, Balix orchestration 또는 legacy shim 중
+하나로 분류된다.
+
+*** 검증
+
+Include/call graph와 target link graph를 비교하고 미분류 call 수가 0인지 검사한다.
+
+** TODO 2. DTO와 result mapping adapter를 구현한다
+*** 실행
+
+Motion, body, environment, trajectory와 controller 값을 neutral API로 변환하고 status,
+unit/frame과 failure를 Balix 계약으로 되돌린다.
+
+*** 완료 조건
+
+Adapter에 독자 수학식이 없고 Math Engine public header에 Balix type이 없다.
+
+*** 검증
+
+Round-trip, unit/frame mismatch, null/non-finite, output unchanged와 old/new differential
+test를 실행한다.
+
+** TODO 3. 주기 감시와 collision event 경계를 고정한다
+*** 실행
+
+Tick이 후보를 선택하고 단발 geometry/CCD query를 호출하며 contact state와 event를
+관리하는 sequence를 구현·문서화한다.
+
+*** 완료 조건
+
+Query 호출 횟수·주기·candidate cache는 Balix에서만 결정되고 Math Engine은 외부 state를
+읽거나 바꾸지 않는다.
+
+*** 검증
+
+다중 tick enter/stay/exit, tunneling, duplicate event, deterministic replay와 cancellation
+test를 수행한다.
+
+** TODO 4. Legacy ABI와 aggregate header를 정리한다
+*** 실행
+
+=balix.h=의 Numal/Numeq 재소유를 제거하고 승인 component와 compatibility include만
+유지한다. =numeq.h=의 기존 6개 include에 3개 누락 header를 무단 추가하지 않고
+compatibility/deprecation 결정을 기록한다. Controller 13개 export는 controller 계획의
+adapter 결과를 합류시키며 old math symbol은 canonical API forwarding과 deprecation
+metadata를 가진다.
+
+*** 완료 조건
+
+ABI 1.x consumer가 동작하고 신규 Balix 구현은 old math symbol을 내부에서 사용하지 않는다.
+
+*** 검증
+
+Root export, wrapper audit/check, installed header compile와 old/new clean consumer를
+실행한다.
+
+** TODO 5. Link와 runtime 전환을 완료한다
+*** 실행
+
+Static 과도기에는 =${numal_SOURCES}=와 =${collision_SOURCES}= 흡수 및 canonical Numeq
+source 재집계를 제거하고 Math Engine static target을 연결한다. 최종 desktop에서는
+승인된 imported shared target으로 전환한다.
+
+*** 완료 조건
+
+Dependency가 Balix에서 Math Engine으로만 향하고 source/symbol 중복이 없다.
+
+*** 검증
+
+CMake graph, compile commands, binary dependency, module/root tests와 install package를
+검사한다.

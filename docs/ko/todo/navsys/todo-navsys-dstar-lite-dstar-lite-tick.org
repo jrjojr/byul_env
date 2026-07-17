@@ -1,0 +1,244 @@
+#+TITLE: BYUL Navsys dstar_lite_tick.h 정밀 리팩토링 TODO
+#+TODO: TODO DOING BLOCKED | DONE CANCELLED FAILED
+#+TODO_RULES: ../../../../external/rules/projects/byul/todo-rules.org
+#+PUBLIC_API_RULES: ../../../../external/rules/projects/byul/public-api-rules.org
+#+HEADER_DECLARATION_RULES: ../../../../external/rules/projects/byul/header-declaration-rules.org
+#+HEADER_COMMENT_RULES: ../../../../external/rules/projects/byul/header-comment-rules.org
+#+HEADER_AUTHORING_RULES: ../../../../external/rules/projects/byul/header-authoring-rules.org
+#+BUILD_RULES: ../../../../external/rules/projects/byul/build-rules.org
+#+TEST_RULES: ../../../../external/rules/projects/byul/test-rules.org
+#+TODO_PARENT: todo-리팩토링-navsys-headers.org
+#+AUTHOR: ByulPapa / Codex
+#+LANGUAGE: ko
+#+OPTIONS: toc:t num:nil
+
+* Build compile-definition 불변식
+
+- D* Lite module static은 =BYUL_STATIC=으로 tick controller와 callback adapter를 컴파일한다.
+- root shared는 동일 source/header inventory를 =BYUL_EXPORTS=로 재컴파일·export하고
+  =byul_tick= callback ABI와 wrapper load/exclusion을 별도로 검사한다.
+
+* 문서 책임과 P0 판정
+
+=byul/navsys/dstar_lite/dstar_lite_tick.h=의 tick 등록, 시간 적분, 이동과 planner lifetime을
+독립적으로 재설계한다. 공통 lifecycle/cancellation 원칙은
+[[file:todo-navsys-industry-api-baseline.org][Navsys 업계 API 기준]]을 따른다. 현행 공개 struct와 attach/detach 구현에는 attached 상태
+destroy UAF, double attach, 자동 detach 미실행, 미초기화 create/copy가 있어 ABI 2 opaque
+전환 전에도 안전 수정이 필요하다.
+
+* 현재 구현 전수 분석
+
+- =create_full=은 =max_time=만 설정하고 =base=와 나머지 필드를 정상 초기화하지 않는다.
+- =copy=는 내용 복제가 아니라 사실상 미초기화 새 object를 반환한다. callback 등록을
+  복제하는 것 또한 안전한 의미가 아니므로 controller는 non-copyable이어야 한다.
+- =destroy/reset=은 tick system에서 callback을 detach하지 않는다. tick callback snapshot이
+  남아 있으면 object free 뒤 UAF가 가능하다.
+- update는 완료 시 =ticked=false=만 설정하고 =tick_request_detach= 또는 equivalent를
+  호출하지 않는다. 문서의 자동 detach와 다르다.
+- controller가 =tick_t*= 또는 subscription token을 저장하지 않아 destroy가 정확한 등록을
+  해제할 수 없다.
+- =prepare= double attach, 기존 =real_route= leak와 partial initialization을 허용한다.
+- =speed_sec <= 0=, =unit_m <= 0=, NaN/Inf, negative =dt=를 검증하지 않는다.
+- multi-step while에서 local start를 갱신하지 않아 같은 origin에서 반복 이동할 수 있다.
+- =MAX_STEP=은 namespace 없는 macro이고 구현은 별도 literal 64를 사용한다.
+
+* 현행 선언 전수 목록과 처분
+
+| 선언 | 현재 의미/결함 | 처분 |
+|------+----------------+------|
+| =MAX_STEP= | 전역 macro, 구현 literal과 중복 | deprecate-forward |
+| =dstar_lite_tick_t= | public mutable layout와 raw base | abi-major |
+| =dstar_lite_tick_create= | base borrowed/retained 불명, OOM 채널 없음 | deprecate-forward |
+| =dstar_lite_tick_create_full= | 실제 미초기화 P0 | deprecate-forward |
+| =dstar_lite_tick_destroy= | attached callback을 해제하지 않음 | keep |
+| =dstar_lite_tick_copy= | 미초기화 복제, registration 의미 불가능 | deprecate-forward |
+| =dstar_lite_tick_reset= | detach 없이 ticked=false | deprecate-forward |
+| =dstar_lite_tick_prepare= | void attach, double attach/error 없음 | deprecate-forward |
+| =dstar_lite_tick_prepare_full= | config+attach 원자성 없음 | deprecate-forward |
+| =dstar_lite_tick_update= | public/manual 호출 금지와 실제 export 충돌 | deprecate-forward |
+| =dstar_lite_tick_complete= | caller가 tick handle을 다시 알아야 함 | deprecate-forward |
+
+새 config/create/start/stop/advance/query API는 =add=다. struct opaque 전환과 copy symbol
+제거는 =abi-major=다. ABI 1 =copy=는 안전한 detached config snapshot만 복제하도록
+정의할 수 있는지 검토하고, 불가능하면 항상 실패를 표현할 새 API로 migration한다.
+
+* 업계 lifecycle 기준
+
+- [[https://docs.libuv.org/en/v1.x/handle.html][libuv 공식 handle lifecycle]]처럼 long-lived handle은 close 요청과 callback quiescence
+  이후에만 storage를 해제한다.
+  tick system이 snapshot iteration을 한다면 단순 unregister가 즉시 quiescence를 보장하는지
+  tick contract를 먼저 확인한다.
+- controller 상태를 =DETACHED/ATTACHED/RUNNING/COMPLETED/CANCELLED/FAILED=의 explicit
+  enum으로 관찰한다. bool =ticked=만으로 registration과 실행 결과를 합치지 않는다.
+- create는 configuration만 만들고 =start=가 registration을 수행한다. =stop=은 저장된
+  subscription을 해제하므로 caller가 =tick_t*=를 다시 넘기지 않는다.
+- deterministic unit test를 위해 tick callback과 분리된 =advance(dt)= operation을
+  canonical state machine으로 만들고 callback은 이를 호출하는 adapter가 된다.
+
+* 시간·이동 계약
+
+- parameter 이름은 =tile_size_m=, =speed_m_per_sec=, =max_duration_sec=로 단위를 드러낸다.
+- 모두 finite이고 tile/speed는 >0, duration은 >=0, =dt>=0=이어야 한다.
+- step interval은 =tile_size_m / speed_m_per_sec=. 누적 시간이 여러 step을 포함하면
+  =max_steps_per_update=까지만 처리하고 남은 누적 시간을 보존한다.
+- 각 step 성공 뒤 local/current start를 즉시 갱신한다. goal/no-path/cancel/limit/callback
+  failure를 서로 다른 status/state로 기록한다.
+- max duration과 step budget의 경계(=, >)를 명시하고 wall clock 대신 전달된 monotonic
+  delta만 사용한다.
+
+* 목표 공개 선언 초안
+
+#+begin_src c
+typedef struct s_dstar_lite_tick dstar_lite_tick_t;
+
+typedef enum e_dstar_lite_tick_state {
+    DSTAR_LITE_TICK_STATE_DETACHED = 0,
+    DSTAR_LITE_TICK_STATE_ATTACHED = 1,
+    DSTAR_LITE_TICK_STATE_RUNNING = 2,
+    DSTAR_LITE_TICK_STATE_COMPLETED = 3,
+    DSTAR_LITE_TICK_STATE_CANCELLED = 4,
+    DSTAR_LITE_TICK_STATE_FAILED = 5
+} dstar_lite_tick_state_t;
+
+typedef struct s_dstar_lite_tick_create_info {
+    uint32_t struct_size;
+    uint32_t abi_version;
+    dstar_lite_t* planner;       /* retained/borrowed decision required */
+    float tile_size_m;
+    float speed_m_per_sec;
+    float max_duration_sec;
+    uint32_t max_steps_per_update;
+} dstar_lite_tick_create_info_t;
+
+BYUL_API navsys_status_t dstar_lite_tick_create_ex(
+    const dstar_lite_tick_create_info_t* info,
+    dstar_lite_tick_t** out_controller);
+BYUL_API navsys_status_t dstar_lite_tick_start(
+    dstar_lite_tick_t* controller, tick_t* tick);
+BYUL_API navsys_status_t dstar_lite_tick_stop(
+    dstar_lite_tick_t* controller);
+BYUL_API navsys_status_t dstar_lite_tick_advance(
+    dstar_lite_tick_t* controller,
+    float delta_seconds,
+    uint32_t* out_steps);
+BYUL_API dstar_lite_tick_state_t dstar_lite_tick_get_state(
+    const dstar_lite_tick_t* controller);
+BYUL_API navsys_status_t dstar_lite_tick_fetch_position(
+    const dstar_lite_tick_t* controller,
+    coord_t* out_position);
+BYUL_API navsys_status_t dstar_lite_tick_get_elapsed_seconds(
+    const dstar_lite_tick_t* controller,
+    float* out_elapsed_seconds);
+#+end_src
+
+ABI 2 =destroy=는 detached/quiescent object만 받거나 내부에서 synchronous stop을 완료해야
+한다. tick system이 quiescence를 보장하지 못하면 reference-counted subscription/token API를
+tick module에 먼저 추가해야 하며 이를 숨겨서 free하지 않는다.
+
+* planner ownership과 thread 규칙
+
+- controller가 planner를 retain할 방법이 현재 없다. 권장은 controller lifetime 동안
+  caller가 planner를 보존하는 borrowed 계약과 destroy-order runtime assertion을 먼저
+  제공하고, 장기적으로 planner retain/release 또는 shared owner를 설계하는 것이다.
+- 같은 controller의 start/stop/advance/destroy 동시 호출은 지원하지 않거나 내부
+  serialization을 제공한다. callback thread와 user thread stop race는 반드시 test한다.
+- callback 안에서 planner/callback이 controller를 destroy하는 reentrancy를 금지하고
+  deferred close를 제공한다.
+
+* wrapper, build와 test 영향
+
+- 이 header는 wrapper generator manifest에 등록되지 않았다. 지원하지 않을 것이면
+  명시적 exclusion reason, 지원하면 state/status/lifecycle wrapper를 추가한다.
+- 기존 native test는 public field를 직접 수정해 create/copy 결함을 가린다. opaque API만
+  쓰는 black-box test로 바꾼다.
+- static D* Lite와 root shared가 같은 tick source를 사용하고 =byul_tick= dependency와
+  callback signature가 두 경로에서 일치해야 한다.
+
+* 구현 순서
+
+** TODO 1단계: tick subscription 계약과 결함 재현
+
+*** 실행
+
+- tick attach/detach/snapshot/quiescence semantics와 callback thread를 조사한다.
+- create_full/copy/double-attach/destroy-attached/auto-complete/multi-step 결함을 test로 고정한다.
+
+*** 완료 조건
+
+- 11개 현행 선언의 disposition과 ABI migration이 확정된다.
+- controller/planner/tick subscription의 owner graph와 destroy order가 명시된다.
+
+*** 검증
+
+- ASan에서 attached destroy UAF, leak와 미초기화를 재현하고 수정 전 expected-failure로
+  격리한다.
+- public layout size/align/offset을 ABI 1 manifest에 기록한다.
+
+** TODO 2단계: deterministic state machine 구현
+
+*** 실행
+
+- validated config, explicit state와 callback-independent =advance(dt)=를 구현한다.
+- 매 step마다 current start를 갱신하고 step/duration limit 결과를 status로 반환한다.
+
+*** 완료 조건
+
+- invalid/nonfinite config와 dt가 state/output을 변경하지 않는다.
+- 같은 dt sequence가 callback 유무와 관계없이 같은 position/state를 만든다.
+
+*** 검증
+
+- dt partition invariance, multi-step, zero/exact/over interval, goal/no-path/cancel/limit을
+  fake planner/clock으로 검사한다.
+
+** TODO 3단계: 안전한 start/stop/destroy 구현
+
+*** 실행
+
+- subscription token을 저장하고 double start를 거부한다.
+- completion/failure/stop/destroy에서 detach와 quiescence를 보장한다.
+
+*** 완료 조건
+
+- callback이 freed controller를 호출하지 않고 등록 수가 항상 0 또는 1이다.
+- destroy 뒤 planner/tick에 dangling callback이 없다.
+
+*** 검증
+
+- callback/user thread stop race, reentrancy, repeated start-stop와 sanitizer/TSan 후보를
+  실행한다.
+
+** TODO 4단계: ABI 1 adapter와 ABI 2 opaque migration
+
+*** 실행
+
+- prepare/complete/reset/create legacy를 canonical state machine으로 forward한다.
+- =MAX_STEP=을 =BYUL_DSTAR_LITE_TICK_DEFAULT_MAX_STEPS=로 대체하고 public field access를
+  accessor로 migration한다.
+
+*** 완료 조건
+
+- ABI 1 symbol은 유지되지만 미초기화 copy/create 경로가 없다.
+- ABI 2 header는 opaque이고 copy operation이 없다.
+
+*** 검증
+
+- old/new SDK fixture와 layout/version mismatch diagnostic을 실행한다.
+- deprecated field/macro/function source scan을 실행한다.
+
+** TODO 5단계: wrapper와 통합 gate
+
+*** 실행
+
+- wrapper 지원/제외를 manifest에 기록하고 지원 시 parent retention/close/state를 구현한다.
+- static/root/install/export/header test matrix를 추가한다.
+
+*** 완료 조건
+
+- wrapper manifest omission이 무설명 상태가 아니고 root shared만 public runtime이다.
+- lifecycle/callback ABI와 state enum numeric value가 manifest에 있다.
+
+*** 검증
+
+- static/root test, C17/C++17 clean SDK, wrapper audit, ASan/LSan/UBSan과
+  =git diff --check=를 통과한다.

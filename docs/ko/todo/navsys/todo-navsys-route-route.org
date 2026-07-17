@@ -1,0 +1,439 @@
+#+TITLE: BYUL Navsys route/route.h 정밀 리팩터링 TODO
+#+TODO: TODO DOING BLOCKED | DONE CANCELLED FAILED
+#+TODO_RULES: ../../../../external/rules/projects/byul/todo-rules.org
+#+PUBLIC_API_RULES: ../../../../external/rules/projects/byul/public-api-rules.org
+#+HEADER_DECLARATION_RULES: ../../../../external/rules/projects/byul/header-declaration-rules.org
+#+HEADER_COMMENT_RULES: ../../../../external/rules/projects/byul/header-comment-rules.org
+#+HEADER_AUTHORING_RULES: ../../../../external/rules/projects/byul/header-authoring-rules.org
+#+BUILD_RULES: ../../../../external/rules/projects/byul/build-rules.org
+#+TEST_RULES: ../../../../external/rules/projects/byul/test-rules.org
+#+TODO_PARENT: todo-리팩토링-navsys-headers.org
+#+INDUSTRY_API_BASELINE: todo-navsys-industry-api-baseline.org
+#+AUTHOR: ByulPapa / Codex
+#+LANGUAGE: ko
+#+OPTIONS: toc:t num:nil
+
+* 문서 책임
+
+대상은 =byul/navsys/route/route.h= 하나다. 구현 =route.cpp=, route를 만들거나
+소비하는 모든 route-finder algorithm, module/root CMake inventory, native test,
+Python =route.py=와 =route_finder.py=, 설치 SDK consumer까지 함께 다룬다. 공통
+status, allocator, ownership, two-call buffer, ABI/static/shared/wrapper gate는
+[[file:todo-navsys-industry-api-baseline.org][Navsys 업계 API 기준]]을 따른다.
+
+이 문서는 route를 단순 좌표 list가 아니라 search 결과 value로 취급한다. 좌표열,
+완료 상태, cost, 통계, trace의 불변식을 먼저 정하고, 경로 편집은 별도 builder,
+시간에 따라 누적되는 heading 판정은 별도 state object로 분리한다.
+
+* 조사한 현재 소비 경로
+
+- =byul/navsys/route/CMakeLists.txt=와 =byul/navsys/CMakeLists.txt=가 module static에,
+  =byul/CMakeLists.txt=가 같은 =route.cpp=를 root shared에 직접 compile하며
+  =route.h=를 설치 SDK에 배포한다.
+- A*/BFS/DFS/Dijkstra 및 나머지 route-finder 구현이 =route_create=,
+  =route_add_coord=, =route_add_visited=, public =cost/success= field와
+  =route_reconstruct=를 혼합해 결과를 만든다.
+- =tools/python/byul_wrapper/byul_wrapper/route.py=는 struct layout과 함수 선언을
+  CFFI에 등록한다. =coords/visited_order/visited_count= wrapper는 borrowed child인데
+  parent route를 강하게 보관하지 않는다.
+- Python =make_direction()=과 =direction_to_coord()=는 native가 새로 할당한
+  =coord_t*=를 =own=False=로 감싸므로 정상 호출마다 누수된다. wrapper는 header에 없는
+  =route_reconstruct_path=도 호출한다.
+- 현재 test는 append/slice/direction의 일부 happy path만 다루고, OOM, NULL,
+  invalid index, metadata 불변식, borrowed lifetime, reconstruction cycle과 wrapper leak을
+  검증하지 않는다.
+
+* 업계 기준과 직접 비교
+
+- [[https://recastnav.com/classdtNavMeshQuery.html][Detour dtNavMeshQuery]]의 =findPath=와
+  =findStraightPath=는 caller가 제공한 buffer, 실제 count와 상세 status를 함께 사용하며
+  partial result를 성공/실패 NULL 하나로 숨기지 않는다. route 좌표 export도 이 형태를
+  기본 C ABI로 삼는다.
+- [[https://recastnav.com/DetourStatus_8h_source.html][Detour status]]는 success,
+  in-progress, partial, invalid parameter, out-of-memory, buffer-too-small과 같은 원인을
+  bit/detail로 구분한다. =success bool + NULL + 0 sentinel= 혼합을 교체할 기준이다.
+- [[https://www.boost.org/doc/libs/latest/libs/graph/doc/astar_search.html][Boost.Graph A*]]는
+  predecessor/distance map과 traversal event를 결과 path 자체와 분리한다. 따라서
+  =visited_order/visited_count/total_retry_count=는 route value가 아니라 search
+  stats/trace의 책임으로 이동해야 한다.
+- [[https://curl.se/libcurl/c/][libcurl C API]]의 explicit handle lifecycle처럼 create/destroy,
+  borrowed view와 caller-owned output의 수명을 함수명·문서·wrapper에 동일하게 드러낸다.
+- [[https://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines#i11-never-transfer-ownership-by-a-raw-pointer-t-or-return][C++ Core Guidelines I.11]]의 ownership 원칙은 C ABI에서도 allocation을 숨기는
+  =make/get/to_coord= 이름을 피하고 =create/copy/destroy= 또는 caller output으로 소유권을
+  노출해야 함을 뒷받침한다.
+
+* 확인된 P0/P1 결함과 의미 충돌
+
+1. public =s_route=가 세 owning container pointer와 mutable 결과/heading state를 노출한다.
+   어느 field라도 외부가 교체하면 destructor double-free/leak 및 metadata 불일치가 난다.
+2. =route_hash=와 =route_equal=은 pointer identity인데 =route_copy=는 deep copy다. 이름만 보면
+   value hash/equality로 오해하며 copied route는 같은 내용이어도 equal하지 않다.
+3. =route_get_total_retry_count=와 =route_set_total_retry_count=는 NULL을 바로 역참조한다.
+   다른 getter의 NULL sentinel 정책과도 다르다.
+4. =route_get_cost(NULL)=0, =route_get_success(NULL)=0, =route_length(NULL)=0은 유효한
+   zero-cost/unsuccessful/empty route와 invalid handle을 구분하지 못한다.
+5. append/insert/remove/clear는 좌표만 바꾸고 cost, success, visited data, heading accumulator를
+   재계산하거나 invalidate하지 않는다. =route_append=는 두 route의 metadata를 병합하지 않고,
+   =route_append_nodup=는 접합점 하나만 중복 제거한다.
+6. =route_slice=는 coords만 복사하고 cost/success/visited/retry/heading을 기본값으로 잃는다.
+   범위는 half-open인지 문서화되지 않고 =end == start= empty slice도 거부한다.
+7. void mutator는 invalid index와 allocation failure를 조용히 무시하여 strong guarantee와
+   호출자 복구 경로가 없다. =route_add_visited=는 order와 count의 두 단계 변경을 원자적으로
+   보장하지 않는다.
+8. =route_make_direction=과 =direction_to_coord=는 조회처럼 보이지만 heap allocation한다.
+   invalid 입력도 allocated =(0,0)=을 반환해 invalid와 unknown을 합치고 wrapper가 이를 샌다.
+9. =route_get_direction_by_dir_coord=, =calc_direction=과 방향 변화 API는 NULL coord를
+   역참조한다. =calc_direction=과 =direction_to_coord=는 =route_= prefix도 없다.
+10. =route_has_changed_with_angle=은 predicate 이름인데 =avg_vec_x/y/vec_count=를 갱신한다.
+    =route_has_changed=는 누적 vector를 정규화하지 않아 같은 방향을 여러 번 누적하면 dot가
+    1로 clamp되어 실제 각도를 왜곡한다. 두 함수의 state transition도 서로 다르다.
+11. =route_reconstruct=는 predecessor cycle을 탐지하지 않아 무한 loop가 가능하고,
+    temporary/append allocation failure를 검사하지 않는다. 실패 시 기존 route에 일부 좌표가
+    남을 수 있으며 algorithm-internal =coord_hash_t= representation을 public ABI로 누출한다.
+12. enum의 암시적 숫자, generic =ROUTE_H= guard, license/header comment 누락,
+    =route_create()=의 C prototype 부재, C header에서 =bool/uintptr_t=를 직접 사용하면서
+    required standard include가 보이지 않는 문제가 header 규칙과 충돌한다.
+
+* 전체 Public Symbol Inventory
+
+** Macro, typedef, enum
+
+- public semantic macro는 없고 include guard =ROUTE_H=만 있다. guard는 repository-unique
+  =BYUL_NAVSYS_ROUTE_ROUTE_H=로 ABI와 무관하게 교체한다.
+
+현재 typedef와 enum value를 이름별로 분리한 정규 disposition은 다음과 같다.
+
+| 현재 symbol | numeric/layout | disposition | 목표/비고 |
+|-------------+----------------+-------------+-----------|
+| =route_t= | =struct s_route= public owning layout | =ABI 1.x: keep; companion: add -> ABI-major: abi-major= | ABI-major에서 opaque declaration으로 전환 |
+| =route_dir_t= | enum ABI type | =ABI 1.x: keep -> ABI-major: keep= | enum width와 unknown/future round-trip 동결 |
+| =ROUTE_DIR_UNKNOWN= | 0 | =ABI 1.x: keep -> ABI-major: keep= | unknown/zero-vector legacy sentinel |
+| =ROUTE_DIR_RIGHT= | 1 | =ABI 1.x: keep -> ABI-major: keep= | vector =(1,0)= |
+| =ROUTE_DIR_UP_RIGHT= | 2 | =ABI 1.x: keep -> ABI-major: keep= | vector =(1,1)= |
+| =ROUTE_DIR_UP= | 3 | =ABI 1.x: keep -> ABI-major: keep= | vector =(0,1)=; 좌표계 계약 필요 |
+| =ROUTE_DIR_UP_LEFT= | 4 | =ABI 1.x: keep -> ABI-major: keep= | vector =(-1,1)= |
+| =ROUTE_DIR_LEFT= | 5 | =ABI 1.x: keep -> ABI-major: keep= | vector =(-1,0)= |
+| =ROUTE_DIR_DOWN_LEFT= | 6 | =ABI 1.x: keep -> ABI-major: keep= | vector =(-1,-1)= |
+| =ROUTE_DIR_DOWN= | 7 | =ABI 1.x: keep -> ABI-major: keep= | vector =(0,-1)= |
+| =ROUTE_DIR_DOWN_RIGHT= | 8 | =ABI 1.x: keep -> ABI-major: keep= | vector =(1,-1)= |
+| =ROUTE_DIR_COUNT= | 9 | =ABI 1.x: keep -> ABI-major: keep= | count/sentinel이며 valid direction 아님 |
+
+=ROUTE_DIR_COUNT=는 valid direction이 아니라 count/sentinel이다. unknown input과 zero vector,
+invalid enum을 구분할지 canonical status API에서 결정하고, legacy enum 반환은 0으로
+forwarding한다. 좌표계의 +Y가 화면 위인지 world 위인지도 module-wide 계약으로 고정한다.
+
+** Public struct field 전수
+
+| 현재 field | 실제 소유/의미 | disposition |
+|------------+----------------+-------------|
+| =coords= | owning =coord_list_t*=; 외부 field write 가능 | =ABI 1.x: keep; companion: add -> ABI-major: internalize= |
+| =visited_order= | owning =coord_list_t*= search debug trace | =ABI 1.x: keep; companion: add -> ABI-major: internalize= |
+| =visited_count= | owning =coord_hash_t*=; representation 노출 | =ABI 1.x: keep; companion: add -> ABI-major: internalize= |
+| =cost= | =float=; 단위/finite/unknown 규약 없는 누적 cost | =ABI 1.x: keep; companion: add -> ABI-major: internalize= |
+| =success= | =bool=; no-path/partial/cancel/error를 한 bit로 축약 | =ABI 1.x: keep; companion: add -> ABI-major: internalize= |
+| =total_retry_count= | =int=; retry인지 expansion인지 불명확 | =ABI 1.x: keep; companion: add -> ABI-major: internalize= |
+| =avg_vec_x= | =float= heading history 누적 state | =ABI 1.x: keep; companion: add -> ABI-major: internalize= |
+| =avg_vec_y= | =float= heading history 누적 state | =ABI 1.x: keep; companion: add -> ABI-major: internalize= |
+| =vec_count= | =int=; overflow/초기화 계약 없는 sample count | =ABI 1.x: keep; companion: add -> ABI-major: internalize= |
+
+** Dead commented declaration — export inventory 제외
+
+| header text | 실제 상태 | disposition |
+|-------------+-----------+-------------|
+| =// BYUL_API void route_slice(route_t* p, int start, int end);= | 주석뿐이며 definition/export/ABI 없음; 아래 active =route_t* route_slice(const route_t*, ...)=와 이름·signature가 충돌 | =comment-only: internalize=; stale declaration 삭제, active legacy symbol과 canonical =route_slice_ex=만 관리 |
+
+주석 안의 =BYUL_API=를 단순 regex가 실제 export로 세지 않도록 header parser fixture도 추가한다.
+함수 전수 44개에는 아래 active =route_slice=만 포함한다.
+
+** 44개 함수별 disposition
+
+아래 표의 legacy symbol은 ABI 1.x에서 제거하지 않는다. =deprecate-forward=는 동작 호환을
+유지하되 canonical status API로 forwarding하고 replacement/removal ABI를 문서화한다는 뜻이다.
+
+| # | 현재 함수 | disposition | 목표 계약 |
+|---+-----------+-------------+-----------|
+| 1 | =route_create= | =ABI 1.x: keep; companion: add -> ABI-major: abi-major= | prototype를 =(void)=로 수정; allocator/status/out을 받는 =route_create_ex= 추가 |
+| 2 | =route_destroy= | =ABI 1.x: keep -> ABI-major: keep= | owning handle만 수신, NULL no-op, borrowed child보다 나중에 호출 금지 |
+| 3 | =route_copy= | =ABI 1.x: deprecate-forward; companion: add -> ABI-major: internalize= | deep clone인 =route_clone_ex=, OOM과 out 보존을 status로 반환 |
+| 4 | =route_hash= | =ABI 1.x: deprecate-forward; companion: add -> ABI-major: internalize= | legacy pointer hash 고정; 명시적 identity/content hash를 별도 제공 |
+| 5 | =route_equal= | =ABI 1.x: deprecate-forward; companion: add -> ABI-major: internalize= | legacy identity 고정; =route_content_equal=에 비교 field/float 정책 명시 |
+| 6 | =route_set_cost= | =ABI 1.x: deprecate-forward -> ABI-major: internalize= | 결과 불변식 우회 제거; builder의 checked =set_total_cost=로 이동 |
+| 7 | =route_get_cost= | =ABI 1.x: keep; companion: add -> ABI-major: keep= | legacy float 유지; status형 =route_fetch_total_cost= double과 unknown 규약 추가 |
+| 8 | =route_set_success= | =ABI 1.x: deprecate-forward -> ABI-major: internalize= | bool mutator 제거; builder finalize/result status가 유일한 완료 상태 source |
+| 9 | =route_get_success= | =ABI 1.x: keep; companion: add -> ABI-major: keep= | legacy predicate 유지; 상세 completion/status query 추가 |
+| 10 | =route_get_coords= | =ABI 1.x: deprecate-forward; companion: add -> ABI-major: internalize= | borrowed coord-list 대신 count/fetch/export; lifetime 명시 |
+| 11 | =route_get_visited_order= | =ABI 1.x: deprecate-forward; companion: add -> ABI-major: internalize= | =navsys_search_trace_t=로 이동, borrowed lifetime 명시 |
+| 12 | =route_get_visited_count= | =ABI 1.x: deprecate-forward; companion: add -> ABI-major: internalize= | trace의 coord visit-count query로 이동 |
+| 13 | =route_get_total_retry_count= | =ABI 1.x: deprecate-forward; companion: add -> ABI-major: internalize= | P0 NULL crash 수정; =stats.expansions/reopens/retries=로 분리 |
+| 14 | =route_set_total_retry_count= | =ABI 1.x: deprecate-forward -> ABI-major: internalize= | P0 NULL crash 수정; result 외부 mutation 제거 |
+| 15 | =route_add_coord= | =ABI 1.x: deprecate-forward; companion: add -> ABI-major: internalize= | route builder의 status형 push; NULL/OOM과 strong guarantee |
+| 16 | =route_clear_coords= | =ABI 1.x: deprecate-forward -> ABI-major: internalize= | builder reset; cost/completion/heading invalidation을 원자 적용 |
+| 17 | =route_get_last= | =ABI 1.x: deprecate-forward; companion: add -> ABI-major: internalize= | borrowed pointer 대신 =route_fetch_last_coord(route, out_coord)= |
+| 18 | =route_get_coord_at= | =ABI 1.x: deprecate-forward; companion: add -> ABI-major: internalize= | =size_t= index와 caller output; invalidation 제거 |
+| 19 | =route_length= | =ABI 1.x: keep; companion: add -> ABI-major: keep= | legacy int 유지; canonical =size_t route_get_coord_count=, overflow 없음 |
+| 20 | =route_add_visited= | =ABI 1.x: keep -> ABI-major: internalize= | algorithm trace sink로 이동, order/count 두 변경의 원자성 보장 |
+| 21 | =route_clear_visited= | =ABI 1.x: keep -> ABI-major: internalize= | trace reset으로 이동, immutable result에서 제거 |
+| 22 | =route_append= | =ABI 1.x: deprecate-forward; companion: add -> ABI-major: internalize= | builder =append_ex=; metadata merge policy와 self-append 정의 |
+| 23 | =route_append_nodup= | =ABI 1.x: deprecate-forward; companion: add -> ABI-major: internalize= | =append_joined_ex=; 접합점 equality와 empty/self route 정의 |
+| 24 | =route_insert= | =ABI 1.x: deprecate-forward; companion: add -> ABI-major: internalize= | builder status형 insert, half-open position과 OOM guarantee |
+| 25 | =route_remove_at= | =ABI 1.x: deprecate-forward; companion: add -> ABI-major: internalize= | builder status형 erase, removed count/result metadata invalidation |
+| 26 | =route_remove_value= | =ABI 1.x: deprecate-forward; companion: add -> ABI-major: internalize= | first/all 정책을 이름으로 분리하고 removed count 반환 |
+| 27 | =route_contains= | =ABI 1.x: keep -> ABI-major: keep= | predicate만 bool/int 허용; NULL은 false이나 validation API와 구별 |
+| 28 | =route_find= | =ABI 1.x: deprecate-forward; companion: add -> ABI-major: internalize= | status + =size_t out_index=; not-found와 invalid argument 분리 |
+| 29 | =route_slice= | =ABI 1.x: deprecate-forward; companion: add -> ABI-major: internalize= | =route_slice_ex=, =[begin,end)=, empty와 metadata 재계산 명시 |
+| 30 | =route_print= | =ABI 1.x: deprecate-forward -> ABI-major: internalize= | stdout 제거; caller-buffer format 또는 trace/logger callback |
+| 31 | =route_make_direction= | =ABI 1.x: deprecate-forward; companion: add -> ABI-major: internalize= | allocation 없는 =route_fetch_direction_vector=, invalid status |
+| 32 | =route_get_direction_by_dir_coord= | =ABI 1.x: deprecate-forward; companion: add -> ABI-major: internalize= | =route_direction_from_vector=, NULL/zero/invalid을 status로 구분 |
+| 33 | =route_get_direction_by_index= | =ABI 1.x: deprecate-forward; companion: add -> ABI-major: internalize= | const route, size_t index, status + out enum, heap allocation 금지 |
+| 34 | =route_calc_average_facing= | =ABI 1.x: deprecate-forward; companion: add -> ABI-major: internalize= | =route_compute_recent_facing= pure query, window/count semantics |
+| 35 | =route_calc_average_dir= | =ABI 1.x: deprecate-forward; companion: add -> ABI-major: internalize= | =route_compute_recent_heading_degrees=, angle range/axis 명시 |
+| 36 | =direction_to_coord= | =ABI 1.x: deprecate-forward; companion: add -> ABI-major: internalize= | prefix + caller output인 =route_direction_fetch_vector= |
+| 37 | =route_has_changed= | =ABI 1.x: deprecate-forward; companion: add -> ABI-major: internalize= | state를 route에서 분리한 tracker predicate/update API |
+| 38 | =route_has_changed_with_angle= | =ABI 1.x: deprecate-forward; companion: add -> ABI-major: internalize= | 숨은 mutation 제거; =tracker_observe=가 angle/changed/status 반환 |
+| 39 | =route_has_changed_by_index= | =ABI 1.x: deprecate-forward; companion: add -> ABI-major: internalize= | route pure fetch 후 tracker observe, invalid index status |
+| 40 | =route_has_changed_with_angle_by_index= | =ABI 1.x: deprecate-forward; companion: add -> ABI-major: internalize= | 동일 canonical path, out parameter strong guarantee |
+| 41 | =route_update_average_vector= | =ABI 1.x: deprecate-forward; companion: add -> ABI-major: internalize= | =route_heading_tracker_observe_vector=로 이동 |
+| 42 | =route_update_average_vector_by_index= | =ABI 1.x: deprecate-forward; companion: add -> ABI-major: internalize= | route fetch + tracker observe로 이동 |
+| 43 | =calc_direction= | =ABI 1.x: deprecate-forward; companion: add -> ABI-major: internalize= | namespace를 갖춘 =route_direction_between=, NULL status |
+| 44 | =route_reconstruct= | =ABI 1.x: keep -> ABI-major: internalize= | algorithm-private predecessor abstraction; cycle/OOM/atomic commit |
+
+* 목표 데이터 모델과 Signature 후보
+
+Route result는 create 이후 builder/finder가 완성하고, consumer에게 전달된 뒤에는 immutable인
+opaque handle을 기본으로 한다. 단순 좌표 편집이 필요한 caller만 별도 builder를 사용한다.
+
+#+begin_src c
+typedef struct s_route route_t;
+typedef struct s_route_builder route_builder_t;
+typedef struct s_route_heading_tracker route_heading_tracker_t;
+
+typedef enum e_route_completion {
+    ROUTE_COMPLETION_NONE = 0,
+    ROUTE_COMPLETION_COMPLETE = 1,
+    ROUTE_COMPLETION_PARTIAL = 2
+} route_completion_t;
+
+BYUL_API navsys_status_t route_create_ex(
+    const navsys_allocator_t* allocator,
+    route_t** out_route);
+BYUL_API void route_destroy(route_t* route);
+BYUL_API navsys_status_t route_clone_ex(
+    const route_t* source,
+    route_t** out_route);
+
+BYUL_API size_t route_get_coord_count(const route_t* route);
+BYUL_API navsys_status_t route_fetch_coord(
+    const route_t* route,
+    size_t index,
+    coord_t* out_coord);
+BYUL_API navsys_status_t route_export_coords(
+    const route_t* route,
+    coord_t* output,
+    size_t capacity,
+    size_t* out_required_count);
+BYUL_API navsys_status_t route_fetch_total_cost(
+    const route_t* route,
+    double* out_total_cost);
+BYUL_API navsys_status_t route_get_completion(
+    const route_t* route,
+    route_completion_t* out_completion);
+
+BYUL_API navsys_status_t route_builder_create(
+    const navsys_allocator_t* allocator,
+    route_builder_t** out_builder);
+BYUL_API navsys_status_t route_builder_push_coord(
+    route_builder_t* builder,
+    const coord_t* coord);
+BYUL_API navsys_status_t route_builder_append(
+    route_builder_t* builder,
+    const route_t* source,
+    route_join_policy_t join_policy);
+BYUL_API navsys_status_t route_builder_finish(
+    route_builder_t* builder,
+    route_t** out_route);
+
+BYUL_API navsys_status_t route_direction_between(
+    const coord_t* from,
+    const coord_t* to,
+    route_dir_t* out_direction);
+BYUL_API navsys_status_t route_direction_fetch_vector(
+    route_dir_t direction,
+    coord_t* out_vector);
+BYUL_API navsys_status_t route_fetch_direction_at(
+    const route_t* route,
+    size_t index,
+    route_dir_t* out_direction);
+
+BYUL_API navsys_status_t route_heading_tracker_observe(
+    route_heading_tracker_t* tracker,
+    const coord_t* from,
+    const coord_t* to,
+    double threshold_degrees,
+    double* out_angle_degrees,
+    bool* out_changed);
+#+end_src
+
+=route_export_coords=는 output NULL/capacity 0 size query를 지원하고 buffer 부족이면 필요한
+count를 반환하며 partial write를 하지 않는다. =route_fetch_*=는 실패 시 caller output을
+보존한다. double/float, angle interval =[-180,180)= 또는 =[0,360)=, threshold inclusive 여부,
+coordinate axis와 cost unit은 public contract test로 고정한다.
+
+* ABI, static/shared와 Wrapper 전환
+
+- ABI 1.x에서는 enum 숫자, =s_route= size/align/field offset과 44개 symbol/signature를
+  manifest로 동결한다. crash/누수는 동작 호환 범위 안에서 고치고 canonical API를 additive
+  export한다.
+- repository algorithm은 먼저 builder/internal result writer와 public accessor로 이동한다.
+  public field direct access를 lint로 0건 만든 후 ABI 2에서 struct definition을 제거한다.
+- module static target와 root shared target가 같은 implementation/header inventory 및 compile
+  definition을 사용하고, legacy/canonical symbol이 shared DLL에 정확히 한 번 export되는지
+  확인한다.
+- CFFI는 ABI 1 struct layout을 generated fingerprint와 함께 유지하되 새 wrapper는 opaque
+  canonical API만 사용한다. borrowed child wrapper는 parent를 강하게 보관하거나 아예 value
+  copy fetch로 교체한다.
+- allocation을 제거하기 전까지 legacy =route_make_direction/direction_to_coord= 반환은
+  Python에서 반드시 =own=True=로 감싸고, wrapper의 존재하지 않는
+  =route_reconstruct_path= 호출은 제거한다. replacement는 C header에서 생성된 declaration을
+  단일 source of truth로 등록한다.
+
+* TODO 1단계: ABI와 불변식 기준선 고정
+
+** 실행
+
+- enum 10개 값, struct 9개 field의 size/align/offset/type, 위 44개 function의 C/C++
+  signature와 DLL export를 machine-readable fixture로 snapshot한다.
+- route의 상태 조합을 coords/completion/cost/trace/stats/heading으로 분류하고 허용/금지
+  불변식, empty/start==goal/partial/no-path의 표현을 decision record로 확정한다.
+- root/module/install/CFFI/Python과 모든 algorithm의 field/function 소비 matrix를 만든다.
+
+** 완료 조건
+
+- 현재 ABI surface와 모든 direct field write가 누락 없이 추적된다.
+- legacy behavior를 보존해야 할 것과 명백한 bug가 구분되고 각각 test ID를 가진다.
+- public route result와 builder, search stats/trace, heading tracker의 책임 경계가 승인된다.
+
+** 검증
+
+- C17/C++17 compile fixture, ABI size/offset fixture, root export dump와 CFFI declaration을
+  상호 비교한다.
+- =rg= 기반 public-field consumer lint와 44-symbol manifest completeness check를 실행한다.
+
+* TODO 2단계: P0 안전성, ownership와 반환 계약 수정
+
+** 실행
+
+- retry getter/setter NULL crash, direction helper NULL dereference, allocation leak과
+  reconstruction cycle/partial mutation을 재현하는 regression test를 먼저 추가한다.
+- 모든 allocation 경로를 OOM-injection 가능하게 만들고 create/copy/slice/reconstruct의
+  cleanup과 out-parameter strong guarantee를 통일한다.
+- borrowed coord/list/hash 반환의 owner, 유효 기간, invalidating operation을 문서화하고
+  Python parent retention 및 owned coord destruction을 수정한다.
+
+** 완료 조건
+
+- invalid handle/index/enum, OOM과 predecessor cycle이 crash, hang, leak 없이 정확한 status로
+  끝난다.
+- 실패한 compound mutation은 coords/metadata/trace 어느 것도 부분 변경하지 않는다.
+- native와 Python에서 owner가 하나뿐이고 parent-before-child destruction을 검증할 수 있다.
+
+** 검증
+
+- ASan/LSan/UBSan, allocation fail-at-N, cyclic/missing predecessor와 forced Python GC test를
+  실행한다.
+- valgrind 또는 Windows sanitizer에서 두 allocation-return direction helper를 반복 호출해
+  leak 0을 확인한다.
+
+* TODO 3단계: Opaque route, immutable result와 builder 도입
+
+** 실행
+
+- count/fetch/export, completion/cost query와 status형 clone을 additive하게 구현한다.
+- append/insert/remove/slice를 status형 builder operation으로 옮기고 join, range,
+  self-operation, metadata recomputation 정책을 구현한다.
+- visited order/count/retry를 search stats/trace로 이동하고 algorithm이 route public field를
+  쓰지 않도록 internal writer를 제공한다.
+
+** 완료 조건
+
+- consumer는 container implementation이나 field layout 없이 전체 route를 읽을 수 있다.
+- 완성 route를 변경하는 public canonical API가 없고 모든 편집은 builder에서 원자 수행된다.
+- slice/append 결과의 cost/completion와 trace 포함 여부가 문서 및 fixture와 일치한다.
+
+** 검증
+
+- property test로 append/slice/clone round-trip, self-append, empty ranges와 large count를
+  검사한다.
+- tiny search 결과를 reference vector/cost/status와 비교하고 direct field access lint 0건을
+  확인한다.
+
+* TODO 4단계: Direction과 heading API를 pure/value 중심으로 교체
+
+** 실행
+
+- allocation 없는 vector/direction conversion과 const route index query를 구현한다.
+- 8방향 enum 숫자는 유지하면서 zero vector, invalid enum, non-unit delta, coordinate axis,
+  angle range와 rounding/tie 정책을 명시한다.
+- =avg_vec_x/y/vec_count=를 opaque tracker로 옮기고 pure query와 mutating observe/reset을
+  이름과 type으로 분리한다. 누적합 정규화/overflow 또는 bounded-window 방법을 확정한다.
+
+** 완료 조건
+
+- 조회 함수가 heap allocation이나 숨은 route mutation을 하지 않는다.
+- 동일 vector sequence에 대한 angle/change 결과가 native와 wrapper에서 결정적이다.
+- route value의 equality/hash/clone 결과가 heading observation history에 영향받지 않는다.
+
+** 검증
+
+- 8방향, zero, long delta, 반대 방향, threshold 직전/동일/직후, wrap-around와 큰 sample
+  count test를 실행한다.
+- wrapper에서 모든 direction 변환을 대량 반복하고 allocation/GC/lifetime leak 0을 검사한다.
+
+* TODO 5단계: Legacy forwarding과 ABI-major 정리
+
+** 실행
+
+- 44개 legacy symbol 각각을 disposition 표대로 canonical implementation에 forwarding하고
+  deprecation replacement/removal ABI를 header와 migration guide에 기록한다.
+- ambiguous identity/value hash/equality와 float 비교를 별도 명명 API로 분리하며 legacy
+  pointer semantics는 ABI 1에서 바꾸지 않는다.
+- ABI 2에서 struct body, trace/stats/heading field와 unprefixed symbol을 제거하고 opaque
+  declaration만 설치한다.
+
+** 완료 조건
+
+- ABI 1 old binary/source consumer와 new canonical consumer가 같은 library에서 동작한다.
+- ABI 2 SDK에서 owning layout과 internal predecessor/hash representation이 보이지 않는다.
+- deprecated 44개 항목 모두 replacement 또는 명시적 no-replacement 이유가 있다.
+
+** 검증
+
+- old/new SDK consumer, ABI fingerprint, enum numeric, deprecation compile와 symbol export
+  fixture를 실행한다.
+- static module/root shared 양쪽에서 canonical behavior를 실행하고 duplicate/missing symbol을
+  검사한다.
+
+* TODO 6단계: Correctness, Wrapper와 배포 Gate
+
+** 실행
+
+- native algorithm result가 canonical builder/result API만 사용하도록 전환하고
+  start==goal, partial, no-path, cancelled, limit/OOM 상태를 fixture화한다.
+- Python Route를 context manager/finalizer가 있는 owning object로 만들고 value fetch,
+  exception/status mapping, parent retention과 closed-handle guard를 구현한다.
+- installed header의 direct-include self-containment, standard first header/license/guard/comment,
+  release note와 ABI migration 문서를 갱신한다.
+
+** 완료 조건
+
+- native, root shared, wrapper와 clean installed C/C++ consumer가 동일한 route 좌표/cost/status를
+  관찰한다.
+- sanitizer, Python GC와 repeated create/clone/slice/direction loop에서 leak/UAF가 없다.
+- header audit가 required standard include, C/C++ standalone과 public comment를 모두 통과한다.
+
+** 검증
+
+- module CTest, root shared smoke, wrapper unit/native, external C17/C++17 compile/run을 실행한다.
+- Windows/Linux/macOS export와 ABI manifest, generated CFFI, sanitizer 및 documentation link
+  check를 release gate로 묶는다.
+- =module static BYUL_STATIC=와 =root shared BYUL_EXPORTS=를 각각 compile/run하고
+  symbol/export/behavior parity를 비교한다.

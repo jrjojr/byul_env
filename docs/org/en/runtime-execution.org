@@ -1,21 +1,22 @@
-<!--
-GENERATED FILE - DO NOT EDIT
-Source: docs/org/en/runtime-execution.org
-Source-SHA256: 4eaa3588a8add7c2f5f707404b3e47ccf142fca103c27f6de99c8ecda7f53785
-Content-SHA256: 4d067a541d94a014ebd0db5f96dcedeec16be815e0be4acd6d5082fc81f27748
-Generator: tools/docs/publish_docs.py
--->
-
-# BYUL Runtime And Test Execution
+#+TITLE: BYUL Runtime And Test Execution
+#+LANGUAGE: en
+#+OPTIONS: toc:2 num:nil
+#+DOCUMENT_KIND: configuration
+#+AUDIENCE: developer
+#+ACCESS: public
+#+SECTION: configuration
+#+SLUG: runtime-execution-en
+#+SOURCE_FORMAT_VERSION: 1
+#+GENERATED_TARGETS: docs/en/runtime-execution.md
 
 This document describes how to run BYUL build outputs. For build requirements,
-see [Build Environment](build-environment.md).
+see [[file:build-environment.org][Build Environment]].
 
-## Output Layout
+* Output Layout
 
 Typical preset outputs:
 
-```text
+#+begin_src text
 Linux Debug:
   build_debug/bin/       test executables and helper executables
   build_debug/lib/       libbyul.so
@@ -28,111 +29,111 @@ Windows MinGW cross:
   build_win_release/     Windows build tree
   package_tmp/.../bin/   byul.dll, test_*.exe, MinGW runtime DLLs
   package_tmp/.../lib/   import/static archives
-```
+#+end_src
 
-Running `byul_sdk_zip` creates a temporary package layout and a
-platform-specific `byul-sdk-*.zip`. For deployment or another-PC verification,
+Running =byul_sdk_zip= creates a temporary package layout and a
+platform-specific =byul-sdk-*.zip=. For deployment or another-PC verification,
 prefer the package layout or generated ZIP over raw build-tree paths.
 
-## Run Tests With CTest
+* Run Tests With CTest
 
 CTest is the preferred way to run the tests.
 
-```bash
+#+begin_src bash
 cd byul_env/byul
 ctest --test-dir ../build_debug --output-on-failure
-```
+#+end_src
 
 Run selected tests:
 
-```bash
+#+begin_src bash
 ctest --test-dir ../build_debug -R test_byul --output-on-failure
 ctest --test-dir ../build_debug -R test_number_theory --output-on-failure
 ctest --test-dir ../build_debug -R test_dstar_lite --output-on-failure
-```
+#+end_src
 
-`-R` is a regular expression. For example, `test_byul` can also match
-`test_byul_tick`. Use an end anchor to run only the exact integration test:
+=-R= is a regular expression. For example, =test_byul= can also match
+=test_byul_tick=. Use an end anchor to run only the exact integration test:
 
-```bash
+#+begin_src bash
 ctest --test-dir ../build_debug -R 'test_byul$' --output-on-failure
-```
+#+end_src
 
-## Run Linux Test Executables Directly
+* Run Linux Test Executables Directly
 
-After a Linux Debug build, test executables are under `build_debug/bin/`.
+After a Linux Debug build, test executables are under =build_debug/bin/=.
 
-```bash
+#+begin_src bash
 ../build_debug/bin/test_byul
 ../build_debug/bin/test_core
 ../build_debug/bin/test_number_theory
 ../build_debug/bin/test_dstar_lite
-```
+#+end_src
 
 From the repository root, run them as follows:
 
-```bash
+#+begin_src bash
 ./build_debug/bin/test_byul
 ./build_debug/bin/test_number_theory
-```
+#+end_src
 
 Linux test executables use this RPATH:
 
-```text
+#+begin_src text
 $ORIGIN/../lib
-```
+#+end_src
 
-Therefore, `build_debug/bin/test_byul` normally finds `build_debug/lib/libbyul.so`
-automatically.
+Therefore, =build_debug/bin/test_byul= normally finds
+=build_debug/lib/libbyul.so= automatically.
 
-## Link And Run An External Linux Program
+* Link And Run An External Linux Program
 
-An external program needs two kinds of paths when it uses `libbyul.so`.
+An external program needs two kinds of paths when it uses =libbyul.so=.
 
-```text
+#+begin_src text
 At compile/link time:
   public header include path
   libbyul.so link path
 
 At runtime:
   a path where the dynamic loader can find libbyul.so
-```
+#+end_src
 
 Example:
 
-```bash
+#+begin_src bash
 g++ main.cpp \
   -I./build_debug/package_tmp/home/sajang/byul/include/byul \
   -L./build_debug/package_tmp/home/sajang/byul/lib \
   -lbyul \
   -Wl,-rpath,'$ORIGIN/../lib' \
   -o my_app
-```
+#+end_src
 
 The RPATH works with this layout:
 
-```text
+#+begin_src text
 my_package/
   bin/my_app
   lib/libbyul.so
-```
+#+end_src
 
-Without RPATH, set `LD_LIBRARY_PATH` before running the program:
+Without RPATH, set =LD_LIBRARY_PATH= before running the program:
 
-```bash
+#+begin_src bash
 LD_LIBRARY_PATH=/path/to/byul/lib ./my_app
-```
+#+end_src
 
-A system installation can use `/etc/ld.so.conf.d/` and `ldconfig`, but package
+A system installation can use =/etc/ld.so.conf.d/= and =ldconfig=, but package
 layouts or RPATH are preferred during BYUL development.
 
-## Run Windows test_*.exe
+* Run Windows test_*.exe
 
-On Windows, `byul.dll` must be next to the executable or visible through
-`PATH`. The simplest layout keeps the executable and DLL in the same `bin`
+On Windows, =byul.dll= must be next to the executable or visible through
+=PATH=. The simplest layout keeps the executable and DLL in the same =bin=
 directory.
 
-```text
+#+begin_src text
 byul/
   bin/
     byul.dll
@@ -143,38 +144,38 @@ byul/
     libstdc++-6.dll
     libgcc_s_seh-1.dll
     libwinpthread-1.dll
-```
+#+end_src
 
 MinGW cross-build outputs also need the MinGW runtime DLLs. The current CMake
-configuration copies these DLLs into the package `bin` directory:
+configuration copies these DLLs into the package =bin= directory:
 
-```text
+#+begin_src text
 libstdc++-6.dll
 libgcc_s_seh-1.dll
 libwinpthread-1.dll
-```
+#+end_src
 
-Run from `bin`:
+Run from =bin=:
 
-```bat
+#+begin_src bat
 cd C:\path\to\byul\bin
 test_byul.exe
 test_number_theory.exe
-```
+#+end_src
 
-Or add the DLL directory to `PATH`:
+Or add the DLL directory to =PATH=:
 
-```bat
+#+begin_src bat
 set PATH=C:\path\to\byul\bin;%PATH%
 test_byul.exe
-```
+#+end_src
 
-## Link And Run A Windows Program
+* Link And Run A Windows Program
 
 At build time, a Windows executable needs the generated import library. At
-runtime, it needs `byul.dll`.
+runtime, it needs =byul.dll=.
 
-```text
+#+begin_src text
 At build time:
   include/byul/*.h
   lib/byul import library or MinGW import archive
@@ -182,60 +183,60 @@ At build time:
 At runtime:
   byul.dll
   MinGW runtime DLLs for a MinGW build
-```
+#+end_src
 
 MinGW example:
 
-```bash
+#+begin_src bash
 x86_64-w64-mingw32-g++ main.cpp \
   -I/path/to/byul/include/byul \
   -L/path/to/byul/lib/byul \
   -lbyul \
   -o my_app.exe
-```
+#+end_src
 
 Runtime layout:
 
-```text
+#+begin_src text
 app/
   my_app.exe
   byul.dll
   libstdc++-6.dll
   libgcc_s_seh-1.dll
   libwinpthread-1.dll
-```
+#+end_src
 
-For MSVC builds, link with the generated `.lib` import library and place
-`byul.dll` next to the executable or in `PATH`.
+For MSVC builds, link with the generated =.lib= import library and place
+=byul.dll= next to the executable or in =PATH=.
 
-## Verify The byul_sdk_zip Result
+* Verify The byul_sdk_zip Result
 
 After creating a package, verify its execution layout from the ZIP contents.
 
-```bash
+#+begin_src bash
 cd byul_env/byul
 cmake --build --preset build-linux-debug
-```
+#+end_src
 
 Alternatively, run the target directly:
 
-```bash
+#+begin_src bash
 cmake --build ../build_debug --target byul_sdk_zip -- -j8
-```
+#+end_src
 
 Example Linux package layout:
 
-```text
+#+begin_src text
 build_debug/package_tmp/home/sajang/byul/
   bin/test_byul
   bin/test_number_theory
   lib/libbyul.so
   include/byul/*.h
-```
+#+end_src
 
 Example Windows package layout:
 
-```text
+#+begin_src text
 build_win_release/package_tmp/home/sajang/cross_win/byul/
   bin/byul.dll
   bin/test_byul.exe
@@ -244,23 +245,23 @@ build_win_release/package_tmp/home/sajang/cross_win/byul/
   bin/libgcc_s_seh-1.dll
   bin/libwinpthread-1.dll
   include/byul/*.h
-```
+#+end_src
 
-## Troubleshooting
+* Troubleshooting
 
-If Linux cannot find `libbyul.so`, check the dependency resolution and try the
+If Linux cannot find =libbyul.so=, check the dependency resolution and try the
 build-library path explicitly:
 
-```bash
+#+begin_src bash
 ldd ./build_debug/bin/test_byul
 LD_LIBRARY_PATH=./build_debug/lib ./build_debug/bin/test_byul
-```
+#+end_src
 
-If Windows cannot find `byul.dll`, verify the following:
+If Windows cannot find =byul.dll=, verify the following:
 
-```text
+#+begin_src text
 1. Keep test_*.exe and byul.dll in the same bin directory.
 2. Keep MinGW runtime DLLs in the same bin directory for MinGW builds.
 3. Add the byul.dll directory to PATH if it is not next to the executable.
 4. Do not mix 32-bit and 64-bit outputs.
-```
+#+end_src

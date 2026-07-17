@@ -1,0 +1,439 @@
+#+TITLE: Balix Collision 단발 질의의 Math Engine 추출 TODO
+#+TODO: TODO DOING BLOCKED | DONE CANCELLED FAILED
+#+TODO_RULES: ../../../../external/rules/projects/byul/todo-rules.org
+#+PUBLIC_API_RULES: ../../../../external/rules/projects/byul/public-api-rules.org
+#+BUILD_RULES: ../../../../external/rules/projects/byul/build-rules.org
+#+TEST_RULES: ../../../../external/rules/projects/byul/test-rules.org
+#+TODO_PARENT: todo-balix-math-extraction.org
+#+AUTHOR: ByulPapa / Codex
+#+LANGUAGE: ko
+#+OPTIONS: toc:t num:nil
+
+* 목적
+
+=byul/balix/collision/collision.h=와 =collision.cpp=에 있는 교차 좌표, 접촉 시각,
+normal, barycentric 판정과 연속 충돌(TOI) 공식을 독립 Math Engine의 stateless
+geometry query로 옮긴다. Balix는 tick 감시, broad-phase 후보 선택, pair cache, 접촉
+지속성, event와 response만 소유하고 선택한 한 쌍의 계산은 Math Engine에 요청한다.
+
+이 문서는 source 이동 전 실행 계획이다. 현재 오류 동작을 새 canonical 계약으로
+승인하지 않으며, 분석적 식·고정밀 oracle·잔차와 기하 membership을 기준으로 수정한다.
+
+* 소유권 경계
+
+| 책임 | Math Engine | Balix와 상위 consumer |
+|------+-------------+------------------------|
+| 단발 공간 질의 | 점/선/면/구/삼각형의 교차 집합, 최근접점, normal, barycentric, feature | 질의할 object pair와 frame 선택 |
+| 명시적 시간 구간 질의 | 입력 motion 두 개와 =[t_min,t_max]=에서 TOI/contact 계산 | tick 시작 시각, 주기, substep 정책과 재호출 |
+| 결과 | hit/miss/overlap/degenerate, 접촉 좌표·시각·오차 | contact cache, begin/persist/end event와 impulse response |
+| 가속 구조 | 단일 primitive query가 사용할 순수 helper | world broad phase, spatial index 갱신과 candidate filtering |
+| 허용 오차 | caller가 넘긴 immutable 계산 context | 제품 preset 선택과 world scale 전달 |
+
+Math Engine query는 entity id, tick callback, world container, event dispatcher와 전역
+clock을 알지 않는다. 반대로 Balix adapter는 교차 공식, Newton 식, Rodrigues 식과
+barycentric 식을 다시 구현하지 않는다.
+
+* 실제 감사 범위
+
+| 원본 | 현재 책임 | 추출 후 책임 |
+|------+-----------+--------------|
+| =byul/balix/collision/collision.h= | 공개 C 함수 8개와 compile-time threshold 2개 | Balix legacy forwarding header |
+| =byul/balix/collision/collision.cpp= | 단발 질의와 모든 private 수치 helper | forwarding만 남기고 계산은 Math Engine geometry source로 이동 |
+| =byul/balix/collision/tests/test_module_collision.cpp= | 정적·이동·회전 case 일부 | legacy parity test와 Math Engine oracle corpus로 분리 |
+| =byul/balix/collision/CMakeLists.txt= | 독립 static target처럼 보이나 numeq link가 완결되지 않음 | legacy adapter target 또는 Balix inventory만 소유 |
+| =byul/balix/CMakeLists.txt= | =collision_SOURCES=를 직접 흡수 | Math Engine target을 명시적으로 link |
+| =byul/projectile/projectile_tick.cpp=, =projectile_predict.cpp= | tick/predict에서 sphere 질의 호출 | 감시·후보 선택은 유지하고 canonical query 소비 |
+
+현재 =collision.h/cpp=에는 pair 등록, 주기 감시, cache 또는 event 함수가 없다. 따라서
+공개 8개 함수 자체는 이름이 =detect_*=여도 전부 Math Engine 추출 대상이다.
+
+* 공개 surface 전수 분류
+
+** 공개 macro
+
+| 현재 symbol | 현재 의미와 문제 | 목표 disposition |
+|-------------+------------------+------------------|
+| =BYUL_TOI_COLINEAR_COS= | 1D branch 선택 cosine 0.999, translation unit마다 값 변경 가능 | canonical ABI에서 제거하고 계산 context의 angular tolerance/algorithm policy로 이동 |
+| =BYUL_TOI_CURVATURE_THRESH= | Newton branch tuning 0.25, 단위·정확도 보증 없음 | legacy adapter 기본값만 보존하고 canonical context/quality preset으로 이동 |
+
+별도 DLL에서는 consumer와 library가 서로 다른 macro 값으로 같은 이름의 동작을 기대할
+수 있으므로 compile-time override를 canonical 계약으로 사용하지 않는다.
+
+** 공개 함수 8개
+
+| 현재 symbol | 실제 계산 | Math Engine 목표 owner/API | Balix disposition |
+|-------------+-----------+----------------------------+------------------|
+| =detect_plane_collision= | constant-acceleration point/plane root 뒤 segment fallback | =geometry/motion-query=의 point-plane motion query와 별도 segment-plane query | 기존 signature forwarding, 혼합 모델은 deprecated |
+| =detect_sphere_collision= | tick 끝 chord의 segment-sphere root 뒤 곡선 위치를 surface에 snap | 정확한 segment-sphere query와 point-sphere motion query로 분리 | 관찰된 legacy chord mode만 compatibility fixture로 격리 |
+| =detect_sphere_collision_precise= | colinear quadratic 또는 chord+한 번 Newton | point-sphere motion query, bracket/residual을 가진 quality policy | canonical result를 bool/output으로 변환 |
+| =detect_sphere_collision_moving= | 두 constant-acceleration motion의 상대 chord query | 두 motion을 받는 point-sphere relative query | forwarding |
+| =detect_sphere_collision_moving_precise= | colinear exact 또는 상대 chord/Newton heuristic | 두 motion을 받는 certified/refined relative query | forwarding |
+| =detect_triangle_collision_moving= | 상대 평면 root와 barycentric inside test | point-translating-triangle motion query | forwarding, 현재 translation defect는 교정 |
+| =detect_triangle_collision_rotating= | 초기 고정 평면 root 뒤 회전 triangle membership 검사 | point-rigid-triangle continuous query 또는 명시된 bounded approximation | forwarding, quality/status 손실 기록 |
+| =detect_triangle_collision_rotating_alpha= | fixed-axis 각가속도 의도이나 실제 회전 placeholder | point-fixed-axis-triangle continuous query | 즉시 신뢰 금지, corrected canonical 성공 뒤 forwarding |
+
+Canonical 이름의 구체 prefix는 Build/ABI master에서 동결하되 의미 family는 다음처럼
+나눈다.
+
+#+begin_src text
+math_geometry_intersect_segment_plane_f32
+math_geometry_intersect_segment_sphere_f32
+math_geometry_query_point_plane_motion_f32
+math_geometry_query_point_sphere_motion_f32
+math_geometry_query_point_triangle_motion_f32
+#+end_src
+
+정적 segment와 시간 motion을 같은 함수의 fallback으로 섞지 않는다. =t_prev=는 world
+clock이므로 canonical kernel은 local 시간 구간을 반환하고 Balix가 absolute time으로
+변환한다.
+
+* Private symbol 전수 분류
+
+| private symbol | 공식/역할 | 목표 owner |
+|----------------+-----------+------------|
+| =v3_len2=, =v3_len= | 제곱 길이와 길이 | Numal vector primitive로 통합 |
+| =nearly_zero_vec= | 고정 절대 epsilon 영벡터 판정 | 계산 context를 받는 Numal predicate |
+| =nearly_colinear= | cosine 기반 평행/반평행 판정 | Geometry angular predicate |
+| =select_axis_for_1d= | 상대 motion의 투영축 선택 | motion-query private helper |
+| =solve_1d_exact_time= | =x0+vt+0.5at^2=와 =+/-R= root | Numeq polynomial interval query |
+| =toi_curvature_metric=, =toi_curvature_metric_rel= | 중간 속도 대비 수직 가속도 heuristic | motion-query quality estimator 또는 제거 |
+| =toi_newton_once=, =toi_newton_once_rel= | sphere implicit 식의 clamp된 Newton 한 번 | bracketed root/refinement helper로 교체 |
+| pointer형 =tri_contains_point_barycentric= | 점-삼각형 barycentric membership | Geometry primitive query |
+| =rotate_point_about_axis= | Rodrigues 회전 | Numal rotation/transform primitive |
+| =RotTriCtx= | projectile/triangle fixed-axis motion view | public Balix type 없는 Math Engine private context |
+| =nearly_zero= | scalar 고정 epsilon 판정 | 계산 context scalar predicate |
+| =eval_projectile_at= | 등가속도 위치 평가 | neutral kinematics primitive |
+| =eval_triangle_at= | 각가속도 triangle 평가 의도 | fixed-axis rigid motion evaluator로 전면 교체 |
+| reference형 =tri_contains_point_barycentric= | 중복 barycentric 구현 | 단일 Geometry 구현으로 제거 |
+| =try_candidate= | candidate 시각에서 snap 후 inside 판정 | residual/membership을 함께 검증하는 query helper |
+
+=detect_sphere_collision_moving_precise= 내부의 =finish_at_time=과 =residual= lambda,
+=detect_triangle_collision_rotating= 내부의 triangle/projectile 평가 lambda도 같은 Math Engine
+helper로 합친다. 같은 Rodrigues, projection, barycentric 식을 여러 source에 복제하지 않는다.
+
+* 확인된 정확성·안전 결함
+
+** P0 실제 구현 결함
+
+1. =detect_triangle_collision_rotating_alpha=의 =eval_triangle_at=은 =theta=를 계산하지만
+   사용하지 않는다. =tri_center=는 =try_candidate=로 전달된 뒤 무시되고 =A0/B0/C0=를
+   자기 자신 중심, angle 0으로 반복 회전하는 placeholder만 실행한다.
+2. =detect_triangle_collision_moving=은 상대 평면에서 시각을 구한 뒤 world projectile
+   좌표를 초기 =A0/B0/C0=에 검사한다. 비영 triangle translation을 candidate triangle이나
+   projectile relative coordinate에 반영하지 않아 false hit/miss가 가능하다.
+3. precise sphere의 Newton 경로는 bracket, 접촉 전후 부호, 최종 잔차 합격을 확인하지
+   않고 clamp된 시각의 위치를 구 surface로 snap한 뒤 success를 반환할 수 있다.
+4. 일반 sphere 함수는 chord에서 얻은 시각에 곡선 위치를 평가하고 강제로 sphere에
+   snap한다. 반환 시각과 반환 좌표가 같은 운동식의 실제 root라는 보장이 없다.
+5. 회전 triangle 함수는 초기 plane normal의 root 두 개만 검사한다. 회전한 plane의
+   실제 root가 그 집합에 없을 수 있으므로 “high angular velocity 정확”이라는 설명과
+   알고리즘이 맞지 않는다.
+6. =detect_plane_collision=은 primary 경로에서는 =pos_curr=를 무시하고 등가속도 model을
+   쓰지만 실패하면 =pos_prev-pos_curr= segment로 바뀐다. 두 입력이 같은 motion을
+   표현하는지 검사하지 않아 한 호출에서 서로 다른 궤적 의미가 섞인다.
+7. =detect_sphere_collision_moving_precise=의 high-curvature/no-segment-root 경로는 두 seed를
+   Newton으로 보정한 뒤 최종 residual 합격 없이 =finish_at_time=을 호출하므로 실제 root가
+   없어도 true가 될 수 있다.
+8. =std::numeric_limits=를 사용하면서 =<limits>=를 직접 include하지 않아 transitive
+   include에 의존한다. 독립 Math Engine source에서는 필요한 표준 header를 직접 소유한다.
+
+** 공차와 차원 결함
+
+- =VEC3_ABS_EPS_LEN2=를 제곱 길이, 실제 길이, 속도, 가속도, quadratic coefficient와
+  derivative에 같은 숫자로 적용한다. 서로 다른 차원의 값을 같은 threshold로 비교한다.
+- =1e-20=, =1e-16=, =1e-8=, =1e-6=, =1e-5=가 함수별로 박혀 있고 좌표 scale,
+  시간 scale, triangle extent와 radius를 반영하지 않는다.
+- =select_axis_for_1d=은 실제 길이 =l=을 length-squared epsilon과 비교한다.
+- =nearly_colinear=은 =la2*lb2=의 overflow/underflow와 cosine 범위 clamp를 처리하지 않는다.
+- NaN/Infinity 입력을 선제 거부하지 않아 비교가 false로 흐르거나 NaN output이 남을 수
+  있다.
+- snap 거리가 허용 오차를 넘어도 hit로 바꾸므로 수치 오차 보정과 실제 geometry 변경이
+  구분되지 않는다.
+
+** API와 ABI 결함
+
+- =bool=false=가 miss, invalid pointer, degenerate primitive, unsupported approximation과
+  non-convergence를 모두 뜻한다.
+- miss/실패 때 output 보존 여부와 hit가 initial overlap/tangent/enter/exit 중 무엇인지
+  알 수 없다.
+- 접촉 normal, 두 shape의 closest/contact point, barycentric, feature id, penetration,
+  residual과 error bound가 없다.
+- =target_accel=과 translation velocity의 nullable 규칙이 함수마다 다르며 이름만으로
+  알 수 없다.
+- C header의 generic =detect_*= prefix와 compile macro가 미래 Math Engine DLL의 독립
+  symbol/version 경계를 표현하지 못한다.
+
+* 업계 기준선
+
+- [[https://box2d.org/documentation/md_collision.html][Box2D Collision]]은 geometry primitive,
+  distance, shape cast, TOI와 contact manifold를 simulation 바깥에서도 쓸 수 있는
+  collision interface로 제공한다. World 갱신과 별개로 단발 query 결과를 구조화하는
+  경계가 BYUL의 목표와 맞는다.
+- 같은 Box2D 문서는 회전 TOI가 작은 회전에서도 collision을 놓칠 수 있음을 명시한다.
+  BYUL도 fixed-plane approximation을 “정확”으로 숨기지 않고 capability, quality와
+  error/status로 노출한다.
+- [[https://doc.cgal.org/latest/Kernel_d/index.html][CGAL Geometry Kernel]]은 intersection
+  검출 predicate와 실제 intersection construction을 구분하고, 교차 결과가 점·선분·빈
+  집합처럼 여러 종류일 수 있음을 명시적 result로 표현한다. BYUL C ABI도 단순 bool 대신
+  tagged result를 사용한다.
+- CGAL의 exact-predicate/inexact-construction 구분을 따라 topology를 결정하는 predicate와
+  좌표 construction의 정확도 상태를 분리하고, full precision profile의 oracle을 둔다.
+- [[https://box2d.org/files/ErinCatto_ContinuousCollision_GDC2013.pdf][Continuous Collision Detection]]의
+  root-finding 관점처럼 TOI는 반환 좌표를 surface에 snap하는 것으로 증명하지 않고
+  separation 함수의 bracket, root와 잔차로 검증한다.
+
+* 목표 Math Engine 계약
+
+** 입력 value
+
+- point/vector/plane/sphere/triangle은 caller-owned POD이고 entity나 Balix pointer를
+  보관하지 않는다.
+- motion은 position [L], velocity [L/T], acceleration [L/T^2]와 local time interval [T]을
+  명시한다.
+- triangle rigid motion은 translation, rotation center [L], unit axis, angular velocity
+  [rad/T]와 angular acceleration [rad/T^2]를 가진다.
+- 좌표계 handedness, forward convention과 frame id는 호출 경계에서 명시하고 query 안에서
+  world state를 찾지 않는다.
+- f32 ABI를 기존 adapter에 제공하되 f64 oracle/canonical profile과 변환 규칙을 둔다.
+
+** 결과와 상태
+
+Canonical result는 최소한 다음 의미를 POD field 또는 versioned accessor로 제공한다.
+
+| field family | 계약 |
+|--------------+------|
+| function status | success, invalid argument, non-finite, unsupported, no-convergence, insufficient workspace |
+| relation | miss, enter, tangent, exit, initial-overlap, coplanar, degenerate |
+| time | local =t=, normalized parameter와 interval; Balix absolute tick time은 제외 |
+| geometry | point on A, point on B, representative point, normal A-to-B |
+| topology | barycentric, feature id, intersection kind point/segment/area |
+| metric | signed separation, penetration, residual과 estimated error bound |
+| quality | algorithm/profile, iterations/evaluations, approximate/refined flag |
+
+함수 오류에서는 caller output을 변경하지 않는다. 정상 계산의 =miss=는 성공 status와
+relation miss로 구분하고 result 전체를 결정적으로 초기화한다. initial overlap을 임의로
+surface로 옮기지 않고 overlap 상태와 representative closest/contact를 함께 반환한다.
+
+** 알고리즘 계약
+
+- 점-평면 등가속도는 하나의 motion 식으로 quadratic root를 풀고 별도 segment 질의와
+  섞지 않는다.
+- 등가속도 점-구의 squared-distance 식은 일반적으로 4차식이다. colinear 특수 경우만
+  quadratic exact로 분류하고 일반 경우는 polynomial interval isolation, bracketed
+  refinement 또는 보수적 advancement 중 선택한 방법과 보증을 기록한다.
+- 이동 구는 상대 motion으로 환원하되 두 물체의 접촉점과 normal을 반환 시각의 각
+  motion에서 계산한다.
+- translation triangle은 candidate 시각의 세 vertex 또는 일관된 relative frame에서
+  plane과 barycentric을 함께 평가한다.
+- 회전·각가속도 triangle은 trigonometric separation root다. 고정 초기 normal 근사는
+  별도 fast capability로만 제공하고 error bound 없는 결과를 precise라 부르지 않는다.
+- snap은 계산된 error bound 안의 좌표 정규화에만 사용하며 hit/miss 판정을 바꾸지 않는다.
+
+** tolerance와 결정성
+
+- absolute length, relative, time, angular, barycentric와 residual tolerance를 구분한다.
+- scale은 =max(primitive extent, radius, |position|=의 적절한 local scale)에서 계산하고
+  단위가 다른 coefficient에 길이 epsilon을 재사용하지 않는다.
+- tangent/discriminant 경계는 uncertainty 상태 또는 interval로 표현한다.
+- 동일 입력, resolved context, backend와 floating-point mode에서는 결과와 feature order가
+  결정적이어야 한다.
+- query는 reentrant이고 전역 mutable threshold, allocation과 callback을 사용하지 않는다.
+
+* Balix compatibility와 감시 경계
+
+- 기존 8개 =BYUL_API detect_*= symbol과 include path는 ABI 1.x에서 유지하고 deprecated
+  forwarding shim으로 canonical Math Engine query를 호출한다.
+- 기존 =bool=은 canonical status가 정상이고 relation이 legacy hit로 매핑될 때만 true다.
+  invalid, miss, degenerate, unsupported와 non-converged의 상세 원인은 새 API에서만 보존되며
+  legacy 문서에는 손실을 명시한다.
+- 현재 결함과 수치 우연을 보존하지 않는다. 결과가 달라지는 fixture는 corrected behavior,
+  compatibility 영향과 release-note 후보로 분류한다.
+- =projectile_tick=의 주기 감시, target 순회, pair 선택, event/response와 =t_prev= 합산은
+  Balix/consumer에 남는다. 그 내부의 교차 공식만 canonical 호출로 교체한다.
+- canonical source는 Math Engine target에서 한 번만 compile한다. Balix와 root shared가
+  같은 source를 다시 inventory하지 않는다.
+
+* 필수 검증 corpus
+
+** Plane와 sphere
+
+- zero/non-unit normal, coplanar stationary, endpoint, tangent, enter/exit 두 root
+- zero radius, center coincidence, initial overlap, moving-away와 exactly tangent
+- chord는 hit지만 곡선은 miss인 case와 chord는 miss지만 곡선은 hit인 case
+- 상대 가속도가 있는 moving sphere와 Galilean translation invariance
+- 반환 시각에서 motion 위치, signed distance와 root residual 동시 검사
+
+** Triangle
+
+- interior, 세 edge, 세 vertex, outside, winding reversal와 zero-area triangle
+- nonzero normal/tangential translation으로 현재 moving-triangle frame 오류를 재현
+- rotation center가 =A0=가 아닌 off-origin triangle
+- zero omega/alpha parity, 세 축 omega, 양·음 각속도와 큰/작은 angle
+- 현재 alpha placeholder가 회전 없는 답을 내는 비대칭 triangle fixture
+- 반환 좌표의 candidate triangle plane distance, barycentric 합과 membership
+
+** 수치·API·ABI
+
+- 좌표 scale =1e-6=부터 =1e6=까지 같은 무차원 관계 유지
+- NaN, Infinity, NULL, negative radius, zero/negative time interval과 output 불변
+- translation/rotation/time-origin invariance, shape swap 시 normal 반전
+- analytic known-answer, f64/high-precision oracle, property/fuzz와 sanitizer
+- C17/C++17 header compile, enum/layout snapshot, declaration-definition-export 일치
+- module static, root shared, 미래 Math Engine DLL과 clean Balix/SDK consumer
+
+* 실행 절차
+
+** TODO 1. 현재 symbol·수식·결함 회귀 baseline을 동결한다
+*** 실행
+
+공개 macro 2개, 공개 함수 8개, 이 문서의 private helper 전부를 declaration-definition-
+consumer-test manifest에 기록한다. alpha placeholder, moving triangle frame 오류, unbracketed
+Newton false success와 chord/kinematic 불일치에 각각 실패하는 최소 fixture를 먼저 만든다.
+
+*** 완료 조건
+
+모든 symbol이 owner와 disposition 하나를 가지며 P0 네 결함이 기존 구현에서 재현되고
+corrected expected result는 분석식 또는 독립 oracle로 설명된다.
+
+*** 검증
+
+=rg= inventory와 manifest의 누락·중복이 0인지 검사하고 기존 =test_collision= 및 결함
+fixture를 실행해 pass/fail 이유, 단위, frame과 tolerance를 기록한다.
+
+** TODO 2. Static geometry와 motion query C ABI를 확정한다
+*** 실행
+
+segment query와 시간 motion query를 분리하고 neutral POD input, versioned result, status,
+relation, nullable, output 불변, frame, 단위와 workspace 계약을 작성한다. 기존 8개 symbol의
+old-to-new mapping과 breaking/behavior-change 분류를 승인한다.
+
+*** 완료 조건
+
+Balix type/include가 없는 C17 header 초안, 모든 relation/error 상태와 legacy mapping 표가
+존재하고 generic =detect_*=를 새 canonical 이름으로 직접 rename하지 않는다.
+
+*** 검증
+
+C17/C++17 standalone compile, sizeof/alignof/offsetof와 enum snapshot, NULL/output/ownership
+lint 및 forbidden Balix include 검사를 수행한다.
+
+** TODO 3. Tolerance·root 보증과 oracle corpus를 확정한다
+*** 실행
+
+length/relative/time/angular/barycentric/residual tolerance의 단위와 scale 식을 정한다.
+quadratic, quartic/interval refinement와 회전 triangle approximation의 capability, bracket,
+iteration/evaluation budget과 acceptance residual을 문서화하고 f64/high-precision oracle을
+구축한다.
+
+*** 완료 조건
+
+각 query가 exact, conservative, bounded-approximate 또는 unsupported 중 하나로 분류되고
+snap 없이 hit를 승인하는 수학 조건과 uncertainty 반환 조건이 고정된다.
+
+*** 검증
+
+analytic root, tangent/repeated root, extreme scale, coefficient rescaling과 step/refinement
+수렴을 oracle과 비교하고 tolerance를 완화해 결함이 숨지 않는지 mutation case를 실행한다.
+
+** TODO 4. Plane·sphere 순수 kernel을 Math Engine에 구현한다
+*** 실행
+
+Numal/Numeq primitive를 사용해 segment-plane, segment-sphere, point-plane motion과
+point-sphere relative motion을 구현한다. 중복 length/projection/Newton helper를 제거하고
+result에 두 접촉점, normal, relation, time, residual과 quality를 채운다.
+
+*** 완료 조건
+
+모든 함수가 외부 상태 없이 reentrant하게 동작하고 일반 가속 경로가 chord 시각을 실제
+kinematic root처럼 반환하거나 snap으로 miss를 hit로 바꾸지 않는다.
+
+*** 검증
+
+Plane/sphere 필수 corpus, Galilean/time-origin/property test, f32/f64 differential,
+non-finite/failure output 불변과 sanitizer를 실행한다.
+
+** TODO 5. Translation·rotation triangle kernel을 교정한다
+*** 실행
+
+translation query는 한 frame에서 candidate triangle과 projectile을 평가한다. rotation과
+fixed-axis angular-acceleration query는 실제 =tri_center=와 =theta(t)=를 사용하도록 새로
+구현하고 fast fixed-plane approximation과 refined 경로를 capability로 분리한다.
+
+*** 완료 조건
+
+placeholder 호출이 source에서 사라지고 nonzero translation/rotation이 반환 geometry에
+실제로 반영된다. precise 이름의 경로는 bracket/error 보증을 만족하거나 unsupported/
+approximate 상태를 명시한다.
+
+*** 검증
+
+Triangle 필수 corpus, off-origin center, alpha 비대칭 fixture, plane/barycentric residual,
+zero-motion parity와 independent time-bracket oracle을 실행한다.
+
+** TODO 6. Source와 CMake 소유권을 Math Engine으로 이동한다
+*** 실행
+
+Canonical source/header/test를 Math Engine geometry component inventory로 옮기고 Numeq/
+Numal dependency를 target으로 선언한다. =collision_SOURCES=와 =numal_SOURCES= 흡수 및
+독립 =test_collision=의 우연한 transitive link를 제거한다.
+
+*** 완료 조건
+
+Math Engine component가 Balix 없이 static build/test되고 canonical source는 target당 한
+번만 compile된다. dependency 방향은 Balix에서 Math Engine으로만 향한다.
+
+*** 검증
+
+CMake graph, compile_commands/source inventory, link line와 duplicate symbol을 검사하고
+=test_math_engine_geometry=, root shared build와 CTest discovery를 실행한다.
+
+** TODO 7. Legacy forwarding과 Balix 감시 consumer를 전환한다
+*** 실행
+
+기존 8개 symbol을 얇은 Balix compatibility source에서 canonical query로 전달한다.
+=projectile_tick/predict= 등 consumer는 새 result/status를 사용해 absolute time, event와
+response를 처리하고 broad-phase/pair cache가 Math Engine으로 이동하지 않게 한다.
+
+*** 완료 조건
+
+Balix에는 교차 공식이 없고 감시·선택·상태·event만 남는다. old/new API의 동일 semantic
+case는 같고 corrected defect case의 차이는 compatibility/release 기록을 가진다.
+
+*** 검증
+
+Legacy differential corpus, projectile tick/predict integration, pair/event lifecycle과
+forbidden formula/include 검색을 실행한다.
+
+** TODO 8. Root shared와 미래 독립 DLL ABI gate를 통과한다
+*** 실행
+
+현행 root =byul= shared의 =BYUL_API= forwarding export를 먼저 검증한다. 중앙 build 규칙
+변경이 승인된 뒤 Math Engine DLL의 export macro, ABI/version, runtime dependency와 Balix
+import target을 적용하고 canonical symbol 중복을 막는다.
+
+*** 완료 조건
+
+기존 DLL symbol은 유지되고 canonical query는 자신의 최종 library 한 곳에서만 정의된다.
+두 DLL 간 allocator, exception, STL 또는 callback ownership 누출이 없다.
+
+*** 검증
+
+Windows/Linux/macOS symbol inventory, C/C++ clean consumer, 누락 DLL/architecture mismatch,
+install/package와 wrapper native-load test를 수행한다.
+
+** TODO 9. Deprecated heuristic 종료와 재유입 방지 gate를 닫는다
+*** 실행
+
+Legacy chord/fixed-plane mode의 지원 종료 version과 제거 조건을 기록한다. Balix 계층에
+quadratic/Newton/Rodrigues/barycentric 공식 또는 Math Engine canonical source가 다시
+들어오면 실패하는 ownership lint를 CI에 추가한다.
+
+*** 완료 조건
+
+모든 legacy path가 owner, 지원 기간과 replacement를 가지며 Math Engine query와 Balix
+monitoring의 경계가 source/CMake/test에서 자동 검증된다.
+
+*** 검증
+
+Fresh checkout에서 symbol/source uniqueness, forbidden dependency, 전체 native/wrapper/
+package test와 지원 platform matrix를 재실행한다.

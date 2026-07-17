@@ -1,0 +1,242 @@
+#+TITLE: Balix ODE·Rigid Motion Integrator 추출 TODO
+#+TODO: TODO DOING BLOCKED | DONE CANCELLED FAILED
+#+TODO_RULES: ../../../../external/rules/projects/byul/todo-rules.org
+#+TODO_PARENT: todo-balix-math-extraction.org
+#+AUTHOR: ByulPapa / Codex
+#+LANGUAGE: ko
+#+OPTIONS: toc:t num:nil
+
+* 분석 원본과 공개 범위
+
+- 공개 header: =byul/balix/numeq/numeq_integrator.h=
+- 구현 source: =byul/balix/numeq/numeq_integrator.cpp=
+- 공개 범위: 위 header의 =BYUL_API= 선언 28개. 아래 목록은 이름을 축약하거나
+  method family wildcard로 묶지 않은 전수 목록이다.
+
+#+begin_src c
+BYUL_API void integrator_init(integrator_t* intgr);
+BYUL_API void integrator_init_full(integrator_t* intgr,
+    const integrator_type_t type, const motion_state_t* state,
+    const motion_state_t* prev_state, const environ_t* env,
+    const bodyprops_t* body);
+BYUL_API void integrator_clear(integrator_t* intgr);
+BYUL_API void integrator_free(integrator_t* intgr);
+BYUL_API void integrator_assign(integrator_t* out, const integrator_t* src);
+BYUL_API void integrator_step(integrator_t* intgr, float dt);
+BYUL_API void integrator_step_euler(motion_state_t* state, float dt);
+BYUL_API void integrator_step_euler_env(motion_state_t* state, float dt,
+    const environ_t* env, const bodyprops_t* body);
+BYUL_API void integrator_step_semi_implicit(motion_state_t* state, float dt);
+BYUL_API void integrator_step_semi_implicit_env(motion_state_t* state, float dt,
+    const environ_t* env, const bodyprops_t* body);
+BYUL_API void integrator_step_verlet(motion_state_t* state,
+    const motion_state_t* prev_state, float dt);
+BYUL_API void integrator_step_verlet_env(motion_state_t* state,
+    const motion_state_t* prev_state, float dt, const environ_t* env,
+    const bodyprops_t* body);
+BYUL_API void integrator_step_velocity_verlet_env(motion_state_t* state,
+    float dt, const environ_t* env, const bodyprops_t* body);
+BYUL_API void integrator_step_rk4(motion_state_t* state, float dt);
+BYUL_API void integrator_step_rk4_env(motion_state_t* state, float dt,
+    const environ_t* env, const bodyprops_t* body);
+BYUL_API void integrator_step_attitude_euler(motion_state_t* state, float dt);
+BYUL_API void integrator_step_attitude_euler_env(motion_state_t* state,
+    float dt, const environ_t* env, const bodyprops_t* body);
+BYUL_API void integrator_step_attitude_semi_implicit(
+    motion_state_t* state, float dt);
+BYUL_API void integrator_step_attitude_semi_implicit_env(
+    motion_state_t* state, float dt, const environ_t* env,
+    const bodyprops_t* body);
+BYUL_API void integrator_step_attitude_velocity_verlet(
+    motion_state_t* state, float dt);
+BYUL_API void integrator_step_attitude_velocity_verlet_env(
+    motion_state_t* state, float dt, const environ_t* env,
+    const bodyprops_t* body);
+BYUL_API void integrator_step_attitude_rk4(motion_state_t* state, float dt);
+BYUL_API void integrator_step_attitude_rk4_env(motion_state_t* state, float dt,
+    const environ_t* env, const bodyprops_t* body);
+BYUL_API void integrator_step_motion_euler(motion_state_t* state, float dt);
+BYUL_API void integrator_step_motion_semi_implicit(
+    motion_state_t* state, float dt);
+BYUL_API void integrator_step_motion_verlet(motion_state_t* state,
+    const motion_state_t* prev_state, float dt);
+BYUL_API void integrator_step_motion_rk4(motion_state_t* state, float dt);
+BYUL_API void integrator_step_motion_rk4_env(motion_state_t* state, float dt,
+    const environ_t* env, const bodyprops_t* body);
+#+end_src
+
+* 분리 원칙
+
+28개 공개 symbol을 다음처럼 분리한다.
+
+- Math Engine =numeq/ode=: callback+array Euler, midpoint/RK, adaptive 후보와 error control
+- Math Engine =physics/dynamics=: translation/rotation state와 quaternion/dual-quaternion step
+- Balix adapter: =motion_state_t/environ_t/bodyprops_t= 변환, integrator selection과 state 보관
+- Legacy: 위 28개 기존 public symbol과 enum의 compatibility forwarding
+
+Environment suffix 함수가 수학 공식을 직접 소유하지 않게 하고 acceleration/torque callback을
+주입한다.
+
+분류는 최종 책임을 뜻한다. =Math Engine 순수 계산=으로 분류한 기존 심볼도
+=motion_state_t=를 노출하므로 neutral state/view를 받는 canonical kernel을 추출하고 기존
+=BYUL_API=는 Balix 변환·forwarding 진입점으로 유지한다. 새 canonical 함수명, status enum과
+workspace layout은 Math Engine public-header 설계 전에는 확정하지 않는다.
+
+* 공개 심볼 전수 분류
+
+| 공개 심볼 | 책임 분류 | 이전 기대 | 필수 검증 |
+|-----------+-----------+-----------+-----------|
+| =integrator_init= | Balix lifecycle/orchestration/storage | method preset과 domain state를 전 field 초기화한다. Math Engine method coefficient를 저장하지 않는다. | null no-op, poison-memory, valid default state/env/body, 실제 default enum과 header 설명 일치를 검사한다. |
+| =integrator_init_full= | Balix lifecycle/orchestration/storage | required/optional 입력을 검증하고 state snapshot 및 method selection만 보관한다. | null =state=, 각 optional 조합, Verlet의 previous-state 필수성, invalid enum, full overwrite와 alias 입력을 검사한다. |
+| =integrator_clear= | Balix lifecycle/orchestration/storage | resource가 없는 POD의 clear/free 의미를 재정의하고 재사용 가능한 canonical default로 되돌린다. | clear 후 모든 field, clear-then-step, 반복 clear와 method default를 검사한다. |
+| =integrator_free= | Balix lifecycle/orchestration/storage | 실제 소유 resource가 없다는 현재 사실과 =free= naming 계약을 정리하고 호환 호출을 안전한 clear 또는 no-op로 유지한다. | null, 반복 호출, clear와 결과 동등성, stack object에서 allocator 호출이 없음을 검사한다. |
+| =integrator_assign= | Balix lifecycle/orchestration/storage | integrator snapshot copy와 callback/resource가 추가될 경우의 ownership을 Balix가 소유한다. | null/self assign, state/previous/env/body/type 전 field equality와 source 변경 독립성을 검사한다. |
+| =integrator_step= | Balix lifecycle/orchestration/storage | enum dispatch, previous-state history 갱신, environment/body→callback adaptation과 status 변환만 수행한다. | null integrator, 모든 14 enum branch, invalid enum, =dt= 경계, repeated Verlet history와 dispatcher/direct 동등성을 검사한다. |
+| =integrator_step_euler= | Math Engine 순수 계산 | explicit Euler translation kernel로 이동하고 Balix state를 neutral input/output에 투영한다. | =p1=p0+v0*dt=, =v1=v0+a0*dt=, zero acceleration, negative/zero/non-finite =dt= 계약, convergence order를 검사한다. |
+| =integrator_step_euler_env= | legacy forwarding | Balix가 =environ_t/bodyprops_t=를 force callback/context로 바꾸고 explicit Euler kernel을 호출한다. | no-env/no-body 각 조합, time-dependent/position-dependent force, bookkeeping acceleration과 direct-kernel differential을 검사한다. |
+| =integrator_step_semi_implicit= | Math Engine 순수 계산 | symplectic Euler translation kernel로 이동하며 update order를 contract로 고정한다. | =v1=v0+a0*dt= 후 =p1=p0+v1*dt=, harmonic oscillator energy behavior와 Euler 결과 차이를 검사한다. |
+| =integrator_step_semi_implicit_env= | legacy forwarding | environment/body model은 Balix adapter 또는 별도 physics callback에서 평가하고 Math Engine step에는 derivative만 준다. | force evaluation 시점, null 조합, position/velocity-dependent force와 analytic constant-acceleration 결과를 검사한다. |
+| =integrator_step_verlet= | Math Engine 순수 계산 | current/previous position을 immutable input으로 받고 next position/derived velocity를 별도 output으로 내는 pure position-Verlet 계산으로 이동한다. | =dt= 0 division, null 대신 status, constant acceleration, repeated history, second-order convergence와 input 불변성을 검사한다. |
+| =integrator_step_verlet_env= | legacy forwarding | Balix force adapter가 current state acceleration을 평가하고 canonical position-Verlet을 호출한다. velocity-dependent force의 unsupported/approximation 정책을 명시한다. | previous-state requirement, drag 사용 시 경고/status, dt 경계, constant force differential과 previous input 불변성을 검사한다. |
+| =integrator_step_velocity_verlet_env= | legacy forwarding | Balix model을 acceleration callback으로 제공하고 Math Engine velocity-Verlet/splitting 지원 조건을 따른다. | position-only force의 second-order 수렴, velocity-dependent drag에서 v0/half-step 정책, second evaluation state와 no-env fallback을 검사한다. |
+| =integrator_step_rk4= | Math Engine 순수 계산 | 현재 constant acceleration 전용 식을 generic RK4와 구분한다. 일반 RK4로 승격한다면 derivative callback의 네 stage를 평가한다. | constant acceleration analytic 값, stage callback count/time/state, fourth-order convergence와 기존 결과 differential을 검사한다. |
+| =integrator_step_rk4_env= | legacy forwarding | =numeq_model_accel_predict= 직접 의존을 제거하고 neutral derivative callback으로 canonical RK4를 호출한다. | 네 stage의 time·position·velocity, position-dependent force 회귀, callback failure/non-finite와 function-evaluation count를 검사한다. |
+| =integrator_step_attitude_euler= | Math Engine 순수 계산 | quaternion derivative의 frame과 multiplication order를 명시한 attitude Euler kernel로 이동한다. 현재 omega-first update가 explicit인지 semi-implicit인지 이름을 정정한다. | zero/constant omega, constant angular acceleration, left/right multiplication 기준, unit norm과 Euler/semi 결과 구분을 검사한다. |
+| =integrator_step_attitude_euler_env= | legacy forwarding | angular force/drag는 Balix physics adapter로 옮기고 Math Engine에는 torque/angular-acceleration callback만 준다. | env/body 한쪽만 null인 경우, mass/inertia dimensional corpus, damping sign, orientation norm과 pure attitude differential을 검사한다. |
+| =integrator_step_attitude_semi_implicit= | Math Engine 순수 계산 | omega-first quaternion step의 정확한 semi-implicit contract를 Math Engine이 소유한다. | analytic constant-axis rotation, angular acceleration, normalization drift와 =integrator_step_attitude_euler=와의 의도된 차이를 검사한다. |
+| =integrator_step_attitude_semi_implicit_env= | legacy forwarding | drag law를 integrator에서 제거하고 Balix callback adaptation 후 canonical semi-implicit step을 호출한다. | evaluation order, partial env/body, inertia/units, high-drag stability와 old/new differential을 검사한다. |
+| =integrator_step_attitude_velocity_verlet= | Math Engine 순수 계산 | constant 또는 callback-provided angular acceleration에 대한 neutral attitude splitting kernel로 이동한다. | half-step omega, constant-alpha analytic 값, quaternion norm, time reversal 후보와 step-halving order를 검사한다. |
+| =integrator_step_attitude_velocity_verlet_env= | legacy forwarding | 예시 angular drag 공식을 Balix physics model로 이동하고 two-evaluation callback을 canonical kernel에 연결한다. | a0/a1 evaluation state, orientation/omega-dependent torque, env/body null matrix, inertia와 damping energy를 검사한다. |
+| =integrator_step_attitude_rk4= | Math Engine 순수 계산 | 네 개가 모두 같은 constant alpha인 현재 식을 generic attitude RK와 구분하고 Lie-group/quaternion stage contract를 결정한다. | constant alpha baseline, nonconstant callback stage 수, fourth-order 주장 여부, frame convention과 norm drift를 검사한다. |
+| =integrator_step_attitude_rk4_env= | legacy forwarding | internal =attitude_alpha_eval=의 drag law를 제거하고 neutral attitude derivative callback에 forwarding한다. | stage omega/orientation/time 전달, orientation-dependent torque가 실제 stage q를 사용하는지, final acceleration과 norm을 검사한다. |
+| =integrator_step_motion_euler= | Math Engine 순수 계산 | pose/twist의 dual-quaternion 또는 SE(3) Euler 계산을 neutral rigid-state kernel로 이동하고 frame convention을 고정한다. | pure translation/rotation, world/body twist, composition order, dual-quaternion norm과 small-step analytic 결과를 검사한다. |
+| =integrator_step_motion_semi_implicit= | Math Engine 순수 계산 | translation과 attitude의 update order를 하나의 rigid-motion contract로 Math Engine이 소유한다. | independent linear/angular analytic 값, coupled frame convention, quaternion norm과 component kernel 동등성을 검사한다. |
+| =integrator_step_motion_verlet= | Math Engine 순수 계산 | immutable current/previous input과 explicit next/history output으로 분리한다. 기존 header의 const 계약을 canonical 기준으로 삼고 source mutation을 defect로 처리한다. | compile signature 일치, previous input canary, linear/angular independent histories, =dt= 0, repeated steps와 second-order corpus를 검사한다. |
+| =integrator_step_motion_rk4= | Math Engine 순수 계산 | constant linear/angular acceleration 전용 현재 동작과 generic rigid RK를 구분하고 canonical rigid-state 계산으로 이동한다. | constant acceleration/alpha, stage-dependent dynamics, orientation order/norm, component RK와의 consistency를 검사한다. |
+| =integrator_step_motion_rk4_env= | legacy forwarding | Balix가 environment/body를 force/torque callback으로 바꾸고 Math Engine rigid integrator를 호출한다. | 네 stage position·velocity·orientation·omega, position/orientation-dependent dynamics, partial env/body와 fallback 의미를 검사한다. |
+
+* 현재 진단
+
+- =byul/balix/tests/test_module_integrator.cpp=의 7개 test case가 직접 부르는 공개 심볼은
+  =integrator_init=, =integrator_init_full=, =integrator_step=, =integrator_step_euler=,
+  =integrator_step_semi_implicit=, =integrator_step_verlet=,
+  =integrator_step_motion_rk4=뿐이다. 나머지 21개 공개 심볼은 per-symbol regression이 없다.
+- 많은 함수가 =dt <= 0=, null과 non-finite를 일관되게 검사하지 않고 =assert=가 public
+  failure 계약을 대신한다.
+- =integrator_step_motion_verlet=은 header의 =prev_state const=와 source의 non-const
+  signature가 다르다. Source는 previous state를 덮은 뒤 angular previous 값을 읽는다.
+- =integrator_step=은 null을 검사하지 않고 =type=을 먼저 읽으며, unknown enum은 public
+  failure status가 아니라 =assert(false)=에 의존한다. 일반 position-Verlet branch는
+  =prev_state=를 다음 history로 갱신하지 않아 반복 step의 상태 계약도 불완전하다.
+- =integrator_step_rk4=는 acceleration이 상수라 RK4가 closed-form 수준의 weighted Euler와
+  같고, 이름이 일반 RK4 능력을 암시한다.
+- Environment RK4 중간 stage에서 position을 갱신하지 않는 경로가 있어 position-dependent
+  force에 일반적으로 맞지 않다.
+- =integrator_step_motion_rk4_env=도 intermediate state의 velocity만 바꾸고 position은
+  원래 값을 유지하며, angular 쪽은 environment/torque를 stage별 재평가하지 않는다.
+- Velocity Verlet에서 velocity-dependent drag를 v0로 평가하여 symplectic/Verlet 가정과
+  충돌한다.
+- Angular drag가 inertia/torque 없이 mass와 area로 acceleration coefficient를 만들며
+  물리 모델이 integrator에 섞였다.
+- Quaternion update의 frame convention, multiplication order, normalization drift와
+  local truncation error가 API에 없다.
+- =integrator_step_attitude_euler=와 =integrator_step_attitude_semi_implicit=은 둘 다
+  angular velocity를 먼저 갱신한 뒤 그 값으로 orientation을 갱신해 현재 구현상 같은
+  update order다. 두 public method 이름이 서로 다른 알고리즘을 약속하지만 결과가 같다.
+- =integrator_t=가 state/env/body를 값으로 보유해 generic numerical integrator와 domain
+  lifecycle이 결합됐다.
+- =integrator_init=은 =INTEGRATOR_RK4_ENV=를 선택하면서 =env/body=를 단순 zero-init한다.
+  이 값은 유효한 기본 환경·질량인지 보장되지 않으며 header가 설명하는 default와 실제
+  force 경로가 일치하지 않는다. =integrator_clear=도 같은 invalid-default 상태로 되돌린다.
+- =integrator_init_full=은 required =state=를 null 검사 없이 역참조하고 optional
+  =prev_state/env/body= assign이 null에서 no-op이면 destination field가 미초기화로 남을 수
+  있다. Method별 필수 입력 검증과 canonical zero/default state가 필요하다.
+
+* Industry 기준
+
+비교 기준은 [[https://computing.llnl.gov/projects/sundials/cvode][LLNL SUNDIALS CVODE]]의
+explicit =y'=f(t,y)= callback, method 선택, tolerance, one-step/normal 반환과 solver
+status 계약이다. BYUL이 CVODE 구현을 복제한다는 뜻이 아니라 책임과 결과 계약의
+성숙도를 비교한다.
+
+- ODE callback =f(t,y)=와 caller-owned state/workspace
+- method, tolerance, max step/evaluation, cancellation과 dense output 분리
+- fixed-step method는 차수와 stability region을 문서화
+- velocity-dependent force에는 일반 ODE 또는 명시된 splitting 사용
+- rigid rotation은 quaternion derivative frame convention과 normalization policy 명시
+- step success/rejected/underflow/non-finite를 status로 반환
+
+* 실행 절차
+
+** TODO 1. Method별 실제 수식과 defect corpus를 고정한다
+*** 실행
+
+28개 symbol의 method, state variable, force evaluation point와 frame을 표로 만들고 header/
+source signature 불일치, previous-state defect와 init/default-state 결함을 재현한다.
+
+*** 완료 조건
+
+각 symbol이 generic ODE, rigid dynamics, Balix adapter 또는 legacy shim 하나에 배정된다.
+
+*** 검증
+
+Constant acceleration, harmonic oscillator, drag ODE, constant angular velocity,
+poison-memory/null/optional init matrix, clear-then-step과 signature compile test를 실행한다.
+
+** TODO 2. Generic ODE callback/result API를 정의한다
+*** 실행
+
+Scalar array state, derivative callback, method option, statistics, tolerance, workspace와
+cancellation을 Balix type 없이 설계한다.
+
+*** 완료 조건
+
+Euler/RK/Verlet 계열의 지원 state equation과 금지 조합이 명시된다.
+
+*** 검증
+
+C17/C++17 compile, callback lifetime/reentrancy, buffer와 non-finite failure test를
+수행한다.
+
+** TODO 3. 고정 step과 adaptive kernel을 검증 구현한다
+*** 실행
+
+Euler, semi-implicit, velocity Verlet와 RK4를 정확한 stage state로 구현하고 필요한 경우
+adaptive RK 후보를 추가한다.
+
+*** 완료 조건
+
+Step-halving에서 선언 차수가 관찰되고 보존량/안정성 계약을 만족한다.
+
+*** 검증
+
+Analytic ODE, convergence slope, energy drift, stiff/unsupported와 budget corpus를 실행한다.
+
+** TODO 4. Rigid translation/rotation adapter를 구현한다
+*** 실행
+
+Neutral pose/twist state와 acceleration/torque callback을 generic kernel에 연결하고
+quaternion frame/order를 고정한다.
+
+*** 완료 조건
+
+Physics law와 integrator coefficient가 분리되고 unit quaternion error가 tolerance 내다.
+
+*** 검증
+
+SE(3) constant twist, inverse/frame transform, normalization drift와 nonuniform inertia
+candidate test를 실행한다.
+
+** TODO 5. Balix dispatcher와 legacy ABI를 전환한다
+*** 실행
+
+=integrator_t=는 domain adapter로 축소하고 기존 enum/symbol을 canonical method로 mapping한다.
+
+*** 완료 조건
+
+Balix source에 RK coefficient와 force law 중복이 없고 old ABI가 유지된다.
+
+*** 검증
+
+Old/new differential, module/root export, entity/projectile integration과 clean consumer를
+실행한다.

@@ -1,0 +1,351 @@
+#+TITLE: BYUL Simulation 계열 헤더 리팩터링 TODO
+#+TODO: TODO DOING BLOCKED | DONE CANCELLED FAILED
+#+TODO_RULES: ../../../external/rules/projects/byul/todo-rules.org
+#+PUBLIC_API_RULES: ../../../external/rules/projects/byul/public-api-rules.org
+#+HEADER_DECLARATION_RULES: ../../../external/rules/projects/byul/header-declaration-rules.org
+#+HEADER_COMMENT_RULES: ../../../external/rules/projects/byul/header-comment-rules.org
+#+HEADER_AUTHORING_RULES: ../../../external/rules/projects/byul/header-authoring-rules.org
+#+BUILD_RULES: ../../../external/rules/projects/byul/build-rules.org
+#+TEST_RULES: ../../../external/rules/projects/byul/test-rules.org
+#+TODO_PARENT: todo-리팩토링.org
+#+AUTHOR: ByulPapa / Codex
+#+LANGUAGE: ko
+#+OPTIONS: toc:t num:nil
+
+* 목적과 범위
+
+=balix= 18개, =entity= 7개, =projectile= 6개와 =ground= 1개, 합계 32개
+header를 리팩터링한다. 공개 simulation value/resource layout과 callback, ownership,
+lifecycle 및 numeric unit/error 계약을 implementation과 일치시키고 module static과 root
+shared export를 모두 검증한다.
+
+이 문서는 Balix header layout/export/install, lifecycle와 legacy forwarding gate를
+소유한다. 공식·상수·계산 kernel과 canonical Math Engine API는
+[[file:math-engine/todo-balix-math-extraction.org][Balix 수학 추출 master]]와 아래 header별
+세부 TODO가 소유한다.
+
+* 32개 Header Inventory와 Disposition
+
+** Balix module과 value/function component: 13개
+
+| header | 목표 역할 | 핵심 작업 |
+|--------+-----------+-----------|
+| =byul/balix/balix.h= | public module aggregate | 승인 component 집합과 일치, cross-module numal ownership 제거 |
+| =byul/balix/bodyprops/bodyprops.h= | public value component | mass/inertia unit, layout/field/zero/copy metadata |
+| =byul/balix/motion_state/motion_state.h= | public value component | pose/velocity unit, layout와 validity 계약 |
+| =byul/balix/xform/xform.h= | public value component | transform layout, alias/in-place와 failure 계약 |
+| =byul/balix/collision/collision.h= | public function component | generic =detect_*= compatibility, optional output와 result ownership |
+| =byul/balix/numeq/numeq.h= | public aggregate | 누락 component와 =NUMEQ_HS= endif typo 수정 |
+| =byul/balix/numeq/numeq_solver.h= | public function component | status/tolerance/iteration/nonfinite 계약 |
+| =byul/balix/numeq/numeq_pid.h= | public value component | gain/time unit, state/layout와 reset 계약 |
+| =byul/balix/numeq/numeq_pid_vec3.h= | public value component | vector PID layout/unit와 scalar parity |
+| =byul/balix/numeq/numeq_model.h= | public value/ops component | config/output value와 operations 역할 분리 |
+| =byul/balix/numeq/numeq_model_motion.h= | public value/ops component | =calc_spin_accel= prefix와 compatibility, unit/layout |
+| =byul/balix/numeq/numeq_mpc.h= | public value/callback/ops component | init/assign export hole, view lifetime와 callback 계약 |
+| =byul/balix/numeq/filters/numeq_kalman.h= | public value component | matrix/state layout, covariance/unit와 failure 계약 |
+
+** Balix resource/implementation-exposing component: 5개
+
+| header | 목표 역할 | 핵심 작업 |
+|--------+-----------+-----------|
+| =byul/balix/controller/controller.h= | public resource, opaque 우선 | public impl/vtable/userdata와 inline layout access 제거 계획 |
+| =byul/balix/environ/environ.h= | public resource/callback, opaque 우선 | callback 문서-signature 불일치, retention/thread/lifetime |
+| =byul/balix/numeq/filters/numeq_filters.h= | public resource/interface, opaque 우선 | =void*= storage/vtable와 generic callback/prefix |
+| =byul/balix/numeq/numeq_integrator.h= | public resource/value, disposition-required | 값 보관과 pointer lifetime 문서 모순, clear/free 통합 |
+| =byul/balix/trajectory/trajectory.h= | public resource, opaque 우선 | owning samples, uninitialized init, buffer string 계약 |
+
+** Balix 18개 Header의 Math Engine 위임
+
+| Header | Canonical 계산/API owner |
+|--------+--------------------------|
+| =byul/balix/balix.h= | [[file:math-engine/todo-balix-math-engine-consumer.org][Balix consumer·aggregate]] |
+| =byul/balix/bodyprops/bodyprops.h= | [[file:math-engine/todo-balix-bodyprops-extraction.org][Body properties 공식]] |
+| =byul/balix/motion_state/motion_state.h= | [[file:math-engine/todo-balix-motion-state-extraction.org][Motion state 계산]] |
+| =byul/balix/xform/xform.h= | [[file:math-engine/todo-balix-transform-extraction.org][Transform]] |
+| =byul/balix/collision/collision.h= | [[file:math-engine/todo-balix-collision-query-extraction.org][교차 좌표·TOI query]] |
+| =byul/balix/numeq/numeq.h= | [[file:math-engine/todo-balix-math-engine-consumer.org][Numeq aggregate consumer]] |
+| =byul/balix/numeq/numeq_solver.h= | [[file:math-engine/todo-balix-solver-extraction.org][Solver]] |
+| =byul/balix/numeq/numeq_pid.h= | [[file:math-engine/todo-balix-pid-extraction.org][Scalar PID]] |
+| =byul/balix/numeq/numeq_pid_vec3.h= | [[file:math-engine/todo-balix-pid-extraction.org][Vec3 PID]] |
+| =byul/balix/numeq/numeq_model.h= | [[file:math-engine/todo-balix-physics-model-extraction.org][Physics model]] |
+| =byul/balix/numeq/numeq_model_motion.h= | [[file:math-engine/todo-balix-motion-model-extraction.org][Motion model]] |
+| =byul/balix/numeq/numeq_mpc.h= | [[file:math-engine/todo-balix-mpc-extraction.org][MPC·optimization]] |
+| =byul/balix/numeq/filters/numeq_kalman.h= | [[file:math-engine/todo-balix-kalman-extraction.org][Kalman kernel]] |
+| =byul/balix/controller/controller.h= | [[file:math-engine/todo-balix-controller-adapter.org][Controller adapter·factory]] |
+| =byul/balix/environ/environ.h= | [[file:math-engine/todo-balix-environ-extraction.org][환경 공식·상수]] |
+| =byul/balix/numeq/filters/numeq_filters.h= | [[file:math-engine/todo-balix-kalman-extraction.org][Filter kernel·binding 경계]] |
+| =byul/balix/numeq/numeq_integrator.h= | [[file:math-engine/todo-balix-integrator-extraction.org][ODE·rigid integrator]] |
+| =byul/balix/trajectory/trajectory.h= | [[file:math-engine/todo-balix-trajectory-analysis-extraction.org][미분·보간·resampling]] |
+
+각 public symbol은 =Math Engine calculation=, =Balix orchestration/lifecycle= 또는
+=legacy forwarding shim= 중 정확히 하나의 canonical owner를 가진다. Collision 후보 감시,
+tick과 event dispatch는 Balix에 남고 snapshot 입력의 교차 좌표·선·면·TOI 계산만 Math
+Engine으로 이동한다.
+
+** Entity: 7개
+
+| header | 목표 역할 | 핵심 작업 |
+|--------+-----------+-----------|
+| =byul/entity/entity.h= | public module-entry/resource | public =void* owner=의 pointer role 또는 opaque 전환 |
+| =byul/entity/entity_dynamic.h= | public value component | layout/state/unit/copy metadata |
+| =byul/entity/entity_dynamic_coord.h= | public function component | direct config include, pointer direction와 status |
+| =byul/entity/entity_interaction.h= | public function component | =entity_interact_*=와 =entity_dynamic_*= 책임 분리 |
+| =byul/entity/entity_spring.h= | public function component | spring unit/range, retained pointer와 error metadata |
+| =byul/entity/entity_avoidance.h= | orphan experimental, decision-required | 구현/CMake/test/export 없는 설계를 public 승격 금지 |
+| =byul/entity/entity_encirclement.h= | orphan experimental, decision-required | 구현/CMake/test/export 없는 설계를 격리 또는 정상 구현 |
+
+** Projectile과 ground: 7개
+
+| header | 목표 역할 | 핵심 작업 |
+|--------+-----------+-----------|
+| =byul/projectile/projectile.h= | public module-entry + ABI type | aggregate와 ABI declaration 역할 분리 또는 명시 |
+| =byul/projectile/projectile_core.h= | public foundation resource, opaque 우선 | callback/state/public anonymous enum과 lifecycle |
+| =byul/projectile/guidance.h= | public function component | guidance input/output/unit/error와 optional output |
+| =byul/projectile/projectile_predict.h= | public result resource, opaque 우선 | owned trajectory와 =free=/=destroy= 구현 충돌 |
+| =byul/projectile/projectile_tick.h= | public resource, opaque 우선 | 복수 pointer/callback ownership, assign/free/deep-copy 결함 |
+| =byul/projectile/propulsion.h= | public resource, opaque 우선 | lifecycle/unit/failure와 direct config include |
+| =byul/ground/ground.h= | public resource, opaque 우선 | hash table/buffer ownership, assign failure와 free leak |
+
+* 감사 기준선
+
+- 32개 모두 표준 license 첫 block, =BYUL_= main guard, conforming file Doxygen와
+  =@byul.*= metadata를 충족하지 않는다.
+- public size/align/offset ABI query가 없다.
+- 16개 header가 project/system include를 =extern "C"= 안에 둔다.
+- =BYUL_API=를 쓰면서 =byul_config.h=을 직접 include하지 않는 header가 최소 11개다.
+- CMake/install inventory는 30/32이며 =entity_avoidance.h=와
+  =entity_encirclement.h=는 구현, test, CMake, =BYUL_API=와 내부 reference가 없는 orphan이다.
+- wrapper generator의 module header inventory에는 설치된 대상 30개가 하나도 등록되지 않았다.
+- balix CMake가 numal source/header를 자기 inventory에 넣고 root도 numal을 별도 집계해
+  ownership과 compile inventory가 중복될 수 있다. Source 이동과 target 방향은
+  [[file:math-engine/todo-balix-math-extraction.org][추출 master]]와
+  [[file:math-engine/todo-math-engine-build-abi.org][Build·DLL ABI TODO]]에서 닫는다.
+
+* P0 ABI, ownership와 구현 결함
+
+- =numeq_mpc.h=의 =mpc_direction_target_init_full=과
+  =mpc_direction_target_assign=만 인접 API와 달리 =BYUL_API=가 없어 Windows DLL export
+  hole이 생긴다.
+- =projectile_result_free= 구현은 내부 trajectory뿐 아니라 result 자체도 delete하여
+  =destroy=와 동일하다. stack/caller storage에 =free=를 호출하면 double delete나 invalid
+  free 위험이 있다.
+- =projectile_tick=의 assign은 trajectory를 shallow copy하고 일부 state를 누락한다.
+  null source에서 기존 resource를 정리하지 않으며 free도 ground/trajectory lifecycle을
+  일관되게 사용하지 않는다. 현재 test는 trajectory 없는 경로만 검사한다.
+- =ground_assign=은 tables/height를 deep-copy하지만 =ground_free=는 height만 해제하여
+  table leak이 발생한다. =void= assign은 partial allocation failure를 보고할 수 없다.
+- =trajectory_init=은 기존 =samples=를 읽고 delete하므로 fresh uninitialized caller storage에
+  안전하지 않다. zero-init 선행 요구와 일반 init 이름이 충돌한다.
+- controller와 filter interface는 =void*=, function pointer, vtable과 inline layout access를
+  public ABI에 고정한다.
+- environ callback 문서는 =delta_time= parameter가 있다고 설명하지만 실제 typedef에는
+  없고 retention/thread/reentrancy/lifetime 계약도 없다.
+- projectile core/projectile/predict/tick과 ground는 owning/retained pointer 및 callback을
+  public struct에 노출한다.
+- =detect_*=, =calc_spin_accel=과 =calc_suitable_*= 등 대표 type prefix가 없는 legacy
+  symbol은 직접 rename하지 않고 canonical API와 deprecated forwarding을 추가한다.
+
+* TODO 1단계: 32개 역할, ABI와 Lifecycle 동결
+
+** 실행
+
+- 32개 header의 module/root/install/aggregate/wrapper/source definition 소비 경로를
+  master manifest에 기록한다.
+- public layout, enum/macro value, exported signature와 기존 source/binary consumer를
+  snapshot한다.
+- 각 pointer/member/callback의 allocator, owner, borrow/retain, copy, invalidation과 destroy
+  graph를 작성한다.
+- Balix 215개 public declaration과 private 계산 helper를 =Math Engine calculation=,
+  =Balix orchestration/lifecycle=, =legacy shim=으로 전수 분류하고 위임 TODO를 연결한다.
+- [[file:math-engine/todo-balix-formula-constant-inventory.org][공식·상수 inventory]]의 18개
+  production source, helper, literal과 header declaration census를 ABI manifest에 합류한다.
+- 두 orphan entity header의 provenance와 구현 의도를 조사해 격리 또는 정상 구현 결정을
+  기록한다.
+
+** 완료 조건
+
+- 32개가 승인 role과 owner module을 가지며 numal/balix 중복 ownership이 해소된다.
+- Balix 수학 symbol은 header별 세부 TODO 하나에만 배정되고 감시·event 상태와 순수
+  계산 query의 경계가 manifest에서 기계적으로 검사 가능하다.
+- resource별 init/assign/copy/clear/free/destroy 상태 전이와 allocator가 하나의 표로 닫힌다.
+- orphan을 public SDK로 근거 없이 승격하지 않는다.
+
+** 검증
+
+- 이 문서의 path 집합과 filesystem/master manifest를 비교한다.
+- static/root/install/export/wrapper 차이와 declaration-definition report를 생성한다.
+- 기존 ABI/layout/enum 및 compatibility consumer fixture를 build한다.
+
+* TODO 2단계: 구조, direct include와 독립 compile
+
+** 실행
+
+- 표준 license, 파일 Doxygen, =BYUL_= guard와 역할 설명을 적용한다.
+- include를 C linkage 밖으로 옮기고 direct standard/config/component include와 순서를
+  정리한다.
+- aggregate/module-entry와 component/type declaration을 분리하고 include DAG를 정리한다.
+- public C 빈 parameter, anonymous enum과 unnamed parameter를 ABI 보존 방식으로 교정한다.
+
+** 완료 조건
+
+- 승인 public C header 30개가 C17/C++17에서 단독 compile된다.
+- aggregate inventory가 role manifest와 같고 cross-module source/header ownership이 없다.
+- experimental/internal header는 install/export에 나타나지 않는다.
+
+** 검증
+
+- standalone compile, include-order permutation와 include DAG 검사를 실행한다.
+- license/file/guard/config/linkage 감사와 clean SDK include test를 실행한다.
+
+* TODO 3단계: P0 Export와 Lifecycle 결함 수정
+
+** 실행
+
+- MPC 두 함수에 export/definition test를 추가하고 인접 API와 같은 DLL contract로 맞춘다.
+- projectile result =free=와 =destroy=를 caller-storage/owned-object 규칙에 맞게 분리하고
+  legacy 위험 동작의 compatibility strategy를 문서화한다.
+- projectile tick의 null assign, deep copy, bool/state, ground/trajectory release를 하나의
+  실패 안전한 lifecycle로 수정한다.
+- ground table/height copy/free를 대칭으로 만들고 allocation failure를 반환하는 additive
+  assign API를 제공한다.
+- trajectory fresh-init과 reset/free를 분리하고 기존 zero-init 요구를 compatibility test로
+  처리한다.
+
+** 완료 조건
+
+- exported declaration과 root shared symbol이 일치한다.
+- init/assign/copy/free/destroy에서 leak, double-free, use-after-free와 partial mutation이 없다.
+- 기존 위험 API를 바로 삭제하지 않고 명시적인 deprecated adapter 또는 ABI-major 계획을 둔다.
+
+** 검증
+
+- stack/caller/heap storage, self-assign, null assign, allocation failure와 deep-copy test를
+  실행한다.
+- Windows export table, root runtime, ASan/LSan과 현재 미검사 trajectory 포함 tick case를
+  실행한다.
+
+* TODO 4단계: Balix value, numeric와 function 계약
+
+** 실행
+
+- 위 header별 Math Engine TODO에서 확정한 body properties, motion state, transform,
+  PID/Kalman/model/MPC/solver와 collision query 계약을 ABI/layout manifest에 연결한다.
+- 이 문서에는 기존 layout/enum, export/install, optional output compatibility와 legacy
+  forwarding만 남기고 공식·kernel·canonical API를 중복 설계하지 않는다.
+- generic =detect_*=, =calc_spin_accel=, interface maker와 string/buffer 이름에는 새
+  representative-prefix API를 추가하고 legacy forwarding을 둔다.
+- =balix.h=와 =numeq.h= aggregate를 승인 component 집합과 일치시킨다.
+
+** 완료 조건
+
+- value type마다 size/align/offset, field unit와 valid state가 manifest와 header에 있다.
+- numeric failure가 정상 zero/empty와 충돌하지 않고 output 보존 조건이 구현과 일치한다.
+- old/new symbol이 같은 semantic fixture를 통과한다.
+
+** 검증
+
+- layout/enum snapshot, unit/nonfinite/tolerance/aliasing/failure test를 실행한다.
+- 기존 balix test에서 빠진 aggregate, bodyprops, environ, motion-state, filters,
+  model-motion과 PID-vec3 coverage를 추가한다.
+
+* TODO 5단계: Balix resource와 callback 경계
+
+** 실행
+
+- controller, environ, filters, integrator와 trajectory의 public storage/vtable/function pointer를
+  additive opaque handle/accessor API 뒤로 이동한다.
+- callback typedef에 대표 type =_func=, paired =userdata=, pointer role, retention,
+  reentrancy/thread와 failure propagation을 정의한다.
+- environ의 실제 callback signature와 Doxygen를 맞추고 delta time 전달이 필요하면 새
+  canonical callback API로 추가한다.
+- integrator의 value copy와 borrowed pointer 문서 모순, clear/free 중복을 해소한다.
+- Environ callback/elapsed, filter binding, integrator dispatcher와 trajectory storage는
+  Balix에 남긴다. Atmosphere/signal 공식, estimation·ODE kernel과
+  interpolation/differentiation/resampling은 linked Math Engine TODO로 이동한다.
+
+** 완료 조건
+
+- resource별 callback과 userdata가 원자적으로 bind/unbind되고 partial state가 없다.
+- caller는 public impl/vtable layout을 직접 읽지 않아도 모든 지원 동작을 수행한다.
+- trajectory sample ownership과 string buffer capacity/termination이 명확하다.
+
+** 검증
+
+- callback identity/retention/reentrancy/thread, bind/unbind와 allocation failure test를
+  실행한다.
+- old-layout/new-handle consumer와 sanitizer test를 실행한다.
+
+* TODO 6단계: Entity 경계와 component 책임
+
+** 실행
+
+- =entity_t= owner pointer를 borrowed/retained/owned 중 하나로 확정하고 metadata 또는
+  opaque migration을 제공한다.
+- dynamic/value layout과 dynamic-coord/spring/interaction의 pointer direction, unit,
+  mutation/error/thread 계약을 정리한다.
+- =entity_interaction.h=에 섞인 interaction과 dynamic 책임을 새 canonical component로
+  분리하고 기존 include/symbol을 forwarding한다.
+- avoidance/encirclement는 private experimental archive로 옮기거나 구현/source/CMake/test/
+  export가 모두 있는 독립 public 승격 절차를 밟는다.
+
+** 완료 조건
+
+- entity component graph와 owner/lifetime이 cycle 없이 설명된다.
+- 두 orphan header가 설치 목록에 우연히 들어가지 않으며 disposition 근거가 있다.
+- existing entity source consumer가 compatibility layer에서 동작한다.
+
+** 검증
+
+- entity lifecycle/interaction/spring/dynamic-coord test와 old/new include consumer를 실행한다.
+- install/export/wrapper exclusion 및 sanitizer를 검사한다.
+
+* TODO 7단계: Projectile와 ground 공개 계약
+
+** 실행
+
+- projectile module-entry, core, result, tick, propulsion과 guidance 역할을 분리한다.
+- callback, ground, trajectory, propulsion과 result pointer의 owner/borrow/retain,
+  invalidation, thread와 error metadata를 구현에 맞춘다.
+- anonymous enum과 generic =calc_suitable_*=를 numeric snapshot 후 canonical enum/symbol로
+  additive 전환한다.
+- ground mode/callback naming, height/table buffer unit/capacity와 failure-safe assign을
+  정리한다.
+- public owning layout은 accessor/handle을 먼저 제공한 뒤 ABI-major opaque 전환 후보로 둔다.
+
+** 완료 조건
+
+- projectile/ground lifecycle graph가 P0 수정과 header metadata에서 동일하다.
+- callback/enum/algorithm 지원과 failure가 query/status로 관찰된다.
+- public allocation은 짝이 맞는 BYUL destroy path를 가진다.
+
+** 검증
+
+- projectile 6종과 ground module test, deep copy, callback, enum/error, allocation failure와
+  sanitizer test를 실행한다.
+- root shared exported signature와 compatibility/new-handle consumer를 실행한다.
+
+* TODO 8단계: Simulation 계열 통합 Gate
+
+** 실행
+
+- 32개 최종 role을 module static, root shared, install, aggregate와 wrapper manifest에
+  합류한다.
+- public resource layout migration, deprecation, callback와 ownership 문서를 게시한다.
+- module inventory가 root shared에서 같은 source/header를 다시 compile하는지 검증한다.
+- [[file:math-engine/todo-balix-math-extraction.org][추출 master]]와
+  [[file:math-engine/todo-balix-math-engine-consumer.org][consumer plan]]의 gate를 합류한다.
+
+** 완료 조건
+
+- public 30개 선언이 root shared에서 정확히 한 번 정의/export된다.
+- Dependency는 Balix → Math Engine 단방향이고 canonical math source/symbol 중복
+  compile·export가 0이다. Collision monitoring/event는 Balix, 순수 교차 좌표·TOI query는
+  Math Engine이라는 경계가 source와 test에서 일치한다.
+- orphan/internal header와 implementation detail은 install/export되지 않는다.
+- wrapper는 30개 모두를 registered/manual/excluded reason으로 설명한다.
+
+** 검증
+
+- balix/entity/projectile/ground static tests, root =test_byul=과 CTest discovery를 실행한다.
+- C17/C++17 standalone compile, Windows/Linux/macOS export와 clean SDK consumer를 실행한다.
+- wrapper audit/check/native load, ABI/layout/enum/fingerprint와 ASan/LSan gate를 실행한다.

@@ -1,0 +1,107 @@
+#+TITLE: BYUL Navsys bfs.h 정밀 리팩터링 TODO
+#+TODO: TODO DOING BLOCKED | DONE CANCELLED FAILED
+#+TODO_RULES: ../../../../external/rules/projects/byul/todo-rules.org
+#+PUBLIC_API_RULES: ../../../../external/rules/projects/byul/public-api-rules.org
+#+HEADER_DECLARATION_RULES: ../../../../external/rules/projects/byul/header-declaration-rules.org
+#+HEADER_COMMENT_RULES: ../../../../external/rules/projects/byul/header-comment-rules.org
+#+HEADER_AUTHORING_RULES: ../../../../external/rules/projects/byul/header-authoring-rules.org
+#+BUILD_RULES: ../../../../external/rules/projects/byul/build-rules.org
+#+TEST_RULES: ../../../../external/rules/projects/byul/test-rules.org
+#+TODO_PARENT: todo-리팩토링-navsys-headers.org
+#+INDUSTRY_API_BASELINE: todo-navsys-industry-api-baseline.org
+#+AUTHOR: ByulPapa / Codex
+#+LANGUAGE: ko
+#+OPTIONS: toc:t num:nil
+
+* 대상과 비교 기준
+
+대상은 =bfs.h/bfs.cpp=다. [[file:todo-navsys-industry-api-baseline.org][공통 기준]]과
+[[https://www.boost.org/doc/libs/latest/libs/graph/doc/breadth_first_search.html][Boost.Graph BFS]]의
+queue/color map, visitor event와 O(V+E) 계약을 비교한다. BFS는 동일 edge cost에서만
+최소 step path를 보장하며 weighted shortest path API로 설명하지 않는다.
+
+* 구현/소비와 결함
+
+- =find_bfs=는 module/root/SDK와 generated CFFI에 등록되고 dispatcher/native test가 사용한다.
+- NULL 또는 =max_retry <= 0=이면 NULL이다. 다른 algorithm의 “0 이하 unlimited” 설명과
+  다르다.
+- 예산 소진 시 마지막 탐색 node까지 route를 반환하고 success=false로 두지만 limit/no-path/
+  OOM을 구분하지 않으며 route cost는 0이다.
+- neighbor 순서가 tie path를 결정하지만 deterministic 계약이 없다. 방문 event는 discover
+  count만 저장하고 callback/observer/cancel은 없다.
+- allocation 실패와 NULL neighbor/container를 검사하지 않으며 legacy tests는 성공/강제실패
+  bool만 확인한다.
+
+* 전체 Public Symbol Inventory와 disposition
+
+=BFS_H= include guard는 현재 macro inventory에 포함하고 ABI 영향 없이
+=BYUL_NAVSYS_ROUTE_FINDER_BFS_H=로 교체한다.
+
+| symbol | 현재 signature | wrapper | disposition |
+|--------+------------------+---------+-------------|
+| =find_bfs= | =route_t*(grid,start,goal,int max_retry,bool debug)= | generated CFFI | =ABI 1.x: deprecate-forward; companion: add -> ABI-major: internalize= |
+
+* 목표 Signature 후보
+
+#+begin_src c
+BYUL_API navsys_status_t route_finder_find_bfs_ex(
+    const navgrid_t* grid,
+    const coord_t* start,
+    const coord_t* goal,
+    const navsys_search_options_t* options,
+    route_t** out_route,
+    navsys_search_stats_t* out_stats);
+#+end_src
+
+=max_retry=는 =max_expansions=로 의미를 고정한다. Status는 complete/no-path/limit/cancel/OOM을
+분리하고 stats는 level, expanded/generated, peak frontier와 endpoint를 기록한다. Weighted
+grid에서는 step-optimal만 보장하거나 =UNSUPPORTED=를 반환한다.
+
+* TODO 1단계: BFS 계약/반례 동결
+
+** 실행
+
+- signature/export/CFFI, neighbor order, partial endpoint와 budget 경계를 snapshot한다.
+- weighted grid에서 step-optimal과 cost-optimal이 다른 반례, unreachable/blocked/start==goal을
+  추가한다.
+
+** 완료 조건
+
+- 한 public symbol과 실제 guarantee가 완전히 기록되고 limit과 no-path가 분리될 fixture가 있다.
+
+** 검증
+
+- exhaustive unweighted grid를 reference BFS와, weighted 반례를 Dijkstra와 비교한다.
+
+* TODO 2단계: Canonical status/stats/cancel 구현
+
+** 실행
+
+- prefixed status형 entry 또는 generic adapter를 구현하고 deterministic expansion budget과
+  cancel polling을 추가한다.
+- debug bool을 observer/stats로 분리하고 allocation failure strong guarantee를 구현한다.
+
+** 완료 조건
+
+- usable partial route와 종료 이유가 status/stats로 판별되고 route cost/step count가 정확하다.
+
+** 검증
+
+- exact budget boundary, cancel every level, OOM, tie/determinism과 large frontier test를 실행한다.
+
+* TODO 3단계: Legacy/Internal 경계와 배포
+
+** 실행
+
+- =find_bfs=를 canonical API에 forwarding하고 header deprecation/internalize 경로를 정한다.
+- native direct test를 public generic API와 internal algorithm conformance test로 분리한다.
+
+** 완료 조건
+
+- ABI 1 old consumer를 보존하고 ABI 2 SDK는 승인된 public query만 설치한다.
+
+** 검증
+
+- static/root/export, wrapper, installed C consumer, sanitizer와 performance fixture를 실행한다.
+- =module static BYUL_STATIC=와 =root shared BYUL_EXPORTS=를 각각 compile/run하고
+  symbol/export/behavior parity를 비교한다.

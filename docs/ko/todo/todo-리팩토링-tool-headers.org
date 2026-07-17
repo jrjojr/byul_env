@@ -1,0 +1,244 @@
+#+TITLE: BYUL Tool과 Reference 헤더 리팩터링 TODO
+#+TODO: TODO DOING BLOCKED | DONE CANCELLED FAILED
+#+TODO_RULES: ../../../external/rules/projects/byul/todo-rules.org
+#+PUBLIC_API_RULES: ../../../external/rules/projects/byul/public-api-rules.org
+#+HEADER_DECLARATION_RULES: ../../../external/rules/projects/byul/header-declaration-rules.org
+#+HEADER_COMMENT_RULES: ../../../external/rules/projects/byul/header-comment-rules.org
+#+HEADER_AUTHORING_RULES: ../../../external/rules/projects/byul/header-authoring-rules.org
+#+BUILD_RULES: ../../../external/rules/projects/byul/build-rules.org
+#+TEST_RULES: ../../../external/rules/projects/byul/test-rules.org
+#+TODO_PARENT: todo-리팩토링.org
+#+AUTHOR: ByulPapa / Codex
+#+LANGUAGE: ko
+#+OPTIONS: toc:t num:nil
+
+* 목적과 범위
+
+=tools/gpu_comp_tester= 2개와 =tools/unit_1003= 29개, 합계 31개 header의
+역할, 권리, build와 BYUL SDK 경계를 정리한다. tool/private header에 public ABI 규칙을
+기계적으로 덮어쓰지 않고, public으로 승격되는 새 header만 중앙 BYUL 규칙의 전체 gate를
+통과시킨다.
+
+=unit_1003=은
+[[file:math-engine/todo-unit-1003-migration.org][unit_1003 → Mathunits migration TODO]]에
+명시된 요구사항, 데이터와 regression reference다. 기존 source를 새 BYUL public ABI로
+직접 import하거나 원래 license를 BYUL license로 교체하지 않는다.
+
+* 31개 Header Inventory와 Disposition
+
+** GPU compute tester: private tool 2개
+
+| header | 목표 역할 | 핵심 작업 |
+|--------+-----------+-----------|
+| =tools/gpu_comp_tester/gpu.h= | private executable component | include를 C linkage 밖으로 이동, unused quat 제거, SDL window lifetime |
+| =tools/gpu_comp_tester/gpu_compute.h= | private executable resource | create/map/unmap과 짝이 맞는 destroy 또는 C++ RAII ownership |
+
+두 파일은 root SDK install/export/wrapper 대상이 아니다. private tool 규칙과 build를
+정리하되 public C ABI로 오인되는 문서나 manifest row를 만들지 않는다.
+
+** unit_1003 deprecated/archive corpus: 6개
+
+| header | 목표 역할 |
+|--------+-----------|
+| =tools/unit_1003/deprecated/dec_real/dec_real.h= | immutable deprecated reference |
+| =tools/unit_1003/deprecated/si_basic_unit/si_basic_unit.h= | immutable deprecated reference |
+| =tools/unit_1003/deprecated/si_coherent_unit/si_coherent_unit.h= | immutable deprecated reference |
+| =tools/unit_1003/deprecated/si_derived_unit/si_derived_unit.h= | immutable deprecated reference |
+| =tools/unit_1003/deprecated/si_unit_def/si_unit_def.h= | immutable deprecated reference |
+| =tools/unit_1003/deprecated/si_unit_prefix/si_unit_prefix.h= | immutable deprecated reference |
+
+** unit_1003 numeric prototype/known-bug corpus: 4개
+
+| header | 목표 역할 |
+|--------+-----------|
+| =tools/unit_1003/dec/dec.h= | numeric prototype/regression reference; ABI 복사 금지 |
+| =tools/unit_1003/nibble/nibble.h= | numeric prototype/regression reference; ABI 복사 금지 |
+| =tools/unit_1003/real/real.h= | numeric prototype/regression reference; ABI 복사 금지 |
+| =tools/unit_1003/real/dec_real/dec_real.h= | numeric prototype/regression reference; ABI 복사 금지 |
+
+** unit_1003 requirements/data corpus: 10개
+
+| header | 목표 역할 |
+|--------+-----------|
+| =tools/unit_1003/base_converter/base_converter.h= | clean-room requirements/reference |
+| =tools/unit_1003/non_si_unit/non_si_unit.h= | clean-room requirements/reference |
+| =tools/unit_1003/quantity/quantity.h= | clean-room requirements/reference |
+| =tools/unit_1003/si_unit/basic_si_unit/basic_si_unit.h= | clean-room requirements/reference |
+| =tools/unit_1003/si_unit/derived_si_unit/derived_si_unit.h= | clean-room requirements/reference |
+| =tools/unit_1003/si_unit/si_unit.h= | clean-room requirements/reference |
+| =tools/unit_1003/unit.h= | clean-room requirements/reference |
+| =tools/unit_1003/unit_prefix/unit_prefix.h= | clean-room requirements/reference |
+| =tools/unit_1003/units/units.h= | clean-room requirements/reference |
+| =tools/unit_1003/ustring/ustring.h= | clean-room requirements/reference |
+
+** unit_1003 private regression fixture: 9개
+
+| header | 목표 역할 |
+|--------+-----------|
+| =tools/unit_1003/dec/tester/dec_tester.hpp= | immutable private regression fixture |
+| =tools/unit_1003/nibble/tester/nibble_tester.hpp= | immutable private regression fixture |
+| =tools/unit_1003/quantity/tester/quantity_tester.hpp= | immutable private regression fixture |
+| =tools/unit_1003/real/dec_real/tester/dec_real_tester.hpp= | immutable private regression fixture |
+| =tools/unit_1003/real/tester/real_tester.hpp= | immutable private regression fixture |
+| =tools/unit_1003/tester/unit_tester.hpp= | immutable private regression fixture |
+| =tools/unit_1003/unit_prefix/tester/unit_prefix_tester.hpp= | immutable private regression fixture |
+| =tools/unit_1003/units/tester/units_tester.hpp= | immutable private regression fixture |
+| =tools/unit_1003/ustring/tester/ustring_tester.hpp= | immutable private regression fixture |
+
+* 감사 기준선과 보호 조건
+
+- =gpu_compute=는 create/map/unmap API가 있으나 destroy가 없고 main이 concrete object를
+  직접 delete하여 lifecycle abstraction이 분산되어 있다.
+- GPU header 둘 다 include를 =extern "C"= 안에 두며 =gpu.h=의 public-looking
+  =void* SDL_Window= 반환은 lifetime이 없다.
+- =unit_1003=은 별도 CMake와 hardcoded =~/apps/cmake_starter= 의존을 가지며 source의
+  =All Rights Reserved= 문구 때문에 복사/변경 전에 권리와 provenance 확인이 필요하다.
+- compiler layout에 의존하는 bit-field/union이 =unit.h=, =nibble.h=, =real.h=,
+  =si_unit.h=와 deprecated basic SI header에 있다.
+- =dec.h=와 =nibble.h=는 platform-width =long=을 ABI에 사용한다.
+- 두 =dec_real.h= family가 같은 basename/guard를 사용하고 =quantity.h=가 bare
+  ="dec_real.h"=를 include하여 include order에 따라 다른 ABI가 선택될 수 있다.
+- current basic/derived SI header는 존재하지 않는 =si_prefix.h=를 include한다.
+- =ustring.h=는 owned =char*=와 create/delete/release/get =char**=의 ownership/capacity가
+  불명확하다.
+- tester =.hpp= 9개는 =Progress/Stopwatch/Logger=와 =BOOST_TEST_MODULE=을 각자 정의해
+  하나의 translation unit 또는 통합 test에서 충돌한다.
+
+이 결함은 원본을 즉시 고쳐 BYUL ABI로 쓰라는 뜻이 아니다. known-bug와 useful behavior를
+snapshot한 뒤 clean-room BYUL 구현의 negative/compatibility requirement로 옮긴다.
+
+* TODO 1단계: Provenance, 권리와 불변 원본 동결
+
+** 실행
+
+- 31개 path, hash, license text, author/source provenance, build consumer와 test를 기록한다.
+- =unit_1003=을 수정 가능한 자산으로 볼 수 있는지 권리 근거를 확인한다.
+- 원본 build/test의 성공과 알려진 실패를 구분해 archive snapshot을 만든다.
+- 기존 원본 변경이 이미 있다면 사용자 변경과 이 계획 변경을 분리한다.
+
+** 완료 조건
+
+- 모든 파일이 owner, license/provenance 상태와 allowed-use를 가진다.
+- 권리가 불명확한 source는 복사, 재허가와 public 배포가 차단된다.
+- immutable reference hash와 재현 가능한 archive 위치가 있다.
+
+** 검증
+
+- 이 문서 31개와 filesystem/master manifest의 path/hash 집합을 비교한다.
+- license/provenance report와 repository history 근거를 검토한다.
+- archive hash를 원본과 byte-for-byte 비교한다.
+
+* TODO 2단계: Tool, reference와 SDK Build 경계
+
+** 실행
+
+- GPU header는 private tool manifest에, =unit_1003=은 reference manifest에만 넣는다.
+- root =byul= source/header, install, export, umbrella와 wrapper inventory에서 31개가 제외됨을
+  자동 검사한다.
+- =unit_1003=의 hardcoded external build 의존과 실행 환경을 격리된 optional reference
+  profile로 기록한다.
+- 향후 public BYUL header가 reference path를 include하지 못하게 layer rule을 추가한다.
+
+** 완료 조건
+
+- tool/reference 파일이 SDK 설치나 root shared export에 우연히 포함되지 않는다.
+- public BYUL build가 =unit_1003= checkout 또는 외부 cmake starter에 의존하지 않는다.
+- tool/reference target은 명시적 opt-in으로만 build된다.
+
+** 검증
+
+- root/install/export/wrapper manifest exclusion과 forbidden-include 검사를 실행한다.
+- clean BYUL build와 optional tool/reference discovery를 각각 실행한다.
+
+* TODO 3단계: GPU Tool Header와 Lifecycle 정비
+
+** 실행
+
+- include order/linkage, tool-prefixed guard와 최소 dependency를 정리한다.
+- SDL window 반환을 typed private C++ interface 또는 명시적인 borrowed =void*= 계약으로
+  제한한다.
+- compute object의 create/destroy와 map/unmap 상태 전이를 하나의 API 또는 RAII type으로
+  묶고 main의 raw delete를 제거한다.
+- error, thread/context affinity와 mapped pointer invalidation을 tool 문서에 기록한다.
+
+** 완료 조건
+
+- create마다 정확히 한 destroy 경로가 있고 map/unmap misuse가 진단된다.
+- private header가 C ABI/SDK public인 것처럼 보이지 않는다.
+- GPU tool build와 shutdown에서 leak/use-after-free가 없다.
+
+** 검증
+
+- create/failure/map/unmap/destroy state test와 sanitizer를 실행한다.
+- supported GPU tool configuration에서 compile/link/run smoke test를 실행한다.
+
+* TODO 4단계: unit_1003 결함과 요구사항 추출
+
+** 실행
+
+- bit-field/union/platform-width/include-order/guard 충돌과 missing include를 machine-readable
+  known-bug inventory로 옮긴다.
+- decimal minimum/shift/typo, SI dimension/prefix, unit conversion, quantity와 string ownership의
+  behavior를 requirement와 bug-preservation 금지 항목으로 나눈다.
+- 9개 tester의 중복 fixture와 module definition을 원본 hash를 유지한 채 test case 목록으로
+  추출한다.
+- public ABI로 복사할 수 없는 layout과 mutable pointer/flexible alias 설계를 negative
+  conformance fixture로 만든다.
+
+** 완료 조건
+
+- 29개 각각이 최소 하나의 requirement, regression/known-bug 또는 archive-only 근거에
+  연결된다.
+- useful behavior와 재현하면 안 되는 ABI/bug가 구분된다.
+- 원본 source를 직접 수정하지 않고 추출 artifact의 provenance를 역추적할 수 있다.
+
+** 검증
+
+- requirement traceability matrix가 29개 path를 모두 포함하는지 검사한다.
+- known-bug fixture가 문제를 실제 검출하며 새 BYUL design fixture에서는 실패하도록 한다.
+
+* TODO 5단계: Clean-room Mathunits Migration 연결
+
+** 실행
+
+- 추출한 dimension, unit, prefix, quantity, conversion, formatting과 regression 요구를
+  [[file:math-engine/todo-unit-1003-migration.org][unit_1003 → Mathunits migration TODO]]의
+  새 BYUL-owned source/test 항목에 연결한다.
+- 새 public header는 BYUL license/ABI 규칙으로 독립 작성하고 원본 type/layout/name을
+  자동 복사하지 않는다.
+- 새 API에 fixed-width/layout query, ownership, capacity, enum/status, unit와 numeric
+  precision/error 계약을 적용한다.
+- migration test는 reference의 의미 있는 결과를 비교하되 source/header include 의존을
+  만들지 않는다.
+
+** 완료 조건
+
+- 모든 채택 요구사항은 새 implementation/test owner와 acceptance criterion을 가진다.
+- 새 SDK에 =unit_1003= header, basename, guard 또는 compiler-dependent layout이 유입되지 않는다.
+- 권리 검토와 clean-room provenance가 release artifact에 남는다.
+
+** 검증
+
+- forbidden text/include/layout 검사와 public header C17/C++17 standalone compile을 실행한다.
+- reference-derived regression corpus와 새 mathunits conformance test를 실행한다.
+
+* TODO 6단계: Tool/Reference 종료 Gate
+
+** 실행
+
+- 31개 최종 role과 archive/migration 상태를 master manifest에 합류한다.
+- GPU tool 변경과 =unit_1003= reference/migration 문서를 게시한다.
+- reference를 archive/remove할 조건은 모든 requirement가 채택/거절되고 provenance와
+  regression snapshot이 보존된 뒤 별도 승인한다.
+
+** 완료 조건
+
+- 31개가 누락 없이 private-tool/reference/deprecated-reference 상태로 닫힌다.
+- root shared/install/wrapper/public aggregate에 해당 파일과 symbol이 없다.
+- original license와 hash, requirement traceability와 known-bug corpus가 보존된다.
+
+** 검증
+
+- master inventory, SDK exclusion, forbidden dependency와 archive hash를 검사한다.
+- GPU tool test와 새 mathunits 연계 test를 실행한다.
+- fresh clone에서 BYUL public build가 reference tree 없이 재현됨을 확인한다.

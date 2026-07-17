@@ -1,0 +1,243 @@
+#+TITLE: Balix 수학·물리 계산의 Math Engine 추출 Master TODO
+#+TODO: TODO DOING BLOCKED | DONE CANCELLED FAILED
+#+TODO_RULES: ../../../../external/rules/projects/byul/todo-rules.org
+#+TODO_PARENT: todo-math-engine.org
+#+AUTHOR: ByulPapa / Codex
+#+LANGUAGE: ko
+#+OPTIONS: toc:t num:nil
+
+* 목적
+
+=byul/balix= 안의 수학, 물리 법칙, 기하, 미분·적분, 보간, 제어와 추정 계산을
+독립 Math Engine 소유로 옮긴다. Balix는 world와 객체 상태를 보유하고 tick마다
+필요한 계산을 요청하며 결과를 event, response와 history에 적용하는 소비자다.
+
+이 문서는 구현 계획이다. 현재 source를 이동하거나 public 함수를 변경하지 않았으며,
+각 단계의 회귀 corpus와 ABI gate가 닫힌 뒤에만 다음 단계로 진행한다.
+
+* 분류 기준
+
+시간, 속도, 가속도를 인자로 받는다는 이유만으로 Balix 계산이 되지 않는다. 동일
+입력에서 외부 상태를 읽거나 바꾸지 않고 값 또는 명시적 result를 반환하는 단발 계산은
+Math Engine이다.
+
+| 책임 | Math Engine | Balix |
+|------+-------------+-------|
+| 충돌 | 교차점, 선·면, normal, feature, penetration, TOI를 계산하는 stateless query | tick 감시, broad-phase 후보, pair cache, contact 지속, event와 response |
+| 운동 | kinematics, 힘, drag, bounce, spin과 ODE 공식 | body/environment/world state와 state 변환 |
+| 궤적 | 보간, 미분, arc-length와 resampling kernel | sample 저장, impact metadata, 수명과 출력 |
+| 제어·추정 | PID, Kalman, MPC 비용·최적화 kernel | sensor polling, target 선택, controller dispatch와 actuator 적용 |
+| 변환 | vector/quaternion/transform 계산 | world bounds와 debug 출력 정책 |
+| 상수 | 출처·version·단위가 있는 보편 상수 | 게임·제품 preset과 tuning 값 |
+
+금지 의존성:
+
+#+begin_src text
+math-engine -X-> balix / entity / projectile / ground / navsys / GUI
+balix and other consumers ---> math-engine
+#+end_src
+
+Math Engine public header에는 =motion_state_t=, =environ_t=, =bodyprops_t=,
+=trajectory_t=와 Balix callback type을 노출하지 않는다.
+
+* 현재 감사 기준선
+
+- Balix public header 18개, =BYUL_API= 선언 약 215개
+- 구현이 없는 선언: =motion_state_calc_collision_time=,
+  =motion_state_calc_collision_point=, =pid_vec3_auto=
+- 구현은 있으나 export가 없는 선언:
+  =mpc_direction_target_init_full=, =mpc_direction_target_assign=
+- =balix_SOURCES=가 =numal_SOURCES=와 =collision_SOURCES=를 흡수하고 root =byul=
+  target이 다시 확장해 source와 header 소유권이 중복됨
+- =collision.cpp=는 =numeq_solve_quadratic_stable=을 호출하지만 collision target의
+  link dependency에 numeq가 없음
+- =test_collision=은 collision target을 직접 연결하지 않아 독립 target을 검증하지 않음
+
+* Source별 소유권
+
+공개 API뿐 아니라 private helper와 literal의 전수 census는
+[[file:todo-balix-formula-constant-inventory.org][공식·상수·Private Helper Inventory]]가
+소유한다.
+
+| 현재 파일군 | Math Engine 목표 | Balix에 남길 것 | 세부 TODO |
+|-------------+------------------+------------------+-----------|
+| =bodyprops= | friction, heat, stop/damping 공식 | body preset DTO | [[file:todo-balix-bodyprops-extraction.org][bodyprops]] |
+| =environ= | atmosphere factor, gravity/wind 합성, periodic signal | callback, elapsed와 환경 state | [[file:todo-balix-environ-extraction.org][environ]] |
+| =collision= | plane/sphere/triangle intersection와 CCD/TOI | 감시·event는 현재 다른 consumer에 존재 | [[file:todo-balix-collision-query-extraction.org][collision query]] |
+| =xform= | transform/rotation/interpolation/reflection | world clamp와 print | [[file:todo-balix-transform-extraction.org][transform]] |
+| =trajectory= | interpolation, differentiation와 resampling | storage, impact history와 출력 | [[file:todo-balix-trajectory-analysis-extraction.org][trajectory analysis]] |
+| =numeq_solver= | polynomial과 bracketed roots | legacy forwarder | [[file:todo-balix-solver-extraction.org][solver]] |
+| =numeq_integrator= | callback/array ODE와 rotation integration | motion/environment adapter | [[file:todo-balix-integrator-extraction.org][integrator]] |
+| =numeq_model= | drag, kinematics, bounce와 CCD 공식 | Balix DTO mapping | [[file:todo-balix-physics-model-extraction.org][physics model]] |
+| =numeq_model_motion= | Magnus/gyro와 spin-drag 공식 | simulation preset adapter | [[file:todo-balix-motion-model-extraction.org][motion model]] |
+| =numeq_pid*= | scalar/vector PID kernel | controller adapter | [[file:todo-balix-pid-extraction.org][PID]] |
+| =numeq_mpc= | cost, candidate evaluation와 optimizer | waypoint/target policy | [[file:todo-balix-mpc-extraction.org][MPC]] |
+| =numeq_kalman/filters= | estimation kernel과 neutral filter interface | sensor/tick binding | [[file:todo-balix-kalman-extraction.org][Kalman]] |
+| =motion_state= | neutral kinematics/CCD query | legacy state DTO init/assign | [[file:todo-balix-motion-state-extraction.org][motion state]] |
+| =controller= | Bang-Bang switching과 canonical control kernel 호출 | factory, lifecycle, dispatch와 actuator mapping | [[file:todo-balix-controller-adapter.org][controller adapter]] |
+| =balix.h/numeq.h/CMake= | 없음 | aggregate, compatibility와 target link | [[file:todo-balix-math-engine-consumer.org][Balix consumer]] |
+
+* P0 회귀 대상
+
+1. =detect_triangle_collision_rotating_alpha=는 =theta=와 =tri_center=를 실제 회전에
+   사용하지 않고 angle 0 placeholder를 반복한다.
+2. moving triangle query는 상대 평면 root 뒤 world projectile point를 초기 triangle에
+   검사하여 triangle translation을 inside test에 반영하지 않는다.
+3. precise sphere Newton 경로는 bracket와 잔차 합격 없이 surface snap 후 success를
+   반환할 수 있다.
+4. trajectory 미분은 비균일 표본 공식을 사용하지 않고 resampling의 endpoint,
+   누적오차와 duplicate-time 계약이 정의되지 않았다.
+5. motion Verlet의 header/source const가 다르고, 이전 state를 덮은 뒤 angular 이전값을
+   읽는다.
+6. motion-model RK4가 초기화되지 않은 output acceleration을 먼저 scale한다.
+7. transform의 non-uniform scale이 point apply, inverse와 composition translation에
+   일관되게 적용되지 않는다.
+8. ordinary quadratic은 header의 linear fallback 약속과 달리 =a ~= 0=에서 실패한다.
+9. friction 모델의 coefficient 단위와 =v(1-mu*t)=, stop time =1/mu= 계약이 물리적
+   마찰인지 감쇠인지 불명확하다.
+10. controller PID factory는 전달받은 gain과 dt를 사용하지 않는다.
+11. Kalman filter adapter가 서로 다른 callback signature를 function pointer cast로
+    연결해 undefined behavior이고 measured velocity를 무시한다.
+12. periodic environment 두 initializer가 계산에 사용되는 =delta_time=을 초기화하지
+    않으며 callback 문서와 실제 signature도 다르다.
+13. trajectory fresh init의 invalid delete, C ABI 밖 C++ allocation exception,
+    truncation offset underflow와 =impact_time == 0= sentinel 충돌이 있다.
+14. MPC quaternion angle이 normalize/clamp 없는 =acos(abs(w))=를 사용하고 route solver는
+    진행 순서 대신 nearest point를 매번 다시 선택한다.
+15. integrator default/clear는 environment method에 zero environment/body를 결합하고
+    full init의 optional null field가 미초기화로 남을 수 있다.
+
+기존 오류 동작을 golden answer로 승인하지 않는다. 분석적 해, 잔차, 보존량과
+차원 검사를 기준으로 regression test를 작성한다.
+
+* 관련 Math Engine 계획
+
+- [[file:todo-numal.org][기초 수학과 값]]
+- [[file:todo-numeq.org][수치해석]]
+- [[file:todo-geometry.org][기하와 교차]]
+- [[file:todo-physics.org][물리 공식과 상수]]
+- [[file:todo-math-computation-context.org][계산 context]]
+- [[file:todo-math-engine-build-abi.org][Build와 DLL ABI]]
+- [[file:todo-balix-formula-constant-inventory.org][공식·상수·private helper 전수 inventory]]
+- [[file:todo-balix-controller-adapter.org][Controller adapter·factory 경계]]
+
+* 실행 절차
+
+** TODO 1. Formula와 public surface baseline을 동결한다
+*** 실행
+
+18개 Balix header와 대응 source의 모든 공개·private 계산을 symbol 단위 manifest에
+기록한다. 각 항목에 식, 입력·출력 단위, frame, tolerance, 부작용, 현재 test와 목표
+owner를 하나만 부여한다. =entity=, =projectile=, =ground=의 중복 계산도 읽기 전용으로
+추가 조사한다.
+
+*** 완료 조건
+
+모든 Balix 계산 symbol이 세부 TODO 하나와 owner 하나에 연결되고 미구현·중복·ABI
+누락이 별도 상태로 표시된다.
+
+*** 검증
+
+=rg= 기반 declaration/definition/include inventory와 manifest를 비교하고, 미분류
+symbol 수와 중복 owner 수가 각각 0인지 검사한다.
+
+** TODO 2. Neutral value·result·context 계약을 확정한다
+*** 실행
+
+Math Engine C ABI용 value view, status, tolerance, unit/frame metadata, workspace,
+cancellation과 deterministic context를 정의한다. Balix struct를 직접 받지 않고
+caller-owned POD 또는 opaque handle만 사용한다. 실패 시 output 불변과 partial result
+규칙을 정한다.
+
+*** 완료 조건
+
+geometry, physics, numeq, control과 estimation이 공유할 수 있고 Balix include가 없는
+header 초안과 ABI compatibility 결정 기록이 존재한다.
+
+*** 검증
+
+C17/C++17 standalone header compile, sizeof/alignof/offsetof snapshot, enum 값,
+nullable/output/ownership lint와 forbidden include 검사를 수행한다.
+
+** TODO 3. 기초·solver·transform·geometry kernel을 먼저 추출한다
+*** 실행
+
+=numal=, polynomial/root solver, transform과 collision query를 Math Engine component
+static target으로 옮긴다. 기존 symbol과 include path는 deprecated forwarding shim으로
+보존하고 새 canonical symbol을 Balix 내부에서 먼저 사용한다.
+
+*** 완료 조건
+
+Math Engine component가 Balix에 의존하지 않고 build되며 기존 API와 새 API의
+differential corpus가 통과한다.
+
+*** 검증
+
+analytic root와 intersection 잔차, rigid-transform invariant, tangent/coincident/
+degenerate/non-finite corpus, module test와 root shared export를 검사한다.
+
+** TODO 4. 물리·적분·trajectory·control·estimation kernel을 추출한다
+*** 실행
+
+각 세부 TODO의 순서에 따라 physics formula, callback ODE, sampled-series 분석,
+PID/MPC/Kalman 계산을 neutral API로 옮긴다. Balix는 DTO mapping과 lifecycle만 유지한다.
+
+*** 완료 조건
+
+Balix 계산 구현에 수학식이 중복되지 않고 각 adapter가 Math Engine 호출 결과만 소비한다.
+기존 공개 호출은 compatibility layer로 동일하거나 명시적으로 수정된 결과를 제공한다.
+
+*** 검증
+
+차원 분석, known-answer, step-halving convergence, derivative order, energy/momentum,
+control step response와 estimator covariance corpus를 실행한다.
+
+** TODO 5. Balix를 명시적 Math Engine 소비자로 전환한다
+*** 실행
+
+Balix source/header inventory에서 Numal과 collision source 재집계를 제거하고
+=target_link_libraries=로 Math Engine target을 소비한다. Projectile tick의 주기 감시,
+candidate 선택, event와 response가 Balix에 남는지 검증한다.
+
+*** 완료 조건
+
+source는 target당 한 번만 compile되고 dependency 방향이 Balix에서 Math Engine으로만
+향한다. root shared의 기존 ABI는 forwarding shim을 포함해 유지된다.
+
+*** 검증
+
+CMake graph와 link line, duplicate symbol, header install 중복, =test_math_engine=,
+=test_balix=, =test_byul=과 clean SDK consumer를 검사한다.
+
+** TODO 6. 독립 Math Engine DLL 전환 gate를 통과한다
+*** 실행
+
+현재 중앙 규칙의 root shared 단일 산출물 계약을 먼저 갱신하고 =rules-ref.org=
+revision을 올린 뒤, [[file:todo-math-engine-build-abi.org][Build/ABI 계획]]의 병행 shared
+검증과 cutover를 수행한다. 이 선행 승인 전에는 별도 DLL을 생성하지 않는다.
+
+*** 완료 조건
+
+독립 Math Engine DLL이 자신의 export/version/allocator를 소유하고 Balix와 root BYUL이
+import target으로 링크한다. math source와 canonical symbol은 두 DLL에 중복되지 않는다.
+
+*** 검증
+
+Windows =dumpbin=, Linux =readelf=, macOS =otool=, clean install consumer, adjacent
+two-DLL load, 누락 DLL/architecture mismatch 진단과 wrapper 실제 load를 검사한다.
+
+** TODO 7. 재유입 방지와 전체 저장소 합류 gate를 닫는다
+*** 실행
+
+Math Engine 금지 include/link lint, formula ownership manifest, legacy shim 종료 version과
+repository-wide 중복 수학 검색을 CI에 추가한다.
+
+*** 완료 조건
+
+새 순수 계산이 Balix/entity/projectile/ground에 재도입되면 CI가 실패하고, 모든
+compatibility shim의 owner와 제거 조건이 추적된다.
+
+*** 검증
+
+Fresh checkout에서 rules, dependency, source uniqueness, ABI/export, native/wrapper,
+package와 platform matrix 검사를 재실행한다.

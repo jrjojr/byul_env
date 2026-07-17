@@ -1,0 +1,126 @@
+#+TITLE: BYUL maze_recursive.h 정밀 리팩터링 TODO
+#+TODO: TODO DOING BLOCKED | DONE CANCELLED FAILED
+#+TODO_RULES: ../../../../external/rules/projects/byul/todo-rules.org
+#+PUBLIC_API_RULES: ../../../../external/rules/projects/byul/public-api-rules.org
+#+HEADER_DECLARATION_RULES: ../../../../external/rules/projects/byul/header-declaration-rules.org
+#+HEADER_COMMENT_RULES: ../../../../external/rules/projects/byul/header-comment-rules.org
+#+HEADER_AUTHORING_RULES: ../../../../external/rules/projects/byul/header-authoring-rules.org
+#+BUILD_RULES: ../../../../external/rules/projects/byul/build-rules.org
+#+TEST_RULES: ../../../../external/rules/projects/byul/test-rules.org
+#+TODO_PARENT: todo-리팩토링-navsys-headers.org
+#+LANGUAGE: ko
+#+OPTIONS: toc:3 num:nil
+
+* 대상과 명명 판정
+
+- 대상: =maze_recursive.h/.cpp=.
+- 실제 algorithm은 generic recursion이 아니라 randomized depth-first backtracker다.
+  [[https://weblog.jamisbuck.org/2010/12/27/maze-generation-recursive-backtracking.html][Jamis Buck reference]]를 기준으로 visited neighbor와 backtrack 종료를 검증한다.
+- 공통 status/options는 [[file:todo-navsys-industry-api-baseline.org][Navsys 업계 API 기준]]을 사용한다.
+
+* Public symbol inventory와 처분
+
+| kind | symbol | disposition |
+|------+--------+-------------|
+| guard macro | =MAZE_RECURSIVE_H= | source macro: ABI 1.x: keep -> ABI-major: internalize; collision-safe guard companion: ABI 1.x: add |
+| function | =maze_make_recursive(int,int,int,int)= | legacy: ABI 1.x: deprecate-forward -> ABI-major: internalize; support path: conformance-block; canonical companion: ABI 1.x: add; canonical 이름에 backtracker 명시 |
+
+#+begin_src c
+BYUL_API navsys_status_t byul_maze_generate_recursive_backtracker(
+    int32_t origin_x, int32_t origin_y, uint32_t width, uint32_t height,
+    const byul_maze_generate_options_t* options, maze_t** out_maze);
+#+end_src
+
+* P0 구현 결함
+
+| 부분 | 현재 코드 | 영향 |
+|------+----------+------|
+| validation | 없음 | width/height <3, even, negative에서 OOB/huge allocation/invalid topology |
+| global RNG | =srand(time)=, =rand()= | process-global state 오염, thread race, 재현 불가 |
+| blocked init loops | =for(y=y0; y<height)=, =for(x=x0; x<width)= | origin이 loop bound로 섞여 nonzero origin에서 cell 수가 축소됨 |
+| coordinate insert | ={out->x0+x,out->y0+y}= | x/y가 이미 origin에서 시작해 nonzero origin을 이중 가산 |
+| visited | =malloc h rows/calloc w= 실패 미검사 | partial allocation cleanup 없음 |
+| start | 항상 local =(1,1)= | small/even input OOB 가능 |
+| traversal | 모든 in-bounds cell에서 step 2 | parity/border rule이 header의 odd >=3 주장과 구현상 강제되지 않음 |
+| recursion | cell 수만큼 call stack | large maze stack overflow, cancellation 없음 |
+| result | removal/insert 실패 무시 | incomplete maze도 성공 반환 |
+| tests | nonzero origin 5,5를 쓰지만 block>0만 확인 | 이중-origin/bounds 오류를 잡지 못함 |
+
+* 목표 구현·계약
+
+- explicit stack 기반 iterative DFS를 기본으로 하여 O(V) heap workspace와 bounded native stack을 보장한다.
+- logical odd/odd interior cell과 world origin 변환을 한 함수에서만 수행한다.
+- current cell의 unvisited neighbors를 unbiased shuffle/select하고, 없으면 stack pop한다.
+- passage graph는 perfect maze이며 DFS 특유 long corridor는 characteristic이지 stable exact guarantee는 아니다.
+- seed/RNG state는 per-call, max cells/steps와 cancel은 loop에서 bounded poll한다.
+
+* TODO 1단계: nonzero-origin 오류 격리
+
+** 실행
+
+- =(0,0)=와 =(5,5)= 동일 dimensions 결과를 localize하여 translation 외 shape가 같은지 비교한다.
+- 현재 init loop의 expected/actual blocked bounds와 visited OOB를 dump한다.
+- global =rand= 소비가 다른 library code에 미치는 side effect fixture를 만든다.
+
+** 완료 조건
+
+- double-origin과 truncated init을 failing assertion으로 재현한다.
+- semantic fix를 legacy symbol에도 적용 가능한 bug fix인지 compatibility review가 승인된다.
+
+** 검증
+
+- negative/nonzero/max origin, 1/2/even dimensions와 rectangular grid를 sanitizer로 실행한다.
+- CMake/export/test consumer 기준선을 비교한다.
+
+* TODO 2단계: iterative DFS와 checked workspace
+
+** 실행
+
+- visited bitmap + coordinate stack + per-call RNG로 구현한다.
+- checked size arithmetic, allocation rollback, max steps/cancel과 exception barrier를 넣는다.
+- canonical status/out API와 legacy forwarding을 구현한다.
+
+** 완료 조건
+
+- call stack은 grid size에 비례하지 않고 실패 시 output strong guarantee를 만족한다.
+- BYUL 호출이 process-global RNG 상태를 바꾸지 않는다.
+
+** 검증
+
+- allocator fault at each visited/stack/hash stage, cancellation at push/pop/materialize를 검사한다.
+- stub RNG로 exact DFS/backtrack trace를 검증한다.
+
+* TODO 3단계: 좌표·위상·종료 gate
+
+** 실행
+
+- local/world translation, outer border, connectivity/no-cycle/edge=V-1을 assert한다.
+- seed golden과 max-step status, peak stack/visited memory stats를 기록한다.
+- large narrow/wide grid에서 no native stack overflow를 검증한다.
+
+** 완료 조건
+
+- nonzero origin 결과가 zero-origin 결과의 정확한 translation이다.
+- 모든 success maze가 perfect이고 cancel/limit reason이 구분된다.
+
+** 검증
+
+- property seed corpus, translation metamorphic test, ASan/LSan/UBSan과 benchmark를 실행한다.
+
+* TODO 4단계: Header·migration gate
+
+** 실행
+
+- standard header 구조와 canonical name/RNG/stack/ownership/error metadata를 적용한다.
+- old name deprecation, dispatcher/static/root/install/wrapper manifest를 갱신한다.
+- ABI 1.x는 canonical symbol additive와 legacy deprecated forwarding만 허용하고 legacy 제거는 ABI-major로 제한한다.
+
+** 완료 조건
+
+- audit 0 error, legacy/canonical export 1:1과 release note가 완료된다.
+
+** 검증
+
+- C/C++ standalone include, old/new SDK consumer와 module/root tests를 실행한다.
+- module static =BYUL_STATIC= build에서 legacy/canonical direct-link를 검증한다.
+- root shared =BYUL_EXPORTS= build의 declaration/definition/export table에서 legacy와 canonical symbol을 모두 검증한다.

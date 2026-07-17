@@ -1,0 +1,359 @@
+#+TITLE: BYUL Navsys route_finder.h 정밀 리팩터링 TODO
+#+TODO: TODO DOING BLOCKED | DONE CANCELLED FAILED
+#+TODO_RULES: ../../../../external/rules/projects/byul/todo-rules.org
+#+PUBLIC_API_RULES: ../../../../external/rules/projects/byul/public-api-rules.org
+#+HEADER_DECLARATION_RULES: ../../../../external/rules/projects/byul/header-declaration-rules.org
+#+HEADER_COMMENT_RULES: ../../../../external/rules/projects/byul/header-comment-rules.org
+#+HEADER_AUTHORING_RULES: ../../../../external/rules/projects/byul/header-authoring-rules.org
+#+BUILD_RULES: ../../../../external/rules/projects/byul/build-rules.org
+#+TEST_RULES: ../../../../external/rules/projects/byul/test-rules.org
+#+TODO_PARENT: todo-리팩토링-navsys-headers.org
+#+INDUSTRY_API_BASELINE: todo-navsys-industry-api-baseline.org
+#+AUTHOR: ByulPapa / Codex
+#+LANGUAGE: ko
+#+OPTIONS: toc:t num:nil
+
+* 문서 책임
+
+대상은 =byul/navsys/route_finder/route_finder.h= 하나다. 선언을 제공하는
+=route_finder.cpp=, 11개 algorithm dispatcher, module/root CMake inventory, native test,
+Python =route_finder.py=와 설치 SDK consumer까지 함께 다룬다. 공통 status/options/stats,
+cancel, allocator/workspace와 two-call result 원칙은
+[[file:todo-navsys-industry-api-baseline.org][Navsys 업계 API 기준]]을 따른다.
+
+* 조사한 현재 소비 경로
+
+- =byul/navsys/route_finder/CMakeLists.txt=와 =byul/navsys/CMakeLists.txt=가 module static에,
+  =byul/CMakeLists.txt=가 같은 source를 root shared에 직접 compile하고 header를 SDK에
+  설치한다.
+- =navsys.cpp=의 11개 one-shot helper와 route-finder native test가 stack
+  =route_finder_t= 및 public field semantics에 의존한다.
+- =tools/python/byul_wrapper/byul_wrapper/route_finder.py=가 이 header 전체를 CFFI에
+  등록하고 public enum 값을 Python에 다시 손으로 복제한다.
+- Python wrapper는 임시 =ffi.new_handle()=을 native retained pointer로 넘기고 보관하지
+  않으며, header에 없는 =route_finder_set_userdata=를 호출한다.
+- Native/Python test는 정상 경로를 출력하는 수준이다. callback userdata identity,
+  unsupported enum, no-op setter, NULL/OOM/cancel/partial result와 wrapper handle lifetime을
+  검증하지 않는다.
+
+* 업계 기준과 원전
+
+- [[https://www.boost.org/doc/libs/latest/libs/graph/doc/astar_search.html][Boost.Graph A*]]는 graph, weight,
+  heuristic, predecessor/distance maps와 visitor를 독립 계약으로 두고 non-negative weight,
+  distance algebra와 event를 명시한다.
+- [[https://recastnav.com/classdtNavMeshQuery][Detour dtNavMeshQuery]]는 reusable query object,
+  max-node workspace, synchronous/sliced operation과 caller buffer를 분리한다.
+- [[https://recastnav.com/DetourStatus_8h_source.html][Detour status]]는 success, in-progress,
+  partial, invalid parameter, out-of-memory, out-of-nodes를 구분한다.
+- [[https://curl.se/libcurl/c/][libcurl C API]]처럼 handle lifecycle, options, callback과
+  userdata retention을 명시하고 callback pair를 원자적으로 설정하는 방식을 기준으로 삼는다.
+
+* 확인된 P0 구현 결함
+
+1. =route_finder_set_max_retry()=는 =a->max_retry;=만 실행해 입력값을 저장하지 않는다.
+2. =route_finder_init_full()=은 =cost_fn_userdata=와 =heuristic_fn_userdata=를 저장하지 않는다.
+3. 모든 algorithm adapter는 저장된 두 userdata 대신 =nullptr=를 callback에 전달한다.
+4. =route_finder_create_full()=은 NULL =start/goal=을 즉시 역참조하고 allocation 실패를
+   구분하지 않는다.
+5. =route_finder_clear()=는 NULL을 검사하지 않고 borrowed grid, callback과 설정 전체를
+   0으로 지워 object를 설명 없이 invalid 상태로 만든다.
+6. =route_finder_copy()=는 grid, typedata와 callback userdata를 shallow-copy한다. retained
+   lifetime도 없고 실행 상태 copy 정책도 없다.
+7. =route_finder_run_ida_star()=는 실행 중 finder의 heuristic을 Manhattan으로 영구 변경한다.
+8. enum 42개 중 dispatcher가 실행하는 값은 11개뿐이며 unsupported 값은 NULL 하나로
+   invalid argument/OOM/no-path와 합쳐진다.
+
+* 전체 Public Symbol Inventory
+
+** Macro와 enum
+
+- include guard =ROUTE_FINDER_H=는 public semantic macro가 아니지만 현재 header macro
+  inventory에 포함한다. ABI 영향 없이 repository-unique
+  =BYUL_NAVSYS_ROUTE_FINDER_ROUTE_FINDER_H=로 교체한다.
+
+=MAX_RETRY=와 enum type/value는 이름을 줄이지 않고 다음과 같이 각각 독립 disposition을
+가진다. Enum 숫자는 ABI-major에서도 재번호화하지 않는다.
+
+| 현재 symbol | numeric value | disposition | 목표/비고 |
+|--------------+---------------+-------------+-----------|
+| =MAX_RETRY= | 1000 | =ABI 1.x: keep; companion: add -> ABI-major: internalize= | namespaced max-expansions default query로 교체 |
+| =route_finder_type_t= | enum ABI type | =ABI 1.x: keep -> ABI-major: keep= | width/calling ABI와 unknown/future round-trip 동결 |
+| =ROUTE_FINDER_UNKNOWN= | 0 | =ABI 1.x: keep -> ABI-major: keep= | catalog sentinel, operational support 아님 |
+| =ROUTE_FINDER_BELLMAN_FORD= | 1 | =ABI 1.x: keep -> ABI-major: keep= | catalog-only |
+| =ROUTE_FINDER_DFS= | 2 | =ABI 1.x: keep -> ABI-major: keep= | dispatcher supported |
+| =ROUTE_FINDER_BFS= | 3 | =ABI 1.x: keep -> ABI-major: keep= | dispatcher supported |
+| =ROUTE_FINDER_DIJKSTRA= | 4 | =ABI 1.x: keep -> ABI-major: keep= | dispatcher supported |
+| =ROUTE_FINDER_FLOYD_WARSHALL= | 5 | =ABI 1.x: keep -> ABI-major: keep= | catalog-only |
+| =ROUTE_FINDER_ASTAR= | 6 | =ABI 1.x: keep -> ABI-major: keep= | dispatcher supported |
+| =ROUTE_FINDER_BIDIRECTIONAL_DIJKSTRA= | 7 | =ABI 1.x: keep -> ABI-major: keep= | catalog-only |
+| =ROUTE_FINDER_BIDIRECTIONAL_ASTAR= | 8 | =ABI 1.x: keep -> ABI-major: keep= | catalog-only |
+| =ROUTE_FINDER_WEIGHTED_ASTAR= | 9 | =ABI 1.x: keep; conformance-block -> ABI-major: keep= | bounded-suboptimal proof 전 facade 지원 금지 |
+| =ROUTE_FINDER_JOHNSON= | 10 | =ABI 1.x: keep -> ABI-major: keep= | catalog-only |
+| =ROUTE_FINDER_K_SHORTEST_PATH= | 11 | =ABI 1.x: keep -> ABI-major: keep= | catalog-only |
+| =ROUTE_FINDER_DIAL= | 12 | =ABI 1.x: keep -> ABI-major: keep= | catalog-only |
+| =ROUTE_FINDER_ITERATIVE_DEEPENING= | 13 | =ABI 1.x: keep -> ABI-major: keep= | catalog-only |
+| =ROUTE_FINDER_GREEDY_BEST_FIRST= | 14 | =ABI 1.x: keep -> ABI-major: keep= | dispatcher supported |
+| =ROUTE_FINDER_IDA_STAR= | 15 | =ABI 1.x: keep; conformance-block -> ABI-major: keep= | 이름/구현 conformance 전 facade 지원 금지 |
+| =ROUTE_FINDER_RTA_STAR= | 16 | =ABI 1.x: keep; conformance-block -> ABI-major: keep= | 이름/구현 conformance 전 facade 지원 금지 |
+| =ROUTE_FINDER_SMA_STAR= | 17 | =ABI 1.x: keep; conformance-block -> ABI-major: keep= | memory-bound conformance 전 facade 지원 금지 |
+| =ROUTE_FINDER_DSTAR= | 18 | =ABI 1.x: keep -> ABI-major: keep= | catalog-only |
+| =ROUTE_FINDER_FAST_MARCHING= | 19 | =ABI 1.x: keep; conformance-block -> ABI-major: keep= | Eikonal/topology conformance 전 facade 지원 금지 |
+| =ROUTE_FINDER_ANT_COLONY= | 20 | =ABI 1.x: keep -> ABI-major: keep= | catalog-only |
+| =ROUTE_FINDER_FRINGE_SEARCH= | 21 | =ABI 1.x: keep; conformance-block -> ABI-major: keep= | two-list conformance 전 facade 지원 금지 |
+| =ROUTE_FINDER_FOCAL_SEARCH= | 22 | =ABI 1.x: keep -> ABI-major: keep= | catalog-only |
+| =ROUTE_FINDER_DSTAR_LITE= | 23 | =ABI 1.x: keep -> ABI-major: keep= | catalog value; 이 dispatcher에서는 미지원 |
+| =ROUTE_FINDER_LPA_STAR= | 24 | =ABI 1.x: keep -> ABI-major: keep= | catalog-only |
+| =ROUTE_FINDER_HPA_STAR= | 25 | =ABI 1.x: keep -> ABI-major: keep= | catalog-only |
+| =ROUTE_FINDER_ALT= | 26 | =ABI 1.x: keep -> ABI-major: keep= | catalog-only |
+| =ROUTE_FINDER_ANY_ANGLE_ASTAR= | 27 | =ABI 1.x: keep -> ABI-major: keep= | catalog-only |
+| =ROUTE_FINDER_HCA_STAR= | 28 | =ABI 1.x: keep -> ABI-major: keep= | catalog-only |
+| =ROUTE_FINDER_RTAA_STAR= | 29 | =ABI 1.x: keep -> ABI-major: keep= | catalog-only |
+| =ROUTE_FINDER_THETA_STAR= | 30 | =ABI 1.x: keep -> ABI-major: keep= | catalog-only |
+| =ROUTE_FINDER_CONTRACTION_HIERARCHIES= | 31 | =ABI 1.x: keep -> ABI-major: keep= | catalog-only |
+| =ROUTE_FINDER_LAZY_THETA_STAR= | 32 | =ABI 1.x: keep -> ABI-major: keep= | catalog-only |
+| =ROUTE_FINDER_JUMP_POINT_SEARCH= | 33 | =ABI 1.x: keep -> ABI-major: keep= | catalog-only |
+| =ROUTE_FINDER_SIPP= | 34 | =ABI 1.x: keep -> ABI-major: keep= | catalog-only |
+| =ROUTE_FINDER_JPS_PLUS= | 35 | =ABI 1.x: keep -> ABI-major: keep= | catalog-only |
+| =ROUTE_FINDER_EPEA_STAR= | 36 | =ABI 1.x: keep -> ABI-major: keep= | catalog-only |
+| =ROUTE_FINDER_MHA_STAR= | 37 | =ABI 1.x: keep -> ABI-major: keep= | catalog-only |
+| =ROUTE_FINDER_ANYA= | 38 | =ABI 1.x: keep -> ABI-major: keep= | catalog-only |
+| =ROUTE_FINDER_DAG_SP= | 39 | =ABI 1.x: keep -> ABI-major: keep= | catalog-only |
+| =ROUTE_FINDER_MULTI_SOURCE_BFS= | 40 | =ABI 1.x: keep -> ABI-major: keep= | catalog-only |
+| =ROUTE_FINDER_MCTS= | 41 | =ABI 1.x: keep -> ABI-major: keep= | catalog-only |
+
+실제 =route_finder_run()= 지원 집합은 =DFS, BFS, DIJKSTRA, ASTAR,
+WEIGHTED_ASTAR, GREEDY_BEST_FIRST, IDA_STAR, RTA_STAR, SMA_STAR,
+FAST_MARCHING, FRINGE_SEARCH= 11개다. =DSTAR_LITE=는 다른 API가 있어도 이 dispatcher에서는
+지원하지 않는다. 기존 enum은 catalog ABI로 동결하고
+=route_finder_is_type_supported()=와 immutable descriptor query를 추가한다.
+
+** Public struct field
+
+| 현재 type/field | 현재 의미/결함 | disposition |
+|-----------------+----------------+-------------|
+| =route_finder_t= | 11개 public field를 가진 caller-storage layout | =ABI 1.x: keep; companion: add -> ABI-major: abi-major= (opaque type 전환) |
+| =navgrid= | non-const borrowed pointer이나 retention/invalidation 없음 | =ABI 1.x: keep; companion: add -> ABI-major: internalize= |
+| =start= | public value, setter가 NULL 검사 없음 | =ABI 1.x: keep; companion: add -> ABI-major: internalize= |
+| =goal= | public value, setter가 NULL 검사 없음 | =ABI 1.x: keep; companion: add -> ABI-major: internalize= |
+| =type= | unsupported value도 저장 가능 | =ABI 1.x: keep; companion: add -> ABI-major: internalize= |
+| =typedata= | enum별 =float*= 또는 =int*= raw native storage | =ABI 1.x: keep; companion: add -> ABI-major: internalize= |
+| =max_retry= | retry인지 expansion인지 불명확, setter가 no-op | =ABI 1.x: keep; companion: add -> ABI-major: internalize= |
+| =debug_mode_enabled= | route visited log와 stdout 개념 혼합 | =ABI 1.x: keep; companion: add -> ABI-major: internalize= |
+| =cost_fn= | callback과 userdata를 따로 변경 가능 | =ABI 1.x: keep; companion: add -> ABI-major: internalize= |
+| =cost_fn_userdata= | algorithm에 전달되지 않는 raw pointer | =ABI 1.x: keep; companion: add -> ABI-major: internalize= |
+| =heuristic_fn= | callback과 userdata를 따로 변경 가능 | =ABI 1.x: keep; companion: add -> ABI-major: internalize= |
+| =heuristic_fn_userdata= | algorithm에 전달되지 않는 raw pointer | =ABI 1.x: keep; companion: add -> ABI-major: internalize= |
+
+=route_finder_t=는 ABI 1에서 field offset을 manifest로 동결한다. Repository consumer를
+accessor로 전환한 뒤 ABI 2에서 =typedef struct s_route_finder route_finder_t;= opaque object로
+바꾼다. 실행 상태, callback, workspace를 가진 object이므로 기본 copy는 non-copyable이다.
+
+** 함수별 disposition
+
+| 현재 함수 | disposition | 목표 계약 |
+|-----------+-------------+-----------|
+| =get_route_finder_name= | =ABI 1.x: deprecate-forward; companion: add -> ABI-major: internalize= | =route_finder_type_get_name= static UTF-8, 모든 42값에 안정 이름 |
+| =route_finder_create= | =ABI 1.x: keep; companion: add -> ABI-major: keep= | legacy allocation 유지, status와 =out_finder=를 갖는 =create_ex= 추가 |
+| =route_finder_create_full= | =ABI 1.x: deprecate-forward -> ABI-major: internalize= | versioned =route_finder_create_info_t=와 typed config로 전달 |
+| =route_finder_init= | =ABI 1.x: deprecate-forward -> ABI-major: internalize= | caller-storage만 유지; opaque 전환 때 제거 |
+| =route_finder_init_full= | =ABI 1.x: deprecate-forward -> ABI-major: internalize= | 누락 userdata bug 수정 후 versioned create로 전환 |
+| =route_finder_free= | =ABI 1.x: deprecate-forward -> ABI-major: internalize= | caller-storage family 전용; opaque create/destroy와 혼합 금지 |
+| =route_finder_destroy= | =ABI 1.x: keep; companion: add -> ABI-major: abi-major= | ABI 1.x int 유지; ABI-major =void=, NULL no-op 정책 통일 |
+| =route_finder_copy= | =ABI 1.x: deprecate-forward -> ABI-major: internalize= | shallow copy 금지; immutable config snapshot/create-from-config 추가 |
+| =route_finder_set_navgrid= | =ABI 1.x: deprecate-forward; companion: add -> ABI-major: internalize= | status형 =route_finder_bind_navgrid=과 =unbind=, borrowed lifetime |
+| =route_finder_set_start= | =ABI 1.x: keep; companion: add -> ABI-major: internalize= | checked status variant, NULL/range/out preservation |
+| =route_finder_set_goal= | =ABI 1.x: keep; companion: add -> ABI-major: internalize= | checked status variant, NULL/range/out preservation |
+| =route_finder_get_navgrid= | =ABI 1.x: keep -> ABI-major: keep= | const borrowed pointer, lifetime =parent:finder=와 invalidation 명시 |
+| =route_finder_fetch_start= | =ABI 1.x: keep -> ABI-major: keep= | 정확한 negative status와 output strong guarantee |
+| =route_finder_fetch_goal= | =ABI 1.x: keep -> ABI-major: keep= | 정확한 negative status와 output strong guarantee |
+| =route_finder_set_type= | =ABI 1.x: deprecate-forward; companion: add -> ABI-major: internalize= | checked setter; unsupported면 기존 type 보존 |
+| =route_finder_get_type= | =ABI 1.x: keep -> ABI-major: keep= | const receiver와 unknown/future enum round-trip |
+| =route_finder_set_typedata= | =ABI 1.x: deprecate-forward; companion: add -> ABI-major: internalize= | algorithm별 typed config bind로 대체 |
+| =route_finder_get_typedata= | =ABI 1.x: deprecate-forward -> ABI-major: internalize= | raw mutable pointer 반환 제거, typed fetch/query 사용 |
+| =route_finder_set_max_retry= | =ABI 1.x: deprecate-forward; companion: add -> ABI-major: internalize= | P0 no-op 수정; checked max-expansions setter로 전환 |
+| =route_finder_get_max_retry= | =ABI 1.x: keep; companion: add -> ABI-major: internalize= | const receiver, legacy int; =uint64_t max_expansions= query 추가 |
+| =route_finder_enable_debug_mode= | =ABI 1.x: deprecate-forward; companion: add -> ABI-major: internalize= | =set_trace_enabled= 또는 observer binding; bool 동사 충돌 제거 |
+| =route_finder_is_debug_mode_enabled= | =ABI 1.x: keep; companion: add -> ABI-major: internalize= | const receiver, trace/visited semantics 명시 |
+| =route_finder_set_cost_func= | =ABI 1.x: deprecate-forward; companion: add -> ABI-major: internalize= | callback+userdata 원자적 =bind_cost_func= |
+| =route_finder_get_cost_func= | =ABI 1.x: deprecate-forward -> ABI-major: internalize= | binding descriptor fetch 또는 diagnostic only |
+| =route_finder_set_cost_fn_userdata= | =ABI 1.x: deprecate-forward -> ABI-major: internalize= | 독립 setter 제거, bind에 합류 |
+| =route_finder_get_cost_fn_userdata= | =ABI 1.x: deprecate-forward -> ABI-major: internalize= | raw handle 노출 제거 |
+| =route_finder_set_heuristic_func= | =ABI 1.x: deprecate-forward; companion: add -> ABI-major: internalize= | callback+userdata 원자적 =bind_heuristic_func= |
+| =route_finder_get_heuristic_func= | =ABI 1.x: deprecate-forward -> ABI-major: internalize= | binding descriptor fetch 또는 diagnostic only |
+| =route_finder_set_heuristic_fn_userdata= | =ABI 1.x: deprecate-forward -> ABI-major: internalize= | 독립 setter 제거, bind에 합류 |
+| =route_finder_get_heuristic_fn_userdata= | =ABI 1.x: deprecate-forward -> ABI-major: internalize= | raw handle 노출 제거 |
+| =route_finder_clear= | =ABI 1.x: deprecate-forward; companion: add -> ABI-major: internalize= | 보존 범위가 명시된 status형 =route_finder_reset= |
+| =route_finder_set_defaults= | =ABI 1.x: deprecate-forward; companion: add -> ABI-major: internalize= | immutable default create-info query/apply, 실패 원자성 |
+| =route_finder_is_valid= | =ABI 1.x: keep; companion: add -> ABI-major: keep= | bool은 predicate로만 사용; 상세 =validate= status 추가 |
+| =route_finder_print= | =ABI 1.x: deprecate-forward -> ABI-major: internalize= | stdout 대신 caller-buffer diagnostic/trace callback |
+| =route_finder_run= | =ABI 1.x: keep; companion: add -> ABI-major: internalize= | legacy owned route/NULL adapter, canonical =run_ex= status/out/stats |
+
+* 목표 Signature 후보
+
+아래는 공통 문서 placeholder에 연결하는 설계 후보다. 정확한 status owner와 allocator type은
+공통 decision gate에서 확정한다.
+
+#+begin_src c
+typedef struct s_route_finder route_finder_t;
+
+BYUL_API bool route_finder_is_type_supported(route_finder_type_t type);
+BYUL_API const char* route_finder_type_get_name(route_finder_type_t type);
+
+BYUL_API navsys_status_t route_finder_create_ex(
+    const route_finder_create_info_t* create_info,
+    route_finder_t** out_finder);
+
+BYUL_API navsys_status_t route_finder_bind_cost_func(
+    route_finder_t* finder,
+    route_finder_cost_func callback,
+    void* userdata);
+BYUL_API void route_finder_unbind_cost_func(route_finder_t* finder);
+
+BYUL_API navsys_status_t route_finder_bind_heuristic_func(
+    route_finder_t* finder,
+    route_finder_heuristic_func callback,
+    void* userdata);
+BYUL_API void route_finder_unbind_heuristic_func(route_finder_t* finder);
+
+BYUL_API navsys_status_t route_finder_run_ex(
+    route_finder_t* finder,
+    const navsys_search_options_t* options,
+    route_t** out_route,
+    navsys_search_stats_t* out_stats);
+
+BYUL_API navsys_status_t route_finder_begin(
+    route_finder_t* finder,
+    const navsys_search_options_t* options);
+BYUL_API navsys_status_t route_finder_step(
+    route_finder_t* finder,
+    uint64_t max_expansions,
+    uint64_t* out_expansions);
+BYUL_API navsys_status_t route_finder_finish(
+    route_finder_t* finder,
+    route_t** out_route,
+    navsys_search_stats_t* out_stats);
+BYUL_API navsys_status_t route_finder_request_cancel(route_finder_t* finder);
+#+end_src
+
+=run_ex=는 =OK/NO_PATH/INCOMPLETE/CANCELLED/LIMIT_REACHED=와 negative runtime error를
+구분한다. 반환 route가 complete/partial 중 무엇인지, start에서 어느 endpoint까지인지,
+cost와 optimality 보장을 stats에 기록한다. Callback은 호출 thread에서 동기 호출하며
+userdata는 native가 역참조/해제하지 않고 unbind/destroy까지 caller가 살려 둔다.
+
+* ABI와 Wrapper 전환
+
+- ABI 1.x에서 enum 숫자와 struct layout, 모든 legacy symbol을 유지하고 canonical symbol을
+  additive하게 export한다. Legacy setter/run은 새 API로 forwarding한다.
+- ABI 1.x wrapper는 =ffi.new_handle= cdata를 binding lifetime 동안 강하게 보관하고,
+  존재하지 않는 =route_finder_set_userdata= 호출을 제거한다.
+- ABI 2에서 opaque layout, status형 setter/destroy signature와 typed config를 적용한다.
+  ABI fingerprint mismatch 시 old CFFI layout으로 DLL을 load하지 않는다.
+- Algorithm enum과 Python =IntEnum=은 생성 원본 하나에서 나오며 42개 numeric fixture와
+  capability matrix를 비교한다.
+
+* TODO 1단계: ABI/동작 기준선과 P0 회귀 test 고정
+
+** 실행
+
+- macro, 42개 enum 숫자, struct size/align/offset, 위 35개 함수 signature/export를 snapshot한다.
+- max-retry no-op, init-full userdata 누락, algorithm의 NULL userdata 전달과 IDA* 설정 mutation을
+  실패하는 test로 재현한다.
+- static/root/install/CFFI/Python high-level consumer intersection을 생성한다.
+
+** 완료 조건
+
+- 현재 ABI와 실제 11개 지원 집합이 machine-readable fixture로 동결된다.
+- 네 P0 bug test가 수정 전 실패하고 잘못된 test 통과와 구분된다.
+- legacy wrapper handle의 보관/해제 owner가 식별된다.
+
+** 검증
+
+- C/C++ ABI fixture, root export dump와 generated CFFI enum/signature 비교를 실행한다.
+- ASan/LSan과 Python GC 강제 수집으로 dangling =ffi.new_handle=을 재현한다.
+
+* TODO 2단계: Capability, typed config와 callback 계약 추가
+
+** 실행
+
+- support/name/descriptor query와 checked type setter를 추가한다.
+- cost/heuristic callback+userdata bind/unbind를 구현하고 모든 11개 adapter에 동일 userdata를
+  전달한다.
+- fringe/RTA/SMA/weighted raw =typedata=를 각 header의 typed config로 교체한다.
+- callback status, non-negative finite cost, heuristic 동일 단위와 admissible/consistent claim을
+  명시한다.
+
+** 완료 조건
+
+- unsupported enum은 finder를 변경하지 않고 =UNSUPPORTED=를 반환한다.
+- callback identity와 failure가 알고리즘/언어 wrapper를 왕복하며 partial bind 상태가 없다.
+- raw typedata 없이 모든 지원 algorithm 설정을 표현한다.
+
+** 검증
+
+- 42값 capability/name table, callback userdata sentinel, NaN/Inf/negative/failure와 unbind test를
+  실행한다.
+- Python callback GC, exception, reentrancy와 close ordering test를 실행한다.
+
+* TODO 3단계: Status/result/cancel/workspace 실행 모델
+
+** 실행
+
+- =run_ex=와 stats를 구현하고 invalid/no-path/partial/limit/cancel/OOM/callback failure를 분리한다.
+- deterministic expansion budget, reusable workspace reserve/query와 allocator binding을 정한다.
+- 필요하면 Detour sliced query와 같은 begin/step/finish state machine을 구현한다.
+
+** 완료 조건
+
+- 모든 종료 원인과 usable output 여부가 status/stats만으로 판별된다.
+- cancel polling, workspace exhaustion과 allocation failure에서 object와 out parameter가 계약된
+  상태로 남는다.
+- 반복 search가 stale state/callback/result를 재사용하지 않는다.
+
+** 검증
+
+- 각 expansion 지점 cancellation, OOM injection, exact limit boundary와 partial endpoint test를
+  실행한다.
+- one-shot과 sliced 결과 cost/path가 같은 deterministic fixture에서 일치하는지 검사한다.
+
+* TODO 4단계: Opaque ABI와 legacy forwarding
+
+** 실행
+
+- repository consumer를 accessor/bind API로 옮기고 public field 접근을 lint한다.
+- legacy 35개 function 각각을 위 disposition대로 canonical implementation에 forwarding한다.
+- ABI 2에서 struct definition, init/free와 raw typedata를 public header에서 제거한다.
+
+** 완료 조건
+
+- ABI 1 old binary/source consumer와 new API consumer가 함께 동작한다.
+- ABI 2 SDK에는 opaque declaration만 있고 stale ABI 1 wrapper load가 명시적으로 실패한다.
+- 모든 deprecated symbol에 replacement와 제거 ABI version이 있다.
+
+** 검증
+
+- old/new SDK consumer, size/align/offset/fingerprint와 deprecation compile test를 실행한다.
+- module static와 root shared에서 legacy/canonical symbol을 각각 정확히 한 번 확인한다.
+
+* TODO 5단계: Correctness와 배포 Gate
+
+** 실행
+
+- 11개 algorithm을 tiny exhaustive grid/reference Dijkstra와 비교하고 capability descriptor의
+  optimal/complete/bounded-suboptimal claim을 검증한다.
+- wrapper ownership/status/enum을 고수준 exception/result 모델에 mapping한다.
+- install SDK, umbrella와 release-note/migration guide를 갱신한다.
+
+** 완료 조건
+
+- blocked endpoint, start==goal, unreachable, negative/NaN/Inf cost, tie, limit/cancel/OOM을 모두
+  자동 판정한다.
+- static test뿐 아니라 root shared, wrapper native load와 clean installed C consumer가 통과한다.
+- 지원하지 않는 31개 enum을 지원한다고 문서나 wrapper가 표시하지 않는다.
+
+** 검증
+
+- native module/root/CTest, audit/check, wrapper unit/native와 external C17/C++17 consumer를
+  실행한다.
+- Windows/Linux/macOS export, sanitizer와 ABI manifest/capability matrix를 비교한다.
+- =module static BYUL_STATIC=와 =root shared BYUL_EXPORTS=를 각각 compile/run하고
+  symbol/export/behavior parity를 비교한다.

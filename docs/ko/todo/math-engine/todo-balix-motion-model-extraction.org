@@ -1,0 +1,147 @@
+#+TITLE: Balix Spin·Aerodynamics Motion Model 추출 TODO
+#+TODO: TODO DOING BLOCKED | DONE CANCELLED FAILED
+#+TODO_RULES: ../../../../external/rules/projects/byul/todo-rules.org
+#+TODO_PARENT: todo-balix-math-extraction.org
+#+AUTHOR: ByulPapa / Codex
+#+LANGUAGE: ko
+#+OPTIONS: toc:t num:nil
+
+* 실제 source·build 범위
+
+- 공개 header: =byul/balix/numeq/numeq_model_motion.h=
+- 현재 구현: =byul/balix/numeq/numeq_model_motion.cpp=
+- 현재 source/header 집계와 static target: =byul/balix/CMakeLists.txt=
+- root shared 재집계: =byul/CMakeLists.txt=
+- production 소비자: =byul/entity/entity_dynamic.cpp=,
+  =byul/balix/numeq/numeq_mpc.cpp=
+- 간접 aggregate 상태: =byul/balix/CMakeLists.txt=에는 header가 들어가지만
+  =byul/balix/numeq/numeq.h=는 이 header를 include하지 않는다.
+- 현재 =byul/balix/tests/CMakeLists.txt=에는 이 5개 export를 직접 검증하는 전용 test가 없다.
+
+=numeq_model_motion.h=의 직접 =BYUL_API= 선언은 정확히 5개다. 공식 본체는 모두
+Math Engine =physics/aerodynamics=, =physics/dynamics= 또는 =numeq/ode= 소유이고 기존
+이름은 legacy forwarding ABI로 남긴다.
+
+| =BYUL_API= 선언 | 정본 분류 | Math Engine component | 기존 symbol의 최종 운명 |
+|-----------------+-----------+-----------------------+--------------------------|
+| =numeq_model_motion_predict= | Math Engine pure calculation/value | =physics/dynamics= state prediction | Balix legacy forwarding |
+| =numeq_model_motion_predict_rk4= | Math Engine pure calculation/value | =numeq/ode=와 =physics/dynamics= 합성 | Balix legacy forwarding |
+| =numeq_model_motion_accel= | Math Engine pure calculation/value | =physics/aerodynamics= force composition | Balix legacy forwarding |
+| =calc_spin_accel= | Math Engine pure calculation/value | =physics/aerodynamics= spin force/acceleration | Balix legacy forwarding |
+| =numeq_model_motion_drag_scale= | Math Engine pure calculation/value | =physics/aerodynamics/legacy-empirical= | Balix legacy forwarding |
+
+Balix는 =motion_state_t=, =environ_t=, =bodyprops_t=와 simulation preset을 neutral
+parameter/result로 변환한다. Math Engine public header는 이 Balix type을 include하지 않는다.
+
+* Formula·상수 전수 inventory
+
+| 위치 | 현재 식/literal | 목표 분류 |
+|------+-----------------+-----------|
+| =calc_spin_accel= | =k_magnus * (omega x velocity)= | Math Engine physical/empirical model 후보; coefficient 차원을 먼저 확정한다. |
+| =calc_spin_accel= | =k_gyro * time * (alpha x velocity)= | Math Engine empirical model 후보; 시간 의존과 단위를 먼저 확정한다. |
+| =numeq_model_motion_drag_scale= | speed/spin squared gate =1e-6f= | Math Engine numerical context 또는 legacy preset |
+| =numeq_model_motion_drag_scale= | =max_effective_spin = 50.0f= | Balix legacy tuning preset에서 명시 전달; 보편 상수 아님 |
+| =numeq_model_motion_drag_scale= | =max_reduction = 0.30f= | Balix legacy tuning preset에서 명시 전달; 보편 상수 아님 |
+| =numeq_model_motion_drag_scale= | =max_penalty = 0.15f= | Balix legacy tuning preset에서 명시 전달; 보편 상수 아님 |
+| =numeq_model_motion_drag_scale= | alignment branch =0.5f=와 divisor =1.5f= | Balix legacy empirical curve parameter |
+| =numeq_model_motion_drag_scale= | result clamp =[0.0f, 2.0f]= | Balix legacy empirical output policy |
+| header 주석 | =k_magnus= reality/game/max 범위와 =k_gyro= 범위 | 출처 검증 전에는 Balix tuning guidance; canonical 상수 아님 |
+
+공식과 epsilon은 Math Engine source/context에 한 번만 존재한다. Legacy heuristic parameter는
+Balix versioned preset에서 canonical Math Engine empirical API로 값만 전달하고 adapter가
+분기나 clamp 식을 재작성하지 않는다.
+
+* 구현 결합과 결함
+
+- =numeq_model_motion_predict=는 linear prediction 뒤 acceleration 전체에 drag scale을
+  적용하고 spin acceleration을 더하지만 angular state는 복사만 한다.
+- =numeq_model_motion_predict_rk4=는 초기화되지 않은
+  =out_state->linear.acceleration=을 drag scale로 먼저 변경한 뒤, 실제 integration에는
+  별도 =temp.acceleration=을 사용한다.
+- =numeq_model_motion_accel=은 base acceleration과 spin acceleration을 합성한다.
+- =calc_spin_accel=은 =time <= 0=일 때 시간과 무관한 Magnus 항까지 zero 처리한다.
+- 모든 export는 외부 state를 소유하거나 tick을 예약하지 않는 단발 계산이므로 Balix
+  orchestration으로 남길 근거가 없다.
+
+* Build·DLL 이행
+
+현재 =numeq_model_motion.cpp=는 =balix_SOURCES=와 root shared source inventory에 직접
+포함되고, =numeq_model.h=와 Balix DTO에 결합돼 있다.
+
+- Static 과도기: neutral aerodynamic/dynamics source와 위 공식·literal은 단일 Math
+  Engine manifest로 이동한다. Balix source에는 5개 DTO/status forwarder만 남고 entity,
+  MPC와 Balix가 =byul_math_engine_static=을 target link로 소비한다. Root shared는 현행
+  중앙 규칙 동안 같은 manifest를 직접 compile한다.
+- 독립 DLL 전환: 중앙 규칙과 =rules-ref.org= revision 승인 뒤 canonical 5개 계산은
+  Math Engine DLL에만 존재한다. BYUL DLL의 기존 이름은 legacy forwarding shim이며
+  canonical source/symbol을 중복 포함하지 않는다.
+
+* 현재 진단
+
+- =calc_spin_accel=의 Magnus-like =k_magnus*(omega x v)=와
+  gyro =k_gyro*time*(alpha x v)= coefficient 차원, density, size와 mass dependency가 없다.
+- =time <= 0=이면 spin acceleration 전체를 zero로 만들어 time과 무관한 Magnus 항까지
+  사라진다.
+- drag scale의 max spin 50, reduction 30%, penalty 15%, alignment 0.5와 clamp [0,2]는
+  보편 법칙이 아닌 tuning heuristic이다.
+- =predict_rk4=가 초기화되지 않은 =out_state->linear.acceleration=을 먼저 scale한다.
+- Predict 함수가 angular orientation/velocity를 적분하지 않고 복사하면서 이름이 full
+  motion prediction처럼 보인다.
+- Drag scale을 acceleration 전체에 적용하면 gravity와 사용자 acceleration도 scale될 수
+  있어 aerodynamic drag correction 의미와 맞지 않는다.
+
+* 실행 절차
+
+** TODO 1. 물리 law와 heuristic preset을 분류한다
+*** 실행
+
+Magnus/gyro/drag-scale 식의 출처, coefficient 차원, 적용 force와 유효 범위를 기록한다.
+
+*** 완료 조건
+
+검증 가능한 physical model과 legacy empirical tuning이 별도 API로 분리된다.
+
+*** 검증
+
+Dimension analysis, literal/caller inventory와 current regression을 비교한다.
+
+** TODO 2. Neutral aerodynamic model API를 정의한다
+*** 실행
+
+Relative flow, spin, density, geometry, mass와 coefficient parameter를 받고 force/acceleration,
+quality와 error를 반환하는 API를 설계한다.
+
+*** 완료 조건
+
+Time/state/preset 부작용이 없고 gravity와 aerodynamic force가 구분된다.
+
+*** 검증
+
+C17/C++17 compile, unit/frame/layout와 invalid/non-finite test를 수행한다.
+
+** TODO 3. Formula와 empirical model을 구현·검증한다
+*** 실행
+
+Physical candidate는 known references와 dimension을, legacy heuristic은 exact
+compatibility와 범위 diagnostics를 붙여 구현한다.
+
+*** 완료 조건
+
+Zero spin/flow, axis reversal과 scaling invariant를 만족하고 uninitialized output이 없다.
+
+*** 검증
+
+Metamorphic cross-product, coefficient zero, parameter boundary와 sanitizer test를 실행한다.
+
+** TODO 4. Dynamics integration과 Balix adapter를 전환한다
+*** 실행
+
+Force callback을 ODE integrator에 연결하고 Balix가 angular/linear state를 mapping한다.
+
+*** 완료 조건
+
+Predict API가 실제 갱신 state 범위를 이름과 계약대로 반환하고 legacy symbol은 forwarding한다.
+
+*** 검증
+
+Step refinement, old/new differential, full motion state와 module/root test를 실행한다.

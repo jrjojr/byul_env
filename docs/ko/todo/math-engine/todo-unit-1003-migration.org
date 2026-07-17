@@ -1,0 +1,74 @@
+#+TITLE: unit_1003에서 Mathunits로 Clean-room Migration TODO
+#+TODO: TODO DOING BLOCKED | DONE CANCELLED FAILED
+#+TODO_RULES: ../../../../external/rules/projects/byul/todo-rules.org
+#+TODO_PARENT: todo-mathunits.org
+#+AUTHOR: ByulPapa / Codex
+#+LANGUAGE: ko
+#+OPTIONS: toc:t num:nil
+
+* 목적과 경계
+
+=tools/unit_1003=은 요구사항, data와 regression reference다. 기존 license, bit-field
+layout, 함수 이름과 source를 BYUL public ABI로 자동 복사하지 않는다. GPU tool header
+리팩터링과 분리해 Math Engine =mathunits= migration만 이 문서가 소유한다.
+
+* 실행 절차
+
+** TODO 1. Source·data·license inventory를 동결한다
+*** 실행
+
+29개 header, source, test, ODS/deprecated 자료, copyright/license와 provenance를
+machine-readable manifest로 기록한다.
+
+*** 완료 조건
+
+직접 이전 가능 data와 clean-room 재작성 항목이 파일별로 결정된다.
+
+*** 검증
+
+File hash, license header, repository history와 rights decision record를 검사한다.
+
+** TODO 2. Requirement와 known-bug corpus를 추출한다
+*** 실행
+
+Dimension, unit, prefix, quantity, conversion/formatting 요구와 signed exponent,
+subtraction, power 등의 defect를 behavior fixture로 만든다.
+
+*** 완료 조건
+
+정상 요구와 보존하면 안 되는 오류가 서로 다른 expected result를 가진다.
+
+*** 검증
+
+Reference fixture와 새 design fixture가 의도대로 pass/fail하는지 확인한다.
+
+** TODO 3. BYUL-owned schema와 generated table을 작성한다
+*** 실행
+
+Fixed-width signed dimension, exact scale/offset, stable id, name/alias와 source version을
+새 schema로 작성한다.
+
+*** 완료 조건
+
+Compiler bit-field와 원본 ABI에 의존하지 않는 read-only table이 생성된다.
+
+*** 검증
+
+Schema validation, deterministic generation, stale check와 cross-platform serialization을
+실행한다.
+
+** TODO 4. Mathunits C ABI와 conformance를 구현한다
+*** 실행
+
+Dimension/unit/quantity/constant API를 =todo-mathunits.org= 계약대로 구현하고 원본
+reference corpus를 연결한다.
+
+*** 완료 조건
+
+Unit_1003 source 없이 BYUL public build/test가 재현되고 provenance가 추적된다.
+
+*** 검증
+
+C17/C++17 header, unit conversion, affine temperature, dimension algebra, profile table와
+clean checkout test를 실행한다.
+

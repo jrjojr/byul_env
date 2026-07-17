@@ -1,0 +1,128 @@
+#+TITLE: BYUL maze_wilson.h 정밀 리팩터링 TODO
+#+TODO: TODO DOING BLOCKED | DONE CANCELLED FAILED
+#+TODO_RULES: ../../../../external/rules/projects/byul/todo-rules.org
+#+PUBLIC_API_RULES: ../../../../external/rules/projects/byul/public-api-rules.org
+#+HEADER_DECLARATION_RULES: ../../../../external/rules/projects/byul/header-declaration-rules.org
+#+HEADER_COMMENT_RULES: ../../../../external/rules/projects/byul/header-comment-rules.org
+#+HEADER_AUTHORING_RULES: ../../../../external/rules/projects/byul/header-authoring-rules.org
+#+BUILD_RULES: ../../../../external/rules/projects/byul/build-rules.org
+#+TEST_RULES: ../../../../external/rules/projects/byul/test-rules.org
+#+TODO_PARENT: todo-리팩토링-navsys-headers.org
+#+LANGUAGE: ko
+#+OPTIONS: toc:3 num:nil
+
+* 대상과 기준
+
+- 대상: =maze_wilson.h/.cpp=.
+- primary 기준은 [[https://dl.acm.org/doi/10.1145/237814.237880][Wilson, Generating Random Spanning Trees More Quickly than the Cover Time]]과
+  established implementation인 [[https://www.boost.org/doc/libs/1_48_0/libs/graph/doc/random_spanning_tree.html][Boost.Graph random_spanning_tree]]다.
+- 목표 결과는 rectangular 4-neighbor graph의 uniform spanning tree다. 단순히 random walk를
+  저장하는 것이 아니라 loop-erased random walk임을 구현/검증해야 한다.
+- 공통 status/options/cancellation은
+  [[file:todo-navsys-industry-api-baseline.org][Navsys 업계 API 기준]]을 따르며 아래 signature보다 우선한다.
+
+* Public symbol inventory와 처분
+
+| kind | symbol | disposition |
+|------+--------+-------------|
+| guard macro | =MAZE_WILSON_H= | source macro: ABI 1.x: keep -> ABI-major: internalize; collision-safe guard companion: ABI 1.x: add |
+| function | =maze_make_wilson(int,int,int,int)= | legacy: ABI 1.x: deprecate-forward -> ABI-major: internalize; support path: conformance-block; canonical companion: ABI 1.x: add |
+
+#+begin_src c
+BYUL_API navsys_status_t byul_maze_generate_wilson(
+    int32_t origin_x, int32_t origin_y,
+    uint32_t width, uint32_t height,
+    const byul_maze_generate_options_t* options,
+    maze_t** out_maze);
+#+end_src
+
+* 현행 loop-erasure 감사
+
+| 단계 | 현재 | 위험 |
+|------+-----+------|
+| seed | =mt19937(time(nullptr))= | 재현 불가/동시 호출 seed collision |
+| root | all_cells 중 random 하나를 visited | 적절하나 provenance 없음 |
+| path | =unordered_map<Cell,Cell>= successor overwrite | loop가 생길 때 stale successor를 명시적으로 erase하지 않아 canonical loop-erased path인지 증명/검사가 필요 |
+| walk | 매 step 4 directions shuffle, 첫 valid | 균등 neighbor지만 max step/cancel 없음 |
+| commit | =path[walk]=로 다음 cell 조회 | missing key면 default Cell 삽입 가능; invariant 위반을 숨김 |
+| hash | custom =std::hash<Cell>= | collision 허용은 되나 deterministic iteration에 의존하면 안 됨 |
+| allocation | maze/vector/set/map/hash insert | 모든 failure/exception이 C ABI 밖으로 전파될 수 있음 |
+| test | non-NULL/block count/print | loop erasure, UST, exception barrier를 검사하지 않음 |
+
+* 목표 구현 선택
+
+- current walk를 ordered vector와 =cell -> position= index map으로 유지한다. 재방문 시 해당
+  position 뒤를 즉시 truncate하여 loop erasure를 구조적으로 표현한다.
+- walk가 기존 tree를 만났을 때만 path를 commit한다. commit 전에는 =visited=와 maze output을
+  변경하지 않아 cancel/OOM rollback이 가능해야 한다.
+- C++ allocation/exception은 catch되어 defined negative status로 변환되어야 한다.
+- topology/seed/cancel/step budget은 Aldous-Broder와 같은 공통 options를 사용한다.
+
+* TODO 1단계: loop-erased trace 기준선
+
+** 실행
+
+- 의도적으로 =A-B-C-B-D-tree=를 만드는 RNG stub으로 현 map successor와 canonical truncate를 비교한다.
+- missing successor, self-loop, boundary degree 2/3/4 trace와 allocation graph를 작성한다.
+- current symbol/export/test 소비를 동결한다.
+
+** 완료 조건
+
+- 현 구현의 loop-erasure 정확성이 증명되거나 failing seed로 반증된다.
+- canonical ordered-path representation과 complexity budget이 승인된다.
+
+** 검증
+
+- hand-authored trace에서 commit edge가 simple path이고 기존 tree와 한 점에서만 만나는지 검사한다.
+- UBSan/ASan으로 hash/map failure 경로를 확인한다.
+
+* TODO 2단계: checked seeded API와 exception barrier
+
+** 실행
+
+- target status/out signature, explicit RNG, max steps, cancel을 구현한다.
+- vector/map/set allocation exception과 blocked hash insert 실패를 rollback한다.
+- legacy =maze_make_wilson=을 nondeterministic adapter로 유지한다.
+
+** 완료 조건
+
+- 모든 C entry에서 C++ exception이 탈출하지 않는다.
+- cancel/OOM 시 partial maze가 caller에게 전달되지 않는다.
+
+** 검증
+
+- allocation fault index, cancellation during walk/erase/commit/materialization을 test한다.
+- old/new ABI와 root export를 비교한다.
+
+* TODO 3단계: UST·종료·재현 검증
+
+** 실행
+
+- connectivity, acyclic, edge count, border와 seed golden hash를 검사한다.
+- 작은 graph의 tree 분포를 Wilson primary contract와 통계 비교한다.
+- per-walk/total step counter와 cancel poll 최대 간격을 계측한다.
+
+** 완료 조건
+
+- UST claim, loop erasure와 bounded cancellation이 자동 test로 보호된다.
+- max-step 실패가 unsupported/OOM과 구분된다.
+
+** 검증
+
+- deterministic corpus, statistical suite, sanitizer와 repeated parallel calls를 실행한다.
+
+* TODO 4단계: Header·consumer 통합
+
+** 실행
+
+- license/file Doxygen/BYUL guard와 structured ownership/RNG/error/thread metadata를 적용한다.
+- dispatcher support, static/root/install/wrapper manifest를 일치시킨다.
+
+** 완료 조건
+
+- audit 0 error, declaration/definition/export 1:1과 migration note가 충족된다.
+
+** 검증
+
+- C/C++ standalone compile, native/root/wrapper audit와 clean SDK consumer를 실행한다.
+- module static =BYUL_STATIC=과 root shared =BYUL_EXPORTS=에서 legacy/canonical export를 각각 검증한다.

@@ -1,0 +1,117 @@
+#+TITLE: BYUL Navsys fringe_search.h 정밀 리팩터링 TODO
+#+TODO: TODO DOING BLOCKED | DONE CANCELLED FAILED
+#+TODO_RULES: ../../../../external/rules/projects/byul/todo-rules.org
+#+PUBLIC_API_RULES: ../../../../external/rules/projects/byul/public-api-rules.org
+#+HEADER_DECLARATION_RULES: ../../../../external/rules/projects/byul/header-declaration-rules.org
+#+HEADER_COMMENT_RULES: ../../../../external/rules/projects/byul/header-comment-rules.org
+#+HEADER_AUTHORING_RULES: ../../../../external/rules/projects/byul/header-authoring-rules.org
+#+BUILD_RULES: ../../../../external/rules/projects/byul/build-rules.org
+#+TEST_RULES: ../../../../external/rules/projects/byul/test-rules.org
+#+TODO_PARENT: todo-리팩토링-navsys-headers.org
+#+INDUSTRY_API_BASELINE: todo-navsys-industry-api-baseline.org
+#+AUTHOR: ByulPapa / Codex
+#+LANGUAGE: ko
+#+OPTIONS: toc:t num:nil
+
+* 대상과 원전 기준
+
+대상은 =fringe_search.h/fringe_search.cpp=다. 공통 API는
+[[file:todo-navsys-industry-api-baseline.org][Navsys 업계 API 기준]]에 연결한다.
+Algorithm conformance는 Björnsson/Enzenberger/Holte/Schaeffer의
+[[https://staff.ru.is/yngvi/w_publications.html][Fringe Search 원 저자 publication]] 및 공개 논문
+“Fringe Search: Beating A* at Pathfinding on Game Maps”의 f-limit/f-min, two-list와 cache
+locality 모델을 기준으로 한다.
+
+* 현재 구현/소비 분석
+
+- =find_fringe_search= 하나가 module/root/SDK/generated CFFI/dispatcher에 공개된다.
+- Header는 two priority queue라고 설명하지만 원 알고리즘의 핵심은 정렬 OPEN을 제거한
+  list traversal이다. 구현도 =cost_coord_pq_t= 두 개를 사용해 “Fringe Search” 성능/복잡도
+  주장을 그대로 적용할 수 없다.
+- =delta_epsilon=과 경험적 10x10 권장값은 원전의 stable contract가 아니며 구현은 nonpositive를
+  0.5로 silent 교정한다. Dispatcher/navsys helper 기본은 각각 0.3으로 또 다르다.
+- 내부 =expanded=는 이 round에서 relax가 하나라도 있었는지만 나타낸다. Deferred frontier가
+  남아 있어도 =!expanded=면 종료하여 completeness를 해칠 수 있다.
+- callback userdata가 없고 항상 NULL, =visited= hash는 결과 판단 없이 memory만 소비한다.
+  Nonpositive max_retry는 unlimited인 반면 다른 algorithm은 invalid다.
+
+* 전체 Public Symbol Inventory와 disposition
+
+=FRINGE_SEARCH_H= include guard는 현재 macro inventory에 포함하고 ABI 영향 없이
+=BYUL_NAVSYS_ROUTE_FINDER_FRINGE_SEARCH_H=로 교체한다.
+
+| symbol | 현재 signature | wrapper | disposition |
+|--------+------------------+---------+-------------|
+| =find_fringe_search= | =route_t*(grid,start,goal,cost,heuristic,float delta,int,bool)= | generated CFFI | =ABI 1.x: deprecate-forward; conformance-block -> ABI-major: internalize= |
+
+* 목표 Config와 Signature 후보
+
+#+begin_src c
+typedef struct s_route_finder_fringe_search_config {
+    uint32_t struct_size;
+    float initial_f_limit;
+    float threshold_increment;
+} route_finder_fringe_search_config_t;
+
+BYUL_API navsys_status_t route_finder_bind_fringe_search_config(
+    route_finder_t* finder,
+    const route_finder_fringe_search_config_t* config);
+#+end_src
+
+직접 search 함수보다 opaque finder + typed immutable config + =route_finder_run_ex=를
+canonical로 한다. =threshold_increment=가 원 알고리즘 variant에 필요한지 먼저 검증하고,
+필요 없으면 공개 config에서 제거한다. Empirical 추천은 header가 아니라 benchmark 문서로
+옮긴다.
+
+* TODO 1단계: 이름/원전 Conformance Audit
+
+** 실행
+
+- 현재 signature/export/CFFI, threshold/frontier 전이, early stop와 partial path를 snapshot한다.
+- 원 논문 pseudocode와 구현을 step-by-step trace로 대조하고 priority queue variant가 같은
+  algorithm 이름/보장을 사용할 수 있는지 결정한다.
+- =expanded=false= 조기 종료 반례와 0.3/0.5 default 차이를 재현한다.
+
+** 완료 조건
+
+- “Fringe Search”, custom variant 또는 rename 중 하나가 근거와 함께 승인된다.
+- 한 public symbol과 모든 default/termination state가 기록된다.
+
+** 검증
+
+- 원전 reference implementation과 tiny/benchmark map의 found/cost/expanded 결과를 비교한다.
+
+* TODO 2단계: Correct Algorithm과 typed config
+
+** 실행
+
+- 승인된 two-list/f-limit/f-min 전이를 구현하고 callback userdata/status를 전달한다.
+- config range, finite value, max-expansions/cancel/OOM과 partial semantics를 추가한다.
+- cost/heuristic admissibility에 따른 completeness/optimality claim을 명시한다.
+
+** 완료 조건
+
+- valid input에서 premature stop이 없고 종료 이유와 route owner가 관찰된다.
+- 공개 header에 workload별 추천값이나 근거 없는 “faster than A*” 보장이 없다.
+
+** 검증
+
+- exhaustive grid/reference A*, threshold boundary, NaN/Inf, cancel/OOM과 userdata test를 실행한다.
+
+* TODO 3단계: Legacy forwarding/성능 Gate
+
+** 실행
+
+- legacy function을 typed config + generic run에 forwarding하고 제거 ABI를 기록한다.
+- direct header internalize 전에 CFFI/high-level/SDK consumer를 generic API로 전환한다.
+
+** 완료 조건
+
+- ABI 1 old/new 결과 mapping이 일치하고 ABI 2 public surface가 정리된다.
+- A* 대비 성능 주장은 versioned benchmark의 p50/p95, expanded와 peak memory 근거가 있을 때만 남는다.
+
+** 검증
+
+- static/root/export/wrapper/installed consumer, sanitizer와 versioned benchmark를 실행한다.
+- =module static BYUL_STATIC=와 =root shared BYUL_EXPORTS=를 각각 compile/run하고
+  symbol/export/behavior parity를 비교한다.

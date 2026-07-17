@@ -1,0 +1,232 @@
+#+TITLE: BYUL Navsys maze_core.h 정밀 리팩터링 TODO
+#+TODO: TODO DOING BLOCKED | DONE CANCELLED FAILED
+#+TODO_RULES: ../../../../external/rules/projects/byul/todo-rules.org
+#+PUBLIC_API_RULES: ../../../../external/rules/projects/byul/public-api-rules.org
+#+HEADER_DECLARATION_RULES: ../../../../external/rules/projects/byul/header-declaration-rules.org
+#+HEADER_COMMENT_RULES: ../../../../external/rules/projects/byul/header-comment-rules.org
+#+HEADER_AUTHORING_RULES: ../../../../external/rules/projects/byul/header-authoring-rules.org
+#+BUILD_RULES: ../../../../external/rules/projects/byul/build-rules.org
+#+TEST_RULES: ../../../../external/rules/projects/byul/test-rules.org
+#+TODO_PARENT: todo-리팩토링-navsys-headers.org
+#+LANGUAGE: ko
+#+OPTIONS: toc:3 num:nil
+
+* 대상과 구조 판정
+
+- 대상: =byul/navsys/maze/maze_core.h=과 =maze_core.cpp=.
+- 현재 =maze_t=는 origin/extent와 owning =coord_hash_t*=를 public field로 노출한다.
+- 목표는 업계식 opaque owned handle이다. 다만 field 제거는 binary/source ABI break이므로
+  accessor 기반 additive 이행 후 ABI-major에서만 =typedef struct maze maze_t;=로 전환한다.
+- 내부적으로 obstacle과 중복된 rectangular coordinate-mask engine을 공유할 수 있지만 public
+  maze/obstacle type과 symbol을 합치지 않는다.
+- 공통 status, opaque lifecycle, caller-buffer와 overlay 계약은
+  [[file:todo-navsys-industry-api-baseline.org][Navsys 업계 API 기준]]이 우선한다. 아래
+  =navsys_status_t= signature는 그 공통 결정에 종속된다.
+
+* 현행 구현 불변식 감사
+
+| 영역 | 현행 | 구체 결함 |
+|------+-----+-----------|
+| allocation | =malloc(maze_t)= 후 =coord_hash_create= | hash allocation 실패를 검사하지 않아 반쯤 생성된 handle 반환 |
+| dimensions | 어떤 signed 값도 허용 | generator 요구 odd >=3 및 overflow 계약과 불일치 |
+| clear | blocked set만 비움 | origin/extent 유지 여부는 문서 없음 |
+| copy | 새 hash를 만들었다가 destroy하고 다시 copy | 임시 allocation 낭비, create/copy 실패 dereference 가능 |
+| origin setter | x0/y0 field만 변경 | 이미 저장된 world blocked coordinate를 translate하지 않아 metadata와 payload 분리 |
+| width/height | getter만 있으나 public field로 수정 가능 | blocked 좌표와 bounds invariant를 강제할 수 없음 |
+| blocked getter | borrowed internal hash 반환 | lifetime/invalidation/thread 계약과 안전한 iteration 없음 |
+| apply | navgrid가 작으면 width/height만 확대 | nonzero origin을 무시하고 부분 실패/status가 없으며 기존 terrain을 덮음 |
+| remove | 모든 blocked coordinate를 normal로 설정 | 다른 obstacle/source가 막은 셀까지 제거할 provenance 위험 |
+| equality/hash | origin/extent/hash 결합 | NULL과 hash collision/stability/version 계약 없음 |
+
+* Public symbol inventory와 함수별 처분
+
+| kind | symbol | disposition | target 의미 |
+|------+--------+-------------+-------------|
+| guard macro | =MAZE_CORE_H= | source macro: ABI 1.x: keep -> ABI-major: internalize; collision-safe guard companion: ABI 1.x: add | 기존 guard 관찰 source 보존 |
+| struct tag/layout | =struct s_maze= | layout: ABI 1.x: keep -> ABI-major: abi-major; accessor companion: ABI 1.x: add | ABI-major에서 definition을 private로 이동 |
+| typedef | =maze_t= | ABI 1.x: keep -> ABI-major: keep | 같은 이름의 opaque handle alias 유지 |
+| field | =x0= | ABI 1.x: keep -> ABI-major: internalize; extent accessor companion: ABI 1.x: add | checked origin/extent accessor |
+| field | =y0= | ABI 1.x: keep -> ABI-major: internalize; extent accessor companion: ABI 1.x: add | checked origin/extent accessor |
+| field | =width= | ABI 1.x: keep -> ABI-major: internalize; extent accessor companion: ABI 1.x: add | checked unsigned extent |
+| field | =height= | ABI 1.x: keep -> ABI-major: internalize; extent accessor companion: ABI 1.x: add | checked unsigned extent |
+| field | =blocked= | ABI 1.x: keep -> ABI-major: internalize; snapshot companion: ABI 1.x: add | internal owning coordinate set |
+| function | =maze_create()= | legacy: ABI 1.x: deprecate-forward -> ABI-major: internalize; checked companion: ABI 1.x: add | prototype를 =(void)=로 고정; empty mask 생성 의미 문서화 |
+| function | =maze_create_full= | legacy: ABI 1.x: deprecate-forward -> ABI-major: internalize; checked companion: ABI 1.x: add | checked status/out create로 forwarding |
+| function | =maze_destroy= | ABI 1.x: keep -> ABI-major: keep | NULL no-op, paired allocator |
+| function | =maze_clear= | ABI 1.x: keep -> ABI-major: keep | extent/origin 유지, content만 clear |
+| function | =maze_copy= | legacy: ABI 1.x: deprecate-forward -> ABI-major: internalize; checked companion: ABI 1.x: add | deep copy 및 callback/RNG state 포함 여부 명시 |
+| function | =maze_equal= | ABI 1.x: keep -> ABI-major: keep | value equality; NULL semantics 명시 |
+| function | =maze_hash= | ABI 1.x: keep -> ABI-major: keep | process-local hash; persistence 금지 |
+| function | =maze_set_origin= | legacy: ABI 1.x: deprecate-forward -> ABI-major: internalize; translate companion: ABI 1.x: add | metadata-only reset이 아닌 checked translate로 분리 |
+| function | =maze_get_origin= | legacy: ABI 1.x: deprecate-forward -> ABI-major: internalize; extent companion: ABI 1.x: add | status + required output로 대체 |
+| function | =maze_get_width= | legacy: ABI 1.x: deprecate-forward -> ABI-major: internalize; extent companion: ABI 1.x: add | null sentinel 대신 status extent query 추가 |
+| function | =maze_get_height= | legacy: ABI 1.x: deprecate-forward -> ABI-major: internalize; extent companion: ABI 1.x: add | null sentinel 대신 status extent query 추가 |
+| function | =maze_get_blocked_coords= | legacy: ABI 1.x: keep -> ABI-major: internalize; snapshot companion: ABI 1.x: add | raw borrowed container 대신 count/fetch/visitor |
+| function | =maze_apply_to_navgrid= | legacy: ABI 1.x: deprecate-forward -> ABI-major: internalize; overlay companion: ABI 1.x: add | merge policy/status/change count/overlay token API |
+| function | =maze_remove_from_navgrid= | legacy: ABI 1.x: deprecate-forward -> ABI-major: internalize; overlay companion: ABI 1.x: add | provenance token으로 자신이 적용한 delta만 제거 |
+
+* 업계 관행 비교
+
+- [[https://www.sqlite.org/c3ref/sqlite3.html][SQLite connection handle]]은 =typedef struct sqlite3 sqlite3= 형태의 opaque object와
+  명시적 constructor/destructor를 사용한다. public owning hash field는 이 ABI 안정성 관행과 반대다.
+- [[https://recastnav.com/classdtNavMeshQuery][Detour query API]]는 status와 caller buffer/capacity, partial/buffer-too-small을 명시한다.
+  raw internal hash를 빌려 주는 대신 count/fetch API가 필요하다.
+- [[https://docs.godotengine.org/en/stable/classes/class_astargrid2d.html][Godot AStarGrid2D]]는 region, solid state, update와 query를 구분하고 diagonal 정책도
+  명시한다. maze apply가 navgrid 크기를 몰래 바꾸는 동작은 분리해야 한다.
+
+* 목표 API 검토안
+
+#+begin_src c
+typedef struct byul_maze_extent {
+    int32_t origin_x;
+    int32_t origin_y;
+    uint32_t width;
+    uint32_t height;
+} byul_maze_extent_t;
+
+BYUL_API navsys_status_t byul_maze_create(
+    const byul_maze_extent_t* extent, maze_t** out_maze);
+BYUL_API navsys_status_t byul_maze_get_extent(
+    const maze_t* maze, byul_maze_extent_t* out_extent);
+BYUL_API navsys_status_t byul_maze_translate(
+    maze_t* maze, int32_t delta_x, int32_t delta_y);
+BYUL_API navsys_status_t byul_maze_get_blocked_count(
+    const maze_t* maze, size_t* out_count);
+BYUL_API navsys_status_t byul_maze_fetch_blocked(
+    const maze_t* maze, coord_t* buffer, size_t capacity, size_t* out_count);
+BYUL_API navsys_status_t byul_maze_apply(
+    const maze_t* maze, navgrid_t* grid,
+    byul_navgrid_merge_policy_t policy,
+    byul_navgrid_overlay_id_t* out_overlay,
+    size_t* out_changed_count);
+BYUL_API navsys_status_t byul_maze_remove_overlay(
+    navgrid_t* grid, byul_navgrid_overlay_id_t overlay,
+    size_t* out_changed_count);
+#+end_src
+
+=fetch=는 capacity가 작아도 required count를 반환하고 destination beyond-count를 건드리지
+않는다. =translate=는 overflow 때 원본을 보존한다. apply는 all-or-nothing 또는 명시적
+partial-result flag 중 하나를 택한다. overlay token은 navgrid 생존 기간에만 유효하다.
+
+* Storage·copy·thread 계약 목표
+
+| 계약 | 목표 |
+|------+------|
+| zero | public opaque handle에는 zero-init 사용 금지; =NULL=만 empty handle |
+| create/destroy | library allocation은 =maze_destroy=만 해제 |
+| copy | origin/extent/blocked set deep copy, source와 독립 mutation |
+| borrowed data | 신규 API는 internal =coord_hash_t*=를 반환하지 않음 |
+| invalidation | mutation 후 이전 iterator/view/overlay 준비 상태의 유효성 명시 |
+| thread | 서로 다른 handle은 병렬 사용 가능; 같은 mutable handle은 외부 동기화 |
+| hash | 동일 process/version 내 equality와 일치; 저장·network ABI fingerprint로 사용 금지 |
+| layout | ABI-major 전 size/align/offset fixture 보존; 이후 opaque size query 불필요 |
+
+* TODO 1단계: layout·ownership·consumer 기준선
+
+** 실행
+
+- =sizeof/alignof/offsetof=와 5개 field, enum/compiler packing을 platform별 snapshot한다.
+- repository의 =maze->field= direct access를 generator별로 목록화한다.
+- create/copy/destroy/apply/remove allocation graph와 root export를 기록한다.
+
+** 완료 조건
+
+- field consumer가 repository/internal/external fixture로 분류되고 ABI-major 차단 gate가 있다.
+- allocation failure injection으로 현재 half-initialized/copy failure가 재현된다.
+
+** 검증
+
+- ABI fixture, symbol/signature diff, ASan/LSan failure path test를 실행한다.
+- C17/C++17 legacy field consumer를 build한다.
+
+* TODO 2단계: extent와 좌표 invariant 확정
+
+** 실행
+
+- world coordinate와 local lattice를 구분하고 half-open extent, signed overflow 정책을 정한다.
+- =set_origin=을 metadata reset이 아니라 translate로 정의하거나 두 API로 분리한다.
+- width/height 0, even, negative의 core 허용 범위와 generator 제한을 분리한다.
+
+** 완료 조건
+
+- 모든 blocked coordinate가 extent 안/밖일 수 있는지와 border 의미가 하나의 invariant로 고정된다.
+- translate/resize failure가 object를 부분 변경하지 않는다.
+
+** 검증
+
+- nonzero/negative origin, =INT32_MIN/MAX= 인접, empty extent와 translate round-trip을 test한다.
+- equality/hash가 translate 및 deep copy 계약과 일치하는지 검사한다.
+
+* TODO 3단계: checked lifecycle와 enumeration API
+
+** 실행
+
+- status/out create, extent query, count/fetch를 additive 구현한다.
+- 모든 allocation 단계 rollback과 copy failure strong guarantee를 구현한다.
+- 기존 getters/copy/create를 새 API adapter로 바꾸되 symbol은 보존한다.
+
+** 완료 조건
+
+- OOM/NULL/undersized buffer가 구분되고 실패 시 output/object는 약속한 상태를 유지한다.
+- raw blocked getter 없이 신규 consumer가 모든 coordinate를 열거할 수 있다.
+
+** 검증
+
+- allocator fault index별 create/copy/fetch test와 sanitizer를 실행한다.
+- count-only, exact, undersized, zero-capacity fetch를 검사한다.
+
+* TODO 4단계: navgrid apply/remove provenance
+
+** 실행
+
+- overwrite/only-empty/preserve-terrain merge policy와 out-of-bounds 정책을 정의한다.
+- apply가 navgrid extent를 자동 변경하지 않게 하거나 explicit resize option으로 분리한다.
+- overlay/token 또는 before-image 방식으로 다른 source의 cell을 보존한다.
+- cancellation과 large maze partial mutation/rollback을 정한다.
+
+** 완료 조건
+
+- 같은 cell에 maze 두 개와 obstacle 하나를 겹친 뒤 임의 순서로 제거해도 남은 source가 유지된다.
+- changed count와 실제 delta가 정확히 일치한다.
+
+** 검증
+
+- overlapping overlay, custom terrain, nonzero origin, bounded/unbounded grid test를 실행한다.
+- mid-apply allocation/cancel failure와 rollback을 fault injection으로 검사한다.
+
+* TODO 5단계: additive accessor 이행
+
+** 실행
+
+- 모든 generator/source/test를 field access 대신 accessor/internal private representation으로 전환한다.
+- legacy public layout은 ABI-major 전까지 동일하게 유지하고 field deprecation 문서를 게시한다.
+- wrapper 등록/제외와 SDK example을 신규 API로 갱신한다.
+
+** 완료 조건
+
+- repository public consumer의 direct field access가 0이고 legacy fixture만 의도적으로 남는다.
+- old/new API가 동일 semantic maze를 생성한다.
+
+** 검증
+
+- legacy layout/source consumer와 new opaque-ready consumer를 같이 build/run한다.
+- wrapper audit/check/load와 root export inventory를 검사한다.
+
+* TODO 6단계: ABI-major opaque 전환과 header gate
+
+** 실행
+
+- 승인된 ABI-major에서 struct definition을 private header로 옮기고 public forward declaration만 둔다.
+- 표준 license, file Doxygen, =BYUL_= guard, direct includes와 structured metadata를 적용한다.
+- migration/release note와 compatibility package 종료 조건을 기록한다.
+
+** 완료 조건
+
+- SDK header에 owning pointer/layout이 없고 internal source만 definition을 본다.
+- static/root source inventory, exports, wrapper와 install header가 승인 manifest와 일치한다.
+
+** 검증
+
+- C/C++ standalone compile, ABI/export checker, clean SDK consumer와 sanitizer를 실행한다.
+- Windows/Linux/macOS layout fixture와 ABI-major rejection diagnostic을 검사한다.
+- module static =BYUL_STATIC=과 root shared =BYUL_EXPORTS=에서 lifecycle/overlay symbol을 각각 검증한다.

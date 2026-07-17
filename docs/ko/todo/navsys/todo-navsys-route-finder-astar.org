@@ -1,0 +1,123 @@
+#+TITLE: BYUL Navsys astar.h 정밀 리팩터링 TODO
+#+TODO: TODO DOING BLOCKED | DONE CANCELLED FAILED
+#+TODO_RULES: ../../../../external/rules/projects/byul/todo-rules.org
+#+PUBLIC_API_RULES: ../../../../external/rules/projects/byul/public-api-rules.org
+#+HEADER_DECLARATION_RULES: ../../../../external/rules/projects/byul/header-declaration-rules.org
+#+HEADER_COMMENT_RULES: ../../../../external/rules/projects/byul/header-comment-rules.org
+#+HEADER_AUTHORING_RULES: ../../../../external/rules/projects/byul/header-authoring-rules.org
+#+BUILD_RULES: ../../../../external/rules/projects/byul/build-rules.org
+#+TEST_RULES: ../../../../external/rules/projects/byul/test-rules.org
+#+TODO_PARENT: todo-리팩토링-navsys-headers.org
+#+INDUSTRY_API_BASELINE: todo-navsys-industry-api-baseline.org
+#+AUTHOR: ByulPapa / Codex
+#+LANGUAGE: ko
+#+OPTIONS: toc:t num:nil
+
+* 대상과 비교 기준
+
+대상은 =byul/navsys/route_finder/astar.h=와 =astar.cpp=다. 공통 API 형태는
+[[file:todo-navsys-industry-api-baseline.org][Navsys 업계 API 기준]]을 따른다.
+[[https://www.boost.org/doc/libs/latest/libs/graph/doc/astar_search.html][Boost.Graph A*]]의
+non-negative weight, distance/predecessor map, visitor event와 complexity 계약 및
+[[https://doi.org/10.1109/TSSC.1968.300136][Hart/Nilsson/Raphael 원 논문]]의 admissible/
+consistent heuristic 조건을 correctness 기준으로 사용한다.
+
+* 현재 구현/소비 분석
+
+- module static/root shared/SDK install과 generated CFFI =route_finder.py=가 이 header의
+  유일한 함수를 공개 ABI로 소비한다. High-level wrapper는 직접 호출하지 않고 dispatcher를
+  경유한다.
+- 구현은 cost/heuristic userdata를 받을 parameter 자체가 없어 항상 =nullptr=를 전달한다.
+- =max_retry <= 0=, NULL input은 모두 NULL을 반환해 invalid/limit/OOM을 구분하지 못한다.
+- 예산 소진 시 마지막 pop node까지 partial route를 만들지만 header에는 endpoint,
+  optimality와 ownership 외에 종료 이유가 없다. =route.cost=도 계산하지 않는다.
+- 기본 =default_cost=는 8방향 모두 1이고 기본 Euclidean heuristic은 대각선 한 step의 실제
+  cost 1보다 sqrt(2)를 추정한다. 8방향 grid에서 heuristic이 과대평가되어 현재 default의
+  최단 cost 보장은 성립하지 않는다.
+- negative/NaN/Inf cost, inconsistent heuristic, stale queue entry, OOM과 callback failure를
+  검사하지 않는다. =new/delete=와 BYUL destroy family도 혼용한다.
+
+* 전체 Public Symbol Inventory와 disposition
+
+=ASTAR_H= include guard는 현재 macro inventory에 포함하고 ABI 영향 없이
+=BYUL_NAVSYS_ROUTE_FINDER_ASTAR_H=로 교체한다.
+
+| 현재 symbol | 현재 signature | wrapper | disposition |
+|-------------+------------------+---------+-------------|
+| =find_astar= | =route_t*(grid,start,goal,cost_fn,heuristic_fn,int,bool)= | generated CFFI 등록 | =ABI 1.x: deprecate-forward; companion: add -> ABI-major: internalize= |
+
+=find_astar=는 unprefixed root DLL symbol이다. ABI 1에서는 유지하되 canonical generic
+=route_finder_run_ex= 또는 아래 explicit adapter를 호출하게 하고 ABI 2에서 direct algorithm
+header를 SDK에서 제외한다.
+
+* 목표 Signature 후보
+
+#+begin_src c
+BYUL_API navsys_status_t route_finder_find_astar_ex(
+    const navgrid_t* grid,
+    const coord_t* start,
+    const coord_t* goal,
+    const route_finder_evaluation_view_t* evaluation,
+    const navsys_search_options_t* options,
+    route_t** out_route,
+    navsys_search_stats_t* out_stats);
+#+end_src
+
+- =evaluation=은 cost/heuristic와 각 userdata의 call-only view다. Finder에 bind한 형태를
+  canonical으로 선택하면 explicit 함수는 제공하지 않고 generic run만 공개한다.
+- status는 complete/no-path/partial/limit/cancel/callback/numeric/OOM을 구분한다.
+- 최적성은 모든 edge cost가 finite/non-negative이고 heuristic이 같은 unit에서 admissible,
+  graph-search 재개방 정책과 consistent 조건을 만족할 때만 주장한다.
+- =out_route=는 usable outcome에서 caller-owned이고 =route_destroy=로 해제한다.
+
+* TODO 1단계: Legacy 동작과 optimality 기준선
+
+** 실행
+
+- 현재 signature/export/CFFI와 NULL, budget, partial endpoint, queue tie order를 snapshot한다.
+- 4/8방향 tiny grid를 reference Dijkstra와 비교해 기본 heuristic 과대평가 반례를 고정한다.
+- userdata 미전달, negative/NaN/Inf와 allocation failure test를 먼저 추가한다.
+
+** 완료 조건
+
+- legacy 결과와 실제 보장 범위가 fixture로 분리되고 성공 bool만으로 optimal을 주장하지 않는다.
+- 현재 한 symbol의 source/export/wrapper 소비가 모두 설명된다.
+
+** 검증
+
+- exhaustive tiny grid cost/adjacency/endpoint와 callback sentinel test를 실행한다.
+
+* TODO 2단계: Status형 A*와 평가 계약 구현
+
+** 실행
+
+- prefixed status형 entry 또는 generic dispatcher adapter를 구현한다.
+- callback userdata, failure, finite/non-negative cost와 heuristic unit을 검증한다.
+- expansions/generated/reopened/peak-open/final-cost와 종료 이유를 stats에 기록한다.
+
+** 완료 조건
+
+- invalid/no-path/limit/cancel/OOM/callback failure가 충돌하지 않는다.
+- admissible fixture에서는 reference 최단 cost와 같고 partial route의 보장이 명시된다.
+
+** 검증
+
+- inconsistent/admissible/zero heuristic, reopen, tie, cancel/OOM 경계 test를 실행한다.
+
+* TODO 3단계: Legacy forwarding과 배포 Gate
+
+** 실행
+
+- =find_astar=를 canonical 구현으로 forwarding하고 deprecation/removal ABI를 기록한다.
+- direct header를 compatibility forwarding으로 만든 뒤 wrapper와 SDK internalize 시점을 정한다.
+
+** 완료 조건
+
+- old/new consumer가 ABI 1에서 같은 route/status mapping을 얻는다.
+- ABI 2 public surface에는 승인된 generic query API만 남는다.
+
+** 검증
+
+- module/root/export, C17/C++17 old/new consumer, wrapper audit/load와 sanitizer를 실행한다.
+- =module static BYUL_STATIC=와 =root shared BYUL_EXPORTS=를 각각 compile/run하고
+  symbol/export/behavior parity를 비교한다.

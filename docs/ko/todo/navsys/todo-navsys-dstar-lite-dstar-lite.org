@@ -1,0 +1,523 @@
+#+TITLE: BYUL Navsys dstar_lite.h 정밀 리팩토링 TODO
+#+TODO: TODO DOING BLOCKED | DONE CANCELLED FAILED
+#+TODO_RULES: ../../../../external/rules/projects/byul/todo-rules.org
+#+PUBLIC_API_RULES: ../../../../external/rules/projects/byul/public-api-rules.org
+#+HEADER_DECLARATION_RULES: ../../../../external/rules/projects/byul/header-declaration-rules.org
+#+HEADER_COMMENT_RULES: ../../../../external/rules/projects/byul/header-comment-rules.org
+#+HEADER_AUTHORING_RULES: ../../../../external/rules/projects/byul/header-authoring-rules.org
+#+BUILD_RULES: ../../../../external/rules/projects/byul/build-rules.org
+#+TEST_RULES: ../../../../external/rules/projects/byul/test-rules.org
+#+TODO_PARENT: todo-리팩토링-navsys-headers.org
+#+AUTHOR: ByulPapa / Codex
+#+LANGUAGE: ko
+#+OPTIONS: toc:t num:nil
+
+* Build compile-definition 불변식
+
+- D* Lite module static은 =BYUL_STATIC=으로 algorithm source/header를 컴파일한다.
+- root shared는 동일 inventory를 =BYUL_EXPORTS=로 재컴파일·export한다. module static test와
+  root runtime/export/wrapper load는 서로 독립된 release gate다.
+
+* 문서 책임과 최종 방향
+
+=byul/navsys/dstar_lite/dstar_lite.h= 하나의 공개 ABI, D* Lite 알고리즘 구현, callback,
+동적 재계획과 wrapper를 전수 재설계한다. 공통 C ABI는
+[[file:todo-navsys-industry-api-baseline.org][Navsys 업계 API 기준]]을 따른다. 목표는 다음 세 층을 분리하는 것이다.
+
+- public planner: opaque lifecycle, config/binding, edge change 통지, non-blocking replan,
+  route/result/stats/cancel.
+- internal algorithm: g/rhs/open list, CalculateKey/UpdateVertex/ComputeShortestPath와 route
+  reconstruction.
+- orchestration: 이동, sleep/interval, changed-source polling과 tick 등록. core planner에서
+  제거하고 =dstar_lite_tick= 또는 application 층이 담당한다.
+
+* 현재 build와 ABI 위치
+
+- 선언/정의: =dstar_lite.h= / =dstar_lite.cpp=.
+- =dstar_lite/CMakeLists.txt=는 module static과 root shared 양쪽에 source를 넘긴다. root
+  shared만 public runtime이고 두 target의 source/header inventory는 동일해야 한다.
+- header는 =navgrid/coord/list/hash/route/key/pqueue/route_finder=를 직접 포함하며 내부
+  storage type까지 public include DAG로 끌어온다.
+- handwritten Python =c_dstar_lite=가 있으나 선언과 실제 호출이 크게 어긋난다.
+- public =dstar_lite_t= layout은 모든 state/owning pointer/callback/userdata/counter/bool을
+  노출하므로 field 추가/재배치조차 ABI를 깨뜨린다. ABI 2에서 opaque로 전환한다.
+
+* 업계·원 논문 기준
+
+- [[https://publications.ri.cmu.edu/d-lite][Koenig/Likhachev D* Lite publication]] 및
+  [[https://www.cs.cmu.edu/~motionplanning/papers/sbp_papers/integrated3/koenig_dstarlite_aaai02b.pdf][원 논문 알고리즘]]을 canonical reference로 둔다.
+- 원 논문 Initialize는 =rhs(goal)=0 뒤 =goal=을 =CalculateKey(goal)=로 open list에 넣는다.
+- =ComputeShortestPath= loop 조건은 =TopKey < CalculateKey(start)= 또는
+  =rhs(start) != g(start)=이다. pop 전 =k_old=를 저장하고 =k_old < CalculateKey(u)=이면
+  updated key로 재삽입한다.
+- robot start가 이동하면 =km += h(s_last,s_start)=, =s_last=s_start=, 변경된 directed
+  edge와 predecessor를 갱신한 뒤 재계획한다.
+- public API는 SQLite/libuv/Vulkan류 opaque lifecycle, atomic callback+userdata,
+  explicit status/options/result, cooperative cancellation과 caller-visible stats를 적용한다.
+
+* 현행 public type/layout 전수 처분
+
+| 선언/field | 현재 역할/결함 | 처분 |
+|-----------+----------------+------|
+| =move_func= | prefix 없는 void callback, failure 없음 | abi-major |
+| =changed_coords_func= | prefix 없는 owned list 반환 callback | abi-major |
+| =dstar_lite_t= | 모든 구현 state가 공개된 struct | abi-major |
+| =navgrid= | borrow/deep-copy/destroy 정책 불일치 | abi-major |
+| =start=, =goal= | 직접 변경 시 invariant 우회 | abi-major |
+| =cost_fn=, =cost_fn_userdata= | 별도 field/별도 setter | abi-major |
+| =heuristic_fn=, =heuristic_fn_userdata= | 별도 field/별도 setter | abi-major |
+| =max_retry=, =debug_mode_enabled= | global mutable 실행 설정 | abi-major |
+| =km= | algorithm internal state | ABI 1.x: keep -> ABI-major: internalize |
+| =g_table=, =rhs_table= | raw generic owning map | ABI 1.x: keep -> ABI-major: internalize |
+| =frontier= | raw owning open list | ABI 1.x: keep -> ABI-major: internalize |
+| =move_fn=, =move_fn_userdata= | orchestration callback | ABI 1.x: keep -> ABI-major: internalize |
+| =changed_coords_fn=, =changed_coords_fn_userdata= | polling/orchestration callback | ABI 1.x: keep -> ABI-major: internalize |
+| =proto_route=, =real_route= | owning cache, 공개 lifetime 불명 | ABI 1.x: keep -> ABI-major: internalize |
+| 모든 retry max/count field | limit와 stats 혼합 | ABI 1.x: keep -> ABI-major: internalize |
+| =max_range= | 좌표 반경 근사, edge change 모델 아님 | ABI 1.x: keep -> ABI-major: internalize |
+| =interval_sec= | blocking loop timing | ABI 1.x: keep -> ABI-major: internalize |
+| =force_quit= | non-atomic cross-thread bool | ABI 1.x: keep -> ABI-major: internalize |
+
+ABI 1에서는 layout을 그대로 보존하고 field access deprecation/migration accessor를 제공한다.
+ABI 2에서만 =typedef struct s_dstar_lite dstar_lite_t;=로 바꾼다.
+
+* 현행 함수 전수 목록과 처분: 기본 함수와 lifecycle
+
+| 함수 | 현재 의미/결함 | 처분 |
+|------+----------------+------|
+| =dstar_lite_cost= | float/FLT_MAX builtin, callback failure 없음 | deprecate-forward |
+| =dstar_lite_dynamic_cost= | userdata를 coord hash로 암묵 cast | deprecate-forward |
+| =dstar_lite_heuristic= | float builtin heuristic | deprecate-forward |
+| =move_to= | prefix 없는 stdout/debug성 default move | deprecate-forward |
+| =get_changed_coord= | prefix 없는 새 owned list 반환 | deprecate-forward |
+| =get_changed_coords= | 입력 list 복제/owner 불명 | deprecate-forward |
+| =dstar_lite_create= | navgrid lifetime/OOM status 없음 | deprecate-forward |
+| =dstar_lite_create_full= | start/goal NULL 검증과 callback userdata 없음 | deprecate-forward |
+| =dstar_lite_destroy= | planner 종결 | keep |
+| =dstar_lite_copy= | navgrid deep-copy leak, callback userdata shallow copy | deprecate-forward |
+| =dstar_lite_reset= | 보존/초기화 state와 실패가 불명 | deprecate-forward |
+| =dstar_lite_init= | created object의 algorithm init, void | ABI 1.x: deprecate-forward; conformance-block -> ABI-major: internalize |
+
+* 현행 함수 전수 목록과 처분: configuration/query
+
+| 함수 | 현재 의미/결함 | 처분 |
+|------+----------------+------|
+| =dstar_lite_fetch_start= | int success, output 계약 불명 | deprecate-forward |
+| =dstar_lite_set_start= | invariant/reset 없이 void 변경 | deprecate-forward |
+| =dstar_lite_fetch_goal= | int success, output 계약 불명 | deprecate-forward |
+| =dstar_lite_set_goal= | invariant/reset 없이 void 변경 | deprecate-forward |
+| =dstar_lite_get_g_table= | mutable internal borrowed map 노출 | ABI 1.x: keep -> ABI-major: internalize |
+| =dstar_lite_get_rhs_table= | mutable internal borrowed map 노출 | ABI 1.x: keep -> ABI-major: internalize |
+| =dstar_lite_get_frontier= | mutable internal queue 노출 | ABI 1.x: keep -> ABI-major: internalize |
+| =dstar_lite_set_frontier= | 기존 destroy 후 incoming adopt, self-UAF 가능 | ABI 1.x: keep -> ABI-major: internalize |
+| =dstar_lite_get_km= | internal algorithm state query | ABI 1.x: keep -> ABI-major: internalize |
+| =dstar_lite_set_km= | invariant 우회 | ABI 1.x: keep -> ABI-major: internalize |
+| =dstar_lite_get_max_range= | 비이론적 변경 좌표 반경 | deprecate-forward |
+| =dstar_lite_set_max_range= | 음수/실패 검증 없음 | deprecate-forward |
+| =dstar_lite_get_real_loop_max_retry= | orchestration limit | ABI 1.x: keep -> ABI-major: internalize |
+| =dstar_lite_set_real_loop_max_retry= | void/음수 검증 없음 | ABI 1.x: keep -> ABI-major: internalize |
+| =dstar_lite_real_loop_retry_count= | run stats field | deprecate-forward |
+| =dstar_lite_get_max_retry= | compute limit 이름 불명 | deprecate-forward |
+| =dstar_lite_set_max_retry= | void/partial state | deprecate-forward |
+| =dstar_lite_proto_compute_retry_count= | phase-specific mutable counter | deprecate-forward |
+| =dstar_lite_real_compute_retry_count= | phase-specific mutable counter | deprecate-forward |
+| =dstar_lite_get_reconstruct_max_retry= | route length/limit 혼합 | deprecate-forward |
+| =dstar_lite_set_reconstruct_max_retry= | void limit 변경 | deprecate-forward |
+| =dstar_lite_reconstruct_retry_count= | phase-specific counter | deprecate-forward |
+| =dstar_lite_is_debug_mode_enabled= | core mutable debug flag | deprecate-forward |
+| =dstar_lite_enable_debug_mode= | logging sink 없는 global mode | deprecate-forward |
+| =dstar_lite_get_navgrid= | borrowed grid lifetime 불명 | deprecate-forward |
+| =dstar_lite_set_navgrid= | adopt/borrow/reset semantics 불명 | deprecate-forward |
+| =dstar_lite_get_proto_route= | borrowed internal route | deprecate-forward |
+| =dstar_lite_get_real_route= | borrowed internal route | deprecate-forward |
+| =dstar_lite_get_interval_sec= | receiver const 불일치, blocking loop 설정 | ABI 1.x: keep -> ABI-major: internalize |
+| =dstar_lite_set_interval_sec= | sleep 기반 orchestration | ABI 1.x: keep -> ABI-major: internalize |
+
+* 현행 함수 전수 목록과 처분: callback binding
+
+| 함수 | 현재 의미/결함 | 처분 |
+|------+----------------+------|
+| =dstar_lite_get_cost_func= | function pointer 단독 query | deprecate-forward |
+| =dstar_lite_set_cost_func= | userdata와 분리된 partial binding | deprecate-forward |
+| =dstar_lite_get_cost_func_userdata= | userdata 단독 query | deprecate-forward |
+| =dstar_lite_set_cost_func_userdata= | callback과 분리된 partial binding | deprecate-forward |
+| =dstar_lite_get_heuristic_func= | function pointer 단독 query | deprecate-forward |
+| =dstar_lite_set_heuristic_func= | userdata와 분리 | deprecate-forward |
+| =dstar_lite_get_heuristic_func_userdata= | receiver const 일관성도 없음 | deprecate-forward |
+| =dstar_lite_set_heuristic_func_userdata= | callback과 분리 | deprecate-forward |
+| =dstar_lite_get_move_func= | orchestration callback query | ABI 1.x: keep -> ABI-major: internalize |
+| =dstar_lite_set_move_func= | userdata와 분리, failure 없음 | ABI 1.x: keep -> ABI-major: internalize |
+| =dstar_lite_get_move_func_userdata= | orchestration userdata query | ABI 1.x: keep -> ABI-major: internalize |
+| =dstar_lite_set_move_func_userdata= | callback과 분리 | ABI 1.x: keep -> ABI-major: internalize |
+| =dstar_lite_get_changed_coords_func= | owned-list polling callback query | ABI 1.x: keep -> ABI-major: internalize |
+| =dstar_lite_set_changed_coords_func= | userdata와 분리 | ABI 1.x: keep -> ABI-major: internalize |
+| =dstar_lite_get_changed_coords_func_userdata= | polling userdata query | ABI 1.x: keep -> ABI-major: internalize |
+| =dstar_lite_set_changed_coords_func_userdata= | callback과 분리 | ABI 1.x: keep -> ABI-major: internalize |
+
+* 현행 함수 전수 목록과 처분: algorithm와 execution
+
+| 함수 | 현재 의미/결함 | 처분 |
+|------+----------------+------|
+| =dstar_lite_calc_key= | heap key 반환, internal state 의존 | ABI 1.x: deprecate-forward; conformance-block -> ABI-major: internalize |
+| =dstar_lite_update_vertex= | core primitive public/void | ABI 1.x: deprecate-forward; conformance-block -> ABI-major: internalize |
+| =dstar_lite_update_vertex_range= | 변경 edge 대신 좌표 반경 근사 | ABI 1.x: deprecate-forward; conformance-block -> ABI-major: internalize |
+| =dstar_lite_update_vertex_auto_range= | 위 config 기반 근사 | ABI 1.x: deprecate-forward; conformance-block -> ABI-major: internalize |
+| =dstar_lite_compute_shortest_route= | void, 원 논문 loop divergence | ABI 1.x: deprecate-forward; conformance-block -> ABI-major: internalize |
+| =dstar_lite_reconstruct_route= | bool인데 wrapper가 pointer로 오해 | ABI 1.x: deprecate-forward; conformance-block -> ABI-major: internalize |
+| =dstar_lite_find= | owned route 또는 NULL, 원인 없음 | deprecate-forward |
+| =dstar_lite_find_full= | blocking orchestration, void | deprecate-forward |
+| =dstar_lite_find_proto= | bool phase API | deprecate-forward |
+| =dstar_lite_find_loop= | sleep/poll/move/leak가 결합된 void loop | ABI 1.x: deprecate-forward; conformance-block -> ABI-major: internalize |
+| =dstar_lite_update_vertex_by_route= | header/source const mismatch | ABI 1.x: deprecate-forward; conformance-block -> ABI-major: internalize |
+| =dstar_lite_force_quit= | non-atomic cancellation write | deprecate-forward |
+| =dstar_lite_is_quit_forced= | non-atomic state read | deprecate-forward |
+| =dstar_lite_set_force_quit= | 세 번째 cancel vocabulary | deprecate-forward |
+| =dstar_lite_fetch_next= | userdata 대신 visited_count를 넘김 | ABI 1.x: deprecate-forward; conformance-block -> ABI-major: internalize |
+
+위 표는 이 header의 type, 공개 field와 73개 함수 선언 전체를 대상으로 한다. 새 opaque
+lifecycle/bind/notify/replan/stats/cancel API는 모두 =add=다.
+
+* 구현과 원 논문의 구체적 차이
+
+** Initialize와 key
+
+- 현재 init은 =start=의 key를 계산하고 그 key로 =goal=을 push한다. 원 논문은
+  =CalculateKey(goal)=을 push한다.
+- g/rhs default infinity와 goal rhs=0, open-list uniqueness를 init 후 invariant로 검사한다.
+- approximate D* key equality를 termination/open-list ordering에 쓰지 않는다.
+
+** ComputeShortestPath
+
+- 현재 구현은 pop 전 저장된 =k_old=를 보존하지 않고 pop 뒤 key를 다시 계산한다.
+- =k_old < CalculateKey(u)=이면 새 key로 재삽입하는 원 논문 분기가 빠져 있다.
+- loop guard가 =TopKey < CalculateKey(start) || rhs(start) != g(start)=와 동일한지 각
+  sub-condition을 독립 test한다.
+- retry count로 알고리즘 종료를 성공처럼 숨기지 않고 =LIMIT_REACHED=와 stats를 반환한다.
+
+** 변경 통지와 이동
+
+- D* Lite 이론 입력은 방향 있는 edge cost 변화다. 현재 =changed coord + max_range=는 어떤
+  edge가 old/new cost로 바뀌었는지 표현하지 못해 증분 보장을 주장할 수 없다.
+- start 이동마다 이전 start 기준 heuristic으로 km를 증가시키고 stored start를 원자적으로
+  갱신해야 한다. 현행 normal loop는 local start만 움직여 km/reference가 stale하다.
+- core는 sleep/move callback/poll changed list를 하지 않는다. application이 explicit edge
+  update와 새 start를 전달하고 =replan=을 호출한다.
+
+** reconstruction과 result
+
+- 현행 reconstruct는 retry limit 전에 goal에 도달하지 않아도 성공으로 표시할 수 있다.
+- =(0,0)= sentinel로 predecessor 부재를 표현해 정상 좌표와 충돌한다.
+- =find=는 reconstruct bool을 무시하고 =find_full/find_loop=는 결과/status가 없다.
+- canonical result는 =OK/NO_PATH/CANCELLED/LIMIT_REACHED/CALLBACK_FAILED=를 구분하고
+  owned route와 stats의 유효 조건을 명시한다.
+
+* 목표 public type와 callback 초안
+
+#+begin_src c
+typedef struct s_dstar_lite dstar_lite_t;
+
+typedef navsys_status_t (*dstar_lite_cost_callback_t)(
+    const navgrid_t* grid,
+    const coord_t* from,
+    const coord_t* to,
+    float* out_cost,
+    void* userdata);
+
+typedef navsys_status_t (*dstar_lite_heuristic_callback_t)(
+    const coord_t* from,
+    const coord_t* to,
+    float* out_estimate,
+    void* userdata);
+
+typedef struct s_dstar_lite_edge_update {
+    coord_t from;
+    coord_t to;
+    float old_cost;
+    float new_cost;
+} dstar_lite_edge_update_t;
+
+typedef struct s_dstar_lite_create_info {
+    uint32_t struct_size;
+    uint32_t abi_version;
+    const navgrid_t* navgrid; /* borrowed snapshot contract to decide */
+    coord_t start;
+    coord_t goal;
+    uint32_t flags;
+    dstar_lite_cost_callback_t cost_callback;
+    void* cost_userdata;
+    dstar_lite_heuristic_callback_t heuristic_callback;
+    void* heuristic_userdata;
+} dstar_lite_create_info_t;
+
+typedef struct s_dstar_lite_replan_options {
+    uint32_t struct_size;
+    uint64_t max_vertex_expansions;
+    uint64_t max_queue_entries;
+    navsys_cancel_func cancel_callback;
+    void* cancel_userdata;
+} dstar_lite_replan_options_t;
+
+typedef struct s_dstar_lite_stats {
+    uint32_t struct_size;
+    uint64_t expanded_vertices;
+    uint64_t updated_vertices;
+    uint64_t queue_pushes;
+    uint64_t stale_key_reinsertions;
+    uint64_t replans;
+    double route_cost;
+    navsys_limit_reason_t limit_reason;
+} dstar_lite_stats_t;
+#+end_src
+
+create-info callback과 userdata는 하나의 immutable snapshot으로 bind된다. runtime 교체가
+필요하면 별도의 atomic =bind_*=(callback,userdata) operation이 idle state에서만 성공한다.
+
+* 목표 public operation 초안
+
+#+begin_src c
+BYUL_API navsys_status_t dstar_lite_create_ex(
+    const dstar_lite_create_info_t* info,
+    dstar_lite_t** out_planner);
+BYUL_API void dstar_lite_destroy(dstar_lite_t* planner);
+BYUL_API navsys_status_t dstar_lite_reset_ex(
+    dstar_lite_t* planner,
+    const coord_t* start,
+    const coord_t* goal);
+
+BYUL_API navsys_status_t dstar_lite_bind_cost_callback(
+    dstar_lite_t* planner,
+    dstar_lite_cost_callback_t callback,
+    void* userdata);
+BYUL_API navsys_status_t dstar_lite_bind_heuristic_callback(
+    dstar_lite_t* planner,
+    dstar_lite_heuristic_callback_t callback,
+    void* userdata);
+
+BYUL_API navsys_status_t dstar_lite_set_current_start(
+    dstar_lite_t* planner, const coord_t* start);
+BYUL_API navsys_status_t dstar_lite_set_goal_ex(
+    dstar_lite_t* planner, const coord_t* goal);
+BYUL_API navsys_status_t dstar_lite_notify_edge_changes(
+    dstar_lite_t* planner,
+    const dstar_lite_edge_update_t* updates,
+    size_t update_count);
+
+BYUL_API navsys_status_t dstar_lite_replan(
+    dstar_lite_t* planner,
+    const dstar_lite_replan_options_t* options,
+    route_t** out_route,
+    dstar_lite_stats_t* out_stats);
+BYUL_API navsys_status_t dstar_lite_get_stats(
+    const dstar_lite_t* planner,
+    dstar_lite_stats_t* out_stats);
+BYUL_API void dstar_lite_request_cancel(
+    dstar_lite_t* planner);
+BYUL_API bool dstar_lite_is_cancel_requested(
+    const dstar_lite_t* planner);
+#+end_src
+
+- =out_route=는 success 시 새 owned =route_t*=이고 =route_destroy=로 해제한다. no-path/error
+  시 NULL, partial route를 허용하면 명시적 status/flag와 endpoint를 추가한다.
+- planner/navgrid 관계는 immutable snapshot, retained handle, caller-borrowed 중 하나로
+  확정한다. 현 상태처럼 copy는 grid를 복제하고 destroy는 해제하지 않는 조합은 금지한다.
+- cancellation은 atomic flag 또는 callback이며 compute/update/reconstruct의 bounded
+  interval마다 poll한다. request 후 reset 전까지 sticky인지 명시한다.
+
+* internalize할 algorithm API
+
+- =calc_key/update_vertex/compute_shortest_route/reconstruct/fetch_next=는 private C++ detail로
+  이동하고 status를 내부에서도 보존한다.
+- g/rhs는 typed =coord -> scalar= table로 바꾸어 generic =void*= ownership을 없앤다.
+- frontier는 atomic by-value entry queue를 사용하고 외부 getter/setter를 제거한다.
+- invariant checker를 debug/test build에 제공한다: goal rhs, g/rhs domain, open-list iff
+  locally inconsistent, unique coord, key exact order.
+- =find_loop/interval/move/changed polling=은 core에서 제거한다. tick/application orchestration
+  문서가 explicit replan API를 호출한다.
+
+* callback, thread와 reentrancy
+
+- callback과 userdata를 한 operation에서 교체하고 callback이 받는 userdata identity를
+  test한다. 현 구현처럼 저장값 대신 NULL/visited_count를 넘기지 않는다.
+- cost는 finite non-negative 또는 blocked sentinel/status를 반환하고 NaN/negative를
+  reject한다. heuristic은 finite non-negative, admissible/consistent 요구와 zero fallback을
+  문서화한다.
+- 같은 planner의 mutation/replan 동시 호출은 busy status로 거부하거나 serialize한다.
+  callback 안에서 destroy/rebind/replan은 금지하고 runtime guard를 둔다.
+- user callback에서 나온 C++/Python exception은 ABI를 넘지 않고
+  =CALLBACK_FAILED=로 변환한다.
+
+* 현재 wrapper의 선언 불일치
+
+handwritten wrapper는 다음 존재하지 않는 native symbol을 호출한다.
+
+- =dstar_lite_get_compute_max_retry= / =set_compute_max_retry=
+- =dstar_lite_get_debug_mode_enabled=
+- =dstar_lite_calculate_key= (실제 =dstar_lite_calc_key=)
+- =dstar_lite_get_update_count_table= 및 add/get/clear 계열
+- =dstar_lite_set_map=, =dstar_lite_set_is_blocked_func=
+
+또한 =dstar_lite_reconstruct_route=의 bool을 owned pointer로 감싸고,
+=set_frontier=에 Python-owned queue를 넘긴 뒤 양쪽이 destroy하며, borrowed route/grid/frontier
+child가 parent를 retain하지 않는다. changed-coords callback의 반환 list finalizer도 native
+destroy와 충돌한다. constructor는 start 또는 goal 하나만 주면 해당 값을 조용히 무시한다.
+
+canonical wrapper는 generated header manifest와 native export의 exact intersection만 호출하고,
+opaque planner, atomic callback binding, owned route result, typed status/stats만 노출한다.
+
+* 테스트 설계
+
+** 원 논문 trace와 작은 exhaustive grid
+
+- Initialize에서 inserted goal key가 =CalculateKey(goal)=인지 검사한다.
+- stale =k_old= 재삽입, overconsistent/underconsistent 두 branch를 독립 fixture로 만든다.
+- 작은 directed weighted grid를 exhaustive/reference Dijkstra 재계산과 비교한다.
+- edge increase/decrease, obstacle add/remove, start move, goal change마다 incremental 결과와
+  full recomputation의 route cost를 비교한다.
+
+** 결과와 failure
+
+- start==goal, blocked endpoint, unreachable, zero-cost edge 정책, duplicate/reversed edge
+  update, NaN/Inf/negative callback cost를 검사한다.
+- expansion/memory limit, cancel at init/queue/reconstruct/near-complete, callback failure와 OOM을
+  주입하고 output preservation을 확인한다.
+- reconstruct가 goal에 도달하지 않으면 절대 OK를 반환하지 않는지 검사한다.
+
+** ABI/lifetime
+
+- ABI 1 public struct size/align/모든 field offset과 ABI 2 opaque version mismatch를 검사한다.
+- create/copy/reset/navgrid/frontier/route/callback owner graph를 ASan/LSan으로 검사한다.
+- static D* module, root shared, installed C17/C++17 SDK, Python wrapper와 export signature를
+  동일 manifest로 교차 검사한다.
+
+* 구현 순서
+
+** TODO 1단계: ABI, owner graph와 algorithm characterization
+
+*** 실행
+
+- type/field/73개 함수의 declaration-definition-export-wrapper consumer를 snapshot한다.
+- navgrid/g/rhs/frontier/routes/callback userdata의 create/copy/reset/destroy owner graph를
+  성공/실패별로 작성한다.
+- 원 논문 Figure 3의 init/compute/move trace를 현 구현에 대입해 divergence test를 만든다.
+
+*** 완료 조건
+
+- 모든 현행 선언이 위 disposition과 ABI 1/2 migration에 1:1 대응한다.
+- source/header const mismatch와 wrapper phantom symbol 목록이 machine-readable report에 있다.
+- 현재 algorithm 실패가 단순 API 취향과 분리된 reproducible test로 고정된다.
+
+*** 검증
+
+- ABI layout/symbol fixture, old SDK consumer와 현행 characterization suite를 실행한다.
+- 원 논문 trace에서 init key/stale-key/loop-condition 차이가 의도대로 실패하는지 확인한다.
+
+** TODO 2단계: key/open-list와 core algorithm 교정
+
+*** 실행
+
+- exact key와 unique by-value pqueue를 적용한다.
+- Initialize, CalculateKey, UpdateVertex, ComputeShortestPath를 원 논문 순서로 교정한다.
+- 모든 내부 연산에 status/cancel/limit propagation과 invariant checker를 추가한다.
+
+*** 완료 조건
+
+- goal key, loop guard, =k_old= stale reinsert, g/rhs update가 reference pseudocode와 일치한다.
+- approximate container equivalence, stale duplicate와 C++ exception escape가 없다.
+
+*** 검증
+
+- branch-complete paper trace와 작은 directed graph exhaustive comparison을 실행한다.
+- property test, sanitizer와 allocation-failure test를 static/root 양쪽에서 실행한다.
+
+** TODO 3단계: explicit edge update와 reconstruction 교정
+
+*** 실행
+
+- coord-radius polling을 typed directed edge update 입력으로 교체한다.
+- start 이동/km 갱신을 atomic operation으로 구현하고 route reconstruction sentinel을 제거한다.
+
+*** 완료 조건
+
+- edge old/new cost와 affected predecessor가 손실 없이 반영된다.
+- route OK는 start/goal, adjacency, edge cost와 termination을 모두 만족할 때만 반환된다.
+
+*** 검증
+
+- edge increase/decrease/obstacle/start-move sequence를 매번 full recomputation과 비교한다.
+- unreachable/limit/cancel/reconstruction-bound가 올바른 status/stats를 반환하는지 검사한다.
+
+** TODO 4단계: opaque lifecycle와 public replan API 추가
+
+*** 실행
+
+- versioned create-info, atomic callback binding, notify/replan/options/stats/cancel API를
+  ABI 1 additive symbol로 구현한다.
+- owner/lifetime/thread/reentrancy/output preservation metadata를 선언마다 작성한다.
+
+*** 완료 조건
+
+- public consumer가 g/rhs/frontier/km/internal route를 직접 읽거나 바꾸지 않고 재계획한다.
+- no-path/cancel/limit/callback/OOM이 NULL/false 하나로 합쳐지지 않는다.
+- callback이 정확한 userdata를 받고 partial binding state가 없다.
+
+*** 검증
+
+- C17/C++17 installed SDK consumer, callback identity/failure/reentrancy, cancel timing과
+  concurrent misuse test를 실행한다.
+- ABI 1 old/new symbol과 output ownership fixture를 실행한다.
+
+** TODO 5단계: orchestration 분리와 legacy forwarding
+
+*** 실행
+
+- move/sleep/changed polling/find_loop를 tick/application 층으로 옮긴다.
+- 안전한 기존 getter/setter/find 함수는 canonical API로 forwarding하고 internal state API는
+  deprecation 후 ABI 2 제거 대상으로 표시한다.
+
+*** 완료 조건
+
+- core replan 호출이 blocking sleep이나 application movement를 수행하지 않는다.
+- ABI 1 symbol은 유지되며 신규 production source는 legacy/internal API를 호출하지 않는다.
+
+*** 검증
+
+- deterministic fake-clock orchestration과 old source consumer를 실행한다.
+- forbidden legacy call/source scan과 ABI export 비교를 실행한다.
+
+** TODO 6단계: wrapper 재생성과 lifetime 수정
+
+*** 실행
+
+- header/export 기반 exact wrapper manifest를 만들고 phantom call을 제거한다.
+- opaque planner, atomic callbacks, owned route, status/options/stats와 parent retention을
+  Python type으로 매핑한다.
+
+*** 완료 조건
+
+- reconstruct bool-as-pointer, frontier double-free, callback list double-free와 borrowed UAF가 없다.
+- wrapper가 존재하지 않는 native symbol을 선언하거나 호출하지 않는다.
+
+*** 검증
+
+- wrapper audit/check/native load, Python GC/close/callback exception/cancel/no-path/route tests를
+  ASan/LSan root shared에서 실행한다.
+
+** TODO 7단계: ABI 2 opaque 전환과 통합 release gate
+
+*** 실행
+
+- 모든 repository/external field consumer를 accessor/replan API로 migration한다.
+- ABI 2에서 public struct를 opaque로 바꾸고 internal header/include를 SDK에서 제거한다.
+- migration guide, version/fingerprint diagnostic과 rollback 기준을 게시한다.
+
+*** 완료 조건
+
+- installed =dstar_lite.h=가 implementation container/layout을 노출하지 않는다.
+- static module과 root shared의 source/header inventory가 동일하고 root shared만 runtime이다.
+- algorithm correctness, ABI, wrapper와 performance gate가 각각 독립적으로 승인된다.
+
+*** 검증
+
+- ABI 1 old binary/source와 ABI 2 source fixture를 별도 runtime에 실행한다.
+- Linux/macOS/Windows C17/C++17, static/root shared, sanitizer, wrapper, exhaustive reference
+  suite와 =git diff --check=를 모두 통과한다.

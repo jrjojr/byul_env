@@ -1,0 +1,483 @@
+#+TITLE: Balix Transform 계산의 Math Engine 추출 TODO
+#+TODO: TODO DOING BLOCKED | DONE CANCELLED FAILED
+#+TODO_RULES: ../../../../external/rules/projects/byul/todo-rules.org
+#+PUBLIC_API_RULES: ../../../../external/rules/projects/byul/public-api-rules.org
+#+BUILD_RULES: ../../../../external/rules/projects/byul/build-rules.org
+#+TEST_RULES: ../../../../external/rules/projects/byul/test-rules.org
+#+TODO_PARENT: todo-balix-math-extraction.org
+#+AUTHOR: ByulPapa / Codex
+#+LANGUAGE: ko
+#+OPTIONS: toc:t num:nil
+
+* 목적
+
+=byul/balix/xform/xform.h=와 =xform.cpp=의 vector/quaternion/TRS/affine 계산,
+composition, inverse, 좌표 적용, 보간, look-at, pivot와 reflection을 Math Engine으로
+옮긴다. Balix에는 world 좌표 범위 정책과 debug 출력 adapter만 남긴다.
+
+현재 =xform_t=는 =entity_dynamic_t= 등에 값으로 포함된 공개 ABI다. 따라서 source를
+물리적으로 옮기는 것과 기존 layout/symbol을 제거하는 일을 같은 단계에서 하지 않는다.
+먼저 수학 계약을 교정하고 canonical API를 추가한 뒤 기존 =xform_*=를 forwarding한다.
+
+* 소유권 경계
+
+| 책임 | Math Engine | Balix |
+|------+-------------+-------|
+| 값과 계산 | rigid pose, TRS, affine matrix, composition, inverse, point/vector/normal 적용 | entity/world 안의 현재 pose 보관 |
+| orientation | quaternion, axis-angle/Euler 변환, look/align, pivot와 보간 | camera/entity가 어느 target/up을 선택할지 결정 |
+| 수치 정책 | finite/singular/degenerate 판정, 명시 tolerance와 status | world bounds preset과 out-of-world 처리 |
+| 표현 | caller-owned POD, matrix layout와 handedness 계약 | legacy =xform_t= layout와 compatibility |
+| 출력 | caller buffer formatter용 값 제공는 별도 utility 후보 | log sink, console/iostream, locale와 debug level |
+
+Math Engine transform 함수는 위치를 임의의 게임 범위로 saturate하거나 stdout/stderr에
+쓰지 않는다. Balix는 matrix/quaternion/scale 공식을 다시 구현하지 않는다.
+
+* 실제 감사 범위
+
+| 원본 | 현재 상태 | 목표 |
+|------+-----------+------|
+| =byul/balix/xform/xform.h= | public macro 2, public value type 1, 공개 함수 48 | ABI 1.x legacy forwarding header |
+| =byul/balix/xform/xform.cpp= | transform 계산, clamp와 =std::cout= 혼재 | Math Engine 계산 source와 Balix policy/debug adapter 분리 |
+| =byul/balix/tests/test_module_xform.cpp= | identity/회전/일부 clamp·pivot·reflect test | canonical invariant/oracle와 legacy adapter test로 분리 |
+| =byul/balix/CMakeLists.txt= | =xform.cpp=를 Balix source로 직접 compile | Math Engine target link와 shim inventory만 유지 |
+| =byul/entity=와 =byul/projectile= | =xform_t=를 layout field와 API로 직접 소비 | ABI 보존 adapter를 거쳐 단계적 canonical 소비 |
+
+* 공개 surface 전수 분류
+
+** 공개 macro와 type
+
+| symbol | 현재 계약과 위험 | 목표 disposition |
+|--------+------------------+------------------|
+| =XFORM_MAX_POS= | 모든 축 상한 =99999.0f=, translation unit override 가능 | Math Engine에서 제거, Balix world-bounds policy로 유지 |
+| =XFORM_MIN_POS= | 모든 축 하한 =-99999.0f= | Math Engine에서 제거, Balix world-bounds policy로 유지 |
+| =xform_t= | =vec3_t pos; quat_t rot; vec3_t scale= 공개 layout | ABI 1.x 동결, canonical rigid/TRS/affine type와 명시 변환 제공 |
+
+Canonical Math Engine은 한 구조에 서로 닫히지 않는 모든 변환을 억지로 담지 않는다.
+
+| 목표 value family | 표현과 용도 |
+|-------------------+-------------|
+| rigid pose | translation + unit quaternion, scale/shear 없음 |
+| decomposed TRS | translation + unit quaternion + scale, 표현 가능성 조건 명시 |
+| affine transform | 3x3 linear + translation 또는 3x4 matrix, scale/shear/reflection 포함 |
+| mat4 interop | storage order, vector convention과 handedness가 고정된 변환 buffer |
+
+** 생성·복사·비교 7개
+
+- =xform_init=
+- =xform_init_axis_angle=, =xform_init_axis_deg=
+- =xform_init_euler=, =xform_init_euler_deg=
+- =xform_assign=
+- =xform_equal=
+
+순수 초기화·변환·비교는 Math Engine 소유다. Canonical 비교는 exact bit equality,
+component approximate와 geometric-equivalent rotation(=q=와 =-q=)을 서로 다른 함수로
+구분한다. Legacy 이름은 현재 scalar/vector/quaternion tolerance 의미를 snapshot한 뒤
+forwarding한다.
+
+** Component 접근과 설정 12개
+
+- =xform_get_position=, =xform_set_position=
+- =xform_get_axis_angle=, =xform_get_axis_deg=
+- =xform_set_axis_angle=, =xform_set_axis_deg=
+- =xform_set_euler=, =xform_set_euler_deg=
+- =xform_get_euler=, =xform_get_euler_deg=
+- =xform_set_scale=, =xform_get_scale=
+
+값의 get/set과 angle conversion은 Math Engine 소유다. Canonical position setter는 clamp하지
+않고 finite/status 계약을 따른다. Degree/radian은 이름 또는 unit type으로 구분하며
+platform =M_PI= macro 대신 Math Engine 상수를 사용한다.
+
+** Translation과 rotation mutation 6개
+
+- =xform_translate=, =xform_translate_local=
+- =xform_rotate_axis_angle=, =xform_rotate_axis_deg=
+- =xform_rotate_local_axis_angle=, =xform_rotate_local_axis_deg=
+
+Pre/post composition 순서, local/world frame, quaternion multiplication order와 정규화
+정책을 canonical 이름에 드러낸다. Legacy 함수는 동결한 순서로 forwarding한다.
+
+** Algebra, application과 matrix 9개
+
+- =xform_inverse=, =xform_mul=
+- =xform_apply=, =xform_apply_inverse=
+- =xform_apply_to_point=, =xform_apply_to_point_inverse=
+- =xform_apply_to_direction=, =xform_apply_to_direction_inverse=
+- =xform_to_mat4=
+
+모두 Math Engine 소유다. Point, free vector와 normal을 별도 함수로 제공하고, singular
+scale과 TRS로 표현할 수 없는 shear/reflection을 status 없이 숨기지 않는다.
+
+** Orientation builder 6개
+
+- =xform_look_at=
+- =xform_from_forward=
+- =xform_align_vectors=
+- =xform_look_at_pivot=
+- =xform_look_to=
+- =xform_align_axis=
+
+모두 Math Engine 계산이다. Handedness, local forward/up axis, eye/target 의미와 zero/
+parallel degeneracy policy를 canonical API에서 필수로 고정한다. =axis_index= 정수 magic은
+canonical enum으로 바꾸고 기존 함수만 int adapter로 둔다.
+
+** Interpolation과 pivot 7개
+
+- =xform_lerp=, =xform_slerp=, =xform_nlerp=
+- =xform_slerp_pivot=
+- =xform_rotate_around_pivot=
+- =xform_rotate_local_around_pivot=
+- =xform_reflect=
+
+보간·pivot·reflection 계산은 Math Engine 소유다. 다만 quaternion/dual-quaternion/TRS/
+affine 중 어느 공간을 보간하는지 이름과 result quality로 구분한다. Reflection은 일반적으로
+determinant가 음수인 affine 변환이므로 unit quaternion 하나로 손실 변환하지 않는다.
+
+** Debug 1개
+
+- =xform_print=
+
+이 함수는 수학 계산이 아니라 process I/O다. Math Engine canonical export에서 제외하고
+Balix debug adapter 또는 caller-buffer formatter로 분리한다. Legacy symbol의 console
+side effect는 deprecation 기간에만 유지한다.
+
+* Private symbol 전수 분류
+
+| private symbol | 현재 역할 | 목표 disposition |
+|----------------+-----------+------------------|
+| =xform_to_dualquat= | TR을 dual quaternion으로 변환 | 현재 호출 0개, canonical interpolation helper와 통합하거나 삭제 |
+| =xform_from_dualquat= | dual quaternion에서 TR과 외부 scale 복원 | 현재 호출 0개, 같은 결정 |
+| =xform_clamp_position= | 축별 =fminf/fmaxf= saturation | Balix world-bounds adapter로 이동 |
+
+=xform_slerp=와 =xform_nlerp= 안에 중복된 dual-quaternion 변환도 공통 Numal helper를
+사용한다. 사용되지 않는 private 두 함수를 이동만 해서 새 dead code로 만들지 않는다.
+
+* 확인된 수학·API 결함
+
+** Scale, composition과 inverse
+
+현재 layout을 =p' = t + R(S p)=로 해석하면 다음 문제가 있다.
+
+1. =xform_apply_to_point=와 inverse는 =scale=을 전혀 사용하지 않는다.
+2. =xform_apply_to_direction=은 scale을 무시한 뒤 결과를 무조건 unit vector로 만들어 입력
+   magnitude 정보까지 잃는다. Free vector와 direction의 의미가 섞였다.
+3. =xform_mul=은 child translation에 parent scale을 적용하지 않는다. 또한
+   =R_a S_a R_b S_b=는 일반적으로 =R_a R_b(S_a S_b)=가 아니며 non-uniform scale과
+   회전의 composition은 shear를 만들 수 있다.
+4. =xform_inverse=은 translation에 inverse scale을 적용하지 않는다. 더 근본적으로
+   =(R S)^-1 = S^-1 R^-1=은 일반 non-uniform scale에서 같은 =R' S'= 순서의 TRS로
+   정확히 표현되지 않는다.
+5. =xform_to_mat4=만 scale을 쓰므로 같은 =xform_t=를 point 함수와 matrix 함수에 적용한
+   결과가 다르다.
+6. zero/near-zero/negative/non-finite scale을 허용하면서 inverse, handedness와 normal
+   변환의 실패 계약이 없다.
+
+Canonical API는 rigid와 affine을 정확히 닫힌 연산으로 제공하고, TRS composition/
+inverse는 affine 결과를 반환하거나 representability 검사 뒤 status를 반환한다.
+
+** Alias와 초기화
+
+- =xform_mul(out,a,b)=는 =out==a= 또는 =out==b=일 때 rotation을 먼저 덮어 이후 입력을
+  바꿀 수 있다. Alias 허용 여부가 선언에 없다.
+- =xform_inverse(out,src)=도 in-place가 명시되지 않고 하위 quaternion 함수의 alias
+  우연에 의존한다.
+- =xform_init_axis_angle=과 =xform_init_euler=은 =xform_init(NULL)=가 반환한 뒤 =out->pos=
+  를 계속 읽을 수 있다.
+- =xform_equal=, =xform_from_forward=, pivot/look/align/reflect 계열 일부는 NULL 검사가 없거나
+  서로 다른 no-op 정책을 가진다.
+- =xform_look_at=과 =xform_align_vectors=는 =pos/rot= 일부만 쓰고 =scale=을 초기화하지 않아
+  fresh output에 미정 값이 남는다.
+- =xform_look_to=는 =xform_from_forward=를 호출해 기존 position을 0으로, scale을 1로
+  바꾼다. “orientation만 수정”인지 “새 transform 생성”인지 이름과 구현이 충돌한다.
+- =xform_slerp_pivot=은 =b->pos=를 전혀 사용하지 않고 =a->pos-pivot=을 보간된 절대
+  rotation으로 돌린다. 따라서 일반 입력에서 =t=1= endpoint가 =b=가 아니며 보간의 기본
+  endpoint invariant를 만족하지 않는다.
+- =xform_rotate_around_pivot=과 =xform_rotate_local_around_pivot=은 모두 =q*old_rot= 순서를
+  사용한다. Local 이름이 다른 multiplication order를 뜻하는지, pivot 위치만 local인지
+  정의가 없고 후자는 quaternion normalization도 하지 않는다.
+
+Canonical 함수는 status를 반환하고 모든 output field 초기화, input/output alias matrix,
+실패 시 output 불변을 함수 family별로 고정한다.
+
+** Look-at와 orientation 퇴화
+
+- eye와 target이 같을 때 forward가 zero다.
+- up이 zero이거나 forward와 평행/반평행이면 right가 zero다.
+- local forward가 +Z인지 -Z인지, 좌/우 handedness와 row/column vector convention이 header에
+  없다. 현재 test 일부의 주석과 실제 기대 축도 일관되지 않는다.
+- =xform_align_vectors=의 parallel/antiparallel 및 zero vector 결과가 하위 quaternion
+  구현에 암묵적으로 맡겨진다.
+- 반복 rotation 후 normalization이 함수마다 다르다. pivot 한 함수만 normalize하고 다른
+  multiply 경로는 하지 않는다.
+- Euler round-trip은 gimbal lock, angle canonical range와 여러 등가해 선택을 정의하지
+  않는다.
+
+Degenerate look/align은 zero quaternion이나 NaN을 만들지 않고 invalid/degenerate status,
+caller fallback-up 또는 deterministic fallback-axis 중 승인된 정책을 사용한다.
+
+** Clamp, matrix, reflection과 출력
+
+- Header는 position이 항상 =[-99999,99999]=라고 말하지만 clamp는 init/set/translate/
+  look-at 일부에만 있다. mul, inverse, interpolation, pivot와 reflect는 clamp하지 않는다.
+- =fminf/fmaxf= clamp는 NaN을 명시 오류로 보고하지 않고 경계값으로 바꿀 수 있다.
+- 같은 public macro를 consumer와 DLL이 다르게 compile하면 world 범위 계약이 갈라진다.
+- =xform_to_mat4=의 row/column-major, row/column-vector, handedness와 translation index 계약이
+  선언에 없다.
+- =xform_reflect=는 plane normal을 unit으로 검증/정규화하지 않는다. 세 basis vector를
+  reflect하면 determinant -1의 improper transform인데 이를 quaternion으로 다시 만들며
+  reflection/parity 정보를 잃을 수 있다.
+- =xform_print=는 public C ABI 구현에서 C++ =std::cout=과 process locale/global stream을
+  사용하고 buffer, 오류, thread/interleaving 계약이 없다.
+
+* 업계 기준선
+
+- [[https://libeigen.gitlab.io/eigen/docs-nightly/group__TutorialGeometry.html][Eigen Geometry]]는
+  rotation/translation/scaling 같은 추상 변환과 일반 affine matrix를 구분한다. 일반
+  affine에서 point는 전체 변환, vector는 linear part, normal은 inverse-transpose를
+  적용한다. BYUL도 point/direction/normal을 한 함수 의미로 섞지 않는다.
+- Eigen은 일반 affine을 =(Dim+1)^2= matrix로 표현하고 composition/inverse를 그 닫힌
+  표현에서 수행한다. Non-uniform TRS가 shear를 만드는 경우 BYUL도 affine으로 승격하거나
+  명시적 non-representable status를 반환한다.
+- [[https://learn.microsoft.com/en-us/windows/win32/dxmath/ovw-xnamath-reference-functions-matrix][DirectXMath matrix functions]]는 LH/RH look-at/look-to를 이름으로 구분하고 row-major
+  convention을 명시하며 affine, inverse, scaling과 reflection matrix를 별도 연산으로
+  제공한다. BYUL canonical API도 handedness/storage/reflection 표현을 암묵적으로 두지
+  않는다.
+- Quaternion은 compact rigid rotation에, matrix/affine은 scale·shear·reflection을 포함한
+  일반 선형 변환에 사용한다. Dual quaternion interpolation은 rigid transform에만 적용하고
+  별도 scale 선형 보간을 동일한 “slerp” 의미로 숨기지 않는다.
+
+* 목표 Math Engine 계약
+
+** 좌표와 단위
+
+- position과 translation: 선택된 length unit, 같은 frame
+- scale: dimensionless; zero/singular, negative/reflection과 finite 규칙 명시
+- axis/direction/normal: dimensionless, unit 여부를 type/function 계약으로 구분
+- angle: radians canonical, degree convenience API는 명시 suffix와 중앙 상수 사용
+- matrix: 저장 순서, vector side, multiplication order, translation slot과 handedness 동결
+
+Math Engine은 world unit을 고정하지 않지만 한 호출의 모든 length가 같은 단위를 쓴다는
+조건을 요구한다. Balix가 world frame/unit와 bounds를 선택한다.
+
+** Canonical family
+
+최종 prefix는 Build/ABI master에서 동결하되 의미 family는 다음처럼 분리한다.
+
+#+begin_src text
+math_rigid3f_*       translation + unit quaternion, closed rigid algebra
+math_trs3f_*         decomposed convenience plus representability status
+math_affine3f_*      full affine composition/inverse/application
+math_transform_*_point
+math_transform_*_vector
+math_transform_*_normal
+math_transform_*_look_at_lh / math_transform_*_look_at_rh
+#+end_src
+
+- Rigid inverse/composition은 exact closed operation이다.
+- TRS point 적용은 =t + R(S p)=처럼 승인한 순서를 header와 test에 고정한다.
+- TRS composition/inverse가 shear 때문에 표현 불가능하면 affine result를 사용하거나
+  =NOT_REPRESENTABLE=을 반환한다.
+- Vector는 translation을 제외하되 magnitude를 보존하는 linear transform이고 direction은
+  필요할 때 별도 normalize한다. Normal은 inverse-transpose와 singular status를 사용한다.
+- All-output 함수는 성공 전에 local temporary로 계산해 승인된 alias 조합을 안전하게
+  지원한다.
+
+** Status와 수치 정책
+
+Canonical C API는 최소한 invalid pointer, non-finite, zero axis, degenerate look basis,
+singular, not representable와 invalid enum을 구분한다. 정상 계산의 identity/zero 값과 오류를
+같은 값으로 표현하지 않는다.
+
+- quaternion unit drift는 context tolerance에서 검사하고 normalize 여부를 policy로 정한다.
+- look/align의 angular tolerance와 scale singular tolerance를 분리한다.
+- comparison은 absolute/relative component tolerance와 rotation angular tolerance를
+  구분한다.
+- =t= 보간의 =[0,1]= clamp/extrapolation 정책, quaternion shortest path/hemisphere와 scale이
+  zero를 통과할 때 singular 상태를 명시한다.
+- 동일 입력/context/backend에서 결과 bit 또는 허용 오차 계약이 결정적이어야 한다.
+
+* Balix compatibility, clamp와 출력
+
+- =xform_t=의 field 순서, =sizeof/alignof/offsetof=와 기존 48개 =BYUL_API= symbol은 ABI
+  1.x에서 유지한다. Canonical Math Engine type과 layout이 같더라도 typedef alias 여부는
+  ABI/header review 뒤 결정한다.
+- 기존 setter/translation의 =XFORM_MIN_POS/MAX_POS= saturation은 Balix legacy adapter가
+  canonical raw 계산 뒤 적용한다. Math Engine 값은 숨은 clamp를 하지 않는다.
+- clamp가 빠져 있던 기존 함수에 무조건 새 saturation을 넣지 않는다. 함수별 관찰 동작과
+  문서 약속의 충돌을 compatibility decision으로 기록한다.
+- =xform_print=는 legacy Balix debug shim으로 남기고 canonical formatter가 필요하면
+  caller buffer/capacity/actual count, UTF-8/locale와 truncation status를 제공한다. Math
+  Engine DLL은 =iostream= 또는 process stream을 link하지 않는다.
+- =entity_dynamic_t= 등 public embedding type은 기존 layout을 보존하고 내부 계산부터
+  canonical API로 전환한다. Opaque 전환은 별도 ABI-major 계획 없이 실행하지 않는다.
+
+* 필수 검증 corpus
+
+** Algebra와 scale
+
+- identity, pure translation/rotation/uniform scale와 non-uniform scale
+- point/vector/direction/normal을 같은 affine matrix oracle과 비교
+- =inverse(T)(T(p))=, =T(inverse(T)(p))=와 composition associativity tolerance
+- parent scale이 child translation에 미치는 known-answer
+- non-uniform scale + rotated child가 만드는 shear와 =NOT_REPRESENTABLE=/affine 결과
+- zero, near-zero, negative, NaN와 infinite scale
+- =out==a=, =out==b=, =out==src= 및 서로 다른 input/output alias permutation
+
+** Orientation, interpolation과 reflection
+
+- eye==target, zero up, parallel/antiparallel up와 near-degenerate basis
+- LH/RH, +Z/-Z forward, matrix/quaternion basis와 look-at known-answer
+- from==to, from==-to, zero vector align과 axis enum invalid
+- Euler 모든 지원 order, gimbal lock와 canonical angle range
+- quaternion sign =q/-q=, interpolation endpoint, shortest path, extrapolation과 unit length
+- pivot at origin/off-origin, world/local multiplication order와 position 보존
+- unit/non-unit/zero plane normal, reflection parity와 affine determinant -1
+
+** Clamp, formatter, ABI와 build
+
+- canonical raw transform은 =99999= 밖의 finite 좌표를 보존
+- legacy setter/translate는 승인된 world bounds에서만 clamp
+- clamp가 NaN을 경계값으로 위장하지 않고 status/policy가 처리
+- formatter capacity 0/exact/short, locale 독립, NUL termination와 concurrent calls
+- mat4 exact index/layout fixture와 external Eigen/DirectXMath-style oracle
+- C17/C++17 header compile, =xform_t= layout/enum/macro snapshot와 root export
+- Math Engine static/root shared/미래 DLL, Balix/entity/projectile clean consumer
+
+* 실행 절차
+
+** TODO 1. 48개 public symbol과 현행 동작 baseline을 동결한다
+*** 실행
+
+Public macro 2개, =xform_t= layout, 공개 함수 48개와 private helper 3개의 declaration-
+definition-consumer-test manifest를 만든다. Matrix convention, local/world multiplication,
+clamp 적용 함수, output 초기화와 alias 동작을 executable characterization test로 기록한다.
+
+*** 완료 조건
+
+모든 symbol이 목표 owner/disposition 하나를 가지며 scale 누락, composition/inverse,
+uninitialized scale, look degeneracy, alias, clamp 불일치와 print side effect가 각각 재현된다.
+
+*** 검증
+
+=rg= inventory와 manifest의 누락·중복 0을 검사하고 =test_balix=의 xform case 및 새
+characterization fixture를 실행해 unit/frame/tolerance와 관찰 결과를 기록한다.
+
+** TODO 2. Rigid·TRS·affine 수학과 C ABI 계약을 확정한다
+*** 실행
+
+Rigid/TRS/affine value, transform 순서, matrix storage/vector convention, handedness, angle,
+point/vector/direction/normal, status, finite/singular, alias와 output 불변 계약을 작성한다.
+기존 =xform_t=와 canonical value 사이 ABI/layout/convert 전략을 승인한다.
+
+*** 완료 조건
+
+Balix include와 world bounds가 없는 C17 header 초안이 존재하고 모든 48개 legacy 함수가
+canonical 함수 또는 Balix-only adapter에 정확히 하나씩 매핑된다.
+
+*** 검증
+
+C17/C++17 standalone compile, sizeof/alignof/offsetof와 enum snapshot, forbidden include,
+nullable/output/alias lint 및 old/new mapping 완전성을 검사한다.
+
+** TODO 3. Scale·composition·inverse와 application kernel을 교정한다
+*** 실행
+
+Rigid algebra와 full affine algebra를 먼저 구현하고 TRS apply를 승인 식과 일치시킨다.
+Non-uniform composition/inverse의 shear를 검출해 affine으로 승격하거나 status를 반환한다.
+Point/vector/direction/normal과 in-place alias를 각각 구현한다.
+
+*** 완료 조건
+
+모든 apply 경로가 =to_mat4= oracle과 일치하고 parent scale, inverse scale와 normal
+inverse-transpose가 반영된다. Singular/non-representable이 silent finite 결과로 위장되지
+않는다.
+
+*** 검증
+
+Algebra/scale 필수 corpus, random affine differential, round-trip/associativity invariant,
+alias permutation, extreme scale/non-finite와 sanitizer를 실행한다.
+
+** TODO 4. Look·align·pivot·보간·reflection을 교정한다
+*** 실행
+
+LH/RH look builders와 deterministic degeneracy policy를 구현한다. Euler/axis conversion,
+world/local pivot, rigid dual-quaternion 보간과 TRS/affine 보간을 이름별로 분리한다.
+Reflection은 affine result를 기본으로 하고 TRS 변환 가능성을 검사한다.
+
+*** 완료 조건
+
+Fresh output의 모든 field가 초기화되고 look/align은 zero/parallel 입력에서 명시 status를
+반환한다. 보간 이름이 실제 알고리즘과 일치하며 reflection parity가 보존된다.
+
+*** 검증
+
+Orientation/interpolation/reflection 필수 corpus, matrix basis/determinant, quaternion
+unit/hemisphere, endpoint/pivot invariant와 Eigen/DirectXMath-style known-answer를 실행한다.
+
+** TODO 5. World clamp와 debug 출력 정책을 Balix로 격리한다
+*** 실행
+
+=xform_clamp_position=과 =XFORM_MIN_POS/MAX_POS= 사용을 Balix world-bounds adapter로
+옮긴다. Canonical Math Engine setter/operation에서는 clamp를 제거한다. =xform_print=는
+Balix debug shim 또는 caller-buffer formatter를 사용하도록 분리하고 Math Engine source의
+=iostream/iomanip= 의존성을 제거한다.
+
+*** 완료 조건
+
+Math Engine transform은 임의 world 범위와 process I/O에 의존하지 않는다. Legacy clamp와
+print의 지원 범위, locale/thread와 deprecation 계약이 별도로 문서화된다.
+
+*** 검증
+
+Bounds 안/밖, NaN/Infinity, 함수별 legacy clamp parity, formatter buffer/locale/thread test와
+Math Engine link dependency에서 C++ stream 부재를 검사한다.
+
+** TODO 6. Source·CMake·test 소유권을 Math Engine으로 이동한다
+*** 실행
+
+Canonical transform source/header/test를 Numal/Math Engine component inventory로 옮기고
+vec3/quat/dualquat dependency를 target으로 선언한다. Balix =xform.cpp=에는 legacy policy와
+forwarding만 남기며 canonical source를 재집계하지 않는다.
+
+*** 완료 조건
+
+Math Engine transform target이 Balix 없이 static build/test되고 source가 target당 한 번만
+compile된다. Dependency 방향이 Balix/entity/projectile에서 Math Engine으로만 향한다.
+
+*** 검증
+
+CMake graph, compile_commands/source inventory, duplicate symbol/link line를 검사하고
+=test_math_engine_transform=, =test_balix=, root shared와 CTest discovery를 실행한다.
+
+** TODO 7. Legacy ABI와 Balix/entity/projectile consumer를 전환한다
+*** 실행
+
+기존 48개 symbol을 canonical call 또는 Balix clamp/debug adapter로 forwarding한다.
+=entity_dynamic_t= embedding layout을 유지하고 내부 entity/projectile 계산부터 canonical
+API를 사용한다. Corrected behavior와 deprecation을 public/wrapper 문서에 반영한다.
+
+*** 완료 조건
+
+=xform_t= ABI와 기존 export가 유지되고 old/new 동일 semantic fixture가 통과한다. 기존
+결함이 바뀌는 case는 compatibility 분류, version과 release-note 후보를 가진다.
+
+*** 검증
+
+Layout/export/wrapper snapshot, old SDK C/C++ consumer, entity/projectile integration,
+old/new differential과 sanitizer를 실행한다.
+
+** TODO 8. 독립 DLL과 재유입 방지 최종 gate를 닫는다
+*** 실행
+
+현행 root =byul= shared export를 먼저 검증하고 중앙 build 규칙 변경 승인 뒤 Math Engine
+DLL import/export를 적용한다. World clamp/iostream 또는 중복 transform 공식이 Math Engine/
+Balix 반대 계층으로 재유입되면 실패하는 lint를 CI에 추가한다.
+
+*** 완료 조건
+
+Canonical transform symbol/source는 최종 library 한 곳에만 있고 Balix는 import target을
+링크한다. Math Engine에는 world policy와 process output이, Balix에는 수학식이 없다.
+
+*** 검증
+
+Windows/Linux/macOS symbol/runtime dependency, two-DLL clean install consumer, 누락 DLL/
+architecture mismatch, wrapper native load, ownership lint와 전체 platform matrix를 실행한다.

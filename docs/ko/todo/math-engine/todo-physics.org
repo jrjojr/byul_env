@@ -1,0 +1,103 @@
+#+TITLE: Math Engine 물리 공식·상수 TODO
+#+TODO: TODO DOING BLOCKED | DONE CANCELLED FAILED
+#+TODO_RULES: ../../../../external/rules/projects/byul/todo-rules.org
+#+TODO_PARENT: todo-math-engine.org
+#+AUTHOR: ByulPapa / Codex
+#+LANGUAGE: ko
+#+OPTIONS: toc:t num:nil
+
+* 책임
+
+Math Engine =physics= 계층은 외부 state를 소유하지 않는 물리 법칙과 model을 제공한다.
+Balix는 body/environment/world state를 neutral parameter로 변환하고 결과를 적용한다.
+
+| 영역 | 공식 | 단위·주의 |
+|------+-------+-----------|
+| kinematics | =p=p0+v0*t+0.5*a*t^2=, =v=v0+a*t= | m, s, m/s, m/s^2 |
+| drag | =F=-0.5*rho*Cd*A*|v|v= | kg/m^3, m^2, kg; relative air velocity |
+| energy | =Delta KE= | joule, dissipated energy는 음수 금지 |
+| contact | normal/tangent 분해와 restitution | normal은 unit 또는 명시 normalization |
+| spin | Magnus/gyro 후보식 | coefficient 차원과 적용 범위를 명시 |
+| angular drag | torque/inertia 기반 model | mass를 inertia로 대신하지 않음 |
+| signal | sinusoidal periodic field | rad/s와 Hz 변환 명시 |
+
+보편 상수 =g0=, 표준 대기 밀도와 압력은 =mathunits/constants=가 출처, 단위,
+불확도와 data version을 소유한다. =Cd=.47=, cross-section, restitution, friction,
+Magnus/gyro gain과 MPC weight는 보편 상수가 아니라 Balix 또는 product preset이다.
+
+Fundamental constant의 외부 기준은
+[[https://physics.nist.gov/cuu/Constants/index.html][NIST/CODATA database]]의 edition, 값, 단위와
+uncertainty 계약을 사용한다. 표준 대기나 재료·aerodynamic coefficient는 CODATA
+fundamental constant가 아니므로 각각의 별도 표준/모델 provenance가 필요하다.
+
+현재 atmosphere의 humidity/temperature/pressure 계수와 spin drag scale은 근거가
+불분명한 heuristic이다. 이름을 물리 상수처럼 유지하지 않고 versioned empirical model
+또는 tuning function으로 분류하고 유효 범위 밖을 명시한다.
+
+* 세부 계획
+
+- [[file:todo-balix-bodyprops-extraction.org][friction과 energy]]
+- [[file:todo-balix-environ-extraction.org][environment와 periodic field]]
+- [[file:todo-balix-physics-model-extraction.org][drag, kinematics, bounce와 CCD]]
+- [[file:todo-balix-motion-model-extraction.org][spin과 aerodynamic correction]]
+- [[file:todo-balix-integrator-extraction.org][동역학 적분]]
+
+* 실행 절차
+
+** TODO 1. 공식·상수와 차원 inventory를 고정한다
+*** 실행
+
+각 식의 출처, 가정, coefficient 차원, 유효 범위, frame과 현재 magic value를 기록한다.
+
+*** 완료 조건
+
+모든 physics 계산이 law, empirical model, product preset 또는 universal constant 중
+하나로 분류된다.
+
+*** 검증
+
+SI dimension 계산과 repository literal scan을 비교해 미분류 상수 수가 0인지 검사한다.
+
+** TODO 2. Neutral parameter와 result API를 정의한다
+*** 실행
+
+Mass, area, density, inertia, velocity, force와 model option을 Balix type 없는 POD/view로
+정의한다. Status, non-finite, range와 strong failure 계약을 포함한다.
+
+*** 완료 조건
+
+Physics header가 Math Engine 하위 계층만 include하고 unit/frame 계약을 완전히 기술한다.
+
+*** 검증
+
+C17/C++17 compile, forbidden include, layout snapshot과 invalid/non-finite test를 수행한다.
+
+** TODO 3. Formula kernel과 conformance corpus를 구현한다
+*** 실행
+
+기초 kinematics, drag, energy, contact와 periodic signal을 작은 순수 함수로 구현하고
+heuristic model을 별도 opt-in API로 분리한다.
+
+*** 완료 조건
+
+분석적 해와 차원·방향·부호 불변성을 만족하고 Balix에서 동일 식의 중복이 제거된다.
+
+*** 검증
+
+Known answer, scale/metamorphic, conservation/dissipation, zero/degenerate와 high-precision
+oracle corpus를 실행한다.
+
+** TODO 4. Balix adapter와 compatibility를 전환한다
+*** 실행
+
+Balix DTO를 neutral parameter로 변환하고 기존 symbol을 forwarding한다. Tick, callback과
+state mutation은 Balix에 유지한다.
+
+*** 완료 조건
+
+Math Engine physics가 Balix를 모르며 기존 consumer가 호환 layer로 동작한다.
+
+*** 검증
+
+Old/new differential, adapter unit/frame, root shared export와 clean consumer test를
+실행한다.

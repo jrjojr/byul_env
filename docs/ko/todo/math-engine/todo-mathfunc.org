@@ -1,0 +1,66 @@
+#+TITLE: Math Engine 일반·특수 함수 TODO
+#+TODO: TODO DOING BLOCKED | DONE CANCELLED FAILED
+#+TODO_RULES: ../../../../external/rules/projects/byul/todo-rules.org
+#+TODO_PARENT: todo-math-engine.org
+#+AUTHOR: ByulPapa / Codex
+#+LANGUAGE: ko
+#+OPTIONS: toc:t num:nil
+
+* 목적
+
+Scalar 초월함수, 특수함수와 확률분포 값을 =numal= 위의 독립 =mathfunc= 계층으로
+제공한다. Parser, RNG sampling, GUI와 Balix state에는 의존하지 않는다.
+
+* 범위
+
+- exp/log, trigonometric와 hyperbolic 함수
+- gamma/beta/erf/Bessel/Lambert W 후보
+- complex 함수와 branch metadata
+- PDF/PMF/CDF/inverse CDF의 순수 값 계산
+- f32/f64와 지원 가능한 고정밀 backend
+- domain, pole, overflow, underflow, inexact와 estimated error
+
+* 실행 절차
+
+** TODO 1. 함수 inventory와 backend 오차 기준을 확정한다
+*** 실행
+
+현재 =scalar=, RNG distribution과 Balix 직접 =cmath= 호출을 조사하고 함수별 domain,
+정밀도, reference oracle와 backend 후보를 기록한다.
+
+*** 완료 조건
+
+중복 구현과 직접 호출의 owner가 정해지고 1차 함수 집합이 고정된다.
+
+*** 검증
+
+Symbol/literal scan과 TI-89 범위 corpus를 비교한다.
+
+** TODO 2. 공통 result와 direct C API를 정의한다
+*** 실행
+
+Backend를 노출하지 않는 status/value/error 구조와 정밀도별 이름을 설계한다.
+
+*** 완료 조건
+
+Expression과 직접 consumer가 같은 함수 registry metadata를 사용할 수 있다.
+
+*** 검증
+
+C17/C++17 header compile, ABI snapshot과 unsupported backend test를 실행한다.
+
+** TODO 3. 기본 함수와 특수함수를 단계적으로 구현한다
+*** 실행
+
+기본 함수부터 reference vector와 metamorphic property를 붙여 구현하고, 특수함수는
+검증 가능한 backend별로 추가한다.
+
+*** 완료 조건
+
+지원 domain에서 선언된 error bound를 만족하고 silent precision fallback이 없다.
+
+*** 검증
+
+공식 reference vector, identity, boundary/pole/non-finite와 high-precision oracle를
+실행한다.
+

@@ -1,0 +1,227 @@
+#+TITLE: BYUL Navsys coord_list.h 정밀 리팩토링 TODO
+#+TODO: TODO DOING BLOCKED | DONE CANCELLED FAILED
+#+TODO_RULES: ../../../../external/rules/projects/byul/todo-rules.org
+#+PUBLIC_API_RULES: ../../../../external/rules/projects/byul/public-api-rules.org
+#+HEADER_DECLARATION_RULES: ../../../../external/rules/projects/byul/header-declaration-rules.org
+#+HEADER_COMMENT_RULES: ../../../../external/rules/projects/byul/header-comment-rules.org
+#+HEADER_AUTHORING_RULES: ../../../../external/rules/projects/byul/header-authoring-rules.org
+#+BUILD_RULES: ../../../../external/rules/projects/byul/build-rules.org
+#+TEST_RULES: ../../../../external/rules/projects/byul/test-rules.org
+#+TODO_PARENT: todo-리팩토링-navsys-headers.org
+#+AUTHOR: ByulPapa / Codex
+#+LANGUAGE: ko
+#+OPTIONS: toc:t num:nil
+
+* Build compile-definition 불변식
+
+- coord module static은 =BYUL_STATIC=으로 list 구현을 컴파일한다.
+- root shared는 동일 source/header inventory를 =BYUL_EXPORTS=로 다시 컴파일·export하고
+  installed SDK consumer를 root runtime에 link한다.
+
+* 문서 책임
+
+=byul/navsys/coord/coord_list.h=의 opaque vector wrapper를 함수별로 정리한다. 공통
+status/ownership/caller-buffer 정책은 [[file:todo-navsys-industry-api-baseline.org][Navsys 업계 API 기준]]을 따른다. 현재 가장 큰
+계약 오류는 value 반환 =pop_front/back= 문서가 불가능한 =NULL=을 약속하고 실제로는
+=(0,0)=을 반환한다는 점이다.
+
+* 현재 구현 근거
+
+- storage는 =std::vector<coord_t>=이고 list object만 opaque다.
+- =get/front/back=은 내부 element의 borrowed pointer를 반환한다. push/insert/remove/
+  reverse/clear와 vector reallocation 뒤 모두 invalid될 수 있지만 문서에 없다.
+- 생성/복사/mutation에서 C++ allocation exception이 C ABI 밖으로 나갈 수 있다.
+- =length=와 index가 =int=라 대형 collection에서 truncation과 음수 규칙이 섞인다.
+- =sublist=는 새 object를 allocation하지만 이름과 =[start,end)= 범위가 불분명하다.
+
+* 업계 collection API와 직접 비교
+
+- [[https://docs.gtk.org/glib/struct.Array.html][GLib =GArray= 공식 API]]는 element storage가 append에 따라 이동할 수 있음을 명시하고
+  =len=, append/insert/remove/range, copy, ref/unref와 steal을 서로 다른 operation으로
+  노출한다. =coord_list_get/front/back=도 borrowed pointer의 유효 기간을 다음 mutation까지로
+  고정하거나, caller-owned =fetch=를 canonical access로 삼아야 한다.
+- GLib의 remove와 fast-remove가 순서 보존 여부를 함수 수준에서 구분하는 것처럼
+  =remove_value=는 첫 항목/전 항목, stable order와 제거 count를 숨기지 않아야 한다.
+- [[https://registry.khronos.org/vulkan/specs/latest/html/vkspec.html][Vulkan C API]]의 count-query/caller-buffer 관행을 따라 bulk export는 필요한 count와
+  실제 작성 count, capacity 부족 상태를 제공한다. 새 array를 묵시적으로 할당해 ownership을
+  caller에게 전가하지 않는다.
+
+* 현행 선언 전수 목록과 처분
+
+| 선언 | 현재 의미/결함 | 처분 |
+|------+----------------+------|
+| =coord_list_t= | opaque vector resource | keep |
+| =coord_list_create= | allocation 실패 채널 없음 | deprecate-forward |
+| =coord_list_destroy= | resource 종결 | keep |
+| =coord_list_copy= | allocation 실패/NULL 구분 없음 | deprecate-forward |
+| =coord_list_length= | =int= truncation | deprecate-forward |
+| =coord_list_empty= | const empty query | keep |
+| =coord_list_get= | borrowed pointer, invalid index와 NULL list 충돌 | deprecate-forward |
+| =coord_list_front= | borrowed pointer, empty와 invalid object 충돌 | deprecate-forward |
+| =coord_list_back= | borrowed pointer, empty와 invalid object 충돌 | deprecate-forward |
+| =coord_list_push_back= | 1/0, OOM/invalid 구분 없음 | deprecate-forward |
+| =coord_list_pop_back= | empty에서 valid =(0,0)= sentinel | deprecate-forward |
+| =coord_list_pop_front= | empty에서 valid =(0,0)= sentinel | deprecate-forward |
+| =coord_list_insert= | =int= index와 1/0 결과 | deprecate-forward |
+| =coord_list_remove_at= | invalid index/제거 여부 관찰 불가 | deprecate-forward |
+| =coord_list_remove_value= | 첫 항목/전체 항목 여부와 count 불명 | deprecate-forward |
+| =coord_list_clear= | 전체 제거 | keep |
+| =coord_list_reverse= | in-place mutation | keep |
+| =coord_list_contains= | int boolean | deprecate-forward |
+| =coord_list_find= | =-1= sentinel, index =int= | deprecate-forward |
+| =coord_list_sublist= | 새 owned list, 범위 규칙 불명 | deprecate-forward |
+| =coord_list_equals= | project naming =equal=과 불일치 | deprecate-forward |
+
+추가할 status/size_t/fetch/export/reserve/slice API는 =add=다. ABI 1 symbol은 제거하지
+않으며 =size_t=로 기존 signature를 직접 바꾸는 행위는 =abi-major=다.
+
+* 목표 계약
+
+** lifetime과 invalidation
+
+- =peek_at/front/back=이 borrowed pointer를 제공한다면 list의 다음 non-const operation,
+  destroy 전까지만 유효함을 모든 함수에 명시한다.
+- 안전한 기본은 =fetch=로 =coord_t=를 caller storage에 복사하는 것이다. wrapper는
+  borrowed pointer 대신 fetch를 사용한다.
+- read-only 동시 호출만 허용하고 mutation/destroy와의 동시 실행은 외부 동기화가
+  필요함을 metadata에 기록한다.
+
+** index, range와 mutation
+
+- canonical count/index는 =size_t=다. signed Python index 지원은 wrapper에서 normalize한
+  뒤 C API에 전달한다.
+- =insert(index)==size=는 append로 허용하고 =index>size=는 invalid argument로 고정한다.
+- slice는 =[begin,end)=, =begin <= end <= size=, 새 owned list 반환을 이름에 드러낸다.
+- =remove_value_ex=는 첫 일치 하나만 제거하고 =out_removed=를 반환하거나,
+  =remove_all=과 명시적으로 분리한다.
+
+** allocation과 output guarantee
+
+- 모든 allocation/증가 함수는 exception을 catch하고 status를 반환한다.
+- 실패 시 list content와 out parameter를 보존한다.
+- bulk 이동에는 =reserve=와 two-call =export=를 제공해 element-by-element wrapper 호출과
+  borrowed lifetime 의존을 제거한다.
+
+* 목표 공개 선언 초안
+
+#+begin_src c
+BYUL_API navsys_status_t coord_list_create_ex(coord_list_t** out_list);
+BYUL_API navsys_status_t coord_list_copy_ex(
+    const coord_list_t* source, coord_list_t** out_list);
+BYUL_API size_t coord_list_size(const coord_list_t* list);
+BYUL_API navsys_status_t coord_list_reserve(
+    coord_list_t* list, size_t capacity);
+
+BYUL_API navsys_status_t coord_list_fetch(
+    const coord_list_t* list, size_t index, coord_t* out_coord);
+BYUL_API navsys_status_t coord_list_fetch_front(
+    const coord_list_t* list, coord_t* out_coord);
+BYUL_API navsys_status_t coord_list_fetch_back(
+    const coord_list_t* list, coord_t* out_coord);
+BYUL_API navsys_status_t coord_list_push_back_ex(
+    coord_list_t* list, const coord_t* coord);
+BYUL_API navsys_status_t coord_list_try_pop_back(
+    coord_list_t* list, coord_t* out_coord);
+BYUL_API navsys_status_t coord_list_try_pop_front(
+    coord_list_t* list, coord_t* out_coord);
+BYUL_API navsys_status_t coord_list_insert_ex(
+    coord_list_t* list, size_t index, const coord_t* coord);
+BYUL_API navsys_status_t coord_list_remove_at_ex(
+    coord_list_t* list, size_t index, coord_t* out_removed);
+BYUL_API navsys_status_t coord_list_remove_value_ex(
+    coord_list_t* list, const coord_t* coord, bool* out_removed);
+BYUL_API navsys_status_t coord_list_find_ex(
+    const coord_list_t* list, const coord_t* coord,
+    size_t* out_index, bool* out_found);
+BYUL_API navsys_status_t coord_list_create_slice(
+    const coord_list_t* list, size_t begin, size_t end,
+    coord_list_t** out_slice);
+BYUL_API bool coord_list_equal(
+    const coord_list_t* lhs, const coord_list_t* rhs);
+BYUL_API navsys_status_t coord_list_export(
+    const coord_list_t* list, coord_t* out_coords,
+    size_t capacity, size_t* out_count);
+#+end_src
+
+empty pop은 status 후보를 공통 enum에서 =NOT_FOUND=로 추가할지 =INCOMPLETE=로 사용할지
+결정해야 한다. =INVALID_ARGUMENT=으로 뭉개지 않는다.
+
+* wrapper, build와 test 영향
+
+- 현재 Python wrapper의 =get/front/back= child는 parent를 retain하지 않는다. canonical
+  wrapper는 value copy를 반환하고 closed-state를 검사한다.
+- native =pop=이 value를 반환하므로 Python의 valid =(0,0)=와 empty를 구분할 수 없다.
+  새 =try_pop=으로만 Python protocol을 구현한다.
+- mutation 중 borrowed child의 UAF/잘못된 값 관찰을 sanitizer test에 포함한다.
+- static coord module과 root shared가 동일 =coord_list.cpp=를 포함하고 새 export를
+  모두 제공해야 한다.
+
+* 구현 순서
+
+** TODO 1단계: collection 의미와 ABI snapshot
+
+*** 실행
+
+- empty/index/range/duplicate/remove/invalidation truth table을 작성한다.
+- 기존 =int= size/index, symbol과 opaque handle ABI를 snapshot한다.
+
+*** 완료 조건
+
+- 21개 현행 선언이 처분표와 migration 항목에 1:1 대응한다.
+- empty pop, remove-one/all, slice range와 borrowed lifetime이 확정된다.
+
+*** 검증
+
+- 현행 동작 characterization test를 경계 index와 valid =(0,0)=에 대해 실행한다.
+- old installed SDK consumer를 root shared에 link한다.
+
+** TODO 2단계: status mutation과 safe fetch 구현
+
+*** 실행
+
+- create/copy/fetch/push/insert/pop/remove의 status 버전을 strong guarantee로 구현한다.
+- C++ exception을 C ABI 내부에서 OOM/status로 변환한다.
+
+*** 완료 조건
+
+- empty, invalid index, OOM과 정상 coordinate가 구별된다.
+- 실패 시 list와 모든 out parameter가 보존된다.
+
+*** 검증
+
+- failure injection, aliasing, boundary index와 randomized vector reference test를
+  static/root 양쪽에서 실행한다.
+
+** TODO 3단계: bulk/slice와 legacy forwarding
+
+*** 실행
+
+- reserve, two-call export, =[begin,end)= create-slice와 canonical equal을 구현한다.
+- 기존 pop/sublist/equals/length 함수를 deprecated adapter로 연결한다.
+
+*** 완료 조건
+
+- bulk export에 내부 pointer가 노출되지 않고 short buffer가 필요한 count를 반환한다.
+- old symbol은 유지되고 신규 production source는 canonical API만 사용한다.
+
+*** 검증
+
+- empty/exact/short/oversized export, full/empty slice, 최대 size 경계를 검사한다.
+- old/new source consumer와 export manifest를 비교한다.
+
+** TODO 4단계: wrapper와 통합 검증
+
+*** 실행
+
+- Python을 fetch/try-pop 기반으로 바꾸고 parent/closed-state 문제를 제거한다.
+- header metadata와 C17/C++17 standalone compile gate를 추가한다.
+
+*** 완료 조건
+
+- wrapper가 borrowed vector element를 객체 수명 밖에 보존하지 않는다.
+- static/root/install/wrapper 선언과 symbol 집합이 일치한다.
+
+*** 검증
+
+- Python empty/pop/index/slice/GC/close test, ASan/LSan/UBSan, ABI fixture와
+  =git diff --check=를 통과한다.

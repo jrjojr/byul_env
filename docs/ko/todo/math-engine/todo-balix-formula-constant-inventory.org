@@ -1,0 +1,206 @@
+#+TITLE: Balix 공식·상수·Private Helper 전수 Inventory TODO
+#+TODO: TODO DOING BLOCKED | DONE CANCELLED FAILED
+#+TODO_RULES: ../../../../external/rules/projects/byul/todo-rules.org
+#+TODO_PARENT: todo-balix-math-extraction.org
+#+AUTHOR: ByulPapa / Codex
+#+LANGUAGE: ko
+#+OPTIONS: toc:t num:nil
+
+* 목적
+
+=byul/balix=의 18개 production =.cpp=와 18개 public header에서 공개 함수뿐 아니라
+private helper, inline 식, tolerance, 상수, empirical coefficient, default tuning과
+sentinel까지 전수 추적한다. Public symbol 목록만 옮기고 private 식이나 숫자 literal을
+Balix에 남기는 누락을 막는 coverage 문서다.
+
+순수 계산식은 Math Engine owner로 이동한다. Tick, 감시, target 선택, callback binding,
+storage와 event 정책은 Balix에 남는다. 숫자라는 이유만으로 모두 공용 상수가 되지는
+않으며 출처와 의미에 따라 다음 owner를 고른다.
+
+* 18개 Source Census
+
+| 현재 production source | 공식·상수·상태 감사 범위 | 목표 owner와 세부 TODO |
+|------------------------+--------------------------+-------------------------|
+| =byul/balix/balix.cpp= | module init/free와 aggregate 호출, 계산식 없음 확인 | Balix [[file:todo-balix-math-engine-consumer.org][consumer]] |
+| =byul/balix/bodyprops/bodyprops.cpp= | =1-mu*t= damping, =1/mu= stop, kinetic-energy loss, mass/drag/restitution/friction/Magnus/gyro default | [[file:todo-balix-bodyprops-extraction.org][bodyprops]] |
+| =byul/balix/collision/collision.cpp= | plane/sphere/triangle CCD, quadratic root, relative motion, Newton, barycentric, Rodrigues rotation와 tolerance | [[file:todo-balix-collision-query-extraction.org][collision query]] |
+| =byul/balix/controller/controller.cpp= | PID/MPC adapter, bang-bang sign kernel, target mapping, allocation과 dispatch | [[file:todo-balix-controller-adapter.org][Controller adapter]]가 경계를 소유하고 계산 kernel은 Math Engine control로 위임 |
+| =byul/balix/environ/environ.cpp= | atmosphere heuristic, gravity/wind 합성, periodic phase, standard-condition literal과 elapsed mutation | [[file:todo-balix-environ-extraction.org][environment]] |
+| =byul/balix/motion_state/motion_state.cpp= | state init/assign/print와 미구현 collision 선언의 실제 owner | [[file:todo-balix-motion-state-extraction.org][motion state]] |
+| =byul/balix/numeq/filters/numeq_filters.cpp= | typed filter adapter와 callback cast, 식 중복 여부 | kernel은 [[file:todo-balix-kalman-extraction.org][estimation]], binding은 Balix |
+| =byul/balix/numeq/filters/numeq_kalman.cpp= | scalar gain/covariance, Vec3 predict/update/project와 implicit model | [[file:todo-balix-kalman-extraction.org][Kalman]] |
+| =byul/balix/numeq/numeq.cpp= | module init/free와 aggregate 호출, 계산식 없음 확인 | Balix [[file:todo-balix-math-engine-consumer.org][consumer]] |
+| =byul/balix/numeq/numeq_integrator.cpp= | Euler, semi-implicit, Verlet, RK4, environment force stage와 quaternion attitude integration | [[file:todo-balix-integrator-extraction.org][integrator]] |
+| =byul/balix/numeq/numeq_model.cpp= | quadratic drag, acceleration 합성, kinematics, discrete prediction, bounce, sphere/plane CCD | [[file:todo-balix-physics-model-extraction.org][physics model]] |
+| =byul/balix/numeq/numeq_model_motion.cpp= | Magnus, gyroscopic precession, spin drag와 empirical caps/penalties | [[file:todo-balix-motion-model-extraction.org][motion model]] |
+| =byul/balix/numeq/numeq_mpc.cpp= | quaternion angle, trajectory prediction, cost, candidate search, route/direction target와 tuning | kernel은 [[file:todo-balix-mpc-extraction.org][MPC]], route policy는 Balix |
+| =byul/balix/numeq/numeq_pid.cpp= | P/I/D, derivative, clamp, anti-windup와 auto-tuning coefficient | [[file:todo-balix-pid-extraction.org][PID]] |
+| =byul/balix/numeq/numeq_pid_vec3.cpp= | 축별 PID composition과 Vec3 auto factory | [[file:todo-balix-pid-extraction.org][PID]] |
+| =byul/balix/numeq/numeq_solver.cpp= | linear/quadratic/stable quadratic/cubic/bisection 공식과 PI/tolerance | [[file:todo-balix-solver-extraction.org][solver]] |
+| =byul/balix/trajectory/trajectory.cpp= | interpolation, speed magnitude, finite difference, time/distance resampling, impact cut와 buffer/lifecycle | 계산은 [[file:todo-balix-trajectory-analysis-extraction.org][sampled-series]], storage는 Balix |
+| =byul/balix/xform/xform.cpp= | degree/radian, quaternion/dual quaternion, composition/inverse/interpolation/reflection와 world clamp | 계산은 [[file:todo-balix-transform-extraction.org][transform]], clamp/print는 Balix |
+
+Header와 source가 1:1이라는 뜻은 아니다. 각 leaf TODO는 declaration, definition, private
+helper, call site와 test를 연결하고 위 18개 source의 미분류 row 수를 0으로 만든다.
+
+* Private Helper Inventory
+
+| Source | 현재 private helper | 목표 |
+|--------+---------------------+------|
+| =xform.cpp= | =xform_to_dualquat=, =xform_from_dualquat= | Math Engine transform kernel |
+| =xform.cpp= | =xform_clamp_position= | Balix world policy; canonical transform에서 제외 |
+| =trajectory.cpp= | =clamp_count= | caller-buffer/result count utility 또는 adapter, 수식 중복 금지 |
+| =controller.cpp= | =controller_pid_compute/reset=, =controller_mpc_compute/reset= | [[file:todo-balix-controller-adapter.org][Controller 계획]]의 Balix typed trampoline; PID/MPC 식은 Math Engine 호출 |
+| =controller.cpp= | =controller_bangbang_compute/reset= | Pure bang-bang control kernel은 Math Engine, controller state/binding은 [[file:todo-balix-controller-adapter.org][Balix adapter]] |
+| =environ.cpp= | =environ_calc_factor= | 근거·범위가 있는 empirical Math Engine model 또는 폐기 |
+| =collision.cpp= | =v3_len2=, =v3_len=, =nearly_zero_vec=, =nearly_colinear=, =select_axis_for_1d= | Geometry/CCD utility로 통합 |
+| =collision.cpp= | =solve_1d_exact_time=, =toi_curvature_metric=, =toi_newton_once=, =toi_curvature_metric_rel=, =toi_newton_once_rel= | Bracket/residual/status가 있는 Math Engine CCD |
+| =collision.cpp= | =tri_contains_point_barycentric=, =rotate_point_about_axis= | Robust barycentric와 rotation primitive |
+| =collision.cpp= | =finish_at_time=, =residual= lambda | Moving-sphere query의 위치 평가·surface result·root residual helper로 명시 이관하고 최종 acceptance status에 연결 |
+| =collision.cpp= | =RotTriCtx=, =nearly_zero=, =eval_projectile_at=, =eval_triangle_at=, reference형 =tri_contains_point_barycentric=, =try_candidate= | Fixed-axis rigid-motion context/evaluator와 candidate result로 통합하고 중복 barycentric 제거 |
+| =numeq_integrator.cpp= | =attitude_alpha_eval= | Frame이 명시된 rigid rotation derivative callback |
+| =numeq_model.cpp= | =compute_drag_accel=, =numeq_model_accel_internal=, =numeq_model_accel_except_gravity_internal= | Math Engine force model; Balix DTO 제거 |
+| =numeq_filters.cpp= | =kalman_vec3_get_state_internal= | Exact-signature adapter thunk; kernel과 분리 |
+| =numeq_mpc.cpp= | =quat_angle_diff=, =simulate_trajectory=, =signf=, =evaluate_cost= | Quaternion primitive, neutral prediction와 optimization kernel |
+| =numeq_pid.cpp= | =pid_clamp= | Control saturation primitive 또는 kernel 내부 helper |
+
+Header inline 감사에서는 =byul/balix/controller/controller.h=의 public
+=controller_compute/controller_reset=이 vtable과 impl layout을 직접 읽는다. 이는 수학
+공식은 아니지만 독립 DLL 경계에서 Balix ABI와 callback lifetime을 고정하므로 exported
+opaque adapter로 전환하고 Math Engine control kernel을 직접 inline하지 않는다.
+
+위 목록은 =static= keyword만 찾은 결과다. Anonymous lambda, macro, public 함수 안의 inline
+식과 header macro도 별도 formula manifest에 포함하며 =static= 목록만으로 coverage 완료를
+주장하지 않는다.
+
+* 숫자 Literal과 상수 분류
+
+| 분류 | 현재 예 | 목표 처리 |
+|------+---------+-----------|
+| 보편·표준 조건 | =pi=, =g=9.81=, =rho=1.225=, =p=101325= | =mathunits/constants=가 단위, 출처, edition/version과 정밀도를 소유 |
+| 단위 변환 | =180/pi=, =pi/180=, Hz의 =2*pi*f*t= | Math Engine 단위·signal primitive; raw macro 중복 제거 |
+| 식에서 유도된 계수 | =0.5*a*t^2=, =2 dot(r,v)=, RK tableau, stable quadratic =-0.5= | 알고리즘 문서와 분석식 test에 연결; user tuning으로 노출하지 않음 |
+| 수치 tolerance | =1e-8= time, =1e-5= barycentric, =VEC3_ABS_EPS_LEN2=, colinear =0.999=, curvature =0.25= | 단위·scale-aware context 또는 알고리즘 option; 서로 다른 차원에 같은 epsilon 재사용 금지 |
+| empirical model | humidity/temperature/pressure clamp, spin =50=, reduction =0.30=, penalty =0.15= | 출처, 적용 범위, 오차와 version이 있는 Math Engine model parameter; 근거 없으면 Balix preset 또는 제거 |
+| body preset | mass =1=, drag =0.47=, area =0.01=, restitution =0.5=, friction =0.1=, Magnus =0.2=, gyro =0.05= | 보편 상수가 아니라 Balix named preset; 계산 API의 hidden default 금지 |
+| control tuning | MPC horizon/dt/weights/candidate step, PID auto-tuning coefficient, default output limit | Balix/controller 또는 caller configuration; Math Engine kernel은 explicit option만 소비 |
+| world/UI policy | =XFORM_MIN/MAX_POS=, trajectory string =51200= | Balix/application policy; Math Engine transform·sample API에서 제외 |
+| sentinel | impact time =0=, failure time =-1=, null output static buffer | 명시적 status/optional field와 caller buffer로 대체; 유효한 zero와 충돌 금지 |
+
+모든 literal은 source 위치, dimension, 의미, 변경 가능성, provenance, target owner와 test를
+가져야 한다. =0=, =1=과 식에서 자명한 정수도 dimension이나 sentinel 의미가 있으면
+inventory에서 제외하지 않는다.
+
+* Industry 검증 기준
+
+- 공식은 변수 정의, 좌표계, 차원, 가정과 유효 범위를 갖는다.
+- Closed form은 분석적 known answer와 residual을, iterative method는 bracket/convergence/
+  iteration·evaluation budget과 failure status를 갖는다.
+- 미분·적분은 차수, local/global error, stability와 step-halving convergence를 기록한다.
+- 물리 모델은 dimensional analysis, limiting case, conservation/dissipation과 empirical
+  parameter provenance를 검증한다.
+- Geometry/CCD는 degenerate, tangent, coincident, initial overlap, moving/rotating frame,
+  feature classification과 scale-aware tolerance corpus를 갖는다.
+- Controller/estimator는 discrete-time model, units, saturation/covariance invariant,
+  deterministic workspace와 invalid/non-finite status를 갖는다.
+- Public C ABI 밖으로 C++ exception, STL/backend type 또는 생성 DLL과 다른 allocator의
+  해제가 새지 않는다.
+
+공식 reference baseline:
+
+- [[https://computing.llnl.gov/projects/sundials/cvode][LLNL SUNDIALS CVODE]]: ODE를
+  =y'=f(t,y)= callback, method, tolerance와 solver 상태로 분리하는 기준
+- [[https://doc.cgal.org/latest/Kernel_23/index.html][CGAL 2D/3D Kernel manual]]:
+  exact/filtered predicate와 construction 정확도를 분리하고 robust geometry kernel을
+  선택하는 기준
+- [[https://physics.nist.gov/cuu/Constants/index.html][NIST/CODATA Fundamental Physical
+  Constants]]: 상수값에 edition, 단위와 uncertainty를 함께 보존하는 기준
+- [[https://www.boost.org/doc/libs/latest/libs/math/doc/html/index.html][Boost.Math]]: root,
+  interpolation, quadrature/differentiation와 precision/error policy 비교 기준
+- [[https://cmake.org/cmake/help/latest/command/target_link_libraries.html][CMake
+  target_link_libraries]]와
+  [[https://cmake.org/cmake/help/latest/command/add_library.html][add_library]]: source 흡수 대신
+  target dependency와 static/shared/imported library를 표현하는 build 기준
+
+* 실행 절차
+
+** TODO 1. Declaration·definition·helper·literal manifest를 생성한다
+*** 실행
+
+18개 header와 18개 production source에서 public/private function, macro, file-scope helper,
+수학 호출과 numeric literal을 추출한다. 각 row에 line, call site, unit/frame, side effect,
+현재 test와 leaf TODO를 기록한다.
+
+*** 완료 조건
+
+선언만, 구현만, private 식, macro와 literal을 포함한 모든 row가 owner 하나와 disposition
+하나를 가지며 미분류 source와 symbol 수가 0이다.
+
+*** 검증
+
+=rg=와 compiler AST/export inventory를 서로 비교하고 source 18/18, public header 18/18,
+public declaration 215개 기준선과 private helper 목록을 대조한다.
+
+** TODO 2. 상수·tolerance·preset provenance를 판정한다
+*** 실행
+
+각 literal을 보편 상수, 식 계수, tolerance, empirical parameter, Balix preset, resource
+limit 또는 sentinel로 분류하고 출처·dimension·version·override 경로를 정한다.
+
+*** 완료 조건
+
+Universal constant와 product tuning이 섞이지 않고 근거 없는 empirical coefficient는
+공용 상수로 승격되지 않는다. 유효한 zero와 sentinel이 충돌하지 않는다.
+
+*** 검증
+
+Dimension lint, duplicate constant search, configuration round-trip, zero/boundary와
+versioned constant known-value test를 설계한다.
+
+** TODO 3. Leaf 계획의 공식·API·test trace를 닫는다
+*** 실행
+
+각 manifest row를 이 문서의 source table과 header별 leaf TODO에 연결한다. Formula가
+여러 파일에 복제돼 있으면 canonical Math Engine primitive 하나와 compatibility adapter를
+지정한다.
+
+*** 완료 조건
+
+Leaf TODO 밖의 orphan formula가 없고 같은 공식의 competing owner와 독립 구현이 없다.
+
+*** 검증
+
+Formula hash/AST 유사도, include/call graph, TODO link와 source-owner uniqueness report를
+검토한다.
+
+** TODO 4. 추출 뒤 Balix 재유입 방지 gate를 추가한다
+*** 실행
+
+Balix에서 허용하는 adapter 연산과 금지하는 math call/literal pattern을 manifest 기반 lint로
+정의한다. 새 공식은 Math Engine owner와 validation corpus 없이는 합류하지 못하게 한다.
+
+*** 완료 조건
+
+Balix에는 변환, 상태 적용, scheduling과 event policy만 남고 공식을 복사한 legacy shim이
+없다.
+
+*** 검증
+
+의도적으로 drag, interpolation, TOI와 PID 식을 Balix fixture에 추가하는 mutation test가
+CI에서 실패하는지 검사한다.
+
+** TODO 5. DLL cutover 전후 source·symbol uniqueness를 검증한다
+*** 실행
+
+Static 과도기와 독립 shared cutover 각각에서 formula source, object와 canonical symbol의
+compile/export owner를 기록하고 Balix link dependency를 대조한다.
+
+*** 완료 조건
+
+과도기에는 현행 root shared 정책을 지키고, 승인된 cutover 뒤 canonical math symbol은
+Math Engine DLL 한 곳에만 존재한다.
+
+*** 검증
+
+Compile commands, archive/object 목록, Windows/ELF/Mach-O symbol table, binary dependency와
+standalone consumer를 검사한다.

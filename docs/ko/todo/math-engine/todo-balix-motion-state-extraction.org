@@ -1,0 +1,137 @@
+#+TITLE: Balix Motion State·Kinematics Query 경계 TODO
+#+TODO: TODO DOING BLOCKED | DONE CANCELLED FAILED
+#+TODO_RULES: ../../../../external/rules/projects/byul/todo-rules.org
+#+TODO_PARENT: todo-balix-math-extraction.org
+#+AUTHOR: ByulPapa / Codex
+#+LANGUAGE: ko
+#+OPTIONS: toc:t num:nil
+
+* 실제 source·build 범위
+
+- 공개 header: =byul/balix/motion_state/motion_state.h=
+- 현재 구현: =byul/balix/motion_state/motion_state.cpp=
+- 현재 source/header 집계와 static target: =byul/balix/CMakeLists.txt=
+- root shared 재집계: =byul/CMakeLists.txt=
+- aggregate 노출: =byul/balix/balix.h=
+- 주요 직접 소비자: =byul/balix/numeq/numeq_integrator.cpp=,
+  =byul/balix/numeq/numeq_model.cpp=, =byul/balix/numeq/numeq_model_motion.cpp=,
+  =byul/balix/numeq/numeq_mpc.cpp=, =byul/entity/entity_dynamic.cpp=,
+  =byul/projectile/projectile.cpp=
+
+=motion_state.h=의 직접 =BYUL_API= 선언은 정확히 11개다. 아래 표는 전수
+inventory이며 collision 두 선언에는 현재 대응 definition이 없다.
+
+| =BYUL_API= 선언 | 정본 분류 | 기존 symbol의 최종 운명 | 판단 |
+|-----------------+-----------+--------------------------+------|
+| =linear_state_init= | Balix orchestration/lifecycle/adapter | Balix 유지 | 기존 =linear_state_t=의 zero lifecycle다. |
+| =linear_state_init_full= | Balix orchestration/lifecycle/adapter | Balix 유지 | 기존 DTO field를 caller 값으로 초기화한다. |
+| =linear_state_assign= | Balix orchestration/lifecycle/adapter | Balix 유지 | 기존 DTO copy lifecycle다. |
+| =attitude_state_init= | Balix orchestration/lifecycle/adapter | Balix 유지 | identity quaternion과 angular zero를 설정하는 기존 DTO lifecycle다. |
+| =attitude_state_init_full= | Balix orchestration/lifecycle/adapter | Balix 유지 | 기존 attitude DTO field 초기화다. |
+| =attitude_state_assign= | Balix orchestration/lifecycle/adapter | Balix 유지 | 기존 attitude DTO copy lifecycle다. |
+| =motion_state_init= | Balix orchestration/lifecycle/adapter | Balix 유지 | linear/attitude lifecycle 합성이다. |
+| =motion_state_init_full= | Balix orchestration/lifecycle/adapter | Balix 유지 | 기존 full motion DTO field 초기화다. |
+| =motion_state_assign= | Balix orchestration/lifecycle/adapter | Balix 유지 | 기존 full motion DTO copy lifecycle다. |
+| =motion_state_calc_collision_time= | Math Engine pure calculation/value | Balix legacy forwarding | 단발 sphere CCD result의 TOI를 기존 output으로 mapping한다. 현재 미구현이다. |
+| =motion_state_calc_collision_point= | Math Engine pure calculation/value | Balix legacy forwarding | 같은 단발 CCD result의 TOI와 교차 좌표를 기존 output으로 mapping한다. 현재 미구현이다. |
+
+* Public value surface
+
+=motion_state.h=는 다음 세 public value layout을 노출한다.
+
+| Public type | Field | ABI/목표 책임 |
+|-------------+-------+---------------|
+| =linear_state_t= | =position=, =velocity=, =acceleration= | 기존 Balix ABI와 lifecycle은 유지하고 adapter가 neutral kinematics value로 변환한다. |
+| =attitude_state_t= | =orientation=, =angular_velocity=, =angular_acceleration= | 기존 Balix ABI와 lifecycle은 유지하고 unit/frame을 명시해 neutral pose/twist로 변환한다. |
+| =motion_state_t= | =linear=, =angular= | Balix aggregate DTO이며 Math Engine public header에 직접 노출하지 않는다. |
+
+Init/full/assign 함수는 계산 kernel이 아니다. 다만 Math Engine의 neutral value type에도
+zero/identity constructor가 필요하면 별도 canonical value API가 소유하며, 기존
+=*_state_*= symbol이 그 type으로 소유권을 옮긴다는 뜻은 아니다.
+
+* 선언·구현과 검증 공백
+
+- =motion_state.cpp=에는 9개 lifecycle definition만 있고
+  =motion_state_calc_collision_time=과 =motion_state_calc_collision_point= definition이 없다.
+- 두 collision 선언은 =radius_a=, =radius_b=, =max_t=와 =bool=만 제공하며 negative
+  radius, non-finite, initial overlap, tangent, acceleration model, frame과 tolerance 계약이
+  없다.
+- time과 point를 별도 함수로 계산하면 서로 다른 root/tolerance가 선택될 위험이 있으므로
+  canonical API는 =status + toi + point + normal/feature + residual=의 단일 result다.
+- 현재 =byul/balix/tests/CMakeLists.txt=에는 motion-state 전용 test source가 없다. 미구현
+  두 export를 link하는 ABI fixture도 없다.
+
+* Build·DLL 이행
+
+현재 =motion_state.cpp= 전체가 =balix_SOURCES=와 root shared source inventory에 포함된다.
+
+- Static 과도기: 9개 lifecycle definition은 Balix source에 남긴다. 새 neutral value와
+  sphere CCD kernel은 단일 Math Engine manifest가 소유하고 Balix가 static target을
+  link한다. 누락된 2개 definition은 Balix legacy forwarding shim으로만 추가한다.
+- 독립 DLL 전환: 중앙 규칙과 =rules-ref.org= revision 승인 뒤 Math Engine DLL이
+  canonical CCD symbol을 export한다. Root BYUL은 기존 두 이름의 shim을 export하되
+  Math Engine 계산 source를 중복 compile하지 않는다.
+
+* 경계
+
+Math Engine은 neutral position/velocity/acceleration와 pose/twist POD 또는 array view를
+소유한다. Balix =motion_state_t=의 field layout을 Math Engine public ABI로 복사하지
+않고 explicit converter를 둔다. Collision time/point는 하나의 CCD result에서 함께
+반환해 두 번 계산하거나 결과가 불일치하지 않게 한다.
+
+* 실행 절차
+
+** TODO 1. DTO layout와 consumer를 동결한다
+*** 실행
+
+Struct size/align/offset, unit/frame, initialization과 모든 direct field consumer를
+inventory한다.
+
+*** 완료 조건
+
+Legacy DTO를 유지할 범위와 neutral state로 이동할 값이 확정된다.
+
+*** 검증
+
+ABI snapshot, include/call graph와 C/C++ compile를 수행한다.
+
+** TODO 2. Neutral kinematics state와 converter를 정의한다
+*** 실행
+
+Position/velocity/acceleration, orientation/angular rate의 unit/frame과 conversion status를
+설계한다.
+
+*** 완료 조건
+
+Math Engine header가 Balix를 include하지 않고 lossless supported conversion이 가능하다.
+
+*** 검증
+
+Round-trip, frame/unit mismatch, non-finite와 layout test를 실행한다.
+
+** TODO 3. 단일 CCD result로 미구현 API를 대체한다
+*** 실행
+
+Collision time과 point를 geometry query 한 번으로 계산하고 legacy 두 symbol은 result
+field를 forwarding한다.
+
+*** 완료 조건
+
+선언-정의 누락이 사라지고 time/point가 같은 root와 tolerance에서 나온다.
+
+*** 검증
+
+Analytic approach/diverge/overlap/accelerated/tangent corpus와 export 검사를 실행한다.
+
+** TODO 4. Balix lifecycle과 adapter를 유지한다
+*** 실행
+
+Init/assign은 Balix DTO 책임으로 남기고 계산을 포함하지 않게 한다.
+
+*** 완료 조건
+
+State lifecycle과 math query의 owner가 분리되고 existing consumer가 호환된다.
+
+*** 검증
+
+Old ABI consumer, adapter differential와 module/root tests를 실행한다.

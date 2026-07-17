@@ -1,0 +1,730 @@
+#+TITLE: BYUL Math Engine Master TODO
+#+TODO: TODO DOING BLOCKED | DONE CANCELLED FAILED
+#+TODO_RULES: ../../../../external/rules/projects/byul/todo-rules.org
+#+AUTHOR: ByulPapa / Codex
+#+LANGUAGE: ko
+#+OPTIONS: toc:t num:nil
+
+* 비전
+
+BYUL의 공식, 상수, 수치해석, 기하, 물리와 계산 kernel을 소비 module과 분리된 Math
+Engine으로 만든다. 첫 conformance workload는 임베디드 공학용 CAS·그래프 계산기
+수준이지만 엔진의 소유권 기준이나 DLL 경계가 특정 제품에 종속되지는 않는다. 이때
+확립한 public API와 설정 해석 체계를 simulation, 금융, CAD, Python wrapper와 GPU batch
+계산에서 동일하게 재사용한다.
+
+#+begin_quote
+입력식은 수학을 구현하지 않고, 내부 수학은 입력식 문법을 모른다.
+GUI와 게임은 동일한 public 수학 API를 서로 다른 방식으로 사용한다.
+#+end_quote
+
+계산기는 수학 엔진의 reference application이자 통합 검증 도구로 사용한다. 데스크톱과
+Linux application processor에서 전체 기능을 먼저 검증하고, 제한된 MCU에서는 같은
+API의 정적 빌드와 축소 profile을 사용한다.
+
+* 문서 위치와 계획 트리
+
+사용자 지정에 따라 Math Engine 관련 Org 원본을 =docs/ko/todo/math-engine/todo-*.org=에
+모은다. 이는 현재 중앙 TODO 규칙의 flat path보다 구체적인 이 작업의 명시적 배치
+요구이다. 중앙 규칙을 임의로 바꾸지는 않으며 후속 규칙 갱신 시 이 topical directory와
+상대 =TODO_RULES/TODO_PARENT= 계약을 정식 반영한다. Markdown은 이 계획의 원본이 아니다.
+
+** Core 계산 계획
+
+- [[file:todo-numal.org][Numal]]
+- [[file:todo-mathfunc.org][일반·특수 함수]]
+- [[file:todo-numeq.org][수치해석]]
+- [[file:todo-mathunits.org][단위·상수]]
+- [[file:todo-expression.org][Expression·CAS]]
+- [[file:todo-geometry.org][기하·교차]]
+- [[file:todo-physics.org][물리 공식]]
+- [[file:todo-plot.org][Plot 분석]]
+
+** 공통 실행·ABI 계획
+
+- [[file:todo-math-computation-context.org][계산 context]]
+- [[file:todo-math-engine-configuration.org][설정 resolver]]
+- [[file:todo-math-engine-build-abi.org][Build·독립 DLL ABI]]
+- [[file:todo-numal-header-refactoring.org][Numal public header 리팩터링]]
+- [[file:todo-unit-1003-migration.org][unit_1003 migration]]
+
+** Balix 추출 계획
+
+- [[file:todo-balix-math-extraction.org][Balix 수학 추출 master]]
+- [[file:todo-balix-formula-constant-inventory.org][Balix 공식·상수·private helper inventory]]
+- [[file:todo-balix-math-engine-consumer.org][Balix consumer·link·adapter]]
+- [[file:todo-balix-controller-adapter.org][Controller adapter·factory]]
+- [[file:todo-balix-bodyprops-extraction.org][Body properties]]
+- [[file:todo-balix-collision-query-extraction.org][Collision 교차 좌표·TOI query]]
+- [[file:todo-balix-environ-extraction.org][Environment 공식·상수]]
+- [[file:todo-balix-integrator-extraction.org][ODE·rigid integrator]]
+- [[file:todo-balix-kalman-extraction.org][Kalman·filter]]
+- [[file:todo-balix-motion-model-extraction.org][Motion model]]
+- [[file:todo-balix-motion-state-extraction.org][Motion state]]
+- [[file:todo-balix-mpc-extraction.org][MPC·optimization]]
+- [[file:todo-balix-physics-model-extraction.org][Physics model]]
+- [[file:todo-balix-pid-extraction.org][PID]]
+- [[file:todo-balix-solver-extraction.org][Solver]]
+- [[file:todo-balix-trajectory-analysis-extraction.org][Trajectory 분석]]
+- [[file:todo-balix-transform-extraction.org][Transform]]
+
+첫 계산기의 기능 범위 benchmark는 TI-89로 고정한다. 이는 symbolic algebra,
+calculus, exact/approximate 결과, 복소수·행렬, 단위·상수, 방정식·ODE와 graph 기능의
+완료 범위를 정하기 위한 기준이며 명령, 파일, UI나 key layout 호환성 목표가 아니다.
+TI-Nspire의 document/application 연결은 TI-89 범위가 안정된 뒤 선택적으로 참고한다.
+
+* 제품 목표와 범위
+
+** 목표 사용자
+
+- 공학·과학 계산을 수행하는 학생, 개발자와 현장 기술자
+- 네트워크 없이 계산, 그래프와 제한적 기호 계산이 필요한 장치
+- 키패드 또는 touch display를 사용하는 독립형 계산기
+- 다른 장비, 게임과 GUI에 계산 엔진을 내장하는 개발자
+
+** 계산기 필수 기능
+
+- 일반·과학·공학 표기와 유효숫자 표시
+- degree, radian과 gradian 각도 mode
+- 정수, 유리수, 실수, 복소수, vector와 matrix 계산
+- 변수, =Ans=, 사용자 함수, history와 worksheet
+- 방정식, 수치 미분·적분, ODE, 보간, 회귀와 최적화
+- 제한적 공학 CAS와 exact/approximate 결과 구분
+- Cartesian, parametric, polar와 implicit 그래프
+- trace, table, zero, intersection, minimum과 maximum
+- 단위·차원 계산과 version이 기록된 공학·물리 상수
+- 계산 취소, 평가 예산과 전원 중단에 안전한 저장
+
+** 비목표
+
+- 1차 제품에서 Mathematica, Maple 또는 SageMath 수준의 범용 CAS 제공
+- 계산 결과만으로 안전·의료·금융 또는 법정 계량 인증을 주장
+- GUI, display driver와 keypad driver를 수학 core에 포함
+- 모든 MCU profile에서 arbitrary precision, implicit plot과 고급 ODE를 제공
+- TI-89 또는 TI-Nspire의 key layout, home 화면, soft key, icon, menu와 화면 흐름 복제
+- TI 계산기 명령·파일 형식의 호환 제품 또는 emulator 구현
+
+** BYUL 함수와 결과 계약의 정체성
+
+- TI-89 수준의 CAS·공학 함수 inventory와 conformance corpus 작성
+- exact, approximate, inexact와 uncertain 결과 상태를 항상 구분
+- named capability bundle, fast/precision/hybrid preset과 numeric backend 조회
+- graph, table, ODE와 simulation adapter가 공유할 결과 구조
+- trajectory, collision과 ODE의 시간축 sample과 검사 metadata
+- hybrid refinement의 승격 이유, 오차, 반복과 계산 예산 반환
+- 단위·차원과 금융 rounding·scale·quantize 상태 반환
+- resolved configuration fingerprint와 backend/data version 직렬화
+
+현재 단계에서는 GUI, key layout, menu, 화면 배치와 조작 흐름을 설계하거나 구현하지
+않는다. TI-89는 함수를 작성하고 테스트 범위를 정할 때만 참고한다. 향후 GUI 작업은
+이 함수와 결과 metadata를 소비하며 별도 문서에서 BYUL 고유 설계로 진행한다.
+
+* 하위 계획
+
+- =todo-numal.org=: 기초 자료형, 대수, 정수론과 decimal
+- =todo-mathfunc.org=: 일반·특수함수와 확률분포 값
+- =todo-numeq.org=: 근, 미분·적분, ODE, 보간과 최적화
+- =todo-mathunits.org=: SI 차원, quantity와 versioned 상수
+- =todo-expression.org=: parser, AST/bytecode와 제한적 CAS
+- =todo-geometry.org=: 강건 기하, 교차 좌표, CCD/contact와 CAD
+- =todo-physics.org=: 순수 물리 법칙과 empirical model 경계
+- =todo-plot.org=: graph 분석과 renderer 독립 plot data
+- =todo-math-computation-context.org=: tolerance, backend, budget와 refinement
+- =todo-math-engine-configuration.org=: Math Engine capability/profile resolver
+- =todo-balix-math-extraction.org=: Balix 파일·심볼별 계산 추출
+- =todo-math-engine-build-abi.org=: static 과도기와 미래 독립 DLL
+
+Balix 경계는 “시간을 쓰는가”가 아니라 “단발 순수 계산인가, 주기 감시·상태·이벤트인가”로
+판단한다. 교차점·선·면·normal·TOI 계산은 Math Engine이고 tick scheduling, 후보 관리,
+contact persistence와 event dispatch는 Balix다.
+
+* 대표 사용처
+
+BYUL Math Engine의 대표 사용처는 다음 네 분야이다.
+
+1. 임베디드 공학 계산
+2. 범용 시뮬레이션
+3. 금융 계산
+4. CAD·강건 기하
+
+범용 simulation은 실시간 물리, collision, entity, projectile와 trajectory뿐 아니라
+기계·물리, 로봇·제어, 항공우주와 전기전자를 포함한다. 게임과 공학·과학을 별도
+엔진이나 제품 profile로 나누지 않고 하나의 simulation core에 패스트, 정밀 또는
+복합 preset을 적용한다. 분야 이름은 사용 사례와 preset template에는 사용할 수
+있지만 알고리즘 계층을 분리하는 기준으로 사용하지 않는다.
+
+* 전체 계층
+
+#+begin_src text
+numal
+  기초 수, 대수 자료형, 기하와 정수론
+       ^
+mathfunc
+  초월함수, 특수함수와 조합 함수
+       ^
+numeq
+  방정식, 근, 미분, 적분, ODE와 최적화
+       ^
+expression
+  parser, AST/bytecode, context와 함수 registry
+       ^
+mathunits / plot
+  단위·차원, 공학 상수와 렌더러 독립 plot data
+       ^
+calculator / GUI / CLI / Python / simulation 도구
+#+end_src
+
+=numal= 과 =numeq= 는 expression, plot과 GUI를 include하지 않는다. expression이
+callback과 registry를 통해 내부 수학 API를 호출한다.
+
+기하 계층은 수학 계층의 별도 축으로 둔다.
+
+#+begin_src text
+numal
+  vector, matrix, interval과 robust predicate 기반
+       ^
+geometry
+  point/ray/primitive, curve/surface, NURBS, B-rep, collision/contact
+       ^
+plot / CAD 도구 / simulation adapter / game / Python
+#+end_src
+
+* 사용 방식
+
+** 직접 함수 호출
+
+simulation과 application 코드는 문자열을 거치지 않고 직접 호출한다.
+
+#+begin_src c
+double y = math_gamma_f64(5.0);
+numeq_find_root_f64(function, userdata, 0.0, 10.0, &options, &root);
+#+end_src
+
+** 입력식 평가
+
+#+begin_src text
+sin(pi / 3)
+x^2 - 4*x + 3
+integral(sin(x), x, 0, pi)
+solve(x^2 - 5*x + 6, x, 0, 10)
+#+end_src
+
+** GUI와 그래프
+
+GUI는 입력과 결과 표시만 담당한다. 그래프 계층은 compile된 식을 여러 좌표에서
+평가하고 불연속점, 극값과 교점을 계산한다.
+
+** 임베디드 실행 profile
+
+#+begin_src text
+calculator-full
+  Linux/desktop, f64/f128, arbitrary precision, CAS, 모든 graph mode
+
+calculator-compact
+  고성능 MCU/RTOS, f32/f64, 제한 행렬, 제한 CAS, Cartesian/parametric graph
+
+calculator-minimal
+  소형 MCU, f32 또는 제한 f64, 기본 함수와 고정 예산 expression
+#+end_src
+
+profile은 동일 source에서 compile-time option으로 선택하고, 지원하지 않는 기능은
+조용히 정밀도를 낮추지 않고 명시적인 unsupported 상태를 반환한다.
+
+* 기능 영역 1: 수학 값 모델
+
+표현식 엔진이 =double= 하나에 고정되지 않도록 확장 가능한 tagged value를 설계한다.
+
+#+begin_src text
+math_value_t
+  integer
+  rational
+  f32
+  f64
+  f128
+  arbitrary precision
+  fixed decimal
+  arbitrary decimal
+  complex
+  vector
+  matrix
+#+end_src
+
+값의 ownership, copy/move, 오류 상태와 opaque handle 규칙을 C ABI로 정의한다.
+
+* 기능 영역 2: precision과 arithmetic context
+
+- 기본 backend: =f64=
+- 실시간 backend: =f32=
+- 고정밀 backend: =f128= 및 arbitrary precision
+- 금융 backend: fixed decimal과 arbitrary decimal
+- rounding mode
+- decimal scale과 precision
+- overflow, underflow와 inexact 정책
+- 최대 반복, tolerance와 평가 예산
+
+context는 계산기 전체 기본값과 개별 연산 override를 지원한다. 암묵적인 이진/십진
+변환과 정밀도 저하는 허용하지 않는다.
+
+arbitrary decimal의 우선 후보는 mpdecimal/libmpdec이다. fixed decimal, exact rational,
+binary arbitrary precision과 구분하며 full profile의 선택 backend로 시작한다.
+
+숫자 precision context는 상위 Math Engine 계산 context와 named bundle이 선택하는 구성
+요소이다. 수학 계산의 패스트·정밀·복합 계약은 =todo-math-computation-context.org= 를,
+backend 이름과 설정 해석 규칙은 =todo-math-engine-configuration.org= 를 따른다.
+
+* 기능 영역 3: mathfunc 함수 모음
+
+** 기본 함수
+
+- abs, sign, sqrt, cbrt와 pow
+- exp, log, log2와 log10
+- sin, cos, tan과 역삼각함수
+- 쌍곡선함수
+- floor, ceil, round와 remainder
+
+** 특수함수
+
+- factorial, gamma와 beta
+- erf
+- Bessel 계열
+- Lambert W
+- 복소수 초월함수
+- 확률분포 PDF, PMF, CDF와 inverse CDF
+
+직접 구현, 표준 라이브러리와 Boost.Math backend의 정확도·라이선스·빌드 비용을
+함수별로 판단한다.
+
+* 기능 영역 4: lexer와 parser
+
+- 숫자와 정밀도 suffix
+- identifier, 변수와 상수
+- unary와 binary operator
+- 우선순위와 결합 방향
+- 괄호와 함수 호출
+- vector와 matrix literal 후보
+- source 위치를 포함한 오류 진단
+
+1차 문법은 숫자, 변수, =+ - * / % ^=, 괄호와 일반 함수 호출로 제한한다.
+
+** Flex와 Bison 도입 검토
+
+Flex와 Bison은 후보로 유지하되 1차 구현에서 즉시 필수 의존성으로 확정하지 않는다.
+현재 최소 표현식 문법은 작은 handwritten lexer와 Pratt parser 또는 precedence
+climbing parser로 충분히 구현할 수 있다. 반면 문법이 statement, 사용자 함수 정의,
+조건식, vector/matrix literal과 특수 연산까지 확장되면 grammar file과 충돌 진단을
+제공하는 Flex/Bison의 이점이 커진다.
+
+세부 구현, =tools/cmake_starter_1040= 평가, code generation과 conformance 계획은
+=todo-expression.org= 를 기준으로 한다.
+
+#+begin_src text
+최소 문법
+  number, identifier, unary/binary operator, call
+  -> handwritten lexer + Pratt parser 우선 후보
+
+확장 문법
+  declaration, scope, condition, vector/matrix, special form
+  -> Flex + Bison 비교 후보
+#+end_src
+
+Flex/Bison 후보 구현은 다음 원칙을 따른다.
+
+- Bison의 C++ parser skeleton을 사용하고 generated parser는 expression 내부 구현으로
+  제한한다.
+- scanner와 parser는 전역 상태를 사용하지 않는 reentrant 구조로 만든다.
+- token과 semantic value에서 raw owning pointer를 전달하지 않는다.
+- source offset, line과 column을 location 정보로 유지한다.
+- syntax error를 public 오류 구조로 변환하고 C++ 예외가 C ABI 밖으로 나가지 않게
+  한다.
+- 함수 이름과 arity 판단은 grammar에 하드코딩하지 않고 함수 registry에 맡긴다.
+- AST node 생성 실패와 parser error recovery 중 생성된 값의 정리 규칙을 검증한다.
+- generated header와 symbol은 public SDK header에 노출하지 않는다.
+
+** 빌드와 배포 정책
+
+Windows, Linux와 macOS의 개발 환경에서 Flex/Bison 실행 파일의 설치 방식이 다르므로
+최종 사용자 build가 generator 설치 여부에 따라 달라지지 않게 한다.
+
+권장 후보는 =.l=, =.y= 원본과 생성된 =.cpp/.h=를 저장소에 함께 두고, 일반 build는
+생성된 source를 compile하는 방식이다. Maintainer용 regeneration target에서만
+CMake =FindFLEX=, =FindBISON=과 =FLEX_TARGET=, =BISON_TARGET=,
+=ADD_FLEX_BISON_DEPENDENCY=를 사용한다.
+
+#+begin_src text
+일반 사용자 build
+  generated lexer/parser source만 compile
+  Flex/Bison 설치 불필요
+
+maintainer regeneration
+  정확히 고정한 Flex/Bison 환경 사용
+  grammar -> generated source
+  생성 diff와 test 확인
+#+end_src
+
+생성물을 저장소에 포함할 경우 다음을 필수로 한다.
+
+- 사용한 Flex/Bison version과 생성 command 기록
+- 동일 도구 version에서 재생성 diff가 없음을 CI에서 검사
+- generated file에 직접 수정 금지 표시
+- grammar source와 generated source의 stale 검사
+- 생성 코드 license와 BYUL 배포 조건 검토
+
+도구 version 차이로 생성 diff가 지나치게 크거나 platform별 결과가 달라지면 고정된
+container 또는 CI job에서만 regeneration한다.
+
+=tools/cmake_starter_1040/starter.cmake= 전체는 BYUL build framework로 흡수하지 않는다.
+홈 디렉터리의 =win_flex.exe=/=win_bison.exe= 고정 경로, Windows/Linux 전용 분기,
+전역 cache 기반 project 관계, configure 중 source 생성과 자체 install/CPack 규칙이
+현재 BYUL target·preset·package 구조와 충돌한다. pure/reentrant parser, token prefix,
+=%destructor= 와 detailed error 같은 경험만 새 BYUL 전용 helper와 prototype에 선별
+반영한다.
+
+** 비교 prototype
+
+최종 선택 전에 동일한 최소 문법을 두 방식으로 구현해 비교한다.
+
+1. handwritten lexer + Pratt parser
+2. Flex scanner + Bison LALR parser
+
+비교 항목:
+
+- source와 generated code 크기
+- Windows/Linux/macOS build 재현성
+- precedence와 associativity 표현 난이도
+- syntax error 위치와 message 품질
+- malformed input recovery
+- AST 생성과 ownership 복잡도
+- parse 속도와 compile된 식 반복 평가 비용
+- 새 operator, literal과 special form 추가 비용
+- sanitizer와 fuzz test 적용 난이도
+
+Parser 성능은 expression 평가 전체에서 보통 1회 비용이므로 미세한 parse 속도보다
+오류 진단, 유지보수성과 재현 가능한 build를 우선한다.
+
+** 채택 기준
+
+다음 조건 중 하나 이상이 실제로 발생하면 Flex/Bison 채택을 우선 검토한다.
+
+- grammar production과 precedence 계층이 handwritten parser에서 관리하기 어려워짐
+- 문법 충돌을 자동 보고할 필요가 있음
+- error recovery가 필요한 여러 statement 입력을 지원함
+- vector/matrix, 조건식, 사용자 함수 정의 등 문법 범위가 크게 확장됨
+- grammar를 단일 명세로 검토하는 편이 수동 parser보다 명확함
+
+다음 조건이면 handwritten parser를 유지한다.
+
+- 문법이 expression 하나와 함수 호출 중심으로 작게 유지됨
+- Pratt parser의 binding power table로 operator를 명확히 관리할 수 있음
+- Flex/Bison generated source와 regeneration 환경이 유지보수 비용을 크게 늘림
+- 두 prototype의 오류 품질과 확장성 차이가 유의미하지 않음
+
+1차 결정은 handwritten parser를 기본안으로 두고 Flex/Bison prototype을 비교하는
+것이다. 비교 결과 없이 도구 선호만으로 채택하지 않는다.
+
+** Flex/Bison 검토 TODO
+
+- [ ] 최소 expression grammar를 =expression.l= 과 =expression.y=로 작성
+- [ ] 동일 grammar의 Pratt parser prototype 작성
+- [ ] unary minus와 power operator precedence 검증
+- [ ] nested call, 잘못된 token과 닫히지 않은 괄호 오류 위치 비교
+- [ ] pure/reentrant scanner와 parser 병렬 실행 test
+- [ ] AST allocation 실패와 error recovery leak test
+- [ ] CMake maintainer regeneration target prototype
+- [ ] generated source stale 검사 prototype
+- [ ] Windows, Linux와 macOS 재생성 결과 비교
+- [ ] fuzz corpus를 두 parser에 동일 적용
+- [ ] 비교 결과를 근거로 최종 backend 선택
+
+* 기능 영역 5: AST, bytecode와 evaluator
+
+- immutable AST
+- 반복 평가를 위한 bytecode compile 후보
+- evaluation context
+- 변수 scope
+- 사용자 정의 함수
+- 재귀 깊이와 평가 횟수 제한
+- 오류와 non-finite 결과 전달
+- thread-safe immutable expression
+
+그래프 계산은 같은 식을 많이 평가하므로 parse는 한 번만 수행한다.
+
+* 기능 영역 6: 함수 registry
+
+입력식의 이름과 내부 C API를 연결한다.
+
+#+begin_src c
+typedef struct math_function_desc_t {
+    const char* name;
+    size_t min_args;
+    size_t max_args;
+    math_function_callback_t callback;
+    void* userdata;
+} math_function_desc_t;
+#+end_src
+
+- built-in 함수 등록
+- 사용자 함수 등록과 제거
+- overload와 정밀도 backend 선택
+- pure/deterministic metadata
+- batch 평가 가능 여부
+
+parser를 수정하지 않고 새 수학 함수를 추가할 수 있어야 한다.
+
+* 기능 영역 7: 일반 함수와 특수 연산
+
+일반 함수는 인자를 먼저 값으로 평가한다.
+
+#+begin_src text
+sin(x)
+pow(x, 2)
+gamma(x)
+#+end_src
+
+다음 연산은 식, 변수와 범위를 AST 또는 executable expression으로 유지한다.
+
+#+begin_src text
+derivative(x^2, x, 3)
+integral(sin(x), x, 0, pi)
+sum(k^2, k, 1, 10)
+solve(f(x), x, a, b)
+#+end_src
+
+expression 계층이 내부 식을 callback으로 감싸 =numeq= 에 전달한다.
+
+* 기능 영역 8: 통계·확률 표현식
+
+- mean, median, variance와 standard deviation
+- covariance와 correlation
+- permutation과 combination
+- Bernoulli, binomial, normal과 Poisson
+- PDF, PMF, CDF와 inverse CDF
+- 주사위 확률과 표본 추출
+
+보상, 아이템, 천장과 플레이어 정책은 포함하지 않는다. 난수 생성은 =rng= 를
+주입받고 확률 공식은 가능한 한 순수 함수로 제공한다.
+
+* 기능 영역 9: 그래프 계산
+
+- Cartesian =y=f(x)=
+- parametric =(x(t), y(t))=
+- polar =r=f(theta)=
+- implicit =f(x,y)=0=
+- adaptive sampling
+- discontinuity와 asymptote 처리
+- zero, intersection, minimum과 maximum
+- pan/zoom에 따른 재평가
+- 결과는 렌더러 독립 plot data로 제공
+- 화면 공간 오차를 사용하는 adaptive subdivision
+- non-finite 구간과 수직 점근선에서 선분 연결 금지
+- implicit graph의 adaptive grid와 Marching Squares
+- 저해상도 우선 표시와 idle 중 progressive refinement
+- viewport tile, expression과 표본 cache
+- 긴 계산의 취소, 시간·메모리·표본 수 예산
+
+GUI와 렌더링 backend는 이 문서의 1차 구현 범위에서 제외한다.
+
+함수 graph sampling은 =plot=, Bezier/NURBS와 B-rep topology는 =geometry= 가
+소유한다. 두 계층은 renderer에 의존하지 않는 adapter와 tessellation data로 연결한다.
+
+* 기능 영역 10: 제한적 공학 CAS
+
+1차 엔진은 수치 계산을 중심으로 하고, 공학 계산기에 필요한 검증 가능한 기호
+연산을 단계적으로 추가한다.
+
+- 기호 미분
+- 상수 folding
+- 부호, 영값과 정의역을 보존하는 기본 대수 단순화
+- 유리식 통분·약분과 다항식 정규화
+- 다항식 전개, 정리와 제한적 인수분해
+- 선형·저차 다항 방정식의 exact 해
+- 알려진 규칙 table에 한정한 기호 적분
+- symbolic result를 수치 backend로 평가하는 =N= 또는 equivalent 연산
+- 가정 없는 변환이 정의역 또는 branch를 바꾸지 않는지 검증
+- 계산 예산을 초과하거나 지원하지 않는 문제는 unevaluated expression으로 반환
+
+수치 결과, exact 기호 결과, 조건부 결과와 unevaluated 결과의 값 타입 및 오류를
+구분한다. 범용 정리 증명, 무제한 기호 적분, 임의의 미분방정식 기호 해와 완전한
+Groebner basis는 장기 후속 범위로 둔다.
+
+* 기능 영역 11: 단위·차원과 공학 상수
+
+- SI 기본 차원의 정수 또는 유리수 지수 표현
+- SI prefix, derived unit와 사용자 정의 unit
+- 호환 차원 사이 변환과 비호환 덧셈 차단
+- 섭씨·화씨처럼 offset을 가진 affine unit의 별도 규칙
+- angle을 무차원 값과 구분하는 계산기 mode
+- 상수의 값, 단위, 불확도, 출처 version과 alias
+- 내부 canonical unit와 사용자 출력 unit 분리
+- worksheet 저장 시 unit system과 상수 data version 기록
+
+단위 parser와 표시 형식은 expression 상위 계층에서 담당한다. =numal= 은 차원 지수와
+정확한 scale 계산에 필요한 저수준 값 연산만 제공한다.
+
+단위 체계의 기준 원본은 =tools/unit_1003= 으로 한다. 기존 코드와 단위 정의를 바로
+public ABI로 채택하지 않고 =todo-mathunits.org= 의 진단과 마이그레이션 기준을
+거쳐 새 =mathunits= 모듈로 이식한다.
+
+* 기능 영역 12: batch·GPU 실행
+
+- compile된 식의 다수 =x= 평가
+- 2D implicit 함수 격자
+- Monte Carlo sampling
+- 다수 root와 최적화 후보
+- CPU scalar, CPU SIMD와 GPU backend 선택
+
+단일 식 계산은 CPU를 기본으로 하고 GPU는 대량 독립 평가에서만 사용한다.
+
+* 기능 영역 13: CMake 산출물, 임베디드 실행과 자원 제한
+
+- 각 모듈을 독립 CMake static library와 module test target으로 생성
+- 1차 과도기에는 현재 중앙 규칙대로 루트 =byul.dll=/=libbyul.so= 하나를 유지
+- Math Engine static target과 루트 shared가 단일 source manifest를 공유
+- static target은 독립 static export 조건, 루트 호환 구현은 =BYUL_EXPORTS=로 컴파일
+- 최종 독립 Math Engine DLL은 =todo-math-engine-build-abi.org=의 중앙 규칙 변경 gate
+  이후에만 생성
+- 최종 cutover 뒤 root BYUL에는 legacy forwarding shim만 남기고 canonical math source와
+  symbol을 중복 compile하지 않음
+- public header 함수, ABI manifest와 루트 DLL export 목록 일치 검사
+- 선택 backend가 없는 경우에도 안정 ABI 함수는 제거하지 않고 unsupported 상태 반환
+- heap 사용 가능 profile과 caller-provided workspace/arena profile 분리
+- AST node, bytecode, matrix, plot sample과 CAS 중간식의 최대 크기
+- 재귀 깊이, 반복 횟수, 함수 평가 수와 caller가 설정하는 취소 token; wall clock 감시는
+  application/Balix 책임
+- Caller UI/tick thread와 계산 worker 경계 및 thread가 없는 profile의 cooperative 호출
+- locale 비의존 parse/format과 결정론적 직렬화
+- Math Engine은 resolved configuration/result provenance를 반환하고 worksheet의 atomic
+  save, schema와 손상 복구는 caller가 소유
+- feature manifest로 장치가 지원하는 정밀도·CAS·graph 기능 조회
+- 사용하지 않는 backend가 firmware에 link되지 않는 CMake option
+
+루트 DLL을 static archive의 일반 링크 동작에만 맡기지 않는다. 미참조 object 제거로
+public 함수가 누락될 수 있으므로 현재 CMake 3.20에서는 module source inventory를 루트
+shared target에 통합하는 방식을 우선한다. Whole-archive 또는 object library로 바꾸려면
+export macro, PIC와 세 platform의 전체 symbol 검증을 먼저 통과해야 한다.
+
+* 기능 영역 14: 공개 API와 wrapper
+
+- C API는 안정적인 opaque handle과 명시적 create/destroy 사용
+- 모든 public 함수에 =BYUL_API= 를 적용하고 =extern "C"= 경계를 유지
+- static module은 =BYUL_STATIC=, 루트 DLL 구현은 =BYUL_EXPORTS= 조건을 사용
+- 표준 라이선스 블록은 =docs/ko/byul-sdk/header-license-block.txt= 원문을 그대로 사용
+- 선언과 comment는 =<rules-root>/byul/header-declaration-rules.org= 와
+  =<rules-root>/byul/header-comment-rules.org= lint 통과
+- C++ convenience wrapper는 내부 또는 별도 header
+- Python wrapper는 동일 C ABI 사용
+- CLI와 GUI는 expression API 사용
+- 게임은 mathfunc와 numeq를 직접 호출하거나 expression을 선택적으로 사용
+- calculator는 expression, mathunits와 plot API만 사용하고 내부 AST layout에 의존하지 않음
+- 장치 application은 runtime feature manifest와 자원 제한을 조회
+
+기존 public header를 수정할 때는 BYUL header 선언·comment·license 규칙을 먼저
+읽고 따른다.
+
+* 테스트 기준
+
+- parser precedence와 오류 위치
+- Flex/Bison과 handwritten prototype의 공통 parser conformance corpus
+- malformed input, deep nesting과 fuzz input에서 crash와 leak 없음
+- parser/scanner instance의 병렬 실행과 전역 상태 부재
+- 동일 expression의 반복 평가
+- 정밀도 backend별 결과와 tolerance
+- decimal의 scale·rounding·overflow
+- 함수 registry 충돌과 잘못된 arity
+- 계산 예산과 재귀 제한
+- 그래프 불연속점과 adaptive sampling
+- CAS 변환 전후의 정의역, branch와 수치 표본 동등성
+- 단위 차원 검사, affine unit과 상수 data version
+- 고정된 RAM/flash 예산에서 allocation 실패와 취소 처리
+- worksheet 직렬화 round-trip과 전원 중단 복구
+- full, compact와 minimal profile별 conformance corpus
+- simulation 직접 호출과 expression 호출의 일관된 결과
+- Windows, Linux와 macOS 호환
+
+* 전체 완료 기준
+
+- 수학 공식과 수치해석을 GUI·게임·문자열 문법과 독립적으로 호출할 수 있다.
+- expression이 registry와 callback을 통해 동일 수학 API를 사용한다.
+- =f32/f64/f128=, arbitrary precision과 decimal 확장 경계가 정의된다.
+- 계산기와 simulation이 동일 엔진을 서로 다른 상위 wrapper로 재사용한다.
+- 그래프용 반복 평가가 parse 없이 수행된다.
+- 제한적 공학 CAS가 exact, approximate, conditional과 unevaluated 결과를 구분한다.
+- 단위·차원 오류를 계산 전에 진단하고 상수 data version을 재현할 수 있다.
+- 임베디드 profile이 고정된 계산·메모리 예산과 취소 계약을 지킨다.
+- 동일 worksheet가 지원 기능 범위 안에서 desktop과 embedded 결과 계약을 만족한다.
+- 저수준 확률·통계는 지원하지만 보상 정책은 포함하지 않는다.
+- public C ABI, 오류와 ownership 계약이 문서화된다.
+- 과도기에는 모든 component static target과 root =byul= shared가 build된다.
+- 최종 승인 단계에서는 독립 Math Engine shared와 root =byul= shared가 분리되고 Balix가
+  Math Engine import target을 link한다.
+- 루트 DLL의 export가 모든 public C 함수와 ABI manifest를 포함한다.
+
+* 권장 진행 순서
+
+1. =numal= 과 =numeq= 기능·의존성 지도 작성
+2. 기존 solver와 기초 수학 회귀 테스트
+3. 루트 독립 =numeq= 모듈 분리
+4. =f64= 기반 mathfunc와 수치해석 기준 확립
+5. 공통 설정 resolver와 calculator-full 기준 profile
+6. 공통 Math Engine 계산 context와 패스트·정밀·복합 preset
+7. 최소 handwritten lexer/Pratt parser와 evaluator
+8. =todo-expression.org= 기준 동일 최소 문법의 Flex/Bison prototype 및 비교 결정
+9. 함수 registry와 사용자 정의 함수
+10. 미분·적분·solve 특수 연산 연결
+11. Cartesian graph용 반복 평가와 plot data
+12. =unit_1003= inventory와 독립 =mathunits= 모듈 기반
+13. geometry robust predicate와 point/ray/primitive 교차
+14. 통계·확률 함수
+15. 제한적 공학 CAS
+16. parametric, polar와 implicit graph
+17. Bezier, spline, NURBS와 curve intersection
+18. surface, mesh, contact manifold와 B-rep 기반 및 OCCT 선택 backend 검증
+19. =f32/f128= 및 arbitrary precision
+20. fixed decimal과 mpdecimal arbitrary decimal backend
+21. 임베디드 static profile, workspace와 계산 취소
+22. batch, SIMD와 GPU backend
+
+* 진행 조건
+
+첫 구현은 GUI가 아니라 수학 함수, 수치해석과 expression 사이의 public 경계를
+확정하는 작업이다. TI-89 수준의 계산기 함수 집합을 test와 CLI harness에서 먼저
+검증하고 =calculator-full= resolved configuration의 기준 구현으로 사용한다. 동일
+conformance corpus와 설정 resolver를 검증한 뒤 simulation, finance, CAD 및
+compact/minimal embedded profile로 확장한다. 계산기 UI는 별도 후속 단계이다.
+
+* 실행 절차
+
+** TODO 1. Math Engine 책임과 public manifest를 동결한다
+*** 실행
+모든 하위 계획과 =todo-balix-math-extraction.org=의 owner, dependency와 ABI surface를
+하나의 manifest로 합친다.
+*** 완료 조건
+모든 기존·신규 계산 symbol, type, constant와 target에 owner 하나가 있다.
+*** 검증
+Source/header/CMake/wrapper inventory와 manifest를 비교해 미분류·중복 owner가 0인지
+검사한다.
+
+** TODO 2. 하위 component의 neutral C ABI와 static target을 구축한다
+*** 실행
+Numal, mathfunc, numeq, mathunits, geometry, physics, expression과 plot을 하위 의존성
+순서로 구현한다.
+*** 완료 조건
+각 component가 상위 application/Balix 없이 static build와 conformance test를 통과한다.
+*** 검증
+C17/C++17 header, component test, root shared export와 dependency lint를 실행한다.
+
+** TODO 3. Balix 계산 추출과 consumer 전환을 완료한다
+*** 실행
+=todo-balix-math-extraction.org=의 파일별 단계를 실행하고 다른 module call site를
+canonical API로 전환한다.
+*** 완료 조건
+순수 계산은 Math Engine에만 있고 Balix는 adapter/orchestration과 legacy shim만 소유한다.
+*** 검증
+Old/new differential, numerical corpus, Balix/root/clean consumer test를 실행한다.
+
+** TODO 4. 승인된 독립 DLL과 package 전환을 수행한다
+*** 실행
+중앙 규칙 변경 gate 뒤 =todo-math-engine-build-abi.org=의 shared cutover를 실행한다.
+*** 완료 조건
+Balix와 root BYUL이 독립 Math Engine DLL을 link하고 canonical source/symbol 중복이 없다.
+*** 검증
+ABI/export, runtime dependency, install/package와 wrapper native load를 실행한다.

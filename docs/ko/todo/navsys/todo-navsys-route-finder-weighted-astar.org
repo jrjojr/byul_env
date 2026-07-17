@@ -1,0 +1,105 @@
+#+TITLE: BYUL Navsys weighted_astar.h 정밀 리팩터링 TODO
+#+TODO: TODO DOING BLOCKED | DONE CANCELLED FAILED
+#+TODO_RULES: ../../../../external/rules/projects/byul/todo-rules.org
+#+PUBLIC_API_RULES: ../../../../external/rules/projects/byul/public-api-rules.org
+#+HEADER_DECLARATION_RULES: ../../../../external/rules/projects/byul/header-declaration-rules.org
+#+HEADER_COMMENT_RULES: ../../../../external/rules/projects/byul/header-comment-rules.org
+#+HEADER_AUTHORING_RULES: ../../../../external/rules/projects/byul/header-authoring-rules.org
+#+BUILD_RULES: ../../../../external/rules/projects/byul/build-rules.org
+#+TEST_RULES: ../../../../external/rules/projects/byul/test-rules.org
+#+TODO_PARENT: todo-리팩토링-navsys-headers.org
+#+INDUSTRY_API_BASELINE: todo-navsys-industry-api-baseline.org
+#+AUTHOR: ByulPapa / Codex
+#+LANGUAGE: ko
+#+OPTIONS: toc:t num:nil
+
+* 대상과 원전 기준
+
+대상은 =weighted_astar.h/.cpp=다. [[file:todo-navsys-industry-api-baseline.org][공통 기준]],
+Pohl의 [[https://doi.org/10.1016/0004-3702(70)90007-X][Heuristic Search Viewed as Path
+Finding in a Graph]]과 [[https://www.boost.org/doc/libs/latest/libs/graph/doc/astar_search.html][Boost.Graph A*]]의
+weight/heuristic precondition을 기준으로 bounded-suboptimal claim을 검증한다.
+
+* 구현/소비와 결함
+
+- =find_weighted_astar= 하나가 module/root/SDK/CFFI/dispatcher에 공개된다.
+- =weight <= 0=을 1로 silent 교정하고 NaN/Inf는 거르지 않는다. Dispatcher는 raw
+  =float*= typedata에서 0.1..10만 수용하고 기본 1.5를 사용해 direct API와 정책이 다르다.
+- Header의 1.2..2.5/5.0 추천은 workload 근거이며 stable API 계약이 아니다.
+- cost/heuristic userdata를 전달하지 않고 callback failure와 invalid numeric result를 구분하지 않는다.
+- =w= suboptimal bound는 admissible heuristic, non-negative cost와 올바른 graph-search 조건이
+  있어야 하는데 header/test는 이를 검증하지 않는다. Route final cost도 기록하지 않는다.
+
+* 전체 Public Symbol Inventory와 disposition
+
+=WEIGHTED_ASTAR_H= include guard는 현재 macro inventory에 포함하고 ABI 영향 없이
+=BYUL_NAVSYS_ROUTE_FINDER_WEIGHTED_ASTAR_H=로 교체한다.
+
+| symbol | 현재 signature | wrapper | disposition |
+|--------+------------------+---------+-------------|
+| =find_weighted_astar= | =route_t*(grid,start,goal,cost,heuristic,float weight,int,bool)= | generated CFFI | =ABI 1.x: deprecate-forward; conformance-block -> ABI-major: internalize= |
+
+* 목표 Config와 Signature 후보
+
+#+begin_src c
+typedef struct s_route_finder_weighted_astar_config {
+    uint32_t struct_size;
+    float heuristic_weight;
+} route_finder_weighted_astar_config_t;
+
+BYUL_API navsys_status_t route_finder_bind_weighted_astar_config(
+    route_finder_t* finder,
+    const route_finder_weighted_astar_config_t* config);
+#+end_src
+
+Weight는 finite이고 승인 범위(기본적으로 >=1)를 status로 검증한다. =w= bound를 보장할 수
+없는 heuristic/cost이면 descriptor/stats가 “unbounded”를 명시하며 silent 최적성 주장을 하지 않는다.
+
+* TODO 1단계: Weight/보장 기준선
+
+** 실행
+
+- direct/dispatcher default와 range, signature/export/CFFI, partial/budget 동작을 snapshot한다.
+- admissible/inadmissible heuristic과 w별 최종 cost ratio 반례를 만든다.
+
+** 완료 조건
+
+- 한 symbol과 실제 bounded-suboptimal 조건이 fixture로 고정된다.
+- 경험적 추천과 normative range가 분리된다.
+
+** 검증
+
+- exhaustive weighted grid에서 =cost/result_optimal <= w= 조건을 적용 가능한 fixture에 검사한다.
+
+* TODO 2단계: Typed config와 status/stats 구현
+
+** 실행
+
+- raw typedata를 versioned config로 교체하고 callback+userdata/status/cancel/OOM을 전달한다.
+- final cost, lower bound, achieved ratio와 guarantee-valid flag를 stats에 추가할지 결정한다.
+
+** 완료 조건
+
+- invalid weight/NaN/Inf가 object를 변경하지 않고 실패하며 모든 종료 상태가 분리된다.
+- w=1은 canonical A*와 같은 cost를 낸다.
+
+** 검증
+
+- boundary/NaN/Inf weight, callback failure, w=1/large-w, limit/cancel/OOM을 실행한다.
+
+* TODO 3단계: Legacy/Internalize/Benchmark Gate
+
+** 실행
+
+- legacy function을 typed config + generic run에 forwarding하고 direct header를 단계적으로 제외한다.
+- 성능/quality tradeoff는 versioned benchmark 문서로 이동한다.
+
+** 완료 조건
+
+- ABI 1 old/new consumer와 ABI 2 public surface가 검증되고 wrapper에 raw handle이 없다.
+
+** 검증
+
+- static/root/export/wrapper/installed consumer, sanitizer와 p95 latency/cost-ratio benchmark를 실행한다.
+- =module static BYUL_STATIC=와 =root shared BYUL_EXPORTS=를 각각 compile/run하고
+  symbol/export/behavior parity를 비교한다.

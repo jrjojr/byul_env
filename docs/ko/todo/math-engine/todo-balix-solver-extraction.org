@@ -1,0 +1,142 @@
+#+TITLE: Balix Polynomial·Root Solver 추출 TODO
+#+TODO: TODO DOING BLOCKED | DONE CANCELLED FAILED
+#+TODO_RULES: ../../../../external/rules/projects/byul/todo-rules.org
+#+TODO_PARENT: todo-balix-math-extraction.org
+#+AUTHOR: ByulPapa / Codex
+#+LANGUAGE: ko
+#+OPTIONS: toc:t num:nil
+
+* 실제 source·build 범위
+
+- 공개 header: =byul/balix/numeq/numeq_solver.h=
+- 현재 구현: =byul/balix/numeq/numeq_solver.cpp=
+- aggregate 노출: =byul/balix/numeq/numeq.h=, =byul/balix/balix.h=
+- 현재 source/header 집계와 static target: =byul/balix/CMakeLists.txt=
+- root shared 재집계: =byul/CMakeLists.txt=
+- 현재 직접 검증: =byul/balix/tests/test_module_solver.cpp=
+- production 소비자: =byul/balix/collision/collision.cpp=,
+  =byul/balix/bodyprops/bodyprops.cpp=, =byul/balix/numeq/numeq_model.cpp=,
+  =byul/projectile/guidance.cpp=
+
+=numeq_solver.h=의 직접 =BYUL_API= 선언은 정확히 5개다. 모두 canonical 계산은
+Math Engine =numeq/polynomial= 또는 =numeq/roots=가 소유하고 기존 이름은 ABI 1.x
+forwarder로 남긴다.
+
+| =BYUL_API= 선언 | 정본 분류 | 기존 symbol의 최종 운명 | Canonical 책임 |
+|-----------------+-----------+--------------------------+----------------|
+| =numeq_solve_linear= | Math Engine pure calculation/value | Balix legacy forwarding | scale-aware degree-1 polynomial result |
+| =numeq_solve_quadratic= | Math Engine pure calculation/value | Balix legacy forwarding | degenerate case를 포함한 real polynomial result |
+| =numeq_solve_quadratic_stable= | Math Engine pure calculation/value | Balix legacy forwarding | cancellation-safe roots, residual과 error bound |
+| =numeq_solve_cubic= | Math Engine pure calculation/value | Balix legacy forwarding | real roots, count/multiplicity candidate와 residual |
+| =numeq_solve_bisection= | Math Engine pure calculation/value | Balix legacy forwarding | bracketed root result, tolerance/budget/cancellation |
+
+=numeq_func_f32= callback typedef는 =BYUL_API= function은 아니지만
+=numeq_solve_bisection= ABI의 일부다. Canonical Math Engine callback에는 호출 횟수,
+userdata lifetime, reentrancy, cancellation과 non-finite 반환 계약을 명시하고 기존 typedef와
+calling convention은 forwarding ABI에서 보존한다.
+
+* 구현 식·literal inventory
+
+- linear: absolute =1e-8f=로 =a=를 퇴화 판정하고 =-b/a= 계산
+- ordinary quadratic: =scalar_equal(a, 0)=이면 즉시 실패, =D=b^2-4ac=와 직접
+  quadratic formula 사용
+- stable quadratic: absolute =1e-12f= degree gate, =q=-0.5(B+sign(B)sqrt(D))=,
+  =|q| > 1e-20f= 분기와 sorted roots
+- cubic: depressed cubic/Cardano/trigonometric branch, =1e-8f= discriminant와 coefficient
+  gate, =M_PI=, exact =x1 == x2= repeated-root count
+- bisection: =a < b=와 endpoint sign product, 최대 100회, =|f(mid)| < tol= 또는
+  interval width =tol= 종료
+
+공식, tolerance와 iteration cap은 Math Engine formula/context manifest로 이동한다. Balix
+forwarder는 =bool=, root array/count와 output mutation을 canonical status/result에 mapping할
+뿐 solver 식을 보유하지 않는다.
+
+* Build·DLL 이행
+
+현재 =numeq_solver.cpp=는 =balix_SOURCES=에 직접 들어가 root =byul= shared에서도
+Balix inventory를 통해 compile된다. =collision= static target은 이 symbol을 호출하지만
+자신의 =CMakeLists.txt=에는 solver dependency가 없다.
+
+- Static 과도기: solver source는 단일 Math Engine manifest와
+  =byul_math_engine_static=으로 이동한다. Balix/collision/projectile은 target dependency로
+  소비하고 기존 5개 이름의 root ABI shim을 유지한다. Root shared는 중앙 규칙이 유지되는
+  동안 같은 manifest를 =BYUL_EXPORTS=로 직접 compile한다.
+- 독립 DLL 전환: 중앙 규칙과 =rules-ref.org= pin 승인 뒤 canonical solver symbol은
+  Math Engine DLL에만 존재한다. BYUL DLL에는 기존 5개 legacy forwarder만 남기고
+  Balix, collision과 projectile의 internal call은 canonical imported target을 사용한다.
+
+* 현재 진단
+
+- 일반 quadratic header는 linear fallback을 설명하지만 구현은 =a ~= 0=이면 실패한다.
+- stable quadratic도 linear/constant/identically-zero polynomial을 구분하지 않는다.
+- stable variant는 output null을 확인하지 않고 q=0의 double root와 signed zero 계약이
+  불명확하다.
+- cubic은 exact equality로 repeated root count를 판단하고 coefficient scale에 무관한
+  =1e-8=을 사용한다. acos argument clamp와 residual refinement가 없다.
+- bisection은 =tol <= 0=, NaN/Inf, endpoint root, discontinuity와 callback cancellation을
+  충분히 구분하지 않고 100회를 고정한다.
+- =bool=과 root count만으로 no real root, degenerate, invalid, non-finite와 max iteration을
+  구분하지 못한다.
+
+* 목표 result
+
+Polynomial degree/status, real root count, sorted root, multiplicity candidate, residual,
+condition/scale, iterations/evaluations와 error bound를 반환한다. Caller는 absolute와
+relative tolerance, max evaluation, cancellation과 backend를 지정한다.
+
+* 실행 절차
+
+** TODO 1. Degenerate polynomial 계약과 corpus를 동결한다
+*** 실행
+
+Zero/constant/linear/quadratic/cubic, repeated root, coefficient scaling과 non-finite 입력의
+상태 표를 만든다.
+
+*** 완료 조건
+
+현재 header/implementation 불일치와 legacy 반환 mapping이 결정된다.
+
+*** 검증
+
+각 degree와 degeneracy의 residual 기반 regression을 실행한다.
+
+** TODO 2. Canonical result/context C API를 정의한다
+*** 실행
+
+Status, count, roots, multiplicity, residual/statistics와 tolerance/budget를 설계한다.
+
+*** 완료 조건
+
+Output nullability와 failure 불변이 명확하고 f32/f64 확장 경계가 있다.
+
+*** 검증
+
+C17/C++17 compile, ABI layout와 invalid/non-finite test를 수행한다.
+
+** TODO 3. Stable polynomial과 bracketed solver를 구현한다
+*** 실행
+
+Scale-aware linear/quadratic/cubic, Horner residual과 bracket invariant를 적용한다.
+
+*** 완료 조건
+
+Supported domain에서 root가 정렬되고 원식 residual/error bound를 만족한다.
+
+*** 검증
+
+Analytic roots, cancellation-sensitive quadratic, repeated/near root, scale metamorphic와
+high-precision oracle를 실행한다.
+
+** TODO 4. Legacy forwarding과 consumer를 전환한다
+*** 실행
+
+기존 five symbols를 canonical result로 mapping하고 collision/model call site는 새 API의
+status와 earliest-root helper를 사용한다.
+
+*** 완료 조건
+
+Balix solver 구현이 제거되고 호환 symbol이 root ABI에서 유지된다.
+
+*** 검증
+
+Old/new differential, geometry CCD corpus, export와 clean consumer를 실행한다.

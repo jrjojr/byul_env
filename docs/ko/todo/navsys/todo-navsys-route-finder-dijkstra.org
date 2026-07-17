@@ -1,0 +1,105 @@
+#+TITLE: BYUL Navsys dijkstra.h 정밀 리팩터링 TODO
+#+TODO: TODO DOING BLOCKED | DONE CANCELLED FAILED
+#+TODO_RULES: ../../../../external/rules/projects/byul/todo-rules.org
+#+PUBLIC_API_RULES: ../../../../external/rules/projects/byul/public-api-rules.org
+#+HEADER_DECLARATION_RULES: ../../../../external/rules/projects/byul/header-declaration-rules.org
+#+HEADER_COMMENT_RULES: ../../../../external/rules/projects/byul/header-comment-rules.org
+#+HEADER_AUTHORING_RULES: ../../../../external/rules/projects/byul/header-authoring-rules.org
+#+BUILD_RULES: ../../../../external/rules/projects/byul/build-rules.org
+#+TEST_RULES: ../../../../external/rules/projects/byul/test-rules.org
+#+TODO_PARENT: todo-리팩토링-navsys-headers.org
+#+INDUSTRY_API_BASELINE: todo-navsys-industry-api-baseline.org
+#+AUTHOR: ByulPapa / Codex
+#+LANGUAGE: ko
+#+OPTIONS: toc:t num:nil
+
+* 대상과 비교 기준
+
+대상은 =dijkstra.h/dijkstra.cpp=다. [[file:todo-navsys-industry-api-baseline.org][공통 기준]]과
+[[https://www.boost.org/doc/libs/latest/libs/graph/doc/dijkstra_shortest_paths.html][Boost.Graph Dijkstra]]의
+non-negative edge weight, predecessor/distance output, decrease-key/color/visitor와 O((V+E)logV)
+계약을 비교한다.
+
+* 구현/소비와 결함
+
+- =find_dijkstra= 하나가 module/root/SDK/CFFI/dispatcher에 공개된다.
+- cost callback에 userdata를 전달할 parameter가 없고 구현은 항상 =nullptr=를 넘긴다.
+- negative/NaN/Inf cost를 수용해 algorithm 전제가 깨져도 success route처럼 보일 수 있다.
+- decrease-key 대신 duplicate entry를 push하고 stale-pop/expanded/reopened 통계를 제공하지 않는다.
+- NULL 또는 nonpositive budget은 NULL이며 partial/no-path/OOM과 충돌한다. 최종 누적 cost를
+  =route_t.cost=에 기록하지 않는다.
+
+* 전체 Public Symbol Inventory와 disposition
+
+=DIJKSTRA_H= include guard는 현재 macro inventory에 포함하고 ABI 영향 없이
+=BYUL_NAVSYS_ROUTE_FINDER_DIJKSTRA_H=로 교체한다.
+
+| symbol | 현재 signature | wrapper | disposition |
+|--------+------------------+---------+-------------|
+| =find_dijkstra= | =route_t*(grid,start,goal,cost_func,int,bool)= | generated CFFI | =ABI 1.x: deprecate-forward; companion: add -> ABI-major: internalize= |
+
+* 목표 Signature 후보
+
+#+begin_src c
+BYUL_API navsys_status_t route_finder_find_dijkstra_ex(
+    const navgrid_t* grid,
+    const coord_t* start,
+    const coord_t* goal,
+    const route_finder_cost_view_t* cost,
+    const navsys_search_options_t* options,
+    route_t** out_route,
+    navsys_search_stats_t* out_stats);
+#+end_src
+
+Cost callback+userdata는 한 call-only view 또는 finder binding이고, cost는 같은 unit의 finite
+non-negative 값이어야 한다. Stats에 final cost, expanded/generated/reopened/stale-pop과 peak
+workspace를 기록한다.
+
+* TODO 1단계: Weight/결과 기준선
+
+** 실행
+
+- signature/export/CFFI, queue duplicate 정책, partial endpoint와 budget을 snapshot한다.
+- weighted reference graph, negative/NaN/Inf, zero-cycle와 userdata sentinel test를 추가한다.
+
+** 완료 조건
+
+- 현재 한 symbol과 최단 경로 전제가 machine-readable test로 고정된다.
+- 성공 flag가 실제 accumulated cost와 함께 검증된다.
+
+** 검증
+
+- tiny exhaustive weighted grid를 independent Bellman-Ford/reference Dijkstra와 비교한다.
+
+* TODO 2단계: Canonical status형 Dijkstra
+
+** 실행
+
+- prefixed status형 entry/generic adapter와 atomic cost binding을 구현한다.
+- invalid weight/callback failure, cancel/OOM/limit와 partial route를 분리하고 stats를 채운다.
+- duplicate/stale queue policy의 correctness와 resource bound를 명시한다.
+
+** 완료 조건
+
+- non-negative graph에서 reference minimum cost와 일치하고 invalid cost는 output을 보존한다.
+
+** 검증
+
+- zero/large cost, duplicate relax/reopen, exact limit, cancel/OOM과 userdata identity를 검사한다.
+
+* TODO 3단계: Legacy forwarding과 SDK 경계
+
+** 실행
+
+- =find_dijkstra=를 canonical 구현에 forwarding하고 direct header internalize 계획을 적용한다.
+- wrapper direct CFFI symbol을 deprecation 기간 후 generic API로 전환한다.
+
+** 완료 조건
+
+- ABI 1 old/new consumer가 동작하고 ABI 2에는 승인 public query만 남는다.
+
+** 검증
+
+- module/root/export, old/new C consumer, wrapper native load, sanitizer/benchmark를 실행한다.
+- =module static BYUL_STATIC=와 =root shared BYUL_EXPORTS=를 각각 compile/run하고
+  symbol/export/behavior parity를 비교한다.

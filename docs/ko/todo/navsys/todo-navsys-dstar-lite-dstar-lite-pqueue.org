@@ -1,0 +1,219 @@
+#+TITLE: BYUL Navsys dstar_lite_pqueue.h 정밀 리팩토링 TODO
+#+TODO: TODO DOING BLOCKED | DONE CANCELLED FAILED
+#+TODO_RULES: ../../../../external/rules/projects/byul/todo-rules.org
+#+PUBLIC_API_RULES: ../../../../external/rules/projects/byul/public-api-rules.org
+#+HEADER_DECLARATION_RULES: ../../../../external/rules/projects/byul/header-declaration-rules.org
+#+HEADER_COMMENT_RULES: ../../../../external/rules/projects/byul/header-comment-rules.org
+#+HEADER_AUTHORING_RULES: ../../../../external/rules/projects/byul/header-authoring-rules.org
+#+BUILD_RULES: ../../../../external/rules/projects/byul/build-rules.org
+#+TEST_RULES: ../../../../external/rules/projects/byul/test-rules.org
+#+TODO_PARENT: todo-리팩토링-navsys-headers.org
+#+AUTHOR: ByulPapa / Codex
+#+LANGUAGE: ko
+#+OPTIONS: toc:t num:nil
+
+* Build compile-definition 불변식
+
+- D* Lite module static은 =BYUL_STATIC=으로 pqueue 구현을 컴파일한다.
+- root shared는 같은 source/private helper를 =BYUL_EXPORTS=로 재컴파일한다. ABI 1 기간의
+  compatibility symbol은 root export table에서 별도로 검증한다.
+
+* 문서 책임과 결론
+
+=byul/navsys/dstar_lite/dstar_lite_pqueue.h=의 D* Lite open list를 원 논문 연산과
+대조한다. 공통 계약은 [[file:todo-navsys-industry-api-baseline.org][Navsys 업계 API 기준]]이다. public generic container가 아니라
+D* Lite implementation detail에 가까우므로 ABI 2에서는 internalize가 권장된다. ABI 1에는
+atomic by-value API를 먼저 추가하고 기존 pointer API를 deprecated한다.
+
+* 원 알고리즘이 요구하는 연산
+
+Koenig/Likhachev [[https://publications.ri.cmu.edu/d-lite][D* Lite]]의 =ComputeShortestPath=
+에서는 =TopKey()=를 현재 시작 key와 비교하고, =k_old=와 vertex를 같은 top entry에서
+꺼낸 뒤 stale key면 새 key로 재삽입한다. 따라서 queue가 제공해야 하는 최소 primitive는
+다음이다.
+
+- top =(key, coord)=의 원자적 snapshot
+- pop =(key, coord)=의 원자적 제거
+- coord당 current key를 갱신하는 upsert/remove
+- empty/size와 deterministic exact lexicographic ordering
+
+현재처럼 key/coord를 별도 조회하면 두 호출 사이 mutation과 소유권 오류가 생기고
+=k_old=를 잃기 쉽다.
+
+* 현재 구현 결함
+
+- heap key pointer를 key로 둔 map, heap coord pointer vector, coord→key hash를 중복 저장한다.
+- 같은 coord를 다시 push하면 reverse map은 최신 key만 가리키지만 이전 queue entry는
+  stale로 남는다.
+- grouping은 approximate equality loop, map ordering은 exact pointer comparator라 key
+  equivalence가 일치하지 않는다.
+- =pop=은 owned coord allocation, =peek=은 borrowed coord, =get_key_by_coord=은 borrowed
+  mutable key, =top_key=는 owned key copy다. 이름만으로 구분할 수 없다.
+- wrapper는 =pop=을 non-owning으로 감싸 leak하고, borrowed =get_key_by_coord=를 own=True로
+  감싸 double-free/UAF를 만든다.
+
+* 현행 선언 전수 목록과 처분
+
+| 선언 | 현재 의미/결함 | 처분 |
+|------+----------------+------|
+| =dstar_lite_pqueue_t= | opaque open-list resource | ABI 1.x: keep -> ABI-major: internalize |
+| =dstar_lite_pqueue_create= | OOM 채널 없는 heap 생성 | ABI 1.x: deprecate-forward -> ABI-major: internalize |
+| =dstar_lite_pqueue_destroy= | resource 종결 | ABI 1.x: deprecate-forward -> ABI-major: internalize |
+| =dstar_lite_pqueue_copy= | algorithm state copy 의미/실패 불명 | ABI 1.x: deprecate-forward -> ABI-major: internalize |
+| =dstar_lite_pqueue_push= | duplicate/stale entry, void/OOM | ABI 1.x: deprecate-forward -> ABI-major: internalize |
+| =dstar_lite_pqueue_peek= | borrowed coord만 반환 | ABI 1.x: deprecate-forward -> ABI-major: internalize |
+| =dstar_lite_pqueue_pop= | owned coord만 반환 | ABI 1.x: deprecate-forward -> ABI-major: internalize |
+| =dstar_lite_pqueue_is_empty= | non-const query | ABI 1.x: deprecate-forward -> ABI-major: internalize |
+| =dstar_lite_pqueue_remove= | reverse map 기반 coord 제거 | ABI 1.x: deprecate-forward -> ABI-major: internalize |
+| =dstar_lite_pqueue_remove_full= | key+coord exact 제거 | ABI 1.x: deprecate-forward -> ABI-major: internalize |
+| =dstar_lite_pqueue_get_key_by_coord= | borrowed mutable key | ABI 1.x: deprecate-forward -> ABI-major: internalize |
+| =dstar_lite_pqueue_top_key= | owned key copy, 이름 불명 | ABI 1.x: deprecate-forward -> ABI-major: internalize |
+| =dstar_lite_pqueue_contains= | coord membership | ABI 1.x: deprecate-forward -> ABI-major: internalize |
+
+=internalize=는 ABI 2 최종 처분이다. ABI 1.x에서 symbol을 즉시 제거하지 않는다. 아래
+status/by-value 선언은 public compatibility를 위해 =add=한 뒤 D* implementation이 먼저
+사용하고, ABI 2에서는 private C++ detail API로 축소한다.
+
+* 목표 storage와 invariant
+
+- key와 coord를 by-value 저장하고 exact canonical key comparator를 쓴다.
+- 권장 invariant는 coord당 live entry 정확히 하나다. =upsert=가 기존 entry를 제거하고
+  새 key로 삽입한다.
+- lazy duplicate heap을 선택한다면 generation을 entry에 넣고 pop에서 stale을 건너뛰며,
+  size가 live count인지 physical count인지 명시한다. 메모리 상한 때문에 unique-entry
+  구조를 우선한다.
+- equal key tie는 coord lexicographic 또는 stable insertion sequence로 deterministic하게
+  고정한다. 알고리즘의 최적성에는 영향을 주지 않아도 reproducibility에는 필요하다.
+- copy는 planner snapshot에 필요하지 않으면 제거한다. 필요하면 complete independent
+  deep copy와 status를 제공한다.
+
+* 목표 ABI 1 additive 선언 초안
+
+#+begin_src c
+typedef struct s_dstar_lite_pqueue_entry {
+    dstar_lite_key_t key;
+    coord_t coord;
+} dstar_lite_pqueue_entry_t;
+
+BYUL_API navsys_status_t dstar_lite_pqueue_create_ex(
+    dstar_lite_pqueue_t** out_queue);
+BYUL_API navsys_status_t dstar_lite_pqueue_copy_ex(
+    const dstar_lite_pqueue_t* source,
+    dstar_lite_pqueue_t** out_queue);
+BYUL_API navsys_status_t dstar_lite_pqueue_upsert(
+    dstar_lite_pqueue_t* queue,
+    const coord_t* coord,
+    const dstar_lite_key_t* key);
+BYUL_API navsys_status_t dstar_lite_pqueue_peek_min(
+    const dstar_lite_pqueue_t* queue,
+    dstar_lite_pqueue_entry_t* out_entry);
+BYUL_API navsys_status_t dstar_lite_pqueue_pop_min(
+    dstar_lite_pqueue_t* queue,
+    dstar_lite_pqueue_entry_t* out_entry);
+BYUL_API navsys_status_t dstar_lite_pqueue_find_key(
+    const dstar_lite_pqueue_t* queue,
+    const coord_t* coord,
+    dstar_lite_key_t* out_key,
+    bool* out_found);
+BYUL_API navsys_status_t dstar_lite_pqueue_remove_ex(
+    dstar_lite_pqueue_t* queue,
+    const coord_t* coord,
+    bool* out_removed);
+BYUL_API size_t dstar_lite_pqueue_size(
+    const dstar_lite_pqueue_t* queue);
+BYUL_API bool dstar_lite_pqueue_empty(
+    const dstar_lite_pqueue_t* queue);
+BYUL_API void dstar_lite_pqueue_clear(
+    dstar_lite_pqueue_t* queue);
+#+end_src
+
+peek/pop 실패 시 =out_entry=를 보존한다. 빈 queue, invalid key, not-found와 OOM은 서로
+구분한다. API는 내부 pointer나 별도 destroy가 필요한 allocation을 반환하지 않는다.
+
+* D* Lite 통합 영향
+
+- =ComputeShortestPath=는 반드시 =peek_min=에서 loop condition을 판정하고
+  =pop_min=으로 받은 동일 entry의 =k_old=를 보존한다.
+- =UpdateVertex=는 coord가 inconsistent하면 =upsert=, consistent하면 =remove=한다.
+- queue exact key ordering과 D* key equality/hash가 동일 relation을 사용한다.
+- g/rhs/frontier public getter로 queue를 외부에서 mutate하게 하는 API는 main D* 문서에
+  따라 ABI 2에서 internalize한다.
+
+* wrapper, build와 test 영향
+
+- pqueue를 standalone Python public class로 유지할 근거가 없으면 ABI 2에서 wrapper도
+  제거한다. ABI 1 기간에는 by-value entry만 노출한다.
+- parent retention, owned/borrowed flag 추론을 모두 없앤다.
+- test는 duplicate coord update, stale-key branch, exact tie, empty, remove, copy,
+  randomized reference queue, OOM과 sanitizer를 포함한다.
+- static D* module과 root shared는 같은 pqueue source/private helper를 컴파일한다.
+
+* 구현 순서
+
+** TODO 1단계: public 소비자와 invariant 확정
+
+*** 실행
+
+- 13개 현행 선언의 repository/install/wrapper/external consumer를 전수 조사한다.
+- unique-entry와 lazy-generation 구조를 complexity/memory 기준으로 결정한다.
+
+*** 완료 조건
+
+- ABI 1 유지 기간과 ABI 2 internalize 조건이 승인된다.
+- duplicate/tie/key-domain/copy/size 의미가 invariant 문서에 고정된다.
+
+*** 검증
+
+- 현행 duplicate/stale/ownership 결함을 재현하는 characterization test를 보존한다.
+- old SDK와 wrapper symbol inventory를 snapshot한다.
+
+** TODO 2단계: exact by-value queue 구현
+
+*** 실행
+
+- canonical key comparator와 by-value entry storage를 구현한다.
+- create/copy/upsert/peek_min/pop_min/find/remove를 status/strong guarantee로 구현한다.
+
+*** 완료 조건
+
+- coord당 live entry 수가 선택한 invariant와 일치한다.
+- 모든 canonical output이 caller-owned value이며 C++ 예외가 C 경계를 넘지 않는다.
+
+*** 검증
+
+- randomized operation trace를 reference ordered map/heap과 비교한다.
+- duplicate, exact tie, ±0/Inf/NaN, failure injection과 sanitizer를 실행한다.
+
+** TODO 3단계: D* algorithm 호출부 전환
+
+*** 실행
+
+- init/update/compute가 atomic entry/upsert API만 쓰게 전환한다.
+- =k_old < CalculateKey(u)= stale-key 재삽입 분기를 원 논문 순서로 구현한다.
+
+*** 완료 조건
+
+- top key와 popped coord가 다른 queue snapshot에서 오지 않는다.
+- reverse-map stale entry와 approximate key grouping이 사라진다.
+
+*** 검증
+
+- 원 논문 Figure 3 trace, 동적 edge-change와 reference replanning cost를 비교한다.
+- queue operation counter와 leak check를 실행한다.
+
+** TODO 4단계: legacy/wrapper와 ABI 2 internalize
+
+*** 실행
+
+- ABI 1 pointer symbol을 deprecated adapter로 유지하고 정확한 owner 문서를 추가한다.
+- wrapper를 by-value로 전환한 뒤 ABI 2에서 public header/install 노출을 제거한다.
+
+*** 완료 조건
+
+- wrapper pop leak/get-key double-free가 없고 신규 production source가 legacy API를 쓰지 않는다.
+- ABI 2 SDK에 pqueue implementation detail이 노출되지 않는다.
+
+*** 검증
+
+- old/new SDK fixture, Python GC/close test, static/root/install inventory와
+  =git diff --check=를 통과한다.

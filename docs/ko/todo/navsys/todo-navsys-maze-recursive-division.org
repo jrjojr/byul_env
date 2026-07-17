@@ -1,0 +1,126 @@
+#+TITLE: BYUL maze_recursive_division.h 정밀 리팩터링 TODO
+#+TODO: TODO DOING BLOCKED | DONE CANCELLED FAILED
+#+TODO_RULES: ../../../../external/rules/projects/byul/todo-rules.org
+#+PUBLIC_API_RULES: ../../../../external/rules/projects/byul/public-api-rules.org
+#+HEADER_DECLARATION_RULES: ../../../../external/rules/projects/byul/header-declaration-rules.org
+#+HEADER_COMMENT_RULES: ../../../../external/rules/projects/byul/header-comment-rules.org
+#+HEADER_AUTHORING_RULES: ../../../../external/rules/projects/byul/header-authoring-rules.org
+#+BUILD_RULES: ../../../../external/rules/projects/byul/build-rules.org
+#+TEST_RULES: ../../../../external/rules/projects/byul/test-rules.org
+#+TODO_PARENT: todo-리팩토링-navsys-headers.org
+#+LANGUAGE: ko
+#+OPTIONS: toc:3 num:nil
+
+* 대상과 문서 오류 판정
+
+- 대상: =maze_recursive_division.h/.cpp=.
+- [[https://weblog.jamisbuck.org/2011/1/12/maze-generation-recursive-division-algorithm][Jamis Buck recursive division reference]]처럼 열린 공간에 wall을 더하고 각 division wall에
+  passage 하나를 두는 algorithm이다.
+- header는 “may have disconnected regions”라고 주장하지만 표준 single-gap recursive division은
+  연결성을 유지한다. 현재 raster가 실제로 연결되는지 검증한 뒤 잘못된 설명을 고친다.
+- 공통 API는 [[file:todo-navsys-industry-api-baseline.org][Navsys 업계 API 기준]]을 선행한다.
+
+* Public symbol inventory와 처분
+
+| kind | symbol | disposition |
+|------+--------+-------------|
+| guard macro | =MAZE_RECURSIVE_DIVISION_H= | source macro: ABI 1.x: keep -> ABI-major: internalize; collision-safe guard companion: ABI 1.x: add |
+| function | =maze_make_recursive_division(int,int,int,int)= | legacy: ABI 1.x: deprecate-forward -> ABI-major: internalize; support path: conformance-block; canonical companion: ABI 1.x: add |
+
+#+begin_src c
+BYUL_API navsys_status_t byul_maze_generate_recursive_division(
+    int32_t origin_x, int32_t origin_y, uint32_t width, uint32_t height,
+    const byul_maze_generate_options_t* options, maze_t** out_maze);
+#+end_src
+
+* 구현 상세 감사
+
+| 단계 | 현재 | 결함/결정 |
+|------+-----+-----------|
+| validation | odd >=3 | max size/overflow/OOM status 없음 |
+| initial grid | WALL 전체 후 odd/odd만 PASSAGE | 일반 reference의 open area와 다르며 cell-corridor raster 전제가 숨겨짐 |
+| split | w/h <5 종료, 긴 축에 수직 wall | recursion geometry와 minimum region contract 검증 필요 |
+| wall/gap selection | even wall, odd gap vector shuffle | empty면 min을 반환해 invalid range를 숨김; O(length) 임시 allocation |
+| recursion | subregion direct recursion | depth는 size에 따라 증가, cancel/stack budget 없음 |
+| RNG | =mt19937(time(nullptr))= | 재현 불가 |
+| border | 종료 후 외곽 강제 WALL | 명시적 invariant로 적절 |
+| materialize | blocked insert failure 무시 | partial maze 성공 가능 |
+| test | block count와 print | connectivity/cycle/room division/seed 없음 |
+
+* 목표 topology 계약
+
+- “perfect” 여부를 graph oracle로 결정한다. single passage division이 passage graph의
+  connectedness/no-cycle을 보장하는 representation인지 proof와 test를 함께 둔다.
+- split orientation tie-break, eligible wall/gap parity, minimum subregion과 recursion order를 seed
+  replay contract에 포함한다.
+- iterative region stack을 검토하여 cancellation과 stack overflow를 제어한다.
+- result가 tree가 아니라면 정확한 cycle/component bounds를 capability에 기록하고 과장하지 않는다.
+
+* TODO 1단계: reference와 현 raster 비교
+
+** 실행
+
+- 5x5/7x9/9x7에서 initial passages, first split, subregion bounds와 final graph를 trace한다.
+- current header의 disconnected claim을 exhaustive small-grid seed corpus로 검증한다.
+- empty selection range와 recursion maximum depth를 계측한다.
+
+** 완료 조건
+
+- connected/acyclic claim이 evidence로 결정되고 문서 수정 문구가 승인된다.
+- wall/gap parity와 half-open/inclusive region convention이 하나로 고정된다.
+
+** 검증
+
+- reference hand grids와 component/cycle oracle를 비교한다.
+- invalid/even/overflow dimensions를 sanitizer로 실행한다.
+
+* TODO 2단계: checked region stack와 seeded API
+
+** 실행
+
+- candidate count 기반 O(1) uniform even/odd selection으로 임시 vector를 제거한다.
+- iterative region stack, explicit RNG/cancel/max divisions와 checked allocation을 구현한다.
+- target status/out API와 legacy adapter를 추가한다.
+
+** 완료 조건
+
+- invalid selection range는 corrupt/invalid status이며 silent min fallback이 없다.
+- cancel/OOM/limit에서 partial result가 노출되지 않는다.
+
+** 검증
+
+- stub RNG로 horizontal/vertical/tie/gap edge cases를 강제한다.
+- allocator fault, cancel at split/materialize와 seed replay를 검사한다.
+
+* TODO 3단계: 위상·termination gate
+
+** 실행
+
+- declared connected/cycle/border/extent invariant를 모든 seed에 assert한다.
+- divisions, peak region stack, max depth equivalent와 complexity를 stats로 남긴다.
+- nonzero origin translation과 rectangular dimensions를 property test한다.
+
+** 완료 조건
+
+- header의 algorithm characteristic가 실제 결과와 일치한다.
+- bounded cancellation과 max-division status가 재현된다.
+
+** 검증
+
+- exhaustive tiny/property corpus, ASan/LSan과 worst-case benchmark를 실행한다.
+
+* TODO 4단계: Header·SDK gate
+
+** 실행
+
+- license/file/guard와 parity/topology/RNG/error/ownership metadata를 적용한다.
+- dispatcher/static/root/install/wrapper manifest와 corrected docs를 동기화한다.
+
+** 완료 조건
+
+- audit 0 error, export 1:1과 behavior correction release note가 있다.
+
+** 검증
+
+- C/C++ include, native/root tests와 clean SDK consumer를 실행한다.
+- module static =BYUL_STATIC=과 root shared =BYUL_EXPORTS=에서 legacy/canonical export를 각각 검증한다.

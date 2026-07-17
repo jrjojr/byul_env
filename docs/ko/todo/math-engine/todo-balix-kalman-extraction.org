@@ -1,0 +1,147 @@
+#+TITLE: Balix Kalman·Filter Kernel 추출 TODO
+#+TODO: TODO DOING BLOCKED | DONE CANCELLED FAILED
+#+TODO_RULES: ../../../../external/rules/projects/byul/todo-rules.org
+#+TODO_PARENT: todo-balix-math-extraction.org
+#+AUTHOR: ByulPapa / Codex
+#+LANGUAGE: ko
+#+OPTIONS: toc:t num:nil
+
+* 조사 범위와 경계
+
+공개 선언과 구현을 다음 파일에서 직접 대조한다.
+
+- estimator 공개 header: =byul/balix/numeq/filters/numeq_kalman.h=
+- estimator 구현: =byul/balix/numeq/filters/numeq_kalman.cpp=
+- binding 공개 header: =byul/balix/numeq/filters/numeq_filters.h=
+- binding 구현: =byul/balix/numeq/filters/numeq_filters.cpp=
+- 현재 test: =byul/balix/tests/test_module_kalman.cpp=
+
+Predict, measurement update, covariance와 projection은 Math Engine =estimation=의 순수
+kernel이고 filter state/options는 Math Engine value/API다. Sensor polling, tick schedule,
+measurement channel 선택, caller-owned state의 보관 기간과 filter binding lifecycle은 Balix
+adapter다. 기존 공개 이름은 독립 DLL 전환 뒤 canonical Math Engine API를 호출하는
+legacy forwarding entry로 유지하거나 deprecate한다. 특히 raw =void*=와 function pointer를
+묶는 =make_kalman_vec3_interface=는 수학 kernel이 아니라 Balix binding이다.
+
+* BYUL_API 전수 inventory
+
+아래 표는 두 공개 header의 =BYUL_API= 선언 12개를 하나씩 기록한다. =ME-VALUE=는 순수
+Math Engine state API, =ME-KERNEL=은 순수 계산 API, =BALIX-BINDING=은 polling/scheduling과
+lifetime을 연결하는 adapter, =LEGACY-FORWARD=는 기존 BYUL ABI 이름의 최종 역할이다.
+
+| 공개 header | 정확한 symbol | 분류 | 심볼별 이관 | 심볼별 검증 |
+|-------------+-------------+------+-------------+-------------|
+| =byul/balix/numeq/filters/numeq_kalman.h= | =kalman_init= | ME-VALUE / LEGACY-FORWARD | scalar identity-process estimator의 canonical default state initializer로 전달한다. | null, =x=0, =p=1, =q=0.01, =r=1, =k=0과 ABI layout를 검사한다. |
+| =byul/balix/numeq/filters/numeq_kalman.h= | =kalman_init_full= | ME-VALUE / LEGACY-FORWARD | =p/q/r= finite·non-negative invariant를 검사하는 status 반환 initializer를 만들고 기존 =void= ABI의 invalid 정책을 고정한다. | valid exact fields, negative/NaN/Inf covariance·noise, null과 no-partial-write를 검사한다. |
+| =byul/balix/numeq/filters/numeq_kalman.h= | =kalman_assign= | ME-VALUE / LEGACY-FORWARD | validated POD value copy로 전달하고 self-assign/null 계약을 명시한다. | 모든 5개 field, self-assign, null source/destination을 검사한다. |
+| =byul/balix/numeq/filters/numeq_kalman.h= | =kalman_time_update= | ME-KERNEL / LEGACY-FORWARD | identity transition =x'=x, P'=P+Q= kernel로 옮기고 overflow/status를 반환한다. | hand-computed step, =q=0, repeated predict, negative/non-finite/overflow covariance를 검사한다. |
+| =byul/balix/numeq/filters/numeq_kalman.h= | =kalman_measurement_update= | ME-KERNEL / LEGACY-FORWARD | innovation, gain, state와 stable covariance update를 한 canonical scalar correction으로 옮긴다. | hand oracle, =p+r= zero/near-zero, NaN measurement, covariance non-negative와 repeated convergence를 검사한다. |
+| =byul/balix/numeq/filters/numeq_kalman.h= | =kalman_vec3_init= | ME-VALUE / LEGACY-FORWARD | 현 3개 independent position-error channel과 velocity estimate의 default initializer로 전달한다. | zero position/velocity, unit error, =q/r/dt= defaults, null과 layout를 검사한다. |
+| =byul/balix/numeq/filters/numeq_kalman.h= | =kalman_vec3_init_full= | ME-VALUE / LEGACY-FORWARD | nullable initial vectors와 =q/r/dt=를 검증하는 compatibility initializer로 옮기고 true constant-velocity Kalman type과 분리한다. | null vector defaults, =dt<=0= legacy fallback, negative/NaN/Inf =q/r/dt=와 atomic init을 검사한다. |
+| =byul/balix/numeq/filters/numeq_kalman.h= | =kalman_vec3_assign= | ME-VALUE / LEGACY-FORWARD | independent-channel legacy state의 exact value copy로 전달한다. | position, velocity, 세 error, =q/r/dt=, self-assign과 null을 검사한다. |
+| =byul/balix/numeq/filters/numeq_kalman.h= | =kalman_vec3_time_update= | ME-KERNEL / LEGACY-FORWARD | 현 =position+=velocity*dt; error_p+=q= 식은 명시적으로 legacy alpha/Kalman-like kernel에 두고 canonical CV matrix predict와 이름을 분리한다. | 세 축 hand oracle, zero/variable/invalid =dt=, covariance invariant와 scalar-channel parity를 검사한다. |
+| =byul/balix/numeq/filters/numeq_kalman.h= | =kalman_vec3_measurement_update= | ME-KERNEL / LEGACY-FORWARD | 세 position correction과 correction-displacement/=dt= velocity heuristic을 compatibility kernel로 보존하고 canonical CV observation update와 혼동하지 않는다. | 각 축 gain oracle, =error_p+r= zero, =dt= zero, velocity jump, null/non-finite measurement와 covariance를 검사한다. |
+| =byul/balix/numeq/filters/numeq_kalman.h= | =kalman_vec3_project= | ME-KERNEL / LEGACY-FORWARD | constant-velocity =position+velocity*future_dt= projection primitive로 옮긴다. | =future_dt= zero/negative/non-finite, output alias, null과 three-axis hand oracle를 검사한다. |
+| =byul/balix/numeq/filters/numeq_filters.h= | =make_kalman_vec3_interface= | BALIX-BINDING / LEGACY-FORWARD | raw cast를 제거한 exact-signature trampoline 또는 versioned vtable을 Balix에 두고 Math Engine state의 lifetime을 보관하지 않게 한다. | null state, callback signature/arity, measured velocity 사용·거부, get-state nullable outputs, lifetime/reentrancy와 ABI sanitizer를 검사한다. |
+
+=kalman_filter_t=, =kalman_filter_vec3_t=, =filter_interface_t=와
+=filter_time_update_func=, =filter_measurement_update_func=, =filter_get_state_func=도 public
+ABI surface다. 기존 struct field를 확장하지 않고 versioned canonical state/result를 새로
+만든다. 독립 Math Engine DLL 경계에는 Balix가 소유한 raw function pointer나 수명 불명
+=void*=를 그대로 넘기지 않으며, version/size, context retention, calling convention과
+thread/reentrancy 계약을 명시한다.
+
+* 현재 진단
+
+- Scalar는 identity process의 1D Kalman update로는 설명 가능하지만 =p/q/r=의 variance
+  단위와 non-negative/finite invariant가 없다.
+- Vec3는 full constant-velocity state covariance filter가 아니다. 축별 position variance
+  하나만 =P+=Q=로 갱신하고 measurement correction 차이를 =dt=로 나눠 velocity로
+  추정한다.
+- Vec3 이름과 문서가 일반 Kalman capability를 과장할 수 있으며 cross-axis covariance,
+  velocity covariance와 model matrix가 없다.
+- Joseph-form covariance update가 아니고 roundoff에서 negative/PSD 손실을 진단하지 않는다.
+- =dt=, =p+R= zero와 null/non-finite 검사가 불완전하다.
+- Filter interface는 =void*=와 cast callback을 public storage에 노출하고 lifetime,
+  reentrancy와 measurement shape를 표현하지 않는다.
+- =make_kalman_vec3_interface=는 2-인자
+  =kalman_vec3_measurement_update(kf, measured_pos)=를 3-인자
+  =filter_measurement_update_func(state, measured_pos, measured_vel)=로 cast한다. 서로 다른
+  function pointer type을 통해 호출하는 것은 C/C++에서 undefined behavior이며
+  =measured_vel=도 실제 모델에 반영되지 않는다. =time_update=의 typed pointer cast도
+  trampoline 없이 같은 위험을 가진다.
+- =kalman_init_full=은 negative/non-finite =p/q/r=을 그대로 저장하고 scalar correction은
+  =p+r=이 zero여도 나눈다. simplified =(1-K)P= 갱신의 error/status surface도 없다.
+- =kalman_vec3_init_full=은 =dt<=0=을 조용히 0.1로 바꾸지만 =q/r=은 검증하지 않는다.
+  이후 =kalman_vec3_measurement_update=는 =dt=를 public struct에서 직접 바꿀 수 있으므로
+  zero division을 다시 허용한다.
+- =kalman_vec3_project=는 negative/non-finite =future_dt=를 그대로 사용한다. 이는 순수
+  projection 식 자체는 Math Engine 소유라는 사실과 별개로 input-domain 계약이 빠진
+  public API defect다.
+- 12개 =BYUL_API= 선언은 모두 definition이 존재하지만 현재 test는
+  =numeq_kalman.h=의 수치 함수만 호출하고 =make_kalman_vec3_interface=와 callback ABI를
+  한 번도 실행하지 않는다.
+
+* 실행 절차
+
+** TODO 1. 현재 estimator 모델을 정확히 명명한다
+*** 실행
+
+Scalar와 Vec3의 state, transition, observation, covariance 가정과 실제 수식을 기록한다.
+
+*** 완료 조건
+
+12개 =BYUL_API= symbol이 ME-VALUE, ME-KERNEL, BALIX-BINDING 또는 LEGACY-FORWARD에
+배정되고 legacy alpha/Kalman-like estimator와 canonical linear Kalman filter 범위가
+분리된다.
+
+*** 검증
+
+12/12 header-to-inventory 및 definition 대조, hand-computed one-step, covariance invariant,
+callback type/arity와 current convergence corpus를 실행한다.
+
+** TODO 2. Neutral linear estimator API를 정의한다
+*** 실행
+
+Fixed small/POD와 matrix-view 경로, model/covariance, workspace, result/status와 thread
+contract를 설계한다.
+
+*** 완료 조건
+
+Trajectory와 Balix type 없이 scalar, independent-channel과 coupled filter를 표현한다.
+
+*** 검증
+
+C17/C++17 compile, shape/buffer/layout와 invalid covariance test를 수행한다.
+
+** TODO 3. Scalar·multi-state kernel을 구현한다
+*** 실행
+
+Predict/update, innovation, gain과 stable covariance update를 구현하고 simplified legacy
+path를 명시적으로 유지한다.
+
+*** 완료 조건
+
+Covariance가 symmetric PSD tolerance를 만족하고 estimator 상태가 deterministic하다.
+
+*** 검증
+
+Known linear systems, zero/noisy measurement, Joseph-form comparison, Monte Carlo fixed-seed와
+high-precision oracle를 실행한다.
+
+** TODO 4. Balix filter binding과 legacy ABI를 전환한다
+*** 실행
+
+Sensor/tick adapter가 neutral input/output view를 사용하고 =void*= interface를 opaque
+handle 또는 정확히 일치하는 signature의 versioned vtable/trampoline으로 compatibility
+처리한다. 사용하지 않는 measurement channel은 nullable 의미를 명시하거나 별도 callback
+type으로 분리한다.
+
+*** 완료 조건
+
+Math Engine에는 sensor polling이 없고 Balix에는 Kalman 식이 없다.
+
+*** 검증
+
+Lifetime/reentrancy, callback ABI sanitizer, measured velocity 사용/거부, old/new
+differential, controller/trajectory integration, export와 wrapper test를 실행한다.

@@ -1,0 +1,325 @@
+#+TITLE: BYUL Math Engine 계산 Context TODO
+#+TODO: TODO DOING BLOCKED | DONE CANCELLED FAILED
+#+TODO_RULES: ../../../../external/rules/projects/byul/todo-rules.org
+#+CONFIGURATION_RULES: ../../../../external/rules/projects/byul/configuration-rules.org
+#+TODO_PARENT: todo-math-engine.org
+#+AUTHOR: ByulPapa / Codex
+#+LANGUAGE: ko
+#+OPTIONS: toc:t num:nil
+
+* 목적
+
+같은 Math Engine 계산 API에 fast, precision 또는 hybrid 정책을 적용하는 immutable
+계산 context를 정의한다. Numeric backend, tolerance, iteration/evaluation/workspace,
+cancellation, determinism과 refinement만 소유한다. World tick, collision 감시 주기,
+broad-phase scheduling, entity 중요도와 event는 Balix consumer context 책임이다.
+
+#+begin_src text
+Math Engine
+  numal + numeq + geometry + mathunits
+       ^
+math computation context
+  fast preset / precision preset / hybrid preset
+       ^
+Balix / offline analysis / robotics / aerospace / CAD / finance caller
+#+end_src
+
+분야 이름은 사용 사례나 설정 template일 뿐 알고리즘 또는 ABI 분리 기준이 아니다.
+
+* 기본 원칙
+
+- 분야별 함수와 알고리즘 복제 금지
+- mode는 알고리즘 이름이 아니라 context preset
+- =fast=, =precision= 과 =hybrid= 는 숫자 backend 이름이 아님
+- 호출자는 preset 적용 후 허용된 항목만 override 가능
+- 지원하지 않는 조합은 silent fallback 없이 상태 반환
+- 시간, 메모리와 오차 예산을 모두 명시
+- 동일 입력, resolved context와 backend version은 문서화된 결과 계약을 가짐
+- 계산 도중 암묵적인 정밀도 저하 금지
+- mode 전환과 승격 시 state의 단위, 좌표계, ownership과 변환 상태 유지
+
+* Fast preset
+
+계산 workload 특성:
+
+- 호출자가 작은 evaluation/work budget으로 요청한 상태 전파와 controller kernel
+- 대량 vector·matrix·bounding-volume query batch
+- 낮은 지연이 우선인 보간, 근사 predicate와 함수 평가
+- 고정 workspace 안에서 끝나야 하는 임베디드 계산
+
+30/60/120 Hz tick, entity 순회, collision 감시와 broad-phase 후보 scheduling은 이
+preset의 기능이 아니다. Balix가 자신의 주기와 후보를 결정한 뒤 순수 계산 요청에
+=fast= context를 전달한다.
+
+기본 정책 후보:
+
+- =f32= 또는 명시적 실시간 backend, 필요하면 =f64= override
+- fixed step, semi-implicit Euler와 Verlet
+- 작은 iteration/subdivision/evaluation budget
+- 근사 predicate와 fast geometry path
+- 고정 buffer, pool과 arena
+- SIMD/GPU와 parallel batch 허용
+- budget 소진 시 명시적 =PARTIAL/BUDGET_EXHAUSTED= 상태와 결과 품질
+
+Wall-clock deadline 감시와 취소 신호 발생은 Balix/caller 책임이다. Math Engine은
+caller가 전달한 cancellation token과 deterministic evaluation/iteration/work budget만
+관찰한다.
+
+* Precision preset
+
+대상:
+
+- 공학·과학 검증
+- offline sampled-series·ODE 계산과 caller의 replay audit용 기준 결과
+- CAD intersection과 geometry refinement
+- 기준 결과와 회귀 oracle
+
+기본 정책 후보:
+
+- =f64= 기본, =f128=/binary multiprecision 선택
+- RK4와 adaptive integrator
+- 엄격한 absolute/relative/angular tolerance
+- 큰 iteration/subdivision/evaluation budget
+- robust/adaptive predicate와 collision refinement
+- 오차, 잔차, 수렴과 평가 통계
+- 필요시 동적 또는 caller-provided 확장 workspace
+
+* Hybrid preset
+
+복합 모드는 별도 알고리즘 복사본이 아니다. fast policy로 시작하고, 명시된 승격
+조건을 만족하는 계산만 precision policy와 refinement backend로 다시 평가한다.
+
+#+begin_src text
+state propagation step          fast
+bounding-volume overlap query   fast
+ambiguous intersection query    precision refinement
+impact coordinate/TOI query     precision refinement
+controller kernel evaluation    fast
+stability/error validation      precision refinement
+graph sample evaluation         fast
+caller-requested refinement     precision refinement
+#+end_src
+
+승격 조건 후보:
+
+- 결과 구간이 tolerance 경계와 겹침
+- predicate가 uncertain 상태를 반환
+- 잔차나 보존량 오차가 지정 한도 초과
+- 호출자가 명시적으로 refinement 요청
+
+승격 최대 횟수, 추가 evaluation·메모리 예산, backend 변환 정책과 승격 실패 시 반환
+상태를 resolved configuration에 기록한다. Math Engine이 wall clock을 읽어 자체 작업을
+재예약하지 않는다.
+
+* Preset과 숫자 backend 분리
+
+실행 preset과 숫자 backend는 독립 축이다.
+
+#+begin_src text
+fast + f32                  대량 실시간 계산
+fast + f64                  큰 좌표 또는 실시간 제어
+precision + f64             일반 공학 검증
+precision + binary256       고정밀 기준 결과
+hybrid + f32 -> f64         일반 실시간 refinement
+hybrid + f64 -> binary256   고정밀 offline refinement
+#+end_src
+
+=precision=f64= 또는 =fast=f32= 로 고정하지 않는다. backend 이름, math profile과
+설정 파일 해석은 =todo-math-engine-configuration.org= 를 따른다.
+
+* Context 후보
+
+#+begin_src c
+typedef enum byul_math_execution_preset_t {
+    BYUL_MATH_EXECUTION_FAST,
+    BYUL_MATH_EXECUTION_PRECISION,
+    BYUL_MATH_EXECUTION_HYBRID
+} byul_math_execution_preset_t;
+
+typedef struct byul_math_context_t {
+    byul_math_execution_preset_t preset;
+    byul_numeric_backend_t primary_backend;
+    byul_numeric_backend_t refinement_backend;
+    double absolute_tolerance;
+    double relative_tolerance;
+    double angular_tolerance;
+    uint32_t max_iterations;
+    uint32_t max_subdivisions;
+    uint32_t max_refinements;
+    uint64_t evaluation_budget;
+    uint64_t memory_budget;
+    bool robust_geometry;
+    bool adaptive_step;
+    bool allow_simd;
+    bool allow_gpu;
+    bool deterministic;
+} byul_math_context_t;
+#+end_src
+
+이는 설계 후보이며 아직 public ABI가 아니다. 공개 구조체로 확정하기 전에 size/version
+field가 있는 구조와 opaque context plus getter/setter를 비교한다. 설정 resolver가 만든
+immutable resolved context와 계산별 lightweight override의 책임도 분리한다.
+
+* 결정론
+
+결정론은 preset과 독립된 정책이다.
+
+#+begin_src text
+fast + deterministic       lockstep와 replay
+fast + parallel            particle와 visual simulation
+precision + deterministic  regression과 audit
+precision + parallel       offline batch
+hybrid + deterministic     승격 조건과 순서를 고정한 replay
+#+end_src
+
+- 연산과 reduction 순서
+- thread scheduling과 GPU 결과
+- FMA, denormal과 compiler fast-math
+- RNG seed와 stream
+- serialization과 backend version
+- platform별 허용 오차와 bitwise 계약 구분
+- hybrid 승격 순서와 budget 소비 순서
+
+* 모듈별 적용
+
+** numal/mathfunc
+
+- primary/refinement numeric backend와 rounding
+- fast approximation 허용 여부
+- non-finite와 overflow 정책
+
+** numeq
+
+- solver tolerance와 iteration
+- integrator와 adaptive step
+- evaluation budget, cancellation과 refinement 재시작
+
+** geometry
+
+- tolerance와 robust predicate
+- bounding-volume·primitive 교차 query와 uncertain 결과
+- GJK/EPA iteration과 contact manifold 크기
+
+** expression/plot
+
+- instruction과 recursion budget
+- graph initial sample과 refinement
+- CAS rewrite와 expression growth
+
+** batch/GPU
+
+- offload threshold
+- deterministic reduction 여부
+- CPU fallback과 결과 tolerance
+
+* 금융과 CAD와의 경계
+
+simulation preset만으로 금융과 CAD의 전체 정책을 표현하지 않는다.
+
+- 금융: decimal exactness, scale, quantize와 rounding policy
+- CAD: geometric robustness, topology tolerance와 healing policy
+
+Math Engine profile과 module-specific 계산 policy는
+=todo-math-engine-configuration.org= 가 조합한다. Product/world feature는 Balix 또는
+상위 application resolver가 별도로 조합한다.
+항공우주는 별도 숫자 mode가 아니라 simulation용 domain template이며, 필요하면 엄격한
+단위, 결정론과 고정밀 backend를 기본 override로 제공한다.
+
+* 테스트 기준
+
+- 같은 API의 fast/precision 결과 비교
+- fast 결과 오차가 선언된 범위 안에 있음
+- precision 결과의 잔차·수렴·오차 추정
+- hybrid 승격 전후 교차 좌표·TOI·trajectory 분석 결과 일관성
+- 승격 횟수, caller cancellation과 evaluation/work budget exhaustion
+- primary/refinement backend 변환 상태와 단위 보존
+- deterministic preset의 replay
+- CPU/SIMD/GPU 결과 계약
+- f32/f64와 high-precision oracle
+- Windows, Linux와 macOS
+
+* 완료 기준
+
+- 모든 simulation 분야가 동일 API를 사용한다.
+- fast/precision/hybrid preset과 override 규칙이 문서화된다.
+- preset별 숫자, 적분기, geometry와 budget 기본값이 정의된다.
+- hybrid 승격 조건, 최대 비용과 실패 상태가 정의된다.
+- preset과 숫자 backend가 독립적으로 조합된다.
+- 결정론이 preset과 독립적으로 설정된다.
+- 금융 decimal과 CAD robustness 정책을 별도 축으로 결합할 수 있다.
+- 지원하지 않는 조합이 명시적 상태로 보고된다.
+
+* 진행 조건
+
+첫 구현은 모든 모듈을 context 하나에 결합하는 작업이 아니다. 공통 preset enum,
+tolerance, iteration/evaluation budget, cancellation과 refinement 상태를 먼저 정의하고
+기존 solver·integrator·collision API에 adapter로 적용한다. 설정 파일을 직접 읽는
+책임은 알고리즘 API가 아니라 공통 configuration resolver에 둔다. public header를
+수정할 때는 BYUL header 선언·comment·license 규칙을 먼저 읽고 따른다.
+
+* 실행 절차
+
+** TODO 1단계. 소유 가능한 계산 정책만 inventory한다
+*** 실행
+
+Numal, Numeq, Geometry와 추출 대상 Balix 수학 API에서 tolerance, iteration,
+workspace, cancellation, determinism과 refinement 입력을 수집한다. World tick, entity
+priority, 감시 주기와 event dispatch 항목은 별도 제외 목록에 기록한다.
+
+*** 완료 조건
+
+모든 context field가 둘 이상의 순수 계산 API에 필요한지 또는 module 전용 policy인지
+분류되고 Balix 운영 상태가 public Math Engine context에 들어가지 않는다.
+
+*** 검증
+
+[[file:todo-balix-math-extraction.org][Balix 수학 추출 master]]의 소유권 표와 대조하고
+source symbol마다 context 입력의 근거를 추적한다.
+
+** TODO 2단계. Versioned immutable context 계약을 확정한다
+*** 실행
+
+=byul_math_*= prefix, size/version, opaque handle과 value struct 대안을 비교하고 preset,
+backend, tolerance, budget과 상태 반환의 canonical C ABI를 결정한다.
+
+*** 완료 조건
+
+지원하지 않는 조합, budget 소진, cancellation과 refinement 실패가 silent fallback 없이
+표현되고 allocator와 thread-safety 계약이 명시된다.
+
+*** 검증
+
+C와 C++ compile test, 구조체 size/version test, 잘못된 조합 table test와 동시 호출
+test를 설계한다.
+
+** TODO 3단계. 순수 계산 adapter에 단계적으로 적용한다
+*** 실행
+
+Solver, integrator, 교차 좌표·TOI query와 controller kernel 순서로 기존 옵션을
+canonical context에 매핑한다. Balix는 context를 생성·선택하되 계산 중 변경하지 않는다.
+
+*** 완료 조건
+
+Math Engine 함수가 Balix 객체, world clock 또는 event queue를 참조하지 않고 동일 입력과
+resolved context에서 동일한 상태·결과를 반환한다.
+
+*** 검증
+
+기존/신규 differential, fast/precision oracle, cancellation·budget exhaustion와
+Windows/Linux/macOS 결정론 test를 수행한다.
+
+** TODO 4단계. Hybrid refinement 경계를 고정한다
+*** 실행
+
+uncertain predicate, 잔차, 오차 경계와 명시적 caller 요청만 승격 조건으로 허용하고 최대
+횟수·비용·backend 변환과 반환 provenance를 정의한다.
+
+*** 완료 조건
+
+Math Engine이 자체 timer나 world 중요도로 작업을 재예약하지 않으며 한 API 호출 안에서만
+bounded refinement를 수행한다.
+
+*** 검증
+
+교차·TOI·ODE·graph 표본 corpus에서 승격 전후 결과, 최대 비용, 취소 시점과 provenance를
+검사한다.

@@ -1,0 +1,128 @@
+#+TITLE: BYUL maze_eller.h 정밀 리팩터링 TODO
+#+TODO: TODO DOING BLOCKED | DONE CANCELLED FAILED
+#+TODO_RULES: ../../../../external/rules/projects/byul/todo-rules.org
+#+PUBLIC_API_RULES: ../../../../external/rules/projects/byul/public-api-rules.org
+#+HEADER_DECLARATION_RULES: ../../../../external/rules/projects/byul/header-declaration-rules.org
+#+HEADER_COMMENT_RULES: ../../../../external/rules/projects/byul/header-comment-rules.org
+#+HEADER_AUTHORING_RULES: ../../../../external/rules/projects/byul/header-authoring-rules.org
+#+BUILD_RULES: ../../../../external/rules/projects/byul/build-rules.org
+#+TEST_RULES: ../../../../external/rules/projects/byul/test-rules.org
+#+TODO_PARENT: todo-리팩토링-navsys-headers.org
+#+LANGUAGE: ko
+#+OPTIONS: toc:3 num:nil
+
+* 대상·공통 의존성
+
+- 대상: =maze_eller.h/.cpp=.
+- 공통 status/options/buffer 계약은 [[file:todo-navsys-industry-api-baseline.org][Navsys 업계 API 기준]]의 결정을 선행 gate로 삼는다.
+- 알고리즘 기준은 [[https://weblog.jamisbuck.org/2010/12/29/maze-generation-eller-s-algorithm][Jamis Buck의 Eller reference]]다. row별 set을 유지하고,
+  각 set은 다음 row에 최소 한 연결을 만들며 마지막 row에서는 모든 set을 합쳐 perfect maze를 만든다.
+
+* Public symbol inventory와 처분
+
+| kind | symbol | disposition |
+|------+--------+-------------|
+| guard macro | =MAZE_ELLER_H= | source macro: ABI 1.x: keep -> ABI-major: internalize; collision-safe guard companion: ABI 1.x: add |
+| function | =maze_make_eller(int,int,int,int)= | legacy: ABI 1.x: deprecate-forward -> ABI-major: internalize; support path: conformance-block; canonical companion: ABI 1.x: add |
+
+#+begin_src c
+BYUL_API navsys_status_t byul_maze_generate_eller(
+    int32_t origin_x, int32_t origin_y,
+    uint32_t width, uint32_t height,
+    const byul_maze_generate_options_t* options,
+    maze_t** out_maze);
+#+end_src
+
+* 구현 감사: 현재 lattice가 다른 generator와 불일치
+
+| 구간 | 현재 코드 | 판정 |
+|------+----------+------|
+| 초기 row | =set_id[0][odd x]=, =grid[0][odd x]=PASSAGE= | 외곽 y=0을 passage로 열어 다른 generator의 odd/odd interior와 충돌 |
+| row loop | =y=0; y<h; y+=2= | logical cell row가 even coordinate에 배치됨 |
+| vertical join | =y+1,y+2= passage | row representation 자체는 일관되나 public border-wall 설명과 불일치 |
+| final row | =y=h-1=에서 set merge | odd height이면 마지막 외곽 row를 passage/merge에 사용 |
+| RNG | =mt19937(time(nullptr))=, =rng()%size= | seed 재현 불가; modulo bias가 있을 수 있음 |
+| allocation | maze/vector/map/hash | create failure/exception/hash insert 실패가 C ABI로 새거나 무시됨 |
+| topology test | print와 non-NULL | boundary opening, connectivity, no cycle 미검증 |
+
+현재 결과가 의도한 wall raster인지 바꾸기 전에 fixture로 동결한다. 신규 API는 다른 maze
+family와 동일하게 logical cell을 odd/odd interior에 두고 외곽을 blocked로 유지하는 방향을
+기본 후보로 한다. 이는 legacy 결과를 바꾸므로 legacy symbol은 compatibility adapter 또는
+별도 legacy implementation을 유지할 수 있다.
+
+* 목표 알고리즘 계약
+
+- working memory는 O(logical width) row set이며 full 2D =set_id=는 제거 후보이다.
+- 각 non-final row에서 서로 다른 adjacent set을 임의 horizontal join하고, 각 set마다 최소
+  한 vertical join을 보장한다. final row는 남은 서로 다른 adjacent set을 모두 연결한다.
+- 결과 passage graph는 connected/acyclic, edge = vertex-1, outer border blocked다.
+- exact seed replay와 RNG draw order, row streaming 가능 여부를 capability에 기록한다.
+- dimension, max cells/steps, cancellation과 allocation failure는 =navsys_status_t=로 구분한다.
+
+* TODO 1단계: 현행 좌표계 반증/보존 자료
+
+** 실행
+
+- 3x3/5x5/9x9의 blocked set을 dump하고 top/bottom border openings를 측정한다.
+- set id transition, horizontal/vertical join과 final merge trace를 작성한다.
+- legacy consumer가 exact raster에 의존하는지 repository/SDK fixture를 조사한다.
+
+** 완료 조건
+
+- 현행 even-row lattice와 목표 odd-interior lattice 차이가 golden diff로 재현된다.
+- semantic correction을 legacy에 적용할지 신규 API만 적용할지 decision record가 승인된다.
+
+** 검증
+
+- border/connectivity/cycle oracle로 현행 100개 seed를 검사한다.
+- direct/dispatcher export와 CMake inventory를 snapshot한다.
+
+* TODO 2단계: canonical row algorithm 구현
+
+** 실행
+
+- 1-row set state와 explicit union/rename helper로 구현하고 modulo 선택을 uniform distribution으로 바꾼다.
+- seed/options/cancel/step budget과 C++ exception barrier를 적용한다.
+- 각 set의 downward connection 최소 1개와 final-row merge를 assertion으로 보호한다.
+
+** 완료 조건
+
+- memory가 logical width에 비례하고 모든 failure가 output strong guarantee를 지킨다.
+- 같은 seed의 결과/trace가 선언된 재현 범위에서 동일하다.
+
+** 검증
+
+- injected RNG로 no-horizontal/all-horizontal/downward fallback/final merge를 강제한다.
+- allocator fault, cancel each row와 huge width overflow test를 실행한다.
+
+* TODO 3단계: legacy forwarding과 위상 gate
+
+** 실행
+
+- 신규 status API를 기본으로 하고 =maze_make_eller=의 old raster compatibility 정책을 구현한다.
+- perfect maze, border, exact extent/origin과 row streaming claim을 test한다.
+
+** 완료 조건
+
+- 신규 API는 모든 seed에서 invariant를 만족하고 silent partial maze가 없다.
+- legacy semantic break가 있으면 ABI가 아닌 behavior-major migration note가 있다.
+
+** 검증
+
+- old/new golden corpus, property seed corpus, ASan/LSan과 static/root tests를 실행한다.
+
+* TODO 4단계: Header·SDK gate
+
+** 실행
+
+- 표준 header 구조와 seed/row-memory/topology/error metadata를 작성한다.
+- dispatcher support와 wrapper 등록/제외, SDK install/export를 일치시킨다.
+
+** 완료 조건
+
+- audit 0 error, symbol-definition-export 1:1과 compatibility 문서가 완료된다.
+
+** 검증
+
+- C17/C++17 include, wrapper audit/check, clean SDK consumer를 실행한다.
+- module static =BYUL_STATIC=과 root shared =BYUL_EXPORTS=에서 legacy/canonical export를 각각 검증한다.

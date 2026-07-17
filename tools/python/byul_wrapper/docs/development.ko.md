@@ -1,7 +1,7 @@
 # BYUL Wrapper 개발 가이드
 
 자동 생성기의 명명, 소유권, 변환, lint, test 규칙은
-[`wrapper-rules.org`](wrapper-rules.org)를 기준으로 합니다.
+[`wrapper-rules.org`](../../../../../rules_env/byul/wrapper-rules.org)를 기준으로 합니다.
 
 ## 개발 목표
 

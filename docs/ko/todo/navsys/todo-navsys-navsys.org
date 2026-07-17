@@ -1,0 +1,338 @@
+#+TITLE: BYUL Navsys navsys.h 정밀 리팩터링 TODO
+#+TODO: TODO DOING BLOCKED | DONE CANCELLED FAILED
+#+TODO_RULES: ../../../../external/rules/projects/byul/todo-rules.org
+#+PUBLIC_API_RULES: ../../../../external/rules/projects/byul/public-api-rules.org
+#+HEADER_DECLARATION_RULES: ../../../../external/rules/projects/byul/header-declaration-rules.org
+#+HEADER_COMMENT_RULES: ../../../../external/rules/projects/byul/header-comment-rules.org
+#+HEADER_AUTHORING_RULES: ../../../../external/rules/projects/byul/header-authoring-rules.org
+#+BUILD_RULES: ../../../../external/rules/projects/byul/build-rules.org
+#+TEST_RULES: ../../../../external/rules/projects/byul/test-rules.org
+#+TODO_PARENT: todo-리팩토링-navsys-headers.org
+#+INDUSTRY_API_BASELINE: todo-navsys-industry-api-baseline.org
+#+AUTHOR: ByulPapa / Codex
+#+LANGUAGE: ko
+#+OPTIONS: toc:t num:nil
+
+* 문서 책임
+
+대상은 =byul/navsys/navsys.h= 하나다. 구현 =navsys.cpp=, 12개 one-shot helper가
+호출하는 route-finder/D* Lite, module/root CMake inventory, =byul/byul.h=, native test,
+README와 설치 SDK consumer를 함께 다룬다. 공통 status/options/stats, cancel,
+allocator/workspace, capability와 ABI/static/shared/wrapper gate는
+[[file:todo-navsys-industry-api-baseline.org][Navsys 업계 API 기준]]을 따른다.
+
+현재 header는 module umbrella와 search facade 역할을 동시에 한다. 리팩터링의 핵심은
+=navsys.h=를 작은 안정 search facade로 만들고, 모든 public component를 한꺼번에 포함하는
+편의가 정말 필요하면 별도 =navsys_all.h= 같은 명시적 umbrella로 분리하는 것이다.
+
+* 조사한 현재 소비·배포 경로
+
+- =byul/navsys/CMakeLists.txt=가 =navsys.cpp=를 module static에 넣고 =byul/CMakeLists.txt=가
+  같은 source를 root shared에 직접 넣는다. =navsys.h=는 module 설치 header이며
+  =byul/byul.h=가 다시 include하므로 root SDK에서도 넓게 전파된다.
+- =byul/navsys/tests/test_module_navsys.cpp=는 12개 helper를 각각 한 번 호출해 route를
+  출력/파괴한다. status 분류, option boundary, large grid, NULL/OOM/cancel, algorithm
+  correctness와 shared-library 경로는 다루지 않는다.
+- =docs/ko/README.ko.md=는 =#include "navsys.h"=와 =navsys_find_astar=를 입문 예제로
+  고정한다. source migration을 위해 canonical 예제를 먼저 추가해야 한다.
+- Python wrapper는 현재 =navsys.h=와 12개 helper를 등록하지 않는다. Python 사용자는
+  lower-level =RouteFinder=만 사용하므로 root public facade와 wrapper capability가 다르다.
+- repository 외부 consumer는 =navsys.h=의 transitive include에 의존할 수 있다. include를
+  줄이는 것은 binary ABI 변화가 아니어도 source compatibility 변화이므로 install-consumer
+  fixture와 migration window가 필요하다.
+
+* 업계 기준과 직접 비교
+
+- [[https://recastnav.com/classdtNavMeshQuery.html][Detour dtNavMeshQuery]]는 query object,
+  =dtQueryFilter=, node pool과 caller result buffer를 분리하고 상세 =dtStatus=를 반환한다.
+  BYUL one-shot facade도 algorithm, policy, budget, workspace와 결과/status를 서로 독립된
+  versioned input/output으로 전달해야 한다.
+- [[https://recastnav.com/DetourStatus_8h_source.html][Detour status]]는 invalid parameter,
+  out-of-memory/out-of-nodes, partial result와 buffer-too-small을 no-path와 분리한다.
+  현재 owned route 또는 NULL 하나인 반환 계약을 교체할 직접 기준이다.
+- [[https://www.boost.org/doc/libs/latest/libs/graph/doc/astar_search.html][Boost.Graph A*]]와
+  [[https://www.boost.org/doc/libs/latest/libs/graph/doc/dijkstra_shortest_paths.html][Dijkstra]]는
+  weight/heuristic, predecessor/distance map, visitor와 color/workspace를 명시적 parameter로
+  다룬다. 알고리즘 이름만 다른 12개 wrapper에 숨은 fixed default를 복제하지 않는다.
+- [[https://idm-lab.org/bib/abstracts/papers/aaai02b.pdf][Koenig & Likhachev, D* Lite]]는
+  변화된 edge cost를 반영하는 incremental replanning algorithm이다. 한 번 create/find/destroy하는
+  =navsys_find_dstar_lite=는 주 사용 모델을 잃으므로 one-shot convenience와 persistent
+  replanner를 capability/documentation에서 구분한다.
+- [[https://curl.se/libcurl/c/][libcurl easy interface]]처럼 편의 facade라도 handle/result
+  ownership, option lifetime와 오류 code를 안정 C ABI로 노출하고 C++ exception이 C 경계를
+  통과하지 않게 한다.
+
+* 현재 include surface 전수와 disposition
+
+| 현재 include | 실제 필요/문제 | disposition |
+|--------------+----------------+-------------|
+| =coord.h= | 12개 helper의 start/goal public value type | facade에 직접 유지 |
+| =coord_list.h= | navsys.h 선언에 사용하지 않는 transitive container | source-major migration 후 제거 |
+| =coord_hash.h= | 선언에 사용하지 않고 internal predecessor representation 노출 | source-major migration 후 제거 |
+| =route.h= | owned result type | 직접 유지 또는 opaque forward declaration 가능성 검토 |
+| =navgrid.h= | query grid handle type | 직접 유지 또는 stable forward declaration |
+| =cost_coord_pq.h= | public 함수에 불필요한 algorithm internal priority queue | public facade/umbrella에서 제거, internalize |
+| =route_finder.h= | algorithm enum/config를 canonical query에 재사용 가능 | stable minimal type header로 축소 후 직접 유지 |
+| =dstar_lite.h= | 별도 persistent replanner component | facade에서 제거, 별도 explicit include/umbrella에만 유지 |
+| =maze.h= | search 함수와 무관한 generation component | 별도 explicit include/umbrella로 이동 |
+| =route_carver.h= | search 함수와 무관한 mutation component | 별도 explicit include/umbrella로 이동 |
+| =obstacle.h= | search 함수 signature에 불필요 | 별도 explicit include/umbrella로 이동 |
+
+기존 transitive include 제거는 한 release 동안 deprecation diagnostic 또는
+=navsys_all.h= migration을 제공한다. facade header는 include 순서 우연 없이 C17/C++17에서
+단독 compile되어야 하고, internal queue/header가 설치 manifest에 다시 들어오지 않게 audit한다.
+
+* 확인된 P0/P1 구현·계약 결함
+
+1. A*부터 weighted A*까지 11개 helper가 stack public =route_finder_t=,
+   =route_finder_init_full=와 fixed =MAX_RETRY= 1000을 복제한다. map 규모와 관계없이 expansion
+   budget이 잘리고 limit/no-path/OOM이 owned route/NULL로 합쳐진다.
+2. start가 NULL이면 조용히 =(0,0)=으로 바뀌지만 goal NULL은 실패한다. implicit origin은 typo를
+   성공한 query로 만들며 start/goal의 validation 대칭성이 없다.
+3. grid가 NULL이거나 goal이 NULL인 경우 NULL, unreachable/invalid config/allocation/callback
+   failure도 NULL 또는 unsuccessful route다. caller는 실패 원인과 partial route의 usability를
+   판별할 수 없다.
+4. A* default가 Euclidean heuristic이고 current 8-direction grid에서 모든 move cost가 1이면
+   diagonal distance를 과대평가할 수 있다. 이름만 =astar=인 helper가 최적성을 보장하지 않는다.
+5. Fringe/RTA/SMA/Weighted helper는 scalar config 한 개를 =new=로 heap allocation한 뒤
+   raw =typedata=로 넘긴다. 불필요한 allocation이며 =new= failure가 C ABI 밖으로 예외를
+   던질 수 있다.
+6. =route_finder_init_full=이 userdata를 저장하지 않고 algorithm adapters도 NULL userdata를
+   전달하는 lower-level P0가 one-shot helper에도 그대로 전파된다.
+7. D* Lite helper만 grid/start/goal NULL을 먼저 검사하지 않고 =dstar_lite_create_full=의
+   NULL 반환도 확인하지 않은 채 =dstar_lite_find(dsl)=를 호출한다. crash와 OOM이 가능하다.
+8. RTA*/SMA*/Fringe helper의 실제 algorithm 구현은 각 원전의 completeness/memory/realtime
+   보장을 충족한다고 보기 어렵다. facade가 algorithm 이름을 unconditional support처럼
+   export하여 capability와 semantic honesty가 어긋난다.
+9. =navsys_find_fringe_search/rta_star/weighted_astar= Doxygen은 존재하지 않는 parameter =a=와
+   =userdata=를 설명하고 실제 =ng/start/goal/config=의 ownership/range를 설명하지 않는다.
+   SMA 수식도 =/===/=, =/x/=, =/<==/= 표기가 섞여 executable contract가 아니다.
+10. query input grid constness/borrowed duration, returned route owner/destroy 함수, thread safety,
+    callback thread, reentrancy, deterministic tie, cost/heuristic 단위와 partial result가 모두
+    문서에 없다.
+11. header guard =NAVSYS_H=는 generic하고 file-level role/comment 및 12개 함수의 일관된
+    documentation이 없다. facade가 내부 header를 transitively include해 compile coupling과
+    SDK surface를 과도하게 키운다.
+12. Python wrapper에 facade declaration/status/config/capability가 없어 native API와 언어 API가
+    서로 다른 지원 집합과 default를 갖게 될 위험이 있다.
+
+* 전체 Public Symbol Inventory
+
+** Macro, typedef, enum, struct
+
+- public semantic macro/typedef/enum/struct 선언은 없다. include guard =NAVSYS_H=만 있으며
+  repository-unique =BYUL_NAVSYS_NAVSYS_H=로 교체한다.
+- 새 facade가 사용하는 =navsys_path_query_t/navsys_search_options_t/navsys_search_stats_t/
+  navsys_status_t=는 공통 baseline이 소유하는 versioned types다. 이 header가 중복 정의하지
+  않고 stable public type header를 include한다.
+
+** 12개 함수별 disposition
+
+모든 legacy helper는 ABI 1.x에서 유지한다. canonical =navsys_find_path=에 완전히 표현 가능한
+helper는 deprecate-forward하고, 구현 보장이 이름과 다른 algorithm은 forwarding 전에 해당
+header의 correctness gate를 통과하거나 capability를 experimental/unsupported로 낮춘다.
+
+| # | 현재 함수 | disposition | 목표 forwarding/config 계약 |
+|---+-----------+-------------+------------------------------|
+| 1 | =navsys_find_astar= | =ABI 1.x: deprecate-forward; companion: add -> ABI-major: internalize= | =algorithm=ASTAR; movement model에 맞는 admissible default 또는 명시 heuristic |
+| 2 | =navsys_find_bfs= | =ABI 1.x: deprecate-forward; companion: add -> ABI-major: internalize= | =algorithm=BFS; unweighted/unit-edge capability를 validation |
+| 3 | =navsys_find_dfs= | =ABI 1.x: deprecate-forward; companion: add -> ABI-major: internalize= | =algorithm=DFS; first-found이며 shortest 보장 없음이 stats/descriptor에 표시 |
+| 4 | =navsys_find_dijkstra= | =ABI 1.x: deprecate-forward; companion: add -> ABI-major: internalize= | =algorithm=DIJKSTRA; finite non-negative edge cost 검증 |
+| 5 | =navsys_find_greedy_best_first= | =ABI 1.x: deprecate-forward; companion: add -> ABI-major: internalize= | optimality/completeness claim 없음 표시 |
+| 6 | =navsys_find_fast_marching= | =ABI 1.x: deprecate-forward; companion: add; conformance-block -> ABI-major: internalize= | spacing/speed/connectivity와 FMM domain 제한을 typed config로 요구 |
+| 7 | =navsys_find_ida_star= | =ABI 1.x: deprecate-forward; companion: add; conformance-block -> ABI-major: internalize= | true depth-first linear-memory IDA* correctness 후 typed config |
+| 8 | =navsys_find_fringe_search= | =ABI 1.x: deprecate-forward; companion: add; conformance-block -> ABI-major: internalize= | 원전 two-list correctness와 finite =delta_epsilon= validation |
+| 9 | =navsys_find_rta_star= | =ABI 1.x: deprecate-forward; companion: add; conformance-block -> ABI-major: internalize= | 실제 RTA*/LRTA* semantics와 =depth_limit > 0= validation |
+| 10 | =navsys_find_sma_star= | =ABI 1.x: deprecate-forward; companion: add; conformance-block -> ABI-major: internalize= | backed-up f/regeneration/real memory bound와 단위 계약 |
+| 11 | =navsys_find_weighted_astar= | =ABI 1.x: deprecate-forward; companion: add; conformance-block -> ABI-major: internalize= | admissible h일 때 bound proof와 실제 weight 기록 |
+| 12 | =navsys_find_dstar_lite= | =ABI 1.x: deprecate-forward -> ABI-major: internalize= | static convenience임을 명시하고 persistent replanner로 안내 |
+
+=conformance-block=은 legacy export 제거 처분이 아니다. 위 6개 함수는 ABI 1.x에서
+=deprecate-forward=로 보존하되 capability query, 문서와 wrapper가 algorithm guarantee를
+과장하지 않으며 correctness gate 전에는 canonical supported path로 승격하지 않는다.
+
+* 목표 facade와 Signature 후보
+
+#+begin_src c
+typedef struct s_navsys_path_query {
+    uint32_t struct_size;
+    uint32_t struct_version;
+    navgrid_t* grid;                  /* borrowed for call duration */
+    coord_t start;
+    coord_t goal;
+    route_finder_type_t algorithm;
+    const navsys_algorithm_config_t* algorithm_config;
+    navsys_search_options_t options;
+} navsys_path_query_t;
+
+BYUL_API navsys_status_t navsys_path_query_init(
+    navsys_path_query_t* query,
+    size_t query_size);
+
+BYUL_API bool navsys_is_algorithm_supported(
+    route_finder_type_t algorithm);
+BYUL_API navsys_status_t navsys_get_algorithm_descriptor(
+    route_finder_type_t algorithm,
+    navsys_algorithm_descriptor_t* out_descriptor);
+
+BYUL_API navsys_status_t navsys_find_path(
+    const navsys_path_query_t* query,
+    route_t** out_route,
+    navsys_search_stats_t* out_stats);
+#+end_src
+
+=navsys_find_path=는 grid/start/goal을 모두 필수로 하고 implicit origin을 허용하지 않는다.
+호출 동안 grid/config를 borrowed하고 반환 =*out_route=는 caller가 =route_destroy=하는 owning
+handle이다. 실패 전 =*out_route=는 NULL이어야 하며, partial output이 허용되는 status만
+명시적으로 route를 전달한다. options는 max expansions/time, cancel token, trace policy,
+allocator/workspace와 deterministic tie를 표현한다.
+
+=navsys_algorithm_config_t=는 untyped =void*=가 아니라 tag와 =struct_size/version=을 가진
+typed configuration family다. algorithm과 config tag 불일치는 =INVALID_ARGUMENT=,
+unknown future tail은 size/version 규칙에 따라 무시 또는 =UNSUPPORTED_VERSION=으로 처리한다.
+descriptor는 supported/experimental, complete/optimal/bounded-suboptimal claim, required config,
+grid connectivity/cost restrictions와 incremental 여부를 machine-readable하게 반환한다.
+
+* Legacy default와 의미 migration
+
+- legacy start NULL → origin은 ABI 1 forwarding에서만 유지하고 deprecation diagnostic 및
+  migration note를 제공한다. canonical query는 start를 value로 필수화한다.
+- legacy =MAX_RETRY= 1000도 forwarding compatibility profile에만 남긴다. canonical default는
+  unlimited가 아니라 documented budget profile/query이며 종료 stats에 applied limit를 기록한다.
+- legacy helper의 owned route/NULL 계약은 유지하되 thread-local error 같은 숨은 채널을 새로
+  만들지 않는다. 새 status API가 canonical이고 wrapper는 legacy helper를 사용하지 않는다.
+- A*/FMM/IDA*/RTA*/SMA*/Fringe의 의미 교정으로 path가 바뀔 수 있음을 behavior change로
+  release note에 기록하고 old/new deterministic fixture를 함께 제공한다.
+
+* ABI, static/shared와 Wrapper 전환
+
+- ABI 1.x에서 12개 symbol/signature를 보존하고 =navsys_find_path=와 capability/descriptor를
+  additive export한다. legacy 구현은 중복 setup을 제거하고 하나의 compatibility config
+  constructor를 통해 canonical core로 forwarding한다.
+- facade type은 version/size를 첫 field로 두고 reserved field 0 규약을 사용한다. ABI 2 전까지
+  기존 helper signature나 returned owner를 바꾸지 않는다.
+- module static와 root shared가 동일 source/header/compile-definition inventory를 사용하도록
+  shared object/source inventory를 통합하고 12 legacy + canonical symbol의 exact-once export를
+  검사한다.
+- wrapper declaration은 public header에서 생성하고 capability matrix/enum/status/config를 함께
+  등록한다. high-level =find_path=는 owned Route와 typed result/exception을 반환하며 Python
+  default가 native canonical default와 fixture로 일치해야 한다.
+- umbrella 분리는 source compatibility migration을 거친다. =byul/byul.h=가 facade만 포함할지
+  explicit =navsys_all.h=까지 포함할지는 compile-time/SDK coupling을 측정해 별도 decision으로
+  확정한다.
+
+* TODO 1단계: Header/API/consumer 기준선 고정
+
+** 실행
+
+- 11개 include와 위 12개 function signature/export, root/module/install transitive include
+  closure를 machine-readable manifest로 만든다.
+- 각 legacy helper의 actual defaults, start NULL, max retry, heuristic/cost, typedata와 returned
+  route/status 조합을 executable characterization test로 고정한다.
+- native/README/root umbrella/external SDK/wrapper의 facade 소비와 미소비를 matrix로 만든다.
+
+** 완료 조건
+
+- 현재 public symbol과 transitive source dependency가 누락 없이 추적된다.
+- 12개 helper마다 default와 failure ambiguity가 test ID 및 disposition에 연결된다.
+- facade/explicit umbrella/component header의 목표 책임과 source migration release가 승인된다.
+
+** 검증
+
+- C17/C++17 standalone header compile, ABI/export dump, include-what-you-use 또는 include closure
+  fixture를 실행한다.
+- 12-symbol manifest와 native test/README/wrapper registration coverage를 자동 비교한다.
+
+* TODO 2단계: P0 failure/status/exception 경계 확보
+
+** 실행
+
+- D* Lite NULL/OOM crash, implicit origin, fixed-limit ambiguity와 scalar =new= exception을
+  regression test로 재현하고 모든 C entry를 exception-safe boundary로 만든다.
+- canonical status/out/stats API, query init/version validation과 route output strong guarantee를
+  additive 구현한다.
+- invalid grid/start/goal/config, unreachable, partial, limit, cancel, OOM과 internal/callback
+  failure를 서로 다른 status로 mapping한다.
+
+** 완료 조건
+
+- C boundary 밖으로 C++ exception이 나오지 않고 invalid/OOM에서 leak/crash가 없다.
+- status와 stats만으로 output route usability 및 applied budget/default를 판별할 수 있다.
+- query validation 실패 시 out route/stats가 계약된 초기 상태를 유지한다.
+
+** 검증
+
+- NULL/invalid enum/config tag/size/version, fail-at-N allocation, exact limit와 cancel-at-expansion
+  test를 실행한다.
+- ASan/LSan/UBSan 및 C 호출자에서 forced =std::bad_alloc= translation을 검사한다.
+
+* TODO 3단계: Typed query, capability와 algorithm semantic gate
+
+** 실행
+
+- algorithm별 typed config와 immutable descriptor/support query를 구현하고 raw typedata/scalar
+  heap allocation을 facade에서 제거한다.
+- 12개 algorithm을 각 child TODO의 reference/correctness suite와 연결해 optimality,
+  completeness, memory/realtime/incremental claim을 descriptor로 생성한다.
+- movement connectivity와 edge cost에 맞춰 default heuristic을 선택하거나 admissibility를
+  보장할 수 없으면 zero heuristic/explicit config를 요구한다.
+
+** 완료 조건
+
+- unsupported/experimental algorithm과 보장 수준을 호출 전·결과 stats에서 일관되게 알 수 있다.
+- config tag/range/unit/lifetime이 algorithm별로 type-safe하고 wrong-config acceptance가 없다.
+- A* 등 보장 claim이 tiny exhaustive/reference Dijkstra 결과와 일치한다.
+
+** 검증
+
+- 전체 42 route-finder enum capability/descriptor table과 12 helper mapping을 fixture로 비교한다.
+- tiny grid exhaustive, weighted/adversarial/diagonal cost, NaN/Inf/negative 및 config boundary test를
+  실행한다.
+
+* TODO 4단계: Facade/umbrella 분리와 legacy forwarding
+
+** 실행
+
+- =navsys.h=를 필요한 stable types와 canonical query declaration만 가진 facade로 축소하고
+  internal queue/container 및 unrelated component include를 explicit umbrella로 이동한다.
+- 12개 legacy helper를 disposition 표와 compatibility profile대로 canonical core에 forwarding해
+  복제된 stack finder/setup 코드를 제거한다.
+- source compatibility window, replacement include, deprecation/removal ABI와 behavior-change
+  migration guide를 README/install docs에 반영한다.
+
+** 완료 조건
+
+- clean consumer가 필요한 component를 직접 include하며 accidental transitive dependency가 없다.
+- legacy helper와 equivalent canonical query가 compatibility 범위에서 동일 결과를 낸다.
+- block-forward algorithm은 corrected gate 전 supported/correct라고 노출되지 않는다.
+
+** 검증
+
+- old umbrella consumer, new minimal facade/component consumer와 missing-direct-include negative
+  fixture를 빌드한다.
+- legacy/canonical pair 12개와 module static/root shared exact-once symbol export를 비교한다.
+
+* TODO 5단계: Wrapper, 문서와 배포 Gate
+
+** 실행
+
+- generated CFFI에 canonical query/status/config/descriptor를 등록하고 Python =find_path=의
+  owner, exception/result, cancel과 config classes를 구현한다.
+- 12개 legacy Doxygen의 잘못된 =a/userdata= 설명을 실제 parameter/ownership/status/guarantee로
+  교체하고 README 기본 예제를 canonical facade로 갱신한다.
+- standard file header/guard/direct include/comment, release note, ABI manifest와 support matrix를
+  release artifact에 포함한다.
+
+** 완료 조건
+
+- native와 Python이 같은 capability/default/status/path/cost/stats fixture를 공유한다.
+- static/root shared/wrapper/clean installed C/C++ consumer가 모두 통과한다.
+- public header에 internal include, undocumented symbol/parameter, unsupported guarantee가 없다.
+
+** 검증
+
+- module CTest, root shared smoke, wrapper unit/native 및 external C17/C++17 compile/run을 실행한다.
+- Windows/Linux/macOS export, sanitizer, ABI/config layout, generated CFFI와 documentation link/audit
+  check를 release gate로 묶는다.
+- =module static BYUL_STATIC=와 =root shared BYUL_EXPORTS=를 각각 compile/run하고
+  symbol/export/behavior parity를 비교한다.

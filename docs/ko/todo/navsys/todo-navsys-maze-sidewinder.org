@@ -1,0 +1,131 @@
+#+TITLE: BYUL maze_sidewinder.h 정밀 리팩터링 TODO
+#+TODO: TODO DOING BLOCKED | DONE CANCELLED FAILED
+#+TODO_RULES: ../../../../external/rules/projects/byul/todo-rules.org
+#+PUBLIC_API_RULES: ../../../../external/rules/projects/byul/public-api-rules.org
+#+HEADER_DECLARATION_RULES: ../../../../external/rules/projects/byul/header-declaration-rules.org
+#+HEADER_COMMENT_RULES: ../../../../external/rules/projects/byul/header-comment-rules.org
+#+HEADER_AUTHORING_RULES: ../../../../external/rules/projects/byul/header-authoring-rules.org
+#+BUILD_RULES: ../../../../external/rules/projects/byul/build-rules.org
+#+TEST_RULES: ../../../../external/rules/projects/byul/test-rules.org
+#+TODO_PARENT: todo-리팩토링-navsys-headers.org
+#+LANGUAGE: ko
+#+OPTIONS: toc:3 num:nil
+
+* 대상과 P0 판정
+
+- 대상: =maze_sidewinder.h/.cpp=.
+- 공통 API는 [[file:todo-navsys-industry-api-baseline.org][Navsys 업계 API 기준]]을 따른다.
+- [[https://weblog.jamisbuck.org/2011/2/3/maze-generation-sidewinder-algorithm.html][Jamis Buck reference]]는 first row를 끝까지 하나의 corridor로 만들고, 이후 각
+  run은 끝날 때 이전 row로 정확히 하나 이상 연결한다.
+- 현재 구현은 첫 logical row에서도 random하게 run을 닫지만 north carve를 하지 않는다.
+  따라서 first row가 여러 disconnected run으로 끊길 수 있는 P0 correctness 후보이다.
+
+* Public symbol inventory와 처분
+
+| kind | symbol | disposition |
+|------+--------+-------------|
+| guard macro | =MAZE_SIDEWINDER_H= | source macro: ABI 1.x: keep -> ABI-major: internalize; collision-safe guard companion: ABI 1.x: add |
+| function | =maze_make_sidewinder(int,int,int,int)= | legacy: ABI 1.x: deprecate-forward -> ABI-major: internalize; support path: conformance-block; canonical companion: ABI 1.x: add |
+
+#+begin_src c
+typedef enum byul_maze_sidewinder_sweep {
+    BYUL_MAZE_SIDEWINDER_EAST_NORTH = 0,
+    BYUL_MAZE_SIDEWINDER_EAST_SOUTH = 1,
+    BYUL_MAZE_SIDEWINDER_WEST_NORTH = 2,
+    BYUL_MAZE_SIDEWINDER_WEST_SOUTH = 3
+} byul_maze_sidewinder_sweep_t;
+
+BYUL_API navsys_status_t byul_maze_generate_sidewinder(
+    int32_t origin_x, int32_t origin_y, uint32_t width, uint32_t height,
+    byul_maze_sidewinder_sweep_t sweep,
+    const byul_maze_generate_options_t* options, maze_t** out_maze);
+#+end_src
+
+* 구현 trace 감사
+
+| 부분 | 현재 | 판정 |
+|------+-----+------|
+| validation | odd >=3 | 정상이나 size/overflow/OOM status 없음 |
+| row | y=1부터 step 2 | logical first row는 y=1 |
+| run close | =carve_east = !east_edge && coin= | first row에서도 false 가능 |
+| north edge | y=1이면 north carve 생략하고 run clear | first row passage components가 단절될 수 있음 |
+| later row | closed run 중 random x에서 y-1 passage | standard pattern에 가까움 |
+| RNG | =mt19937(time)=와 modulo | seed collision/modulo bias |
+| result | hash insert failure 무시 | incomplete success 가능 |
+| test | block count와 print | disconnected first row를 탐지하지 않음 |
+
+* 목표 계약
+
+- selected sweep 방향과 이전-row 방향을 explicit option으로 나타내며 legacy는 east/north를 유지한다.
+- boundary-adjacent first row는 sweep 방향으로 모두 연결한다. 이후 모든 run은 끝날 때 이전 row로
+  정확히 하나 연결한다.
+- 결과는 perfect maze이나 UST가 아니고 sweep 방향 bias 및 이전-row 방향 dead-end 특성을 가진다.
+- seed/RNG draw order, close probability(기본 1/2), cancel/max cells와 status를 명시한다.
+
+* TODO 1단계: disconnected seed 탐색과 fix 승인
+
+** 실행
+
+- coin이 첫 interior cell에서 close되게 하는 RNG stub으로 first-row component를 재현한다.
+- 3xN/5xN에서 current connectivity failure seed corpus를 찾는다.
+- 기존 exact raster consumer와 dispatcher/export/test 기준선을 조사한다.
+
+** 완료 조건
+
+- P0 defect가 failing test로 고정되고 legacy behavior correction 정책이 승인된다.
+- sweep 좌표계와 run state invariant가 diagram/trace로 확정된다.
+
+** 검증
+
+- first row가 하나의 component가 아니면 test가 반드시 실패하는지 mutation test한다.
+- 네 sweep rotation/reflection metamorphic oracle를 설계한다.
+
+* TODO 2단계: canonical run과 seeded API
+
+** 실행
+
+- first-row forced sweep 및 later-row close/connect logic을 분리한다.
+- unbiased run member selection, explicit seed/options/cancel/status와 checked allocation을 적용한다.
+- 신규 API와 legacy forwarding을 구현한다.
+
+** 완료 조건
+
+- every run이 규칙대로 연결되고 failure 시 partial output이 없다.
+- invalid sweep/probability/dimension은 명시 status다.
+
+** 검증
+
+- forced all-open/all-close/boundary run traces와 allocation/cancel fault를 검사한다.
+- seed replay 및 legacy corrected result를 검사한다.
+
+* TODO 3단계: topology·bias gate
+
+** 실행
+
+- connectivity/no-cycle/=V-1=/border를 모든 seed에 assert한다.
+- sweep 회전/반사 결과와 first boundary corridor, forbidden dead-end direction을 검사한다.
+- close ratio 통계와 O(V) time/O(width) run memory를 계측한다.
+
+** 완료 조건
+
+- perfect-maze claim과 bias characteristic가 논리 test로 보호된다.
+
+** 검증
+
+- deterministic/property/statistical suite와 ASan/LSan을 실행한다.
+
+* TODO 4단계: Header·통합 gate
+
+** 실행
+
+- 표준 header와 sweep/seed/topology/error/ownership metadata를 적용한다.
+- dispatcher/static/root/install/wrapper 및 P0 correction release note를 맞춘다.
+
+** 완료 조건
+
+- audit 0, export 1:1과 old/new migration이 완료된다.
+
+** 검증
+
+- C/C++ include, native/root tests와 clean SDK consumer를 실행한다.
+- module static =BYUL_STATIC=과 root shared =BYUL_EXPORTS=에서 legacy/canonical export를 각각 검증한다.

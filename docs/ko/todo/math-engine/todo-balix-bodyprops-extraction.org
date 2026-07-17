@@ -1,0 +1,148 @@
+#+TITLE: Balix Body Properties 공식 추출 TODO
+#+TODO: TODO DOING BLOCKED | DONE CANCELLED FAILED
+#+TODO_RULES: ../../../../external/rules/projects/byul/todo-rules.org
+#+TODO_PARENT: todo-balix-math-extraction.org
+#+AUTHOR: ByulPapa / Codex
+#+LANGUAGE: ko
+#+OPTIONS: toc:t num:nil
+
+* 실제 source·build 범위
+
+- 공개 header: =byul/balix/bodyprops/bodyprops.h=
+- 현재 구현: =byul/balix/bodyprops/bodyprops.cpp=
+- 현재 source/header 집계와 static target: =byul/balix/CMakeLists.txt=
+- root shared 재집계: =byul/CMakeLists.txt=
+- 직접 사용처: =byul/entity/entity_dynamic.cpp=, =byul/ground/ground.cpp=,
+  =byul/balix/controller/controller.cpp=, =byul/balix/numeq/numeq_integrator.cpp=
+- 현재 검증 사용처: =byul/balix/tests/test_module_model.cpp=,
+  =byul/balix/tests/test_module_mpc.cpp=, =byul/entity/tests/test_module_entity_dynamic.cpp=,
+  =byul/ground/tests/test_module_ground.cpp=, =byul/projectile/tests/test_module_projectile_tick.cpp=
+
+=bodyprops.h=의 직접 =BYUL_API= 선언은 정확히 6개다. 아래 표는 한 선언도 묶거나
+생략하지 않은 전수 inventory다.
+
+| =BYUL_API= 선언 | 정본 분류 | 기존 symbol의 최종 운명 | 판단 |
+|-----------------+-----------+--------------------------+------|
+| =bodyprops_init= | Balix orchestration/lifecycle/adapter | Balix 유지 | versioned body preset DTO의 default 초기화이며 보편 물리 상수를 선언하지 않는다. |
+| =bodyprops_init_full= | Balix orchestration/lifecycle/adapter | Balix 유지 | Balix DTO를 caller 값으로 채우는 lifecycle API다. |
+| =bodyprops_assign= | Balix orchestration/lifecycle/adapter | Balix 유지 | Balix public DTO의 copy lifecycle이다. |
+| =bodyprops_apply_friction= | Math Engine pure calculation/value | Balix legacy forwarding | canonical damping/friction kernel을 호출하고 기존 in-place ABI 결과로 mapping한다. |
+| =bodyprops_apply_friction_heat= | Math Engine pure calculation/value | Balix legacy forwarding | canonical dissipation result의 velocity와 energy를 기존 ABI에 mapping한다. |
+| =bodyprops_estimate_stop_time= | Math Engine pure calculation/value | Balix legacy forwarding | canonical stop/decay query의 status와 시간을 기존 =float= sentinel 계약으로 mapping한다. |
+
+* Public value와 상수 소유권
+
+=bodyprops_t=의 =mass=, =drag_coef=, =cross_section=, =restitution=, =friction=,
+=k_magnus=, =k_gyro= field와 field 순서·type은 기존 Balix C ABI다. 따라서 ABI 1.x 동안
+struct는 Balix에 남고 adapter가 Math Engine의 neutral mass/aerodynamic/contact parameter로
+명시 변환한다. Math Engine public header가 =bodyprops_t=를 include하거나 그대로 복제하지
+않는다.
+
+=bodyprops_init=의 =mass 1.0 kg=, =Cd 0.47=, =area 0.01 m^2=, =restitution 0.5=,
+=friction 0.1=, =k_magnus 0.2=, =k_gyro 0.05=는 제품 default preset이다. 이 값은
+Balix versioned preset으로 남긴다. 반면 SI 단위, coefficient domain, finite/positive
+validation과 검증된 보편 상수가 필요하면 Math Engine이 출처·version·단위와 함께
+소유한다. Header 주석의 추천 범위도 근거가 확인되기 전에는 Math Engine 상수가 아니라
+Balix tuning guidance다.
+
+* 구현 식·literal inventory
+
+- =bodyprops_apply_friction=: =v_next = v * (1 - friction * time)=,
+  speed cutoff =1e-5f=와 zero clamp
+- =bodyprops_apply_friction_heat=: 같은 linear factor를 [0, 1] 쪽으로 clamp한 뒤
+  =delta_ke = 0.5 * mass * (|v_prev|^2 - |v_next|^2)=
+- =bodyprops_estimate_stop_time=: nonzero speed와 positive friction에서 =1 / friction=
+- =bodyprops_apply_friction=의 negative-factor 경로: =friction*t - 1 = 0=을
+  =numeq_solve_linear=로 다시 풀지만 결과는 이미 factor 부호로 결정된다.
+
+이 식과 cutoff는 Math Engine formula manifest로 이동한다. Balix forwarding 구현에는
+unit 변환, parameter mapping과 status 변환 이외의 식이나 epsilon literal을 남기지 않는다.
+
+* Build·DLL 이행
+
+현재 =byul/balix/CMakeLists.txt=는 =bodyprops.cpp=를 =balix_SOURCES=에 직접 넣고 root
+=byul/CMakeLists.txt=는 그 inventory를 shared target에 다시 펼친다.
+
+- Static 과도기: canonical damping/contact source는 단일 Math Engine manifest와
+  =byul_math_engine_static=에서 소유한다. =bodyprops.cpp=는 Balix preset lifecycle과
+  3개 legacy forwarder만 소유하고 Balix가 Math Engine target을 link한다. Root =byul=
+  shared는 현행 중앙 규칙대로 같은 Math Engine manifest를 =BYUL_EXPORTS=로 직접
+  compile하고 위 표의 기존 6개 export를 보존한다.
+- 독립 DLL 전환: 중앙 single-shared 규칙과 =rules-ref.org= pin이 먼저 갱신된 뒤
+  =byul_math_engine= shared가 canonical 계산 symbol을 단독 소유한다. Balix/root에는
+  기존 3개 계산 symbol의 forwarding shim만 남으며 canonical source/symbol을 중복
+  포함하지 않는다.
+
+* 현재 진단
+
+- =v_next=v*(1-friction*time)=는 Coulomb friction이 아니라 1차 감쇠에 가깝다.
+  =friction= 설명이 무차원 마찰계수라면 =friction*time=은 차원적으로 일치하지 않는다.
+- stop time =1/friction=은 속도와 mass에 무관하며 같은 선형 factor 모델의 zero crossing일
+  뿐 물리적 정지시간이라고 일반화할 수 없다.
+- =1e-5= cutoff, default mass/Cd/area/restitution/friction/Magnus/gyro가 model context와
+  preset 없이 고정돼 있다.
+- heat는 =0.5*m*(v0^2-v1^2)=를 반환하지만 단위, 부호, 외부 에너지 sink와 time step
+  계약이 공개 result에 없다.
+
+* 목표 API
+
+Math Engine은 =linear damping=, =Coulomb friction=과 사용자 force law를 다른 API로
+구분한다. 함수는 velocity를 직접 바꾸는 variant와 caller-owned output variant를
+분리하고 coefficient 단위, dt, mass, normal force와 energy result를 명시한다.
+Balix default 값은 versioned body preset으로 유지한다.
+
+* 실행 절차
+
+** TODO 1. 기존 모델의 의미와 단위를 동결한다
+*** 실행
+
+세 계산 함수의 식, cutoff, coefficient 차원과 현재 caller를 기록하고 damping인지
+friction인지 결정한다.
+
+*** 완료 조건
+
+Legacy 동작과 물리적으로 새로 정의할 canonical model이 혼동 없이 분리된다.
+
+*** 검증
+
+SI 차원표, literal/call-site scan과 현재 test baseline을 비교한다.
+
+** TODO 2. Neutral damping/friction result를 정의한다
+*** 실행
+
+입력 velocity, mass, coefficient, dt와 optional normal force를 받는 POD API와 dissipated
+energy/status를 설계한다.
+
+*** 완료 조건
+
+Balix type 없이 zero/non-finite/negative parameter와 failure output 계약이 정해진다.
+
+*** 검증
+
+C17/C++17 compile, layout, invalid input와 strong failure test를 실행한다.
+
+** TODO 3. Formula corpus와 canonical 구현을 작성한다
+*** 실행
+
+Linear/exponential damping과 Coulomb candidate를 각각 known answer와 함께 구현한다.
+
+*** 완료 조건
+
+선택 model의 속도 부호가 dt 안에서 뒤집히지 않고 dissipated energy가 음수가 아니다.
+
+*** 검증
+
+Analytic decay, dt subdivision, mass/velocity scaling과 energy balance를 검사한다.
+
+** TODO 4. Balix preset과 legacy forwarding을 전환한다
+*** 실행
+
+Body DTO를 neutral parameter로 변환하고 기존 세 symbol을 canonical API로 forwarding한다.
+
+*** 완료 조건
+
+Balix source에 계산식이 남지 않고 default tuning은 Math Engine 상수로 잘못 승격되지 않는다.
+
+*** 검증
+
+Old/new differential, Balix test, root export와 clean consumer를 실행한다.

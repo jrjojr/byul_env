@@ -1,0 +1,85 @@
+#+TITLE: Math Engine Numal Public Header 세부 리팩터링 TODO
+#+TODO: TODO DOING BLOCKED | DONE CANCELLED FAILED
+#+TODO_RULES: ../../../../external/rules/projects/byul/todo-rules.org
+#+TODO_PARENT: todo-math-engine.org
+#+AUTHOR: ByulPapa / Codex
+#+LANGUAGE: ko
+#+OPTIONS: toc:t num:nil
+
+* 11개 Header
+
+| Header | Math Engine 역할 | 핵심 판단 |
+|--------+------------------+-----------|
+| =numal.h= | aggregate | 승인 component inventory |
+| =scalar.h= | scalar | generic macro, pi/angle, tolerance와 checked result |
+| =dualnumber.h= | automatic differentiation value | layout와 derivative dimension |
+| =vec3.h= | vector value | tolerance, aliasing, buffer/string 분리 |
+| =quat.h= | rotation value | enum 고정, normalization와 frame |
+| =dualquat.h= | rigid transform value | tag/layout와 output order |
+| =plane.h= | primitive value | normal/tolerance/unit와 failure |
+| =geom.h= | geometry compatibility | canonical geometry API로 forwarding |
+| =vec3.hpp= | C++ façade | namespace/source compatibility 결정 |
+| =quat.hpp= | C++ façade | exception/compiler ABI 결정 |
+| =dualquat.hpp= | C++ façade | package/internal 분리 판단 |
+
+Header별 함수 수준 리팩터링은 별도 manifest에서 declaration, definition, root export,
+install, wrapper와 test를 연결한다. 기존
+[[file:../todo-리팩토링-foundation-headers.org][Foundation Header TODO]]는 foundation ABI
+gate만 소유하고 Math Engine API 설계는 이 문서가 소유한다.
+
+* 실행 절차
+
+** TODO 1. Header별 public surface와 ABI snapshot을 만든다
+*** 실행
+
+11개 header의 type/function/macro/enum/include와 consumer를 전수 기록한다.
+
+*** 완료 조건
+
+각 declaration이 owner, definition, export, install과 compatibility disposition을 가진다.
+
+*** 검증
+
+Header parser, C17/C++17 compile, sizeof/alignof/offsetof와 enum snapshot을 실행한다.
+
+** TODO 2. Scalar·value header 계약을 정리한다
+*** 실행
+
+Unit/frame/tolerance/non-finite, aliasing, in-place, output-last와 failure metadata를
+canonical API에 적용하고 old symbol을 forwarding한다.
+
+*** 완료 조건
+
+Public header가 선언/comment/license 규칙을 통과하고 generic macro 충돌이 없다.
+
+*** 검증
+
+Header lint, standalone compile, old/new differential와 root export를 실행한다.
+
+** TODO 3. Geometry와 transform 소유권을 분리한다
+*** 실행
+
+=geom/plane=의 primitive query와 Balix xform을 geometry/transform component로 옮기고
+Numal에는 value/predicate 기반만 남긴다.
+
+*** 완료 조건
+
+Aggregate와 install 경계가 target ownership과 일치한다.
+
+*** 검증
+
+Include-cycle, target link, aggregate compile와 geometry conformance를 실행한다.
+
+** TODO 4. C++ façade disposition을 결정·적용한다
+*** 실행
+
+공식 SDK, namespaced forwarding 또는 별도/internal package 중 하나를 사용 이력과 ABI
+비용으로 결정한다.
+
+*** 완료 조건
+
+세 =.hpp=의 지원 standard, namespace, exception과 종료 version이 명확하다.
+
+*** 검증
+
+C++17 source-compatibility consumer와 install/package test를 실행한다.

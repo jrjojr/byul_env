@@ -1,0 +1,164 @@
+#+TITLE: BYUL Navsys fast_marching.h 정밀 리팩터링 TODO
+#+TODO: TODO DOING BLOCKED | DONE CANCELLED FAILED
+#+TODO_RULES: ../../../../external/rules/projects/byul/todo-rules.org
+#+PUBLIC_API_RULES: ../../../../external/rules/projects/byul/public-api-rules.org
+#+HEADER_DECLARATION_RULES: ../../../../external/rules/projects/byul/header-declaration-rules.org
+#+HEADER_COMMENT_RULES: ../../../../external/rules/projects/byul/header-comment-rules.org
+#+HEADER_AUTHORING_RULES: ../../../../external/rules/projects/byul/header-authoring-rules.org
+#+BUILD_RULES: ../../../../external/rules/projects/byul/build-rules.org
+#+TEST_RULES: ../../../../external/rules/projects/byul/test-rules.org
+#+TODO_PARENT: todo-리팩토링-navsys-headers.org
+#+INDUSTRY_API_BASELINE: todo-navsys-industry-api-baseline.org
+#+AUTHOR: ByulPapa / Codex
+#+LANGUAGE: ko
+#+OPTIONS: toc:t num:nil
+
+* 대상과 원전 기준
+
+대상은 =fast_marching.h/.cpp=다. 공통 형태는
+[[file:todo-navsys-industry-api-baseline.org][Navsys 업계 API 기준]]에 연결한다. 수치/algorithm
+conformance는 Sethian의 [[https://doi.org/10.1073/pnas.93.4.1591][A Fast Marching Level Set
+Method for Monotonically Advancing Fronts]]에 정의된 positive speed, upwind Eikonal update,
+FAR/TRIAL/KNOWN causality와 O(N log N)를 기준으로 한다.
+
+* 현재 구현/소비와 P0 결함
+
+- Header가 cell value type, hash copy hook, owning distance-field layout와 one-shot path API를 한
+  파일에 섞고 전부 SDK/CFFI에 노출한다.
+- =fmm_cell_copy/destroy=는 public header 선언인데 =BYUL_API=가 없고 generic =void*= hash
+  hook이다. 외부 API가 아니라 implementation detail이다.
+- Update는 4축 이웃 값만 사용하는데 expansion/path descent는 =navgrid_copy_neighbors=의
+  4/8방향 mode를 따른다. Grid spacing, speed/cost reciprocal 관계와 unit이 없다.
+- =find_fast_marching=는 radius를 직선거리의 1.5배로 고정해 더 긴 detour가 존재해도 goal을
+  도달 불가로 만들 수 있다. Fallback은 goal에 가장 가까운 cell이 아니라 visit-order의
+  마지막 cell이다.
+- =MAX_RADIUS=를 넘거나 nonpositive radius는 1e6으로 silent 교정하고 NaN/Inf/negative cost를
+  검사하지 않는다. Cost callback userdata도 항상 NULL이다.
+- unlimited =max_retry <= 0=에서는 counter가 증가하지 않아 stats가 0이 된다.
+- =fmm_dump_ascii=는 library 함수가 stdout을 직접 쓰고, public =fmm_grid_t=는 hash/list owner와
+  navgrid width/height layout을 노출한다.
+
+* 전체 Public Symbol Inventory와 disposition
+
+** Macro/type/field
+
+- =FAST_MARCHING_H= include guard는 current macro inventory에 포함하고 ABI 영향 없이
+  =BYUL_NAVSYS_ROUTE_FINDER_FAST_MARCHING_H=로 교체한다.
+
+| 현재 symbol | numeric/layout | disposition | 목표 |
+|-------------+----------------+-------------+------|
+| =MAX_RADIUS= | =1e6f= | =ABI 1.x: keep; companion: add -> ABI-major: internalize= | typed =radius_limit=과 namespaced default query |
+| =fmm_state_t= | enum ABI type | =ABI 1.x: keep -> ABI-major: internalize= | FAR/TRIAL/KNOWN은 field 구현 detail로 이동 |
+| =FMM_FAR= | 0 | =ABI 1.x: keep -> ABI-major: internalize= | ABI 1.x 숫자 동결 |
+| =FMM_NARROW= | 1 | =ABI 1.x: keep -> ABI-major: internalize= | 원전 TRIAL/NARROW 상태; ABI 1.x 숫자 동결 |
+| =FMM_KNOWN= | 2 | =ABI 1.x: keep -> ABI-major: internalize= | accepted/frozen 상태; ABI 1.x 숫자 동결 |
+| =fmm_cell_t= | public value layout | =ABI 1.x: keep -> ABI-major: internalize= | public field accessor 없이 field 내부 cell로 이동 |
+| =state= | =fmm_state_t= field | =ABI 1.x: keep -> ABI-major: internalize= | =fmm_cell_t=와 함께 제거 |
+| =value= | =float= field | =ABI 1.x: keep -> ABI-major: internalize= | field fetch API가 unit/status를 제공 |
+| =fmm_grid_t= | public owning layout | =ABI 1.x: keep; companion: add -> ABI-major: internalize= | 새 opaque =route_finder_fast_marching_field_t=로 교체 |
+| =width= | =int= field | =ABI 1.x: keep; companion: add -> ABI-major: internalize= | checked size query로 교체 |
+| =height= | =int= field | =ABI 1.x: keep; companion: add -> ABI-major: internalize= | checked size query로 교체 |
+| =cells= | owning =coord_hash_t*= field | =ABI 1.x: keep -> ABI-major: internalize= | internal storage pointer 미노출 |
+| =visit_order= | owning =coord_list_t*= field | =ABI 1.x: keep -> ABI-major: internalize= | trace object로 이동 |
+| =total_retry_count= | =int= field | =ABI 1.x: keep; companion: add -> ABI-major: internalize= | stats의 =uint64_t expansions=로 이동 |
+
+** 함수별
+
+| 현재 함수 | disposition | 목표 계약 |
+|-----------+-------------+-----------|
+| =fmm_cell_init= | =ABI 1.x: keep; companion: add -> ABI-major: internalize= | FAR value를 infinity로 둘지 확정, NULL/status |
+| =fmm_cell_init_full= | =ABI 1.x: keep; companion: add -> ABI-major: internalize= | state/value validation, finite/nonnegative unit |
+| =fmm_cell_assign= | =ABI 1.x: keep; companion: add -> ABI-major: internalize= | trivial-copy와 output preservation |
+| =fmm_cell_copy= | =ABI 1.x: keep -> ABI-major: internalize= | coord-hash adapter; public generic =void*= 제거 |
+| =fmm_cell_destroy= | =ABI 1.x: keep -> ABI-major: internalize= | copy hook 전용, public allocator API 아님 |
+| =fmm_grid_create_full= | =ABI 1.x: deprecate-forward; companion: add -> ABI-major: internalize= | typed field config/options/status +=out_field= |
+| =fmm_grid_destroy= | =ABI 1.x: deprecate-forward; companion: add -> ABI-major: internalize= | opaque field destroy, NULL no-op |
+| =fmm_dump_ascii= | =ABI 1.x: deprecate-forward -> ABI-major: internalize= | caller-buffer export 또는 trace callback |
+| =find_fast_marching= | =ABI 1.x: deprecate-forward; conformance-block -> ABI-major: internalize= | generic run + typed FMM config, correctness gate 필수 |
+
+* 목표 Public 경계와 Signature 후보
+
+#+begin_src c
+typedef struct s_route_finder_fast_marching_field
+    route_finder_fast_marching_field_t;
+
+typedef struct s_route_finder_fast_marching_config {
+    uint32_t struct_size;
+    float grid_spacing;
+    float radius_limit;
+} route_finder_fast_marching_config_t;
+
+BYUL_API navsys_status_t route_finder_fast_marching_field_create(
+    const navgrid_t* grid,
+    const coord_t* source,
+    const route_finder_fast_marching_config_t* config,
+    const navsys_search_options_t* options,
+    route_finder_fast_marching_field_t** out_field,
+    navsys_search_stats_t* out_stats);
+
+BYUL_API navsys_status_t route_finder_fast_marching_field_fetch_value(
+    const route_finder_fast_marching_field_t* field,
+    const coord_t* coord,
+    float* out_value);
+
+BYUL_API navsys_status_t route_finder_fast_marching_field_trace_route(
+    const route_finder_fast_marching_field_t* field,
+    const coord_t* goal,
+    route_t** out_route);
+#+end_src
+
+Distance field와 route extraction을 분리한다. 지원 topology/speed model이 원전 전제를 만족하지
+않으면 =UNSUPPORTED=다. Field export는 two-call caller-buffer 모델을 사용하고 internal hash/
+visit list pointer는 반환하지 않는다.
+
+* TODO 1단계: ABI와 수치 Conformance 기준선
+
+** 실행
+
+- 1 macro, enum 숫자, 두 struct layout, 9함수 signature/export/CFFI를 snapshot한다.
+- 4/8방향, detour>1.5배, constant/variable speed, radius/limit/fallback 반례를 작성한다.
+- 원 논문의 upwind update와 현재 cell trace를 비교한다.
+
+** 완료 조건
+
+- 모든 public symbol disposition과 현재 지원 가능한 topology/cost domain이 확정된다.
+- “FMM” 이름을 유지할 수 있는 conformance 조건과 실패 fixture가 있다.
+
+** 검증
+
+- analytic constant-speed distance, independent FMM reference와 cell별 error/tolerance를 비교한다.
+
+* TODO 2단계: Opaque field와 typed config 구현
+
+** 실행
+
+- grid layout을 opaque field로 숨기고 cell hook을 internal detail로 옮긴다.
+- spacing/speed/radius/finite range, status/stats/cancel/OOM과 callback userdata를 구현한다.
+- hard-coded 1.5 radius/fallback을 제거하고 partial endpoint 선택 기준을 명시한다.
+
+** 완료 조건
+
+- invalid numeric/topology는 output을 보존하고 status로 실패한다.
+- field owner/destroy/export와 route owner가 allocator 경계를 닫는다.
+
+** 검증
+
+- value/export/trace, NaN/Inf/negative speed, exact radius, cancel/OOM과 leak test를 실행한다.
+
+* TODO 3단계: Legacy/Wrapper/배포 Gate
+
+** 실행
+
+- 9 legacy function을 위 표대로 forwarding/internalize하고 enum/layout ABI 2 migration을 기록한다.
+- Python은 private cell/hash layout을 생성하지 않고 field accessor와 status만 사용하게 한다.
+
+** 완료 조건
+
+- ABI 1 old consumer, new opaque consumer와 ABI 2 stale-wrapper rejection이 동작한다.
+- header의 algorithm claim이 numeric conformance evidence와 일치한다.
+
+** 검증
+
+- static/root/export/CFFI/installed consumer, ABI layout/fingerprint, sanitizer와 numeric benchmark를 실행한다.
+- =module static BYUL_STATIC=와 =root shared BYUL_EXPORTS=를 각각 compile/run하고
+  symbol/export/behavior parity를 비교한다.

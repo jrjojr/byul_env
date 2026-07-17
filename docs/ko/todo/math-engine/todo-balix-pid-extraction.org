@@ -1,0 +1,145 @@
+#+TITLE: Balix Scalar·Vec3 PID Kernel 추출 TODO
+#+TODO: TODO DOING BLOCKED | DONE CANCELLED FAILED
+#+TODO_RULES: ../../../../external/rules/projects/byul/todo-rules.org
+#+TODO_PARENT: todo-balix-math-extraction.org
+#+AUTHOR: ByulPapa / Codex
+#+LANGUAGE: ko
+#+OPTIONS: toc:t num:nil
+
+* 조사 범위와 경계
+
+공개 선언과 구현을 다음 파일에서 직접 대조한다.
+
+- scalar 공개 header: =byul/balix/numeq/numeq_pid.h=
+- scalar 구현: =byul/balix/numeq/numeq_pid.cpp=
+- Vec3 공개 header: =byul/balix/numeq/numeq_pid_vec3.h=
+- Vec3 구현: =byul/balix/numeq/numeq_pid_vec3.cpp=
+- Balix binding caller: =byul/balix/controller/controller.h=,
+  =byul/balix/controller/controller.cpp=
+- 현재 test: =byul/balix/tests/test_module_pid.cpp=,
+  =byul/balix/tests/test_module_controller.cpp=,
+  =byul/projectile/tests/test_module_propulsion.cpp=
+
+State transition, P/I/D 식, saturation과 anti-windup은 Math Engine =control/pid=의
+순수 kernel이다. =pid_controller_t=와 독립 channel 묶음은 Math Engine value/API다.
+Balix controller는 target/measurement 수집, frame/tick에서 받은 =dt= 전달, actuator limit
+적용과 lifecycle만 소유한다. 기존 scalar PID 8개와 Vec3 PID 8개 이름은 독립 DLL 전환
+뒤 Math Engine canonical API를 부르는 Balix legacy forwarding symbol로 유지하거나
+명시적으로 deprecate한다.
+
+* BYUL_API 전수 inventory
+
+아래 표는 두 공개 header의 =BYUL_API= 선언 16개를 하나씩 기록한다. =ME-VALUE=는 순수
+Math Engine state/options API, =ME-KERNEL=은 순수 계산 API, =LEGACY-FORWARD=는 기존 BYUL
+ABI 이름의 최종 역할이다. 와일드카드나 묶음 표기는 symbol inventory로 사용하지 않는다.
+
+| 공개 header | 정확한 symbol | 분류 | 심볼별 이관 | 심볼별 검증 |
+|-------------+-------------+------+-------------+-------------|
+| =byul/balix/numeq/numeq_pid.h= | =pid_init_full= | ME-VALUE / LEGACY-FORWARD | gain, =dt=, zero state를 검증하는 status 반환 canonical init으로 옮기고 기존 =void= ABI는 실패 시 문서화된 안전 상태를 선택한다. | null, =dt<=0=, NaN/Inf gain·dt, exact field와 ABI layout를 검사한다. |
+| =byul/balix/numeq/numeq_pid.h= | =pid_init= | ME-VALUE / LEGACY-FORWARD | Math Engine default options 한 곳에서 초기화하고 forwarding이 동일 bit/semantic state를 만든다. | =kp=1, =ki=0, =kd=0, =dt=0.01, zero history, unlimited output, anti-windup off를 확인한다. |
+| =byul/balix/numeq/numeq_pid.h= | =pid_init_auto= | ME-VALUE / LEGACY-FORWARD | plant identification 없는 현 식은 =auto tune=이 아니라 legacy heuristic preset으로 격리하고 canonical tuner와 이름을 분리한다. | =dt<=0=/non-finite, 현재 =0.6= 기반 gain 고정 corpus와 새 tuner 식별 test를 분리한다. |
+| =byul/balix/numeq/numeq_pid.h= | =pid_assign= | ME-VALUE / LEGACY-FORWARD | =memcpy= 대신 validated value copy 또는 명시 POD copy를 사용하고 self-assign/null 계약을 정한다. | null source/destination, self-assign, 모든 field copy와 padding 비의존성을 검사한다. |
+| =byul/balix/numeq/numeq_pid.h= | =pid_reset= | ME-VALUE / LEGACY-FORWARD | gain/options를 보존하고 integral·previous sample history만 지우는 canonical reset으로 전달한다. | options 보존, history zero, null과 reset 후 first-step derivative 정책을 검사한다. |
+| =byul/balix/numeq/numeq_pid.h= | =pid_set_state= | ME-VALUE / LEGACY-FORWARD | restore용 state import로 옮기고 finite/range 및 previous-error 유효 flag 계약을 추가한다. | finite/non-finite state, snapshot round-trip과 다음 update 결과를 hand oracle과 비교한다. |
+| =byul/balix/numeq/numeq_pid.h= | =pid_update= | ME-KERNEL / LEGACY-FORWARD | canonical =step(options,state,input,result)= 계산을 호출하고 state commit과 status를 분리한다. | P/I/D 단독, =dt= zero/change, saturation, anti-windup, derivative kick, NaN/Inf와 deterministic transition을 검사한다. |
+| =byul/balix/numeq/numeq_pid.h= | =pid_preview= | ME-KERNEL / LEGACY-FORWARD | =pid_update=와 같은 pure evaluator를 사용하되 반환 state를 commit하지 않는다. | update 직전 output parity, input state byte 불변, saturation·invalid input의 같은 status를 검사한다. |
+| =byul/balix/numeq/numeq_pid_vec3.h= | =pid_vec3_init= | ME-VALUE / LEGACY-FORWARD | 세 independent channel의 canonical default init으로 전달한다. | x/y/z scalar-default parity, null과 struct layout를 검사한다. |
+| =byul/balix/numeq/numeq_pid_vec3.h= | =pid_vec3_init_full= | ME-VALUE / LEGACY-FORWARD | 공통 gain을 세 channel에 명시 broadcast하는 N-channel init으로 옮긴다. | 세 축 field parity, invalid gain·dt 전파와 partial initialization 부재를 검사한다. |
+| =byul/balix/numeq/numeq_pid_vec3.h= | =pid_vec3_auto= | ME-VALUE / LEGACY-FORWARD | 누락 definition을 먼저 해결하고 legacy heuristic을 세 channel에 broadcast하는 compatibility 구현으로 제한한다. | header-link-export test, scalar auto와 x/y/z parity, invalid =dt=의 원자적 실패를 검사한다. |
+| =byul/balix/numeq/numeq_pid_vec3.h= | =pid_vec3_assign= | ME-VALUE / LEGACY-FORWARD | 세 channel value copy로 전달하고 alias/null 계약을 통일한다. | 모든 axis/options/history copy, self-assign과 null을 검사한다. |
+| =byul/balix/numeq/numeq_pid_vec3.h= | =pid_vec3_reset= | ME-VALUE / LEGACY-FORWARD | N-channel reset으로 전달하고 per-axis options를 보존한다. | 세 축 history zero, 서로 다른 축 gain 보존과 null을 검사한다. |
+| =byul/balix/numeq/numeq_pid_vec3.h= | =pid_vec3_set_state= | ME-VALUE / LEGACY-FORWARD | =vec3_t=를 Math Engine 3-channel view로 변환하는 얇은 adapter만 남긴다. | x/y/z mapping, input alias, null pointer, non-finite component와 다음 step을 검사한다. |
+| =byul/balix/numeq/numeq_pid_vec3.h= | =pid_vec3_update= | ME-KERNEL / LEGACY-FORWARD | 세 scalar step을 deterministic order로 수행하는 channel kernel에 전달하고 Balix frame 의미는 넣지 않는다. | scalar-vector parity, 한 축 실패 시 atomic/partial 정책, output alias와 saturation을 검사한다. |
+| =byul/balix/numeq/numeq_pid_vec3.h= | =pid_vec3_preview= | ME-KERNEL / LEGACY-FORWARD | 같은 3-channel evaluator에서 state commit만 생략한다. | scalar preview parity, 모든 축 state 불변, output alias와 invalid component를 검사한다. |
+
+=pid_controller_t=와 =pid_controller_vec3_t=도 public value layout이므로 field 순서,
+=sizeof/alignof/offsetof=와 =bool= ABI를 versioned compatibility 대상으로 기록한다. 신규
+Math Engine ABI가 status, previous-sample-valid flag, derivative filter state를 추가할 때 기존
+struct에 field를 끼워 넣지 않고 새 versioned type을 만든다.
+
+* 현재 진단
+
+- =pid_init_full/assign/set_state/update/preview= 일부가 null과 =dt <= 0=을 검사하지 않아
+  division by zero와 crash 가능성이 있다.
+- Integral/derivative discretization이 backward Euler 한 종류로 고정되고 derivative kick,
+  setpoint weighting, filter와 sample-time change 계약이 없다.
+- Anti-windup은 saturation 시 현재 적분만 되돌리는 conditional integration이며
+  output limit와 integrator limit의 의미가 분리되지 않는다.
+- =pid_preview=의 finite input output은 현재 =pid_update=의 반환값과 같지만, would-commit
+  state와 anti-windup decision/status를 반환하지 않는다. 특히 Balix가 밖에서 다시 clamp하는
+  실제 actuator 경로와의 preview parity는 성립하지 않는다.
+- =pid_init_auto=의 gain 공식은 plant model/ultimate gain 없이 고정 상수에서 나오므로
+  일반 auto-tune으로 부르기 어렵다.
+- Vec3는 축별 scalar wrapper지만 frame, gain per-axis와 coupled system 제한이 없다.
+- =controller_create_pid=는 사용자 =kp/ki/kd/dt=를 전달받고도 =pid_impl_init=만 호출해
+  기본 gain을 사용한다.
+- =controller_pid_compute=는 매 tick =pid.dt=를 덮어쓰고 =pid_impl_t.output_limit=로
+  결과를 외부 clamp한다. =pid.output_limit/anti_windup=은 이 saturation을 보지 못하므로
+  integral windup이 계속될 수 있다.
+- =pid_init_full=, =pid_assign=, =pid_set_state=, =pid_reset=, =pid_update=,
+  =pid_preview=와 모든 Vec3 함수에는 null 검사가 없고 =pid_update/pid_preview=는 zero 또는
+  non-finite =dt=에서 division-by-zero/NaN을 만든다.
+- Vec3 구현에는 =pid_vec3_auto= definition이 전혀 없으므로 16개 공개 선언 중 1개가
+  link/export 불가능하다. 나머지 15개 선언은 definition이 존재한다.
+
+* 실행 절차
+
+** TODO 1. Discrete PID 계약과 legacy defect를 동결한다
+*** 실행
+
+Position/velocity form, discretization, derivative target, saturation, anti-windup, state와
+unit를 표로 만들고 missing symbol/factory defect를 재현한다.
+
+*** 완료 조건
+
+16개 =BYUL_API= 공개 symbol과 =pid_clamp= private helper가 ME-VALUE, ME-KERNEL,
+Balix binding 또는 LEGACY-FORWARD에 배정되고 canonical PID mode와 legacy mapping이
+확정된다.
+
+*** 검증
+
+16/16 header-to-inventory 정적 대조, definition 15/16 대조, P/I/D 단독, =dt=
+zero/change, saturation, preview parity와 missing definition link test를 실행한다.
+
+** TODO 2. Neutral PID options/state/result API를 정의한다
+*** 실행
+
+Gain, dt, limits, derivative filter, anti-windup mode와 status를 Balix type 없이 설계한다.
+
+*** 완료 조건
+
+Scalar와 N-channel/view API가 같은 수학 계약을 사용하고 unit metadata가 명시된다.
+
+*** 검증
+
+C17/C++17 compile, layout, invalid/non-finite와 state copy/reset test를 수행한다.
+
+** TODO 3. PID kernel과 step-response corpus를 구현한다
+*** 실행
+
+기준 discrete form, optional filter와 anti-windup을 구현하고 preview는 update와 동일
+계산에서 state commit만 생략한다.
+
+*** 완료 조건
+
+Preview/update parity, saturation recovery와 deterministic state transition을 만족한다.
+
+*** 검증
+
+First/second-order plant step response, windup/recovery, noise derivative와 variable dt
+policy를 검사한다.
+
+** TODO 4. Vec3와 Balix controller adapter를 전환한다
+*** 실행
+
+Vec3를 channel view로 연결하고 factory가 실제 사용자 gain/dt를 전달하게 한다. Legacy
+symbol을 forwarding한다.
+
+*** 완료 조건
+
+Balix controller에 PID 식이 없고 missing definition/export가 해소된다.
+
+*** 검증
+
+Scalar-vector parity, controller factory, old/new differential, export와 wrapper test를
+실행한다.

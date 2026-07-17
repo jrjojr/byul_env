@@ -1,0 +1,218 @@
+#+TITLE: Balix Controller Adapter·Factory 경계 TODO
+#+TODO: TODO DOING BLOCKED | DONE CANCELLED FAILED
+#+TODO_RULES: ../../../../external/rules/projects/byul/todo-rules.org
+#+TODO_PARENT: todo-balix-math-extraction.org
+#+AUTHOR: ByulPapa / Codex
+#+LANGUAGE: ko
+#+OPTIONS: toc:t num:nil
+
+* 목적
+
+Balix controller는 controller object lifecycle, dispatch와 actuator-facing scalar adapter만
+소유한다. PID update, saturation, Bang-Bang switching, MPC cost/optimization과 모든 수학식은
+Math Engine control component를 호출해 얻는다. 이 문서는 controller 공개 ABI와 private
+factory/vtable 경계를 단독 소유하며, aggregate header와 전체 link 전환은
+[[file:todo-balix-math-engine-consumer.org][Balix Math Engine consumer 계획]]이 합류시킨다.
+
+* 실제 source·build 범위
+
+- 공개 header: =byul/balix/controller/controller.h=
+- 현재 구현: =byul/balix/controller/controller.cpp=
+- 간접 aggregate: =byul/balix/balix.h=
+- 현재 source/header 집계와 static target: =byul/balix/CMakeLists.txt=
+- root shared 재집계: =byul/CMakeLists.txt=
+- 직접 검증: =byul/balix/tests/test_module_controller.cpp=,
+  =byul/projectile/tests/test_module_propulsion.cpp=
+- 계산 의존 header/source: =byul/balix/numeq/numeq_pid.h=,
+  =byul/balix/numeq/numeq_mpc.h=, =byul/balix/numeq/numeq_pid.cpp=,
+  =byul/balix/numeq/numeq_mpc.cpp=
+
+* Public type와 source-level surface
+
+| 공개 항목 | 현재 계약 | 목표 책임 |
+|-----------+-----------+-----------|
+| =controller_type_t= | NONE/BANGBANG/PID/MPC enum | Balix dispatch kind와 기존 enum 숫자 ABI 유지 |
+| =controller_t= | forward typedef 뒤 public struct definition | Balix object ABI; opaque 전환은 별도 ABI-major 또는 새 handle API 필요 |
+| =controller_compute_func= | =float(ctrl,target,measured,dt)= callback | Balix dispatch callback; thread/reentrancy/error 계약 추가 |
+| =controller_reset_func= | =void(ctrl)= callback | Balix lifecycle callback |
+| =pid_impl_t= | =pid_controller_t + output_limit= public layout | ABI 1.x compatibility adapter; canonical PID state는 Math Engine neutral type |
+| =bangbang_impl_t= | =max_output= public layout | ABI 1.x compatibility adapter; switching kernel parameter로 변환 |
+| =mpc_impl_t= | config/target/environment/body/cost callback public layout | ABI 1.x compatibility adapter; Math Engine type와 Balix DTO 결합을 새 opaque API에서 제거 |
+| =struct s_controller= fields | type, mutable =void* impl=, compute/reset function pointer, userdata | Balix lifecycle/vtable; caller mutation 위험과 lifetime을 문서화 |
+| =controller_compute= | header =static inline= dispatch, 직접 DLL export 아님 | Balix orchestration/lifecycle/adapter; null dispatch와 Math Engine status mapping 정의 |
+| =controller_reset= | header =static inline= dispatch, 직접 DLL export 아님 | Balix orchestration/lifecycle/adapter |
+
+=controller_compute=와 =controller_reset=은 =BYUL_API= export가 아니지만 installed header가
+소비자 object code에 복사하는 public source API다. Signature나 null behavior 변경도 source
+compatibility 판단에 포함한다.
+
+* =BYUL_API= 전수 inventory
+
+=controller.h=의 직접 =BYUL_API= 선언은 정확히 13개다. 아래 표는 모든 선언을 개별
+행으로 기록하며 이 13개 symbol의 owner는 이 문서 하나뿐이다.
+
+| =BYUL_API= 선언 | 정본 분류 | 계산/adapter 경계 | 최종 운명 |
+|-----------------+-----------+-------------------+-----------|
+| =pid_impl_init= | Balix orchestration/lifecycle/adapter | Math Engine PID neutral state의 default parameter를 Balix compatibility layout으로 mapping | Balix 유지 |
+| =pid_impl_init_full= | Balix orchestration/lifecycle/adapter | kp/ki/kd/dt/output-limit validation과 neutral parameter 변환 | Balix 유지 |
+| =pid_impl_assign= | Balix orchestration/lifecycle/adapter | public compatibility state copy; canonical engine handle이면 engine copy API 사용 | Balix 유지 |
+| =bangbang_impl_init= | Balix orchestration/lifecycle/adapter | default max-output preset lifecycle | Balix 유지 |
+| =bangbang_impl_init_full= | Balix orchestration/lifecycle/adapter | max-output parameter validation과 neutral mapping | Balix 유지 |
+| =bangbang_impl_assign= | Balix orchestration/lifecycle/adapter | public compatibility state copy | Balix 유지 |
+| =mpc_impl_init= | Balix orchestration/lifecycle/adapter | target/environment/body DTO와 Math Engine MPC config 초기화 | Balix 유지 |
+| =mpc_impl_init_full= | Balix orchestration/lifecycle/adapter | nullable Balix DTO/callback을 canonical MPC parameter로 mapping | Balix 유지 |
+| =mpc_impl_assign= | Balix orchestration/lifecycle/adapter | public compatibility state/callback copy와 handle lifetime 처리 | Balix 유지 |
+| =controller_create_pid= | Balix orchestration/lifecycle/adapter | controller object/vtable 생성 후 Math Engine PID kernel에 bind | Balix 유지 |
+| =controller_create_bangbang= | Balix orchestration/lifecycle/adapter | controller object/vtable 생성 후 Math Engine switching kernel에 bind | Balix 유지 |
+| =controller_create_mpc= | Balix orchestration/lifecycle/adapter | controller object/vtable 생성 후 Math Engine MPC kernel에 bind | Balix 유지 |
+| =controller_destroy= | Balix orchestration/lifecycle/adapter | 생성 library가 impl/engine handle/controller storage를 해제 | Balix 유지 |
+
+이 13개 함수 자체를 Math Engine으로 옮기지 않는다. 함수 내부의 계산을 Math Engine에
+위임하고 lifecycle, DTO conversion, status/output mapping만 Balix에 남긴다. ABI-major에서
+새 opaque controller API를 도입하더라도 기존 symbol은 정한 deprecation 기간 동안
+Balix compatibility entry point로 유지한다.
+
+* Private dispatch·계산 전수 inventory
+
+| =controller.cpp= private 항목 | 현재 동작 | 목표 분류와 운명 |
+|-------------------------------+-----------+-------------------|
+| 2-argument =controller_mpc_compute(controller_t*, const vec3_t*)= forward declaration | 대응 definition/call이 없는 별도 overload | 제거 후보; declaration-definition audit로 확정 |
+| 4-argument =controller_pid_compute= | =pid_update= 호출, caller =dt=를 state에 대입, =output_limit=로 직접 clamp | Balix adapter는 parameter/result만 변환; PID update와 saturation은 Math Engine pure control kernel |
+| =controller_pid_reset= | PID state reset 호출 | Balix lifecycle adapter가 Math Engine reset을 호출 |
+| =controller_bangbang_compute= | =measured < target ? +max : -max= 직접 계산 | switching/deadband/tie policy는 Math Engine pure control kernel; 함수는 adapter만 유지 |
+| =controller_bangbang_reset= | no-op | Balix lifecycle adapter; reset postcondition 명시 |
+| 4-argument =controller_mpc_compute= | zero current state와 x-axis target을 만들고 =numeq_mpc_solve_fast= 호출 | target/measured/dt mapping은 Balix, cost/optimizer는 Math Engine; scalar adapter의 정보 손실을 명시 |
+| =controller_mpc_reset= | target DTO의 linear/angular field를 직접 zero/identity로 변경 | Balix lifecycle 또는 Math Engine handle reset으로 단일화 |
+
+Private 함수 안에도 PID 식 자체는 없지만 output clamp와 Bang-Bang 분기가 있다. 이 두 계산을
+Balix에 남기지 않는다. Vtable callback은 단지 Math Engine request를 구성하고 status를
+기존 scalar 반환으로 mapping한다.
+
+* 현재 factory·lifecycle 결함
+
+- =controller_create_pid=는 인자로 받은 =kp=, =ki=, =kd=, =dt=를 사용하지 않고
+  =pid_impl_init=만 호출하므로 factory 계약과 실제 gain이 다르다.
+- 세 factory가 =new controller_t=를 C ABI 안에서 호출해 allocation exception이 ABI 밖으로
+  전파될 수 있다.
+- PID factory는 impl =malloc= 실패 시 이미 생성한 =controller_t=를 해제하지 않는다.
+- Bang-Bang/MPC factory는 impl =malloc= 결과를 확인하기 전에 initializer를 호출한다.
+- MPC factory는 =userdata=를 초기화하지 않고, =measured=와 =dt=를 계산에 사용하지 않으며
+  =impl->target= 대신 매 호출 새 zero/current·x-axis target을 만든다.
+- Public =struct s_controller=와 =void* impl=, function pointer가 caller에게 노출돼 type과
+  allocator invariant를 우회할 수 있다.
+- =controller_destroy=는 현재 controller는 =delete=, impl은 =free=로 대응하지만 impl kind별
+  Math Engine handle/resource destroy와 double-destroy/null postcondition이 없다.
+- Factory는 실패 원인을 =NULL= 하나로만 표현하고 version/allocator/thread 계약이 없다.
+
+* 목표 호출 경계
+
+#+begin_src text
+Balix sensor/target/tick
+  -> controller_compute inline dispatch
+  -> Balix controller_*_compute adapter
+  -> Math Engine PID | Bang-Bang | MPC canonical request
+  <- status + control result + diagnostics
+  -> Balix scalar/actuator policy mapping
+#+end_src
+
+Math Engine은 controller registry, tick, actuator, world pointer와 =controller_t=를 받지
+않는다. Balix는 PID/Bang-Bang/MPC 수식, clamp, cost와 candidate search를 구현하지 않는다.
+Math Engine handle을 만들면 생성한 Math Engine library의 destroy API를 Balix
+=controller_destroy=가 정확히 한 번 호출한다.
+
+* Build·DLL 이행
+
+- Static 과도기: =controller.cpp=와 13개 export는 =balix=에 남는다. PID/Bang-Bang/MPC
+  canonical source는 단일 =byul_math_engine_static= manifest가 소유하고 Balix가 target
+  link로 소비한다. Root =byul= shared는 현행 중앙 규칙 동안 Math Engine manifest를
+  직접 compile하며 controller export는 root ABI에서 유지한다.
+- 독립 DLL 전환: 중앙 single-shared 규칙과 =rules-ref.org= revision을 먼저 갱신한다.
+  이후 controller adapter가 imported =byul_math_engine= shared를 호출하고 canonical
+  control symbol은 Math Engine DLL 한 곳에만 둔다. BYUL DLL은 controller 13개 export와
+  필요한 legacy math shim만 소유한다.
+
+* 실행 절차
+
+** TODO 1. Public ABI와 private dispatch baseline을 동결한다
+*** 실행
+
+13개 =BYUL_API=, 2개 header inline, enum/callback/public struct layout와 7개 private
+declaration/definition을 symbol manifest에 기록한다. Header declaration, implementation,
+root export와 실제 caller를 일치시킨다.
+
+*** 완료 조건
+
+Public/private 항목의 owner, allocator, callback signature, state mutation과 Math Engine
+호출 여부가 하나씩 정해지고 미분류·중복 owner가 0이다.
+
+*** 검증
+
+=rg= declaration/definition/call inventory, C/C++ header compile, =sizeof/alignof/offsetof=,
+enum 값, function pointer signature와 root export를 검사한다.
+
+** TODO 2. Controller allocator·lifecycle·dispatch 계약을 정의한다
+*** 실행
+
+Factory failure status, allocation pair, impl discriminator, userdata initialization,
+callback thread/reentrancy와 reset/destroy postcondition을 정한다. 기존 public struct ABI와
+새 opaque handle API의 병행/deprecation 방식을 결정한다.
+
+*** 완료 조건
+
+모든 성공·부분 실패 경로의 소유권과 cleanup이 명시되고 C++ exception이 C ABI를 넘지
+않는다.
+
+*** 검증
+
+Allocation-failure injection, null/double-destroy policy, callback mutation/reentrancy,
+ASan/LSan와 C ABI exception barrier test를 수행한다.
+
+** TODO 3. PID·Bang-Bang·MPC 계산을 Math Engine 호출로 치환한다
+*** 실행
+
+PID update/saturation, Bang-Bang switching과 MPC optimizer를 canonical control API로
+호출한다. Balix private callback에는 DTO/request 변환과 result/status mapping만 남긴다.
+
+*** 완료 조건
+
+=controller.cpp=에 clamp, switching, cost 또는 optimizer 식이 없고 Math Engine header가
+Balix type을 include하지 않는다.
+
+*** 검증
+
+PID gain/step response, saturation/anti-windup, Bang-Bang equality/deadband, MPC target/current
+state/dt mapping과 old/new differential corpus를 실행한다.
+
+** TODO 4. Factory와 compatibility surface를 수정한다
+*** 실행
+
+PID factory가 모든 gain과 =dt=를 사용하도록 고치고 세 factory의 allocation/error/field
+초기화를 완전하게 한다. 기존 13개 symbol과 inline dispatch의 호환성을 유지하거나
+breaking/deprecation 결정을 기록한다.
+
+*** 완료 조건
+
+Factory 입력이 실제 canonical parameter에 전달되고 partial allocation leak, uninitialized
+field와 orphan overload가 없다.
+
+*** 검증
+
+Default/full/custom parameter, forced allocation failure, create/compute/reset/destroy 반복,
+old ABI consumer와 wrapper audit/check를 실행한다.
+
+** TODO 5. Static·shared link와 전체 consumer 합류 gate를 닫는다
+*** 실행
+
+Static 과도기와 승인된 shared cutover 순서로 Balix controller adapter를 Math Engine target에
+연결하고 consumer 계획의 aggregate/install/package gate에 합류한다.
+
+*** 완료 조건
+
+Controller 계산 dependency가 Balix에서 Math Engine 방향으로만 향하고 canonical control
+source/symbol이 두 target 또는 DLL에 중복되지 않는다.
+
+*** 검증
+
+=test_balix= controller case, projectile propulsion test, root export, link graph, binary
+dependency, clean installed C consumer와 two-DLL runtime load를 검사한다.
+

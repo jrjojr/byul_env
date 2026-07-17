@@ -1,0 +1,346 @@
+#+TITLE: BYUL Navsys 헤더 리팩터링 오케스트레이션 TODO
+#+TODO: TODO DOING BLOCKED | DONE CANCELLED FAILED
+#+TODO_RULES: ../../../../external/rules/projects/byul/todo-rules.org
+#+PUBLIC_API_RULES: ../../../../external/rules/projects/byul/public-api-rules.org
+#+HEADER_DECLARATION_RULES: ../../../../external/rules/projects/byul/header-declaration-rules.org
+#+HEADER_COMMENT_RULES: ../../../../external/rules/projects/byul/header-comment-rules.org
+#+HEADER_AUTHORING_RULES: ../../../../external/rules/projects/byul/header-authoring-rules.org
+#+BUILD_RULES: ../../../../external/rules/projects/byul/build-rules.org
+#+TEST_RULES: ../../../../external/rules/projects/byul/test-rules.org
+#+TODO_PARENT: ../todo-리팩토링.org
+#+AUTHOR: ByulPapa / Codex
+#+LANGUAGE: ko
+#+OPTIONS: toc:t num:nil
+
+* 이 문서가 소유하는 것과 소유하지 않는 것
+
+이 문서는 =byul/navsys=의 43개 header를 한 문서에서 설계하지 않는다. 정확히 하나의
+원본 header를 정확히 하나의 상세 TODO에 연결하고, 상세 TODO 사이의 의존성, 통합 순서와
+release gate만 소유한다. 함수별 처분, 새 signature, algorithm 보장, ownership과 실패
+계약은 아래 child 문서가 유일한 명세다.
+
+공통 C ABI vocabulary와 업계 비교 축은
+[[file:todo-navsys-industry-api-baseline.org][Navsys 업계 API 기준과 공통 리팩터링 TODO]]가 소유한다.
+개별 child의 제안이 공통 status/namespace/allocator/versioning 결정과 충돌하면 공통 기준을
+먼저 확정하고 child를 갱신한다. 원본 43개 외에 새 공통 header가 필요해지면 공통 기준의
+산출물로 manifest에 추가하되, 원본 43개와의 1:1 대응 수에는 포함하지 않는다.
+
+* 상세 TODO 필수 계약
+
+43개 child는 각각 다음 항목을 독립적으로 충족해야 한다.
+
+1. header, 대응 source, module/root CMake, test, installed consumer와 wrapper 소비 경로를 적는다.
+2. macro, enum 값, typedef, 공개 layout, callback과 모든 공개 함수의 현행 선언을 전수
+   inventory하고 아래 처분 문법으로 ABI 단계별 결정을 기록한다.
+3. 이름만 바꾸는 TODO가 아니라 status, ownership, lifetime, nullability, buffer capacity,
+   allocator, userdata, cancellation, limit, stats와 thread/reentrancy 계약을 결정한다.
+4. algorithm header는 input domain, completeness/optimality, cost/heuristic precondition,
+   tie order, termination, partial result와 resource bound를 원 논문 또는 production library와
+   비교한다.
+5. 변경될 수 있는 함수는 추상 문장 대신 실제 C/C++ target declaration 후보와 legacy
+   forwarding 방법을 적는다.
+6. ABI 1.x에서 가능한 additive/deprecated forwarding과 ABI-major에서만 가능한 layout,
+   signature, enum, SDK 노출 변경을 분리한다.
+7. module static, root shared 재컴파일, export table, installed header consumer, wrapper
+   generation/load를 서로 다른 검증 축으로 둔다.
+8. 각 순차 =TODO=에는 바로 아래 level의 =실행/완료 조건/검증=을 모두 둔다.
+
+child가 위 항목 중 하나라도 빠뜨리면 이 orchestration 문서에서 완료로 올릴 수 없다.
+
+** Symbol disposition 문법
+
+| 원자 token | 의미 |
+|------------+------|
+| =keep= | 현행 symbol과 signature/numeric value/layout을 해당 ABI 단계에서 유지 |
+| =add= | 기존 ABI를 건드리지 않고 새 canonical symbol을 추가 |
+| =deprecate-forward= | legacy symbol을 보존하고 canonical implementation으로 forwarding |
+| =internalize= | SDK/install/wrapper에서 제거하고 구현 전용으로 이동; 이미 공개된 symbol이면 ABI-major에서만 실행 |
+| =abi-major= | signature, layout, enum 숫자 또는 제거처럼 ABI-major가 필요한 직접 변경 |
+| =conformance-block= | legacy export는 유지하지만 correctness gate 전에는 새 facade/capability의 지원 경로로 승격하지 않음 |
+| =decision-required(A|B)= | 아직 결론이 나지 않은 선택; child를 =DONE=으로 바꾸기 전에 반드시 하나로 축약 |
+
+하나의 현행 symbol은 단일 token만 억지로 붙이지 않고 시점별 chain을 쓴다. 예를 들어
+=ABI 1.x: deprecate-forward -> ABI-major: internalize=는 허용한다. 기존 symbol 유지와 새
+companion 추가가 동시에 필요하면 =ABI 1.x: keep; companion: add=처럼 대상을 분리한다.
+=keep+add=, =keep/deprecate-forward=, =deprecate=, =block-forward until corrected= 같은 축약은
+각각 위 정규형으로 풀어 쓴다. =conformance-block=은 최종 제거 처분이 아니므로 반드시 해당
+ABI 단계의 =keep= 또는 =deprecate-forward=와 함께 기록한다.
+
+* 43 Header : 43 Child Manifest
+
+** Coord와 collection: 5개
+
+| 원본 header | 상세 TODO | 주된 선행조건 |
+|-------------+-----------+---------------|
+| =byul/navsys/coord/coord.h= | [[file:todo-navsys-coord-coord.org][coord.h]] | 공통 status/namespace |
+| =byul/navsys/coord/coord.hpp= | [[file:todo-navsys-coord-coord-cpp.org][coord.hpp]] | =coord.h= ABI 결정 |
+| =byul/navsys/coord/coord_hash.h= | [[file:todo-navsys-coord-coord-hash.org][coord_hash.h]] | coord value/equality/allocator |
+| =byul/navsys/coord/coord_list.h= | [[file:todo-navsys-coord-coord-list.org][coord_list.h]] | coord value/ownership |
+| =byul/navsys/coord/cost_coord_pq.h= | [[file:todo-navsys-coord-cost-coord-pq.org][cost_coord_pq.h]] | coord value/status |
+
+** D* Lite: 5개
+
+| 원본 header | 상세 TODO | 주된 선행조건 |
+|-------------+-----------+---------------|
+| =byul/navsys/dstar_lite/dstar_lite.h= | [[file:todo-navsys-dstar-lite-dstar-lite.org][dstar_lite.h]] | coord/navgrid/route/evaluation/key/pqueue |
+| =byul/navsys/dstar_lite/dstar_lite_key.h= | [[file:todo-navsys-dstar-lite-dstar-lite-key.org][dstar_lite_key.h]] | scalar ordering/hash 정책 |
+| =byul/navsys/dstar_lite/dstar_lite_key.hpp= | [[file:todo-navsys-dstar-lite-dstar-lite-key-cpp.org][dstar_lite_key.hpp]] | C key exact ordering |
+| =byul/navsys/dstar_lite/dstar_lite_pqueue.h= | [[file:todo-navsys-dstar-lite-dstar-lite-pqueue.org][dstar_lite_pqueue.h]] | key/coord ownership |
+| =byul/navsys/dstar_lite/dstar_lite_tick.h= | [[file:todo-navsys-dstar-lite-dstar-lite-tick.org][dstar_lite_tick.h]] | D* lifecycle/cancel/progress |
+
+** Maze: 13개
+
+| 원본 header | 상세 TODO | 주된 선행조건 |
+|-------------+-----------+---------------|
+| =byul/navsys/maze/maze.h= | [[file:todo-navsys-maze-maze.org][maze.h]] | algorithm capability/RNG 공통 계약 |
+| =byul/navsys/maze/maze_core.h= | [[file:todo-navsys-maze-core.org][maze_core.h]] | coord/navgrid/ownership |
+| =byul/navsys/maze/maze_aldous_broder.h= | [[file:todo-navsys-maze-aldous-broder.org][maze_aldous_broder.h]] | maze core/RNG/termination |
+| =byul/navsys/maze/maze_binary.h= | [[file:todo-navsys-maze-binary.org][maze_binary.h]] | maze core/bias contract |
+| =byul/navsys/maze/maze_eller.h= | [[file:todo-navsys-maze-eller.org][maze_eller.h]] | maze core/row-state invariant |
+| =byul/navsys/maze/maze_hunt_and_kill.h= | [[file:todo-navsys-maze-hunt-and-kill.org][maze_hunt_and_kill.h]] | maze core/RNG |
+| =byul/navsys/maze/maze_kruskal.h= | [[file:todo-navsys-maze-kruskal.org][maze_kruskal.h]] | maze core/disjoint-set invariant |
+| =byul/navsys/maze/maze_prim.h= | [[file:todo-navsys-maze-prim.org][maze_prim.h]] | maze core/legacy typo forwarding |
+| =byul/navsys/maze/maze_recursive.h= | [[file:todo-navsys-maze-recursive.org][maze_recursive.h]] | maze core/stack bound |
+| =byul/navsys/maze/maze_recursive_division.h= | [[file:todo-navsys-maze-recursive-division.org][maze_recursive_division.h]] | maze core/room topology |
+| =byul/navsys/maze/maze_room_blend.h= | [[file:todo-navsys-maze-room-blend.org][maze_room_blend.h]] | maze/obstacle composition |
+| =byul/navsys/maze/maze_sidewinder.h= | [[file:todo-navsys-maze-sidewinder.org][maze_sidewinder.h]] | maze core/bias contract |
+| =byul/navsys/maze/maze_wilson.h= | [[file:todo-navsys-maze-wilson.org][maze_wilson.h]] | maze core/RNG/loop erasure |
+
+** Navgrid, obstacle와 route carver: 5개
+
+| 원본 header | 상세 TODO | 주된 선행조건 |
+|-------------+-----------+---------------|
+| =byul/navsys/navgrid/navcell.h= | [[file:todo-navsys-navgrid-navcell.org][navcell.h]] | coord/value/enum ABI |
+| =byul/navsys/navgrid/navgrid.h= | [[file:todo-navsys-navgrid-navgrid.org][navgrid.h]] | navcell/coord/callback bind |
+| =byul/navsys/obstacle/obstacle.h= | [[file:todo-navsys-obstacle-obstacle.org][obstacle.h]] | obstacle core/navgrid |
+| =byul/navsys/obstacle/obstacle_core.h= | [[file:todo-navsys-obstacle-obstacle-core.org][obstacle_core.h]] | coord/navgrid/ownership |
+| =byul/navsys/route_carver/route_carver.h= | [[file:todo-navsys-route-carver-route-carver.org][route_carver.h]] | route/navgrid mutation transaction |
+
+** Route finder: 13개
+
+| 원본 header | 상세 TODO | 주된 선행조건 |
+|-------------+-----------+---------------|
+| =byul/navsys/route_finder/route_finder.h= | [[file:todo-navsys-route-finder-route-finder.org][route_finder.h]] | 공통 search options/status/capability |
+| =byul/navsys/route_finder/route_finder_core.h= | [[file:todo-navsys-route-finder-route-finder-core.org][route_finder_core.h]] | cost/heuristic callback view |
+| =byul/navsys/route_finder/astar.h= | [[file:todo-navsys-route-finder-astar.org][astar.h]] | evaluation/search options |
+| =byul/navsys/route_finder/bfs.h= | [[file:todo-navsys-route-finder-bfs.org][bfs.h]] | traversal/search options |
+| =byul/navsys/route_finder/dfs.h= | [[file:todo-navsys-route-finder-dfs.org][dfs.h]] | traversal/search options |
+| =byul/navsys/route_finder/dijkstra.h= | [[file:todo-navsys-route-finder-dijkstra.org][dijkstra.h]] | non-negative cost contract |
+| =byul/navsys/route_finder/fast_marching.h= | [[file:todo-navsys-route-finder-fast-marching.org][fast_marching.h]] | scalar field/workspace/status |
+| =byul/navsys/route_finder/fringe_search.h= | [[file:todo-navsys-route-finder-fringe-search.org][fringe_search.h]] | evaluation/threshold contract |
+| =byul/navsys/route_finder/greedy_best_first.h= | [[file:todo-navsys-route-finder-greedy-best-first.org][greedy_best_first.h]] | heuristic callback/capability |
+| =byul/navsys/route_finder/ida_star.h= | [[file:todo-navsys-route-finder-ida-star.org][ida_star.h]] | depth-first threshold conformance |
+| =byul/navsys/route_finder/rta_star.h= | [[file:todo-navsys-route-finder-rta-star.org][rta_star.h]] | versioned config/lrta-rta identity |
+| =byul/navsys/route_finder/sma_star.h= | [[file:todo-navsys-route-finder-sma-star.org][sma_star.h]] | memory bound/frontier eviction |
+| =byul/navsys/route_finder/weighted_astar.h= | [[file:todo-navsys-route-finder-weighted-astar.org][weighted_astar.h]] | heuristic weight/suboptimality bound |
+
+** Route와 module entry: 2개
+
+| 원본 header | 상세 TODO | 주된 선행조건 |
+|-------------+-----------+---------------|
+| =byul/navsys/route/route.h= | [[file:todo-navsys-route-route.org][route.h]] | coord/status/result ownership |
+| =byul/navsys/navsys.h= | [[file:todo-navsys-navsys.org][navsys.h]] | 나머지 42개 public/internal disposition |
+
+Manifest 완료 조건은 단순히 43개 링크가 존재하는 것이 아니다. 각 원본 header가 정확히
+한 번 나타나고, 각 child 제목의 대상과 원본이 일치하며, 현행 공개 함수명이 해당 child의
+inventory에서 하나도 누락되지 않아야 한다.
+
+* 의존성 순서
+
+#+begin_example
+공통 API 기준
+  -> coord/value와 C++ helper
+  -> collection + route + navcell/navgrid
+  -> obstacle + route_carver
+  -> maze core/각 generator/dispatcher
+  -> route-finder evaluation/각 algorithm/dispatcher
+  -> D* Lite key/pqueue/core/tick
+  -> navsys.h aggregate
+  -> root shared/install/wrapper/ABI release gate
+#+end_example
+
+서로 의존하는 header를 동시에 ABI 변경하지 않는다. 먼저 leaf/value 계약을 고정하고 old/new
+consumer fixture를 만든 뒤 resource와 algorithm layer로 올라간다. 함수명 통일만을 이유로
+dependency 순서를 건너뛰지 않는다.
+
+* Build와 배포 불변식
+
+[[file:../../../../byul/navsys/CMakeLists.txt][navsys CMake]]는 module static target을 만들고
+=BYUL_STATIC=으로 컴파일한다. [[file:../../../../byul/CMakeLists.txt][root byul CMake]]는 module
+library를 그대로 링크하는 모델이 아니라 =navsys_SOURCES=를 root shared source에 다시 넣고
+=BYUL_EXPORTS=로 재컴파일한다. 따라서 다음 네 결과는 서로 대체할 수 없다.
+
+- module static build/test 성공
+- root shared에서 동일 source 재컴파일과 export table 성공
+- build-tree와 install-tree의 C/C++ direct-header consumer 성공
+- wrapper manifest/parser/generation/load와 runtime ownership test 성공
+
+header 하나를 완료하려면 해당 child가 네 축 중 영향을 받는 모든 축의 검증 명령과 expected
+result를 가져야 한다. C++ helper를 SDK에서 제외하는 일도 module compile 성공만으로 완료하지
+않고 install manifest와 기존 consumer migration까지 검증한다.
+
+* 통합 실행 계획
+
+** TODO 0단계: 공통 vocabulary와 ABI 기준선 확정
+
+*** 실행
+
+- 공통 기준서에서 status owner, C symbol namespace, versioned options/create info,
+  callback+userdata bind, allocator와 caller-buffer 규칙을 결정한다.
+- 43개 header의 symbol, enum numeric value, =sizeof/alignof/offsetof=, export table,
+  installed header와 wrapper coverage를 machine-readable snapshot으로 저장한다.
+- child별 target declaration이 공통 결정을 참조하도록 맞춘다.
+
+*** 완료 조건
+
+- 공통 type의 정의 owner와 include DAG가 순환 없이 확정된다.
+- ABI 1.x 보존 항목과 ABI-major 전용 변경이 모든 child에서 구분된다.
+- 현행 43개 header와 43개 child의 1:1 symbol coverage가 자동 검사된다.
+
+*** 검증
+
+- 중앙 rule validator, Org link/source-block/TODO structure validator와 symbol coverage script를
+  실행한다.
+- 기존 shared library와 installed SDK의 ABI/header snapshot을 재현한다.
+
+** TODO 1단계: Coord value와 collection 계약 확정
+
+*** 실행
+
+- Coord 5개 child 순서대로 checked arithmetic, exact equality/hash, borrowed pointer
+  invalidation, pop/peek empty와 allocator boundary를 구현한다.
+- 두 C++ helper의 installed public 여부와 ABI 1 migration을 결정한다.
+
+*** 완료 조건
+
+- sentinel과 정상 값이 충돌하지 않고 C ABI 밖으로 C++ exception이 나오지 않는다.
+- equality/order/hash와 Python wrapper 계약이 서로 일치한다.
+
+*** 검증
+
+- boundary/overflow/OOM/invalidation/property test와 old/new C/C++ consumer를 static/shared에서
+  실행한다.
+
+** TODO 2단계: Route, navgrid, obstacle와 mutation 경계 확정
+
+*** 실행
+
+- =route.h=와 navcell/navgrid를 먼저 처리하고 obstacle core/dispatcher, route carver를
+  dependency 순서대로 처리한다.
+- 공개 resource layout, route/coord ownership, callback userdata와 grid mutation의
+  atomicity/rollback을 child 결정대로 구현한다.
+
+*** 완료 조건
+
+- invalid input, outside grid, no-op, partial mutation과 OOM이 구분된다.
+- borrowed view의 lifetime과 mutation invalidation이 공개 선언에 드러난다.
+
+*** 검증
+
+- layout/enum ABI, clone/deep-copy, rollback/fault injection, direct-header/include-order와
+  installed consumer를 검증한다.
+
+** TODO 3단계: Maze generator별 계약 구현
+
+*** 실행
+
+- =maze_core.h=의 resource/status 계약 뒤 11개 generator의 RNG owner, seed/replay,
+  topology, termination과 algorithm-specific invariant를 각각 구현한다.
+- =maze.h= dispatcher는 enum numeric value, capability query와 unsupported status를 실제
+  구현 집합과 일치시킨다.
+
+*** 완료 조건
+
+- 같은 seed/options가 같은 결과를 만들고 각 algorithm이 주장한 connectivity/perfect-maze/
+  bias 또는 uniformity 범위만 보장한다.
+- dispatcher가 미지원 enum을 임의 algorithm으로 fallback하지 않는다.
+
+*** 검증
+
+- 작은 grid exhaustive oracle, property test, deterministic replay, termination/resource limit,
+  OOM과 wrapper enum round-trip을 algorithm별로 실행한다.
+
+** TODO 4단계: Route-finder algorithm별 계약 구현
+
+*** 실행
+
+- evaluation callback view와 공통 search options/stats/cancel을 먼저 구현한다.
+- 11개 direct algorithm header를 각 child의 원전/production comparison과 target signature에
+  맞춘 뒤 dispatcher의 42개 enum value와 capability table을 정리한다.
+
+*** 완료 조건
+
+- userdata가 callback에 실제 전달되고 setter/config가 실행 경로에 반영된다.
+- no-path, invalid, unsupported, limit, cancellation, OOM과 partial result가 구분된다.
+- 최적성·완전성·suboptimality·memory bound 주장은 conformance test를 통과한 algorithm에만
+  노출된다.
+
+*** 검증
+
+- Dijkstra/A* reference oracle, exhaustive tiny graph, adversarial heuristic/cost, exact budget,
+  cancel/OOM와 capability/dispatcher matrix를 static/shared/wrapper에서 실행한다.
+
+** TODO 5단계: D* Lite incremental lifecycle 구현
+
+*** 실행
+
+- exact lexicographic key와 hash, pqueue invariant를 먼저 구현한다.
+- =dstar_lite.h=의 callback bind, navgrid ownership, initial/replan state, km/update queue,
+  changed-edge 입력, cancel/progress와 result status를 child 명세대로 재구성한다.
+- tick은 core lifecycle의 별도 progress driver로 만들고 duplicate state owner를 제거한다.
+
+*** 완료 조건
+
+- 원 논문의 key/update/replanning invariant와 실제 구현이 일치한다.
+- one-shot, incremental update, force quit와 tick lifecycle의 허용 전이가 명시된다.
+
+*** 검증
+
+- D* Lite canonical 사례, repeated obstacle updates, reference replan 비교, queue property,
+  cancellation/race/lifetime와 long-run resource test를 실행한다.
+
+** TODO 6단계: navsys.h public aggregate 정리
+
+*** 실행
+
+- 앞선 42개 disposition 결과로 =navsys.h=의 승인 public component만 include/forward한다.
+- direct algorithm function, common dispatcher와 capability/status vocabulary의 중복 노출을
+  제거하거나 ABI 1 forwarding으로 한정한다.
+
+*** 완료 조건
+
+- standalone C/C++ include가 transitive include에 의존하지 않는다.
+- public/install/wrapper manifest가 같은 API surface를 설명한다.
+
+*** 검증
+
+- include-what-you-use 성격의 direct-header compile, all-header permutation smoke,
+  C/C++ consumer와 wrapper parser/generation test를 실행한다.
+
+** TODO 7단계: Root shared, install, wrapper와 ABI 통합 gate
+
+*** 실행
+
+- module static =BYUL_STATIC=과 root shared =BYUL_EXPORTS=를 clean tree에서 각각 빌드한다.
+- install-tree SDK를 별도 consumer project에서 link/run하고 export/ABI snapshot을 비교한다.
+- wrapper manifest를 최종 public header 집합에 맞추고 legacy/new API migration test를 실행한다.
+
+*** 완료 조건
+
+- 43개 child의 완료 증거와 공통 기준서의 gate가 모두 연결된다.
+- ABI 1.x에서 제거된 symbol/layout/enum이 없고 변경이 필요한 항목은 deprecated forwarding
+  또는 명시적인 ABI-major backlog를 가진다.
+- module-only 성공을 root shared 성공으로 오인하는 검증 공백이 없다.
+
+*** 검증
+
+- central rules, TODO structure/link/symbol coverage, static/shared build+CTest, install consumer,
+  export/ABI diff, wrapper audit/generate/load/runtime와 sanitizer/fault-injection 결과를 release
+  evidence로 보존한다.
+
+* 완료 판정
+
+이 문서는 43개 상세 TODO 파일을 만들었다는 이유만으로 완료되지 않는다. 공통 기준과 43개
+child의 결정이 상호 모순 없이 병합되고, 모든 legacy symbol의 compatibility disposition과
+모든 새 target signature가 구현·test·static/root-shared·install·wrapper 증거로 닫힌 뒤에만
+=DONE=으로 전환한다.

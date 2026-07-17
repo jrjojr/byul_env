@@ -1,0 +1,188 @@
+#+TITLE: BYUL Navsys dstar_lite_key.h 정밀 리팩토링 TODO
+#+TODO: TODO DOING BLOCKED | DONE CANCELLED FAILED
+#+TODO_RULES: ../../../../external/rules/projects/byul/todo-rules.org
+#+PUBLIC_API_RULES: ../../../../external/rules/projects/byul/public-api-rules.org
+#+HEADER_DECLARATION_RULES: ../../../../external/rules/projects/byul/header-declaration-rules.org
+#+HEADER_COMMENT_RULES: ../../../../external/rules/projects/byul/header-comment-rules.org
+#+HEADER_AUTHORING_RULES: ../../../../external/rules/projects/byul/header-authoring-rules.org
+#+BUILD_RULES: ../../../../external/rules/projects/byul/build-rules.org
+#+TEST_RULES: ../../../../external/rules/projects/byul/test-rules.org
+#+TODO_PARENT: todo-리팩토링-navsys-headers.org
+#+AUTHOR: ByulPapa / Codex
+#+LANGUAGE: ko
+#+OPTIONS: toc:t num:nil
+
+* Build compile-definition 불변식
+
+- D* Lite module static은 =BYUL_STATIC=으로 key C ABI를 컴파일한다.
+- root shared는 동일 key source/header를 =BYUL_EXPORTS=로 재컴파일·export하고 exact
+  comparison/hash symbol과 value layout을 별도로 검사한다.
+
+* 문서 책임과 P0 결함
+
+=byul/navsys/dstar_lite/dstar_lite_key.h=의 D* Lite lexicographic key value API를
+재설계한다. 공통 기준은 [[file:todo-navsys-industry-api-baseline.org][Navsys 업계 API 기준]]이다. 현재 approximate equality,
+exact ordering, bitwise hash가 서로 다른 동치관계를 사용하여 ordered/unordered container와
+Python hash 계약을 동시에 위반한다.
+
+* 알고리즘·언어 기준
+
+- Koenig/Likhachev의 [[https://publications.ri.cmu.edu/d-lite][D* Lite 원 논문]]에서 key는
+  =(k1,k2)= lexicographic ordering으로 open list 순서를 정한다. 근사 동등성은 queue의
+  equivalence가 아니다.
+- C++ comparator는 strict weak ordering이어야 한다. C++ 표준
+  [[https://eel.is/c++draft/associative.reqmts][associative requirements]]와
+  [[https://wiki.sei.cmu.edu/confluence/display/cplusplus/CTR57-CPP.+Provide+a+valid+ordering+predicate][SEI CTR57-CPP]]를 적용한다.
+- equal object는 같은 hash를 가져야 한다. 근사 비교는 비추이적일 수 있으므로 별도
+  =is_close= 진단 함수로만 제공한다.
+
+* 현행 구현 근거
+
+- =equal=은 scalar tolerance 비교다.
+- =compare=는 먼저 approximate equal이면 0을 반환하고, 아니면 exact
+  lexicographic을 사용한다. A≈B, B≈C, A!≈C가 가능하다.
+- =hash=는 exact float bit 조합이므로 approximate-equal key가 다른 hash를 가질 수
+  있다. =-0/+0=과 NaN도 canonical policy가 없다.
+- 작은 8-byte value를 create/copy에서 heap allocation하며 C++ =new= 실패 채널이 없다.
+
+* 현행 선언 전수 목록과 처분
+
+| 선언 | 현재 의미/결함 | 처분 |
+|------+----------------+------|
+| =dstar_lite_key_t= | 공개 ={float k1,k2}= value layout | keep |
+| =dstar_lite_key_create= | heap zero-key, OOM 채널 없음 | deprecate-forward |
+| =dstar_lite_key_create_full= | NaN/Inf 검증 없는 heap 생성 | deprecate-forward |
+| =dstar_lite_key_copy= | tiny value heap 복제 | deprecate-forward |
+| =dstar_lite_key_destroy= | heap family 종결 | keep |
+| =dstar_lite_key_equal= | approximate, hash/order와 불일치 | deprecate-forward |
+| =dstar_lite_key_compare= | 비추이 approximate equivalence | deprecate-forward |
+| =dstar_lite_key_hash= | equal⇒same-hash 위반 | deprecate-forward |
+
+새 init/exact/is_close/metadata 함수는 =add=다. =float=를 =double=로 직접 바꾸는 후보와
+field layout 변경은 =abi-major=다. D* Lite 내부 전용으로 완전히 숨기는 선택도 ABI 2
+consumer 조사 뒤 별도 =internalize= 결정을 내린다.
+
+* 목표 수치 계약
+
+- queue에 들어가는 canonical key는 finite 또는 algorithm이 사용하는 positive infinity만
+  허용할지 결정한다. D* Lite는 초기 g/rhs infinity가 key에 나타날 수 있으므로
+  =+Inf=를 valid maximum sentinel로 허용하고 NaN, =-Inf=를 거부하는 안을 우선한다.
+- =-0.0f=는 =+0.0f=로 canonicalize한다.
+- exact equality는 canonical field equality, compare는 exact lexicographic -1/0/1,
+  hash는 두 canonical field와 exact equality를 공유한다.
+- approximate comparison은 =abs_tol=와 =rel_tol=를 caller가 명시하며 queue/hash/equality,
+  termination 조건에는 사용하지 않는다.
+- ABI 1 public layout의 size/align/offset을 manifest로 고정한다.
+
+* 목표 공개 선언 초안
+
+#+begin_src c
+BYUL_API size_t dstar_lite_key_sizeof(void);
+BYUL_API size_t dstar_lite_key_alignof(void);
+BYUL_API size_t dstar_lite_key_offsetof_k1(void);
+BYUL_API size_t dstar_lite_key_offsetof_k2(void);
+
+BYUL_API navsys_status_t dstar_lite_key_init(
+    dstar_lite_key_t* out_key, float k1, float k2);
+BYUL_API navsys_status_t dstar_lite_key_create_ex(
+    float k1, float k2, dstar_lite_key_t** out_key);
+BYUL_API bool dstar_lite_key_equal_exact(
+    const dstar_lite_key_t* lhs,
+    const dstar_lite_key_t* rhs);
+BYUL_API int dstar_lite_key_compare_exact(
+    const dstar_lite_key_t* lhs,
+    const dstar_lite_key_t* rhs);
+BYUL_API uint32_t dstar_lite_key_hash_exact(
+    const dstar_lite_key_t* key);
+BYUL_API navsys_status_t dstar_lite_key_is_close(
+    const dstar_lite_key_t* lhs,
+    const dstar_lite_key_t* rhs,
+    float absolute_tolerance,
+    float relative_tolerance,
+    bool* out_is_close);
+#+end_src
+
+정렬용 compare가 NULL을 받는 것은 invalid precondition이다. public exact compare가 status를
+반환하지 않는다면 NULL debug assertion과 release fallback을 ABI contract에 적거나,
+status+out_compare 대안을 최종 API review에서 결정한다.
+
+* wrapper, build와 test 영향
+
+- Python wrapper의 현재 approximate =__eq__=와 exact =__hash__= 조합을 즉시 제거한다.
+  immutable exact key로 노출하거나 approximate equality를 유지하면 unhashable로 만든다.
+- =dstar_lite_key.hpp=의 세 comparator와 =std::hash=는 별도 문서에 따라 internalize한다.
+- static D* Lite와 root shared가 같은 exact implementation을 사용하고 installed SDK의
+  layout/symbol을 검사한다.
+- test는 transitivity, antisymmetry, total lexicographic ordering, equal-hash, ±0,
+  adjacent floats, tolerance chain, Inf/NaN과 OOM을 포함한다.
+
+* 구현 순서
+
+** TODO 1단계: key domain과 ABI 고정
+
+*** 실행
+
+- 실제 compute/pqueue에서 finite/Inf/NaN key가 생성되는 경로를 instrument한다.
+- float layout과 기존 함수 behavior를 snapshot하고 canonical domain을 확정한다.
+
+*** 완료 조건
+
+- 8개 현행 선언의 disposition과 compatibility mapping이 확정된다.
+- +Inf, NaN, -Inf, ±0와 tolerance의 역할이 서로 충돌하지 않는다.
+
+*** 검증
+
+- old installed SDK layout/behavior fixture와 key corpus를 root shared에서 실행한다.
+- 원 논문 key ordering 예제를 exact reference comparator와 비교한다.
+
+** TODO 2단계: exact value API 구현
+
+*** 실행
+
+- init, exact equality/compare/hash와 metadata query를 구현한다.
+- 모든 create/copy의 exception-to-status 경계를 추가한다.
+
+*** 완료 조건
+
+- compare-equivalent ⇔ exact-equal이고 exact-equal ⇒ same-hash다.
+- invalid key/OOM에서 output이 보존된다.
+
+*** 검증
+
+- property-based ordering/hash test와 exhaustive special-float corpus를 실행한다.
+- UBSan/ASan과 debug STL ordered/unordered container test를 실행한다.
+
+** TODO 3단계: 근사 비교 분리와 legacy forwarding
+
+*** 실행
+
+- 명시적 tolerance =is_close=를 구현하고 algorithm termination에서 사용 금지한다.
+- legacy equal/compare/hash를 deprecated하고 exact canonical 경로로 forward한다.
+
+*** 완료 조건
+
+- production queue/map에 approximate comparator가 남지 않는다.
+- legacy symbol은 유지되며 semantic migration note가 배포된다.
+
+*** 검증
+
+- 비추이 tolerance chain이 container equivalence에 들어가지 않는 compile/source scan을
+  실행한다.
+- old/new consumer와 export symbol을 비교한다.
+
+** TODO 4단계: wrapper와 통합 gate
+
+*** 실행
+
+- Python equality/hash/mutability 정책과 status mapping을 수정한다.
+- static/root/install/header ABI gate를 추가한다.
+
+*** 완료 조건
+
+- Python dict/set과 native ordered/unordered container가 같은 equality relation을 쓴다.
+- ABI layout와 새 exact symbol이 manifest에 있다.
+
+*** 검증
+
+- Python equal/hash/NaN/close test, C17/C++17 clean SDK, sanitizer와
+  =git diff --check=를 통과한다.

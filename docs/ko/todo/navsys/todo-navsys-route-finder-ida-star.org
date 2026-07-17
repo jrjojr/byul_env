@@ -1,0 +1,115 @@
+#+TITLE: BYUL Navsys ida_star.h 정밀 리팩터링 TODO
+#+TODO: TODO DOING BLOCKED | DONE CANCELLED FAILED
+#+TODO_RULES: ../../../../external/rules/projects/byul/todo-rules.org
+#+PUBLIC_API_RULES: ../../../../external/rules/projects/byul/public-api-rules.org
+#+HEADER_DECLARATION_RULES: ../../../../external/rules/projects/byul/header-declaration-rules.org
+#+HEADER_COMMENT_RULES: ../../../../external/rules/projects/byul/header-comment-rules.org
+#+HEADER_AUTHORING_RULES: ../../../../external/rules/projects/byul/header-authoring-rules.org
+#+BUILD_RULES: ../../../../external/rules/projects/byul/build-rules.org
+#+TEST_RULES: ../../../../external/rules/projects/byul/test-rules.org
+#+TODO_PARENT: todo-리팩토링-navsys-headers.org
+#+INDUSTRY_API_BASELINE: todo-navsys-industry-api-baseline.org
+#+AUTHOR: ByulPapa / Codex
+#+LANGUAGE: ko
+#+OPTIONS: toc:t num:nil
+
+* 대상과 원전 기준
+
+대상은 =ida_star.h/.cpp=다. [[file:todo-navsys-industry-api-baseline.org][공통 기준]]과
+Korf의 [[https://doi.org/10.1016/0004-3702(85)90084-0][Depth-First Iterative-Deepening:
+An Optimal Admissible Tree Search]]를 conformance 기준으로 삼는다.
+
+* P0 Algorithm Identity 결함
+
+현재 구현은 각 threshold iteration마다 =cost_coord_pq_t= priority queue, =cost_so_far=,
+=came_from=과 =visited= hash를 새로 만든다. 깊이 우선 재귀/명시 stack과 path-local memory를
+사용하는 IDA*가 아니므로 header의 “very low memory”, “DFS 기반”, “optimal” 설명을 현재
+구현에 적용할 수 없다. Operational capability는 conformance가 끝날 때까지 false로 두거나
+현재 구현을 다른 이름의 custom threshold search로 분류해야 한다.
+
+추가 결함:
+
+- cost/heuristic userdata가 없고 callback에 NULL을 전달한다.
+- =max_retry=는 모든 threshold round가 공유하지만 expansion인지 retry인지 불명확하다.
+- =best_f=가 전체 실행에서 감소만 추적해 partial endpoint 선택이 goal progress와 일치하지 않는다.
+- Header의 760/88 iteration과 Manhattan 추천 수치는 특정 workload 근거가 없는 경험값이다.
+- Dispatcher는 IDA* 실행 전에 finder heuristic을 Manhattan으로 영구 변경한다.
+
+* 전체 Public Symbol Inventory와 disposition
+
+=IDA_STAR_H= include guard는 현재 macro inventory에 포함하고 ABI 영향 없이
+=BYUL_NAVSYS_ROUTE_FINDER_IDA_STAR_H=로 교체한다.
+
+| symbol | 현재 signature | wrapper | disposition |
+|--------+------------------+---------+-------------|
+| =find_ida_star= | =route_t*(grid,start,goal,cost,heuristic,int,bool)= | generated CFFI | =ABI 1.x: deprecate-forward; conformance-block -> ABI-major: internalize= |
+
+* 목표 Signature 후보
+
+#+begin_src c
+typedef struct s_route_finder_ida_star_config {
+    uint32_t struct_size;
+    uint64_t max_depth;
+    uint64_t transposition_capacity;
+} route_finder_ida_star_config_t;
+
+BYUL_API navsys_status_t route_finder_bind_ida_star_config(
+    route_finder_t* finder,
+    const route_finder_ida_star_config_t* config);
+#+end_src
+
+Canonical search는 generic =run_ex=다. Default는 원전형 path-local DFS로 하고 optional
+transposition table을 쓰면 memory/optimality semantics가 바뀌는 별도 flag로 명시한다.
+Admissible heuristic과 positive minimum step cost, cycle handling, recursion/stack bound를 계약한다.
+
+* TODO 1단계: Algorithm 이름 판정 Gate
+
+** 실행
+
+- 현재 priority-queue threshold trace를 Korf pseudocode와 단계별 비교한다.
+- memory O(depth) 주장, optimality, repeated expansion과 partial selection 반례를 만든다.
+- dispatcher의 heuristic mutation과 legacy signature/export/CFFI를 snapshot한다.
+
+** 완료 조건
+
+- 구현 교체/rename/unsupported 중 결정이 승인되고 그 전에는 IDA* 지원을 광고하지 않는다.
+- 한 public symbol의 모든 소비가 기록된다.
+
+** 검증
+
+- canonical IDA* reference와 expansion order, threshold sequence, peak memory를 비교한다.
+
+* TODO 2단계: 원전형 IDA* 구현과 typed config
+
+** 실행
+
+- path-local DFS iterative deepening, cycle policy와 next threshold 계산을 구현한다.
+- callback userdata/status, expansion/depth/cancel/OOM limit와 optional transposition config를 추가한다.
+- finder heuristic을 실행 중 변경하지 않는다.
+
+** 완료 조건
+
+- admissible heuristic fixture에서 최단 cost가 reference와 같고 기본 peak memory가 depth에 비례한다.
+- stack overflow와 unlimited sentinel 없이 모든 limit가 명시된다.
+
+** 검증
+
+- Korf-style puzzle/tiny grid, deep corridor, cycle, inconsistent heuristic, cancel/OOM을 실행한다.
+
+* TODO 3단계: Legacy/문서/배포 Gate
+
+** 실행
+
+- 경험적 수치를 별도 benchmark로 이동하고 legacy symbol을 canonical run에 forwarding한다.
+- direct header internalize와 enum capability 재활성 조건을 정한다.
+
+** 완료 조건
+
+- conformance suite가 통과해야만 =route_finder_is_type_supported(IDA_STAR)=true다.
+- ABI 1 old/new consumer와 ABI 2 public 경계가 검증된다.
+
+** 검증
+
+- module/root/export/wrapper/SDK consumer, sanitizer, peak memory와 reference optimality를 실행한다.
+- =module static BYUL_STATIC=와 =root shared BYUL_EXPORTS=를 각각 compile/run하고
+  symbol/export/behavior parity를 비교한다.

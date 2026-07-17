@@ -1,0 +1,182 @@
+#+TITLE: BYUL Navsys route_finder_core.h 정밀 리팩터링 TODO
+#+TODO: TODO DOING BLOCKED | DONE CANCELLED FAILED
+#+TODO_RULES: ../../../../external/rules/projects/byul/todo-rules.org
+#+PUBLIC_API_RULES: ../../../../external/rules/projects/byul/public-api-rules.org
+#+HEADER_DECLARATION_RULES: ../../../../external/rules/projects/byul/header-declaration-rules.org
+#+HEADER_COMMENT_RULES: ../../../../external/rules/projects/byul/header-comment-rules.org
+#+HEADER_AUTHORING_RULES: ../../../../external/rules/projects/byul/header-authoring-rules.org
+#+BUILD_RULES: ../../../../external/rules/projects/byul/build-rules.org
+#+TEST_RULES: ../../../../external/rules/projects/byul/test-rules.org
+#+TODO_PARENT: todo-리팩토링-navsys-headers.org
+#+INDUSTRY_API_BASELINE: todo-navsys-industry-api-baseline.org
+#+AUTHOR: ByulPapa / Codex
+#+LANGUAGE: ko
+#+OPTIONS: toc:t num:nil
+
+* 문서 책임과 역할 판정
+
+대상은 =byul/navsys/route_finder/route_finder_core.h=다. 이 파일은 finder lifecycle을
+소유하지 않고 cost/heuristic callback과 기본 평가 함수만 제공하므로 public-foundation
+=core=가 아니다. [[file:todo-navsys-industry-api-baseline.org][공통 업계 기준]]에 따라
+=route_finder_evaluation.h= public-component를 새 canonical header로 만들고 기존 파일은
+source compatibility를 위한 deprecated forwarding header로 둔다.
+
+* 구현/소비 현황
+
+- =route_finder_core.cpp=는 3개 cost와 6개 heuristic을 구현한다. NULL 좌표는
+  =numeric_limits<float>::max()=로 숨기고 callback failure channel은 없다.
+- 모든 search 구현은 callback의 =userdata=에 =nullptr=를 넘긴다.
+- =route_finder.py=와 =route_finder_common.py=가 두 typedef, 9함수와 상수를 CFFI/registry에
+  등록한다. Python callback을 직접 안전하게 bind하는 수명 모델은 없다.
+- A*, Dijkstra, IDA*, Fringe, Greedy, RTA*, SMA*, Weighted A*와 FMM가 이 header에
+  transitive 의존한다.
+
+* 공식 비교 기준
+
+- [[https://www.boost.org/doc/libs/latest/libs/graph/doc/astar_search.html][Boost.Graph A*]]는 edge
+  weight가 non-negative이고 heuristic/distance가 같은 algebra에서 compare/combine됨을
+  전제한다.
+- [[https://www.boost.org/doc/libs/latest/libs/graph/doc/AStarHeuristic.html][Boost AStarHeuristic]]는
+  goal estimate의 호출 계약을 별도 concept로 둔다.
+- [[https://recastnav.com/classdtQueryFilter.html][Detour dtQueryFilter]]는 pass filter와 traversal
+  cost를 query filter object로 묶고 query 동안의 수명을 정한다.
+- [[https://doi.org/10.1109/TSSC.1968.300136][Hart/Nilsson/Raphael A* 원 논문]]의
+  admissibility/consistency 조건과 최적성 주장을 API guarantee와 test에 연결한다.
+
+* 전체 Public Symbol Inventory와 disposition
+
+=ROUTE_FINDER_CORE_H= include guard도 현재 macro inventory에 포함한다. ABI 영향 없이
+repository-unique =BYUL_NAVSYS_ROUTE_FINDER_ROUTE_FINDER_CORE_H=로 교체한다.
+
+| 현재 symbol | 종류 | disposition | 목표 |
+|-------------+------+-------------+------|
+| =DIAGONAL_COST= | global macro | =ABI 1.x: keep; companion: add -> ABI-major: internalize= | namespaced constant/query, 정확한 sqrt(2)와 cost unit |
+| =cost_func= | callback typedef | =ABI 1.x: keep; companion: add -> ABI-major: internalize= | =route_finder_cost_func= status + =out_cost= + userdata |
+| =heuristic_func= | callback typedef | =ABI 1.x: keep; companion: add -> ABI-major: internalize= | =route_finder_heuristic_func= status + =out_estimate= + userdata |
+| =default_cost= | function | =ABI 1.x: deprecate-forward; companion: add -> ABI-major: internalize= | =route_finder_cost_unit= 또는 topology-aware default |
+| =zero_cost= | function | =ABI 1.x: deprecate-forward; companion: add -> ABI-major: internalize= | namespaced zero evaluator; zero-edge/cycle guarantee 명시 |
+| =diagonal_cost= | function | =ABI 1.x: deprecate-forward; companion: add -> ABI-major: internalize= | namespaced 4/8-neighbor evaluator, unit/diagonal policy 명시 |
+| =euclidean_heuristic= | function | =ABI 1.x: deprecate-forward; companion: add -> ABI-major: internalize= | =route_finder_heuristic_euclidean= |
+| =manhattan_heuristic= | function | =ABI 1.x: deprecate-forward; companion: add -> ABI-major: internalize= | =route_finder_heuristic_manhattan= |
+| =chebyshev_heuristic= | function | =ABI 1.x: deprecate-forward; companion: add -> ABI-major: internalize= | =route_finder_heuristic_chebyshev= |
+| =octile_heuristic= | function | =ABI 1.x: deprecate-forward; companion: add -> ABI-major: internalize= | =route_finder_heuristic_octile= |
+| =zero_heuristic= | function | =ABI 1.x: deprecate-forward; companion: add -> ABI-major: internalize= | =route_finder_heuristic_zero= |
+| =default_heuristic= | function | =ABI 1.x: deprecate-forward; companion: add -> ABI-major: internalize= | topology/cost-aware default descriptor, silent Euclidean 금지 |
+
+현재 typedef parameter에는 이름이 없고 callback thread, nullable, reentrancy, retained
+lifetime와 failure propagation metadata가 없다. 기본 Euclidean은 4방향 unit cost에는
+admissible하지만, 대각선도 cost 1인 현재 8방향 model에서는 한 diagonal step에
+=sqrt(2) > 1=을 추정해 과대평가한다. 사용자/0/non-uniform cost에서도 보장을 추측할 수
+없다. Default를 이름만으로 최적성 보장처럼 사용하지 않는다.
+
+* 목표 Signature 후보
+
+#+begin_src c
+typedef navsys_status_t (*route_finder_cost_func)(
+    const navgrid_t* grid,
+    const coord_t* from,
+    const coord_t* to,
+    float* out_cost,
+    void* userdata);
+
+typedef navsys_status_t (*route_finder_heuristic_func)(
+    const coord_t* from,
+    const coord_t* goal,
+    float* out_estimate,
+    void* userdata);
+
+BYUL_API navsys_status_t route_finder_cost_diagonal(
+    const navgrid_t* grid,
+    const coord_t* from,
+    const coord_t* to,
+    float* out_cost,
+    void* userdata);
+BYUL_API navsys_status_t route_finder_heuristic_octile(
+    const coord_t* from,
+    const coord_t* goal,
+    float* out_estimate,
+    void* userdata);
+#+end_src
+
+- Callback은 synchronous caller thread, call 동안 같은 finder 재진입 금지, pointer는
+  call-only다. =userdata=는 native가 역참조/해제하지 않는다.
+- Cost는 finite, non-negative이고 heuristic과 같은 cost unit을 사용한다. 0-cost edge 허용과
+  cycle 처리, overflow/NaN/Inf를 status로 분리한다.
+- Heuristic descriptor에는 admissible/consistent 주장, topology와 minimum step cost 전제를
+  기록한다. 잘못된 claim은 최적성 test에서 실패한다.
+- =route_finder_bind_cost_func=와 =bind_heuristic_func=가 callback+userdata를 원자적으로
+  보관하며 개별 raw setter는 사용하지 않는다.
+
+* TODO 1단계: 평가 계약 기준선 고정
+
+** 실행
+
+- 두 typedef ABI/calling convention, =DIAGONAL_COST= 값과 9함수 signature/export/wrapper를
+  snapshot한다.
+- 각 기본 함수의 NULL, unit, topology, non-finite와 userdata 동작을 characterization test로
+  기록한다.
+
+** 완료 조건
+
+- 12개 symbol 전부가 source-definition-export-CFFI owner를 가진다.
+- 기존 consumer가 기대하는 숫자와 silent sentinel 동작을 호환 fixture로 재현한다.
+
+** 검증
+
+- C/C++ callback ABI, float edge case와 Python registry symbol intersection을 검사한다.
+
+* TODO 2단계: Canonical evaluation component 추가
+
+** 실행
+
+- =route_finder_evaluation.h=를 표준 license/file/guard/direct include로 추가한다.
+- prefixed status형 callback과 9개 canonical evaluator를 구현한다.
+- cost/heuristic unit, range, topology, admissibility/consistency와 callback metadata를 작성한다.
+
+** 완료 조건
+
+- callback 실패와 숫자 결과가 충돌하지 않고 negative/NaN/Inf를 거부한다.
+- default 선택이 grid mode와 minimum movement cost를 검증하거나 =UNSUPPORTED=를 반환한다.
+
+** 검증
+
+- 4/8방향 exhaustive 좌표, scaled/nonuniform cost와 NULL/failure test를 실행한다.
+- A* 결과를 reference Dijkstra cost와 비교한다.
+
+* TODO 3단계: Binding과 wrapper lifetime 통합
+
+** 실행
+
+- finder bind/unbind가 callback과 userdata를 한 단위로 저장하고 모든 algorithm에 전달하게 한다.
+- Python은 CFFI callback 및 handle을 unbind/destroy까지 강하게 보관하고 exception을
+  =CALLBACK_FAILED=로 변환한다.
+
+** 완료 조건
+
+- 두 userdata identity가 섞이지 않고 GC 이후에도 유효하다.
+- callback 중 unbind/destroy/reentry 정책이 구현과 metadata에 일치한다.
+
+** 검증
+
+- sentinel userdata, Python GC/exception, nested run과 cross-thread 호출 test를 실행한다.
+
+* TODO 4단계: Legacy core forwarding과 ABI Gate
+
+** 실행
+
+- 기존 =route_finder_core.h=는 canonical header를 include하는 deprecated forwarding으로 만든다.
+- legacy typedef/9함수를 canonical status형 implementation에 adapter하고 제거 ABI version을
+  기록한다.
+- ABI 2에서 legacy callback signature와 전역 macro 제거를 검토한다.
+
+** 완료 조건
+
+- old include/source/binary consumer와 new canonical consumer가 ABI 1에서 함께 동작한다.
+- component include DAG와 SDK/wrapper manifest가 새 역할을 정확히 반영한다.
+
+** 검증
+
+- standalone C17/C++17, old/new callback consumer, root export와 audit/check를 실행한다.
+- module static/root shared에서 legacy/canonical evaluator 결과가 동일한지 검사한다.
+- =module static BYUL_STATIC=와 =root shared BYUL_EXPORTS=를 각각 compile/run하고
+  symbol/export/behavior parity를 비교한다.

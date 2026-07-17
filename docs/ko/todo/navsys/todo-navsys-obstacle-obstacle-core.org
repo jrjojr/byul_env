@@ -1,0 +1,222 @@
+#+TITLE: BYUL obstacle_core.h 정밀 리팩터링 TODO
+#+TODO: TODO DOING BLOCKED | DONE CANCELLED FAILED
+#+TODO_RULES: ../../../../external/rules/projects/byul/todo-rules.org
+#+PUBLIC_API_RULES: ../../../../external/rules/projects/byul/public-api-rules.org
+#+HEADER_DECLARATION_RULES: ../../../../external/rules/projects/byul/header-declaration-rules.org
+#+HEADER_COMMENT_RULES: ../../../../external/rules/projects/byul/header-comment-rules.org
+#+HEADER_AUTHORING_RULES: ../../../../external/rules/projects/byul/header-authoring-rules.org
+#+BUILD_RULES: ../../../../external/rules/projects/byul/build-rules.org
+#+TEST_RULES: ../../../../external/rules/projects/byul/test-rules.org
+#+TODO_PARENT: todo-리팩토링-navsys-headers.org
+#+LANGUAGE: ko
+#+OPTIONS: toc:3 num:nil
+
+* 대상과 opaque resource 판정
+
+- 대상: =obstacle_core.h/.cpp=, =obstacle_t= lifecycle/mutation/neighborhood/navgrid bridge.
+- owning =coord_hash_t*=가 public layout에 있으므로 목표는 opaque handle이다. ABI 1.x additive
+  accessor/status/buffer/overlay 이행 후 ABI-major에서 struct definition을 숨긴다.
+- 공통 status/caller-buffer/callback/lifecycle은
+  [[file:todo-navsys-industry-api-baseline.org][Navsys 업계 API 기준]]이 우선한다.
+
+* Public type·field inventory
+
+| kind | symbol | disposition |
+|------+--------+-------------|
+| guard macro | =OBSTACLE_CORE_H= | source macro: ABI 1.x: keep -> ABI-major: internalize; collision-safe guard companion: ABI 1.x: add |
+| struct tag/layout | =struct s_obstacle= | layout: ABI 1.x: keep -> ABI-major: abi-major; accessor companion: ABI 1.x: add |
+| typedef | =obstacle_t= | ABI 1.x: keep -> ABI-major: keep |
+| field | =x0= | ABI 1.x: keep -> ABI-major: internalize; extent accessor companion: ABI 1.x: add |
+| field | =y0= | ABI 1.x: keep -> ABI-major: internalize; extent accessor companion: ABI 1.x: add |
+| field | =width= | ABI 1.x: keep -> ABI-major: internalize; extent accessor companion: ABI 1.x: add |
+| field | =height= | ABI 1.x: keep -> ABI-major: internalize; extent accessor companion: ABI 1.x: add |
+| field | =blocked= | ABI 1.x: keep -> ABI-major: internalize; coordinate export companion: ABI 1.x: add |
+
+* Public function inventory와 disposition
+
+| function | disposition | target |
+|----------+-------------+--------|
+| =obstacle_create()= | legacy: ABI 1.x: deprecate-forward -> ABI-major: internalize; checked companion: ABI 1.x: add | =(void)=; checked create out API |
+| =obstacle_create_full= | legacy: ABI 1.x: deprecate-forward -> ABI-major: internalize; checked companion: ABI 1.x: add | unsigned extent/overflow validation |
+| =obstacle_destroy= | ABI 1.x: keep -> ABI-major: keep | NULL no-op, paired allocator |
+| =obstacle_clear= (두 번 선언) | ABI 1.x: keep -> ABI-major: keep | duplicate declaration 한 줄은 source-only internalize |
+| =obstacle_copy= | legacy: ABI 1.x: deprecate-forward -> ABI-major: internalize; checked companion: ABI 1.x: add | deep copy/failure status |
+| =obstacle_equal= | ABI 1.x: keep -> ABI-major: keep | value equality/NULL semantics |
+| =obstacle_hash= | ABI 1.x: keep -> ABI-major: keep | persistence 금지/equality consistency |
+| =obstacle_set_origin= | legacy: ABI 1.x: deprecate-forward -> ABI-major: internalize; translate companion: ABI 1.x: add | metadata reset이 아닌 checked translate로 분리 |
+| =obstacle_fetch_origin= | legacy: ABI 1.x: deprecate-forward -> ABI-major: internalize; extent companion: ABI 1.x: add | required output/status |
+| =obstacle_get_width= | legacy: ABI 1.x: deprecate-forward -> ABI-major: internalize; extent companion: ABI 1.x: add | checked extent query |
+| =obstacle_set_width= | legacy: ABI 1.x: deprecate-forward -> ABI-major: internalize; extent companion: ABI 1.x: add | atomic extent/resize policy |
+| =obstacle_get_height= | legacy: ABI 1.x: deprecate-forward -> ABI-major: internalize; extent companion: ABI 1.x: add | checked extent query |
+| =obstacle_set_height= | legacy: ABI 1.x: deprecate-forward -> ABI-major: internalize; extent companion: ABI 1.x: add | atomic extent/resize policy |
+| =obstacle_get_blocked_coords= | legacy: ABI 1.x: keep -> ABI-major: internalize; coordinate export companion: ABI 1.x: add | raw hash 대신 count/two-call export |
+| =obstacle_block_coord= | legacy: ABI 1.x: deprecate-forward -> ABI-major: internalize; mutation companion: ABI 1.x: add | status+changed, allocation failure 전파 |
+| =obstacle_unblock_coord= | legacy: ABI 1.x: deprecate-forward -> ABI-major: internalize; mutation companion: ABI 1.x: add | status+changed |
+| =obstacle_is_inside= | legacy: ABI 1.x: deprecate-forward -> ABI-major: internalize; query companion: ABI 1.x: add | status query, half-open extent |
+| =obstacle_is_blocked= | comment-only: internalize; canonical query companion: ABI 1.x: add | 현재 comment-out 이름이며 definition/export 없음 |
+| =obstacle_clone_neighbors= | legacy: ABI 1.x: keep -> ABI-major: internalize; ABI 1.x support path: conformance-block; buffer companion: ABI 1.x: add | missing definition/export를 고치기 전 facade 승격 금지 |
+| =obstacle_clone_neighbors_all= | legacy: ABI 1.x: deprecate-forward -> ABI-major: internalize; buffer companion: ABI 1.x: add | grid-neighborhood 공통 component로 이동 검토 |
+| =obstacle_clone_neighbors_all_range= | legacy: ABI 1.x: deprecate-forward -> ABI-major: internalize; buffer companion: ABI 1.x: add | const, metric/range 명시 |
+| =obstacle_clone_neighbor_at_degree= | legacy: ABI 1.x: deprecate-forward -> ABI-major: internalize; query companion: ABI 1.x: add | copy naming/status caller output |
+| =obstacle_clone_neighbor_at_goal= | legacy: ABI 1.x: deprecate-forward -> ABI-major: internalize; query companion: ABI 1.x: add | status caller output |
+| =obstacle_clone_neighbors_at_degree_range= | legacy: ABI 1.x: deprecate-forward -> ABI-major: internalize; buffer companion: ABI 1.x: add | two-call buffer |
+| =obstacle_is_coord_blocked= | legacy declaration: ABI 1.x: keep -> ABI-major: internalize; status query companion: ABI 1.x: add | =BYUL_API= 부재의 Windows SDK link trap은 legacy 승격으로 해결하지 않음 |
+| =obstacle_apply_to_navgrid= | legacy: ABI 1.x: deprecate-forward -> ABI-major: internalize; overlay companion: ABI 1.x: add | overlay/merge/status/change count |
+| =obstacle_remove_from_navgrid= | legacy: ABI 1.x: deprecate-forward -> ABI-major: internalize; overlay companion: ABI 1.x: add | provenance token으로 제거 |
+| =obstacle_block_range= | legacy: ABI 1.x: deprecate-forward -> ABI-major: internalize; raster companion: ABI 1.x: add | square/Chebyshev radius 명시, status |
+| =obstacle_block_straight= | legacy: ABI 1.x: deprecate-forward -> ABI-major: internalize; raster companion: ABI 1.x: add | line raster policy/status |
+
+=obstacle_clone_neighbors=은 header 선언과 source definition/export intersection을 실제로 검사한다.
+현재 =obstacle_core.cpp=에는 =clone_neighbors_all=부터 보이며 정확한 missing definition이면 P0
+export defect로 분류한다.
+
+* 현행 구현 결함
+
+| 영역 | 현재 | 영향 |
+|------+-----+------|
+| create | malloc 후 hash create 실패 미검사 | half-initialized resource |
+| copy | 임시 hash destroy 후 copy, failure 미검사 | crash/leak/invalid copy 가능 |
+| origin | fields만 변경 | blocked world coordinates와 metadata 불일치 |
+| resize | fields만 변경 | blocked coordinates outside extent 잔존 |
+| block | heap =coord_create= 후 hash replace result 무시, 항상 true | allocation/hash failure 은폐, 불필요 heap |
+| unblock | hash remove result 반환 | 비교적 관찰 가능하지만 invalid/outside policy 없음 |
+| range | square =(2r+1)^2= | Euclidean radius처럼 읽힐 수 있고 overflow/cancel 없음 |
+| straight | obs NULL/negative range validation 없음 | NULL crash 가능, negative가 radius 0으로 silently 처리 |
+| neighbor allocation | list/hash/coord allocation failure 무시 | partial collection 성공 |
+| raw hash | borrowed internal pointer | lifetime/invalidation/thread 누출 |
+| apply/remove | void, every cell block/normal | partial/OOM 숨김; 다른 source terrain/obstacle를 remove가 지움 |
+| iterator | create failure 미검사 | NULL iterator use 가능 |
+| export | =obstacle_is_coord_blocked= no =BYUL_API= | installed header가 외부 사용을 유도하나 Windows root export 불가 가능 |
+| test | shape 중심, core copy/origin/resize/apply overlap 부족 | resource invariants 미보호 |
+
+* 업계 비교와 target API
+
+- [[https://www.sqlite.org/c3ref/sqlite3.html][SQLite opaque handle]]처럼 public resource layout을 숨긴다.
+- [[https://recastnav.com/classdtNavMeshQuery][Detour]]와 공통 baseline처럼 raw container 대신 capacity/count/status를 사용한다.
+- [[https://gdal.org/en/stable/api/gdal_alg.html][GDAL rasterization]]처럼 line/polygon policy는 generator layer가 소유하고 core는 coordinate
+  set lifecycle/mutation만 담당한다. neighbor/degree helpers는 navgrid/shared geometry로 이동 후보이다.
+
+#+begin_src c
+BYUL_API navsys_status_t obstacle_create_ex(
+    const byul_grid_rect_t* extent, obstacle_t** out_obstacle);
+BYUL_API navsys_status_t obstacle_get_extent(
+    const obstacle_t* obstacle, byul_grid_rect_t* out_extent);
+BYUL_API navsys_status_t obstacle_translate(
+    obstacle_t* obstacle, int32_t delta_x, int32_t delta_y);
+BYUL_API navsys_status_t obstacle_set_blocked(
+    obstacle_t* obstacle, int32_t x, int32_t y,
+    bool blocked, bool* out_changed);
+BYUL_API navsys_status_t obstacle_export_blocked(
+    const obstacle_t* obstacle, coord_t* out_coords,
+    size_t capacity, size_t* out_count);
+BYUL_API navsys_status_t obstacle_apply_ex(
+    const obstacle_t* obstacle, navgrid_t* grid,
+    byul_navgrid_merge_policy_t policy,
+    byul_navgrid_overlay_id_t* out_overlay,
+    size_t* out_changed_count);
+#+end_src
+
+* TODO 1단계: symbol/layout/definition baseline
+
+** 실행
+
+- struct size/align/offset, duplicate clear, all function definitions/exports와 direct field consumers를 snapshot한다.
+- =obstacle_clone_neighbors= definition 유무와 =obstacle_is_coord_blocked= platform export를 검사한다.
+- create/copy/block/apply allocation fault와 origin/resize inconsistency를 fixture로 만든다.
+
+** 완료 조건
+
+- 모든 public declaration이 keep/add/deprecate/abi-major/internalize 중 하나로 승인된다.
+- missing definition/export는 header documentation 이전 P0 gate로 고정된다.
+
+** 검증
+
+- declaration-definition-root-export intersection, ABI layout과 old SDK link consumer를 실행한다.
+- ASan/LSan fault baseline을 실행한다.
+
+* TODO 2단계: extent·coordinate-set invariant
+
+** 실행
+
+- half-open extent, zero/negative extent, outside coordinate 허용 여부를 확정한다.
+- origin setter를 translate로 바꾸거나 metadata-only API와 분리하고 overflow strong guarantee를 정한다.
+- block/unblock/clear/copy/equal/hash/thread/invalidation semantics를 명시한다.
+
+** 완료 조건
+
+- blocked set과 extent 관계가 모든 mutation 뒤 유지된다.
+- translate/resize 실패 때 original object가 보존된다.
+
+** 검증
+
+- nonzero/negative/max origin, resize clip/reject와 translation metamorphic tests를 실행한다.
+- copy independence/equality/hash property를 검사한다.
+
+* TODO 3단계: checked lifecycle·mutation·buffer API
+
+** 실행
+
+- checked create/copy/set-blocked/export와 count-only/two-call semantics를 구현한다.
+- allocation/hash failure와 C++ exception을 status로 변환하고 rollback한다.
+- legacy bool/void/create/copy 함수는 canonical core로 forwarding한다.
+
+** 완료 조건
+
+- OOM/invalid/unchanged를 구분하며 실패 시 output/object 보존 조건을 지킨다.
+- 신규 API는 internal hash pointer를 노출하지 않는다.
+
+** 검증
+
+- zero/exact/undersized buffer, every allocator fault index와 sanitizer를 실행한다.
+- old/new consumer 결과를 비교한다.
+
+* TODO 4단계: helper 책임 이동과 naming compatibility
+
+** 실행
+
+- clone neighbor/degree/range와 block range/straight를 navgrid/shared raster component로 이동할지 결정한다.
+- canonical copy/fetch naming을 추가하고 legacy clone symbols를 deprecated forwarding한다.
+- unexported query는 internal private declaration으로 옮기거나 =BYUL_API=를 추가한다.
+
+** 완료 조건
+
+- public surface에는 구현/export 없는 symbol이 없고 geometry policy가 core resource에 섞이지 않는다.
+- legacy binary symbols는 ABI 1 동안 유지된다.
+
+** 검증
+
+- direct old/new link/run, export inventory와 SDK include graph를 검사한다.
+
+* TODO 5단계: navgrid overlay/provenance
+
+** 실행
+
+- merge policy, bounds/resize, changed count와 all-or-nothing/partial guarantee를 확정한다.
+- overlay token/before-image로 다른 obstacle/terrain/maze source를 보존한다.
+- remove는 token owner/lifetime/version mismatch를 status로 진단한다.
+
+** 완료 조건
+
+- overlapping source를 임의 순서로 apply/remove해도 남은 source가 유지된다.
+- cancellation/OOM mid-apply가 약속한 rollback을 수행한다.
+
+** 검증
+
+- multi-overlay/custom terrain/nonzero origin/fault/cancel tests와 ASan/LSan을 실행한다.
+
+* TODO 6단계: opaque ABI와 Header gate
+
+** 실행
+
+- repository/wrapper consumer를 accessor/buffer API로 옮기고 ABI-major에서 layout을 private로 이동한다.
+- standard license/file/guard/direct include와 ownership/layout/error/thread metadata를 적용한다.
+- obstacle static/root/install/wrapper manifest를 동기화한다.
+
+** 완료 조건
+
+- audit 0, declarations=definitions=exports이고 SDK에는 owning layout이 없다(ABI-major).
+
+** 검증
+
+- old-layout/new-handle SDK consumers, C/C++ include, native/root/wrapper and sanitizer gates를 실행한다.
+- module static =BYUL_STATIC=과 root shared =BYUL_EXPORTS=에서 core lifecycle/mutation export를 각각 검증한다.

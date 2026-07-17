@@ -1,0 +1,134 @@
+#+TITLE: BYUL maze_binary.h 정밀 리팩터링 TODO
+#+TODO: TODO DOING BLOCKED | DONE CANCELLED FAILED
+#+TODO_RULES: ../../../../external/rules/projects/byul/todo-rules.org
+#+PUBLIC_API_RULES: ../../../../external/rules/projects/byul/public-api-rules.org
+#+HEADER_DECLARATION_RULES: ../../../../external/rules/projects/byul/header-declaration-rules.org
+#+HEADER_COMMENT_RULES: ../../../../external/rules/projects/byul/header-comment-rules.org
+#+HEADER_AUTHORING_RULES: ../../../../external/rules/projects/byul/header-authoring-rules.org
+#+BUILD_RULES: ../../../../external/rules/projects/byul/build-rules.org
+#+TEST_RULES: ../../../../external/rules/projects/byul/test-rules.org
+#+TODO_PARENT: todo-리팩토링-navsys-headers.org
+#+LANGUAGE: ko
+#+OPTIONS: toc:3 num:nil
+
+* 대상과 업계 기준
+
+- 대상: =maze_binary.h/.cpp=.
+- [[https://weblog.jamisbuck.org/2011/2/1/maze-generation-binary-tree-algorithm][Jamis Buck의 Binary Tree reference]]는 모든 cell이 일관된 두 방향 중 하나를
+  선택하고 경계에서는 가능한 방향을 강제하여 perfect maze를 만든다고 설명한다.
+- 현 구현은 east/south bias를 사용한다. header 설명의 방향과 결과 root/border corridor를
+  public option/contract로 명시해야 한다.
+- 공통 status/options/RNG 계약은
+  [[file:todo-navsys-industry-api-baseline.org][Navsys 업계 API 기준]]을 따르며 아래 signature보다 우선한다.
+
+* Public symbol inventory와 처분
+
+| kind | symbol | disposition |
+|------+--------+-------------|
+| guard macro | =MAZE_BINARY_H= | source macro: ABI 1.x: keep -> ABI-major: internalize; collision-safe guard companion: ABI 1.x: add |
+| function | =maze_make_binary(int,int,int,int)= | legacy: ABI 1.x: deprecate-forward -> ABI-major: internalize; canonical companion: ABI 1.x: add; legacy east/south default 유지 |
+
+#+begin_src c
+typedef enum byul_maze_binary_bias {
+    BYUL_MAZE_BINARY_BIAS_NORTH_WEST = 0,
+    BYUL_MAZE_BINARY_BIAS_NORTH_EAST = 1,
+    BYUL_MAZE_BINARY_BIAS_SOUTH_WEST = 2,
+    BYUL_MAZE_BINARY_BIAS_SOUTH_EAST = 3
+} byul_maze_binary_bias_t;
+
+BYUL_API navsys_status_t byul_maze_generate_binary_tree(
+    int32_t origin_x, int32_t origin_y, uint32_t width, uint32_t height,
+    byul_maze_binary_bias_t bias,
+    const byul_maze_generate_options_t* options,
+    maze_t** out_maze);
+#+end_src
+
+* 함수 구현 감사
+
+| 단계 | 현재 | 결함/결정 |
+|------+-----+-----------|
+| validation | odd >=3 | 최대 크기/overflow/OOM status 없음 |
+| RNG | =mt19937(random_device{})= | 다른 maze들과 seed 방식 불일치, 재현 불가 |
+| initialization | 모든 grid coordinate를 blocked hash에 insert | insert 실패 무시; O(width*height) hash churn |
+| cell traversal | odd cell마다 passage, east/south 선택 | east/south bias는 일관되며 edge cell에서 강제 방향 사용 |
+| topology | implicit perfect tree | connected/acyclic/edge count test 없음 |
+| cancellation | 없음 | 대형 grid materialization 중 취소 불가 |
+| tests | 생성 성공과 print뿐 | bias, exact edge/border/seed 검증 없음 |
+
+* 목표 계약
+
+- cell graph와 wall raster를 분리하여 =N=((w-1)/2)*((h-1)/2)= cell, passage edge
+  정확히 =N-1=을 보장한다.
+- bias enum은 explicit numeric이고 지원 query/invalid status를 가진다.
+- 결과는 perfect이나 uniform spanning tree가 아니며 강한 diagonal bias와 두 boundary corridor가
+  있음을 숨기지 않는다.
+- RNG는 caller seed를 사용하고 각 two-choice가 unbiased여야 한다. 경계 forced choice는 RNG를
+  소비할지 여부까지 golden contract에 포함한다.
+
+* TODO 1단계: bias와 lattice 기준선
+
+** 실행
+
+- 3x3/5x5에서 east/south 선택과 forced boundary를 graph edge로 기록한다.
+- 현 RNG draw order와 blocked hash result를 snapshot한다.
+- source/header/export/install/test/wrapper 상태를 기록한다.
+
+** 완료 조건
+
+- east/south가 =SOUTH_EAST=인지 좌표계 정의와 함께 승인된다.
+- perfect-tree proof와 edge-count oracle이 있다.
+
+** 검증
+
+- 네 bias 각각 작은 hand-authored grid의 root/border corridor를 검사한다.
+- invalid/even/overflow dimension을 test한다.
+
+* TODO 2단계: 옵션·status API 구현
+
+** 실행
+
+- target signature와 explicit bias/seed/cancel/max-cells를 구현한다.
+- checked dimension/allocation/hash insertion과 C++ exception barrier를 추가한다.
+- legacy function을 기존 east/south nondeterministic adapter로 둔다.
+
+** 완료 조건
+
+- failure가 NULL 하나가 아닌 status로 구분되고 실패 시 output이 없다.
+- 기존 symbol과 결과 방향은 compatibility 기간 동안 유지된다.
+
+** 검증
+
+- old/new consumer, all bias/seed golden과 allocator fault test를 실행한다.
+
+* TODO 3단계: 위상·편향 test
+
+** 실행
+
+- connectivity, no cycle, =N-1= edge, border wall과 bias corridor를 assert한다.
+- 내부 two-choice frequency만 통계 검사하고 UST claim을 금지한다.
+- cancel poll과 O(N) 시간/공간 budget을 계측한다.
+
+** 완료 조건
+
+- 출력 print 없이 algorithm 특성을 식별하는 assertion이 있다.
+- seed와 bias가 provenance/hash에서 식별된다.
+
+** 검증
+
+- deterministic corpus, statistical non-flaky suite와 ASan/LSan을 실행한다.
+
+* TODO 4단계: Header·통합 gate
+
+** 실행
+
+- 표준 header 구조와 ownership/error/RNG/topology metadata를 작성한다.
+- dispatcher capability, module/root/install/wrapper manifest를 일치시킨다.
+
+** 완료 조건
+
+- audit 0 error, export 1:1과 deprecation/release note가 완료된다.
+
+** 검증
+
+- C17/C++17 standalone compile, static/root tests와 SDK consumer를 실행한다.
+- module static =BYUL_STATIC=과 root shared =BYUL_EXPORTS=에서 legacy/canonical export를 각각 검증한다.

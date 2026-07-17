@@ -1,0 +1,158 @@
+#+TITLE: BYUL navcell.h 정밀 리팩터링 TODO
+#+TODO: TODO DOING BLOCKED | DONE CANCELLED FAILED
+#+TODO_RULES: ../../../../external/rules/projects/byul/todo-rules.org
+#+PUBLIC_API_RULES: ../../../../external/rules/projects/byul/public-api-rules.org
+#+HEADER_DECLARATION_RULES: ../../../../external/rules/projects/byul/header-declaration-rules.org
+#+HEADER_COMMENT_RULES: ../../../../external/rules/projects/byul/header-comment-rules.org
+#+HEADER_AUTHORING_RULES: ../../../../external/rules/projects/byul/header-authoring-rules.org
+#+BUILD_RULES: ../../../../external/rules/projects/byul/build-rules.org
+#+TEST_RULES: ../../../../external/rules/projects/byul/test-rules.org
+#+TODO_PARENT: todo-리팩토링-navsys-headers.org
+#+LANGUAGE: ko
+#+OPTIONS: toc:3 num:nil
+
+* 대상과 type 역할
+
+- 대상: =byul/navsys/navgrid/navcell.h/.cpp=, navgrid storage와 generated Python CFFI.
+- =navcell_t=는 owning resource가 없는 작은 public value type이므로 무조건 opaque heap handle로
+  만들지 않는다. explicit layout/value semantics를 안정 ABI로 유지하는 편이 업계 관행에 맞다.
+- 단, enum storage/field 의미 변경은 ABI break다. 현재 layout을 snapshot하고 새 확장이 필요하면
+  versioned value 또는 opaque cell-properties handle을 별도로 추가한다.
+- 공통 status는 [[file:todo-navsys-industry-api-baseline.org][Navsys 업계 API 기준]]의 결정을 사용한다.
+
+* Public symbol·field inventory와 처분
+
+| kind | symbol | 현재 값/layout | disposition |
+|------+--------+----------------+-------------|
+| guard macro | =NAVCELL_H= | source macro | source macro: ABI 1.x: keep -> ABI-major: internalize; collision-safe guard companion: ABI 1.x: add |
+| enum type/tag | =terrain_type_t= (tag =e_terrain_type=) | compiler enum | legacy type: ABI 1.x: keep -> ABI-major: abi-major; validation companion: ABI 1.x: add |
+| enumerator | =TERRAIN_TYPE_NORMAL= | 0 implicit | ABI 1.x: keep -> ABI-major: keep |
+| enumerator | =TERRAIN_TYPE_WATER= | 1 implicit | ABI 1.x: keep -> ABI-major: keep |
+| enumerator | =TERRAIN_TYPE_FOREST= | 2 implicit | ABI 1.x: keep -> ABI-major: keep |
+| enumerator | =TERRAIN_TYPE_MOUNTAIN= | 3 implicit | ABI 1.x: keep -> ABI-major: keep |
+| enumerator | =TERRAIN_TYPE_FORBIDDEN= | 100 explicit | ABI 1.x: keep -> ABI-major: keep |
+| typedef/layout | =navcell_t= | enum + int | ABI 1.x: keep -> ABI-major: keep; properties companion: ABI 1.x: add |
+| field | =terrain= | first field | ABI 1.x: keep -> ABI-major: keep |
+| field | =height= | second =int= | ABI 1.x: keep -> ABI-major: keep; 새 단위는 properties companion에 add |
+| function | =navcell_create_full= | owned allocation | legacy: ABI 1.x: deprecate-forward -> ABI-major: internalize; checked companion: ABI 1.x: add |
+| function | =navcell_create()= | owned default | legacy: ABI 1.x: deprecate-forward -> ABI-major: internalize; checked companion: ABI 1.x: add |
+| function | =navcell_destroy= | frees library allocation | ABI 1.x: keep -> ABI-major: keep |
+| function | =navcell_copy= | owned copy | legacy: ABI 1.x: deprecate-forward -> ABI-major: internalize; checked companion: ABI 1.x: add |
+| function | =navcell_init_full= | status int | legacy: ABI 1.x: deprecate-forward -> ABI-major: internalize; status companion: ABI 1.x: add |
+| function | =navcell_init= | status int | legacy: ABI 1.x: deprecate-forward -> ABI-major: internalize; status companion: ABI 1.x: add |
+| function | =navcell_assign= | status int | legacy: ABI 1.x: deprecate-forward -> ABI-major: internalize; status companion: ABI 1.x: add |
+
+* 구현·소비 감사
+
+| 영역 | 현재 사실 | 결함/불일치 |
+|------+-----------+-------------|
+| allocation | C++ =new navcell_t{}= / =delete= | paired API라 allocator boundary는 닫히지만 exception이 C ABI로 탈출 가능 |
+| init | null만 검사, enum/height 어떤 값도 허용 | terrain unknown, height unit/overflow 정책 없음 |
+| navgrid block | FORBIDDEN/0 cell로 replace | WATER/FOREST/MOUNTAIN은 route cost나 passability에 아무 영향 없음 |
+| navgrid unblock | NORMAL/0 cell을 map에 남김 | prior terrain/height를 소실하고 sparse-default invariant도 깨뜨림 |
+| callback | built-in blocked query는 =terrain==FORBIDDEN=만 검사 | enum 확장/unknown behavior 없음 |
+| equality/hash | navgrid의 coord_hash callback에 의존 | navcell value equality/hash policy가 header에 없음 |
+| wrapper | =navgrid.py= CFFI에 struct layout 그대로 생성 | field/type 변경은 Python ABI/parser에도 즉시 영향 |
+| test | navcell 전용 semantic test 없음 | create/init/copy/invalid/layout/allocator 미검증 |
+
+* 업계 관행 비교와 목표 의미
+
+- [[https://docs.godotengine.org/en/stable/classes/class_astargrid2d.html][Godot AStarGrid2D]]는 solid 여부와 weight scale을 별도 property로 다룬다. BYUL의
+  =terrain= enum과 passability/cost를 암묵적으로 결합하지 말고 mapping policy를 명시해야 한다.
+- C API의 POD value는 opaque resource와 달리 field layout을 ABI로 약속할 수 있다. 현재
+  =navcell_t=는 lifecycle resource가 없으므로 stack =init/assign=을 canonical fast path로 두고
+  heap create/copy는 convenience로 유지한다.
+
+Target 후보(공통 status 확정 전에는 ABI placeholder):
+
+#+begin_src c
+BYUL_API navsys_status_t navcell_validate(
+    const navcell_t* cell);
+BYUL_API navsys_status_t navcell_create_checked(
+    terrain_type_t terrain, int32_t height, navcell_t** out_cell);
+BYUL_API navsys_status_t navcell_is_terrain_supported(
+    terrain_type_t terrain, bool* out_supported);
+#+end_src
+
+새 cost/passability가 필요하면 기존 field 의미를 바꾸지 않고 navgrid policy 또는 다음과 같은
+versioned descriptor를 검토한다.
+
+#+begin_src c
+typedef struct byul_navcell_properties {
+    uint32_t struct_size;
+    terrain_type_t terrain;
+    int32_t elevation_cells;
+    float traversal_cost_scale;
+    uint32_t flags;
+} byul_navcell_properties_t;
+#+end_src
+
+* TODO 1단계: value ABI와 semantic baseline
+
+** 실행
+
+- =sizeof/alignof/offsetof=, enum size/value와 C/C++ initialization을 platform별 snapshot한다.
+- terrain/height를 읽는 모든 source, wrapper field access와 serialization 여부를 조사한다.
+- unknown enum, negative/max height와 =new= failure의 현재 동작을 fixture로 만든다.
+
+** 완료 조건
+
+- =height=의 단위(예: elevation cell/engine unit), 좌표축과 허용 범위가 결정된다.
+- terrain별 passability/default cost support matrix가 실제 route algorithms와 합의된다.
+- value type 유지와 향후 extension 경계가 ABI review를 통과한다.
+
+** 검증
+
+- layout/enum manifest와 wrapper generated declaration을 exact 비교한다.
+- C17 compound literal/zero-init과 C++17 value-init consumer를 build한다.
+
+* TODO 2단계: checked value/lifecycle API
+
+** 실행
+
+- enum support/validate와 checked create out-parameter를 additive 구현한다.
+- =new= exception을 OUT_OF_MEMORY status/NULL로 변환하고 destroy(NULL) 계약을 통일한다.
+- init/assign이 invalid source에서 destination을 보존하는지 strong guarantee를 명시한다.
+
+** 완료 조건
+
+- 정상/invalid/OOM을 구분하고 모든 library allocation은 =navcell_destroy=로 닫힌다.
+- existing create/init/copy symbols는 canonical validation을 공유하면서 유지된다.
+
+** 검증
+
+- all enum values, unknown negative/101/MAX, height boundaries와 allocation fault를 test한다.
+- old/new native와 wrapper round-trip을 실행한다.
+
+* TODO 3단계: terrain/navgrid policy 분리
+
+** 실행
+
+- forbidden, solid, traversal cost, elevation을 누가 해석하는지 navgrid policy로 이동한다.
+- unblock이 prior navcell을 복원할지 default cell을 제거할지 별도 navgrid TODO와 결정한다.
+- terrain extension은 enum support query와 unknown behavior를 따른다.
+
+** 완료 조건
+
+- WATER/FOREST/MOUNTAIN이 지원/무시되는 이유가 capability에서 관찰된다.
+- block/unblock이 사용자 terrain/elevation을 조용히 소실하지 않는다.
+
+** 검증
+
+- terrain별 blocked/cost callback, block→unblock round-trip과 custom policy test를 실행한다.
+
+* TODO 4단계: Header·ABI gate
+
+** 실행
+
+- standard license/file/guard, named type metadata, value zero/copy/thread/layout 계약을 작성한다.
+- module/root/install/wrapper declaration과 ABI manifest를 동기화한다.
+
+** 완료 조건
+
+- audit 0 error, layout/enum 변화 0이며 모든 function definition/export가 일치한다.
+
+** 검증
+
+- C/C++ standalone compile, module/root/wrapper/SDK consumer와 ABI checker를 실행한다.
+- module static =BYUL_STATIC=과 root shared =BYUL_EXPORTS=에서 모든 navcell symbol과 enum/layout ABI를 각각 검증한다.

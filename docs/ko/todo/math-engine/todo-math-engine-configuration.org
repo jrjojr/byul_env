@@ -1,0 +1,426 @@
+#+TITLE: BYUL Math Engine Profile과 설정 Resolver TODO
+#+TODO: TODO DOING BLOCKED | DONE CANCELLED FAILED
+#+TODO_RULES: ../../../../external/rules/projects/byul/todo-rules.org
+#+CONFIGURATION_RULES: ../../../../external/rules/projects/byul/configuration-rules.org
+#+TODO_PARENT: todo-math-engine.org
+#+AUTHOR: ByulPapa / Codex
+#+LANGUAGE: ko
+#+OPTIONS: toc:t num:nil
+
+* 목적
+
+Math Engine의 numeric backend, precision, tolerance, algorithm capability, resource
+budget과 deterministic/refinement policy를 재현 가능하게 해석한다. 상위 제품의
+collision on/off, world tick, replay 저장 위치, trajectory lifecycle와 GUI feature는
+이 resolver가 소유하지 않고 상위 application/Balix 설정이 Math Engine resolved
+configuration을 입력으로 사용한다.
+
+#+begin_src text
+versioned configuration
+  optional named bundle
+       v
+  capability set + numeric policy + execution preset + resource profile
+       v
+default expansion
+       v
+user override
+       v
+dependency and capability validation
+       v
+immutable resolved configuration + capability manifest + diagnostics
+#+end_src
+
+설정 파일은 알고리즘 구현을 선택하는 단순 switch가 아니라 재현 가능한 계산 계약의
+입력이다. 원본 설정과 최종 resolved configuration을 구분한다.
+
+* 첫 Reference Workload
+
+첫 conformance workload는 desktop 공학용 CAS·그래프 계산기 수준의 순수 계산이다.
+
+#+begin_src text
+최소 numal/numeq
+  -> expression과 제한적 CAS
+  -> renderer 독립 graph data
+  -> test/CLI calculator harness
+  -> calculator-full 기준 configuration
+  -> simulation / finance / CAD profile 확장
+#+end_src
+
+Math Engine은 GUI를 구현하지 않는다. TI-89 수준의 계산기 함수 집합을 test와 CLI harness의
+첫 수직 통합 대상으로 사용하여 direct API, expression, CAS, renderer 독립 graph data,
+units와 설정 resolver를 함께 검증한다. Worksheet와 calculator UI lifecycle은 caller
+책임이다.
+
+* 계산 범위 Benchmark와 독자 설계
+
+첫 계산기의 기능 범위 benchmark는 TI-89로 고정한다.
+
+#+begin_src text
+TI-89에서 정하는 것
+  공학 CAS와 graph의 1차 기능 완료 범위
+  exact/approximate 계산, 복소수·행렬, 단위·상수와 ODE 검증 항목
+
+TI-89에서 가져오지 않는 것
+  key와 soft key layout
+  home 화면, icon desktop와 menu 구조
+  명령 이름, 파일 형식과 시각 자산
+  화면별 조작 순서
+
+#+end_src
+
+BYUL은 TI 명령 호환 제품이나 emulator를 목표로 하지 않는다. 공개 문서에서
+"TI-89 compatible" 같은 표현을 사용하지 않고 "TI-89 수준의 1차 기능 범위"라고
+표현한다.
+
+현재 함수·설정 계층은 미래 caller가 사용할 다음 정보와 연결 지점을 제공한다.
+
+- exact, approximate, inexact와 uncertain 결과 상태
+- active named bundle, execution preset과 primary/refinement backend
+- 계산 결과의 status, quality, statistics와 provenance metadata
+- 단위·차원과 금융 rounding·scale·quantize 상태
+- hybrid refinement의 승격 원인, tolerance와 소비 예산
+- trajectory 보간·미분, 교차 좌표·TOI와 ODE의 시간축 결과 검사
+- resolved configuration fingerprint와 결과 provenance
+
+GUI, worksheet/session lifecycle과 application result id는 caller 책임이다. Math Engine은
+계산 결과 status와 provenance만 반환한다.
+
+* 설정 축
+
+** Named math profile bundle
+
+Math profile은 아래 직교 축의 편의 expansion과 conformance fixture일 뿐 primitive runtime
+축이 아니다. Algorithm은 =calculator/simulation/finance/cad= id로 분기하지 않고 resolved
+capability, numeric policy와 execution field만 읽는다.
+
+#+begin_src text
+calculator   CAS, graph와 units를 검증하는 계산 workload
+simulation   낮은 지연부터 offline 고정밀까지의 수치 계산 정책
+finance      decimal exactness, scale, quantize와 audit
+cad          robust geometry, topology tolerance와 healing
+#+end_src
+
+게임, 과학, 로봇과 항공우주는 별도 제품 기능이 아니라 =simulation= named bundle의
+caller 사용 사례 또는 domain template이다.
+
+** Execution preset
+
+#+begin_src text
+fast         제한된 시간 예산과 대량 계산 우선
+precision    오차, 수렴과 강건성 우선
+hybrid       fast 기본 경로와 조건부 precision refinement
+#+end_src
+
+수학 계산 preset 계약은 =todo-math-computation-context.org= 를 따른다. 상위 caller는
+필요한 preset만 노출하고 resolver는 지원하지 않는 조합을 명시적으로 거부한다.
+
+** Numeric backend
+
+#+begin_src text
+f32
+f64
+f128
+binary256
+binary512
+arbitrary_binary
+fixed_decimal
+arbitrary_decimal
+exact_integer
+exact_rational
+#+end_src
+
+=f128= 은 실제 backend capability가 있을 때만 제공하며 C/C++ =long double= 을
+암묵적으로 같은 형식이라고 가정하지 않는다. 다중 정밀도 구현에는 =f256=/=f512=
+대신 =binary256=/=binary512= 이름을 사용하여 IEEE 고정 형식과의 혼동을 피한다.
+
+** Resource profile
+
+#+begin_src text
+minimal     allocation 없는 경로와 고정 workspace 우선
+compact     제한 heap/arena와 축소 feature set
+full        desktop 기준 전체 일반 기능
+extended    명시적으로 큰 precision, time과 memory budget 허용
+#+end_src
+
+=unlimited= 또는 =무제한= 이라는 이름은 사용하지 않는다. 모든 계산에는 시간, 메모리,
+정밀도 자리 수, 반복과 식 성장 한도가 존재해야 한다. 사용자 표시명은 "확장 정밀",
+내부 이름은 =extended= 또는 =arbitrary_precision= 을 사용한다.
+
+* Built-in profile 후보
+
+#+begin_src text
+calculator-full
+  math_profile=calculator, resource=full, backend=f64
+  exact rational + arbitrary precision 선택, CAS와 모든 graph mode
+
+simulation-fast
+  math_profile=simulation, preset=fast, primary=f32
+
+simulation-precision
+  math_profile=simulation, preset=precision, primary=f64
+
+simulation-hybrid
+  math_profile=simulation, preset=hybrid, primary=f32, refinement=f64
+
+finance-standard
+  math_profile=finance, backend=fixed_decimal, explicit quantize/rounding
+
+finance-audit
+  math_profile=finance, backend=arbitrary_decimal, deterministic=true
+
+cad-robust
+  math_profile=cad, primary=f64, robust predicate와 topology tolerance
+
+extended-precision
+  resource=extended, backend=binary256/binary512/arbitrary 중 명시 선택
+#+end_src
+
+이 이름은 초기 후보이다. 각 built-in profile은 사람이 읽는 원본과 machine-readable
+기준 configuration, schema version과 conformance corpus를 함께 가진다.
+
+* 금융 정책
+
+금융은 이진 부동소수점의 bit 수를 높이는 것만으로 해결하지 않는다.
+
+- decimal exactness와 coefficient/scale
+- 통화와 계약별 quantize 규칙
+- 명시적 rounding mode
+- overflow, inexact와 loss-of-scale 상태
+- 결정론적 계산과 감사 가능한 설정 보존
+- fixed decimal과 arbitrary decimal의 명시적 선택
+
+=finance-unlimited= 같은 별도 mode는 만들지 않는다. =finance-standard= 또는
+=finance-audit= 에서 =arbitrary_decimal=, precision digits, memory와 time budget을
+override한다. mpdecimal/libmpdec는 arbitrary decimal의 우선 backend 후보이지만 public
+ABI에 backend type을 노출하지 않는다.
+
+* 항공우주와 고정밀 정책
+
+=space= 또는 =우주 모드= 를 숫자 정밀도 이름으로 사용하지 않는다. 항공우주는
+=simulation= named bundle에 적용되는 caller-side expansion fixture로 둔다. Runtime
+algorithm에 aerospace domain id나 application state를 전달하지 않는다.
+
+#+begin_src text
+aerospace template
+  strict units
+  deterministic default
+  f64 또는 f128 primary backend
+  binary256 이상 reference backend 선택
+  엄격한 tolerance와 보존량 검사
+#+end_src
+
+고정밀이 필요한 다른 분야도 동일 numeric backend와 resource policy를 재사용한다.
+
+* 설정 해석 순서
+
+1. schema version과 built-in profile id를 읽는다.
+2. optional named math profile을 직교 field 집합으로 확장한다.
+3. execution preset과 resource profile 기본값을 순서대로 적용한다.
+4. domain template이 있으면 허용된 기본 override를 적용한다.
+5. 사용자 override를 적용한다.
+6. math capability dependency를 닫힌 집합이 될 때까지 확장한다.
+7. build/runtime capability manifest와 대조한다.
+8. 충돌, unsupported와 암묵적 정밀도 저하를 진단한다.
+9. immutable resolved configuration과 재현용 fingerprint를 생성한다.
+
+우선순위와 merge 규칙은 schema version별로 고정한다. 같은 입력 설정이 환경에 따라
+조용히 다른 backend를 고르지 않게 한다.
+
+* Math capability 선택과 의존성
+
+사용자가 preset 적용 후 계산 capability를 선택하면 필요한 하위 module을 자동 포함하되, 이유를
+resolved configuration에 기록한다.
+
+#+begin_src text
+trajectory_analysis
+  -> numeq + geometry + mathunits
+
+intersection_query
+  -> geometry + numal + mathunits
+
+CAS_graph
+  -> expression + CAS + plot + numal
+
+finance
+  -> decimal + quantize + rounding policy
+
+CAD B-rep
+  -> geometry core + optional OCCT capability
+#+end_src
+
+자동 의존성 추가와 정책 override를 구분한다. 사용자가 필수 의존성을 끄거나 서로
+충돌하는 capability를 선택하면 임의로 되돌리지 않고 구체적인 diagnostic을 반환한다.
+Collision 감시, entity 순회, trajectory 저장과 event dispatch는 이 dependency graph에
+들어가지 않는다.
+
+* 설정 파일 후보
+
+1차 schema는 serialization 형식에 독립적으로 정의한다. 사람이 직접 편집할 기본
+형식은 TOML을 우선 후보로 두되 parser 의존성, 임베디드 크기와 기존 BYUL 도구 연계를
+평가한 후 확정한다.
+
+#+begin_src toml
+schema_version = 1
+math_profile = "simulation"
+preset = "hybrid"
+resource = "full"
+
+[numeric]
+primary_backend = "f64"
+refinement_backend = "binary256"
+
+[execution]
+deterministic = true
+max_refinements = 2
+
+[math_capabilities]
+intersection_query = true
+trajectory_analysis = true
+units = true
+cas = false
+graph = false
+#+end_src
+
+임베디드 build는 설정 parser를 반드시 포함하지 않아도 된다. maintainer tool이 설정을
+검증하고 generated immutable table이나 build option으로 변환하는 경로를 제공한다.
+
+* Capability manifest
+
+build와 runtime은 다음 정보를 조회할 수 있어야 한다.
+
+- 지원 named bundle, calculation capability와 preset
+- 포함된 numeric backend와 실제 정밀도 특성
+- CAS, graph, units, geometry, OCCT, SIMD와 GPU 지원 여부
+- maximum precision digits와 matrix/expression/workspace 한도
+- deterministic 지원 범위
+- configuration schema와 backend data version
+
+지원하지 않는 backend를 더 낮은 정밀도로 대체하지 않는다. 예를 들어 =f128= 요청을
+=f64= 또는 platform별 =long double= 로 조용히 바꾸지 않는다.
+
+* 설정 보존과 재현성
+
+- caller가 worksheet, replay와 금융 audit에 저장할 resolved configuration fingerprint 제공
+- 원본 profile id, 사용자 override와 최종 resolved value 구분
+- backend와 상수·단위 data version 기록
+- 알 수 없는 필드, 폐기된 preset과 미래 schema version 진단
+- 비밀 정보나 장치별 절대 경로를 portable 설정에 포함하지 않음
+- canonical serialization과 cross-platform round-trip 검증
+
+* 테스트 기준
+
+- built-in profile별 golden resolved configuration
+- merge 우선순위와 override 허용 범위
+- 기능 dependency 자동 확장과 충돌 진단
+- unsupported backend와 silent fallback 부재
+- =f128= capability의 실제 형식 검증
+- binary256/binary512와 arbitrary precision 예산 적용
+- finance fixed/arbitrary decimal의 rounding과 quantize
+- hybrid primary/refinement backend 조합
+- minimal/compact에서 사용하지 않는 backend가 link되지 않음
+- 설정 fingerprint와 Windows/Linux/macOS round-trip
+- calculator-full conformance를 기준으로 다른 profile의 지원 subset 비교
+
+* 구현 범위 inventory
+
+- 설정 축과 stable id inventory
+- serialization 독립 schema와 resolved configuration 모델
+- TI-89 수준 함수 conformance 목록과 BYUL 결과 metadata 계약
+- =calculator-full= built-in profile과 capability manifest
+- dependency graph와 validation diagnostic
+- 설정 parser 또는 maintainer generator 형식 결정
+- simulation fast/precision/hybrid math profile
+- finance-standard와 finance-audit math profile
+- extended precision backend capability 연결
+- CAD와 aerospace domain template
+- caller 저장소와 독립적인 fingerprint API와 round-trip fixture
+
+* 완료 기준
+
+- =calculator-full= 이 첫 conformance workload와 기준 math profile로 동작한다.
+- TI-89 수준의 1차 함수 완료 범위와 결과 계약이 문서화된다.
+- GUI와 화면 interaction은 현재 구현 범위에서 제외된다.
+- TI 계산기의 명령·파일·화면 layout 호환성을 주장하거나 복제하지 않는다.
+- profile 선택만으로 일관된 기본 설정이 자동 적용된다.
+- Named profile/domain id가 algorithm branch 조건이 되지 않는다.
+- 사용자가 허용된 기능과 정책을 override할 수 있다.
+- 최종 설정의 의존성, capability와 충돌이 실행 전에 검증된다.
+- simulation, finance와 CAD math profile이 동일 resolver를 사용한다.
+- fast/precision/hybrid와 숫자 backend가 독립적으로 조합된다.
+- 확장 정밀 계산이 무제한을 주장하지 않고 명시적 자원 예산을 가진다.
+- 금융이 이진 정밀도와 별개의 decimal/quantize 계약을 가진다.
+- caller가 resolved configuration fingerprint로 worksheet, replay와 audit 계산을 재현할 수 있다.
+
+* 진행 조건
+
+첫 구현은 설정 id, 기본값, merge 순서, dependency validation과 =calculator-full=
+resolved configuration을 먼저 고정하고 함수와 test에서 사용한다. GUI, session과 저장
+규칙은 구현하지 않는다. Public header를 수정할 때는 BYUL header
+선언·comment·license 규칙을 먼저 읽고 따른다.
+
+* 실행 절차
+
+** TODO 1단계. Math Engine 소유 설정 축을 고정한다
+*** 실행
+
+numeric backend, precision, tolerance, execution preset, resource budget, deterministic,
+refinement와 순수 계산 capability를 stable id로 inventory한다. Collision 감시, world
+tick, entity·trajectory lifecycle, replay 저장과 UI 항목은 제외 목록으로 고정한다.
+
+*** 완료 조건
+
+각 id가 Math Engine 계산 결과에 직접 영향을 주며 Balix 운영 상태나 제품 feature가
+resolved configuration에 섞이지 않는다.
+
+*** 검증
+
+[[file:todo-math-computation-context.org][계산 context]]와 component TODO 전체를 대조하고
+소유 module·기본값·지원 backend·비지원 상태 표를 검토한다.
+
+** TODO 2단계. Serialization 독립 schema와 resolver를 설계한다
+*** 실행
+
+schema version, built-in math profile, override 허용 범위, merge 순서, dependency closure,
+capability manifest와 진단 구조를 정의한다. TOML은 입력 adapter 후보로만 둔다.
+
+*** 완료 조건
+
+동일 canonical 입력이 동일 resolved value와 fingerprint를 만들며 unsupported 조합과
+암묵적 정밀도 저하가 명시적 오류가 된다.
+
+*** 검증
+
+Golden configuration, merge permutation, unknown/deprecated field, future schema와
+cross-platform canonical serialization test를 설계한다.
+
+** TODO 3단계. Built-in math profile과 capability graph를 구현한다
+*** 실행
+
+=calculator-full=, simulation fast/precision/hybrid, finance, CAD와 extended precision
+profile을 dependency graph에 연결하고 실제 build/runtime capability와 대조한다.
+
+*** 완료 조건
+
+교차 query와 trajectory 분석 같은 계산 capability가 필요한 Math Engine module만
+활성화하며 collision monitoring이나 trajectory storage를 자동 활성화하지 않는다.
+
+*** 검증
+
+Profile별 golden manifest, 최소/compact link 구성, dependency 충돌, backend 누락과
+silent fallback 부재를 검사한다.
+
+** TODO 4단계. 독립 DLL 경계의 설정 ABI를 고정한다
+*** 실행
+
+Canonical =byul_math_*= prefix 아래 resolver 입력·결과·diagnostic·fingerprint query를
+caller-buffer 또는 opaque handle 계약으로 정의하고 allocator ownership을 명시한다.
+
+*** 완료 조건
+
+Math Engine DLL이 파일 경로, UI, replay 저장소와 Balix type을 참조하지 않으며 caller가
+resolved configuration을 보존하고 재사용할 수 있다.
+
+*** 검증
+
+C/C++ ABI, 생성 DLL에서 파괴, 동시 resolver 호출, 잘못된 size/version, standalone
+=find_package= consumer와 DLL load test를 수행한다.

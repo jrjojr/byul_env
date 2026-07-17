@@ -1,6 +1,7 @@
 # BYUL Wrapper 구조와 설계 원칙
 
-구체적인 자동 생성 규칙은 [`wrapper-rules.org`](wrapper-rules.org)에 정의합니다.
+구체적인 자동 생성 규칙은
+[`wrapper-rules.org`](../../../../../rules_env/byul/wrapper-rules.org)에 정의합니다.
 
 ## 목표
 
