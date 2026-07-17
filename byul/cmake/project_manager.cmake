@@ -415,12 +415,40 @@ endfunction()
 
 function(byul_add_help_target)
     set(BYUL_HELP_COMMANDS
-        COMMAND ${CMAKE_COMMAND} -E echo "BYUL build and distribution targets:"
+        COMMAND ${CMAKE_COMMAND} -E echo "BYUL CMake CLI help"
+        COMMAND ${CMAKE_COMMAND} -E echo ""
+        COMMAND ${CMAKE_COMMAND} -E echo "Preset discovery:"
+        COMMAND ${CMAKE_COMMAND} -E echo "  cmake --list-presets"
+        COMMAND ${CMAKE_COMMAND} -E echo "  cmake --build --list-presets"
+        COMMAND ${CMAKE_COMMAND} -E echo "  ctest --list-presets"
+        COMMAND ${CMAKE_COMMAND} -E echo ""
+        COMMAND ${CMAKE_COMMAND} -E echo "Configure and build (normal builds do not create ZIP files):"
+        COMMAND ${CMAKE_COMMAND} -E echo "  cmake --preset CONFIGURE_PRESET"
+        COMMAND ${CMAKE_COMMAND} -E echo "  cmake --build --preset BUILD_PRESET"
+        COMMAND ${CMAKE_COMMAND} -E echo "  cmake --build BUILD_DIR --target all --parallel"
+        COMMAND ${CMAKE_COMMAND} -E echo "  cmake --build BUILD_DIR --target ALL_BUILD --config Release --parallel"
+        COMMAND ${CMAKE_COMMAND} -E echo ""
+        COMMAND ${CMAKE_COMMAND} -E echo "Test (build all/ALL_BUILD first):"
+        COMMAND ${CMAKE_COMMAND} -E echo "  ctest --test-dir BUILD_DIR --output-on-failure"
+        COMMAND ${CMAKE_COMMAND} -E echo "  ctest --test-dir BUILD_DIR -C Release --output-on-failure"
+        COMMAND ${CMAKE_COMMAND} -E echo "  ctest --preset TEST_PRESET"
+        COMMAND ${CMAKE_COMMAND} -E echo ""
+        COMMAND ${CMAKE_COMMAND} -E echo "Core build and distribution targets:"
+        COMMAND ${CMAKE_COMMAND} -E echo "  byul            - build only the BYUL shared library"
+        COMMAND ${CMAKE_COMMAND} -E echo "  test_byul       - build the root integration test executable"
         COMMAND ${CMAKE_COMMAND} -E echo "  byul_sdk_build  - update SDK libraries and test executables"
         COMMAND ${CMAKE_COMMAND} -E echo "  byul_sdk_zip    - build, stage CMake install rules, and create byul-sdk-*.zip"
-        COMMAND ${CMAKE_COMMAND} -E echo "  byul_grid_build - build the standalone BYUL Grid directory with cx_Freeze"
-        COMMAND ${CMAKE_COMMAND} -E echo "  byul_grid_zip   - build and create the portable byul-grid-*.zip"
     )
+    if(TARGET byul_grid_zip)
+        list(APPEND BYUL_HELP_COMMANDS
+            COMMAND ${CMAKE_COMMAND} -E echo "  byul_grid_build - build the standalone BYUL Grid directory with cx_Freeze"
+            COMMAND ${CMAKE_COMMAND} -E echo "  byul_grid_zip   - build and create the portable byul-grid-*.zip"
+        )
+    else()
+        list(APPEND BYUL_HELP_COMMANDS
+            COMMAND ${CMAKE_COMMAND} -E echo "  byul_grid_zip   - unavailable while cross-compiling"
+        )
+    endif()
     if(TARGET gpu_comp_tester_zip)
         list(APPEND BYUL_HELP_COMMANDS
             COMMAND ${CMAKE_COMMAND} -E echo "  gpu_comp_tester       - build the GPU Compute Tester executable"
@@ -428,6 +456,10 @@ function(byul_add_help_target)
         )
     endif()
     list(APPEND BYUL_HELP_COMMANDS
+        COMMAND ${CMAKE_COMMAND} -E echo ""
+        COMMAND ${CMAKE_COMMAND} -E echo "Clean:"
+        COMMAND ${CMAKE_COMMAND} -E echo "  cmake --build BUILD_DIR --target clean --config Release"
+        COMMAND ${CMAKE_COMMAND} -E echo ""
         COMMAND ${CMAKE_COMMAND} -E echo "  uninstall  - remove files recorded by the last standard CMake install"
         COMMAND ${CMAKE_COMMAND} -E echo ""
         COMMAND ${CMAKE_COMMAND} -E echo "Standard local SDK install (does not create a ZIP):"
@@ -436,13 +468,22 @@ function(byul_add_help_target)
         COMMAND ${CMAKE_COMMAND} -E echo ""
         COMMAND ${CMAKE_COMMAND} -E echo "Distribution examples:"
         COMMAND ${CMAKE_COMMAND} -E echo "  cmake --build BUILD_DIR --target byul_sdk_zip --config Release"
-        COMMAND ${CMAKE_COMMAND} -E echo "  cmake --build BUILD_DIR --target byul_grid_zip --config Release"
     )
+    if(TARGET byul_grid_zip)
+        list(APPEND BYUL_HELP_COMMANDS
+            COMMAND ${CMAKE_COMMAND} -E echo "  cmake --build BUILD_DIR --target byul_grid_zip --config Release"
+        )
+    endif()
     if(TARGET gpu_comp_tester_zip)
         list(APPEND BYUL_HELP_COMMANDS
             COMMAND ${CMAKE_COMMAND} -E echo "  cmake --build BUILD_DIR --target gpu_comp_tester_zip --config Release"
         )
     endif()
+    list(APPEND BYUL_HELP_COMMANDS
+        COMMAND ${CMAKE_COMMAND} -E echo ""
+        COMMAND ${CMAKE_COMMAND} -E echo "Show this help:"
+        COMMAND ${CMAKE_COMMAND} -E echo "  cmake --build BUILD_DIR --target byul_help --config Release"
+    )
     add_custom_target(byul_help
         ${BYUL_HELP_COMMANDS}
         COMMENT "Show BYUL target help"

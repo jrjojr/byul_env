@@ -39,6 +39,9 @@ installs into a temporary package layout, and creates
 =gpu_comp_tester_zip= target creates
 =gpu-comp-tester-<version>-<platform>-<configuration>.zip= independently of the
 normal build.
+Normal =all=/=ALL_BUILD= and =build-*= presets do not create ZIP files. ZIP
+archives are created only when one of the package targets above is requested
+explicitly.
 
 * Ubuntu Requirements
 
@@ -112,9 +115,8 @@ cmake --preset linux-release
 cmake --build --preset build-linux-release
 #+end_src
 
-The build preset runs =byul_sdk_zip=. Outputs are written to the build
-directory's package layout and to
-=byul-sdk-<version>-<platform>-<toolchain>-<configuration>.zip=.
+The build preset runs the generator's default =all=/=ALL_BUILD= target. It
+updates libraries and test executables without creating a ZIP file.
 
 * Windows MinGW Cross Build From Ubuntu
 
@@ -207,7 +209,8 @@ outputs. Running =win-msvc-*= presets directly on Ubuntu is not a current goal.
 
 * Tests
 
-CMake test presets are currently empty, so run CTest directly.
+CTest does not build the project. Run the matching build preset or
+=all=/=ALL_BUILD= before invoking CTest.
 
 Linux Debug:
 
@@ -259,11 +262,21 @@ byul_sdk_zip         Update all, install the package layout, and create the BYUL
 byul_grid_zip        Create the portable BYUL Grid ZIP from the current shared library
 gpu_comp_tester_zip  Build GPU Compute Tester separately and create its portable ZIP
 uninstall           Remove files recorded by CMake installation
-byul_help           Print install and available distribution-target commands
+byul_help           Print configure/build/test/install/package CMake CLI help
 #+end_src
 
-Display target help:
+* CMake CLI Help
+
+List presets and display the BYUL-specific help with:
 
 #+begin_src bash
-cmake --build <build-directory> --target byul_help
+cmake --list-presets
+cmake --build --list-presets
+ctest --list-presets
+cmake --build <build-directory> --target byul_help --config Release
 #+end_src
+
+=byul_help= prints configure, normal build, test, install, clean, and
+SDK/Grid/GPU package commands. Use =--config= with multi-config generators such
+as Visual Studio; single-config generators use the build type selected at
+configure time.

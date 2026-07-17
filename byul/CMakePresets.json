@@ -84,76 +84,52 @@
         {
             "name": "build-linux-debug",
             "configurePreset": "linux-debug",
-            "description": "로컬 Ubuntu Debug 빌드",
-            "jobs": 8,
-            "targets": [
-                "byul_sdk_zip"
-            ]
+            "description": "로컬 Ubuntu Debug 전체 빌드",
+            "jobs": 8
         },
         {
             "name": "build-linux-release",
             "configurePreset": "linux-release",
-            "description": "로컬 Ubuntu Release 빌드",
-            "jobs": 8,
-            "targets": [
-                "byul_sdk_zip"
-            ]
+            "description": "로컬 Ubuntu Release 전체 빌드",
+            "jobs": 8
         },
         {
             "name": "build-win-release",
             "configurePreset": "win-release",
-            "description": "Windows용 DLL 빌드 preset",
-            "jobs": 8,
-            "targets": [
-                "byul_sdk_zip"
-            ]
+            "description": "Windows용 전체 빌드 preset",
+            "jobs": 8
         },
         {
             "name": "build-win_sdl_release",
             "configurePreset": "win_sdl_release",
-            "description": "Windows SDL 실행파일 빌드 (MinGW64)",
-            "jobs": 8,
-            "targets": [
-                "byul_sdk_zip"
-            ]
+            "description": "Windows SDL 전체 빌드 (MinGW64)",
+            "jobs": 8
         },
         {
             "name": "build-win-native",
             "configurePreset": "win-native",
-            "description": "Windows native 용 DLL 빌드 preset",
-            "jobs": 8,
-            "targets": [
-                "byul_sdk_zip"
-            ]
+            "description": "Windows native 전체 빌드 preset",
+            "jobs": 8
         },
         {
             "name": "build-win-native-debug",
             "configurePreset": "win-native-debug",
-            "description": "Windows native Debug 빌드 preset",
-            "jobs": 8,
-            "targets": [
-                "byul_sdk_zip"
-            ]
+            "description": "Windows native Debug 전체 빌드 preset",
+            "jobs": 8
         },
         {
             "name": "build-win-msvc-release",
             "configurePreset": "win-msvc",
-            "description": "Windows MSVC Release 빌드",
+            "description": "Windows MSVC Release 전체 빌드",
             "configuration": "Release",
-            "jobs": 8,
-            "targets": [
-                "byul_sdk_zip"
-            ]
+            "jobs": 8
         },
         {
             "name": "build-win-msvc-debug",
             "configurePreset": "win-msvc",
-            "description": "Windows MSVC Debug 빌드",
+            "description": "Windows MSVC Debug 전체 빌드",
             "configuration": "Debug",
-            "jobs": 8,
-            "targets": [
-                "byul_sdk_zip"
-            ]
+            "jobs": 8
         }
     ],
     "testPresets": [

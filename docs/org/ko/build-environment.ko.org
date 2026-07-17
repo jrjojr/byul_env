@@ -38,6 +38,8 @@ Grid는 별도 =byul_grid_zip= target으로
 =byul-grid-<version>-<platform>-<configuration>.zip=을 생성합니다.
 =gpu_comp_tester_zip= target으로 일반 빌드와 별도로
 =gpu-comp-tester-<version>-<platform>-<configuration>.zip=을 생성할 수 있습니다.
+일반 =all=/=ALL_BUILD=와 =build-*= preset은 ZIP을 만들지 않습니다. ZIP은 위 package
+target을 명시적으로 실행할 때만 생성됩니다.
 
 * Ubuntu 최소 요건
 
@@ -111,8 +113,8 @@ cmake --preset linux-release
 cmake --build --preset build-linux-release
 #+end_src
 
-빌드 preset은 =byul_sdk_zip=을 실행합니다. 결과물은 build directory의 package
-layout과 =byul-sdk-<version>-<platform>-<toolchain>-<configuration>.zip=에 생성됩니다.
+빌드 preset은 generator의 기본 =all=/=ALL_BUILD=를 실행합니다. Library와 테스트
+실행 파일만 갱신하며 ZIP은 생성하지 않습니다.
 
 * Ubuntu에서 Windows MinGW 크로스 빌드
 
@@ -206,7 +208,8 @@ Ubuntu에서 =win-msvc-*= preset을 직접 돌리는 것은 현재 목표가 아
 
 * 테스트 실행
 
-CMake test preset은 아직 비어 있으므로 CTest를 직접 실행합니다.
+CTest 자체는 build하지 않습니다. 먼저 해당 build preset 또는 =all=/=ALL_BUILD=를
+실행한 뒤 CTest를 실행합니다.
 
 Linux Debug:
 
@@ -257,11 +260,20 @@ byul_sdk_zip         all 갱신, package layout 설치, byul-sdk ZIP 생성
 byul_grid_zip        현재 byul shared library로 portable BYUL Grid ZIP 생성
 gpu_comp_tester_zip  GPU Compute Tester 별도 빌드 및 portable ZIP 생성
 uninstall           CMake가 기록한 설치 파일 제거
-byul_help           install과 사용 가능한 배포 target 명령 출력
+byul_help           configure/build/test/install/package CMake CLI 도움말 출력
 #+end_src
 
-도움말 실행:
+* CMake CLI 도움말
+
+Preset 목록과 BYUL 전용 도움말은 다음 명령으로 확인합니다.
 
 #+begin_src bash
-cmake --build <build-directory> --target byul_help
+cmake --list-presets
+cmake --build --list-presets
+ctest --list-presets
+cmake --build <build-directory> --target byul_help --config Release
 #+end_src
+
+=byul_help=는 configure, 일반 build, test, install, clean과 SDK/Grid/GPU package
+명령을 출력합니다. =--config=는 Visual Studio 같은 multi-config generator에서
+사용하고 single-config generator에서는 configure preset의 build type을 따릅니다.
