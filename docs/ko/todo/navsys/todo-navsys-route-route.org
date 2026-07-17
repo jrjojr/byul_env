@@ -42,6 +42,9 @@ status, allocator, ownership, two-call buffer, ABI/static/shared/wrapper gate는
 - 현재 test는 append/slice/direction의 일부 happy path만 다루고, OOM, NULL,
   invalid index, metadata 불변식, borrowed lifetime, reconstruction cycle과 wrapper leak을
   검증하지 않는다.
+- =route.cpp=는 degree 변환을 위해 Numal =scalar.h=의 =M_PI= macro를 사용한다. 이는
+  Route API가 Math Engine 계산을 요구하는 것이 아니므로 implementation-local C++17
+  수학 상수와 =<cmath>=로 교체한다.
 
 * 업계 기준과 직접 비교
 
@@ -371,6 +374,8 @@ coordinate axis와 cost unit은 public contract test로 고정한다.
 ** 실행
 
 - allocation 없는 vector/direction conversion과 const route index query를 구현한다.
+- =scalar.h/M_PI= 의존을 제거하고 degree/radian 변환은 implementation-local C++17
+  상수와 =<cmath>=만 사용한다. Math Engine unit API로 치환하지 않는다.
 - 8방향 enum 숫자는 유지하면서 zero vector, invalid enum, non-unit delta, coordinate axis,
   angle range와 rounding/tie 정책을 명시한다.
 - =avg_vec_x/y/vec_count=를 opaque tracker로 옮기고 pure query와 mutating observe/reset을
@@ -381,6 +386,7 @@ coordinate axis와 cost unit은 public contract test로 고정한다.
 - 조회 함수가 heap allocation이나 숨은 route mutation을 하지 않는다.
 - 동일 vector sequence에 대한 angle/change 결과가 native와 wrapper에서 결정적이다.
 - route value의 equality/hash/clone 결과가 heading observation history에 영향받지 않는다.
+- Route header/source와 target link graph에 Numal 또는 Math Engine dependency가 없다.
 
 ** 검증
 

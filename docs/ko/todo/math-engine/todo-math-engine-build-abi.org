@@ -1,6 +1,11 @@
 #+TITLE: Math Engine Static·Shared Build와 ABI 전환 TODO
 #+TODO: TODO DOING BLOCKED | DONE CANCELLED FAILED
 #+TODO_RULES: ../../../../external/rules/projects/byul/todo-rules.org
+#+PUBLIC_API_RULES: ../../../../external/rules/projects/byul/public-api-rules.org
+#+HEADER_DECLARATION_RULES: ../../../../external/rules/projects/byul/header-declaration-rules.org
+#+HEADER_AUTHORING_RULES: ../../../../external/rules/projects/byul/header-authoring-rules.org
+#+BUILD_RULES: ../../../../external/rules/projects/byul/build-rules.org
+#+TEST_RULES: ../../../../external/rules/projects/byul/test-rules.org
 #+TODO_PARENT: todo-math-engine.org
 #+AUTHOR: ByulPapa / Codex
 #+LANGUAGE: ko
@@ -10,6 +15,19 @@
 
 현재 root =byul= shared 하나와 module static target 구조에서 계산 source 소유권을
 먼저 분리하고, 이후 중앙 규칙 변경을 거쳐 하나의 독립 Math Engine DLL로 전환한다.
+
+* 설계 소유권 제한
+
+이 문서는 Math Engine root ABI foundation인 export/version/status/allocator header,
+전역 C symbol prefix와 public include namespace 관례, target/install/export graph를
+소유한다. Balix Math 추출 master와 세부 extraction TODO가 소유하는 component
+=successor_headers[]=, 공식·kernel과 component API를 이 문서에서 다시 설계하지 않는다.
+
+Source/header manifest는 전체 header 리팩터링과 Balix Math 추출 계획의 공동
+=asset_id/current_path/disposition/compatibility_path/successor_headers[]=
+=canonical_owner/design_todo/install_target/export_target=을 소비한다. Build 편의를 위해
+같은 source/header에 새 owner를 만들거나 하나의 Balix header를 하나의 Math Engine
+header rename으로 축약하지 않는다.
 
 * 현재 graph
 
@@ -99,7 +117,8 @@ source와 출력 mapping을 만든 뒤 DLL cutover 문서와 함께 재생성한
 
 Math Engine component source/header를 단일 manifest에 등록하고 component static target,
 root aggregation과 install이 그 manifest를 소비하게 한다. Balix의 Numal/collision
-source·header 확장을 제거한다.
+source·header 확장을 제거한다. Component header 이름과 API는 각 =design_todo=에서
+승인된 successor만 등록하고 이 단계에서 새 이름을 만들지 않는다.
 
 *** 완료 조건
 
@@ -114,8 +133,10 @@ CMake configure trace, compile commands, archive/object symbol과 install manife
 ** TODO 2. 독립 C ABI와 compatibility shim을 확정한다
 *** 실행
 
-독립 export/version/status/allocator header와 canonical prefix를 정의한다. 기존 API의
-forwarding, deprecation version과 ABI-major 제거 조건을 표로 만든다.
+독립 root export/version/status/allocator header와 전역 canonical prefix/include
+namespace 관례를 정의한다. Component successor header/API 이름은 extraction owner의
+승인 결과를 사용한다. 기존 API의 forwarding, deprecation version과 ABI-major 제거
+조건을 표로 만든다.
 
 *** 완료 조건
 

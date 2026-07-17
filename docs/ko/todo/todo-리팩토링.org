@@ -185,6 +185,9 @@ standalone C/C++ compile, 역할, 설치 inventory, 선언-구현 signature와 e
   number_theory internal/generated 2, RNG 6개다. 누락과 의도적 제외를 구분해야 한다.
 - root =byul.h= aggregate는 module inventory와 일치하지 않는다. 모든 module을 무조건
   include하지 말고 module-entry와 public aggregate 역할을 먼저 확정한다.
+- Navsys public/implementation header와 CMake가 legacy Numal =scalar.h=,
+  =scalar_equal=, =M_PI=와 =numal= target에 결합되어 있다. Navsys 리팩터링에서 이
+  dependency를 제거하며 새 Math Engine dependency로 치환하지 않는다.
 
 * 목표 Header 상태
 
@@ -195,6 +198,41 @@ public-foundation | public-module-entry | public-aggregate | public-component
 compatibility-forwarder | cpp-facade
 internal | generated | tool-only | reference | deprecated-reference
 #+end_src
+
+각 최초 header asset은 primary role, 현행 경로와 최종 disposition을 가진다. 단순
+rename이면 하나의 canonical 경로를 가질 수 있지만, Balix → Math Engine 추출처럼 책임을
+분리하는 작업은 기존 compatibility/adapter header와 0개 이상의 새 canonical successor
+header를 가질 수 있다. 최초 header와 successor header를 일대일 rename으로 가정하지 않는다.
+리팩터링 완료 시점에는 이름을 그대로 유지한 header도 명명 규칙에 맞는다는 판정 근거가
+있어야 하며, 이름이 규칙과 맞지 않는 header는 구현·include·install·wrapper·문서와 함께
+일관되게 전환한다.
+
+** Header 파일명 불변식
+
+- 대표 public type을 직접 제공하는 canonical header는 대표 type stem을 사용한다.
+- 대표 type이 없는 public-component는 중앙 header 규칙의
+  =<public_module>_<responsibility>.h= 형식을 사용한다.
+- Project명, 상위 분류 directory와 implementation directory chain을 basename에
+  기계적으로 이어 붙이지 않는다. Public module 경계는 role manifest에 명시한다.
+- SDK에 설치되는 모든 public header basename은 전역에서 유일해야 한다.
+- Internal/detail header는 SDK와 wrapper 입력에서 제외하고 소유 module 내부에서
+  responsibility가 드러나는 이름을 사용한다. 물리 directory 전체를 basename으로
+  복제하지 않는다.
+- Generated header는 산출물만 rename하지 않고 generator/template과 canonical output
+  path를 함께 변경한다.
+- Tool-only header는 해당 tool의 module 경계를 사용하며 BYUL SDK public module처럼
+  가장하지 않는다.
+- Compatibility-forwarder만 legacy basename을 예외로 유지할 수 있다. 이 경우
+  canonical target, deprecated 상태와 제거 예정 version을 manifest에 기록한다.
+- 하나의 기존 header가 여러 책임을 포함하면 =split= disposition을 사용하고
+  =compatibility_path=, =successor_headers[]=, 각 successor의 =canonical_owner=와
+  =design_todo=를 기록한다. 기존 header 자체의 이름과 새 header 이름을 하나의
+  =canonical_path= 값으로 덮어쓰지 않는다.
+
+모든 rename은 파일만 이동하는 작업이 아니다. =@file=, include guard, source/test include,
+module/root CMake inventory, install/package, aggregate header, wrapper manifest, 생성물과
+공개 문서를 같은 단계에서 갱신한다. Public header rename은 source compatibility,
+exported symbol rename은 ABI compatibility 변경으로 별도 판정한다.
 
 public C header의 완료 상태:
 
@@ -214,8 +252,12 @@ public C header의 완료 상태:
 ** 실행
 
 - Git HEAD, dirty diff, submodule SHA, compiler/CMake/Python 환경을 artifact로 기록한다.
-- 135개 header의 path, SHA-256, line count, language, license, guard, role 후보,
-  module inventory, root inventory, install, umbrella, wrapper와 source definition을 추출한다.
+- 135개 header의 =asset_id=, current path, SHA-256, line count, language, license, guard,
+  role 후보, current owner, public module 경계, responsibility, 대표 type,
+  disposition, compatibility path, =successor_headers[]=, successor별 canonical owner와
+  design TODO, 명명 예외, module/root/install/umbrella/wrapper/source definition을 추출한다.
+- SDK public basename 충돌, project/물리 directory chain 반복, 대표 type stem 불일치와
+  generic public-component basename을 별도 naming report로 생성한다.
 - 현재 DLL/SO export, public struct layout, enum numeric value, function signature와 legacy
   consumer compile fixture를 저장한다.
 - 기존 소비 이력을 확인하지 못한 header는 임의로 internal 처리하지 않고
@@ -225,6 +267,10 @@ public C header의 완료 상태:
 
 - 하나의 manifest에서 135개가 중복 없이 모두 나타나고 각 파일의 소비 경로와 근거를
   역추적할 수 있다.
+- 135개 모두가 =current_path=와 =naming_disposition=
+  (=keep/rename/forward/split/internalize/generated-regenerate/tool-move=)을 가진다.
+- =rename/forward=는 canonical 또는 compatibility target을, =split=은
+  =successor_headers[]=와 successor별 단일 owner를 가진다.
 - generated/install/export artifact를 fresh build에서 다시 만들 수 있다.
 - 현재 오류도 regression fixture로 보존하되 알려진 결함과 기대 동작을 구분한다.
 
@@ -239,6 +285,11 @@ public C header의 완료 상태:
 ** 실행
 
 - 하위 TODO의 모든 =decision-required=를 사용 이력과 build 근거로 판정한다.
+- 각 header의 public module 경계와 최종 naming disposition을 승인한다. 단순 rename은
+  canonical basename/path를, 책임 분리는 compatibility path와 =successor_headers[]=를
+  승인한다. 이름을 유지하는 경우도 중앙 명명 규칙과 일치하는 근거를 기록한다.
+- 규칙에 맞지 않는 기존 public header는 canonical header와 deprecated forwarding
+  header의 공존 기간 및 제거 version을 정한다.
 - 특히 RNG, aerial, 5개 BYUL =.hpp=, D* Lite diagnostic, generated prime table,
   unused compiler header와 미설치 entity header를 결정한다.
 - public에서 제외할 기존 설치 header는 즉시 삭제하지 않고 compatibility 기간,
@@ -249,6 +300,12 @@ public C header의 완료 상태:
 
 - 모든 header가 승인된 primary role, owner module, install 여부와 wrapper 처리
   (=generated/manual/excluded + reason=)를 가진다.
+- 모든 header가 승인된 naming disposition을 가지며, 적용되는 canonical path,
+  compatibility path 또는 successor 경로 중 미결정 값이 없다.
+- 모든 successor header는 canonical owner와 design TODO가 정확히 하나이며 기존 asset과
+  created asset 집합에서 중복 계산되지 않는다.
+- SDK public basename은 전역에서 유일하고 legacy 중복은 compatibility-forwarder로만
+  설명된다.
 - public surface 변경마다 source/ABI compatibility 판단과 deprecation 종료 조건이 있다.
 - module-entry, aggregate와 component include graph가 cycle 없이 확정된다.
 
@@ -263,6 +320,10 @@ public C header의 완료 상태:
 ** 실행
 
 - license, file Doxygen, guard, include 순서/direct include, C linkage와 =BYUL_API=를 검사한다.
+- 대표 type stem, =<public_module>_<responsibility>.h=, public module manifest mapping,
+  SDK basename 전역 고유성과 금지된 물리 경로 평탄화를 검사한다.
+- compatibility-forwarder의 canonical target, deprecation과 제거 version을 검사하고
+  generated header 이름은 generator manifest의 output path와 비교한다.
 - 모든 public C header를 C17과 C++17 translation unit에서 각각 단독 compile한다.
 - header declaration과 implementation signature, declared-but-undefined symbol,
   root export, role/install/wrapper manifest를 교차 검사한다.
@@ -273,6 +334,7 @@ public C header의 완료 상태:
 ** 완료 조건
 
 - 하위 작업이 같은 검사기를 사용하고 새 header가 자동으로 inventory에 들어간다.
+- 규칙에 맞지 않는 새 basename, module prefix와 미등록 rename은 CI에서 실패한다.
 - static test만 통과하거나 wrapper 일부만 등록된 상태를 success로 오판하지 않는다.
 - Windows, Linux와 macOS에 동일한 논리 gate와 플랫폼별 export 검사가 정의된다.
 
@@ -282,53 +344,89 @@ public C header의 완료 상태:
 - manifest에서 header 하나, export 하나, wrapper row 하나를 제거한 mutation test가
   해당 불일치를 탐지한다.
 
-* TODO 4단계: Foundation 계열 29개 실행
+* TODO 4단계: Navsys 43개 실행
+
+** 실행
+
+[[file:navsys/todo-리팩토링-navsys-headers.org][navsys header 하위 TODO]]를 순서대로
+실행한다. 사용하지 않는 =scalar.h= include, D* Lite의 =scalar_equal= 호출,
+=route.cpp=의 =M_PI= 의존과 Navsys CMake의 Numal include/link를 제거한다. 이를 새
+Math Engine 호출로 대체하지 않고 Navsys가 소유하는 비교 정책과 C++17 표준 수학으로
+닫는다.
+
+** 완료 조건
+
+- 43개 파일의 역할, ownership, callback, enum 지원과 compatibility 전환이 확정된다.
+- public C++ helper와 resource layout migration이 승인된 경계를 따르며 처리된다.
+- Navsys source/header/CMake/test/install/wrapper graph에 Numal 또는 Math Engine 직접
+  dependency가 없다.
+
+** 검증
+
+- navsys static test, root shared export, wrapper와 clean SDK consumer 결과를 첨부한다.
+- configure/link/include graph와 source scan으로 =scalar.h=, =scalar_equal=, Numal/Math
+  Engine target 의존이 0인지 확인한다.
+
+* TODO 5단계: Foundation 계열 29개와 Numal Math Engine 실행
 
 ** 실행
 
 [[file:todo-리팩토링-foundation-headers.org][foundation header 하위 TODO]]와 Numal의 canonical
 수학 계약을 소유하는
 [[file:math-engine/todo-numal-header-refactoring.org][Numal Public Header 세부 TODO]]를
-의존 순서대로 실행한다.
+의존 순서대로 실행한다. 이어서
+[[file:math-engine/todo-math-engine.org][Math Engine master]]의 TODO 1 책임/public manifest와
+TODO 2 neutral C ABI/static component를 실행한다. Balix 추출인 Math Engine TODO 3은
+다음 Simulation 단계에서만 실행한다. 완료된 Navsys가 Numal/Math Engine consumer로
+다시 연결되지 않게 dependency 금지 검사를 유지한다.
 
 ** 완료 조건
 
 - 해당 문서의 모든 단계가 =DONE= 또는 근거와 후속 금지를 가진 terminal 상태다.
 - root/config/core, numal, number theory, RNG, console, tick, aerial의 경계와 계약이
   root manifest에 합류한다.
+- Math Engine master TODO 1·2가 완료되고 TODO 3 Balix 추출은 아직 시작되지 않았다.
+- Numal/Math Engine 전환 뒤에도 Navsys target과 public header가 해당 module을
+  include/link하지 않는다.
 
 ** 검증
 
 - 하위 문서의 최종 module static/root shared/install/wrapper/consumer gate 결과를 첨부한다.
-
-* TODO 5단계: Navsys 43개 실행
-
-** 실행
-
-[[file:navsys/todo-리팩토링-navsys-headers.org][navsys header 하위 TODO]]를 순서대로 실행한다.
-
-** 완료 조건
-
-- 43개 파일의 역할, ownership, callback, enum 지원과 compatibility 전환이 확정된다.
-- public C++ helper와 resource layout migration이 승인된 경계를 따르며 처리된다.
-
-** 검증
-
-- navsys static test, root shared export, wrapper와 clean SDK consumer 결과를 첨부한다.
+- Math Engine/Numal build 뒤 Navsys static/root/install consumer와 dependency scan을
+  다시 실행한다.
 
 * TODO 6단계: Simulation 계열 32개 실행
+
+** Balix/Math Engine 공동 소유권 Gate
+
+Balix 관련 작업은 다음 소유권을 따른다.
+
+- Math Engine 추출 TODO만 수학 공식, kernel, neutral value/result와 새 canonical Math
+  Engine public API/header의 이름·내용·source를 설계한다.
+- Simulation header TODO는 기존 Balix header의 layout/export/install, DTO/lifecycle,
+  adapter와 legacy compatibility-forwarder를 소유한다.
+- 기존 Balix header 하나가 여러 Math Engine header로 분리될 수 있으므로
+  =current_path -> canonical_path= 일대일 mapping을 요구하지 않는다.
+- 동일 symbol, source 또는 새 header에 두 design owner를 허용하지 않는다. 다른 TODO는
+  canonical owner 문서를 link하고 같은 API를 다시 설계하지 않는다.
+
+실행 순서는 공동 inventory 동결 → symbol/header별 단일 owner 승인 → Math Engine
+successor API/header 승인 → Balix compatibility/adapter mapping 승인 → 구현·이동 →
+install/export/wrapper 통합이다. 앞 gate의 evidence 없이는 뒤 작업을 시작하지 않는다.
 
 ** 실행
 
 [[file:todo-리팩토링-simulation-headers.org][simulation header 하위 TODO]],
 [[file:math-engine/todo-balix-math-extraction.org][Balix 수학 추출 master]]와
 [[file:math-engine/todo-balix-math-engine-consumer.org][Balix Math Engine consumer TODO]]를
-의존 순서대로 실행한다.
+의존 순서대로 실행하고 Math Engine master TODO 3의 합류 gate를 닫는다.
 
 ** 완료 조건
 
 - balix, entity, projectile와 ground의 value/resource/callback 계약과 module 경계가
   구현 및 test와 일치한다.
+- 최초 Balix header와 새 Math Engine created header가 별도 asset으로 기록되고 각
+  symbol/source/header의 canonical owner가 정확히 하나다.
 - dependency가 Balix → Math Engine 단방향이고 math source/symbol 중복 compile·export가
   없다. Collision 감시/event는 Balix, 순수 교차 좌표·TOI query는 Math Engine에 남는다.
 
@@ -383,19 +481,24 @@ public C header의 완료 상태:
 - Linux ASan/LSan 및 가능한 플랫폼 sanitizer를 실행한다.
 - wrapper =--audit --all-headers --verbose=, =--check=, unit/native-library test를 실행한다.
 - C17/C++17 standalone header compile와 clean SDK external consumer를 실행한다.
+- 최종 install과 두 DLL profile에서도 Navsys header/target이 Numal 또는 Math Engine을
+  include/link하지 않는지 검사한다.
 
 * TODO 9단계: 공개 문서와 종료 감사
 
 ** 실행
 
 - header role, ownership, error, thread, ABI/version과 deprecation 정책을 SDK 문서에 반영한다.
-- 공개 include path 또는 symbol 변화는 migration guide와 release-note 후보를 작성한다.
+- 모든 변경된 include path와 symbol에 대해 old → canonical mapping을 migration guide와
+  release-note 후보에 기록한다.
 - superseded header/TODO는 소비자가 전환되고 compatibility gate가 끝난 뒤에만 archive한다.
 - 1단계 기준선과 최종 상태의 차이를 signed-off report로 남긴다.
 
 ** 완료 조건
 
 - 135개 최초 inventory가 최종 manifest의 유지/이동/생성/제외 기록으로 모두 닫힌다.
+- 135개 최초 asset의 naming disposition과 모든 created successor asset이 terminal
+  상태이며, compatibility-forwarder 이외의 비준수 legacy basename이 남아 있지 않다.
 - 자동 감사 오류가 0이며 waiver가 있다면 owner, 이유와 만료 조건이 명시된다.
 - 문서 예제와 배포 SDK가 동일 revision의 public surface를 사용한다.
 

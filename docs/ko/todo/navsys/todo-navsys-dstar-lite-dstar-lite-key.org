@@ -39,6 +39,8 @@ Python hash 계약을 동시에 위반한다.
 * 현행 구현 근거
 
 - =equal=은 scalar tolerance 비교다.
+- 구현은 Numal =scalar.h=의 =scalar_equal=을 호출한다. 이 결합은 D* Lite key의
+  동치관계를 외부 범용 tolerance 정책에 맡기는 구조이므로 제거한다.
 - =compare=는 먼저 approximate equal이면 0을 반환하고, 아니면 exact
   lexicographic을 사용한다. A≈B, B≈C, A!≈C가 가능하다.
 - =hash=는 exact float bit 조합이므로 approximate-equal key가 다른 hash를 가질 수
@@ -141,11 +143,14 @@ status+out_compare 대안을 최종 API review에서 결정한다.
 
 - init, exact equality/compare/hash와 metadata query를 구현한다.
 - 모든 create/copy의 exception-to-status 경계를 추가한다.
+- =scalar.h/scalar_equal=을 제거하고 exact key equality/order/hash를 Navsys 구현으로
+  완결한다. 진단용 =is_close=가 필요하면 명시적인 Navsys tolerance parameter를 받는다.
 
 *** 완료 조건
 
 - compare-equivalent ⇔ exact-equal이고 exact-equal ⇒ same-hash다.
 - invalid key/OOM에서 output이 보존된다.
+- Key header/source와 target link graph에 Numal 또는 Math Engine dependency가 없다.
 
 *** 검증
 
