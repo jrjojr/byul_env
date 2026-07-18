@@ -69,6 +69,54 @@ typedef enum e_route_finder_type{
     ROUTE_FINDER_MCTS                     // 2006
 } route_finder_type_t;
 
+/**
+ * @brief Fringe Search algorithm configuration.
+ *
+ * @byul.storage basic-value
+ * @byul.zero_valid false
+ * @byul.copy_semantics trivial-copy
+ * @byul.thread_safety thread-compatible
+ */
+typedef struct s_route_finder_fringe_search_config {
+    float delta_epsilon; /**< Accepted range: [0.001, 5.0]. */
+} route_finder_fringe_search_config_t;
+
+/**
+ * @brief Real-Time A* algorithm configuration.
+ *
+ * @byul.storage basic-value
+ * @byul.zero_valid false
+ * @byul.copy_semantics trivial-copy
+ * @byul.thread_safety thread-compatible
+ */
+typedef struct s_route_finder_rta_star_config {
+    int depth_limit; /**< Accepted range: [1, 100]. */
+} route_finder_rta_star_config_t;
+
+/**
+ * @brief Simplified Memory-Bounded A* algorithm configuration.
+ *
+ * @byul.storage basic-value
+ * @byul.zero_valid false
+ * @byul.copy_semantics trivial-copy
+ * @byul.thread_safety thread-compatible
+ */
+typedef struct s_route_finder_sma_star_config {
+    int memory_limit; /**< Accepted range: [10, 1000000]. */
+} route_finder_sma_star_config_t;
+
+/**
+ * @brief Weighted A* algorithm configuration.
+ *
+ * @byul.storage basic-value
+ * @byul.zero_valid false
+ * @byul.copy_semantics trivial-copy
+ * @byul.thread_safety thread-compatible
+ */
+typedef struct s_route_finder_weighted_astar_config {
+    float weight; /**< Accepted range: [0.1, 10.0]. */
+} route_finder_weighted_astar_config_t;
+
 BYUL_API const char* get_route_finder_name(route_finder_type_t pa);
 
 /**
@@ -187,6 +235,102 @@ BYUL_API void route_finder_set_typedata(
     route_finder_t* a, void* typedata);
 
 BYUL_API void* route_finder_get_typedata(const route_finder_t* a);    
+
+/**
+ * @brief Binds a retained Fringe Search configuration and selects that algorithm.
+ * @param[in,out] finder Route finder to update.
+ * @param[in] config Caller-owned configuration retained by the finder.
+ * @return Common Navsys status value.
+ * @retval NAVSYS_STATUS_OK The configuration was bound.
+ * @retval NAVSYS_STATUS_INVALID_ARGUMENT An argument or value is invalid.
+ * @retval NAVSYS_STATUS_IN_PROGRESS A callback on the same finder is active.
+ * @byul.nullable finder false
+ * @byul.nullable config false
+ * @byul.lifetime config until-unbind
+ * @byul.side_effect mutates:finder
+ * @byul.thread_safety externally-synchronized
+ * @byul.blocking false
+ * @byul.reentrant false
+ */
+BYUL_API navsys_status_t route_finder_bind_fringe_search_config(
+    route_finder_t* finder,
+    const route_finder_fringe_search_config_t* config);
+
+/**
+ * @brief Binds a retained Real-Time A* configuration and selects that algorithm.
+ * @param[in,out] finder Route finder to update.
+ * @param[in] config Caller-owned configuration retained by the finder.
+ * @return Common Navsys status value.
+ * @retval NAVSYS_STATUS_OK The configuration was bound.
+ * @retval NAVSYS_STATUS_INVALID_ARGUMENT An argument or value is invalid.
+ * @retval NAVSYS_STATUS_IN_PROGRESS A callback on the same finder is active.
+ * @byul.nullable finder false
+ * @byul.nullable config false
+ * @byul.lifetime config until-unbind
+ * @byul.side_effect mutates:finder
+ * @byul.thread_safety externally-synchronized
+ * @byul.blocking false
+ * @byul.reentrant false
+ */
+BYUL_API navsys_status_t route_finder_bind_rta_star_config(
+    route_finder_t* finder,
+    const route_finder_rta_star_config_t* config);
+
+/**
+ * @brief Binds a retained SMA* configuration and selects that algorithm.
+ * @param[in,out] finder Route finder to update.
+ * @param[in] config Caller-owned configuration retained by the finder.
+ * @return Common Navsys status value.
+ * @retval NAVSYS_STATUS_OK The configuration was bound.
+ * @retval NAVSYS_STATUS_INVALID_ARGUMENT An argument or value is invalid.
+ * @retval NAVSYS_STATUS_IN_PROGRESS A callback on the same finder is active.
+ * @byul.nullable finder false
+ * @byul.nullable config false
+ * @byul.lifetime config until-unbind
+ * @byul.side_effect mutates:finder
+ * @byul.thread_safety externally-synchronized
+ * @byul.blocking false
+ * @byul.reentrant false
+ */
+BYUL_API navsys_status_t route_finder_bind_sma_star_config(
+    route_finder_t* finder,
+    const route_finder_sma_star_config_t* config);
+
+/**
+ * @brief Binds a retained Weighted A* configuration and selects that algorithm.
+ * @param[in,out] finder Route finder to update.
+ * @param[in] config Caller-owned configuration retained by the finder.
+ * @return Common Navsys status value.
+ * @retval NAVSYS_STATUS_OK The configuration was bound.
+ * @retval NAVSYS_STATUS_INVALID_ARGUMENT An argument or value is invalid.
+ * @retval NAVSYS_STATUS_IN_PROGRESS A callback on the same finder is active.
+ * @byul.nullable finder false
+ * @byul.nullable config false
+ * @byul.lifetime config until-unbind
+ * @byul.side_effect mutates:finder
+ * @byul.thread_safety externally-synchronized
+ * @byul.blocking false
+ * @byul.reentrant false
+ */
+BYUL_API navsys_status_t route_finder_bind_weighted_astar_config(
+    route_finder_t* finder,
+    const route_finder_weighted_astar_config_t* config);
+
+/**
+ * @brief Clears the retained algorithm configuration without changing the type.
+ * @param[in,out] finder Route finder to update.
+ * @return Common Navsys status value.
+ * @retval NAVSYS_STATUS_OK The retained configuration was cleared.
+ * @retval NAVSYS_STATUS_INVALID_ARGUMENT finder is NULL.
+ * @retval NAVSYS_STATUS_IN_PROGRESS A callback on the same finder is active.
+ * @byul.nullable finder false
+ * @byul.side_effect mutates:finder
+ * @byul.thread_safety externally-synchronized
+ * @byul.blocking false
+ * @byul.reentrant false
+ */
+BYUL_API navsys_status_t route_finder_unbind_algorithm_config(
+    route_finder_t* finder);
 
 BYUL_API void route_finder_set_max_retry(route_finder_t* a, int max_retry);
 BYUL_API int route_finder_get_max_retry(route_finder_t* a);

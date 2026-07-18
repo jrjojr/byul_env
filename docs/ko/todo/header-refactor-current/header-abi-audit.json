@@ -3,11 +3,11 @@
   "summary": {
     "manifest_headers": 138,
     "public_c_headers": 95,
-    "public_declarations": 954,
+    "public_declarations": 959,
     "abi_fingerprint_sha256": "a9e9596779c5dcc3ead4f3cae5fad09d81787fd48c0dceb59cddbe1f9d4ea56f",
     "invariant_errors": 0,
     "approved_invariant_exclusions": 15,
-    "metadata_debt": 2771,
+    "metadata_debt": 2770,
     "structural_debt": 283,
     "new_or_strict_debt": 0,
     "errors": 0,
@@ -9827,11 +9827,6 @@
       "code": "metadata:missing-return-lifetime",
       "subject": "byul/navsys/route_finder/ida_star.h:find_ida_star",
       "message": "pointer return has no @byul.lifetime return"
-    },
-    {
-      "code": "metadata:missing-doxygen",
-      "subject": "byul/navsys/route_finder/route_finder.h:get_route_finder_name",
-      "message": "public function has no adjacent Doxygen block"
     },
     {
       "code": "metadata:missing-param-direction",

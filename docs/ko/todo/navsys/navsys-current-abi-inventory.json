@@ -4,26 +4,26 @@
   "source_vocabulary": "docs/ko/todo/navsys/navsys-abi-vocabulary.json",
   "summary": {
     "headers": 46,
-    "symbols": 440,
+    "symbols": 444,
     "return_forms": {
-      "nullable_pointer": 149,
+      "nullable_pointer": 148,
       "bool_predicate": 21,
       "bool_operation": 19,
       "int_zero_nonzero_status": 40,
       "int_count": 14,
       "int_index_minus_one": 4,
       "void_fallible_operation": 136,
-      "enum_result": 38,
+      "enum_result": 43,
       "floating_result": 19,
       "callback_return": 0
     },
     "unclassified": 0,
     "duplicate_declarations": 1,
-    "audit_issues": 947,
-    "audit_errors": 947,
+    "audit_issues": 946,
+    "audit_errors": 946,
     "audit_codes": {
       "missing-brief": 17,
-      "missing-doxygen": 306,
+      "missing-doxygen": 305,
       "missing-nullable": 164,
       "missing-param": 86,
       "missing-param-direction": 205,
@@ -7395,15 +7395,6 @@
         "header": "byul/navsys/route_finder/route_finder.h",
         "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-finder-route-finder.org",
         "severity": "error",
-        "code": "missing-doxygen",
-        "symbol": "get_route_finder_name",
-        "message": "public function has no adjacent Doxygen block",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/route_finder/route_finder.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-finder-route-finder.org",
-        "severity": "error",
         "code": "missing-param-direction",
         "symbol": "route_finder_create",
         "message": "parameter 'navgrid' has no direction",
@@ -9368,10 +9359,9 @@
       "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-finder-route-finder.org",
       "primary_role": "public-module-entry",
       "wrapper_mode": "generated",
-      "symbol_count": 40,
-      "audit_issue_count": 47,
+      "symbol_count": 44,
+      "audit_issue_count": 46,
       "symbols": [
-        "get_route_finder_name",
         "route_finder_is_supported",
         "route_finder_create",
         "route_finder_create_full",
@@ -9390,6 +9380,11 @@
         "route_finder_get_type",
         "route_finder_set_typedata",
         "route_finder_get_typedata",
+        "route_finder_bind_fringe_search_config",
+        "route_finder_bind_rta_star_config",
+        "route_finder_bind_sma_star_config",
+        "route_finder_bind_weighted_astar_config",
+        "route_finder_unbind_algorithm_config",
         "route_finder_set_max_retry",
         "route_finder_get_max_retry",
         "route_finder_enable_debug_mode",
@@ -12167,13 +12162,6 @@
     },
     {
       "header": "byul/navsys/route_finder/route_finder.h",
-      "name": "get_route_finder_name",
-      "return_type": "const char*",
-      "return_form": "nullable_pointer",
-      "canonical": "status return plus typed out pointer"
-    },
-    {
-      "header": "byul/navsys/route_finder/route_finder.h",
       "name": "route_finder_is_supported",
       "return_type": "bool",
       "return_form": "bool_predicate",
@@ -12297,6 +12285,41 @@
       "return_type": "void*",
       "return_form": "nullable_pointer",
       "canonical": "status return plus typed out pointer"
+    },
+    {
+      "header": "byul/navsys/route_finder/route_finder.h",
+      "name": "route_finder_bind_fringe_search_config",
+      "return_type": "navsys_status_t",
+      "return_form": "enum_result",
+      "canonical": "navsys_status_t plus typed out enum"
+    },
+    {
+      "header": "byul/navsys/route_finder/route_finder.h",
+      "name": "route_finder_bind_rta_star_config",
+      "return_type": "navsys_status_t",
+      "return_form": "enum_result",
+      "canonical": "navsys_status_t plus typed out enum"
+    },
+    {
+      "header": "byul/navsys/route_finder/route_finder.h",
+      "name": "route_finder_bind_sma_star_config",
+      "return_type": "navsys_status_t",
+      "return_form": "enum_result",
+      "canonical": "navsys_status_t plus typed out enum"
+    },
+    {
+      "header": "byul/navsys/route_finder/route_finder.h",
+      "name": "route_finder_bind_weighted_astar_config",
+      "return_type": "navsys_status_t",
+      "return_form": "enum_result",
+      "canonical": "navsys_status_t plus typed out enum"
+    },
+    {
+      "header": "byul/navsys/route_finder/route_finder.h",
+      "name": "route_finder_unbind_algorithm_config",
+      "return_type": "navsys_status_t",
+      "return_form": "enum_result",
+      "canonical": "navsys_status_t plus typed out enum"
     },
     {
       "header": "byul/navsys/route_finder/route_finder.h",

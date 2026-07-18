@@ -30,7 +30,49 @@
       ],
       "result": "no-exception-escape-and-no-owned-allocation-leak"
     },
-    "callback_failure": "legacy-signatures-have-no-common-failure-channel"
+    "callback_failure": "legacy-signatures-have-no-common-failure-channel",
+    "algorithm_config_binding": {
+      "ownership": "caller-owned-borrowed-by-BYUL",
+      "lifetime": "caller-keeps-alive-until-rebind-unbind-or-owner-destroy",
+      "binding_commit": "type-and-config-pointer-change-together-or-remain-unchanged",
+      "unbind_result": "clear-config-pointer-and-preserve-selected-type",
+      "legacy_typedata": "preserved-for-abi-1-source-and-binary-compatibility",
+      "configs": [
+        {
+          "type": "ROUTE_FINDER_FRINGE_SEARCH",
+          "config": "route_finder_fringe_search_config_t",
+          "field": "delta_epsilon",
+          "minimum": 0.001,
+          "maximum": 5.0,
+          "bind_symbol": "route_finder_bind_fringe_search_config"
+        },
+        {
+          "type": "ROUTE_FINDER_RTA_STAR",
+          "config": "route_finder_rta_star_config_t",
+          "field": "depth_limit",
+          "minimum": 1,
+          "maximum": 100,
+          "bind_symbol": "route_finder_bind_rta_star_config"
+        },
+        {
+          "type": "ROUTE_FINDER_SMA_STAR",
+          "config": "route_finder_sma_star_config_t",
+          "field": "memory_limit",
+          "minimum": 10,
+          "maximum": 1000000,
+          "bind_symbol": "route_finder_bind_sma_star_config"
+        },
+        {
+          "type": "ROUTE_FINDER_WEIGHTED_ASTAR",
+          "config": "route_finder_weighted_astar_config_t",
+          "field": "weight",
+          "minimum": 0.1,
+          "maximum": 10.0,
+          "bind_symbol": "route_finder_bind_weighted_astar_config"
+        }
+      ],
+      "unbind_symbol": "route_finder_unbind_algorithm_config"
+    }
   },
   "abi_2_policy": {
     "opaque_struct_candidates": [

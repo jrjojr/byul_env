@@ -146,6 +146,10 @@ int main(void) {
     }
 
     int callback_identity = 7;
+    route_finder_fringe_search_config_t fringe = {0.5f};
+    route_finder_rta_star_config_t rta = {7};
+    route_finder_sma_star_config_t sma = {64};
+    route_finder_weighted_astar_config_t weighted = {2.0f};
     navgrid_t* navgrid = navgrid_create();
     route_finder_t* finder = route_finder_create(navgrid);
     dstar_lite_t* dsl = dstar_lite_create(navgrid);
@@ -156,6 +160,18 @@ int main(void) {
             finder, sdk_cost, &callback_identity) != NAVSYS_STATUS_OK
         || route_finder_bind_heuristic_func(
             finder, sdk_heuristic, &callback_identity) != NAVSYS_STATUS_OK
+        || route_finder_bind_fringe_search_config(
+            finder, &fringe) != NAVSYS_STATUS_OK
+        || route_finder_bind_rta_star_config(
+            finder, &rta) != NAVSYS_STATUS_OK
+        || route_finder_bind_sma_star_config(
+            finder, &sma) != NAVSYS_STATUS_OK
+        || route_finder_bind_weighted_astar_config(
+            finder, &weighted) != NAVSYS_STATUS_OK
+        || route_finder_get_type(finder) != ROUTE_FINDER_WEIGHTED_ASTAR
+        || route_finder_get_typedata(finder) != &weighted
+        || route_finder_unbind_algorithm_config(finder) != NAVSYS_STATUS_OK
+        || route_finder_get_typedata(finder) != NULL
         || dstar_lite_bind_cost_func(
             dsl, sdk_cost, &callback_identity) != NAVSYS_STATUS_OK
         || dstar_lite_bind_heuristic_func(

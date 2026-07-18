@@ -33,6 +33,54 @@ class TestRouteFinder(unittest.TestCase):
             c_route_finder.is_supported(RouteFinderType.BELLMAN_FORD)
         )
 
+    def test_typed_algorithm_configs(self):
+        bindings = [
+            (
+                self.route_finder.bind_fringe_search_config,
+                0.5,
+                RouteFinderType.FRINGE_SEARCH,
+            ),
+            (
+                self.route_finder.bind_rta_star_config,
+                7,
+                RouteFinderType.RTA_STAR,
+            ),
+            (
+                self.route_finder.bind_sma_star_config,
+                64,
+                RouteFinderType.SMA_STAR,
+            ),
+            (
+                self.route_finder.bind_weighted_astar_config,
+                2.0,
+                RouteFinderType.WEIGHTED_ASTAR,
+            ),
+        ]
+
+        for bind, value, expected_type in bindings:
+            bind(value)
+            self.assertEqual(expected_type, self.route_finder.get_type())
+            self.assertIsNotNone(self.route_finder._algorithm_config)
+
+        with self.assertRaises(ValueError):
+            self.route_finder.bind_weighted_astar_config(10.1)
+        with self.assertRaises(ValueError):
+            self.route_finder.bind_fringe_search_config(float("nan"))
+        with self.assertRaises(ValueError):
+            self.route_finder.bind_weighted_astar_config(float("inf"))
+        self.assertEqual(
+            RouteFinderType.WEIGHTED_ASTAR,
+            self.route_finder.get_type(),
+        )
+        self.assertIsNotNone(self.route_finder._algorithm_config)
+
+        self.route_finder.unbind_algorithm_config()
+        self.assertEqual(
+            RouteFinderType.WEIGHTED_ASTAR,
+            self.route_finder.get_type(),
+        )
+        self.assertIsNone(self.route_finder._algorithm_config)
+
     def test_find_default(self):
         print("test_find_default")
         route = self.route_finder.find()

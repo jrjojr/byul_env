@@ -10,6 +10,7 @@
 
 #include <algorithm>
 #include <iostream>
+#include <limits>
 
 TEST_CASE("route finder capability query matches the dispatcher") {
     const route_finder_type_t supported[] = {
@@ -40,6 +41,65 @@ TEST_CASE("route finder capability query matches the dispatcher") {
         static_cast<route_finder_type_t>(-1)));
     CHECK_FALSE(route_finder_is_supported(
         static_cast<route_finder_type_t>(ROUTE_FINDER_MCTS + 1)));
+}
+
+TEST_CASE("typed algorithm configs bind atomically and unbind safely") {
+    navgrid_t* navgrid = navgrid_create();
+    REQUIRE(navgrid != nullptr);
+    route_finder_t* finder = route_finder_create(navgrid);
+    REQUIRE(finder != nullptr);
+
+    route_finder_fringe_search_config_t fringe = {0.5f};
+    route_finder_rta_star_config_t rta = {7};
+    route_finder_sma_star_config_t sma = {64};
+    route_finder_weighted_astar_config_t weighted = {2.0f};
+
+    CHECK(route_finder_bind_fringe_search_config(finder, &fringe)
+        == NAVSYS_STATUS_OK);
+    CHECK(route_finder_get_type(finder) == ROUTE_FINDER_FRINGE_SEARCH);
+    CHECK(route_finder_get_typedata(finder) == &fringe);
+
+    CHECK(route_finder_bind_rta_star_config(finder, &rta)
+        == NAVSYS_STATUS_OK);
+    CHECK(route_finder_get_type(finder) == ROUTE_FINDER_RTA_STAR);
+    CHECK(route_finder_get_typedata(finder) == &rta);
+
+    CHECK(route_finder_bind_sma_star_config(finder, &sma)
+        == NAVSYS_STATUS_OK);
+    CHECK(route_finder_get_type(finder) == ROUTE_FINDER_SMA_STAR);
+    CHECK(route_finder_get_typedata(finder) == &sma);
+
+    CHECK(route_finder_bind_weighted_astar_config(finder, &weighted)
+        == NAVSYS_STATUS_OK);
+    CHECK(route_finder_get_type(finder) == ROUTE_FINDER_WEIGHTED_ASTAR);
+    CHECK(route_finder_get_typedata(finder) == &weighted);
+
+    route_finder_weighted_astar_config_t invalid = {10.1f};
+    route_finder_fringe_search_config_t nan_fringe = {
+        std::numeric_limits<float>::quiet_NaN()
+    };
+    route_finder_weighted_astar_config_t infinite_weight = {
+        std::numeric_limits<float>::infinity()
+    };
+    CHECK(route_finder_bind_weighted_astar_config(finder, &invalid)
+        == NAVSYS_STATUS_INVALID_ARGUMENT);
+    CHECK(route_finder_bind_fringe_search_config(finder, &nan_fringe)
+        == NAVSYS_STATUS_INVALID_ARGUMENT);
+    CHECK(route_finder_bind_weighted_astar_config(finder, &infinite_weight)
+        == NAVSYS_STATUS_INVALID_ARGUMENT);
+    CHECK(route_finder_bind_rta_star_config(finder, nullptr)
+        == NAVSYS_STATUS_INVALID_ARGUMENT);
+    CHECK(route_finder_get_type(finder) == ROUTE_FINDER_WEIGHTED_ASTAR);
+    CHECK(route_finder_get_typedata(finder) == &weighted);
+
+    CHECK(route_finder_unbind_algorithm_config(finder) == NAVSYS_STATUS_OK);
+    CHECK(route_finder_get_type(finder) == ROUTE_FINDER_WEIGHTED_ASTAR);
+    CHECK(route_finder_get_typedata(finder) == nullptr);
+    CHECK(route_finder_unbind_algorithm_config(nullptr)
+        == NAVSYS_STATUS_INVALID_ARGUMENT);
+
+    route_finder_destroy(finder);
+    navgrid_destroy(navgrid);
 }
 
 TEST_CASE("default: route finder") {

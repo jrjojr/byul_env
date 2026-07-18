@@ -302,6 +302,38 @@ class NavsysLifecyclePolicyTest(unittest.TestCase):
             self.route_finder_wrapper,
         )
 
+    def test_typed_route_finder_configs_reach_all_consumers(self):
+        binding = self.policy["abi_1_policy"]["algorithm_config_binding"]
+        exported_symbols = {
+            symbol
+            for header in self.inventory["headers"]
+            for symbol in header["symbols"]
+        }
+
+        self.assertEqual(
+            "type-and-config-pointer-change-together-or-remain-unchanged",
+            binding["binding_commit"],
+        )
+        self.assertEqual(
+            "clear-config-pointer-and-preserve-selected-type",
+            binding["unbind_result"],
+        )
+        self.assertEqual(4, len(binding["configs"]))
+        for config in binding["configs"]:
+            with self.subTest(config=config["config"]):
+                self.assertIn(config["bind_symbol"], exported_symbols)
+                self.assertIn(config["bind_symbol"], self.sdk_consumer)
+                self.assertIn(config["bind_symbol"], self.route_finder_wrapper)
+                self.assertIn(config["config"], self.route_finder_wrapper)
+
+        self.assertIn(binding["unbind_symbol"], exported_symbols)
+        self.assertIn(binding["unbind_symbol"], self.sdk_consumer)
+        self.assertIn(binding["unbind_symbol"], self.route_finder_wrapper)
+        self.assertIn(
+            "self._algorithm_config = config",
+            self.route_finder_wrapper,
+        )
+
 
 if __name__ == "__main__":
     unittest.main()

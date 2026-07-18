@@ -68,6 +68,22 @@ typedef enum e_route_finder_type{
     ROUTE_FINDER_MCTS
 } route_finder_type_t;
 
+typedef struct s_route_finder_fringe_search_config {
+    float delta_epsilon;
+} route_finder_fringe_search_config_t;
+
+typedef struct s_route_finder_rta_star_config {
+    int depth_limit;
+} route_finder_rta_star_config_t;
+
+typedef struct s_route_finder_sma_star_config {
+    int memory_limit;
+} route_finder_sma_star_config_t;
+
+typedef struct s_route_finder_weighted_astar_config {
+    float weight;
+} route_finder_weighted_astar_config_t;
+
  const char* get_route_finder_name(route_finder_type_t pa);
 
  bool route_finder_is_supported(route_finder_type_t type);
@@ -152,6 +168,25 @@ typedef struct s_route_finder {
     route_finder_t* a, void* typedata);
 
  void* route_finder_get_typedata(const route_finder_t* a);
+
+ navsys_status_t route_finder_bind_fringe_search_config(
+    route_finder_t* finder,
+    const route_finder_fringe_search_config_t* config);
+
+ navsys_status_t route_finder_bind_rta_star_config(
+    route_finder_t* finder,
+    const route_finder_rta_star_config_t* config);
+
+ navsys_status_t route_finder_bind_sma_star_config(
+    route_finder_t* finder,
+    const route_finder_sma_star_config_t* config);
+
+ navsys_status_t route_finder_bind_weighted_astar_config(
+    route_finder_t* finder,
+    const route_finder_weighted_astar_config_t* config);
+
+ navsys_status_t route_finder_unbind_algorithm_config(
+    route_finder_t* finder);
 
  void route_finder_set_max_retry(route_finder_t* a, int max_retry);
  int route_finder_get_max_retry(route_finder_t* a);
@@ -394,6 +429,11 @@ class c_route_finder:
                  debug=False,
                  raw_ptr=None, own=False):
 
+        self._algorithm_config = None
+        self._typedata_handle = (
+            None if typedata is None else ffi.new_handle(typedata)
+        )
+
         if raw_ptr:
             self._c = raw_ptr
             self._own = own
@@ -416,7 +456,8 @@ class c_route_finder:
                 start.ptr(),
                 goal.ptr(),
                 type,
-                ffi.NULL if typedata is None else ffi.new_handle(typedata),
+                ffi.NULL if self._typedata_handle is None
+                else self._typedata_handle,
                 max_retry,
                 debug,
                 cost_fn,
@@ -452,6 +493,54 @@ class c_route_finder:
 
     def get_type(self):
         return RouteFinderType(C.route_finder_get_type(self._c))
+
+    def _bind_algorithm_config(self, c_type, field, value, bind):
+        config = ffi.new(c_type)
+        setattr(config, field, value)
+        status = bind(self._c, config)
+        if status != C.NAVSYS_STATUS_OK:
+            raise ValueError(f"invalid route finder configuration ({status})")
+        self._algorithm_config = config
+
+    def bind_fringe_search_config(self, delta_epsilon: float):
+        self._bind_algorithm_config(
+            "route_finder_fringe_search_config_t*",
+            "delta_epsilon",
+            delta_epsilon,
+            C.route_finder_bind_fringe_search_config,
+        )
+
+    def bind_rta_star_config(self, depth_limit: int):
+        self._bind_algorithm_config(
+            "route_finder_rta_star_config_t*",
+            "depth_limit",
+            depth_limit,
+            C.route_finder_bind_rta_star_config,
+        )
+
+    def bind_sma_star_config(self, memory_limit: int):
+        self._bind_algorithm_config(
+            "route_finder_sma_star_config_t*",
+            "memory_limit",
+            memory_limit,
+            C.route_finder_bind_sma_star_config,
+        )
+
+    def bind_weighted_astar_config(self, weight: float):
+        self._bind_algorithm_config(
+            "route_finder_weighted_astar_config_t*",
+            "weight",
+            weight,
+            C.route_finder_bind_weighted_astar_config,
+        )
+
+    def unbind_algorithm_config(self):
+        status = C.route_finder_unbind_algorithm_config(self._c)
+        if status != C.NAVSYS_STATUS_OK:
+            raise RuntimeError(
+                f"could not unbind route finder configuration ({status})"
+            )
+        self._algorithm_config = None
 
     def set_max_retry(self, max_retry: int):
         C.route_finder_set_max_retry(self._c, max_retry)
@@ -500,6 +589,8 @@ class c_route_finder:
 
     def clear(self):
         C.route_finder_clear(self._c)
+        self._algorithm_config = None
+        self._typedata_handle = None
 
     def print(self):
         C.route_finder_print(self._c)
@@ -514,6 +605,8 @@ class c_route_finder:
     def close(self):
         if self._own and self._finalizer and self._finalizer.alive:
             self._finalizer()
+        self._algorithm_config = None
+        self._typedata_handle = None
 
     def __enter__(self):
         return self
