@@ -28,6 +28,29 @@ static bool throwing_cancel(void*) {
     throw std::runtime_error("cancel callback failure");
 }
 
+static void check_route_stats_contract(
+    const route_t* route,
+    const route_finder_run_stats_t& stats) {
+    REQUIRE(route != nullptr);
+
+    double route_cost = -1.0;
+    route_completion_t completion = ROUTE_COMPLETION_NONE;
+    REQUIRE(route_fetch_total_cost(route, &route_cost) == NAVSYS_STATUS_OK);
+    REQUIRE(route_fetch_completion(route, &completion) == NAVSYS_STATUS_OK);
+
+    CHECK(route_get_coord_count(route)
+        == static_cast<size_t>(stats.route_length));
+    CHECK(route_cost == doctest::Approx(stats.route_cost));
+    if (stats.complete) {
+        CHECK(completion == ROUTE_COMPLETION_COMPLETE);
+        CHECK_FALSE(stats.partial);
+    } else if (stats.partial) {
+        CHECK(completion == ROUTE_COMPLETION_PARTIAL);
+    } else {
+        CHECK(completion == ROUTE_COMPLETION_NONE);
+    }
+}
+
 TEST_CASE("route finder capability query matches the dispatcher") {
     const route_finder_type_t supported[] = {
         ROUTE_FINDER_ASTAR,
@@ -178,6 +201,7 @@ TEST_CASE("run_ex separates success no-path and limit termination") {
     CHECK_FALSE(stats.partial);
     CHECK(stats.route_length == route_length(route));
     CHECK(stats.total_retry_count == route_get_total_retry_count(route));
+    check_route_stats_contract(route, stats);
     route_destroy(route);
 
     navgrid_t* bounded = navgrid_create_full(
@@ -197,6 +221,7 @@ TEST_CASE("run_ex separates success no-path and limit termination") {
     REQUIRE(route != nullptr);
     CHECK_FALSE(stats.complete);
     CHECK(stats.total_retry_count < 1000);
+    check_route_stats_contract(route, stats);
     route_destroy(route);
 
     navgrid_destroy(navgrid);
@@ -212,6 +237,7 @@ TEST_CASE("run_ex separates success no-path and limit termination") {
     REQUIRE(route != nullptr);
     CHECK_FALSE(stats.complete);
     CHECK(stats.total_retry_count >= 1);
+    check_route_stats_contract(route, stats);
     route_destroy(route);
 
     route_finder_destroy(finder);
@@ -257,6 +283,7 @@ TEST_CASE("run options cooperatively cancel every dispatcher algorithm") {
         REQUIRE(route != nullptr);
         CHECK_FALSE(stats.complete);
         CHECK(stats.route_length == route_length(route));
+        check_route_stats_contract(route, stats);
         route_destroy(route);
     }
 
