@@ -4,7 +4,7 @@
   "source_vocabulary": "docs/ko/todo/navsys/navsys-abi-vocabulary.json",
   "summary": {
     "headers": 44,
-    "symbols": 425,
+    "symbols": 439,
     "return_forms": {
       "nullable_pointer": 149,
       "bool_predicate": 20,
@@ -13,7 +13,7 @@
       "int_count": 14,
       "int_index_minus_one": 4,
       "void_fallible_operation": 136,
-      "enum_result": 24,
+      "enum_result": 38,
       "floating_result": 19,
       "callback_return": 0
     },
@@ -8748,7 +8748,7 @@
       "owner_todo": "docs/ko/todo/navsys/todo-navsys-dstar-lite-dstar-lite.org",
       "primary_role": "public-component",
       "wrapper_mode": "generated",
-      "symbol_count": 72,
+      "symbol_count": 80,
       "audit_issue_count": 119,
       "symbols": [
         "dstar_lite_dynamic_cost",
@@ -8807,6 +8807,14 @@
         "dstar_lite_set_changed_coords_func",
         "dstar_lite_get_changed_coords_func_userdata",
         "dstar_lite_set_changed_coords_func_userdata",
+        "dstar_lite_bind_cost_func",
+        "dstar_lite_unbind_cost_func",
+        "dstar_lite_bind_heuristic_func",
+        "dstar_lite_unbind_heuristic_func",
+        "dstar_lite_bind_move_func",
+        "dstar_lite_unbind_move_func",
+        "dstar_lite_bind_changed_coords_func",
+        "dstar_lite_unbind_changed_coords_func",
         "dstar_lite_calc_key",
         "dstar_lite_init",
         "dstar_lite_update_vertex",
@@ -9070,7 +9078,7 @@
       "owner_todo": "docs/ko/todo/navsys/todo-navsys-navgrid-navgrid.org",
       "primary_role": "public-component",
       "wrapper_mode": "generated",
-      "symbol_count": 28,
+      "symbol_count": 30,
       "audit_issue_count": 39,
       "symbols": [
         "is_coord_blocked_navgrid",
@@ -9086,6 +9094,8 @@
         "navgrid_set_height",
         "navgrid_set_is_coord_blocked_func",
         "navgrid_get_is_coord_blocked_fn",
+        "navgrid_bind_is_coord_blocked_func",
+        "navgrid_unbind_is_coord_blocked_func",
         "navgrid_get_mode",
         "navgrid_set_mode",
         "navgrid_block_coord",
@@ -9358,7 +9368,7 @@
       "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-finder-route-finder.org",
       "primary_role": "public-module-entry",
       "wrapper_mode": "generated",
-      "symbol_count": 35,
+      "symbol_count": 39,
       "audit_issue_count": 47,
       "symbols": [
         "get_route_finder_name",
@@ -9391,6 +9401,10 @@
         "route_finder_get_heuristic_func",
         "route_finder_set_heuristic_fn_userdata",
         "route_finder_get_heuristic_fn_userdata",
+        "route_finder_bind_cost_func",
+        "route_finder_unbind_cost_func",
+        "route_finder_bind_heuristic_func",
+        "route_finder_unbind_heuristic_func",
         "route_finder_clear",
         "route_finder_set_defaults",
         "route_finder_is_valid",
@@ -10570,6 +10584,62 @@
     },
     {
       "header": "byul/navsys/dstar_lite/dstar_lite.h",
+      "name": "dstar_lite_bind_cost_func",
+      "return_type": "navsys_status_t",
+      "return_form": "enum_result",
+      "canonical": "navsys_status_t plus typed out enum"
+    },
+    {
+      "header": "byul/navsys/dstar_lite/dstar_lite.h",
+      "name": "dstar_lite_unbind_cost_func",
+      "return_type": "navsys_status_t",
+      "return_form": "enum_result",
+      "canonical": "navsys_status_t plus typed out enum"
+    },
+    {
+      "header": "byul/navsys/dstar_lite/dstar_lite.h",
+      "name": "dstar_lite_bind_heuristic_func",
+      "return_type": "navsys_status_t",
+      "return_form": "enum_result",
+      "canonical": "navsys_status_t plus typed out enum"
+    },
+    {
+      "header": "byul/navsys/dstar_lite/dstar_lite.h",
+      "name": "dstar_lite_unbind_heuristic_func",
+      "return_type": "navsys_status_t",
+      "return_form": "enum_result",
+      "canonical": "navsys_status_t plus typed out enum"
+    },
+    {
+      "header": "byul/navsys/dstar_lite/dstar_lite.h",
+      "name": "dstar_lite_bind_move_func",
+      "return_type": "navsys_status_t",
+      "return_form": "enum_result",
+      "canonical": "navsys_status_t plus typed out enum"
+    },
+    {
+      "header": "byul/navsys/dstar_lite/dstar_lite.h",
+      "name": "dstar_lite_unbind_move_func",
+      "return_type": "navsys_status_t",
+      "return_form": "enum_result",
+      "canonical": "navsys_status_t plus typed out enum"
+    },
+    {
+      "header": "byul/navsys/dstar_lite/dstar_lite.h",
+      "name": "dstar_lite_bind_changed_coords_func",
+      "return_type": "navsys_status_t",
+      "return_form": "enum_result",
+      "canonical": "navsys_status_t plus typed out enum"
+    },
+    {
+      "header": "byul/navsys/dstar_lite/dstar_lite.h",
+      "name": "dstar_lite_unbind_changed_coords_func",
+      "return_type": "navsys_status_t",
+      "return_form": "enum_result",
+      "canonical": "navsys_status_t plus typed out enum"
+    },
+    {
+      "header": "byul/navsys/dstar_lite/dstar_lite.h",
       "name": "dstar_lite_calc_key",
       "return_type": "dstar_lite_key_t*",
       "return_form": "nullable_pointer",
@@ -11195,6 +11265,20 @@
       "header": "byul/navsys/navgrid/navgrid.h",
       "name": "navgrid_get_is_coord_blocked_fn",
       "return_type": "is_coord_blocked_func",
+      "return_form": "enum_result",
+      "canonical": "navsys_status_t plus typed out enum"
+    },
+    {
+      "header": "byul/navsys/navgrid/navgrid.h",
+      "name": "navgrid_bind_is_coord_blocked_func",
+      "return_type": "navsys_status_t",
+      "return_form": "enum_result",
+      "canonical": "navsys_status_t plus typed out enum"
+    },
+    {
+      "header": "byul/navsys/navgrid/navgrid.h",
+      "name": "navgrid_unbind_is_coord_blocked_func",
+      "return_type": "navsys_status_t",
       "return_form": "enum_result",
       "canonical": "navsys_status_t plus typed out enum"
     },
@@ -12289,6 +12373,34 @@
       "return_type": "void*",
       "return_form": "nullable_pointer",
       "canonical": "status return plus typed out pointer"
+    },
+    {
+      "header": "byul/navsys/route_finder/route_finder.h",
+      "name": "route_finder_bind_cost_func",
+      "return_type": "navsys_status_t",
+      "return_form": "enum_result",
+      "canonical": "navsys_status_t plus typed out enum"
+    },
+    {
+      "header": "byul/navsys/route_finder/route_finder.h",
+      "name": "route_finder_unbind_cost_func",
+      "return_type": "navsys_status_t",
+      "return_form": "enum_result",
+      "canonical": "navsys_status_t plus typed out enum"
+    },
+    {
+      "header": "byul/navsys/route_finder/route_finder.h",
+      "name": "route_finder_bind_heuristic_func",
+      "return_type": "navsys_status_t",
+      "return_form": "enum_result",
+      "canonical": "navsys_status_t plus typed out enum"
+    },
+    {
+      "header": "byul/navsys/route_finder/route_finder.h",
+      "name": "route_finder_unbind_heuristic_func",
+      "return_type": "navsys_status_t",
+      "return_form": "enum_result",
+      "canonical": "navsys_status_t plus typed out enum"
     },
     {
       "header": "byul/navsys/route_finder/route_finder.h",

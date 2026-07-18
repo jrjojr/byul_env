@@ -45,6 +45,7 @@ navgrid_t* navgrid_create_full(int width, int height, navgrid_dir_mode_t mode,
     );
 
     navgrid->is_coord_blocked_fn = is_coord_blocked_fn;
+    navgrid->is_coord_blocked_fn_userdata = nullptr;
     return navgrid;
 }
 
@@ -61,6 +62,8 @@ navgrid_t* navgrid_copy(const navgrid_t* navgrid) {
         navgrid->is_coord_blocked_fn);
 
     c->cell_map = coord_hash_copy(navgrid->cell_map);
+    c->is_coord_blocked_fn_userdata =
+        navgrid->is_coord_blocked_fn_userdata;
     return c;
 }
 
@@ -108,6 +111,21 @@ is_coord_blocked_func navgrid_get_is_coord_blocked_fn(
     const navgrid_t* navgrid){
     if (!navgrid) return nullptr;
     return navgrid->is_coord_blocked_fn;
+}
+
+navsys_status_t navgrid_bind_is_coord_blocked_func(
+    navgrid_t* navgrid, is_coord_blocked_func fn, void* userdata) {
+    if (!navgrid || !fn) return NAVSYS_STATUS_INVALID_ARGUMENT;
+    navgrid->is_coord_blocked_fn = fn;
+    navgrid->is_coord_blocked_fn_userdata = userdata;
+    return NAVSYS_STATUS_OK;
+}
+
+navsys_status_t navgrid_unbind_is_coord_blocked_func(navgrid_t* navgrid) {
+    if (!navgrid) return NAVSYS_STATUS_INVALID_ARGUMENT;
+    navgrid->is_coord_blocked_fn = nullptr;
+    navgrid->is_coord_blocked_fn_userdata = nullptr;
+    return NAVSYS_STATUS_OK;
 }
 
 navgrid_dir_mode_t navgrid_get_mode(const navgrid_t* navgrid) {
@@ -205,7 +223,10 @@ coord_list_t* navgrid_copy_neighbors(
         int nx = x + dx[i];
         int ny = y + dy[i];
         if (!navgrid_is_inside(navgrid, nx, ny)) continue;
-        if (navgrid->is_coord_blocked_fn(navgrid, nx, ny, nullptr)) 
+        if (navgrid->is_coord_blocked_fn
+            && navgrid->is_coord_blocked_fn(
+                navgrid, nx, ny,
+                navgrid->is_coord_blocked_fn_userdata))
             continue;
 
         coord_t tmp = coord_t{nx, ny};
@@ -357,4 +378,3 @@ coord_list_t* navgrid_copy_neighbors_at_degree_range(
     coord_hash_destroy(seen);
     return result;
 }
-

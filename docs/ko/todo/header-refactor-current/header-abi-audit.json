@@ -1,12 +1,12 @@
 {
   "schema_version": 1,
   "summary": {
-    "manifest_headers": 135,
-    "public_c_headers": 94,
-    "public_declarations": 940,
+    "manifest_headers": 136,
+    "public_c_headers": 95,
+    "public_declarations": 954,
     "abi_fingerprint_sha256": "36ed7d0488e6a0d7405275cc637cbf454103a9e8945ecb378d819362ae3d7060",
     "invariant_errors": 0,
-    "approved_invariant_exclusions": 16,
+    "approved_invariant_exclusions": 15,
     "metadata_debt": 2773,
     "structural_debt": 283,
     "new_or_strict_debt": 0,
@@ -24,11 +24,6 @@
     {
       "code": "missing-root-export",
       "subject": "dsl_debug_print_state",
-      "message": "BYUL_API declaration is absent from the root shared export snapshot"
-    },
-    {
-      "code": "missing-root-export",
-      "subject": "dstar_lite_get_heuristic_func_userdata",
       "message": "BYUL_API declaration is absent from the root shared export snapshot"
     },
     {

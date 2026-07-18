@@ -3,9 +3,9 @@
   "profile": "windows-mingw64-gcc16-release",
   "dll": {
     "name": "libbyul.dll",
-    "size": 831361,
-    "sha256": "28b4e3c7a558dce2cd5aebb7ebc654d8b40b59e6281f01b54fe49ece99dde6fb",
-    "export_count": 1324
+    "size": 834598,
+    "sha256": "18e3ee653757e8392d7d762d8848bd7d1c39f84486e7bb8e8c61dd18b8358d8c",
+    "export_count": 1338
   },
   "exports": [
     {
@@ -877,10 +877,6 @@
       "type": "T"
     },
     {
-      "name": "_Z38dstar_lite_get_heuristic_func_userdataPK12s_dstar_lite",
-      "type": "T"
-    },
-    {
       "name": "_ZdaPv",
       "type": "T"
     },
@@ -1705,6 +1701,22 @@
       "type": "T"
     },
     {
+      "name": "dstar_lite_bind_changed_coords_func",
+      "type": "T"
+    },
+    {
+      "name": "dstar_lite_bind_cost_func",
+      "type": "T"
+    },
+    {
+      "name": "dstar_lite_bind_heuristic_func",
+      "type": "T"
+    },
+    {
+      "name": "dstar_lite_bind_move_func",
+      "type": "T"
+    },
+    {
       "name": "dstar_lite_calc_key",
       "type": "T"
     },
@@ -1798,6 +1810,10 @@
     },
     {
       "name": "dstar_lite_get_heuristic_func",
+      "type": "T"
+    },
+    {
+      "name": "dstar_lite_get_heuristic_func_userdata",
       "type": "T"
     },
     {
@@ -2070,6 +2086,22 @@
     },
     {
       "name": "dstar_lite_tick_update",
+      "type": "T"
+    },
+    {
+      "name": "dstar_lite_unbind_changed_coords_func",
+      "type": "T"
+    },
+    {
+      "name": "dstar_lite_unbind_cost_func",
+      "type": "T"
+    },
+    {
+      "name": "dstar_lite_unbind_heuristic_func",
+      "type": "T"
+    },
+    {
+      "name": "dstar_lite_unbind_move_func",
       "type": "T"
     },
     {
@@ -3149,6 +3181,10 @@
       "type": "T"
     },
     {
+      "name": "navgrid_bind_is_coord_blocked_func",
+      "type": "T"
+    },
+    {
       "name": "navgrid_block_coord",
       "type": "T"
     },
@@ -3262,6 +3298,10 @@
     },
     {
       "name": "navgrid_set_width",
+      "type": "T"
+    },
+    {
+      "name": "navgrid_unbind_is_coord_blocked_func",
       "type": "T"
     },
     {
@@ -4245,6 +4285,14 @@
       "type": "T"
     },
     {
+      "name": "route_finder_bind_cost_func",
+      "type": "T"
+    },
+    {
+      "name": "route_finder_bind_heuristic_func",
+      "type": "T"
+    },
+    {
       "name": "route_finder_clear",
       "type": "T"
     },
@@ -4378,6 +4426,14 @@
     },
     {
       "name": "route_finder_set_typedata",
+      "type": "T"
+    },
+    {
+      "name": "route_finder_unbind_cost_func",
+      "type": "T"
+    },
+    {
+      "name": "route_finder_unbind_heuristic_func",
       "type": "T"
     },
     {
@@ -5306,14 +5362,14 @@
     }
   ],
   "install": {
-    "file_count": 116,
-    "header_count": 92,
+    "file_count": 117,
+    "header_count": 93,
     "test_executable_count": 19,
     "files": [
       {
         "path": "bin/libbyul.dll",
-        "size": 831361,
-        "sha256": "2fe4b1abd5fb48e660fdb3284a1c32269197518ab086660ff31f206de82534e6"
+        "size": 834598,
+        "sha256": "18e3ee653757e8392d7d762d8848bd7d1c39f84486e7bb8e8c61dd18b8358d8c"
       },
       {
         "path": "bin/libgcc_s_seh-1.dll",
@@ -5333,12 +5389,12 @@
       {
         "path": "bin/test_balix.exe",
         "size": 879177,
-        "sha256": "484d9ce4129e0835b99fc72a9dcf4acb0be25cc016ca8b82a3a613a992c3caf2"
+        "sha256": "0fc43503a5a4b62a8aa14f0782f336b162be65f85f95634fff0e25948507751a"
       },
       {
         "path": "bin/test_byul.exe",
         "size": 1593895,
-        "sha256": "b634eafd15785c438b928071d5bbcd2a957024613808afd4acfe0aeb4a5e8655"
+        "sha256": "5c8975075150e68dbec6b50d9d60b2a9c02f5fda668683d9a082f24d58fb0d7c"
       },
       {
         "path": "bin/test_byul_tick.exe",
@@ -5348,52 +5404,52 @@
       {
         "path": "bin/test_collision.exe",
         "size": 647569,
-        "sha256": "996c5c708275eac46b48020441d92c06e697ae443510d08b114dcf974fe38b50"
+        "sha256": "7d629659b419ba79e5d7987a9dc3e1e05ed5476c2b1f2ed117c523ce855175f8"
       },
       {
         "path": "bin/test_coord.exe",
         "size": 676124,
-        "sha256": "725eab144c50a9f8313ed9a34e8f698ff707eb88516601699a3965c3d596c8b7"
+        "sha256": "aa0a514e5f919dd734e44996756896fd061c27ce52898dbb98bdeb15e07a20ad"
       },
       {
         "path": "bin/test_core.exe",
         "size": 419853,
-        "sha256": "57bfad1f5ca34ebeef2512b65cfcd4f68ee69b23f551ecc0dfe40d87b0f31da5"
+        "sha256": "02d37fb8d9f439be83cda08221ff038f7d2ee318291906492c0198797f4f4f3d"
       },
       {
         "path": "bin/test_dstar_lite.exe",
         "size": 709927,
-        "sha256": "fc72897361b740fe7f6f536484fed8c016dd36d328b6a6897c65d4a11d160031"
+        "sha256": "5b5b5b9263b79a3b85eda496b579bceafee6c9bd72200b25ae44a4b17485bef2"
       },
       {
         "path": "bin/test_entity.exe",
         "size": 807740,
-        "sha256": "1671f52f3bc62361b060b18a90e03a8c0862c877d9145a3cc2abce722afa7227"
+        "sha256": "68f1af96a00e8dfde2ff927f9f4f5ab4e4e71df502fec3aeee9086a26b5cac51"
       },
       {
         "path": "bin/test_ground.exe",
         "size": 640844,
-        "sha256": "87e13cd081e09712f5cbe0cfc868efccdc528cf32a52acf6e0d01a155ffcd51c"
+        "sha256": "6b6ca8afeb088f064e97c7178b7b550d6ca2aeb2d9abd95ce376701646db1ccc"
       },
       {
         "path": "bin/test_maze.exe",
         "size": 716777,
-        "sha256": "ac49dd57755e5b28ba558eb6133323d509dc1bbde25eab43a7510cf849bcf214"
+        "sha256": "00cacf38b2757047e8a0d6f7444b03c9015910b057e1e4edb88c8443927fb05b"
       },
       {
         "path": "bin/test_navgrid.exe",
         "size": 598364,
-        "sha256": "eff9e493aedd19055153c5e3a673ac2951ae2571fd79d1f6adef46e077f3edfe"
+        "sha256": "d7dc07eefd3f2f4b3770eb0ad2191c90685960434b22814e8a757d4fd25760fd"
       },
       {
         "path": "bin/test_navsys.exe",
-        "size": 713520,
-        "sha256": "41cd8e96acd49218b848423373c8656907dde529bdb15b0d2a77ba08370274d1"
+        "size": 767338,
+        "sha256": "6ac9373eed7e00bf473eb6bed5c8ffd67719aff11433e2ae66f950e9116ccf80"
       },
       {
         "path": "bin/test_numal.exe",
         "size": 799874,
-        "sha256": "bc5168899350d36f0c90d2c52f95cd81284af378aa9d65e2ccb7bcc28a3f5e1a"
+        "sha256": "13e580d53e8832a07d3a907d25fe59923521918df69b01a0a7952fab128e1939"
       },
       {
         "path": "bin/test_number_theory.exe",
@@ -5403,12 +5459,12 @@
       {
         "path": "bin/test_obstacle.exe",
         "size": 651542,
-        "sha256": "001c2d9c6c7fedd5c5e7cca58507a8c8dbfdf1e56ecebef7c146f95a66a16f1a"
+        "sha256": "eb280992424f051ccc6377f96bf79aa9ecd6049a3c949d72f1457d48c4e6b85e"
       },
       {
         "path": "bin/test_projectile.exe",
         "size": 936717,
-        "sha256": "5d95848f1968ca700d55c1cffd401d94f6f5b301ef5cac4b6b29b2856324527e"
+        "sha256": "f255488fb9963548f0f11f24c61a33e14e2581a19047e0c5fd1d00c7ccf9106c"
       },
       {
         "path": "bin/test_rng.exe",
@@ -5418,12 +5474,12 @@
       {
         "path": "bin/test_route.exe",
         "size": 609793,
-        "sha256": "3ca9f9d4503dbd77d61c650d9d0844ffcbd646a9c8562efbd7276a49d89be96c"
+        "sha256": "771ce9775d29a798145dedbe082855c56e80314e4ed4b983d54400026dc4058a"
       },
       {
         "path": "bin/test_route_finder.exe",
         "size": 708299,
-        "sha256": "bd0638fb95806e1c52c6eb4efbcdbabb6058529eeee3383db6e05dee0570afc8"
+        "sha256": "e94ca2d69876deadadf65739547a51ebd7954f28277e1ade672cf1f454d61e48"
       },
       {
         "path": "include/byul/astar.h",
@@ -5517,8 +5573,8 @@
       },
       {
         "path": "include/byul/dstar_lite.h",
-        "size": 13691,
-        "sha256": "21c4a40fe397fb45f55826336bd661989c80410117786d8ab9d8fa22d97b71fb"
+        "size": 18274,
+        "sha256": "49463131bbee9bec8c4948e2aa1a1c08181947afe48a3fd66e6031c74c35ff07"
       },
       {
         "path": "include/byul/dstar_lite_console.h",
@@ -5547,8 +5603,8 @@
       },
       {
         "path": "include/byul/dualnumber.h",
-        "size": 2416,
-        "sha256": "8315d7bfa142f3101a55d1c308c7181a570828ee12d7eb1a2eab999512eb7f03"
+        "size": 2427,
+        "sha256": "c745a2cff5547a1d2611a3e82a60aecc0ee8ea5febf27a1f76ac659b352bc9a2"
       },
       {
         "path": "include/byul/dualquat.h",
@@ -5702,13 +5758,18 @@
       },
       {
         "path": "include/byul/navgrid.h",
-        "size": 6322,
-        "sha256": "910c15e23035a1b2480d91d51c256ff91c887b00ecfc7778e589fb2b7d9da670"
+        "size": 7785,
+        "sha256": "04e1d89c8079e59d7761f292a9047034006566279f1439e7306f35534b0fbedb"
       },
       {
         "path": "include/byul/navsys.h",
-        "size": 3907,
-        "sha256": "6a0ccec9c600ef8e43a656a70582b5c03d830071051a982716cb6f4f3b193da0"
+        "size": 3935,
+        "sha256": "89552638839d7e35d2b589e84fb4f954e24d9600b25e7749a5069f4e8be51eeb"
+      },
+      {
+        "path": "include/byul/navsys_status.h",
+        "size": 1511,
+        "sha256": "70fcd9d0d728faccaacefb37128750fd7d7748d0346d50cdf415cdf0c77e94a9"
       },
       {
         "path": "include/byul/numal.h",
@@ -5832,8 +5893,8 @@
       },
       {
         "path": "include/byul/route_finder.h",
-        "size": 7733,
-        "sha256": "e71e78fbd05d116a7870bd7f7f95ef512847cfcf8a35da1d93aee71981876184"
+        "size": 10505,
+        "sha256": "b60b2e2813aff855fb6992bc088f34e2fa59e69cdd67f1195dd0293a5200c559"
       },
       {
         "path": "include/byul/route_finder_core.h",
@@ -5857,8 +5918,8 @@
       },
       {
         "path": "include/byul/strset.h",
-        "size": 1724,
-        "sha256": "3ff9b3b35b49fb29b55478852cea2ab21837558fd2e7692bbf44933461ff2d1c"
+        "size": 1732,
+        "sha256": "d71ec09b18f371322f8fa6147606062566f16a6aacee0617b35d0a6b04f63bf3"
       },
       {
         "path": "include/byul/trajectory.h",
@@ -5867,8 +5928,8 @@
       },
       {
         "path": "include/byul/vec3.h",
-        "size": 6713,
-        "sha256": "f93b14f691e29abe37e043597a17576f4a0d719258ca7f1fa7121f0d479ea599"
+        "size": 6733,
+        "sha256": "35834dd837a91955602e0bbfda0f7f6766337fc17423c88261797b75c0eb7cbf"
       },
       {
         "path": "include/byul/vec3.hpp",
@@ -5887,8 +5948,8 @@
       },
       {
         "path": "lib/byul/libbyul.dll.a",
-        "size": 648684,
-        "sha256": "3c3bb2098d89263f395aae9ba50de8cc25a5d8f86e7315e1c95403c4f74fbe0c"
+        "size": 659508,
+        "sha256": "dc1efdce00d4f1ba11c20fb76362352c7c6567fb937cb76f5999323ac3667982"
       }
     ]
   },

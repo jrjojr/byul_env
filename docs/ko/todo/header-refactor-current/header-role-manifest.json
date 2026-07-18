@@ -25,7 +25,7 @@
     "public_resource_migrations": 10,
     "sdk_basename_collisions": 0,
     "abi_2_sdk_basename_collisions": 0,
-    "current_include_edges": 306,
+    "current_include_edges": 309,
     "current_include_cycles": 0
   },
   "remaining_stage_2_design_gate": [],
@@ -2862,7 +2862,8 @@
           "byul/navsys/route_finder/ida_star.cpp",
           "byul/navsys/route_finder/rta_star.cpp",
           "byul/navsys/route_finder/sma_star.cpp",
-          "byul/navsys/route_finder/weighted_astar.cpp"
+          "byul/navsys/route_finder/weighted_astar.cpp",
+          "byul/navsys/tests/test_module_navsys.cpp"
         ]
       },
       "decision_status": "approved"
@@ -2965,7 +2966,7 @@
     {
       "asset_id": "initial:byul/navsys/dstar_lite/dstar_lite.h",
       "current_path": "byul/navsys/dstar_lite/dstar_lite.h",
-      "sha256": "21c4a40fe397fb45f55826336bd661989c80410117786d8ab9d8fa22d97b71fb",
+      "sha256": "49463131bbee9bec8c4948e2aa1a1c08181947afe48a3fd66e6031c74c35ff07",
       "primary_role": "public-component",
       "role_reason": "Stage-1 evidence supports the current public or internal boundary.",
       "owner_module": "navsys",
@@ -3053,6 +3054,14 @@
           "dstar_lite_set_changed_coords_func",
           "dstar_lite_get_changed_coords_func_userdata",
           "dstar_lite_set_changed_coords_func_userdata",
+          "dstar_lite_bind_cost_func",
+          "dstar_lite_unbind_cost_func",
+          "dstar_lite_bind_heuristic_func",
+          "dstar_lite_unbind_heuristic_func",
+          "dstar_lite_bind_move_func",
+          "dstar_lite_unbind_move_func",
+          "dstar_lite_bind_changed_coords_func",
+          "dstar_lite_unbind_changed_coords_func",
           "dstar_lite_calc_key",
           "dstar_lite_init",
           "dstar_lite_update_vertex",
@@ -3076,7 +3085,9 @@
           "byul/navsys/dstar_lite/dstar_lite_tick.cpp",
           "byul/navsys/dstar_lite/tests/test_module_dstar_lite.cpp",
           "byul/navsys/dstar_lite/tests/test_module_dstar_lite_tick.cpp",
-          "byul/navsys/navsys.cpp"
+          "byul/navsys/navsys.cpp",
+          "byul/navsys/tests/test_module_navsys.cpp",
+          "byul/tests/sdk_consumer/main.c"
         ]
       },
       "decision_status": "approved"
@@ -3924,7 +3935,7 @@
     {
       "asset_id": "initial:byul/navsys/navgrid/navgrid.h",
       "current_path": "byul/navsys/navgrid/navgrid.h",
-      "sha256": "910c15e23035a1b2480d91d51c256ff91c887b00ecfc7778e589fb2b7d9da670",
+      "sha256": "04e1d89c8079e59d7761f292a9047034006566279f1439e7306f35534b0fbedb",
       "primary_role": "public-component",
       "role_reason": "Stage-1 evidence supports the current public or internal boundary.",
       "owner_module": "navsys",
@@ -3968,6 +3979,8 @@
           "navgrid_set_height",
           "navgrid_set_is_coord_blocked_func",
           "navgrid_get_is_coord_blocked_fn",
+          "navgrid_bind_is_coord_blocked_func",
+          "navgrid_unbind_is_coord_blocked_func",
           "navgrid_get_mode",
           "navgrid_set_mode",
           "navgrid_block_coord",
@@ -4014,7 +4027,8 @@
           "byul/navsys/route_finder/tests/test_module_route_finder_discrete.cpp",
           "byul/navsys/route_finder/weighted_astar.cpp",
           "byul/navsys/tests/test_module_navsys.cpp",
-          "byul/navsys/tests/test_module_route_carver.cpp"
+          "byul/navsys/tests/test_module_route_carver.cpp",
+          "byul/tests/sdk_consumer/main.c"
         ]
       },
       "decision_status": "approved"
@@ -4745,7 +4759,7 @@
     {
       "asset_id": "initial:byul/navsys/route_finder/route_finder.h",
       "current_path": "byul/navsys/route_finder/route_finder.h",
-      "sha256": "e71e78fbd05d116a7870bd7f7f95ef512847cfcf8a35da1d93aee71981876184",
+      "sha256": "b60b2e2813aff855fb6992bc088f34e2fa59e69cdd67f1195dd0293a5200c559",
       "primary_role": "public-module-entry",
       "role_reason": "Canonical entry for route-finder dispatch and configuration.",
       "owner_module": "navsys",
@@ -4806,6 +4820,10 @@
           "route_finder_get_heuristic_func",
           "route_finder_set_heuristic_fn_userdata",
           "route_finder_get_heuristic_fn_userdata",
+          "route_finder_bind_cost_func",
+          "route_finder_unbind_cost_func",
+          "route_finder_bind_heuristic_func",
+          "route_finder_unbind_heuristic_func",
           "route_finder_clear",
           "route_finder_set_defaults",
           "route_finder_is_valid",
@@ -4816,7 +4834,8 @@
           "byul/navsys/navsys.cpp",
           "byul/navsys/route_finder/route_finder.cpp",
           "byul/navsys/route_finder/tests/test_module_route_finder.cpp",
-          "byul/navsys/tests/test_module_navsys.cpp"
+          "byul/navsys/tests/test_module_navsys.cpp",
+          "byul/tests/sdk_consumer/main.c"
         ]
       },
       "decision_status": "approved"

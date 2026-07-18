@@ -18,13 +18,6 @@
     },
     {
       "code": "missing-root-export",
-      "subject": "dstar_lite_get_heuristic_func_userdata",
-      "reason": "Declaration and definition const signatures differ, so the public C export is not produced.",
-      "owner": "navsys",
-      "target_stage": "4-navsys"
-    },
-    {
-      "code": "missing-root-export",
       "subject": "dstar_lite_get_interval_sec",
       "reason": "Declaration and definition const signatures differ, so the public C export is not produced.",
       "owner": "navsys",

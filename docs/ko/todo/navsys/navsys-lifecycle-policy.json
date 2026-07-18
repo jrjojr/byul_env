@@ -8,6 +8,7 @@
     "callback_context_ownership": "borrowed-by-BYUL",
     "callback_context_lifetime": "caller-keeps-alive-until-rebind-unbind-or-owner-destroy",
     "binding_commit": "function-and-userdata-change-together-or-remain-unchanged",
+    "binding_surface": "materialized-in-current-abi-inventory",
     "thread_safety": "exclusive-owner-mutation-required",
     "reentrancy": "callback-must-not-bind-unbind-or-destroy-the-same-owner",
     "callback_failure": "legacy-signatures-have-no-common-failure-channel"

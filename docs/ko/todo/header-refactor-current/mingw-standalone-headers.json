@@ -1,16 +1,16 @@
 {
   "schema_version": 1,
-  "checks": 188,
-  "passed": 188,
+  "checks": 190,
+  "passed": 190,
   "failed": 0,
   "results": [
     {
       "header": "byul/balix/balix.h",
       "language": "c",
-      "compiler": "C:\\msys64\\mingw64\\bin\\cc.exe",
+      "compiler": "C:\\msys64\\mingw64\\bin\\gcc.exe",
       "returncode": 0,
       "command": [
-        "C:\\msys64\\mingw64\\bin\\cc.exe",
+        "C:\\msys64\\mingw64\\bin\\gcc.exe",
         "-std=c17",
         "-fsyntax-only",
         "-I",
@@ -77,18 +77,18 @@
         "C:\\Users\\critl\\docs\\byul_env\\byul\\projectile",
         "-I",
         "C:\\Users\\critl\\docs\\byul_env\\byul\\rng",
-        "C:\\Users\\critl\\docs\\byul_env\\build_header_abi_audit\\byul_balix_balix_h.c"
+        "build_header_abi_audit_mingw\\byul_balix_balix_h.c"
       ],
       "stdout": "",
-      "stderr": "In file included from C:\\Users\\critl\\docs\\byul_env/byul/balix/balix.h:10,\n                 from C:\\Users\\critl\\docs\\byul_env\\build_header_abi_audit\\byul_balix_balix_h.c:1:\nC:\\Users\\critl\\docs\\byul_env\\byul\\balix\\environ/environ.h:26:18: warning: 'struct s_environ' declared inside parameter list will not be visible outside of this definition or declaration\n   26 |     const struct s_environ* env,\n      |                  ^~~~~~~~~\n"
+      "stderr": "In file included from C:\\Users\\critl\\docs\\byul_env/byul/balix/balix.h:10,\n                 from build_header_abi_audit_mingw\\byul_balix_balix_h.c:1:\nC:\\Users\\critl\\docs\\byul_env\\byul\\balix\\environ/environ.h:26:18: warning: 'struct s_environ' declared inside parameter list will not be visible outside of this definition or declaration\n   26 |     const struct s_environ* env,\n      |                  ^~~~~~~~~\n"
     },
     {
       "header": "byul/balix/balix.h",
       "language": "c++",
-      "compiler": "C:\\msys64\\mingw64\\bin\\c++.exe",
+      "compiler": "C:\\msys64\\mingw64\\bin\\g++.exe",
       "returncode": 0,
       "command": [
-        "C:\\msys64\\mingw64\\bin\\c++.exe",
+        "C:\\msys64\\mingw64\\bin\\g++.exe",
         "-std=c++17",
         "-fsyntax-only",
         "-I",
@@ -155,7 +155,7 @@
         "C:\\Users\\critl\\docs\\byul_env\\byul\\projectile",
         "-I",
         "C:\\Users\\critl\\docs\\byul_env\\byul\\rng",
-        "C:\\Users\\critl\\docs\\byul_env\\build_header_abi_audit\\byul_balix_balix_h.cpp"
+        "build_header_abi_audit_mingw\\byul_balix_balix_h.cpp"
       ],
       "stdout": "",
       "stderr": ""
@@ -163,10 +163,10 @@
     {
       "header": "byul/balix/bodyprops/bodyprops.h",
       "language": "c",
-      "compiler": "C:\\msys64\\mingw64\\bin\\cc.exe",
+      "compiler": "C:\\msys64\\mingw64\\bin\\gcc.exe",
       "returncode": 0,
       "command": [
-        "C:\\msys64\\mingw64\\bin\\cc.exe",
+        "C:\\msys64\\mingw64\\bin\\gcc.exe",
         "-std=c17",
         "-fsyntax-only",
         "-I",
@@ -233,7 +233,7 @@
         "C:\\Users\\critl\\docs\\byul_env\\byul\\projectile",
         "-I",
         "C:\\Users\\critl\\docs\\byul_env\\byul\\rng",
-        "C:\\Users\\critl\\docs\\byul_env\\build_header_abi_audit\\byul_balix_bodyprops_bodyprops_h.c"
+        "build_header_abi_audit_mingw\\byul_balix_bodyprops_bodyprops_h.c"
       ],
       "stdout": "",
       "stderr": ""
@@ -241,10 +241,10 @@
     {
       "header": "byul/balix/bodyprops/bodyprops.h",
       "language": "c++",
-      "compiler": "C:\\msys64\\mingw64\\bin\\c++.exe",
+      "compiler": "C:\\msys64\\mingw64\\bin\\g++.exe",
       "returncode": 0,
       "command": [
-        "C:\\msys64\\mingw64\\bin\\c++.exe",
+        "C:\\msys64\\mingw64\\bin\\g++.exe",
         "-std=c++17",
         "-fsyntax-only",
         "-I",
@@ -311,7 +311,7 @@
         "C:\\Users\\critl\\docs\\byul_env\\byul\\projectile",
         "-I",
         "C:\\Users\\critl\\docs\\byul_env\\byul\\rng",
-        "C:\\Users\\critl\\docs\\byul_env\\build_header_abi_audit\\byul_balix_bodyprops_bodyprops_h.cpp"
+        "build_header_abi_audit_mingw\\byul_balix_bodyprops_bodyprops_h.cpp"
       ],
       "stdout": "",
       "stderr": ""
@@ -319,10 +319,10 @@
     {
       "header": "byul/balix/collision/collision.h",
       "language": "c",
-      "compiler": "C:\\msys64\\mingw64\\bin\\cc.exe",
+      "compiler": "C:\\msys64\\mingw64\\bin\\gcc.exe",
       "returncode": 0,
       "command": [
-        "C:\\msys64\\mingw64\\bin\\cc.exe",
+        "C:\\msys64\\mingw64\\bin\\gcc.exe",
         "-std=c17",
         "-fsyntax-only",
         "-I",
@@ -389,7 +389,7 @@
         "C:\\Users\\critl\\docs\\byul_env\\byul\\projectile",
         "-I",
         "C:\\Users\\critl\\docs\\byul_env\\byul\\rng",
-        "C:\\Users\\critl\\docs\\byul_env\\build_header_abi_audit\\byul_balix_collision_collision_h.c"
+        "build_header_abi_audit_mingw\\byul_balix_collision_collision_h.c"
       ],
       "stdout": "",
       "stderr": ""
@@ -397,10 +397,10 @@
     {
       "header": "byul/balix/collision/collision.h",
       "language": "c++",
-      "compiler": "C:\\msys64\\mingw64\\bin\\c++.exe",
+      "compiler": "C:\\msys64\\mingw64\\bin\\g++.exe",
       "returncode": 0,
       "command": [
-        "C:\\msys64\\mingw64\\bin\\c++.exe",
+        "C:\\msys64\\mingw64\\bin\\g++.exe",
         "-std=c++17",
         "-fsyntax-only",
         "-I",
@@ -467,7 +467,7 @@
         "C:\\Users\\critl\\docs\\byul_env\\byul\\projectile",
         "-I",
         "C:\\Users\\critl\\docs\\byul_env\\byul\\rng",
-        "C:\\Users\\critl\\docs\\byul_env\\build_header_abi_audit\\byul_balix_collision_collision_h.cpp"
+        "build_header_abi_audit_mingw\\byul_balix_collision_collision_h.cpp"
       ],
       "stdout": "",
       "stderr": ""
@@ -475,10 +475,10 @@
     {
       "header": "byul/balix/controller/controller.h",
       "language": "c",
-      "compiler": "C:\\msys64\\mingw64\\bin\\cc.exe",
+      "compiler": "C:\\msys64\\mingw64\\bin\\gcc.exe",
       "returncode": 0,
       "command": [
-        "C:\\msys64\\mingw64\\bin\\cc.exe",
+        "C:\\msys64\\mingw64\\bin\\gcc.exe",
         "-std=c17",
         "-fsyntax-only",
         "-I",
@@ -545,18 +545,18 @@
         "C:\\Users\\critl\\docs\\byul_env\\byul\\projectile",
         "-I",
         "C:\\Users\\critl\\docs\\byul_env\\byul\\rng",
-        "C:\\Users\\critl\\docs\\byul_env\\build_header_abi_audit\\byul_balix_controller_controller_h.c"
+        "build_header_abi_audit_mingw\\byul_balix_controller_controller_h.c"
       ],
       "stdout": "",
-      "stderr": "In file included from C:\\Users\\critl\\docs\\byul_env\\byul\\balix\\numeq/numeq_integrator.h:56,\n                 from C:\\Users\\critl\\docs\\byul_env\\byul\\balix\\numeq/numeq.h:4,\n                 from C:\\Users\\critl\\docs\\byul_env/byul/balix/controller/controller.h:5,\n                 from C:\\Users\\critl\\docs\\byul_env\\build_header_abi_audit\\byul_balix_controller_controller_h.c:1:\nC:\\Users\\critl\\docs\\byul_env\\byul\\balix\\environ/environ.h:26:18: warning: 'struct s_environ' declared inside parameter list will not be visible outside of this definition or declaration\n   26 |     const struct s_environ* env,\n      |                  ^~~~~~~~~\n"
+      "stderr": "In file included from C:\\Users\\critl\\docs\\byul_env\\byul\\balix\\numeq/numeq_integrator.h:56,\n                 from C:\\Users\\critl\\docs\\byul_env\\byul\\balix\\numeq/numeq.h:4,\n                 from C:\\Users\\critl\\docs\\byul_env/byul/balix/controller/controller.h:5,\n                 from build_header_abi_audit_mingw\\byul_balix_controller_controller_h.c:1:\nC:\\Users\\critl\\docs\\byul_env\\byul\\balix\\environ/environ.h:26:18: warning: 'struct s_environ' declared inside parameter list will not be visible outside of this definition or declaration\n   26 |     const struct s_environ* env,\n      |                  ^~~~~~~~~\n"
     },
     {
       "header": "byul/balix/controller/controller.h",
       "language": "c++",
-      "compiler": "C:\\msys64\\mingw64\\bin\\c++.exe",
+      "compiler": "C:\\msys64\\mingw64\\bin\\g++.exe",
       "returncode": 0,
       "command": [
-        "C:\\msys64\\mingw64\\bin\\c++.exe",
+        "C:\\msys64\\mingw64\\bin\\g++.exe",
         "-std=c++17",
         "-fsyntax-only",
         "-I",
@@ -623,7 +623,7 @@
         "C:\\Users\\critl\\docs\\byul_env\\byul\\projectile",
         "-I",
         "C:\\Users\\critl\\docs\\byul_env\\byul\\rng",
-        "C:\\Users\\critl\\docs\\byul_env\\build_header_abi_audit\\byul_balix_controller_controller_h.cpp"
+        "build_header_abi_audit_mingw\\byul_balix_controller_controller_h.cpp"
       ],
       "stdout": "",
       "stderr": ""
@@ -631,10 +631,10 @@
     {
       "header": "byul/balix/environ/environ.h",
       "language": "c",
-      "compiler": "C:\\msys64\\mingw64\\bin\\cc.exe",
+      "compiler": "C:\\msys64\\mingw64\\bin\\gcc.exe",
       "returncode": 0,
       "command": [
-        "C:\\msys64\\mingw64\\bin\\cc.exe",
+        "C:\\msys64\\mingw64\\bin\\gcc.exe",
         "-std=c17",
         "-fsyntax-only",
         "-I",
@@ -701,18 +701,18 @@
         "C:\\Users\\critl\\docs\\byul_env\\byul\\projectile",
         "-I",
         "C:\\Users\\critl\\docs\\byul_env\\byul\\rng",
-        "C:\\Users\\critl\\docs\\byul_env\\build_header_abi_audit\\byul_balix_environ_environ_h.c"
+        "build_header_abi_audit_mingw\\byul_balix_environ_environ_h.c"
       ],
       "stdout": "",
-      "stderr": "In file included from C:\\Users\\critl\\docs\\byul_env\\build_header_abi_audit\\byul_balix_environ_environ_h.c:1:\nC:\\Users\\critl\\docs\\byul_env/byul/balix/environ/environ.h:26:18: warning: 'struct s_environ' declared inside parameter list will not be visible outside of this definition or declaration\n   26 |     const struct s_environ* env,\n      |                  ^~~~~~~~~\n"
+      "stderr": "In file included from build_header_abi_audit_mingw\\byul_balix_environ_environ_h.c:1:\nC:\\Users\\critl\\docs\\byul_env/byul/balix/environ/environ.h:26:18: warning: 'struct s_environ' declared inside parameter list will not be visible outside of this definition or declaration\n   26 |     const struct s_environ* env,\n      |                  ^~~~~~~~~\n"
     },
     {
       "header": "byul/balix/environ/environ.h",
       "language": "c++",
-      "compiler": "C:\\msys64\\mingw64\\bin\\c++.exe",
+      "compiler": "C:\\msys64\\mingw64\\bin\\g++.exe",
       "returncode": 0,
       "command": [
-        "C:\\msys64\\mingw64\\bin\\c++.exe",
+        "C:\\msys64\\mingw64\\bin\\g++.exe",
         "-std=c++17",
         "-fsyntax-only",
         "-I",
@@ -779,7 +779,7 @@
         "C:\\Users\\critl\\docs\\byul_env\\byul\\projectile",
         "-I",
         "C:\\Users\\critl\\docs\\byul_env\\byul\\rng",
-        "C:\\Users\\critl\\docs\\byul_env\\build_header_abi_audit\\byul_balix_environ_environ_h.cpp"
+        "build_header_abi_audit_mingw\\byul_balix_environ_environ_h.cpp"
       ],
       "stdout": "",
       "stderr": ""
@@ -787,10 +787,10 @@
     {
       "header": "byul/balix/motion_state/motion_state.h",
       "language": "c",
-      "compiler": "C:\\msys64\\mingw64\\bin\\cc.exe",
+      "compiler": "C:\\msys64\\mingw64\\bin\\gcc.exe",
       "returncode": 0,
       "command": [
-        "C:\\msys64\\mingw64\\bin\\cc.exe",
+        "C:\\msys64\\mingw64\\bin\\gcc.exe",
         "-std=c17",
         "-fsyntax-only",
         "-I",
@@ -857,7 +857,7 @@
         "C:\\Users\\critl\\docs\\byul_env\\byul\\projectile",
         "-I",
         "C:\\Users\\critl\\docs\\byul_env\\byul\\rng",
-        "C:\\Users\\critl\\docs\\byul_env\\build_header_abi_audit\\byul_balix_motion_state_motion_state_h.c"
+        "build_header_abi_audit_mingw\\byul_balix_motion_state_motion_state_h.c"
       ],
       "stdout": "",
       "stderr": ""
@@ -865,10 +865,10 @@
     {
       "header": "byul/balix/motion_state/motion_state.h",
       "language": "c++",
-      "compiler": "C:\\msys64\\mingw64\\bin\\c++.exe",
+      "compiler": "C:\\msys64\\mingw64\\bin\\g++.exe",
       "returncode": 0,
       "command": [
-        "C:\\msys64\\mingw64\\bin\\c++.exe",
+        "C:\\msys64\\mingw64\\bin\\g++.exe",
         "-std=c++17",
         "-fsyntax-only",
         "-I",
@@ -935,7 +935,7 @@
         "C:\\Users\\critl\\docs\\byul_env\\byul\\projectile",
         "-I",
         "C:\\Users\\critl\\docs\\byul_env\\byul\\rng",
-        "C:\\Users\\critl\\docs\\byul_env\\build_header_abi_audit\\byul_balix_motion_state_motion_state_h.cpp"
+        "build_header_abi_audit_mingw\\byul_balix_motion_state_motion_state_h.cpp"
       ],
       "stdout": "",
       "stderr": ""
@@ -943,10 +943,10 @@
     {
       "header": "byul/balix/numeq/filters/numeq_filters.h",
       "language": "c",
-      "compiler": "C:\\msys64\\mingw64\\bin\\cc.exe",
+      "compiler": "C:\\msys64\\mingw64\\bin\\gcc.exe",
       "returncode": 0,
       "command": [
-        "C:\\msys64\\mingw64\\bin\\cc.exe",
+        "C:\\msys64\\mingw64\\bin\\gcc.exe",
         "-std=c17",
         "-fsyntax-only",
         "-I",
@@ -1013,7 +1013,7 @@
         "C:\\Users\\critl\\docs\\byul_env\\byul\\projectile",
         "-I",
         "C:\\Users\\critl\\docs\\byul_env\\byul\\rng",
-        "C:\\Users\\critl\\docs\\byul_env\\build_header_abi_audit\\byul_balix_numeq_filters_numeq_filters_h.c"
+        "build_header_abi_audit_mingw\\byul_balix_numeq_filters_numeq_filters_h.c"
       ],
       "stdout": "",
       "stderr": ""
@@ -1021,10 +1021,10 @@
     {
       "header": "byul/balix/numeq/filters/numeq_filters.h",
       "language": "c++",
-      "compiler": "C:\\msys64\\mingw64\\bin\\c++.exe",
+      "compiler": "C:\\msys64\\mingw64\\bin\\g++.exe",
       "returncode": 0,
       "command": [
-        "C:\\msys64\\mingw64\\bin\\c++.exe",
+        "C:\\msys64\\mingw64\\bin\\g++.exe",
         "-std=c++17",
         "-fsyntax-only",
         "-I",
@@ -1091,7 +1091,7 @@
         "C:\\Users\\critl\\docs\\byul_env\\byul\\projectile",
         "-I",
         "C:\\Users\\critl\\docs\\byul_env\\byul\\rng",
-        "C:\\Users\\critl\\docs\\byul_env\\build_header_abi_audit\\byul_balix_numeq_filters_numeq_filters_h.cpp"
+        "build_header_abi_audit_mingw\\byul_balix_numeq_filters_numeq_filters_h.cpp"
       ],
       "stdout": "",
       "stderr": ""
@@ -1099,10 +1099,10 @@
     {
       "header": "byul/balix/numeq/filters/numeq_kalman.h",
       "language": "c",
-      "compiler": "C:\\msys64\\mingw64\\bin\\cc.exe",
+      "compiler": "C:\\msys64\\mingw64\\bin\\gcc.exe",
       "returncode": 0,
       "command": [
-        "C:\\msys64\\mingw64\\bin\\cc.exe",
+        "C:\\msys64\\mingw64\\bin\\gcc.exe",
         "-std=c17",
         "-fsyntax-only",
         "-I",
@@ -1169,7 +1169,7 @@
         "C:\\Users\\critl\\docs\\byul_env\\byul\\projectile",
         "-I",
         "C:\\Users\\critl\\docs\\byul_env\\byul\\rng",
-        "C:\\Users\\critl\\docs\\byul_env\\build_header_abi_audit\\byul_balix_numeq_filters_numeq_kalman_h.c"
+        "build_header_abi_audit_mingw\\byul_balix_numeq_filters_numeq_kalman_h.c"
       ],
       "stdout": "",
       "stderr": ""
@@ -1177,10 +1177,10 @@
     {
       "header": "byul/balix/numeq/filters/numeq_kalman.h",
       "language": "c++",
-      "compiler": "C:\\msys64\\mingw64\\bin\\c++.exe",
+      "compiler": "C:\\msys64\\mingw64\\bin\\g++.exe",
       "returncode": 0,
       "command": [
-        "C:\\msys64\\mingw64\\bin\\c++.exe",
+        "C:\\msys64\\mingw64\\bin\\g++.exe",
         "-std=c++17",
         "-fsyntax-only",
         "-I",
@@ -1247,7 +1247,7 @@
         "C:\\Users\\critl\\docs\\byul_env\\byul\\projectile",
         "-I",
         "C:\\Users\\critl\\docs\\byul_env\\byul\\rng",
-        "C:\\Users\\critl\\docs\\byul_env\\build_header_abi_audit\\byul_balix_numeq_filters_numeq_kalman_h.cpp"
+        "build_header_abi_audit_mingw\\byul_balix_numeq_filters_numeq_kalman_h.cpp"
       ],
       "stdout": "",
       "stderr": ""
@@ -1255,10 +1255,10 @@
     {
       "header": "byul/balix/numeq/numeq.h",
       "language": "c",
-      "compiler": "C:\\msys64\\mingw64\\bin\\cc.exe",
+      "compiler": "C:\\msys64\\mingw64\\bin\\gcc.exe",
       "returncode": 0,
       "command": [
-        "C:\\msys64\\mingw64\\bin\\cc.exe",
+        "C:\\msys64\\mingw64\\bin\\gcc.exe",
         "-std=c17",
         "-fsyntax-only",
         "-I",
@@ -1325,18 +1325,18 @@
         "C:\\Users\\critl\\docs\\byul_env\\byul\\projectile",
         "-I",
         "C:\\Users\\critl\\docs\\byul_env\\byul\\rng",
-        "C:\\Users\\critl\\docs\\byul_env\\build_header_abi_audit\\byul_balix_numeq_numeq_h.c"
+        "build_header_abi_audit_mingw\\byul_balix_numeq_numeq_h.c"
       ],
       "stdout": "",
-      "stderr": "In file included from C:\\Users\\critl\\docs\\byul_env/byul/balix/numeq/numeq_integrator.h:56,\n                 from C:\\Users\\critl\\docs\\byul_env/byul/balix/numeq/numeq.h:4,\n                 from C:\\Users\\critl\\docs\\byul_env\\build_header_abi_audit\\byul_balix_numeq_numeq_h.c:1:\nC:\\Users\\critl\\docs\\byul_env\\byul\\balix\\environ/environ.h:26:18: warning: 'struct s_environ' declared inside parameter list will not be visible outside of this definition or declaration\n   26 |     const struct s_environ* env,\n      |                  ^~~~~~~~~\n"
+      "stderr": "In file included from C:\\Users\\critl\\docs\\byul_env/byul/balix/numeq/numeq_integrator.h:56,\n                 from C:\\Users\\critl\\docs\\byul_env/byul/balix/numeq/numeq.h:4,\n                 from build_header_abi_audit_mingw\\byul_balix_numeq_numeq_h.c:1:\nC:\\Users\\critl\\docs\\byul_env\\byul\\balix\\environ/environ.h:26:18: warning: 'struct s_environ' declared inside parameter list will not be visible outside of this definition or declaration\n   26 |     const struct s_environ* env,\n      |                  ^~~~~~~~~\n"
     },
     {
       "header": "byul/balix/numeq/numeq.h",
       "language": "c++",
-      "compiler": "C:\\msys64\\mingw64\\bin\\c++.exe",
+      "compiler": "C:\\msys64\\mingw64\\bin\\g++.exe",
       "returncode": 0,
       "command": [
-        "C:\\msys64\\mingw64\\bin\\c++.exe",
+        "C:\\msys64\\mingw64\\bin\\g++.exe",
         "-std=c++17",
         "-fsyntax-only",
         "-I",
@@ -1403,7 +1403,7 @@
         "C:\\Users\\critl\\docs\\byul_env\\byul\\projectile",
         "-I",
         "C:\\Users\\critl\\docs\\byul_env\\byul\\rng",
-        "C:\\Users\\critl\\docs\\byul_env\\build_header_abi_audit\\byul_balix_numeq_numeq_h.cpp"
+        "build_header_abi_audit_mingw\\byul_balix_numeq_numeq_h.cpp"
       ],
       "stdout": "",
       "stderr": ""
@@ -1411,10 +1411,10 @@
     {
       "header": "byul/balix/numeq/numeq_integrator.h",
       "language": "c",
-      "compiler": "C:\\msys64\\mingw64\\bin\\cc.exe",
+      "compiler": "C:\\msys64\\mingw64\\bin\\gcc.exe",
       "returncode": 0,
       "command": [
-        "C:\\msys64\\mingw64\\bin\\cc.exe",
+        "C:\\msys64\\mingw64\\bin\\gcc.exe",
         "-std=c17",
         "-fsyntax-only",
         "-I",
@@ -1481,18 +1481,18 @@
         "C:\\Users\\critl\\docs\\byul_env\\byul\\projectile",
         "-I",
         "C:\\Users\\critl\\docs\\byul_env\\byul\\rng",
-        "C:\\Users\\critl\\docs\\byul_env\\build_header_abi_audit\\byul_balix_numeq_numeq_integrator_h.c"
+        "build_header_abi_audit_mingw\\byul_balix_numeq_numeq_integrator_h.c"
       ],
       "stdout": "",
-      "stderr": "In file included from C:\\Users\\critl\\docs\\byul_env/byul/balix/numeq/numeq_integrator.h:56,\n                 from C:\\Users\\critl\\docs\\byul_env\\build_header_abi_audit\\byul_balix_numeq_numeq_integrator_h.c:1:\nC:\\Users\\critl\\docs\\byul_env\\byul\\balix\\environ/environ.h:26:18: warning: 'struct s_environ' declared inside parameter list will not be visible outside of this definition or declaration\n   26 |     const struct s_environ* env,\n      |                  ^~~~~~~~~\n"
+      "stderr": "In file included from C:\\Users\\critl\\docs\\byul_env/byul/balix/numeq/numeq_integrator.h:56,\n                 from build_header_abi_audit_mingw\\byul_balix_numeq_numeq_integrator_h.c:1:\nC:\\Users\\critl\\docs\\byul_env\\byul\\balix\\environ/environ.h:26:18: warning: 'struct s_environ' declared inside parameter list will not be visible outside of this definition or declaration\n   26 |     const struct s_environ* env,\n      |                  ^~~~~~~~~\n"
     },
     {
       "header": "byul/balix/numeq/numeq_integrator.h",
       "language": "c++",
-      "compiler": "C:\\msys64\\mingw64\\bin\\c++.exe",
+      "compiler": "C:\\msys64\\mingw64\\bin\\g++.exe",
       "returncode": 0,
       "command": [
-        "C:\\msys64\\mingw64\\bin\\c++.exe",
+        "C:\\msys64\\mingw64\\bin\\g++.exe",
         "-std=c++17",
         "-fsyntax-only",
         "-I",
@@ -1559,7 +1559,7 @@
         "C:\\Users\\critl\\docs\\byul_env\\byul\\projectile",
         "-I",
         "C:\\Users\\critl\\docs\\byul_env\\byul\\rng",
-        "C:\\Users\\critl\\docs\\byul_env\\build_header_abi_audit\\byul_balix_numeq_numeq_integrator_h.cpp"
+        "build_header_abi_audit_mingw\\byul_balix_numeq_numeq_integrator_h.cpp"
       ],
       "stdout": "",
       "stderr": ""
@@ -1567,10 +1567,10 @@
     {
       "header": "byul/balix/numeq/numeq_model.h",
       "language": "c",
-      "compiler": "C:\\msys64\\mingw64\\bin\\cc.exe",
+      "compiler": "C:\\msys64\\mingw64\\bin\\gcc.exe",
       "returncode": 0,
       "command": [
-        "C:\\msys64\\mingw64\\bin\\cc.exe",
+        "C:\\msys64\\mingw64\\bin\\gcc.exe",
         "-std=c17",
         "-fsyntax-only",
         "-I",
@@ -1637,18 +1637,18 @@
         "C:\\Users\\critl\\docs\\byul_env\\byul\\projectile",
         "-I",
         "C:\\Users\\critl\\docs\\byul_env\\byul\\rng",
-        "C:\\Users\\critl\\docs\\byul_env\\build_header_abi_audit\\byul_balix_numeq_numeq_model_h.c"
+        "build_header_abi_audit_mingw\\byul_balix_numeq_numeq_model_h.c"
       ],
       "stdout": "",
-      "stderr": "In file included from C:\\Users\\critl\\docs\\byul_env/byul/balix/numeq/numeq_model.h:22,\n                 from C:\\Users\\critl\\docs\\byul_env\\build_header_abi_audit\\byul_balix_numeq_numeq_model_h.c:1:\nC:\\Users\\critl\\docs\\byul_env\\byul\\balix\\environ/environ.h:26:18: warning: 'struct s_environ' declared inside parameter list will not be visible outside of this definition or declaration\n   26 |     const struct s_environ* env,\n      |                  ^~~~~~~~~\n"
+      "stderr": "In file included from C:\\Users\\critl\\docs\\byul_env/byul/balix/numeq/numeq_model.h:22,\n                 from build_header_abi_audit_mingw\\byul_balix_numeq_numeq_model_h.c:1:\nC:\\Users\\critl\\docs\\byul_env\\byul\\balix\\environ/environ.h:26:18: warning: 'struct s_environ' declared inside parameter list will not be visible outside of this definition or declaration\n   26 |     const struct s_environ* env,\n      |                  ^~~~~~~~~\n"
     },
     {
       "header": "byul/balix/numeq/numeq_model.h",
       "language": "c++",
-      "compiler": "C:\\msys64\\mingw64\\bin\\c++.exe",
+      "compiler": "C:\\msys64\\mingw64\\bin\\g++.exe",
       "returncode": 0,
       "command": [
-        "C:\\msys64\\mingw64\\bin\\c++.exe",
+        "C:\\msys64\\mingw64\\bin\\g++.exe",
         "-std=c++17",
         "-fsyntax-only",
         "-I",
@@ -1715,7 +1715,7 @@
         "C:\\Users\\critl\\docs\\byul_env\\byul\\projectile",
         "-I",
         "C:\\Users\\critl\\docs\\byul_env\\byul\\rng",
-        "C:\\Users\\critl\\docs\\byul_env\\build_header_abi_audit\\byul_balix_numeq_numeq_model_h.cpp"
+        "build_header_abi_audit_mingw\\byul_balix_numeq_numeq_model_h.cpp"
       ],
       "stdout": "",
       "stderr": ""
@@ -1723,10 +1723,10 @@
     {
       "header": "byul/balix/numeq/numeq_model_motion.h",
       "language": "c",
-      "compiler": "C:\\msys64\\mingw64\\bin\\cc.exe",
+      "compiler": "C:\\msys64\\mingw64\\bin\\gcc.exe",
       "returncode": 0,
       "command": [
-        "C:\\msys64\\mingw64\\bin\\cc.exe",
+        "C:\\msys64\\mingw64\\bin\\gcc.exe",
         "-std=c17",
         "-fsyntax-only",
         "-I",
@@ -1793,18 +1793,18 @@
         "C:\\Users\\critl\\docs\\byul_env\\byul\\projectile",
         "-I",
         "C:\\Users\\critl\\docs\\byul_env\\byul\\rng",
-        "C:\\Users\\critl\\docs\\byul_env\\build_header_abi_audit\\byul_balix_numeq_numeq_model_motion_h.c"
+        "build_header_abi_audit_mingw\\byul_balix_numeq_numeq_model_motion_h.c"
       ],
       "stdout": "",
-      "stderr": "In file included from C:\\Users\\critl\\docs\\byul_env/byul/balix/numeq/numeq_model.h:22,\n                 from C:\\Users\\critl\\docs\\byul_env/byul/balix/numeq/numeq_model_motion.h:37,\n                 from C:\\Users\\critl\\docs\\byul_env\\build_header_abi_audit\\byul_balix_numeq_numeq_model_motion_h.c:1:\nC:\\Users\\critl\\docs\\byul_env\\byul\\balix\\environ/environ.h:26:18: warning: 'struct s_environ' declared inside parameter list will not be visible outside of this definition or declaration\n   26 |     const struct s_environ* env,\n      |                  ^~~~~~~~~\n"
+      "stderr": "In file included from C:\\Users\\critl\\docs\\byul_env/byul/balix/numeq/numeq_model.h:22,\n                 from C:\\Users\\critl\\docs\\byul_env/byul/balix/numeq/numeq_model_motion.h:37,\n                 from build_header_abi_audit_mingw\\byul_balix_numeq_numeq_model_motion_h.c:1:\nC:\\Users\\critl\\docs\\byul_env\\byul\\balix\\environ/environ.h:26:18: warning: 'struct s_environ' declared inside parameter list will not be visible outside of this definition or declaration\n   26 |     const struct s_environ* env,\n      |                  ^~~~~~~~~\n"
     },
     {
       "header": "byul/balix/numeq/numeq_model_motion.h",
       "language": "c++",
-      "compiler": "C:\\msys64\\mingw64\\bin\\c++.exe",
+      "compiler": "C:\\msys64\\mingw64\\bin\\g++.exe",
       "returncode": 0,
       "command": [
-        "C:\\msys64\\mingw64\\bin\\c++.exe",
+        "C:\\msys64\\mingw64\\bin\\g++.exe",
         "-std=c++17",
         "-fsyntax-only",
         "-I",
@@ -1871,7 +1871,7 @@
         "C:\\Users\\critl\\docs\\byul_env\\byul\\projectile",
         "-I",
         "C:\\Users\\critl\\docs\\byul_env\\byul\\rng",
-        "C:\\Users\\critl\\docs\\byul_env\\build_header_abi_audit\\byul_balix_numeq_numeq_model_motion_h.cpp"
+        "build_header_abi_audit_mingw\\byul_balix_numeq_numeq_model_motion_h.cpp"
       ],
       "stdout": "",
       "stderr": ""
@@ -1879,10 +1879,10 @@
     {
       "header": "byul/balix/numeq/numeq_mpc.h",
       "language": "c",
-      "compiler": "C:\\msys64\\mingw64\\bin\\cc.exe",
+      "compiler": "C:\\msys64\\mingw64\\bin\\gcc.exe",
       "returncode": 0,
       "command": [
-        "C:\\msys64\\mingw64\\bin\\cc.exe",
+        "C:\\msys64\\mingw64\\bin\\gcc.exe",
         "-std=c17",
         "-fsyntax-only",
         "-I",
@@ -1949,18 +1949,18 @@
         "C:\\Users\\critl\\docs\\byul_env\\byul\\projectile",
         "-I",
         "C:\\Users\\critl\\docs\\byul_env\\byul\\rng",
-        "C:\\Users\\critl\\docs\\byul_env\\build_header_abi_audit\\byul_balix_numeq_numeq_mpc_h.c"
+        "build_header_abi_audit_mingw\\byul_balix_numeq_numeq_mpc_h.c"
       ],
       "stdout": "",
-      "stderr": "In file included from C:\\Users\\critl\\docs\\byul_env/byul/balix/numeq/numeq_mpc.h:37,\n                 from C:\\Users\\critl\\docs\\byul_env\\build_header_abi_audit\\byul_balix_numeq_numeq_mpc_h.c:1:\nC:\\Users\\critl\\docs\\byul_env\\byul\\balix\\environ/environ.h:26:18: warning: 'struct s_environ' declared inside parameter list will not be visible outside of this definition or declaration\n   26 |     const struct s_environ* env,\n      |                  ^~~~~~~~~\n"
+      "stderr": "In file included from C:\\Users\\critl\\docs\\byul_env/byul/balix/numeq/numeq_mpc.h:37,\n                 from build_header_abi_audit_mingw\\byul_balix_numeq_numeq_mpc_h.c:1:\nC:\\Users\\critl\\docs\\byul_env\\byul\\balix\\environ/environ.h:26:18: warning: 'struct s_environ' declared inside parameter list will not be visible outside of this definition or declaration\n   26 |     const struct s_environ* env,\n      |                  ^~~~~~~~~\n"
     },
     {
       "header": "byul/balix/numeq/numeq_mpc.h",
       "language": "c++",
-      "compiler": "C:\\msys64\\mingw64\\bin\\c++.exe",
+      "compiler": "C:\\msys64\\mingw64\\bin\\g++.exe",
       "returncode": 0,
       "command": [
-        "C:\\msys64\\mingw64\\bin\\c++.exe",
+        "C:\\msys64\\mingw64\\bin\\g++.exe",
         "-std=c++17",
         "-fsyntax-only",
         "-I",
@@ -2027,7 +2027,7 @@
         "C:\\Users\\critl\\docs\\byul_env\\byul\\projectile",
         "-I",
         "C:\\Users\\critl\\docs\\byul_env\\byul\\rng",
-        "C:\\Users\\critl\\docs\\byul_env\\build_header_abi_audit\\byul_balix_numeq_numeq_mpc_h.cpp"
+        "build_header_abi_audit_mingw\\byul_balix_numeq_numeq_mpc_h.cpp"
       ],
       "stdout": "",
       "stderr": ""
@@ -2035,10 +2035,10 @@
     {
       "header": "byul/balix/numeq/numeq_pid.h",
       "language": "c",
-      "compiler": "C:\\msys64\\mingw64\\bin\\cc.exe",
+      "compiler": "C:\\msys64\\mingw64\\bin\\gcc.exe",
       "returncode": 0,
       "command": [
-        "C:\\msys64\\mingw64\\bin\\cc.exe",
+        "C:\\msys64\\mingw64\\bin\\gcc.exe",
         "-std=c17",
         "-fsyntax-only",
         "-I",
@@ -2105,7 +2105,7 @@
         "C:\\Users\\critl\\docs\\byul_env\\byul\\projectile",
         "-I",
         "C:\\Users\\critl\\docs\\byul_env\\byul\\rng",
-        "C:\\Users\\critl\\docs\\byul_env\\build_header_abi_audit\\byul_balix_numeq_numeq_pid_h.c"
+        "build_header_abi_audit_mingw\\byul_balix_numeq_numeq_pid_h.c"
       ],
       "stdout": "",
       "stderr": ""
@@ -2113,10 +2113,10 @@
     {
       "header": "byul/balix/numeq/numeq_pid.h",
       "language": "c++",
-      "compiler": "C:\\msys64\\mingw64\\bin\\c++.exe",
+      "compiler": "C:\\msys64\\mingw64\\bin\\g++.exe",
       "returncode": 0,
       "command": [
-        "C:\\msys64\\mingw64\\bin\\c++.exe",
+        "C:\\msys64\\mingw64\\bin\\g++.exe",
         "-std=c++17",
         "-fsyntax-only",
         "-I",
@@ -2183,7 +2183,7 @@
         "C:\\Users\\critl\\docs\\byul_env\\byul\\projectile",
         "-I",
         "C:\\Users\\critl\\docs\\byul_env\\byul\\rng",
-        "C:\\Users\\critl\\docs\\byul_env\\build_header_abi_audit\\byul_balix_numeq_numeq_pid_h.cpp"
+        "build_header_abi_audit_mingw\\byul_balix_numeq_numeq_pid_h.cpp"
       ],
       "stdout": "",
       "stderr": ""
@@ -2191,10 +2191,10 @@
     {
       "header": "byul/balix/numeq/numeq_pid_vec3.h",
       "language": "c",
-      "compiler": "C:\\msys64\\mingw64\\bin\\cc.exe",
+      "compiler": "C:\\msys64\\mingw64\\bin\\gcc.exe",
       "returncode": 0,
       "command": [
-        "C:\\msys64\\mingw64\\bin\\cc.exe",
+        "C:\\msys64\\mingw64\\bin\\gcc.exe",
         "-std=c17",
         "-fsyntax-only",
         "-I",
@@ -2261,7 +2261,7 @@
         "C:\\Users\\critl\\docs\\byul_env\\byul\\projectile",
         "-I",
         "C:\\Users\\critl\\docs\\byul_env\\byul\\rng",
-        "C:\\Users\\critl\\docs\\byul_env\\build_header_abi_audit\\byul_balix_numeq_numeq_pid_vec3_h.c"
+        "build_header_abi_audit_mingw\\byul_balix_numeq_numeq_pid_vec3_h.c"
       ],
       "stdout": "",
       "stderr": ""
@@ -2269,10 +2269,10 @@
     {
       "header": "byul/balix/numeq/numeq_pid_vec3.h",
       "language": "c++",
-      "compiler": "C:\\msys64\\mingw64\\bin\\c++.exe",
+      "compiler": "C:\\msys64\\mingw64\\bin\\g++.exe",
       "returncode": 0,
       "command": [
-        "C:\\msys64\\mingw64\\bin\\c++.exe",
+        "C:\\msys64\\mingw64\\bin\\g++.exe",
         "-std=c++17",
         "-fsyntax-only",
         "-I",
@@ -2339,7 +2339,7 @@
         "C:\\Users\\critl\\docs\\byul_env\\byul\\projectile",
         "-I",
         "C:\\Users\\critl\\docs\\byul_env\\byul\\rng",
-        "C:\\Users\\critl\\docs\\byul_env\\build_header_abi_audit\\byul_balix_numeq_numeq_pid_vec3_h.cpp"
+        "build_header_abi_audit_mingw\\byul_balix_numeq_numeq_pid_vec3_h.cpp"
       ],
       "stdout": "",
       "stderr": ""
@@ -2347,10 +2347,10 @@
     {
       "header": "byul/balix/numeq/numeq_solver.h",
       "language": "c",
-      "compiler": "C:\\msys64\\mingw64\\bin\\cc.exe",
+      "compiler": "C:\\msys64\\mingw64\\bin\\gcc.exe",
       "returncode": 0,
       "command": [
-        "C:\\msys64\\mingw64\\bin\\cc.exe",
+        "C:\\msys64\\mingw64\\bin\\gcc.exe",
         "-std=c17",
         "-fsyntax-only",
         "-I",
@@ -2417,7 +2417,7 @@
         "C:\\Users\\critl\\docs\\byul_env\\byul\\projectile",
         "-I",
         "C:\\Users\\critl\\docs\\byul_env\\byul\\rng",
-        "C:\\Users\\critl\\docs\\byul_env\\build_header_abi_audit\\byul_balix_numeq_numeq_solver_h.c"
+        "build_header_abi_audit_mingw\\byul_balix_numeq_numeq_solver_h.c"
       ],
       "stdout": "",
       "stderr": ""
@@ -2425,10 +2425,10 @@
     {
       "header": "byul/balix/numeq/numeq_solver.h",
       "language": "c++",
-      "compiler": "C:\\msys64\\mingw64\\bin\\c++.exe",
+      "compiler": "C:\\msys64\\mingw64\\bin\\g++.exe",
       "returncode": 0,
       "command": [
-        "C:\\msys64\\mingw64\\bin\\c++.exe",
+        "C:\\msys64\\mingw64\\bin\\g++.exe",
         "-std=c++17",
         "-fsyntax-only",
         "-I",
@@ -2495,7 +2495,7 @@
         "C:\\Users\\critl\\docs\\byul_env\\byul\\projectile",
         "-I",
         "C:\\Users\\critl\\docs\\byul_env\\byul\\rng",
-        "C:\\Users\\critl\\docs\\byul_env\\build_header_abi_audit\\byul_balix_numeq_numeq_solver_h.cpp"
+        "build_header_abi_audit_mingw\\byul_balix_numeq_numeq_solver_h.cpp"
       ],
       "stdout": "",
       "stderr": ""
@@ -2503,10 +2503,10 @@
     {
       "header": "byul/balix/trajectory/trajectory.h",
       "language": "c",
-      "compiler": "C:\\msys64\\mingw64\\bin\\cc.exe",
+      "compiler": "C:\\msys64\\mingw64\\bin\\gcc.exe",
       "returncode": 0,
       "command": [
-        "C:\\msys64\\mingw64\\bin\\cc.exe",
+        "C:\\msys64\\mingw64\\bin\\gcc.exe",
         "-std=c17",
         "-fsyntax-only",
         "-I",
@@ -2573,7 +2573,7 @@
         "C:\\Users\\critl\\docs\\byul_env\\byul\\projectile",
         "-I",
         "C:\\Users\\critl\\docs\\byul_env\\byul\\rng",
-        "C:\\Users\\critl\\docs\\byul_env\\build_header_abi_audit\\byul_balix_trajectory_trajectory_h.c"
+        "build_header_abi_audit_mingw\\byul_balix_trajectory_trajectory_h.c"
       ],
       "stdout": "",
       "stderr": ""
@@ -2581,10 +2581,10 @@
     {
       "header": "byul/balix/trajectory/trajectory.h",
       "language": "c++",
-      "compiler": "C:\\msys64\\mingw64\\bin\\c++.exe",
+      "compiler": "C:\\msys64\\mingw64\\bin\\g++.exe",
       "returncode": 0,
       "command": [
-        "C:\\msys64\\mingw64\\bin\\c++.exe",
+        "C:\\msys64\\mingw64\\bin\\g++.exe",
         "-std=c++17",
         "-fsyntax-only",
         "-I",
@@ -2651,7 +2651,7 @@
         "C:\\Users\\critl\\docs\\byul_env\\byul\\projectile",
         "-I",
         "C:\\Users\\critl\\docs\\byul_env\\byul\\rng",
-        "C:\\Users\\critl\\docs\\byul_env\\build_header_abi_audit\\byul_balix_trajectory_trajectory_h.cpp"
+        "build_header_abi_audit_mingw\\byul_balix_trajectory_trajectory_h.cpp"
       ],
       "stdout": "",
       "stderr": ""
@@ -2659,10 +2659,10 @@
     {
       "header": "byul/balix/xform/xform.h",
       "language": "c",
-      "compiler": "C:\\msys64\\mingw64\\bin\\cc.exe",
+      "compiler": "C:\\msys64\\mingw64\\bin\\gcc.exe",
       "returncode": 0,
       "command": [
-        "C:\\msys64\\mingw64\\bin\\cc.exe",
+        "C:\\msys64\\mingw64\\bin\\gcc.exe",
         "-std=c17",
         "-fsyntax-only",
         "-I",
@@ -2729,7 +2729,7 @@
         "C:\\Users\\critl\\docs\\byul_env\\byul\\projectile",
         "-I",
         "C:\\Users\\critl\\docs\\byul_env\\byul\\rng",
-        "C:\\Users\\critl\\docs\\byul_env\\build_header_abi_audit\\byul_balix_xform_xform_h.c"
+        "build_header_abi_audit_mingw\\byul_balix_xform_xform_h.c"
       ],
       "stdout": "",
       "stderr": ""
@@ -2737,10 +2737,10 @@
     {
       "header": "byul/balix/xform/xform.h",
       "language": "c++",
-      "compiler": "C:\\msys64\\mingw64\\bin\\c++.exe",
+      "compiler": "C:\\msys64\\mingw64\\bin\\g++.exe",
       "returncode": 0,
       "command": [
-        "C:\\msys64\\mingw64\\bin\\c++.exe",
+        "C:\\msys64\\mingw64\\bin\\g++.exe",
         "-std=c++17",
         "-fsyntax-only",
         "-I",
@@ -2807,7 +2807,7 @@
         "C:\\Users\\critl\\docs\\byul_env\\byul\\projectile",
         "-I",
         "C:\\Users\\critl\\docs\\byul_env\\byul\\rng",
-        "C:\\Users\\critl\\docs\\byul_env\\build_header_abi_audit\\byul_balix_xform_xform_h.cpp"
+        "build_header_abi_audit_mingw\\byul_balix_xform_xform_h.cpp"
       ],
       "stdout": "",
       "stderr": ""
@@ -2815,10 +2815,10 @@
     {
       "header": "byul/byul.h",
       "language": "c",
-      "compiler": "C:\\msys64\\mingw64\\bin\\cc.exe",
+      "compiler": "C:\\msys64\\mingw64\\bin\\gcc.exe",
       "returncode": 0,
       "command": [
-        "C:\\msys64\\mingw64\\bin\\cc.exe",
+        "C:\\msys64\\mingw64\\bin\\gcc.exe",
         "-std=c17",
         "-fsyntax-only",
         "-I",
@@ -2885,18 +2885,18 @@
         "C:\\Users\\critl\\docs\\byul_env\\byul\\projectile",
         "-I",
         "C:\\Users\\critl\\docs\\byul_env\\byul\\rng",
-        "C:\\Users\\critl\\docs\\byul_env\\build_header_abi_audit\\byul_byul_h.c"
+        "build_header_abi_audit_mingw\\byul_byul_h.c"
       ],
       "stdout": "",
-      "stderr": "In file included from C:\\Users\\critl\\docs\\byul_env\\byul\\balix/balix.h:10,\n                 from C:\\Users\\critl\\docs\\byul_env/byul/byul.h:15,\n                 from C:\\Users\\critl\\docs\\byul_env\\build_header_abi_audit\\byul_byul_h.c:1:\nC:\\Users\\critl\\docs\\byul_env\\byul\\balix\\environ/environ.h:26:18: warning: 'struct s_environ' declared inside parameter list will not be visible outside of this definition or declaration\n   26 |     const struct s_environ* env,\n      |                  ^~~~~~~~~\n"
+      "stderr": "In file included from C:\\Users\\critl\\docs\\byul_env\\byul\\balix/balix.h:10,\n                 from C:\\Users\\critl\\docs\\byul_env/byul/byul.h:15,\n                 from build_header_abi_audit_mingw\\byul_byul_h.c:1:\nC:\\Users\\critl\\docs\\byul_env\\byul\\balix\\environ/environ.h:26:18: warning: 'struct s_environ' declared inside parameter list will not be visible outside of this definition or declaration\n   26 |     const struct s_environ* env,\n      |                  ^~~~~~~~~\n"
     },
     {
       "header": "byul/byul.h",
       "language": "c++",
-      "compiler": "C:\\msys64\\mingw64\\bin\\c++.exe",
+      "compiler": "C:\\msys64\\mingw64\\bin\\g++.exe",
       "returncode": 0,
       "command": [
-        "C:\\msys64\\mingw64\\bin\\c++.exe",
+        "C:\\msys64\\mingw64\\bin\\g++.exe",
         "-std=c++17",
         "-fsyntax-only",
         "-I",
@@ -2963,7 +2963,7 @@
         "C:\\Users\\critl\\docs\\byul_env\\byul\\projectile",
         "-I",
         "C:\\Users\\critl\\docs\\byul_env\\byul\\rng",
-        "C:\\Users\\critl\\docs\\byul_env\\build_header_abi_audit\\byul_byul_h.cpp"
+        "build_header_abi_audit_mingw\\byul_byul_h.cpp"
       ],
       "stdout": "",
       "stderr": ""
@@ -2971,10 +2971,10 @@
     {
       "header": "byul/byul_config.h",
       "language": "c",
-      "compiler": "C:\\msys64\\mingw64\\bin\\cc.exe",
+      "compiler": "C:\\msys64\\mingw64\\bin\\gcc.exe",
       "returncode": 0,
       "command": [
-        "C:\\msys64\\mingw64\\bin\\cc.exe",
+        "C:\\msys64\\mingw64\\bin\\gcc.exe",
         "-std=c17",
         "-fsyntax-only",
         "-I",
@@ -3041,7 +3041,7 @@
         "C:\\Users\\critl\\docs\\byul_env\\byul\\projectile",
         "-I",
         "C:\\Users\\critl\\docs\\byul_env\\byul\\rng",
-        "C:\\Users\\critl\\docs\\byul_env\\build_header_abi_audit\\byul_byul_config_h.c"
+        "build_header_abi_audit_mingw\\byul_byul_config_h.c"
       ],
       "stdout": "",
       "stderr": ""
@@ -3049,10 +3049,10 @@
     {
       "header": "byul/byul_config.h",
       "language": "c++",
-      "compiler": "C:\\msys64\\mingw64\\bin\\c++.exe",
+      "compiler": "C:\\msys64\\mingw64\\bin\\g++.exe",
       "returncode": 0,
       "command": [
-        "C:\\msys64\\mingw64\\bin\\c++.exe",
+        "C:\\msys64\\mingw64\\bin\\g++.exe",
         "-std=c++17",
         "-fsyntax-only",
         "-I",
@@ -3119,7 +3119,7 @@
         "C:\\Users\\critl\\docs\\byul_env\\byul\\projectile",
         "-I",
         "C:\\Users\\critl\\docs\\byul_env\\byul\\rng",
-        "C:\\Users\\critl\\docs\\byul_env\\build_header_abi_audit\\byul_byul_config_h.cpp"
+        "build_header_abi_audit_mingw\\byul_byul_config_h.cpp"
       ],
       "stdout": "",
       "stderr": ""
@@ -3127,10 +3127,10 @@
     {
       "header": "byul/byul_tick/byul_tick.h",
       "language": "c",
-      "compiler": "C:\\msys64\\mingw64\\bin\\cc.exe",
+      "compiler": "C:\\msys64\\mingw64\\bin\\gcc.exe",
       "returncode": 0,
       "command": [
-        "C:\\msys64\\mingw64\\bin\\cc.exe",
+        "C:\\msys64\\mingw64\\bin\\gcc.exe",
         "-std=c17",
         "-fsyntax-only",
         "-I",
@@ -3197,7 +3197,7 @@
         "C:\\Users\\critl\\docs\\byul_env\\byul\\projectile",
         "-I",
         "C:\\Users\\critl\\docs\\byul_env\\byul\\rng",
-        "C:\\Users\\critl\\docs\\byul_env\\build_header_abi_audit\\byul_byul_tick_byul_tick_h.c"
+        "build_header_abi_audit_mingw\\byul_byul_tick_byul_tick_h.c"
       ],
       "stdout": "",
       "stderr": ""
@@ -3205,10 +3205,10 @@
     {
       "header": "byul/byul_tick/byul_tick.h",
       "language": "c++",
-      "compiler": "C:\\msys64\\mingw64\\bin\\c++.exe",
+      "compiler": "C:\\msys64\\mingw64\\bin\\g++.exe",
       "returncode": 0,
       "command": [
-        "C:\\msys64\\mingw64\\bin\\c++.exe",
+        "C:\\msys64\\mingw64\\bin\\g++.exe",
         "-std=c++17",
         "-fsyntax-only",
         "-I",
@@ -3275,7 +3275,7 @@
         "C:\\Users\\critl\\docs\\byul_env\\byul\\projectile",
         "-I",
         "C:\\Users\\critl\\docs\\byul_env\\byul\\rng",
-        "C:\\Users\\critl\\docs\\byul_env\\build_header_abi_audit\\byul_byul_tick_byul_tick_h.cpp"
+        "build_header_abi_audit_mingw\\byul_byul_tick_byul_tick_h.cpp"
       ],
       "stdout": "",
       "stderr": ""
@@ -3283,10 +3283,10 @@
     {
       "header": "byul/console/console.h",
       "language": "c",
-      "compiler": "C:\\msys64\\mingw64\\bin\\cc.exe",
+      "compiler": "C:\\msys64\\mingw64\\bin\\gcc.exe",
       "returncode": 0,
       "command": [
-        "C:\\msys64\\mingw64\\bin\\cc.exe",
+        "C:\\msys64\\mingw64\\bin\\gcc.exe",
         "-std=c17",
         "-fsyntax-only",
         "-I",
@@ -3353,7 +3353,7 @@
         "C:\\Users\\critl\\docs\\byul_env\\byul\\projectile",
         "-I",
         "C:\\Users\\critl\\docs\\byul_env\\byul\\rng",
-        "C:\\Users\\critl\\docs\\byul_env\\build_header_abi_audit\\byul_console_console_h.c"
+        "build_header_abi_audit_mingw\\byul_console_console_h.c"
       ],
       "stdout": "",
       "stderr": ""
@@ -3361,10 +3361,10 @@
     {
       "header": "byul/console/console.h",
       "language": "c++",
-      "compiler": "C:\\msys64\\mingw64\\bin\\c++.exe",
+      "compiler": "C:\\msys64\\mingw64\\bin\\g++.exe",
       "returncode": 0,
       "command": [
-        "C:\\msys64\\mingw64\\bin\\c++.exe",
+        "C:\\msys64\\mingw64\\bin\\g++.exe",
         "-std=c++17",
         "-fsyntax-only",
         "-I",
@@ -3431,7 +3431,7 @@
         "C:\\Users\\critl\\docs\\byul_env\\byul\\projectile",
         "-I",
         "C:\\Users\\critl\\docs\\byul_env\\byul\\rng",
-        "C:\\Users\\critl\\docs\\byul_env\\build_header_abi_audit\\byul_console_console_h.cpp"
+        "build_header_abi_audit_mingw\\byul_console_console_h.cpp"
       ],
       "stdout": "",
       "stderr": ""
@@ -3439,10 +3439,10 @@
     {
       "header": "byul/console/dstar_lite_console.h",
       "language": "c",
-      "compiler": "C:\\msys64\\mingw64\\bin\\cc.exe",
+      "compiler": "C:\\msys64\\mingw64\\bin\\gcc.exe",
       "returncode": 0,
       "command": [
-        "C:\\msys64\\mingw64\\bin\\cc.exe",
+        "C:\\msys64\\mingw64\\bin\\gcc.exe",
         "-std=c17",
         "-fsyntax-only",
         "-I",
@@ -3509,7 +3509,7 @@
         "C:\\Users\\critl\\docs\\byul_env\\byul\\projectile",
         "-I",
         "C:\\Users\\critl\\docs\\byul_env\\byul\\rng",
-        "C:\\Users\\critl\\docs\\byul_env\\build_header_abi_audit\\byul_console_dstar_lite_console_h.c"
+        "build_header_abi_audit_mingw\\byul_console_dstar_lite_console_h.c"
       ],
       "stdout": "",
       "stderr": ""
@@ -3517,10 +3517,10 @@
     {
       "header": "byul/console/dstar_lite_console.h",
       "language": "c++",
-      "compiler": "C:\\msys64\\mingw64\\bin\\c++.exe",
+      "compiler": "C:\\msys64\\mingw64\\bin\\g++.exe",
       "returncode": 0,
       "command": [
-        "C:\\msys64\\mingw64\\bin\\c++.exe",
+        "C:\\msys64\\mingw64\\bin\\g++.exe",
         "-std=c++17",
         "-fsyntax-only",
         "-I",
@@ -3587,7 +3587,7 @@
         "C:\\Users\\critl\\docs\\byul_env\\byul\\projectile",
         "-I",
         "C:\\Users\\critl\\docs\\byul_env\\byul\\rng",
-        "C:\\Users\\critl\\docs\\byul_env\\build_header_abi_audit\\byul_console_dstar_lite_console_h.cpp"
+        "build_header_abi_audit_mingw\\byul_console_dstar_lite_console_h.cpp"
       ],
       "stdout": "",
       "stderr": ""
@@ -3595,10 +3595,10 @@
     {
       "header": "byul/core/strset.h",
       "language": "c",
-      "compiler": "C:\\msys64\\mingw64\\bin\\cc.exe",
+      "compiler": "C:\\msys64\\mingw64\\bin\\gcc.exe",
       "returncode": 0,
       "command": [
-        "C:\\msys64\\mingw64\\bin\\cc.exe",
+        "C:\\msys64\\mingw64\\bin\\gcc.exe",
         "-std=c17",
         "-fsyntax-only",
         "-I",
@@ -3665,7 +3665,7 @@
         "C:\\Users\\critl\\docs\\byul_env\\byul\\projectile",
         "-I",
         "C:\\Users\\critl\\docs\\byul_env\\byul\\rng",
-        "C:\\Users\\critl\\docs\\byul_env\\build_header_abi_audit\\byul_core_strset_h.c"
+        "build_header_abi_audit_mingw\\byul_core_strset_h.c"
       ],
       "stdout": "",
       "stderr": ""
@@ -3673,10 +3673,10 @@
     {
       "header": "byul/core/strset.h",
       "language": "c++",
-      "compiler": "C:\\msys64\\mingw64\\bin\\c++.exe",
+      "compiler": "C:\\msys64\\mingw64\\bin\\g++.exe",
       "returncode": 0,
       "command": [
-        "C:\\msys64\\mingw64\\bin\\c++.exe",
+        "C:\\msys64\\mingw64\\bin\\g++.exe",
         "-std=c++17",
         "-fsyntax-only",
         "-I",
@@ -3743,7 +3743,7 @@
         "C:\\Users\\critl\\docs\\byul_env\\byul\\projectile",
         "-I",
         "C:\\Users\\critl\\docs\\byul_env\\byul\\rng",
-        "C:\\Users\\critl\\docs\\byul_env\\build_header_abi_audit\\byul_core_strset_h.cpp"
+        "build_header_abi_audit_mingw\\byul_core_strset_h.cpp"
       ],
       "stdout": "",
       "stderr": ""
@@ -3751,10 +3751,10 @@
     {
       "header": "byul/entity/entity.h",
       "language": "c",
-      "compiler": "C:\\msys64\\mingw64\\bin\\cc.exe",
+      "compiler": "C:\\msys64\\mingw64\\bin\\gcc.exe",
       "returncode": 0,
       "command": [
-        "C:\\msys64\\mingw64\\bin\\cc.exe",
+        "C:\\msys64\\mingw64\\bin\\gcc.exe",
         "-std=c17",
         "-fsyntax-only",
         "-I",
@@ -3821,7 +3821,7 @@
         "C:\\Users\\critl\\docs\\byul_env\\byul\\projectile",
         "-I",
         "C:\\Users\\critl\\docs\\byul_env\\byul\\rng",
-        "C:\\Users\\critl\\docs\\byul_env\\build_header_abi_audit\\byul_entity_entity_h.c"
+        "build_header_abi_audit_mingw\\byul_entity_entity_h.c"
       ],
       "stdout": "",
       "stderr": ""
@@ -3829,10 +3829,10 @@
     {
       "header": "byul/entity/entity.h",
       "language": "c++",
-      "compiler": "C:\\msys64\\mingw64\\bin\\c++.exe",
+      "compiler": "C:\\msys64\\mingw64\\bin\\g++.exe",
       "returncode": 0,
       "command": [
-        "C:\\msys64\\mingw64\\bin\\c++.exe",
+        "C:\\msys64\\mingw64\\bin\\g++.exe",
         "-std=c++17",
         "-fsyntax-only",
         "-I",
@@ -3899,7 +3899,7 @@
         "C:\\Users\\critl\\docs\\byul_env\\byul\\projectile",
         "-I",
         "C:\\Users\\critl\\docs\\byul_env\\byul\\rng",
-        "C:\\Users\\critl\\docs\\byul_env\\build_header_abi_audit\\byul_entity_entity_h.cpp"
+        "build_header_abi_audit_mingw\\byul_entity_entity_h.cpp"
       ],
       "stdout": "",
       "stderr": ""
@@ -3907,10 +3907,10 @@
     {
       "header": "byul/entity/entity_dynamic.h",
       "language": "c",
-      "compiler": "C:\\msys64\\mingw64\\bin\\cc.exe",
+      "compiler": "C:\\msys64\\mingw64\\bin\\gcc.exe",
       "returncode": 0,
       "command": [
-        "C:\\msys64\\mingw64\\bin\\cc.exe",
+        "C:\\msys64\\mingw64\\bin\\gcc.exe",
         "-std=c17",
         "-fsyntax-only",
         "-I",
@@ -3977,18 +3977,18 @@
         "C:\\Users\\critl\\docs\\byul_env\\byul\\projectile",
         "-I",
         "C:\\Users\\critl\\docs\\byul_env\\byul\\rng",
-        "C:\\Users\\critl\\docs\\byul_env\\build_header_abi_audit\\byul_entity_entity_dynamic_h.c"
+        "build_header_abi_audit_mingw\\byul_entity_entity_dynamic_h.c"
       ],
       "stdout": "",
-      "stderr": "In file included from C:\\Users\\critl\\docs\\byul_env/byul/entity/entity_dynamic.h:13,\n                 from C:\\Users\\critl\\docs\\byul_env\\build_header_abi_audit\\byul_entity_entity_dynamic_h.c:1:\nC:\\Users\\critl\\docs\\byul_env\\byul\\balix\\environ/environ.h:26:18: warning: 'struct s_environ' declared inside parameter list will not be visible outside of this definition or declaration\n   26 |     const struct s_environ* env,\n      |                  ^~~~~~~~~\n"
+      "stderr": "In file included from C:\\Users\\critl\\docs\\byul_env/byul/entity/entity_dynamic.h:13,\n                 from build_header_abi_audit_mingw\\byul_entity_entity_dynamic_h.c:1:\nC:\\Users\\critl\\docs\\byul_env\\byul\\balix\\environ/environ.h:26:18: warning: 'struct s_environ' declared inside parameter list will not be visible outside of this definition or declaration\n   26 |     const struct s_environ* env,\n      |                  ^~~~~~~~~\n"
     },
     {
       "header": "byul/entity/entity_dynamic.h",
       "language": "c++",
-      "compiler": "C:\\msys64\\mingw64\\bin\\c++.exe",
+      "compiler": "C:\\msys64\\mingw64\\bin\\g++.exe",
       "returncode": 0,
       "command": [
-        "C:\\msys64\\mingw64\\bin\\c++.exe",
+        "C:\\msys64\\mingw64\\bin\\g++.exe",
         "-std=c++17",
         "-fsyntax-only",
         "-I",
@@ -4055,7 +4055,7 @@
         "C:\\Users\\critl\\docs\\byul_env\\byul\\projectile",
         "-I",
         "C:\\Users\\critl\\docs\\byul_env\\byul\\rng",
-        "C:\\Users\\critl\\docs\\byul_env\\build_header_abi_audit\\byul_entity_entity_dynamic_h.cpp"
+        "build_header_abi_audit_mingw\\byul_entity_entity_dynamic_h.cpp"
       ],
       "stdout": "",
       "stderr": ""
@@ -4063,10 +4063,10 @@
     {
       "header": "byul/entity/entity_dynamic_coord.h",
       "language": "c",
-      "compiler": "C:\\msys64\\mingw64\\bin\\cc.exe",
+      "compiler": "C:\\msys64\\mingw64\\bin\\gcc.exe",
       "returncode": 0,
       "command": [
-        "C:\\msys64\\mingw64\\bin\\cc.exe",
+        "C:\\msys64\\mingw64\\bin\\gcc.exe",
         "-std=c17",
         "-fsyntax-only",
         "-I",
@@ -4133,18 +4133,18 @@
         "C:\\Users\\critl\\docs\\byul_env\\byul\\projectile",
         "-I",
         "C:\\Users\\critl\\docs\\byul_env\\byul\\rng",
-        "C:\\Users\\critl\\docs\\byul_env\\build_header_abi_audit\\byul_entity_entity_dynamic_coord_h.c"
+        "build_header_abi_audit_mingw\\byul_entity_entity_dynamic_coord_h.c"
       ],
       "stdout": "",
-      "stderr": "In file included from C:\\Users\\critl\\docs\\byul_env/byul/entity/entity_dynamic.h:13,\n                 from C:\\Users\\critl\\docs\\byul_env/byul/entity/entity_dynamic_coord.h:8,\n                 from C:\\Users\\critl\\docs\\byul_env\\build_header_abi_audit\\byul_entity_entity_dynamic_coord_h.c:1:\nC:\\Users\\critl\\docs\\byul_env\\byul\\balix\\environ/environ.h:26:18: warning: 'struct s_environ' declared inside parameter list will not be visible outside of this definition or declaration\n   26 |     const struct s_environ* env,\n      |                  ^~~~~~~~~\n"
+      "stderr": "In file included from C:\\Users\\critl\\docs\\byul_env/byul/entity/entity_dynamic.h:13,\n                 from C:\\Users\\critl\\docs\\byul_env/byul/entity/entity_dynamic_coord.h:8,\n                 from build_header_abi_audit_mingw\\byul_entity_entity_dynamic_coord_h.c:1:\nC:\\Users\\critl\\docs\\byul_env\\byul\\balix\\environ/environ.h:26:18: warning: 'struct s_environ' declared inside parameter list will not be visible outside of this definition or declaration\n   26 |     const struct s_environ* env,\n      |                  ^~~~~~~~~\n"
     },
     {
       "header": "byul/entity/entity_dynamic_coord.h",
       "language": "c++",
-      "compiler": "C:\\msys64\\mingw64\\bin\\c++.exe",
+      "compiler": "C:\\msys64\\mingw64\\bin\\g++.exe",
       "returncode": 0,
       "command": [
-        "C:\\msys64\\mingw64\\bin\\c++.exe",
+        "C:\\msys64\\mingw64\\bin\\g++.exe",
         "-std=c++17",
         "-fsyntax-only",
         "-I",
@@ -4211,7 +4211,7 @@
         "C:\\Users\\critl\\docs\\byul_env\\byul\\projectile",
         "-I",
         "C:\\Users\\critl\\docs\\byul_env\\byul\\rng",
-        "C:\\Users\\critl\\docs\\byul_env\\build_header_abi_audit\\byul_entity_entity_dynamic_coord_h.cpp"
+        "build_header_abi_audit_mingw\\byul_entity_entity_dynamic_coord_h.cpp"
       ],
       "stdout": "",
       "stderr": ""
@@ -4219,10 +4219,10 @@
     {
       "header": "byul/entity/entity_interaction.h",
       "language": "c",
-      "compiler": "C:\\msys64\\mingw64\\bin\\cc.exe",
+      "compiler": "C:\\msys64\\mingw64\\bin\\gcc.exe",
       "returncode": 0,
       "command": [
-        "C:\\msys64\\mingw64\\bin\\cc.exe",
+        "C:\\msys64\\mingw64\\bin\\gcc.exe",
         "-std=c17",
         "-fsyntax-only",
         "-I",
@@ -4289,18 +4289,18 @@
         "C:\\Users\\critl\\docs\\byul_env\\byul\\projectile",
         "-I",
         "C:\\Users\\critl\\docs\\byul_env\\byul\\rng",
-        "C:\\Users\\critl\\docs\\byul_env\\build_header_abi_audit\\byul_entity_entity_interaction_h.c"
+        "build_header_abi_audit_mingw\\byul_entity_entity_interaction_h.c"
       ],
       "stdout": "",
-      "stderr": "In file included from C:\\Users\\critl\\docs\\byul_env/byul/entity/entity_dynamic.h:13,\n                 from C:\\Users\\critl\\docs\\byul_env/byul/entity/entity_interaction.h:8,\n                 from C:\\Users\\critl\\docs\\byul_env\\build_header_abi_audit\\byul_entity_entity_interaction_h.c:1:\nC:\\Users\\critl\\docs\\byul_env\\byul\\balix\\environ/environ.h:26:18: warning: 'struct s_environ' declared inside parameter list will not be visible outside of this definition or declaration\n   26 |     const struct s_environ* env,\n      |                  ^~~~~~~~~\n"
+      "stderr": "In file included from C:\\Users\\critl\\docs\\byul_env/byul/entity/entity_dynamic.h:13,\n                 from C:\\Users\\critl\\docs\\byul_env/byul/entity/entity_interaction.h:8,\n                 from build_header_abi_audit_mingw\\byul_entity_entity_interaction_h.c:1:\nC:\\Users\\critl\\docs\\byul_env\\byul\\balix\\environ/environ.h:26:18: warning: 'struct s_environ' declared inside parameter list will not be visible outside of this definition or declaration\n   26 |     const struct s_environ* env,\n      |                  ^~~~~~~~~\n"
     },
     {
       "header": "byul/entity/entity_interaction.h",
       "language": "c++",
-      "compiler": "C:\\msys64\\mingw64\\bin\\c++.exe",
+      "compiler": "C:\\msys64\\mingw64\\bin\\g++.exe",
       "returncode": 0,
       "command": [
-        "C:\\msys64\\mingw64\\bin\\c++.exe",
+        "C:\\msys64\\mingw64\\bin\\g++.exe",
         "-std=c++17",
         "-fsyntax-only",
         "-I",
@@ -4367,7 +4367,7 @@
         "C:\\Users\\critl\\docs\\byul_env\\byul\\projectile",
         "-I",
         "C:\\Users\\critl\\docs\\byul_env\\byul\\rng",
-        "C:\\Users\\critl\\docs\\byul_env\\build_header_abi_audit\\byul_entity_entity_interaction_h.cpp"
+        "build_header_abi_audit_mingw\\byul_entity_entity_interaction_h.cpp"
       ],
       "stdout": "",
       "stderr": ""
@@ -4375,10 +4375,10 @@
     {
       "header": "byul/entity/entity_spring.h",
       "language": "c",
-      "compiler": "C:\\msys64\\mingw64\\bin\\cc.exe",
+      "compiler": "C:\\msys64\\mingw64\\bin\\gcc.exe",
       "returncode": 0,
       "command": [
-        "C:\\msys64\\mingw64\\bin\\cc.exe",
+        "C:\\msys64\\mingw64\\bin\\gcc.exe",
         "-std=c17",
         "-fsyntax-only",
         "-I",
@@ -4445,18 +4445,18 @@
         "C:\\Users\\critl\\docs\\byul_env\\byul\\projectile",
         "-I",
         "C:\\Users\\critl\\docs\\byul_env\\byul\\rng",
-        "C:\\Users\\critl\\docs\\byul_env\\build_header_abi_audit\\byul_entity_entity_spring_h.c"
+        "build_header_abi_audit_mingw\\byul_entity_entity_spring_h.c"
       ],
       "stdout": "",
-      "stderr": "In file included from C:\\Users\\critl\\docs\\byul_env/byul/entity/entity_dynamic.h:13,\n                 from C:\\Users\\critl\\docs\\byul_env/byul/entity/entity_spring.h:8,\n                 from C:\\Users\\critl\\docs\\byul_env\\build_header_abi_audit\\byul_entity_entity_spring_h.c:1:\nC:\\Users\\critl\\docs\\byul_env\\byul\\balix\\environ/environ.h:26:18: warning: 'struct s_environ' declared inside parameter list will not be visible outside of this definition or declaration\n   26 |     const struct s_environ* env,\n      |                  ^~~~~~~~~\n"
+      "stderr": "In file included from C:\\Users\\critl\\docs\\byul_env/byul/entity/entity_dynamic.h:13,\n                 from C:\\Users\\critl\\docs\\byul_env/byul/entity/entity_spring.h:8,\n                 from build_header_abi_audit_mingw\\byul_entity_entity_spring_h.c:1:\nC:\\Users\\critl\\docs\\byul_env\\byul\\balix\\environ/environ.h:26:18: warning: 'struct s_environ' declared inside parameter list will not be visible outside of this definition or declaration\n   26 |     const struct s_environ* env,\n      |                  ^~~~~~~~~\n"
     },
     {
       "header": "byul/entity/entity_spring.h",
       "language": "c++",
-      "compiler": "C:\\msys64\\mingw64\\bin\\c++.exe",
+      "compiler": "C:\\msys64\\mingw64\\bin\\g++.exe",
       "returncode": 0,
       "command": [
-        "C:\\msys64\\mingw64\\bin\\c++.exe",
+        "C:\\msys64\\mingw64\\bin\\g++.exe",
         "-std=c++17",
         "-fsyntax-only",
         "-I",
@@ -4523,7 +4523,7 @@
         "C:\\Users\\critl\\docs\\byul_env\\byul\\projectile",
         "-I",
         "C:\\Users\\critl\\docs\\byul_env\\byul\\rng",
-        "C:\\Users\\critl\\docs\\byul_env\\build_header_abi_audit\\byul_entity_entity_spring_h.cpp"
+        "build_header_abi_audit_mingw\\byul_entity_entity_spring_h.cpp"
       ],
       "stdout": "",
       "stderr": ""
@@ -4531,10 +4531,10 @@
     {
       "header": "byul/ground/ground.h",
       "language": "c",
-      "compiler": "C:\\msys64\\mingw64\\bin\\cc.exe",
+      "compiler": "C:\\msys64\\mingw64\\bin\\gcc.exe",
       "returncode": 0,
       "command": [
-        "C:\\msys64\\mingw64\\bin\\cc.exe",
+        "C:\\msys64\\mingw64\\bin\\gcc.exe",
         "-std=c17",
         "-fsyntax-only",
         "-I",
@@ -4601,7 +4601,7 @@
         "C:\\Users\\critl\\docs\\byul_env\\byul\\projectile",
         "-I",
         "C:\\Users\\critl\\docs\\byul_env\\byul\\rng",
-        "C:\\Users\\critl\\docs\\byul_env\\build_header_abi_audit\\byul_ground_ground_h.c"
+        "build_header_abi_audit_mingw\\byul_ground_ground_h.c"
       ],
       "stdout": "",
       "stderr": ""
@@ -4609,10 +4609,10 @@
     {
       "header": "byul/ground/ground.h",
       "language": "c++",
-      "compiler": "C:\\msys64\\mingw64\\bin\\c++.exe",
+      "compiler": "C:\\msys64\\mingw64\\bin\\g++.exe",
       "returncode": 0,
       "command": [
-        "C:\\msys64\\mingw64\\bin\\c++.exe",
+        "C:\\msys64\\mingw64\\bin\\g++.exe",
         "-std=c++17",
         "-fsyntax-only",
         "-I",
@@ -4679,7 +4679,7 @@
         "C:\\Users\\critl\\docs\\byul_env\\byul\\projectile",
         "-I",
         "C:\\Users\\critl\\docs\\byul_env\\byul\\rng",
-        "C:\\Users\\critl\\docs\\byul_env\\build_header_abi_audit\\byul_ground_ground_h.cpp"
+        "build_header_abi_audit_mingw\\byul_ground_ground_h.cpp"
       ],
       "stdout": "",
       "stderr": ""
@@ -4687,10 +4687,10 @@
     {
       "header": "byul/navsys/coord/coord.h",
       "language": "c",
-      "compiler": "C:\\msys64\\mingw64\\bin\\cc.exe",
+      "compiler": "C:\\msys64\\mingw64\\bin\\gcc.exe",
       "returncode": 0,
       "command": [
-        "C:\\msys64\\mingw64\\bin\\cc.exe",
+        "C:\\msys64\\mingw64\\bin\\gcc.exe",
         "-std=c17",
         "-fsyntax-only",
         "-I",
@@ -4757,7 +4757,7 @@
         "C:\\Users\\critl\\docs\\byul_env\\byul\\projectile",
         "-I",
         "C:\\Users\\critl\\docs\\byul_env\\byul\\rng",
-        "C:\\Users\\critl\\docs\\byul_env\\build_header_abi_audit\\byul_navsys_coord_coord_h.c"
+        "build_header_abi_audit_mingw\\byul_navsys_coord_coord_h.c"
       ],
       "stdout": "",
       "stderr": ""
@@ -4765,10 +4765,10 @@
     {
       "header": "byul/navsys/coord/coord.h",
       "language": "c++",
-      "compiler": "C:\\msys64\\mingw64\\bin\\c++.exe",
+      "compiler": "C:\\msys64\\mingw64\\bin\\g++.exe",
       "returncode": 0,
       "command": [
-        "C:\\msys64\\mingw64\\bin\\c++.exe",
+        "C:\\msys64\\mingw64\\bin\\g++.exe",
         "-std=c++17",
         "-fsyntax-only",
         "-I",
@@ -4835,7 +4835,7 @@
         "C:\\Users\\critl\\docs\\byul_env\\byul\\projectile",
         "-I",
         "C:\\Users\\critl\\docs\\byul_env\\byul\\rng",
-        "C:\\Users\\critl\\docs\\byul_env\\build_header_abi_audit\\byul_navsys_coord_coord_h.cpp"
+        "build_header_abi_audit_mingw\\byul_navsys_coord_coord_h.cpp"
       ],
       "stdout": "",
       "stderr": ""
@@ -4843,10 +4843,10 @@
     {
       "header": "byul/navsys/coord/coord_hash.h",
       "language": "c",
-      "compiler": "C:\\msys64\\mingw64\\bin\\cc.exe",
+      "compiler": "C:\\msys64\\mingw64\\bin\\gcc.exe",
       "returncode": 0,
       "command": [
-        "C:\\msys64\\mingw64\\bin\\cc.exe",
+        "C:\\msys64\\mingw64\\bin\\gcc.exe",
         "-std=c17",
         "-fsyntax-only",
         "-I",
@@ -4913,7 +4913,7 @@
         "C:\\Users\\critl\\docs\\byul_env\\byul\\projectile",
         "-I",
         "C:\\Users\\critl\\docs\\byul_env\\byul\\rng",
-        "C:\\Users\\critl\\docs\\byul_env\\build_header_abi_audit\\byul_navsys_coord_coord_hash_h.c"
+        "build_header_abi_audit_mingw\\byul_navsys_coord_coord_hash_h.c"
       ],
       "stdout": "",
       "stderr": ""
@@ -4921,10 +4921,10 @@
     {
       "header": "byul/navsys/coord/coord_hash.h",
       "language": "c++",
-      "compiler": "C:\\msys64\\mingw64\\bin\\c++.exe",
+      "compiler": "C:\\msys64\\mingw64\\bin\\g++.exe",
       "returncode": 0,
       "command": [
-        "C:\\msys64\\mingw64\\bin\\c++.exe",
+        "C:\\msys64\\mingw64\\bin\\g++.exe",
         "-std=c++17",
         "-fsyntax-only",
         "-I",
@@ -4991,7 +4991,7 @@
         "C:\\Users\\critl\\docs\\byul_env\\byul\\projectile",
         "-I",
         "C:\\Users\\critl\\docs\\byul_env\\byul\\rng",
-        "C:\\Users\\critl\\docs\\byul_env\\build_header_abi_audit\\byul_navsys_coord_coord_hash_h.cpp"
+        "build_header_abi_audit_mingw\\byul_navsys_coord_coord_hash_h.cpp"
       ],
       "stdout": "",
       "stderr": ""
@@ -4999,10 +4999,10 @@
     {
       "header": "byul/navsys/coord/coord_list.h",
       "language": "c",
-      "compiler": "C:\\msys64\\mingw64\\bin\\cc.exe",
+      "compiler": "C:\\msys64\\mingw64\\bin\\gcc.exe",
       "returncode": 0,
       "command": [
-        "C:\\msys64\\mingw64\\bin\\cc.exe",
+        "C:\\msys64\\mingw64\\bin\\gcc.exe",
         "-std=c17",
         "-fsyntax-only",
         "-I",
@@ -5069,7 +5069,7 @@
         "C:\\Users\\critl\\docs\\byul_env\\byul\\projectile",
         "-I",
         "C:\\Users\\critl\\docs\\byul_env\\byul\\rng",
-        "C:\\Users\\critl\\docs\\byul_env\\build_header_abi_audit\\byul_navsys_coord_coord_list_h.c"
+        "build_header_abi_audit_mingw\\byul_navsys_coord_coord_list_h.c"
       ],
       "stdout": "",
       "stderr": ""
@@ -5077,10 +5077,10 @@
     {
       "header": "byul/navsys/coord/coord_list.h",
       "language": "c++",
-      "compiler": "C:\\msys64\\mingw64\\bin\\c++.exe",
+      "compiler": "C:\\msys64\\mingw64\\bin\\g++.exe",
       "returncode": 0,
       "command": [
-        "C:\\msys64\\mingw64\\bin\\c++.exe",
+        "C:\\msys64\\mingw64\\bin\\g++.exe",
         "-std=c++17",
         "-fsyntax-only",
         "-I",
@@ -5147,7 +5147,7 @@
         "C:\\Users\\critl\\docs\\byul_env\\byul\\projectile",
         "-I",
         "C:\\Users\\critl\\docs\\byul_env\\byul\\rng",
-        "C:\\Users\\critl\\docs\\byul_env\\build_header_abi_audit\\byul_navsys_coord_coord_list_h.cpp"
+        "build_header_abi_audit_mingw\\byul_navsys_coord_coord_list_h.cpp"
       ],
       "stdout": "",
       "stderr": ""
@@ -5155,10 +5155,10 @@
     {
       "header": "byul/navsys/coord/cost_coord_pq.h",
       "language": "c",
-      "compiler": "C:\\msys64\\mingw64\\bin\\cc.exe",
+      "compiler": "C:\\msys64\\mingw64\\bin\\gcc.exe",
       "returncode": 0,
       "command": [
-        "C:\\msys64\\mingw64\\bin\\cc.exe",
+        "C:\\msys64\\mingw64\\bin\\gcc.exe",
         "-std=c17",
         "-fsyntax-only",
         "-I",
@@ -5225,7 +5225,7 @@
         "C:\\Users\\critl\\docs\\byul_env\\byul\\projectile",
         "-I",
         "C:\\Users\\critl\\docs\\byul_env\\byul\\rng",
-        "C:\\Users\\critl\\docs\\byul_env\\build_header_abi_audit\\byul_navsys_coord_cost_coord_pq_h.c"
+        "build_header_abi_audit_mingw\\byul_navsys_coord_cost_coord_pq_h.c"
       ],
       "stdout": "",
       "stderr": ""
@@ -5233,10 +5233,10 @@
     {
       "header": "byul/navsys/coord/cost_coord_pq.h",
       "language": "c++",
-      "compiler": "C:\\msys64\\mingw64\\bin\\c++.exe",
+      "compiler": "C:\\msys64\\mingw64\\bin\\g++.exe",
       "returncode": 0,
       "command": [
-        "C:\\msys64\\mingw64\\bin\\c++.exe",
+        "C:\\msys64\\mingw64\\bin\\g++.exe",
         "-std=c++17",
         "-fsyntax-only",
         "-I",
@@ -5303,7 +5303,7 @@
         "C:\\Users\\critl\\docs\\byul_env\\byul\\projectile",
         "-I",
         "C:\\Users\\critl\\docs\\byul_env\\byul\\rng",
-        "C:\\Users\\critl\\docs\\byul_env\\build_header_abi_audit\\byul_navsys_coord_cost_coord_pq_h.cpp"
+        "build_header_abi_audit_mingw\\byul_navsys_coord_cost_coord_pq_h.cpp"
       ],
       "stdout": "",
       "stderr": ""
@@ -5311,10 +5311,10 @@
     {
       "header": "byul/navsys/dstar_lite/dstar_lite.h",
       "language": "c",
-      "compiler": "C:\\msys64\\mingw64\\bin\\cc.exe",
+      "compiler": "C:\\msys64\\mingw64\\bin\\gcc.exe",
       "returncode": 0,
       "command": [
-        "C:\\msys64\\mingw64\\bin\\cc.exe",
+        "C:\\msys64\\mingw64\\bin\\gcc.exe",
         "-std=c17",
         "-fsyntax-only",
         "-I",
@@ -5381,7 +5381,7 @@
         "C:\\Users\\critl\\docs\\byul_env\\byul\\projectile",
         "-I",
         "C:\\Users\\critl\\docs\\byul_env\\byul\\rng",
-        "C:\\Users\\critl\\docs\\byul_env\\build_header_abi_audit\\byul_navsys_dstar_lite_dstar_lite_h.c"
+        "build_header_abi_audit_mingw\\byul_navsys_dstar_lite_dstar_lite_h.c"
       ],
       "stdout": "",
       "stderr": ""
@@ -5389,10 +5389,10 @@
     {
       "header": "byul/navsys/dstar_lite/dstar_lite.h",
       "language": "c++",
-      "compiler": "C:\\msys64\\mingw64\\bin\\c++.exe",
+      "compiler": "C:\\msys64\\mingw64\\bin\\g++.exe",
       "returncode": 0,
       "command": [
-        "C:\\msys64\\mingw64\\bin\\c++.exe",
+        "C:\\msys64\\mingw64\\bin\\g++.exe",
         "-std=c++17",
         "-fsyntax-only",
         "-I",
@@ -5459,7 +5459,7 @@
         "C:\\Users\\critl\\docs\\byul_env\\byul\\projectile",
         "-I",
         "C:\\Users\\critl\\docs\\byul_env\\byul\\rng",
-        "C:\\Users\\critl\\docs\\byul_env\\build_header_abi_audit\\byul_navsys_dstar_lite_dstar_lite_h.cpp"
+        "build_header_abi_audit_mingw\\byul_navsys_dstar_lite_dstar_lite_h.cpp"
       ],
       "stdout": "",
       "stderr": ""
@@ -5467,10 +5467,10 @@
     {
       "header": "byul/navsys/dstar_lite/dstar_lite_key.h",
       "language": "c",
-      "compiler": "C:\\msys64\\mingw64\\bin\\cc.exe",
+      "compiler": "C:\\msys64\\mingw64\\bin\\gcc.exe",
       "returncode": 0,
       "command": [
-        "C:\\msys64\\mingw64\\bin\\cc.exe",
+        "C:\\msys64\\mingw64\\bin\\gcc.exe",
         "-std=c17",
         "-fsyntax-only",
         "-I",
@@ -5537,7 +5537,7 @@
         "C:\\Users\\critl\\docs\\byul_env\\byul\\projectile",
         "-I",
         "C:\\Users\\critl\\docs\\byul_env\\byul\\rng",
-        "C:\\Users\\critl\\docs\\byul_env\\build_header_abi_audit\\byul_navsys_dstar_lite_dstar_lite_key_h.c"
+        "build_header_abi_audit_mingw\\byul_navsys_dstar_lite_dstar_lite_key_h.c"
       ],
       "stdout": "",
       "stderr": ""
@@ -5545,10 +5545,10 @@
     {
       "header": "byul/navsys/dstar_lite/dstar_lite_key.h",
       "language": "c++",
-      "compiler": "C:\\msys64\\mingw64\\bin\\c++.exe",
+      "compiler": "C:\\msys64\\mingw64\\bin\\g++.exe",
       "returncode": 0,
       "command": [
-        "C:\\msys64\\mingw64\\bin\\c++.exe",
+        "C:\\msys64\\mingw64\\bin\\g++.exe",
         "-std=c++17",
         "-fsyntax-only",
         "-I",
@@ -5615,7 +5615,7 @@
         "C:\\Users\\critl\\docs\\byul_env\\byul\\projectile",
         "-I",
         "C:\\Users\\critl\\docs\\byul_env\\byul\\rng",
-        "C:\\Users\\critl\\docs\\byul_env\\build_header_abi_audit\\byul_navsys_dstar_lite_dstar_lite_key_h.cpp"
+        "build_header_abi_audit_mingw\\byul_navsys_dstar_lite_dstar_lite_key_h.cpp"
       ],
       "stdout": "",
       "stderr": ""
@@ -5623,10 +5623,10 @@
     {
       "header": "byul/navsys/dstar_lite/dstar_lite_pqueue.h",
       "language": "c",
-      "compiler": "C:\\msys64\\mingw64\\bin\\cc.exe",
+      "compiler": "C:\\msys64\\mingw64\\bin\\gcc.exe",
       "returncode": 0,
       "command": [
-        "C:\\msys64\\mingw64\\bin\\cc.exe",
+        "C:\\msys64\\mingw64\\bin\\gcc.exe",
         "-std=c17",
         "-fsyntax-only",
         "-I",
@@ -5693,7 +5693,7 @@
         "C:\\Users\\critl\\docs\\byul_env\\byul\\projectile",
         "-I",
         "C:\\Users\\critl\\docs\\byul_env\\byul\\rng",
-        "C:\\Users\\critl\\docs\\byul_env\\build_header_abi_audit\\byul_navsys_dstar_lite_dstar_lite_pqueue_h.c"
+        "build_header_abi_audit_mingw\\byul_navsys_dstar_lite_dstar_lite_pqueue_h.c"
       ],
       "stdout": "",
       "stderr": ""
@@ -5701,10 +5701,10 @@
     {
       "header": "byul/navsys/dstar_lite/dstar_lite_pqueue.h",
       "language": "c++",
-      "compiler": "C:\\msys64\\mingw64\\bin\\c++.exe",
+      "compiler": "C:\\msys64\\mingw64\\bin\\g++.exe",
       "returncode": 0,
       "command": [
-        "C:\\msys64\\mingw64\\bin\\c++.exe",
+        "C:\\msys64\\mingw64\\bin\\g++.exe",
         "-std=c++17",
         "-fsyntax-only",
         "-I",
@@ -5771,7 +5771,7 @@
         "C:\\Users\\critl\\docs\\byul_env\\byul\\projectile",
         "-I",
         "C:\\Users\\critl\\docs\\byul_env\\byul\\rng",
-        "C:\\Users\\critl\\docs\\byul_env\\build_header_abi_audit\\byul_navsys_dstar_lite_dstar_lite_pqueue_h.cpp"
+        "build_header_abi_audit_mingw\\byul_navsys_dstar_lite_dstar_lite_pqueue_h.cpp"
       ],
       "stdout": "",
       "stderr": ""
@@ -5779,10 +5779,10 @@
     {
       "header": "byul/navsys/dstar_lite/dstar_lite_tick.h",
       "language": "c",
-      "compiler": "C:\\msys64\\mingw64\\bin\\cc.exe",
+      "compiler": "C:\\msys64\\mingw64\\bin\\gcc.exe",
       "returncode": 0,
       "command": [
-        "C:\\msys64\\mingw64\\bin\\cc.exe",
+        "C:\\msys64\\mingw64\\bin\\gcc.exe",
         "-std=c17",
         "-fsyntax-only",
         "-I",
@@ -5849,7 +5849,7 @@
         "C:\\Users\\critl\\docs\\byul_env\\byul\\projectile",
         "-I",
         "C:\\Users\\critl\\docs\\byul_env\\byul\\rng",
-        "C:\\Users\\critl\\docs\\byul_env\\build_header_abi_audit\\byul_navsys_dstar_lite_dstar_lite_tick_h.c"
+        "build_header_abi_audit_mingw\\byul_navsys_dstar_lite_dstar_lite_tick_h.c"
       ],
       "stdout": "",
       "stderr": ""
@@ -5857,10 +5857,10 @@
     {
       "header": "byul/navsys/dstar_lite/dstar_lite_tick.h",
       "language": "c++",
-      "compiler": "C:\\msys64\\mingw64\\bin\\c++.exe",
+      "compiler": "C:\\msys64\\mingw64\\bin\\g++.exe",
       "returncode": 0,
       "command": [
-        "C:\\msys64\\mingw64\\bin\\c++.exe",
+        "C:\\msys64\\mingw64\\bin\\g++.exe",
         "-std=c++17",
         "-fsyntax-only",
         "-I",
@@ -5927,7 +5927,7 @@
         "C:\\Users\\critl\\docs\\byul_env\\byul\\projectile",
         "-I",
         "C:\\Users\\critl\\docs\\byul_env\\byul\\rng",
-        "C:\\Users\\critl\\docs\\byul_env\\build_header_abi_audit\\byul_navsys_dstar_lite_dstar_lite_tick_h.cpp"
+        "build_header_abi_audit_mingw\\byul_navsys_dstar_lite_dstar_lite_tick_h.cpp"
       ],
       "stdout": "",
       "stderr": ""
@@ -5935,10 +5935,10 @@
     {
       "header": "byul/navsys/maze/maze.h",
       "language": "c",
-      "compiler": "C:\\msys64\\mingw64\\bin\\cc.exe",
+      "compiler": "C:\\msys64\\mingw64\\bin\\gcc.exe",
       "returncode": 0,
       "command": [
-        "C:\\msys64\\mingw64\\bin\\cc.exe",
+        "C:\\msys64\\mingw64\\bin\\gcc.exe",
         "-std=c17",
         "-fsyntax-only",
         "-I",
@@ -6005,7 +6005,7 @@
         "C:\\Users\\critl\\docs\\byul_env\\byul\\projectile",
         "-I",
         "C:\\Users\\critl\\docs\\byul_env\\byul\\rng",
-        "C:\\Users\\critl\\docs\\byul_env\\build_header_abi_audit\\byul_navsys_maze_maze_h.c"
+        "build_header_abi_audit_mingw\\byul_navsys_maze_maze_h.c"
       ],
       "stdout": "",
       "stderr": ""
@@ -6013,10 +6013,10 @@
     {
       "header": "byul/navsys/maze/maze.h",
       "language": "c++",
-      "compiler": "C:\\msys64\\mingw64\\bin\\c++.exe",
+      "compiler": "C:\\msys64\\mingw64\\bin\\g++.exe",
       "returncode": 0,
       "command": [
-        "C:\\msys64\\mingw64\\bin\\c++.exe",
+        "C:\\msys64\\mingw64\\bin\\g++.exe",
         "-std=c++17",
         "-fsyntax-only",
         "-I",
@@ -6083,7 +6083,7 @@
         "C:\\Users\\critl\\docs\\byul_env\\byul\\projectile",
         "-I",
         "C:\\Users\\critl\\docs\\byul_env\\byul\\rng",
-        "C:\\Users\\critl\\docs\\byul_env\\build_header_abi_audit\\byul_navsys_maze_maze_h.cpp"
+        "build_header_abi_audit_mingw\\byul_navsys_maze_maze_h.cpp"
       ],
       "stdout": "",
       "stderr": ""
@@ -6091,10 +6091,10 @@
     {
       "header": "byul/navsys/maze/maze_aldous_broder.h",
       "language": "c",
-      "compiler": "C:\\msys64\\mingw64\\bin\\cc.exe",
+      "compiler": "C:\\msys64\\mingw64\\bin\\gcc.exe",
       "returncode": 0,
       "command": [
-        "C:\\msys64\\mingw64\\bin\\cc.exe",
+        "C:\\msys64\\mingw64\\bin\\gcc.exe",
         "-std=c17",
         "-fsyntax-only",
         "-I",
@@ -6161,7 +6161,7 @@
         "C:\\Users\\critl\\docs\\byul_env\\byul\\projectile",
         "-I",
         "C:\\Users\\critl\\docs\\byul_env\\byul\\rng",
-        "C:\\Users\\critl\\docs\\byul_env\\build_header_abi_audit\\byul_navsys_maze_maze_aldous_broder_h.c"
+        "build_header_abi_audit_mingw\\byul_navsys_maze_maze_aldous_broder_h.c"
       ],
       "stdout": "",
       "stderr": ""
@@ -6169,10 +6169,10 @@
     {
       "header": "byul/navsys/maze/maze_aldous_broder.h",
       "language": "c++",
-      "compiler": "C:\\msys64\\mingw64\\bin\\c++.exe",
+      "compiler": "C:\\msys64\\mingw64\\bin\\g++.exe",
       "returncode": 0,
       "command": [
-        "C:\\msys64\\mingw64\\bin\\c++.exe",
+        "C:\\msys64\\mingw64\\bin\\g++.exe",
         "-std=c++17",
         "-fsyntax-only",
         "-I",
@@ -6239,7 +6239,7 @@
         "C:\\Users\\critl\\docs\\byul_env\\byul\\projectile",
         "-I",
         "C:\\Users\\critl\\docs\\byul_env\\byul\\rng",
-        "C:\\Users\\critl\\docs\\byul_env\\build_header_abi_audit\\byul_navsys_maze_maze_aldous_broder_h.cpp"
+        "build_header_abi_audit_mingw\\byul_navsys_maze_maze_aldous_broder_h.cpp"
       ],
       "stdout": "",
       "stderr": ""
@@ -6247,10 +6247,10 @@
     {
       "header": "byul/navsys/maze/maze_binary.h",
       "language": "c",
-      "compiler": "C:\\msys64\\mingw64\\bin\\cc.exe",
+      "compiler": "C:\\msys64\\mingw64\\bin\\gcc.exe",
       "returncode": 0,
       "command": [
-        "C:\\msys64\\mingw64\\bin\\cc.exe",
+        "C:\\msys64\\mingw64\\bin\\gcc.exe",
         "-std=c17",
         "-fsyntax-only",
         "-I",
@@ -6317,7 +6317,7 @@
         "C:\\Users\\critl\\docs\\byul_env\\byul\\projectile",
         "-I",
         "C:\\Users\\critl\\docs\\byul_env\\byul\\rng",
-        "C:\\Users\\critl\\docs\\byul_env\\build_header_abi_audit\\byul_navsys_maze_maze_binary_h.c"
+        "build_header_abi_audit_mingw\\byul_navsys_maze_maze_binary_h.c"
       ],
       "stdout": "",
       "stderr": ""
@@ -6325,10 +6325,10 @@
     {
       "header": "byul/navsys/maze/maze_binary.h",
       "language": "c++",
-      "compiler": "C:\\msys64\\mingw64\\bin\\c++.exe",
+      "compiler": "C:\\msys64\\mingw64\\bin\\g++.exe",
       "returncode": 0,
       "command": [
-        "C:\\msys64\\mingw64\\bin\\c++.exe",
+        "C:\\msys64\\mingw64\\bin\\g++.exe",
         "-std=c++17",
         "-fsyntax-only",
         "-I",
@@ -6395,7 +6395,7 @@
         "C:\\Users\\critl\\docs\\byul_env\\byul\\projectile",
         "-I",
         "C:\\Users\\critl\\docs\\byul_env\\byul\\rng",
-        "C:\\Users\\critl\\docs\\byul_env\\build_header_abi_audit\\byul_navsys_maze_maze_binary_h.cpp"
+        "build_header_abi_audit_mingw\\byul_navsys_maze_maze_binary_h.cpp"
       ],
       "stdout": "",
       "stderr": ""
@@ -6403,10 +6403,10 @@
     {
       "header": "byul/navsys/maze/maze_core.h",
       "language": "c",
-      "compiler": "C:\\msys64\\mingw64\\bin\\cc.exe",
+      "compiler": "C:\\msys64\\mingw64\\bin\\gcc.exe",
       "returncode": 0,
       "command": [
-        "C:\\msys64\\mingw64\\bin\\cc.exe",
+        "C:\\msys64\\mingw64\\bin\\gcc.exe",
         "-std=c17",
         "-fsyntax-only",
         "-I",
@@ -6473,7 +6473,7 @@
         "C:\\Users\\critl\\docs\\byul_env\\byul\\projectile",
         "-I",
         "C:\\Users\\critl\\docs\\byul_env\\byul\\rng",
-        "C:\\Users\\critl\\docs\\byul_env\\build_header_abi_audit\\byul_navsys_maze_maze_core_h.c"
+        "build_header_abi_audit_mingw\\byul_navsys_maze_maze_core_h.c"
       ],
       "stdout": "",
       "stderr": ""
@@ -6481,10 +6481,10 @@
     {
       "header": "byul/navsys/maze/maze_core.h",
       "language": "c++",
-      "compiler": "C:\\msys64\\mingw64\\bin\\c++.exe",
+      "compiler": "C:\\msys64\\mingw64\\bin\\g++.exe",
       "returncode": 0,
       "command": [
-        "C:\\msys64\\mingw64\\bin\\c++.exe",
+        "C:\\msys64\\mingw64\\bin\\g++.exe",
         "-std=c++17",
         "-fsyntax-only",
         "-I",
@@ -6551,7 +6551,7 @@
         "C:\\Users\\critl\\docs\\byul_env\\byul\\projectile",
         "-I",
         "C:\\Users\\critl\\docs\\byul_env\\byul\\rng",
-        "C:\\Users\\critl\\docs\\byul_env\\build_header_abi_audit\\byul_navsys_maze_maze_core_h.cpp"
+        "build_header_abi_audit_mingw\\byul_navsys_maze_maze_core_h.cpp"
       ],
       "stdout": "",
       "stderr": ""
@@ -6559,10 +6559,10 @@
     {
       "header": "byul/navsys/maze/maze_eller.h",
       "language": "c",
-      "compiler": "C:\\msys64\\mingw64\\bin\\cc.exe",
+      "compiler": "C:\\msys64\\mingw64\\bin\\gcc.exe",
       "returncode": 0,
       "command": [
-        "C:\\msys64\\mingw64\\bin\\cc.exe",
+        "C:\\msys64\\mingw64\\bin\\gcc.exe",
         "-std=c17",
         "-fsyntax-only",
         "-I",
@@ -6629,7 +6629,7 @@
         "C:\\Users\\critl\\docs\\byul_env\\byul\\projectile",
         "-I",
         "C:\\Users\\critl\\docs\\byul_env\\byul\\rng",
-        "C:\\Users\\critl\\docs\\byul_env\\build_header_abi_audit\\byul_navsys_maze_maze_eller_h.c"
+        "build_header_abi_audit_mingw\\byul_navsys_maze_maze_eller_h.c"
       ],
       "stdout": "",
       "stderr": ""
@@ -6637,10 +6637,10 @@
     {
       "header": "byul/navsys/maze/maze_eller.h",
       "language": "c++",
-      "compiler": "C:\\msys64\\mingw64\\bin\\c++.exe",
+      "compiler": "C:\\msys64\\mingw64\\bin\\g++.exe",
       "returncode": 0,
       "command": [
-        "C:\\msys64\\mingw64\\bin\\c++.exe",
+        "C:\\msys64\\mingw64\\bin\\g++.exe",
         "-std=c++17",
         "-fsyntax-only",
         "-I",
@@ -6707,7 +6707,7 @@
         "C:\\Users\\critl\\docs\\byul_env\\byul\\projectile",
         "-I",
         "C:\\Users\\critl\\docs\\byul_env\\byul\\rng",
-        "C:\\Users\\critl\\docs\\byul_env\\build_header_abi_audit\\byul_navsys_maze_maze_eller_h.cpp"
+        "build_header_abi_audit_mingw\\byul_navsys_maze_maze_eller_h.cpp"
       ],
       "stdout": "",
       "stderr": ""
@@ -6715,10 +6715,10 @@
     {
       "header": "byul/navsys/maze/maze_hunt_and_kill.h",
       "language": "c",
-      "compiler": "C:\\msys64\\mingw64\\bin\\cc.exe",
+      "compiler": "C:\\msys64\\mingw64\\bin\\gcc.exe",
       "returncode": 0,
       "command": [
-        "C:\\msys64\\mingw64\\bin\\cc.exe",
+        "C:\\msys64\\mingw64\\bin\\gcc.exe",
         "-std=c17",
         "-fsyntax-only",
         "-I",
@@ -6785,7 +6785,7 @@
         "C:\\Users\\critl\\docs\\byul_env\\byul\\projectile",
         "-I",
         "C:\\Users\\critl\\docs\\byul_env\\byul\\rng",
-        "C:\\Users\\critl\\docs\\byul_env\\build_header_abi_audit\\byul_navsys_maze_maze_hunt_and_kill_h.c"
+        "build_header_abi_audit_mingw\\byul_navsys_maze_maze_hunt_and_kill_h.c"
       ],
       "stdout": "",
       "stderr": ""
@@ -6793,10 +6793,10 @@
     {
       "header": "byul/navsys/maze/maze_hunt_and_kill.h",
       "language": "c++",
-      "compiler": "C:\\msys64\\mingw64\\bin\\c++.exe",
+      "compiler": "C:\\msys64\\mingw64\\bin\\g++.exe",
       "returncode": 0,
       "command": [
-        "C:\\msys64\\mingw64\\bin\\c++.exe",
+        "C:\\msys64\\mingw64\\bin\\g++.exe",
         "-std=c++17",
         "-fsyntax-only",
         "-I",
@@ -6863,7 +6863,7 @@
         "C:\\Users\\critl\\docs\\byul_env\\byul\\projectile",
         "-I",
         "C:\\Users\\critl\\docs\\byul_env\\byul\\rng",
-        "C:\\Users\\critl\\docs\\byul_env\\build_header_abi_audit\\byul_navsys_maze_maze_hunt_and_kill_h.cpp"
+        "build_header_abi_audit_mingw\\byul_navsys_maze_maze_hunt_and_kill_h.cpp"
       ],
       "stdout": "",
       "stderr": ""
@@ -6871,10 +6871,10 @@
     {
       "header": "byul/navsys/maze/maze_kruskal.h",
       "language": "c",
-      "compiler": "C:\\msys64\\mingw64\\bin\\cc.exe",
+      "compiler": "C:\\msys64\\mingw64\\bin\\gcc.exe",
       "returncode": 0,
       "command": [
-        "C:\\msys64\\mingw64\\bin\\cc.exe",
+        "C:\\msys64\\mingw64\\bin\\gcc.exe",
         "-std=c17",
         "-fsyntax-only",
         "-I",
@@ -6941,7 +6941,7 @@
         "C:\\Users\\critl\\docs\\byul_env\\byul\\projectile",
         "-I",
         "C:\\Users\\critl\\docs\\byul_env\\byul\\rng",
-        "C:\\Users\\critl\\docs\\byul_env\\build_header_abi_audit\\byul_navsys_maze_maze_kruskal_h.c"
+        "build_header_abi_audit_mingw\\byul_navsys_maze_maze_kruskal_h.c"
       ],
       "stdout": "",
       "stderr": ""
@@ -6949,10 +6949,10 @@
     {
       "header": "byul/navsys/maze/maze_kruskal.h",
       "language": "c++",
-      "compiler": "C:\\msys64\\mingw64\\bin\\c++.exe",
+      "compiler": "C:\\msys64\\mingw64\\bin\\g++.exe",
       "returncode": 0,
       "command": [
-        "C:\\msys64\\mingw64\\bin\\c++.exe",
+        "C:\\msys64\\mingw64\\bin\\g++.exe",
         "-std=c++17",
         "-fsyntax-only",
         "-I",
@@ -7019,7 +7019,7 @@
         "C:\\Users\\critl\\docs\\byul_env\\byul\\projectile",
         "-I",
         "C:\\Users\\critl\\docs\\byul_env\\byul\\rng",
-        "C:\\Users\\critl\\docs\\byul_env\\build_header_abi_audit\\byul_navsys_maze_maze_kruskal_h.cpp"
+        "build_header_abi_audit_mingw\\byul_navsys_maze_maze_kruskal_h.cpp"
       ],
       "stdout": "",
       "stderr": ""
@@ -7027,10 +7027,10 @@
     {
       "header": "byul/navsys/maze/maze_prim.h",
       "language": "c",
-      "compiler": "C:\\msys64\\mingw64\\bin\\cc.exe",
+      "compiler": "C:\\msys64\\mingw64\\bin\\gcc.exe",
       "returncode": 0,
       "command": [
-        "C:\\msys64\\mingw64\\bin\\cc.exe",
+        "C:\\msys64\\mingw64\\bin\\gcc.exe",
         "-std=c17",
         "-fsyntax-only",
         "-I",
@@ -7097,7 +7097,7 @@
         "C:\\Users\\critl\\docs\\byul_env\\byul\\projectile",
         "-I",
         "C:\\Users\\critl\\docs\\byul_env\\byul\\rng",
-        "C:\\Users\\critl\\docs\\byul_env\\build_header_abi_audit\\byul_navsys_maze_maze_prim_h.c"
+        "build_header_abi_audit_mingw\\byul_navsys_maze_maze_prim_h.c"
       ],
       "stdout": "",
       "stderr": ""
@@ -7105,10 +7105,10 @@
     {
       "header": "byul/navsys/maze/maze_prim.h",
       "language": "c++",
-      "compiler": "C:\\msys64\\mingw64\\bin\\c++.exe",
+      "compiler": "C:\\msys64\\mingw64\\bin\\g++.exe",
       "returncode": 0,
       "command": [
-        "C:\\msys64\\mingw64\\bin\\c++.exe",
+        "C:\\msys64\\mingw64\\bin\\g++.exe",
         "-std=c++17",
         "-fsyntax-only",
         "-I",
@@ -7175,7 +7175,7 @@
         "C:\\Users\\critl\\docs\\byul_env\\byul\\projectile",
         "-I",
         "C:\\Users\\critl\\docs\\byul_env\\byul\\rng",
-        "C:\\Users\\critl\\docs\\byul_env\\build_header_abi_audit\\byul_navsys_maze_maze_prim_h.cpp"
+        "build_header_abi_audit_mingw\\byul_navsys_maze_maze_prim_h.cpp"
       ],
       "stdout": "",
       "stderr": ""
@@ -7183,10 +7183,10 @@
     {
       "header": "byul/navsys/maze/maze_recursive.h",
       "language": "c",
-      "compiler": "C:\\msys64\\mingw64\\bin\\cc.exe",
+      "compiler": "C:\\msys64\\mingw64\\bin\\gcc.exe",
       "returncode": 0,
       "command": [
-        "C:\\msys64\\mingw64\\bin\\cc.exe",
+        "C:\\msys64\\mingw64\\bin\\gcc.exe",
         "-std=c17",
         "-fsyntax-only",
         "-I",
@@ -7253,7 +7253,7 @@
         "C:\\Users\\critl\\docs\\byul_env\\byul\\projectile",
         "-I",
         "C:\\Users\\critl\\docs\\byul_env\\byul\\rng",
-        "C:\\Users\\critl\\docs\\byul_env\\build_header_abi_audit\\byul_navsys_maze_maze_recursive_h.c"
+        "build_header_abi_audit_mingw\\byul_navsys_maze_maze_recursive_h.c"
       ],
       "stdout": "",
       "stderr": ""
@@ -7261,10 +7261,10 @@
     {
       "header": "byul/navsys/maze/maze_recursive.h",
       "language": "c++",
-      "compiler": "C:\\msys64\\mingw64\\bin\\c++.exe",
+      "compiler": "C:\\msys64\\mingw64\\bin\\g++.exe",
       "returncode": 0,
       "command": [
-        "C:\\msys64\\mingw64\\bin\\c++.exe",
+        "C:\\msys64\\mingw64\\bin\\g++.exe",
         "-std=c++17",
         "-fsyntax-only",
         "-I",
@@ -7331,7 +7331,7 @@
         "C:\\Users\\critl\\docs\\byul_env\\byul\\projectile",
         "-I",
         "C:\\Users\\critl\\docs\\byul_env\\byul\\rng",
-        "C:\\Users\\critl\\docs\\byul_env\\build_header_abi_audit\\byul_navsys_maze_maze_recursive_h.cpp"
+        "build_header_abi_audit_mingw\\byul_navsys_maze_maze_recursive_h.cpp"
       ],
       "stdout": "",
       "stderr": ""
@@ -7339,10 +7339,10 @@
     {
       "header": "byul/navsys/maze/maze_recursive_division.h",
       "language": "c",
-      "compiler": "C:\\msys64\\mingw64\\bin\\cc.exe",
+      "compiler": "C:\\msys64\\mingw64\\bin\\gcc.exe",
       "returncode": 0,
       "command": [
-        "C:\\msys64\\mingw64\\bin\\cc.exe",
+        "C:\\msys64\\mingw64\\bin\\gcc.exe",
         "-std=c17",
         "-fsyntax-only",
         "-I",
@@ -7409,7 +7409,7 @@
         "C:\\Users\\critl\\docs\\byul_env\\byul\\projectile",
         "-I",
         "C:\\Users\\critl\\docs\\byul_env\\byul\\rng",
-        "C:\\Users\\critl\\docs\\byul_env\\build_header_abi_audit\\byul_navsys_maze_maze_recursive_division_h.c"
+        "build_header_abi_audit_mingw\\byul_navsys_maze_maze_recursive_division_h.c"
       ],
       "stdout": "",
       "stderr": ""
@@ -7417,10 +7417,10 @@
     {
       "header": "byul/navsys/maze/maze_recursive_division.h",
       "language": "c++",
-      "compiler": "C:\\msys64\\mingw64\\bin\\c++.exe",
+      "compiler": "C:\\msys64\\mingw64\\bin\\g++.exe",
       "returncode": 0,
       "command": [
-        "C:\\msys64\\mingw64\\bin\\c++.exe",
+        "C:\\msys64\\mingw64\\bin\\g++.exe",
         "-std=c++17",
         "-fsyntax-only",
         "-I",
@@ -7487,7 +7487,7 @@
         "C:\\Users\\critl\\docs\\byul_env\\byul\\projectile",
         "-I",
         "C:\\Users\\critl\\docs\\byul_env\\byul\\rng",
-        "C:\\Users\\critl\\docs\\byul_env\\build_header_abi_audit\\byul_navsys_maze_maze_recursive_division_h.cpp"
+        "build_header_abi_audit_mingw\\byul_navsys_maze_maze_recursive_division_h.cpp"
       ],
       "stdout": "",
       "stderr": ""
@@ -7495,10 +7495,10 @@
     {
       "header": "byul/navsys/maze/maze_room_blend.h",
       "language": "c",
-      "compiler": "C:\\msys64\\mingw64\\bin\\cc.exe",
+      "compiler": "C:\\msys64\\mingw64\\bin\\gcc.exe",
       "returncode": 0,
       "command": [
-        "C:\\msys64\\mingw64\\bin\\cc.exe",
+        "C:\\msys64\\mingw64\\bin\\gcc.exe",
         "-std=c17",
         "-fsyntax-only",
         "-I",
@@ -7565,7 +7565,7 @@
         "C:\\Users\\critl\\docs\\byul_env\\byul\\projectile",
         "-I",
         "C:\\Users\\critl\\docs\\byul_env\\byul\\rng",
-        "C:\\Users\\critl\\docs\\byul_env\\build_header_abi_audit\\byul_navsys_maze_maze_room_blend_h.c"
+        "build_header_abi_audit_mingw\\byul_navsys_maze_maze_room_blend_h.c"
       ],
       "stdout": "",
       "stderr": ""
@@ -7573,10 +7573,10 @@
     {
       "header": "byul/navsys/maze/maze_room_blend.h",
       "language": "c++",
-      "compiler": "C:\\msys64\\mingw64\\bin\\c++.exe",
+      "compiler": "C:\\msys64\\mingw64\\bin\\g++.exe",
       "returncode": 0,
       "command": [
-        "C:\\msys64\\mingw64\\bin\\c++.exe",
+        "C:\\msys64\\mingw64\\bin\\g++.exe",
         "-std=c++17",
         "-fsyntax-only",
         "-I",
@@ -7643,7 +7643,7 @@
         "C:\\Users\\critl\\docs\\byul_env\\byul\\projectile",
         "-I",
         "C:\\Users\\critl\\docs\\byul_env\\byul\\rng",
-        "C:\\Users\\critl\\docs\\byul_env\\build_header_abi_audit\\byul_navsys_maze_maze_room_blend_h.cpp"
+        "build_header_abi_audit_mingw\\byul_navsys_maze_maze_room_blend_h.cpp"
       ],
       "stdout": "",
       "stderr": ""
@@ -7651,10 +7651,10 @@
     {
       "header": "byul/navsys/maze/maze_sidewinder.h",
       "language": "c",
-      "compiler": "C:\\msys64\\mingw64\\bin\\cc.exe",
+      "compiler": "C:\\msys64\\mingw64\\bin\\gcc.exe",
       "returncode": 0,
       "command": [
-        "C:\\msys64\\mingw64\\bin\\cc.exe",
+        "C:\\msys64\\mingw64\\bin\\gcc.exe",
         "-std=c17",
         "-fsyntax-only",
         "-I",
@@ -7721,7 +7721,7 @@
         "C:\\Users\\critl\\docs\\byul_env\\byul\\projectile",
         "-I",
         "C:\\Users\\critl\\docs\\byul_env\\byul\\rng",
-        "C:\\Users\\critl\\docs\\byul_env\\build_header_abi_audit\\byul_navsys_maze_maze_sidewinder_h.c"
+        "build_header_abi_audit_mingw\\byul_navsys_maze_maze_sidewinder_h.c"
       ],
       "stdout": "",
       "stderr": ""
@@ -7729,10 +7729,10 @@
     {
       "header": "byul/navsys/maze/maze_sidewinder.h",
       "language": "c++",
-      "compiler": "C:\\msys64\\mingw64\\bin\\c++.exe",
+      "compiler": "C:\\msys64\\mingw64\\bin\\g++.exe",
       "returncode": 0,
       "command": [
-        "C:\\msys64\\mingw64\\bin\\c++.exe",
+        "C:\\msys64\\mingw64\\bin\\g++.exe",
         "-std=c++17",
         "-fsyntax-only",
         "-I",
@@ -7799,7 +7799,7 @@
         "C:\\Users\\critl\\docs\\byul_env\\byul\\projectile",
         "-I",
         "C:\\Users\\critl\\docs\\byul_env\\byul\\rng",
-        "C:\\Users\\critl\\docs\\byul_env\\build_header_abi_audit\\byul_navsys_maze_maze_sidewinder_h.cpp"
+        "build_header_abi_audit_mingw\\byul_navsys_maze_maze_sidewinder_h.cpp"
       ],
       "stdout": "",
       "stderr": ""
@@ -7807,10 +7807,10 @@
     {
       "header": "byul/navsys/maze/maze_wilson.h",
       "language": "c",
-      "compiler": "C:\\msys64\\mingw64\\bin\\cc.exe",
+      "compiler": "C:\\msys64\\mingw64\\bin\\gcc.exe",
       "returncode": 0,
       "command": [
-        "C:\\msys64\\mingw64\\bin\\cc.exe",
+        "C:\\msys64\\mingw64\\bin\\gcc.exe",
         "-std=c17",
         "-fsyntax-only",
         "-I",
@@ -7877,7 +7877,7 @@
         "C:\\Users\\critl\\docs\\byul_env\\byul\\projectile",
         "-I",
         "C:\\Users\\critl\\docs\\byul_env\\byul\\rng",
-        "C:\\Users\\critl\\docs\\byul_env\\build_header_abi_audit\\byul_navsys_maze_maze_wilson_h.c"
+        "build_header_abi_audit_mingw\\byul_navsys_maze_maze_wilson_h.c"
       ],
       "stdout": "",
       "stderr": ""
@@ -7885,10 +7885,10 @@
     {
       "header": "byul/navsys/maze/maze_wilson.h",
       "language": "c++",
-      "compiler": "C:\\msys64\\mingw64\\bin\\c++.exe",
+      "compiler": "C:\\msys64\\mingw64\\bin\\g++.exe",
       "returncode": 0,
       "command": [
-        "C:\\msys64\\mingw64\\bin\\c++.exe",
+        "C:\\msys64\\mingw64\\bin\\g++.exe",
         "-std=c++17",
         "-fsyntax-only",
         "-I",
@@ -7955,7 +7955,7 @@
         "C:\\Users\\critl\\docs\\byul_env\\byul\\projectile",
         "-I",
         "C:\\Users\\critl\\docs\\byul_env\\byul\\rng",
-        "C:\\Users\\critl\\docs\\byul_env\\build_header_abi_audit\\byul_navsys_maze_maze_wilson_h.cpp"
+        "build_header_abi_audit_mingw\\byul_navsys_maze_maze_wilson_h.cpp"
       ],
       "stdout": "",
       "stderr": ""
@@ -7963,10 +7963,10 @@
     {
       "header": "byul/navsys/navgrid/navcell.h",
       "language": "c",
-      "compiler": "C:\\msys64\\mingw64\\bin\\cc.exe",
+      "compiler": "C:\\msys64\\mingw64\\bin\\gcc.exe",
       "returncode": 0,
       "command": [
-        "C:\\msys64\\mingw64\\bin\\cc.exe",
+        "C:\\msys64\\mingw64\\bin\\gcc.exe",
         "-std=c17",
         "-fsyntax-only",
         "-I",
@@ -8033,7 +8033,7 @@
         "C:\\Users\\critl\\docs\\byul_env\\byul\\projectile",
         "-I",
         "C:\\Users\\critl\\docs\\byul_env\\byul\\rng",
-        "C:\\Users\\critl\\docs\\byul_env\\build_header_abi_audit\\byul_navsys_navgrid_navcell_h.c"
+        "build_header_abi_audit_mingw\\byul_navsys_navgrid_navcell_h.c"
       ],
       "stdout": "",
       "stderr": ""
@@ -8041,10 +8041,10 @@
     {
       "header": "byul/navsys/navgrid/navcell.h",
       "language": "c++",
-      "compiler": "C:\\msys64\\mingw64\\bin\\c++.exe",
+      "compiler": "C:\\msys64\\mingw64\\bin\\g++.exe",
       "returncode": 0,
       "command": [
-        "C:\\msys64\\mingw64\\bin\\c++.exe",
+        "C:\\msys64\\mingw64\\bin\\g++.exe",
         "-std=c++17",
         "-fsyntax-only",
         "-I",
@@ -8111,7 +8111,7 @@
         "C:\\Users\\critl\\docs\\byul_env\\byul\\projectile",
         "-I",
         "C:\\Users\\critl\\docs\\byul_env\\byul\\rng",
-        "C:\\Users\\critl\\docs\\byul_env\\build_header_abi_audit\\byul_navsys_navgrid_navcell_h.cpp"
+        "build_header_abi_audit_mingw\\byul_navsys_navgrid_navcell_h.cpp"
       ],
       "stdout": "",
       "stderr": ""
@@ -8119,10 +8119,10 @@
     {
       "header": "byul/navsys/navgrid/navgrid.h",
       "language": "c",
-      "compiler": "C:\\msys64\\mingw64\\bin\\cc.exe",
+      "compiler": "C:\\msys64\\mingw64\\bin\\gcc.exe",
       "returncode": 0,
       "command": [
-        "C:\\msys64\\mingw64\\bin\\cc.exe",
+        "C:\\msys64\\mingw64\\bin\\gcc.exe",
         "-std=c17",
         "-fsyntax-only",
         "-I",
@@ -8189,7 +8189,7 @@
         "C:\\Users\\critl\\docs\\byul_env\\byul\\projectile",
         "-I",
         "C:\\Users\\critl\\docs\\byul_env\\byul\\rng",
-        "C:\\Users\\critl\\docs\\byul_env\\build_header_abi_audit\\byul_navsys_navgrid_navgrid_h.c"
+        "build_header_abi_audit_mingw\\byul_navsys_navgrid_navgrid_h.c"
       ],
       "stdout": "",
       "stderr": ""
@@ -8197,10 +8197,10 @@
     {
       "header": "byul/navsys/navgrid/navgrid.h",
       "language": "c++",
-      "compiler": "C:\\msys64\\mingw64\\bin\\c++.exe",
+      "compiler": "C:\\msys64\\mingw64\\bin\\g++.exe",
       "returncode": 0,
       "command": [
-        "C:\\msys64\\mingw64\\bin\\c++.exe",
+        "C:\\msys64\\mingw64\\bin\\g++.exe",
         "-std=c++17",
         "-fsyntax-only",
         "-I",
@@ -8267,7 +8267,7 @@
         "C:\\Users\\critl\\docs\\byul_env\\byul\\projectile",
         "-I",
         "C:\\Users\\critl\\docs\\byul_env\\byul\\rng",
-        "C:\\Users\\critl\\docs\\byul_env\\build_header_abi_audit\\byul_navsys_navgrid_navgrid_h.cpp"
+        "build_header_abi_audit_mingw\\byul_navsys_navgrid_navgrid_h.cpp"
       ],
       "stdout": "",
       "stderr": ""
@@ -8275,10 +8275,10 @@
     {
       "header": "byul/navsys/navsys.h",
       "language": "c",
-      "compiler": "C:\\msys64\\mingw64\\bin\\cc.exe",
+      "compiler": "C:\\msys64\\mingw64\\bin\\gcc.exe",
       "returncode": 0,
       "command": [
-        "C:\\msys64\\mingw64\\bin\\cc.exe",
+        "C:\\msys64\\mingw64\\bin\\gcc.exe",
         "-std=c17",
         "-fsyntax-only",
         "-I",
@@ -8345,7 +8345,7 @@
         "C:\\Users\\critl\\docs\\byul_env\\byul\\projectile",
         "-I",
         "C:\\Users\\critl\\docs\\byul_env\\byul\\rng",
-        "C:\\Users\\critl\\docs\\byul_env\\build_header_abi_audit\\byul_navsys_navsys_h.c"
+        "build_header_abi_audit_mingw\\byul_navsys_navsys_h.c"
       ],
       "stdout": "",
       "stderr": ""
@@ -8353,10 +8353,10 @@
     {
       "header": "byul/navsys/navsys.h",
       "language": "c++",
-      "compiler": "C:\\msys64\\mingw64\\bin\\c++.exe",
+      "compiler": "C:\\msys64\\mingw64\\bin\\g++.exe",
       "returncode": 0,
       "command": [
-        "C:\\msys64\\mingw64\\bin\\c++.exe",
+        "C:\\msys64\\mingw64\\bin\\g++.exe",
         "-std=c++17",
         "-fsyntax-only",
         "-I",
@@ -8423,7 +8423,163 @@
         "C:\\Users\\critl\\docs\\byul_env\\byul\\projectile",
         "-I",
         "C:\\Users\\critl\\docs\\byul_env\\byul\\rng",
-        "C:\\Users\\critl\\docs\\byul_env\\build_header_abi_audit\\byul_navsys_navsys_h.cpp"
+        "build_header_abi_audit_mingw\\byul_navsys_navsys_h.cpp"
+      ],
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "header": "byul/navsys/navsys_status.h",
+      "language": "c",
+      "compiler": "C:\\msys64\\mingw64\\bin\\gcc.exe",
+      "returncode": 0,
+      "command": [
+        "C:\\msys64\\mingw64\\bin\\gcc.exe",
+        "-std=c17",
+        "-fsyntax-only",
+        "-I",
+        "C:\\Users\\critl\\docs\\byul_env",
+        "-I",
+        "C:\\Users\\critl\\docs\\byul_env\\byul",
+        "-I",
+        "C:\\Users\\critl\\docs\\byul_env\\byul\\aerial",
+        "-I",
+        "C:\\Users\\critl\\docs\\byul_env\\byul\\balix",
+        "-I",
+        "C:\\Users\\critl\\docs\\byul_env\\byul\\balix\\bodyprops",
+        "-I",
+        "C:\\Users\\critl\\docs\\byul_env\\byul\\balix\\collision",
+        "-I",
+        "C:\\Users\\critl\\docs\\byul_env\\byul\\balix\\controller",
+        "-I",
+        "C:\\Users\\critl\\docs\\byul_env\\byul\\balix\\environ",
+        "-I",
+        "C:\\Users\\critl\\docs\\byul_env\\byul\\balix\\motion_state",
+        "-I",
+        "C:\\Users\\critl\\docs\\byul_env\\byul\\balix\\numeq",
+        "-I",
+        "C:\\Users\\critl\\docs\\byul_env\\byul\\balix\\numeq\\filters",
+        "-I",
+        "C:\\Users\\critl\\docs\\byul_env\\byul\\balix\\trajectory",
+        "-I",
+        "C:\\Users\\critl\\docs\\byul_env\\byul\\balix\\xform",
+        "-I",
+        "C:\\Users\\critl\\docs\\byul_env\\byul\\byul_tick",
+        "-I",
+        "C:\\Users\\critl\\docs\\byul_env\\byul\\console",
+        "-I",
+        "C:\\Users\\critl\\docs\\byul_env\\byul\\core",
+        "-I",
+        "C:\\Users\\critl\\docs\\byul_env\\byul\\entity",
+        "-I",
+        "C:\\Users\\critl\\docs\\byul_env\\byul\\ground",
+        "-I",
+        "C:\\Users\\critl\\docs\\byul_env\\byul\\navsys",
+        "-I",
+        "C:\\Users\\critl\\docs\\byul_env\\byul\\navsys\\coord",
+        "-I",
+        "C:\\Users\\critl\\docs\\byul_env\\byul\\navsys\\coord\\internal",
+        "-I",
+        "C:\\Users\\critl\\docs\\byul_env\\byul\\navsys\\dstar_lite",
+        "-I",
+        "C:\\Users\\critl\\docs\\byul_env\\byul\\navsys\\maze",
+        "-I",
+        "C:\\Users\\critl\\docs\\byul_env\\byul\\navsys\\navgrid",
+        "-I",
+        "C:\\Users\\critl\\docs\\byul_env\\byul\\navsys\\obstacle",
+        "-I",
+        "C:\\Users\\critl\\docs\\byul_env\\byul\\navsys\\route",
+        "-I",
+        "C:\\Users\\critl\\docs\\byul_env\\byul\\navsys\\route_carver",
+        "-I",
+        "C:\\Users\\critl\\docs\\byul_env\\byul\\navsys\\route_finder",
+        "-I",
+        "C:\\Users\\critl\\docs\\byul_env\\byul\\numal",
+        "-I",
+        "C:\\Users\\critl\\docs\\byul_env\\byul\\number_theory",
+        "-I",
+        "C:\\Users\\critl\\docs\\byul_env\\byul\\projectile",
+        "-I",
+        "C:\\Users\\critl\\docs\\byul_env\\byul\\rng",
+        "build_header_abi_audit_mingw\\byul_navsys_navsys_status_h.c"
+      ],
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "header": "byul/navsys/navsys_status.h",
+      "language": "c++",
+      "compiler": "C:\\msys64\\mingw64\\bin\\g++.exe",
+      "returncode": 0,
+      "command": [
+        "C:\\msys64\\mingw64\\bin\\g++.exe",
+        "-std=c++17",
+        "-fsyntax-only",
+        "-I",
+        "C:\\Users\\critl\\docs\\byul_env",
+        "-I",
+        "C:\\Users\\critl\\docs\\byul_env\\byul",
+        "-I",
+        "C:\\Users\\critl\\docs\\byul_env\\byul\\aerial",
+        "-I",
+        "C:\\Users\\critl\\docs\\byul_env\\byul\\balix",
+        "-I",
+        "C:\\Users\\critl\\docs\\byul_env\\byul\\balix\\bodyprops",
+        "-I",
+        "C:\\Users\\critl\\docs\\byul_env\\byul\\balix\\collision",
+        "-I",
+        "C:\\Users\\critl\\docs\\byul_env\\byul\\balix\\controller",
+        "-I",
+        "C:\\Users\\critl\\docs\\byul_env\\byul\\balix\\environ",
+        "-I",
+        "C:\\Users\\critl\\docs\\byul_env\\byul\\balix\\motion_state",
+        "-I",
+        "C:\\Users\\critl\\docs\\byul_env\\byul\\balix\\numeq",
+        "-I",
+        "C:\\Users\\critl\\docs\\byul_env\\byul\\balix\\numeq\\filters",
+        "-I",
+        "C:\\Users\\critl\\docs\\byul_env\\byul\\balix\\trajectory",
+        "-I",
+        "C:\\Users\\critl\\docs\\byul_env\\byul\\balix\\xform",
+        "-I",
+        "C:\\Users\\critl\\docs\\byul_env\\byul\\byul_tick",
+        "-I",
+        "C:\\Users\\critl\\docs\\byul_env\\byul\\console",
+        "-I",
+        "C:\\Users\\critl\\docs\\byul_env\\byul\\core",
+        "-I",
+        "C:\\Users\\critl\\docs\\byul_env\\byul\\entity",
+        "-I",
+        "C:\\Users\\critl\\docs\\byul_env\\byul\\ground",
+        "-I",
+        "C:\\Users\\critl\\docs\\byul_env\\byul\\navsys",
+        "-I",
+        "C:\\Users\\critl\\docs\\byul_env\\byul\\navsys\\coord",
+        "-I",
+        "C:\\Users\\critl\\docs\\byul_env\\byul\\navsys\\coord\\internal",
+        "-I",
+        "C:\\Users\\critl\\docs\\byul_env\\byul\\navsys\\dstar_lite",
+        "-I",
+        "C:\\Users\\critl\\docs\\byul_env\\byul\\navsys\\maze",
+        "-I",
+        "C:\\Users\\critl\\docs\\byul_env\\byul\\navsys\\navgrid",
+        "-I",
+        "C:\\Users\\critl\\docs\\byul_env\\byul\\navsys\\obstacle",
+        "-I",
+        "C:\\Users\\critl\\docs\\byul_env\\byul\\navsys\\route",
+        "-I",
+        "C:\\Users\\critl\\docs\\byul_env\\byul\\navsys\\route_carver",
+        "-I",
+        "C:\\Users\\critl\\docs\\byul_env\\byul\\navsys\\route_finder",
+        "-I",
+        "C:\\Users\\critl\\docs\\byul_env\\byul\\numal",
+        "-I",
+        "C:\\Users\\critl\\docs\\byul_env\\byul\\number_theory",
+        "-I",
+        "C:\\Users\\critl\\docs\\byul_env\\byul\\projectile",
+        "-I",
+        "C:\\Users\\critl\\docs\\byul_env\\byul\\rng",
+        "build_header_abi_audit_mingw\\byul_navsys_navsys_status_h.cpp"
       ],
       "stdout": "",
       "stderr": ""
@@ -8431,10 +8587,10 @@
     {
       "header": "byul/navsys/obstacle/obstacle.h",
       "language": "c",
-      "compiler": "C:\\msys64\\mingw64\\bin\\cc.exe",
+      "compiler": "C:\\msys64\\mingw64\\bin\\gcc.exe",
       "returncode": 0,
       "command": [
-        "C:\\msys64\\mingw64\\bin\\cc.exe",
+        "C:\\msys64\\mingw64\\bin\\gcc.exe",
         "-std=c17",
         "-fsyntax-only",
         "-I",
@@ -8501,7 +8657,7 @@
         "C:\\Users\\critl\\docs\\byul_env\\byul\\projectile",
         "-I",
         "C:\\Users\\critl\\docs\\byul_env\\byul\\rng",
-        "C:\\Users\\critl\\docs\\byul_env\\build_header_abi_audit\\byul_navsys_obstacle_obstacle_h.c"
+        "build_header_abi_audit_mingw\\byul_navsys_obstacle_obstacle_h.c"
       ],
       "stdout": "",
       "stderr": ""
@@ -8509,10 +8665,10 @@
     {
       "header": "byul/navsys/obstacle/obstacle.h",
       "language": "c++",
-      "compiler": "C:\\msys64\\mingw64\\bin\\c++.exe",
+      "compiler": "C:\\msys64\\mingw64\\bin\\g++.exe",
       "returncode": 0,
       "command": [
-        "C:\\msys64\\mingw64\\bin\\c++.exe",
+        "C:\\msys64\\mingw64\\bin\\g++.exe",
         "-std=c++17",
         "-fsyntax-only",
         "-I",
@@ -8579,7 +8735,7 @@
         "C:\\Users\\critl\\docs\\byul_env\\byul\\projectile",
         "-I",
         "C:\\Users\\critl\\docs\\byul_env\\byul\\rng",
-        "C:\\Users\\critl\\docs\\byul_env\\build_header_abi_audit\\byul_navsys_obstacle_obstacle_h.cpp"
+        "build_header_abi_audit_mingw\\byul_navsys_obstacle_obstacle_h.cpp"
       ],
       "stdout": "",
       "stderr": ""
@@ -8587,10 +8743,10 @@
     {
       "header": "byul/navsys/obstacle/obstacle_core.h",
       "language": "c",
-      "compiler": "C:\\msys64\\mingw64\\bin\\cc.exe",
+      "compiler": "C:\\msys64\\mingw64\\bin\\gcc.exe",
       "returncode": 0,
       "command": [
-        "C:\\msys64\\mingw64\\bin\\cc.exe",
+        "C:\\msys64\\mingw64\\bin\\gcc.exe",
         "-std=c17",
         "-fsyntax-only",
         "-I",
@@ -8657,7 +8813,7 @@
         "C:\\Users\\critl\\docs\\byul_env\\byul\\projectile",
         "-I",
         "C:\\Users\\critl\\docs\\byul_env\\byul\\rng",
-        "C:\\Users\\critl\\docs\\byul_env\\build_header_abi_audit\\byul_navsys_obstacle_obstacle_core_h.c"
+        "build_header_abi_audit_mingw\\byul_navsys_obstacle_obstacle_core_h.c"
       ],
       "stdout": "",
       "stderr": ""
@@ -8665,10 +8821,10 @@
     {
       "header": "byul/navsys/obstacle/obstacle_core.h",
       "language": "c++",
-      "compiler": "C:\\msys64\\mingw64\\bin\\c++.exe",
+      "compiler": "C:\\msys64\\mingw64\\bin\\g++.exe",
       "returncode": 0,
       "command": [
-        "C:\\msys64\\mingw64\\bin\\c++.exe",
+        "C:\\msys64\\mingw64\\bin\\g++.exe",
         "-std=c++17",
         "-fsyntax-only",
         "-I",
@@ -8735,7 +8891,7 @@
         "C:\\Users\\critl\\docs\\byul_env\\byul\\projectile",
         "-I",
         "C:\\Users\\critl\\docs\\byul_env\\byul\\rng",
-        "C:\\Users\\critl\\docs\\byul_env\\build_header_abi_audit\\byul_navsys_obstacle_obstacle_core_h.cpp"
+        "build_header_abi_audit_mingw\\byul_navsys_obstacle_obstacle_core_h.cpp"
       ],
       "stdout": "",
       "stderr": ""
@@ -8743,10 +8899,10 @@
     {
       "header": "byul/navsys/route/route.h",
       "language": "c",
-      "compiler": "C:\\msys64\\mingw64\\bin\\cc.exe",
+      "compiler": "C:\\msys64\\mingw64\\bin\\gcc.exe",
       "returncode": 0,
       "command": [
-        "C:\\msys64\\mingw64\\bin\\cc.exe",
+        "C:\\msys64\\mingw64\\bin\\gcc.exe",
         "-std=c17",
         "-fsyntax-only",
         "-I",
@@ -8813,7 +8969,7 @@
         "C:\\Users\\critl\\docs\\byul_env\\byul\\projectile",
         "-I",
         "C:\\Users\\critl\\docs\\byul_env\\byul\\rng",
-        "C:\\Users\\critl\\docs\\byul_env\\build_header_abi_audit\\byul_navsys_route_route_h.c"
+        "build_header_abi_audit_mingw\\byul_navsys_route_route_h.c"
       ],
       "stdout": "",
       "stderr": ""
@@ -8821,10 +8977,10 @@
     {
       "header": "byul/navsys/route/route.h",
       "language": "c++",
-      "compiler": "C:\\msys64\\mingw64\\bin\\c++.exe",
+      "compiler": "C:\\msys64\\mingw64\\bin\\g++.exe",
       "returncode": 0,
       "command": [
-        "C:\\msys64\\mingw64\\bin\\c++.exe",
+        "C:\\msys64\\mingw64\\bin\\g++.exe",
         "-std=c++17",
         "-fsyntax-only",
         "-I",
@@ -8891,7 +9047,7 @@
         "C:\\Users\\critl\\docs\\byul_env\\byul\\projectile",
         "-I",
         "C:\\Users\\critl\\docs\\byul_env\\byul\\rng",
-        "C:\\Users\\critl\\docs\\byul_env\\build_header_abi_audit\\byul_navsys_route_route_h.cpp"
+        "build_header_abi_audit_mingw\\byul_navsys_route_route_h.cpp"
       ],
       "stdout": "",
       "stderr": ""
@@ -8899,10 +9055,10 @@
     {
       "header": "byul/navsys/route_carver/route_carver.h",
       "language": "c",
-      "compiler": "C:\\msys64\\mingw64\\bin\\cc.exe",
+      "compiler": "C:\\msys64\\mingw64\\bin\\gcc.exe",
       "returncode": 0,
       "command": [
-        "C:\\msys64\\mingw64\\bin\\cc.exe",
+        "C:\\msys64\\mingw64\\bin\\gcc.exe",
         "-std=c17",
         "-fsyntax-only",
         "-I",
@@ -8969,7 +9125,7 @@
         "C:\\Users\\critl\\docs\\byul_env\\byul\\projectile",
         "-I",
         "C:\\Users\\critl\\docs\\byul_env\\byul\\rng",
-        "C:\\Users\\critl\\docs\\byul_env\\build_header_abi_audit\\byul_navsys_route_carver_route_carver_h.c"
+        "build_header_abi_audit_mingw\\byul_navsys_route_carver_route_carver_h.c"
       ],
       "stdout": "",
       "stderr": ""
@@ -8977,10 +9133,10 @@
     {
       "header": "byul/navsys/route_carver/route_carver.h",
       "language": "c++",
-      "compiler": "C:\\msys64\\mingw64\\bin\\c++.exe",
+      "compiler": "C:\\msys64\\mingw64\\bin\\g++.exe",
       "returncode": 0,
       "command": [
-        "C:\\msys64\\mingw64\\bin\\c++.exe",
+        "C:\\msys64\\mingw64\\bin\\g++.exe",
         "-std=c++17",
         "-fsyntax-only",
         "-I",
@@ -9047,7 +9203,7 @@
         "C:\\Users\\critl\\docs\\byul_env\\byul\\projectile",
         "-I",
         "C:\\Users\\critl\\docs\\byul_env\\byul\\rng",
-        "C:\\Users\\critl\\docs\\byul_env\\build_header_abi_audit\\byul_navsys_route_carver_route_carver_h.cpp"
+        "build_header_abi_audit_mingw\\byul_navsys_route_carver_route_carver_h.cpp"
       ],
       "stdout": "",
       "stderr": ""
@@ -9055,10 +9211,10 @@
     {
       "header": "byul/navsys/route_finder/astar.h",
       "language": "c",
-      "compiler": "C:\\msys64\\mingw64\\bin\\cc.exe",
+      "compiler": "C:\\msys64\\mingw64\\bin\\gcc.exe",
       "returncode": 0,
       "command": [
-        "C:\\msys64\\mingw64\\bin\\cc.exe",
+        "C:\\msys64\\mingw64\\bin\\gcc.exe",
         "-std=c17",
         "-fsyntax-only",
         "-I",
@@ -9125,7 +9281,7 @@
         "C:\\Users\\critl\\docs\\byul_env\\byul\\projectile",
         "-I",
         "C:\\Users\\critl\\docs\\byul_env\\byul\\rng",
-        "C:\\Users\\critl\\docs\\byul_env\\build_header_abi_audit\\byul_navsys_route_finder_astar_h.c"
+        "build_header_abi_audit_mingw\\byul_navsys_route_finder_astar_h.c"
       ],
       "stdout": "",
       "stderr": ""
@@ -9133,10 +9289,10 @@
     {
       "header": "byul/navsys/route_finder/astar.h",
       "language": "c++",
-      "compiler": "C:\\msys64\\mingw64\\bin\\c++.exe",
+      "compiler": "C:\\msys64\\mingw64\\bin\\g++.exe",
       "returncode": 0,
       "command": [
-        "C:\\msys64\\mingw64\\bin\\c++.exe",
+        "C:\\msys64\\mingw64\\bin\\g++.exe",
         "-std=c++17",
         "-fsyntax-only",
         "-I",
@@ -9203,7 +9359,7 @@
         "C:\\Users\\critl\\docs\\byul_env\\byul\\projectile",
         "-I",
         "C:\\Users\\critl\\docs\\byul_env\\byul\\rng",
-        "C:\\Users\\critl\\docs\\byul_env\\build_header_abi_audit\\byul_navsys_route_finder_astar_h.cpp"
+        "build_header_abi_audit_mingw\\byul_navsys_route_finder_astar_h.cpp"
       ],
       "stdout": "",
       "stderr": ""
@@ -9211,10 +9367,10 @@
     {
       "header": "byul/navsys/route_finder/bfs.h",
       "language": "c",
-      "compiler": "C:\\msys64\\mingw64\\bin\\cc.exe",
+      "compiler": "C:\\msys64\\mingw64\\bin\\gcc.exe",
       "returncode": 0,
       "command": [
-        "C:\\msys64\\mingw64\\bin\\cc.exe",
+        "C:\\msys64\\mingw64\\bin\\gcc.exe",
         "-std=c17",
         "-fsyntax-only",
         "-I",
@@ -9281,7 +9437,7 @@
         "C:\\Users\\critl\\docs\\byul_env\\byul\\projectile",
         "-I",
         "C:\\Users\\critl\\docs\\byul_env\\byul\\rng",
-        "C:\\Users\\critl\\docs\\byul_env\\build_header_abi_audit\\byul_navsys_route_finder_bfs_h.c"
+        "build_header_abi_audit_mingw\\byul_navsys_route_finder_bfs_h.c"
       ],
       "stdout": "",
       "stderr": ""
@@ -9289,10 +9445,10 @@
     {
       "header": "byul/navsys/route_finder/bfs.h",
       "language": "c++",
-      "compiler": "C:\\msys64\\mingw64\\bin\\c++.exe",
+      "compiler": "C:\\msys64\\mingw64\\bin\\g++.exe",
       "returncode": 0,
       "command": [
-        "C:\\msys64\\mingw64\\bin\\c++.exe",
+        "C:\\msys64\\mingw64\\bin\\g++.exe",
         "-std=c++17",
         "-fsyntax-only",
         "-I",
@@ -9359,7 +9515,7 @@
         "C:\\Users\\critl\\docs\\byul_env\\byul\\projectile",
         "-I",
         "C:\\Users\\critl\\docs\\byul_env\\byul\\rng",
-        "C:\\Users\\critl\\docs\\byul_env\\build_header_abi_audit\\byul_navsys_route_finder_bfs_h.cpp"
+        "build_header_abi_audit_mingw\\byul_navsys_route_finder_bfs_h.cpp"
       ],
       "stdout": "",
       "stderr": ""
@@ -9367,10 +9523,10 @@
     {
       "header": "byul/navsys/route_finder/dfs.h",
       "language": "c",
-      "compiler": "C:\\msys64\\mingw64\\bin\\cc.exe",
+      "compiler": "C:\\msys64\\mingw64\\bin\\gcc.exe",
       "returncode": 0,
       "command": [
-        "C:\\msys64\\mingw64\\bin\\cc.exe",
+        "C:\\msys64\\mingw64\\bin\\gcc.exe",
         "-std=c17",
         "-fsyntax-only",
         "-I",
@@ -9437,7 +9593,7 @@
         "C:\\Users\\critl\\docs\\byul_env\\byul\\projectile",
         "-I",
         "C:\\Users\\critl\\docs\\byul_env\\byul\\rng",
-        "C:\\Users\\critl\\docs\\byul_env\\build_header_abi_audit\\byul_navsys_route_finder_dfs_h.c"
+        "build_header_abi_audit_mingw\\byul_navsys_route_finder_dfs_h.c"
       ],
       "stdout": "",
       "stderr": ""
@@ -9445,10 +9601,10 @@
     {
       "header": "byul/navsys/route_finder/dfs.h",
       "language": "c++",
-      "compiler": "C:\\msys64\\mingw64\\bin\\c++.exe",
+      "compiler": "C:\\msys64\\mingw64\\bin\\g++.exe",
       "returncode": 0,
       "command": [
-        "C:\\msys64\\mingw64\\bin\\c++.exe",
+        "C:\\msys64\\mingw64\\bin\\g++.exe",
         "-std=c++17",
         "-fsyntax-only",
         "-I",
@@ -9515,7 +9671,7 @@
         "C:\\Users\\critl\\docs\\byul_env\\byul\\projectile",
         "-I",
         "C:\\Users\\critl\\docs\\byul_env\\byul\\rng",
-        "C:\\Users\\critl\\docs\\byul_env\\build_header_abi_audit\\byul_navsys_route_finder_dfs_h.cpp"
+        "build_header_abi_audit_mingw\\byul_navsys_route_finder_dfs_h.cpp"
       ],
       "stdout": "",
       "stderr": ""
@@ -9523,10 +9679,10 @@
     {
       "header": "byul/navsys/route_finder/dijkstra.h",
       "language": "c",
-      "compiler": "C:\\msys64\\mingw64\\bin\\cc.exe",
+      "compiler": "C:\\msys64\\mingw64\\bin\\gcc.exe",
       "returncode": 0,
       "command": [
-        "C:\\msys64\\mingw64\\bin\\cc.exe",
+        "C:\\msys64\\mingw64\\bin\\gcc.exe",
         "-std=c17",
         "-fsyntax-only",
         "-I",
@@ -9593,7 +9749,7 @@
         "C:\\Users\\critl\\docs\\byul_env\\byul\\projectile",
         "-I",
         "C:\\Users\\critl\\docs\\byul_env\\byul\\rng",
-        "C:\\Users\\critl\\docs\\byul_env\\build_header_abi_audit\\byul_navsys_route_finder_dijkstra_h.c"
+        "build_header_abi_audit_mingw\\byul_navsys_route_finder_dijkstra_h.c"
       ],
       "stdout": "",
       "stderr": ""
@@ -9601,10 +9757,10 @@
     {
       "header": "byul/navsys/route_finder/dijkstra.h",
       "language": "c++",
-      "compiler": "C:\\msys64\\mingw64\\bin\\c++.exe",
+      "compiler": "C:\\msys64\\mingw64\\bin\\g++.exe",
       "returncode": 0,
       "command": [
-        "C:\\msys64\\mingw64\\bin\\c++.exe",
+        "C:\\msys64\\mingw64\\bin\\g++.exe",
         "-std=c++17",
         "-fsyntax-only",
         "-I",
@@ -9671,7 +9827,7 @@
         "C:\\Users\\critl\\docs\\byul_env\\byul\\projectile",
         "-I",
         "C:\\Users\\critl\\docs\\byul_env\\byul\\rng",
-        "C:\\Users\\critl\\docs\\byul_env\\build_header_abi_audit\\byul_navsys_route_finder_dijkstra_h.cpp"
+        "build_header_abi_audit_mingw\\byul_navsys_route_finder_dijkstra_h.cpp"
       ],
       "stdout": "",
       "stderr": ""
@@ -9679,10 +9835,10 @@
     {
       "header": "byul/navsys/route_finder/fast_marching.h",
       "language": "c",
-      "compiler": "C:\\msys64\\mingw64\\bin\\cc.exe",
+      "compiler": "C:\\msys64\\mingw64\\bin\\gcc.exe",
       "returncode": 0,
       "command": [
-        "C:\\msys64\\mingw64\\bin\\cc.exe",
+        "C:\\msys64\\mingw64\\bin\\gcc.exe",
         "-std=c17",
         "-fsyntax-only",
         "-I",
@@ -9749,7 +9905,7 @@
         "C:\\Users\\critl\\docs\\byul_env\\byul\\projectile",
         "-I",
         "C:\\Users\\critl\\docs\\byul_env\\byul\\rng",
-        "C:\\Users\\critl\\docs\\byul_env\\build_header_abi_audit\\byul_navsys_route_finder_fast_marching_h.c"
+        "build_header_abi_audit_mingw\\byul_navsys_route_finder_fast_marching_h.c"
       ],
       "stdout": "",
       "stderr": ""
@@ -9757,10 +9913,10 @@
     {
       "header": "byul/navsys/route_finder/fast_marching.h",
       "language": "c++",
-      "compiler": "C:\\msys64\\mingw64\\bin\\c++.exe",
+      "compiler": "C:\\msys64\\mingw64\\bin\\g++.exe",
       "returncode": 0,
       "command": [
-        "C:\\msys64\\mingw64\\bin\\c++.exe",
+        "C:\\msys64\\mingw64\\bin\\g++.exe",
         "-std=c++17",
         "-fsyntax-only",
         "-I",
@@ -9827,7 +9983,7 @@
         "C:\\Users\\critl\\docs\\byul_env\\byul\\projectile",
         "-I",
         "C:\\Users\\critl\\docs\\byul_env\\byul\\rng",
-        "C:\\Users\\critl\\docs\\byul_env\\build_header_abi_audit\\byul_navsys_route_finder_fast_marching_h.cpp"
+        "build_header_abi_audit_mingw\\byul_navsys_route_finder_fast_marching_h.cpp"
       ],
       "stdout": "",
       "stderr": ""
@@ -9835,10 +9991,10 @@
     {
       "header": "byul/navsys/route_finder/fringe_search.h",
       "language": "c",
-      "compiler": "C:\\msys64\\mingw64\\bin\\cc.exe",
+      "compiler": "C:\\msys64\\mingw64\\bin\\gcc.exe",
       "returncode": 0,
       "command": [
-        "C:\\msys64\\mingw64\\bin\\cc.exe",
+        "C:\\msys64\\mingw64\\bin\\gcc.exe",
         "-std=c17",
         "-fsyntax-only",
         "-I",
@@ -9905,7 +10061,7 @@
         "C:\\Users\\critl\\docs\\byul_env\\byul\\projectile",
         "-I",
         "C:\\Users\\critl\\docs\\byul_env\\byul\\rng",
-        "C:\\Users\\critl\\docs\\byul_env\\build_header_abi_audit\\byul_navsys_route_finder_fringe_search_h.c"
+        "build_header_abi_audit_mingw\\byul_navsys_route_finder_fringe_search_h.c"
       ],
       "stdout": "",
       "stderr": ""
@@ -9913,10 +10069,10 @@
     {
       "header": "byul/navsys/route_finder/fringe_search.h",
       "language": "c++",
-      "compiler": "C:\\msys64\\mingw64\\bin\\c++.exe",
+      "compiler": "C:\\msys64\\mingw64\\bin\\g++.exe",
       "returncode": 0,
       "command": [
-        "C:\\msys64\\mingw64\\bin\\c++.exe",
+        "C:\\msys64\\mingw64\\bin\\g++.exe",
         "-std=c++17",
         "-fsyntax-only",
         "-I",
@@ -9983,7 +10139,7 @@
         "C:\\Users\\critl\\docs\\byul_env\\byul\\projectile",
         "-I",
         "C:\\Users\\critl\\docs\\byul_env\\byul\\rng",
-        "C:\\Users\\critl\\docs\\byul_env\\build_header_abi_audit\\byul_navsys_route_finder_fringe_search_h.cpp"
+        "build_header_abi_audit_mingw\\byul_navsys_route_finder_fringe_search_h.cpp"
       ],
       "stdout": "",
       "stderr": ""
@@ -9991,10 +10147,10 @@
     {
       "header": "byul/navsys/route_finder/greedy_best_first.h",
       "language": "c",
-      "compiler": "C:\\msys64\\mingw64\\bin\\cc.exe",
+      "compiler": "C:\\msys64\\mingw64\\bin\\gcc.exe",
       "returncode": 0,
       "command": [
-        "C:\\msys64\\mingw64\\bin\\cc.exe",
+        "C:\\msys64\\mingw64\\bin\\gcc.exe",
         "-std=c17",
         "-fsyntax-only",
         "-I",
@@ -10061,7 +10217,7 @@
         "C:\\Users\\critl\\docs\\byul_env\\byul\\projectile",
         "-I",
         "C:\\Users\\critl\\docs\\byul_env\\byul\\rng",
-        "C:\\Users\\critl\\docs\\byul_env\\build_header_abi_audit\\byul_navsys_route_finder_greedy_best_first_h.c"
+        "build_header_abi_audit_mingw\\byul_navsys_route_finder_greedy_best_first_h.c"
       ],
       "stdout": "",
       "stderr": ""
@@ -10069,10 +10225,10 @@
     {
       "header": "byul/navsys/route_finder/greedy_best_first.h",
       "language": "c++",
-      "compiler": "C:\\msys64\\mingw64\\bin\\c++.exe",
+      "compiler": "C:\\msys64\\mingw64\\bin\\g++.exe",
       "returncode": 0,
       "command": [
-        "C:\\msys64\\mingw64\\bin\\c++.exe",
+        "C:\\msys64\\mingw64\\bin\\g++.exe",
         "-std=c++17",
         "-fsyntax-only",
         "-I",
@@ -10139,7 +10295,7 @@
         "C:\\Users\\critl\\docs\\byul_env\\byul\\projectile",
         "-I",
         "C:\\Users\\critl\\docs\\byul_env\\byul\\rng",
-        "C:\\Users\\critl\\docs\\byul_env\\build_header_abi_audit\\byul_navsys_route_finder_greedy_best_first_h.cpp"
+        "build_header_abi_audit_mingw\\byul_navsys_route_finder_greedy_best_first_h.cpp"
       ],
       "stdout": "",
       "stderr": ""
@@ -10147,10 +10303,10 @@
     {
       "header": "byul/navsys/route_finder/ida_star.h",
       "language": "c",
-      "compiler": "C:\\msys64\\mingw64\\bin\\cc.exe",
+      "compiler": "C:\\msys64\\mingw64\\bin\\gcc.exe",
       "returncode": 0,
       "command": [
-        "C:\\msys64\\mingw64\\bin\\cc.exe",
+        "C:\\msys64\\mingw64\\bin\\gcc.exe",
         "-std=c17",
         "-fsyntax-only",
         "-I",
@@ -10217,7 +10373,7 @@
         "C:\\Users\\critl\\docs\\byul_env\\byul\\projectile",
         "-I",
         "C:\\Users\\critl\\docs\\byul_env\\byul\\rng",
-        "C:\\Users\\critl\\docs\\byul_env\\build_header_abi_audit\\byul_navsys_route_finder_ida_star_h.c"
+        "build_header_abi_audit_mingw\\byul_navsys_route_finder_ida_star_h.c"
       ],
       "stdout": "",
       "stderr": ""
@@ -10225,10 +10381,10 @@
     {
       "header": "byul/navsys/route_finder/ida_star.h",
       "language": "c++",
-      "compiler": "C:\\msys64\\mingw64\\bin\\c++.exe",
+      "compiler": "C:\\msys64\\mingw64\\bin\\g++.exe",
       "returncode": 0,
       "command": [
-        "C:\\msys64\\mingw64\\bin\\c++.exe",
+        "C:\\msys64\\mingw64\\bin\\g++.exe",
         "-std=c++17",
         "-fsyntax-only",
         "-I",
@@ -10295,7 +10451,7 @@
         "C:\\Users\\critl\\docs\\byul_env\\byul\\projectile",
         "-I",
         "C:\\Users\\critl\\docs\\byul_env\\byul\\rng",
-        "C:\\Users\\critl\\docs\\byul_env\\build_header_abi_audit\\byul_navsys_route_finder_ida_star_h.cpp"
+        "build_header_abi_audit_mingw\\byul_navsys_route_finder_ida_star_h.cpp"
       ],
       "stdout": "",
       "stderr": ""
@@ -10303,10 +10459,10 @@
     {
       "header": "byul/navsys/route_finder/route_finder.h",
       "language": "c",
-      "compiler": "C:\\msys64\\mingw64\\bin\\cc.exe",
+      "compiler": "C:\\msys64\\mingw64\\bin\\gcc.exe",
       "returncode": 0,
       "command": [
-        "C:\\msys64\\mingw64\\bin\\cc.exe",
+        "C:\\msys64\\mingw64\\bin\\gcc.exe",
         "-std=c17",
         "-fsyntax-only",
         "-I",
@@ -10373,7 +10529,7 @@
         "C:\\Users\\critl\\docs\\byul_env\\byul\\projectile",
         "-I",
         "C:\\Users\\critl\\docs\\byul_env\\byul\\rng",
-        "C:\\Users\\critl\\docs\\byul_env\\build_header_abi_audit\\byul_navsys_route_finder_route_finder_h.c"
+        "build_header_abi_audit_mingw\\byul_navsys_route_finder_route_finder_h.c"
       ],
       "stdout": "",
       "stderr": ""
@@ -10381,10 +10537,10 @@
     {
       "header": "byul/navsys/route_finder/route_finder.h",
       "language": "c++",
-      "compiler": "C:\\msys64\\mingw64\\bin\\c++.exe",
+      "compiler": "C:\\msys64\\mingw64\\bin\\g++.exe",
       "returncode": 0,
       "command": [
-        "C:\\msys64\\mingw64\\bin\\c++.exe",
+        "C:\\msys64\\mingw64\\bin\\g++.exe",
         "-std=c++17",
         "-fsyntax-only",
         "-I",
@@ -10451,7 +10607,7 @@
         "C:\\Users\\critl\\docs\\byul_env\\byul\\projectile",
         "-I",
         "C:\\Users\\critl\\docs\\byul_env\\byul\\rng",
-        "C:\\Users\\critl\\docs\\byul_env\\build_header_abi_audit\\byul_navsys_route_finder_route_finder_h.cpp"
+        "build_header_abi_audit_mingw\\byul_navsys_route_finder_route_finder_h.cpp"
       ],
       "stdout": "",
       "stderr": ""
@@ -10459,10 +10615,10 @@
     {
       "header": "byul/navsys/route_finder/route_finder_core.h",
       "language": "c",
-      "compiler": "C:\\msys64\\mingw64\\bin\\cc.exe",
+      "compiler": "C:\\msys64\\mingw64\\bin\\gcc.exe",
       "returncode": 0,
       "command": [
-        "C:\\msys64\\mingw64\\bin\\cc.exe",
+        "C:\\msys64\\mingw64\\bin\\gcc.exe",
         "-std=c17",
         "-fsyntax-only",
         "-I",
@@ -10529,7 +10685,7 @@
         "C:\\Users\\critl\\docs\\byul_env\\byul\\projectile",
         "-I",
         "C:\\Users\\critl\\docs\\byul_env\\byul\\rng",
-        "C:\\Users\\critl\\docs\\byul_env\\build_header_abi_audit\\byul_navsys_route_finder_route_finder_core_h.c"
+        "build_header_abi_audit_mingw\\byul_navsys_route_finder_route_finder_core_h.c"
       ],
       "stdout": "",
       "stderr": ""
@@ -10537,10 +10693,10 @@
     {
       "header": "byul/navsys/route_finder/route_finder_core.h",
       "language": "c++",
-      "compiler": "C:\\msys64\\mingw64\\bin\\c++.exe",
+      "compiler": "C:\\msys64\\mingw64\\bin\\g++.exe",
       "returncode": 0,
       "command": [
-        "C:\\msys64\\mingw64\\bin\\c++.exe",
+        "C:\\msys64\\mingw64\\bin\\g++.exe",
         "-std=c++17",
         "-fsyntax-only",
         "-I",
@@ -10607,7 +10763,7 @@
         "C:\\Users\\critl\\docs\\byul_env\\byul\\projectile",
         "-I",
         "C:\\Users\\critl\\docs\\byul_env\\byul\\rng",
-        "C:\\Users\\critl\\docs\\byul_env\\build_header_abi_audit\\byul_navsys_route_finder_route_finder_core_h.cpp"
+        "build_header_abi_audit_mingw\\byul_navsys_route_finder_route_finder_core_h.cpp"
       ],
       "stdout": "",
       "stderr": ""
@@ -10615,10 +10771,10 @@
     {
       "header": "byul/navsys/route_finder/rta_star.h",
       "language": "c",
-      "compiler": "C:\\msys64\\mingw64\\bin\\cc.exe",
+      "compiler": "C:\\msys64\\mingw64\\bin\\gcc.exe",
       "returncode": 0,
       "command": [
-        "C:\\msys64\\mingw64\\bin\\cc.exe",
+        "C:\\msys64\\mingw64\\bin\\gcc.exe",
         "-std=c17",
         "-fsyntax-only",
         "-I",
@@ -10685,7 +10841,7 @@
         "C:\\Users\\critl\\docs\\byul_env\\byul\\projectile",
         "-I",
         "C:\\Users\\critl\\docs\\byul_env\\byul\\rng",
-        "C:\\Users\\critl\\docs\\byul_env\\build_header_abi_audit\\byul_navsys_route_finder_rta_star_h.c"
+        "build_header_abi_audit_mingw\\byul_navsys_route_finder_rta_star_h.c"
       ],
       "stdout": "",
       "stderr": ""
@@ -10693,10 +10849,10 @@
     {
       "header": "byul/navsys/route_finder/rta_star.h",
       "language": "c++",
-      "compiler": "C:\\msys64\\mingw64\\bin\\c++.exe",
+      "compiler": "C:\\msys64\\mingw64\\bin\\g++.exe",
       "returncode": 0,
       "command": [
-        "C:\\msys64\\mingw64\\bin\\c++.exe",
+        "C:\\msys64\\mingw64\\bin\\g++.exe",
         "-std=c++17",
         "-fsyntax-only",
         "-I",
@@ -10763,7 +10919,7 @@
         "C:\\Users\\critl\\docs\\byul_env\\byul\\projectile",
         "-I",
         "C:\\Users\\critl\\docs\\byul_env\\byul\\rng",
-        "C:\\Users\\critl\\docs\\byul_env\\build_header_abi_audit\\byul_navsys_route_finder_rta_star_h.cpp"
+        "build_header_abi_audit_mingw\\byul_navsys_route_finder_rta_star_h.cpp"
       ],
       "stdout": "",
       "stderr": ""
@@ -10771,10 +10927,10 @@
     {
       "header": "byul/navsys/route_finder/sma_star.h",
       "language": "c",
-      "compiler": "C:\\msys64\\mingw64\\bin\\cc.exe",
+      "compiler": "C:\\msys64\\mingw64\\bin\\gcc.exe",
       "returncode": 0,
       "command": [
-        "C:\\msys64\\mingw64\\bin\\cc.exe",
+        "C:\\msys64\\mingw64\\bin\\gcc.exe",
         "-std=c17",
         "-fsyntax-only",
         "-I",
@@ -10841,7 +10997,7 @@
         "C:\\Users\\critl\\docs\\byul_env\\byul\\projectile",
         "-I",
         "C:\\Users\\critl\\docs\\byul_env\\byul\\rng",
-        "C:\\Users\\critl\\docs\\byul_env\\build_header_abi_audit\\byul_navsys_route_finder_sma_star_h.c"
+        "build_header_abi_audit_mingw\\byul_navsys_route_finder_sma_star_h.c"
       ],
       "stdout": "",
       "stderr": ""
@@ -10849,10 +11005,10 @@
     {
       "header": "byul/navsys/route_finder/sma_star.h",
       "language": "c++",
-      "compiler": "C:\\msys64\\mingw64\\bin\\c++.exe",
+      "compiler": "C:\\msys64\\mingw64\\bin\\g++.exe",
       "returncode": 0,
       "command": [
-        "C:\\msys64\\mingw64\\bin\\c++.exe",
+        "C:\\msys64\\mingw64\\bin\\g++.exe",
         "-std=c++17",
         "-fsyntax-only",
         "-I",
@@ -10919,7 +11075,7 @@
         "C:\\Users\\critl\\docs\\byul_env\\byul\\projectile",
         "-I",
         "C:\\Users\\critl\\docs\\byul_env\\byul\\rng",
-        "C:\\Users\\critl\\docs\\byul_env\\build_header_abi_audit\\byul_navsys_route_finder_sma_star_h.cpp"
+        "build_header_abi_audit_mingw\\byul_navsys_route_finder_sma_star_h.cpp"
       ],
       "stdout": "",
       "stderr": ""
@@ -10927,10 +11083,10 @@
     {
       "header": "byul/navsys/route_finder/weighted_astar.h",
       "language": "c",
-      "compiler": "C:\\msys64\\mingw64\\bin\\cc.exe",
+      "compiler": "C:\\msys64\\mingw64\\bin\\gcc.exe",
       "returncode": 0,
       "command": [
-        "C:\\msys64\\mingw64\\bin\\cc.exe",
+        "C:\\msys64\\mingw64\\bin\\gcc.exe",
         "-std=c17",
         "-fsyntax-only",
         "-I",
@@ -10997,7 +11153,7 @@
         "C:\\Users\\critl\\docs\\byul_env\\byul\\projectile",
         "-I",
         "C:\\Users\\critl\\docs\\byul_env\\byul\\rng",
-        "C:\\Users\\critl\\docs\\byul_env\\build_header_abi_audit\\byul_navsys_route_finder_weighted_astar_h.c"
+        "build_header_abi_audit_mingw\\byul_navsys_route_finder_weighted_astar_h.c"
       ],
       "stdout": "",
       "stderr": ""
@@ -11005,10 +11161,10 @@
     {
       "header": "byul/navsys/route_finder/weighted_astar.h",
       "language": "c++",
-      "compiler": "C:\\msys64\\mingw64\\bin\\c++.exe",
+      "compiler": "C:\\msys64\\mingw64\\bin\\g++.exe",
       "returncode": 0,
       "command": [
-        "C:\\msys64\\mingw64\\bin\\c++.exe",
+        "C:\\msys64\\mingw64\\bin\\g++.exe",
         "-std=c++17",
         "-fsyntax-only",
         "-I",
@@ -11075,7 +11231,7 @@
         "C:\\Users\\critl\\docs\\byul_env\\byul\\projectile",
         "-I",
         "C:\\Users\\critl\\docs\\byul_env\\byul\\rng",
-        "C:\\Users\\critl\\docs\\byul_env\\build_header_abi_audit\\byul_navsys_route_finder_weighted_astar_h.cpp"
+        "build_header_abi_audit_mingw\\byul_navsys_route_finder_weighted_astar_h.cpp"
       ],
       "stdout": "",
       "stderr": ""
@@ -11083,10 +11239,10 @@
     {
       "header": "byul/numal/dualnumber.h",
       "language": "c",
-      "compiler": "C:\\msys64\\mingw64\\bin\\cc.exe",
+      "compiler": "C:\\msys64\\mingw64\\bin\\gcc.exe",
       "returncode": 0,
       "command": [
-        "C:\\msys64\\mingw64\\bin\\cc.exe",
+        "C:\\msys64\\mingw64\\bin\\gcc.exe",
         "-std=c17",
         "-fsyntax-only",
         "-I",
@@ -11153,7 +11309,7 @@
         "C:\\Users\\critl\\docs\\byul_env\\byul\\projectile",
         "-I",
         "C:\\Users\\critl\\docs\\byul_env\\byul\\rng",
-        "C:\\Users\\critl\\docs\\byul_env\\build_header_abi_audit\\byul_numal_dualnumber_h.c"
+        "build_header_abi_audit_mingw\\byul_numal_dualnumber_h.c"
       ],
       "stdout": "",
       "stderr": ""
@@ -11161,10 +11317,10 @@
     {
       "header": "byul/numal/dualnumber.h",
       "language": "c++",
-      "compiler": "C:\\msys64\\mingw64\\bin\\c++.exe",
+      "compiler": "C:\\msys64\\mingw64\\bin\\g++.exe",
       "returncode": 0,
       "command": [
-        "C:\\msys64\\mingw64\\bin\\c++.exe",
+        "C:\\msys64\\mingw64\\bin\\g++.exe",
         "-std=c++17",
         "-fsyntax-only",
         "-I",
@@ -11231,7 +11387,7 @@
         "C:\\Users\\critl\\docs\\byul_env\\byul\\projectile",
         "-I",
         "C:\\Users\\critl\\docs\\byul_env\\byul\\rng",
-        "C:\\Users\\critl\\docs\\byul_env\\build_header_abi_audit\\byul_numal_dualnumber_h.cpp"
+        "build_header_abi_audit_mingw\\byul_numal_dualnumber_h.cpp"
       ],
       "stdout": "",
       "stderr": ""
@@ -11239,10 +11395,10 @@
     {
       "header": "byul/numal/dualquat.h",
       "language": "c",
-      "compiler": "C:\\msys64\\mingw64\\bin\\cc.exe",
+      "compiler": "C:\\msys64\\mingw64\\bin\\gcc.exe",
       "returncode": 0,
       "command": [
-        "C:\\msys64\\mingw64\\bin\\cc.exe",
+        "C:\\msys64\\mingw64\\bin\\gcc.exe",
         "-std=c17",
         "-fsyntax-only",
         "-I",
@@ -11309,7 +11465,7 @@
         "C:\\Users\\critl\\docs\\byul_env\\byul\\projectile",
         "-I",
         "C:\\Users\\critl\\docs\\byul_env\\byul\\rng",
-        "C:\\Users\\critl\\docs\\byul_env\\build_header_abi_audit\\byul_numal_dualquat_h.c"
+        "build_header_abi_audit_mingw\\byul_numal_dualquat_h.c"
       ],
       "stdout": "",
       "stderr": ""
@@ -11317,10 +11473,10 @@
     {
       "header": "byul/numal/dualquat.h",
       "language": "c++",
-      "compiler": "C:\\msys64\\mingw64\\bin\\c++.exe",
+      "compiler": "C:\\msys64\\mingw64\\bin\\g++.exe",
       "returncode": 0,
       "command": [
-        "C:\\msys64\\mingw64\\bin\\c++.exe",
+        "C:\\msys64\\mingw64\\bin\\g++.exe",
         "-std=c++17",
         "-fsyntax-only",
         "-I",
@@ -11387,7 +11543,7 @@
         "C:\\Users\\critl\\docs\\byul_env\\byul\\projectile",
         "-I",
         "C:\\Users\\critl\\docs\\byul_env\\byul\\rng",
-        "C:\\Users\\critl\\docs\\byul_env\\build_header_abi_audit\\byul_numal_dualquat_h.cpp"
+        "build_header_abi_audit_mingw\\byul_numal_dualquat_h.cpp"
       ],
       "stdout": "",
       "stderr": ""
@@ -11395,10 +11551,10 @@
     {
       "header": "byul/numal/geom.h",
       "language": "c",
-      "compiler": "C:\\msys64\\mingw64\\bin\\cc.exe",
+      "compiler": "C:\\msys64\\mingw64\\bin\\gcc.exe",
       "returncode": 0,
       "command": [
-        "C:\\msys64\\mingw64\\bin\\cc.exe",
+        "C:\\msys64\\mingw64\\bin\\gcc.exe",
         "-std=c17",
         "-fsyntax-only",
         "-I",
@@ -11465,7 +11621,7 @@
         "C:\\Users\\critl\\docs\\byul_env\\byul\\projectile",
         "-I",
         "C:\\Users\\critl\\docs\\byul_env\\byul\\rng",
-        "C:\\Users\\critl\\docs\\byul_env\\build_header_abi_audit\\byul_numal_geom_h.c"
+        "build_header_abi_audit_mingw\\byul_numal_geom_h.c"
       ],
       "stdout": "",
       "stderr": ""
@@ -11473,10 +11629,10 @@
     {
       "header": "byul/numal/geom.h",
       "language": "c++",
-      "compiler": "C:\\msys64\\mingw64\\bin\\c++.exe",
+      "compiler": "C:\\msys64\\mingw64\\bin\\g++.exe",
       "returncode": 0,
       "command": [
-        "C:\\msys64\\mingw64\\bin\\c++.exe",
+        "C:\\msys64\\mingw64\\bin\\g++.exe",
         "-std=c++17",
         "-fsyntax-only",
         "-I",
@@ -11543,7 +11699,7 @@
         "C:\\Users\\critl\\docs\\byul_env\\byul\\projectile",
         "-I",
         "C:\\Users\\critl\\docs\\byul_env\\byul\\rng",
-        "C:\\Users\\critl\\docs\\byul_env\\build_header_abi_audit\\byul_numal_geom_h.cpp"
+        "build_header_abi_audit_mingw\\byul_numal_geom_h.cpp"
       ],
       "stdout": "",
       "stderr": ""
@@ -11551,10 +11707,10 @@
     {
       "header": "byul/numal/numal.h",
       "language": "c",
-      "compiler": "C:\\msys64\\mingw64\\bin\\cc.exe",
+      "compiler": "C:\\msys64\\mingw64\\bin\\gcc.exe",
       "returncode": 0,
       "command": [
-        "C:\\msys64\\mingw64\\bin\\cc.exe",
+        "C:\\msys64\\mingw64\\bin\\gcc.exe",
         "-std=c17",
         "-fsyntax-only",
         "-I",
@@ -11621,7 +11777,7 @@
         "C:\\Users\\critl\\docs\\byul_env\\byul\\projectile",
         "-I",
         "C:\\Users\\critl\\docs\\byul_env\\byul\\rng",
-        "C:\\Users\\critl\\docs\\byul_env\\build_header_abi_audit\\byul_numal_numal_h.c"
+        "build_header_abi_audit_mingw\\byul_numal_numal_h.c"
       ],
       "stdout": "",
       "stderr": ""
@@ -11629,10 +11785,10 @@
     {
       "header": "byul/numal/numal.h",
       "language": "c++",
-      "compiler": "C:\\msys64\\mingw64\\bin\\c++.exe",
+      "compiler": "C:\\msys64\\mingw64\\bin\\g++.exe",
       "returncode": 0,
       "command": [
-        "C:\\msys64\\mingw64\\bin\\c++.exe",
+        "C:\\msys64\\mingw64\\bin\\g++.exe",
         "-std=c++17",
         "-fsyntax-only",
         "-I",
@@ -11699,7 +11855,7 @@
         "C:\\Users\\critl\\docs\\byul_env\\byul\\projectile",
         "-I",
         "C:\\Users\\critl\\docs\\byul_env\\byul\\rng",
-        "C:\\Users\\critl\\docs\\byul_env\\build_header_abi_audit\\byul_numal_numal_h.cpp"
+        "build_header_abi_audit_mingw\\byul_numal_numal_h.cpp"
       ],
       "stdout": "",
       "stderr": ""
@@ -11707,10 +11863,10 @@
     {
       "header": "byul/numal/plane.h",
       "language": "c",
-      "compiler": "C:\\msys64\\mingw64\\bin\\cc.exe",
+      "compiler": "C:\\msys64\\mingw64\\bin\\gcc.exe",
       "returncode": 0,
       "command": [
-        "C:\\msys64\\mingw64\\bin\\cc.exe",
+        "C:\\msys64\\mingw64\\bin\\gcc.exe",
         "-std=c17",
         "-fsyntax-only",
         "-I",
@@ -11777,7 +11933,7 @@
         "C:\\Users\\critl\\docs\\byul_env\\byul\\projectile",
         "-I",
         "C:\\Users\\critl\\docs\\byul_env\\byul\\rng",
-        "C:\\Users\\critl\\docs\\byul_env\\build_header_abi_audit\\byul_numal_plane_h.c"
+        "build_header_abi_audit_mingw\\byul_numal_plane_h.c"
       ],
       "stdout": "",
       "stderr": ""
@@ -11785,10 +11941,10 @@
     {
       "header": "byul/numal/plane.h",
       "language": "c++",
-      "compiler": "C:\\msys64\\mingw64\\bin\\c++.exe",
+      "compiler": "C:\\msys64\\mingw64\\bin\\g++.exe",
       "returncode": 0,
       "command": [
-        "C:\\msys64\\mingw64\\bin\\c++.exe",
+        "C:\\msys64\\mingw64\\bin\\g++.exe",
         "-std=c++17",
         "-fsyntax-only",
         "-I",
@@ -11855,7 +12011,7 @@
         "C:\\Users\\critl\\docs\\byul_env\\byul\\projectile",
         "-I",
         "C:\\Users\\critl\\docs\\byul_env\\byul\\rng",
-        "C:\\Users\\critl\\docs\\byul_env\\build_header_abi_audit\\byul_numal_plane_h.cpp"
+        "build_header_abi_audit_mingw\\byul_numal_plane_h.cpp"
       ],
       "stdout": "",
       "stderr": ""
@@ -11863,10 +12019,10 @@
     {
       "header": "byul/numal/quat.h",
       "language": "c",
-      "compiler": "C:\\msys64\\mingw64\\bin\\cc.exe",
+      "compiler": "C:\\msys64\\mingw64\\bin\\gcc.exe",
       "returncode": 0,
       "command": [
-        "C:\\msys64\\mingw64\\bin\\cc.exe",
+        "C:\\msys64\\mingw64\\bin\\gcc.exe",
         "-std=c17",
         "-fsyntax-only",
         "-I",
@@ -11933,7 +12089,7 @@
         "C:\\Users\\critl\\docs\\byul_env\\byul\\projectile",
         "-I",
         "C:\\Users\\critl\\docs\\byul_env\\byul\\rng",
-        "C:\\Users\\critl\\docs\\byul_env\\build_header_abi_audit\\byul_numal_quat_h.c"
+        "build_header_abi_audit_mingw\\byul_numal_quat_h.c"
       ],
       "stdout": "",
       "stderr": ""
@@ -11941,10 +12097,10 @@
     {
       "header": "byul/numal/quat.h",
       "language": "c++",
-      "compiler": "C:\\msys64\\mingw64\\bin\\c++.exe",
+      "compiler": "C:\\msys64\\mingw64\\bin\\g++.exe",
       "returncode": 0,
       "command": [
-        "C:\\msys64\\mingw64\\bin\\c++.exe",
+        "C:\\msys64\\mingw64\\bin\\g++.exe",
         "-std=c++17",
         "-fsyntax-only",
         "-I",
@@ -12011,7 +12167,7 @@
         "C:\\Users\\critl\\docs\\byul_env\\byul\\projectile",
         "-I",
         "C:\\Users\\critl\\docs\\byul_env\\byul\\rng",
-        "C:\\Users\\critl\\docs\\byul_env\\build_header_abi_audit\\byul_numal_quat_h.cpp"
+        "build_header_abi_audit_mingw\\byul_numal_quat_h.cpp"
       ],
       "stdout": "",
       "stderr": ""
@@ -12019,10 +12175,10 @@
     {
       "header": "byul/numal/scalar.h",
       "language": "c",
-      "compiler": "C:\\msys64\\mingw64\\bin\\cc.exe",
+      "compiler": "C:\\msys64\\mingw64\\bin\\gcc.exe",
       "returncode": 0,
       "command": [
-        "C:\\msys64\\mingw64\\bin\\cc.exe",
+        "C:\\msys64\\mingw64\\bin\\gcc.exe",
         "-std=c17",
         "-fsyntax-only",
         "-I",
@@ -12089,7 +12245,7 @@
         "C:\\Users\\critl\\docs\\byul_env\\byul\\projectile",
         "-I",
         "C:\\Users\\critl\\docs\\byul_env\\byul\\rng",
-        "C:\\Users\\critl\\docs\\byul_env\\build_header_abi_audit\\byul_numal_scalar_h.c"
+        "build_header_abi_audit_mingw\\byul_numal_scalar_h.c"
       ],
       "stdout": "",
       "stderr": ""
@@ -12097,10 +12253,10 @@
     {
       "header": "byul/numal/scalar.h",
       "language": "c++",
-      "compiler": "C:\\msys64\\mingw64\\bin\\c++.exe",
+      "compiler": "C:\\msys64\\mingw64\\bin\\g++.exe",
       "returncode": 0,
       "command": [
-        "C:\\msys64\\mingw64\\bin\\c++.exe",
+        "C:\\msys64\\mingw64\\bin\\g++.exe",
         "-std=c++17",
         "-fsyntax-only",
         "-I",
@@ -12167,7 +12323,7 @@
         "C:\\Users\\critl\\docs\\byul_env\\byul\\projectile",
         "-I",
         "C:\\Users\\critl\\docs\\byul_env\\byul\\rng",
-        "C:\\Users\\critl\\docs\\byul_env\\build_header_abi_audit\\byul_numal_scalar_h.cpp"
+        "build_header_abi_audit_mingw\\byul_numal_scalar_h.cpp"
       ],
       "stdout": "",
       "stderr": ""
@@ -12175,10 +12331,10 @@
     {
       "header": "byul/numal/vec3.h",
       "language": "c",
-      "compiler": "C:\\msys64\\mingw64\\bin\\cc.exe",
+      "compiler": "C:\\msys64\\mingw64\\bin\\gcc.exe",
       "returncode": 0,
       "command": [
-        "C:\\msys64\\mingw64\\bin\\cc.exe",
+        "C:\\msys64\\mingw64\\bin\\gcc.exe",
         "-std=c17",
         "-fsyntax-only",
         "-I",
@@ -12245,7 +12401,7 @@
         "C:\\Users\\critl\\docs\\byul_env\\byul\\projectile",
         "-I",
         "C:\\Users\\critl\\docs\\byul_env\\byul\\rng",
-        "C:\\Users\\critl\\docs\\byul_env\\build_header_abi_audit\\byul_numal_vec3_h.c"
+        "build_header_abi_audit_mingw\\byul_numal_vec3_h.c"
       ],
       "stdout": "",
       "stderr": ""
@@ -12253,10 +12409,10 @@
     {
       "header": "byul/numal/vec3.h",
       "language": "c++",
-      "compiler": "C:\\msys64\\mingw64\\bin\\c++.exe",
+      "compiler": "C:\\msys64\\mingw64\\bin\\g++.exe",
       "returncode": 0,
       "command": [
-        "C:\\msys64\\mingw64\\bin\\c++.exe",
+        "C:\\msys64\\mingw64\\bin\\g++.exe",
         "-std=c++17",
         "-fsyntax-only",
         "-I",
@@ -12323,7 +12479,7 @@
         "C:\\Users\\critl\\docs\\byul_env\\byul\\projectile",
         "-I",
         "C:\\Users\\critl\\docs\\byul_env\\byul\\rng",
-        "C:\\Users\\critl\\docs\\byul_env\\build_header_abi_audit\\byul_numal_vec3_h.cpp"
+        "build_header_abi_audit_mingw\\byul_numal_vec3_h.cpp"
       ],
       "stdout": "",
       "stderr": ""
@@ -12331,10 +12487,10 @@
     {
       "header": "byul/number_theory/byul_prime32.h",
       "language": "c",
-      "compiler": "C:\\msys64\\mingw64\\bin\\cc.exe",
+      "compiler": "C:\\msys64\\mingw64\\bin\\gcc.exe",
       "returncode": 0,
       "command": [
-        "C:\\msys64\\mingw64\\bin\\cc.exe",
+        "C:\\msys64\\mingw64\\bin\\gcc.exe",
         "-std=c17",
         "-fsyntax-only",
         "-I",
@@ -12401,7 +12557,7 @@
         "C:\\Users\\critl\\docs\\byul_env\\byul\\projectile",
         "-I",
         "C:\\Users\\critl\\docs\\byul_env\\byul\\rng",
-        "C:\\Users\\critl\\docs\\byul_env\\build_header_abi_audit\\byul_number_theory_byul_prime32_h.c"
+        "build_header_abi_audit_mingw\\byul_number_theory_byul_prime32_h.c"
       ],
       "stdout": "",
       "stderr": ""
@@ -12409,10 +12565,10 @@
     {
       "header": "byul/number_theory/byul_prime32.h",
       "language": "c++",
-      "compiler": "C:\\msys64\\mingw64\\bin\\c++.exe",
+      "compiler": "C:\\msys64\\mingw64\\bin\\g++.exe",
       "returncode": 0,
       "command": [
-        "C:\\msys64\\mingw64\\bin\\c++.exe",
+        "C:\\msys64\\mingw64\\bin\\g++.exe",
         "-std=c++17",
         "-fsyntax-only",
         "-I",
@@ -12479,7 +12635,7 @@
         "C:\\Users\\critl\\docs\\byul_env\\byul\\projectile",
         "-I",
         "C:\\Users\\critl\\docs\\byul_env\\byul\\rng",
-        "C:\\Users\\critl\\docs\\byul_env\\build_header_abi_audit\\byul_number_theory_byul_prime32_h.cpp"
+        "build_header_abi_audit_mingw\\byul_number_theory_byul_prime32_h.cpp"
       ],
       "stdout": "",
       "stderr": ""
@@ -12487,10 +12643,10 @@
     {
       "header": "byul/number_theory/byul_prime_segmented_u32.h",
       "language": "c",
-      "compiler": "C:\\msys64\\mingw64\\bin\\cc.exe",
+      "compiler": "C:\\msys64\\mingw64\\bin\\gcc.exe",
       "returncode": 0,
       "command": [
-        "C:\\msys64\\mingw64\\bin\\cc.exe",
+        "C:\\msys64\\mingw64\\bin\\gcc.exe",
         "-std=c17",
         "-fsyntax-only",
         "-I",
@@ -12557,7 +12713,7 @@
         "C:\\Users\\critl\\docs\\byul_env\\byul\\projectile",
         "-I",
         "C:\\Users\\critl\\docs\\byul_env\\byul\\rng",
-        "C:\\Users\\critl\\docs\\byul_env\\build_header_abi_audit\\byul_number_theory_byul_prime_segmented_u32_h.c"
+        "build_header_abi_audit_mingw\\byul_number_theory_byul_prime_segmented_u32_h.c"
       ],
       "stdout": "",
       "stderr": ""
@@ -12565,10 +12721,10 @@
     {
       "header": "byul/number_theory/byul_prime_segmented_u32.h",
       "language": "c++",
-      "compiler": "C:\\msys64\\mingw64\\bin\\c++.exe",
+      "compiler": "C:\\msys64\\mingw64\\bin\\g++.exe",
       "returncode": 0,
       "command": [
-        "C:\\msys64\\mingw64\\bin\\c++.exe",
+        "C:\\msys64\\mingw64\\bin\\g++.exe",
         "-std=c++17",
         "-fsyntax-only",
         "-I",
@@ -12635,7 +12791,7 @@
         "C:\\Users\\critl\\docs\\byul_env\\byul\\projectile",
         "-I",
         "C:\\Users\\critl\\docs\\byul_env\\byul\\rng",
-        "C:\\Users\\critl\\docs\\byul_env\\build_header_abi_audit\\byul_number_theory_byul_prime_segmented_u32_h.cpp"
+        "build_header_abi_audit_mingw\\byul_number_theory_byul_prime_segmented_u32_h.cpp"
       ],
       "stdout": "",
       "stderr": ""
@@ -12643,10 +12799,10 @@
     {
       "header": "byul/number_theory/number_theory.h",
       "language": "c",
-      "compiler": "C:\\msys64\\mingw64\\bin\\cc.exe",
+      "compiler": "C:\\msys64\\mingw64\\bin\\gcc.exe",
       "returncode": 0,
       "command": [
-        "C:\\msys64\\mingw64\\bin\\cc.exe",
+        "C:\\msys64\\mingw64\\bin\\gcc.exe",
         "-std=c17",
         "-fsyntax-only",
         "-I",
@@ -12713,7 +12869,7 @@
         "C:\\Users\\critl\\docs\\byul_env\\byul\\projectile",
         "-I",
         "C:\\Users\\critl\\docs\\byul_env\\byul\\rng",
-        "C:\\Users\\critl\\docs\\byul_env\\build_header_abi_audit\\byul_number_theory_number_theory_h.c"
+        "build_header_abi_audit_mingw\\byul_number_theory_number_theory_h.c"
       ],
       "stdout": "",
       "stderr": ""
@@ -12721,10 +12877,10 @@
     {
       "header": "byul/number_theory/number_theory.h",
       "language": "c++",
-      "compiler": "C:\\msys64\\mingw64\\bin\\c++.exe",
+      "compiler": "C:\\msys64\\mingw64\\bin\\g++.exe",
       "returncode": 0,
       "command": [
-        "C:\\msys64\\mingw64\\bin\\c++.exe",
+        "C:\\msys64\\mingw64\\bin\\g++.exe",
         "-std=c++17",
         "-fsyntax-only",
         "-I",
@@ -12791,7 +12947,7 @@
         "C:\\Users\\critl\\docs\\byul_env\\byul\\projectile",
         "-I",
         "C:\\Users\\critl\\docs\\byul_env\\byul\\rng",
-        "C:\\Users\\critl\\docs\\byul_env\\build_header_abi_audit\\byul_number_theory_number_theory_h.cpp"
+        "build_header_abi_audit_mingw\\byul_number_theory_number_theory_h.cpp"
       ],
       "stdout": "",
       "stderr": ""
@@ -12799,10 +12955,10 @@
     {
       "header": "byul/projectile/guidance.h",
       "language": "c",
-      "compiler": "C:\\msys64\\mingw64\\bin\\cc.exe",
+      "compiler": "C:\\msys64\\mingw64\\bin\\gcc.exe",
       "returncode": 0,
       "command": [
-        "C:\\msys64\\mingw64\\bin\\cc.exe",
+        "C:\\msys64\\mingw64\\bin\\gcc.exe",
         "-std=c17",
         "-fsyntax-only",
         "-I",
@@ -12869,18 +13025,18 @@
         "C:\\Users\\critl\\docs\\byul_env\\byul\\projectile",
         "-I",
         "C:\\Users\\critl\\docs\\byul_env\\byul\\rng",
-        "C:\\Users\\critl\\docs\\byul_env\\build_header_abi_audit\\byul_projectile_guidance_h.c"
+        "build_header_abi_audit_mingw\\byul_projectile_guidance_h.c"
       ],
       "stdout": "",
-      "stderr": "In file included from C:\\Users\\critl\\docs\\byul_env\\byul\\entity/entity_dynamic.h:13,\n                 from C:\\Users\\critl\\docs\\byul_env/byul/projectile/guidance.h:10,\n                 from C:\\Users\\critl\\docs\\byul_env\\build_header_abi_audit\\byul_projectile_guidance_h.c:1:\nC:\\Users\\critl\\docs\\byul_env\\byul\\balix\\environ/environ.h:26:18: warning: 'struct s_environ' declared inside parameter list will not be visible outside of this definition or declaration\n   26 |     const struct s_environ* env,\n      |                  ^~~~~~~~~\n"
+      "stderr": "In file included from C:\\Users\\critl\\docs\\byul_env\\byul\\entity/entity_dynamic.h:13,\n                 from C:\\Users\\critl\\docs\\byul_env/byul/projectile/guidance.h:10,\n                 from build_header_abi_audit_mingw\\byul_projectile_guidance_h.c:1:\nC:\\Users\\critl\\docs\\byul_env\\byul\\balix\\environ/environ.h:26:18: warning: 'struct s_environ' declared inside parameter list will not be visible outside of this definition or declaration\n   26 |     const struct s_environ* env,\n      |                  ^~~~~~~~~\n"
     },
     {
       "header": "byul/projectile/guidance.h",
       "language": "c++",
-      "compiler": "C:\\msys64\\mingw64\\bin\\c++.exe",
+      "compiler": "C:\\msys64\\mingw64\\bin\\g++.exe",
       "returncode": 0,
       "command": [
-        "C:\\msys64\\mingw64\\bin\\c++.exe",
+        "C:\\msys64\\mingw64\\bin\\g++.exe",
         "-std=c++17",
         "-fsyntax-only",
         "-I",
@@ -12947,7 +13103,7 @@
         "C:\\Users\\critl\\docs\\byul_env\\byul\\projectile",
         "-I",
         "C:\\Users\\critl\\docs\\byul_env\\byul\\rng",
-        "C:\\Users\\critl\\docs\\byul_env\\build_header_abi_audit\\byul_projectile_guidance_h.cpp"
+        "build_header_abi_audit_mingw\\byul_projectile_guidance_h.cpp"
       ],
       "stdout": "",
       "stderr": ""
@@ -12955,10 +13111,10 @@
     {
       "header": "byul/projectile/projectile.h",
       "language": "c",
-      "compiler": "C:\\msys64\\mingw64\\bin\\cc.exe",
+      "compiler": "C:\\msys64\\mingw64\\bin\\gcc.exe",
       "returncode": 0,
       "command": [
-        "C:\\msys64\\mingw64\\bin\\cc.exe",
+        "C:\\msys64\\mingw64\\bin\\gcc.exe",
         "-std=c17",
         "-fsyntax-only",
         "-I",
@@ -13025,18 +13181,18 @@
         "C:\\Users\\critl\\docs\\byul_env\\byul\\projectile",
         "-I",
         "C:\\Users\\critl\\docs\\byul_env\\byul\\rng",
-        "C:\\Users\\critl\\docs\\byul_env\\build_header_abi_audit\\byul_projectile_projectile_h.c"
+        "build_header_abi_audit_mingw\\byul_projectile_projectile_h.c"
       ],
       "stdout": "",
-      "stderr": "In file included from C:\\Users\\critl\\docs\\byul_env\\byul\\entity/entity_dynamic.h:13,\n                 from C:\\Users\\critl\\docs\\byul_env/byul/projectile/projectile_core.h:10,\n                 from C:\\Users\\critl\\docs\\byul_env/byul/projectile/projectile.h:46,\n                 from C:\\Users\\critl\\docs\\byul_env\\build_header_abi_audit\\byul_projectile_projectile_h.c:1:\nC:\\Users\\critl\\docs\\byul_env\\byul\\balix\\environ/environ.h:26:18: warning: 'struct s_environ' declared inside parameter list will not be visible outside of this definition or declaration\n   26 |     const struct s_environ* env,\n      |                  ^~~~~~~~~\n"
+      "stderr": "In file included from C:\\Users\\critl\\docs\\byul_env\\byul\\entity/entity_dynamic.h:13,\n                 from C:\\Users\\critl\\docs\\byul_env/byul/projectile/projectile_core.h:10,\n                 from C:\\Users\\critl\\docs\\byul_env/byul/projectile/projectile.h:46,\n                 from build_header_abi_audit_mingw\\byul_projectile_projectile_h.c:1:\nC:\\Users\\critl\\docs\\byul_env\\byul\\balix\\environ/environ.h:26:18: warning: 'struct s_environ' declared inside parameter list will not be visible outside of this definition or declaration\n   26 |     const struct s_environ* env,\n      |                  ^~~~~~~~~\n"
     },
     {
       "header": "byul/projectile/projectile.h",
       "language": "c++",
-      "compiler": "C:\\msys64\\mingw64\\bin\\c++.exe",
+      "compiler": "C:\\msys64\\mingw64\\bin\\g++.exe",
       "returncode": 0,
       "command": [
-        "C:\\msys64\\mingw64\\bin\\c++.exe",
+        "C:\\msys64\\mingw64\\bin\\g++.exe",
         "-std=c++17",
         "-fsyntax-only",
         "-I",
@@ -13103,7 +13259,7 @@
         "C:\\Users\\critl\\docs\\byul_env\\byul\\projectile",
         "-I",
         "C:\\Users\\critl\\docs\\byul_env\\byul\\rng",
-        "C:\\Users\\critl\\docs\\byul_env\\build_header_abi_audit\\byul_projectile_projectile_h.cpp"
+        "build_header_abi_audit_mingw\\byul_projectile_projectile_h.cpp"
       ],
       "stdout": "",
       "stderr": ""
@@ -13111,10 +13267,10 @@
     {
       "header": "byul/projectile/projectile_core.h",
       "language": "c",
-      "compiler": "C:\\msys64\\mingw64\\bin\\cc.exe",
+      "compiler": "C:\\msys64\\mingw64\\bin\\gcc.exe",
       "returncode": 0,
       "command": [
-        "C:\\msys64\\mingw64\\bin\\cc.exe",
+        "C:\\msys64\\mingw64\\bin\\gcc.exe",
         "-std=c17",
         "-fsyntax-only",
         "-I",
@@ -13181,18 +13337,18 @@
         "C:\\Users\\critl\\docs\\byul_env\\byul\\projectile",
         "-I",
         "C:\\Users\\critl\\docs\\byul_env\\byul\\rng",
-        "C:\\Users\\critl\\docs\\byul_env\\build_header_abi_audit\\byul_projectile_projectile_core_h.c"
+        "build_header_abi_audit_mingw\\byul_projectile_projectile_core_h.c"
       ],
       "stdout": "",
-      "stderr": "In file included from C:\\Users\\critl\\docs\\byul_env\\byul\\entity/entity_dynamic.h:13,\n                 from C:\\Users\\critl\\docs\\byul_env/byul/projectile/projectile_core.h:10,\n                 from C:\\Users\\critl\\docs\\byul_env\\build_header_abi_audit\\byul_projectile_projectile_core_h.c:1:\nC:\\Users\\critl\\docs\\byul_env\\byul\\balix\\environ/environ.h:26:18: warning: 'struct s_environ' declared inside parameter list will not be visible outside of this definition or declaration\n   26 |     const struct s_environ* env,\n      |                  ^~~~~~~~~\n"
+      "stderr": "In file included from C:\\Users\\critl\\docs\\byul_env\\byul\\entity/entity_dynamic.h:13,\n                 from C:\\Users\\critl\\docs\\byul_env/byul/projectile/projectile_core.h:10,\n                 from build_header_abi_audit_mingw\\byul_projectile_projectile_core_h.c:1:\nC:\\Users\\critl\\docs\\byul_env\\byul\\balix\\environ/environ.h:26:18: warning: 'struct s_environ' declared inside parameter list will not be visible outside of this definition or declaration\n   26 |     const struct s_environ* env,\n      |                  ^~~~~~~~~\n"
     },
     {
       "header": "byul/projectile/projectile_core.h",
       "language": "c++",
-      "compiler": "C:\\msys64\\mingw64\\bin\\c++.exe",
+      "compiler": "C:\\msys64\\mingw64\\bin\\g++.exe",
       "returncode": 0,
       "command": [
-        "C:\\msys64\\mingw64\\bin\\c++.exe",
+        "C:\\msys64\\mingw64\\bin\\g++.exe",
         "-std=c++17",
         "-fsyntax-only",
         "-I",
@@ -13259,7 +13415,7 @@
         "C:\\Users\\critl\\docs\\byul_env\\byul\\projectile",
         "-I",
         "C:\\Users\\critl\\docs\\byul_env\\byul\\rng",
-        "C:\\Users\\critl\\docs\\byul_env\\build_header_abi_audit\\byul_projectile_projectile_core_h.cpp"
+        "build_header_abi_audit_mingw\\byul_projectile_projectile_core_h.cpp"
       ],
       "stdout": "",
       "stderr": ""
@@ -13267,10 +13423,10 @@
     {
       "header": "byul/projectile/projectile_predict.h",
       "language": "c",
-      "compiler": "C:\\msys64\\mingw64\\bin\\cc.exe",
+      "compiler": "C:\\msys64\\mingw64\\bin\\gcc.exe",
       "returncode": 0,
       "command": [
-        "C:\\msys64\\mingw64\\bin\\cc.exe",
+        "C:\\msys64\\mingw64\\bin\\gcc.exe",
         "-std=c17",
         "-fsyntax-only",
         "-I",
@@ -13337,18 +13493,18 @@
         "C:\\Users\\critl\\docs\\byul_env\\byul\\projectile",
         "-I",
         "C:\\Users\\critl\\docs\\byul_env\\byul\\rng",
-        "C:\\Users\\critl\\docs\\byul_env\\build_header_abi_audit\\byul_projectile_projectile_predict_h.c"
+        "build_header_abi_audit_mingw\\byul_projectile_projectile_predict_h.c"
       ],
       "stdout": "",
-      "stderr": "In file included from C:\\Users\\critl\\docs\\byul_env\\byul\\entity/entity_dynamic.h:13,\n                 from C:\\Users\\critl\\docs\\byul_env/byul/projectile/projectile_core.h:10,\n                 from C:\\Users\\critl\\docs\\byul_env/byul/projectile/projectile_predict.h:9,\n                 from C:\\Users\\critl\\docs\\byul_env\\build_header_abi_audit\\byul_projectile_projectile_predict_h.c:1:\nC:\\Users\\critl\\docs\\byul_env\\byul\\balix\\environ/environ.h:26:18: warning: 'struct s_environ' declared inside parameter list will not be visible outside of this definition or declaration\n   26 |     const struct s_environ* env,\n      |                  ^~~~~~~~~\n"
+      "stderr": "In file included from C:\\Users\\critl\\docs\\byul_env\\byul\\entity/entity_dynamic.h:13,\n                 from C:\\Users\\critl\\docs\\byul_env/byul/projectile/projectile_core.h:10,\n                 from C:\\Users\\critl\\docs\\byul_env/byul/projectile/projectile_predict.h:9,\n                 from build_header_abi_audit_mingw\\byul_projectile_projectile_predict_h.c:1:\nC:\\Users\\critl\\docs\\byul_env\\byul\\balix\\environ/environ.h:26:18: warning: 'struct s_environ' declared inside parameter list will not be visible outside of this definition or declaration\n   26 |     const struct s_environ* env,\n      |                  ^~~~~~~~~\n"
     },
     {
       "header": "byul/projectile/projectile_predict.h",
       "language": "c++",
-      "compiler": "C:\\msys64\\mingw64\\bin\\c++.exe",
+      "compiler": "C:\\msys64\\mingw64\\bin\\g++.exe",
       "returncode": 0,
       "command": [
-        "C:\\msys64\\mingw64\\bin\\c++.exe",
+        "C:\\msys64\\mingw64\\bin\\g++.exe",
         "-std=c++17",
         "-fsyntax-only",
         "-I",
@@ -13415,7 +13571,7 @@
         "C:\\Users\\critl\\docs\\byul_env\\byul\\projectile",
         "-I",
         "C:\\Users\\critl\\docs\\byul_env\\byul\\rng",
-        "C:\\Users\\critl\\docs\\byul_env\\build_header_abi_audit\\byul_projectile_projectile_predict_h.cpp"
+        "build_header_abi_audit_mingw\\byul_projectile_projectile_predict_h.cpp"
       ],
       "stdout": "",
       "stderr": ""
@@ -13423,10 +13579,10 @@
     {
       "header": "byul/projectile/projectile_tick.h",
       "language": "c",
-      "compiler": "C:\\msys64\\mingw64\\bin\\cc.exe",
+      "compiler": "C:\\msys64\\mingw64\\bin\\gcc.exe",
       "returncode": 0,
       "command": [
-        "C:\\msys64\\mingw64\\bin\\cc.exe",
+        "C:\\msys64\\mingw64\\bin\\gcc.exe",
         "-std=c17",
         "-fsyntax-only",
         "-I",
@@ -13493,18 +13649,18 @@
         "C:\\Users\\critl\\docs\\byul_env\\byul\\projectile",
         "-I",
         "C:\\Users\\critl\\docs\\byul_env\\byul\\rng",
-        "C:\\Users\\critl\\docs\\byul_env\\build_header_abi_audit\\byul_projectile_projectile_tick_h.c"
+        "build_header_abi_audit_mingw\\byul_projectile_projectile_tick_h.c"
       ],
       "stdout": "",
-      "stderr": "In file included from C:\\Users\\critl\\docs\\byul_env\\byul\\entity/entity_dynamic.h:13,\n                 from C:\\Users\\critl\\docs\\byul_env/byul/projectile/projectile_core.h:10,\n                 from C:\\Users\\critl\\docs\\byul_env/byul/projectile/projectile_tick.h:67,\n                 from C:\\Users\\critl\\docs\\byul_env\\build_header_abi_audit\\byul_projectile_projectile_tick_h.c:1:\nC:\\Users\\critl\\docs\\byul_env\\byul\\balix\\environ/environ.h:26:18: warning: 'struct s_environ' declared inside parameter list will not be visible outside of this definition or declaration\n   26 |     const struct s_environ* env,\n      |                  ^~~~~~~~~\n"
+      "stderr": "In file included from C:\\Users\\critl\\docs\\byul_env\\byul\\entity/entity_dynamic.h:13,\n                 from C:\\Users\\critl\\docs\\byul_env/byul/projectile/projectile_core.h:10,\n                 from C:\\Users\\critl\\docs\\byul_env/byul/projectile/projectile_tick.h:67,\n                 from build_header_abi_audit_mingw\\byul_projectile_projectile_tick_h.c:1:\nC:\\Users\\critl\\docs\\byul_env\\byul\\balix\\environ/environ.h:26:18: warning: 'struct s_environ' declared inside parameter list will not be visible outside of this definition or declaration\n   26 |     const struct s_environ* env,\n      |                  ^~~~~~~~~\n"
     },
     {
       "header": "byul/projectile/projectile_tick.h",
       "language": "c++",
-      "compiler": "C:\\msys64\\mingw64\\bin\\c++.exe",
+      "compiler": "C:\\msys64\\mingw64\\bin\\g++.exe",
       "returncode": 0,
       "command": [
-        "C:\\msys64\\mingw64\\bin\\c++.exe",
+        "C:\\msys64\\mingw64\\bin\\g++.exe",
         "-std=c++17",
         "-fsyntax-only",
         "-I",
@@ -13571,7 +13727,7 @@
         "C:\\Users\\critl\\docs\\byul_env\\byul\\projectile",
         "-I",
         "C:\\Users\\critl\\docs\\byul_env\\byul\\rng",
-        "C:\\Users\\critl\\docs\\byul_env\\build_header_abi_audit\\byul_projectile_projectile_tick_h.cpp"
+        "build_header_abi_audit_mingw\\byul_projectile_projectile_tick_h.cpp"
       ],
       "stdout": "",
       "stderr": ""
@@ -13579,10 +13735,10 @@
     {
       "header": "byul/projectile/propulsion.h",
       "language": "c",
-      "compiler": "C:\\msys64\\mingw64\\bin\\cc.exe",
+      "compiler": "C:\\msys64\\mingw64\\bin\\gcc.exe",
       "returncode": 0,
       "command": [
-        "C:\\msys64\\mingw64\\bin\\cc.exe",
+        "C:\\msys64\\mingw64\\bin\\gcc.exe",
         "-std=c17",
         "-fsyntax-only",
         "-I",
@@ -13649,18 +13805,18 @@
         "C:\\Users\\critl\\docs\\byul_env\\byul\\projectile",
         "-I",
         "C:\\Users\\critl\\docs\\byul_env\\byul\\rng",
-        "C:\\Users\\critl\\docs\\byul_env\\build_header_abi_audit\\byul_projectile_propulsion_h.c"
+        "build_header_abi_audit_mingw\\byul_projectile_propulsion_h.c"
       ],
       "stdout": "",
-      "stderr": "In file included from C:\\Users\\critl\\docs\\byul_env\\byul\\balix\\numeq/numeq_integrator.h:56,\n                 from C:\\Users\\critl\\docs\\byul_env\\byul\\balix\\numeq/numeq.h:4,\n                 from C:\\Users\\critl\\docs\\byul_env\\byul\\balix\\controller/controller.h:5,\n                 from C:\\Users\\critl\\docs\\byul_env/byul/projectile/propulsion.h:4,\n                 from C:\\Users\\critl\\docs\\byul_env\\build_header_abi_audit\\byul_projectile_propulsion_h.c:1:\nC:\\Users\\critl\\docs\\byul_env\\byul\\balix\\environ/environ.h:26:18: warning: 'struct s_environ' declared inside parameter list will not be visible outside of this definition or declaration\n   26 |     const struct s_environ* env,\n      |                  ^~~~~~~~~\n"
+      "stderr": "In file included from C:\\Users\\critl\\docs\\byul_env\\byul\\balix\\numeq/numeq_integrator.h:56,\n                 from C:\\Users\\critl\\docs\\byul_env\\byul\\balix\\numeq/numeq.h:4,\n                 from C:\\Users\\critl\\docs\\byul_env\\byul\\balix\\controller/controller.h:5,\n                 from C:\\Users\\critl\\docs\\byul_env/byul/projectile/propulsion.h:4,\n                 from build_header_abi_audit_mingw\\byul_projectile_propulsion_h.c:1:\nC:\\Users\\critl\\docs\\byul_env\\byul\\balix\\environ/environ.h:26:18: warning: 'struct s_environ' declared inside parameter list will not be visible outside of this definition or declaration\n   26 |     const struct s_environ* env,\n      |                  ^~~~~~~~~\n"
     },
     {
       "header": "byul/projectile/propulsion.h",
       "language": "c++",
-      "compiler": "C:\\msys64\\mingw64\\bin\\c++.exe",
+      "compiler": "C:\\msys64\\mingw64\\bin\\g++.exe",
       "returncode": 0,
       "command": [
-        "C:\\msys64\\mingw64\\bin\\c++.exe",
+        "C:\\msys64\\mingw64\\bin\\g++.exe",
         "-std=c++17",
         "-fsyntax-only",
         "-I",
@@ -13727,7 +13883,7 @@
         "C:\\Users\\critl\\docs\\byul_env\\byul\\projectile",
         "-I",
         "C:\\Users\\critl\\docs\\byul_env\\byul\\rng",
-        "C:\\Users\\critl\\docs\\byul_env\\build_header_abi_audit\\byul_projectile_propulsion_h.cpp"
+        "build_header_abi_audit_mingw\\byul_projectile_propulsion_h.cpp"
       ],
       "stdout": "",
       "stderr": ""
@@ -13735,10 +13891,10 @@
     {
       "header": "byul/rng/distributions.h",
       "language": "c",
-      "compiler": "C:\\msys64\\mingw64\\bin\\cc.exe",
+      "compiler": "C:\\msys64\\mingw64\\bin\\gcc.exe",
       "returncode": 0,
       "command": [
-        "C:\\msys64\\mingw64\\bin\\cc.exe",
+        "C:\\msys64\\mingw64\\bin\\gcc.exe",
         "-std=c17",
         "-fsyntax-only",
         "-I",
@@ -13805,7 +13961,7 @@
         "C:\\Users\\critl\\docs\\byul_env\\byul\\projectile",
         "-I",
         "C:\\Users\\critl\\docs\\byul_env\\byul\\rng",
-        "C:\\Users\\critl\\docs\\byul_env\\build_header_abi_audit\\byul_rng_distributions_h.c"
+        "build_header_abi_audit_mingw\\byul_rng_distributions_h.c"
       ],
       "stdout": "",
       "stderr": ""
@@ -13813,10 +13969,10 @@
     {
       "header": "byul/rng/distributions.h",
       "language": "c++",
-      "compiler": "C:\\msys64\\mingw64\\bin\\c++.exe",
+      "compiler": "C:\\msys64\\mingw64\\bin\\g++.exe",
       "returncode": 0,
       "command": [
-        "C:\\msys64\\mingw64\\bin\\c++.exe",
+        "C:\\msys64\\mingw64\\bin\\g++.exe",
         "-std=c++17",
         "-fsyntax-only",
         "-I",
@@ -13883,7 +14039,7 @@
         "C:\\Users\\critl\\docs\\byul_env\\byul\\projectile",
         "-I",
         "C:\\Users\\critl\\docs\\byul_env\\byul\\rng",
-        "C:\\Users\\critl\\docs\\byul_env\\build_header_abi_audit\\byul_rng_distributions_h.cpp"
+        "build_header_abi_audit_mingw\\byul_rng_distributions_h.cpp"
       ],
       "stdout": "",
       "stderr": ""
@@ -13891,10 +14047,10 @@
     {
       "header": "byul/rng/rng.h",
       "language": "c",
-      "compiler": "C:\\msys64\\mingw64\\bin\\cc.exe",
+      "compiler": "C:\\msys64\\mingw64\\bin\\gcc.exe",
       "returncode": 0,
       "command": [
-        "C:\\msys64\\mingw64\\bin\\cc.exe",
+        "C:\\msys64\\mingw64\\bin\\gcc.exe",
         "-std=c17",
         "-fsyntax-only",
         "-I",
@@ -13961,7 +14117,7 @@
         "C:\\Users\\critl\\docs\\byul_env\\byul\\projectile",
         "-I",
         "C:\\Users\\critl\\docs\\byul_env\\byul\\rng",
-        "C:\\Users\\critl\\docs\\byul_env\\build_header_abi_audit\\byul_rng_rng_h.c"
+        "build_header_abi_audit_mingw\\byul_rng_rng_h.c"
       ],
       "stdout": "",
       "stderr": ""
@@ -13969,10 +14125,10 @@
     {
       "header": "byul/rng/rng.h",
       "language": "c++",
-      "compiler": "C:\\msys64\\mingw64\\bin\\c++.exe",
+      "compiler": "C:\\msys64\\mingw64\\bin\\g++.exe",
       "returncode": 0,
       "command": [
-        "C:\\msys64\\mingw64\\bin\\c++.exe",
+        "C:\\msys64\\mingw64\\bin\\g++.exe",
         "-std=c++17",
         "-fsyntax-only",
         "-I",
@@ -14039,7 +14195,7 @@
         "C:\\Users\\critl\\docs\\byul_env\\byul\\projectile",
         "-I",
         "C:\\Users\\critl\\docs\\byul_env\\byul\\rng",
-        "C:\\Users\\critl\\docs\\byul_env\\build_header_abi_audit\\byul_rng_rng_h.cpp"
+        "build_header_abi_audit_mingw\\byul_rng_rng_h.cpp"
       ],
       "stdout": "",
       "stderr": ""
@@ -14047,10 +14203,10 @@
     {
       "header": "byul/rng/rng_core.h",
       "language": "c",
-      "compiler": "C:\\msys64\\mingw64\\bin\\cc.exe",
+      "compiler": "C:\\msys64\\mingw64\\bin\\gcc.exe",
       "returncode": 0,
       "command": [
-        "C:\\msys64\\mingw64\\bin\\cc.exe",
+        "C:\\msys64\\mingw64\\bin\\gcc.exe",
         "-std=c17",
         "-fsyntax-only",
         "-I",
@@ -14117,7 +14273,7 @@
         "C:\\Users\\critl\\docs\\byul_env\\byul\\projectile",
         "-I",
         "C:\\Users\\critl\\docs\\byul_env\\byul\\rng",
-        "C:\\Users\\critl\\docs\\byul_env\\build_header_abi_audit\\byul_rng_rng_core_h.c"
+        "build_header_abi_audit_mingw\\byul_rng_rng_core_h.c"
       ],
       "stdout": "",
       "stderr": ""
@@ -14125,10 +14281,10 @@
     {
       "header": "byul/rng/rng_core.h",
       "language": "c++",
-      "compiler": "C:\\msys64\\mingw64\\bin\\c++.exe",
+      "compiler": "C:\\msys64\\mingw64\\bin\\g++.exe",
       "returncode": 0,
       "command": [
-        "C:\\msys64\\mingw64\\bin\\c++.exe",
+        "C:\\msys64\\mingw64\\bin\\g++.exe",
         "-std=c++17",
         "-fsyntax-only",
         "-I",
@@ -14195,7 +14351,7 @@
         "C:\\Users\\critl\\docs\\byul_env\\byul\\projectile",
         "-I",
         "C:\\Users\\critl\\docs\\byul_env\\byul\\rng",
-        "C:\\Users\\critl\\docs\\byul_env\\build_header_abi_audit\\byul_rng_rng_core_h.cpp"
+        "build_header_abi_audit_mingw\\byul_rng_rng_core_h.cpp"
       ],
       "stdout": "",
       "stderr": ""
@@ -14203,10 +14359,10 @@
     {
       "header": "byul/rng/rng_fill.h",
       "language": "c",
-      "compiler": "C:\\msys64\\mingw64\\bin\\cc.exe",
+      "compiler": "C:\\msys64\\mingw64\\bin\\gcc.exe",
       "returncode": 0,
       "command": [
-        "C:\\msys64\\mingw64\\bin\\cc.exe",
+        "C:\\msys64\\mingw64\\bin\\gcc.exe",
         "-std=c17",
         "-fsyntax-only",
         "-I",
@@ -14273,7 +14429,7 @@
         "C:\\Users\\critl\\docs\\byul_env\\byul\\projectile",
         "-I",
         "C:\\Users\\critl\\docs\\byul_env\\byul\\rng",
-        "C:\\Users\\critl\\docs\\byul_env\\build_header_abi_audit\\byul_rng_rng_fill_h.c"
+        "build_header_abi_audit_mingw\\byul_rng_rng_fill_h.c"
       ],
       "stdout": "",
       "stderr": ""
@@ -14281,10 +14437,10 @@
     {
       "header": "byul/rng/rng_fill.h",
       "language": "c++",
-      "compiler": "C:\\msys64\\mingw64\\bin\\c++.exe",
+      "compiler": "C:\\msys64\\mingw64\\bin\\g++.exe",
       "returncode": 0,
       "command": [
-        "C:\\msys64\\mingw64\\bin\\c++.exe",
+        "C:\\msys64\\mingw64\\bin\\g++.exe",
         "-std=c++17",
         "-fsyntax-only",
         "-I",
@@ -14351,7 +14507,7 @@
         "C:\\Users\\critl\\docs\\byul_env\\byul\\projectile",
         "-I",
         "C:\\Users\\critl\\docs\\byul_env\\byul\\rng",
-        "C:\\Users\\critl\\docs\\byul_env\\build_header_abi_audit\\byul_rng_rng_fill_h.cpp"
+        "build_header_abi_audit_mingw\\byul_rng_rng_fill_h.cpp"
       ],
       "stdout": "",
       "stderr": ""
@@ -14359,10 +14515,10 @@
     {
       "header": "byul/rng/roll.h",
       "language": "c",
-      "compiler": "C:\\msys64\\mingw64\\bin\\cc.exe",
+      "compiler": "C:\\msys64\\mingw64\\bin\\gcc.exe",
       "returncode": 0,
       "command": [
-        "C:\\msys64\\mingw64\\bin\\cc.exe",
+        "C:\\msys64\\mingw64\\bin\\gcc.exe",
         "-std=c17",
         "-fsyntax-only",
         "-I",
@@ -14429,7 +14585,7 @@
         "C:\\Users\\critl\\docs\\byul_env\\byul\\projectile",
         "-I",
         "C:\\Users\\critl\\docs\\byul_env\\byul\\rng",
-        "C:\\Users\\critl\\docs\\byul_env\\build_header_abi_audit\\byul_rng_roll_h.c"
+        "build_header_abi_audit_mingw\\byul_rng_roll_h.c"
       ],
       "stdout": "",
       "stderr": ""
@@ -14437,10 +14593,10 @@
     {
       "header": "byul/rng/roll.h",
       "language": "c++",
-      "compiler": "C:\\msys64\\mingw64\\bin\\c++.exe",
+      "compiler": "C:\\msys64\\mingw64\\bin\\g++.exe",
       "returncode": 0,
       "command": [
-        "C:\\msys64\\mingw64\\bin\\c++.exe",
+        "C:\\msys64\\mingw64\\bin\\g++.exe",
         "-std=c++17",
         "-fsyntax-only",
         "-I",
@@ -14507,7 +14663,7 @@
         "C:\\Users\\critl\\docs\\byul_env\\byul\\projectile",
         "-I",
         "C:\\Users\\critl\\docs\\byul_env\\byul\\rng",
-        "C:\\Users\\critl\\docs\\byul_env\\build_header_abi_audit\\byul_rng_roll_h.cpp"
+        "build_header_abi_audit_mingw\\byul_rng_roll_h.cpp"
       ],
       "stdout": "",
       "stderr": ""
@@ -14515,10 +14671,10 @@
     {
       "header": "byul/rng/shuffle.h",
       "language": "c",
-      "compiler": "C:\\msys64\\mingw64\\bin\\cc.exe",
+      "compiler": "C:\\msys64\\mingw64\\bin\\gcc.exe",
       "returncode": 0,
       "command": [
-        "C:\\msys64\\mingw64\\bin\\cc.exe",
+        "C:\\msys64\\mingw64\\bin\\gcc.exe",
         "-std=c17",
         "-fsyntax-only",
         "-I",
@@ -14585,7 +14741,7 @@
         "C:\\Users\\critl\\docs\\byul_env\\byul\\projectile",
         "-I",
         "C:\\Users\\critl\\docs\\byul_env\\byul\\rng",
-        "C:\\Users\\critl\\docs\\byul_env\\build_header_abi_audit\\byul_rng_shuffle_h.c"
+        "build_header_abi_audit_mingw\\byul_rng_shuffle_h.c"
       ],
       "stdout": "",
       "stderr": ""
@@ -14593,10 +14749,10 @@
     {
       "header": "byul/rng/shuffle.h",
       "language": "c++",
-      "compiler": "C:\\msys64\\mingw64\\bin\\c++.exe",
+      "compiler": "C:\\msys64\\mingw64\\bin\\g++.exe",
       "returncode": 0,
       "command": [
-        "C:\\msys64\\mingw64\\bin\\c++.exe",
+        "C:\\msys64\\mingw64\\bin\\g++.exe",
         "-std=c++17",
         "-fsyntax-only",
         "-I",
@@ -14663,7 +14819,7 @@
         "C:\\Users\\critl\\docs\\byul_env\\byul\\projectile",
         "-I",
         "C:\\Users\\critl\\docs\\byul_env\\byul\\rng",
-        "C:\\Users\\critl\\docs\\byul_env\\build_header_abi_audit\\byul_rng_shuffle_h.cpp"
+        "build_header_abi_audit_mingw\\byul_rng_shuffle_h.cpp"
       ],
       "stdout": "",
       "stderr": ""

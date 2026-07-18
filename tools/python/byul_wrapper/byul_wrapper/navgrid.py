@@ -1,6 +1,7 @@
 import weakref
 
 from .ffi_core import ffi, C
+from .navsys_status import NavsysStatus
 
 from .coord import c_coord
 from .coord_list import c_coord_list
@@ -92,6 +93,12 @@ typedef struct s_navgrid navgrid_t;
 
  is_coord_blocked_func navgrid_get_is_coord_blocked_fn(
     const navgrid_t* navgrid);
+
+ navsys_status_t navgrid_bind_is_coord_blocked_func(
+    navgrid_t* navgrid, is_coord_blocked_func fn, void* userdata);
+
+ navsys_status_t navgrid_unbind_is_coord_blocked_func(
+    navgrid_t* navgrid);
 
  navgrid_dir_mode_t navgrid_get_mode(const navgrid_t* navgrid);
  void navgrid_set_mode(

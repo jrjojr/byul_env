@@ -36,7 +36,7 @@ bool dstar_lite_fetch_next(const dstar_lite_t* dsl,
         if (g_ptr) g_s = *g_ptr;
 
         cost = dsl->cost_fn(
-            dsl->navgrid, start, &s, dsl->proto_route->visited_count);
+            dsl->navgrid, start, &s, dsl->cost_fn_userdata);
         total = g_s + cost;
 
         int visit = 0;
@@ -81,7 +81,10 @@ float dstar_lite_cost(const navgrid_t* navgrid,
     if (!navgrid || !start || !goal)
         return FLT_MAX;
 
-    if (navgrid->is_coord_blocked_fn(navgrid, goal->x, goal->y, nullptr))
+    if (navgrid->is_coord_blocked_fn
+        && navgrid->is_coord_blocked_fn(
+            navgrid, goal->x, goal->y,
+            navgrid->is_coord_blocked_fn_userdata))
         return FLT_MAX;
 
     float dx = (float)(start->x - goal->x);
@@ -96,7 +99,9 @@ float dstar_lite_dynamic_cost(const navgrid_t* navgrid,
         return FLT_MAX;
 
     if (navgrid->is_coord_blocked_fn &&
-        navgrid->is_coord_blocked_fn(navgrid, goal->x, goal->y, NULL)) {
+        navgrid->is_coord_blocked_fn(
+            navgrid, goal->x, goal->y,
+            navgrid->is_coord_blocked_fn_userdata)) {
         return FLT_MAX;
     }
 
@@ -249,6 +254,67 @@ void dstar_lite_set_changed_coords_func_userdata(
     dsl->changed_coords_fn_userdata = userdata;
 }
 
+navsys_status_t dstar_lite_bind_cost_func(
+    dstar_lite_t* dsl, cost_func fn, void* userdata) {
+    if (!dsl || !fn) return NAVSYS_STATUS_INVALID_ARGUMENT;
+    dsl->cost_fn = fn;
+    dsl->cost_fn_userdata = userdata;
+    return NAVSYS_STATUS_OK;
+}
+
+navsys_status_t dstar_lite_unbind_cost_func(dstar_lite_t* dsl) {
+    if (!dsl) return NAVSYS_STATUS_INVALID_ARGUMENT;
+    dsl->cost_fn = dstar_lite_cost;
+    dsl->cost_fn_userdata = nullptr;
+    return NAVSYS_STATUS_OK;
+}
+
+navsys_status_t dstar_lite_bind_heuristic_func(
+    dstar_lite_t* dsl, heuristic_func fn, void* userdata) {
+    if (!dsl || !fn) return NAVSYS_STATUS_INVALID_ARGUMENT;
+    dsl->heuristic_fn = fn;
+    dsl->heuristic_fn_userdata = userdata;
+    return NAVSYS_STATUS_OK;
+}
+
+navsys_status_t dstar_lite_unbind_heuristic_func(dstar_lite_t* dsl) {
+    if (!dsl) return NAVSYS_STATUS_INVALID_ARGUMENT;
+    dsl->heuristic_fn = dstar_lite_heuristic;
+    dsl->heuristic_fn_userdata = nullptr;
+    return NAVSYS_STATUS_OK;
+}
+
+navsys_status_t dstar_lite_bind_move_func(
+    dstar_lite_t* dsl, move_func fn, void* userdata) {
+    if (!dsl || !fn) return NAVSYS_STATUS_INVALID_ARGUMENT;
+    dsl->move_fn = fn;
+    dsl->move_fn_userdata = userdata;
+    return NAVSYS_STATUS_OK;
+}
+
+navsys_status_t dstar_lite_unbind_move_func(dstar_lite_t* dsl) {
+    if (!dsl) return NAVSYS_STATUS_INVALID_ARGUMENT;
+    dsl->move_fn = nullptr;
+    dsl->move_fn_userdata = nullptr;
+    return NAVSYS_STATUS_OK;
+}
+
+navsys_status_t dstar_lite_bind_changed_coords_func(
+    dstar_lite_t* dsl, changed_coords_func fn, void* userdata) {
+    if (!dsl || !fn) return NAVSYS_STATUS_INVALID_ARGUMENT;
+    dsl->changed_coords_fn = fn;
+    dsl->changed_coords_fn_userdata = userdata;
+    return NAVSYS_STATUS_OK;
+}
+
+navsys_status_t dstar_lite_unbind_changed_coords_func(
+    dstar_lite_t* dsl) {
+    if (!dsl) return NAVSYS_STATUS_INVALID_ARGUMENT;
+    dsl->changed_coords_fn = nullptr;
+    dsl->changed_coords_fn_userdata = nullptr;
+    return NAVSYS_STATUS_OK;
+}
+
 dstar_lite_t* dstar_lite_create(navgrid_t* navgrid) {
     if (!navgrid) return NULL;
 
@@ -286,7 +352,9 @@ dstar_lite_t* dstar_lite_create_full(navgrid_t* navgrid,
     dsl->reconstruct_max_retry = 300;
 
     dsl->cost_fn = cost_fn ? cost_fn : dstar_lite_cost;
+    dsl->cost_fn_userdata = NULL;
     dsl->heuristic_fn = heuristic_fn ? heuristic_fn : dstar_lite_heuristic;
+    dsl->heuristic_fn_userdata = NULL;
 
     dsl->debug_mode_enabled = debug_mode_enabled;
 
@@ -557,7 +625,8 @@ dstar_lite_key_t* dstar_lite_calc_key(dstar_lite_t* dsl, const coord_t* s) {
     }
 
     float k2 = fminf(g_val, rhs_val);
-    float h = dsl->heuristic_fn(&dsl->start, s, NULL);
+    float h = dsl->heuristic_fn(
+        &dsl->start, s, dsl->heuristic_fn_userdata);
     float k1 = k2 + h + dsl->km;
 
     dstar_lite_key_t* key = dstar_lite_key_create_full( k1, k2 );
@@ -614,7 +683,8 @@ void dstar_lite_update_vertex(dstar_lite_t* dsl, const coord_t* u) {
                 g_s = FLT_MAX;
             }
 
-            cost = dsl->cost_fn(dsl->navgrid, u, s, NULL) + g_s;
+            cost = dsl->cost_fn(
+                dsl->navgrid, u, s, dsl->cost_fn_userdata) + g_s;
 
             if (cost < min_rhs)
                 min_rhs = cost;
@@ -754,7 +824,8 @@ void dstar_lite_compute_shortest_route(dstar_lite_t* dsl) {
                 float* rhs_s_ptr = (float*)coord_hash_get(dsl->rhs_table, s);
                 float rhs_s = rhs_s_ptr ? *rhs_s_ptr : FLT_MAX;
 
-                float cost = dsl->cost_fn(dsl->navgrid, s, u, NULL);
+                float cost = dsl->cost_fn(
+                    dsl->navgrid, s, u, dsl->cost_fn_userdata);
 
                 if (scalar_equal(rhs_s, cost + g_u)) {
                     if (!coord_equal(s, &dsl->goal)) {
@@ -764,7 +835,9 @@ void dstar_lite_compute_shortest_route(dstar_lite_t* dsl) {
                             const coord_t* s2 = coord_list_get(succs, j);
                             float* g_s2_ptr = (float*)coord_hash_get(dsl->g_table, s2);
                             float g_s2 = g_s2_ptr ? *g_s2_ptr : FLT_MAX;
-                            float c = dsl->cost_fn(dsl->navgrid, s, s2, NULL);
+                            float c = dsl->cost_fn(
+                                dsl->navgrid, s, s2,
+                                dsl->cost_fn_userdata);
                             min_rhs = fminf(min_rhs, c + g_s2);
                         }
                         coord_list_destroy(succs);
@@ -825,7 +898,8 @@ bool dstar_lite_reconstruct_route(dstar_lite_t* dsl) {
         for (int i=0; i<len; i++){
             coord_t s = *coord_list_get(neighbors, i);
 
-            float cost_current_s = dsl->cost_fn(dsl->navgrid, &current, &s, NULL);
+            float cost_current_s = dsl->cost_fn(
+                dsl->navgrid, &current, &s, dsl->cost_fn_userdata);
             float* g_s_ptr = (float*) coord_hash_get(dsl->g_table, &s);
             float g_s = (g_s_ptr) ? *g_s_ptr : FLT_MAX;
 
@@ -950,7 +1024,8 @@ void dstar_lite_find_loop(dstar_lite_t* dsl) {
         if (dsl->changed_coords_fn) {
             coord_list_t* changed = dsl->changed_coords_fn(dsl->changed_coords_fn_userdata);
             if (changed && coord_list_length(changed) > 0) {
-                dsl->km += dsl->heuristic_fn(&s_last, &next, NULL);
+                dsl->km += dsl->heuristic_fn(
+                    &s_last, &next, dsl->heuristic_fn_userdata);
                 s_last = next;
 
                 for (int i = 0; i < coord_list_length(changed); ++i) {

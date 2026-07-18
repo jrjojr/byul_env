@@ -55,6 +55,11 @@ class NavsysLifecyclePolicyTest(unittest.TestCase):
         self.assertEqual(inventory_slots, set(policy_slots))
 
     def test_bind_and_unbind_symbols_are_unique_and_family_scoped(self):
+        exported_symbols = {
+            symbol
+            for header in self.inventory["headers"]
+            for symbol in header["symbols"]
+        }
         symbols = []
         for row in self.policy["callback_bindings"]:
             with self.subTest(family=row["family"], slot=row["slot"]):
@@ -63,6 +68,8 @@ class NavsysLifecyclePolicyTest(unittest.TestCase):
                 self.assertTrue(bind.startswith(f"{row['family']}_bind_"))
                 self.assertTrue(unbind.startswith(f"{row['family']}_unbind_"))
                 self.assertTrue(row["unbind_result"])
+                self.assertIn(bind, exported_symbols)
+                self.assertIn(unbind, exported_symbols)
                 symbols.extend((bind, unbind))
 
         self.assertEqual(len(symbols), len(set(symbols)))
@@ -76,6 +83,10 @@ class NavsysLifecyclePolicyTest(unittest.TestCase):
         self.assertEqual(
             "function-and-userdata-change-together-or-remain-unchanged",
             abi_1["binding_commit"],
+        )
+        self.assertEqual(
+            "materialized-in-current-abi-inventory",
+            abi_1["binding_surface"],
         )
         self.assertIn(
             "remove-public-struct-fields",

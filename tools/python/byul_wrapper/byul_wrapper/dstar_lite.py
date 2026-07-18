@@ -178,7 +178,8 @@ typedef struct s_dstar_lite {
     const dstar_lite_t* dsl);
  void         dstar_lite_set_heuristic_func(
     dstar_lite_t* dsl, heuristic_func func);
- void* dstar_lite_get_heuristic_func_userdata(dstar_lite_t* dsl);
+ void* dstar_lite_get_heuristic_func_userdata(
+    const dstar_lite_t* dsl);
  void dstar_lite_set_heuristic_func_userdata(
     dstar_lite_t* dsl, void* userdata);
 
@@ -196,6 +197,28 @@ typedef struct s_dstar_lite {
     const dstar_lite_t* dsl);
  void dstar_lite_set_changed_coords_func_userdata(
     dstar_lite_t* dsl, void* userdata);
+
+ navsys_status_t dstar_lite_bind_cost_func(
+    dstar_lite_t* dsl, cost_func fn, void* userdata);
+
+ navsys_status_t dstar_lite_unbind_cost_func(dstar_lite_t* dsl);
+
+ navsys_status_t dstar_lite_bind_heuristic_func(
+    dstar_lite_t* dsl, heuristic_func fn, void* userdata);
+
+ navsys_status_t dstar_lite_unbind_heuristic_func(
+    dstar_lite_t* dsl);
+
+ navsys_status_t dstar_lite_bind_move_func(
+    dstar_lite_t* dsl, move_func fn, void* userdata);
+
+ navsys_status_t dstar_lite_unbind_move_func(dstar_lite_t* dsl);
+
+ navsys_status_t dstar_lite_bind_changed_coords_func(
+    dstar_lite_t* dsl, changed_coords_func fn, void* userdata);
+
+ navsys_status_t dstar_lite_unbind_changed_coords_func(
+    dstar_lite_t* dsl);
 
  dstar_lite_key_t* dstar_lite_calc_key(
     dstar_lite_t* dsl, const coord_t* s);

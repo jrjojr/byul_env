@@ -35,6 +35,7 @@
 #define DSTAR_LITE_H
 
 #include "byul_config.h"
+#include "navsys_status.h"
 
 // #include "scalar.h"
 
@@ -268,7 +269,8 @@ BYUL_API heuristic_func dstar_lite_get_heuristic_func(
     const dstar_lite_t* dsl);
 BYUL_API void         dstar_lite_set_heuristic_func(
     dstar_lite_t* dsl, heuristic_func func);
-BYUL_API void* dstar_lite_get_heuristic_func_userdata(dstar_lite_t* dsl);
+BYUL_API void* dstar_lite_get_heuristic_func_userdata(
+    const dstar_lite_t* dsl);
 BYUL_API void dstar_lite_set_heuristic_func_userdata(
     dstar_lite_t* dsl, void* userdata);    
 
@@ -286,6 +288,128 @@ BYUL_API void* dstar_lite_get_changed_coords_func_userdata(
     const dstar_lite_t* dsl);
 BYUL_API void dstar_lite_set_changed_coords_func_userdata(
     dstar_lite_t* dsl, void* userdata);
+
+/**
+ * @brief Cost callback과 userdata를 원자적인 binding으로 교체한다.
+ * @param[in,out] dsl 변경할 D* Lite object.
+ * @param[in] fn bind할 callback.
+ * @param[in] userdata callback에 전달할 caller 소유 data.
+ * @return NAVSYS_STATUS_OK 또는 NAVSYS_STATUS_INVALID_ARGUMENT.
+ * @byul.nullable dsl false
+ * @byul.nullable fn false
+ * @byul.nullable userdata true
+ * @byul.lifetime fn until-unbind
+ * @byul.lifetime userdata until-unbind
+ * @byul.side_effect mutates:dsl
+ * @byul.thread_safety externally-synchronized
+ * @byul.blocking false
+ * @byul.reentrant false
+ */
+BYUL_API navsys_status_t dstar_lite_bind_cost_func(
+    dstar_lite_t* dsl, cost_func fn, void* userdata);
+
+/** @brief Cost binding을 D* Lite 기본값으로 되돌린다.
+ * @param[in,out] dsl 변경할 D* Lite object.
+ * @return NAVSYS_STATUS_OK 또는 NAVSYS_STATUS_INVALID_ARGUMENT.
+ * @byul.nullable dsl false
+ * @byul.side_effect mutates:dsl
+ * @byul.thread_safety externally-synchronized
+ * @byul.blocking false
+ * @byul.reentrant false
+ */
+BYUL_API navsys_status_t dstar_lite_unbind_cost_func(dstar_lite_t* dsl);
+
+/**
+ * @brief Heuristic callback과 userdata를 원자적인 binding으로 교체한다.
+ * @param[in,out] dsl 변경할 D* Lite object.
+ * @param[in] fn bind할 callback.
+ * @param[in] userdata callback에 전달할 caller 소유 data.
+ * @return NAVSYS_STATUS_OK 또는 NAVSYS_STATUS_INVALID_ARGUMENT.
+ * @byul.nullable dsl false
+ * @byul.nullable fn false
+ * @byul.nullable userdata true
+ * @byul.lifetime fn until-unbind
+ * @byul.lifetime userdata until-unbind
+ * @byul.side_effect mutates:dsl
+ * @byul.thread_safety externally-synchronized
+ * @byul.blocking false
+ * @byul.reentrant false
+ */
+BYUL_API navsys_status_t dstar_lite_bind_heuristic_func(
+    dstar_lite_t* dsl, heuristic_func fn, void* userdata);
+
+/** @brief Heuristic binding을 D* Lite 기본값으로 되돌린다.
+ * @param[in,out] dsl 변경할 D* Lite object.
+ * @return NAVSYS_STATUS_OK 또는 NAVSYS_STATUS_INVALID_ARGUMENT.
+ * @byul.nullable dsl false
+ * @byul.side_effect mutates:dsl
+ * @byul.thread_safety externally-synchronized
+ * @byul.blocking false
+ * @byul.reentrant false
+ */
+BYUL_API navsys_status_t dstar_lite_unbind_heuristic_func(
+    dstar_lite_t* dsl);
+
+/**
+ * @brief Move callback과 userdata를 원자적인 binding으로 교체한다.
+ * @param[in,out] dsl 변경할 D* Lite object.
+ * @param[in] fn bind할 callback.
+ * @param[in] userdata callback에 전달할 caller 소유 data.
+ * @return NAVSYS_STATUS_OK 또는 NAVSYS_STATUS_INVALID_ARGUMENT.
+ * @byul.nullable dsl false
+ * @byul.nullable fn false
+ * @byul.nullable userdata true
+ * @byul.lifetime fn until-unbind
+ * @byul.lifetime userdata until-unbind
+ * @byul.side_effect mutates:dsl
+ * @byul.thread_safety externally-synchronized
+ * @byul.blocking false
+ * @byul.reentrant false
+ */
+BYUL_API navsys_status_t dstar_lite_bind_move_func(
+    dstar_lite_t* dsl, move_func fn, void* userdata);
+
+/** @brief Move callback과 userdata를 NULL로 되돌린다.
+ * @param[in,out] dsl 변경할 D* Lite object.
+ * @return NAVSYS_STATUS_OK 또는 NAVSYS_STATUS_INVALID_ARGUMENT.
+ * @byul.nullable dsl false
+ * @byul.side_effect mutates:dsl
+ * @byul.thread_safety externally-synchronized
+ * @byul.blocking false
+ * @byul.reentrant false
+ */
+BYUL_API navsys_status_t dstar_lite_unbind_move_func(dstar_lite_t* dsl);
+
+/**
+ * @brief Changed-coordinates callback과 userdata를 원자적인 binding으로 교체한다.
+ * @param[in,out] dsl 변경할 D* Lite object.
+ * @param[in] fn bind할 callback.
+ * @param[in] userdata callback에 전달할 caller 소유 data.
+ * @return NAVSYS_STATUS_OK 또는 NAVSYS_STATUS_INVALID_ARGUMENT.
+ * @byul.nullable dsl false
+ * @byul.nullable fn false
+ * @byul.nullable userdata true
+ * @byul.lifetime fn until-unbind
+ * @byul.lifetime userdata until-unbind
+ * @byul.side_effect mutates:dsl
+ * @byul.thread_safety externally-synchronized
+ * @byul.blocking false
+ * @byul.reentrant false
+ */
+BYUL_API navsys_status_t dstar_lite_bind_changed_coords_func(
+    dstar_lite_t* dsl, changed_coords_func fn, void* userdata);
+
+/** @brief Changed-coordinates callback과 userdata를 NULL로 되돌린다.
+ * @param[in,out] dsl 변경할 D* Lite object.
+ * @return NAVSYS_STATUS_OK 또는 NAVSYS_STATUS_INVALID_ARGUMENT.
+ * @byul.nullable dsl false
+ * @byul.side_effect mutates:dsl
+ * @byul.thread_safety externally-synchronized
+ * @byul.blocking false
+ * @byul.reentrant false
+ */
+BYUL_API navsys_status_t dstar_lite_unbind_changed_coords_func(
+    dstar_lite_t* dsl);
 
 /**
  * @brief Priority key calculation function for D* Lite

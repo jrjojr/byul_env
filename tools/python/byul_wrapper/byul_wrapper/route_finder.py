@@ -180,6 +180,18 @@ typedef struct s_route_finder {
  void* route_finder_get_heuristic_fn_userdata(
     const route_finder_t* a);
 
+ navsys_status_t route_finder_bind_cost_func(
+    route_finder_t* finder, cost_func fn, void* userdata);
+
+ navsys_status_t route_finder_unbind_cost_func(
+    route_finder_t* finder);
+
+ navsys_status_t route_finder_bind_heuristic_func(
+    route_finder_t* finder, heuristic_func fn, void* userdata);
+
+ navsys_status_t route_finder_unbind_heuristic_func(
+    route_finder_t* finder);
+
  void route_finder_clear(route_finder_t* a);
 
  void route_finder_set_defaults(route_finder_t* a);

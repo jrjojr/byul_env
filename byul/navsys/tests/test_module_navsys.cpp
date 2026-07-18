@@ -4,6 +4,30 @@
 
 #include <iostream>
 
+static float bound_cost(
+    const navgrid_t*, const coord_t*, const coord_t*, void* userdata) {
+    int* calls = static_cast<int*>(userdata);
+    if (calls) ++*calls;
+    return 1.0f;
+}
+
+static float bound_heuristic(
+    const coord_t*, const coord_t*, void* userdata) {
+    return userdata ? *static_cast<float*>(userdata) : 0.0f;
+}
+
+static void bound_move(const coord_t*, void*) {}
+
+static coord_list_t* bound_changed_coords(void*) {
+    return nullptr;
+}
+
+static bool bound_is_blocked(
+    const void*, int x, int y, void* userdata) {
+    const coord_t* blocked = static_cast<const coord_t*>(userdata);
+    return blocked && blocked->x == x && blocked->y == y;
+}
+
 TEST_CASE("navsys: public status numeric ABI") {
     CHECK(static_cast<int>(NAVSYS_STATUS_OK) == 0);
     CHECK(static_cast<int>(NAVSYS_STATUS_INVALID_ARGUMENT) == -1);
@@ -18,6 +42,94 @@ TEST_CASE("navsys: public status numeric ABI") {
     CHECK(static_cast<int>(NAVSYS_STATUS_LIMIT_REACHED) == -10);
     CHECK(static_cast<int>(NAVSYS_STATUS_INCOMPLETE) == -11);
     CHECK(static_cast<int>(NAVSYS_STATUS_IN_PROGRESS) == -12);
+}
+
+TEST_CASE("navsys: callback bindings commit and unbind as pairs") {
+    navgrid_t* navgrid = navgrid_create();
+    REQUIRE(navgrid != nullptr);
+
+    coord_t blocked = {1, 0};
+    CHECK(navgrid_bind_is_coord_blocked_func(
+        navgrid, bound_is_blocked, &blocked) == NAVSYS_STATUS_OK);
+    CHECK(navgrid->is_coord_blocked_fn == bound_is_blocked);
+    CHECK(navgrid->is_coord_blocked_fn_userdata == &blocked);
+
+    coord_t origin = {0, 0};
+    coord_list_t* neighbors =
+        navgrid_copy_neighbors(navgrid, origin.x, origin.y);
+    REQUIRE(neighbors != nullptr);
+    CHECK(coord_list_find(neighbors, &blocked) == -1);
+    coord_list_destroy(neighbors);
+
+    CHECK(navgrid_bind_is_coord_blocked_func(
+        navgrid, nullptr, nullptr) == NAVSYS_STATUS_INVALID_ARGUMENT);
+    CHECK(navgrid->is_coord_blocked_fn == bound_is_blocked);
+    CHECK(navgrid->is_coord_blocked_fn_userdata == &blocked);
+
+    route_finder_t* finder = route_finder_create(navgrid);
+    REQUIRE(finder != nullptr);
+    int cost_calls = 0;
+    float heuristic_value = 2.0f;
+    CHECK(route_finder_bind_cost_func(
+        finder, bound_cost, &cost_calls) == NAVSYS_STATUS_OK);
+    CHECK(route_finder_bind_heuristic_func(
+        finder, bound_heuristic, &heuristic_value) == NAVSYS_STATUS_OK);
+    CHECK(route_finder_get_cost_func(finder) == bound_cost);
+    CHECK(route_finder_get_cost_fn_userdata(finder) == &cost_calls);
+    CHECK(route_finder_get_heuristic_func(finder) == bound_heuristic);
+    CHECK(route_finder_get_heuristic_fn_userdata(finder)
+        == &heuristic_value);
+    coord_t finder_goal = {2, 2};
+    route_finder_set_goal(finder, &finder_goal);
+    route_t* bound_route = route_finder_run(finder);
+    REQUIRE(bound_route != nullptr);
+    CHECK(cost_calls > 0);
+    route_destroy(bound_route);
+
+    dstar_lite_t* dsl = dstar_lite_create(navgrid);
+    REQUIRE(dsl != nullptr);
+    CHECK(dstar_lite_get_cost_func_userdata(dsl) == nullptr);
+    CHECK(dstar_lite_get_heuristic_func_userdata(dsl) == nullptr);
+    CHECK(dstar_lite_bind_cost_func(
+        dsl, bound_cost, &cost_calls) == NAVSYS_STATUS_OK);
+    CHECK(dstar_lite_bind_heuristic_func(
+        dsl, bound_heuristic, &heuristic_value) == NAVSYS_STATUS_OK);
+    CHECK(dstar_lite_bind_move_func(
+        dsl, bound_move, &blocked) == NAVSYS_STATUS_OK);
+    CHECK(dstar_lite_bind_changed_coords_func(
+        dsl, bound_changed_coords, &blocked) == NAVSYS_STATUS_OK);
+    CHECK(dstar_lite_get_cost_func_userdata(dsl) == &cost_calls);
+    CHECK(dstar_lite_get_heuristic_func_userdata(dsl) == &heuristic_value);
+    CHECK(dstar_lite_get_move_func_userdata(dsl) == &blocked);
+    CHECK(dstar_lite_get_changed_coords_func_userdata(dsl) == &blocked);
+
+    CHECK(dstar_lite_unbind_changed_coords_func(dsl) == NAVSYS_STATUS_OK);
+    CHECK(dstar_lite_unbind_move_func(dsl) == NAVSYS_STATUS_OK);
+    CHECK(dstar_lite_unbind_heuristic_func(dsl) == NAVSYS_STATUS_OK);
+    CHECK(dstar_lite_unbind_cost_func(dsl) == NAVSYS_STATUS_OK);
+    CHECK(dstar_lite_get_changed_coords_func(dsl) == nullptr);
+    CHECK(dstar_lite_get_changed_coords_func_userdata(dsl) == nullptr);
+    CHECK(dstar_lite_get_move_func(dsl) == nullptr);
+    CHECK(dstar_lite_get_move_func_userdata(dsl) == nullptr);
+    CHECK(dstar_lite_get_heuristic_func(dsl) == dstar_lite_heuristic);
+    CHECK(dstar_lite_get_heuristic_func_userdata(dsl) == nullptr);
+    CHECK(dstar_lite_get_cost_func(dsl) == dstar_lite_cost);
+    CHECK(dstar_lite_get_cost_func_userdata(dsl) == nullptr);
+
+    CHECK(route_finder_unbind_heuristic_func(finder) == NAVSYS_STATUS_OK);
+    CHECK(route_finder_unbind_cost_func(finder) == NAVSYS_STATUS_OK);
+    CHECK(route_finder_get_heuristic_func(finder) == euclidean_heuristic);
+    CHECK(route_finder_get_heuristic_fn_userdata(finder) == nullptr);
+    CHECK(route_finder_get_cost_func(finder) == default_cost);
+    CHECK(route_finder_get_cost_fn_userdata(finder) == nullptr);
+
+    CHECK(navgrid_unbind_is_coord_blocked_func(navgrid) == NAVSYS_STATUS_OK);
+    CHECK(navgrid->is_coord_blocked_fn == nullptr);
+    CHECK(navgrid->is_coord_blocked_fn_userdata == nullptr);
+
+    dstar_lite_destroy(dsl);
+    route_finder_destroy(finder);
+    navgrid_destroy(navgrid);
 }
 
 TEST_CASE("navsys: find astar") {
