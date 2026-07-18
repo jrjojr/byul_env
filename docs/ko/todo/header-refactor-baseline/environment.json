@@ -1,0 +1,48 @@
+{
+  "schema_version": 1,
+  "captured_at_utc": "2026-07-17T23:28:06.723875+00:00",
+  "git_head": "3372d5e67d5d3f42427198159fde35e4fb3e4a3e",
+  "git_branch": "refactor/header-baseline",
+  "git_status_porcelain": [
+    "M \"docs/ko/todo/todo-\\353\\246\\254\\355\\214\\251\\355\\206\\240\\353\\247\\201.org\"",
+    "?? docs/ko/todo/header-refactor-baseline/",
+    "?? \"docs/\\354\\212\\244\\355\\201\\254\\353\\246\\260\\354\\203\\267 2026-07-18 081254.png\"",
+    "?? tools/header_refactor_baseline.bat",
+    "?? tools/header_refactor_baseline.py",
+    "?? tools/header_refactor_baseline.sh",
+    "?? tools/tests/"
+  ],
+  "rules_submodule_sha": "e1464cb6b34b7152e6d6f621ee63b11c54e99224",
+  "platform": {
+    "system": "Windows",
+    "release": "10",
+    "machine": "AMD64"
+  },
+  "tools": {
+    "git": {
+      "available": true,
+      "version": "git version 2.49.0.windows.1"
+    },
+    "cmake": {
+      "available": false,
+      "version": "[WinError 2] 지정된 파일을 찾을 수 없습니다"
+    },
+    "python": {
+      "available": true,
+      "version": "Python 3.11.8"
+    },
+    "cl": {
+      "available": false,
+      "version": "[WinError 2] 지정된 파일을 찾을 수 없습니다"
+    },
+    "gcc": {
+      "available": false,
+      "version": "[WinError 2] 지정된 파일을 찾을 수 없습니다"
+    },
+    "clang": {
+      "available": false,
+      "version": "[WinError 2] 지정된 파일을 찾을 수 없습니다"
+    }
+  },
+  "python_source": "BYUL_PYTHON"
+}
