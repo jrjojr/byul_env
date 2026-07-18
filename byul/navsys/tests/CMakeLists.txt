@@ -144,6 +144,15 @@ add_test(
     NAME test_navsys_allocation_failure
     COMMAND test_navsys_allocation_failure
 )
+add_test(
+    NAME test_navsys_allocation_leak_gate
+    COMMAND "${CMAKE_COMMAND}"
+        "-DTEST_EXECUTABLE=$<TARGET_FILE:test_navsys_allocation_failure>"
+        "-DTEST_ARGUMENT=--inject-route-finder-leak"
+        "-DEXPECTED_EXIT_CODE=3"
+        "-DEXPECTED_PATTERN=route_finder create leaked allocations"
+        -P "${CMAKE_CURRENT_SOURCE_DIR}/expect_process_failure.cmake"
+)
 
 # ─────────────────────────────────────────────
 # 공통 결과물 설치

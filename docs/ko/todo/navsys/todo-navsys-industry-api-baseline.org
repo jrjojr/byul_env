@@ -785,3 +785,12 @@ correctness layer를 실행했다. MSVC와 MinGW 모두 전체 root integration 
 그대로 보존하고 동일 count로 정규화하지 않는다. 이는 route-finder 전용 suite가 아니며
 MSVC build의 기존 doctest int/bool 비교 및 수치 narrowing warning, =/WX= 미적용과
 Windows sanitizer 미적용을 limitation으로 남긴다. Evidence tree는 record 11개를 검사한다.
+
+Stage 4 leak 음성 대조군으로 =test_navsys_allocation_failure=에
+=--inject-route-finder-leak= 모드를 추가했다. 성공한 route-finder create/destroy 뒤
+tracked allocation 하나를 임시로 주입하고 기존 live-allocation 비교가 이를 탐지한 뒤
+주입 메모리를 정리한다. CTest =test_navsys_allocation_leak_gate=는
+cross-platform CMake expected-failure helper로 exit code =3=과 정확한
+=route_finder create leaked allocations= 진단을 함께 요구하므로 detector가 누수를
+놓치거나 다른 이유로 실패하면 통과하지 않는다. 기본 allocation failure fixture 동작은
+주입 없이 유지한다.

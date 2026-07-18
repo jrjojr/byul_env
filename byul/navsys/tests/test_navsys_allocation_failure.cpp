@@ -10,6 +10,7 @@
 #include <cstddef>
 #include <cstdio>
 #include <cstdlib>
+#include <cstring>
 #include <new>
 
 namespace {
@@ -75,7 +76,8 @@ template <typename T>
 bool verify_failure_atomic_create(
     const char* family,
     T* (*create)(),
-    void (*destroy)(T*)) {
+    void (*destroy)(T*),
+    bool inject_leak = false) {
     constexpr std::ptrdiff_t max_allocations = 256;
     for (std::ptrdiff_t index = 0; index < max_allocations; ++index) {
         const std::size_t baseline = tracked_live_allocations;
@@ -91,6 +93,11 @@ bool verify_failure_atomic_create(
         }
         fail_after = -1;
         if (value) destroy(value);
+
+        void* injected_leak = nullptr;
+        if (inject_leak && value) {
+            injected_leak = allocate_for_test(1);
+        }
         track_allocations = false;
 
         if (exception_escaped) {
@@ -107,6 +114,7 @@ bool verify_failure_atomic_create(
                 index,
                 baseline,
                 tracked_live_allocations);
+            deallocate_for_test(injected_leak);
             return false;
         }
         if (value) return true;
@@ -143,7 +151,16 @@ void operator delete[](void* pointer, std::size_t) noexcept {
     deallocate_for_test(pointer);
 }
 
-int main() {
+int main(int argc, char** argv) {
+    bool inject_route_finder_leak = false;
+    if (argc == 2
+        && std::strcmp(argv[1], "--inject-route-finder-leak") == 0) {
+        inject_route_finder_leak = true;
+    } else if (argc != 1) {
+        std::fprintf(stderr, "unknown allocation fixture argument\n");
+        return 64;
+    }
+
     if (!verify_failure_atomic_create(
             "navgrid", create_navgrid, destroy_navgrid)) {
         return 1;
@@ -153,7 +170,10 @@ int main() {
     if (!dependency_navgrid) return 2;
 
     if (!verify_failure_atomic_create(
-            "route_finder", create_route_finder, destroy_route_finder)) {
+            "route_finder",
+            create_route_finder,
+            destroy_route_finder,
+            inject_route_finder_leak)) {
         navgrid_destroy(dependency_navgrid);
         return 3;
     }
