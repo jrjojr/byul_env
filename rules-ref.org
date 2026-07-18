@@ -3,7 +3,7 @@
 #+OPTIONS: toc:nil num:nil
 #+RULES_REPOSITORY: rules_env
 #+RULES_REMOTE: https://github.com/jrjojr/rules_env.git
-#+RULES_REVISION: e1464cb6b34b7152e6d6f621ee63b11c54e99224
+#+RULES_REVISION: 642275431efe0d87f4fc3856ef326d6fdfbb0aba
 #+RULES_PROJECT: byul
 #+RULES_DEFAULT_CHECKOUT: external/rules
 #+RULES_COMMON_ENTRYPOINT: common/init-rules.org
