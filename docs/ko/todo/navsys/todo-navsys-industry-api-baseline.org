@@ -768,3 +768,11 @@ MSVC와 MinGW root shared target을 새 prefix에 install하고
 있는 ABI 검사는 별도 ABI verdict로 확대하지 않는다. MinGW install =bin=의 동봉 runtime
 DLL을 process-local PATH로 사용했고 기존 =s_environ= 전방 선언 warning과 Windows
 sanitizer 미적용을 limitation으로 남겼다. Evidence tree는 record 7개를 검사한다.
+
+같은 revision의 installed SDK ABI verdict는 correctness와 별도 record로 분리했다.
+=route_finder_t=의 size/align 2개와 field offset 11개, clean C consumer가 실제
+compile/link/run한 public function 18개를 합쳐 toolchain별 31 assertion으로
+[[file:evidence/route-finder/81158c1/installed-sdk-abi.result.json][installed SDK ABI artifact]]에 고정했다. 이는 =route_finder.h=의 48개 전체 function
+signature를 소비했다는 뜻이 아니며 전체 signature/export coverage는 기존 root-shared
+inventory record가 담당한다. MSVC와 MinGW import library 및 C++ runtime은 상호 교환
+가능하다고 주장하지 않고 별도 record로 유지한다. Evidence tree는 record 9개를 검사한다.

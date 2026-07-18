@@ -1,0 +1,76 @@
+{
+  "schema_version": 1,
+  "evidence_kind": "route-finder-installed-sdk-abi",
+  "revision": "81158c1c25ca3e8c25c1f25fb695433a6e1b7b2f",
+  "header": "byul/navsys/route_finder/route_finder.h",
+  "consumer_source": "byul/tests/sdk_consumer/main.c",
+  "assertion_count": 31,
+  "assertion_groups": {
+    "route_finder_layout": {
+      "count": 13,
+      "checks": [
+        "sizeof(route_finder_t)",
+        "_Alignof(route_finder_t)",
+        "offsetof(route_finder_t, navgrid)",
+        "offsetof(route_finder_t, start)",
+        "offsetof(route_finder_t, goal)",
+        "offsetof(route_finder_t, type)",
+        "offsetof(route_finder_t, typedata)",
+        "offsetof(route_finder_t, max_retry)",
+        "offsetof(route_finder_t, debug_mode_enabled)",
+        "offsetof(route_finder_t, cost_fn)",
+        "offsetof(route_finder_t, cost_fn_userdata)",
+        "offsetof(route_finder_t, heuristic_fn)",
+        "offsetof(route_finder_t, heuristic_fn_userdata)"
+      ]
+    },
+    "compiled_linked_and_executed_symbols": {
+      "count": 18,
+      "symbols": [
+        "route_finder_bind_cost_func",
+        "route_finder_bind_fringe_search_config",
+        "route_finder_bind_heuristic_func",
+        "route_finder_bind_rta_star_config",
+        "route_finder_bind_sma_star_config",
+        "route_finder_bind_weighted_astar_config",
+        "route_finder_create",
+        "route_finder_destroy",
+        "route_finder_get_type",
+        "route_finder_get_typedata",
+        "route_finder_is_supported",
+        "route_finder_run_ex",
+        "route_finder_run_with_options",
+        "route_finder_set_max_retry_checked",
+        "route_finder_set_type_checked",
+        "route_finder_unbind_algorithm_config",
+        "route_finder_unbind_cost_func",
+        "route_finder_unbind_heuristic_func"
+      ]
+    }
+  },
+  "executions": {
+    "msvc": {
+      "c_compiler": "MSVC 19.44.35214.0",
+      "installed_runtime": "build_navsys_sdk_81158c1_msvc/install/bin/byul.dll",
+      "consumer_executable": "build_navsys_sdk_consumer_81158c1_msvc/Release/byul_sdk_consumer.exe",
+      "build_exit_code": 0,
+      "run_exit_code": 0,
+      "status": "passed"
+    },
+    "mingw": {
+      "c_compiler": "GNU 16.1.0",
+      "installed_runtime": "build_navsys_sdk_81158c1_mingw/install/bin/libbyul.dll",
+      "installed_import_library": "build_navsys_sdk_81158c1_mingw/install/lib/byul/libbyul.dll.a",
+      "consumer_executable": "build_navsys_sdk_consumer_81158c1_mingw/byul_sdk_consumer.exe",
+      "build_exit_code": 0,
+      "run_exit_code": 0,
+      "status": "passed"
+    }
+  },
+  "limitations": [
+    "The consumer covers 18 of the 48 route_finder.h public function signatures; the root-shared inventory record covers the full signature and export set.",
+    "Successful compile, link and execution do not independently prove calling-convention compatibility with an older binary consumer.",
+    "MSVC and MinGW records are separate because their Windows import libraries and C++ runtimes are not interchangeable.",
+    "The MinGW consumer build emits an existing s_environ parameter-list declaration warning and was not compiled with -Werror."
+  ]
+}
