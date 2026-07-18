@@ -26,6 +26,11 @@ class NavsysAbiInventoryTest(unittest.TestCase):
             43,
             len({header["path"] for header in self.inventory["headers"]}),
         )
+        for header in self.inventory["headers"]:
+            with self.subTest(header=header["path"]):
+                self.assertTrue(
+                    (REPOSITORY_ROOT / header["owner_todo"]).is_file()
+                )
 
     def test_every_exported_declaration_has_a_mapping(self):
         symbols = self.inventory["symbols"]
@@ -56,6 +61,18 @@ class NavsysAbiInventoryTest(unittest.TestCase):
             len(duplicates),
             self.inventory["summary"]["duplicate_declarations"],
         )
+
+    def test_every_header_audit_issue_routes_to_an_owner_child(self):
+        debt = self.inventory["known_debt"]["header_audit"]
+
+        self.assertGreater(len(debt), 0)
+        self.assertEqual(len(debt), self.inventory["summary"]["audit_issues"])
+        for issue in debt:
+            with self.subTest(header=issue["header"], code=issue["code"]):
+                self.assertEqual("route-to-owner-child", issue["disposition"])
+                self.assertTrue((REPOSITORY_ROOT / issue["owner_todo"]).is_file())
+                self.assertTrue(issue["code"])
+                self.assertTrue(issue["message"])
 
     def test_classifier_distinguishes_predicate_index_and_count(self):
         self.assertEqual(

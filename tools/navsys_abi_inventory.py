@@ -16,7 +16,7 @@ REPOSITORY_ROOT = Path(__file__).resolve().parents[1]
 WRAPPER_ROOT = REPOSITORY_ROOT / "tools/python/byul_wrapper"
 sys.path.insert(0, str(WRAPPER_ROOT))
 
-from byul_wrapper_generator import parse_header
+from byul_wrapper_generator import audit_header, parse_header
 
 
 DEFAULT_ROLE_MANIFEST = (
@@ -29,6 +29,10 @@ DEFAULT_VOCABULARY = (
 DEFAULT_OUTPUT = (
     REPOSITORY_ROOT / "docs/ko/todo/navsys/navsys-current-abi-inventory.json"
 )
+OWNER_TODO_OVERRIDES = {
+    "byul/navsys/coord/internal/coord_ops.hpp":
+        "docs/ko/todo/navsys/todo-navsys-coord-coord-cpp.org",
+}
 
 
 def load_json(path: Path) -> dict:
@@ -60,6 +64,21 @@ def classify_return(name: str, return_type: str) -> str:
     return "enum_result"
 
 
+def owner_todo_path(header_path: str) -> str:
+    if header_path in OWNER_TODO_OVERRIDES:
+        return OWNER_TODO_OVERRIDES[header_path]
+    path = Path(header_path)
+    parts = list(path.parts[2:-1])
+    stem = path.stem
+    if parts == ["maze"] and stem.startswith("maze_"):
+        stem = stem.removeprefix("maze_")
+    parts.append(stem)
+    if path.suffix == ".hpp":
+        parts.append("cpp")
+    slug = "-".join(part.replace("_", "-") for part in parts)
+    return f"docs/ko/todo/navsys/todo-navsys-{slug}.org"
+
+
 def build_inventory(role_manifest: dict, vocabulary: dict) -> dict:
     header_rows = [
         row
@@ -69,10 +88,16 @@ def build_inventory(role_manifest: dict, vocabulary: dict) -> dict:
     mappings = vocabulary["legacy_return_mapping"]
     symbols: list[dict] = []
     headers: list[dict] = []
+    audit_debt: list[dict] = []
 
     for header in sorted(header_rows, key=lambda row: row["current_path"]):
         relative = header["current_path"].replace("\\", "/")
-        declarations = parse_header(REPOSITORY_ROOT / relative)
+        absolute = REPOSITORY_ROOT / relative
+        declarations = parse_header(absolute)
+        audit = audit_header(absolute)
+        owner_todo = owner_todo_path(relative)
+        if not (REPOSITORY_ROOT / owner_todo).is_file():
+            raise ValueError(f"missing owner TODO for {relative}: {owner_todo}")
         header_symbols = []
         for declaration in declarations:
             return_form = classify_return(
@@ -88,12 +113,26 @@ def build_inventory(role_manifest: dict, vocabulary: dict) -> dict:
             }
             symbols.append(symbol)
             header_symbols.append(declaration.name)
+        for issue in audit.issues:
+            audit_debt.append(
+                {
+                    "header": relative,
+                    "owner_todo": owner_todo,
+                    "severity": issue.severity,
+                    "code": issue.code,
+                    "symbol": issue.symbol,
+                    "message": issue.message,
+                    "disposition": "route-to-owner-child",
+                }
+            )
         headers.append(
             {
                 "path": relative,
+                "owner_todo": owner_todo,
                 "primary_role": header["primary_role"],
                 "wrapper_mode": header["wrapper"]["mode"],
                 "symbol_count": len(header_symbols),
+                "audit_issue_count": len(audit.issues),
                 "symbols": header_symbols,
             }
         )
@@ -115,6 +154,9 @@ def build_inventory(role_manifest: dict, vocabulary: dict) -> dict:
             for name, count in sorted(counts.items())
             if count > 1
         )
+    audit_codes = dict(
+        sorted(Counter(issue["code"] for issue in audit_debt).items())
+    )
     return {
         "schema_version": 1,
         "source_role_manifest": str(
@@ -129,9 +171,15 @@ def build_inventory(role_manifest: dict, vocabulary: dict) -> dict:
             "return_forms": form_counts,
             "unclassified": 0,
             "duplicate_declarations": len(duplicate_declarations),
+            "audit_issues": len(audit_debt),
+            "audit_errors": sum(
+                issue["severity"] == "error" for issue in audit_debt
+            ),
+            "audit_codes": audit_codes,
         },
         "known_debt": {
             "duplicate_declarations": duplicate_declarations,
+            "header_audit": audit_debt,
         },
         "headers": headers,
         "symbols": symbols,

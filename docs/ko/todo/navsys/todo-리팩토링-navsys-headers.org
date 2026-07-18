@@ -339,7 +339,8 @@ clean build/install 환경에서 반복하는 release gate다. Class 이름이 t
 현행 =BYUL_API= 선언의 return mapping snapshot은
 [[file:navsys-current-abi-inventory.json][navsys-current-abi-inventory.json]]이다.
 후자는 =tools/navsys_abi_inventory.py --check=로 stale과 unclassified symbol을
-fail-closed 검사한다.
+fail-closed 검사한다. 같은 artifact가 Navsys Header audit debt 949건을 Header와
+실제 owner child에 연결하며, 무소유 issue를 허용하지 않는다.
 
 *** 완료 조건
 
