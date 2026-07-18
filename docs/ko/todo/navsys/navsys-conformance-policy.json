@@ -66,6 +66,17 @@
           "-R",
           "<test-regex>",
           "--output-on-failure"
+        ],
+        [
+          "<python>",
+          "-m",
+          "pytest",
+          "tools/tests/<test-file>",
+          "-q"
+        ],
+        [
+          "<build-dir>/<bin-dir>/<module-test-executable>",
+          "<test-arguments>"
         ]
       ]
     },
