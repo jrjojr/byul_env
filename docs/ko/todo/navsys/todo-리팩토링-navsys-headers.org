@@ -49,6 +49,12 @@ release gate만 소유한다. 함수별 처분, 새 signature, algorithm 보장,
 위 gate를 통과한 revision에서 증거를 재실행해 =TODO 0단계=의 입력으로 편입하기 전에는
 후속 public API 구현의 선행 완료로 사용하지 않는다.
 
+2026-07-18 기준 상위 1~3단계는 =c355b1a=, =f17c8b7=, =fad3e29=로
+격리됐고, 중앙 rules revision
+=642275431efe0d87f4fc3856ef326d6fdfbb0aba= 일치와 validator, Python 3.13.3,
+role manifest, header/ABI audit를 재검증했다. Main과 rules worktree가 clean인
+상태에서 이 문서의 0단계를 시작했다.
+
 * 상세 TODO 필수 계약
 
 43개 child는 각각 다음 항목을 독립적으로 충족해야 한다.
@@ -307,7 +313,7 @@ clean build/install 환경에서 반복하는 release gate다. Class 이름이 t
 
 * 통합 실행 계획
 
-** TODO 0단계: 공통 vocabulary와 ABI 기준선 확정
+** DOING 0단계: 공통 vocabulary와 ABI 기준선 확정
 
 *** 실행
 

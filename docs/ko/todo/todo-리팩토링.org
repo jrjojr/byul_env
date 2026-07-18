@@ -521,7 +521,7 @@ public C header의 완료 상태:
   통과했다. CMake =byul_help=에도 감사기, strict header와 compiler matrix 사용법을
   추가하고 실제 target 출력을 확인했다.
 
-* TODO 4단계: Navsys 43개 실행
+* DOING 4단계: Navsys 43개 실행
 
 ** Preflight 확인
 
@@ -531,12 +531,11 @@ public C header의 완료 상태:
   =header-refactor-current=에 다시 capture하고 role manifest를 재생성해 135개
   path/SHA current check를 통과했으므로 조건 4도 닫았다.
 - =rules-ref.org=와 =external/rules= HEAD는 모두
-  =e0489c383190dcb4831b391406d098c8e49bac50=이지만 rules checkout에
-  =environment-rules.org=와 =python-tooling-rules.org= 미커밋 변경이 있어 조건 2의
-  clean reviewed checkout 판단은 아직 닫히지 않았다.
-- Main worktree에도 1~3단계와 기존 사용자 변경이 함께 남아 별도 commit/worktree 격리
-  조건 6을 만족하지 않는다. 이 문서의 명시 gate에 따라 Navsys =TODO 0단계=와 상위
-  4단계를 =DOING=으로 바꾸지 않는다.
+  =642275431efe0d87f4fc3856ef326d6fdfbb0aba=이고 중앙 validator 60개가
+  0 error/0 warning으로 통과했다. Rules checkout도 clean이므로 조건 2를 닫았다.
+- 1~3단계 변경은 =c355b1a=, =f17c8b7=, =fad3e29=의 범위 제한 commit으로
+  고정했고 main worktree와 rules checkout이 clean임을 확인했다. 조건 6을 닫고
+  Navsys =TODO 0단계=와 상위 4단계를 =DOING=으로 전환했다.
 
 ** 실행
 
