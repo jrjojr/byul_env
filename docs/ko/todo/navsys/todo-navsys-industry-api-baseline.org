@@ -802,3 +802,12 @@ exit 0, 주입 fixture exit 3, 정확한 leak 진단이다. 이 module-static fi
 process의 C++ =new/delete=를 추적하며 모든 C allocator나 별도 root shared DLL을 검사한
 것이 아니다. 주입 allocation은 mismatch 관측 뒤 회수하고 Windows sanitizer 미적용은
 별도 limitation으로 유지한다. Evidence tree는 record 13개를 검사한다.
+
+Stage 4 cancel-ignore 음성 대조군으로 =tools/navsys_cancellation_audit.py=를 추가했다.
+Dispatcher가 사용하는 11개 algorithm source의 공통
+=route_finder_poll_cancel_internal()= 호출 14개를 명시 inventory로 검사한다. A* loop의
+poll 조건을 =true=로 바꿔 cancel 요청을 무시하게 만든 mutation은
+=cancel-poll-count=로 실패하며, algorithm source 자체의 누락은
+=missing-algorithm-source=로 분리한다. 기존 native fixture의 11개 algorithm 즉시 취소
+실행 검증과 source mutation audit는 서로 다른 gate로 유지한다. 해당 native test case는
+MSVC와 MinGW에서 각각 1 case/140 assertion으로 통과했다.
