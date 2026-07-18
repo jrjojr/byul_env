@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import argparse
 from collections import Counter
+from dataclasses import dataclass
 import json
 from pathlib import Path
 import re
@@ -41,8 +42,75 @@ OWNER_TODO_OVERRIDES = {
 }
 
 
+@dataclass(frozen=True)
+class ConformanceFinding:
+    code: str
+    subject: str
+    message: str
+
+
 def load_json(path: Path) -> dict:
     return json.loads(path.read_text(encoding="utf-8"))
+
+
+def inventory_findings(expected: dict, actual: dict) -> list[ConformanceFinding]:
+    """Compare header and function-signature conformance inventories."""
+    findings: list[ConformanceFinding] = []
+    expected_headers = {row["path"] for row in expected.get("headers", [])}
+    actual_headers = {row["path"] for row in actual.get("headers", [])}
+    for path in sorted(expected_headers - actual_headers):
+        findings.append(
+            ConformanceFinding(
+                "missing-header",
+                path,
+                "approved Navsys header is absent from the current inventory",
+            )
+        )
+    for path in sorted(actual_headers - expected_headers):
+        findings.append(
+            ConformanceFinding(
+                "unexpected-header",
+                path,
+                "current inventory contains an unapproved Navsys header path",
+            )
+        )
+
+    def signatures(payload: dict) -> dict[tuple[str, str], Counter[str]]:
+        rows: dict[tuple[str, str], Counter[str]] = {}
+        for symbol in payload.get("symbols", []):
+            key = (symbol["header"], symbol["name"])
+            rows.setdefault(key, Counter())[symbol.get("signature", "")] += 1
+        return rows
+
+    expected_symbols = signatures(expected)
+    actual_symbols = signatures(actual)
+    for header, name in sorted(set(expected_symbols) | set(actual_symbols)):
+        subject = f"{header}:{name}"
+        if (header, name) not in actual_symbols:
+            findings.append(
+                ConformanceFinding(
+                    "missing-symbol",
+                    subject,
+                    "approved public declaration is absent",
+                )
+            )
+        elif (header, name) not in expected_symbols:
+            findings.append(
+                ConformanceFinding(
+                    "unexpected-symbol",
+                    subject,
+                    "current inventory contains an unapproved public declaration",
+                )
+            )
+        elif expected_symbols[(header, name)] != actual_symbols[(header, name)]:
+            findings.append(
+                ConformanceFinding(
+                    "signature-mismatch",
+                    subject,
+                    "return type, parameter declaration or declaration count changed",
+                )
+            )
+    return findings
 
 
 def classify_return(name: str, return_type: str) -> str:
@@ -141,6 +209,7 @@ def build_inventory(role_manifest: dict, vocabulary: dict) -> dict:
                 "header": relative,
                 "name": declaration.name,
                 "return_type": declaration.return_type,
+                "signature": declaration.declaration,
                 "return_form": return_form,
                 "canonical": mappings[return_form]["canonical"],
             }
@@ -262,7 +331,7 @@ def build_inventory(role_manifest: dict, vocabulary: dict) -> dict:
             }
         )
     return {
-        "schema_version": 1,
+        "schema_version": 2,
         "source_role_manifest": str(
             DEFAULT_ROLE_MANIFEST.relative_to(REPOSITORY_ROOT)
         ).replace("\\", "/"),
@@ -346,6 +415,11 @@ def main(argv: list[str] | None = None) -> int:
         return 1
     current = load_json(args.output)
     if current != payload:
+        for finding in inventory_findings(current, payload):
+            print(
+                f"[ERROR] {finding.code} {finding.subject}: {finding.message}",
+                file=sys.stderr,
+            )
         print(f"[ERROR] stale inventory: {args.output}", file=sys.stderr)
         return 1
     print(

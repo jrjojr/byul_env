@@ -1,5 +1,7 @@
+import copy
 import importlib.util
 from pathlib import Path
+import sys
 import unittest
 
 
@@ -8,6 +10,7 @@ MODULE_PATH = REPOSITORY_ROOT / "tools/navsys_abi_inventory.py"
 SPEC = importlib.util.spec_from_file_location("navsys_abi_inventory", MODULE_PATH)
 assert SPEC and SPEC.loader
 MODULE = importlib.util.module_from_spec(SPEC)
+sys.modules[SPEC.name] = MODULE
 SPEC.loader.exec_module(MODULE)
 
 
@@ -42,6 +45,42 @@ class NavsysAbiInventoryTest(unittest.TestCase):
                     symbol["return_form"]
                 ]
                 self.assertEqual(mapping["canonical"], symbol["canonical"])
+                self.assertTrue(symbol["signature"].endswith(";"))
+
+    def test_header_path_and_signature_mutations_are_distinguished(self):
+        missing_header = copy.deepcopy(self.inventory)
+        removed = missing_header["headers"].pop()
+        findings = MODULE.inventory_findings(self.inventory, missing_header)
+        self.assertIn(
+            ("missing-header", removed["path"]),
+            {(row.code, row.subject) for row in findings},
+        )
+
+        wrong_path = copy.deepcopy(self.inventory)
+        wrong_path["headers"][0]["path"] = "byul/navsys/wrong-path.h"
+        findings = MODULE.inventory_findings(self.inventory, wrong_path)
+        codes = {row.code for row in findings}
+        self.assertEqual({"missing-header", "unexpected-header"}, codes)
+
+        changed_signature = copy.deepcopy(self.inventory)
+        changed = changed_signature["symbols"][0]
+        changed["signature"] = changed["signature"].replace(");", ", int mode);")
+        findings = MODULE.inventory_findings(self.inventory, changed_signature)
+        self.assertEqual(
+            [("signature-mismatch", f"{changed['header']}:{changed['name']}")],
+            [(row.code, row.subject) for row in findings],
+        )
+
+        missing_symbol = copy.deepcopy(self.inventory)
+        removed_symbol = missing_symbol["symbols"].pop()
+        findings = MODULE.inventory_findings(self.inventory, missing_symbol)
+        self.assertEqual(
+            [(
+                "missing-symbol",
+                f"{removed_symbol['header']}:{removed_symbol['name']}",
+            )],
+            [(row.code, row.subject) for row in findings],
+        )
 
     def test_duplicate_declarations_are_explicit_debt(self):
         duplicates = self.inventory["known_debt"]["duplicate_declarations"]

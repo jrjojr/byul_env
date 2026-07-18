@@ -714,3 +714,13 @@ value stats로 고정됐다. 이로써 3단계 완료 조건을 닫고 첫 route
 
 - 의도적 bad header, bad export, wrong path, leak, cancel-ignore와 performance regression
   fixture가 각각 올바른 gate에서 실패하는지 확인한다.
+
+2026-07-18 첫 header/signature conformance 단위로
+=navsys-current-abi-inventory.json= schema 2가 모든 public declaration의 normalized
+signature에 parameter declaration을 포함해 저장한다. Inventory check는 stale 판정에 앞서
+=missing-header=, =unexpected-header=, =missing-symbol=, =unexpected-symbol=과
+=signature-mismatch=를 분리해 보고한다. Mutation fixture는 approved header 제거, wrong
+path, symbol 제거와 parameter 추가를 각각 주입해 올바른 gate code로 실패하는지 확인한다.
+=tools/navsys_abi_inventory.py --check=는 46 header/453 symbol snapshot과 일치했고,
+해당 mutation suite 10개 및 전체 =tools/tests= 50개가 통과했다. Debt-aware header/ABI
+audit도 invariant 0/error 0을 유지했다.
