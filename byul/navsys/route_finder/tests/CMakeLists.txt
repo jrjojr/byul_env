@@ -87,6 +87,67 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
 enable_testing()
 add_test(NAME ${PROJECT_NAME} COMMAND ${PROJECT_NAME})
 
+add_executable(test_route_finder_performance_gate
+    ${CMAKE_CURRENT_SOURCE_DIR}/test_route_finder_performance_gate.cpp
+)
+target_include_directories(test_route_finder_performance_gate PRIVATE
+    ${CMAKE_SOURCE_DIR}
+    ${CMAKE_SOURCE_DIR}/core
+    ${CMAKE_SOURCE_DIR}/numal
+    ${CMAKE_SOURCE_DIR}/navsys
+    ${CMAKE_SOURCE_DIR}/navsys/coord
+    ${CMAKE_SOURCE_DIR}/navsys/route
+    ${CMAKE_SOURCE_DIR}/navsys/navgrid
+    ${CMAKE_SOURCE_DIR}/navsys/route_finder
+)
+target_link_libraries(test_route_finder_performance_gate PRIVATE
+    core
+    numal
+    coord
+    route
+    navgrid
+    route_finder
+)
+target_compile_definitions(
+    test_route_finder_performance_gate PRIVATE BYUL_STATIC
+)
+if(CMAKE_SYSTEM_NAME STREQUAL "Windows")
+    set_target_properties(test_route_finder_performance_gate PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin
+        LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin
+        ARCHIVE_OUTPUT_DIRECTORY
+            ${CMAKE_BINARY_DIR}/lib/test_route_finder_performance_gate
+    )
+elseif(CMAKE_SYSTEM_NAME STREQUAL "Linux")
+    target_compile_options(test_route_finder_performance_gate PRIVATE
+        -fsanitize=address -fsanitize=leak -g -O1
+    )
+    target_link_options(test_route_finder_performance_gate PRIVATE
+        -fsanitize=address -fsanitize=leak
+    )
+    set_target_properties(test_route_finder_performance_gate PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin
+        LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib
+        ARCHIVE_OUTPUT_DIRECTORY
+            ${CMAKE_BINARY_DIR}/lib/test_route_finder_performance_gate
+        BUILD_RPATH "\$ORIGIN/../lib"
+        INSTALL_RPATH "\$ORIGIN/../lib"
+    )
+endif()
+add_test(
+    NAME test_route_finder_performance_gate
+    COMMAND test_route_finder_performance_gate
+)
+add_test(
+    NAME test_route_finder_performance_regression_gate
+    COMMAND "${CMAKE_COMMAND}"
+        "-DTEST_EXECUTABLE=$<TARGET_FILE:test_route_finder_performance_gate>"
+        "-DTEST_ARGUMENT=--inject-performance-regression"
+        "-DEXPECTED_EXIT_CODE=4"
+        "-DEXPECTED_PATTERN=route finder work budget exceeded"
+        -P "${CMAKE_SOURCE_DIR}/navsys/tests/expect_process_failure.cmake"
+)
+
 # ─────────────────────────────────────────────
 # 공통 결과물 설치
 # ─────────────────────────────────────────────

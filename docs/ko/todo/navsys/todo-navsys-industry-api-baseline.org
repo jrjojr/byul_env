@@ -820,3 +820,16 @@ point와 poll 제거·source 누락 mutation 3 test를 검사한다. MSVC와 Min
 유지한 refactor에도 review가 필요하며 runtime fixture는 wall-clock cancellation latency
 bound를 보장하지 않는다. Windows sanitizer 미적용도 유지한다. Evidence tree는 record
 16개를 검사한다.
+
+Stage 4 performance regression 음성 대조군으로
+=test_route_finder_performance_gate=를 추가했다. 10×10 DIR_8 지도에 x=5, y=1..9
+장애물을 둔 고정 fixture에서 벽시계 시간이 아니라 공개 run stats의 결정적
+=total_retry_count=를 검사한다. MSVC와 MinGW의 관측값은 A* 50, BFS 91,
+Dijkstra 89, Weighted A* 54로 같았고 각 예산은 55, 100, 98, 60이다.
+=--inject-performance-regression= 모드는 A* 관측값을 예산보다 하나 크게 만들어
+exit code =4=와 =route finder work budget exceeded= 진단을 내보낸다. CTest
+=test_route_finder_performance_regression_gate=는 이 종료 코드와 진단을 모두
+요구하므로 detector가 회귀를 놓치거나 다른 이유로 실패하면 통과하지 않는다.
+MSVC와 MinGW에서 정상/주입 CTest가 각각 2/2 통과했다. 이 gate는 고정 fixture의
+algorithm-reported work budget이며 wall-clock latency, allocator 성능이나 전체
+route-finder workload의 benchmark로 확대 해석하지 않는다.
