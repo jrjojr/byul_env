@@ -4,6 +4,7 @@
 #include <unordered_map>
 #include <functional>
 #include <cstdlib>
+#include <cstdio>
 #include <cstring>
 
 void* int_copy(const void* p) {

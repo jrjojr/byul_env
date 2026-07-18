@@ -1,8 +1,9 @@
 #ifndef VEC3_H
 #define VEC3_H
 
-#include <stdint.h>
+#include <stdbool.h>
 #include <stddef.h>
+#include <stdint.h>
 
 #include "byul_config.h"
 

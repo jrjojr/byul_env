@@ -184,6 +184,11 @@ def _apply_comment(declaration: ApiDeclaration) -> None:
 def parse_header(path: Path) -> tuple[ApiDeclaration, ...]:
     """Return public function declarations and their adjacent Doxygen blocks."""
     source = path.read_text(encoding="utf-8")
+    # Preserve adjacent Doxygen blocks but remove ordinary block and line
+    # comments before looking for BYUL_API. Commented-out declarations are
+    # historical text, not public ABI.
+    source = re.sub(r"/\*(?!\*).*?\*/", "", source, flags=re.DOTALL)
+    source = re.sub(r"//[^\n]*", "", source)
     declarations: list[ApiDeclaration] = []
     for match in _COMMENT_AND_DECLARATION.finditer(source):
         raw = _clean_declaration(match.group("declaration"))

@@ -6,6 +6,7 @@
 #include "coord.h"
 
 #include <cmath>
+#include <cstdio>
 #include <vector>
 #include <limits>
 #include <cstring>
