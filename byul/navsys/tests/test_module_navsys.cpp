@@ -28,6 +28,32 @@ static bool bound_is_blocked(
     return blocked && blocked->x == x && blocked->y == y;
 }
 
+struct reentrant_route_finder_context {
+    route_finder_t* finder;
+    int calls;
+    navsys_status_t bind_status;
+    navsys_status_t unbind_status;
+    route_t* nested_route;
+    int destroy_result;
+};
+
+static float reentrant_route_finder_cost(
+    const navgrid_t*, const coord_t*, const coord_t*, void* userdata) {
+    reentrant_route_finder_context* context =
+        static_cast<reentrant_route_finder_context*>(userdata);
+    ++context->calls;
+    if (context->calls == 1) {
+        context->bind_status = route_finder_bind_cost_func(
+            context->finder, bound_cost, nullptr);
+        context->unbind_status =
+            route_finder_unbind_cost_func(context->finder);
+        context->nested_route = route_finder_run(context->finder);
+        context->destroy_result =
+            route_finder_destroy(context->finder);
+    }
+    return 1.0f;
+}
+
 TEST_CASE("navsys: public status numeric ABI") {
     CHECK(static_cast<int>(NAVSYS_STATUS_OK) == 0);
     CHECK(static_cast<int>(NAVSYS_STATUS_INVALID_ARGUMENT) == -1);
@@ -129,6 +155,42 @@ TEST_CASE("navsys: callback bindings commit and unbind as pairs") {
 
     dstar_lite_destroy(dsl);
     route_finder_destroy(finder);
+    navgrid_destroy(navgrid);
+}
+
+TEST_CASE("navsys: route finder rejects same-owner callback reentrancy") {
+    navgrid_t* navgrid = navgrid_create();
+    REQUIRE(navgrid != nullptr);
+    route_finder_t* finder = route_finder_create(navgrid);
+    REQUIRE(finder != nullptr);
+
+    coord_t goal = {2, 2};
+    route_finder_set_goal(finder, &goal);
+    reentrant_route_finder_context context = {
+        finder,
+        0,
+        NAVSYS_STATUS_OK,
+        NAVSYS_STATUS_OK,
+        reinterpret_cast<route_t*>(1),
+        0
+    };
+    REQUIRE(route_finder_bind_cost_func(
+        finder, reentrant_route_finder_cost, &context)
+        == NAVSYS_STATUS_OK);
+
+    route_t* route = route_finder_run(finder);
+    REQUIRE(route != nullptr);
+    CHECK(context.calls > 0);
+    CHECK(context.bind_status == NAVSYS_STATUS_IN_PROGRESS);
+    CHECK(context.unbind_status == NAVSYS_STATUS_IN_PROGRESS);
+    CHECK(context.nested_route == nullptr);
+    CHECK(context.destroy_result == -1);
+    CHECK(route_finder_get_cost_func(finder)
+        == reentrant_route_finder_cost);
+    CHECK(route_finder_get_cost_fn_userdata(finder) == &context);
+
+    route_destroy(route);
+    CHECK(route_finder_destroy(finder) == 0);
     navgrid_destroy(navgrid);
 }
 

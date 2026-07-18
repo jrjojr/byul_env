@@ -4,7 +4,7 @@
     "manifest_headers": 136,
     "public_c_headers": 95,
     "public_declarations": 954,
-    "abi_fingerprint_sha256": "36ed7d0488e6a0d7405275cc637cbf454103a9e8945ecb378d819362ae3d7060",
+    "abi_fingerprint_sha256": "7a4b5338f1a94724be0e177066a0312c6009dc3a3e8150ac2483f6d2fc27f950",
     "invariant_errors": 0,
     "approved_invariant_exclusions": 15,
     "metadata_debt": 2773,

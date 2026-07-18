@@ -112,6 +112,18 @@ class NavsysLifecyclePolicyTest(unittest.TestCase):
             "exclusive-owner-mutation-required",
             abi_1["thread_safety"],
         )
+        self.assertEqual(
+            "runtime-guarded-and-tested",
+            abi_1["reentrancy_enforcement"]["route_finder"],
+        )
+        self.assertEqual(
+            "caller-contract-only",
+            abi_1["reentrancy_enforcement"]["navgrid"],
+        )
+        self.assertEqual(
+            "caller-contract-only",
+            abi_1["reentrancy_enforcement"]["dstar_lite"],
+        )
 
 
 if __name__ == "__main__":

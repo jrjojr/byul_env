@@ -11,6 +11,11 @@
     "binding_surface": "materialized-in-current-abi-inventory",
     "thread_safety": "exclusive-owner-mutation-required",
     "reentrancy": "callback-must-not-bind-unbind-or-destroy-the-same-owner",
+    "reentrancy_enforcement": {
+      "route_finder": "runtime-guarded-and-tested",
+      "navgrid": "caller-contract-only",
+      "dstar_lite": "caller-contract-only"
+    },
     "callback_failure": "legacy-signatures-have-no-common-failure-channel"
   },
   "abi_2_policy": {

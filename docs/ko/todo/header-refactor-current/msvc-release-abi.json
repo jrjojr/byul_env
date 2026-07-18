@@ -895,6 +895,25 @@
       }
     },
     {
+      "header": "navsys_status.h",
+      "name": "navsys_status_t",
+      "values": {
+        "NAVSYS_STATUS_OK": 0,
+        "NAVSYS_STATUS_INVALID_ARGUMENT": -1,
+        "NAVSYS_STATUS_OUT_OF_MEMORY": -2,
+        "NAVSYS_STATUS_UNSUPPORTED": -3,
+        "NAVSYS_STATUS_CALLBACK_FAILED": -4,
+        "NAVSYS_STATUS_CORRUPT_STATE": -5,
+        "NAVSYS_STATUS_NOT_FOUND": -6,
+        "NAVSYS_STATUS_INVALIDATED": -7,
+        "NAVSYS_STATUS_NO_PATH": -8,
+        "NAVSYS_STATUS_CANCELLED": -9,
+        "NAVSYS_STATUS_LIMIT_REACHED": -10,
+        "NAVSYS_STATUS_INCOMPLETE": -11,
+        "NAVSYS_STATUS_IN_PROGRESS": -12
+      }
+    },
+    {
       "header": "projectile_core.h",
       "name": "projectile_attr_t",
       "values": {
@@ -1010,8 +1029,8 @@
     "complete_types": 57,
     "fields": 281,
     "skipped_field_declarations": 0,
-    "enums": 13,
-    "enumerators": 111,
+    "enums": 14,
+    "enumerators": 124,
     "forward_or_opaque_declarations": 16
   }
 }

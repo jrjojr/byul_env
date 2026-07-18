@@ -23,6 +23,8 @@
 #include "sma_star.h"
 #include "weighted_astar.h"
 
+static thread_local route_finder_t* active_callback_finder = nullptr;
+
 const char* get_route_finder_name(route_finder_type_t pa) {
     switch (pa) {
         case ROUTE_FINDER_BFS: return "bfs";
@@ -145,6 +147,7 @@ int route_finder_free(route_finder_t* out){
 
 int route_finder_destroy(route_finder_t* a) {
     if(!a) return -1;
+    if (active_callback_finder == a) return -1;
     delete a;
     return 0;
 }
@@ -296,6 +299,8 @@ void* route_finder_get_heuristic_fn_userdata(const route_finder_t* a){
 navsys_status_t route_finder_bind_cost_func(
     route_finder_t* finder, cost_func fn, void* userdata) {
     if (!finder || !fn) return NAVSYS_STATUS_INVALID_ARGUMENT;
+    if (active_callback_finder == finder)
+        return NAVSYS_STATUS_IN_PROGRESS;
     finder->cost_fn = fn;
     finder->cost_fn_userdata = userdata;
     return NAVSYS_STATUS_OK;
@@ -303,6 +308,8 @@ navsys_status_t route_finder_bind_cost_func(
 
 navsys_status_t route_finder_unbind_cost_func(route_finder_t* finder) {
     if (!finder) return NAVSYS_STATUS_INVALID_ARGUMENT;
+    if (active_callback_finder == finder)
+        return NAVSYS_STATUS_IN_PROGRESS;
     finder->cost_fn = default_cost;
     finder->cost_fn_userdata = nullptr;
     return NAVSYS_STATUS_OK;
@@ -311,6 +318,8 @@ navsys_status_t route_finder_unbind_cost_func(route_finder_t* finder) {
 navsys_status_t route_finder_bind_heuristic_func(
     route_finder_t* finder, heuristic_func fn, void* userdata) {
     if (!finder || !fn) return NAVSYS_STATUS_INVALID_ARGUMENT;
+    if (active_callback_finder == finder)
+        return NAVSYS_STATUS_IN_PROGRESS;
     finder->heuristic_fn = fn;
     finder->heuristic_fn_userdata = userdata;
     return NAVSYS_STATUS_OK;
@@ -319,12 +328,12 @@ navsys_status_t route_finder_bind_heuristic_func(
 navsys_status_t route_finder_unbind_heuristic_func(
     route_finder_t* finder) {
     if (!finder) return NAVSYS_STATUS_INVALID_ARGUMENT;
+    if (active_callback_finder == finder)
+        return NAVSYS_STATUS_IN_PROGRESS;
     finder->heuristic_fn = euclidean_heuristic;
     finder->heuristic_fn_userdata = nullptr;
     return NAVSYS_STATUS_OK;
 }
-
-static thread_local route_finder_t* active_callback_finder = nullptr;
 
 class route_finder_callback_scope {
 public:
@@ -477,6 +486,7 @@ static route_t* route_finder_run_fast_marching(route_finder_t* a){
 
 route_t* route_finder_run(route_finder_t* a) {
     if (!a) return NULL;
+    if (active_callback_finder == a) return NULL;
     route_finder_callback_scope callback_scope(a);
     switch (a->type) {
         case ROUTE_FINDER_ASTAR: 
