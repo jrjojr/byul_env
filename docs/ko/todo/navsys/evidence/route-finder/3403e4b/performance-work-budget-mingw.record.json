@@ -1,0 +1,31 @@
+{
+  "header": "byul/navsys/route_finder/route_finder.h",
+  "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-finder-route-finder.org",
+  "category": "performance",
+  "layer": "module_static",
+  "revision": "3403e4b26948a38144e32f30ae74532b7492e5d8",
+  "host": "windows-11-x64",
+  "target": "windows-x64",
+  "toolchain": "mingw-gcc-16.1.0",
+  "configuration": "Release",
+  "command": [
+    "ctest",
+    "--test-dir",
+    "build_win_native",
+    "-R",
+    "test_route_finder_performance_(gate|regression_gate)$",
+    "--output-on-failure"
+  ],
+  "artifacts": [
+    "docs/ko/todo/navsys/evidence/route-finder/3403e4b/performance-work-budget.result.json"
+  ],
+  "verdict": "pass",
+  "assertions": 7,
+  "limitations": [
+    "Execution requires C:/msys64/mingw64/bin on PATH.",
+    "The verdict uses algorithm-reported deterministic retry counts, not wall-clock timing.",
+    "The fixed fixture and four representative algorithms do not cover every route-finder workload or supported algorithm.",
+    "Allocator performance and root shared or wrapper overhead are outside this module-static record.",
+    "Windows sanitizer instrumentation was not applied."
+  ]
+}

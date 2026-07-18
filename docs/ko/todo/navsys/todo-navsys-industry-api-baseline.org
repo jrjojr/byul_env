@@ -833,3 +833,10 @@ exit code =4=와 =route finder work budget exceeded= 진단을 내보낸다. CTe
 MSVC와 MinGW에서 정상/주입 CTest가 각각 2/2 통과했다. 이 gate는 고정 fixture의
 algorithm-reported work budget이며 wall-clock latency, allocator 성능이나 전체
 route-finder workload의 benchmark로 확대 해석하지 않는다.
+
+Revision =3403e4b26948a38144e32f30ae74532b7492e5d8=의 performance gate를
+MSVC와 MinGW module-static performance record로 나눠
+[[file:evidence/route-finder/3403e4b/performance-work-budget.result.json][결정적 work-budget artifact]]에 고정했다. Toolchain별 assertion 7개는 네 algorithm
+예산, 정상 exit 0, 주입 exit 4와 정확한 회귀 진단을 검사한다. Correctness나 ABI
+통과로 확대하지 않으며 wrapper와 installed SDK에는 performance category를 적용하지
+않는다. Evidence tree는 record 18개를 검사한다.

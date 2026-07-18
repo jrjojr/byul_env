@@ -1,0 +1,70 @@
+{
+  "schema_version": 1,
+  "evidence_kind": "route-finder-deterministic-work-budget",
+  "revision": "3403e4b26948a38144e32f30ae74532b7492e5d8",
+  "header": "byul/navsys/route_finder/route_finder.h",
+  "fixture": {
+    "width": 10,
+    "height": 10,
+    "direction_mode": "DIR_8",
+    "start": [0, 0],
+    "goal": [9, 9],
+    "blocked_coordinates": [
+      [5, 1],
+      [5, 2],
+      [5, 3],
+      [5, 4],
+      [5, 5],
+      [5, 6],
+      [5, 7],
+      [5, 8],
+      [5, 9]
+    ]
+  },
+  "budgets": [
+    {
+      "algorithm": "astar",
+      "observed_retry_count": 50,
+      "max_retry_count": 55
+    },
+    {
+      "algorithm": "bfs",
+      "observed_retry_count": 91,
+      "max_retry_count": 100
+    },
+    {
+      "algorithm": "dijkstra",
+      "observed_retry_count": 89,
+      "max_retry_count": 98
+    },
+    {
+      "algorithm": "weighted_astar",
+      "observed_retry_count": 54,
+      "max_retry_count": 60
+    }
+  ],
+  "executions": {
+    "msvc": {
+      "normal_exit_code": 0,
+      "injected_exit_code": 4,
+      "injected_diagnostic": "route finder work budget exceeded",
+      "ctest_tests": 2,
+      "ctest_tests_passed": 2,
+      "status": "passed"
+    },
+    "mingw": {
+      "normal_exit_code": 0,
+      "injected_exit_code": 4,
+      "injected_diagnostic": "route finder work budget exceeded",
+      "ctest_tests": 2,
+      "ctest_tests_passed": 2,
+      "status": "passed"
+    }
+  },
+  "limitations": [
+    "The verdict uses algorithm-reported deterministic retry counts, not wall-clock timing.",
+    "The fixed fixture and four representative algorithms do not cover every route-finder workload or supported algorithm.",
+    "Allocator performance and root shared or wrapper overhead are outside this module-static record.",
+    "Windows sanitizer instrumentation was not applied."
+  ]
+}
