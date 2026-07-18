@@ -48,6 +48,24 @@
         ],
         [
           "<build-dir>/<bin-dir>/<module-test-executable>"
+        ],
+        [
+          "<ctest>",
+          "--test-dir",
+          "<build-dir>",
+          "-C",
+          "<config>",
+          "-R",
+          "<test-regex>",
+          "--output-on-failure"
+        ],
+        [
+          "<ctest>",
+          "--test-dir",
+          "<build-dir>",
+          "-R",
+          "<test-regex>",
+          "--output-on-failure"
         ]
       ]
     },

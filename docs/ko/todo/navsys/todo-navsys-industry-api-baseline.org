@@ -794,3 +794,11 @@ cross-platform CMake expected-failure helper로 exit code =3=과 정확한
 =route_finder create leaked allocations= 진단을 함께 요구하므로 detector가 누수를
 놓치거나 다른 이유로 실패하면 통과하지 않는다. 기본 allocation failure fixture 동작은
 주입 없이 유지한다.
+
+Revision =ee0d3f5a37da8ec3446134a9ce71456265047ea6=의 leak gate를 MSVC와
+MinGW에서 다시 실행해 각각 CTest 2/2 통과를
+[[file:evidence/route-finder/ee0d3f5/allocation-leak-gate.result.json][allocation leak gate artifact]]에 고정했다. Toolchain별 세 assertion은 정상 fixture
+exit 0, 주입 fixture exit 3, 정확한 leak 진단이다. 이 module-static fixture는 test
+process의 C++ =new/delete=를 추적하며 모든 C allocator나 별도 root shared DLL을 검사한
+것이 아니다. 주입 allocation은 mismatch 관측 뒤 회수하고 Windows sanitizer 미적용은
+별도 limitation으로 유지한다. Evidence tree는 record 13개를 검사한다.
