@@ -1,0 +1,204 @@
+{
+  "schema_version": 1,
+  "header": "byul/navsys/coord/coord.h",
+  "abi_line": "1.x",
+  "current_constants": {
+    "COORD_MAX": {
+      "value": 200000000,
+      "disposition": "deprecate-forward"
+    },
+    "COORD_MIN": {
+      "value": -200000000,
+      "disposition": "deprecate-forward"
+    }
+  },
+  "current_types": {
+    "coord_t": {
+      "disposition": "keep",
+      "fields": [
+        {
+          "declaration": "int x",
+          "offset_query": "coord_offsetof_x"
+        },
+        {
+          "declaration": "int y",
+          "offset_query": "coord_offsetof_y"
+        }
+      ],
+      "size_query": "coord_sizeof",
+      "align_query": "coord_alignof"
+    }
+  },
+  "current_functions": {
+    "coord_sizeof": "add",
+    "coord_alignof": "add",
+    "coord_offsetof_x": "add",
+    "coord_offsetof_y": "add",
+    "coord_create_full": "deprecate-forward",
+    "coord_create": "deprecate-forward",
+    "coord_destroy": "keep",
+    "coord_copy": "deprecate-forward",
+    "coord_init": "keep",
+    "coord_init_full": "deprecate-forward",
+    "coord_assign": "keep",
+    "coord_add": "deprecate-forward",
+    "coord_sub": "deprecate-forward",
+    "coord_mul": "deprecate-forward",
+    "coord_div": "deprecate-forward",
+    "coord_iadd": "deprecate-forward",
+    "coord_isub": "deprecate-forward",
+    "coord_imul": "deprecate-forward",
+    "coord_idiv": "deprecate-forward",
+    "coord_hash": "keep",
+    "coord_equal": "keep",
+    "coord_compare": "deprecate-forward",
+    "coord_distance": "deprecate-forward",
+    "coord_manhattan_distance": "deprecate-forward",
+    "coord_angle": "deprecate-forward",
+    "coord_degree": "deprecate-forward",
+    "coord_next_to_goal": "deprecate-forward",
+    "coord_get_x": "keep",
+    "coord_set_x": "deprecate-forward",
+    "coord_get_y": "keep",
+    "coord_set_y": "deprecate-forward",
+    "coord_set": "deprecate-forward",
+    "coord_fetch": "deprecate-forward",
+    "make_tmp_coord": "deprecate-forward",
+    "coord_clone_next_to_goal": "deprecate-forward",
+    "coord_to_string": "deprecate-forward",
+    "coord_print": "deprecate-forward"
+  },
+  "numeric_policy": {
+    "component_min": -200000000,
+    "component_max": 200000000,
+    "checked_intermediate": "int64_t",
+    "checked_out_of_range_status": "NAVSYS_STATUS_INVALID_ARGUMENT",
+    "legacy_wrapping": {
+      "policy": "euclidean-modulo",
+      "period": 400000001,
+      "defined_domain": "only inputs whose legacy C int intermediate arithmetic does not overflow"
+    },
+    "integer_division": "truncate-toward-zero",
+    "identical_point_direction": {
+      "legacy_result": 0,
+      "checked_status": "NAVSYS_STATUS_INVALID_ARGUMENT"
+    },
+    "step_topology": "8-neighbor",
+    "step_rule": "move each unequal axis by exactly one component toward the goal"
+  },
+  "status_dependency": {
+    "source": "docs/ko/todo/navsys/todo-navsys-industry-api-baseline.org",
+    "required_values": {
+      "NAVSYS_STATUS_OK": 0,
+      "NAVSYS_STATUS_INCOMPLETE": 2,
+      "NAVSYS_STATUS_INVALID_ARGUMENT": -1,
+      "NAVSYS_STATUS_OUT_OF_MEMORY": -2
+    }
+  },
+  "planned_contracts": {
+    "coord_init_checked": {
+      "success_outputs": ["out_coord"],
+      "aliases": [],
+      "failures": {
+        "NAVSYS_STATUS_INVALID_ARGUMENT": "preserve-all-outputs"
+      }
+    },
+    "coord_create_checked": {
+      "success_outputs": ["out_coord"],
+      "aliases": [],
+      "failures": {
+        "NAVSYS_STATUS_INVALID_ARGUMENT": "preserve-all-outputs",
+        "NAVSYS_STATUS_OUT_OF_MEMORY": "preserve-all-outputs"
+      }
+    },
+    "coord_copy_checked": {
+      "success_outputs": ["out_coord"],
+      "aliases": [],
+      "failures": {
+        "NAVSYS_STATUS_INVALID_ARGUMENT": "preserve-all-outputs",
+        "NAVSYS_STATUS_OUT_OF_MEMORY": "preserve-all-outputs"
+      }
+    },
+    "coord_add_checked": {
+      "success_outputs": ["out"],
+      "aliases": ["out==a", "out==b"],
+      "failures": {
+        "NAVSYS_STATUS_INVALID_ARGUMENT": "preserve-all-outputs"
+      }
+    },
+    "coord_sub_checked": {
+      "success_outputs": ["out"],
+      "aliases": ["out==a", "out==b"],
+      "failures": {
+        "NAVSYS_STATUS_INVALID_ARGUMENT": "preserve-all-outputs"
+      }
+    },
+    "coord_mul_checked": {
+      "success_outputs": ["out"],
+      "aliases": ["out==a"],
+      "failures": {
+        "NAVSYS_STATUS_INVALID_ARGUMENT": "preserve-all-outputs"
+      }
+    },
+    "coord_div_checked": {
+      "success_outputs": ["out"],
+      "aliases": ["out==a"],
+      "failures": {
+        "NAVSYS_STATUS_INVALID_ARGUMENT": "preserve-all-outputs"
+      }
+    },
+    "coord_compare_canonical": {
+      "success_outputs": ["out_order"],
+      "aliases": [],
+      "failures": {
+        "NAVSYS_STATUS_INVALID_ARGUMENT": "preserve-all-outputs"
+      }
+    },
+    "coord_distance_f64": {
+      "success_outputs": ["out_distance"],
+      "aliases": [],
+      "failures": {
+        "NAVSYS_STATUS_INVALID_ARGUMENT": "preserve-all-outputs"
+      }
+    },
+    "coord_manhattan_distance_i64": {
+      "success_outputs": ["out_distance"],
+      "aliases": [],
+      "failures": {
+        "NAVSYS_STATUS_INVALID_ARGUMENT": "preserve-all-outputs"
+      }
+    },
+    "coord_angle_rad": {
+      "success_outputs": ["out_angle"],
+      "aliases": [],
+      "failures": {
+        "NAVSYS_STATUS_INVALID_ARGUMENT": "preserve-all-outputs"
+      }
+    },
+    "coord_angle_deg": {
+      "success_outputs": ["out_angle"],
+      "aliases": [],
+      "failures": {
+        "NAVSYS_STATUS_INVALID_ARGUMENT": "preserve-all-outputs"
+      }
+    },
+    "coord_step_toward": {
+      "success_outputs": ["out_next"],
+      "aliases": ["out_next==start", "out_next==goal"],
+      "failures": {
+        "NAVSYS_STATUS_INVALID_ARGUMENT": "preserve-all-outputs"
+      }
+    },
+    "coord_format": {
+      "success_outputs": ["out_required", "out_buffer"],
+      "aliases": [],
+      "query": "out_buffer==NULL and capacity==0 writes out_required and returns NAVSYS_STATUS_OK",
+      "failures": {
+        "NAVSYS_STATUS_INVALID_ARGUMENT": "preserve-all-outputs",
+        "NAVSYS_STATUS_INCOMPLETE": "write-out_required-preserve-out_buffer"
+      },
+      "required_size_includes_nul": true,
+      "encoding": "utf-8"
+    }
+  }
+}
