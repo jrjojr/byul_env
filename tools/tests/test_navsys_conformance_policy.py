@@ -3,6 +3,7 @@ import importlib.util
 import json
 from pathlib import Path
 import sys
+import tempfile
 import unittest
 
 
@@ -38,7 +39,10 @@ class NavsysConformancePolicyTest(unittest.TestCase):
             "target": "windows-x64",
             "toolchain": "msvc-19.44",
             "configuration": "Release",
-            "command": ["<python>", "tools/header_abi_audit.py"],
+            "command": [
+                "tools/python/.venv/Scripts/python.exe",
+                "tools/header_abi_audit.py",
+            ],
             "artifacts": [
                 "docs/ko/todo/navsys/evidence/sample/abi-root-shared.json"
             ],
@@ -54,6 +58,14 @@ class NavsysConformancePolicyTest(unittest.TestCase):
         ))
         self.assertEqual(46, self.policy["coverage"]["headers"])
         self.assertEqual(43, self.policy["coverage"]["child_owner_todos"])
+
+    def test_committed_evidence_tree_is_valid(self):
+        findings, records = MODULE.validate_evidence_tree(
+            self.policy,
+            self.inventory,
+        )
+        self.assertEqual([], findings)
+        self.assertEqual(2, records)
 
     def test_categories_and_layers_are_not_interchangeable(self):
         self.assertEqual(
@@ -109,6 +121,11 @@ class NavsysConformancePolicyTest(unittest.TestCase):
         invalid["owner_todo"] = "docs/ko/todo/navsys/wrong.org"
         invalid["category"] = "performance"
         invalid["layer"] = "wrapper"
+        invalid["command"] = [
+            "tools/python/.venv/Scripts/python.exe",
+            "tools/python/byul_wrapper/generate_wrapper_abi.py",
+            "--check",
+        ]
         invalid["artifacts"] = ["C:\\temp\\result.json"]
         codes = {
             row.code
@@ -159,6 +176,67 @@ class NavsysConformancePolicyTest(unittest.TestCase):
             )
         }
         self.assertEqual({"record-type"}, codes)
+
+        invalid = copy.deepcopy(self.valid_record)
+        invalid["command"] = ["wrong-command"]
+        codes = {
+            row.code
+            for row in MODULE.validate_record(
+                self.policy,
+                self.inventory,
+                invalid,
+            )
+        }
+        self.assertEqual({"command-template-mismatch"}, codes)
+
+    def test_artifact_revision_and_header_must_match_record(self):
+        payload = {
+            "revision": "deadbee",
+            "header": "byul/navsys/wrong.h",
+        }
+        codes = {
+            row.code
+            for row in MODULE.validate_artifact_payload(
+                self.valid_record,
+                "sample.json",
+                payload,
+            )
+        }
+        self.assertEqual(
+            {
+                "artifact-revision-mismatch",
+                "artifact-header-mismatch",
+            },
+            codes,
+        )
+
+    def test_tree_rejects_missing_artifact_duplicate_and_bad_json(self):
+        records = sorted(MODULE.EVIDENCE_ROOT.rglob("*.record.json"))
+        self.assertGreaterEqual(len(records), 1)
+        source = load_json(records[0])
+        source["artifacts"] = [
+            "docs/ko/todo/navsys/evidence/missing.result.json"
+        ]
+
+        with tempfile.TemporaryDirectory(dir=REPOSITORY_ROOT) as directory:
+            root = Path(directory)
+            first = root / "first.record.json"
+            second = root / "second.record.json"
+            bad = root / "bad.record.json"
+            first.write_text(json.dumps(source), encoding="utf-8")
+            second.write_text(json.dumps(source), encoding="utf-8")
+            bad.write_text("{", encoding="utf-8")
+
+            findings, count = MODULE.validate_evidence_tree(
+                self.policy,
+                self.inventory,
+                root,
+            )
+        self.assertEqual(3, count)
+        codes = {row.code for row in findings}
+        self.assertIn("missing-artifact-file", codes)
+        self.assertIn("duplicate-record", codes)
+        self.assertIn("invalid-record-json", codes)
 
 
 if __name__ == "__main__":

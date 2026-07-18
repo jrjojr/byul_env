@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+import json
 from pathlib import Path, PurePosixPath
 import re
 
@@ -15,6 +16,9 @@ POLICY_PATH = (
 INVENTORY_PATH = (
     REPOSITORY_ROOT
     / "docs/ko/todo/navsys/navsys-current-abi-inventory.json"
+)
+EVIDENCE_ROOT = (
+    REPOSITORY_ROOT / "docs/ko/todo/navsys/evidence"
 )
 EXPECTED_CATEGORIES = {"correctness", "abi", "performance"}
 EXPECTED_LAYERS = {"module_static", "root_shared", "wrapper", "installed_sdk"}
@@ -66,6 +70,21 @@ def _relative_path(value: str) -> PurePosixPath | None:
     if path.is_absolute() or ".." in path.parts or "\\" in value:
         return None
     return path
+
+
+def _command_matches(template: list[str], command: list[str]) -> bool:
+    if len(template) != len(command):
+        return False
+    for expected, actual in zip(template, command):
+        parts = re.split(r"(<[^>]+>)", expected)
+        pattern = "".join(
+            r".+" if part.startswith("<") and part.endswith(">")
+            else re.escape(part)
+            for part in parts
+        )
+        if re.fullmatch(pattern, actual) is None:
+            return False
+    return True
 
 
 def validate_policy(policy: dict, inventory: dict) -> list[PolicyFinding]:
@@ -259,6 +278,15 @@ def validate_record(
         findings.append(PolicyFinding(
             "command", str(header), "command must be a non-empty argument list"
         ))
+    elif layer in policy.get("layers", {}) and not any(
+        _command_matches(template, command)
+        for template in policy["layers"][layer]["command_templates"]
+    ):
+        findings.append(PolicyFinding(
+            "command-template-mismatch",
+            str(layer),
+            "record command does not match a template for its layer",
+        ))
 
     artifacts = record.get("artifacts")
     artifact_root = PurePosixPath(schema["artifact_root"])
@@ -310,3 +338,105 @@ def validate_record(
             "limitations must be a list of non-empty strings",
         ))
     return findings
+
+
+def validate_artifact_payload(
+    record: dict,
+    artifact: str,
+    payload: dict,
+) -> list[PolicyFinding]:
+    findings: list[PolicyFinding] = []
+    if (
+        "revision" in payload
+        and payload["revision"] != record.get("revision")
+    ):
+        findings.append(PolicyFinding(
+            "artifact-revision-mismatch",
+            artifact,
+            "artifact revision does not match its evidence record",
+        ))
+    if "header" in payload and payload["header"] != record.get("header"):
+        findings.append(PolicyFinding(
+            "artifact-header-mismatch",
+            artifact,
+            "artifact header does not match its evidence record",
+        ))
+    return findings
+
+
+def validate_evidence_tree(
+    policy: dict,
+    inventory: dict,
+    evidence_root: Path = EVIDENCE_ROOT,
+) -> tuple[list[PolicyFinding], int]:
+    """Validate discovered ``*.record.json`` files and referenced artifacts."""
+    findings = validate_policy(policy, inventory)
+    record_paths = sorted(evidence_root.rglob("*.record.json"))
+    if not record_paths:
+        findings.append(PolicyFinding(
+            "no-evidence-record",
+            str(evidence_root),
+            "evidence tree contains no record files",
+        ))
+        return findings, 0
+
+    identities: dict[tuple, Path] = {}
+    for record_path in record_paths:
+        try:
+            record = json.loads(record_path.read_text(encoding="utf-8"))
+        except (OSError, json.JSONDecodeError) as error:
+            findings.append(PolicyFinding(
+                "invalid-record-json",
+                str(record_path),
+                str(error),
+            ))
+            continue
+
+        findings.extend(validate_record(policy, inventory, record))
+        identity = tuple(record.get(field) for field in (
+            "header",
+            "category",
+            "layer",
+            "revision",
+            "target",
+            "toolchain",
+            "configuration",
+        ))
+        if identity in identities:
+            findings.append(PolicyFinding(
+                "duplicate-record",
+                str(record_path),
+                f"duplicates {identities[identity]}",
+            ))
+        else:
+            identities[identity] = record_path
+
+        for artifact in record.get("artifacts", []):
+            if not isinstance(artifact, str) or _relative_path(artifact) is None:
+                continue
+            artifact_path = REPOSITORY_ROOT / PurePosixPath(artifact)
+            if not artifact_path.is_file():
+                findings.append(PolicyFinding(
+                    "missing-artifact-file",
+                    artifact,
+                    "record references an artifact that does not exist",
+                ))
+                continue
+            if artifact_path.suffix == ".json":
+                try:
+                    payload = json.loads(
+                        artifact_path.read_text(encoding="utf-8")
+                    )
+                except (OSError, json.JSONDecodeError) as error:
+                    findings.append(PolicyFinding(
+                        "invalid-artifact-json",
+                        artifact,
+                        str(error),
+                    ))
+                else:
+                    findings.extend(validate_artifact_payload(
+                        record,
+                        artifact,
+                        payload,
+                    ))
+    return findings, len(record_paths)

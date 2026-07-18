@@ -1,0 +1,25 @@
+{
+  "header": "byul/navsys/route_finder/route_finder.h",
+  "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-finder-route-finder.org",
+  "category": "abi",
+  "layer": "root_shared",
+  "revision": "3cd9871e82de7bd457d60d3ca64522cdc849ade9",
+  "host": "windows-11-x64",
+  "target": "windows-x64",
+  "toolchain": "msvc-19.44",
+  "configuration": "Release",
+  "command": [
+    "tools/python/.venv/Scripts/python.exe",
+    "tools/header_abi_audit.py",
+    "--build-snapshot",
+    "docs/ko/todo/header-refactor-current/msvc-release-build.json"
+  ],
+  "artifacts": [
+    "docs/ko/todo/navsys/evidence/route-finder/3cd9871/root-shared-abi.result.json"
+  ],
+  "verdict": "pass",
+  "assertions": 48,
+  "limitations": [
+    "This record covers header signatures and root export presence, not installed SDK or wrapper execution."
+  ]
+}

@@ -70,6 +70,12 @@
         [
           "<python>",
           "tools/header_abi_audit.py"
+        ],
+        [
+          "<python>",
+          "tools/header_abi_audit.py",
+          "--build-snapshot",
+          "<build-snapshot>"
         ]
       ]
     },
