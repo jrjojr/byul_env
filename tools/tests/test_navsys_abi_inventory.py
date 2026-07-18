@@ -88,6 +88,69 @@ class NavsysAbiInventoryTest(unittest.TestCase):
             MODULE.classify_return("coord_list_length", "int"),
         )
 
+    def test_lifecycle_inventory_preserves_resource_operations(self):
+        resources = {
+            row["resource"]: row
+            for row in self.inventory["lifecycle"]["resources"]
+        }
+
+        self.assertIn("coord", resources)
+        self.assertEqual(
+            {"create", "copy", "init", "destroy"},
+            set(resources["coord"]["operation_kinds"]),
+        )
+        self.assertIn("route_finder", resources)
+        self.assertEqual(
+            {"create", "copy", "init", "free", "destroy"},
+            set(resources["route_finder"]["operation_kinds"]),
+        )
+
+    def test_every_create_family_has_a_destroy_operation(self):
+        for resource in self.inventory["lifecycle"]["resources"]:
+            kinds = set(resource["operation_kinds"])
+            if "create" not in kinds:
+                continue
+            with self.subTest(resource=resource["resource"]):
+                self.assertIn("destroy", kinds)
+
+    def test_split_callback_bindings_are_explicit(self):
+        bindings = {
+            (row["family"], row["slot"]): row
+            for row in self.inventory["callback_bindings"]
+        }
+
+        cost = bindings[("route_finder", "cost_callback")]
+        self.assertEqual(
+            ["function", "userdata"],
+            cost["setter_components"],
+        )
+        self.assertEqual(
+            "split-function-and-userdata-setters",
+            cost["current_atomicity"],
+        )
+        self.assertEqual(
+            "partial-export-surface",
+            bindings[("navgrid", "is_coord_blocked_callback")][
+                "current_atomicity"
+            ],
+        )
+
+    def test_lifecycle_and_callback_summary_counts_match_rows(self):
+        summary = self.inventory["summary"]
+
+        self.assertEqual(
+            len(self.inventory["lifecycle"]["resources"]),
+            summary["lifecycle_resources"],
+        )
+        self.assertEqual(
+            len(self.inventory["lifecycle"]["operations"]),
+            summary["lifecycle_operations"],
+        )
+        self.assertEqual(
+            len(self.inventory["callback_bindings"]),
+            summary["callback_bindings"],
+        )
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -66,6 +66,31 @@ def classify_return(name: str, return_type: str) -> str:
     return "enum_result"
 
 
+def classify_lifecycle(name: str) -> tuple[str, str] | None:
+    """Return ``(resource, operation)`` for ownership vocabulary symbols."""
+    create_or_init = re.match(r"^(.+)_(create|init)(?:_.+)?$", name)
+    if create_or_init:
+        return create_or_init.group(1), create_or_init.group(2)
+    terminal = re.match(r"^(.+)_(copy|reset|free|destroy)$", name)
+    if terminal:
+        return terminal.group(1), terminal.group(2)
+    return None
+
+
+def classify_callback_binding(name: str) -> tuple[str, str, str, str] | None:
+    """Return family, normalized slot, access and component for callback APIs."""
+    match = re.match(r"^(.+?)_(set|get)_(.+)$", name)
+    if not match:
+        return None
+    family, access, slot = match.groups()
+    if not re.search(r"(?:func|fn)", slot):
+        return None
+    component = "userdata" if slot.endswith("_userdata") else "function"
+    slot = re.sub(r"_userdata$", "", slot)
+    slot = re.sub(r"(?:func|fn)", "callback", slot)
+    return family, slot, access, component
+
+
 def owner_todo_path(header_path: str) -> str:
     if header_path in OWNER_TODO_OVERRIDES:
         return OWNER_TODO_OVERRIDES[header_path]
@@ -91,6 +116,8 @@ def build_inventory(role_manifest: dict, vocabulary: dict) -> dict:
     symbols: list[dict] = []
     headers: list[dict] = []
     audit_debt: list[dict] = []
+    lifecycle_operations: list[dict] = []
+    callback_operations: list[dict] = []
 
     for header in sorted(header_rows, key=lambda row: row["current_path"]):
         relative = header["current_path"].replace("\\", "/")
@@ -115,6 +142,35 @@ def build_inventory(role_manifest: dict, vocabulary: dict) -> dict:
             }
             symbols.append(symbol)
             header_symbols.append(declaration.name)
+            lifecycle = classify_lifecycle(declaration.name)
+            if lifecycle:
+                resource, operation = lifecycle
+                lifecycle_operations.append(
+                    {
+                        "header": relative,
+                        "resource": resource,
+                        "operation": operation,
+                        "symbol": declaration.name,
+                        "return_type": declaration.return_type,
+                        "parameters": [
+                            parameter.declaration
+                            for parameter in declaration.parameters
+                        ],
+                    }
+                )
+            callback = classify_callback_binding(declaration.name)
+            if callback:
+                family, slot, access, component = callback
+                callback_operations.append(
+                    {
+                        "header": relative,
+                        "family": family,
+                        "slot": slot,
+                        "access": access,
+                        "component": component,
+                        "symbol": declaration.name,
+                    }
+                )
         for issue in audit.issues:
             audit_debt.append(
                 {
@@ -159,6 +215,48 @@ def build_inventory(role_manifest: dict, vocabulary: dict) -> dict:
     audit_codes = dict(
         sorted(Counter(issue["code"] for issue in audit_debt).items())
     )
+    lifecycle_resources = []
+    for resource in sorted({row["resource"] for row in lifecycle_operations}):
+        operations = [
+            row for row in lifecycle_operations if row["resource"] == resource
+        ]
+        lifecycle_resources.append(
+            {
+                "resource": resource,
+                "operations": operations,
+                "operation_kinds": sorted(
+                    {row["operation"] for row in operations}
+                ),
+            }
+        )
+    callback_bindings = []
+    callback_keys = sorted(
+        {(row["family"], row["slot"]) for row in callback_operations}
+    )
+    for family, slot in callback_keys:
+        operations = [
+            row
+            for row in callback_operations
+            if row["family"] == family and row["slot"] == slot
+        ]
+        setters = {
+            row["component"]
+            for row in operations
+            if row["access"] == "set"
+        }
+        callback_bindings.append(
+            {
+                "family": family,
+                "slot": slot,
+                "operations": operations,
+                "setter_components": sorted(setters),
+                "current_atomicity": (
+                    "split-function-and-userdata-setters"
+                    if setters == {"function", "userdata"}
+                    else "partial-export-surface"
+                ),
+            }
+        )
     return {
         "schema_version": 1,
         "source_role_manifest": str(
@@ -178,6 +276,9 @@ def build_inventory(role_manifest: dict, vocabulary: dict) -> dict:
                 issue["severity"] == "error" for issue in audit_debt
             ),
             "audit_codes": audit_codes,
+            "lifecycle_resources": len(lifecycle_resources),
+            "lifecycle_operations": len(lifecycle_operations),
+            "callback_bindings": len(callback_bindings),
         },
         "known_debt": {
             "duplicate_declarations": duplicate_declarations,
@@ -185,6 +286,11 @@ def build_inventory(role_manifest: dict, vocabulary: dict) -> dict:
         },
         "headers": headers,
         "symbols": symbols,
+        "lifecycle": {
+            "resources": lifecycle_resources,
+            "operations": lifecycle_operations,
+        },
+        "callback_bindings": callback_bindings,
     }
 
 

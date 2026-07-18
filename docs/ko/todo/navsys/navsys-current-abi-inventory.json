@@ -32,7 +32,10 @@
       "missing-return-nullable": 53,
       "unknown-param": 12,
       "unnamed-parameter": 30
-    }
+    },
+    "lifecycle_resources": 21,
+    "lifecycle_operations": 76,
+    "callback_bindings": 7
   },
   "known_debt": {
     "duplicate_declarations": [
@@ -12426,6 +12429,2080 @@
       "return_type": "route_t*",
       "return_form": "nullable_pointer",
       "canonical": "status return plus typed out pointer"
+    }
+  ],
+  "lifecycle": {
+    "resources": [
+      {
+        "resource": "coord",
+        "operations": [
+          {
+            "header": "byul/navsys/coord/coord.h",
+            "resource": "coord",
+            "operation": "create",
+            "symbol": "coord_create_full",
+            "return_type": "coord_t*",
+            "parameters": [
+              "int x",
+              "int y"
+            ]
+          },
+          {
+            "header": "byul/navsys/coord/coord.h",
+            "resource": "coord",
+            "operation": "create",
+            "symbol": "coord_create",
+            "return_type": "coord_t*",
+            "parameters": []
+          },
+          {
+            "header": "byul/navsys/coord/coord.h",
+            "resource": "coord",
+            "operation": "destroy",
+            "symbol": "coord_destroy",
+            "return_type": "void",
+            "parameters": [
+              "coord_t* c"
+            ]
+          },
+          {
+            "header": "byul/navsys/coord/coord.h",
+            "resource": "coord",
+            "operation": "copy",
+            "symbol": "coord_copy",
+            "return_type": "coord_t*",
+            "parameters": [
+              "const coord_t* c"
+            ]
+          },
+          {
+            "header": "byul/navsys/coord/coord.h",
+            "resource": "coord",
+            "operation": "init",
+            "symbol": "coord_init",
+            "return_type": "void",
+            "parameters": [
+              "coord_t* c"
+            ]
+          },
+          {
+            "header": "byul/navsys/coord/coord.h",
+            "resource": "coord",
+            "operation": "init",
+            "symbol": "coord_init_full",
+            "return_type": "void",
+            "parameters": [
+              "coord_t* c",
+              "int x",
+              "int y"
+            ]
+          }
+        ],
+        "operation_kinds": [
+          "copy",
+          "create",
+          "destroy",
+          "init"
+        ]
+      },
+      {
+        "resource": "coord_hash",
+        "operations": [
+          {
+            "header": "byul/navsys/coord/coord_hash.h",
+            "resource": "coord_hash",
+            "operation": "create",
+            "symbol": "coord_hash_create",
+            "return_type": "coord_hash_t*",
+            "parameters": []
+          },
+          {
+            "header": "byul/navsys/coord/coord_hash.h",
+            "resource": "coord_hash",
+            "operation": "create",
+            "symbol": "coord_hash_create_full",
+            "return_type": "coord_hash_t*",
+            "parameters": [
+              "coord_hash_copy_func copy_func",
+              "coord_hash_destroy_func destroy_func"
+            ]
+          },
+          {
+            "header": "byul/navsys/coord/coord_hash.h",
+            "resource": "coord_hash",
+            "operation": "destroy",
+            "symbol": "coord_hash_destroy",
+            "return_type": "void",
+            "parameters": [
+              "coord_hash_t* hash"
+            ]
+          },
+          {
+            "header": "byul/navsys/coord/coord_hash.h",
+            "resource": "coord_hash",
+            "operation": "copy",
+            "symbol": "coord_hash_copy",
+            "return_type": "coord_hash_t*",
+            "parameters": [
+              "const coord_hash_t* original"
+            ]
+          }
+        ],
+        "operation_kinds": [
+          "copy",
+          "create",
+          "destroy"
+        ]
+      },
+      {
+        "resource": "coord_hash_iter",
+        "operations": [
+          {
+            "header": "byul/navsys/coord/coord_hash.h",
+            "resource": "coord_hash_iter",
+            "operation": "create",
+            "symbol": "coord_hash_iter_create",
+            "return_type": "coord_hash_iter_t*",
+            "parameters": [
+              "const coord_hash_t* hash"
+            ]
+          },
+          {
+            "header": "byul/navsys/coord/coord_hash.h",
+            "resource": "coord_hash_iter",
+            "operation": "destroy",
+            "symbol": "coord_hash_iter_destroy",
+            "return_type": "void",
+            "parameters": [
+              "coord_hash_iter_t* iter"
+            ]
+          }
+        ],
+        "operation_kinds": [
+          "create",
+          "destroy"
+        ]
+      },
+      {
+        "resource": "coord_list",
+        "operations": [
+          {
+            "header": "byul/navsys/coord/coord_list.h",
+            "resource": "coord_list",
+            "operation": "create",
+            "symbol": "coord_list_create",
+            "return_type": "coord_list_t*",
+            "parameters": []
+          },
+          {
+            "header": "byul/navsys/coord/coord_list.h",
+            "resource": "coord_list",
+            "operation": "destroy",
+            "symbol": "coord_list_destroy",
+            "return_type": "void",
+            "parameters": [
+              "coord_list_t* list"
+            ]
+          },
+          {
+            "header": "byul/navsys/coord/coord_list.h",
+            "resource": "coord_list",
+            "operation": "copy",
+            "symbol": "coord_list_copy",
+            "return_type": "coord_list_t*",
+            "parameters": [
+              "const coord_list_t* list"
+            ]
+          }
+        ],
+        "operation_kinds": [
+          "copy",
+          "create",
+          "destroy"
+        ]
+      },
+      {
+        "resource": "cost_coord_pq",
+        "operations": [
+          {
+            "header": "byul/navsys/coord/cost_coord_pq.h",
+            "resource": "cost_coord_pq",
+            "operation": "create",
+            "symbol": "cost_coord_pq_create",
+            "return_type": "cost_coord_pq_t*",
+            "parameters": []
+          },
+          {
+            "header": "byul/navsys/coord/cost_coord_pq.h",
+            "resource": "cost_coord_pq",
+            "operation": "destroy",
+            "symbol": "cost_coord_pq_destroy",
+            "return_type": "void",
+            "parameters": [
+              "cost_coord_pq_t* pq"
+            ]
+          }
+        ],
+        "operation_kinds": [
+          "create",
+          "destroy"
+        ]
+      },
+      {
+        "resource": "double",
+        "operations": [
+          {
+            "header": "byul/navsys/coord/coord_hash.h",
+            "resource": "double",
+            "operation": "copy",
+            "symbol": "double_copy",
+            "return_type": "void*",
+            "parameters": [
+              "const void* p"
+            ]
+          },
+          {
+            "header": "byul/navsys/coord/coord_hash.h",
+            "resource": "double",
+            "operation": "destroy",
+            "symbol": "double_destroy",
+            "return_type": "void",
+            "parameters": [
+              "void* p"
+            ]
+          }
+        ],
+        "operation_kinds": [
+          "copy",
+          "destroy"
+        ]
+      },
+      {
+        "resource": "dstar_lite",
+        "operations": [
+          {
+            "header": "byul/navsys/dstar_lite/dstar_lite.h",
+            "resource": "dstar_lite",
+            "operation": "create",
+            "symbol": "dstar_lite_create",
+            "return_type": "dstar_lite_t*",
+            "parameters": [
+              "navgrid_t* navgrid"
+            ]
+          },
+          {
+            "header": "byul/navsys/dstar_lite/dstar_lite.h",
+            "resource": "dstar_lite",
+            "operation": "create",
+            "symbol": "dstar_lite_create_full",
+            "return_type": "dstar_lite_t*",
+            "parameters": [
+              "navgrid_t* navgrid",
+              "const coord_t* start",
+              "const coord_t* goal",
+              "cost_func cost_fn",
+              "heuristic_func heuristic_fn",
+              "bool debug_mode_enabled"
+            ]
+          },
+          {
+            "header": "byul/navsys/dstar_lite/dstar_lite.h",
+            "resource": "dstar_lite",
+            "operation": "destroy",
+            "symbol": "dstar_lite_destroy",
+            "return_type": "void",
+            "parameters": [
+              "dstar_lite_t* dsl"
+            ]
+          },
+          {
+            "header": "byul/navsys/dstar_lite/dstar_lite.h",
+            "resource": "dstar_lite",
+            "operation": "copy",
+            "symbol": "dstar_lite_copy",
+            "return_type": "dstar_lite_t*",
+            "parameters": [
+              "const dstar_lite_t* src"
+            ]
+          },
+          {
+            "header": "byul/navsys/dstar_lite/dstar_lite.h",
+            "resource": "dstar_lite",
+            "operation": "reset",
+            "symbol": "dstar_lite_reset",
+            "return_type": "void",
+            "parameters": [
+              "dstar_lite_t* dsl"
+            ]
+          },
+          {
+            "header": "byul/navsys/dstar_lite/dstar_lite.h",
+            "resource": "dstar_lite",
+            "operation": "init",
+            "symbol": "dstar_lite_init",
+            "return_type": "void",
+            "parameters": [
+              "dstar_lite_t* dsl"
+            ]
+          }
+        ],
+        "operation_kinds": [
+          "copy",
+          "create",
+          "destroy",
+          "init",
+          "reset"
+        ]
+      },
+      {
+        "resource": "dstar_lite_key",
+        "operations": [
+          {
+            "header": "byul/navsys/dstar_lite/dstar_lite_key.h",
+            "resource": "dstar_lite_key",
+            "operation": "create",
+            "symbol": "dstar_lite_key_create",
+            "return_type": "dstar_lite_key_t*",
+            "parameters": []
+          },
+          {
+            "header": "byul/navsys/dstar_lite/dstar_lite_key.h",
+            "resource": "dstar_lite_key",
+            "operation": "create",
+            "symbol": "dstar_lite_key_create_full",
+            "return_type": "dstar_lite_key_t*",
+            "parameters": [
+              "float k1",
+              "float k2"
+            ]
+          },
+          {
+            "header": "byul/navsys/dstar_lite/dstar_lite_key.h",
+            "resource": "dstar_lite_key",
+            "operation": "copy",
+            "symbol": "dstar_lite_key_copy",
+            "return_type": "dstar_lite_key_t*",
+            "parameters": [
+              "const dstar_lite_key_t* key"
+            ]
+          },
+          {
+            "header": "byul/navsys/dstar_lite/dstar_lite_key.h",
+            "resource": "dstar_lite_key",
+            "operation": "destroy",
+            "symbol": "dstar_lite_key_destroy",
+            "return_type": "void",
+            "parameters": [
+              "dstar_lite_key_t* key"
+            ]
+          }
+        ],
+        "operation_kinds": [
+          "copy",
+          "create",
+          "destroy"
+        ]
+      },
+      {
+        "resource": "dstar_lite_pqueue",
+        "operations": [
+          {
+            "header": "byul/navsys/dstar_lite/dstar_lite_pqueue.h",
+            "resource": "dstar_lite_pqueue",
+            "operation": "create",
+            "symbol": "dstar_lite_pqueue_create",
+            "return_type": "dstar_lite_pqueue_t*",
+            "parameters": []
+          },
+          {
+            "header": "byul/navsys/dstar_lite/dstar_lite_pqueue.h",
+            "resource": "dstar_lite_pqueue",
+            "operation": "destroy",
+            "symbol": "dstar_lite_pqueue_destroy",
+            "return_type": "void",
+            "parameters": [
+              "dstar_lite_pqueue_t* q"
+            ]
+          },
+          {
+            "header": "byul/navsys/dstar_lite/dstar_lite_pqueue.h",
+            "resource": "dstar_lite_pqueue",
+            "operation": "copy",
+            "symbol": "dstar_lite_pqueue_copy",
+            "return_type": "dstar_lite_pqueue_t*",
+            "parameters": [
+              "const dstar_lite_pqueue_t* src"
+            ]
+          }
+        ],
+        "operation_kinds": [
+          "copy",
+          "create",
+          "destroy"
+        ]
+      },
+      {
+        "resource": "dstar_lite_tick",
+        "operations": [
+          {
+            "header": "byul/navsys/dstar_lite/dstar_lite_tick.h",
+            "resource": "dstar_lite_tick",
+            "operation": "create",
+            "symbol": "dstar_lite_tick_create",
+            "return_type": "dstar_lite_tick_t*",
+            "parameters": [
+              "dstar_lite_t* dsl"
+            ]
+          },
+          {
+            "header": "byul/navsys/dstar_lite/dstar_lite_tick.h",
+            "resource": "dstar_lite_tick",
+            "operation": "create",
+            "symbol": "dstar_lite_tick_create_full",
+            "return_type": "dstar_lite_tick_t*",
+            "parameters": [
+              "dstar_lite_t* dsl",
+              "float max_time"
+            ]
+          },
+          {
+            "header": "byul/navsys/dstar_lite/dstar_lite_tick.h",
+            "resource": "dstar_lite_tick",
+            "operation": "destroy",
+            "symbol": "dstar_lite_tick_destroy",
+            "return_type": "void",
+            "parameters": [
+              "dstar_lite_tick_t* dst"
+            ]
+          },
+          {
+            "header": "byul/navsys/dstar_lite/dstar_lite_tick.h",
+            "resource": "dstar_lite_tick",
+            "operation": "copy",
+            "symbol": "dstar_lite_tick_copy",
+            "return_type": "dstar_lite_tick_t*",
+            "parameters": [
+              "const dstar_lite_tick_t* src"
+            ]
+          },
+          {
+            "header": "byul/navsys/dstar_lite/dstar_lite_tick.h",
+            "resource": "dstar_lite_tick",
+            "operation": "reset",
+            "symbol": "dstar_lite_tick_reset",
+            "return_type": "void",
+            "parameters": [
+              "dstar_lite_tick_t* dst"
+            ]
+          }
+        ],
+        "operation_kinds": [
+          "copy",
+          "create",
+          "destroy",
+          "reset"
+        ]
+      },
+      {
+        "resource": "fmm_cell",
+        "operations": [
+          {
+            "header": "byul/navsys/route_finder/fast_marching.h",
+            "resource": "fmm_cell",
+            "operation": "init",
+            "symbol": "fmm_cell_init",
+            "return_type": "void",
+            "parameters": [
+              "fmm_cell_t* out"
+            ]
+          },
+          {
+            "header": "byul/navsys/route_finder/fast_marching.h",
+            "resource": "fmm_cell",
+            "operation": "init",
+            "symbol": "fmm_cell_init_full",
+            "return_type": "void",
+            "parameters": [
+              "fmm_cell_t* out",
+              "fmm_state_t state",
+              "float value"
+            ]
+          }
+        ],
+        "operation_kinds": [
+          "init"
+        ]
+      },
+      {
+        "resource": "fmm_grid",
+        "operations": [
+          {
+            "header": "byul/navsys/route_finder/fast_marching.h",
+            "resource": "fmm_grid",
+            "operation": "create",
+            "symbol": "fmm_grid_create_full",
+            "return_type": "fmm_grid_t*",
+            "parameters": [
+              "const navgrid_t* m",
+              "const coord_t* start",
+              "cost_func cost_fn",
+              "float radius_limit",
+              "int max_retry"
+            ]
+          },
+          {
+            "header": "byul/navsys/route_finder/fast_marching.h",
+            "resource": "fmm_grid",
+            "operation": "destroy",
+            "symbol": "fmm_grid_destroy",
+            "return_type": "void",
+            "parameters": [
+              "fmm_grid_t* grid"
+            ]
+          }
+        ],
+        "operation_kinds": [
+          "create",
+          "destroy"
+        ]
+      },
+      {
+        "resource": "int",
+        "operations": [
+          {
+            "header": "byul/navsys/coord/coord_hash.h",
+            "resource": "int",
+            "operation": "copy",
+            "symbol": "int_copy",
+            "return_type": "void*",
+            "parameters": [
+              "const void* p"
+            ]
+          },
+          {
+            "header": "byul/navsys/coord/coord_hash.h",
+            "resource": "int",
+            "operation": "destroy",
+            "symbol": "int_destroy",
+            "return_type": "void",
+            "parameters": [
+              "void* p"
+            ]
+          }
+        ],
+        "operation_kinds": [
+          "copy",
+          "destroy"
+        ]
+      },
+      {
+        "resource": "maze",
+        "operations": [
+          {
+            "header": "byul/navsys/maze/maze_core.h",
+            "resource": "maze",
+            "operation": "create",
+            "symbol": "maze_create",
+            "return_type": "maze_t*",
+            "parameters": []
+          },
+          {
+            "header": "byul/navsys/maze/maze_core.h",
+            "resource": "maze",
+            "operation": "create",
+            "symbol": "maze_create_full",
+            "return_type": "maze_t*",
+            "parameters": [
+              "int x0",
+              "int y0",
+              "int width",
+              "int height"
+            ]
+          },
+          {
+            "header": "byul/navsys/maze/maze_core.h",
+            "resource": "maze",
+            "operation": "destroy",
+            "symbol": "maze_destroy",
+            "return_type": "void",
+            "parameters": [
+              "maze_t* maze"
+            ]
+          },
+          {
+            "header": "byul/navsys/maze/maze_core.h",
+            "resource": "maze",
+            "operation": "copy",
+            "symbol": "maze_copy",
+            "return_type": "maze_t*",
+            "parameters": [
+              "const maze_t* maze"
+            ]
+          }
+        ],
+        "operation_kinds": [
+          "copy",
+          "create",
+          "destroy"
+        ]
+      },
+      {
+        "resource": "navcell",
+        "operations": [
+          {
+            "header": "byul/navsys/navgrid/navcell.h",
+            "resource": "navcell",
+            "operation": "create",
+            "symbol": "navcell_create_full",
+            "return_type": "navcell_t*",
+            "parameters": [
+              "terrain_type_t terrain",
+              "int height"
+            ]
+          },
+          {
+            "header": "byul/navsys/navgrid/navcell.h",
+            "resource": "navcell",
+            "operation": "create",
+            "symbol": "navcell_create",
+            "return_type": "navcell_t*",
+            "parameters": []
+          },
+          {
+            "header": "byul/navsys/navgrid/navcell.h",
+            "resource": "navcell",
+            "operation": "destroy",
+            "symbol": "navcell_destroy",
+            "return_type": "void",
+            "parameters": [
+              "navcell_t* nc"
+            ]
+          },
+          {
+            "header": "byul/navsys/navgrid/navcell.h",
+            "resource": "navcell",
+            "operation": "copy",
+            "symbol": "navcell_copy",
+            "return_type": "navcell_t*",
+            "parameters": [
+              "const navcell_t* nc"
+            ]
+          },
+          {
+            "header": "byul/navsys/navgrid/navcell.h",
+            "resource": "navcell",
+            "operation": "init",
+            "symbol": "navcell_init_full",
+            "return_type": "int",
+            "parameters": [
+              "navcell_t* nc",
+              "terrain_type_t terrain",
+              "int height"
+            ]
+          },
+          {
+            "header": "byul/navsys/navgrid/navcell.h",
+            "resource": "navcell",
+            "operation": "init",
+            "symbol": "navcell_init",
+            "return_type": "int",
+            "parameters": [
+              "navcell_t* nc"
+            ]
+          }
+        ],
+        "operation_kinds": [
+          "copy",
+          "create",
+          "destroy",
+          "init"
+        ]
+      },
+      {
+        "resource": "navgrid",
+        "operations": [
+          {
+            "header": "byul/navsys/navgrid/navgrid.h",
+            "resource": "navgrid",
+            "operation": "create",
+            "symbol": "navgrid_create",
+            "return_type": "navgrid_t*",
+            "parameters": []
+          },
+          {
+            "header": "byul/navsys/navgrid/navgrid.h",
+            "resource": "navgrid",
+            "operation": "create",
+            "symbol": "navgrid_create_full",
+            "return_type": "navgrid_t*",
+            "parameters": [
+              "int width",
+              "int height",
+              "navgrid_dir_mode_t mode",
+              "is_coord_blocked_func is_coord_blocked_fn"
+            ]
+          },
+          {
+            "header": "byul/navsys/navgrid/navgrid.h",
+            "resource": "navgrid",
+            "operation": "destroy",
+            "symbol": "navgrid_destroy",
+            "return_type": "void",
+            "parameters": [
+              "navgrid_t* navgrid"
+            ]
+          },
+          {
+            "header": "byul/navsys/navgrid/navgrid.h",
+            "resource": "navgrid",
+            "operation": "copy",
+            "symbol": "navgrid_copy",
+            "return_type": "navgrid_t*",
+            "parameters": [
+              "const navgrid_t* navgrid"
+            ]
+          }
+        ],
+        "operation_kinds": [
+          "copy",
+          "create",
+          "destroy"
+        ]
+      },
+      {
+        "resource": "obstacle",
+        "operations": [
+          {
+            "header": "byul/navsys/obstacle/obstacle_core.h",
+            "resource": "obstacle",
+            "operation": "create",
+            "symbol": "obstacle_create",
+            "return_type": "obstacle_t*",
+            "parameters": []
+          },
+          {
+            "header": "byul/navsys/obstacle/obstacle_core.h",
+            "resource": "obstacle",
+            "operation": "create",
+            "symbol": "obstacle_create_full",
+            "return_type": "obstacle_t*",
+            "parameters": [
+              "int x0",
+              "int y0",
+              "int width",
+              "int height"
+            ]
+          },
+          {
+            "header": "byul/navsys/obstacle/obstacle_core.h",
+            "resource": "obstacle",
+            "operation": "destroy",
+            "symbol": "obstacle_destroy",
+            "return_type": "void",
+            "parameters": [
+              "obstacle_t* obstacle"
+            ]
+          },
+          {
+            "header": "byul/navsys/obstacle/obstacle_core.h",
+            "resource": "obstacle",
+            "operation": "copy",
+            "symbol": "obstacle_copy",
+            "return_type": "obstacle_t*",
+            "parameters": [
+              "const obstacle_t* obstacle"
+            ]
+          }
+        ],
+        "operation_kinds": [
+          "copy",
+          "create",
+          "destroy"
+        ]
+      },
+      {
+        "resource": "route",
+        "operations": [
+          {
+            "header": "byul/navsys/route/route.h",
+            "resource": "route",
+            "operation": "create",
+            "symbol": "route_create",
+            "return_type": "route_t*",
+            "parameters": []
+          },
+          {
+            "header": "byul/navsys/route/route.h",
+            "resource": "route",
+            "operation": "destroy",
+            "symbol": "route_destroy",
+            "return_type": "void",
+            "parameters": [
+              "route_t* p"
+            ]
+          },
+          {
+            "header": "byul/navsys/route/route.h",
+            "resource": "route",
+            "operation": "copy",
+            "symbol": "route_copy",
+            "return_type": "route_t*",
+            "parameters": [
+              "const route_t* p"
+            ]
+          }
+        ],
+        "operation_kinds": [
+          "copy",
+          "create",
+          "destroy"
+        ]
+      },
+      {
+        "resource": "route_finder",
+        "operations": [
+          {
+            "header": "byul/navsys/route_finder/route_finder.h",
+            "resource": "route_finder",
+            "operation": "create",
+            "symbol": "route_finder_create",
+            "return_type": "route_finder_t*",
+            "parameters": [
+              "navgrid_t* navgrid"
+            ]
+          },
+          {
+            "header": "byul/navsys/route_finder/route_finder.h",
+            "resource": "route_finder",
+            "operation": "create",
+            "symbol": "route_finder_create_full",
+            "return_type": "route_finder_t*",
+            "parameters": [
+              "navgrid_t* navgrid",
+              "const coord_t* start",
+              "const coord_t* goal",
+              "route_finder_type_t type",
+              "void* typedata",
+              "int max_retry",
+              "bool debug_mode_enabled",
+              "cost_func cost_fn",
+              "void* cost_fn_userdata",
+              "heuristic_func heuristic_fn",
+              "void* heuristic_fn_userdata"
+            ]
+          },
+          {
+            "header": "byul/navsys/route_finder/route_finder.h",
+            "resource": "route_finder",
+            "operation": "init",
+            "symbol": "route_finder_init",
+            "return_type": "int",
+            "parameters": [
+              "route_finder_t* out",
+              "navgrid_t* navgrid"
+            ]
+          },
+          {
+            "header": "byul/navsys/route_finder/route_finder.h",
+            "resource": "route_finder",
+            "operation": "init",
+            "symbol": "route_finder_init_full",
+            "return_type": "int",
+            "parameters": [
+              "route_finder_t* out",
+              "navgrid_t* navgrid",
+              "const coord_t* start",
+              "const coord_t* goal",
+              "route_finder_type_t type",
+              "void* typedata",
+              "int max_retry",
+              "bool debug_mode_enabled",
+              "cost_func cost_fn",
+              "void* cost_fn_userdata",
+              "heuristic_func heuristic_fn",
+              "void* heuristic_fn_userdata"
+            ]
+          },
+          {
+            "header": "byul/navsys/route_finder/route_finder.h",
+            "resource": "route_finder",
+            "operation": "free",
+            "symbol": "route_finder_free",
+            "return_type": "int",
+            "parameters": [
+              "route_finder_t* out"
+            ]
+          },
+          {
+            "header": "byul/navsys/route_finder/route_finder.h",
+            "resource": "route_finder",
+            "operation": "destroy",
+            "symbol": "route_finder_destroy",
+            "return_type": "int",
+            "parameters": [
+              "route_finder_t* a"
+            ]
+          },
+          {
+            "header": "byul/navsys/route_finder/route_finder.h",
+            "resource": "route_finder",
+            "operation": "copy",
+            "symbol": "route_finder_copy",
+            "return_type": "route_finder_t*",
+            "parameters": [
+              "const route_finder_t* src"
+            ]
+          }
+        ],
+        "operation_kinds": [
+          "copy",
+          "create",
+          "destroy",
+          "free",
+          "init"
+        ]
+      },
+      {
+        "resource": "rta_star_config",
+        "operations": [
+          {
+            "header": "byul/navsys/route_finder/rta_star.h",
+            "resource": "rta_star_config",
+            "operation": "create",
+            "symbol": "rta_star_config_create",
+            "return_type": "rta_star_config",
+            "parameters": []
+          },
+          {
+            "header": "byul/navsys/route_finder/rta_star.h",
+            "resource": "rta_star_config",
+            "operation": "create",
+            "symbol": "rta_star_config_create_full",
+            "return_type": "rta_star_config",
+            "parameters": [
+              "int depth_limit"
+            ]
+          },
+          {
+            "header": "byul/navsys/route_finder/rta_star.h",
+            "resource": "rta_star_config",
+            "operation": "destroy",
+            "symbol": "rta_star_config_destroy",
+            "return_type": "void",
+            "parameters": [
+              "rta_star_config cfg"
+            ]
+          }
+        ],
+        "operation_kinds": [
+          "create",
+          "destroy"
+        ]
+      },
+      {
+        "resource": "scalar",
+        "operations": [
+          {
+            "header": "byul/navsys/coord/coord_hash.h",
+            "resource": "scalar",
+            "operation": "copy",
+            "symbol": "scalar_copy",
+            "return_type": "void*",
+            "parameters": [
+              "const void* p"
+            ]
+          },
+          {
+            "header": "byul/navsys/coord/coord_hash.h",
+            "resource": "scalar",
+            "operation": "destroy",
+            "symbol": "scalar_destroy",
+            "return_type": "void",
+            "parameters": [
+              "void* p"
+            ]
+          }
+        ],
+        "operation_kinds": [
+          "copy",
+          "destroy"
+        ]
+      }
+    ],
+    "operations": [
+      {
+        "header": "byul/navsys/coord/coord.h",
+        "resource": "coord",
+        "operation": "create",
+        "symbol": "coord_create_full",
+        "return_type": "coord_t*",
+        "parameters": [
+          "int x",
+          "int y"
+        ]
+      },
+      {
+        "header": "byul/navsys/coord/coord.h",
+        "resource": "coord",
+        "operation": "create",
+        "symbol": "coord_create",
+        "return_type": "coord_t*",
+        "parameters": []
+      },
+      {
+        "header": "byul/navsys/coord/coord.h",
+        "resource": "coord",
+        "operation": "destroy",
+        "symbol": "coord_destroy",
+        "return_type": "void",
+        "parameters": [
+          "coord_t* c"
+        ]
+      },
+      {
+        "header": "byul/navsys/coord/coord.h",
+        "resource": "coord",
+        "operation": "copy",
+        "symbol": "coord_copy",
+        "return_type": "coord_t*",
+        "parameters": [
+          "const coord_t* c"
+        ]
+      },
+      {
+        "header": "byul/navsys/coord/coord.h",
+        "resource": "coord",
+        "operation": "init",
+        "symbol": "coord_init",
+        "return_type": "void",
+        "parameters": [
+          "coord_t* c"
+        ]
+      },
+      {
+        "header": "byul/navsys/coord/coord.h",
+        "resource": "coord",
+        "operation": "init",
+        "symbol": "coord_init_full",
+        "return_type": "void",
+        "parameters": [
+          "coord_t* c",
+          "int x",
+          "int y"
+        ]
+      },
+      {
+        "header": "byul/navsys/coord/coord_hash.h",
+        "resource": "int",
+        "operation": "copy",
+        "symbol": "int_copy",
+        "return_type": "void*",
+        "parameters": [
+          "const void* p"
+        ]
+      },
+      {
+        "header": "byul/navsys/coord/coord_hash.h",
+        "resource": "int",
+        "operation": "destroy",
+        "symbol": "int_destroy",
+        "return_type": "void",
+        "parameters": [
+          "void* p"
+        ]
+      },
+      {
+        "header": "byul/navsys/coord/coord_hash.h",
+        "resource": "scalar",
+        "operation": "copy",
+        "symbol": "scalar_copy",
+        "return_type": "void*",
+        "parameters": [
+          "const void* p"
+        ]
+      },
+      {
+        "header": "byul/navsys/coord/coord_hash.h",
+        "resource": "scalar",
+        "operation": "destroy",
+        "symbol": "scalar_destroy",
+        "return_type": "void",
+        "parameters": [
+          "void* p"
+        ]
+      },
+      {
+        "header": "byul/navsys/coord/coord_hash.h",
+        "resource": "double",
+        "operation": "copy",
+        "symbol": "double_copy",
+        "return_type": "void*",
+        "parameters": [
+          "const void* p"
+        ]
+      },
+      {
+        "header": "byul/navsys/coord/coord_hash.h",
+        "resource": "double",
+        "operation": "destroy",
+        "symbol": "double_destroy",
+        "return_type": "void",
+        "parameters": [
+          "void* p"
+        ]
+      },
+      {
+        "header": "byul/navsys/coord/coord_hash.h",
+        "resource": "coord_hash",
+        "operation": "create",
+        "symbol": "coord_hash_create",
+        "return_type": "coord_hash_t*",
+        "parameters": []
+      },
+      {
+        "header": "byul/navsys/coord/coord_hash.h",
+        "resource": "coord_hash",
+        "operation": "create",
+        "symbol": "coord_hash_create_full",
+        "return_type": "coord_hash_t*",
+        "parameters": [
+          "coord_hash_copy_func copy_func",
+          "coord_hash_destroy_func destroy_func"
+        ]
+      },
+      {
+        "header": "byul/navsys/coord/coord_hash.h",
+        "resource": "coord_hash",
+        "operation": "destroy",
+        "symbol": "coord_hash_destroy",
+        "return_type": "void",
+        "parameters": [
+          "coord_hash_t* hash"
+        ]
+      },
+      {
+        "header": "byul/navsys/coord/coord_hash.h",
+        "resource": "coord_hash",
+        "operation": "copy",
+        "symbol": "coord_hash_copy",
+        "return_type": "coord_hash_t*",
+        "parameters": [
+          "const coord_hash_t* original"
+        ]
+      },
+      {
+        "header": "byul/navsys/coord/coord_hash.h",
+        "resource": "coord_hash_iter",
+        "operation": "create",
+        "symbol": "coord_hash_iter_create",
+        "return_type": "coord_hash_iter_t*",
+        "parameters": [
+          "const coord_hash_t* hash"
+        ]
+      },
+      {
+        "header": "byul/navsys/coord/coord_hash.h",
+        "resource": "coord_hash_iter",
+        "operation": "destroy",
+        "symbol": "coord_hash_iter_destroy",
+        "return_type": "void",
+        "parameters": [
+          "coord_hash_iter_t* iter"
+        ]
+      },
+      {
+        "header": "byul/navsys/coord/coord_list.h",
+        "resource": "coord_list",
+        "operation": "create",
+        "symbol": "coord_list_create",
+        "return_type": "coord_list_t*",
+        "parameters": []
+      },
+      {
+        "header": "byul/navsys/coord/coord_list.h",
+        "resource": "coord_list",
+        "operation": "destroy",
+        "symbol": "coord_list_destroy",
+        "return_type": "void",
+        "parameters": [
+          "coord_list_t* list"
+        ]
+      },
+      {
+        "header": "byul/navsys/coord/coord_list.h",
+        "resource": "coord_list",
+        "operation": "copy",
+        "symbol": "coord_list_copy",
+        "return_type": "coord_list_t*",
+        "parameters": [
+          "const coord_list_t* list"
+        ]
+      },
+      {
+        "header": "byul/navsys/coord/cost_coord_pq.h",
+        "resource": "cost_coord_pq",
+        "operation": "create",
+        "symbol": "cost_coord_pq_create",
+        "return_type": "cost_coord_pq_t*",
+        "parameters": []
+      },
+      {
+        "header": "byul/navsys/coord/cost_coord_pq.h",
+        "resource": "cost_coord_pq",
+        "operation": "destroy",
+        "symbol": "cost_coord_pq_destroy",
+        "return_type": "void",
+        "parameters": [
+          "cost_coord_pq_t* pq"
+        ]
+      },
+      {
+        "header": "byul/navsys/dstar_lite/dstar_lite.h",
+        "resource": "dstar_lite",
+        "operation": "create",
+        "symbol": "dstar_lite_create",
+        "return_type": "dstar_lite_t*",
+        "parameters": [
+          "navgrid_t* navgrid"
+        ]
+      },
+      {
+        "header": "byul/navsys/dstar_lite/dstar_lite.h",
+        "resource": "dstar_lite",
+        "operation": "create",
+        "symbol": "dstar_lite_create_full",
+        "return_type": "dstar_lite_t*",
+        "parameters": [
+          "navgrid_t* navgrid",
+          "const coord_t* start",
+          "const coord_t* goal",
+          "cost_func cost_fn",
+          "heuristic_func heuristic_fn",
+          "bool debug_mode_enabled"
+        ]
+      },
+      {
+        "header": "byul/navsys/dstar_lite/dstar_lite.h",
+        "resource": "dstar_lite",
+        "operation": "destroy",
+        "symbol": "dstar_lite_destroy",
+        "return_type": "void",
+        "parameters": [
+          "dstar_lite_t* dsl"
+        ]
+      },
+      {
+        "header": "byul/navsys/dstar_lite/dstar_lite.h",
+        "resource": "dstar_lite",
+        "operation": "copy",
+        "symbol": "dstar_lite_copy",
+        "return_type": "dstar_lite_t*",
+        "parameters": [
+          "const dstar_lite_t* src"
+        ]
+      },
+      {
+        "header": "byul/navsys/dstar_lite/dstar_lite.h",
+        "resource": "dstar_lite",
+        "operation": "reset",
+        "symbol": "dstar_lite_reset",
+        "return_type": "void",
+        "parameters": [
+          "dstar_lite_t* dsl"
+        ]
+      },
+      {
+        "header": "byul/navsys/dstar_lite/dstar_lite.h",
+        "resource": "dstar_lite",
+        "operation": "init",
+        "symbol": "dstar_lite_init",
+        "return_type": "void",
+        "parameters": [
+          "dstar_lite_t* dsl"
+        ]
+      },
+      {
+        "header": "byul/navsys/dstar_lite/dstar_lite_key.h",
+        "resource": "dstar_lite_key",
+        "operation": "create",
+        "symbol": "dstar_lite_key_create",
+        "return_type": "dstar_lite_key_t*",
+        "parameters": []
+      },
+      {
+        "header": "byul/navsys/dstar_lite/dstar_lite_key.h",
+        "resource": "dstar_lite_key",
+        "operation": "create",
+        "symbol": "dstar_lite_key_create_full",
+        "return_type": "dstar_lite_key_t*",
+        "parameters": [
+          "float k1",
+          "float k2"
+        ]
+      },
+      {
+        "header": "byul/navsys/dstar_lite/dstar_lite_key.h",
+        "resource": "dstar_lite_key",
+        "operation": "copy",
+        "symbol": "dstar_lite_key_copy",
+        "return_type": "dstar_lite_key_t*",
+        "parameters": [
+          "const dstar_lite_key_t* key"
+        ]
+      },
+      {
+        "header": "byul/navsys/dstar_lite/dstar_lite_key.h",
+        "resource": "dstar_lite_key",
+        "operation": "destroy",
+        "symbol": "dstar_lite_key_destroy",
+        "return_type": "void",
+        "parameters": [
+          "dstar_lite_key_t* key"
+        ]
+      },
+      {
+        "header": "byul/navsys/dstar_lite/dstar_lite_pqueue.h",
+        "resource": "dstar_lite_pqueue",
+        "operation": "create",
+        "symbol": "dstar_lite_pqueue_create",
+        "return_type": "dstar_lite_pqueue_t*",
+        "parameters": []
+      },
+      {
+        "header": "byul/navsys/dstar_lite/dstar_lite_pqueue.h",
+        "resource": "dstar_lite_pqueue",
+        "operation": "destroy",
+        "symbol": "dstar_lite_pqueue_destroy",
+        "return_type": "void",
+        "parameters": [
+          "dstar_lite_pqueue_t* q"
+        ]
+      },
+      {
+        "header": "byul/navsys/dstar_lite/dstar_lite_pqueue.h",
+        "resource": "dstar_lite_pqueue",
+        "operation": "copy",
+        "symbol": "dstar_lite_pqueue_copy",
+        "return_type": "dstar_lite_pqueue_t*",
+        "parameters": [
+          "const dstar_lite_pqueue_t* src"
+        ]
+      },
+      {
+        "header": "byul/navsys/dstar_lite/dstar_lite_tick.h",
+        "resource": "dstar_lite_tick",
+        "operation": "create",
+        "symbol": "dstar_lite_tick_create",
+        "return_type": "dstar_lite_tick_t*",
+        "parameters": [
+          "dstar_lite_t* dsl"
+        ]
+      },
+      {
+        "header": "byul/navsys/dstar_lite/dstar_lite_tick.h",
+        "resource": "dstar_lite_tick",
+        "operation": "create",
+        "symbol": "dstar_lite_tick_create_full",
+        "return_type": "dstar_lite_tick_t*",
+        "parameters": [
+          "dstar_lite_t* dsl",
+          "float max_time"
+        ]
+      },
+      {
+        "header": "byul/navsys/dstar_lite/dstar_lite_tick.h",
+        "resource": "dstar_lite_tick",
+        "operation": "destroy",
+        "symbol": "dstar_lite_tick_destroy",
+        "return_type": "void",
+        "parameters": [
+          "dstar_lite_tick_t* dst"
+        ]
+      },
+      {
+        "header": "byul/navsys/dstar_lite/dstar_lite_tick.h",
+        "resource": "dstar_lite_tick",
+        "operation": "copy",
+        "symbol": "dstar_lite_tick_copy",
+        "return_type": "dstar_lite_tick_t*",
+        "parameters": [
+          "const dstar_lite_tick_t* src"
+        ]
+      },
+      {
+        "header": "byul/navsys/dstar_lite/dstar_lite_tick.h",
+        "resource": "dstar_lite_tick",
+        "operation": "reset",
+        "symbol": "dstar_lite_tick_reset",
+        "return_type": "void",
+        "parameters": [
+          "dstar_lite_tick_t* dst"
+        ]
+      },
+      {
+        "header": "byul/navsys/maze/maze_core.h",
+        "resource": "maze",
+        "operation": "create",
+        "symbol": "maze_create",
+        "return_type": "maze_t*",
+        "parameters": []
+      },
+      {
+        "header": "byul/navsys/maze/maze_core.h",
+        "resource": "maze",
+        "operation": "create",
+        "symbol": "maze_create_full",
+        "return_type": "maze_t*",
+        "parameters": [
+          "int x0",
+          "int y0",
+          "int width",
+          "int height"
+        ]
+      },
+      {
+        "header": "byul/navsys/maze/maze_core.h",
+        "resource": "maze",
+        "operation": "destroy",
+        "symbol": "maze_destroy",
+        "return_type": "void",
+        "parameters": [
+          "maze_t* maze"
+        ]
+      },
+      {
+        "header": "byul/navsys/maze/maze_core.h",
+        "resource": "maze",
+        "operation": "copy",
+        "symbol": "maze_copy",
+        "return_type": "maze_t*",
+        "parameters": [
+          "const maze_t* maze"
+        ]
+      },
+      {
+        "header": "byul/navsys/navgrid/navcell.h",
+        "resource": "navcell",
+        "operation": "create",
+        "symbol": "navcell_create_full",
+        "return_type": "navcell_t*",
+        "parameters": [
+          "terrain_type_t terrain",
+          "int height"
+        ]
+      },
+      {
+        "header": "byul/navsys/navgrid/navcell.h",
+        "resource": "navcell",
+        "operation": "create",
+        "symbol": "navcell_create",
+        "return_type": "navcell_t*",
+        "parameters": []
+      },
+      {
+        "header": "byul/navsys/navgrid/navcell.h",
+        "resource": "navcell",
+        "operation": "destroy",
+        "symbol": "navcell_destroy",
+        "return_type": "void",
+        "parameters": [
+          "navcell_t* nc"
+        ]
+      },
+      {
+        "header": "byul/navsys/navgrid/navcell.h",
+        "resource": "navcell",
+        "operation": "copy",
+        "symbol": "navcell_copy",
+        "return_type": "navcell_t*",
+        "parameters": [
+          "const navcell_t* nc"
+        ]
+      },
+      {
+        "header": "byul/navsys/navgrid/navcell.h",
+        "resource": "navcell",
+        "operation": "init",
+        "symbol": "navcell_init_full",
+        "return_type": "int",
+        "parameters": [
+          "navcell_t* nc",
+          "terrain_type_t terrain",
+          "int height"
+        ]
+      },
+      {
+        "header": "byul/navsys/navgrid/navcell.h",
+        "resource": "navcell",
+        "operation": "init",
+        "symbol": "navcell_init",
+        "return_type": "int",
+        "parameters": [
+          "navcell_t* nc"
+        ]
+      },
+      {
+        "header": "byul/navsys/navgrid/navgrid.h",
+        "resource": "navgrid",
+        "operation": "create",
+        "symbol": "navgrid_create",
+        "return_type": "navgrid_t*",
+        "parameters": []
+      },
+      {
+        "header": "byul/navsys/navgrid/navgrid.h",
+        "resource": "navgrid",
+        "operation": "create",
+        "symbol": "navgrid_create_full",
+        "return_type": "navgrid_t*",
+        "parameters": [
+          "int width",
+          "int height",
+          "navgrid_dir_mode_t mode",
+          "is_coord_blocked_func is_coord_blocked_fn"
+        ]
+      },
+      {
+        "header": "byul/navsys/navgrid/navgrid.h",
+        "resource": "navgrid",
+        "operation": "destroy",
+        "symbol": "navgrid_destroy",
+        "return_type": "void",
+        "parameters": [
+          "navgrid_t* navgrid"
+        ]
+      },
+      {
+        "header": "byul/navsys/navgrid/navgrid.h",
+        "resource": "navgrid",
+        "operation": "copy",
+        "symbol": "navgrid_copy",
+        "return_type": "navgrid_t*",
+        "parameters": [
+          "const navgrid_t* navgrid"
+        ]
+      },
+      {
+        "header": "byul/navsys/obstacle/obstacle_core.h",
+        "resource": "obstacle",
+        "operation": "create",
+        "symbol": "obstacle_create",
+        "return_type": "obstacle_t*",
+        "parameters": []
+      },
+      {
+        "header": "byul/navsys/obstacle/obstacle_core.h",
+        "resource": "obstacle",
+        "operation": "create",
+        "symbol": "obstacle_create_full",
+        "return_type": "obstacle_t*",
+        "parameters": [
+          "int x0",
+          "int y0",
+          "int width",
+          "int height"
+        ]
+      },
+      {
+        "header": "byul/navsys/obstacle/obstacle_core.h",
+        "resource": "obstacle",
+        "operation": "destroy",
+        "symbol": "obstacle_destroy",
+        "return_type": "void",
+        "parameters": [
+          "obstacle_t* obstacle"
+        ]
+      },
+      {
+        "header": "byul/navsys/obstacle/obstacle_core.h",
+        "resource": "obstacle",
+        "operation": "copy",
+        "symbol": "obstacle_copy",
+        "return_type": "obstacle_t*",
+        "parameters": [
+          "const obstacle_t* obstacle"
+        ]
+      },
+      {
+        "header": "byul/navsys/route/route.h",
+        "resource": "route",
+        "operation": "create",
+        "symbol": "route_create",
+        "return_type": "route_t*",
+        "parameters": []
+      },
+      {
+        "header": "byul/navsys/route/route.h",
+        "resource": "route",
+        "operation": "destroy",
+        "symbol": "route_destroy",
+        "return_type": "void",
+        "parameters": [
+          "route_t* p"
+        ]
+      },
+      {
+        "header": "byul/navsys/route/route.h",
+        "resource": "route",
+        "operation": "copy",
+        "symbol": "route_copy",
+        "return_type": "route_t*",
+        "parameters": [
+          "const route_t* p"
+        ]
+      },
+      {
+        "header": "byul/navsys/route_finder/fast_marching.h",
+        "resource": "fmm_cell",
+        "operation": "init",
+        "symbol": "fmm_cell_init",
+        "return_type": "void",
+        "parameters": [
+          "fmm_cell_t* out"
+        ]
+      },
+      {
+        "header": "byul/navsys/route_finder/fast_marching.h",
+        "resource": "fmm_cell",
+        "operation": "init",
+        "symbol": "fmm_cell_init_full",
+        "return_type": "void",
+        "parameters": [
+          "fmm_cell_t* out",
+          "fmm_state_t state",
+          "float value"
+        ]
+      },
+      {
+        "header": "byul/navsys/route_finder/fast_marching.h",
+        "resource": "fmm_grid",
+        "operation": "create",
+        "symbol": "fmm_grid_create_full",
+        "return_type": "fmm_grid_t*",
+        "parameters": [
+          "const navgrid_t* m",
+          "const coord_t* start",
+          "cost_func cost_fn",
+          "float radius_limit",
+          "int max_retry"
+        ]
+      },
+      {
+        "header": "byul/navsys/route_finder/fast_marching.h",
+        "resource": "fmm_grid",
+        "operation": "destroy",
+        "symbol": "fmm_grid_destroy",
+        "return_type": "void",
+        "parameters": [
+          "fmm_grid_t* grid"
+        ]
+      },
+      {
+        "header": "byul/navsys/route_finder/route_finder.h",
+        "resource": "route_finder",
+        "operation": "create",
+        "symbol": "route_finder_create",
+        "return_type": "route_finder_t*",
+        "parameters": [
+          "navgrid_t* navgrid"
+        ]
+      },
+      {
+        "header": "byul/navsys/route_finder/route_finder.h",
+        "resource": "route_finder",
+        "operation": "create",
+        "symbol": "route_finder_create_full",
+        "return_type": "route_finder_t*",
+        "parameters": [
+          "navgrid_t* navgrid",
+          "const coord_t* start",
+          "const coord_t* goal",
+          "route_finder_type_t type",
+          "void* typedata",
+          "int max_retry",
+          "bool debug_mode_enabled",
+          "cost_func cost_fn",
+          "void* cost_fn_userdata",
+          "heuristic_func heuristic_fn",
+          "void* heuristic_fn_userdata"
+        ]
+      },
+      {
+        "header": "byul/navsys/route_finder/route_finder.h",
+        "resource": "route_finder",
+        "operation": "init",
+        "symbol": "route_finder_init",
+        "return_type": "int",
+        "parameters": [
+          "route_finder_t* out",
+          "navgrid_t* navgrid"
+        ]
+      },
+      {
+        "header": "byul/navsys/route_finder/route_finder.h",
+        "resource": "route_finder",
+        "operation": "init",
+        "symbol": "route_finder_init_full",
+        "return_type": "int",
+        "parameters": [
+          "route_finder_t* out",
+          "navgrid_t* navgrid",
+          "const coord_t* start",
+          "const coord_t* goal",
+          "route_finder_type_t type",
+          "void* typedata",
+          "int max_retry",
+          "bool debug_mode_enabled",
+          "cost_func cost_fn",
+          "void* cost_fn_userdata",
+          "heuristic_func heuristic_fn",
+          "void* heuristic_fn_userdata"
+        ]
+      },
+      {
+        "header": "byul/navsys/route_finder/route_finder.h",
+        "resource": "route_finder",
+        "operation": "free",
+        "symbol": "route_finder_free",
+        "return_type": "int",
+        "parameters": [
+          "route_finder_t* out"
+        ]
+      },
+      {
+        "header": "byul/navsys/route_finder/route_finder.h",
+        "resource": "route_finder",
+        "operation": "destroy",
+        "symbol": "route_finder_destroy",
+        "return_type": "int",
+        "parameters": [
+          "route_finder_t* a"
+        ]
+      },
+      {
+        "header": "byul/navsys/route_finder/route_finder.h",
+        "resource": "route_finder",
+        "operation": "copy",
+        "symbol": "route_finder_copy",
+        "return_type": "route_finder_t*",
+        "parameters": [
+          "const route_finder_t* src"
+        ]
+      },
+      {
+        "header": "byul/navsys/route_finder/rta_star.h",
+        "resource": "rta_star_config",
+        "operation": "create",
+        "symbol": "rta_star_config_create",
+        "return_type": "rta_star_config",
+        "parameters": []
+      },
+      {
+        "header": "byul/navsys/route_finder/rta_star.h",
+        "resource": "rta_star_config",
+        "operation": "create",
+        "symbol": "rta_star_config_create_full",
+        "return_type": "rta_star_config",
+        "parameters": [
+          "int depth_limit"
+        ]
+      },
+      {
+        "header": "byul/navsys/route_finder/rta_star.h",
+        "resource": "rta_star_config",
+        "operation": "destroy",
+        "symbol": "rta_star_config_destroy",
+        "return_type": "void",
+        "parameters": [
+          "rta_star_config cfg"
+        ]
+      }
+    ]
+  },
+  "callback_bindings": [
+    {
+      "family": "dstar_lite",
+      "slot": "changed_coords_callback",
+      "operations": [
+        {
+          "header": "byul/navsys/dstar_lite/dstar_lite.h",
+          "family": "dstar_lite",
+          "slot": "changed_coords_callback",
+          "access": "get",
+          "component": "function",
+          "symbol": "dstar_lite_get_changed_coords_func"
+        },
+        {
+          "header": "byul/navsys/dstar_lite/dstar_lite.h",
+          "family": "dstar_lite",
+          "slot": "changed_coords_callback",
+          "access": "set",
+          "component": "function",
+          "symbol": "dstar_lite_set_changed_coords_func"
+        },
+        {
+          "header": "byul/navsys/dstar_lite/dstar_lite.h",
+          "family": "dstar_lite",
+          "slot": "changed_coords_callback",
+          "access": "get",
+          "component": "userdata",
+          "symbol": "dstar_lite_get_changed_coords_func_userdata"
+        },
+        {
+          "header": "byul/navsys/dstar_lite/dstar_lite.h",
+          "family": "dstar_lite",
+          "slot": "changed_coords_callback",
+          "access": "set",
+          "component": "userdata",
+          "symbol": "dstar_lite_set_changed_coords_func_userdata"
+        }
+      ],
+      "setter_components": [
+        "function",
+        "userdata"
+      ],
+      "current_atomicity": "split-function-and-userdata-setters"
+    },
+    {
+      "family": "dstar_lite",
+      "slot": "cost_callback",
+      "operations": [
+        {
+          "header": "byul/navsys/dstar_lite/dstar_lite.h",
+          "family": "dstar_lite",
+          "slot": "cost_callback",
+          "access": "get",
+          "component": "function",
+          "symbol": "dstar_lite_get_cost_func"
+        },
+        {
+          "header": "byul/navsys/dstar_lite/dstar_lite.h",
+          "family": "dstar_lite",
+          "slot": "cost_callback",
+          "access": "set",
+          "component": "function",
+          "symbol": "dstar_lite_set_cost_func"
+        },
+        {
+          "header": "byul/navsys/dstar_lite/dstar_lite.h",
+          "family": "dstar_lite",
+          "slot": "cost_callback",
+          "access": "get",
+          "component": "userdata",
+          "symbol": "dstar_lite_get_cost_func_userdata"
+        },
+        {
+          "header": "byul/navsys/dstar_lite/dstar_lite.h",
+          "family": "dstar_lite",
+          "slot": "cost_callback",
+          "access": "set",
+          "component": "userdata",
+          "symbol": "dstar_lite_set_cost_func_userdata"
+        }
+      ],
+      "setter_components": [
+        "function",
+        "userdata"
+      ],
+      "current_atomicity": "split-function-and-userdata-setters"
+    },
+    {
+      "family": "dstar_lite",
+      "slot": "heuristic_callback",
+      "operations": [
+        {
+          "header": "byul/navsys/dstar_lite/dstar_lite.h",
+          "family": "dstar_lite",
+          "slot": "heuristic_callback",
+          "access": "get",
+          "component": "function",
+          "symbol": "dstar_lite_get_heuristic_func"
+        },
+        {
+          "header": "byul/navsys/dstar_lite/dstar_lite.h",
+          "family": "dstar_lite",
+          "slot": "heuristic_callback",
+          "access": "set",
+          "component": "function",
+          "symbol": "dstar_lite_set_heuristic_func"
+        },
+        {
+          "header": "byul/navsys/dstar_lite/dstar_lite.h",
+          "family": "dstar_lite",
+          "slot": "heuristic_callback",
+          "access": "get",
+          "component": "userdata",
+          "symbol": "dstar_lite_get_heuristic_func_userdata"
+        },
+        {
+          "header": "byul/navsys/dstar_lite/dstar_lite.h",
+          "family": "dstar_lite",
+          "slot": "heuristic_callback",
+          "access": "set",
+          "component": "userdata",
+          "symbol": "dstar_lite_set_heuristic_func_userdata"
+        }
+      ],
+      "setter_components": [
+        "function",
+        "userdata"
+      ],
+      "current_atomicity": "split-function-and-userdata-setters"
+    },
+    {
+      "family": "dstar_lite",
+      "slot": "move_callback",
+      "operations": [
+        {
+          "header": "byul/navsys/dstar_lite/dstar_lite.h",
+          "family": "dstar_lite",
+          "slot": "move_callback",
+          "access": "get",
+          "component": "function",
+          "symbol": "dstar_lite_get_move_func"
+        },
+        {
+          "header": "byul/navsys/dstar_lite/dstar_lite.h",
+          "family": "dstar_lite",
+          "slot": "move_callback",
+          "access": "set",
+          "component": "function",
+          "symbol": "dstar_lite_set_move_func"
+        },
+        {
+          "header": "byul/navsys/dstar_lite/dstar_lite.h",
+          "family": "dstar_lite",
+          "slot": "move_callback",
+          "access": "get",
+          "component": "userdata",
+          "symbol": "dstar_lite_get_move_func_userdata"
+        },
+        {
+          "header": "byul/navsys/dstar_lite/dstar_lite.h",
+          "family": "dstar_lite",
+          "slot": "move_callback",
+          "access": "set",
+          "component": "userdata",
+          "symbol": "dstar_lite_set_move_func_userdata"
+        }
+      ],
+      "setter_components": [
+        "function",
+        "userdata"
+      ],
+      "current_atomicity": "split-function-and-userdata-setters"
+    },
+    {
+      "family": "navgrid",
+      "slot": "is_coord_blocked_callback",
+      "operations": [
+        {
+          "header": "byul/navsys/navgrid/navgrid.h",
+          "family": "navgrid",
+          "slot": "is_coord_blocked_callback",
+          "access": "set",
+          "component": "function",
+          "symbol": "navgrid_set_is_coord_blocked_func"
+        },
+        {
+          "header": "byul/navsys/navgrid/navgrid.h",
+          "family": "navgrid",
+          "slot": "is_coord_blocked_callback",
+          "access": "get",
+          "component": "function",
+          "symbol": "navgrid_get_is_coord_blocked_fn"
+        }
+      ],
+      "setter_components": [
+        "function"
+      ],
+      "current_atomicity": "partial-export-surface"
+    },
+    {
+      "family": "route_finder",
+      "slot": "cost_callback",
+      "operations": [
+        {
+          "header": "byul/navsys/route_finder/route_finder.h",
+          "family": "route_finder",
+          "slot": "cost_callback",
+          "access": "set",
+          "component": "function",
+          "symbol": "route_finder_set_cost_func"
+        },
+        {
+          "header": "byul/navsys/route_finder/route_finder.h",
+          "family": "route_finder",
+          "slot": "cost_callback",
+          "access": "get",
+          "component": "function",
+          "symbol": "route_finder_get_cost_func"
+        },
+        {
+          "header": "byul/navsys/route_finder/route_finder.h",
+          "family": "route_finder",
+          "slot": "cost_callback",
+          "access": "set",
+          "component": "userdata",
+          "symbol": "route_finder_set_cost_fn_userdata"
+        },
+        {
+          "header": "byul/navsys/route_finder/route_finder.h",
+          "family": "route_finder",
+          "slot": "cost_callback",
+          "access": "get",
+          "component": "userdata",
+          "symbol": "route_finder_get_cost_fn_userdata"
+        }
+      ],
+      "setter_components": [
+        "function",
+        "userdata"
+      ],
+      "current_atomicity": "split-function-and-userdata-setters"
+    },
+    {
+      "family": "route_finder",
+      "slot": "heuristic_callback",
+      "operations": [
+        {
+          "header": "byul/navsys/route_finder/route_finder.h",
+          "family": "route_finder",
+          "slot": "heuristic_callback",
+          "access": "set",
+          "component": "function",
+          "symbol": "route_finder_set_heuristic_func"
+        },
+        {
+          "header": "byul/navsys/route_finder/route_finder.h",
+          "family": "route_finder",
+          "slot": "heuristic_callback",
+          "access": "get",
+          "component": "function",
+          "symbol": "route_finder_get_heuristic_func"
+        },
+        {
+          "header": "byul/navsys/route_finder/route_finder.h",
+          "family": "route_finder",
+          "slot": "heuristic_callback",
+          "access": "set",
+          "component": "userdata",
+          "symbol": "route_finder_set_heuristic_fn_userdata"
+        },
+        {
+          "header": "byul/navsys/route_finder/route_finder.h",
+          "family": "route_finder",
+          "slot": "heuristic_callback",
+          "access": "get",
+          "component": "userdata",
+          "symbol": "route_finder_get_heuristic_fn_userdata"
+        }
+      ],
+      "setter_components": [
+        "function",
+        "userdata"
+      ],
+      "current_atomicity": "split-function-and-userdata-setters"
     }
   ]
 }
