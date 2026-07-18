@@ -1,0 +1,27 @@
+{
+  "header": "byul/navsys/route_finder/route_finder.h",
+  "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-finder-route-finder.org",
+  "category": "correctness",
+  "layer": "wrapper",
+  "revision": "744c413bb3b0317d087d7db03c929c90766d58c8",
+  "host": "windows-11-x64",
+  "target": "windows-x64",
+  "toolchain": "cpython-3.13-msvc-root-shared",
+  "configuration": "Release",
+  "command": [
+    "tools/python/.venv/Scripts/python.exe",
+    "tools/python/byul_wrapper/run_tests.py",
+    "--library",
+    "build_win_msvc/bin/Release/byul.dll",
+    "--quiet"
+  ],
+  "artifacts": [
+    "docs/ko/todo/navsys/evidence/route-finder/744c413/execution-correctness.result.json"
+  ],
+  "verdict": "pass",
+  "assertions": 59,
+  "limitations": [
+    "The 59 passed tests are the complete wrapper suite, not a route-finder-only selection.",
+    "Installed SDK consumer execution is not covered by this record."
+  ]
+}

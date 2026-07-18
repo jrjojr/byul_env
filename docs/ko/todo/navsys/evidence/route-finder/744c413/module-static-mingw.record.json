@@ -1,0 +1,23 @@
+{
+  "header": "byul/navsys/route_finder/route_finder.h",
+  "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-finder-route-finder.org",
+  "category": "correctness",
+  "layer": "module_static",
+  "revision": "744c413bb3b0317d087d7db03c929c90766d58c8",
+  "host": "windows-11-x64",
+  "target": "windows-x64",
+  "toolchain": "mingw-gcc-16.1",
+  "configuration": "Release",
+  "command": [
+    "build_header_refactor_mingw/bin/test_route_finder.exe"
+  ],
+  "artifacts": [
+    "docs/ko/todo/navsys/evidence/route-finder/744c413/execution-correctness.result.json"
+  ],
+  "verdict": "pass",
+  "assertions": 381,
+  "limitations": [
+    "Execution requires C:/msys64/mingw64/bin on PATH.",
+    "This execution did not use a Windows sanitizer configuration."
+  ]
+}

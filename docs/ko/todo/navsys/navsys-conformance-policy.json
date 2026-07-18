@@ -95,6 +95,13 @@
           "tools/python/byul_wrapper/run_tests.py",
           "--library",
           "<shared-library>"
+        ],
+        [
+          "<python>",
+          "tools/python/byul_wrapper/run_tests.py",
+          "--library",
+          "<shared-library>",
+          "--quiet"
         ]
       ]
     },

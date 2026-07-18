@@ -747,3 +747,13 @@ revision/header 일치를 함께 검사한다. 첫 실제 record는 =route_finde
 =tools/tests= 59개가 통과했고 signature inventory 46 header/453 symbol을 유지했다.
 재현 command는 =tools/python/.venv/Scripts/python.exe -m pytest
 tools/tests/test_navsys_conformance_policy.py -q=이며 현재 evidence record 2개를 검사한다.
+
+2026-07-19에는 correctness category의 첫 실행 matrix를 revision
+=744c413bb3b0317d087d7db03c929c90766d58c8=에 고정했다. MSVC와 MinGW
+module-static =test_route_finder=는 각각 40 test case/381 assertion을 통과했고,
+wrapper layer는 MSVC root =byul.dll=을 명시적으로 주입한 전체 suite 59개가
+통과했다. 세 record는
+[[file:evidence/route-finder/744c413/execution-correctness.result.json][공유 correctness result artifact]]를 참조하며 기존 root-shared ABI record와
+verdict를 섞지 않는다. Wrapper 수치는 route-finder 전용 선택이 아닌 전체 suite이고
+Windows sanitizer와 installed SDK consumer는 이번 실행의 증거가 아니라는
+limitation을 유지한다. Evidence tree는 이제 record 5개를 검사한다.
