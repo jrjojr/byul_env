@@ -150,21 +150,27 @@ Python test discovery에 등록한다.
 
 * 목표 공통 C ABI Vocabulary
 
-아래 선언은 방향을 고정하기 위한 후보다. ABI owner, 정확한 enum 값과 공통 =byul=
-foundation 승격 여부는 구현 전에 별도 decision record로 확정한다.
+아래 선언은 공통 decision record
+[[file:navsys-abi-vocabulary.json][navsys-abi-vocabulary.json]]가 승인한 방향을 사람이
+검토할 수 있게 표현한다. 실제 public header와 symbol은 이 문서의 1단계를 완료하기
+전에는 추가하지 않는다.
 
 공통 type을 기존 algorithm/component header 중 하나에 임의로 넣지 않는다. 다음 ownership
 후보를 비교하고 include DAG가 가장 작은 foundation을 선택한다.
 
-| 후보 | 장점 | 위험/판정 기준 |
-|------+------|----------------|
-| 새 =byul/navsys/navsys_status.h= | Navsys에 한정되고 모든 component가 동일 status 사용 | 새 public header와 ABI inventory가 생김 |
-| 새 =byul/byul_status.h= | 다른 module도 동일 error vocabulary 재사용 | Navsys 작업이 root ABI 정책을 선점할 수 있음 |
-| family별 status enum | 작은 국소 변경 | wrapper mapping과 cross-family operation이 다시 분열 |
+| 후보 | 판정 | 근거 |
+|------+------+------|
+| 새 =byul/navsys/navsys_status.h= | 승인 | Navsys public-foundation으로 범위를 제한하고 모든 component가 동일 status를 사용한다. |
+| 새 =byul/byul_status.h= | 기각 | Navsys 단계가 root 전체 ABI 정책을 선점한다. |
+| family별 status enum | 기각 | wrapper mapping과 cross-family operation이 다시 분열된다. |
 
 새 foundation header를 선택하면 최초 43개 inventory의 "누락"으로 취급하지 말고
 =generated-by-refactor= row로 manifest에 추가한다. status/options/stats type을
 =navsys.h= aggregate에 직접 선언해 module-entry와 foundation 역할을 다시 섞지 않는다.
+
+승인 include DAG는 =navsys.h -> navsys_status.h=,
+=public component -> navsys_status.h=이며 =navsys_status.h=는 다른 Navsys component를
+include하지 않는다. 이번 단계에서는 owner와 DAG만 승인하고 header는 아직 만들지 않는다.
 
 ** C symbol namespace 결정
 
@@ -173,36 +179,42 @@ SQLite의 =sqlite3_=, libuv의 =uv_=와 Vulkan의 =vk=처럼 C ABI는 linker 전
 binary compatibility가 모두 깨지지만, 새 API에서 =byul_maze_=, =navsys_maze_=와
 =maze_=를 파일마다 섞는 것도 허용하지 않는다.
 
-구현 전 다음 중 하나를 project-wide decision record로 선택한다.
+ABI 1.x에서는 기존 대표 type/family prefix를 canonical로 유지하고
+=coord_/route_/maze_/route_finder_/dstar_lite_= 계열을 계속 사용한다. 신규 함수에
+=navsys_<type>_= 또는 =byul_navsys_<type>_=를 추가하지 않는다. 단,
+=navsys_status_t=와 =NAVSYS_STATUS_*=는 function symbol이 아닌 module-foundation
+type/enum 이름이므로 예외다.
 
-- 기존 대표 type prefix를 canonical로 유지하고 =coord_/route_/maze_=를 계속 사용한다.
-- 신규 API부터 =navsys_<type>_= namespace를 사용하고 기존 symbol을 장기 forwarding한다.
-- root 전체가 동시에 전환할 근거가 있을 때만 =byul_navsys_<type>_=를 사용한다.
-
-개별 TODO의 =byul_*= 또는 =navsys_*= 선언은 이 결정을 돕는 검토안이지 승인된 이름이
-아니다. 최종 manifest는 하나의 정책만 허용하고 unprefixed helper를 export하지 않는다.
+기존 =move_to/get_changed_coord/default_cost/is_coord_blocked_navgrid= 같은 일반 helper
+symbol은 ABI 1.x에서 즉시 삭제하지 않는다. 담당 child가 family-prefixed replacement와
+consumer 근거를 제공하면 deprecated forwarding하고, 공개 소비 근거가 없으면
+internalize한다. 제거는 ABI-major에서만 허용한다. 개별 TODO의 =byul_*= 또는
+=navsys_*= target 초안은 이 승인 정책에 맞게 후속 단계에서 정정한다.
 
 ** Status
 
 #+begin_src c
 typedef enum e_navsys_status {
     NAVSYS_STATUS_OK = 0,
-    NAVSYS_STATUS_IN_PROGRESS = 1,
-    NAVSYS_STATUS_INCOMPLETE = 2,
-    NAVSYS_STATUS_NO_PATH = 3,
-    NAVSYS_STATUS_CANCELLED = 4,
-    NAVSYS_STATUS_LIMIT_REACHED = 5,
-
     NAVSYS_STATUS_INVALID_ARGUMENT = -1,
     NAVSYS_STATUS_OUT_OF_MEMORY = -2,
     NAVSYS_STATUS_UNSUPPORTED = -3,
     NAVSYS_STATUS_CALLBACK_FAILED = -4,
-    NAVSYS_STATUS_CORRUPT_STATE = -5
+    NAVSYS_STATUS_CORRUPT_STATE = -5,
+    NAVSYS_STATUS_NOT_FOUND = -6,
+    NAVSYS_STATUS_INVALIDATED = -7,
+    NAVSYS_STATUS_NO_PATH = -8,
+    NAVSYS_STATUS_CANCELLED = -9,
+    NAVSYS_STATUS_LIMIT_REACHED = -10,
+    NAVSYS_STATUS_INCOMPLETE = -11,
+    NAVSYS_STATUS_IN_PROGRESS = -12
 } navsys_status_t;
 #+end_src
 
-- 기존 enum과 충돌하지 않는 explicit numeric value를 ABI manifest에 기록한다.
-- positive outcome은 usable output 여부를 각 함수가 명시한다.
+- 양수는 count/result 전용으로 남기고 =OK=가 아닌 모든 status를 음수로 고정한다.
+- =NOT_FOUND=는 정상적인 lookup miss, =INVALIDATED=는 iterator/view 세대 불일치로
+  분리한다.
+- 비성공 status의 usable/partial output 여부를 각 함수가 명시한다.
 - negative error에서 기존 object와 out parameter가 보존되는지 명시한다.
 - thread-local/global last-error를 유일한 실패 경로로 사용하지 않는다.
 - 세부 진단 문자열은 caller-buffer query 또는 immutable static string으로 제공한다.
@@ -397,7 +409,7 @@ BYUL_API navsys_status_t route_finder_set_type(
 - optimization이 correctness/ABI gate를 우회하지 않는다.
 - baseline 대비 regression threshold는 algorithm/header TODO에서 근거와 함께 정한다.
 
-* TODO 1단계: 공통 Status, Owner와 C Symbol Namespace 확정
+* DOING 1단계: 공통 Status, Owner와 C Symbol Namespace 확정
 
 ** 실행
 
@@ -409,6 +421,21 @@ BYUL_API navsys_status_t route_finder_set_type(
 - Coord 계열 Status 후보 합류 표의 empty/not-found/invalidated/callback/short-buffer
   상태를 enum에 추가할지 기존 상태에 mapping할지 각각 결정한다.
 - output 보존, partial output와 diagnostic retrieval 규칙을 확정한다.
+
+현재 승인된 공통 결정은
+[[file:navsys-abi-vocabulary.json][navsys-abi-vocabulary.json]]가 machine-readable
+원본이다. 이 record는 owner header와 include DAG, status 숫자, classification,
+unknown future value, ABI 1.x namespace, legacy 반환 형태와 output 정책을 소유한다.
+Coord의 기존 국소 정책은 이 공통 숫자의 부분집합을 참조하며 별도 값을 소유하지 않는다.
+
+현행 반환 형태는 nullable pointer, bool predicate, bool operation, =int= status,
+count, =-1= index, fallible =void=, enum, floating result와 callback return의 열 가지로
+정규화했다.
+[[file:navsys-current-abi-inventory.json][navsys-current-abi-inventory.json]]은 승인된
+Navsys Header 43개에서 =BYUL_API= 선언 425개를 추출해 각 symbol을 이 mapping에
+1:1 연결하며 unclassified 0을 강제한다. 현행
+=byul/navsys/obstacle/obstacle_core.h=의 =obstacle_clear= 중복 선언 한 건은 숨기지 않고
+=route-to-owner-child= debt로 고정했다.
 
 ** 완료 조건
 
@@ -423,6 +450,16 @@ BYUL_API navsys_status_t route_finder_set_type(
 
 - 상태별 native/wrapper round-trip과 unknown future value test를 실행한다.
 - legacy return → canonical status mapping table을 자동 검사한다.
+- =tools/navsys_abi_inventory.py --check=로 43개 Header와 symbol별 mapping의 stale,
+  unclassified와 알려진 duplicate debt 변화를 검사한다.
+
+2026-07-18 현재 decision/inventory 묶음 검증에서 baseline check, CFFI stale check,
+Navsys inventory check, tools test 31개와 wrapper unit test 23개가 통과했다.
+Debt baseline을 인식하는 통합 header/ABI audit는 신규 invariant 0, error 0이었다.
+원시 =generate_wrapper_abi.py --audit --all-headers=는 기존 전체 Header 구조화 metadata
+debt 2,777건으로 실패하므로 이 단계를 =DONE=으로 올리지 않는다. 이 기존 debt를
+담당 Header/child와 연결하고 status native/wrapper round-trip을 구현한 뒤 gate를
+다시 실행한다.
 
 * TODO 2단계: Handle, Allocator와 Callback 모델 확정
 

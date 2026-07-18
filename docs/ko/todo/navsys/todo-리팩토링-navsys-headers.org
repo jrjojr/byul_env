@@ -334,6 +334,13 @@ clean build/install 환경에서 반복하는 release gate다. Class 이름이 t
 - audit issue를 정규화하고 migration, touched-header와 Navsys release gate를 자동화한다.
 - child별 target declaration이 공통 결정을 참조하도록 맞춘다.
 
+공통 Status/namespace의 승인 원본은
+[[file:navsys-abi-vocabulary.json][navsys-abi-vocabulary.json]], 43개 Header와 425개
+현행 =BYUL_API= 선언의 return mapping snapshot은
+[[file:navsys-current-abi-inventory.json][navsys-current-abi-inventory.json]]이다.
+후자는 =tools/navsys_abi_inventory.py --check=로 stale과 unclassified symbol을
+fail-closed 검사한다.
+
 *** 완료 조건
 
 - 공통 type의 정의 owner와 include DAG가 순환 없이 확정된다.
