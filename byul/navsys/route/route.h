@@ -27,6 +27,20 @@ typedef enum e_route_dir {
     ROUTE_DIR_COUNT
 } route_dir_t;
 
+/**
+ * @brief route 결과의 완료 상태를 나타낸다.
+ *
+ * @byul.storage basic-value
+ * @byul.zero_valid true
+ * @byul.copy_semantics trivial-copy
+ * @byul.thread_safety thread-compatible
+ */
+typedef enum e_route_completion {
+    ROUTE_COMPLETION_NONE = 0, /**< 경로 결과가 비어 있고 완료되지 않았다. */
+    ROUTE_COMPLETION_COMPLETE = 1, /**< 목표에 도달한 완성 경로다. */
+    ROUTE_COMPLETION_PARTIAL = 2 /**< 좌표가 있지만 목표에 도달하지 못했다. */
+} route_completion_t;
+
 struct s_route {
     coord_list_t* coords;
     coord_list_t* visited_order;
@@ -112,6 +126,49 @@ BYUL_API navsys_status_t route_fetch_coord(
     const route_t* route,
     size_t index,
     coord_t* out_coord);
+
+/**
+ * @brief route의 누적 cost를 caller storage로 복사한다.
+ *
+ * 저장된 float 값을 double로 정확히 승격한다. 실패하면 out_total_cost를 변경하지 않는다.
+ *
+ * @param[in] route 조회할 route.
+ * @param[out] out_total_cost 누적 cost를 받을 caller storage.
+ * @return Common Navsys status value.
+ * @retval NAVSYS_STATUS_OK cost를 복사했다.
+ * @retval NAVSYS_STATUS_INVALID_ARGUMENT route 또는 out_total_cost가 NULL이다.
+ * @byul.nullable route false
+ * @byul.nullable out_total_cost false
+ * @byul.side_effect writes:out_total_cost-on-success
+ * @byul.thread_safety thread-compatible
+ * @byul.blocking false
+ * @byul.reentrant true
+ */
+BYUL_API navsys_status_t route_fetch_total_cost(
+    const route_t* route,
+    double* out_total_cost);
+
+/**
+ * @brief route 결과의 완료 상태를 caller storage로 복사한다.
+ *
+ * Legacy success가 true이면 COMPLETE, success가 false이고 좌표가 있으면 PARTIAL,
+ * 그 외에는 NONE이다. 실패하면 out_completion을 변경하지 않는다.
+ *
+ * @param[in] route 조회할 route.
+ * @param[out] out_completion 완료 상태를 받을 caller storage.
+ * @return Common Navsys status value.
+ * @retval NAVSYS_STATUS_OK 완료 상태를 복사했다.
+ * @retval NAVSYS_STATUS_INVALID_ARGUMENT route 또는 out_completion이 NULL이다.
+ * @byul.nullable route false
+ * @byul.nullable out_completion false
+ * @byul.side_effect writes:out_completion-on-success
+ * @byul.thread_safety thread-compatible
+ * @byul.blocking false
+ * @byul.reentrant true
+ */
+BYUL_API navsys_status_t route_fetch_completion(
+    const route_t* route,
+    route_completion_t* out_completion);
 
 /**
  * @brief Copies route coordinates into caller-provided storage.

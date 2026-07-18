@@ -3,9 +3,9 @@
   "profile": "windows-x64-mingw-release",
   "dll": {
     "name": "libbyul.dll",
-    "size": 844495,
-    "sha256": "1149c1fa3471862d2f3a3d33c2e9a11515863b2938eb8b7d67cb43c692fd0d7b",
-    "export_count": 1355
+    "size": 845125,
+    "sha256": "70642fb6c5cb1c1d25f6ae05b2a2f9f38ab3d5687ceb7e039f8a14e717d6df2d",
+    "export_count": 1357
   },
   "exports": [
     {
@@ -4301,7 +4301,15 @@
       "type": "T"
     },
     {
+      "name": "route_fetch_completion",
+      "type": "T"
+    },
+    {
       "name": "route_fetch_coord",
+      "type": "T"
+    },
+    {
+      "name": "route_fetch_total_cost",
       "type": "T"
     },
     {
@@ -5436,8 +5444,8 @@
     "files": [
       {
         "path": "bin/libbyul.dll",
-        "size": 844495,
-        "sha256": "1149c1fa3471862d2f3a3d33c2e9a11515863b2938eb8b7d67cb43c692fd0d7b"
+        "size": 845125,
+        "sha256": "70642fb6c5cb1c1d25f6ae05b2a2f9f38ab3d5687ceb7e039f8a14e717d6df2d"
       },
       {
         "path": "bin/libgcc_s_seh-1.dll",
@@ -5541,8 +5549,8 @@
       },
       {
         "path": "bin/test_route.exe",
-        "size": 630958,
-        "sha256": "061d79125049718a6f2485f211c8abf9a52bb074d5c7f193fe0d895c1803c5d4"
+        "size": 642763,
+        "sha256": "823c943ff6cb417c8b958e414438119644d2037dc72d438768e354e880a3e5d3"
       },
       {
         "path": "bin/test_route_finder.exe",
@@ -5951,8 +5959,8 @@
       },
       {
         "path": "include/byul/route.h",
-        "size": 7671,
-        "sha256": "b28c676556262d89800f823de407256a35d08e78f3d2d692933007f213797beb"
+        "size": 9870,
+        "sha256": "a228bbf84ed1813ec740b38a5ee4b08fff48172139ff5da03cf7322b5d53a3ce"
       },
       {
         "path": "include/byul/route_carver.h",
@@ -6016,8 +6024,8 @@
       },
       {
         "path": "lib/byul/libbyul.dll.a",
-        "size": 668712,
-        "sha256": "815849f09c14423f385a21f016504c8ba3982ab7db7d255ed25d542ba0b156c1"
+        "size": 670066,
+        "sha256": "e5fa5b68f0cf8a8d90e986aa166fc99a68df3d7d1b3a4014e8632c2561d5646e"
       }
     ]
   },

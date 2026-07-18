@@ -25,6 +25,9 @@ static_assert(NAVSYS_STATUS_CANCELLED == -9, "NAVSYS_STATUS_CANCELLED ABI");
 static_assert(NAVSYS_STATUS_LIMIT_REACHED == -10, "NAVSYS_STATUS_LIMIT_REACHED ABI");
 static_assert(NAVSYS_STATUS_INCOMPLETE == -11, "NAVSYS_STATUS_INCOMPLETE ABI");
 static_assert(NAVSYS_STATUS_IN_PROGRESS == -12, "NAVSYS_STATUS_IN_PROGRESS ABI");
+static_assert(ROUTE_COMPLETION_NONE == 0, "ROUTE_COMPLETION_NONE ABI");
+static_assert(ROUTE_COMPLETION_COMPLETE == 1, "ROUTE_COMPLETION_COMPLETE ABI");
+static_assert(ROUTE_COMPLETION_PARTIAL == 2, "ROUTE_COMPLETION_PARTIAL ABI");
 
 #define ABI1_TYPE_LAYOUT(type, expected_size, expected_align) \
     static_assert(sizeof(type) == expected_size, #type " ABI 1 size"); \
@@ -177,11 +180,19 @@ int main(void) {
     size_t route_coord_count = 0;
     coord_t route_coords[2] = {{0, 0}, {0, 0}};
     coord_t fetched_coord = {-1, -1};
+    double total_cost = -1.0;
+    route_completion_t completion = ROUTE_COMPLETION_NONE;
     if (route_get_coord_count(route) != 1
         || route_fetch_coord(route, 0, &fetched_coord)
             != NAVSYS_STATUS_OK
         || fetched_coord.x != 0
         || fetched_coord.y != 0
+        || route_fetch_total_cost(route, &total_cost)
+            != NAVSYS_STATUS_OK
+        || total_cost != 0.0
+        || route_fetch_completion(route, &completion)
+            != NAVSYS_STATUS_OK
+        || completion != ROUTE_COMPLETION_COMPLETE
         || route_export_coords(route, NULL, 0, &route_coord_count)
             != NAVSYS_STATUS_OK
         || route_coord_count != 1

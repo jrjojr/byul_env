@@ -103,6 +103,45 @@ TEST_CASE("route fetches coordinate values without exposing storage") {
     route_destroy(route);
 }
 
+TEST_CASE("route fetches cost and completion as result values") {
+    route_t* route = route_create();
+    REQUIRE(route != nullptr);
+
+    double cost = -1.0;
+    route_completion_t completion = ROUTE_COMPLETION_COMPLETE;
+    CHECK(route_fetch_total_cost(route, &cost) == NAVSYS_STATUS_OK);
+    CHECK(cost == doctest::Approx(0.0));
+    CHECK(route_fetch_completion(route, &completion) == NAVSYS_STATUS_OK);
+    CHECK(completion == ROUTE_COMPLETION_NONE);
+
+    route_set_cost(route, 12.5f);
+    const coord_t coord = {3, 4};
+    REQUIRE(route_add_coord(route, &coord) == 1);
+    CHECK(route_fetch_total_cost(route, &cost) == NAVSYS_STATUS_OK);
+    CHECK(cost == doctest::Approx(12.5));
+    CHECK(route_fetch_completion(route, &completion) == NAVSYS_STATUS_OK);
+    CHECK(completion == ROUTE_COMPLETION_PARTIAL);
+
+    route_set_success(route, 1);
+    CHECK(route_fetch_completion(route, &completion) == NAVSYS_STATUS_OK);
+    CHECK(completion == ROUTE_COMPLETION_COMPLETE);
+
+    cost = -2.0;
+    completion = ROUTE_COMPLETION_PARTIAL;
+    CHECK(route_fetch_total_cost(nullptr, &cost)
+        == NAVSYS_STATUS_INVALID_ARGUMENT);
+    CHECK(cost == doctest::Approx(-2.0));
+    CHECK(route_fetch_total_cost(route, nullptr)
+        == NAVSYS_STATUS_INVALID_ARGUMENT);
+    CHECK(route_fetch_completion(nullptr, &completion)
+        == NAVSYS_STATUS_INVALID_ARGUMENT);
+    CHECK(completion == ROUTE_COMPLETION_PARTIAL);
+    CHECK(route_fetch_completion(route, nullptr)
+        == NAVSYS_STATUS_INVALID_ARGUMENT);
+
+    route_destroy(route);
+}
+
 TEST_CASE("route visited tracking") {
     route_t* p = route_create();
     coord_t* a = coord_create_full(5, 5);

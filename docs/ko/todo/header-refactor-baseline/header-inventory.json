@@ -3553,8 +3553,8 @@
     {
       "asset_id": "initial:byul/navsys/route/route.h",
       "current_path": "byul/navsys/route/route.h",
-      "sha256": "b28c676556262d89800f823de407256a35d08e78f3d2d692933007f213797beb",
-      "line_count": 225,
+      "sha256": "a228bbf84ed1813ec740b38a5ee4b08fff48172139ff5da03cf7322b5d53a3ce",
+      "line_count": 282,
       "language": "c-header",
       "license": "missing-or-unclassified",
       "include_guard": "ROUTE_H",
@@ -3565,6 +3565,7 @@
       "representative_type_candidate": "route_t",
       "declared_type_candidates": [
         "route_dir_t",
+        "route_completion_t",
         "route_t"
       ],
       "naming_disposition": "keep",
@@ -3615,6 +3616,8 @@
         "route_length",
         "route_get_coord_count",
         "route_fetch_coord",
+        "route_fetch_total_cost",
+        "route_fetch_completion",
         "route_export_coords",
         "route_add_visited",
         "route_clear_visited",

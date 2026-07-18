@@ -4,7 +4,7 @@
   "source_vocabulary": "docs/ko/todo/navsys/navsys-abi-vocabulary.json",
   "summary": {
     "headers": 46,
-    "symbols": 451,
+    "symbols": 453,
     "return_forms": {
       "nullable_pointer": 148,
       "bool_predicate": 21,
@@ -13,16 +13,16 @@
       "int_count": 15,
       "int_index_minus_one": 4,
       "void_fallible_operation": 136,
-      "enum_result": 49,
+      "enum_result": 51,
       "floating_result": 19,
       "callback_return": 0
     },
     "unclassified": 0,
     "duplicate_declarations": 1,
-    "audit_issues": 946,
-    "audit_errors": 946,
+    "audit_issues": 945,
+    "audit_errors": 945,
     "audit_codes": {
-      "missing-brief": 17,
+      "missing-brief": 16,
       "missing-doxygen": 305,
       "missing-nullable": 164,
       "missing-param": 86,
@@ -5388,15 +5388,6 @@
         "header": "byul/navsys/route/route.h",
         "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-route.org",
         "severity": "error",
-        "code": "missing-brief",
-        "symbol": "route_create",
-        "message": "public function has no @brief",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/route/route.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-route.org",
-        "severity": "error",
         "code": "missing-return",
         "symbol": "route_create",
         "message": "non-void function has no @return",
@@ -9199,8 +9190,8 @@
       "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-route.org",
       "primary_role": "public-component",
       "wrapper_mode": "generated",
-      "symbol_count": 47,
-      "audit_issue_count": 101,
+      "symbol_count": 49,
+      "audit_issue_count": 100,
       "symbols": [
         "route_create",
         "route_destroy",
@@ -9223,6 +9214,8 @@
         "route_length",
         "route_get_coord_count",
         "route_fetch_coord",
+        "route_fetch_total_cost",
+        "route_fetch_completion",
         "route_export_coords",
         "route_add_visited",
         "route_clear_visited",
@@ -11890,6 +11883,20 @@
     {
       "header": "byul/navsys/route/route.h",
       "name": "route_fetch_coord",
+      "return_type": "navsys_status_t",
+      "return_form": "enum_result",
+      "canonical": "navsys_status_t plus typed out enum"
+    },
+    {
+      "header": "byul/navsys/route/route.h",
+      "name": "route_fetch_total_cost",
+      "return_type": "navsys_status_t",
+      "return_form": "enum_result",
+      "canonical": "navsys_status_t plus typed out enum"
+    },
+    {
+      "header": "byul/navsys/route/route.h",
+      "name": "route_fetch_completion",
       "return_type": "navsys_status_t",
       "return_form": "enum_result",
       "canonical": "navsys_status_t plus typed out enum"

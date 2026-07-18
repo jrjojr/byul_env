@@ -112,7 +112,19 @@
       "undersized": "copies-prefix-returns-incomplete-and-full-required-element-count",
       "invalid": "preserves-required-count",
       "output_storage": "caller-owned",
-      "internal_container_pointer": "not-exposed"
+      "internal_container_pointer": "not-exposed",
+      "metadata": {
+        "cost_symbol": "route_fetch_total_cost",
+        "cost_storage": "double-caller-output-promoted-exactly-from-stored-float",
+        "completion_symbol": "route_fetch_completion",
+        "completion_values": {
+          "none": 0,
+          "complete": 1,
+          "partial": 2
+        },
+        "completion_mapping": "success-then-non-empty-then-empty",
+        "failure": "invalid-argument-and-preserve-output"
+      }
     }
   },
   "abi_2_policy": {

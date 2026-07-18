@@ -131,6 +131,31 @@ navsys_status_t route_fetch_coord(
     return NAVSYS_STATUS_OK;
 }
 
+navsys_status_t route_fetch_total_cost(
+    const route_t* route,
+    double* out_total_cost) {
+    if (!route || !out_total_cost)
+        return NAVSYS_STATUS_INVALID_ARGUMENT;
+    *out_total_cost = static_cast<double>(route_get_cost(route));
+    return NAVSYS_STATUS_OK;
+}
+
+navsys_status_t route_fetch_completion(
+    const route_t* route,
+    route_completion_t* out_completion) {
+    if (!route || !out_completion)
+        return NAVSYS_STATUS_INVALID_ARGUMENT;
+
+    route_completion_t completion = ROUTE_COMPLETION_NONE;
+    if (route_get_success(route)) {
+        completion = ROUTE_COMPLETION_COMPLETE;
+    } else if (route_get_coord_count(route) > 0) {
+        completion = ROUTE_COMPLETION_PARTIAL;
+    }
+    *out_completion = completion;
+    return NAVSYS_STATUS_OK;
+}
+
 navsys_status_t route_export_coords(
     const route_t* route,
     coord_t* output,
