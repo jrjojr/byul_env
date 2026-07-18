@@ -490,33 +490,46 @@ static route_t* route_finder_run_fast_marching(route_finder_t* a){
     route_finder_cost_bridge, a->max_retry, a->debug_mode_enabled);
 }
 
+using route_finder_run_func = route_t* (*)(route_finder_t*);
+
+static route_finder_run_func route_finder_get_run_func(
+    route_finder_type_t type) {
+    switch (type) {
+        case ROUTE_FINDER_ASTAR:
+            return route_finder_run_astar;
+        case ROUTE_FINDER_BFS:
+            return route_finder_run_bfs;
+        case ROUTE_FINDER_DFS:
+            return route_finder_run_dfs;
+        case ROUTE_FINDER_DIJKSTRA:
+            return route_finder_run_dijkstra;
+        case ROUTE_FINDER_FAST_MARCHING:
+            return route_finder_run_fast_marching;
+        case ROUTE_FINDER_FRINGE_SEARCH:
+            return route_finder_run_fringe_search;
+        case ROUTE_FINDER_GREEDY_BEST_FIRST:
+            return route_finder_run_greedy_best_first;
+        case ROUTE_FINDER_IDA_STAR:
+            return route_finder_run_ida_star;
+        case ROUTE_FINDER_RTA_STAR:
+            return route_finder_run_rta_star;
+        case ROUTE_FINDER_SMA_STAR:
+            return route_finder_run_sma_star;
+        case ROUTE_FINDER_WEIGHTED_ASTAR:
+            return route_finder_run_weighted_astar;
+        default:
+            return nullptr;
+    }
+}
+
+bool route_finder_is_supported(route_finder_type_t type) {
+    return route_finder_get_run_func(type) != nullptr;
+}
+
 route_t* route_finder_run(route_finder_t* a) {
     if (!a) return NULL;
     if (active_callback_finder == a) return NULL;
     route_finder_callback_scope callback_scope(a);
-    switch (a->type) {
-        case ROUTE_FINDER_ASTAR: 
-            return route_finder_run_astar(a);
-        case ROUTE_FINDER_BFS: 
-            return route_finder_run_bfs(a);
-        case ROUTE_FINDER_DFS: 
-            return route_finder_run_dfs(a);
-        case ROUTE_FINDER_DIJKSTRA: 
-            return route_finder_run_dijkstra(a);
-        case ROUTE_FINDER_FAST_MARCHING: 
-            return route_finder_run_fast_marching(a);
-        case ROUTE_FINDER_FRINGE_SEARCH: 
-            return route_finder_run_fringe_search(a);
-        case ROUTE_FINDER_GREEDY_BEST_FIRST: 
-            return route_finder_run_greedy_best_first(a);
-        case ROUTE_FINDER_IDA_STAR: 
-            return route_finder_run_ida_star(a);
-        case ROUTE_FINDER_RTA_STAR: 
-            return route_finder_run_rta_star(a);
-        case ROUTE_FINDER_SMA_STAR: 
-            return route_finder_run_sma_star(a);
-        case ROUTE_FINDER_WEIGHTED_ASTAR: 
-            return route_finder_run_weighted_astar(a);
-        default: return NULL;
-    }
+    route_finder_run_func run = route_finder_get_run_func(a->type);
+    return run ? run(a) : NULL;
 }

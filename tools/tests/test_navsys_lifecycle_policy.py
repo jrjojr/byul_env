@@ -26,6 +26,10 @@ ALLOCATION_FAILURE_FIXTURE = (
     / "byul/navsys/tests/test_navsys_allocation_failure.cpp"
 )
 NAVSYS_TEST_CMAKE = REPOSITORY_ROOT / "byul/navsys/tests/CMakeLists.txt"
+ROUTE_FINDER_WRAPPER = (
+    REPOSITORY_ROOT
+    / "tools/python/byul_wrapper/byul_wrapper/route_finder.py"
+)
 
 
 def load_json(path: Path) -> dict:
@@ -44,6 +48,9 @@ class NavsysLifecyclePolicyTest(unittest.TestCase):
             ALLOCATION_FAILURE_FIXTURE.read_text(encoding="utf-8")
         )
         cls.navsys_test_cmake = NAVSYS_TEST_CMAKE.read_text(encoding="utf-8")
+        cls.route_finder_wrapper = ROUTE_FINDER_WRAPPER.read_text(
+            encoding="utf-8"
+        )
 
     def test_every_inventory_resource_has_exactly_one_model(self):
         inventory_resources = {
@@ -205,6 +212,14 @@ class NavsysLifecyclePolicyTest(unittest.TestCase):
             "required-before-abi-2-release",
             release_gates["abi-2-bound-allocator-failure"],
         )
+        self.assertEqual(
+            "approved",
+            release_gates["stage-2-contract-approval"],
+        )
+        self.assertEqual(
+            "after-runtime-foundation-before-abi-2-release",
+            release_gates["abi-2-runtime-gate-phase"],
+        )
 
     def test_opaque_candidates_have_an_abi_one_layout_baseline(self):
         abi_2 = self.policy["abi_2_policy"]
@@ -238,7 +253,7 @@ class NavsysLifecyclePolicyTest(unittest.TestCase):
             abi_2["release_gates"]["new-handle-consumer"],
         )
         self.assertEqual(
-            "candidate-contract-frozen-implementation-pending",
+            "contract-approved-runtime-implementation-pending",
             abi_2["release_gates"]["current_state"],
         )
 
@@ -265,6 +280,27 @@ class NavsysLifecyclePolicyTest(unittest.TestCase):
                         f"ABI1_FIELD_OFFSET({name}, {field}, {offset});",
                         self.sdk_consumer,
                     )
+
+    def test_route_finder_capability_query_reaches_consumers(self):
+        exported_symbols = {
+            symbol
+            for header in self.inventory["headers"]
+            for symbol in header["symbols"]
+        }
+
+        self.assertIn("route_finder_is_supported", exported_symbols)
+        self.assertIn(
+            "route_finder_is_supported(ROUTE_FINDER_ASTAR)",
+            self.sdk_consumer,
+        )
+        self.assertIn(
+            "bool route_finder_is_supported(route_finder_type_t type);",
+            self.route_finder_wrapper,
+        )
+        self.assertIn(
+            "def list_supported_route_finders():",
+            self.route_finder_wrapper,
+        )
 
 
 if __name__ == "__main__":

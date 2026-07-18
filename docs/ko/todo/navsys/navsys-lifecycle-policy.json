@@ -67,11 +67,13 @@
       "diagnostic": "abi-major-and-header-fingerprint"
     },
     "release_gates": {
+      "stage-2-contract-approval": "approved",
       "legacy-create-allocation-failure": "verified-in-abi-1-msvc-and-mingw-static-module",
       "abi-2-bound-allocator-failure": "required-before-abi-2-release",
       "old-layout-consumer": "verified-in-abi-1-msvc-and-mingw",
       "new-handle-consumer": "required-before-abi-2-release",
-      "current_state": "candidate-contract-frozen-implementation-pending"
+      "abi-2-runtime-gate-phase": "after-runtime-foundation-before-abi-2-release",
+      "current_state": "contract-approved-runtime-implementation-pending"
     }
   },
   "resource_models": [

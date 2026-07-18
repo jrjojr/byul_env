@@ -71,6 +71,21 @@ typedef enum e_route_finder_type{
 
 BYUL_API const char* get_route_finder_name(route_finder_type_t pa);
 
+/**
+ * @brief 지정한 route finder type을 공통 dispatcher가 실행하는지 확인한다.
+ *
+ * Enum에 이름이 존재하더라도 현재 build의 공통 dispatcher에 구현이 연결되지 않은
+ * type이면 false를 반환한다.
+ *
+ * @param[in] type 확인할 route finder type.
+ * @return 공통 dispatcher가 지원하면 true, 아니면 false.
+ * @byul.side_effect none
+ * @byul.thread_safety thread-safe
+ * @byul.blocking false
+ * @byul.reentrant true
+ */
+BYUL_API bool route_finder_is_supported(route_finder_type_t type);
+
 /** 
  * @brief Static pathfinding configuration structure.
  */

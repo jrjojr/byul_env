@@ -137,6 +137,13 @@ int main(void) {
         fprintf(stderr, "unexpected coord_t ABI layout\n");
         return 2;
     }
+    if (!route_finder_is_supported(ROUTE_FINDER_ASTAR)
+        || !route_finder_is_supported(ROUTE_FINDER_WEIGHTED_ASTAR)
+        || route_finder_is_supported(ROUTE_FINDER_BELLMAN_FORD)
+        || route_finder_is_supported(ROUTE_FINDER_DSTAR_LITE)) {
+        fprintf(stderr, "unexpected route finder capability set\n");
+        return 3;
+    }
 
     int callback_identity = 7;
     navgrid_t* navgrid = navgrid_create();
@@ -165,7 +172,7 @@ int main(void) {
         || route_finder_unbind_cost_func(finder) != NAVSYS_STATUS_OK
         || navgrid_unbind_is_coord_blocked_func(navgrid) != NAVSYS_STATUS_OK) {
         fprintf(stderr, "unexpected Navsys callback binding ABI\n");
-        return 3;
+        return 4;
     }
     dstar_lite_destroy(dsl);
     route_finder_destroy(finder);

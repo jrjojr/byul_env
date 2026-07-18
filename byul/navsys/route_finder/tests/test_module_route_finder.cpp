@@ -8,7 +8,39 @@
     #include "console.h"
 // }
 
+#include <algorithm>
 #include <iostream>
+
+TEST_CASE("route finder capability query matches the dispatcher") {
+    const route_finder_type_t supported[] = {
+        ROUTE_FINDER_ASTAR,
+        ROUTE_FINDER_BFS,
+        ROUTE_FINDER_DFS,
+        ROUTE_FINDER_DIJKSTRA,
+        ROUTE_FINDER_FAST_MARCHING,
+        ROUTE_FINDER_FRINGE_SEARCH,
+        ROUTE_FINDER_GREEDY_BEST_FIRST,
+        ROUTE_FINDER_IDA_STAR,
+        ROUTE_FINDER_RTA_STAR,
+        ROUTE_FINDER_SMA_STAR,
+        ROUTE_FINDER_WEIGHTED_ASTAR,
+    };
+
+    for (int value = ROUTE_FINDER_UNKNOWN;
+         value <= ROUTE_FINDER_MCTS;
+         ++value) {
+        const auto type = static_cast<route_finder_type_t>(value);
+        const bool expected =
+            std::find(std::begin(supported), std::end(supported), type) !=
+            std::end(supported);
+        CHECK(route_finder_is_supported(type) == expected);
+    }
+
+    CHECK_FALSE(route_finder_is_supported(
+        static_cast<route_finder_type_t>(-1)));
+    CHECK_FALSE(route_finder_is_supported(
+        static_cast<route_finder_type_t>(ROUTE_FINDER_MCTS + 1)));
+}
 
 TEST_CASE("default: route finder") {
     navgrid_t* m = navgrid_create();

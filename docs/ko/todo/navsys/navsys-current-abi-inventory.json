@@ -4,10 +4,10 @@
   "source_vocabulary": "docs/ko/todo/navsys/navsys-abi-vocabulary.json",
   "summary": {
     "headers": 46,
-    "symbols": 439,
+    "symbols": 440,
     "return_forms": {
       "nullable_pointer": 149,
-      "bool_predicate": 20,
+      "bool_predicate": 21,
       "bool_operation": 19,
       "int_zero_nonzero_status": 40,
       "int_count": 14,
@@ -9368,10 +9368,11 @@
       "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-finder-route-finder.org",
       "primary_role": "public-module-entry",
       "wrapper_mode": "generated",
-      "symbol_count": 39,
+      "symbol_count": 40,
       "audit_issue_count": 47,
       "symbols": [
         "get_route_finder_name",
+        "route_finder_is_supported",
         "route_finder_create",
         "route_finder_create_full",
         "route_finder_init",
@@ -12170,6 +12171,13 @@
       "return_type": "const char*",
       "return_form": "nullable_pointer",
       "canonical": "status return plus typed out pointer"
+    },
+    {
+      "header": "byul/navsys/route_finder/route_finder.h",
+      "name": "route_finder_is_supported",
+      "return_type": "bool",
+      "return_form": "bool_predicate",
+      "canonical": "keep bool when evaluation itself cannot fail"
     },
     {
       "header": "byul/navsys/route_finder/route_finder.h",

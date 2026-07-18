@@ -4029,8 +4029,8 @@
     {
       "asset_id": "initial:byul/navsys/route_finder/route_finder.h",
       "current_path": "byul/navsys/route_finder/route_finder.h",
-      "sha256": "7db6f3a9b85876bdfeed1a7dffda18dd71521c454f4690aba68112b0a95df97d",
-      "line_count": 311,
+      "sha256": "68ee38c7accce33a58833c46ef69e90a537098b0736c84e32e316662244791cb",
+      "line_count": 326,
       "language": "c-header",
       "license": "missing-or-unclassified",
       "include_guard": "ROUTE_FINDER_H",
@@ -4063,6 +4063,7 @@
       "wrapper_modules_registered": true,
       "exported_symbols": [
         "get_route_finder_name",
+        "route_finder_is_supported",
         "route_finder_create",
         "route_finder_create_full",
         "route_finder_init",

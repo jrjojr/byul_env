@@ -22,6 +22,17 @@ class TestRouteFinder(unittest.TestCase):
     def tearDown(self):
         self.route_finder.close()
 
+    def test_capability_query(self):
+        supported = c_route_finder.list_supported_route_finders()
+
+        self.assertEqual(11, len(supported))
+        self.assertIn(RouteFinderType.ASTAR, supported)
+        self.assertIn(RouteFinderType.WEIGHTED_ASTAR, supported)
+        self.assertNotIn(RouteFinderType.DSTAR_LITE, supported)
+        self.assertFalse(
+            c_route_finder.is_supported(RouteFinderType.BELLMAN_FORD)
+        )
+
     def test_find_default(self):
         print("test_find_default")
         route = self.route_finder.find()

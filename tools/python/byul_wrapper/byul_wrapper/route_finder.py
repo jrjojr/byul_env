@@ -70,6 +70,8 @@ typedef enum e_route_finder_type{
 
  const char* get_route_finder_name(route_finder_type_t pa);
 
+ bool route_finder_is_supported(route_finder_type_t type);
+
 typedef struct s_route_finder {
     navgrid_t* navgrid;
     coord_t start;
@@ -522,6 +524,17 @@ class c_route_finder:
     @staticmethod
     def list_route_finders():
         return list(RouteFinderType)
+
+    @staticmethod
+    def is_supported(type: RouteFinderType):
+        return bool(C.route_finder_is_supported(type))
+
+    @staticmethod
+    def list_supported_route_finders():
+        return [
+            type for type in RouteFinderType
+            if c_route_finder.is_supported(type)
+        ]
 
     @staticmethod
     def find_by_name(name: str):
