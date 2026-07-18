@@ -15,8 +15,8 @@
     "tool-move"
   ],
   "summary": {
-    "headers": 137,
-    "byul_headers": 106,
+    "headers": 138,
+    "byul_headers": 107,
     "tool_headers": 31,
     "root_inventory_headers": 93,
     "wrapper_registered_headers": 27,
@@ -2248,8 +2248,8 @@
     {
       "asset_id": "initial:byul/navsys/dstar_lite/dstar_lite.h",
       "current_path": "byul/navsys/dstar_lite/dstar_lite.h",
-      "sha256": "49463131bbee9bec8c4948e2aa1a1c08181947afe48a3fd66e6031c74c35ff07",
-      "line_count": 525,
+      "sha256": "8f52659e0e18fe3778ead40e57f16f0f2228b7071557016715a796a5cda138e6",
+      "line_count": 545,
       "language": "c-header",
       "license": "missing-or-unclassified",
       "include_guard": "DSTAR_LITE_H",
@@ -2277,6 +2277,7 @@
       "umbrella_consumers": [
         "byul/console/dstar_lite_console.h",
         "byul/navsys/dstar_lite/dstar_lite_tick.h",
+        "byul/navsys/dstar_lite/internal/dstar_lite_callback.hpp",
         "byul/navsys/navsys.h"
       ],
       "wrapper_modules_registered": true,
@@ -2423,7 +2424,8 @@
         "byul/navsys/dstar_lite/dstar_lite.cpp",
         "byul/navsys/dstar_lite/dstar_lite_key.cpp",
         "byul/navsys/dstar_lite/dstar_lite_pqueue.cpp",
-        "byul/navsys/dstar_lite/tests/test_module_dstar_lite_pqueue.cpp"
+        "byul/navsys/dstar_lite/tests/test_module_dstar_lite_pqueue.cpp",
+        "byul/navsys/tests/test_module_navsys.cpp"
       ],
       "decision_status": "candidate-only"
     },
@@ -2561,6 +2563,35 @@
         "byul/navsys/dstar_lite/dstar_lite_tick.cpp",
         "byul/navsys/dstar_lite/tests/test_module_dstar_lite_tick.cpp"
       ],
+      "decision_status": "candidate-only"
+    },
+    {
+      "asset_id": "initial:byul/navsys/dstar_lite/internal/dstar_lite_callback.hpp",
+      "current_path": "byul/navsys/dstar_lite/internal/dstar_lite_callback.hpp",
+      "sha256": "d8e60a942ef9fbe14aa3f36dbd54f486f90ca05ab35f5c4cd41e81b937b2626d",
+      "line_count": 75,
+      "language": "c++-header",
+      "license": "copyright-present-license-unclassified",
+      "include_guard": "BYUL_DSTAR_LITE_CALLBACK_INTERNAL_HPP",
+      "role_candidate": "private-implementation",
+      "current_owner": "navsys",
+      "public_module_boundary_candidate": "dstar_lite",
+      "responsibility": "dstar_lite_callback",
+      "representative_type_candidate": null,
+      "declared_type_candidates": [],
+      "naming_disposition": "internalize",
+      "compatibility_path": null,
+      "successor_headers": [],
+      "canonical_owner": null,
+      "design_todo": null,
+      "naming_exception": null,
+      "module_header_groups": [],
+      "root_header_inventory": false,
+      "install_inventory": false,
+      "umbrella_consumers": [],
+      "wrapper_modules_registered": false,
+      "exported_symbols": [],
+      "source_definition_candidates": [],
       "decision_status": "candidate-only"
     },
     {

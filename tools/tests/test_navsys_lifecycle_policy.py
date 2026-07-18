@@ -121,7 +121,7 @@ class NavsysLifecyclePolicyTest(unittest.TestCase):
             abi_1["reentrancy_enforcement"]["navgrid"],
         )
         self.assertEqual(
-            "caller-contract-only",
+            "runtime-guarded-and-tested",
             abi_1["reentrancy_enforcement"]["dstar_lite"],
         )
 

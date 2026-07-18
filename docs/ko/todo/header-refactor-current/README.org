@@ -30,7 +30,7 @@ CI의 일반 경로로 추론하지 않는다.
 
 * 산출물
 
-- =header-inventory.json=: 현재 tracked header 137개의 path, hash, 역할·명명 후보와
+- =header-inventory.json=: 현재 tracked header 138개의 path, hash, 역할·명명 후보와
   module/root/install/wrapper/source 교차 inventory
 - =naming-report.json=: 현재 naming 후보 report
 - =environment.json=: Git/submodule, dirty status, OS와 Python/tool snapshot
@@ -41,7 +41,7 @@ CI의 일반 경로로 추론하지 않는다.
 - =msvc-release-abi.json=: complete type 57개, field 281개, enum 14개와 enumerator
   124개의 layout/value snapshot
 - =header-role-manifest.json=: 기존 asset 135개, Navsys public =navsys_status.h=와
-  Navgrid internal callback guard를 합친 asset 137개의 primary role,
+  Navgrid/D* Lite internal callback guard를 합친 asset 138개의 primary role,
   owner/public module, install,
   wrapper와 versioned naming/compatibility 처분, Math Engine
   created successor 20개와 public resource migration 10개
@@ -66,8 +66,9 @@ CI의 일반 경로로 추론하지 않는다.
 
 - 최초 기준선 asset은 135개로 보존되고, 승인된 새 Navsys public-foundation
   =byul/navsys/navsys_status.h=와 설치하지 않는
-  =byul/navsys/navgrid/internal/navgrid_callback.hpp=가 추가되어 현재 Header 수는
-  137개다.
+  =byul/navsys/navgrid/internal/navgrid_callback.hpp=와
+  =byul/navsys/dstar_lite/internal/dstar_lite_callback.hpp=가 추가되어 현재 Header 수는
+  138개다.
 - =byul/navsys/coord/coord.hpp=가 제거되고
   =byul/navsys/coord/internal/coord_ops.hpp=가 추가됐다.
 - =byul/navsys/coord/coord.h=의 SHA-256가 변경됐다.

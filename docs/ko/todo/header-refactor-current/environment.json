@@ -1,20 +1,15 @@
 {
   "schema_version": 1,
-  "captured_at_utc": "2026-07-18T10:53:31.761157+00:00",
-  "git_head": "6f2abedc756636dcbc348913b38a4f13064fe29a",
+  "captured_at_utc": "2026-07-18T11:04:56.576296+00:00",
+  "git_head": "2ffb066e52c33cc9d0317653e4aa33c75a82789c",
   "git_branch": "test/navsys-coord-numeric-baseline",
   "git_status_porcelain": [
-    "M byul/navsys/dstar_lite/dstar_lite.cpp",
-    " M byul/navsys/navgrid/CMakeLists.txt",
-    " M byul/navsys/navgrid/navgrid.cpp",
-    " M byul/navsys/navgrid/navgrid.h",
+    "M byul/navsys/dstar_lite/CMakeLists.txt",
+    " M byul/navsys/dstar_lite/dstar_lite.cpp",
+    " M byul/navsys/dstar_lite/dstar_lite.h",
+    " M byul/navsys/dstar_lite/dstar_lite_tick.cpp",
     " M byul/navsys/tests/test_module_navsys.cpp",
     " M docs/ko/todo/header-refactor-current/README.org",
-    " M docs/ko/todo/header-refactor-current/environment.json",
-    " M docs/ko/todo/header-refactor-current/header-abi-audit.json",
-    " M docs/ko/todo/header-refactor-current/header-inventory.json",
-    " M docs/ko/todo/header-refactor-current/header-role-manifest.json",
-    " M docs/ko/todo/navsys/navsys-current-abi-inventory.json",
     " M docs/ko/todo/navsys/navsys-lifecycle-policy.json",
     " M docs/ko/todo/navsys/todo-navsys-industry-api-baseline.org",
     " M tools/header_refactor_baseline.py",
@@ -24,7 +19,7 @@
     " M tools/tests/test_header_role_manifest.py",
     " M tools/tests/test_navsys_abi_inventory.py",
     " M tools/tests/test_navsys_lifecycle_policy.py",
-    "?? byul/navsys/navgrid/internal/"
+    "?? byul/navsys/dstar_lite/internal/"
   ],
   "rules_submodule_sha": "642275431efe0d87f4fc3856ef326d6fdfbb0aba",
   "platform": {

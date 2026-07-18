@@ -13,19 +13,19 @@
     ]
   },
   "summary": {
-    "headers": 137,
-    "approved": 137,
+    "headers": 138,
+    "approved": 138,
     "approved_install": 99,
     "wrapper_generated": 27,
     "wrapper_manual": 64,
-    "wrapper_excluded": 46,
+    "wrapper_excluded": 47,
     "compatibility_forwarders": 21,
     "successor_headers": 20,
     "successor_links": 39,
     "public_resource_migrations": 10,
     "sdk_basename_collisions": 0,
     "abi_2_sdk_basename_collisions": 0,
-    "current_include_edges": 310,
+    "current_include_edges": 311,
     "current_include_cycles": 0
   },
   "remaining_stage_2_design_gate": [],
@@ -2966,7 +2966,7 @@
     {
       "asset_id": "initial:byul/navsys/dstar_lite/dstar_lite.h",
       "current_path": "byul/navsys/dstar_lite/dstar_lite.h",
-      "sha256": "49463131bbee9bec8c4948e2aa1a1c08181947afe48a3fd66e6031c74c35ff07",
+      "sha256": "8f52659e0e18fe3778ead40e57f16f0f2228b7071557016715a796a5cda138e6",
       "primary_role": "public-component",
       "role_reason": "Stage-1 evidence supports the current public or internal boundary.",
       "owner_module": "navsys",
@@ -3138,7 +3138,8 @@
           "byul/navsys/dstar_lite/dstar_lite.cpp",
           "byul/navsys/dstar_lite/dstar_lite_key.cpp",
           "byul/navsys/dstar_lite/dstar_lite_pqueue.cpp",
-          "byul/navsys/dstar_lite/tests/test_module_dstar_lite_pqueue.cpp"
+          "byul/navsys/dstar_lite/tests/test_module_dstar_lite_pqueue.cpp",
+          "byul/navsys/tests/test_module_navsys.cpp"
         ]
       },
       "decision_status": "approved"
@@ -3284,6 +3285,40 @@
           "byul/navsys/dstar_lite/dstar_lite_tick.cpp",
           "byul/navsys/dstar_lite/tests/test_module_dstar_lite_tick.cpp"
         ]
+      },
+      "decision_status": "approved"
+    },
+    {
+      "asset_id": "initial:byul/navsys/dstar_lite/internal/dstar_lite_callback.hpp",
+      "current_path": "byul/navsys/dstar_lite/internal/dstar_lite_callback.hpp",
+      "sha256": "d8e60a942ef9fbe14aa3f36dbd54f486f90ca05ab35f5c4cd41e81b937b2626d",
+      "primary_role": "internal",
+      "role_reason": "Stage-1 evidence supports the current public or internal boundary.",
+      "owner_module": "navsys",
+      "public_module": "dstar_lite",
+      "approved_install": false,
+      "install_reason": "internal is excluded from the SDK install inventory.",
+      "wrapper": {
+        "mode": "excluded",
+        "reason": "internal headers are outside the installed C ABI wrapper input."
+      },
+      "naming": {
+        "disposition": "keep",
+        "canonical_path": "byul/navsys/dstar_lite/internal/dstar_lite_callback.hpp",
+        "canonical_install": false,
+        "deprecated_since": null,
+        "remove_in": null,
+        "reason": "Already migrated to the canonical internal implementation path.",
+        "compatibility_path": null
+      },
+      "successor_headers": [],
+      "source_evidence": {
+        "module_header_groups": [],
+        "root_header_inventory": false,
+        "install_inventory": false,
+        "wrapper_modules_registered": false,
+        "exported_symbols": [],
+        "source_definition_candidates": []
       },
       "decision_status": "approved"
     },

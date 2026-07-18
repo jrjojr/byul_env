@@ -3,7 +3,7 @@
   "source_role_manifest": "docs/ko/todo/header-refactor-current/header-role-manifest.json",
   "source_vocabulary": "docs/ko/todo/navsys/navsys-abi-vocabulary.json",
   "summary": {
-    "headers": 45,
+    "headers": 46,
     "symbols": 439,
     "return_forms": {
       "nullable_pointer": 149,
@@ -19,11 +19,11 @@
     },
     "unclassified": 0,
     "duplicate_declarations": 1,
-    "audit_issues": 948,
-    "audit_errors": 948,
+    "audit_issues": 947,
+    "audit_errors": 947,
     "audit_codes": {
       "missing-brief": 17,
-      "missing-doxygen": 307,
+      "missing-doxygen": 306,
       "missing-nullable": 164,
       "missing-param": 86,
       "missing-param-direction": 205,
@@ -1656,15 +1656,6 @@
         "code": "missing-return-lifetime",
         "symbol": "dstar_lite_create_full",
         "message": "pointer return has no @byul.lifetime return",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/dstar_lite/dstar_lite.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-dstar-lite-dstar-lite.org",
-        "severity": "error",
-        "code": "missing-doxygen",
-        "symbol": "dstar_lite_destroy",
-        "message": "public function has no adjacent Doxygen block",
         "disposition": "route-to-owner-child"
       },
       {
@@ -8740,7 +8731,7 @@
       "primary_role": "public-component",
       "wrapper_mode": "generated",
       "symbol_count": 80,
-      "audit_issue_count": 119,
+      "audit_issue_count": 118,
       "symbols": [
         "dstar_lite_dynamic_cost",
         "dstar_lite_heuristic",
@@ -8890,6 +8881,15 @@
         "dstar_lite_tick_update",
         "dstar_lite_tick_complete"
       ]
+    },
+    {
+      "path": "byul/navsys/dstar_lite/internal/dstar_lite_callback.hpp",
+      "owner_todo": "docs/ko/todo/navsys/todo-navsys-dstar-lite-dstar-lite.org",
+      "primary_role": "internal",
+      "wrapper_mode": "excluded",
+      "symbol_count": 0,
+      "audit_issue_count": 0,
+      "symbols": []
     },
     {
       "path": "byul/navsys/maze/maze.h",

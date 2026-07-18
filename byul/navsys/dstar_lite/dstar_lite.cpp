@@ -5,6 +5,7 @@
 #include "dstar_lite_key.h"
 #include "scalar.h"
 #include "../navgrid/internal/navgrid_callback.hpp"
+#include "internal/dstar_lite_callback.hpp"
 
 #include <float.h>
 #include <math.h>
@@ -36,8 +37,8 @@ bool dstar_lite_fetch_next(const dstar_lite_t* dsl,
         float* g_ptr = (float*)coord_hash_get(dsl->g_table, &s);
         if (g_ptr) g_s = *g_ptr;
 
-        cost = dsl->cost_fn(
-            dsl->navgrid, start, &s, dsl->cost_fn_userdata);
+        cost = byul::navsys::internal::dstar_lite_invoke_cost(
+            dsl, dsl->navgrid, start, &s);
         total = g_s + cost;
 
         int visit = 0;
@@ -254,6 +255,8 @@ void dstar_lite_set_changed_coords_func_userdata(
 navsys_status_t dstar_lite_bind_cost_func(
     dstar_lite_t* dsl, cost_func fn, void* userdata) {
     if (!dsl || !fn) return NAVSYS_STATUS_INVALID_ARGUMENT;
+    if (byul::navsys::internal::dstar_lite_callback_is_active(dsl))
+        return NAVSYS_STATUS_IN_PROGRESS;
     dsl->cost_fn = fn;
     dsl->cost_fn_userdata = userdata;
     return NAVSYS_STATUS_OK;
@@ -261,6 +264,8 @@ navsys_status_t dstar_lite_bind_cost_func(
 
 navsys_status_t dstar_lite_unbind_cost_func(dstar_lite_t* dsl) {
     if (!dsl) return NAVSYS_STATUS_INVALID_ARGUMENT;
+    if (byul::navsys::internal::dstar_lite_callback_is_active(dsl))
+        return NAVSYS_STATUS_IN_PROGRESS;
     dsl->cost_fn = dstar_lite_cost;
     dsl->cost_fn_userdata = nullptr;
     return NAVSYS_STATUS_OK;
@@ -269,6 +274,8 @@ navsys_status_t dstar_lite_unbind_cost_func(dstar_lite_t* dsl) {
 navsys_status_t dstar_lite_bind_heuristic_func(
     dstar_lite_t* dsl, heuristic_func fn, void* userdata) {
     if (!dsl || !fn) return NAVSYS_STATUS_INVALID_ARGUMENT;
+    if (byul::navsys::internal::dstar_lite_callback_is_active(dsl))
+        return NAVSYS_STATUS_IN_PROGRESS;
     dsl->heuristic_fn = fn;
     dsl->heuristic_fn_userdata = userdata;
     return NAVSYS_STATUS_OK;
@@ -276,6 +283,8 @@ navsys_status_t dstar_lite_bind_heuristic_func(
 
 navsys_status_t dstar_lite_unbind_heuristic_func(dstar_lite_t* dsl) {
     if (!dsl) return NAVSYS_STATUS_INVALID_ARGUMENT;
+    if (byul::navsys::internal::dstar_lite_callback_is_active(dsl))
+        return NAVSYS_STATUS_IN_PROGRESS;
     dsl->heuristic_fn = dstar_lite_heuristic;
     dsl->heuristic_fn_userdata = nullptr;
     return NAVSYS_STATUS_OK;
@@ -284,6 +293,8 @@ navsys_status_t dstar_lite_unbind_heuristic_func(dstar_lite_t* dsl) {
 navsys_status_t dstar_lite_bind_move_func(
     dstar_lite_t* dsl, move_func fn, void* userdata) {
     if (!dsl || !fn) return NAVSYS_STATUS_INVALID_ARGUMENT;
+    if (byul::navsys::internal::dstar_lite_callback_is_active(dsl))
+        return NAVSYS_STATUS_IN_PROGRESS;
     dsl->move_fn = fn;
     dsl->move_fn_userdata = userdata;
     return NAVSYS_STATUS_OK;
@@ -291,6 +302,8 @@ navsys_status_t dstar_lite_bind_move_func(
 
 navsys_status_t dstar_lite_unbind_move_func(dstar_lite_t* dsl) {
     if (!dsl) return NAVSYS_STATUS_INVALID_ARGUMENT;
+    if (byul::navsys::internal::dstar_lite_callback_is_active(dsl))
+        return NAVSYS_STATUS_IN_PROGRESS;
     dsl->move_fn = nullptr;
     dsl->move_fn_userdata = nullptr;
     return NAVSYS_STATUS_OK;
@@ -299,6 +312,8 @@ navsys_status_t dstar_lite_unbind_move_func(dstar_lite_t* dsl) {
 navsys_status_t dstar_lite_bind_changed_coords_func(
     dstar_lite_t* dsl, changed_coords_func fn, void* userdata) {
     if (!dsl || !fn) return NAVSYS_STATUS_INVALID_ARGUMENT;
+    if (byul::navsys::internal::dstar_lite_callback_is_active(dsl))
+        return NAVSYS_STATUS_IN_PROGRESS;
     dsl->changed_coords_fn = fn;
     dsl->changed_coords_fn_userdata = userdata;
     return NAVSYS_STATUS_OK;
@@ -307,6 +322,8 @@ navsys_status_t dstar_lite_bind_changed_coords_func(
 navsys_status_t dstar_lite_unbind_changed_coords_func(
     dstar_lite_t* dsl) {
     if (!dsl) return NAVSYS_STATUS_INVALID_ARGUMENT;
+    if (byul::navsys::internal::dstar_lite_callback_is_active(dsl))
+        return NAVSYS_STATUS_IN_PROGRESS;
     dsl->changed_coords_fn = nullptr;
     dsl->changed_coords_fn_userdata = nullptr;
     return NAVSYS_STATUS_OK;
@@ -392,6 +409,8 @@ dstar_lite_t* dstar_lite_create_full(navgrid_t* navgrid,
 
 void dstar_lite_destroy(dstar_lite_t* dsl) {
     if (!dsl) return;
+    if (byul::navsys::internal::dstar_lite_callback_is_active(dsl))
+        return;
     coord_hash_destroy(dsl->g_table);
     coord_hash_destroy(dsl->rhs_table);
     dstar_lite_pqueue_destroy(dsl->frontier);
@@ -622,8 +641,8 @@ dstar_lite_key_t* dstar_lite_calc_key(dstar_lite_t* dsl, const coord_t* s) {
     }
 
     float k2 = fminf(g_val, rhs_val);
-    float h = dsl->heuristic_fn(
-        &dsl->start, s, dsl->heuristic_fn_userdata);
+    float h = byul::navsys::internal::dstar_lite_invoke_heuristic(
+        dsl, &dsl->start, s);
     float k1 = k2 + h + dsl->km;
 
     dstar_lite_key_t* key = dstar_lite_key_create_full( k1, k2 );
@@ -680,8 +699,8 @@ void dstar_lite_update_vertex(dstar_lite_t* dsl, const coord_t* u) {
                 g_s = FLT_MAX;
             }
 
-            cost = dsl->cost_fn(
-                dsl->navgrid, u, s, dsl->cost_fn_userdata) + g_s;
+            cost = byul::navsys::internal::dstar_lite_invoke_cost(
+                dsl, dsl->navgrid, u, s) + g_s;
 
             if (cost < min_rhs)
                 min_rhs = cost;
@@ -821,8 +840,8 @@ void dstar_lite_compute_shortest_route(dstar_lite_t* dsl) {
                 float* rhs_s_ptr = (float*)coord_hash_get(dsl->rhs_table, s);
                 float rhs_s = rhs_s_ptr ? *rhs_s_ptr : FLT_MAX;
 
-                float cost = dsl->cost_fn(
-                    dsl->navgrid, s, u, dsl->cost_fn_userdata);
+                float cost = byul::navsys::internal::dstar_lite_invoke_cost(
+                    dsl, dsl->navgrid, s, u);
 
                 if (scalar_equal(rhs_s, cost + g_u)) {
                     if (!coord_equal(s, &dsl->goal)) {
@@ -832,9 +851,9 @@ void dstar_lite_compute_shortest_route(dstar_lite_t* dsl) {
                             const coord_t* s2 = coord_list_get(succs, j);
                             float* g_s2_ptr = (float*)coord_hash_get(dsl->g_table, s2);
                             float g_s2 = g_s2_ptr ? *g_s2_ptr : FLT_MAX;
-                            float c = dsl->cost_fn(
-                                dsl->navgrid, s, s2,
-                                dsl->cost_fn_userdata);
+                            float c =
+                                byul::navsys::internal::dstar_lite_invoke_cost(
+                                    dsl, dsl->navgrid, s, s2);
                             min_rhs = fminf(min_rhs, c + g_s2);
                         }
                         coord_list_destroy(succs);
@@ -895,8 +914,9 @@ bool dstar_lite_reconstruct_route(dstar_lite_t* dsl) {
         for (int i=0; i<len; i++){
             coord_t s = *coord_list_get(neighbors, i);
 
-            float cost_current_s = dsl->cost_fn(
-                dsl->navgrid, &current, &s, dsl->cost_fn_userdata);
+            float cost_current_s =
+                byul::navsys::internal::dstar_lite_invoke_cost(
+                    dsl, dsl->navgrid, &current, &s);
             float* g_s_ptr = (float*) coord_hash_get(dsl->g_table, &s);
             float g_s = (g_s_ptr) ? *g_s_ptr : FLT_MAX;
 
@@ -1010,8 +1030,7 @@ void dstar_lite_find_loop(dstar_lite_t* dsl) {
 
         route_add_coord(dsl->real_route, &next);
 
-        if (dsl->move_fn)
-            dsl->move_fn(&next, dsl->move_fn_userdata);
+        byul::navsys::internal::dstar_lite_invoke_move(dsl, &next);
 
         if (dsl->interval_sec <= 0.0f)
             std::this_thread::yield();
@@ -1019,10 +1038,12 @@ void dstar_lite_find_loop(dstar_lite_t* dsl) {
             std::this_thread::sleep_for(std::chrono::duration<float>(dsl->interval_sec));
 
         if (dsl->changed_coords_fn) {
-            coord_list_t* changed = dsl->changed_coords_fn(dsl->changed_coords_fn_userdata);
+            coord_list_t* changed =
+                byul::navsys::internal::dstar_lite_invoke_changed_coords(dsl);
             if (changed && coord_list_length(changed) > 0) {
-                dsl->km += dsl->heuristic_fn(
-                    &s_last, &next, dsl->heuristic_fn_userdata);
+                dsl->km +=
+                    byul::navsys::internal::dstar_lite_invoke_heuristic(
+                        dsl, &s_last, &next);
                 s_last = next;
 
                 for (int i = 0; i < coord_list_length(changed); ++i) {

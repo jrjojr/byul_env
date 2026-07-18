@@ -45,6 +45,50 @@ struct reentrant_navgrid_context {
     bool destroy_attempted;
 };
 
+struct reentrant_dstar_lite_context {
+    dstar_lite_t* dsl;
+    int calls;
+    navsys_status_t bind_cost_status;
+    navsys_status_t unbind_cost_status;
+    navsys_status_t bind_heuristic_status;
+    navsys_status_t unbind_heuristic_status;
+    navsys_status_t bind_move_status;
+    navsys_status_t unbind_move_status;
+    navsys_status_t bind_changed_status;
+    navsys_status_t unbind_changed_status;
+    bool destroy_attempted;
+};
+
+static float reentrant_dstar_lite_heuristic(
+    const coord_t*, const coord_t*, void* userdata) {
+    reentrant_dstar_lite_context* context =
+        static_cast<reentrant_dstar_lite_context*>(userdata);
+    ++context->calls;
+    if (context->calls == 1) {
+        context->bind_cost_status = dstar_lite_bind_cost_func(
+            context->dsl, bound_cost, nullptr);
+        context->unbind_cost_status =
+            dstar_lite_unbind_cost_func(context->dsl);
+        context->bind_heuristic_status =
+            dstar_lite_bind_heuristic_func(
+                context->dsl, bound_heuristic, nullptr);
+        context->unbind_heuristic_status =
+            dstar_lite_unbind_heuristic_func(context->dsl);
+        context->bind_move_status = dstar_lite_bind_move_func(
+            context->dsl, bound_move, nullptr);
+        context->unbind_move_status =
+            dstar_lite_unbind_move_func(context->dsl);
+        context->bind_changed_status =
+            dstar_lite_bind_changed_coords_func(
+                context->dsl, bound_changed_coords, nullptr);
+        context->unbind_changed_status =
+            dstar_lite_unbind_changed_coords_func(context->dsl);
+        dstar_lite_destroy(context->dsl);
+        context->destroy_attempted = true;
+    }
+    return 0.0f;
+}
+
 static bool reentrant_navgrid_is_blocked(
     const void*, int, int, void* userdata) {
     reentrant_navgrid_context* context =
@@ -244,6 +288,43 @@ TEST_CASE("navsys: navgrid rejects same-owner callback reentrancy") {
     CHECK(navgrid_get_width(navgrid) == 0);
 
     coord_list_destroy(neighbors);
+    navgrid_destroy(navgrid);
+}
+
+TEST_CASE("navsys: D* Lite rejects same-owner callback reentrancy") {
+    navgrid_t* navgrid = navgrid_create();
+    REQUIRE(navgrid != nullptr);
+    dstar_lite_t* dsl = dstar_lite_create(navgrid);
+    REQUIRE(dsl != nullptr);
+
+    reentrant_dstar_lite_context context = {};
+    context.dsl = dsl;
+    REQUIRE(dstar_lite_bind_heuristic_func(
+        dsl, reentrant_dstar_lite_heuristic, &context)
+        == NAVSYS_STATUS_OK);
+
+    coord_t coord = {0, 0};
+    dstar_lite_key_t* key = dstar_lite_calc_key(dsl, &coord);
+    REQUIRE(key != nullptr);
+    CHECK(context.calls == 1);
+    CHECK(context.bind_cost_status == NAVSYS_STATUS_IN_PROGRESS);
+    CHECK(context.unbind_cost_status == NAVSYS_STATUS_IN_PROGRESS);
+    CHECK(context.bind_heuristic_status == NAVSYS_STATUS_IN_PROGRESS);
+    CHECK(context.unbind_heuristic_status == NAVSYS_STATUS_IN_PROGRESS);
+    CHECK(context.bind_move_status == NAVSYS_STATUS_IN_PROGRESS);
+    CHECK(context.unbind_move_status == NAVSYS_STATUS_IN_PROGRESS);
+    CHECK(context.bind_changed_status == NAVSYS_STATUS_IN_PROGRESS);
+    CHECK(context.unbind_changed_status == NAVSYS_STATUS_IN_PROGRESS);
+    CHECK(context.destroy_attempted);
+    CHECK(dstar_lite_get_cost_func(dsl) == dstar_lite_cost);
+    CHECK(dstar_lite_get_heuristic_func(dsl)
+        == reentrant_dstar_lite_heuristic);
+    CHECK(dstar_lite_get_heuristic_func_userdata(dsl) == &context);
+    CHECK(dstar_lite_get_move_func(dsl) == nullptr);
+    CHECK(dstar_lite_get_changed_coords_func(dsl) == nullptr);
+
+    dstar_lite_key_destroy(key);
+    dstar_lite_destroy(dsl);
     navgrid_destroy(navgrid);
 }
 

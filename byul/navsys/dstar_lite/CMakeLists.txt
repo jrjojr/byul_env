@@ -12,6 +12,7 @@ set(${PROJECT_NAME}_SOURCES
     ${CMAKE_CURRENT_SOURCE_DIR}/dstar_lite_pqueue.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/dstar_lite.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/dstar_lite_tick.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/internal/dstar_lite_callback.hpp
 
 CACHE INTERNAL "${PROJECT_NAME} source files"  FORCE
 )

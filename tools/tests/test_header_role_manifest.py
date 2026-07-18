@@ -24,17 +24,19 @@ class HeaderRoleManifestTest(unittest.TestCase):
         }
 
     def test_all_existing_assets_are_approved_once(self):
-        self.assertEqual(137, self.manifest["summary"]["headers"])
-        self.assertEqual(137, self.manifest["summary"]["approved"])
-        self.assertEqual(137, len(self.by_path))
+        self.assertEqual(138, self.manifest["summary"]["headers"])
+        self.assertEqual(138, self.manifest["summary"]["approved"])
+        self.assertEqual(138, len(self.by_path))
 
-    def test_navgrid_callback_guard_remains_internal(self):
-        row = self.by_path[
-            "byul/navsys/navgrid/internal/navgrid_callback.hpp"
-        ]
-        self.assertEqual("internal", row["primary_role"])
-        self.assertFalse(row["approved_install"])
-        self.assertEqual("excluded", row["wrapper"]["mode"])
+    def test_callback_guards_remain_internal(self):
+        for path in (
+            "byul/navsys/dstar_lite/internal/dstar_lite_callback.hpp",
+            "byul/navsys/navgrid/internal/navgrid_callback.hpp",
+        ):
+            row = self.by_path[path]
+            self.assertEqual("internal", row["primary_role"])
+            self.assertFalse(row["approved_install"])
+            self.assertEqual("excluded", row["wrapper"]["mode"])
 
     def test_boundary_decisions_cover_stage_one_unknowns(self):
         self.assertEqual(

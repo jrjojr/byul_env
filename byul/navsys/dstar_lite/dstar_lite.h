@@ -183,6 +183,18 @@ BYUL_API dstar_lite_t* dstar_lite_create_full(
     heuristic_func heuristic_fn,
     bool debug_mode_enabled);
 
+/**
+ * @brief D* Lite object와 소유한 search resource를 해제한다.
+ *
+ * 같은 object의 callback 실행 중 호출하면 안전을 위해 아무 작업도 하지 않는다.
+ *
+ * @param[in,out] dsl 해제할 D* Lite object. NULL이면 아무 작업도 하지 않는다.
+ * @byul.nullable dsl true
+ * @byul.side_effect frees:dsl
+ * @byul.thread_safety externally-synchronized
+ * @byul.blocking false
+ * @byul.reentrant false
+ */
 BYUL_API void dstar_lite_destroy(dstar_lite_t* dsl);
 
 BYUL_API dstar_lite_t* dstar_lite_copy(const dstar_lite_t* src);
@@ -294,7 +306,8 @@ BYUL_API void dstar_lite_set_changed_coords_func_userdata(
  * @param[in,out] dsl 변경할 D* Lite object.
  * @param[in] fn bind할 callback.
  * @param[in] userdata callback에 전달할 caller 소유 data.
- * @return NAVSYS_STATUS_OK 또는 NAVSYS_STATUS_INVALID_ARGUMENT.
+ * @return NAVSYS_STATUS_OK, NAVSYS_STATUS_INVALID_ARGUMENT 또는
+ * NAVSYS_STATUS_IN_PROGRESS.
  * @byul.nullable dsl false
  * @byul.nullable fn false
  * @byul.nullable userdata true
@@ -310,7 +323,8 @@ BYUL_API navsys_status_t dstar_lite_bind_cost_func(
 
 /** @brief Cost binding을 D* Lite 기본값으로 되돌린다.
  * @param[in,out] dsl 변경할 D* Lite object.
- * @return NAVSYS_STATUS_OK 또는 NAVSYS_STATUS_INVALID_ARGUMENT.
+ * @return NAVSYS_STATUS_OK, NAVSYS_STATUS_INVALID_ARGUMENT 또는
+ * NAVSYS_STATUS_IN_PROGRESS.
  * @byul.nullable dsl false
  * @byul.side_effect mutates:dsl
  * @byul.thread_safety externally-synchronized
@@ -324,7 +338,8 @@ BYUL_API navsys_status_t dstar_lite_unbind_cost_func(dstar_lite_t* dsl);
  * @param[in,out] dsl 변경할 D* Lite object.
  * @param[in] fn bind할 callback.
  * @param[in] userdata callback에 전달할 caller 소유 data.
- * @return NAVSYS_STATUS_OK 또는 NAVSYS_STATUS_INVALID_ARGUMENT.
+ * @return NAVSYS_STATUS_OK, NAVSYS_STATUS_INVALID_ARGUMENT 또는
+ * NAVSYS_STATUS_IN_PROGRESS.
  * @byul.nullable dsl false
  * @byul.nullable fn false
  * @byul.nullable userdata true
@@ -340,7 +355,8 @@ BYUL_API navsys_status_t dstar_lite_bind_heuristic_func(
 
 /** @brief Heuristic binding을 D* Lite 기본값으로 되돌린다.
  * @param[in,out] dsl 변경할 D* Lite object.
- * @return NAVSYS_STATUS_OK 또는 NAVSYS_STATUS_INVALID_ARGUMENT.
+ * @return NAVSYS_STATUS_OK, NAVSYS_STATUS_INVALID_ARGUMENT 또는
+ * NAVSYS_STATUS_IN_PROGRESS.
  * @byul.nullable dsl false
  * @byul.side_effect mutates:dsl
  * @byul.thread_safety externally-synchronized
@@ -355,7 +371,8 @@ BYUL_API navsys_status_t dstar_lite_unbind_heuristic_func(
  * @param[in,out] dsl 변경할 D* Lite object.
  * @param[in] fn bind할 callback.
  * @param[in] userdata callback에 전달할 caller 소유 data.
- * @return NAVSYS_STATUS_OK 또는 NAVSYS_STATUS_INVALID_ARGUMENT.
+ * @return NAVSYS_STATUS_OK, NAVSYS_STATUS_INVALID_ARGUMENT 또는
+ * NAVSYS_STATUS_IN_PROGRESS.
  * @byul.nullable dsl false
  * @byul.nullable fn false
  * @byul.nullable userdata true
@@ -371,7 +388,8 @@ BYUL_API navsys_status_t dstar_lite_bind_move_func(
 
 /** @brief Move callback과 userdata를 NULL로 되돌린다.
  * @param[in,out] dsl 변경할 D* Lite object.
- * @return NAVSYS_STATUS_OK 또는 NAVSYS_STATUS_INVALID_ARGUMENT.
+ * @return NAVSYS_STATUS_OK, NAVSYS_STATUS_INVALID_ARGUMENT 또는
+ * NAVSYS_STATUS_IN_PROGRESS.
  * @byul.nullable dsl false
  * @byul.side_effect mutates:dsl
  * @byul.thread_safety externally-synchronized
@@ -385,7 +403,8 @@ BYUL_API navsys_status_t dstar_lite_unbind_move_func(dstar_lite_t* dsl);
  * @param[in,out] dsl 변경할 D* Lite object.
  * @param[in] fn bind할 callback.
  * @param[in] userdata callback에 전달할 caller 소유 data.
- * @return NAVSYS_STATUS_OK 또는 NAVSYS_STATUS_INVALID_ARGUMENT.
+ * @return NAVSYS_STATUS_OK, NAVSYS_STATUS_INVALID_ARGUMENT 또는
+ * NAVSYS_STATUS_IN_PROGRESS.
  * @byul.nullable dsl false
  * @byul.nullable fn false
  * @byul.nullable userdata true
@@ -401,7 +420,8 @@ BYUL_API navsys_status_t dstar_lite_bind_changed_coords_func(
 
 /** @brief Changed-coordinates callback과 userdata를 NULL로 되돌린다.
  * @param[in,out] dsl 변경할 D* Lite object.
- * @return NAVSYS_STATUS_OK 또는 NAVSYS_STATUS_INVALID_ARGUMENT.
+ * @return NAVSYS_STATUS_OK, NAVSYS_STATUS_INVALID_ARGUMENT 또는
+ * NAVSYS_STATUS_IN_PROGRESS.
  * @byul.nullable dsl false
  * @byul.side_effect mutates:dsl
  * @byul.thread_safety externally-synchronized
