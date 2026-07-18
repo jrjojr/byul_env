@@ -9,6 +9,8 @@
 #include <float.h>
 #include <cmath>
 
+extern bool route_finder_poll_cancel_internal(void);
+
 route_t* find_ida_star(const navgrid_t* m,
     const coord_t* start, const coord_t* goal,
     cost_func cost_fn, heuristic_func heuristic_fn,
@@ -26,6 +28,7 @@ route_t* find_ida_star(const navgrid_t* m,
     float best_f = FLT_MAX;
 
     while (true) {
+        if (route_finder_poll_cancel_internal()) break;
         float next_threshold = FLT_MAX;
 
         coord_hash_t* cost_so_far = coord_hash_create_full(
@@ -56,7 +59,8 @@ route_t* find_ida_star(const navgrid_t* m,
         bool found = false;
         coord_t* final = nullptr;
 
-        while (!cost_coord_pq_is_empty(frontier) && retry++ < max_retry) {
+        while (!cost_coord_pq_is_empty(frontier)
+            && !route_finder_poll_cancel_internal() && retry++ < max_retry) {
             coord_t* current = cost_coord_pq_pop(frontier);
 
             float* g_ptr = (float*)coord_hash_get(cost_so_far, current);

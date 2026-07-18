@@ -355,8 +355,16 @@ class NavsysLifecyclePolicyTest(unittest.TestCase):
             contract["failure_output"],
         )
         self.assertEqual(
-            "deferred-until-algorithms-expose-bounded-polling",
+            "call-scoped-cooperative-polling",
             contract["cancellation"],
+        )
+        self.assertEqual(
+            "before-each-expansion-and-during-unbounded-reconstruction",
+            contract["cancel_polling"],
+        )
+        self.assertEqual(
+            "synchronous-calling-thread",
+            contract["cancel_callback_thread"],
         )
         self.assertEqual(
             "deferred-until-algorithms-expose-caller-storage",
@@ -365,13 +373,17 @@ class NavsysLifecyclePolicyTest(unittest.TestCase):
         for symbol in [
             *contract["checked_setters"],
             contract["run_symbol"],
+            contract["controlled_run_symbol"],
         ]:
             with self.subTest(symbol=symbol):
                 self.assertIn(symbol, exported_symbols)
                 self.assertIn(symbol, self.sdk_consumer)
                 self.assertIn(symbol, self.route_finder_wrapper)
         self.assertIn(contract["stats_type"], self.route_finder_wrapper)
+        self.assertIn(contract["options_type"], self.route_finder_wrapper)
+        self.assertIn(contract["cancel_callback"], self.route_finder_wrapper)
         self.assertIn("def find_ex(", self.route_finder_wrapper)
+        self.assertIn("cancel_callback", self.route_finder_wrapper)
 
 
 if __name__ == "__main__":

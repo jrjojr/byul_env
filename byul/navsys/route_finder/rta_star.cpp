@@ -9,6 +9,8 @@
 #include <float.h>
 #include <cmath>
 
+extern bool route_finder_poll_cancel_internal(void);
+
 static float rta_iterative_eval(const navgrid_t* m,
     const coord_t* start, const coord_t* goal, int max_depth,
     cost_func cost_fn, heuristic_func heuristic_fn,
@@ -85,7 +87,8 @@ route_t* find_rta_star(const navgrid_t* m,
     if (debug_mode_enabled) route_add_visited(result, current);
 
     int retry = 0;
-    while (!coord_equal(current, goal) && retry++ < max_retry) {
+    while (!coord_equal(current, goal)
+        && !route_finder_poll_cancel_internal() && retry++ < max_retry) {
         coord_list_t* neighbors = navgrid_copy_neighbors(m, current->x, current->y);
         coord_t* best = nullptr;
         float best_f = FLT_MAX;

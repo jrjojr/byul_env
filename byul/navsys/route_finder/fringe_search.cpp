@@ -9,6 +9,8 @@
 #include <float.h>
 #include <cmath>
 
+extern bool route_finder_poll_cancel_internal(void);
+
 route_t* find_fringe_search(const navgrid_t* m,
     const coord_t* start, const coord_t* goal,
     cost_func cost_fn, heuristic_func heuristic_fn, float delta_epsilon,
@@ -59,13 +61,15 @@ route_t* find_fringe_search(const navgrid_t* m,
     cost_coord_pq_t* next_frontier = cost_coord_pq_create();
 
     while (!cost_coord_pq_is_empty(frontier) && 
-        (max_retry <= 0 || total_retry < max_retry)) {
+        (max_retry <= 0 || total_retry < max_retry)
+        && !route_finder_poll_cancel_internal()) {
 
         float next_threshold = FLT_MAX;
         bool expanded = false;
 
         while (!cost_coord_pq_is_empty(frontier) && 
-            (max_retry <= 0 || total_retry < max_retry)) {
+            (max_retry <= 0 || total_retry < max_retry)
+            && !route_finder_poll_cancel_internal()) {
 
             ++total_retry;
             coord_t* current = cost_coord_pq_pop(frontier);

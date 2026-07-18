@@ -11,6 +11,22 @@
 #include <algorithm>
 #include <iostream>
 #include <limits>
+#include <stdexcept>
+
+struct cancel_fixture {
+    int calls;
+    int cancel_after;
+};
+
+static bool cancel_after_n_polls(void* userdata) {
+    cancel_fixture* fixture = static_cast<cancel_fixture*>(userdata);
+    ++fixture->calls;
+    return fixture->calls >= fixture->cancel_after;
+}
+
+static bool throwing_cancel(void*) {
+    throw std::runtime_error("cancel callback failure");
+}
 
 TEST_CASE("route finder capability query matches the dispatcher") {
     const route_finder_type_t supported[] = {
@@ -197,6 +213,70 @@ TEST_CASE("run_ex separates success no-path and limit termination") {
     CHECK_FALSE(stats.complete);
     CHECK(stats.total_retry_count >= 1);
     route_destroy(route);
+
+    route_finder_destroy(finder);
+    navgrid_destroy(navgrid);
+}
+
+TEST_CASE("run options cooperatively cancel every dispatcher algorithm") {
+    const route_finder_type_t supported[] = {
+        ROUTE_FINDER_ASTAR,
+        ROUTE_FINDER_BFS,
+        ROUTE_FINDER_DFS,
+        ROUTE_FINDER_DIJKSTRA,
+        ROUTE_FINDER_FAST_MARCHING,
+        ROUTE_FINDER_FRINGE_SEARCH,
+        ROUTE_FINDER_GREEDY_BEST_FIRST,
+        ROUTE_FINDER_IDA_STAR,
+        ROUTE_FINDER_RTA_STAR,
+        ROUTE_FINDER_SMA_STAR,
+        ROUTE_FINDER_WEIGHTED_ASTAR,
+    };
+    navgrid_t* navgrid = navgrid_create();
+    REQUIRE(navgrid != nullptr);
+    route_finder_t* finder = route_finder_create(navgrid);
+    REQUIRE(finder != nullptr);
+    coord_t goal = {9, 9};
+    route_finder_set_goal(finder, &goal);
+
+    for (route_finder_type_t type : supported) {
+        CAPTURE(type);
+        REQUIRE(route_finder_set_type_checked(finder, type)
+            == NAVSYS_STATUS_OK);
+        cancel_fixture fixture = {0, 1};
+        route_finder_run_options_t options = {
+            static_cast<uint32_t>(sizeof(route_finder_run_options_t)),
+            cancel_after_n_polls,
+            &fixture
+        };
+        route_t* route = nullptr;
+        route_finder_run_stats_t stats = {};
+        CHECK(route_finder_run_with_options(
+            finder, &options, &route, &stats) == NAVSYS_STATUS_CANCELLED);
+        CHECK(fixture.calls == 1);
+        REQUIRE(route != nullptr);
+        CHECK_FALSE(stats.complete);
+        CHECK(stats.route_length == route_length(route));
+        route_destroy(route);
+    }
+
+    route_t* route = reinterpret_cast<route_t*>(1);
+    route_finder_run_stats_t stats = {91, 92, 93.0f, true, true};
+    route_finder_run_options_t invalid = {};
+    CHECK(route_finder_run_with_options(
+        finder, &invalid, &route, &stats) == NAVSYS_STATUS_INVALID_ARGUMENT);
+    CHECK(route == reinterpret_cast<route_t*>(1));
+    CHECK(stats.total_retry_count == 91);
+
+    route_finder_run_options_t throwing = {
+        static_cast<uint32_t>(sizeof(route_finder_run_options_t)),
+        throwing_cancel,
+        nullptr
+    };
+    CHECK(route_finder_run_with_options(
+        finder, &throwing, &route, &stats) == NAVSYS_STATUS_CALLBACK_FAILED);
+    CHECK(route == reinterpret_cast<route_t*>(1));
+    CHECK(stats.total_retry_count == 91);
 
     route_finder_destroy(finder);
     navgrid_destroy(navgrid);

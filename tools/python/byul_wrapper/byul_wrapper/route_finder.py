@@ -94,6 +94,14 @@ typedef struct s_route_finder_run_stats {
     bool partial;
 } route_finder_run_stats_t;
 
+typedef bool (*route_finder_cancel_func)(void* userdata);
+
+typedef struct s_route_finder_run_options {
+    uint32_t struct_size;
+    route_finder_cancel_func cancel_func;
+    void* cancel_userdata;
+} route_finder_run_options_t;
+
  const char* get_route_finder_name(route_finder_type_t pa);
 
  bool route_finder_is_supported(route_finder_type_t type);
@@ -256,6 +264,12 @@ typedef struct s_route_finder {
 
  navsys_status_t route_finder_run_ex(
     route_finder_t* finder,
+    route_t** out_route,
+    route_finder_run_stats_t* out_stats);
+
+ navsys_status_t route_finder_run_with_options(
+    route_finder_t* finder,
+    const route_finder_run_options_t* options,
     route_t** out_route,
     route_finder_run_stats_t* out_stats);
 
@@ -518,13 +532,34 @@ class c_route_finder:
             return c_route(raw_ptr=result, own=True)
         return None
 
-    def find_ex(self):
+    def find_ex(self, cancel=None):
         out_route = ffi.new("route_t**")
         out_stats = ffi.new("route_finder_run_stats_t*")
-        status = NavsysStatus(
-            C.route_finder_run_ex(self._c, out_route, out_stats)
-        )
+        callback_error = []
+        if cancel is None:
+            raw_status = C.route_finder_run_ex(
+                self._c, out_route, out_stats
+            )
+        else:
+            @ffi.callback("bool(void*)")
+            def cancel_callback(_):
+                try:
+                    return bool(cancel())
+                except BaseException as exc:
+                    callback_error.append(exc)
+                    return True
+
+            options = ffi.new("route_finder_run_options_t*")
+            options.struct_size = ffi.sizeof("route_finder_run_options_t")
+            options.cancel_func = cancel_callback
+            options.cancel_userdata = ffi.NULL
+            raw_status = C.route_finder_run_with_options(
+                self._c, options, out_route, out_stats
+            )
+        status = NavsysStatus(raw_status)
         if out_route[0] == ffi.NULL:
+            if callback_error:
+                raise callback_error[0]
             return status, None, None
         stats = RouteFinderRunStats(
             total_retry_count=out_stats.total_retry_count,
@@ -533,7 +568,11 @@ class c_route_finder:
             complete=bool(out_stats.complete),
             partial=bool(out_stats.partial),
         )
-        return status, c_route(raw_ptr=out_route[0], own=True), stats
+        route = c_route(raw_ptr=out_route[0], own=True)
+        if callback_error:
+            route.close()
+            raise callback_error[0]
+        return status, route, stats
 
     def set_type(self, type: RouteFinderType):
         status = C.route_finder_set_type_checked(self._c, type)

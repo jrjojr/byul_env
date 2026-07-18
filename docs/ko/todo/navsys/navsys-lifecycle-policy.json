@@ -79,6 +79,9 @@
         "route_finder_set_max_retry_checked"
       ],
       "run_symbol": "route_finder_run_ex",
+      "controlled_run_symbol": "route_finder_run_with_options",
+      "options_type": "route_finder_run_options_t",
+      "cancel_callback": "route_finder_cancel_func",
       "stats_type": "route_finder_run_stats_t",
       "normal_termination": [
         "NAVSYS_STATUS_OK",
@@ -90,7 +93,11 @@
       "route_termination": "route_destroy",
       "legacy_run": "forwards-to-run-ex-and-preserves-null-on-runtime-failure",
       "limit": "positive-max-retry-required",
-      "cancellation": "deferred-until-algorithms-expose-bounded-polling",
+      "cancellation": "call-scoped-cooperative-polling",
+      "cancel_polling": "before-each-expansion-and-during-unbounded-reconstruction",
+      "cancel_output": "caller-owned-partial-route-and-value-stats-when-produced",
+      "cancel_callback_thread": "synchronous-calling-thread",
+      "cancel_callback_failure": "cpp-exception-maps-to-callback-failed-and-preserves-outputs",
       "workspace": "deferred-until-algorithms-expose-caller-storage"
     }
   },

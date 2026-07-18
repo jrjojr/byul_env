@@ -6,6 +6,8 @@
 #include "route.h"
 #include <stdint.h>
 
+extern bool route_finder_poll_cancel_internal(void);
+
 route_t* find_dfs(const navgrid_t* m, const coord_t* start, const coord_t* goal, 
     int max_retry, bool debug_mode_enabled) {
 
@@ -31,7 +33,8 @@ route_t* find_dfs(const navgrid_t* m, const coord_t* start, const coord_t* goal,
     coord_t* final = NULL;
     int retry = 0;
 
-    while (!coord_list_empty(frontier) && retry++ < max_retry) {
+    while (!coord_list_empty(frontier)
+        && !route_finder_poll_cancel_internal() && retry++ < max_retry) {
         coord_t current = coord_list_pop_front(frontier);
 
         if (coord_equal(&current, goal)) {

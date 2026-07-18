@@ -1,6 +1,8 @@
 #ifndef ROUTE_FINDER_H
 #define ROUTE_FINDER_H
 
+#include <stdint.h>
+
 #include "route_finder_core.h"
 #include "navsys_status.h"
 
@@ -132,6 +134,31 @@ typedef struct s_route_finder_run_stats {
     bool complete; /**< True only when the goal was reached. */
     bool partial; /**< True when a non-empty route did not reach the goal. */
 } route_finder_run_stats_t;
+
+/**
+ * @brief Requests cooperative cancellation for one route finder execution.
+ *
+ * The callback runs synchronously on the thread executing the search. Returning
+ * true requests cancellation; returning false allows the search to continue.
+ */
+typedef bool (*route_finder_cancel_func)(void* userdata);
+
+/**
+ * @brief Supplies call-scoped controls for one route finder execution.
+ *
+ * Set struct_size to sizeof(route_finder_run_options_t). The callback and its
+ * userdata are borrowed only for the duration of route_finder_run_with_options.
+ *
+ * @byul.storage basic-value
+ * @byul.zero_valid false
+ * @byul.copy_semantics trivial-copy
+ * @byul.thread_safety thread-compatible
+ */
+typedef struct s_route_finder_run_options {
+    uint32_t struct_size;
+    route_finder_cancel_func cancel_func;
+    void* cancel_userdata;
+} route_finder_run_options_t;
 
 BYUL_API const char* get_route_finder_name(route_finder_type_t pa);
 
@@ -542,6 +569,46 @@ BYUL_API route_t* route_finder_run(route_finder_t* a);
  */
 BYUL_API navsys_status_t route_finder_run_ex(
     route_finder_t* finder,
+    route_t** out_route,
+    route_finder_run_stats_t* out_stats);
+
+/**
+ * @brief Runs the selected algorithm with call-scoped cancellation controls.
+ *
+ * The algorithm polls cancel_func before each expansion and during unbounded
+ * reconstruction loops. If cancellation is observed after a route result is
+ * created, CANCELLED returns that caller-owned partial route and its statistics.
+ * The caller destroys it with route_destroy. INVALID_ARGUMENT, UNSUPPORTED,
+ * OUT_OF_MEMORY, CALLBACK_FAILED, and IN_PROGRESS preserve both outputs.
+ *
+ * @param[in,out] finder Configured route finder.
+ * @param[in] options Optional call-scoped controls, or NULL for no cancellation.
+ * @param[out] out_route Receives an owned route on normal or cancelled termination.
+ * @param[out] out_stats Receives statistics on normal or cancelled termination.
+ * @return Common Navsys status value.
+ * @retval NAVSYS_STATUS_OK The goal was reached.
+ * @retval NAVSYS_STATUS_CANCELLED cancel_func requested cancellation.
+ * @retval NAVSYS_STATUS_CALLBACK_FAILED cancel_func raised a C++ exception.
+ * @retval NAVSYS_STATUS_INVALID_ARGUMENT An argument or struct_size is invalid.
+ * @retval NAVSYS_STATUS_UNSUPPORTED The selected algorithm is not implemented.
+ * @retval NAVSYS_STATUS_OUT_OF_MEMORY The algorithm could not create a result.
+ * @retval NAVSYS_STATUS_NO_PATH Search terminated without reaching the goal.
+ * @retval NAVSYS_STATUS_LIMIT_REACHED The configured retry limit was reached.
+ * @retval NAVSYS_STATUS_IN_PROGRESS A callback on the same finder is active.
+ * @byul.nullable finder false
+ * @byul.nullable options true
+ * @byul.nullable out_route false
+ * @byul.nullable out_stats false
+ * @byul.lifetime options call-only
+ * @byul.lifetime out_route caller-owned
+ * @byul.side_effect mutates:finder,allocates:out_route,invokes-callbacks
+ * @byul.thread_safety externally-synchronized
+ * @byul.blocking true
+ * @byul.reentrant false
+ */
+BYUL_API navsys_status_t route_finder_run_with_options(
+    route_finder_t* finder,
+    const route_finder_run_options_t* options,
     route_t** out_route,
     route_finder_run_stats_t* out_stats);
 

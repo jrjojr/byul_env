@@ -111,6 +111,27 @@ class TestRouteFinder(unittest.TestCase):
             self.route_finder.set_type(RouteFinderType.BELLMAN_FORD)
         self.assertEqual(RouteFinderType.ASTAR, self.route_finder.get_type())
 
+    def test_find_ex_supports_call_scoped_cancellation(self):
+        calls = []
+
+        def cancel():
+            calls.append(len(calls) + 1)
+            return len(calls) >= 2
+
+        status, route, stats = self.route_finder.find_ex(cancel=cancel)
+        self.assertEqual(NavsysStatus.CANCELLED, status)
+        self.assertEqual([1, 2], calls)
+        self.assertIsNotNone(route)
+        self.assertFalse(stats.complete)
+        self.assertEqual(route.length(), stats.route_length)
+        route.close()
+
+        def fail_cancel():
+            raise RuntimeError("cancel failed")
+
+        with self.assertRaisesRegex(RuntimeError, "cancel failed"):
+            self.route_finder.find_ex(cancel=fail_cancel)
+
     def test_find_bfs(self):
         print('test_find_bfs')
         self.route_finder.set_type(RouteFinderType.BFS)

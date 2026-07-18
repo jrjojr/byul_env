@@ -9,6 +9,8 @@
 #include <float.h>
 #include <cmath>
 
+extern bool route_finder_poll_cancel_internal(void);
+
 route_t* find_weighted_astar(const navgrid_t* m,
     const coord_t* start, const coord_t* goal,
     cost_func cost_fn, heuristic_func heuristic_fn,
@@ -51,7 +53,8 @@ route_t* find_weighted_astar(const navgrid_t* m,
     coord_t* final = nullptr;
     int retry = 0;
 
-    while (!cost_coord_pq_is_empty(frontier) && retry++ < max_retry) {
+    while (!cost_coord_pq_is_empty(frontier)
+        && !route_finder_poll_cancel_internal() && retry++ < max_retry) {
         coord_t* current = cost_coord_pq_pop(frontier);
 
         if (coord_equal(current, goal)) {

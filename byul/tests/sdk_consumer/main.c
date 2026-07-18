@@ -6,6 +6,12 @@
 #include "byul.h"
 #include "navsys_status.h"
 
+static bool cancel_immediately(void* userdata) {
+    int* calls = (int*)userdata;
+    ++*calls;
+    return true;
+}
+
 static_assert(NAVSYS_STATUS_OK == 0, "NAVSYS_STATUS_OK ABI");
 static_assert(NAVSYS_STATUS_INVALID_ARGUMENT == -1, "NAVSYS_STATUS_INVALID_ARGUMENT ABI");
 static_assert(NAVSYS_STATUS_OUT_OF_MEMORY == -2, "NAVSYS_STATUS_OUT_OF_MEMORY ABI");
@@ -169,6 +175,24 @@ int main(void) {
         return 4;
     }
     route_destroy(route);
+    route = NULL;
+
+    int cancel_calls = 0;
+    route_finder_run_options_t run_options = {
+        (uint32_t)sizeof(route_finder_run_options_t),
+        cancel_immediately,
+        &cancel_calls
+    };
+    if (route_finder_run_with_options(
+            finder, &run_options, &route, &run_stats)
+            != NAVSYS_STATUS_CANCELLED
+        || cancel_calls != 1
+        || route == NULL
+        || run_stats.complete) {
+        fprintf(stderr, "unexpected route finder cancellation ABI\n");
+        return 5;
+    }
+    route_destroy(route);
 
     if (navgrid_bind_is_coord_blocked_func(
             navgrid, sdk_is_blocked, &callback_identity) != NAVSYS_STATUS_OK
@@ -204,7 +228,7 @@ int main(void) {
         || route_finder_unbind_cost_func(finder) != NAVSYS_STATUS_OK
         || navgrid_unbind_is_coord_blocked_func(navgrid) != NAVSYS_STATUS_OK) {
         fprintf(stderr, "unexpected Navsys callback binding ABI\n");
-        return 5;
+        return 6;
     }
     dstar_lite_destroy(dsl);
     route_finder_destroy(finder);

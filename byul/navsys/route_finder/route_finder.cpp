@@ -25,6 +25,43 @@
 
 static thread_local route_finder_t* active_callback_finder = nullptr;
 
+struct route_finder_cancel_context {
+    route_finder_cancel_func callback;
+    void* userdata;
+    bool requested;
+    bool failed;
+};
+
+static thread_local route_finder_cancel_context* active_cancel_context = nullptr;
+
+bool route_finder_poll_cancel_internal(void) {
+    route_finder_cancel_context* context = active_cancel_context;
+    if (!context || context->requested || context->failed)
+        return context && (context->requested || context->failed);
+    if (!context->callback) return false;
+    try {
+        context->requested = context->callback(context->userdata);
+    } catch (...) {
+        context->failed = true;
+    }
+    return context->requested || context->failed;
+}
+
+class route_finder_cancel_scope {
+public:
+    explicit route_finder_cancel_scope(route_finder_cancel_context* context)
+        : previous_(active_cancel_context) {
+        active_cancel_context = context;
+    }
+
+    ~route_finder_cancel_scope() {
+        active_cancel_context = previous_;
+    }
+
+private:
+    route_finder_cancel_context* previous_;
+};
+
 const char* get_route_finder_name(route_finder_type_t pa) {
     switch (pa) {
         case ROUTE_FINDER_BFS: return "bfs";
@@ -615,12 +652,15 @@ bool route_finder_is_supported(route_finder_type_t type) {
     return route_finder_get_run_func(type) != nullptr;
 }
 
-navsys_status_t route_finder_run_ex(
+navsys_status_t route_finder_run_with_options(
     route_finder_t* finder,
+    const route_finder_run_options_t* options,
     route_t** out_route,
     route_finder_run_stats_t* out_stats) {
     if (!finder || !out_route || !out_stats || !route_finder_is_valid(finder)
         || finder->max_retry <= 0)
+        return NAVSYS_STATUS_INVALID_ARGUMENT;
+    if (options && options->struct_size < sizeof(route_finder_run_options_t))
         return NAVSYS_STATUS_INVALID_ARGUMENT;
     if (active_callback_finder == finder)
         return NAVSYS_STATUS_IN_PROGRESS;
@@ -628,8 +668,19 @@ navsys_status_t route_finder_run_ex(
     route_finder_run_func run = route_finder_get_run_func(finder->type);
     if (!run) return NAVSYS_STATUS_UNSUPPORTED;
 
+    route_finder_cancel_context cancel_context = {
+        options ? options->cancel_func : nullptr,
+        options ? options->cancel_userdata : nullptr,
+        false,
+        false
+    };
     route_finder_callback_scope callback_scope(finder);
+    route_finder_cancel_scope cancel_scope(&cancel_context);
     route_t* route = run(finder);
+    if (cancel_context.failed) {
+        if (route) route_destroy(route);
+        return NAVSYS_STATUS_CALLBACK_FAILED;
+    }
     if (!route) return NAVSYS_STATUS_OUT_OF_MEMORY;
 
     route_finder_run_stats_t stats = {};
@@ -640,7 +691,9 @@ navsys_status_t route_finder_run_ex(
     stats.partial = !stats.complete && stats.route_length > 0;
 
     navsys_status_t status = NAVSYS_STATUS_OK;
-    if (!stats.complete) {
+    if (cancel_context.requested) {
+        status = NAVSYS_STATUS_CANCELLED;
+    } else if (!stats.complete) {
         status = stats.total_retry_count >= finder->max_retry
             ? NAVSYS_STATUS_LIMIT_REACHED
             : NAVSYS_STATUS_NO_PATH;
@@ -649,6 +702,14 @@ navsys_status_t route_finder_run_ex(
     *out_route = route;
     *out_stats = stats;
     return status;
+}
+
+navsys_status_t route_finder_run_ex(
+    route_finder_t* finder,
+    route_t** out_route,
+    route_finder_run_stats_t* out_stats) {
+    return route_finder_run_with_options(
+        finder, nullptr, out_route, out_stats);
 }
 
 route_t* route_finder_run(route_finder_t* finder) {

@@ -4,7 +4,7 @@
   "source_vocabulary": "docs/ko/todo/navsys/navsys-abi-vocabulary.json",
   "summary": {
     "headers": 46,
-    "symbols": 447,
+    "symbols": 448,
     "return_forms": {
       "nullable_pointer": 148,
       "bool_predicate": 21,
@@ -13,7 +13,7 @@
       "int_count": 14,
       "int_index_minus_one": 4,
       "void_fallible_operation": 136,
-      "enum_result": 46,
+      "enum_result": 47,
       "floating_result": 19,
       "callback_return": 0
     },
@@ -9359,7 +9359,7 @@
       "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-finder-route-finder.org",
       "primary_role": "public-module-entry",
       "wrapper_mode": "generated",
-      "symbol_count": 47,
+      "symbol_count": 48,
       "audit_issue_count": 46,
       "symbols": [
         "route_finder_is_supported",
@@ -9408,7 +9408,8 @@
         "route_finder_is_valid",
         "route_finder_print",
         "route_finder_run",
-        "route_finder_run_ex"
+        "route_finder_run_ex",
+        "route_finder_run_with_options"
       ]
     },
     {
@@ -12488,6 +12489,13 @@
     {
       "header": "byul/navsys/route_finder/route_finder.h",
       "name": "route_finder_run_ex",
+      "return_type": "navsys_status_t",
+      "return_form": "enum_result",
+      "canonical": "navsys_status_t plus typed out enum"
+    },
+    {
+      "header": "byul/navsys/route_finder/route_finder.h",
+      "name": "route_finder_run_with_options",
       "return_type": "navsys_status_t",
       "return_form": "enum_result",
       "canonical": "navsys_status_t plus typed out enum"

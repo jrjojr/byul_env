@@ -4031,8 +4031,8 @@
     {
       "asset_id": "initial:byul/navsys/route_finder/route_finder.h",
       "current_path": "byul/navsys/route_finder/route_finder.h",
-      "sha256": "0d59aa5586846e50fe11f106d032108c7444c7e1df3ebdab9da1e83554b36f16",
-      "line_count": 553,
+      "sha256": "f9283bebd5a3db74df937d45a213eff4926f91dfe81d3383e7fdcb67185ad4c8",
+      "line_count": 620,
       "language": "c-header",
       "license": "missing-or-unclassified",
       "include_guard": "ROUTE_FINDER_H",
@@ -4048,6 +4048,7 @@
         "route_finder_sma_star_config_t",
         "route_finder_weighted_astar_config_t",
         "route_finder_run_stats_t",
+        "route_finder_run_options_t",
         "route_finder_t"
       ],
       "naming_disposition": "keep",
@@ -4116,7 +4117,8 @@
         "route_finder_is_valid",
         "route_finder_print",
         "route_finder_run",
-        "route_finder_run_ex"
+        "route_finder_run_ex",
+        "route_finder_run_with_options"
       ],
       "source_definition_candidates": [
         "byul/navsys/navsys.cpp",
