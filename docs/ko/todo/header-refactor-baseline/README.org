@@ -1,0 +1,82 @@
+#+TITLE: BYUL Header 리팩터링 최초 기준선
+#+LANGUAGE: ko
+#+OPTIONS: toc:2 num:nil
+#+TODO_RULES: ../../../../external/rules/projects/byul/todo-rules.org
+#+TODO_PARENT: ../todo-리팩토링.org
+
+* 책임
+
+이 directory는 상위 Header 리팩터링 TODO 1단계의 machine-readable 최초 기준선을
+보관한다. JSON은 =tools/header_refactor_baseline.py=가 Git이 추적하는 =byul=과
+=tools=의 =.h/.hpp= 135개를 입력으로 생성한 산출물이다. JSON을 직접 고치지 않는다.
+
+* 산출물
+
+- =header-inventory.json=: 최초 header asset, hash, 역할·명명 후보와
+  module/root/install/wrapper/source 교차 inventory
+- =naming-report.json=: basename 충돌, 물리 경로 반복, 대표 type 불일치와 generic
+  public-component 후보
+- =environment.json=: 생성 시점의 Git/submodule, OS와 compiler/tool 가용성 snapshot
+- =header-audit.json=: 기존 wrapper header audit의 오류와 coverage 회귀 snapshot
+- =msvc-release-build.json=: Release DLL hash/export 972개와 clean install 파일
+  inventory
+- =msvc-release-abi.json=: installed header에서 실제 compile/run으로 측정한 complete
+  struct layout과 enum numeric value
+
+=decision-required=와 =candidate-only=는 승인 결과가 아니다. 상위 TODO 2단계가 실제
+소비 이력과 build/ABI 근거로 최종 처분을 승인한다.
+
+* 생성
+
+Windows:
+
+#+begin_src bat
+set "BYUL_PYTHON=<python-3-executable>"
+tools\header_refactor_baseline.bat
+tools\header_refactor_baseline.bat --apply
+tools\header_refactor_baseline.bat --check
+#+end_src
+
+Linux와 macOS:
+
+#+begin_src sh
+BYUL_PYTHON=python3 tools/header_refactor_baseline.sh
+BYUL_PYTHON=python3 tools/header_refactor_baseline.sh --apply
+BYUL_PYTHON=python3 tools/header_refactor_baseline.sh --check
+#+end_src
+
+기본 실행은 검증과 계획만 수행하고 파일을 쓰지 않는다. =--apply=만 산출물을
+원자적으로 갱신하며, =--check=는 environment 시각·상태가 아니라 source에서 다시
+계산한 inventory와 naming report의 일치 여부를 검사한다.
+
+* 검증
+
+#+begin_src text
+python -m unittest tools/tests/test_header_refactor_baseline.py
+tools/header_refactor_baseline.bat --check
+python tools/python/byul_wrapper/generate_wrapper_abi.py --audit --all-headers \
+  --json-output docs/ko/todo/header-refactor-baseline/header-audit.json
+external/rules/validate_rules.bat
+#+end_src
+
+Header 수는 135개, =byul= 104개, =tools= 31개여야 하며 =asset_id=와
+=current_path=는 각각 중복이 없어야 한다.
+
+* MSVC build snapshot과 SDK consumer
+
+=tools/header_refactor_build_snapshot.py=는 =dumpbin /exports=와 workspace의 clean
+install staging을 입력으로 사용한다. 개인 설치 경로를 source에 저장하지 않고
+=--dumpbin=, =--dll=과 =--install-root=로 명시한다. 기본은 dry-run이며 =--apply=와
+=--check= 의미는 header 기준선 생성기와 같다.
+
+독립 C consumer는 =byul/tests/sdk_consumer=에 있으며 source tree include나 build target을
+참조하지 않는다. =BYUL_SDK_ROOT=에는 clean install prefix만 전달하고 별도 build
+directory에서 configure, Release build와 실행을 검증한다.
+
+* Layout과 enum probe
+
+=tools/header_refactor_abi_probe.py=는 installed header의 complete =typedef struct=와
+=typedef enum=을 중첩 brace까지 parse하고 임시 C++17 probe를 생성한다. Probe는 MSVC
+=/utf-8=로 compile하며 =sizeof=, =alignof=, =offsetof=와 각 enumerator 값을 실행
+결과에서 읽는다. Bit-field 또는 해석하지 못한 field는 임의 offset을 만들지 않고
+=skipped_field_declarations=에 남긴다. Forward/opaque 선언도 별도 집합으로 기록한다.

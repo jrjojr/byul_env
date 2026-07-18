@@ -247,7 +247,7 @@ public C header의 완료 상태:
 - header, implementation signature, root export, wrapper와 installed SDK가 같은 inventory를
   사용한다.
 
-* TODO 1단계: 재현 가능한 기준선과 역할 자료 동결
+* DOING 1단계: 재현 가능한 기준선과 역할 자료 동결
 
 ** 실행
 
@@ -279,6 +279,39 @@ public C header의 완료 상태:
 - =rg --files byul tools -g '*.h' -g '*.hpp'= 집합과 manifest path 집합을 비교한다.
 - manifest의 module/root/install/wrapper 집합 차이를 CI report로 출력한다.
 - 기존 SDK consumer와 ABI snapshot을 변경 전 build에서 실행한다.
+
+** 진행 기록
+
+- 2026-07-18: =tools/header_refactor_baseline.py=와 Windows/POSIX wrapper, unit test를
+  추가하고 tracked header 135개(=byul= 104, =tools= 31)의 최초 JSON inventory를
+  생성했다.
+- 현재 root/install inventory는 92개, wrapper generator 등록은 26개이며 역할 또는
+  naming 처분에 추가 판단이 필요한 header는 14개다.
+- Naming report는 SDK basename 충돌 0개, 물리 directory chain 반복 후보 6개,
+  대표 type stem 불일치 후보 24개와 generic public-component 후보 11개를 기록한다.
+- 기존 전체 public header audit는 85개 header, 940개 declaration에서 2785개 오류를
+  반환했으며 성공으로 처리하지 않고 =header-audit.json=에 회귀 기준으로 보존했다.
+- Visual Studio 2022 Community, MSVC 19.44와 bundled CMake 3.31.6으로 =win-msvc=
+  preset을 =--fresh= configure하고 Release 전체 build를 완료했다. CTest 19개는 모두
+  통과했다. 최초 sandbox configure의 Windows SDK 접근 실패는 동일 configure를 승인된
+  환경에서 재실행해 해소했으며 source/configuration 실패로 기록하지 않는다.
+- Workspace staging prefix로 clean install을 실행해 header 92개, test executable 19개를
+  포함한 파일 113개를 확인했다. Release =byul.dll= SHA-256은
+  =32422b9bbc4909db9c3eff20585d932bec664191be6785369339455ebd1a7bd0=이며 MSVC
+  =dumpbin /exports=는 name 972개를 반환했다.
+- =tools/header_refactor_build_snapshot.py=로 export 972개 이름·ordinal·RVA, DLL hash와
+  install 파일 113개의 hash를 tracked JSON으로 자동화했다. 별도
+  =byul/tests/sdk_consumer= C fixture는 clean install의 header/import library/DLL만으로
+  MSVC Release build와 실행을 통과했고 version =1.0.0.0 (1000)=을 확인했다.
+- =tools/header_refactor_abi_probe.py=가 installed header에서 complete type 57개,
+  field offset 281개, enum 13개와 enumerator 111개를 MSVC x64 Release compile/run으로
+  측정했다. 해석하지 못해 건너뛴 field 선언은 0개이며 forward/opaque 선언 16개는
+  별도 기록했다.
+- 최초 probe는 raw installed header의 한국어가 MSVC 기본 code page에서 C4819 warning을
+  내는 사실을 확인했다. 기준선 probe에 =/utf-8=을 명시해 측정은 완료했지만 installed
+  consumer encoding usage requirement는 후속 build gate에서 해결해야 한다.
+- 아직 Linux/macOS 또는 MinGW consumer gate는 실행하지 않았으므로 이 단계를 =DONE=으로
+  전환하지 않는다.
 
 * TODO 2단계: Public, compatibility, internal 경계 승인
 
