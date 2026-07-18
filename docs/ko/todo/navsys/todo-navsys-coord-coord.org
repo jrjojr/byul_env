@@ -222,6 +222,10 @@ BYUL_API navsys_status_t coord_format(
   test로 생성 경로를 검증했다.
 - 범위 초과, wrapping, aliasing과 실패 시 output 보존 정책은 아직 결정하지 않았으므로
   1단계는 =DOING=으로 유지한다.
+- legacy 정책 변경 전에 64-bit reference 계산과 비교하는 wrapping truth table을
+  추가했다. 안전한 =int= 중간값 범위에서 init/add/sub/mul의 modulo 동작, 산술
+  =out == input= aliasing, 0 나눗셈 시 output 보존, 동일점 각도 0과
+  =coord_next_to_goal(out == start)= 동작을 MSVC Release module/root test로 고정했다.
 
 ** TODO 2단계: checked value API 구현
 
