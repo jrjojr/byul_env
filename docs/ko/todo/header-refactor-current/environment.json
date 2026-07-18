@@ -1,18 +1,12 @@
 {
   "schema_version": 1,
-  "captured_at_utc": "2026-07-18T11:19:55.042906+00:00",
-  "git_head": "3df8d05f5918c8dd2974948849c9382754c6e28a",
+  "captured_at_utc": "2026-07-18T11:26:23.310853+00:00",
+  "git_head": "b350a22f1ea8fc25d522f7db257cffb1884eeebe",
   "git_branch": "test/navsys-coord-numeric-baseline",
   "git_status_porcelain": [
-    "M docs/ko/todo/header-refactor-current/README.org",
-    " M docs/ko/todo/header-refactor-current/header-abi-audit-mingw.json",
-    " M docs/ko/todo/header-refactor-current/header-abi-audit-msvc.json",
-    " M docs/ko/todo/header-refactor-current/header-abi-audit.json",
-    " M docs/ko/todo/header-refactor-current/msvc-release-abi.json",
+    "M byul/tests/sdk_consumer/main.c",
     " M docs/ko/todo/navsys/navsys-lifecycle-policy.json",
     " M docs/ko/todo/navsys/todo-navsys-industry-api-baseline.org",
-    " M tools/header_refactor_abi_probe.py",
-    " M tools/tests/test_header_refactor_baseline.py",
     " M tools/tests/test_navsys_lifecycle_policy.py"
   ],
   "rules_submodule_sha": "642275431efe0d87f4fc3856ef326d6fdfbb0aba",

@@ -47,14 +47,15 @@
     "handle_transition": {
       "abi_1_layout_snapshot": "docs/ko/todo/header-refactor-current/msvc-release-abi.json",
       "abi_2_public_form": "incomplete-struct-declaration-only",
-      "abi_1_fixture": "compile-and-run-with-abi-1-sdk-and-runtime-only",
+      "abi_1_fixture": "implemented-installed-sdk-x64-public-field-consumer",
       "abi_2_fixture": "compile-and-run-with-abi-2-sdk-and-runtime-only",
       "cross_major_loading": "reject-before-first-object-operation",
       "diagnostic": "abi-major-and-header-fingerprint"
     },
     "release_gates": {
       "allocator_failure_injection": "required-before-abi-2-release",
-      "old-layout-new-handle-consumers": "required-before-abi-2-release",
+      "old-layout-consumer": "verified-in-abi-1-msvc-and-mingw",
+      "new-handle-consumer": "required-before-abi-2-release",
       "current_state": "candidate-contract-frozen-implementation-pending"
     }
   },

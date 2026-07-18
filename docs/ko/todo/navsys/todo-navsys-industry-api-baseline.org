@@ -576,6 +576,13 @@ complete type 61개/field 306개가 되었고 =navgrid_t= 40 byte와 6개 field 
 기계 판독 형태로 추가했다. 실제 allocator failure injection과 ABI 2 runtime fixture는
 release gate에서 계속 pending이므로 이 단계는 =DOING=을 유지한다.
 
+2026-07-18 clean installed-SDK C consumer를 ABI 1 x64 old-layout fixture로 확장했다.
+=dstar_lite_t= 184 byte/27 field, =navgrid_t= 40 byte/6 field,
+=route_finder_t= 80 byte/11 field의 size, alignment와 모든 field offset을 compile-time
+assertion으로 고정한다. MSVC와 MinGW consumer가 각 installed DLL/import library 조합에서
+build/run되어 public-field ABI 1 source와 runtime 조합을 검증한다. ABI 2 SDK가 아직
+없으므로 new opaque-handle consumer와 cross-major 거부 fixture는 release gate에 남긴다.
+
 * TODO 3단계: Search Options, Result와 Capability 확정
 
 ** 실행

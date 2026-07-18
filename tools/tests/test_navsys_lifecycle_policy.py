@@ -20,6 +20,7 @@ VOCABULARY = (
     REPOSITORY_ROOT
     / "docs/ko/todo/navsys/navsys-abi-vocabulary.json"
 )
+SDK_CONSUMER = REPOSITORY_ROOT / "byul/tests/sdk_consumer/main.c"
 
 
 def load_json(path: Path) -> dict:
@@ -33,6 +34,7 @@ class NavsysLifecyclePolicyTest(unittest.TestCase):
         cls.inventory = load_json(INVENTORY)
         cls.abi_snapshot = load_json(ABI_SNAPSHOT)
         cls.vocabulary = load_json(VOCABULARY)
+        cls.sdk_consumer = SDK_CONSUMER.read_text(encoding="utf-8")
 
     def test_every_inventory_resource_has_exactly_one_model(self):
         inventory_resources = {
@@ -177,9 +179,45 @@ class NavsysLifecyclePolicyTest(unittest.TestCase):
             transition["cross_major_loading"],
         )
         self.assertEqual(
+            "implemented-installed-sdk-x64-public-field-consumer",
+            transition["abi_1_fixture"],
+        )
+        self.assertEqual(
+            "verified-in-abi-1-msvc-and-mingw",
+            abi_2["release_gates"]["old-layout-consumer"],
+        )
+        self.assertEqual(
+            "required-before-abi-2-release",
+            abi_2["release_gates"]["new-handle-consumer"],
+        )
+        self.assertEqual(
             "candidate-contract-frozen-implementation-pending",
             abi_2["release_gates"]["current_state"],
         )
+
+    def test_abi_one_consumer_pins_every_candidate_field(self):
+        candidates = set(
+            self.policy["abi_2_policy"]["opaque_struct_candidates"]
+        )
+        layouts = {
+            row["name"]: row
+            for row in self.abi_snapshot["types"]
+            if row["name"] in candidates
+        }
+
+        self.assertEqual(candidates, set(layouts))
+        for name, row in layouts.items():
+            with self.subTest(type=name):
+                self.assertIn(
+                    f"ABI1_TYPE_LAYOUT({name}, {row['size']}, "
+                    f"{row['align']});",
+                    self.sdk_consumer,
+                )
+                for field, offset in row["fields"].items():
+                    self.assertIn(
+                        f"ABI1_FIELD_OFFSET({name}, {field}, {offset});",
+                        self.sdk_consumer,
+                    )
 
 
 if __name__ == "__main__":
