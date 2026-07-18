@@ -32,8 +32,8 @@ class HeaderRefactorBaselineTest(unittest.TestCase):
 
     def test_tracked_inventory_has_expected_unique_assets(self):
         rows = self.manifest["headers"]
-        self.assertEqual(135, len(rows))
-        self.assertEqual(104, self.manifest["summary"]["byul_headers"])
+        self.assertEqual(136, len(rows))
+        self.assertEqual(105, self.manifest["summary"]["byul_headers"])
         self.assertEqual(31, self.manifest["summary"]["tool_headers"])
         self.assertEqual(len(rows), len({row["asset_id"] for row in rows}))
         self.assertEqual(
@@ -96,7 +96,7 @@ class HeaderRefactorBaselineTest(unittest.TestCase):
 
     def test_wrapper_inventory_reuses_canonical_generator_manifest(self):
         self.assertEqual(
-            26, self.manifest["summary"]["wrapper_registered_headers"]
+            27, self.manifest["summary"]["wrapper_registered_headers"]
         )
 
     def test_atomic_write_uses_utf8_and_replaces_content(self):

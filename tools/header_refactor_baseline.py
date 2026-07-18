@@ -610,7 +610,7 @@ def check_output(path: Path, expected: dict[str, Any]) -> bool:
 def main() -> int:
     parser = argparse.ArgumentParser(
         description=(
-            "BYUL의 tracked header 135개를 기준으로 inventory, naming report와 "
+            "BYUL의 tracked header 136개를 기준으로 inventory, naming report와 "
             "실행 환경 snapshot을 생성한다."
         )
     )
@@ -651,9 +651,9 @@ def main() -> int:
         f"decision-required={manifest['summary']['decision_required']}"
     )
 
-    if manifest["summary"]["headers"] != 135:
+    if manifest["summary"]["headers"] != 136:
         print(
-            f"[ERROR] expected 135 tracked headers, found {manifest['summary']['headers']}",
+            f"[ERROR] expected 136 tracked headers, found {manifest['summary']['headers']}",
             file=sys.stderr,
         )
         return 1

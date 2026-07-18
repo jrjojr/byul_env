@@ -24,9 +24,9 @@ class HeaderRoleManifestTest(unittest.TestCase):
         }
 
     def test_all_existing_assets_are_approved_once(self):
-        self.assertEqual(135, self.manifest["summary"]["headers"])
-        self.assertEqual(135, self.manifest["summary"]["approved"])
-        self.assertEqual(135, len(self.by_path))
+        self.assertEqual(136, self.manifest["summary"]["headers"])
+        self.assertEqual(136, self.manifest["summary"]["approved"])
+        self.assertEqual(136, len(self.by_path))
 
     def test_boundary_decisions_cover_stage_one_unknowns(self):
         self.assertEqual(

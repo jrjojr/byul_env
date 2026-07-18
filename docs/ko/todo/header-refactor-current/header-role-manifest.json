@@ -13,10 +13,10 @@
     ]
   },
   "summary": {
-    "headers": 135,
-    "approved": 135,
-    "approved_install": 98,
-    "wrapper_generated": 26,
+    "headers": 136,
+    "approved": 136,
+    "approved_install": 99,
+    "wrapper_generated": 27,
     "wrapper_manual": 64,
     "wrapper_excluded": 45,
     "compatibility_forwarders": 21,
@@ -25,7 +25,7 @@
     "public_resource_migrations": 10,
     "sdk_basename_collisions": 0,
     "abi_2_sdk_basename_collisions": 0,
-    "current_include_edges": 305,
+    "current_include_edges": 306,
     "current_include_cycles": 0
   },
   "remaining_stage_2_design_gate": [],
@@ -4022,7 +4022,7 @@
     {
       "asset_id": "initial:byul/navsys/navsys.h",
       "current_path": "byul/navsys/navsys.h",
-      "sha256": "6a0ccec9c600ef8e43a656a70582b5c03d830071051a982716cb6f4f3b193da0",
+      "sha256": "89552638839d7e35d2b589e84fb4f954e24d9600b25e7749a5069f4e8be51eeb",
       "primary_role": "public-module-entry",
       "role_reason": "Stage-1 evidence supports the current public or internal boundary.",
       "owner_module": "navsys",
@@ -4069,6 +4069,43 @@
           "byul/navsys/navsys.cpp",
           "byul/navsys/tests/test_module_navsys.cpp"
         ]
+      },
+      "decision_status": "approved"
+    },
+    {
+      "asset_id": "initial:byul/navsys/navsys_status.h",
+      "current_path": "byul/navsys/navsys_status.h",
+      "sha256": "70fcd9d0d728faccaacefb37128750fd7d7748d0346d50cdf415cdf0c77e94a9",
+      "primary_role": "public-foundation",
+      "role_reason": "Generated-by-refactor status foundation shared by every Navsys public component.",
+      "owner_module": "navsys",
+      "public_module": "navsys",
+      "approved_install": true,
+      "install_reason": "Public or compatibility SDK surface.",
+      "wrapper": {
+        "mode": "generated",
+        "reason": "Registered in the canonical wrapper generator manifest."
+      },
+      "naming": {
+        "disposition": "keep",
+        "canonical_path": "byul/navsys/navsys_status.h",
+        "canonical_install": true,
+        "deprecated_since": null,
+        "remove_in": null,
+        "reason": "Explicit stage-2 role decision makes the current non-SDK or C++ facade path terminal.",
+        "compatibility_path": null
+      },
+      "successor_headers": [],
+      "source_evidence": {
+        "module_header_groups": [
+          "byul",
+          "navsys"
+        ],
+        "root_header_inventory": true,
+        "install_inventory": true,
+        "wrapper_modules_registered": true,
+        "exported_symbols": [],
+        "source_definition_candidates": []
       },
       "decision_status": "approved"
     },

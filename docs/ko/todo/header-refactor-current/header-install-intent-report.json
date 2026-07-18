@@ -57,6 +57,7 @@
     "byul/navsys/navgrid/navcell.h",
     "byul/navsys/navgrid/navgrid.h",
     "byul/navsys/navsys.h",
+    "byul/navsys/navsys_status.h",
     "byul/navsys/obstacle/obstacle.h",
     "byul/navsys/obstacle/obstacle_core.h",
     "byul/navsys/route/route.h",
@@ -173,6 +174,7 @@
     "byul/navsys/navgrid/navcell.h",
     "byul/navsys/navgrid/navgrid.h",
     "byul/navsys/navsys.h",
+    "byul/navsys/navsys_status.h",
     "byul/navsys/obstacle/obstacle.h",
     "byul/navsys/obstacle/obstacle_core.h",
     "byul/navsys/route/route.h",
@@ -339,6 +341,7 @@
     "byul/navsys/navgrid/navcell.h",
     "byul/navsys/navgrid/navgrid.h",
     "byul/navsys/navsys.h",
+    "byul/navsys/navsys_status.h",
     "byul/navsys/obstacle/obstacle.h",
     "byul/navsys/obstacle/obstacle_core.h",
     "byul/navsys/route/route.h",
@@ -379,10 +382,10 @@
   ],
   "removals": [],
   "counts": {
-    "current": 92,
-    "approved_intent": 138,
+    "current": 93,
+    "approved_intent": 139,
     "additions": 46,
-    "retained": 92,
+    "retained": 93,
     "removals": 0
   }
 }

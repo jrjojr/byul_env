@@ -4,6 +4,22 @@
 
 #include <iostream>
 
+TEST_CASE("navsys: public status numeric ABI") {
+    CHECK(static_cast<int>(NAVSYS_STATUS_OK) == 0);
+    CHECK(static_cast<int>(NAVSYS_STATUS_INVALID_ARGUMENT) == -1);
+    CHECK(static_cast<int>(NAVSYS_STATUS_OUT_OF_MEMORY) == -2);
+    CHECK(static_cast<int>(NAVSYS_STATUS_UNSUPPORTED) == -3);
+    CHECK(static_cast<int>(NAVSYS_STATUS_CALLBACK_FAILED) == -4);
+    CHECK(static_cast<int>(NAVSYS_STATUS_CORRUPT_STATE) == -5);
+    CHECK(static_cast<int>(NAVSYS_STATUS_NOT_FOUND) == -6);
+    CHECK(static_cast<int>(NAVSYS_STATUS_INVALIDATED) == -7);
+    CHECK(static_cast<int>(NAVSYS_STATUS_NO_PATH) == -8);
+    CHECK(static_cast<int>(NAVSYS_STATUS_CANCELLED) == -9);
+    CHECK(static_cast<int>(NAVSYS_STATUS_LIMIT_REACHED) == -10);
+    CHECK(static_cast<int>(NAVSYS_STATUS_INCOMPLETE) == -11);
+    CHECK(static_cast<int>(NAVSYS_STATUS_IN_PROGRESS) == -12);
+}
+
 TEST_CASE("navsys: find astar") {
     navgrid_t* navgrid = navgrid_create();
 
@@ -358,4 +374,3 @@ TEST_CASE("navsys: find dstar_lite") {
     route_destroy(p);
     navgrid_destroy(navgrid);
 }
-

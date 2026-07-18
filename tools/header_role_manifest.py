@@ -341,6 +341,12 @@ ROLE_OVERRIDES: dict[str, tuple[str, str | None, str | None, str]] = {
         "byul",
         "Root export, platform and version foundation shared by installed headers.",
     ),
+    "byul/navsys/navsys_status.h": (
+        "public-foundation",
+        "navsys",
+        "navsys",
+        "Generated-by-refactor status foundation shared by every Navsys public component.",
+    ),
     "byul/entity/entity_avoidance.h": (
         "deprecated-reference",
         "entity",
@@ -921,8 +927,8 @@ def build_outputs(source: dict[str, Any]) -> tuple[dict[str, Any], dict[str, Any
         )
 
     paths = [row["current_path"] for row in approved_rows]
-    if len(paths) != len(set(paths)) or len(paths) != 135:
-        raise ValueError("approved manifest must contain exactly 135 unique current paths")
+    if len(paths) != len(set(paths)) or len(paths) != 136:
+        raise ValueError("approved manifest must contain exactly 136 unique current paths")
 
     intended_paths: list[str] = []
     for row in approved_rows:

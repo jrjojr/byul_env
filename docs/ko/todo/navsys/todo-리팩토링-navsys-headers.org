@@ -342,6 +342,11 @@ clean build/install 환경에서 반복하는 release gate다. Class 이름이 t
 fail-closed 검사한다. 같은 artifact가 Navsys Header audit debt 949건을 Header와
 실제 owner child에 연결하며, 무소유 issue를 허용하지 않는다.
 
+승인 뒤 생성한 =byul/navsys/navsys_status.h=는 최초 43개와 1:1인 child가 아니라
+공통 public-foundation asset이다. 따라서 현재 Navsys inventory는 44개지만 기존 child
+coverage 분모는 43개로 유지한다. 이 header의 enum 13개는 native/CFFI/Python 왕복,
+MSVC/MinGW standalone 190/190과 두 installed-SDK C consumer로 검증했다.
+
 *** 완료 조건
 
 - 공통 type의 정의 owner와 include DAG가 순환 없이 확정된다.

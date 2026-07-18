@@ -15,12 +15,12 @@
     "tool-move"
   ],
   "summary": {
-    "headers": 135,
-    "byul_headers": 104,
+    "headers": 136,
+    "byul_headers": 105,
     "tool_headers": 31,
-    "root_inventory_headers": 92,
-    "wrapper_registered_headers": 26,
-    "decision_required": 13
+    "root_inventory_headers": 93,
+    "wrapper_registered_headers": 27,
+    "decision_required": 14
   },
   "headers": [
     {
@@ -3261,8 +3261,8 @@
     {
       "asset_id": "initial:byul/navsys/navsys.h",
       "current_path": "byul/navsys/navsys.h",
-      "sha256": "6a0ccec9c600ef8e43a656a70582b5c03d830071051a982716cb6f4f3b193da0",
-      "line_count": 124,
+      "sha256": "89552638839d7e35d2b589e84fb4f954e24d9600b25e7749a5069f4e8be51eeb",
+      "line_count": 126,
       "language": "c-header",
       "license": "copyright-present-license-unclassified",
       "include_guard": "NAVSYS_H",
@@ -3307,6 +3307,42 @@
         "byul/navsys/tests/test_module_navsys.cpp"
       ],
       "decision_status": "candidate-only"
+    },
+    {
+      "asset_id": "initial:byul/navsys/navsys_status.h",
+      "current_path": "byul/navsys/navsys_status.h",
+      "sha256": "70fcd9d0d728faccaacefb37128750fd7d7748d0346d50cdf415cdf0c77e94a9",
+      "line_count": 49,
+      "language": "c-header",
+      "license": "copyright-present-license-unclassified",
+      "include_guard": "BYUL_NAVSYS_STATUS_H",
+      "role_candidate": "decision-required",
+      "current_owner": "navsys",
+      "public_module_boundary_candidate": "navsys",
+      "responsibility": "navsys_status",
+      "representative_type_candidate": "navsys_status_t",
+      "declared_type_candidates": [
+        "navsys_status_t"
+      ],
+      "naming_disposition": "decision-required",
+      "compatibility_path": null,
+      "successor_headers": [],
+      "canonical_owner": null,
+      "design_todo": null,
+      "naming_exception": null,
+      "module_header_groups": [
+        "byul",
+        "navsys"
+      ],
+      "root_header_inventory": true,
+      "install_inventory": true,
+      "umbrella_consumers": [
+        "byul/navsys/navsys.h"
+      ],
+      "wrapper_modules_registered": true,
+      "exported_symbols": [],
+      "source_definition_candidates": [],
+      "decision_status": "decision-required"
     },
     {
       "asset_id": "initial:byul/navsys/obstacle/obstacle.h",

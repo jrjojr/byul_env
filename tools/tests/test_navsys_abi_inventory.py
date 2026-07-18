@@ -21,9 +21,9 @@ class NavsysAbiInventoryTest(unittest.TestCase):
         )
 
     def test_all_approved_navsys_headers_are_present(self):
-        self.assertEqual(43, self.inventory["summary"]["headers"])
+        self.assertEqual(44, self.inventory["summary"]["headers"])
         self.assertEqual(
-            43,
+            44,
             len({header["path"] for header in self.inventory["headers"]}),
         )
         for header in self.inventory["headers"]:

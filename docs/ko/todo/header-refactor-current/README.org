@@ -30,7 +30,7 @@ CI의 일반 경로로 추론하지 않는다.
 
 * 산출물
 
-- =header-inventory.json=: 현재 tracked header 135개의 path, hash, 역할·명명 후보와
+- =header-inventory.json=: 현재 tracked header 136개의 path, hash, 역할·명명 후보와
   module/root/install/wrapper/source 교차 inventory
 - =naming-report.json=: 현재 naming 후보 report
 - =environment.json=: Git/submodule, dirty status, OS와 Python/tool snapshot
@@ -40,8 +40,9 @@ CI의 일반 경로로 추론하지 않는다.
   113개의 snapshot
 - =msvc-release-abi.json=: complete type 57개, field 281개, enum 13개와 enumerator
   111개의 layout/value snapshot
-- =header-role-manifest.json=: 2단계에서 승인한 기존 asset 135개의 primary role,
-  owner/public module, install, wrapper와 versioned naming/compatibility 처분, Math Engine
+- =header-role-manifest.json=: 기존 asset 135개와 Navsys 4단계에서 승인한 새
+  =navsys_status.h=를 합친 asset 136개의 primary role, owner/public module, install,
+  wrapper와 versioned naming/compatibility 처분, Math Engine
   created successor 20개와 public resource migration 10개
 - =header-install-intent-report.json=: 현행 install 92개와 승인 의도 path 138개의
   additions/retained/removals 비교
@@ -52,20 +53,27 @@ CI의 일반 경로로 추론하지 않는다.
 - =header-abi-audit-msvc.json=, =header-abi-audit-mingw.json=: MSVC 19.44와 MinGW GCC
   16.1의 C17/C++17 standalone matrix 결과
 - =msvc-standalone-headers.json=, =mingw-standalone-headers.json=: compiler command와
-  header별 188개 결과
+  최초 public C header의 header별 188개 결과
+- Navsys status 추가 증거인
+  =../navsys/navsys-status-standalone-msvc.json=과
+  =../navsys/navsys-status-standalone-mingw.json=: 현재 public C header 95개의
+  C17/C++17 matrix 190/190 결과
 - =mingw-release-build.json=: GNU =nm=으로 얻은 MinGW =libbyul.dll= export와 install
   snapshot
 
 * 최초 기준선과 차이
 
-- Header 수는 135개로 같다.
+- 최초 기준선 asset은 135개로 보존되고, 승인된 새 Navsys public-foundation
+  =byul/navsys/navsys_status.h=가 추가되어 현재 Header 수는 136개다.
 - =byul/navsys/coord/coord.hpp=가 제거되고
   =byul/navsys/coord/internal/coord_ops.hpp=가 추가됐다.
 - =byul/navsys/coord/coord.h=의 SHA-256가 변경됐다.
 - 3단계 C17 standalone 수정 뒤 =byul/core/strset.h=,
   =byul/numal/dualnumber.h=, =byul/numal/vec3.h=의 새 SHA-256를 current inventory에
   반영했다.
-- =decision-required= 후보는 14개에서 13개로 줄었다.
+- 최초 =decision-required= 후보는 14개에서 13개로 줄었고, 새
+  =navsys_status.h=가 raw inventory 후보 1개를 추가해 현재는 14개다. 승인 role
+  manifest에서는 이 header를 =public-foundation=으로 처분해 remaining gate는 0이다.
 - DLL에는 =coord_sizeof=, =coord_alignof=, =coord_offsetof_x=,
   =coord_offsetof_y= 네 export가 추가되어 972개에서 976개가 됐다.
 - DLL SHA-256는

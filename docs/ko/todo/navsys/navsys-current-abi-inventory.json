@@ -3,7 +3,7 @@
   "source_role_manifest": "docs/ko/todo/header-refactor-current/header-role-manifest.json",
   "source_vocabulary": "docs/ko/todo/navsys/navsys-abi-vocabulary.json",
   "summary": {
-    "headers": 43,
+    "headers": 44,
     "symbols": 425,
     "return_forms": {
       "nullable_pointer": 149,
@@ -9121,6 +9121,15 @@
         "navsys_find_weighted_astar",
         "navsys_find_dstar_lite"
       ]
+    },
+    {
+      "path": "byul/navsys/navsys_status.h",
+      "owner_todo": "docs/ko/todo/navsys/todo-navsys-industry-api-baseline.org",
+      "primary_role": "public-foundation",
+      "wrapper_mode": "generated",
+      "symbol_count": 0,
+      "audit_issue_count": 0,
+      "symbols": []
     },
     {
       "path": "byul/navsys/obstacle/obstacle.h",

@@ -6,7 +6,8 @@
     "owner": {
       "planned_header": "byul/navsys/navsys_status.h",
       "role": "public-foundation",
-      "materialized": false,
+      "materialized": true,
+      "asset_class": "generated-by-refactor",
       "include_dag": [
         "navsys.h -> navsys_status.h",
         "public component -> navsys_status.h",

@@ -30,6 +30,8 @@ DEFAULT_OUTPUT = (
     REPOSITORY_ROOT / "docs/ko/todo/navsys/navsys-current-abi-inventory.json"
 )
 OWNER_TODO_OVERRIDES = {
+    "byul/navsys/navsys_status.h":
+        "docs/ko/todo/navsys/todo-navsys-industry-api-baseline.org",
     "byul/navsys/coord/internal/coord_ops.hpp":
         "docs/ko/todo/navsys/todo-navsys-coord-coord-cpp.org",
 }

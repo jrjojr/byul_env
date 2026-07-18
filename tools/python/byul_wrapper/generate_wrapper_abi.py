@@ -26,6 +26,7 @@ MODULE_ROOT = ROOT / "byul_wrapper"
 # public header when it exposes a family of C APIs.
 MODULE_HEADERS: dict[str, tuple[str, ...]] = {
     "byul_tick.py": ("byul_tick/byul_tick.h",),
+    "navsys_status.py": ("navsys/navsys_status.h",),
     "coord.py": ("navsys/coord/coord.h",),
     "coord_list.py": ("navsys/coord/coord_list.h",),
     "coord_hash.py": ("navsys/coord/coord_hash.h",),
@@ -153,10 +154,15 @@ def registered_headers() -> tuple[str, ...]:
 
 
 def public_headers() -> tuple[Path, ...]:
-    """Return repository headers that contain at least one exported declaration."""
+    """Return exported-function or explicitly registered public C headers."""
+    registered = set(registered_headers())
     result = []
     for path in BYUL_ROOT.rglob("*.h"):
-        if "BYUL_API" in path.read_text(encoding="utf-8", errors="replace"):
+        relative = path.relative_to(BYUL_ROOT).as_posix()
+        if (
+            "BYUL_API" in path.read_text(encoding="utf-8", errors="replace")
+            or relative in registered
+        ):
             result.append(path)
     return tuple(sorted(result))
 
