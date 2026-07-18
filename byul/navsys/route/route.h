@@ -1,10 +1,13 @@
 #ifndef ROUTE_H
 #define ROUTE_H
 
+#include <stddef.h>
+
 #include "byul_config.h"
 #include "coord.h"
 #include "coord_list.h"
 #include "coord_hash.h"
+#include "navsys_status.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -72,6 +75,36 @@ BYUL_API void route_clear_coords(route_t* p);
 BYUL_API const coord_t* route_get_last(const route_t* p);
 BYUL_API const coord_t* route_get_coord_at(const route_t* p, int index);
 BYUL_API int   route_length(const route_t* p);
+
+/**
+ * @brief Copies route coordinates into caller-provided storage.
+ *
+ * Pass NULL output with zero capacity to query the required element count.
+ * When capacity is smaller than the route length, the function copies the
+ * prefix that fits, reports the full required count, and returns
+ * NAVSYS_STATUS_INCOMPLETE.
+ *
+ * @param[in] route Route to export.
+ * @param[out] output Caller-provided coordinate array, or NULL for a query.
+ * @param[in] capacity Number of coord_t elements available in output.
+ * @param[out] out_required_count Full number of route coordinates.
+ * @return Common Navsys status value.
+ * @retval NAVSYS_STATUS_OK The query or complete copy succeeded.
+ * @retval NAVSYS_STATUS_INCOMPLETE A prefix was copied into a short buffer.
+ * @retval NAVSYS_STATUS_INVALID_ARGUMENT An argument combination is invalid.
+ * @byul.nullable route false
+ * @byul.nullable output query-only
+ * @byul.nullable out_required_count false
+ * @byul.side_effect writes:output,out_required_count
+ * @byul.thread_safety thread-compatible
+ * @byul.blocking false
+ * @byul.reentrant true
+ */
+BYUL_API navsys_status_t route_export_coords(
+    const route_t* route,
+    coord_t* output,
+    size_t capacity,
+    size_t* out_required_count);
 
 /** Visit Manipulation **/
 BYUL_API int  route_add_visited(route_t* p, const coord_t* c);

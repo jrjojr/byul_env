@@ -28,6 +28,50 @@ TEST_CASE("route creation and basic ops") {
     route_destroy(p);
 }
 
+TEST_CASE("route exports coordinates with two-call buffer semantics") {
+    route_t* route = route_create();
+    REQUIRE(route != nullptr);
+    const coord_t coords[] = {{1, 2}, {3, 4}, {5, 6}};
+    for (const coord_t& coord : coords) {
+        REQUIRE(route_add_coord(route, &coord) == 1);
+    }
+
+    size_t required = 99;
+    CHECK(route_export_coords(route, nullptr, 0, &required)
+        == NAVSYS_STATUS_OK);
+    CHECK(required == 3);
+
+    coord_t short_output[2] = {{-1, -1}, {-1, -1}};
+    required = 99;
+    CHECK(route_export_coords(route, short_output, 2, &required)
+        == NAVSYS_STATUS_INCOMPLETE);
+    CHECK(required == 3);
+    CHECK(short_output[0].x == 1);
+    CHECK(short_output[0].y == 2);
+    CHECK(short_output[1].x == 3);
+    CHECK(short_output[1].y == 4);
+
+    coord_t exact_output[3] = {};
+    required = 99;
+    CHECK(route_export_coords(route, exact_output, 3, &required)
+        == NAVSYS_STATUS_OK);
+    CHECK(required == 3);
+    CHECK(exact_output[2].x == 5);
+    CHECK(exact_output[2].y == 6);
+
+    required = 77;
+    CHECK(route_export_coords(nullptr, exact_output, 3, &required)
+        == NAVSYS_STATUS_INVALID_ARGUMENT);
+    CHECK(required == 77);
+    CHECK(route_export_coords(route, nullptr, 1, &required)
+        == NAVSYS_STATUS_INVALID_ARGUMENT);
+    CHECK(required == 77);
+    CHECK(route_export_coords(route, exact_output, 3, nullptr)
+        == NAVSYS_STATUS_INVALID_ARGUMENT);
+
+    route_destroy(route);
+}
+
 TEST_CASE("route visited tracking") {
     route_t* p = route_create();
     coord_t* a = coord_create_full(5, 5);

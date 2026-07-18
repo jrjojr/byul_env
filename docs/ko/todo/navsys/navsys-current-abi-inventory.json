@@ -4,7 +4,7 @@
   "source_vocabulary": "docs/ko/todo/navsys/navsys-abi-vocabulary.json",
   "summary": {
     "headers": 46,
-    "symbols": 448,
+    "symbols": 449,
     "return_forms": {
       "nullable_pointer": 148,
       "bool_predicate": 21,
@@ -13,7 +13,7 @@
       "int_count": 14,
       "int_index_minus_one": 4,
       "void_fallible_operation": 136,
-      "enum_result": 47,
+      "enum_result": 48,
       "floating_result": 19,
       "callback_return": 0
     },
@@ -9199,7 +9199,7 @@
       "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-route.org",
       "primary_role": "public-component",
       "wrapper_mode": "generated",
-      "symbol_count": 44,
+      "symbol_count": 45,
       "audit_issue_count": 101,
       "symbols": [
         "route_create",
@@ -9221,6 +9221,7 @@
         "route_get_last",
         "route_get_coord_at",
         "route_length",
+        "route_export_coords",
         "route_add_visited",
         "route_clear_visited",
         "route_append",
@@ -11876,6 +11877,13 @@
       "return_type": "int",
       "return_form": "int_count",
       "canonical": "navsys_status_t plus out_count"
+    },
+    {
+      "header": "byul/navsys/route/route.h",
+      "name": "route_export_coords",
+      "return_type": "navsys_status_t",
+      "return_form": "enum_result",
+      "canonical": "navsys_status_t plus typed out enum"
     },
     {
       "header": "byul/navsys/route/route.h",

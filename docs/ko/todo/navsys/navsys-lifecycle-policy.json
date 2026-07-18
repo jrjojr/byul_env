@@ -99,6 +99,15 @@
       "cancel_callback_thread": "synchronous-calling-thread",
       "cancel_callback_failure": "cpp-exception-maps-to-callback-failed-and-preserves-outputs",
       "workspace": "deferred-until-algorithms-expose-caller-storage"
+    },
+    "route_export_contract": {
+      "symbol": "route_export_coords",
+      "query": "null-output-and-zero-capacity-returns-ok-and-required-element-count",
+      "complete": "copies-all-coordinates-and-returns-ok",
+      "undersized": "copies-prefix-returns-incomplete-and-full-required-element-count",
+      "invalid": "preserves-required-count",
+      "output_storage": "caller-owned",
+      "internal_container_pointer": "not-exposed"
     }
   },
   "abi_2_policy": {

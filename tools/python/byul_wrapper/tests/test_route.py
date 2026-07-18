@@ -14,9 +14,11 @@ class RouteTest(unittest.TestCase):
             self.assertTrue(route.contains(first))
             self.assertEqual(route.coord_at(0).to_tuple(), (1, 1))
             self.assertEqual(route.last().to_tuple(), (2, 1))
+            self.assertEqual(route.export_coords(), [(1, 1), (2, 1)])
 
             route.clear_coords()
             self.assertEqual(route.length(), 0)
+            self.assertEqual(route.export_coords(), [])
 
     def test_cost_success_and_retry_properties(self):
         with c_route(cost=3.5) as route:

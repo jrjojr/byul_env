@@ -4,6 +4,7 @@ import weakref
 from .coord import c_coord
 from .coord_list import c_coord_list
 from .coord_hash import c_coord_hash
+from .navsys_status import NavsysStatus
 
 from enum import IntEnum
 
@@ -79,6 +80,12 @@ typedef struct s_route route_t;
  const coord_t* route_get_last(const route_t* p);
  const coord_t* route_get_coord_at(const route_t* p, int index);
  int   route_length(const route_t* p);
+
+ navsys_status_t route_export_coords(
+    const route_t* route,
+    coord_t* output,
+    size_t capacity,
+    size_t* out_required_count);
 
  int  route_add_visited(route_t* p, const coord_t* c);
  void route_clear_visited(route_t* p);
@@ -193,6 +200,27 @@ class c_route:
 
     def length(self):
         return C.route_length(self._c)
+
+    def export_coords(self):
+        """Return a caller-buffer snapshot as ``[(x, y), ...]``."""
+        required = ffi.new("size_t*")
+        status = NavsysStatus(
+            C.route_export_coords(self._c, ffi.NULL, 0, required)
+        )
+        if status is not NavsysStatus.OK:
+            raise RuntimeError(f"route coordinate query failed: {status.name}")
+        if required[0] == 0:
+            return []
+
+        output = ffi.new("coord_t[]", required[0])
+        status = NavsysStatus(
+            C.route_export_coords(
+                self._c, output, required[0], required
+            )
+        )
+        if status is not NavsysStatus.OK:
+            raise RuntimeError(f"route coordinate export failed: {status.name}")
+        return [(output[i].x, output[i].y) for i in range(required[0])]
 
     def visited_order(self):
         return c_coord_list(raw_ptr=C.route_get_visited_order(self._c), own=False)

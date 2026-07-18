@@ -7,6 +7,7 @@
 #include <cmath>
 #include <cstdio>
 #include <algorithm>
+#include <cstddef>
 
 static const int ROUTE_DIRECTION_VECTORS[9][2] = {
     {  0,  0 },  // UNKNOWN
@@ -107,6 +108,30 @@ void route_clear_coords(route_t* p) {
 
 int route_length(const route_t* p) {
     return p ? static_cast<int>(coord_list_length(p->coords)) : 0;
+}
+
+navsys_status_t route_export_coords(
+    const route_t* route,
+    coord_t* output,
+    size_t capacity,
+    size_t* out_required_count) {
+    if (!route || !out_required_count || (!output && capacity != 0))
+        return NAVSYS_STATUS_INVALID_ARGUMENT;
+
+    const size_t required = static_cast<size_t>(route_length(route));
+    if (!output) {
+        *out_required_count = required;
+        return NAVSYS_STATUS_OK;
+    }
+
+    const size_t copy_count = std::min(capacity, required);
+    for (size_t i = 0; i < copy_count; ++i) {
+        output[i] = *route_get_coord_at(route, static_cast<int>(i));
+    }
+    *out_required_count = required;
+    return capacity < required
+        ? NAVSYS_STATUS_INCOMPLETE
+        : NAVSYS_STATUS_OK;
 }
 
 const coord_t* route_get_last(const route_t* p) {

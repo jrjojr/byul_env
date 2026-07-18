@@ -174,6 +174,20 @@ int main(void) {
         fprintf(stderr, "unexpected route finder run ABI\n");
         return 4;
     }
+    size_t route_coord_count = 0;
+    coord_t route_coords[2] = {{0, 0}, {0, 0}};
+    if (route_export_coords(route, NULL, 0, &route_coord_count)
+            != NAVSYS_STATUS_OK
+        || route_coord_count != 1
+        || route_export_coords(
+            route, route_coords, 1, &route_coord_count)
+            != NAVSYS_STATUS_OK
+        || route_coord_count != 1
+        || route_coords[0].x != 0
+        || route_coords[0].y != 0) {
+        fprintf(stderr, "unexpected route coordinate export ABI\n");
+        return 5;
+    }
     route_destroy(route);
     route = NULL;
 
@@ -190,7 +204,7 @@ int main(void) {
         || route == NULL
         || run_stats.complete) {
         fprintf(stderr, "unexpected route finder cancellation ABI\n");
-        return 5;
+        return 6;
     }
     route_destroy(route);
 
@@ -228,7 +242,7 @@ int main(void) {
         || route_finder_unbind_cost_func(finder) != NAVSYS_STATUS_OK
         || navgrid_unbind_is_coord_blocked_func(navgrid) != NAVSYS_STATUS_OK) {
         fprintf(stderr, "unexpected Navsys callback binding ABI\n");
-        return 6;
+        return 7;
     }
     dstar_lite_destroy(dsl);
     route_finder_destroy(finder);
