@@ -1,0 +1,23 @@
+{
+  "header": "byul/navsys/route_finder/route_finder.h",
+  "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-finder-route-finder.org",
+  "category": "correctness",
+  "layer": "installed_sdk",
+  "revision": "81158c1c25ca3e8c25c1f25fb695433a6e1b7b2f",
+  "host": "windows-11-x64",
+  "target": "windows-x64",
+  "toolchain": "msvc-19.44.35214.0",
+  "configuration": "Release",
+  "command": [
+    "build_navsys_sdk_consumer_81158c1_msvc/Release/byul_sdk_consumer.exe"
+  ],
+  "artifacts": [
+    "docs/ko/todo/navsys/evidence/route-finder/81158c1/installed-sdk-correctness.result.json"
+  ],
+  "verdict": "pass",
+  "assertions": 5,
+  "limitations": [
+    "The consumer contains additional ABI checks; this record claims only the five route-finder correctness gates.",
+    "Windows sanitizer instrumentation was not applied."
+  ]
+}

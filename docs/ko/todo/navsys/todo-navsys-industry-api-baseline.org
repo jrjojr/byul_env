@@ -757,3 +757,14 @@ wrapper layer는 MSVC root =byul.dll=을 명시적으로 주입한 전체 suite 
 verdict를 섞지 않는다. Wrapper 수치는 route-finder 전용 선택이 아닌 전체 suite이고
 Windows sanitizer와 installed SDK consumer는 이번 실행의 증거가 아니라는
 limitation을 유지한다. Evidence tree는 이제 record 5개를 검사한다.
+
+2026-07-19에는 revision =81158c1c25ca3e8c25c1f25fb695433a6e1b7b2f=에서
+MSVC와 MinGW root shared target을 새 prefix에 install하고
+=byul/tests/sdk_consumer=를 각각 새 build tree에서 configure/build/run했다. 두 consumer
+모두 version, capability, route run/result, cancellation과 callback/config lifecycle
+검사를 통과했다. 설치 runtime 이름은 CMake platform/toolchain 규칙에 따라 MSVC
+=byul.dll=, MinGW =libbyul.dll=이며 MinGW import library는 =libbyul.dll.a=다.
+[[file:evidence/route-finder/81158c1/installed-sdk-correctness.result.json][installed SDK correctness artifact]]는 correctness gate 5개만 주장하며 consumer에 함께
+있는 ABI 검사는 별도 ABI verdict로 확대하지 않는다. MinGW install =bin=의 동봉 runtime
+DLL을 process-local PATH로 사용했고 기존 =s_environ= 전방 선언 warning과 Windows
+sanitizer 미적용을 limitation으로 남겼다. Evidence tree는 record 7개를 검사한다.

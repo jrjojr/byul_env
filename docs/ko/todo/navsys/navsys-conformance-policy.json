@@ -127,7 +127,13 @@
           "<config>"
         ],
         [
-          "<consumer-build-dir>/<bin-dir>/byul_sdk_consumer"
+          "<consumer-build-dir>/<bin-dir>/<consumer-executable>"
+        ],
+        [
+          "powershell",
+          "-NoProfile",
+          "-Command",
+          "$env:PATH=(Resolve-Path '<runtime-bin>').Path + ';' + $env:PATH; & <consumer-executable>"
         ]
       ]
     }
