@@ -11,9 +11,20 @@ typedef struct s_coord {
     int y;
 } coord_t;
 
+ size_t coord_sizeof(void);
+
+ size_t coord_alignof(void);
+
+ size_t coord_offsetof_x(void);
+
+ size_t coord_offsetof_y(void);
+
  coord_t* coord_create_full(int x, int y);
+
  coord_t* coord_create(void);
- void     coord_destroy(coord_t* c);
+
+ void coord_destroy(coord_t* c);
+
  coord_t* coord_copy(const coord_t* c);
 
  void coord_init(coord_t* c);

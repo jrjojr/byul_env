@@ -30,10 +30,82 @@ typedef struct s_coord {
     int y; ///< Y coordinate
 } coord_t;
 
+// ------------------------ ABI Layout Diagnostics ------------------------
+
+/**
+ * @brief 현재 SDK에서 coord_t의 크기를 반환한다.
+ *
+ * @return 바이트 단위의 coord_t 크기
+ */
+BYUL_API size_t coord_sizeof(void);
+
+/**
+ * @brief 현재 SDK에서 coord_t의 정렬 요구사항을 반환한다.
+ *
+ * @return 바이트 단위의 coord_t 정렬 크기
+ */
+BYUL_API size_t coord_alignof(void);
+
+/**
+ * @brief coord_t의 x field offset을 반환한다.
+ *
+ * @return 바이트 단위의 x field offset
+ */
+BYUL_API size_t coord_offsetof_x(void);
+
+/**
+ * @brief coord_t의 y field offset을 반환한다.
+ *
+ * @return 바이트 단위의 y field offset
+ */
+BYUL_API size_t coord_offsetof_y(void);
+
 // ------------------------ Create/Destroy ------------------------
+
+/**
+ * @brief 지정한 값으로 좌표를 생성한다.
+ *
+ * @param[in] x Grid cell 단위의 X 좌표.
+ * @param[in] y Grid cell 단위의 Y 좌표.
+ * @return Caller가 소유하는 새 좌표.
+ *
+ * @byul.nullable return false
+ * @byul.lifetime return caller-owned
+ */
 BYUL_API coord_t* coord_create_full(int x, int y);
+
+/**
+ * @brief 원점 좌표를 생성한다.
+ *
+ * @return Caller가 소유하는 새 좌표.
+ *
+ * @byul.nullable return false
+ * @byul.lifetime return caller-owned
+ */
 BYUL_API coord_t* coord_create(void);
-BYUL_API void     coord_destroy(coord_t* c);
+
+/**
+ * @brief 좌표를 해제한다.
+ *
+ * @param[in] c 해제할 좌표. NULL이면 아무 작업도 하지 않는다.
+ *
+ * @byul.nullable c true
+ * @byul.side_effect consumes:c
+ */
+BYUL_API void coord_destroy(coord_t* c);
+
+/**
+ * @brief 좌표의 독립 복사본을 생성한다.
+ *
+ * @param[in] c 복사할 좌표.
+ * @return Caller가 소유하는 새 좌표.
+ * @retval NULL c가 NULL이다.
+ *
+ * @byul.nullable c true
+ * @byul.nullable return true
+ * @byul.lifetime return caller-owned
+ * @byul.error null-return
+ */
 BYUL_API coord_t* coord_copy(const coord_t* c);
 
 // ------------------------ Initialization and Copy ------------------------

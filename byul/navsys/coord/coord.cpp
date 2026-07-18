@@ -20,6 +20,24 @@ static inline int coord_wrap_value(int v) {
     return COORD_MIN + offset;
 }
 
+// ------------------------ ABI Layout Diagnostics ------------------------
+
+size_t coord_sizeof(void) {
+    return sizeof(coord_t);
+}
+
+size_t coord_alignof(void) {
+    return alignof(coord_t);
+}
+
+size_t coord_offsetof_x(void) {
+    return offsetof(coord_t, x);
+}
+
+size_t coord_offsetof_y(void) {
+    return offsetof(coord_t, y);
+}
+
 // ------------------------ Creation/Destruction ------------------------
 
 coord_t* coord_create_full(int x, int y) {
