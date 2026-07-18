@@ -1,0 +1,24 @@
+{
+  "header": "byul/navsys/route_finder/route_finder.h",
+  "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-finder-route-finder.org",
+  "category": "correctness",
+  "layer": "root_shared",
+  "revision": "861d525149b86378a54d78d3105dcb79bc21c771",
+  "host": "windows-11-x64",
+  "target": "windows-x64",
+  "toolchain": "msvc-19.44.35214.0",
+  "configuration": "Release",
+  "command": [
+    "build_win_msvc/bin/Release/test_byul.exe"
+  ],
+  "artifacts": [
+    "docs/ko/todo/navsys/evidence/route-finder/861d525/root-shared-correctness.result.json"
+  ],
+  "verdict": "pass",
+  "assertions": 1801,
+  "limitations": [
+    "The 413 cases and 1801 assertions are the complete root integration suite, not a route-finder-only selection.",
+    "The build emits existing doctest int/bool comparison and numeric narrowing warnings and was not built with /WX.",
+    "Windows sanitizer instrumentation was not applied."
+  ]
+}

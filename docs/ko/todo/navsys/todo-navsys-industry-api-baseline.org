@@ -776,3 +776,12 @@ compile/link/run한 public function 18개를 합쳐 toolchain별 31 assertion으
 signature를 소비했다는 뜻이 아니며 전체 signature/export coverage는 기존 root-shared
 inventory record가 담당한다. MSVC와 MinGW import library 및 C++ runtime은 상호 교환
 가능하다고 주장하지 않고 별도 record로 유지한다. Evidence tree는 record 9개를 검사한다.
+
+2026-07-19에는 revision =861d525149b86378a54d78d3105dcb79bc21c771=에서
+=byul/tests/CMakeLists.txt=의 =test_byul -> byul= 직접 link 계약을 확인하고 root-shared
+correctness layer를 실행했다. MSVC와 MinGW 모두 전체 root integration 413 case를
+통과했으며 assertion은 각각 1801개와 1802개다.
+[[file:evidence/route-finder/861d525/root-shared-correctness.result.json][root-shared correctness artifact]]는 이 한 개 차이를 toolchain 조건부 coverage로
+그대로 보존하고 동일 count로 정규화하지 않는다. 이는 route-finder 전용 suite가 아니며
+MSVC build의 기존 doctest int/bool 비교 및 수치 narrowing warning, =/WX= 미적용과
+Windows sanitizer 미적용을 limitation으로 남긴다. Evidence tree는 record 11개를 검사한다.

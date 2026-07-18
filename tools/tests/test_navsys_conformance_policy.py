@@ -65,7 +65,7 @@ class NavsysConformancePolicyTest(unittest.TestCase):
             self.inventory,
         )
         self.assertEqual([], findings)
-        self.assertEqual(9, records)
+        self.assertEqual(11, records)
 
     def test_categories_and_layers_are_not_interchangeable(self):
         self.assertEqual(

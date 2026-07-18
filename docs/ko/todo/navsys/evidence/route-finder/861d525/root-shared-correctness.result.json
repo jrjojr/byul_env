@@ -1,0 +1,40 @@
+{
+  "schema_version": 1,
+  "evidence_kind": "root-shared-integration-correctness",
+  "revision": "861d525149b86378a54d78d3105dcb79bc21c771",
+  "header": "byul/navsys/route_finder/route_finder.h",
+  "build_contract": {
+    "source": "byul/tests/CMakeLists.txt",
+    "target": "test_byul",
+    "linked_target": "byul"
+  },
+  "executions": {
+    "msvc": {
+      "executable": "build_win_msvc/bin/Release/test_byul.exe",
+      "root_runtime": "build_win_msvc/bin/Release/byul.dll",
+      "exit_code": 0,
+      "test_cases": 413,
+      "assertions": 1801,
+      "failed_test_cases": 0,
+      "failed_assertions": 0,
+      "status": "passed"
+    },
+    "mingw": {
+      "executable": "build_header_refactor_mingw/bin/test_byul.exe",
+      "root_runtime": "build_header_refactor_mingw/bin/libbyul.dll",
+      "runtime_path": "C:/msys64/mingw64/bin",
+      "exit_code": 0,
+      "test_cases": 413,
+      "assertions": 1802,
+      "failed_test_cases": 0,
+      "failed_assertions": 0,
+      "status": "passed"
+    }
+  },
+  "limitations": [
+    "The counts cover the complete root integration suite, not a route-finder-only selection.",
+    "The one-assertion difference between MSVC and MinGW is preserved as toolchain-conditional coverage and is not treated as equivalent count evidence.",
+    "The MSVC build emits existing doctest int/bool comparison and numeric narrowing warnings and was not built with /WX.",
+    "Windows sanitizer instrumentation was not applied."
+  ]
+}
