@@ -36,6 +36,9 @@ struct reentrant_route_finder_context {
     navsys_status_t bind_config_status;
     navsys_status_t unbind_config_status;
     route_finder_weighted_astar_config_t config;
+    navsys_status_t run_ex_status;
+    route_t* nested_ex_route;
+    route_finder_run_stats_t nested_ex_stats;
     route_t* nested_route;
     int destroy_result;
 };
@@ -123,6 +126,10 @@ static float reentrant_route_finder_cost(
                 context->finder, &context->config);
         context->unbind_config_status =
             route_finder_unbind_algorithm_config(context->finder);
+        context->run_ex_status = route_finder_run_ex(
+            context->finder,
+            &context->nested_ex_route,
+            &context->nested_ex_stats);
         context->nested_route = route_finder_run(context->finder);
         context->destroy_result =
             route_finder_destroy(context->finder);
@@ -250,6 +257,9 @@ TEST_CASE("navsys: route finder rejects same-owner callback reentrancy") {
         NAVSYS_STATUS_OK,
         NAVSYS_STATUS_OK,
         {2.0f},
+        NAVSYS_STATUS_OK,
+        reinterpret_cast<route_t*>(1),
+        {71, 72, 73.0f, true, true},
         reinterpret_cast<route_t*>(1),
         0
     };
@@ -264,6 +274,9 @@ TEST_CASE("navsys: route finder rejects same-owner callback reentrancy") {
     CHECK(context.unbind_status == NAVSYS_STATUS_IN_PROGRESS);
     CHECK(context.bind_config_status == NAVSYS_STATUS_IN_PROGRESS);
     CHECK(context.unbind_config_status == NAVSYS_STATUS_IN_PROGRESS);
+    CHECK(context.run_ex_status == NAVSYS_STATUS_IN_PROGRESS);
+    CHECK(context.nested_ex_route == reinterpret_cast<route_t*>(1));
+    CHECK(context.nested_ex_stats.total_retry_count == 71);
     CHECK(context.nested_route == nullptr);
     CHECK(context.destroy_result == -1);
     CHECK(route_finder_get_cost_func(finder)

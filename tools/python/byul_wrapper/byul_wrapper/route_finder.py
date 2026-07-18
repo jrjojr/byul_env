@@ -8,7 +8,9 @@ from .cost_coord_pq import c_cost_coord_pq
 from .route import c_route
 from .navgrid import c_navgrid
 from .route_finder_common import g_RouteFuncReg
+from .navsys_status import NavsysStatus
 
+from dataclasses import dataclass
 import weakref
 
 ffi.cdef("""
@@ -83,6 +85,14 @@ typedef struct s_route_finder_sma_star_config {
 typedef struct s_route_finder_weighted_astar_config {
     float weight;
 } route_finder_weighted_astar_config_t;
+
+typedef struct s_route_finder_run_stats {
+    int total_retry_count;
+    int route_length;
+    float route_cost;
+    bool complete;
+    bool partial;
+} route_finder_run_stats_t;
 
  const char* get_route_finder_name(route_finder_type_t pa);
 
@@ -164,6 +174,9 @@ typedef struct s_route_finder {
 
  route_finder_type_t route_finder_get_type(const route_finder_t* a);
 
+ navsys_status_t route_finder_set_type_checked(
+    route_finder_t* finder, route_finder_type_t type);
+
  void route_finder_set_typedata(
     route_finder_t* a, void* typedata);
 
@@ -190,6 +203,9 @@ typedef struct s_route_finder {
 
  void route_finder_set_max_retry(route_finder_t* a, int max_retry);
  int route_finder_get_max_retry(route_finder_t* a);
+
+ navsys_status_t route_finder_set_max_retry_checked(
+    route_finder_t* finder, int max_retry);
 
  void route_finder_enable_debug_mode(
     route_finder_t* a, bool is_logging);
@@ -237,6 +253,11 @@ typedef struct s_route_finder {
  void route_finder_print(const route_finder_t* a);
 
  route_t* route_finder_run(route_finder_t* a);
+
+ navsys_status_t route_finder_run_ex(
+    route_finder_t* finder,
+    route_t** out_route,
+    route_finder_run_stats_t* out_stats);
 
 /* Source: byul/navsys/route_finder/astar.h */
 route_t* find_astar(const navgrid_t* m, const coord_t* start, const coord_t* goal,
@@ -414,6 +435,15 @@ class RouteFinderType(IntEnum):
     MCTS =41 #                     // 2006
 
 
+@dataclass(frozen=True)
+class RouteFinderRunStats:
+    total_retry_count: int
+    route_length: int
+    route_cost: float
+    complete: bool
+    partial: bool
+
+
 class c_route_finder:
     def __init__(self,
                  navgrid: c_navgrid,
@@ -488,8 +518,27 @@ class c_route_finder:
             return c_route(raw_ptr=result, own=True)
         return None
 
+    def find_ex(self):
+        out_route = ffi.new("route_t**")
+        out_stats = ffi.new("route_finder_run_stats_t*")
+        status = NavsysStatus(
+            C.route_finder_run_ex(self._c, out_route, out_stats)
+        )
+        if out_route[0] == ffi.NULL:
+            return status, None, None
+        stats = RouteFinderRunStats(
+            total_retry_count=out_stats.total_retry_count,
+            route_length=out_stats.route_length,
+            route_cost=out_stats.route_cost,
+            complete=bool(out_stats.complete),
+            partial=bool(out_stats.partial),
+        )
+        return status, c_route(raw_ptr=out_route[0], own=True), stats
+
     def set_type(self, type: RouteFinderType):
-        C.route_finder_set_type(self._c, type)
+        status = C.route_finder_set_type_checked(self._c, type)
+        if status != C.NAVSYS_STATUS_OK:
+            raise ValueError(f"unsupported route finder type ({status})")
 
     def get_type(self):
         return RouteFinderType(C.route_finder_get_type(self._c))
@@ -543,7 +592,11 @@ class c_route_finder:
         self._algorithm_config = None
 
     def set_max_retry(self, max_retry: int):
-        C.route_finder_set_max_retry(self._c, max_retry)
+        status = C.route_finder_set_max_retry_checked(
+            self._c, max_retry
+        )
+        if status != C.NAVSYS_STATUS_OK:
+            raise ValueError(f"invalid max_retry ({status})")
 
     def get_max_retry(self):
         return C.route_finder_get_max_retry(self._c)

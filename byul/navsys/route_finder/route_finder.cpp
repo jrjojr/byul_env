@@ -245,6 +245,17 @@ route_finder_type_t route_finder_get_type(const route_finder_t* a){
     return a->type;
 }
 
+navsys_status_t route_finder_set_type_checked(
+    route_finder_t* finder, route_finder_type_t type) {
+    if (!finder) return NAVSYS_STATUS_INVALID_ARGUMENT;
+    if (active_callback_finder == finder)
+        return NAVSYS_STATUS_IN_PROGRESS;
+    if (!route_finder_is_supported(type))
+        return NAVSYS_STATUS_UNSUPPORTED;
+    finder->type = type;
+    return NAVSYS_STATUS_OK;
+}
+
 void route_finder_set_typedata(route_finder_t* a, void* typedata){
     a->typedata = typedata;
 }
@@ -317,11 +328,22 @@ navsys_status_t route_finder_unbind_algorithm_config(
 }
 
 void route_finder_set_max_retry(route_finder_t* a, int max_retry){
-    a->max_retry;
+    if (!a) return;
+    (void)route_finder_set_max_retry_checked(a, max_retry);
 }
 
 int route_finder_get_max_retry(route_finder_t* a){
     return a->max_retry;
+}
+
+navsys_status_t route_finder_set_max_retry_checked(
+    route_finder_t* finder, int max_retry) {
+    if (!finder || max_retry <= 0)
+        return NAVSYS_STATUS_INVALID_ARGUMENT;
+    if (active_callback_finder == finder)
+        return NAVSYS_STATUS_IN_PROGRESS;
+    finder->max_retry = max_retry;
+    return NAVSYS_STATUS_OK;
 }
 
 void route_finder_enable_debug_mode(route_finder_t* a, bool is_logging){
@@ -593,10 +615,49 @@ bool route_finder_is_supported(route_finder_type_t type) {
     return route_finder_get_run_func(type) != nullptr;
 }
 
-route_t* route_finder_run(route_finder_t* a) {
-    if (!a) return NULL;
-    if (active_callback_finder == a) return NULL;
-    route_finder_callback_scope callback_scope(a);
-    route_finder_run_func run = route_finder_get_run_func(a->type);
-    return run ? run(a) : NULL;
+navsys_status_t route_finder_run_ex(
+    route_finder_t* finder,
+    route_t** out_route,
+    route_finder_run_stats_t* out_stats) {
+    if (!finder || !out_route || !out_stats || !route_finder_is_valid(finder)
+        || finder->max_retry <= 0)
+        return NAVSYS_STATUS_INVALID_ARGUMENT;
+    if (active_callback_finder == finder)
+        return NAVSYS_STATUS_IN_PROGRESS;
+
+    route_finder_run_func run = route_finder_get_run_func(finder->type);
+    if (!run) return NAVSYS_STATUS_UNSUPPORTED;
+
+    route_finder_callback_scope callback_scope(finder);
+    route_t* route = run(finder);
+    if (!route) return NAVSYS_STATUS_OUT_OF_MEMORY;
+
+    route_finder_run_stats_t stats = {};
+    stats.total_retry_count = route_get_total_retry_count(route);
+    stats.route_length = route_length(route);
+    stats.route_cost = route_get_cost(route);
+    stats.complete = route_get_success(route) != 0;
+    stats.partial = !stats.complete && stats.route_length > 0;
+
+    navsys_status_t status = NAVSYS_STATUS_OK;
+    if (!stats.complete) {
+        status = stats.total_retry_count >= finder->max_retry
+            ? NAVSYS_STATUS_LIMIT_REACHED
+            : NAVSYS_STATUS_NO_PATH;
+    }
+
+    *out_route = route;
+    *out_stats = stats;
+    return status;
+}
+
+route_t* route_finder_run(route_finder_t* finder) {
+    route_t* route = nullptr;
+    route_finder_run_stats_t stats = {};
+    navsys_status_t status = route_finder_run_ex(finder, &route, &stats);
+    if (status == NAVSYS_STATUS_OK ||
+        status == NAVSYS_STATUS_NO_PATH ||
+        status == NAVSYS_STATUS_LIMIT_REACHED)
+        return route;
+    return nullptr;
 }

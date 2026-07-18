@@ -72,6 +72,26 @@
         }
       ],
       "unbind_symbol": "route_finder_unbind_algorithm_config"
+    },
+    "route_finder_run_contract": {
+      "checked_setters": [
+        "route_finder_set_type_checked",
+        "route_finder_set_max_retry_checked"
+      ],
+      "run_symbol": "route_finder_run_ex",
+      "stats_type": "route_finder_run_stats_t",
+      "normal_termination": [
+        "NAVSYS_STATUS_OK",
+        "NAVSYS_STATUS_NO_PATH",
+        "NAVSYS_STATUS_LIMIT_REACHED"
+      ],
+      "normal_output": "caller-owned-route-and-value-stats",
+      "failure_output": "preserve-route-and-stats",
+      "route_termination": "route_destroy",
+      "legacy_run": "forwards-to-run-ex-and-preserves-null-on-runtime-failure",
+      "limit": "positive-max-retry-required",
+      "cancellation": "deferred-until-algorithms-expose-bounded-polling",
+      "workspace": "deferred-until-algorithms-expose-caller-storage"
     }
   },
   "abi_2_policy": {

@@ -3,6 +3,7 @@ import unittest
 from byul_wrapper.coord import c_coord
 from byul_wrapper.navgrid import c_navgrid, NavgridDirMode
 from byul_wrapper.route_finder import c_route_finder, RouteFinderType
+from byul_wrapper.navsys_status import NavsysStatus
 from byul_wrapper.console import c_console
 
 class TestRouteFinder(unittest.TestCase):
@@ -86,6 +87,29 @@ class TestRouteFinder(unittest.TestCase):
         route = self.route_finder.find()
         route.print()
         c_console.print_ascii_with_visited_count(self.navgrid, route)
+
+    def test_find_ex_reports_stats_and_checked_settings(self):
+        status, route, stats = self.route_finder.find_ex()
+        self.assertEqual(NavsysStatus.OK, status)
+        self.assertIsNotNone(route)
+        self.assertTrue(stats.complete)
+        self.assertFalse(stats.partial)
+        self.assertEqual(route.length(), stats.route_length)
+        route.close()
+
+        self.route_finder.set_max_retry(1)
+        status, route, stats = self.route_finder.find_ex()
+        self.assertEqual(NavsysStatus.LIMIT_REACHED, status)
+        self.assertIsNotNone(route)
+        self.assertFalse(stats.complete)
+        route.close()
+
+        with self.assertRaises(ValueError):
+            self.route_finder.set_max_retry(0)
+        self.assertEqual(1, self.route_finder.get_max_retry())
+        with self.assertRaises(ValueError):
+            self.route_finder.set_type(RouteFinderType.BELLMAN_FORD)
+        self.assertEqual(RouteFinderType.ASTAR, self.route_finder.get_type())
 
     def test_find_bfs(self):
         print('test_find_bfs')

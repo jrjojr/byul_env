@@ -334,6 +334,45 @@ class NavsysLifecyclePolicyTest(unittest.TestCase):
             self.route_finder_wrapper,
         )
 
+    def test_route_finder_run_contract_reaches_all_consumers(self):
+        contract = self.policy["abi_1_policy"]["route_finder_run_contract"]
+        exported_symbols = {
+            symbol
+            for header in self.inventory["headers"]
+            for symbol in header["symbols"]
+        }
+
+        self.assertEqual(
+            {
+                "NAVSYS_STATUS_OK",
+                "NAVSYS_STATUS_NO_PATH",
+                "NAVSYS_STATUS_LIMIT_REACHED",
+            },
+            set(contract["normal_termination"]),
+        )
+        self.assertEqual(
+            "preserve-route-and-stats",
+            contract["failure_output"],
+        )
+        self.assertEqual(
+            "deferred-until-algorithms-expose-bounded-polling",
+            contract["cancellation"],
+        )
+        self.assertEqual(
+            "deferred-until-algorithms-expose-caller-storage",
+            contract["workspace"],
+        )
+        for symbol in [
+            *contract["checked_setters"],
+            contract["run_symbol"],
+        ]:
+            with self.subTest(symbol=symbol):
+                self.assertIn(symbol, exported_symbols)
+                self.assertIn(symbol, self.sdk_consumer)
+                self.assertIn(symbol, self.route_finder_wrapper)
+        self.assertIn(contract["stats_type"], self.route_finder_wrapper)
+        self.assertIn("def find_ex(", self.route_finder_wrapper)
+
 
 if __name__ == "__main__":
     unittest.main()

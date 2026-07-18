@@ -633,7 +633,17 @@ Python wrapper가 같은 지원 집합을 확인한다.
 값을 먼저 검증한 뒤 algorithm type과 config pointer를 함께 교체하므로 실패하면 이전
 설정이 유지되고, 공통 unbind는 type은 유지한 채 pointer만 비운다. Caller가
 rebind/unbind/destroy까지 config를 보유하며 Python wrapper도 같은 기간 CFFI config를
-강하게 참조한다. 다음 작업은 limit/cancel/result 상태를 공통 status에 매핑하는 것이다.
+강하게 참조한다.
+
+2026-07-18에는 checked type/limit setter와 =route_finder_run_ex=,
+=route_finder_run_stats_t=를 ABI 1 additive API로 추가했다. 정상 종료는
+=OK/NO_PATH/LIMIT_REACHED=로 분리하고 세 경우에만 caller-owned route와 value stats를
+교체하며, invalid/unsupported/OOM/reentrant failure는 두 output을 보존한다. Legacy
+=route_finder_run=과 setter는 checked 구현으로 forward한다. Root DLL, MSVC/MinGW
+installed SDK C consumer와 Python wrapper 57개 test가 같은 계약을 검증했다. 현재
+limit 판정은 algorithm이 보고한 retry count에 근거한다. Cancellation과 caller workspace는
+각 algorithm loop에 bounded polling과 storage 신호가 없으므로 이번 단위에서 추측해
+추가하지 않았고, 다음 작업에서 termination plumbing과 함께 구현한다.
 
 * TODO 4단계: 공통 Conformance Harness 구현
 

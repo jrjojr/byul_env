@@ -117,6 +117,22 @@ typedef struct s_route_finder_weighted_astar_config {
     float weight; /**< Accepted range: [0.1, 10.0]. */
 } route_finder_weighted_astar_config_t;
 
+/**
+ * @brief Reports observable results from one route finder execution.
+ *
+ * @byul.storage basic-value
+ * @byul.zero_valid true
+ * @byul.copy_semantics trivial-copy
+ * @byul.thread_safety thread-compatible
+ */
+typedef struct s_route_finder_run_stats {
+    int total_retry_count; /**< Algorithm-reported expansion/retry count. */
+    int route_length; /**< Number of coordinates in the returned route. */
+    float route_cost; /**< Algorithm-reported route cost. */
+    bool complete; /**< True only when the goal was reached. */
+    bool partial; /**< True when a non-empty route did not reach the goal. */
+} route_finder_run_stats_t;
+
 BYUL_API const char* get_route_finder_name(route_finder_type_t pa);
 
 /**
@@ -231,6 +247,24 @@ BYUL_API void route_finder_set_type(
 
 BYUL_API route_finder_type_t route_finder_get_type(const route_finder_t* a);
 
+/**
+ * @brief Selects a dispatcher-supported algorithm without partial mutation.
+ * @param[in,out] finder Route finder to update.
+ * @param[in] type Algorithm type to select.
+ * @return Common Navsys status value.
+ * @retval NAVSYS_STATUS_OK The type was selected.
+ * @retval NAVSYS_STATUS_INVALID_ARGUMENT finder is NULL.
+ * @retval NAVSYS_STATUS_UNSUPPORTED type has no dispatcher implementation.
+ * @retval NAVSYS_STATUS_IN_PROGRESS A callback on the same finder is active.
+ * @byul.nullable finder false
+ * @byul.side_effect mutates:finder
+ * @byul.thread_safety externally-synchronized
+ * @byul.blocking false
+ * @byul.reentrant false
+ */
+BYUL_API navsys_status_t route_finder_set_type_checked(
+    route_finder_t* finder, route_finder_type_t type);
+
 BYUL_API void route_finder_set_typedata(
     route_finder_t* a, void* typedata);
 
@@ -334,6 +368,23 @@ BYUL_API navsys_status_t route_finder_unbind_algorithm_config(
 
 BYUL_API void route_finder_set_max_retry(route_finder_t* a, int max_retry);
 BYUL_API int route_finder_get_max_retry(route_finder_t* a);
+
+/**
+ * @brief Sets a positive deterministic expansion/retry limit.
+ * @param[in,out] finder Route finder to update.
+ * @param[in] max_retry Positive algorithm expansion/retry limit.
+ * @return Common Navsys status value.
+ * @retval NAVSYS_STATUS_OK The limit was updated.
+ * @retval NAVSYS_STATUS_INVALID_ARGUMENT finder is NULL or max_retry is not positive.
+ * @retval NAVSYS_STATUS_IN_PROGRESS A callback on the same finder is active.
+ * @byul.nullable finder false
+ * @byul.side_effect mutates:finder
+ * @byul.thread_safety externally-synchronized
+ * @byul.blocking false
+ * @byul.reentrant false
+ */
+BYUL_API navsys_status_t route_finder_set_max_retry_checked(
+    route_finder_t* finder, int max_retry);
 
 BYUL_API void route_finder_enable_debug_mode(
     route_finder_t* a, bool is_logging);
@@ -461,6 +512,38 @@ BYUL_API void route_finder_print(const route_finder_t* a);
  * @brief Direct run functions for specific algorithms.
  */
 BYUL_API route_t* route_finder_run(route_finder_t* a);
+
+/**
+ * @brief Runs the selected algorithm and separates normal termination causes.
+ *
+ * On OK, NO_PATH, or LIMIT_REACHED, this function stores a caller-owned route
+ * in out_route and fills out_stats. The caller destroys that route with
+ * route_destroy. On every other status, both outputs remain unchanged.
+ *
+ * @param[in,out] finder Configured route finder.
+ * @param[out] out_route Receives the owned route for normal termination.
+ * @param[out] out_stats Receives execution statistics for normal termination.
+ * @return Common Navsys status value.
+ * @retval NAVSYS_STATUS_OK The goal was reached.
+ * @retval NAVSYS_STATUS_INVALID_ARGUMENT A pointer or finder configuration is invalid.
+ * @retval NAVSYS_STATUS_UNSUPPORTED The selected algorithm is not implemented.
+ * @retval NAVSYS_STATUS_OUT_OF_MEMORY The algorithm could not create a result.
+ * @retval NAVSYS_STATUS_NO_PATH Search terminated without reaching the goal.
+ * @retval NAVSYS_STATUS_LIMIT_REACHED The configured retry limit was reached.
+ * @retval NAVSYS_STATUS_IN_PROGRESS A callback on the same finder is active.
+ * @byul.nullable finder false
+ * @byul.nullable out_route false
+ * @byul.nullable out_stats false
+ * @byul.lifetime out_route caller-owned
+ * @byul.side_effect mutates:finder,allocates:out_route,invokes-callbacks
+ * @byul.thread_safety externally-synchronized
+ * @byul.blocking true
+ * @byul.reentrant false
+ */
+BYUL_API navsys_status_t route_finder_run_ex(
+    route_finder_t* finder,
+    route_t** out_route,
+    route_finder_run_stats_t* out_stats);
 
 
 #ifdef __cplusplus

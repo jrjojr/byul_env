@@ -153,8 +153,24 @@ int main(void) {
     navgrid_t* navgrid = navgrid_create();
     route_finder_t* finder = route_finder_create(navgrid);
     dstar_lite_t* dsl = dstar_lite_create(navgrid);
+    route_t* route = NULL;
+    route_finder_run_stats_t run_stats = {0};
     if (navgrid == NULL || finder == NULL || dsl == NULL
-        || navgrid_bind_is_coord_blocked_func(
+        || route_finder_set_type_checked(
+            finder, ROUTE_FINDER_ASTAR) != NAVSYS_STATUS_OK
+        || route_finder_set_max_retry_checked(
+            finder, 1000) != NAVSYS_STATUS_OK
+        || route_finder_run_ex(
+            finder, &route, &run_stats) != NAVSYS_STATUS_OK
+        || route == NULL
+        || !run_stats.complete
+        || run_stats.partial) {
+        fprintf(stderr, "unexpected route finder run ABI\n");
+        return 4;
+    }
+    route_destroy(route);
+
+    if (navgrid_bind_is_coord_blocked_func(
             navgrid, sdk_is_blocked, &callback_identity) != NAVSYS_STATUS_OK
         || route_finder_bind_cost_func(
             finder, sdk_cost, &callback_identity) != NAVSYS_STATUS_OK
@@ -188,7 +204,7 @@ int main(void) {
         || route_finder_unbind_cost_func(finder) != NAVSYS_STATUS_OK
         || navgrid_unbind_is_coord_blocked_func(navgrid) != NAVSYS_STATUS_OK) {
         fprintf(stderr, "unexpected Navsys callback binding ABI\n");
-        return 4;
+        return 5;
     }
     dstar_lite_destroy(dsl);
     route_finder_destroy(finder);

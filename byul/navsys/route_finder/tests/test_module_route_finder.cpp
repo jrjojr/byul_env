@@ -102,6 +102,106 @@ TEST_CASE("typed algorithm configs bind atomically and unbind safely") {
     navgrid_destroy(navgrid);
 }
 
+TEST_CASE("checked settings and run_ex preserve outputs on errors") {
+    navgrid_t* navgrid = navgrid_create();
+    REQUIRE(navgrid != nullptr);
+    route_finder_t* finder = route_finder_create(navgrid);
+    REQUIRE(finder != nullptr);
+
+    CHECK(route_finder_set_type_checked(finder, ROUTE_FINDER_BFS)
+        == NAVSYS_STATUS_OK);
+    CHECK(route_finder_set_type_checked(
+        finder, ROUTE_FINDER_BELLMAN_FORD)
+        == NAVSYS_STATUS_UNSUPPORTED);
+    CHECK(route_finder_get_type(finder) == ROUTE_FINDER_BFS);
+
+    CHECK(route_finder_set_max_retry_checked(finder, 25)
+        == NAVSYS_STATUS_OK);
+    CHECK(route_finder_set_max_retry_checked(finder, 0)
+        == NAVSYS_STATUS_INVALID_ARGUMENT);
+    CHECK(route_finder_get_max_retry(finder) == 25);
+    route_finder_set_max_retry(finder, 30);
+    CHECK(route_finder_get_max_retry(finder) == 30);
+
+    route_t* route = reinterpret_cast<route_t*>(1);
+    route_finder_run_stats_t stats = {91, 92, 93.0f, true, true};
+    const route_finder_run_stats_t unchanged = stats;
+    CHECK(route_finder_run_ex(nullptr, &route, &stats)
+        == NAVSYS_STATUS_INVALID_ARGUMENT);
+    CHECK(route == reinterpret_cast<route_t*>(1));
+    CHECK(stats.total_retry_count == unchanged.total_retry_count);
+    CHECK(stats.route_length == unchanged.route_length);
+    CHECK(stats.route_cost == unchanged.route_cost);
+    CHECK(stats.complete == unchanged.complete);
+    CHECK(stats.partial == unchanged.partial);
+
+    route_finder_set_type(finder, ROUTE_FINDER_BELLMAN_FORD);
+    CHECK(route_finder_run_ex(finder, &route, &stats)
+        == NAVSYS_STATUS_UNSUPPORTED);
+    CHECK(route == reinterpret_cast<route_t*>(1));
+    CHECK(stats.total_retry_count == unchanged.total_retry_count);
+
+    route_finder_destroy(finder);
+    navgrid_destroy(navgrid);
+}
+
+TEST_CASE("run_ex separates success no-path and limit termination") {
+    navgrid_t* navgrid = navgrid_create();
+    REQUIRE(navgrid != nullptr);
+    route_finder_t* finder = route_finder_create(navgrid);
+    REQUIRE(finder != nullptr);
+    coord_t goal = {9, 9};
+    route_finder_set_goal(finder, &goal);
+
+    route_t* route = nullptr;
+    route_finder_run_stats_t stats = {};
+    CHECK(route_finder_run_ex(finder, &route, &stats)
+        == NAVSYS_STATUS_OK);
+    REQUIRE(route != nullptr);
+    CHECK(stats.complete);
+    CHECK_FALSE(stats.partial);
+    CHECK(stats.route_length == route_length(route));
+    CHECK(stats.total_retry_count == route_get_total_retry_count(route));
+    route_destroy(route);
+
+    navgrid_t* bounded = navgrid_create_full(
+        10, 10, NAVGRID_DIR_8, is_coord_blocked_navgrid);
+    REQUIRE(bounded != nullptr);
+    route_finder_set_navgrid(finder, bounded);
+    navgrid_destroy(navgrid);
+    navgrid = bounded;
+    for (int y = 0; y < 10; ++y)
+        navgrid_block_coord(navgrid, 5, y);
+    route = nullptr;
+    stats = {};
+    CHECK(route_finder_set_max_retry_checked(finder, 1000)
+        == NAVSYS_STATUS_OK);
+    CHECK(route_finder_run_ex(finder, &route, &stats)
+        == NAVSYS_STATUS_NO_PATH);
+    REQUIRE(route != nullptr);
+    CHECK_FALSE(stats.complete);
+    CHECK(stats.total_retry_count < 1000);
+    route_destroy(route);
+
+    navgrid_destroy(navgrid);
+    navgrid = navgrid_create();
+    REQUIRE(navgrid != nullptr);
+    route_finder_set_navgrid(finder, navgrid);
+    route = nullptr;
+    stats = {};
+    CHECK(route_finder_set_max_retry_checked(finder, 1)
+        == NAVSYS_STATUS_OK);
+    CHECK(route_finder_run_ex(finder, &route, &stats)
+        == NAVSYS_STATUS_LIMIT_REACHED);
+    REQUIRE(route != nullptr);
+    CHECK_FALSE(stats.complete);
+    CHECK(stats.total_retry_count >= 1);
+    route_destroy(route);
+
+    route_finder_destroy(finder);
+    navgrid_destroy(navgrid);
+}
+
 TEST_CASE("default: route finder") {
     navgrid_t* m = navgrid_create();
 

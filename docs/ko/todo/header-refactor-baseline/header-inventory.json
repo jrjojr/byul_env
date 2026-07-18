@@ -3655,12 +3655,14 @@
         "byul/navsys/route_finder/fringe_search.cpp",
         "byul/navsys/route_finder/greedy_best_first.cpp",
         "byul/navsys/route_finder/ida_star.cpp",
+        "byul/navsys/route_finder/route_finder.cpp",
         "byul/navsys/route_finder/rta_star.cpp",
         "byul/navsys/route_finder/sma_star.cpp",
         "byul/navsys/route_finder/tests/test_module_route_finder.cpp",
         "byul/navsys/route_finder/tests/test_module_route_finder_discrete.cpp",
         "byul/navsys/route_finder/weighted_astar.cpp",
-        "byul/navsys/tests/test_module_navsys.cpp"
+        "byul/navsys/tests/test_module_navsys.cpp",
+        "byul/tests/sdk_consumer/main.c"
       ],
       "decision_status": "candidate-only"
     },
@@ -4029,8 +4031,8 @@
     {
       "asset_id": "initial:byul/navsys/route_finder/route_finder.h",
       "current_path": "byul/navsys/route_finder/route_finder.h",
-      "sha256": "118671dbb342fdf59b7dcee357330ca7ac3adbd05040c5ea5c920d504f5519d5",
-      "line_count": 470,
+      "sha256": "0d59aa5586846e50fe11f106d032108c7444c7e1df3ebdab9da1e83554b36f16",
+      "line_count": 553,
       "language": "c-header",
       "license": "missing-or-unclassified",
       "include_guard": "ROUTE_FINDER_H",
@@ -4045,6 +4047,7 @@
         "route_finder_rta_star_config_t",
         "route_finder_sma_star_config_t",
         "route_finder_weighted_astar_config_t",
+        "route_finder_run_stats_t",
         "route_finder_t"
       ],
       "naming_disposition": "keep",
@@ -4083,6 +4086,7 @@
         "route_finder_fetch_goal",
         "route_finder_set_type",
         "route_finder_get_type",
+        "route_finder_set_type_checked",
         "route_finder_set_typedata",
         "route_finder_get_typedata",
         "route_finder_bind_fringe_search_config",
@@ -4092,6 +4096,7 @@
         "route_finder_unbind_algorithm_config",
         "route_finder_set_max_retry",
         "route_finder_get_max_retry",
+        "route_finder_set_max_retry_checked",
         "route_finder_enable_debug_mode",
         "route_finder_is_debug_mode_enabled",
         "route_finder_set_cost_func",
@@ -4110,7 +4115,8 @@
         "route_finder_set_defaults",
         "route_finder_is_valid",
         "route_finder_print",
-        "route_finder_run"
+        "route_finder_run",
+        "route_finder_run_ex"
       ],
       "source_definition_candidates": [
         "byul/navsys/navsys.cpp",
