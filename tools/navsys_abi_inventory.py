@@ -34,6 +34,8 @@ OWNER_TODO_OVERRIDES = {
         "docs/ko/todo/navsys/todo-navsys-industry-api-baseline.org",
     "byul/navsys/coord/internal/coord_ops.hpp":
         "docs/ko/todo/navsys/todo-navsys-coord-coord-cpp.org",
+    "byul/navsys/navgrid/internal/navgrid_callback.hpp":
+        "docs/ko/todo/navsys/todo-navsys-navgrid-navgrid.org",
 }
 
 

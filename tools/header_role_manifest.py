@@ -660,7 +660,10 @@ def naming_decision(row: dict[str, Any]) -> dict[str, Any]:
             "remove_in": None,
             "reason": "Approved stable module/responsibility name or documented foundation/aggregate exception.",
         }
-    elif path == "byul/navsys/coord/internal/coord_ops.hpp":
+    elif path in {
+        "byul/navsys/coord/internal/coord_ops.hpp",
+        "byul/navsys/navgrid/internal/navgrid_callback.hpp",
+    }:
         result = {
             "disposition": "keep",
             "canonical_path": path,
@@ -927,8 +930,8 @@ def build_outputs(source: dict[str, Any]) -> tuple[dict[str, Any], dict[str, Any
         )
 
     paths = [row["current_path"] for row in approved_rows]
-    if len(paths) != len(set(paths)) or len(paths) != 136:
-        raise ValueError("approved manifest must contain exactly 136 unique current paths")
+    if len(paths) != len(set(paths)) or len(paths) != 137:
+        raise ValueError("approved manifest must contain exactly 137 unique current paths")
 
     intended_paths: list[str] = []
     for row in approved_rows:

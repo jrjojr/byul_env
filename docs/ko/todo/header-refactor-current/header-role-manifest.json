@@ -13,19 +13,19 @@
     ]
   },
   "summary": {
-    "headers": 136,
-    "approved": 136,
+    "headers": 137,
+    "approved": 137,
     "approved_install": 99,
     "wrapper_generated": 27,
     "wrapper_manual": 64,
-    "wrapper_excluded": 45,
+    "wrapper_excluded": 46,
     "compatibility_forwarders": 21,
     "successor_headers": 20,
     "successor_links": 39,
     "public_resource_migrations": 10,
     "sdk_basename_collisions": 0,
     "abi_2_sdk_basename_collisions": 0,
-    "current_include_edges": 309,
+    "current_include_edges": 310,
     "current_include_cycles": 0
   },
   "remaining_stage_2_design_gate": [],
@@ -3884,6 +3884,40 @@
       "decision_status": "approved"
     },
     {
+      "asset_id": "initial:byul/navsys/navgrid/internal/navgrid_callback.hpp",
+      "current_path": "byul/navsys/navgrid/internal/navgrid_callback.hpp",
+      "sha256": "1682e79d1ab27b86626c4c3ad4accd6fb7cd4e3434ed7ba1199108cac48c3897",
+      "primary_role": "internal",
+      "role_reason": "Stage-1 evidence supports the current public or internal boundary.",
+      "owner_module": "navsys",
+      "public_module": "navgrid",
+      "approved_install": false,
+      "install_reason": "internal is excluded from the SDK install inventory.",
+      "wrapper": {
+        "mode": "excluded",
+        "reason": "internal headers are outside the installed C ABI wrapper input."
+      },
+      "naming": {
+        "disposition": "keep",
+        "canonical_path": "byul/navsys/navgrid/internal/navgrid_callback.hpp",
+        "canonical_install": false,
+        "deprecated_since": null,
+        "remove_in": null,
+        "reason": "Already migrated to the canonical internal implementation path.",
+        "compatibility_path": null
+      },
+      "successor_headers": [],
+      "source_evidence": {
+        "module_header_groups": [],
+        "root_header_inventory": false,
+        "install_inventory": false,
+        "wrapper_modules_registered": false,
+        "exported_symbols": [],
+        "source_definition_candidates": []
+      },
+      "decision_status": "approved"
+    },
+    {
       "asset_id": "initial:byul/navsys/navgrid/navcell.h",
       "current_path": "byul/navsys/navgrid/navcell.h",
       "sha256": "557ac86d263f328066542bc79f03f4ec8e7b32e029e372c1f44fc2f5984509f5",
@@ -3935,7 +3969,7 @@
     {
       "asset_id": "initial:byul/navsys/navgrid/navgrid.h",
       "current_path": "byul/navsys/navgrid/navgrid.h",
-      "sha256": "04e1d89c8079e59d7761f292a9047034006566279f1439e7306f35534b0fbedb",
+      "sha256": "33578672ebedd7d51484bd43c711dc4897a672b25cb3ab91be622cc271d070f9",
       "primary_role": "public-component",
       "role_reason": "Stage-1 evidence supports the current public or internal boundary.",
       "owner_module": "navsys",
@@ -4759,7 +4793,7 @@
     {
       "asset_id": "initial:byul/navsys/route_finder/route_finder.h",
       "current_path": "byul/navsys/route_finder/route_finder.h",
-      "sha256": "b60b2e2813aff855fb6992bc088f34e2fa59e69cdd67f1195dd0293a5200c559",
+      "sha256": "7db6f3a9b85876bdfeed1a7dffda18dd71521c454f4690aba68112b0a95df97d",
       "primary_role": "public-module-entry",
       "role_reason": "Canonical entry for route-finder dispatch and configuration.",
       "owner_module": "navsys",

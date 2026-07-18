@@ -7,6 +7,7 @@
 #include "coord.h"
 #include "coord_list.h"
 #include "coord_hash.h"
+#include "internal/navgrid_callback.hpp"
 
 bool is_coord_blocked_navgrid(const void* context, 
     int x, int y, void* userdata) {
@@ -51,6 +52,8 @@ navgrid_t* navgrid_create_full(int width, int height, navgrid_dir_mode_t mode,
 
 void navgrid_destroy(navgrid_t* navgrid) {
     if (!navgrid) return;
+    if (byul::navsys::internal::navgrid_callback_is_active(navgrid))
+        return;
     coord_hash_destroy(navgrid->cell_map);
     delete navgrid;
 }
@@ -116,6 +119,8 @@ is_coord_blocked_func navgrid_get_is_coord_blocked_fn(
 navsys_status_t navgrid_bind_is_coord_blocked_func(
     navgrid_t* navgrid, is_coord_blocked_func fn, void* userdata) {
     if (!navgrid || !fn) return NAVSYS_STATUS_INVALID_ARGUMENT;
+    if (byul::navsys::internal::navgrid_callback_is_active(navgrid))
+        return NAVSYS_STATUS_IN_PROGRESS;
     navgrid->is_coord_blocked_fn = fn;
     navgrid->is_coord_blocked_fn_userdata = userdata;
     return NAVSYS_STATUS_OK;
@@ -123,6 +128,8 @@ navsys_status_t navgrid_bind_is_coord_blocked_func(
 
 navsys_status_t navgrid_unbind_is_coord_blocked_func(navgrid_t* navgrid) {
     if (!navgrid) return NAVSYS_STATUS_INVALID_ARGUMENT;
+    if (byul::navsys::internal::navgrid_callback_is_active(navgrid))
+        return NAVSYS_STATUS_IN_PROGRESS;
     navgrid->is_coord_blocked_fn = nullptr;
     navgrid->is_coord_blocked_fn_userdata = nullptr;
     return NAVSYS_STATUS_OK;
@@ -223,10 +230,8 @@ coord_list_t* navgrid_copy_neighbors(
         int nx = x + dx[i];
         int ny = y + dy[i];
         if (!navgrid_is_inside(navgrid, nx, ny)) continue;
-        if (navgrid->is_coord_blocked_fn
-            && navgrid->is_coord_blocked_fn(
-                navgrid, nx, ny,
-                navgrid->is_coord_blocked_fn_userdata))
+        if (byul::navsys::internal::navgrid_invoke_is_coord_blocked(
+            navgrid, nx, ny))
             continue;
 
         coord_t tmp = coord_t{nx, ny};

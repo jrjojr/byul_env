@@ -37,6 +37,30 @@ struct reentrant_route_finder_context {
     int destroy_result;
 };
 
+struct reentrant_navgrid_context {
+    navgrid_t* navgrid;
+    int calls;
+    navsys_status_t bind_status;
+    navsys_status_t unbind_status;
+    bool destroy_attempted;
+};
+
+static bool reentrant_navgrid_is_blocked(
+    const void*, int, int, void* userdata) {
+    reentrant_navgrid_context* context =
+        static_cast<reentrant_navgrid_context*>(userdata);
+    ++context->calls;
+    if (context->calls == 1) {
+        context->bind_status = navgrid_bind_is_coord_blocked_func(
+            context->navgrid, bound_is_blocked, nullptr);
+        context->unbind_status =
+            navgrid_unbind_is_coord_blocked_func(context->navgrid);
+        navgrid_destroy(context->navgrid);
+        context->destroy_attempted = true;
+    }
+    return false;
+}
+
 static float reentrant_route_finder_cost(
     const navgrid_t*, const coord_t*, const coord_t*, void* userdata) {
     reentrant_route_finder_context* context =
@@ -191,6 +215,35 @@ TEST_CASE("navsys: route finder rejects same-owner callback reentrancy") {
 
     route_destroy(route);
     CHECK(route_finder_destroy(finder) == 0);
+    navgrid_destroy(navgrid);
+}
+
+TEST_CASE("navsys: navgrid rejects same-owner callback reentrancy") {
+    navgrid_t* navgrid = navgrid_create();
+    REQUIRE(navgrid != nullptr);
+    reentrant_navgrid_context context = {
+        navgrid,
+        0,
+        NAVSYS_STATUS_OK,
+        NAVSYS_STATUS_OK,
+        false
+    };
+    REQUIRE(navgrid_bind_is_coord_blocked_func(
+        navgrid, reentrant_navgrid_is_blocked, &context)
+        == NAVSYS_STATUS_OK);
+
+    coord_list_t* neighbors = navgrid_copy_neighbors(navgrid, 0, 0);
+    REQUIRE(neighbors != nullptr);
+    CHECK(context.calls > 0);
+    CHECK(context.bind_status == NAVSYS_STATUS_IN_PROGRESS);
+    CHECK(context.unbind_status == NAVSYS_STATUS_IN_PROGRESS);
+    CHECK(context.destroy_attempted);
+    CHECK(navgrid_get_is_coord_blocked_fn(navgrid)
+        == reentrant_navgrid_is_blocked);
+    CHECK(navgrid->is_coord_blocked_fn_userdata == &context);
+    CHECK(navgrid_get_width(navgrid) == 0);
+
+    coord_list_destroy(neighbors);
     navgrid_destroy(navgrid);
 }
 

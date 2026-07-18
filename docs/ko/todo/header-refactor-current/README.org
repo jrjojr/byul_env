@@ -30,7 +30,7 @@ CI의 일반 경로로 추론하지 않는다.
 
 * 산출물
 
-- =header-inventory.json=: 현재 tracked header 136개의 path, hash, 역할·명명 후보와
+- =header-inventory.json=: 현재 tracked header 137개의 path, hash, 역할·명명 후보와
   module/root/install/wrapper/source 교차 inventory
 - =naming-report.json=: 현재 naming 후보 report
 - =environment.json=: Git/submodule, dirty status, OS와 Python/tool snapshot
@@ -38,10 +38,11 @@ CI의 일반 경로로 추론하지 않는다.
   2785개의 현재 회귀 snapshot
 - =msvc-release-build.json=: fresh Release DLL hash, export 976개와 clean install 파일
   113개의 snapshot
-- =msvc-release-abi.json=: complete type 57개, field 281개, enum 13개와 enumerator
-  111개의 layout/value snapshot
-- =header-role-manifest.json=: 기존 asset 135개와 Navsys 4단계에서 승인한 새
-  =navsys_status.h=를 합친 asset 136개의 primary role, owner/public module, install,
+- =msvc-release-abi.json=: complete type 57개, field 281개, enum 14개와 enumerator
+  124개의 layout/value snapshot
+- =header-role-manifest.json=: 기존 asset 135개, Navsys public =navsys_status.h=와
+  Navgrid internal callback guard를 합친 asset 137개의 primary role,
+  owner/public module, install,
   wrapper와 versioned naming/compatibility 처분, Math Engine
   created successor 20개와 public resource migration 10개
 - =header-install-intent-report.json=: 현행 install 92개와 승인 의도 path 138개의
@@ -53,7 +54,7 @@ CI의 일반 경로로 추론하지 않는다.
 - =header-abi-audit-msvc.json=, =header-abi-audit-mingw.json=: MSVC 19.44와 MinGW GCC
   16.1의 C17/C++17 standalone matrix 결과
 - =msvc-standalone-headers.json=, =mingw-standalone-headers.json=: compiler command와
-  최초 public C header의 header별 188개 결과
+  public C header의 header별 190개 결과
 - Navsys status 추가 증거인
   =../navsys/navsys-status-standalone-msvc.json=과
   =../navsys/navsys-status-standalone-mingw.json=: 현재 public C header 95개의
@@ -64,7 +65,9 @@ CI의 일반 경로로 추론하지 않는다.
 * 최초 기준선과 차이
 
 - 최초 기준선 asset은 135개로 보존되고, 승인된 새 Navsys public-foundation
-  =byul/navsys/navsys_status.h=가 추가되어 현재 Header 수는 136개다.
+  =byul/navsys/navsys_status.h=와 설치하지 않는
+  =byul/navsys/navgrid/internal/navgrid_callback.hpp=가 추가되어 현재 Header 수는
+  137개다.
 - =byul/navsys/coord/coord.hpp=가 제거되고
   =byul/navsys/coord/internal/coord_ops.hpp=가 추가됐다.
 - =byul/navsys/coord/coord.h=의 SHA-256가 변경됐다.

@@ -4,6 +4,7 @@
 #include "dstar_lite_pqueue.h"
 #include "dstar_lite_key.h"
 #include "scalar.h"
+#include "../navgrid/internal/navgrid_callback.hpp"
 
 #include <float.h>
 #include <math.h>
@@ -81,10 +82,8 @@ float dstar_lite_cost(const navgrid_t* navgrid,
     if (!navgrid || !start || !goal)
         return FLT_MAX;
 
-    if (navgrid->is_coord_blocked_fn
-        && navgrid->is_coord_blocked_fn(
-            navgrid, goal->x, goal->y,
-            navgrid->is_coord_blocked_fn_userdata))
+    if (byul::navsys::internal::navgrid_invoke_is_coord_blocked(
+        navgrid, goal->x, goal->y))
         return FLT_MAX;
 
     float dx = (float)(start->x - goal->x);
@@ -98,10 +97,8 @@ float dstar_lite_dynamic_cost(const navgrid_t* navgrid,
     if (!navgrid || !start || !goal)
         return FLT_MAX;
 
-    if (navgrid->is_coord_blocked_fn &&
-        navgrid->is_coord_blocked_fn(
-            navgrid, goal->x, goal->y,
-            navgrid->is_coord_blocked_fn_userdata)) {
+    if (byul::navsys::internal::navgrid_invoke_is_coord_blocked(
+        navgrid, goal->x, goal->y)) {
         return FLT_MAX;
     }
 

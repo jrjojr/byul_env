@@ -112,6 +112,19 @@ BYUL_API navgrid_t* navgrid_create_full(int width, int height,
     navgrid_dir_mode_t mode,
     is_coord_blocked_func is_coord_blocked_fn);
 
+/**
+ * @brief Navigation grid와 그 내부 cell map을 해제한다.
+ *
+ * 같은 grid의 차단 callback 실행 중 호출하면 안전을 위해 아무 작업도 하지 않는다.
+ *
+ * @param[in,out] navgrid 해제할 navigation grid. NULL이면 아무 작업도 하지 않는다.
+ *
+ * @byul.nullable navgrid true
+ * @byul.side_effect frees:navgrid
+ * @byul.thread_safety externally-synchronized
+ * @byul.blocking false
+ * @byul.reentrant false
+ */
 BYUL_API void navgrid_destroy(navgrid_t* navgrid);
 
 // Copy and Comparison
@@ -141,6 +154,7 @@ BYUL_API is_coord_blocked_func navgrid_get_is_coord_blocked_fn(
  * @return 공통 Navsys 상태 값.
  * @retval NAVSYS_STATUS_OK binding이 교체됐다.
  * @retval NAVSYS_STATUS_INVALID_ARGUMENT navgrid 또는 fn이 NULL이다.
+ * @retval NAVSYS_STATUS_IN_PROGRESS 같은 grid의 callback 실행 중이다.
  *
  * @byul.nullable navgrid false
  * @byul.nullable fn false
@@ -162,6 +176,7 @@ BYUL_API navsys_status_t navgrid_bind_is_coord_blocked_func(
  * @return 공통 Navsys 상태 값.
  * @retval NAVSYS_STATUS_OK callback과 userdata가 NULL로 변경됐다.
  * @retval NAVSYS_STATUS_INVALID_ARGUMENT navgrid가 NULL이다.
+ * @retval NAVSYS_STATUS_IN_PROGRESS 같은 grid의 callback 실행 중이다.
  *
  * @byul.nullable navgrid false
  * @byul.side_effect mutates:navgrid

@@ -3,7 +3,7 @@
   "source_role_manifest": "docs/ko/todo/header-refactor-current/header-role-manifest.json",
   "source_vocabulary": "docs/ko/todo/navsys/navsys-abi-vocabulary.json",
   "summary": {
-    "headers": 44,
+    "headers": 45,
     "symbols": 439,
     "return_forms": {
       "nullable_pointer": 149,
@@ -19,11 +19,11 @@
     },
     "unclassified": 0,
     "duplicate_declarations": 1,
-    "audit_issues": 949,
-    "audit_errors": 949,
+    "audit_issues": 948,
+    "audit_errors": 948,
     "audit_codes": {
       "missing-brief": 17,
-      "missing-doxygen": 308,
+      "missing-doxygen": 307,
       "missing-nullable": 164,
       "missing-param": 86,
       "missing-param-direction": 205,
@@ -3915,15 +3915,6 @@
         "code": "missing-return-lifetime",
         "symbol": "navgrid_create_full",
         "message": "pointer return has no @byul.lifetime return",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/navgrid/navgrid.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-navgrid-navgrid.org",
-        "severity": "error",
-        "code": "missing-doxygen",
-        "symbol": "navgrid_destroy",
-        "message": "public function has no adjacent Doxygen block",
         "disposition": "route-to-owner-child"
       },
       {
@@ -9057,6 +9048,15 @@
       ]
     },
     {
+      "path": "byul/navsys/navgrid/internal/navgrid_callback.hpp",
+      "owner_todo": "docs/ko/todo/navsys/todo-navsys-navgrid-navgrid.org",
+      "primary_role": "internal",
+      "wrapper_mode": "excluded",
+      "symbol_count": 0,
+      "audit_issue_count": 0,
+      "symbols": []
+    },
+    {
       "path": "byul/navsys/navgrid/navcell.h",
       "owner_todo": "docs/ko/todo/navsys/todo-navsys-navgrid-navcell.org",
       "primary_role": "public-component",
@@ -9079,7 +9079,7 @@
       "primary_role": "public-component",
       "wrapper_mode": "generated",
       "symbol_count": 30,
-      "audit_issue_count": 39,
+      "audit_issue_count": 38,
       "symbols": [
         "is_coord_blocked_navgrid",
         "navgrid_create",
