@@ -332,13 +332,10 @@ navsys_status_t dstar_lite_unbind_changed_coords_func(
 dstar_lite_t* dstar_lite_create(navgrid_t* navgrid) {
     if (!navgrid) return NULL;
 
-    coord_t* c = coord_create();
-    dstar_lite_t* dsl = dstar_lite_create_full(navgrid, c, c,
+    coord_t c = {0, 0};
+    return dstar_lite_create_full(navgrid, &c, &c,
         dstar_lite_cost, dstar_lite_heuristic,        
         false);
-    coord_destroy(c);
-
-    return dsl;
 }
 
 dstar_lite_t* dstar_lite_create_full(navgrid_t* navgrid, 
@@ -347,64 +344,75 @@ dstar_lite_t* dstar_lite_create_full(navgrid_t* navgrid,
     cost_func cost_fn, heuristic_func heuristic_fn,
     bool debug_mode_enabled) {
 
-    if (!navgrid) return NULL;
+    if (!navgrid || !start || !goal) return NULL;
 
-    dstar_lite_t* dsl = new dstar_lite_t();
-    dsl->navgrid = navgrid;
-    // printf("[dsl->navgrid assigned] %p\n", navgrid);
+    dstar_lite_t* dsl = nullptr;
+    try {
+        dsl = new dstar_lite_t{};
+        dsl->navgrid = navgrid;
+        // printf("[dsl->navgrid assigned] %p\n", navgrid);
 
-    dsl->start = *start;
-    dsl->goal = *goal;
-    
-    dsl->km = 0.0f;
-    dsl->max_range = 100;
-    
-    dsl->real_loop_max_retry = 3000;
+        dsl->start = *start;
+        dsl->goal = *goal;
 
-    dsl->max_retry = 3000;
-    
-    dsl->reconstruct_max_retry = 300;
+        dsl->km = 0.0f;
+        dsl->max_range = 100;
 
-    dsl->cost_fn = cost_fn ? cost_fn : dstar_lite_cost;
-    dsl->cost_fn_userdata = NULL;
-    dsl->heuristic_fn = heuristic_fn ? heuristic_fn : dstar_lite_heuristic;
-    dsl->heuristic_fn_userdata = NULL;
+        dsl->real_loop_max_retry = 3000;
 
-    dsl->debug_mode_enabled = debug_mode_enabled;
+        dsl->max_retry = 3000;
 
-    dsl->g_table = coord_hash_create_full(
-        (coord_hash_copy_func) scalar_copy,
-        (coord_hash_destroy_func) scalar_destroy
-    );
+        dsl->reconstruct_max_retry = 300;
 
-    dsl->rhs_table = coord_hash_create_full(
-        (coord_hash_copy_func) scalar_copy,
-        (coord_hash_destroy_func) scalar_destroy        
-    );
+        dsl->cost_fn = cost_fn ? cost_fn : dstar_lite_cost;
+        dsl->cost_fn_userdata = NULL;
+        dsl->heuristic_fn = heuristic_fn ? heuristic_fn : dstar_lite_heuristic;
+        dsl->heuristic_fn_userdata = NULL;
 
-    dsl->frontier = dstar_lite_pqueue_create();
+        dsl->debug_mode_enabled = debug_mode_enabled;
 
-    dsl->proto_route = route_create();
-    dsl->real_route = NULL;
+        dsl->g_table = coord_hash_create_full(
+            (coord_hash_copy_func) scalar_copy,
+            (coord_hash_destroy_func) scalar_destroy
+        );
 
-    dsl->move_fn = NULL;
-    dsl->move_fn_userdata = NULL;
+        dsl->rhs_table = coord_hash_create_full(
+            (coord_hash_copy_func) scalar_copy,
+            (coord_hash_destroy_func) scalar_destroy
+        );
 
-    dsl->changed_coords_fn = NULL;
-    dsl->changed_coords_fn_userdata = NULL;
+        dsl->frontier = dstar_lite_pqueue_create();
+        dsl->proto_route = route_create();
+        if (!dsl->g_table || !dsl->rhs_table ||
+            !dsl->frontier || !dsl->proto_route) {
+            dstar_lite_destroy(dsl);
+            return NULL;
+        }
 
-    dsl->force_quit = false;
+        dsl->real_route = NULL;
 
-    dsl->proto_compute_retry_count = 0;
-    dsl->real_compute_retry_count = 0;
+        dsl->move_fn = NULL;
+        dsl->move_fn_userdata = NULL;
 
-    dsl->reconstruct_retry_count = 0;
+        dsl->changed_coords_fn = NULL;
+        dsl->changed_coords_fn_userdata = NULL;
 
-    dsl->real_loop_retry_count = 0;
+        dsl->force_quit = false;
 
-    dsl->interval_sec = 0.0f;
+        dsl->proto_compute_retry_count = 0;
+        dsl->real_compute_retry_count = 0;
 
-    return dsl;
+        dsl->reconstruct_retry_count = 0;
+
+        dsl->real_loop_retry_count = 0;
+
+        dsl->interval_sec = 0.0f;
+
+        return dsl;
+    } catch (...) {
+        dstar_lite_destroy(dsl);
+        return NULL;
+    }
 }
 
 void dstar_lite_destroy(dstar_lite_t* dsl) {

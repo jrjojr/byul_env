@@ -21,6 +21,11 @@ VOCABULARY = (
     / "docs/ko/todo/navsys/navsys-abi-vocabulary.json"
 )
 SDK_CONSUMER = REPOSITORY_ROOT / "byul/tests/sdk_consumer/main.c"
+ALLOCATION_FAILURE_FIXTURE = (
+    REPOSITORY_ROOT
+    / "byul/navsys/tests/test_navsys_allocation_failure.cpp"
+)
+NAVSYS_TEST_CMAKE = REPOSITORY_ROOT / "byul/navsys/tests/CMakeLists.txt"
 
 
 def load_json(path: Path) -> dict:
@@ -35,6 +40,10 @@ class NavsysLifecyclePolicyTest(unittest.TestCase):
         cls.abi_snapshot = load_json(ABI_SNAPSHOT)
         cls.vocabulary = load_json(VOCABULARY)
         cls.sdk_consumer = SDK_CONSUMER.read_text(encoding="utf-8")
+        cls.allocation_failure_fixture = (
+            ALLOCATION_FAILURE_FIXTURE.read_text(encoding="utf-8")
+        )
+        cls.navsys_test_cmake = NAVSYS_TEST_CMAKE.read_text(encoding="utf-8")
 
     def test_every_inventory_resource_has_exactly_one_model(self):
         inventory_resources = {
@@ -157,6 +166,44 @@ class NavsysLifecyclePolicyTest(unittest.TestCase):
         self.assertEqual(
             "preserve-all-output-pointers",
             allocator["output_guarantee"],
+        )
+
+    def test_current_create_paths_have_allocator_failure_injection(self):
+        abi_1 = self.policy["abi_1_policy"]
+        injection = abi_1["allocation_failure_injection"]
+
+        self.assertEqual(
+            "byul/navsys/tests/test_navsys_allocation_failure.cpp",
+            injection["fixture"],
+        )
+        self.assertEqual(
+            {"navgrid", "route_finder", "dstar_lite"},
+            set(injection["owners"]),
+        )
+        self.assertEqual({"msvc", "mingw"}, set(injection["toolchains"]))
+        self.assertEqual(
+            "no-exception-escape-and-no-owned-allocation-leak",
+            injection["result"],
+        )
+        for family in injection["owners"]:
+            with self.subTest(family=family):
+                self.assertIn(
+                    f'"{family}"',
+                    self.allocation_failure_fixture,
+                )
+        self.assertIn(
+            "add_test(\n"
+            "    NAME test_navsys_allocation_failure",
+            self.navsys_test_cmake,
+        )
+        release_gates = self.policy["abi_2_policy"]["release_gates"]
+        self.assertEqual(
+            "verified-in-abi-1-msvc-and-mingw-static-module",
+            release_gates["legacy-create-allocation-failure"],
+        )
+        self.assertEqual(
+            "required-before-abi-2-release",
+            release_gates["abi-2-bound-allocator-failure"],
         )
 
     def test_opaque_candidates_have_an_abi_one_layout_baseline(self):

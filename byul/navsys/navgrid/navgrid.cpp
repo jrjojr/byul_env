@@ -36,18 +36,28 @@ navgrid_t* navgrid_create_full(int width, int height, navgrid_dir_mode_t mode,
         is_coord_blocked_fn = is_coord_blocked_navgrid;
     }
 
-    navgrid_t* navgrid = new navgrid_t();
-    navgrid->width = width;
-    navgrid->height = height;
-    navgrid->mode = mode;
-    navgrid->cell_map = coord_hash_create_full(
-        (coord_hash_copy_func) navcell_copy,
-        (coord_hash_destroy_func) navcell_destroy
-    );
+    navgrid_t* navgrid = nullptr;
+    try {
+        navgrid = new navgrid_t{};
+        navgrid->width = width;
+        navgrid->height = height;
+        navgrid->mode = mode;
+        navgrid->cell_map = coord_hash_create_full(
+            (coord_hash_copy_func) navcell_copy,
+            (coord_hash_destroy_func) navcell_destroy
+        );
+        if (!navgrid->cell_map) {
+            navgrid_destroy(navgrid);
+            return nullptr;
+        }
 
-    navgrid->is_coord_blocked_fn = is_coord_blocked_fn;
-    navgrid->is_coord_blocked_fn_userdata = nullptr;
-    return navgrid;
+        navgrid->is_coord_blocked_fn = is_coord_blocked_fn;
+        navgrid->is_coord_blocked_fn_userdata = nullptr;
+        return navgrid;
+    } catch (...) {
+        navgrid_destroy(navgrid);
+        return nullptr;
+    }
 }
 
 void navgrid_destroy(navgrid_t* navgrid) {

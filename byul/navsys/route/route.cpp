@@ -21,18 +21,21 @@ static const int ROUTE_DIRECTION_VECTORS[9][2] = {
 };
 
 route_t* route_create(void) {
-    route_t* r = new route_t();
-    r->coords = coord_list_create();
-    r->visited_order = coord_list_create();
-    r->visited_count = coord_hash_create();
-    r->cost = 0.0f;
-    r->success = false;
-    r->total_retry_count = 0;
-
-    r->avg_vec_x = 0.0;
-    r->avg_vec_y = 0.0;
-    r->vec_count = 0;    
-    return r;
+    route_t* r = nullptr;
+    try {
+        r = new route_t{};
+        r->coords = coord_list_create();
+        r->visited_order = coord_list_create();
+        r->visited_count = coord_hash_create();
+        if (!r->coords || !r->visited_order || !r->visited_count) {
+            route_destroy(r);
+            return nullptr;
+        }
+        return r;
+    } catch (...) {
+        route_destroy(r);
+        return nullptr;
+    }
 }
 
 void route_destroy(route_t* p) {

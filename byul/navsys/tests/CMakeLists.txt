@@ -91,6 +91,60 @@ target_compile_definitions(${PROJECT_NAME} PRIVATE BYUL_STATIC)
 enable_testing()
 add_test(NAME ${PROJECT_NAME} COMMAND ${PROJECT_NAME})
 
+add_executable(test_navsys_allocation_failure
+    ${CMAKE_CURRENT_SOURCE_DIR}/test_navsys_allocation_failure.cpp
+)
+target_include_directories(test_navsys_allocation_failure PRIVATE
+    ${CMAKE_SOURCE_DIR}
+    ${CMAKE_SOURCE_DIR}/core
+    ${CMAKE_SOURCE_DIR}/numal
+    ${CMAKE_SOURCE_DIR}/navsys
+    ${CMAKE_SOURCE_DIR}/navsys/coord
+    ${CMAKE_SOURCE_DIR}/navsys/route
+    ${CMAKE_SOURCE_DIR}/navsys/navgrid
+    ${CMAKE_SOURCE_DIR}/navsys/dstar_lite
+    ${CMAKE_SOURCE_DIR}/navsys/route_finder
+    ${CMAKE_SOURCE_DIR}/navsys/maze
+    ${CMAKE_SOURCE_DIR}/navsys/obstacle
+    ${CMAKE_SOURCE_DIR}/navsys/route_carver
+    ${EXTERNAL_DIR}
+)
+target_link_directories(test_navsys_allocation_failure PRIVATE
+    ${CMAKE_BINARY_DIR}/navsys
+)
+target_link_libraries(test_navsys_allocation_failure PRIVATE
+    navsys
+    numal
+)
+target_compile_definitions(test_navsys_allocation_failure PRIVATE BYUL_STATIC)
+if(CMAKE_SYSTEM_NAME STREQUAL "Windows")
+    set_target_properties(test_navsys_allocation_failure PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin
+        LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin
+        ARCHIVE_OUTPUT_DIRECTORY
+            ${CMAKE_BINARY_DIR}/lib/test_navsys_allocation_failure
+    )
+elseif(CMAKE_SYSTEM_NAME STREQUAL "Linux")
+    target_compile_options(test_navsys_allocation_failure PRIVATE
+        -fsanitize=address -fsanitize=leak -g -O1
+    )
+    target_link_options(test_navsys_allocation_failure PRIVATE
+        -fsanitize=address -fsanitize=leak
+    )
+    set_target_properties(test_navsys_allocation_failure PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin
+        LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib
+        ARCHIVE_OUTPUT_DIRECTORY
+            ${CMAKE_BINARY_DIR}/lib/test_navsys_allocation_failure
+        BUILD_RPATH "\$ORIGIN/../lib"
+        INSTALL_RPATH "\$ORIGIN/../lib"
+    )
+endif()
+add_test(
+    NAME test_navsys_allocation_failure
+    COMMAND test_navsys_allocation_failure
+)
+
 # ─────────────────────────────────────────────
 # 공통 결과물 설치
 # ─────────────────────────────────────────────

@@ -16,6 +16,20 @@
       "navgrid": "runtime-guarded-and-tested",
       "dstar_lite": "runtime-guarded-and-tested"
     },
+    "allocation_failure_injection": {
+      "fixture": "byul/navsys/tests/test_navsys_allocation_failure.cpp",
+      "scope": "current-create-paths-static-module",
+      "owners": [
+        "navgrid",
+        "route_finder",
+        "dstar_lite"
+      ],
+      "toolchains": [
+        "msvc",
+        "mingw"
+      ],
+      "result": "no-exception-escape-and-no-owned-allocation-leak"
+    },
     "callback_failure": "legacy-signatures-have-no-common-failure-channel"
   },
   "abi_2_policy": {
@@ -53,7 +67,8 @@
       "diagnostic": "abi-major-and-header-fingerprint"
     },
     "release_gates": {
-      "allocator_failure_injection": "required-before-abi-2-release",
+      "legacy-create-allocation-failure": "verified-in-abi-1-msvc-and-mingw-static-module",
+      "abi-2-bound-allocator-failure": "required-before-abi-2-release",
       "old-layout-consumer": "verified-in-abi-1-msvc-and-mingw",
       "new-handle-consumer": "required-before-abi-2-release",
       "current_state": "candidate-contract-frozen-implementation-pending"

@@ -67,8 +67,14 @@ route_finder_t* route_finder_create_full(
     heuristic_func heuristic_fn,
     void* heuristic_fn_userdata    
 ) {
+    if (!start || !goal) return nullptr;
 
-    route_finder_t* a = new route_finder_t{};
+    route_finder_t* a = nullptr;
+    try {
+        a = new route_finder_t{};
+    } catch (...) {
+        return nullptr;
+    }
 
     a->navgrid = navgrid;
     a->start = *start;

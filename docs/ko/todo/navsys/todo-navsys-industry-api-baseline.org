@@ -583,6 +583,15 @@ assertion으로 고정한다. MSVC와 MinGW consumer가 각 installed DLL/import
 build/run되어 public-field ABI 1 source와 runtime 조합을 검증한다. ABI 2 SDK가 아직
 없으므로 new opaque-handle consumer와 cross-major 거부 fixture는 release gate에 남긴다.
 
+2026-07-18 현재 ABI의 =navgrid_create=, =route_finder_create=,
+=dstar_lite_create= 경로에 allocation countdown failure injection fixture를 추가했다.
+각 top-level 및 중첩 allocation 실패 지점에서 C++ exception이 C API 밖으로
+나가지 않고 이미 생성된 owner 자원이 모두 회수되는지 검사하며, MSVC와 MinGW
+static module CTest에서 통과했다. 이 과정에서 =coord_hash= 생성자 실패 저장소,
+D* Lite priority queue와 route의 부분 생성 정리를 보강했다. ABI 2의 create-time
+allocator binding과 =NAVSYS_STATUS_OUT_OF_MEMORY= output-preservation fixture는 아직
+구현 전이므로 별도 release gate로 유지하며 이 단계는 =DOING=을 유지한다.
+
 * TODO 3단계: Search Options, Result와 Capability 확정
 
 ** 실행

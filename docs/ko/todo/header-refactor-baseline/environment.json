@@ -1,21 +1,25 @@
 {
   "schema_version": 1,
-  "captured_at_utc": "2026-07-17T23:28:06.723875+00:00",
-  "git_head": "3372d5e67d5d3f42427198159fde35e4fb3e4a3e",
-  "git_branch": "refactor/header-baseline",
+  "captured_at_utc": "2026-07-18T12:35:34.783121+00:00",
+  "git_head": "af3ab8f81c4867230dbc89cb5c7a21fdbb2306e7",
+  "git_branch": "test/navsys-coord-numeric-baseline",
   "git_status_porcelain": [
-    "M \"docs/ko/todo/todo-\\353\\246\\254\\355\\214\\251\\355\\206\\240\\353\\247\\201.org\"",
-    "?? docs/ko/todo/header-refactor-baseline/",
-    "?? \"docs/\\354\\212\\244\\355\\201\\254\\353\\246\\260\\354\\203\\267 2026-07-18 081254.png\"",
-    "?? tools/header_refactor_baseline.bat",
-    "?? tools/header_refactor_baseline.py",
-    "?? tools/header_refactor_baseline.sh",
-    "?? tools/tests/"
+    "M byul/navsys/coord/coord_hash.cpp",
+    " M byul/navsys/dstar_lite/dstar_lite.cpp",
+    " M byul/navsys/dstar_lite/dstar_lite_pqueue.cpp",
+    " M byul/navsys/navgrid/navgrid.cpp",
+    " M byul/navsys/route/route.cpp",
+    " M byul/navsys/route_finder/route_finder.cpp",
+    " M byul/navsys/tests/CMakeLists.txt",
+    " M docs/ko/todo/navsys/navsys-lifecycle-policy.json",
+    " M docs/ko/todo/navsys/todo-navsys-industry-api-baseline.org",
+    " M tools/tests/test_navsys_lifecycle_policy.py",
+    "?? byul/navsys/tests/test_navsys_allocation_failure.cpp"
   ],
-  "rules_submodule_sha": "e1464cb6b34b7152e6d6f621ee63b11c54e99224",
+  "rules_submodule_sha": "642275431efe0d87f4fc3856ef326d6fdfbb0aba",
   "platform": {
     "system": "Windows",
-    "release": "10",
+    "release": "11",
     "machine": "AMD64"
   },
   "tools": {
@@ -29,7 +33,7 @@
     },
     "python": {
       "available": true,
-      "version": "Python 3.11.8"
+      "version": "Python 3.13.3"
     },
     "cl": {
       "available": false,
