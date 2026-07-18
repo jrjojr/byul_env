@@ -21,6 +21,9 @@ find_library(BYUL_IMPORT_LIBRARY
 add_executable(byul_sdk_consumer main.c)
 target_include_directories(byul_sdk_consumer PRIVATE "${BYUL_INCLUDE_DIR}")
 target_link_libraries(byul_sdk_consumer PRIVATE "${BYUL_IMPORT_LIBRARY}")
+target_compile_options(byul_sdk_consumer PRIVATE
+    $<$<C_COMPILER_ID:MSVC>:/utf-8>
+)
 
 if(WIN32)
     add_custom_command(TARGET byul_sdk_consumer POST_BUILD

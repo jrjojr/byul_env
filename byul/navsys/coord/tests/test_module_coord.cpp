@@ -9,6 +9,13 @@ namespace {
 constexpr double kPi = 3.14159265358979323846;
 }
 
+TEST_CASE("coord ABI layout diagnostics match the compiled value type") {
+    CHECK(coord_sizeof() == sizeof(coord_t));
+    CHECK(coord_alignof() == alignof(coord_t));
+    CHECK(coord_offsetof_x() == offsetof(coord_t, x));
+    CHECK(coord_offsetof_y() == offsetof(coord_t, y));
+}
+
 TEST_CASE("Wrap-Around Test") {
     coord_t a;
     coord_init_full(&a, COORD_MAX, 0);

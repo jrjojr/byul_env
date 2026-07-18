@@ -189,7 +189,7 @@ BYUL_API navsys_status_t coord_format(
 
 * 구현 순서
 
-** TODO 1단계: ABI와 수치 정책 고정
+** DOING 1단계: ABI와 수치 정책 고정
 
 *** 실행
 
@@ -206,6 +206,22 @@ BYUL_API navsys_status_t coord_format(
 
 - 기존 설치 SDK 소비자와 layout fixture를 ABI 1 root shared에 link한다.
 - 경계값 truth table을 reference integer 계산과 비교한다.
+
+*** 진행 기록
+
+- 2026-07-18: =coord_sizeof=, =coord_alignof=, =coord_offsetof_x=,
+  =coord_offsetof_y= 공개 C ABI 조회를 추가했다. MSVC x64 결과는 각각 8, 4, 0, 4이며
+  기존 ABI probe의 57개 complete type, 281개 field layout은 변하지 않았다.
+- 기준 DLL의 972개 export와 비교해 위 4개 symbol만 추가되고 삭제된 symbol은 없음을
+  확인했다. 설치 SDK만 사용하는 C17 소비자도 compiler layout과 조회값을 비교해
+  통과했다.
+- 한국어 public Doxygen을 유지하면서 MSVC C4819를 막기 위해 BYUL 공통 compile option과
+  독립 SDK 소비자 fixture에 =/utf-8=을 적용했다.
+- canonical generator로 Python CFFI 선언을 갱신하고 =--check=를 통과했다. 사용 가능한
+  UE Python에는 =cffi=가 없어 wrapper runtime test는 실행하지 못했으며 generator 단위
+  test로 생성 경로를 검증했다.
+- 범위 초과, wrapping, aliasing과 실패 시 output 보존 정책은 아직 결정하지 않았으므로
+  1단계는 =DOING=으로 유지한다.
 
 ** TODO 2단계: checked value API 구현
 
