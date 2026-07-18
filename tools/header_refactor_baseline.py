@@ -96,20 +96,36 @@ def git_lines(*arguments: str) -> tuple[str, ...]:
 
 
 def tracked_headers() -> tuple[Path, ...]:
-    """Git이 추적하는 byul/tools header만 반환한다."""
+    """현재 worktree에서 version 관리 대상인 byul/tools header를 반환한다."""
     paths = []
-    for relative in git_lines("ls-files", "--", "byul", "tools"):
+    for relative in git_lines(
+        "ls-files",
+        "--cached",
+        "--others",
+        "--exclude-standard",
+        "--",
+        "byul",
+        "tools",
+    ):
         path = REPOSITORY_ROOT / relative
-        if path.suffix.lower() in HEADER_SUFFIXES:
+        if path.is_file() and path.suffix.lower() in HEADER_SUFFIXES:
             paths.append(path)
     return tuple(sorted(paths, key=lambda item: item.as_posix()))
 
 
 def tracked_sources() -> tuple[Path, ...]:
     paths = []
-    for relative in git_lines("ls-files", "--", "byul", "tools"):
+    for relative in git_lines(
+        "ls-files",
+        "--cached",
+        "--others",
+        "--exclude-standard",
+        "--",
+        "byul",
+        "tools",
+    ):
         path = REPOSITORY_ROOT / relative
-        if path.suffix.lower() in SOURCE_SUFFIXES:
+        if path.is_file() and path.suffix.lower() in SOURCE_SUFFIXES:
             paths.append(path)
     return tuple(sorted(paths, key=lambda item: item.as_posix()))
 
@@ -306,6 +322,8 @@ def owner_and_boundary(path: Path) -> tuple[str, str | None]:
 
 def classify_role(path: Path, source: str, owner: str) -> str:
     stem = path.stem
+    if {"internal", "detail"} & set(path.parts):
+        return "private-implementation"
     if relative(path).startswith("tools/unit_1003/"):
         return "reference"
     if relative(path).startswith("tools/"):
@@ -330,6 +348,8 @@ def disposition_candidate(
     stem = path.stem
     if role == "generated":
         return "generated-regenerate"
+    if role == "private-implementation":
+        return "internalize"
     if role in {"tool-only", "reference"}:
         return "tool-move"
     if role == "cpp-facade":

@@ -2,6 +2,7 @@
 #include <cmath>
 
 #include "coord.h"
+#include "internal/coord_ops.hpp"
 #include "scalar.h"
 
 namespace {
@@ -94,4 +95,36 @@ TEST_CASE("Angle in Radian Test") {
     CHECK(doctest::Approx(coord_angle(&origin, &north)).epsilon(SCALAR_EPSILON) == kPi / 2.0);
     CHECK(doctest::Approx(coord_angle(&origin, &west)).epsilon(SCALAR_EPSILON) == kPi);
     CHECK(doctest::Approx(coord_angle(&origin, &south)).epsilon(SCALAR_EPSILON) == 3.0 * kPi / 2.0);
+}
+
+TEST_CASE("Internal coord value functors form consistent container contracts") {
+    using byul::navsys::detail::coord_equal;
+    using byul::navsys::detail::coord_hash;
+    using byul::navsys::detail::coord_less;
+
+    const coord_equal equal;
+    const coord_hash hash;
+    const coord_less less;
+
+    const coord_t a{1, 2};
+    const coord_t a_copy{1, 2};
+    const coord_t a_copy2{1, 2};
+    const coord_t b{1, 3};
+    const coord_t c{2, 0};
+
+    CHECK(equal(a, a));
+    CHECK(equal(a, a_copy));
+    CHECK(equal(a_copy, a_copy2));
+    CHECK(equal(a, a_copy2));
+    CHECK_FALSE(equal(a, b));
+    CHECK(hash(a) == hash(a_copy));
+    CHECK(hash(a_copy) == hash(a_copy2));
+
+    CHECK_FALSE(less(a, a));
+    CHECK_FALSE(less(a, a_copy));
+    CHECK_FALSE(less(a_copy, a));
+    CHECK(less(a, b));
+    CHECK(less(b, c));
+    CHECK(less(a, c));
+    CHECK_FALSE(less(b, a));
 }

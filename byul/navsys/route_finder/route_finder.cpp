@@ -3,7 +3,7 @@
 #include "route_finder.h"
 #include "cost_coord_pq.h"
 #include "coord_list.h"
-#include "coord.hpp"
+#include "coord.h"
 
 #include <cmath>
 #include <vector>
@@ -432,4 +432,3 @@ route_t* route_finder_run(route_finder_t* a) {
         default: return NULL;
     }
 }
-

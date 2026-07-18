@@ -86,7 +86,7 @@ ABI 단계의 =keep= 또는 =deprecate-forward=와 함께 기록한다.
 | 원본 header | 상세 TODO | 주된 선행조건 |
 |-------------+-----------+---------------|
 | =byul/navsys/coord/coord.h= | [[file:todo-navsys-coord-coord.org][coord.h]] | 공통 status/namespace |
-| =byul/navsys/coord/coord.hpp= | [[file:todo-navsys-coord-coord-cpp.org][coord.hpp]] | =coord.h= ABI 결정 |
+| =byul/navsys/coord/internal/coord_ops.hpp= | [[file:todo-navsys-coord-coord-cpp.org][legacy coord.hpp internalization]] | =DONE=: legacy path 제거, private helper 전환 |
 | =byul/navsys/coord/coord_hash.h= | [[file:todo-navsys-coord-coord-hash.org][coord_hash.h]] | coord value/equality/allocator |
 | =byul/navsys/coord/coord_list.h= | [[file:todo-navsys-coord-coord-list.org][coord_list.h]] | coord value/ownership |
 | =byul/navsys/coord/cost_coord_pq.h= | [[file:todo-navsys-coord-cost-coord-pq.org][cost_coord_pq.h]] | coord value/status |

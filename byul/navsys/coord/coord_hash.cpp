@@ -1,4 +1,4 @@
-#include "coord.hpp"
+#include "internal/coord_ops.hpp"
 #include "coord_list.h"
 #include "coord_hash.h"
 #include <unordered_map>
@@ -34,8 +34,11 @@ void double_destroy(void* p) {
 }
 
 typedef struct s_coord_hash {
-    //std::unordered_map<coord_t, void*, CoordHash, CoordEqual> data;
-    std::unordered_map<coord_t, void*> data;
+    std::unordered_map<
+        coord_t,
+        void*,
+        byul::navsys::detail::coord_hash,
+        byul::navsys::detail::coord_equal> data;
     coord_hash_copy_func value_copy_func = nullptr;
     coord_hash_destroy_func value_destroy_func = nullptr;
 }coord_hash_t;
@@ -234,13 +237,15 @@ void coord_hash_export(const coord_hash_t* hash,
 }
 
 typedef struct s_coord_hash_iter {
-    //const std::unordered_map<coord_t, void*, CoordHash, CoordEqual>* data;
-    //std::unordered_map<coord_t, void*, CoordHash, CoordEqual>::const_iterator it;
-    //std::unordered_map<coord_t, void*, CoordHash, CoordEqual>::const_iterator end;
+    using data_type = std::unordered_map<
+        coord_t,
+        void*,
+        byul::navsys::detail::coord_hash,
+        byul::navsys::detail::coord_equal>;
 
-    const std::unordered_map<coord_t, void*>* data;
-    std::unordered_map<coord_t, void*>::const_iterator it;
-    std::unordered_map<coord_t, void*>::const_iterator end;
+    const data_type* data;
+    data_type::const_iterator it;
+    data_type::const_iterator end;
 } coord_hash_iter_t;
 
 coord_hash_iter_t* coord_hash_iter_create(const coord_hash_t* hash) {
