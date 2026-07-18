@@ -696,7 +696,7 @@ Native/Python route finder fixture는 =OK=, =NO_PATH=, =LIMIT_REACHED=,
 value stats로 고정됐다. 이로써 3단계 완료 조건을 닫고 첫 route/result invariant fixture를
 공통 harness의 시작점으로 삼아 4단계 진행을 허용한다.
 
-* DOING 4단계: 공통 Conformance Harness 구현
+* DONE 4단계: 공통 Conformance Harness 구현
 
 ** 실행
 
@@ -840,3 +840,10 @@ MSVC와 MinGW module-static performance record로 나눠
 예산, 정상 exit 0, 주입 exit 4와 정확한 회귀 진단을 검사한다. Correctness나 ABI
 통과로 확대하지 않으며 wrapper와 installed SDK에는 performance category를 적용하지
 않는다. Evidence tree는 record 18개를 검사한다.
+
+이로써 header/signature/export/path mutation, allocation leak, cancellation polling
+누락과 결정적 work-budget 초과를 각각 담당 gate에서 탐지한다. Module static,
+root shared, wrapper와 installed SDK execution은 공통 record schema와
+repository-relative artifact 계약으로 연결되며 correctness, ABI와 performance
+verdict를 분리한다. 43개 하위 owner TODO는 같은 policy와 evidence root를 참조할 수
+있으므로 4단계 완료 조건을 닫는다.
