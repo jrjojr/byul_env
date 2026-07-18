@@ -25,6 +25,18 @@ allocator/workspace, capability와 ABI/static/shared/wrapper gate는
 =navsys.h=를 작은 안정 search facade로 만들고, 모든 public component를 한꺼번에 포함하는
 편의가 정말 필요하면 별도 =navsys_all.h= 같은 명시적 umbrella로 분리하는 것이다.
 
+* 실행 소유권과 선행 Gate
+
+- 이 문서는 42개 선행 header의 승인 결과를 합치는 facade/aggregate owner다. Route Finder,
+  D* Lite, Maze와 collection 구현을 직접 고치거나 미완료 child의 API 결정을 선점하지 않는다.
+- 상위 orchestration TODO 0~5와 공통 Status/Result/Capability harness가 =DONE=인 뒤에만 이
+  문서의 TODO 1을 시작한다.
+- 기존 native 기준 test는 =byul/navsys/tests/test_module_navsys.cpp=다. Facade 동작과
+  legacy/canonical pair assertion은 이 파일에 추가하고, installed SDK C/C++ fixture와
+  wrapper test는 각각 담당 test tree에서 별도 실행한다.
+- 선행 algorithm이 =conformance-block=이면 facade capability도 unsupported/experimental로
+  합류한다. Aggregate가 구현 유무나 보장 수준을 독자적으로 승격하지 않는다.
+
 * 조사한 현재 소비·배포 경로
 
 - =byul/navsys/CMakeLists.txt=가 =navsys.cpp=를 module static에 넣고 =byul/CMakeLists.txt=가

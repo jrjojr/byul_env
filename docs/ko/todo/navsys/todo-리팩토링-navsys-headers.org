@@ -8,6 +8,7 @@
 #+BUILD_RULES: ../../../../external/rules/projects/byul/build-rules.org
 #+TEST_RULES: ../../../../external/rules/projects/byul/test-rules.org
 #+TODO_PARENT: ../todo-리팩토링.org
+#+OWNERSHIP_MANIFEST: ../header-refactor-current/header-role-manifest.json
 #+AUTHOR: ByulPapa / Codex
 #+LANGUAGE: ko
 #+OPTIONS: toc:t num:nil
@@ -24,6 +25,29 @@ release gate만 소유한다. 함수별 처분, 새 signature, algorithm 보장,
 개별 child의 제안이 공통 status/namespace/allocator/versioning 결정과 충돌하면 공통 기준을
 먼저 확정하고 child를 갱신한다. 원본 43개 외에 새 공통 header가 필요해지면 공통 기준의
 산출물로 manifest에 추가하되, 원본 43개와의 1:1 대응 수에는 포함하지 않는다.
+
+* 실제 구현 착수 전 Preflight Gate
+
+이 directory의 문서가 모두 연결되어 있다는 사실만으로 Navsys source를 수정하지 않는다.
+다음 조건을 모두 만족한 뒤에만 이 문서의 =TODO 0단계=를 =DOING=으로 바꾼다.
+
+1. 상위 [[file:../todo-리팩토링.org][전체 Header 리팩터링 TODO]] 1~3단계가 검증 근거와 함께
+   허용된 종결 상태이고, 4단계 진입 gate가 열려 있다.
+2. =rules-ref.org=의 =RULES_REVISION=과 =external/rules= checkout이 일치하고 중앙 rule
+   validator를 실행할 수 있다.
+3. =tools/python/.venv= 또는 명시 =BYUL_PYTHON=이 Python 3.10 이상으로 실행되며 header
+   baseline, ABI generator와 wrapper test wrapper가 실패 exit code를 보존한다.
+4. 135개 Header 기준선의 path와 SHA-256가 현재 tracked header 집합과 일치한다. 이미
+   internalize된 =coord.hpp -> coord/internal/coord_ops.hpp=와 변경된 =coord.h=를 stale
+   snapshot에 숨기지 않는다.
+5. 공통 audit와 symbol coverage 명령이 실제 수정 header의 declaration-definition-export-
+   wrapper 불일치를 검출할 수 있다.
+6. 현재 다른 단계의 uncommitted 변경은 별도 commit/worktree로 격리되어 Navsys 구현
+   변경과 섞이지 않는다.
+
+기존에 =DONE=인 Coord 수치 기준선과 C++ helper internalization은 폐기하지 않는다. 다만
+위 gate를 통과한 revision에서 증거를 재실행해 =TODO 0단계=의 입력으로 편입하기 전에는
+후속 public API 구현의 선행 완료로 사용하지 않는다.
 
 * 상세 TODO 필수 계약
 
@@ -127,7 +151,7 @@ ABI 단계의 =keep= 또는 =deprecate-forward=와 함께 기록한다.
 | =byul/navsys/navgrid/navgrid.h= | [[file:todo-navsys-navgrid-navgrid.org][navgrid.h]] | navcell/coord/callback bind |
 | =byul/navsys/obstacle/obstacle.h= | [[file:todo-navsys-obstacle-obstacle.org][obstacle.h]] | obstacle core/navgrid |
 | =byul/navsys/obstacle/obstacle_core.h= | [[file:todo-navsys-obstacle-obstacle-core.org][obstacle_core.h]] | coord/navgrid/ownership |
-| =byul/navsys/route_carver/route_carver.h= | [[file:todo-navsys-route-carver-route-carver.org][route_carver.h]] | route/navgrid mutation transaction |
+| =byul/navsys/route_carver/route_carver.h= | [[file:todo-navsys-route-carver-route-carver.org][route_carver.h]] | coord/navgrid mutation transaction; route/maze는 통합 검증만 |
 
 ** Route finder: 13개
 
@@ -186,12 +210,12 @@ library다. 향후 실제 범용 Math Engine 계산이 필요하면 이 TODO의 
 
 #+begin_example
 공통 API 기준
-  -> coord/value와 C++ helper
-  -> collection + route + navcell/navgrid
-  -> obstacle + route_carver
-  -> maze core/각 generator/dispatcher
-  -> route-finder evaluation/각 algorithm/dispatcher
-  -> D* Lite key/pqueue/core/tick
+  -> coord value -> coord collection
+  -> route value + navcell -> navgrid
+  -> obstacle core -> obstacle generator -> route_carver
+  -> maze core/options -> 각 generator -> maze dispatcher
+  -> route-finder evaluation/binding -> 각 algorithm -> route-finder dispatcher
+  -> D* Lite key C -> key C++ helper -> pqueue -> core -> tick
   -> navsys.h aggregate
   -> root shared/install/wrapper/ABI release gate
 #+end_example
@@ -199,6 +223,22 @@ library다. 향후 실제 범용 Math Engine 계산이 필요하면 이 TODO의 
 서로 의존하는 header를 동시에 ABI 변경하지 않는다. 먼저 leaf/value 계약을 고정하고 old/new
 consumer fixture를 만든 뒤 resource와 algorithm layer로 올라간다. 함수명 통일만을 이유로
 dependency 순서를 건너뛰지 않는다.
+
+** 실행 소유권과 합류 원칙
+
+| 계층 | 단일 구현 owner | 합류 문서가 하는 일 |
+|------+-----------------+----------------------|
+| Route value/builder | =todo-navsys-route-route.org= | finder algorithm을 직접 수정하지 않고 consumer 전환 목록만 전달 |
+| Search evaluation/callback | =todo-navsys-route-finder-route-finder-core.org= | dispatcher와 algorithm은 검증된 binding을 소비 |
+| 개별 search algorithm | 각 =todo-navsys-route-finder-*.org= child | dispatcher는 capability/status 결과만 합류 |
+| D* key와 queue | key/key-cpp/pqueue child | D* core는 구현을 중복하지 않고 검증된 primitive를 소비 |
+| Maze resource/options | =todo-navsys-maze-core.org= | generator source를 직접 수정하지 않음 |
+| 개별 maze algorithm | 각 generator child | =maze.h= dispatcher는 selection/capability만 합류 |
+| Route Carver | =todo-navsys-route-carver-route-carver.org= | =coord+navgrid=만 선행하며 maze 조합은 최종 integration gate에서 검증 |
+
+한 문서가 다른 child 소유 source까지 수정하도록 적혀 있으면 해당 문구를 consumer 합류 또는
+최종 통합 검증으로 바꾼 뒤 착수한다. 같은 source, test 또는 public symbol을 두 child에서
+동시에 =DOING=으로 두지 않는다.
 
 * Build와 배포 불변식
 
@@ -273,6 +313,9 @@ clean build/install 환경에서 반복하는 release gate다. Class 이름이 t
 
 - 공통 기준서에서 status owner, C symbol namespace, versioned options/create info,
   callback+userdata bind, allocator와 caller-buffer 규칙을 결정한다.
+- [[file:todo-navsys-industry-api-baseline.org][공통 업계/API 기준]]의 TODO 1~4를 순서대로
+  실행한다. Status/Result -> Handle/Allocator/Callback -> Search/Capability ->
+  Conformance Harness가 모두 =DONE=이기 전에는 Coord checked API를 시작하지 않는다.
 - 현행 =scalar.h/scalar_equal/M_PI/numal= include·call·link edge를 snapshot하고 각 edge의
   Navsys-owned replacement 또는 제거 처분을 승인한다.
 - 43개 header의 symbol, enum numeric value, =sizeof/alignof/offsetof=, export table,
@@ -298,8 +341,19 @@ clean build/install 환경에서 반복하는 release gate다. Class 이름이 t
 
 *** 검증
 
-- 중앙 rule validator, Org link/source-block/TODO structure validator와 symbol coverage script를
-  실행한다.
+- Windows에서는 다음 fail-closed 명령을 실행하고 각 exit code를 별도로 기록한다.
+
+  #+begin_src bat
+  external\rules\validate_rules.bat
+  tools\header_refactor_baseline.bat --check
+  tools\python\byul_wrapper\generate_wrapper_abi.bat --check
+  tools\python\byul_wrapper\generate_wrapper_abi.bat --audit --all-headers --verbose
+  tools\python\byul_wrapper\run_tests.bat --unit-only
+  #+end_src
+
+- POSIX에서는 대응 =.sh= 또는 같은 Python 본체를 사용한다. Org link/source-block/TODO
+  structure와 43 Header symbol coverage의 전용 command/artifact 경로도 공통 conformance
+  harness에서 확정한다.
 - 기존 shared library와 installed SDK의 ABI/header snapshot을 재현한다.
 - CFFI =--check=, Navsys-scope audit, 전체 module import 후 symbol resolution과 현행
   Python/native suite를 실행하고 각 exit code를 별도 기록한다.

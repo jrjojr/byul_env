@@ -25,6 +25,23 @@
 [[file:todo-navsys-industry-api-baseline.org][Navsys 업계 API 기준]]을 따른다. 이 문서는 구현 변경 자체가 아니라 변경 전
 승인해야 할 계약과 검증 순서를 고정한다.
 
+* 공통 ABI 선행 Gate와 실제 Test 원본
+
+- 이 문서의 =DONE 1단계=는 기존 Coord ABI와 수치 정책의 local baseline을 닫은
+  기록일 뿐, 공통 status owner와 C symbol namespace를 승인한 기록이 아니다.
+- [[file:todo-navsys-industry-api-baseline.org][공통 기준]]의 =TODO 1단계=가 =DONE=이 되기 전에는 아래
+  =navsys_status_t= checked 선언을 =coord.h/.cpp=, export manifest 또는 wrapper에
+  구현하지 않는다. =INVALID_ARGUMENT/OUT_OF_MEMORY/INCOMPLETE= numeric pin은 공통
+  decision에 입력으로 합류하며 별도 enum owner를 만들지 않는다.
+- Target draft의 =navsys_status_t=와 checked symbol 이름은 review 초안이다. Owner
+  header/include DAG와 namespace가 승인되기 전에는 ABI 선언으로 취급하지 않는다.
+- 전용 native test 원본은 =byul/navsys/coord/tests/test_module_coord.cpp=이고 ABI
+  policy/parser 검증 원본은
+  =tools/python/byul_wrapper/tests/test_coord_abi_policy.py=이다. Root 합류 fixture는
+  =byul/navsys/tests/test_module_navsys.cpp=에 추가한다.
+- 기존 단계 상태는 유지한다. 공통 Gate가 닫힌 뒤에만 =TODO 2단계=를 =DOING=으로
+  전환한다.
+
 * 조사한 현재 경로와 역할
 
 - 선언: =byul/navsys/coord/coord.h=

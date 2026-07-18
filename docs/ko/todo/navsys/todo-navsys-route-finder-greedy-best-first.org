@@ -22,6 +22,23 @@
 algorithm/visitor/state 분리를 직접 비교한다. 이 algorithm은 =h(n)=만 사용하는 비최적
 best-first search임을 capability에 명시하고 A*와 같은 최단 cost 보장을 붙이지 않는다.
 
+* 실행 소유권과 테스트 위치
+
+- 이 문서는 Greedy Best-First 구현·conformance와 algorithm 전용
+  config/default/validation만 소유한다.
+- 공통 heuristic evaluator와 callback binding은
+  [[file:todo-navsys-route-finder-route-finder-core.org][evaluation 문서]], facade/options/
+  capability와 config 합류는
+  [[file:todo-navsys-route-finder-route-finder.org][dispatcher 문서]]가 소유한다.
+- Greedy Best-First direct/conformance assertion의 실제 파일은 shared native test
+  =byul/navsys/route_finder/tests/test_module_route_finder_discrete.cpp=다.
+  Dispatcher 및 root consumer assertion은 각각
+  =byul/navsys/route_finder/tests/test_module_route_finder.cpp=와
+  =byul/navsys/tests/test_module_navsys.cpp=에서 해당 owner가 추가한다.
+- Greedy Best-First 문서는 Python에 필요한 config/status 기대값을 제공한다. 실제 wrapper
+  consumer assertion은 dispatcher/root 통합이
+  =tools/python/byul_wrapper/tests/test_route_finder.py=에 추가한다.
+
 * 구현/소비 분석
 
 - =find_greedy_best_first= 하나가 module/root/SDK/CFFI/dispatcher에 노출된다.

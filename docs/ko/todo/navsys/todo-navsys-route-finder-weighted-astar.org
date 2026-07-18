@@ -20,6 +20,23 @@ Pohl의 [[https://doi.org/10.1016/0004-3702(70)90007-X][Heuristic Search Viewed 
 Finding in a Graph]]과 [[https://www.boost.org/doc/libs/latest/libs/graph/doc/astar_search.html][Boost.Graph A*]]의
 weight/heuristic precondition을 기준으로 bounded-suboptimal claim을 검증한다.
 
+* 실행 소유권과 테스트 위치
+
+- 이 문서는 Weighted A* 구현·bounded-suboptimal conformance와 weight typed
+  config/default/validation만 소유한다.
+- 공통 evaluator와 callback binding은
+  [[file:todo-navsys-route-finder-route-finder-core.org][evaluation 문서]], facade/options/
+  capability와 config 합류는
+  [[file:todo-navsys-route-finder-route-finder.org][dispatcher 문서]]가 소유한다.
+- Weighted A* direct/conformance assertion의 실제 파일은 shared native test
+  =byul/navsys/route_finder/tests/test_module_route_finder_discrete.cpp=다.
+  Dispatcher config 합류와 root consumer assertion은 각각
+  =byul/navsys/route_finder/tests/test_module_route_finder.cpp=와
+  =byul/navsys/tests/test_module_navsys.cpp=에서 해당 owner가 추가한다.
+- Weighted A* 문서는 Python에 필요한 config/status 기대값을 제공한다. 실제 wrapper
+  consumer assertion은 dispatcher/root 통합이
+  =tools/python/byul_wrapper/tests/test_route_finder.py=에 추가한다.
+
 * 구현/소비와 결함
 
 - =find_weighted_astar= 하나가 module/root/SDK/CFFI/dispatcher에 공개된다.

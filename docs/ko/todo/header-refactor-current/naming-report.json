@@ -1,0 +1,159 @@
+{
+  "schema_version": 1,
+  "sdk_public_basename_collisions": [],
+  "physical_directory_chain_repetition_candidates": [
+    {
+      "path": "byul/byul_config.h",
+      "repeated_segments": [
+        "byul"
+      ]
+    },
+    {
+      "path": "byul/byul_tick/byul_tick.h",
+      "repeated_segments": [
+        "byul"
+      ]
+    },
+    {
+      "path": "byul/number_theory/byul_base_primes_65535.h",
+      "repeated_segments": [
+        "byul"
+      ]
+    },
+    {
+      "path": "byul/number_theory/byul_compiler.h",
+      "repeated_segments": [
+        "byul"
+      ]
+    },
+    {
+      "path": "byul/number_theory/byul_prime32.h",
+      "repeated_segments": [
+        "byul"
+      ]
+    },
+    {
+      "path": "byul/number_theory/byul_prime_segmented_u32.h",
+      "repeated_segments": [
+        "byul"
+      ]
+    }
+  ],
+  "representative_type_stem_mismatch_candidates": [
+    {
+      "path": "byul/balix/numeq/filters/numeq_filters.h",
+      "representative_type_candidate": "filter_interface_t"
+    },
+    {
+      "path": "byul/balix/numeq/filters/numeq_kalman.h",
+      "representative_type_candidate": "kalman_filter_t"
+    },
+    {
+      "path": "byul/balix/numeq/numeq_integrator.h",
+      "representative_type_candidate": "integrator_type_t"
+    },
+    {
+      "path": "byul/balix/numeq/numeq_mpc.h",
+      "representative_type_candidate": "mpc_config_t"
+    },
+    {
+      "path": "byul/balix/numeq/numeq_pid.h",
+      "representative_type_candidate": "pid_controller_t"
+    },
+    {
+      "path": "byul/balix/numeq/numeq_pid_vec3.h",
+      "representative_type_candidate": "pid_controller_vec3_t"
+    },
+    {
+      "path": "byul/byul_tick/byul_tick.h",
+      "representative_type_candidate": "tick_entry_t"
+    },
+    {
+      "path": "byul/entity/entity_avoidance.h",
+      "representative_type_candidate": "avoidance_boundary_t"
+    },
+    {
+      "path": "byul/entity/entity_spring.h",
+      "representative_type_candidate": "spring_link_t"
+    },
+    {
+      "path": "byul/ground/ground.h",
+      "representative_type_candidate": "ground_mode_t"
+    },
+    {
+      "path": "byul/navsys/maze/maze_core.h",
+      "representative_type_candidate": "maze_t"
+    },
+    {
+      "path": "byul/navsys/navgrid/navcell.h",
+      "representative_type_candidate": "terrain_type_t"
+    },
+    {
+      "path": "byul/navsys/obstacle/obstacle.h",
+      "representative_type_candidate": "enclosure_open_dir_t"
+    },
+    {
+      "path": "byul/navsys/obstacle/obstacle_core.h",
+      "representative_type_candidate": "obstacle_t"
+    },
+    {
+      "path": "byul/navsys/route_finder/fast_marching.h",
+      "representative_type_candidate": "fmm_state_t"
+    },
+    {
+      "path": "byul/navsys/route_finder/rta_star.h",
+      "representative_type_candidate": "rta_star_config_t"
+    },
+    {
+      "path": "byul/numal/geom.h",
+      "representative_type_candidate": "vec3_intersect_result_t"
+    },
+    {
+      "path": "byul/projectile/guidance.h",
+      "representative_type_candidate": "guidance_target_info_t"
+    },
+    {
+      "path": "byul/projectile/projectile_core.h",
+      "representative_type_candidate": "projectile_t"
+    },
+    {
+      "path": "byul/projectile/projectile_predict.h",
+      "representative_type_candidate": "projectile_result_t"
+    },
+    {
+      "path": "byul/rng/rng_core.h",
+      "representative_type_candidate": "byul_rng_t"
+    },
+    {
+      "path": "tools/unit_1003/dec/dec.h",
+      "representative_type_candidate": "dec_min_trunc_policy_m"
+    },
+    {
+      "path": "tools/unit_1003/nibble/nibble.h",
+      "representative_type_candidate": "nibble8_t"
+    },
+    {
+      "path": "tools/unit_1003/unit_prefix/unit_prefix.h",
+      "representative_type_candidate": "unit_prefix_snap_policy_m"
+    }
+  ],
+  "generic_public_component_basename_candidates": [
+    "byul/navsys/route_finder/astar.h",
+    "byul/navsys/route_finder/bfs.h",
+    "byul/navsys/route_finder/dfs.h",
+    "byul/navsys/route_finder/dijkstra.h",
+    "byul/navsys/route_finder/fast_marching.h",
+    "byul/navsys/route_finder/fringe_search.h",
+    "byul/navsys/route_finder/greedy_best_first.h",
+    "byul/navsys/route_finder/ida_star.h",
+    "byul/navsys/route_finder/rta_star.h",
+    "byul/navsys/route_finder/sma_star.h",
+    "byul/navsys/route_finder/weighted_astar.h"
+  ],
+  "counts": {
+    "sdk_public_basename_collisions": 0,
+    "physical_directory_chain_repetition_candidates": 6,
+    "representative_type_stem_mismatch_candidates": 24,
+    "generic_public_component_basename_candidates": 11
+  }
+}

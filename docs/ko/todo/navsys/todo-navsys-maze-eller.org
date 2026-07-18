@@ -18,6 +18,18 @@
 - 알고리즘 기준은 [[https://weblog.jamisbuck.org/2010/12/29/maze-generation-eller-s-algorithm][Jamis Buck의 Eller reference]]다. row별 set을 유지하고,
   각 set은 다음 row에 최소 한 연결을 만들며 마지막 row에서는 모든 set을 합쳐 perfect maze를 만든다.
 
+* 책임 경계와 실제 검증 파일
+
+- 이 문서는 Eller row/set algorithm state·materialization과 RNG 소비, seed/replay,
+  budget/cancel 구현을 소유한다.
+- resource/extent/enumeration/overlay primitive는 =maze_core=를 사용하고 재구현하지 않는다.
+  enum selection/options routing/capability 합류는 =maze= dispatcher가 소유하며 이 문서는
+  direct entry와 검증된 capability record만 제공한다.
+- 실제 maze native 검증 파일은 =byul/navsys/maze/tests/test_module_maze.cpp=,
+  =byul/navsys/maze/tests/test_module_maze_discrete.cpp=,
+  =byul/navsys/maze/tests/test_module_maze_room.cpp=다. Algorithm별 case는 이 공용 세 파일
+  중 책임에 맞는 파일에 둔다.
+
 * Public symbol inventory와 처분
 
 | kind | symbol | disposition |

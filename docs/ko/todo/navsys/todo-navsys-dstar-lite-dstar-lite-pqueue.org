@@ -25,6 +25,20 @@
 D* Lite implementation detail에 가까우므로 ABI 2에서는 internalize가 권장된다. ABI 1에는
 atomic by-value API를 먼저 추가하고 기존 pointer API를 deprecated한다.
 
+* 실행 소유권과 테스트 위치
+
+- 이 문서는 key/coord entry의 by-value storage, exact ordering을 소비하는 container,
+  coord별 live-entry invariant와 create/upsert/peek/pop/remove/size operation만 소유한다.
+- Key domain·compare/hash 구현은 key 문서, C++ functor의 private 배치는 key.hpp 문서,
+  =CalculateKey/UpdateVertex/ComputeShortestPath=와 stale-key 분기 제어는 D* Lite core
+  문서가 소유한다. Pqueue 문서는 planner control flow를 수정하지 않는다.
+- Pqueue와 key/helper의 실제 native test 파일은
+  =byul/navsys/dstar_lite/tests/test_module_dstar_lite_pqueue.cpp=다.
+- Planner와의 합류 trace는
+  =byul/navsys/dstar_lite/tests/test_module_dstar_lite.cpp=에서 core owner가 추가하고,
+  Python ABI 1 compatibility는
+  =tools/python/byul_wrapper/tests/test_dstar_lite.py=에서 검증한다.
+
 * 원 알고리즘이 요구하는 연산
 
 Koenig/Likhachev [[https://publications.ri.cmu.edu/d-lite][D* Lite]]의 =ComputeShortestPath=
@@ -188,12 +202,14 @@ peek/pop 실패 시 =out_entry=를 보존한다. 빈 queue, invalid key, not-fou
 - randomized operation trace를 reference ordered map/heap과 비교한다.
 - duplicate, exact tie, ±0/Inf/NaN, failure injection과 sanitizer를 실행한다.
 
-** TODO 3단계: D* algorithm 호출부 전환
+** TODO 3단계: D* core 합류 Gate
 
 *** 실행
 
-- init/update/compute가 atomic entry/upsert API만 쓰게 전환한다.
-- =k_old < CalculateKey(u)= stale-key 재삽입 분기를 원 논문 순서로 구현한다.
+- Core owner에게 atomic entry/upsert API, empty/not-found/status와 strong-guarantee
+  handoff contract를 제공한다.
+- D* Lite core 문서의 TODO 2단계가 init/update/compute와
+  =k_old < CalculateKey(u)= stale-key 분기를 이 API로 전환했는지 합류 test로 확인한다.
 
 *** 완료 조건
 

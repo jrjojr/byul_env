@@ -1,0 +1,5897 @@
+{
+  "schema_version": 1,
+  "profile": "windows-mingw64-gcc16-release",
+  "dll": {
+    "name": "libbyul.dll",
+    "size": 831361,
+    "sha256": "28b4e3c7a558dce2cd5aebb7ebc654d8b40b59e6281f01b54fe49ece99dde6fb",
+    "export_count": 1324
+  },
+  "exports": [
+    {
+      "name": ".refptr.__CTOR_LIST__",
+      "type": "R"
+    },
+    {
+      "name": ".refptr.__dyn_tls_init_callback",
+      "type": "R"
+    },
+    {
+      "name": ".refptr.__ImageBase",
+      "type": "R"
+    },
+    {
+      "name": ".refptr.__mingw_app_type",
+      "type": "R"
+    },
+    {
+      "name": ".refptr.__native_dllmain_reason",
+      "type": "R"
+    },
+    {
+      "name": ".refptr.__native_startup_lock",
+      "type": "R"
+    },
+    {
+      "name": ".refptr.__native_startup_state",
+      "type": "R"
+    },
+    {
+      "name": ".refptr.__RUNTIME_PSEUDO_RELOC_LIST__",
+      "type": "R"
+    },
+    {
+      "name": ".refptr.__RUNTIME_PSEUDO_RELOC_LIST_END__",
+      "type": "R"
+    },
+    {
+      "name": ".refptr.__tens_D2A",
+      "type": "R"
+    },
+    {
+      "name": ".refptr.__xc_a",
+      "type": "R"
+    },
+    {
+      "name": ".refptr.__xc_z",
+      "type": "R"
+    },
+    {
+      "name": ".refptr.__xi_a",
+      "type": "R"
+    },
+    {
+      "name": ".refptr.__xi_z",
+      "type": "R"
+    },
+    {
+      "name": ".refptr._CRT_MT",
+      "type": "R"
+    },
+    {
+      "name": ".refptr._ZNSt13runtime_errorD1Ev",
+      "type": "R"
+    },
+    {
+      "name": ".refptr._ZSt4cout",
+      "type": "R"
+    },
+    {
+      "name": ".refptr.coord_copy",
+      "type": "R"
+    },
+    {
+      "name": ".refptr.coord_destroy",
+      "type": "R"
+    },
+    {
+      "name": ".refptr.default_cost",
+      "type": "R"
+    },
+    {
+      "name": ".refptr.default_heuristic",
+      "type": "R"
+    },
+    {
+      "name": ".refptr.dstar_lite_cost",
+      "type": "R"
+    },
+    {
+      "name": ".refptr.dstar_lite_heuristic",
+      "type": "R"
+    },
+    {
+      "name": ".refptr.dstar_lite_key_copy",
+      "type": "R"
+    },
+    {
+      "name": ".refptr.dstar_lite_key_destroy",
+      "type": "R"
+    },
+    {
+      "name": ".refptr.euclidean_heuristic",
+      "type": "R"
+    },
+    {
+      "name": ".refptr.guidance_lead",
+      "type": "R"
+    },
+    {
+      "name": ".refptr.guidance_predict_accel_env",
+      "type": "R"
+    },
+    {
+      "name": ".refptr.int_copy",
+      "type": "R"
+    },
+    {
+      "name": ".refptr.int_destroy",
+      "type": "R"
+    },
+    {
+      "name": ".refptr.kalman_vec3_measurement_update",
+      "type": "R"
+    },
+    {
+      "name": ".refptr.kalman_vec3_time_update",
+      "type": "R"
+    },
+    {
+      "name": ".refptr.manhattan_heuristic",
+      "type": "R"
+    },
+    {
+      "name": ".refptr.navcell_copy",
+      "type": "R"
+    },
+    {
+      "name": ".refptr.navcell_destroy",
+      "type": "R"
+    },
+    {
+      "name": ".refptr.numeq_mpc_cost_default",
+      "type": "R"
+    },
+    {
+      "name": ".refptr.scalar_copy",
+      "type": "R"
+    },
+    {
+      "name": ".refptr.scalar_destroy",
+      "type": "R"
+    },
+    {
+      "name": "___chkstk_ms",
+      "type": "T"
+    },
+    {
+      "name": "___crt_xc_end__",
+      "type": "R"
+    },
+    {
+      "name": "___crt_xc_start__",
+      "type": "R"
+    },
+    {
+      "name": "___crt_xd_end__",
+      "type": "R"
+    },
+    {
+      "name": "___crt_xd_start__",
+      "type": "R"
+    },
+    {
+      "name": "___crt_xi_end__",
+      "type": "R"
+    },
+    {
+      "name": "___crt_xi_start__",
+      "type": "R"
+    },
+    {
+      "name": "___crt_xl_start__",
+      "type": "R"
+    },
+    {
+      "name": "___crt_xp_end__",
+      "type": "R"
+    },
+    {
+      "name": "___crt_xp_start__",
+      "type": "R"
+    },
+    {
+      "name": "___crt_xt_end__",
+      "type": "R"
+    },
+    {
+      "name": "___crt_xt_start__",
+      "type": "R"
+    },
+    {
+      "name": "___CTOR_LIST__",
+      "type": "R"
+    },
+    {
+      "name": "___DTOR_LIST__",
+      "type": "R"
+    },
+    {
+      "name": "___lc_codepage_func",
+      "type": "T"
+    },
+    {
+      "name": "___mb_cur_max_func",
+      "type": "T"
+    },
+    {
+      "name": "___RUNTIME_PSEUDO_RELOC_LIST__",
+      "type": "R"
+    },
+    {
+      "name": "___RUNTIME_PSEUDO_RELOC_LIST_END__",
+      "type": "R"
+    },
+    {
+      "name": "___tls_end__",
+      "type": "D"
+    },
+    {
+      "name": "___tls_start__",
+      "type": "D"
+    },
+    {
+      "name": "___w64_mingwthr_add_key_dtor",
+      "type": "T"
+    },
+    {
+      "name": "___w64_mingwthr_remove_key_dtor",
+      "type": "T"
+    },
+    {
+      "name": "__acrt_iob_func",
+      "type": "T"
+    },
+    {
+      "name": "__b2d_D2A",
+      "type": "T"
+    },
+    {
+      "name": "__Balloc_D2A",
+      "type": "T"
+    },
+    {
+      "name": "__Bfree_D2A",
+      "type": "T"
+    },
+    {
+      "name": "__bigtens_D2A",
+      "type": "R"
+    },
+    {
+      "name": "__bss_end__",
+      "type": "B"
+    },
+    {
+      "name": "__bss_start__",
+      "type": "B"
+    },
+    {
+      "name": "__cmp_D2A",
+      "type": "T"
+    },
+    {
+      "name": "__cosl_internal",
+      "type": "T"
+    },
+    {
+      "name": "__CTOR_LIST__",
+      "type": "R"
+    },
+    {
+      "name": "__cxa_allocate_exception",
+      "type": "T"
+    },
+    {
+      "name": "__cxa_begin_catch",
+      "type": "T"
+    },
+    {
+      "name": "__cxa_end_catch",
+      "type": "T"
+    },
+    {
+      "name": "__cxa_free_exception",
+      "type": "T"
+    },
+    {
+      "name": "__cxa_rethrow",
+      "type": "T"
+    },
+    {
+      "name": "__cxa_throw",
+      "type": "T"
+    },
+    {
+      "name": "__cxa_throw_bad_array_new_length",
+      "type": "T"
+    },
+    {
+      "name": "__d2b_D2A",
+      "type": "T"
+    },
+    {
+      "name": "__data_end__",
+      "type": "D"
+    },
+    {
+      "name": "__data_start__",
+      "type": "D"
+    },
+    {
+      "name": "__DELAY_IMPORT_DIRECTORY_end__",
+      "type": "R"
+    },
+    {
+      "name": "__DELAY_IMPORT_DIRECTORY_start__",
+      "type": "R"
+    },
+    {
+      "name": "__diff_D2A",
+      "type": "T"
+    },
+    {
+      "name": "__dll__",
+      "type": "A"
+    },
+    {
+      "name": "__dll_characteristics__",
+      "type": "A"
+    },
+    {
+      "name": "__do_global_ctors",
+      "type": "T"
+    },
+    {
+      "name": "__do_global_dtors",
+      "type": "T"
+    },
+    {
+      "name": "__DTOR_LIST__",
+      "type": "R"
+    },
+    {
+      "name": "__dyn_tls_dtor",
+      "type": "T"
+    },
+    {
+      "name": "__dyn_tls_init",
+      "type": "T"
+    },
+    {
+      "name": "__dyn_tls_init_callback",
+      "type": "R"
+    },
+    {
+      "name": "__file_alignment__",
+      "type": "A"
+    },
+    {
+      "name": "__freedtoa",
+      "type": "T"
+    },
+    {
+      "name": "__fu0__ZSt4cout",
+      "type": "R"
+    },
+    {
+      "name": "__fu1__ZTVN10__cxxabiv117__class_type_infoE",
+      "type": "R"
+    },
+    {
+      "name": "__fu2__ZTVN10__cxxabiv120__si_class_type_infoE",
+      "type": "R"
+    },
+    {
+      "name": "__gcc_deregister_frame",
+      "type": "T"
+    },
+    {
+      "name": "__gcc_register_frame",
+      "type": "T"
+    },
+    {
+      "name": "__gdtoa",
+      "type": "T"
+    },
+    {
+      "name": "__gxx_personality_seh0",
+      "type": "T"
+    },
+    {
+      "name": "__i2b_D2A",
+      "type": "T"
+    },
+    {
+      "name": "__IAT_end__",
+      "type": "I"
+    },
+    {
+      "name": "__IAT_start__",
+      "type": "I"
+    },
+    {
+      "name": "__iob_func",
+      "type": "T"
+    },
+    {
+      "name": "__lib64_libkernel32_a_iname",
+      "type": "I"
+    },
+    {
+      "name": "__lib64_libmsvcrt_def_a_iname",
+      "type": "I"
+    },
+    {
+      "name": "__loader_flags__",
+      "type": "A"
+    },
+    {
+      "name": "__lshift_D2A",
+      "type": "T"
+    },
+    {
+      "name": "__main",
+      "type": "T"
+    },
+    {
+      "name": "__major_image_version__",
+      "type": "A"
+    },
+    {
+      "name": "__major_os_version__",
+      "type": "A"
+    },
+    {
+      "name": "__major_subsystem_version__",
+      "type": "A"
+    },
+    {
+      "name": "__mingw_app_type",
+      "type": "B"
+    },
+    {
+      "name": "__mingw_enum_import_library_names",
+      "type": "T"
+    },
+    {
+      "name": "__mingw_GetSectionCount",
+      "type": "T"
+    },
+    {
+      "name": "__mingw_GetSectionForAddress",
+      "type": "T"
+    },
+    {
+      "name": "__mingw_initltsdrot_force",
+      "type": "B"
+    },
+    {
+      "name": "__mingw_initltsdyn_force",
+      "type": "B"
+    },
+    {
+      "name": "__mingw_initltssuo_force",
+      "type": "B"
+    },
+    {
+      "name": "__mingw_isleadbyte_cp",
+      "type": "T"
+    },
+    {
+      "name": "__mingw_mbrtowc_cp",
+      "type": "T"
+    },
+    {
+      "name": "__mingw_module_is_dll",
+      "type": "D"
+    },
+    {
+      "name": "__mingw_pformat",
+      "type": "T"
+    },
+    {
+      "name": "__mingw_printf",
+      "type": "T"
+    },
+    {
+      "name": "__mingw_raise_matherr",
+      "type": "T"
+    },
+    {
+      "name": "__mingw_setusermatherr",
+      "type": "T"
+    },
+    {
+      "name": "__mingw_snprintf",
+      "type": "T"
+    },
+    {
+      "name": "__mingw_TLScallback",
+      "type": "T"
+    },
+    {
+      "name": "__mingw_vsnprintf",
+      "type": "T"
+    },
+    {
+      "name": "__mingw_wcrtomb_cp",
+      "type": "T"
+    },
+    {
+      "name": "__minor_image_version__",
+      "type": "A"
+    },
+    {
+      "name": "__minor_os_version__",
+      "type": "A"
+    },
+    {
+      "name": "__minor_subsystem_version__",
+      "type": "A"
+    },
+    {
+      "name": "__mult_D2A",
+      "type": "T"
+    },
+    {
+      "name": "__multadd_D2A",
+      "type": "T"
+    },
+    {
+      "name": "__native_dllmain_reason",
+      "type": "D"
+    },
+    {
+      "name": "__native_startup_lock",
+      "type": "B"
+    },
+    {
+      "name": "__native_startup_state",
+      "type": "B"
+    },
+    {
+      "name": "__native_vcclrit_reason",
+      "type": "D"
+    },
+    {
+      "name": "__nm__ZSt4cout",
+      "type": "I"
+    },
+    {
+      "name": "__nm__ZTVN10__cxxabiv117__class_type_infoE",
+      "type": "I"
+    },
+    {
+      "name": "__nm__ZTVN10__cxxabiv120__si_class_type_infoE",
+      "type": "I"
+    },
+    {
+      "name": "__nrv_alloc_D2A",
+      "type": "T"
+    },
+    {
+      "name": "__pow5mult_D2A",
+      "type": "T"
+    },
+    {
+      "name": "__powi",
+      "type": "T"
+    },
+    {
+      "name": "__quorem_D2A",
+      "type": "T"
+    },
+    {
+      "name": "__rshift_D2A",
+      "type": "T"
+    },
+    {
+      "name": "__rt_psrelocs_end",
+      "type": "R"
+    },
+    {
+      "name": "__rt_psrelocs_start",
+      "type": "R"
+    },
+    {
+      "name": "__RUNTIME_PSEUDO_RELOC_LIST__",
+      "type": "R"
+    },
+    {
+      "name": "__RUNTIME_PSEUDO_RELOC_LIST_END__",
+      "type": "R"
+    },
+    {
+      "name": "__rv_alloc_D2A",
+      "type": "T"
+    },
+    {
+      "name": "__section_alignment__",
+      "type": "A"
+    },
+    {
+      "name": "__setusermatherr",
+      "type": "T"
+    },
+    {
+      "name": "__sinl_internal",
+      "type": "T"
+    },
+    {
+      "name": "__size_of_heap_commit__",
+      "type": "A"
+    },
+    {
+      "name": "__size_of_heap_reserve__",
+      "type": "A"
+    },
+    {
+      "name": "__size_of_stack_commit__",
+      "type": "A"
+    },
+    {
+      "name": "__size_of_stack_reserve__",
+      "type": "A"
+    },
+    {
+      "name": "__strcp_D2A",
+      "type": "T"
+    },
+    {
+      "name": "__subsystem__",
+      "type": "A"
+    },
+    {
+      "name": "__tens_D2A",
+      "type": "R"
+    },
+    {
+      "name": "__tinytens_D2A",
+      "type": "R"
+    },
+    {
+      "name": "__tlregdtor",
+      "type": "T"
+    },
+    {
+      "name": "__trailz_D2A",
+      "type": "T"
+    },
+    {
+      "name": "__xc_a",
+      "type": "R"
+    },
+    {
+      "name": "__xc_z",
+      "type": "R"
+    },
+    {
+      "name": "__xi_a",
+      "type": "R"
+    },
+    {
+      "name": "__xi_z",
+      "type": "R"
+    },
+    {
+      "name": "__xl_a",
+      "type": "R"
+    },
+    {
+      "name": "__xl_c",
+      "type": "R"
+    },
+    {
+      "name": "__xl_d",
+      "type": "R"
+    },
+    {
+      "name": "__xl_z",
+      "type": "R"
+    },
+    {
+      "name": "_amsg_exit",
+      "type": "T"
+    },
+    {
+      "name": "_CRT_INIT",
+      "type": "T"
+    },
+    {
+      "name": "_CRT_MT",
+      "type": "D"
+    },
+    {
+      "name": "_errno",
+      "type": "T"
+    },
+    {
+      "name": "_execute_onexit_table",
+      "type": "T"
+    },
+    {
+      "name": "_FindPESection",
+      "type": "T"
+    },
+    {
+      "name": "_FindPESectionByName",
+      "type": "T"
+    },
+    {
+      "name": "_FindPESectionExec",
+      "type": "T"
+    },
+    {
+      "name": "_fpreset",
+      "type": "T"
+    },
+    {
+      "name": "_GetPEImageBase",
+      "type": "T"
+    },
+    {
+      "name": "_head_lib64_libkernel32_a",
+      "type": "I"
+    },
+    {
+      "name": "_head_lib64_libmsvcrt_def_a",
+      "type": "I"
+    },
+    {
+      "name": "_head_libgcc_s_seh_1_dll",
+      "type": "I"
+    },
+    {
+      "name": "_head_libstdc___6_dll",
+      "type": "I"
+    },
+    {
+      "name": "_head_libwinpthread_1_dll",
+      "type": "I"
+    },
+    {
+      "name": "_hypot",
+      "type": "T"
+    },
+    {
+      "name": "_initialize_onexit_table",
+      "type": "T"
+    },
+    {
+      "name": "_initterm",
+      "type": "T"
+    },
+    {
+      "name": "_initterm_e",
+      "type": "T"
+    },
+    {
+      "name": "_IsNonwritableInCurrentImage",
+      "type": "T"
+    },
+    {
+      "name": "_lock",
+      "type": "T"
+    },
+    {
+      "name": "_lock_file",
+      "type": "T"
+    },
+    {
+      "name": "_pei386_runtime_relocator",
+      "type": "T"
+    },
+    {
+      "name": "_register_onexit_function",
+      "type": "T"
+    },
+    {
+      "name": "_time64",
+      "type": "T"
+    },
+    {
+      "name": "_tls_end",
+      "type": "D"
+    },
+    {
+      "name": "_tls_index",
+      "type": "B"
+    },
+    {
+      "name": "_tls_start",
+      "type": "D"
+    },
+    {
+      "name": "_tls_used",
+      "type": "R"
+    },
+    {
+      "name": "_unlock",
+      "type": "T"
+    },
+    {
+      "name": "_unlock_file",
+      "type": "T"
+    },
+    {
+      "name": "_Unwind_Resume",
+      "type": "T"
+    },
+    {
+      "name": "_ValidateImageBase",
+      "type": "T"
+    },
+    {
+      "name": "_Z15__balix_dummy__v",
+      "type": "T"
+    },
+    {
+      "name": "_Z15__numal_dummy__v",
+      "type": "T"
+    },
+    {
+      "name": "_Z15__numeq_dummy__v",
+      "type": "T"
+    },
+    {
+      "name": "_Z22projectile_launch_tickPK12s_projectilePK6s_vec3fPK9s_environPK8s_groundP17s_projectile_tick",
+      "type": "T"
+    },
+    {
+      "name": "_Z25entity_dynamic_calc_statePK16s_entity_dynamicfPS_",
+      "type": "T"
+    },
+    {
+      "name": "_Z27dstar_lite_get_interval_secPK12s_dstar_lite",
+      "type": "T"
+    },
+    {
+      "name": "_Z27projectile_result_to_stringPK19s_projectile_resultPcy",
+      "type": "T"
+    },
+    {
+      "name": "_Z28entity_dynamic_get_world_posPK16s_entity_dynamicPfS2_",
+      "type": "T"
+    },
+    {
+      "name": "_Z29integrator_step_motion_verletP14s_motion_stateS0_f",
+      "type": "T"
+    },
+    {
+      "name": "_Z33dstar_lite_update_vertex_by_routeP12s_dstar_litePK7s_route",
+      "type": "T"
+    },
+    {
+      "name": "_Z36projectile_result_to_string_detailedPK19s_projectile_resultyPc",
+      "type": "T"
+    },
+    {
+      "name": "_Z38dstar_lite_get_heuristic_func_userdataPK12s_dstar_lite",
+      "type": "T"
+    },
+    {
+      "name": "_ZdaPv",
+      "type": "T"
+    },
+    {
+      "name": "_ZdlPvy",
+      "type": "T"
+    },
+    {
+      "name": "_ZN5Eigen8internal27stable_norm_impl_inner_stepINS_5BlockIKNS_6MatrixIfLi4ELi1ELi0ELi4ELi1EEELi3ELi1ELb0EEEfEEvRKT_RT0_SB_SB_",
+      "type": "T"
+    },
+    {
+      "name": "_Znay",
+      "type": "T"
+    },
+    {
+      "name": "_ZNKSt8__detail20_Prime_rehash_policy14_M_need_rehashEyyy",
+      "type": "T"
+    },
+    {
+      "name": "_ZNSo9_M_insertIdEERSoT_",
+      "type": "T"
+    },
+    {
+      "name": "_ZNSt10_HashtableI4CellS0_SaIS0_ENSt8__detail9_IdentityESt8equal_toIS0_ESt4hashIS0_ENS2_18_Mod_range_hashingENS2_20_Default_ranged_hashENS2_20_Prime_rehash_policyENS2_17_Hashtable_traitsILb1ELb1ELb1EEEE21_M_insert_unique_nodeEyyPNS2_10_Hash_nodeIS0_Lb1EEEy",
+      "type": "T"
+    },
+    {
+      "name": "_ZNSt10_HashtableINSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEES5_SaIS5_ENSt8__detail9_IdentityESt8equal_toIS5_ESt4hashIS5_ENS7_18_Mod_range_hashingENS7_20_Default_ranged_hashENS7_20_Prime_rehash_policyENS7_17_Hashtable_traitsILb1ELb1ELb1EEEE15_M_emplace_uniqIJS5_EEESt4pairINS7_14_Node_iteratorIS5_Lb1ELb1EEEbEDpOT_",
+      "type": "T"
+    },
+    {
+      "name": "_ZNSt10_HashtableINSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEES5_SaIS5_ENSt8__detail9_IdentityESt8equal_toIS5_ESt4hashIS5_ENS7_18_Mod_range_hashingENS7_20_Default_ranged_hashENS7_20_Prime_rehash_policyENS7_17_Hashtable_traitsILb1ELb1ELb1EEEE21_M_insert_unique_nodeEyyPNS7_10_Hash_nodeIS5_Lb1EEEy",
+      "type": "T"
+    },
+    {
+      "name": "_ZNSt10_HashtableINSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEES5_SaIS5_ENSt8__detail9_IdentityESt8equal_toIS5_ESt4hashIS5_ENS7_18_Mod_range_hashingENS7_20_Default_ranged_hashENS7_20_Prime_rehash_policyENS7_17_Hashtable_traitsILb1ELb1ELb1EEEE8_M_eraseEyPNS7_15_Hash_node_baseEPNS7_10_Hash_nodeIS5_Lb1EEE",
+      "type": "T"
+    },
+    {
+      "name": "_ZNSt10_HashtableINSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEES5_SaIS5_ENSt8__detail9_IdentityESt8equal_toIS5_ESt4hashIS5_ENS7_18_Mod_range_hashingENS7_20_Default_ranged_hashENS7_20_Prime_rehash_policyENS7_17_Hashtable_traitsILb1ELb1ELb1EEEE9_M_assignIRKSI_NS7_17_ReuseOrAllocNodeISaINS7_10_Hash_nodeIS5_Lb1EEEEEEEEvOT_RT0_",
+      "type": "T"
+    },
+    {
+      "name": "_ZNSt13_Bvector_baseISaIbEE13_M_deallocateEv",
+      "type": "T"
+    },
+    {
+      "name": "_ZNSt13random_device7_M_finiEv",
+      "type": "T"
+    },
+    {
+      "name": "_ZNSt13random_device7_M_initERKNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEE",
+      "type": "T"
+    },
+    {
+      "name": "_ZNSt13random_device9_M_getvalEv",
+      "type": "T"
+    },
+    {
+      "name": "_ZNSt13runtime_errorC1EPKc",
+      "type": "T"
+    },
+    {
+      "name": "_ZNSt13runtime_errorD1Ev",
+      "type": "T"
+    },
+    {
+      "name": "_ZNSt23mersenne_twister_engineIjLy32ELy624ELy397ELy31ELj2567483615ELy11ELj4294967295ELy7ELj2636928640ELy15ELj4022730752ELy18ELj1812433253EE11_M_gen_randEv",
+      "type": "T"
+    },
+    {
+      "name": "_ZNSt5dequeISt4pairIiiESaIS1_EE17_M_reallocate_mapEyb",
+      "type": "T"
+    },
+    {
+      "name": "_ZNSt6vectorI7s_coordSaIS0_EE17_M_realloc_appendIJRKS0_EEEvDpOT_",
+      "type": "T"
+    },
+    {
+      "name": "_ZNSt6vectorIiSaIiEE17_M_realloc_appendIJRKiEEEvDpOT_",
+      "type": "T"
+    },
+    {
+      "name": "_ZNSt6vectorIS_IiSaIiEESaIS1_EED1Ev",
+      "type": "T"
+    },
+    {
+      "name": "_ZNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEE10_M_disposeEv",
+      "type": "T"
+    },
+    {
+      "name": "_ZNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEE9_M_assignERKS4_",
+      "type": "T"
+    },
+    {
+      "name": "_ZNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEE9_M_createERyy",
+      "type": "T"
+    },
+    {
+      "name": "_ZNSt8__detail9_Map_baseI4CellSt4pairIKS1_S1_ESaIS4_ENS_10_Select1stESt8equal_toIS1_ESt4hashIS1_ENS_18_Mod_range_hashingENS_20_Default_ranged_hashENS_20_Prime_rehash_policyENS_17_Hashtable_traitsILb1ELb0ELb1EEELb1EEixERS3_",
+      "type": "T"
+    },
+    {
+      "name": "_ZNSt8__detail9_Map_baseI7s_coordSt4pairIKS1_PvESaIS5_ENS_10_Select1stEN4byul6navsys6detail11coord_equalENSA_10coord_hashENS_18_Mod_range_hashingENS_20_Default_ranged_hashENS_20_Prime_rehash_policyENS_17_Hashtable_traitsILb0ELb0ELb1EEELb1EEixERS3_",
+      "type": "T"
+    },
+    {
+      "name": "_Znwy",
+      "type": "T"
+    },
+    {
+      "name": "_ZSt11_Hash_bytesPKvyy",
+      "type": "T"
+    },
+    {
+      "name": "_ZSt16__ostream_insertIcSt11char_traitsIcEERSt13basic_ostreamIT_T0_ES6_PKS3_x",
+      "type": "T"
+    },
+    {
+      "name": "_ZSt17__throw_bad_allocv",
+      "type": "T"
+    },
+    {
+      "name": "_ZSt18__do_uninit_fill_nIPSt6vectorIiSaIiEEyS2_ET_S4_T0_RKT1_",
+      "type": "T"
+    },
+    {
+      "name": "_ZSt18_Rb_tree_decrementPSt18_Rb_tree_node_base",
+      "type": "T"
+    },
+    {
+      "name": "_ZSt18_Rb_tree_incrementPSt18_Rb_tree_node_base",
+      "type": "T"
+    },
+    {
+      "name": "_ZSt20__throw_length_errorPKc",
+      "type": "T"
+    },
+    {
+      "name": "_ZSt20__throw_system_errori",
+      "type": "T"
+    },
+    {
+      "name": "_ZSt28__throw_bad_array_new_lengthv",
+      "type": "T"
+    },
+    {
+      "name": "_ZSt28_Rb_tree_rebalance_for_erasePSt18_Rb_tree_node_baseRS_",
+      "type": "T"
+    },
+    {
+      "name": "_ZSt29_Rb_tree_insert_and_rebalancebPSt18_Rb_tree_node_baseS0_RS_",
+      "type": "T"
+    },
+    {
+      "name": "_ZSt7shuffleIN9__gnu_cxx17__normal_iteratorIP4WallSt6vectorIS2_SaIS2_EEEERSt23mersenne_twister_engineIjLy32ELy624ELy397ELy31ELj2567483615ELy11ELj4294967295ELy7ELj2636928640ELy15ELj4022730752ELy18ELj1812433253EEEvT_SB_OT0_",
+      "type": "T"
+    },
+    {
+      "name": "_ZSt7shuffleIN9__gnu_cxx17__normal_iteratorIPiSt6vectorIiSaIiEEEERSt23mersenne_twister_engineIjLy32ELy624ELy397ELy31ELj2567483615ELy11ELj4294967295ELy7ELj2636928640ELy15ELj4022730752ELy18ELj1812433253EEEvT_SA_OT0_",
+      "type": "T"
+    },
+    {
+      "name": "_ZSt8_DestroyIPSt6vectorIiSaIiEEEvT_S4_",
+      "type": "T"
+    },
+    {
+      "name": "_ZTISt13runtime_error",
+      "type": "R"
+    },
+    {
+      "name": "_ZTISt9exception",
+      "type": "R"
+    },
+    {
+      "name": "_ZTSSt13runtime_error",
+      "type": "R"
+    },
+    {
+      "name": "_ZTSSt9exception",
+      "type": "R"
+    },
+    {
+      "name": "_ZZNSt10_HashtableINSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEES5_SaIS5_ENSt8__detail9_IdentityESt8equal_toIS5_ESt4hashIS5_ENS7_18_Mod_range_hashingENS7_20_Default_ranged_hashENS7_20_Prime_rehash_policyENS7_17_Hashtable_traitsILb1ELb1ELb1EEEE9_M_assignIRKSI_NS7_17_ReuseOrAllocNodeISaINS7_10_Hash_nodeIS5_Lb1EEEEEEEEvOT_RT0_EN6_GuardD1Ev",
+      "type": "T"
+    },
+    {
+      "name": "abort",
+      "type": "T"
+    },
+    {
+      "name": "acosf",
+      "type": "T"
+    },
+    {
+      "name": "asinf",
+      "type": "T"
+    },
+    {
+      "name": "atan2",
+      "type": "T"
+    },
+    {
+      "name": "atan2f",
+      "type": "T"
+    },
+    {
+      "name": "atanf",
+      "type": "T"
+    },
+    {
+      "name": "atexit",
+      "type": "T"
+    },
+    {
+      "name": "attitude_state_assign",
+      "type": "T"
+    },
+    {
+      "name": "attitude_state_init",
+      "type": "T"
+    },
+    {
+      "name": "attitude_state_init_full",
+      "type": "T"
+    },
+    {
+      "name": "bangbang_impl_assign",
+      "type": "T"
+    },
+    {
+      "name": "bangbang_impl_init",
+      "type": "T"
+    },
+    {
+      "name": "bangbang_impl_init_full",
+      "type": "T"
+    },
+    {
+      "name": "bodyprops_apply_friction",
+      "type": "T"
+    },
+    {
+      "name": "bodyprops_apply_friction_heat",
+      "type": "T"
+    },
+    {
+      "name": "bodyprops_assign",
+      "type": "T"
+    },
+    {
+      "name": "bodyprops_estimate_stop_time",
+      "type": "T"
+    },
+    {
+      "name": "bodyprops_init",
+      "type": "T"
+    },
+    {
+      "name": "bodyprops_init_full",
+      "type": "T"
+    },
+    {
+      "name": "byul_factor_u32_emit",
+      "type": "T"
+    },
+    {
+      "name": "byul_is_prime_u32",
+      "type": "T"
+    },
+    {
+      "name": "byul_make_base_primes_u32",
+      "type": "T"
+    },
+    {
+      "name": "byul_next_prime_u32",
+      "type": "T"
+    },
+    {
+      "name": "byul_print_version",
+      "type": "T"
+    },
+    {
+      "name": "byul_segmented_primes_u32_emit",
+      "type": "T"
+    },
+    {
+      "name": "byul_version_string",
+      "type": "T"
+    },
+    {
+      "name": "calc_direction",
+      "type": "T"
+    },
+    {
+      "name": "calc_spin_accel",
+      "type": "T"
+    },
+    {
+      "name": "calc_suitable_dt",
+      "type": "T"
+    },
+    {
+      "name": "calc_suitable_max_time",
+      "type": "T"
+    },
+    {
+      "name": "calloc",
+      "type": "T"
+    },
+    {
+      "name": "cbrtf",
+      "type": "T"
+    },
+    {
+      "name": "ceilf",
+      "type": "T"
+    },
+    {
+      "name": "chebyshev_heuristic",
+      "type": "T"
+    },
+    {
+      "name": "controller_create_bangbang",
+      "type": "T"
+    },
+    {
+      "name": "controller_create_mpc",
+      "type": "T"
+    },
+    {
+      "name": "controller_create_pid",
+      "type": "T"
+    },
+    {
+      "name": "controller_destroy",
+      "type": "T"
+    },
+    {
+      "name": "coord_add",
+      "type": "T"
+    },
+    {
+      "name": "coord_alignof",
+      "type": "T"
+    },
+    {
+      "name": "coord_angle",
+      "type": "T"
+    },
+    {
+      "name": "coord_assign",
+      "type": "T"
+    },
+    {
+      "name": "coord_clone_next_to_goal",
+      "type": "T"
+    },
+    {
+      "name": "coord_compare",
+      "type": "T"
+    },
+    {
+      "name": "coord_copy",
+      "type": "T"
+    },
+    {
+      "name": "coord_create",
+      "type": "T"
+    },
+    {
+      "name": "coord_create_full",
+      "type": "T"
+    },
+    {
+      "name": "coord_degree",
+      "type": "T"
+    },
+    {
+      "name": "coord_destroy",
+      "type": "T"
+    },
+    {
+      "name": "coord_distance",
+      "type": "T"
+    },
+    {
+      "name": "coord_div",
+      "type": "T"
+    },
+    {
+      "name": "coord_equal",
+      "type": "T"
+    },
+    {
+      "name": "coord_fetch",
+      "type": "T"
+    },
+    {
+      "name": "coord_get_x",
+      "type": "T"
+    },
+    {
+      "name": "coord_get_y",
+      "type": "T"
+    },
+    {
+      "name": "coord_hash",
+      "type": "T"
+    },
+    {
+      "name": "coord_hash_clear",
+      "type": "T"
+    },
+    {
+      "name": "coord_hash_contains",
+      "type": "T"
+    },
+    {
+      "name": "coord_hash_copy",
+      "type": "T"
+    },
+    {
+      "name": "coord_hash_create",
+      "type": "T"
+    },
+    {
+      "name": "coord_hash_create_full",
+      "type": "T"
+    },
+    {
+      "name": "coord_hash_destroy",
+      "type": "T"
+    },
+    {
+      "name": "coord_hash_equal",
+      "type": "T"
+    },
+    {
+      "name": "coord_hash_export",
+      "type": "T"
+    },
+    {
+      "name": "coord_hash_foreach",
+      "type": "T"
+    },
+    {
+      "name": "coord_hash_get",
+      "type": "T"
+    },
+    {
+      "name": "coord_hash_get_xy",
+      "type": "T"
+    },
+    {
+      "name": "coord_hash_hash",
+      "type": "T"
+    },
+    {
+      "name": "coord_hash_insert",
+      "type": "T"
+    },
+    {
+      "name": "coord_hash_insert_xy",
+      "type": "T"
+    },
+    {
+      "name": "coord_hash_is_empty",
+      "type": "T"
+    },
+    {
+      "name": "coord_hash_iter_create",
+      "type": "T"
+    },
+    {
+      "name": "coord_hash_iter_destroy",
+      "type": "T"
+    },
+    {
+      "name": "coord_hash_iter_next",
+      "type": "T"
+    },
+    {
+      "name": "coord_hash_keys",
+      "type": "T"
+    },
+    {
+      "name": "coord_hash_length",
+      "type": "T"
+    },
+    {
+      "name": "coord_hash_print",
+      "type": "T"
+    },
+    {
+      "name": "coord_hash_remove",
+      "type": "T"
+    },
+    {
+      "name": "coord_hash_remove_all",
+      "type": "T"
+    },
+    {
+      "name": "coord_hash_replace",
+      "type": "T"
+    },
+    {
+      "name": "coord_hash_replace_xy",
+      "type": "T"
+    },
+    {
+      "name": "coord_hash_set",
+      "type": "T"
+    },
+    {
+      "name": "coord_hash_to_list",
+      "type": "T"
+    },
+    {
+      "name": "coord_hash_to_string",
+      "type": "T"
+    },
+    {
+      "name": "coord_hash_values",
+      "type": "T"
+    },
+    {
+      "name": "coord_iadd",
+      "type": "T"
+    },
+    {
+      "name": "coord_idiv",
+      "type": "T"
+    },
+    {
+      "name": "coord_imul",
+      "type": "T"
+    },
+    {
+      "name": "coord_init",
+      "type": "T"
+    },
+    {
+      "name": "coord_init_full",
+      "type": "T"
+    },
+    {
+      "name": "coord_isub",
+      "type": "T"
+    },
+    {
+      "name": "coord_list_back",
+      "type": "T"
+    },
+    {
+      "name": "coord_list_clear",
+      "type": "T"
+    },
+    {
+      "name": "coord_list_contains",
+      "type": "T"
+    },
+    {
+      "name": "coord_list_copy",
+      "type": "T"
+    },
+    {
+      "name": "coord_list_create",
+      "type": "T"
+    },
+    {
+      "name": "coord_list_destroy",
+      "type": "T"
+    },
+    {
+      "name": "coord_list_empty",
+      "type": "T"
+    },
+    {
+      "name": "coord_list_equals",
+      "type": "T"
+    },
+    {
+      "name": "coord_list_find",
+      "type": "T"
+    },
+    {
+      "name": "coord_list_front",
+      "type": "T"
+    },
+    {
+      "name": "coord_list_get",
+      "type": "T"
+    },
+    {
+      "name": "coord_list_insert",
+      "type": "T"
+    },
+    {
+      "name": "coord_list_length",
+      "type": "T"
+    },
+    {
+      "name": "coord_list_pop_back",
+      "type": "T"
+    },
+    {
+      "name": "coord_list_pop_front",
+      "type": "T"
+    },
+    {
+      "name": "coord_list_push_back",
+      "type": "T"
+    },
+    {
+      "name": "coord_list_remove_at",
+      "type": "T"
+    },
+    {
+      "name": "coord_list_remove_value",
+      "type": "T"
+    },
+    {
+      "name": "coord_list_reverse",
+      "type": "T"
+    },
+    {
+      "name": "coord_list_sublist",
+      "type": "T"
+    },
+    {
+      "name": "coord_manhattan_distance",
+      "type": "T"
+    },
+    {
+      "name": "coord_mul",
+      "type": "T"
+    },
+    {
+      "name": "coord_next_to_goal",
+      "type": "T"
+    },
+    {
+      "name": "coord_offsetof_x",
+      "type": "T"
+    },
+    {
+      "name": "coord_offsetof_y",
+      "type": "T"
+    },
+    {
+      "name": "coord_print",
+      "type": "T"
+    },
+    {
+      "name": "coord_set",
+      "type": "T"
+    },
+    {
+      "name": "coord_set_x",
+      "type": "T"
+    },
+    {
+      "name": "coord_set_y",
+      "type": "T"
+    },
+    {
+      "name": "coord_sizeof",
+      "type": "T"
+    },
+    {
+      "name": "coord_sub",
+      "type": "T"
+    },
+    {
+      "name": "coord_to_string",
+      "type": "T"
+    },
+    {
+      "name": "cos",
+      "type": "T"
+    },
+    {
+      "name": "cosf",
+      "type": "T"
+    },
+    {
+      "name": "cost_coord_pq_contains",
+      "type": "T"
+    },
+    {
+      "name": "cost_coord_pq_create",
+      "type": "T"
+    },
+    {
+      "name": "cost_coord_pq_destroy",
+      "type": "T"
+    },
+    {
+      "name": "cost_coord_pq_is_empty",
+      "type": "T"
+    },
+    {
+      "name": "cost_coord_pq_length",
+      "type": "T"
+    },
+    {
+      "name": "cost_coord_pq_peek",
+      "type": "T"
+    },
+    {
+      "name": "cost_coord_pq_peek_cost",
+      "type": "T"
+    },
+    {
+      "name": "cost_coord_pq_pop",
+      "type": "T"
+    },
+    {
+      "name": "cost_coord_pq_push",
+      "type": "T"
+    },
+    {
+      "name": "cost_coord_pq_remove",
+      "type": "T"
+    },
+    {
+      "name": "cost_coord_pq_trim_worst",
+      "type": "T"
+    },
+    {
+      "name": "default_cost",
+      "type": "T"
+    },
+    {
+      "name": "default_heuristic",
+      "type": "T"
+    },
+    {
+      "name": "DeleteCriticalSection",
+      "type": "T"
+    },
+    {
+      "name": "detect_plane_collision",
+      "type": "T"
+    },
+    {
+      "name": "detect_sphere_collision",
+      "type": "T"
+    },
+    {
+      "name": "detect_sphere_collision_moving",
+      "type": "T"
+    },
+    {
+      "name": "detect_sphere_collision_moving_precise",
+      "type": "T"
+    },
+    {
+      "name": "detect_sphere_collision_precise",
+      "type": "T"
+    },
+    {
+      "name": "detect_triangle_collision_moving",
+      "type": "T"
+    },
+    {
+      "name": "detect_triangle_collision_rotating",
+      "type": "T"
+    },
+    {
+      "name": "detect_triangle_collision_rotating_alpha",
+      "type": "T"
+    },
+    {
+      "name": "diagonal_cost",
+      "type": "T"
+    },
+    {
+      "name": "direction_to_coord",
+      "type": "T"
+    },
+    {
+      "name": "DllMain",
+      "type": "T"
+    },
+    {
+      "name": "DllMainCRTStartup",
+      "type": "T"
+    },
+    {
+      "name": "double_copy",
+      "type": "T"
+    },
+    {
+      "name": "double_destroy",
+      "type": "T"
+    },
+    {
+      "name": "dsl_debug_print_g_table",
+      "type": "T"
+    },
+    {
+      "name": "dsl_debug_print_rhs_table",
+      "type": "T"
+    },
+    {
+      "name": "dsl_print_ascii_only_navgrid",
+      "type": "T"
+    },
+    {
+      "name": "dsl_print_ascii_route",
+      "type": "T"
+    },
+    {
+      "name": "dsl_print_ascii_update_count",
+      "type": "T"
+    },
+    {
+      "name": "dsl_print_info",
+      "type": "T"
+    },
+    {
+      "name": "dstar_lite_calc_key",
+      "type": "T"
+    },
+    {
+      "name": "dstar_lite_compute_shortest_route",
+      "type": "T"
+    },
+    {
+      "name": "dstar_lite_copy",
+      "type": "T"
+    },
+    {
+      "name": "dstar_lite_cost",
+      "type": "T"
+    },
+    {
+      "name": "dstar_lite_create",
+      "type": "T"
+    },
+    {
+      "name": "dstar_lite_create_full",
+      "type": "T"
+    },
+    {
+      "name": "dstar_lite_destroy",
+      "type": "T"
+    },
+    {
+      "name": "dstar_lite_dynamic_cost",
+      "type": "T"
+    },
+    {
+      "name": "dstar_lite_enable_debug_mode",
+      "type": "T"
+    },
+    {
+      "name": "dstar_lite_fetch_goal",
+      "type": "T"
+    },
+    {
+      "name": "dstar_lite_fetch_next",
+      "type": "T"
+    },
+    {
+      "name": "dstar_lite_fetch_start",
+      "type": "T"
+    },
+    {
+      "name": "dstar_lite_find",
+      "type": "T"
+    },
+    {
+      "name": "dstar_lite_find_full",
+      "type": "T"
+    },
+    {
+      "name": "dstar_lite_find_loop",
+      "type": "T"
+    },
+    {
+      "name": "dstar_lite_find_proto",
+      "type": "T"
+    },
+    {
+      "name": "dstar_lite_force_quit",
+      "type": "T"
+    },
+    {
+      "name": "dstar_lite_get_changed_coords_func",
+      "type": "T"
+    },
+    {
+      "name": "dstar_lite_get_changed_coords_func_userdata",
+      "type": "T"
+    },
+    {
+      "name": "dstar_lite_get_cost_func",
+      "type": "T"
+    },
+    {
+      "name": "dstar_lite_get_cost_func_userdata",
+      "type": "T"
+    },
+    {
+      "name": "dstar_lite_get_frontier",
+      "type": "T"
+    },
+    {
+      "name": "dstar_lite_get_g_table",
+      "type": "T"
+    },
+    {
+      "name": "dstar_lite_get_heuristic_func",
+      "type": "T"
+    },
+    {
+      "name": "dstar_lite_get_km",
+      "type": "T"
+    },
+    {
+      "name": "dstar_lite_get_max_range",
+      "type": "T"
+    },
+    {
+      "name": "dstar_lite_get_max_retry",
+      "type": "T"
+    },
+    {
+      "name": "dstar_lite_get_move_func",
+      "type": "T"
+    },
+    {
+      "name": "dstar_lite_get_move_func_userdata",
+      "type": "T"
+    },
+    {
+      "name": "dstar_lite_get_navgrid",
+      "type": "T"
+    },
+    {
+      "name": "dstar_lite_get_proto_route",
+      "type": "T"
+    },
+    {
+      "name": "dstar_lite_get_real_loop_max_retry",
+      "type": "T"
+    },
+    {
+      "name": "dstar_lite_get_real_route",
+      "type": "T"
+    },
+    {
+      "name": "dstar_lite_get_reconstruct_max_retry",
+      "type": "T"
+    },
+    {
+      "name": "dstar_lite_get_rhs_table",
+      "type": "T"
+    },
+    {
+      "name": "dstar_lite_heuristic",
+      "type": "T"
+    },
+    {
+      "name": "dstar_lite_init",
+      "type": "T"
+    },
+    {
+      "name": "dstar_lite_is_debug_mode_enabled",
+      "type": "T"
+    },
+    {
+      "name": "dstar_lite_is_quit_forced",
+      "type": "T"
+    },
+    {
+      "name": "dstar_lite_key_compare",
+      "type": "T"
+    },
+    {
+      "name": "dstar_lite_key_copy",
+      "type": "T"
+    },
+    {
+      "name": "dstar_lite_key_create",
+      "type": "T"
+    },
+    {
+      "name": "dstar_lite_key_create_full",
+      "type": "T"
+    },
+    {
+      "name": "dstar_lite_key_destroy",
+      "type": "T"
+    },
+    {
+      "name": "dstar_lite_key_equal",
+      "type": "T"
+    },
+    {
+      "name": "dstar_lite_key_hash",
+      "type": "T"
+    },
+    {
+      "name": "dstar_lite_pqueue_contains",
+      "type": "T"
+    },
+    {
+      "name": "dstar_lite_pqueue_copy",
+      "type": "T"
+    },
+    {
+      "name": "dstar_lite_pqueue_create",
+      "type": "T"
+    },
+    {
+      "name": "dstar_lite_pqueue_destroy",
+      "type": "T"
+    },
+    {
+      "name": "dstar_lite_pqueue_get_key_by_coord",
+      "type": "T"
+    },
+    {
+      "name": "dstar_lite_pqueue_is_empty",
+      "type": "T"
+    },
+    {
+      "name": "dstar_lite_pqueue_peek",
+      "type": "T"
+    },
+    {
+      "name": "dstar_lite_pqueue_pop",
+      "type": "T"
+    },
+    {
+      "name": "dstar_lite_pqueue_push",
+      "type": "T"
+    },
+    {
+      "name": "dstar_lite_pqueue_remove",
+      "type": "T"
+    },
+    {
+      "name": "dstar_lite_pqueue_remove_full",
+      "type": "T"
+    },
+    {
+      "name": "dstar_lite_pqueue_top_key",
+      "type": "T"
+    },
+    {
+      "name": "dstar_lite_proto_compute_retry_count",
+      "type": "T"
+    },
+    {
+      "name": "dstar_lite_real_compute_retry_count",
+      "type": "T"
+    },
+    {
+      "name": "dstar_lite_real_loop_retry_count",
+      "type": "T"
+    },
+    {
+      "name": "dstar_lite_reconstruct_retry_count",
+      "type": "T"
+    },
+    {
+      "name": "dstar_lite_reconstruct_route",
+      "type": "T"
+    },
+    {
+      "name": "dstar_lite_reset",
+      "type": "T"
+    },
+    {
+      "name": "dstar_lite_set_changed_coords_func",
+      "type": "T"
+    },
+    {
+      "name": "dstar_lite_set_changed_coords_func_userdata",
+      "type": "T"
+    },
+    {
+      "name": "dstar_lite_set_cost_func",
+      "type": "T"
+    },
+    {
+      "name": "dstar_lite_set_cost_func_userdata",
+      "type": "T"
+    },
+    {
+      "name": "dstar_lite_set_force_quit",
+      "type": "T"
+    },
+    {
+      "name": "dstar_lite_set_frontier",
+      "type": "T"
+    },
+    {
+      "name": "dstar_lite_set_goal",
+      "type": "T"
+    },
+    {
+      "name": "dstar_lite_set_heuristic_func",
+      "type": "T"
+    },
+    {
+      "name": "dstar_lite_set_heuristic_func_userdata",
+      "type": "T"
+    },
+    {
+      "name": "dstar_lite_set_interval_sec",
+      "type": "T"
+    },
+    {
+      "name": "dstar_lite_set_km",
+      "type": "T"
+    },
+    {
+      "name": "dstar_lite_set_max_range",
+      "type": "T"
+    },
+    {
+      "name": "dstar_lite_set_max_retry",
+      "type": "T"
+    },
+    {
+      "name": "dstar_lite_set_move_func",
+      "type": "T"
+    },
+    {
+      "name": "dstar_lite_set_move_func_userdata",
+      "type": "T"
+    },
+    {
+      "name": "dstar_lite_set_navgrid",
+      "type": "T"
+    },
+    {
+      "name": "dstar_lite_set_real_loop_max_retry",
+      "type": "T"
+    },
+    {
+      "name": "dstar_lite_set_reconstruct_max_retry",
+      "type": "T"
+    },
+    {
+      "name": "dstar_lite_set_start",
+      "type": "T"
+    },
+    {
+      "name": "dstar_lite_tick_complete",
+      "type": "T"
+    },
+    {
+      "name": "dstar_lite_tick_copy",
+      "type": "T"
+    },
+    {
+      "name": "dstar_lite_tick_create",
+      "type": "T"
+    },
+    {
+      "name": "dstar_lite_tick_create_full",
+      "type": "T"
+    },
+    {
+      "name": "dstar_lite_tick_destroy",
+      "type": "T"
+    },
+    {
+      "name": "dstar_lite_tick_prepare",
+      "type": "T"
+    },
+    {
+      "name": "dstar_lite_tick_prepare_full",
+      "type": "T"
+    },
+    {
+      "name": "dstar_lite_tick_reset",
+      "type": "T"
+    },
+    {
+      "name": "dstar_lite_tick_update",
+      "type": "T"
+    },
+    {
+      "name": "dstar_lite_update_vertex",
+      "type": "T"
+    },
+    {
+      "name": "dstar_lite_update_vertex_auto_range",
+      "type": "T"
+    },
+    {
+      "name": "dstar_lite_update_vertex_range",
+      "type": "T"
+    },
+    {
+      "name": "dualnumber_add",
+      "type": "T"
+    },
+    {
+      "name": "dualnumber_assign",
+      "type": "T"
+    },
+    {
+      "name": "dualnumber_div",
+      "type": "T"
+    },
+    {
+      "name": "dualnumber_equal",
+      "type": "T"
+    },
+    {
+      "name": "dualnumber_hash",
+      "type": "T"
+    },
+    {
+      "name": "dualnumber_init",
+      "type": "T"
+    },
+    {
+      "name": "dualnumber_init_full",
+      "type": "T"
+    },
+    {
+      "name": "dualnumber_invscale",
+      "type": "T"
+    },
+    {
+      "name": "dualnumber_mul",
+      "type": "T"
+    },
+    {
+      "name": "dualnumber_neg",
+      "type": "T"
+    },
+    {
+      "name": "dualnumber_powf",
+      "type": "T"
+    },
+    {
+      "name": "dualnumber_scale",
+      "type": "T"
+    },
+    {
+      "name": "dualnumber_sub",
+      "type": "T"
+    },
+    {
+      "name": "dualquat_add",
+      "type": "T"
+    },
+    {
+      "name": "dualquat_align",
+      "type": "T"
+    },
+    {
+      "name": "dualquat_apply_inverse_to_point",
+      "type": "T"
+    },
+    {
+      "name": "dualquat_apply_to_point",
+      "type": "T"
+    },
+    {
+      "name": "dualquat_apply_to_point_inplace",
+      "type": "T"
+    },
+    {
+      "name": "dualquat_assign",
+      "type": "T"
+    },
+    {
+      "name": "dualquat_blend_weighted",
+      "type": "T"
+    },
+    {
+      "name": "dualquat_conjugate",
+      "type": "T"
+    },
+    {
+      "name": "dualquat_dot",
+      "type": "T"
+    },
+    {
+      "name": "dualquat_equal",
+      "type": "T"
+    },
+    {
+      "name": "dualquat_hash",
+      "type": "T"
+    },
+    {
+      "name": "dualquat_init",
+      "type": "T"
+    },
+    {
+      "name": "dualquat_init_from_mat3",
+      "type": "T"
+    },
+    {
+      "name": "dualquat_init_from_mat4",
+      "type": "T"
+    },
+    {
+      "name": "dualquat_init_quat_vec",
+      "type": "T"
+    },
+    {
+      "name": "dualquat_inverse",
+      "type": "T"
+    },
+    {
+      "name": "dualquat_length",
+      "type": "T"
+    },
+    {
+      "name": "dualquat_lerp",
+      "type": "T"
+    },
+    {
+      "name": "dualquat_mul",
+      "type": "T"
+    },
+    {
+      "name": "dualquat_nlerp",
+      "type": "T"
+    },
+    {
+      "name": "dualquat_normalize",
+      "type": "T"
+    },
+    {
+      "name": "dualquat_scale",
+      "type": "T"
+    },
+    {
+      "name": "dualquat_slerp",
+      "type": "T"
+    },
+    {
+      "name": "dualquat_sub",
+      "type": "T"
+    },
+    {
+      "name": "dualquat_to_mat3",
+      "type": "T"
+    },
+    {
+      "name": "dualquat_to_mat4",
+      "type": "T"
+    },
+    {
+      "name": "dualquat_to_quat_vec",
+      "type": "T"
+    },
+    {
+      "name": "dualquat_unit",
+      "type": "T"
+    },
+    {
+      "name": "EnterCriticalSection",
+      "type": "T"
+    },
+    {
+      "name": "entity_assign",
+      "type": "T"
+    },
+    {
+      "name": "entity_dynamic_assign",
+      "type": "T"
+    },
+    {
+      "name": "entity_dynamic_bounce",
+      "type": "T"
+    },
+    {
+      "name": "entity_dynamic_calc_accel",
+      "type": "T"
+    },
+    {
+      "name": "entity_dynamic_calc_accel_env",
+      "type": "T"
+    },
+    {
+      "name": "entity_dynamic_calc_drag_accel",
+      "type": "T"
+    },
+    {
+      "name": "entity_dynamic_calc_position",
+      "type": "T"
+    },
+    {
+      "name": "entity_dynamic_calc_position_env",
+      "type": "T"
+    },
+    {
+      "name": "entity_dynamic_calc_state_env",
+      "type": "T"
+    },
+    {
+      "name": "entity_dynamic_calc_velocity",
+      "type": "T"
+    },
+    {
+      "name": "entity_dynamic_calc_velocity_env",
+      "type": "T"
+    },
+    {
+      "name": "entity_dynamic_collision_point",
+      "type": "T"
+    },
+    {
+      "name": "entity_dynamic_collision_point_env",
+      "type": "T"
+    },
+    {
+      "name": "entity_dynamic_commit_coord",
+      "type": "T"
+    },
+    {
+      "name": "entity_dynamic_coord_distance",
+      "type": "T"
+    },
+    {
+      "name": "entity_dynamic_coord_in_range",
+      "type": "T"
+    },
+    {
+      "name": "entity_dynamic_distance",
+      "type": "T"
+    },
+    {
+      "name": "entity_dynamic_from_motion_state",
+      "type": "T"
+    },
+    {
+      "name": "entity_dynamic_get_world_coord",
+      "type": "T"
+    },
+    {
+      "name": "entity_dynamic_in_contact",
+      "type": "T"
+    },
+    {
+      "name": "entity_dynamic_init",
+      "type": "T"
+    },
+    {
+      "name": "entity_dynamic_init_full",
+      "type": "T"
+    },
+    {
+      "name": "entity_dynamic_predict_collision_time",
+      "type": "T"
+    },
+    {
+      "name": "entity_dynamic_predict_collision_time_env",
+      "type": "T"
+    },
+    {
+      "name": "entity_dynamic_to_motion_state",
+      "type": "T"
+    },
+    {
+      "name": "entity_dynamic_update",
+      "type": "T"
+    },
+    {
+      "name": "entity_dynamic_update_env",
+      "type": "T"
+    },
+    {
+      "name": "entity_influence_radius",
+      "type": "T"
+    },
+    {
+      "name": "entity_init",
+      "type": "T"
+    },
+    {
+      "name": "entity_init_full",
+      "type": "T"
+    },
+    {
+      "name": "entity_interact_apply_force",
+      "type": "T"
+    },
+    {
+      "name": "entity_interact_check_collision",
+      "type": "T"
+    },
+    {
+      "name": "entity_interact_check_fov",
+      "type": "T"
+    },
+    {
+      "name": "entity_interact_resolve_bounce",
+      "type": "T"
+    },
+    {
+      "name": "entity_interact_update",
+      "type": "T"
+    },
+    {
+      "name": "entity_interact_within_aoe",
+      "type": "T"
+    },
+    {
+      "name": "entity_is_expired",
+      "type": "T"
+    },
+    {
+      "name": "entity_size",
+      "type": "T"
+    },
+    {
+      "name": "entity_tick",
+      "type": "T"
+    },
+    {
+      "name": "environ_apply_wind",
+      "type": "T"
+    },
+    {
+      "name": "environ_assign",
+      "type": "T"
+    },
+    {
+      "name": "environ_calc_gravity",
+      "type": "T"
+    },
+    {
+      "name": "environ_calc_gravity_wind",
+      "type": "T"
+    },
+    {
+      "name": "environ_calc_none",
+      "type": "T"
+    },
+    {
+      "name": "environ_calc_periodic",
+      "type": "T"
+    },
+    {
+      "name": "environ_distort_accel",
+      "type": "T"
+    },
+    {
+      "name": "environ_distort_accel_except_gravity",
+      "type": "T"
+    },
+    {
+      "name": "environ_init",
+      "type": "T"
+    },
+    {
+      "name": "environ_init_full",
+      "type": "T"
+    },
+    {
+      "name": "environ_periodic_assign",
+      "type": "T"
+    },
+    {
+      "name": "environ_periodic_init",
+      "type": "T"
+    },
+    {
+      "name": "environ_periodic_init_full",
+      "type": "T"
+    },
+    {
+      "name": "euclidean_heuristic",
+      "type": "T"
+    },
+    {
+      "name": "exp",
+      "type": "T"
+    },
+    {
+      "name": "exp2l",
+      "type": "T"
+    },
+    {
+      "name": "find_astar",
+      "type": "T"
+    },
+    {
+      "name": "find_bfs",
+      "type": "T"
+    },
+    {
+      "name": "find_dfs",
+      "type": "T"
+    },
+    {
+      "name": "find_dijkstra",
+      "type": "T"
+    },
+    {
+      "name": "find_fast_marching",
+      "type": "T"
+    },
+    {
+      "name": "find_fringe_search",
+      "type": "T"
+    },
+    {
+      "name": "find_greedy_best_first",
+      "type": "T"
+    },
+    {
+      "name": "find_ida_star",
+      "type": "T"
+    },
+    {
+      "name": "find_rta_star",
+      "type": "T"
+    },
+    {
+      "name": "find_sma_star",
+      "type": "T"
+    },
+    {
+      "name": "find_weighted_astar",
+      "type": "T"
+    },
+    {
+      "name": "fmaxf",
+      "type": "T"
+    },
+    {
+      "name": "fminf",
+      "type": "T"
+    },
+    {
+      "name": "fmm_cell_assign",
+      "type": "T"
+    },
+    {
+      "name": "fmm_cell_copy",
+      "type": "T"
+    },
+    {
+      "name": "fmm_cell_destroy",
+      "type": "T"
+    },
+    {
+      "name": "fmm_cell_init",
+      "type": "T"
+    },
+    {
+      "name": "fmm_cell_init_full",
+      "type": "T"
+    },
+    {
+      "name": "fmm_dump_ascii",
+      "type": "T"
+    },
+    {
+      "name": "fmm_grid_create_full",
+      "type": "T"
+    },
+    {
+      "name": "fmm_grid_destroy",
+      "type": "T"
+    },
+    {
+      "name": "fmod",
+      "type": "T"
+    },
+    {
+      "name": "fpreset",
+      "type": "T"
+    },
+    {
+      "name": "fprintf",
+      "type": "T"
+    },
+    {
+      "name": "fputc",
+      "type": "T"
+    },
+    {
+      "name": "free",
+      "type": "T"
+    },
+    {
+      "name": "frexp",
+      "type": "T"
+    },
+    {
+      "name": "get_changed_coord",
+      "type": "T"
+    },
+    {
+      "name": "get_changed_coords",
+      "type": "T"
+    },
+    {
+      "name": "get_route_finder_name",
+      "type": "T"
+    },
+    {
+      "name": "GetCPInfo",
+      "type": "T"
+    },
+    {
+      "name": "GetLastError",
+      "type": "T"
+    },
+    {
+      "name": "GetModuleHandleA",
+      "type": "T"
+    },
+    {
+      "name": "GetProcAddress",
+      "type": "T"
+    },
+    {
+      "name": "ground_assign",
+      "type": "T"
+    },
+    {
+      "name": "ground_free",
+      "type": "T"
+    },
+    {
+      "name": "ground_init",
+      "type": "T"
+    },
+    {
+      "name": "ground_init_heightfield",
+      "type": "T"
+    },
+    {
+      "name": "ground_init_tiles",
+      "type": "T"
+    },
+    {
+      "name": "ground_init_uniform",
+      "type": "T"
+    },
+    {
+      "name": "ground_material_at",
+      "type": "T"
+    },
+    {
+      "name": "ground_raycast",
+      "type": "T"
+    },
+    {
+      "name": "ground_reset",
+      "type": "T"
+    },
+    {
+      "name": "ground_sample_at",
+      "type": "T"
+    },
+    {
+      "name": "guidance_lead",
+      "type": "T"
+    },
+    {
+      "name": "guidance_none",
+      "type": "T"
+    },
+    {
+      "name": "guidance_point",
+      "type": "T"
+    },
+    {
+      "name": "guidance_predict",
+      "type": "T"
+    },
+    {
+      "name": "guidance_predict_accel",
+      "type": "T"
+    },
+    {
+      "name": "guidance_predict_accel_env",
+      "type": "T"
+    },
+    {
+      "name": "hypot",
+      "type": "T"
+    },
+    {
+      "name": "InitializeCriticalSection",
+      "type": "T"
+    },
+    {
+      "name": "int_compare",
+      "type": "T"
+    },
+    {
+      "name": "int_copy",
+      "type": "T"
+    },
+    {
+      "name": "int_destroy",
+      "type": "T"
+    },
+    {
+      "name": "integrator_assign",
+      "type": "T"
+    },
+    {
+      "name": "integrator_clear",
+      "type": "T"
+    },
+    {
+      "name": "integrator_free",
+      "type": "T"
+    },
+    {
+      "name": "integrator_init",
+      "type": "T"
+    },
+    {
+      "name": "integrator_init_full",
+      "type": "T"
+    },
+    {
+      "name": "integrator_step",
+      "type": "T"
+    },
+    {
+      "name": "integrator_step_attitude_euler",
+      "type": "T"
+    },
+    {
+      "name": "integrator_step_attitude_euler_env",
+      "type": "T"
+    },
+    {
+      "name": "integrator_step_attitude_rk4",
+      "type": "T"
+    },
+    {
+      "name": "integrator_step_attitude_rk4_env",
+      "type": "T"
+    },
+    {
+      "name": "integrator_step_attitude_semi_implicit",
+      "type": "T"
+    },
+    {
+      "name": "integrator_step_attitude_semi_implicit_env",
+      "type": "T"
+    },
+    {
+      "name": "integrator_step_attitude_velocity_verlet",
+      "type": "T"
+    },
+    {
+      "name": "integrator_step_attitude_velocity_verlet_env",
+      "type": "T"
+    },
+    {
+      "name": "integrator_step_euler",
+      "type": "T"
+    },
+    {
+      "name": "integrator_step_euler_env",
+      "type": "T"
+    },
+    {
+      "name": "integrator_step_motion_euler",
+      "type": "T"
+    },
+    {
+      "name": "integrator_step_motion_rk4",
+      "type": "T"
+    },
+    {
+      "name": "integrator_step_motion_rk4_env",
+      "type": "T"
+    },
+    {
+      "name": "integrator_step_motion_semi_implicit",
+      "type": "T"
+    },
+    {
+      "name": "integrator_step_rk4",
+      "type": "T"
+    },
+    {
+      "name": "integrator_step_rk4_env",
+      "type": "T"
+    },
+    {
+      "name": "integrator_step_semi_implicit",
+      "type": "T"
+    },
+    {
+      "name": "integrator_step_semi_implicit_env",
+      "type": "T"
+    },
+    {
+      "name": "integrator_step_velocity_verlet_env",
+      "type": "T"
+    },
+    {
+      "name": "integrator_step_verlet",
+      "type": "T"
+    },
+    {
+      "name": "integrator_step_verlet_env",
+      "type": "T"
+    },
+    {
+      "name": "is_coord_blocked_navgrid",
+      "type": "T"
+    },
+    {
+      "name": "kalman_assign",
+      "type": "T"
+    },
+    {
+      "name": "kalman_init",
+      "type": "T"
+    },
+    {
+      "name": "kalman_init_full",
+      "type": "T"
+    },
+    {
+      "name": "kalman_measurement_update",
+      "type": "T"
+    },
+    {
+      "name": "kalman_time_update",
+      "type": "T"
+    },
+    {
+      "name": "kalman_vec3_assign",
+      "type": "T"
+    },
+    {
+      "name": "kalman_vec3_init",
+      "type": "T"
+    },
+    {
+      "name": "kalman_vec3_init_full",
+      "type": "T"
+    },
+    {
+      "name": "kalman_vec3_measurement_update",
+      "type": "T"
+    },
+    {
+      "name": "kalman_vec3_project",
+      "type": "T"
+    },
+    {
+      "name": "kalman_vec3_time_update",
+      "type": "T"
+    },
+    {
+      "name": "ldexp",
+      "type": "T"
+    },
+    {
+      "name": "LeaveCriticalSection",
+      "type": "T"
+    },
+    {
+      "name": "libgcc_s_seh_1_dll_iname",
+      "type": "I"
+    },
+    {
+      "name": "libstdc___6_dll_iname",
+      "type": "I"
+    },
+    {
+      "name": "libwinpthread_1_dll_iname",
+      "type": "I"
+    },
+    {
+      "name": "linear_state_assign",
+      "type": "T"
+    },
+    {
+      "name": "linear_state_init",
+      "type": "T"
+    },
+    {
+      "name": "linear_state_init_full",
+      "type": "T"
+    },
+    {
+      "name": "llroundf",
+      "type": "T"
+    },
+    {
+      "name": "localeconv",
+      "type": "T"
+    },
+    {
+      "name": "log2l",
+      "type": "T"
+    },
+    {
+      "name": "make_kalman_vec3_interface",
+      "type": "T"
+    },
+    {
+      "name": "make_tmp_coord",
+      "type": "T"
+    },
+    {
+      "name": "malloc",
+      "type": "T"
+    },
+    {
+      "name": "manhattan_heuristic",
+      "type": "T"
+    },
+    {
+      "name": "maze_apply_to_navgrid",
+      "type": "T"
+    },
+    {
+      "name": "maze_clear",
+      "type": "T"
+    },
+    {
+      "name": "maze_copy",
+      "type": "T"
+    },
+    {
+      "name": "maze_create",
+      "type": "T"
+    },
+    {
+      "name": "maze_create_full",
+      "type": "T"
+    },
+    {
+      "name": "maze_destroy",
+      "type": "T"
+    },
+    {
+      "name": "maze_equal",
+      "type": "T"
+    },
+    {
+      "name": "maze_get_blocked_coords",
+      "type": "T"
+    },
+    {
+      "name": "maze_get_height",
+      "type": "T"
+    },
+    {
+      "name": "maze_get_origin",
+      "type": "T"
+    },
+    {
+      "name": "maze_get_width",
+      "type": "T"
+    },
+    {
+      "name": "maze_hash",
+      "type": "T"
+    },
+    {
+      "name": "maze_make",
+      "type": "T"
+    },
+    {
+      "name": "maze_make_aldous_broder",
+      "type": "T"
+    },
+    {
+      "name": "maze_make_binary",
+      "type": "T"
+    },
+    {
+      "name": "maze_make_eller",
+      "type": "T"
+    },
+    {
+      "name": "maze_make_hunt_and_kill",
+      "type": "T"
+    },
+    {
+      "name": "maze_make_kruskal",
+      "type": "T"
+    },
+    {
+      "name": "maze_make_recursive",
+      "type": "T"
+    },
+    {
+      "name": "maze_make_recursive_division",
+      "type": "T"
+    },
+    {
+      "name": "maze_make_room_blend",
+      "type": "T"
+    },
+    {
+      "name": "maze_make_sidewinder",
+      "type": "T"
+    },
+    {
+      "name": "maze_make_wilson",
+      "type": "T"
+    },
+    {
+      "name": "maze_maze_prim",
+      "type": "T"
+    },
+    {
+      "name": "maze_remove_from_navgrid",
+      "type": "T"
+    },
+    {
+      "name": "maze_set_origin",
+      "type": "T"
+    },
+    {
+      "name": "mbrtowc",
+      "type": "T"
+    },
+    {
+      "name": "memcmp",
+      "type": "T"
+    },
+    {
+      "name": "memcpy",
+      "type": "T"
+    },
+    {
+      "name": "memmove",
+      "type": "T"
+    },
+    {
+      "name": "memset",
+      "type": "T"
+    },
+    {
+      "name": "missile_assign",
+      "type": "T"
+    },
+    {
+      "name": "missile_init",
+      "type": "T"
+    },
+    {
+      "name": "missile_init_full",
+      "type": "T"
+    },
+    {
+      "name": "missile_launch",
+      "type": "T"
+    },
+    {
+      "name": "motion_state_assign",
+      "type": "T"
+    },
+    {
+      "name": "motion_state_init",
+      "type": "T"
+    },
+    {
+      "name": "motion_state_init_full",
+      "type": "T"
+    },
+    {
+      "name": "move_to",
+      "type": "T"
+    },
+    {
+      "name": "mpc_config_assign",
+      "type": "T"
+    },
+    {
+      "name": "mpc_config_init",
+      "type": "T"
+    },
+    {
+      "name": "mpc_config_init_full",
+      "type": "T"
+    },
+    {
+      "name": "mpc_direction_target_assign",
+      "type": "T"
+    },
+    {
+      "name": "mpc_direction_target_init",
+      "type": "T"
+    },
+    {
+      "name": "mpc_direction_target_init_full",
+      "type": "T"
+    },
+    {
+      "name": "mpc_impl_assign",
+      "type": "T"
+    },
+    {
+      "name": "mpc_impl_init",
+      "type": "T"
+    },
+    {
+      "name": "mpc_impl_init_full",
+      "type": "T"
+    },
+    {
+      "name": "mpc_target_route_assign",
+      "type": "T"
+    },
+    {
+      "name": "mpc_target_route_init",
+      "type": "T"
+    },
+    {
+      "name": "mpc_target_route_init_full",
+      "type": "T"
+    },
+    {
+      "name": "MultiByteToWideChar",
+      "type": "T"
+    },
+    {
+      "name": "nanosleep64",
+      "type": "T"
+    },
+    {
+      "name": "navcell_assign",
+      "type": "T"
+    },
+    {
+      "name": "navcell_copy",
+      "type": "T"
+    },
+    {
+      "name": "navcell_create",
+      "type": "T"
+    },
+    {
+      "name": "navcell_create_full",
+      "type": "T"
+    },
+    {
+      "name": "navcell_destroy",
+      "type": "T"
+    },
+    {
+      "name": "navcell_init",
+      "type": "T"
+    },
+    {
+      "name": "navcell_init_full",
+      "type": "T"
+    },
+    {
+      "name": "navgrid_block_coord",
+      "type": "T"
+    },
+    {
+      "name": "navgrid_clear",
+      "type": "T"
+    },
+    {
+      "name": "navgrid_copy",
+      "type": "T"
+    },
+    {
+      "name": "navgrid_copy_neighbor_at_degree",
+      "type": "T"
+    },
+    {
+      "name": "navgrid_copy_neighbor_at_goal",
+      "type": "T"
+    },
+    {
+      "name": "navgrid_copy_neighbors",
+      "type": "T"
+    },
+    {
+      "name": "navgrid_copy_neighbors_all",
+      "type": "T"
+    },
+    {
+      "name": "navgrid_copy_neighbors_all_range",
+      "type": "T"
+    },
+    {
+      "name": "navgrid_copy_neighbors_at_degree_range",
+      "type": "T"
+    },
+    {
+      "name": "navgrid_create",
+      "type": "T"
+    },
+    {
+      "name": "navgrid_create_full",
+      "type": "T"
+    },
+    {
+      "name": "navgrid_destroy",
+      "type": "T"
+    },
+    {
+      "name": "navgrid_equal",
+      "type": "T"
+    },
+    {
+      "name": "navgrid_fetch_cell",
+      "type": "T"
+    },
+    {
+      "name": "navgrid_get_cell_map",
+      "type": "T"
+    },
+    {
+      "name": "navgrid_get_height",
+      "type": "T"
+    },
+    {
+      "name": "navgrid_get_is_coord_blocked_fn",
+      "type": "T"
+    },
+    {
+      "name": "navgrid_get_mode",
+      "type": "T"
+    },
+    {
+      "name": "navgrid_get_width",
+      "type": "T"
+    },
+    {
+      "name": "navgrid_hash",
+      "type": "T"
+    },
+    {
+      "name": "navgrid_is_inside",
+      "type": "T"
+    },
+    {
+      "name": "navgrid_print_ascii",
+      "type": "T"
+    },
+    {
+      "name": "navgrid_print_ascii_with_route",
+      "type": "T"
+    },
+    {
+      "name": "navgrid_print_ascii_with_visited_count",
+      "type": "T"
+    },
+    {
+      "name": "navgrid_set_cell",
+      "type": "T"
+    },
+    {
+      "name": "navgrid_set_height",
+      "type": "T"
+    },
+    {
+      "name": "navgrid_set_is_coord_blocked_func",
+      "type": "T"
+    },
+    {
+      "name": "navgrid_set_mode",
+      "type": "T"
+    },
+    {
+      "name": "navgrid_set_width",
+      "type": "T"
+    },
+    {
+      "name": "navgrid_unblock_coord",
+      "type": "T"
+    },
+    {
+      "name": "navsys_find_astar",
+      "type": "T"
+    },
+    {
+      "name": "navsys_find_bfs",
+      "type": "T"
+    },
+    {
+      "name": "navsys_find_dfs",
+      "type": "T"
+    },
+    {
+      "name": "navsys_find_dijkstra",
+      "type": "T"
+    },
+    {
+      "name": "navsys_find_dstar_lite",
+      "type": "T"
+    },
+    {
+      "name": "navsys_find_fast_marching",
+      "type": "T"
+    },
+    {
+      "name": "navsys_find_fringe_search",
+      "type": "T"
+    },
+    {
+      "name": "navsys_find_greedy_best_first",
+      "type": "T"
+    },
+    {
+      "name": "navsys_find_ida_star",
+      "type": "T"
+    },
+    {
+      "name": "navsys_find_rta_star",
+      "type": "T"
+    },
+    {
+      "name": "navsys_find_sma_star",
+      "type": "T"
+    },
+    {
+      "name": "navsys_find_weighted_astar",
+      "type": "T"
+    },
+    {
+      "name": "numeq_model_accel",
+      "type": "T"
+    },
+    {
+      "name": "numeq_model_accel_except_gravity",
+      "type": "T"
+    },
+    {
+      "name": "numeq_model_accel_predict",
+      "type": "T"
+    },
+    {
+      "name": "numeq_model_bounce",
+      "type": "T"
+    },
+    {
+      "name": "numeq_model_drag_accel",
+      "type": "T"
+    },
+    {
+      "name": "numeq_model_motion_accel",
+      "type": "T"
+    },
+    {
+      "name": "numeq_model_motion_drag_scale",
+      "type": "T"
+    },
+    {
+      "name": "numeq_model_motion_predict",
+      "type": "T"
+    },
+    {
+      "name": "numeq_model_motion_predict_rk4",
+      "type": "T"
+    },
+    {
+      "name": "numeq_model_pos_predict",
+      "type": "T"
+    },
+    {
+      "name": "numeq_model_predict",
+      "type": "T"
+    },
+    {
+      "name": "numeq_model_predict_collision",
+      "type": "T"
+    },
+    {
+      "name": "numeq_model_predict_collision_plane",
+      "type": "T"
+    },
+    {
+      "name": "numeq_model_predict_rk4",
+      "type": "T"
+    },
+    {
+      "name": "numeq_model_vel_predict",
+      "type": "T"
+    },
+    {
+      "name": "numeq_mpc_cost_default",
+      "type": "T"
+    },
+    {
+      "name": "numeq_mpc_cost_hybrid",
+      "type": "T"
+    },
+    {
+      "name": "numeq_mpc_cost_speed",
+      "type": "T"
+    },
+    {
+      "name": "numeq_mpc_solve",
+      "type": "T"
+    },
+    {
+      "name": "numeq_mpc_solve_coarse2fine",
+      "type": "T"
+    },
+    {
+      "name": "numeq_mpc_solve_directional",
+      "type": "T"
+    },
+    {
+      "name": "numeq_mpc_solve_fast",
+      "type": "T"
+    },
+    {
+      "name": "numeq_mpc_solve_route",
+      "type": "T"
+    },
+    {
+      "name": "numeq_solve_bisection",
+      "type": "T"
+    },
+    {
+      "name": "numeq_solve_cubic",
+      "type": "T"
+    },
+    {
+      "name": "numeq_solve_linear",
+      "type": "T"
+    },
+    {
+      "name": "numeq_solve_quadratic",
+      "type": "T"
+    },
+    {
+      "name": "numeq_solve_quadratic_stable",
+      "type": "T"
+    },
+    {
+      "name": "obstacle_apply_to_navgrid",
+      "type": "T"
+    },
+    {
+      "name": "obstacle_block_coord",
+      "type": "T"
+    },
+    {
+      "name": "obstacle_block_range",
+      "type": "T"
+    },
+    {
+      "name": "obstacle_block_straight",
+      "type": "T"
+    },
+    {
+      "name": "obstacle_clear",
+      "type": "T"
+    },
+    {
+      "name": "obstacle_clone_neighbor_at_degree",
+      "type": "T"
+    },
+    {
+      "name": "obstacle_clone_neighbor_at_goal",
+      "type": "T"
+    },
+    {
+      "name": "obstacle_clone_neighbors_all",
+      "type": "T"
+    },
+    {
+      "name": "obstacle_clone_neighbors_all_range",
+      "type": "T"
+    },
+    {
+      "name": "obstacle_clone_neighbors_at_degree_range",
+      "type": "T"
+    },
+    {
+      "name": "obstacle_copy",
+      "type": "T"
+    },
+    {
+      "name": "obstacle_create",
+      "type": "T"
+    },
+    {
+      "name": "obstacle_create_full",
+      "type": "T"
+    },
+    {
+      "name": "obstacle_destroy",
+      "type": "T"
+    },
+    {
+      "name": "obstacle_equal",
+      "type": "T"
+    },
+    {
+      "name": "obstacle_fetch_origin",
+      "type": "T"
+    },
+    {
+      "name": "obstacle_get_blocked_coords",
+      "type": "T"
+    },
+    {
+      "name": "obstacle_get_height",
+      "type": "T"
+    },
+    {
+      "name": "obstacle_get_width",
+      "type": "T"
+    },
+    {
+      "name": "obstacle_hash",
+      "type": "T"
+    },
+    {
+      "name": "obstacle_is_coord_blocked",
+      "type": "T"
+    },
+    {
+      "name": "obstacle_is_inside",
+      "type": "T"
+    },
+    {
+      "name": "obstacle_make_beam",
+      "type": "T"
+    },
+    {
+      "name": "obstacle_make_cross",
+      "type": "T"
+    },
+    {
+      "name": "obstacle_make_enclosure",
+      "type": "T"
+    },
+    {
+      "name": "obstacle_make_polygon",
+      "type": "T"
+    },
+    {
+      "name": "obstacle_make_polygon_torus",
+      "type": "T"
+    },
+    {
+      "name": "obstacle_make_rect_all_blocked",
+      "type": "T"
+    },
+    {
+      "name": "obstacle_make_rect_random_blocked",
+      "type": "T"
+    },
+    {
+      "name": "obstacle_make_spiral",
+      "type": "T"
+    },
+    {
+      "name": "obstacle_make_torus",
+      "type": "T"
+    },
+    {
+      "name": "obstacle_make_triangle",
+      "type": "T"
+    },
+    {
+      "name": "obstacle_make_triangle_torus",
+      "type": "T"
+    },
+    {
+      "name": "obstacle_remove_from_navgrid",
+      "type": "T"
+    },
+    {
+      "name": "obstacle_set_height",
+      "type": "T"
+    },
+    {
+      "name": "obstacle_set_origin",
+      "type": "T"
+    },
+    {
+      "name": "obstacle_set_width",
+      "type": "T"
+    },
+    {
+      "name": "obstacle_unblock_coord",
+      "type": "T"
+    },
+    {
+      "name": "octile_heuristic",
+      "type": "T"
+    },
+    {
+      "name": "patriot_assign",
+      "type": "T"
+    },
+    {
+      "name": "patriot_init",
+      "type": "T"
+    },
+    {
+      "name": "patriot_init_full",
+      "type": "T"
+    },
+    {
+      "name": "patriot_launch",
+      "type": "T"
+    },
+    {
+      "name": "pid_assign",
+      "type": "T"
+    },
+    {
+      "name": "pid_impl_assign",
+      "type": "T"
+    },
+    {
+      "name": "pid_impl_init",
+      "type": "T"
+    },
+    {
+      "name": "pid_impl_init_full",
+      "type": "T"
+    },
+    {
+      "name": "pid_init",
+      "type": "T"
+    },
+    {
+      "name": "pid_init_auto",
+      "type": "T"
+    },
+    {
+      "name": "pid_init_full",
+      "type": "T"
+    },
+    {
+      "name": "pid_preview",
+      "type": "T"
+    },
+    {
+      "name": "pid_reset",
+      "type": "T"
+    },
+    {
+      "name": "pid_set_state",
+      "type": "T"
+    },
+    {
+      "name": "pid_update",
+      "type": "T"
+    },
+    {
+      "name": "pid_vec3_assign",
+      "type": "T"
+    },
+    {
+      "name": "pid_vec3_init",
+      "type": "T"
+    },
+    {
+      "name": "pid_vec3_init_full",
+      "type": "T"
+    },
+    {
+      "name": "pid_vec3_preview",
+      "type": "T"
+    },
+    {
+      "name": "pid_vec3_reset",
+      "type": "T"
+    },
+    {
+      "name": "pid_vec3_set_state",
+      "type": "T"
+    },
+    {
+      "name": "pid_vec3_update",
+      "type": "T"
+    },
+    {
+      "name": "plane_anchor_point",
+      "type": "T"
+    },
+    {
+      "name": "plane_assign",
+      "type": "T"
+    },
+    {
+      "name": "plane_flip",
+      "type": "T"
+    },
+    {
+      "name": "plane_init",
+      "type": "T"
+    },
+    {
+      "name": "plane_init_full",
+      "type": "T"
+    },
+    {
+      "name": "plane_init_normal_height",
+      "type": "T"
+    },
+    {
+      "name": "plane_init_point_normal",
+      "type": "T"
+    },
+    {
+      "name": "plane_init_points",
+      "type": "T"
+    },
+    {
+      "name": "plane_project",
+      "type": "T"
+    },
+    {
+      "name": "plane_ray_intersect",
+      "type": "T"
+    },
+    {
+      "name": "plane_rotate_axis_angle_origin",
+      "type": "T"
+    },
+    {
+      "name": "plane_rotate_axis_angle_pivot",
+      "type": "T"
+    },
+    {
+      "name": "plane_rotate_mat3_origin",
+      "type": "T"
+    },
+    {
+      "name": "plane_rotate_mat3_pivot",
+      "type": "T"
+    },
+    {
+      "name": "plane_rotated_axis_angle_origin",
+      "type": "T"
+    },
+    {
+      "name": "plane_rotated_axis_angle_pivot",
+      "type": "T"
+    },
+    {
+      "name": "plane_segment_intersect",
+      "type": "T"
+    },
+    {
+      "name": "plane_signed_distance",
+      "type": "T"
+    },
+    {
+      "name": "plane_translate_along_normal",
+      "type": "T"
+    },
+    {
+      "name": "pow",
+      "type": "T"
+    },
+    {
+      "name": "projectile_assign",
+      "type": "T"
+    },
+    {
+      "name": "projectile_calc_launch_param",
+      "type": "T"
+    },
+    {
+      "name": "projectile_calc_launch_param_env",
+      "type": "T"
+    },
+    {
+      "name": "projectile_calc_launch_param_inverse",
+      "type": "T"
+    },
+    {
+      "name": "projectile_calc_launch_param_inverse_env",
+      "type": "T"
+    },
+    {
+      "name": "projectile_default_expire_cb",
+      "type": "T"
+    },
+    {
+      "name": "projectile_default_hit_cb",
+      "type": "T"
+    },
+    {
+      "name": "projectile_init",
+      "type": "T"
+    },
+    {
+      "name": "projectile_init_full",
+      "type": "T"
+    },
+    {
+      "name": "projectile_launch",
+      "type": "T"
+    },
+    {
+      "name": "projectile_predict",
+      "type": "T"
+    },
+    {
+      "name": "projectile_result_calc_initial_force_scalar",
+      "type": "T"
+    },
+    {
+      "name": "projectile_result_copy",
+      "type": "T"
+    },
+    {
+      "name": "projectile_result_create",
+      "type": "T"
+    },
+    {
+      "name": "projectile_result_create_full",
+      "type": "T"
+    },
+    {
+      "name": "projectile_result_destroy",
+      "type": "T"
+    },
+    {
+      "name": "projectile_result_free",
+      "type": "T"
+    },
+    {
+      "name": "projectile_result_print",
+      "type": "T"
+    },
+    {
+      "name": "projectile_result_print_detailed",
+      "type": "T"
+    },
+    {
+      "name": "projectile_result_reset",
+      "type": "T"
+    },
+    {
+      "name": "projectile_result_resize",
+      "type": "T"
+    },
+    {
+      "name": "projectile_tick",
+      "type": "T"
+    },
+    {
+      "name": "projectile_tick_assign",
+      "type": "T"
+    },
+    {
+      "name": "projectile_tick_complete",
+      "type": "T"
+    },
+    {
+      "name": "projectile_tick_free",
+      "type": "T"
+    },
+    {
+      "name": "projectile_tick_init",
+      "type": "T"
+    },
+    {
+      "name": "projectile_tick_init_full",
+      "type": "T"
+    },
+    {
+      "name": "projectile_tick_prepare",
+      "type": "T"
+    },
+    {
+      "name": "projectile_tick_prepare_full",
+      "type": "T"
+    },
+    {
+      "name": "projectile_update",
+      "type": "T"
+    },
+    {
+      "name": "propulsion_assign",
+      "type": "T"
+    },
+    {
+      "name": "propulsion_attach_controller",
+      "type": "T"
+    },
+    {
+      "name": "propulsion_consume",
+      "type": "T"
+    },
+    {
+      "name": "propulsion_detach_controller",
+      "type": "T"
+    },
+    {
+      "name": "propulsion_get_fuel_ratio",
+      "type": "T"
+    },
+    {
+      "name": "propulsion_get_max_runtime",
+      "type": "T"
+    },
+    {
+      "name": "propulsion_get_remaining_impulse",
+      "type": "T"
+    },
+    {
+      "name": "propulsion_get_target",
+      "type": "T"
+    },
+    {
+      "name": "propulsion_get_thrust",
+      "type": "T"
+    },
+    {
+      "name": "propulsion_init",
+      "type": "T"
+    },
+    {
+      "name": "propulsion_init_full",
+      "type": "T"
+    },
+    {
+      "name": "propulsion_is_empty",
+      "type": "T"
+    },
+    {
+      "name": "propulsion_predict_empty_time",
+      "type": "T"
+    },
+    {
+      "name": "propulsion_predict_max_thrust",
+      "type": "T"
+    },
+    {
+      "name": "propulsion_predict_runtime",
+      "type": "T"
+    },
+    {
+      "name": "propulsion_print",
+      "type": "T"
+    },
+    {
+      "name": "propulsion_refuel",
+      "type": "T"
+    },
+    {
+      "name": "propulsion_reset",
+      "type": "T"
+    },
+    {
+      "name": "propulsion_set_active",
+      "type": "T"
+    },
+    {
+      "name": "propulsion_set_target",
+      "type": "T"
+    },
+    {
+      "name": "propulsion_to_json",
+      "type": "T"
+    },
+    {
+      "name": "propulsion_to_string",
+      "type": "T"
+    },
+    {
+      "name": "propulsion_update",
+      "type": "T"
+    },
+    {
+      "name": "pthread_mutex_destroy",
+      "type": "T"
+    },
+    {
+      "name": "pthread_mutex_init",
+      "type": "T"
+    },
+    {
+      "name": "pthread_mutex_lock",
+      "type": "T"
+    },
+    {
+      "name": "pthread_mutex_unlock",
+      "type": "T"
+    },
+    {
+      "name": "push_simulate_network",
+      "type": "T"
+    },
+    {
+      "name": "putchar",
+      "type": "T"
+    },
+    {
+      "name": "quat_add",
+      "type": "T"
+    },
+    {
+      "name": "quat_apply_to_vec3",
+      "type": "T"
+    },
+    {
+      "name": "quat_assign",
+      "type": "T"
+    },
+    {
+      "name": "quat_conjugate",
+      "type": "T"
+    },
+    {
+      "name": "quat_dot",
+      "type": "T"
+    },
+    {
+      "name": "quat_equal",
+      "type": "T"
+    },
+    {
+      "name": "quat_get",
+      "type": "T"
+    },
+    {
+      "name": "quat_get_forward",
+      "type": "T"
+    },
+    {
+      "name": "quat_get_right",
+      "type": "T"
+    },
+    {
+      "name": "quat_get_up",
+      "type": "T"
+    },
+    {
+      "name": "quat_hash",
+      "type": "T"
+    },
+    {
+      "name": "quat_identity",
+      "type": "T"
+    },
+    {
+      "name": "quat_init",
+      "type": "T"
+    },
+    {
+      "name": "quat_init_angular_velocity",
+      "type": "T"
+    },
+    {
+      "name": "quat_init_axes",
+      "type": "T"
+    },
+    {
+      "name": "quat_init_axis_angle",
+      "type": "T"
+    },
+    {
+      "name": "quat_init_axis_deg",
+      "type": "T"
+    },
+    {
+      "name": "quat_init_euler",
+      "type": "T"
+    },
+    {
+      "name": "quat_init_euler_deg",
+      "type": "T"
+    },
+    {
+      "name": "quat_init_from_mat3",
+      "type": "T"
+    },
+    {
+      "name": "quat_init_from_mat4",
+      "type": "T"
+    },
+    {
+      "name": "quat_init_full",
+      "type": "T"
+    },
+    {
+      "name": "quat_init_two_vector",
+      "type": "T"
+    },
+    {
+      "name": "quat_inverse",
+      "type": "T"
+    },
+    {
+      "name": "quat_is_valid",
+      "type": "T"
+    },
+    {
+      "name": "quat_length",
+      "type": "T"
+    },
+    {
+      "name": "quat_lerp",
+      "type": "T"
+    },
+    {
+      "name": "quat_mul",
+      "type": "T"
+    },
+    {
+      "name": "quat_normalize",
+      "type": "T"
+    },
+    {
+      "name": "quat_reset",
+      "type": "T"
+    },
+    {
+      "name": "quat_rotate_around_pivot",
+      "type": "T"
+    },
+    {
+      "name": "quat_rotate_vector",
+      "type": "T"
+    },
+    {
+      "name": "quat_scale",
+      "type": "T"
+    },
+    {
+      "name": "quat_set",
+      "type": "T"
+    },
+    {
+      "name": "quat_slerp",
+      "type": "T"
+    },
+    {
+      "name": "quat_sub",
+      "type": "T"
+    },
+    {
+      "name": "quat_to_axis_angle",
+      "type": "T"
+    },
+    {
+      "name": "quat_to_euler",
+      "type": "T"
+    },
+    {
+      "name": "quat_to_mat3",
+      "type": "T"
+    },
+    {
+      "name": "quat_to_mat4",
+      "type": "T"
+    },
+    {
+      "name": "quat_unit",
+      "type": "T"
+    },
+    {
+      "name": "rand",
+      "type": "T"
+    },
+    {
+      "name": "realloc",
+      "type": "T"
+    },
+    {
+      "name": "repulsion_simulate_network",
+      "type": "T"
+    },
+    {
+      "name": "rocket_assign",
+      "type": "T"
+    },
+    {
+      "name": "rocket_init",
+      "type": "T"
+    },
+    {
+      "name": "rocket_init_full",
+      "type": "T"
+    },
+    {
+      "name": "rocket_launch",
+      "type": "T"
+    },
+    {
+      "name": "route_add_coord",
+      "type": "T"
+    },
+    {
+      "name": "route_add_visited",
+      "type": "T"
+    },
+    {
+      "name": "route_append",
+      "type": "T"
+    },
+    {
+      "name": "route_append_nodup",
+      "type": "T"
+    },
+    {
+      "name": "route_calc_average_dir",
+      "type": "T"
+    },
+    {
+      "name": "route_calc_average_facing",
+      "type": "T"
+    },
+    {
+      "name": "route_carve_beam",
+      "type": "T"
+    },
+    {
+      "name": "route_carve_bomb",
+      "type": "T"
+    },
+    {
+      "name": "route_clear_coords",
+      "type": "T"
+    },
+    {
+      "name": "route_clear_visited",
+      "type": "T"
+    },
+    {
+      "name": "route_contains",
+      "type": "T"
+    },
+    {
+      "name": "route_copy",
+      "type": "T"
+    },
+    {
+      "name": "route_create",
+      "type": "T"
+    },
+    {
+      "name": "route_destroy",
+      "type": "T"
+    },
+    {
+      "name": "route_equal",
+      "type": "T"
+    },
+    {
+      "name": "route_find",
+      "type": "T"
+    },
+    {
+      "name": "route_finder_clear",
+      "type": "T"
+    },
+    {
+      "name": "route_finder_copy",
+      "type": "T"
+    },
+    {
+      "name": "route_finder_create",
+      "type": "T"
+    },
+    {
+      "name": "route_finder_create_full",
+      "type": "T"
+    },
+    {
+      "name": "route_finder_destroy",
+      "type": "T"
+    },
+    {
+      "name": "route_finder_enable_debug_mode",
+      "type": "T"
+    },
+    {
+      "name": "route_finder_fetch_goal",
+      "type": "T"
+    },
+    {
+      "name": "route_finder_fetch_start",
+      "type": "T"
+    },
+    {
+      "name": "route_finder_free",
+      "type": "T"
+    },
+    {
+      "name": "route_finder_get_cost_fn_userdata",
+      "type": "T"
+    },
+    {
+      "name": "route_finder_get_cost_func",
+      "type": "T"
+    },
+    {
+      "name": "route_finder_get_heuristic_fn_userdata",
+      "type": "T"
+    },
+    {
+      "name": "route_finder_get_heuristic_func",
+      "type": "T"
+    },
+    {
+      "name": "route_finder_get_max_retry",
+      "type": "T"
+    },
+    {
+      "name": "route_finder_get_navgrid",
+      "type": "T"
+    },
+    {
+      "name": "route_finder_get_type",
+      "type": "T"
+    },
+    {
+      "name": "route_finder_get_typedata",
+      "type": "T"
+    },
+    {
+      "name": "route_finder_init",
+      "type": "T"
+    },
+    {
+      "name": "route_finder_init_full",
+      "type": "T"
+    },
+    {
+      "name": "route_finder_is_debug_mode_enabled",
+      "type": "T"
+    },
+    {
+      "name": "route_finder_is_valid",
+      "type": "T"
+    },
+    {
+      "name": "route_finder_print",
+      "type": "T"
+    },
+    {
+      "name": "route_finder_run",
+      "type": "T"
+    },
+    {
+      "name": "route_finder_set_cost_fn_userdata",
+      "type": "T"
+    },
+    {
+      "name": "route_finder_set_cost_func",
+      "type": "T"
+    },
+    {
+      "name": "route_finder_set_defaults",
+      "type": "T"
+    },
+    {
+      "name": "route_finder_set_goal",
+      "type": "T"
+    },
+    {
+      "name": "route_finder_set_heuristic_fn_userdata",
+      "type": "T"
+    },
+    {
+      "name": "route_finder_set_heuristic_func",
+      "type": "T"
+    },
+    {
+      "name": "route_finder_set_max_retry",
+      "type": "T"
+    },
+    {
+      "name": "route_finder_set_navgrid",
+      "type": "T"
+    },
+    {
+      "name": "route_finder_set_start",
+      "type": "T"
+    },
+    {
+      "name": "route_finder_set_type",
+      "type": "T"
+    },
+    {
+      "name": "route_finder_set_typedata",
+      "type": "T"
+    },
+    {
+      "name": "route_get_coord_at",
+      "type": "T"
+    },
+    {
+      "name": "route_get_coords",
+      "type": "T"
+    },
+    {
+      "name": "route_get_cost",
+      "type": "T"
+    },
+    {
+      "name": "route_get_direction_by_dir_coord",
+      "type": "T"
+    },
+    {
+      "name": "route_get_direction_by_index",
+      "type": "T"
+    },
+    {
+      "name": "route_get_last",
+      "type": "T"
+    },
+    {
+      "name": "route_get_success",
+      "type": "T"
+    },
+    {
+      "name": "route_get_total_retry_count",
+      "type": "T"
+    },
+    {
+      "name": "route_get_visited_count",
+      "type": "T"
+    },
+    {
+      "name": "route_get_visited_order",
+      "type": "T"
+    },
+    {
+      "name": "route_has_changed",
+      "type": "T"
+    },
+    {
+      "name": "route_has_changed_by_index",
+      "type": "T"
+    },
+    {
+      "name": "route_has_changed_with_angle",
+      "type": "T"
+    },
+    {
+      "name": "route_has_changed_with_angle_by_index",
+      "type": "T"
+    },
+    {
+      "name": "route_hash",
+      "type": "T"
+    },
+    {
+      "name": "route_insert",
+      "type": "T"
+    },
+    {
+      "name": "route_length",
+      "type": "T"
+    },
+    {
+      "name": "route_make_direction",
+      "type": "T"
+    },
+    {
+      "name": "route_print",
+      "type": "T"
+    },
+    {
+      "name": "route_reconstruct",
+      "type": "T"
+    },
+    {
+      "name": "route_remove_at",
+      "type": "T"
+    },
+    {
+      "name": "route_remove_value",
+      "type": "T"
+    },
+    {
+      "name": "route_set_cost",
+      "type": "T"
+    },
+    {
+      "name": "route_set_success",
+      "type": "T"
+    },
+    {
+      "name": "route_set_total_retry_count",
+      "type": "T"
+    },
+    {
+      "name": "route_slice",
+      "type": "T"
+    },
+    {
+      "name": "route_update_average_vector",
+      "type": "T"
+    },
+    {
+      "name": "route_update_average_vector_by_index",
+      "type": "T"
+    },
+    {
+      "name": "scalar_clamp",
+      "type": "T"
+    },
+    {
+      "name": "scalar_clamp01",
+      "type": "T"
+    },
+    {
+      "name": "scalar_compare",
+      "type": "T"
+    },
+    {
+      "name": "scalar_copy",
+      "type": "T"
+    },
+    {
+      "name": "scalar_deg2rad",
+      "type": "T"
+    },
+    {
+      "name": "scalar_destroy",
+      "type": "T"
+    },
+    {
+      "name": "scalar_equal",
+      "type": "T"
+    },
+    {
+      "name": "scalar_equal_tol",
+      "type": "T"
+    },
+    {
+      "name": "scalar_equal_tol_all",
+      "type": "T"
+    },
+    {
+      "name": "scalar_inv_lerp",
+      "type": "T"
+    },
+    {
+      "name": "scalar_lerp",
+      "type": "T"
+    },
+    {
+      "name": "scalar_rad2deg",
+      "type": "T"
+    },
+    {
+      "name": "scalar_remap",
+      "type": "T"
+    },
+    {
+      "name": "scalar_safe_div",
+      "type": "T"
+    },
+    {
+      "name": "scalar_sign",
+      "type": "T"
+    },
+    {
+      "name": "scalar_smoothstep",
+      "type": "T"
+    },
+    {
+      "name": "scalar_square",
+      "type": "T"
+    },
+    {
+      "name": "scalar_zero",
+      "type": "T"
+    },
+    {
+      "name": "sched_yield",
+      "type": "T"
+    },
+    {
+      "name": "shell_projectile_assign",
+      "type": "T"
+    },
+    {
+      "name": "shell_projectile_hit_cb",
+      "type": "T"
+    },
+    {
+      "name": "shell_projectile_init",
+      "type": "T"
+    },
+    {
+      "name": "shell_projectile_init_full",
+      "type": "T"
+    },
+    {
+      "name": "shell_projectile_launch",
+      "type": "T"
+    },
+    {
+      "name": "sin",
+      "type": "T"
+    },
+    {
+      "name": "sincos",
+      "type": "T"
+    },
+    {
+      "name": "sincosf",
+      "type": "T"
+    },
+    {
+      "name": "sinf",
+      "type": "T"
+    },
+    {
+      "name": "Sleep",
+      "type": "T"
+    },
+    {
+      "name": "spring_force",
+      "type": "T"
+    },
+    {
+      "name": "spring_force_total",
+      "type": "T"
+    },
+    {
+      "name": "spring_simulate",
+      "type": "T"
+    },
+    {
+      "name": "spring_simulate_network",
+      "type": "T"
+    },
+    {
+      "name": "spring_simulate_pairwise",
+      "type": "T"
+    },
+    {
+      "name": "sqrtf",
+      "type": "T"
+    },
+    {
+      "name": "srand",
+      "type": "T"
+    },
+    {
+      "name": "strcat",
+      "type": "T"
+    },
+    {
+      "name": "strcpy",
+      "type": "T"
+    },
+    {
+      "name": "strerror",
+      "type": "T"
+    },
+    {
+      "name": "strlen",
+      "type": "T"
+    },
+    {
+      "name": "strncmp",
+      "type": "T"
+    },
+    {
+      "name": "strnlen",
+      "type": "T"
+    },
+    {
+      "name": "strset_add",
+      "type": "T"
+    },
+    {
+      "name": "strset_clear",
+      "type": "T"
+    },
+    {
+      "name": "strset_contains",
+      "type": "T"
+    },
+    {
+      "name": "strset_copy",
+      "type": "T"
+    },
+    {
+      "name": "strset_create",
+      "type": "T"
+    },
+    {
+      "name": "strset_destroy",
+      "type": "T"
+    },
+    {
+      "name": "strset_difference",
+      "type": "T"
+    },
+    {
+      "name": "strset_equal",
+      "type": "T"
+    },
+    {
+      "name": "strset_foreach",
+      "type": "T"
+    },
+    {
+      "name": "strset_intersect",
+      "type": "T"
+    },
+    {
+      "name": "strset_peek",
+      "type": "T"
+    },
+    {
+      "name": "strset_pop",
+      "type": "T"
+    },
+    {
+      "name": "strset_remove",
+      "type": "T"
+    },
+    {
+      "name": "strset_size",
+      "type": "T"
+    },
+    {
+      "name": "strset_union",
+      "type": "T"
+    },
+    {
+      "name": "tick_attach",
+      "type": "T"
+    },
+    {
+      "name": "tick_create",
+      "type": "T"
+    },
+    {
+      "name": "tick_destroy",
+      "type": "T"
+    },
+    {
+      "name": "tick_detach",
+      "type": "T"
+    },
+    {
+      "name": "tick_list_attached",
+      "type": "T"
+    },
+    {
+      "name": "tick_request_detach",
+      "type": "T"
+    },
+    {
+      "name": "tick_update",
+      "type": "T"
+    },
+    {
+      "name": "TlsGetValue",
+      "type": "T"
+    },
+    {
+      "name": "trajectory_add_sample",
+      "type": "T"
+    },
+    {
+      "name": "trajectory_assign",
+      "type": "T"
+    },
+    {
+      "name": "trajectory_capacity",
+      "type": "T"
+    },
+    {
+      "name": "trajectory_clear",
+      "type": "T"
+    },
+    {
+      "name": "trajectory_copy",
+      "type": "T"
+    },
+    {
+      "name": "trajectory_create",
+      "type": "T"
+    },
+    {
+      "name": "trajectory_create_full",
+      "type": "T"
+    },
+    {
+      "name": "trajectory_destroy",
+      "type": "T"
+    },
+    {
+      "name": "trajectory_estimate_acceleration",
+      "type": "T"
+    },
+    {
+      "name": "trajectory_estimate_velocity",
+      "type": "T"
+    },
+    {
+      "name": "trajectory_export_pos",
+      "type": "T"
+    },
+    {
+      "name": "trajectory_export_resample_distance",
+      "type": "T"
+    },
+    {
+      "name": "trajectory_export_resample_time",
+      "type": "T"
+    },
+    {
+      "name": "trajectory_export_until_impact",
+      "type": "T"
+    },
+    {
+      "name": "trajectory_free",
+      "type": "T"
+    },
+    {
+      "name": "trajectory_get_positions",
+      "type": "T"
+    },
+    {
+      "name": "trajectory_get_speeds",
+      "type": "T"
+    },
+    {
+      "name": "trajectory_init",
+      "type": "T"
+    },
+    {
+      "name": "trajectory_init_full",
+      "type": "T"
+    },
+    {
+      "name": "trajectory_interpolate_position",
+      "type": "T"
+    },
+    {
+      "name": "trajectory_length",
+      "type": "T"
+    },
+    {
+      "name": "trajectory_print",
+      "type": "T"
+    },
+    {
+      "name": "trajectory_resize",
+      "type": "T"
+    },
+    {
+      "name": "trajectory_to_string",
+      "type": "T"
+    },
+    {
+      "name": "vec3_add",
+      "type": "T"
+    },
+    {
+      "name": "vec3_assign",
+      "type": "T"
+    },
+    {
+      "name": "vec3_barycentric",
+      "type": "T"
+    },
+    {
+      "name": "vec3_barycentric_inside",
+      "type": "T"
+    },
+    {
+      "name": "vec3_closest_point_on_segment",
+      "type": "T"
+    },
+    {
+      "name": "vec3_colinear",
+      "type": "T"
+    },
+    {
+      "name": "vec3_colinear_cross",
+      "type": "T"
+    },
+    {
+      "name": "vec3_cross",
+      "type": "T"
+    },
+    {
+      "name": "vec3_distance",
+      "type": "T"
+    },
+    {
+      "name": "vec3_distance_sq",
+      "type": "T"
+    },
+    {
+      "name": "vec3_div",
+      "type": "T"
+    },
+    {
+      "name": "vec3_div_scalar",
+      "type": "T"
+    },
+    {
+      "name": "vec3_dot",
+      "type": "T"
+    },
+    {
+      "name": "vec3_equal",
+      "type": "T"
+    },
+    {
+      "name": "vec3_equal_tol",
+      "type": "T"
+    },
+    {
+      "name": "vec3_equal_tol_all",
+      "type": "T"
+    },
+    {
+      "name": "vec3_hash",
+      "type": "T"
+    },
+    {
+      "name": "vec3_iadd",
+      "type": "T"
+    },
+    {
+      "name": "vec3_init",
+      "type": "T"
+    },
+    {
+      "name": "vec3_init_full",
+      "type": "T"
+    },
+    {
+      "name": "vec3_is_zero",
+      "type": "T"
+    },
+    {
+      "name": "vec3_iscale",
+      "type": "T"
+    },
+    {
+      "name": "vec3_isub",
+      "type": "T"
+    },
+    {
+      "name": "vec3_length",
+      "type": "T"
+    },
+    {
+      "name": "vec3_length_sq",
+      "type": "T"
+    },
+    {
+      "name": "vec3_lerp",
+      "type": "T"
+    },
+    {
+      "name": "vec3_madd",
+      "type": "T"
+    },
+    {
+      "name": "vec3_mul",
+      "type": "T"
+    },
+    {
+      "name": "vec3_negate",
+      "type": "T"
+    },
+    {
+      "name": "vec3_normalize",
+      "type": "T"
+    },
+    {
+      "name": "vec3_point_in_triangle",
+      "type": "T"
+    },
+    {
+      "name": "vec3_point_plane_distance",
+      "type": "T"
+    },
+    {
+      "name": "vec3_point_plane_signed_distance",
+      "type": "T"
+    },
+    {
+      "name": "vec3_point_segment_distance",
+      "type": "T"
+    },
+    {
+      "name": "vec3_point_segment_param",
+      "type": "T"
+    },
+    {
+      "name": "vec3_print",
+      "type": "T"
+    },
+    {
+      "name": "vec3_project",
+      "type": "T"
+    },
+    {
+      "name": "vec3_project_on_plane",
+      "type": "T"
+    },
+    {
+      "name": "vec3_ray_plane_intersect",
+      "type": "T"
+    },
+    {
+      "name": "vec3_ray_sphere_intersect",
+      "type": "T"
+    },
+    {
+      "name": "vec3_ray_triangle_intersect",
+      "type": "T"
+    },
+    {
+      "name": "vec3_reflect",
+      "type": "T"
+    },
+    {
+      "name": "vec3_scale",
+      "type": "T"
+    },
+    {
+      "name": "vec3_segment_intersect_closest",
+      "type": "T"
+    },
+    {
+      "name": "vec3_segment_plane_intersect",
+      "type": "T"
+    },
+    {
+      "name": "vec3_segment_segment_distance",
+      "type": "T"
+    },
+    {
+      "name": "vec3_segment_sphere_intersect",
+      "type": "T"
+    },
+    {
+      "name": "vec3_segment_sphere_intersect_ex",
+      "type": "T"
+    },
+    {
+      "name": "vec3_segment_triangle_intersect",
+      "type": "T"
+    },
+    {
+      "name": "vec3_sphere_sphere_distance",
+      "type": "T"
+    },
+    {
+      "name": "vec3_sub",
+      "type": "T"
+    },
+    {
+      "name": "vec3_to_mat4",
+      "type": "T"
+    },
+    {
+      "name": "vec3_to_string",
+      "type": "T"
+    },
+    {
+      "name": "vec3_triangle_area",
+      "type": "T"
+    },
+    {
+      "name": "vec3_triangle_normal",
+      "type": "T"
+    },
+    {
+      "name": "vec3_unit",
+      "type": "T"
+    },
+    {
+      "name": "vec3_zero",
+      "type": "T"
+    },
+    {
+      "name": "vfprintf",
+      "type": "T"
+    },
+    {
+      "name": "VirtualProtect",
+      "type": "T"
+    },
+    {
+      "name": "VirtualQuery",
+      "type": "T"
+    },
+    {
+      "name": "wcrtomb",
+      "type": "T"
+    },
+    {
+      "name": "wcslen",
+      "type": "T"
+    },
+    {
+      "name": "wcsnlen",
+      "type": "T"
+    },
+    {
+      "name": "WideCharToMultiByte",
+      "type": "T"
+    },
+    {
+      "name": "xform_align_axis",
+      "type": "T"
+    },
+    {
+      "name": "xform_align_vectors",
+      "type": "T"
+    },
+    {
+      "name": "xform_apply",
+      "type": "T"
+    },
+    {
+      "name": "xform_apply_inverse",
+      "type": "T"
+    },
+    {
+      "name": "xform_apply_to_direction",
+      "type": "T"
+    },
+    {
+      "name": "xform_apply_to_direction_inverse",
+      "type": "T"
+    },
+    {
+      "name": "xform_apply_to_point",
+      "type": "T"
+    },
+    {
+      "name": "xform_apply_to_point_inverse",
+      "type": "T"
+    },
+    {
+      "name": "xform_assign",
+      "type": "T"
+    },
+    {
+      "name": "xform_equal",
+      "type": "T"
+    },
+    {
+      "name": "xform_from_forward",
+      "type": "T"
+    },
+    {
+      "name": "xform_get_axis_angle",
+      "type": "T"
+    },
+    {
+      "name": "xform_get_axis_deg",
+      "type": "T"
+    },
+    {
+      "name": "xform_get_euler",
+      "type": "T"
+    },
+    {
+      "name": "xform_get_euler_deg",
+      "type": "T"
+    },
+    {
+      "name": "xform_get_position",
+      "type": "T"
+    },
+    {
+      "name": "xform_get_scale",
+      "type": "T"
+    },
+    {
+      "name": "xform_init",
+      "type": "T"
+    },
+    {
+      "name": "xform_init_axis_angle",
+      "type": "T"
+    },
+    {
+      "name": "xform_init_axis_deg",
+      "type": "T"
+    },
+    {
+      "name": "xform_init_euler",
+      "type": "T"
+    },
+    {
+      "name": "xform_init_euler_deg",
+      "type": "T"
+    },
+    {
+      "name": "xform_inverse",
+      "type": "T"
+    },
+    {
+      "name": "xform_lerp",
+      "type": "T"
+    },
+    {
+      "name": "xform_look_at",
+      "type": "T"
+    },
+    {
+      "name": "xform_look_at_pivot",
+      "type": "T"
+    },
+    {
+      "name": "xform_look_to",
+      "type": "T"
+    },
+    {
+      "name": "xform_mul",
+      "type": "T"
+    },
+    {
+      "name": "xform_nlerp",
+      "type": "T"
+    },
+    {
+      "name": "xform_print",
+      "type": "T"
+    },
+    {
+      "name": "xform_reflect",
+      "type": "T"
+    },
+    {
+      "name": "xform_rotate_around_pivot",
+      "type": "T"
+    },
+    {
+      "name": "xform_rotate_axis_angle",
+      "type": "T"
+    },
+    {
+      "name": "xform_rotate_axis_deg",
+      "type": "T"
+    },
+    {
+      "name": "xform_rotate_local_around_pivot",
+      "type": "T"
+    },
+    {
+      "name": "xform_rotate_local_axis_angle",
+      "type": "T"
+    },
+    {
+      "name": "xform_rotate_local_axis_deg",
+      "type": "T"
+    },
+    {
+      "name": "xform_set_axis_angle",
+      "type": "T"
+    },
+    {
+      "name": "xform_set_axis_deg",
+      "type": "T"
+    },
+    {
+      "name": "xform_set_euler",
+      "type": "T"
+    },
+    {
+      "name": "xform_set_euler_deg",
+      "type": "T"
+    },
+    {
+      "name": "xform_set_position",
+      "type": "T"
+    },
+    {
+      "name": "xform_set_scale",
+      "type": "T"
+    },
+    {
+      "name": "xform_slerp",
+      "type": "T"
+    },
+    {
+      "name": "xform_slerp_pivot",
+      "type": "T"
+    },
+    {
+      "name": "xform_to_mat4",
+      "type": "T"
+    },
+    {
+      "name": "xform_translate",
+      "type": "T"
+    },
+    {
+      "name": "xform_translate_local",
+      "type": "T"
+    },
+    {
+      "name": "zero_cost",
+      "type": "T"
+    },
+    {
+      "name": "zero_heuristic",
+      "type": "T"
+    }
+  ],
+  "install": {
+    "file_count": 116,
+    "header_count": 92,
+    "test_executable_count": 19,
+    "files": [
+      {
+        "path": "bin/libbyul.dll",
+        "size": 831361,
+        "sha256": "2fe4b1abd5fb48e660fdb3284a1c32269197518ab086660ff31f206de82534e6"
+      },
+      {
+        "path": "bin/libgcc_s_seh-1.dll",
+        "size": 151732,
+        "sha256": "278f1101f2371c58b6b412a3206718e22343940a5164aceb4fb75f2bf3b38ed4"
+      },
+      {
+        "path": "bin/libstdc++-6.dll",
+        "size": 2667040,
+        "sha256": "3529d11c422b2aaf0bbad7221bf62ba7b5a39f854e89a015bb58b6b55a677da1"
+      },
+      {
+        "path": "bin/libwinpthread-1.dll",
+        "size": 65955,
+        "sha256": "655ba5bd12bf5f2545f522a4b04a7475b0347837f04d1f42c9a292f2cb62c274"
+      },
+      {
+        "path": "bin/test_balix.exe",
+        "size": 879177,
+        "sha256": "484d9ce4129e0835b99fc72a9dcf4acb0be25cc016ca8b82a3a613a992c3caf2"
+      },
+      {
+        "path": "bin/test_byul.exe",
+        "size": 1593895,
+        "sha256": "b634eafd15785c438b928071d5bbcd2a957024613808afd4acfe0aeb4a5e8655"
+      },
+      {
+        "path": "bin/test_byul_tick.exe",
+        "size": 412795,
+        "sha256": "d2994125d51e4687f131b2d3da3a7b0a4fff1c0a76caebc80e5611b0be376520"
+      },
+      {
+        "path": "bin/test_collision.exe",
+        "size": 647569,
+        "sha256": "996c5c708275eac46b48020441d92c06e697ae443510d08b114dcf974fe38b50"
+      },
+      {
+        "path": "bin/test_coord.exe",
+        "size": 676124,
+        "sha256": "725eab144c50a9f8313ed9a34e8f698ff707eb88516601699a3965c3d596c8b7"
+      },
+      {
+        "path": "bin/test_core.exe",
+        "size": 419853,
+        "sha256": "57bfad1f5ca34ebeef2512b65cfcd4f68ee69b23f551ecc0dfe40d87b0f31da5"
+      },
+      {
+        "path": "bin/test_dstar_lite.exe",
+        "size": 709927,
+        "sha256": "fc72897361b740fe7f6f536484fed8c016dd36d328b6a6897c65d4a11d160031"
+      },
+      {
+        "path": "bin/test_entity.exe",
+        "size": 807740,
+        "sha256": "1671f52f3bc62361b060b18a90e03a8c0862c877d9145a3cc2abce722afa7227"
+      },
+      {
+        "path": "bin/test_ground.exe",
+        "size": 640844,
+        "sha256": "87e13cd081e09712f5cbe0cfc868efccdc528cf32a52acf6e0d01a155ffcd51c"
+      },
+      {
+        "path": "bin/test_maze.exe",
+        "size": 716777,
+        "sha256": "ac49dd57755e5b28ba558eb6133323d509dc1bbde25eab43a7510cf849bcf214"
+      },
+      {
+        "path": "bin/test_navgrid.exe",
+        "size": 598364,
+        "sha256": "eff9e493aedd19055153c5e3a673ac2951ae2571fd79d1f6adef46e077f3edfe"
+      },
+      {
+        "path": "bin/test_navsys.exe",
+        "size": 713520,
+        "sha256": "41cd8e96acd49218b848423373c8656907dde529bdb15b0d2a77ba08370274d1"
+      },
+      {
+        "path": "bin/test_numal.exe",
+        "size": 799874,
+        "sha256": "bc5168899350d36f0c90d2c52f95cd81284af378aa9d65e2ccb7bcc28a3f5e1a"
+      },
+      {
+        "path": "bin/test_number_theory.exe",
+        "size": 430548,
+        "sha256": "07cc0e4513d5126f4f235484ee07fb14cd0b1347fd0f3a5aa3240a512af47b8a"
+      },
+      {
+        "path": "bin/test_obstacle.exe",
+        "size": 651542,
+        "sha256": "001c2d9c6c7fedd5c5e7cca58507a8c8dbfdf1e56ecebef7c146f95a66a16f1a"
+      },
+      {
+        "path": "bin/test_projectile.exe",
+        "size": 936717,
+        "sha256": "5d95848f1968ca700d55c1cffd401d94f6f5b301ef5cac4b6b29b2856324527e"
+      },
+      {
+        "path": "bin/test_rng.exe",
+        "size": 549526,
+        "sha256": "69471b910201f4f50af6677612e814b7cac038f6d810c2ba4cac12280d23c809"
+      },
+      {
+        "path": "bin/test_route.exe",
+        "size": 609793,
+        "sha256": "3ca9f9d4503dbd77d61c650d9d0844ffcbd646a9c8562efbd7276a49d89be96c"
+      },
+      {
+        "path": "bin/test_route_finder.exe",
+        "size": 708299,
+        "sha256": "bd0638fb95806e1c52c6eb4efbcdbabb6058529eeee3383db6e05dee0570afc8"
+      },
+      {
+        "path": "include/byul/astar.h",
+        "size": 1935,
+        "sha256": "fad201ad00569850723b5562386f8adf2a7d10db51efd72e76811fcc0b58b955"
+      },
+      {
+        "path": "include/byul/balix.h",
+        "size": 488,
+        "sha256": "adca0e94c07b4efe18dd67f303ae636f6f90a8f409c229ed877ff88367361446"
+      },
+      {
+        "path": "include/byul/bfs.h",
+        "size": 1630,
+        "sha256": "9012b825431e67234b39f4085f52696dee575eb7bb2c5c37dcda01efc5e9d9cc"
+      },
+      {
+        "path": "include/byul/bodyprops.h",
+        "size": 7936,
+        "sha256": "3bbe218db3c9d2ca46c1ee0009c5ae12f22e820fae176f1ef64af479c2041cfe"
+      },
+      {
+        "path": "include/byul/byul.h",
+        "size": 611,
+        "sha256": "c20a6e329f96af04f206e20079e332ec98a1a2f709b1eb61ce5d74a5c83d85f2"
+      },
+      {
+        "path": "include/byul/byul_config.h",
+        "size": 1434,
+        "sha256": "f735417c56d88b6fbada1f5aad2a3ae7db52f98ca82d9cb1dd82071a8935474d"
+      },
+      {
+        "path": "include/byul/byul_prime32.h",
+        "size": 618,
+        "sha256": "9f233f1634ddfe851681f20dfa0ce0ee8ce7bcc3c9b5923f3df696af75d82a15"
+      },
+      {
+        "path": "include/byul/byul_prime_segmented_u32.h",
+        "size": 1769,
+        "sha256": "9c3a966701122656dc238023e9729051a1661de3e5167303c015dc43b6146fb1"
+      },
+      {
+        "path": "include/byul/byul_tick.h",
+        "size": 2471,
+        "sha256": "de4a7736cbd5192444208c5d08293fd55efdeea3dd06afac28689a90359f3f27"
+      },
+      {
+        "path": "include/byul/collision.h",
+        "size": 18452,
+        "sha256": "018ed8cb10dc71bf895a904b5612663e4a7da86102671a36968d2408cf5d65fb"
+      },
+      {
+        "path": "include/byul/console.h",
+        "size": 1587,
+        "sha256": "e9d1fcffd5b4e93533987c31fcfe923c84a3c5f864ddf849dfad55f9fdefe6c1"
+      },
+      {
+        "path": "include/byul/controller.h",
+        "size": 8526,
+        "sha256": "c8a82a1eff1433886de54a0591109c4f8e77c4122e5f51913e66762a1245c4c2"
+      },
+      {
+        "path": "include/byul/coord.h",
+        "size": 7476,
+        "sha256": "3325914efe812aaa1dd3f7a6dccde6c77ff97f6e45ca01e797315e46a2d931c2"
+      },
+      {
+        "path": "include/byul/coord_hash.h",
+        "size": 4978,
+        "sha256": "9f816694cd8e9ea7c7be3fedca92c87f57c0599bdbcb553402065c9499a90091"
+      },
+      {
+        "path": "include/byul/coord_list.h",
+        "size": 2017,
+        "sha256": "3ab8bd78011c8a210f80977bb9fbd9430eea14258ad0daea0edc3058ef3a6a63"
+      },
+      {
+        "path": "include/byul/cost_coord_pq.h",
+        "size": 1782,
+        "sha256": "c17bcd22532aaa9a3e6efc8f177f4abe26caf5da60f21e073896e26b3109b928"
+      },
+      {
+        "path": "include/byul/dfs.h",
+        "size": 1731,
+        "sha256": "f38d1c15dfbfa16505279c935d5e8a3517c2f71062b69e22bea307f4e0442fa6"
+      },
+      {
+        "path": "include/byul/dijkstra.h",
+        "size": 1751,
+        "sha256": "daebf3672764565d5c120fec4e1b95bf50963e12a8a5611ac6e5cac7ba4e97d2"
+      },
+      {
+        "path": "include/byul/dstar_lite.h",
+        "size": 13691,
+        "sha256": "21c4a40fe397fb45f55826336bd661989c80410117786d8ab9d8fa22d97b71fb"
+      },
+      {
+        "path": "include/byul/dstar_lite_console.h",
+        "size": 2531,
+        "sha256": "f6c09c5e89f1962de601e033226deee4fefe51c41efefad09cd1285a3ee780b5"
+      },
+      {
+        "path": "include/byul/dstar_lite_key.h",
+        "size": 1788,
+        "sha256": "8cc0b819570b4c98c7d5283d24df6d8057d4e4b2786d51d148e08ac6f20ff315"
+      },
+      {
+        "path": "include/byul/dstar_lite_key.hpp",
+        "size": 1237,
+        "sha256": "f9a01da3637d3436967e710e8e18ade033f74db01bbe38fe459f6df9979a00cb"
+      },
+      {
+        "path": "include/byul/dstar_lite_pqueue.h",
+        "size": 1386,
+        "sha256": "d12da13935c093581a614fcb92b59618d9d30501e9ee931d61f765b6eb1af6fa"
+      },
+      {
+        "path": "include/byul/dstar_lite_tick.h",
+        "size": 5909,
+        "sha256": "844bfdd3e10d9d752e07934e262934c44ec4e99caa248dcaf0b411404ec532a6"
+      },
+      {
+        "path": "include/byul/dualnumber.h",
+        "size": 2416,
+        "sha256": "8315d7bfa142f3101a55d1c308c7181a570828ee12d7eb1a2eab999512eb7f03"
+      },
+      {
+        "path": "include/byul/dualquat.h",
+        "size": 5150,
+        "sha256": "2d8fdd2ea95efec5f7f3a704aa4cd5177c521219c8aaebe82761fbb80dec2324"
+      },
+      {
+        "path": "include/byul/dualquat.hpp",
+        "size": 4083,
+        "sha256": "ed37413d8d6dd4a84cc577441c004d9002efd1b39fc65b601a63412e0b296858"
+      },
+      {
+        "path": "include/byul/entity.h",
+        "size": 5057,
+        "sha256": "26564f85c73cf55188cef68f03f7e1d43407386de4feb855830a89c425736817"
+      },
+      {
+        "path": "include/byul/entity_dynamic.h",
+        "size": 9832,
+        "sha256": "6928769fbe57ea8a80d27e3ed16d794fc2d233589e10e302886d84c6a40ab1e4"
+      },
+      {
+        "path": "include/byul/entity_dynamic_coord.h",
+        "size": 1648,
+        "sha256": "ebba7cacb1e91d33208155a3a69ba7783a81905a4bb153b1427d82a7718c2b95"
+      },
+      {
+        "path": "include/byul/entity_interaction.h",
+        "size": 7145,
+        "sha256": "2d5469b0b7cfa1442cf7834deb75bf32a9c8388d0b941d94a1a96bf0f9cabed0"
+      },
+      {
+        "path": "include/byul/entity_spring.h",
+        "size": 8262,
+        "sha256": "f3be81a29675f4ef2ef177fd382572fa629edcd7a172f100a73e9de7d1779aed"
+      },
+      {
+        "path": "include/byul/environ.h",
+        "size": 9812,
+        "sha256": "669244c620dfd918a2c8bc6996309ac04de3aa905aa9ff8a39c53e4628126e46"
+      },
+      {
+        "path": "include/byul/fast_marching.h",
+        "size": 3224,
+        "sha256": "ef968e8109a3727a835acb3a6802ffc7a7c495acfc1036c1a9d7ca3cb4bcc063"
+      },
+      {
+        "path": "include/byul/fringe_search.h",
+        "size": 2218,
+        "sha256": "65155adef8aa986ea4339d1d87ccddab9cb65dbb7644b4156986a9f2b04f46b9"
+      },
+      {
+        "path": "include/byul/geom.h",
+        "size": 10222,
+        "sha256": "252dfc9c69cda64533623fd3ea86c40caa65dbe33f82b4f8dafd151b9e60bf65"
+      },
+      {
+        "path": "include/byul/greedy_best_first.h",
+        "size": 1345,
+        "sha256": "a14207ef4f4f8972afb6e3a17801c8c362cf77d42b8e316b493a17b2439a91ea"
+      },
+      {
+        "path": "include/byul/ground.h",
+        "size": 6366,
+        "sha256": "8fd05b4b8a94f69f91bcccc610af60d53140109db2b22af115fcbe3d3137c526"
+      },
+      {
+        "path": "include/byul/guidance.h",
+        "size": 7297,
+        "sha256": "68e3349cb73051058672b47e86fdd2d76039bb3f5b1b546e2770a86d8e21468f"
+      },
+      {
+        "path": "include/byul/ida_star.h",
+        "size": 2569,
+        "sha256": "1cec7f28d85486fb9bb4abcd05a0fa4b202aa978d5676a4dc97d5a268ed6379a"
+      },
+      {
+        "path": "include/byul/maze.h",
+        "size": 578,
+        "sha256": "481f139350ae6027aa9031b0e143bd1d41085f2219dbe5c88f476ef11367a9da"
+      },
+      {
+        "path": "include/byul/maze_aldous_broder.h",
+        "size": 1536,
+        "sha256": "64b7b6ae3bbf9d8a5f72cec394e871ef606db9724a59b229cea9a0c1cbd537e1"
+      },
+      {
+        "path": "include/byul/maze_binary.h",
+        "size": 1404,
+        "sha256": "9df2eca7a373a4a690597043fb2d020d0aec3062a19cbe941bef89ca834c2fb9"
+      },
+      {
+        "path": "include/byul/maze_core.h",
+        "size": 1403,
+        "sha256": "42c20464e145b68200fdea21e447ee3118eaecdc612d4721544a35f8dc333262"
+      },
+      {
+        "path": "include/byul/maze_eller.h",
+        "size": 1568,
+        "sha256": "5d1c208aabad4464f7d57e9638629bd2c4e5967154fd876e372068d6ddcf0fdb"
+      },
+      {
+        "path": "include/byul/maze_hunt_and_kill.h",
+        "size": 1600,
+        "sha256": "6e7d84085bdbe5a0ee0147494452d3bf3d58e06992a6ac06d299d94e4013bfb2"
+      },
+      {
+        "path": "include/byul/maze_kruskal.h",
+        "size": 1722,
+        "sha256": "844786a20c02e2635df5a44c10a5f0e997f36516ec51b6b767fdc322596f253c"
+      },
+      {
+        "path": "include/byul/maze_prim.h",
+        "size": 1517,
+        "sha256": "757119884810e1e0c2af17163ed87e3bfd82a343a252875aa49ac3eb75459764"
+      },
+      {
+        "path": "include/byul/maze_recursive.h",
+        "size": 1449,
+        "sha256": "9362679b459e8e74d2799702b13fe7ad30f29787e8f89c8ebb7ae67ff5ffc4bc"
+      },
+      {
+        "path": "include/byul/maze_recursive_division.h",
+        "size": 1665,
+        "sha256": "cd05343c8e79689a63aba98bc8862d34d96b52d19cd463a194585aaa552591ef"
+      },
+      {
+        "path": "include/byul/maze_room_blend.h",
+        "size": 1842,
+        "sha256": "61ce845a26232c55a218554e696222d47f110a0db5e8135b8d234a9cfc2133a3"
+      },
+      {
+        "path": "include/byul/maze_sidewinder.h",
+        "size": 1525,
+        "sha256": "d8e9be6a6a05166d6f9a4240726b7d4f039f1c0f97ebfd010f35cb3357562632"
+      },
+      {
+        "path": "include/byul/maze_wilson.h",
+        "size": 1461,
+        "sha256": "81cbd19fdb4cd048a29a96b988e0bb348e04ada8d77dee92df8b37a053a00993"
+      },
+      {
+        "path": "include/byul/motion_state.h",
+        "size": 6189,
+        "sha256": "ea0c5aebf1c64f0abeffcddfb0368d2754aae61247d2cf1340a2ef663aba299f"
+      },
+      {
+        "path": "include/byul/navcell.h",
+        "size": 901,
+        "sha256": "557ac86d263f328066542bc79f03f4ec8e7b32e029e372c1f44fc2f5984509f5"
+      },
+      {
+        "path": "include/byul/navgrid.h",
+        "size": 6322,
+        "sha256": "910c15e23035a1b2480d91d51c256ff91c887b00ecfc7778e589fb2b7d9da670"
+      },
+      {
+        "path": "include/byul/navsys.h",
+        "size": 3907,
+        "sha256": "6a0ccec9c600ef8e43a656a70582b5c03d830071051a982716cb6f4f3b193da0"
+      },
+      {
+        "path": "include/byul/numal.h",
+        "size": 241,
+        "sha256": "b5d9b9bb7a9b9faa6fc8e64f69f08aae7bcb10239587d506eb2d833619976ef0"
+      },
+      {
+        "path": "include/byul/number_theory.h",
+        "size": 165,
+        "sha256": "0f767c5fa461346cdbb0ff8b44b6de1deb723096ef1aba99fa10ddeeb6f410a6"
+      },
+      {
+        "path": "include/byul/numeq.h",
+        "size": 275,
+        "sha256": "8eaec9a793b06809eb986eada5e4b0218caf666a66c82299100348df9aa3e9c4"
+      },
+      {
+        "path": "include/byul/numeq_filters.h",
+        "size": 3807,
+        "sha256": "f32a78f96f53c05dcb0e6b4af0ab776616ac68494a8fb07a83cc11be49bfba9b"
+      },
+      {
+        "path": "include/byul/numeq_integrator.h",
+        "size": 15712,
+        "sha256": "39ab7b3799a1dc76fe67bdaf57fd164c3b3eca8d04085a290c83e57c29db49bb"
+      },
+      {
+        "path": "include/byul/numeq_kalman.h",
+        "size": 6127,
+        "sha256": "4603c1392e7c3b7fc1bbb26f6f730f05264a7091bba5e132eaf87da8956300c6"
+      },
+      {
+        "path": "include/byul/numeq_model.h",
+        "size": 9377,
+        "sha256": "c2b7752d3481e0bbb3df3147551d87c17a4a818f5d65fdafa16d2493570c43d4"
+      },
+      {
+        "path": "include/byul/numeq_model_motion.h",
+        "size": 6335,
+        "sha256": "8fb9fb3d92610474d1c6a775e481461d50cae457709f7af3d32204e653e682d0"
+      },
+      {
+        "path": "include/byul/numeq_mpc.h",
+        "size": 8503,
+        "sha256": "facd359be7cac8f54154be1ca66fca49cf3987ddf41c1d4778d60cf795083d9c"
+      },
+      {
+        "path": "include/byul/numeq_pid.h",
+        "size": 4971,
+        "sha256": "13d9466a8e79c85676179e545530da4b50795d7302e10f652fb99c7d5461ba8d"
+      },
+      {
+        "path": "include/byul/numeq_pid_vec3.h",
+        "size": 3473,
+        "sha256": "5e76c14d111265d1d859b4f964bc93ab4951a0eb4f3f7f0bdbf302fd2fe827fb"
+      },
+      {
+        "path": "include/byul/numeq_solver.h",
+        "size": 5198,
+        "sha256": "cc45d90474ef3849fd55d474afabee8dd064bc50c80d14aca6aae202397908ce"
+      },
+      {
+        "path": "include/byul/obstacle.h",
+        "size": 7350,
+        "sha256": "8a99171b6d12513add5c2fb19f79b7537e200015d0ebaa869d590102341323ba"
+      },
+      {
+        "path": "include/byul/obstacle_core.h",
+        "size": 3754,
+        "sha256": "e85aed8db0495f96143460899f24836ba54173206bd5efc52dd7123e10973770"
+      },
+      {
+        "path": "include/byul/plane.h",
+        "size": 2397,
+        "sha256": "af35942e4ece7e24734a50c2cd5f679ec6f1caa66739f3ea82a86e29e4271e2c"
+      },
+      {
+        "path": "include/byul/projectile.h",
+        "size": 6039,
+        "sha256": "8c2354cdd9b0664264311ec18b971afad89c0430b5c9d0f85d736db5857696b3"
+      },
+      {
+        "path": "include/byul/projectile_core.h",
+        "size": 14661,
+        "sha256": "a6d1c64cc799ed500f42bc19881c0274d94af7c57b311cb6e9c46ac7b6cf2137"
+      },
+      {
+        "path": "include/byul/projectile_predict.h",
+        "size": 8326,
+        "sha256": "d208930285eaf6791e981ba4deefe36f0ca8d85eb6ffeb0071b53d62e8baac6a"
+      },
+      {
+        "path": "include/byul/projectile_tick.h",
+        "size": 5827,
+        "sha256": "db8c54bc964cee17445e0a1cafe48733014da313f10b59929a60224fe24e737c"
+      },
+      {
+        "path": "include/byul/propulsion.h",
+        "size": 8957,
+        "sha256": "b7b8674405cd3d81f7199746099d542c9581d0e6089d131969e319765871df97"
+      },
+      {
+        "path": "include/byul/quat.h",
+        "size": 6155,
+        "sha256": "61136dc2d239557c77b893c2b9a9b7a91a54f5da7a6ab63e5c9beffaf454b780"
+      },
+      {
+        "path": "include/byul/quat.hpp",
+        "size": 3070,
+        "sha256": "6d314b64d97fdb2fbf97a86070730e7da91cb2e90a9bc05d29e92f256425287c"
+      },
+      {
+        "path": "include/byul/route.h",
+        "size": 5175,
+        "sha256": "33335e3ad6a7e12a02dfebb626e3b224bec1b87eaf5649b52f90ddb382db7eb6"
+      },
+      {
+        "path": "include/byul/route_carver.h",
+        "size": 1342,
+        "sha256": "3637c154467ca0aae5cdf0977ecd4a161802f21c0fba0881514e09949f68c71b"
+      },
+      {
+        "path": "include/byul/route_finder.h",
+        "size": 7733,
+        "sha256": "e71e78fbd05d116a7870bd7f7f95ef512847cfcf8a35da1d93aee71981876184"
+      },
+      {
+        "path": "include/byul/route_finder_core.h",
+        "size": 2238,
+        "sha256": "2c8f7b51adc1d94fa9c193a17484f1c9cb311faf61d3be2a73a656760746627a"
+      },
+      {
+        "path": "include/byul/rta_star.h",
+        "size": 3998,
+        "sha256": "9d536eaefa6e2b6a1d1b89db572cba3e753d881926654a6bb529865b5e5d3a7b"
+      },
+      {
+        "path": "include/byul/scalar.h",
+        "size": 5422,
+        "sha256": "c4c8ba95ad9daec071d649a56d75ff6b09522110559ef827da0717be8fafcf5f"
+      },
+      {
+        "path": "include/byul/sma_star.h",
+        "size": 2602,
+        "sha256": "5b011f2b45fb7689b232a2f3482114a973f34e8a3bebe5f0485151c29e178a49"
+      },
+      {
+        "path": "include/byul/strset.h",
+        "size": 1724,
+        "sha256": "3ff9b3b35b49fb29b55478852cea2ab21837558fd2e7692bbf44933461ff2d1c"
+      },
+      {
+        "path": "include/byul/trajectory.h",
+        "size": 10540,
+        "sha256": "5273282325b27f4ede6038fe52b096bf322e76ed3f1cdf44cb9b7d9ee22f9c84"
+      },
+      {
+        "path": "include/byul/vec3.h",
+        "size": 6713,
+        "sha256": "f93b14f691e29abe37e043597a17576f4a0d719258ca7f1fa7121f0d479ea599"
+      },
+      {
+        "path": "include/byul/vec3.hpp",
+        "size": 3951,
+        "sha256": "31360615fbb677c3744e4929d23f7b1a1f615bf6c2c26d29954a9b0c6bc0e004"
+      },
+      {
+        "path": "include/byul/weighted_astar.h",
+        "size": 2287,
+        "sha256": "904830e67954ac8d1167d408d0a8a530a77c56a4f1506822aad6d5e89ddde34b"
+      },
+      {
+        "path": "include/byul/xform.h",
+        "size": 8832,
+        "sha256": "527edb21eeca1987b2b97ba422c2897e43ae4f7c378a2efbe1327d875e29c1e7"
+      },
+      {
+        "path": "lib/byul/libbyul.dll.a",
+        "size": 648684,
+        "sha256": "3c3bb2098d89263f395aae9ba50de8cc25a5d8f86e7315e1c95403c4f74fbe0c"
+      }
+    ]
+  },
+  "export_tool": "nm",
+  "export_tool_version": "GNU nm (GNU Binutils) 2.46.1"
+}

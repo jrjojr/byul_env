@@ -21,6 +21,23 @@ Search Methods (ECAI 1992)]]와
 [[https://cdn.aaai.org/AAAI/1994/AAAI94-209.pdf][후속 memory-bounded search 분석]]의
 forgotten child, backed-up f-value, regeneration과 explicit memory bound를 기준으로 한다.
 
+* 실행 소유권과 테스트 위치
+
+- 이 문서는 SMA* 구현·memory-bounded conformance와 memory typed
+  config/default/validation만 소유한다.
+- 공통 evaluator와 callback binding은
+  [[file:todo-navsys-route-finder-route-finder-core.org][evaluation 문서]], facade/options/
+  capability와 config 합류는
+  [[file:todo-navsys-route-finder-route-finder.org][dispatcher 문서]]가 소유한다.
+- SMA* direct/conformance assertion의 실제 파일은 shared native test
+  =byul/navsys/route_finder/tests/test_module_route_finder_discrete.cpp=다.
+  Dispatcher config 합류와 root consumer assertion은 각각
+  =byul/navsys/route_finder/tests/test_module_route_finder.cpp=와
+  =byul/navsys/tests/test_module_navsys.cpp=에서 해당 owner가 추가한다.
+- SMA* 문서는 Python에 필요한 config/status 기대값을 제공한다. 실제 wrapper consumer
+  assertion은 dispatcher/root 통합이
+  =tools/python/byul_wrapper/tests/test_route_finder.py=에 추가한다.
+
 * P0 Algorithm Identity 결함
 
 현재 구현은 일반 A* frontier에서 =cost_coord_pq_trim_worst()=로 일부 queue item만 제거한다.
@@ -103,7 +120,8 @@ Stats는 current/peak nodes와 bytes, pruned/regenerated count, incumbent/lower 
 ** 실행
 
 - legacy =find_sma_star=를 typed config + generic run에 forwarding하고 direct header를 단계적으로 제외한다.
-- wrapper는 raw int pointer가 아니라 versioned config와 stats를 사용한다.
+- Wrapper가 소비할 versioned config/stats 계약을 제공한다. Raw int pointer를 제거하는
+  실제 wrapper consumer 전환은 dispatcher/root 통합에 인계한다.
 
 ** 완료 조건
 

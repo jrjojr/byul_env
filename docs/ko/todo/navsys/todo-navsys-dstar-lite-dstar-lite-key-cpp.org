@@ -25,6 +25,19 @@
 실제 production consumer는 =dstar_lite_pqueue.cpp=뿐이다. 전 선언을 internalize하고
 설치 SDK에서 제거한다.
 
+* 실행 소유권과 테스트 위치
+
+- 이 문서는 C key API를 소비하는 최소 C++ comparator/hash helper, namespace/ODR와
+  public install에서 private detail로 옮기는 source-compatibility 경계만 소유한다.
+- Key 수치 domain과 exact relation은 =dstar_lite_key.h= 문서, queue storage/container
+  선택과 operation은 =dstar_lite_pqueue.h= 문서가 소유한다. 이 문서는 pqueue storage를
+  직접 전환하지 않고 private helper와 소비 계약만 제공한다.
+- 현재 =.hpp= 전용 native test 파일은 없다. Comparator property, two-TU ODR와 실제
+  pqueue 소비 assertion은 shared test
+  =byul/navsys/dstar_lite/tests/test_module_dstar_lite_pqueue.cpp=에 추가한다.
+- Installed SDK exclusion/source-compatibility 검증은 해당 test target의 install fixture와
+  root =byul/navsys/tests/test_module_navsys.cpp=에서 합류한다.
+
 * 현재 구조 결함
 
 - project license, =@file/@brief=, BYUL guard와 namespace가 없다.
@@ -154,11 +167,12 @@ struct key_hash final {
 - ordering/hash property test와 C++17 two-TU ODR test를 실행한다.
 - clang/gcc/msvc warning-as-error include audit를 실행한다.
 
-** TODO 3단계: pqueue와 build inventory 전환
+** TODO 3단계: private helper와 build inventory 전환
 
 *** 실행
 
-- pqueue storage/comparator를 by-value detail type으로 전환한다.
+- pqueue owner가 소비할 exact by-value detail helper surface를 동결한다. 실제 pqueue
+  storage/comparator 전환은 pqueue 문서의 TODO 2단계가 수행한다.
 - CMake public header 목록에서 현행 =.hpp=를 제거하고 private path를 연결한다.
 
 *** 완료 조건

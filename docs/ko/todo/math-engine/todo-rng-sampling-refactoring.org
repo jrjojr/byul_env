@@ -1,0 +1,119 @@
+#+TITLE: Math Engine RNG·Distribution·Sampling 리팩터링 TODO
+#+TODO: TODO DOING BLOCKED | DONE CANCELLED FAILED
+#+TODO_RULES: ../../../../external/rules/projects/byul/todo-rules.org
+#+PUBLIC_API_RULES: ../../../../external/rules/projects/byul/public-api-rules.org
+#+HEADER_DECLARATION_RULES: ../../../../external/rules/projects/byul/header-declaration-rules.org
+#+HEADER_COMMENT_RULES: ../../../../external/rules/projects/byul/header-comment-rules.org
+#+HEADER_AUTHORING_RULES: ../../../../external/rules/projects/byul/header-authoring-rules.org
+#+BUILD_RULES: ../../../../external/rules/projects/byul/build-rules.org
+#+TEST_RULES: ../../../../external/rules/projects/byul/test-rules.org
+#+TODO_PARENT: todo-math-engine.org
+#+OWNERSHIP_MANIFEST: ../header-refactor-current/header-role-manifest.json
+#+AUTHOR: ByulPapa / Codex
+#+LANGUAGE: ko
+#+OPTIONS: toc:t num:nil
+
+* 목적과 단일 소유권
+
+=byul/rng=의 deterministic stream, uniform value, distribution sampling, fill, roll과
+shuffle을 Math Engine RNG/sampling component로 통합한다. Foundation과 simulation
+consumer는 seed/stream을 주입하고 결과를 사용할 뿐 random algorithm이나 distribution
+공식을 다시 구현하지 않는다.
+
+확률분포의 PDF/PMF/CDF/inverse CDF 같은 순수 값 함수는
+[[file:todo-mathfunc.org][Mathfunc]]가 소유하고, RNG state를 소비해 sample을 만드는
+알고리즘은 이 문서가 소유한다. 게임 loot, 보상과 재시도 정책은 consumer 책임이다.
+
+* 기존 Header 6개
+
+| Header | Math Engine disposition |
+|--------+-------------------------|
+| =byul/rng/rng.h= | canonical module entry·version |
+| =byul/rng/rng_core.h= | deterministic engine state·stream·uniform primitive |
+| =byul/rng/rng_fill.h= | typed buffer fill |
+| =byul/rng/distributions.h= | distribution sampling; pure probability 값은 Mathfunc 연결 |
+| =byul/rng/roll.h= | discrete·weighted sampling |
+| =byul/rng/shuffle.h= | generic/typed permutation |
+
+* 계약 경계
+
+- 기본 generator와 stream mapping은 algorithm/version을 고정해 deterministic replay를
+  보장한다.
+- Seed, stream, copy, serialization, thread sharing과 reentrancy 계약을 명시한다.
+- Range bias, invalid bound, non-finite parameter와 empty population을 정상 sample과
+  구분한다.
+- Sampling 함수는 caller-owned RNG state만 변경하며 global hidden state를 사용하지 않는다.
+- 암호학적 난수 보장은 별도 backend/contract 없이는 주장하지 않는다.
+
+* 실행 절차
+
+** TODO 1. 6개 header와 algorithm baseline을 동결한다
+*** 실행
+
+Header/source/test/CMake/install consumer와 PCG state/stream, range mapping, distribution,
+weighted roll과 shuffle 동작을 manifest에 기록한다.
+
+*** 완료 조건
+
+모든 declaration과 source가 owner 하나를 가지며 current deterministic vector가 저장된다.
+
+*** 검증
+
+Header/source inventory, fixed seed vector와 current consumer fixture를 실행한다.
+
+** TODO 2. RNG state·stream C ABI를 확정한다
+*** 실행
+
+Opaque/value disposition, size/align, seed/stream/copy/serialize, range와 error/status 계약을
+정한다.
+
+*** 완료 조건
+
+동일 algorithm/version/seed/stream의 결과가 지원 platform에서 재현된다.
+
+*** 검증
+
+Known vector, state copy/round-trip, range-bias와 thread-sharing corpus를 실행한다.
+
+** TODO 3. Distribution과 sampling 계약을 분리한다
+*** 실행
+
+Normal, exponential, triangular, Bernoulli와 Poisson sampling을 Mathfunc의 pure probability
+계약과 연결하고 parameter domain과 failure를 정한다.
+
+*** 완료 조건
+
+Sampling과 PDF/PMF/CDF owner가 구분되고 =M_PI= 같은 generic macro 복제가 없다.
+
+*** 검증
+
+Statistical goodness-of-fit, boundary/non-finite와 Mathfunc parity test를 실행한다.
+
+** TODO 4. Fill·roll·shuffle API를 정리한다
+*** 실행
+
+Buffer count/capacity, empty input, weighted population, generic element size, in-place mutation과
+failure/status를 canonical API에 적용한다.
+
+*** 완료 조건
+
+Silent no-op이나 ambiguous sentinel 없이 mutation 결과를 관찰할 수 있다.
+
+*** 검증
+
+Zero/one/many count, invalid weight, permutation invariant와 aliasing test를 실행한다.
+
+** TODO 5. Math Engine target과 compatibility를 전환한다
+*** 실행
+
+6개 header/source를 Math Engine component manifest에 합류하고 old include/symbol을
+versioned forwarding한다.
+
+*** 완료 조건
+
+RNG source는 Math Engine에서만 compile되고 consumer는 target을 link해 사용한다.
+
+*** 검증
+
+Static/root/future Math Engine DLL export, clean install, wrapper 분류와 source uniqueness를
+검사한다.

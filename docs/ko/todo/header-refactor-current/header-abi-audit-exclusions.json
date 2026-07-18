@@ -1,0 +1,118 @@
+{
+  "schema_version": 1,
+  "policy": "Every entry is current known ABI debt, not a supported export. Unlisted or stale exclusions fail.",
+  "exclusions": [
+    {
+      "code": "missing-root-export",
+      "subject": "dsl_debug_print_full_state",
+      "reason": "Declared diagnostic API has no definition.",
+      "owner": "console",
+      "target_stage": "4-navsys"
+    },
+    {
+      "code": "missing-root-export",
+      "subject": "dsl_debug_print_state",
+      "reason": "Declared diagnostic API has no definition.",
+      "owner": "console",
+      "target_stage": "4-navsys"
+    },
+    {
+      "code": "missing-root-export",
+      "subject": "dstar_lite_get_heuristic_func_userdata",
+      "reason": "Declaration and definition const signatures differ, so the public C export is not produced.",
+      "owner": "navsys",
+      "target_stage": "4-navsys"
+    },
+    {
+      "code": "missing-root-export",
+      "subject": "dstar_lite_get_interval_sec",
+      "reason": "Declaration and definition const signatures differ, so the public C export is not produced.",
+      "owner": "navsys",
+      "target_stage": "4-navsys"
+    },
+    {
+      "code": "missing-root-export",
+      "subject": "dstar_lite_update_vertex_by_route",
+      "reason": "Definition is not emitted as the declared public C ABI.",
+      "owner": "navsys",
+      "target_stage": "4-navsys"
+    },
+    {
+      "code": "missing-root-export",
+      "subject": "entity_dynamic_calc_state",
+      "reason": "Definition is not emitted as the declared public C ABI.",
+      "owner": "simulation_consumer",
+      "target_stage": "7-simulation"
+    },
+    {
+      "code": "missing-root-export",
+      "subject": "integrator_step_motion_verlet",
+      "reason": "Definition is not emitted as the declared public C ABI.",
+      "owner": "math_engine",
+      "target_stage": "5-math-engine"
+    },
+    {
+      "code": "missing-root-export",
+      "subject": "motion_state_calc_collision_point",
+      "reason": "Declared collision API has no definition.",
+      "owner": "math_engine",
+      "target_stage": "5-math-engine"
+    },
+    {
+      "code": "missing-root-export",
+      "subject": "motion_state_calc_collision_time",
+      "reason": "Declared collision API has no definition.",
+      "owner": "math_engine",
+      "target_stage": "5-math-engine"
+    },
+    {
+      "code": "missing-root-export",
+      "subject": "obstacle_clone_neighbors",
+      "reason": "Declared Navsys allocation API has no definition.",
+      "owner": "navsys",
+      "target_stage": "4-navsys"
+    },
+    {
+      "code": "missing-root-export",
+      "subject": "pid_vec3_auto",
+      "reason": "Declared vector PID API has no definition.",
+      "owner": "math_engine",
+      "target_stage": "5-math-engine"
+    },
+    {
+      "code": "missing-root-export",
+      "subject": "projectile_result_to_string",
+      "reason": "Definition is not emitted as the declared public C ABI.",
+      "owner": "simulation_consumer",
+      "target_stage": "7-simulation"
+    },
+    {
+      "code": "missing-root-export",
+      "subject": "projectile_result_to_string_detailed",
+      "reason": "Definition is not emitted as the declared public C ABI.",
+      "owner": "simulation_consumer",
+      "target_stage": "7-simulation"
+    },
+    {
+      "code": "missing-root-export",
+      "subject": "rta_star_config_create",
+      "reason": "Declared RTA* configuration API has no definition.",
+      "owner": "navsys",
+      "target_stage": "4-navsys"
+    },
+    {
+      "code": "missing-root-export",
+      "subject": "rta_star_config_create_full",
+      "reason": "Declared RTA* configuration API has no definition.",
+      "owner": "navsys",
+      "target_stage": "4-navsys"
+    },
+    {
+      "code": "missing-root-export",
+      "subject": "rta_star_config_destroy",
+      "reason": "Declared RTA* configuration API has no definition.",
+      "owner": "navsys",
+      "target_stage": "4-navsys"
+    }
+  ]
+}

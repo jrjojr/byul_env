@@ -25,6 +25,23 @@
 peek/pop을 하나의 원자적 key+value operation으로 만들고 내부 pointer/heap allocation을
 API에서 제거하는 것이다.
 
+* 공통 ABI 선행 Gate와 실제 Test 원본
+
+- Empty min 결과와 NaN/Inf/negative key, allocation failure status는
+  [[file:todo-navsys-industry-api-baseline.org][공통 기준]] =TODO 1단계=의 Status 후보 합류 항목에서
+  결정한다. Empty를 local sentinel이나 새 enum 값으로 먼저 구현하지 않는다.
+- 공통 status owner와 C symbol namespace가 승인되어 =TODO 1단계=가 =DONE=이 되기
+  전에는 아래 =cost_coord_pq_create_info_t=와 status 기반 target symbol을
+  header/source/export/wrapper에 구현하지 않는다. Caller-storage result는 공통
+  =TODO 3단계= 계약과도 합류한다.
+- Target draft type은 owner header/include DAG 승인 전 review 초안이며 기존 네 단계의
+  =TODO= 상태를 유지한다.
+- 전용 native test 원본은
+  =byul/navsys/coord/tests/test_module_cost_coord_pq.cpp=이다. D* Lite consumer 회귀가
+  필요하면 실제 원본
+  =byul/navsys/dstar_lite/tests/test_module_dstar_lite_pqueue.cpp=에 추가하고, 새 Coord
+  test source는 =byul/navsys/coord/tests/CMakeLists.txt=에 등록한다.
+
 * 현재 구현 근거
 
 - storage는 =std::map<float, std::vector<coord_t*>>=이며 push마다 coordinate를 heap copy한다.

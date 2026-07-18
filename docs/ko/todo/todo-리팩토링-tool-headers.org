@@ -8,6 +8,7 @@
 #+BUILD_RULES: ../../../external/rules/projects/byul/build-rules.org
 #+TEST_RULES: ../../../external/rules/projects/byul/test-rules.org
 #+TODO_PARENT: todo-리팩토링.org
+#+OWNERSHIP_MANIFEST: header-refactor-current/header-role-manifest.json
 #+AUTHOR: ByulPapa / Codex
 #+LANGUAGE: ko
 #+OPTIONS: toc:t num:nil

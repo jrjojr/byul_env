@@ -1,7 +1,13 @@
 #+TITLE: unit_1003에서 Mathunits로 Clean-room Migration TODO
 #+TODO: TODO DOING BLOCKED | DONE CANCELLED FAILED
 #+TODO_RULES: ../../../../external/rules/projects/byul/todo-rules.org
+#+HEADER_DECLARATION_RULES: ../../../../external/rules/projects/byul/header-declaration-rules.org
+#+HEADER_COMMENT_RULES: ../../../../external/rules/projects/byul/header-comment-rules.org
+#+HEADER_AUTHORING_RULES: ../../../../external/rules/projects/byul/header-authoring-rules.org
+#+BUILD_RULES: ../../../../external/rules/projects/byul/build-rules.org
+#+TEST_RULES: ../../../../external/rules/projects/byul/test-rules.org
 #+TODO_PARENT: todo-mathunits.org
+#+OWNERSHIP_MANIFEST: ../header-refactor-current/header-role-manifest.json
 #+AUTHOR: ByulPapa / Codex
 #+LANGUAGE: ko
 #+OPTIONS: toc:t num:nil
@@ -12,12 +18,61 @@
 layout, 함수 이름과 source를 BYUL public ABI로 자동 복사하지 않는다. GPU tool header
 리팩터링과 분리해 Math Engine =mathunits= migration만 이 문서가 소유한다.
 
+* 기존 Header 29개 Inventory
+
+| Header | Migration disposition |
+|--------+-----------------------|
+| =tools/unit_1003/unit.h= | legacy aggregate·compatibility/archive |
+| =tools/unit_1003/base_converter/base_converter.h= | base conversion 요구·corpus 추출 |
+| =tools/unit_1003/dec/dec.h= | decimal 요구·known bug corpus |
+| =tools/unit_1003/dec/tester/dec_tester.hpp= | reference test, SDK 제외 |
+| =tools/unit_1003/deprecated/dec_real/dec_real.h= | deprecated reference, archive |
+| =tools/unit_1003/deprecated/si_basic_unit/si_basic_unit.h= | deprecated data/provenance |
+| =tools/unit_1003/deprecated/si_coherent_unit/si_coherent_unit.h= | deprecated data/provenance |
+| =tools/unit_1003/deprecated/si_derived_unit/si_derived_unit.h= | deprecated data/provenance |
+| =tools/unit_1003/deprecated/si_unit_def/si_unit_def.h= | deprecated schema reference |
+| =tools/unit_1003/deprecated/si_unit_prefix/si_unit_prefix.h= | deprecated prefix reference |
+| =tools/unit_1003/nibble/nibble.h= | bit/nibble helper 요구 판정 |
+| =tools/unit_1003/nibble/tester/nibble_tester.hpp= | reference test, SDK 제외 |
+| =tools/unit_1003/non_si_unit/non_si_unit.h= | non-SI data/provenance |
+| =tools/unit_1003/quantity/quantity.h= | canonical quantity successor 요구 |
+| =tools/unit_1003/quantity/tester/quantity_tester.hpp= | reference test, SDK 제외 |
+| =tools/unit_1003/real/real.h= | real backend 요구·corpus |
+| =tools/unit_1003/real/dec_real/dec_real.h= | decimal-real backend reference |
+| =tools/unit_1003/real/dec_real/tester/dec_real_tester.hpp= | reference test, SDK 제외 |
+| =tools/unit_1003/real/tester/real_tester.hpp= | reference test, SDK 제외 |
+| =tools/unit_1003/si_unit/si_unit.h= | SI aggregate·schema/data reference |
+| =tools/unit_1003/si_unit/basic_si_unit/basic_si_unit.h= | basic SI data/provenance |
+| =tools/unit_1003/si_unit/derived_si_unit/derived_si_unit.h= | derived SI data/provenance |
+| =tools/unit_1003/tester/unit_tester.hpp= | aggregate reference test, SDK 제외 |
+| =tools/unit_1003/units/units.h= | unit registry/collection 요구 |
+| =tools/unit_1003/units/tester/units_tester.hpp= | reference test, SDK 제외 |
+| =tools/unit_1003/unit_prefix/unit_prefix.h= | prefix schema/data reference |
+| =tools/unit_1003/unit_prefix/tester/unit_prefix_tester.hpp= | reference test, SDK 제외 |
+| =tools/unit_1003/ustring/ustring.h= | formatting/string 요구 판정 |
+| =tools/unit_1003/ustring/tester/ustring_tester.hpp= | reference test, SDK 제외 |
+
+29개 initial asset은 단일 ownership manifest에 각각 기록한다. 기존 source/header를
+canonical Mathunits 구현으로 복사하지 않고 requirement, data, regression, compatibility
+또는 archive 중 하나의 disposition을 가진다.
+
+* Parent Mathunits 합류 Gate
+
+이 문서는 [[file:todo-mathunits.org][Mathunits 계획]]의 migration work package다.
+
+- TODO 1~2는 Mathunits TODO 1의 provenance/requirement 증거다.
+- TODO 3은 Mathunits TODO 2가 승인한 ABI 뒤에 실행한다.
+- TODO 4는 별도 public API를 구현하지 않고 Mathunits TODO 3의 canonical 구현에
+  migration corpus와 generated data를 합류한다.
+- 기존 =tools/unit_1003= compatibility/archive 종료는 전체 Header 리팩터링 8단계
+  Tool/reference 계획이 소유한다.
+
 * 실행 절차
 
 ** TODO 1. Source·data·license inventory를 동결한다
 *** 실행
 
-29개 header, source, test, ODS/deprecated 자료, copyright/license와 provenance를
+위 29개 header, source, test, ODS/deprecated 자료, copyright/license와 provenance를
 machine-readable manifest로 기록한다.
 
 *** 완료 조건
@@ -71,4 +126,3 @@ Unit_1003 source 없이 BYUL public build/test가 재현되고 provenance가 추
 
 C17/C++17 header, unit conversion, affine temperature, dimension algebra, profile table와
 clean checkout test를 실행한다.
-

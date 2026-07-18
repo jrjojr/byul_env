@@ -15,15 +15,35 @@
 
 * 문서 책임
 
-대상은 =byul/navsys/route/route.h= 하나다. 구현 =route.cpp=, route를 만들거나
-소비하는 모든 route-finder algorithm, module/root CMake inventory, native test,
-Python =route.py=와 =route_finder.py=, 설치 SDK consumer까지 함께 다룬다. 공통
-status, allocator, ownership, two-call buffer, ABI/static/shared/wrapper gate는
+대상은 =byul/navsys/route/route.h=와 구현 =route.cpp=다. 이 문서는 route result value,
+route builder, direction과 heading tracker의 선언·구현·ABI 및 Python =route.py= value
+wrapper만 소유한다. 공통 status, allocator, ownership, two-call buffer,
+ABI/static/shared/wrapper gate는
 [[file:todo-navsys-industry-api-baseline.org][Navsys 업계 API 기준]]을 따른다.
 
 이 문서는 route를 단순 좌표 list가 아니라 search 결과 value로 취급한다. 좌표열,
 완료 상태, cost, 통계, trace의 불변식을 먼저 정하고, 경로 편집은 별도 builder,
 시간에 따라 누적되는 heading 판정은 별도 state object로 분리한다.
+
+* 실행 소유권과 Consumer 합류 Gate
+
+- 이 문서는 route value/builder와 그 단위 test만 수정한다. 각 search algorithm의
+  route 생성 절차, finder adapter, finder config/callback과 =route_finder.py= 전환은
+  소유하지 않는다.
+- Route canonical API가 준비되면
+  [[file:todo-리팩토링-navsys-headers.org][Navsys Header 오케스트레이터]]의 root 통합에서
+  route-finder와 =navsys.cpp= consumer를 한 번에 전환한다. Consumer 전환을 이 문서와
+  개별 finder 문서에서 중복 실행하지 않는다.
+- Route 단위 assertion의 실제 파일은
+  =byul/navsys/route/tests/test_module_route.cpp=다.
+- Finder consumer 전환 assertion은 root 통합이
+  =byul/navsys/route_finder/tests/test_module_route_finder.cpp=,
+  =byul/navsys/route_finder/tests/test_module_route_finder_discrete.cpp=와
+  =byul/navsys/tests/test_module_navsys.cpp=에 추가한다.
+- Python route value/lifetime assertion은
+  =tools/python/byul_wrapper/tests/test_route.py=에 추가하고, finder wrapper consumer
+  assertion은 root 통합이
+  =tools/python/byul_wrapper/tests/test_route_finder.py=에 추가한다.
 
 * 조사한 현재 소비 경로
 
@@ -286,8 +306,9 @@ coordinate axis와 cost unit은 public contract test로 고정한다.
 - ABI 1.x에서는 enum 숫자, =s_route= size/align/field offset과 44개 symbol/signature를
   manifest로 동결한다. crash/누수는 동작 호환 범위 안에서 고치고 canonical API를 additive
   export한다.
-- repository algorithm은 먼저 builder/internal result writer와 public accessor로 이동한다.
-  public field direct access를 lint로 0건 만든 후 ABI 2에서 struct definition을 제거한다.
+- 이 문서는 builder/internal result writer와 public accessor를 제공한다. Repository
+  algorithm의 소비 전환과 public field direct access 제거는 root 통합이 수행하며, 그
+  결과가 0건인 것을 ABI 2 전환 Gate에서 확인한다.
 - module static target와 root shared target가 같은 implementation/header inventory 및 compile
   definition을 사용하고, legacy/canonical symbol이 shared DLL에 정확히 한 번 export되는지
   확인한다.
@@ -353,8 +374,8 @@ coordinate axis와 cost unit은 public contract test로 고정한다.
 - count/fetch/export, completion/cost query와 status형 clone을 additive하게 구현한다.
 - append/insert/remove/slice를 status형 builder operation으로 옮기고 join, range,
   self-operation, metadata recomputation 정책을 구현한다.
-- visited order/count/retry를 search stats/trace로 이동하고 algorithm이 route public field를
-  쓰지 않도록 internal writer를 제공한다.
+- visited order/count/retry를 route value에서 분리한 search stats/trace 계약과 internal
+  writer를 제공한다. Algorithm의 실제 write-path 전환은 root 통합에 인계한다.
 
 ** 완료 조건
 
@@ -418,12 +439,13 @@ coordinate axis와 cost unit은 public contract test로 고정한다.
 - static module/root shared 양쪽에서 canonical behavior를 실행하고 duplicate/missing symbol을
   검사한다.
 
-* TODO 6단계: Correctness, Wrapper와 배포 Gate
+* TODO 6단계: Route correctness, Wrapper와 배포 Gate
 
 ** 실행
 
-- native algorithm result가 canonical builder/result API만 사용하도록 전환하고
-  start==goal, partial, no-path, cancelled, limit/OOM 상태를 fixture화한다.
+- Route value/builder의 start==goal, partial, no-path, cancelled, limit/OOM 표현을
+  fixture화한다. Native algorithm 전환은 root 통합이 수행하며, 여기서는 canonical
+  builder/result API만 소비하는지 합류 Gate로 확인한다.
 - Python Route를 context manager/finalizer가 있는 owning object로 만들고 value fetch,
   exception/status mapping, parent retention과 closed-handle guard를 구현한다.
 - installed header의 direct-include self-containment, standard first header/license/guard/comment,

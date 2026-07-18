@@ -19,6 +19,23 @@
 Korf의 [[https://doi.org/10.1016/0004-3702(85)90084-0][Depth-First Iterative-Deepening:
 An Optimal Admissible Tree Search]]를 conformance 기준으로 삼는다.
 
+* 실행 소유권과 테스트 위치
+
+- 이 문서는 IDA* 구현·algorithm identity/conformance와 depth/transposition typed
+  config/default/validation만 소유한다.
+- 공통 evaluator와 callback binding은
+  [[file:todo-navsys-route-finder-route-finder-core.org][evaluation 문서]], facade/options/
+  capability와 config 합류는
+  [[file:todo-navsys-route-finder-route-finder.org][dispatcher 문서]]가 소유한다.
+- IDA* direct/conformance assertion의 실제 파일은 shared native test
+  =byul/navsys/route_finder/tests/test_module_route_finder_discrete.cpp=다.
+  Dispatcher heuristic/config 합류와 root consumer assertion은 각각
+  =byul/navsys/route_finder/tests/test_module_route_finder.cpp=와
+  =byul/navsys/tests/test_module_navsys.cpp=에서 해당 owner가 추가한다.
+- IDA* 문서는 Python에 필요한 config/status 기대값을 제공한다. 실제 wrapper consumer
+  assertion은 dispatcher/root 통합이
+  =tools/python/byul_wrapper/tests/test_route_finder.py=에 추가한다.
+
 * P0 Algorithm Identity 결함
 
 현재 구현은 각 threshold iteration마다 =cost_coord_pq_t= priority queue, =cost_so_far=,

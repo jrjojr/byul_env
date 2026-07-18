@@ -18,6 +18,18 @@
   [[https://weblog.jamisbuck.org/2010/12/27/maze-generation-recursive-backtracking.html][Jamis Buck reference]]를 기준으로 visited neighbor와 backtrack 종료를 검증한다.
 - 공통 status/options는 [[file:todo-navsys-industry-api-baseline.org][Navsys 업계 API 기준]]을 사용한다.
 
+* 책임 경계와 실제 검증 파일
+
+- 이 문서는 recursive-backtracker/iterative DFS algorithm state·materialization과 RNG 소비,
+  seed/replay, budget/cancel 구현을 소유한다.
+- resource/extent/enumeration/overlay primitive는 =maze_core=를 사용하고 재구현하지 않는다.
+  enum selection/options routing/capability 합류는 =maze= dispatcher가 소유하며 이 문서는
+  direct entry와 검증된 capability record만 제공한다.
+- 실제 maze native 검증 파일은 =byul/navsys/maze/tests/test_module_maze.cpp=,
+  =byul/navsys/maze/tests/test_module_maze_discrete.cpp=,
+  =byul/navsys/maze/tests/test_module_maze_room.cpp=다. Algorithm별 case는 이 공용 세 파일
+  중 책임에 맞는 파일에 둔다.
+
 * Public symbol inventory와 처분
 
 | kind | symbol | disposition |

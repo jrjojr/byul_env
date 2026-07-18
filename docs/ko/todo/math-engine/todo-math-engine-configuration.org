@@ -97,7 +97,7 @@ capability, numeric policy와 execution field만 읽는다.
 calculator   CAS, graph와 units를 검증하는 계산 workload
 simulation   낮은 지연부터 offline 고정밀까지의 수치 계산 정책
 finance      decimal exactness, scale, quantize와 audit
-cad          robust geometry, topology tolerance와 healing
+cad          기하 계산의 견고성, topology tolerance와 healing
 #+end_src
 
 게임, 과학, 로봇과 항공우주는 별도 제품 기능이 아니라 =simulation= named bundle의
@@ -107,7 +107,7 @@ caller 사용 사례 또는 domain template이다.
 
 #+begin_src text
 fast         제한된 시간 예산과 대량 계산 우선
-precision    오차, 수렴과 강건성 우선
+precision    오차, 수렴과 견고성 우선
 hybrid       fast 기본 경로와 조건부 precision refinement
 #+end_src
 
@@ -169,7 +169,7 @@ finance-audit
   math_profile=finance, backend=arbitrary_decimal, deterministic=true
 
 cad-robust
-  math_profile=cad, primary=f64, robust predicate와 topology tolerance
+  math_profile=cad, primary=f64, 견고한 기하 판정과 topology tolerance
 
 extended-precision
   resource=extended, backend=binary256/binary512/arbitrary 중 명시 선택
@@ -350,6 +350,24 @@ build와 runtime은 다음 정보를 조회할 수 있어야 한다.
 - 확장 정밀 계산이 무제한을 주장하지 않고 명시적 자원 예산을 가진다.
 - 금융이 이진 정밀도와 별개의 decimal/quantize 계약을 가진다.
 - caller가 resolved configuration fingerprint로 worksheet, replay와 audit 계산을 재현할 수 있다.
+
+* Context와 교차 실행 Gate
+
+이 계획은 [[file:todo-math-computation-context.org][계산 Context 계획]]의 field와 ABI를
+다시 설계하지 않는다. 실행 순서는 다음과 같다.
+
+#+begin_src text
+Context policy inventory
+-> Configuration stable id inventory
+-> Immutable context ABI
+-> Configuration schema/resolver
+-> Core component + context adapter
+-> Built-in profile
+-> Shared DLL configuration ABI
+#+end_src
+
+따라서 이 문서 TODO 2는 Context TODO 2 뒤, TODO 3은 Context TODO 3~4와 실제 component
+capability 뒤, TODO 4는 Build/ABI TODO 4~6과 전체 Header 리팩터링 9단계에서 실행한다.
 
 * 진행 조건
 

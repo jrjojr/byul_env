@@ -19,6 +19,22 @@
 - 공통 status/caller-buffer/callback/lifecycle은
   [[file:todo-navsys-industry-api-baseline.org][Navsys 업계 API 기준]]이 우선한다.
 
+* 공통 ABI 선행 Gate와 실제 Test 원본
+
+- [[file:todo-navsys-industry-api-baseline.org][공통 기준]] =TODO 1단계=의 status owner와 C symbol
+  namespace가 승인되어 =DONE=이 되기 전에는 아래 checked lifecycle, buffer와 overlay
+  target symbol을 구현하지 않는다.
+- =byul_grid_rect_t=, =byul_navgrid_merge_policy_t=와
+  =byul_navgrid_overlay_id_t=는 owner header/include DAG가 정해지지 않은 target draft
+  type이다. 문서의 이름을 근거로 Obstacle core나 Navgrid header가 먼저 소유하지 않는다.
+  Overlay callback/lifecycle과 buffer 결과는 공통 =TODO 2~3단계=에도 합류한다.
+- Declaration/definition/export baseline fixture는 준비할 수 있지만 기존 여섯 단계의
+  =TODO= 상태는 유지한다.
+- Obstacle core 전용 test source는 현재 없다. 실제 shared native test 원본
+  =byul/navsys/obstacle/tests/test_module_obstacle.cpp=에 lifecycle, extent, allocation
+  fault와 overlay case를 추가한다. 별도 파일로 분리하면
+  =byul/navsys/obstacle/tests/CMakeLists.txt=에 등록한다.
+
 * Public type·field inventory
 
 | kind | symbol | disposition |

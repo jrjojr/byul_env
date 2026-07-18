@@ -25,6 +25,22 @@ status/ownership/caller-buffer 정책은 [[file:todo-navsys-industry-api-baselin
 계약 오류는 value 반환 =pop_front/back= 문서가 불가능한 =NULL=을 약속하고 실제로는
 =(0,0)=을 반환한다는 점이다.
 
+* 공통 ABI 선행 Gate와 실제 Test 원본
+
+- Empty pop/find의 결과를 새 =NOT_FOUND=로 둘지 =INCOMPLETE=로 mapping할지는
+  [[file:todo-navsys-industry-api-baseline.org][공통 기준]] =TODO 1단계=의 Status 후보 합류 항목에서
+  결정한다. 이 문서에서 enum 값을 먼저 추가하지 않는다.
+- 공통 status owner와 C symbol namespace가 승인되어 =TODO 1단계=가 =DONE=이 되기
+  전에는 아래 =navsys_status_t= 함수와 관련 target draft를 header/source/export/wrapper에
+  구현하지 않는다. Allocator/lifecycle은 공통 =TODO 2단계=, caller-buffer 결과는 공통
+  =TODO 3단계= 계약도 따른다.
+- Target 선언은 review 초안이며 owner header와 namespace 승인 전 ABI 계약이 아니다.
+  기존 네 단계의 =TODO= 상태를 유지한다.
+- 전용 native test 원본은
+  =byul/navsys/coord/tests/test_module_coord_list.cpp=이다. Root 합류 fixture는
+  =byul/navsys/tests/test_module_navsys.cpp=에 추가하고, 새 source를 만들면
+  =byul/navsys/coord/tests/CMakeLists.txt=에 등록한다.
+
 * 현재 구현 근거
 
 - storage는 =std::vector<coord_t>=이고 list object만 opaque다.

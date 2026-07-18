@@ -21,6 +21,18 @@
 - 비교 implementation은 established roguelike C/C++ library인 [[https://github.com/libtcod/libtcod][libtcod 공식 저장소]]의
   map/path/BSP style 책임 분리와 Jamis Buck backtracker reference다.
 
+* 책임 경계와 실제 검증 파일
+
+- 이 문서는 Room Blend의 room placement·corridor·fill algorithm state·materialization과
+  모든 RNG stream 소비, seed/replay, budget/cancel 구현을 소유한다.
+- resource/extent/enumeration/overlay primitive는 =maze_core=를 사용하고 재구현하지 않는다.
+  enum selection/options routing/capability 합류는 =maze= dispatcher가 소유하며 이 문서는
+  direct entry와 검증된 capability record만 제공한다.
+- 실제 maze native 검증 파일은 =byul/navsys/maze/tests/test_module_maze.cpp=,
+  =byul/navsys/maze/tests/test_module_maze_discrete.cpp=,
+  =byul/navsys/maze/tests/test_module_maze_room.cpp=다. Algorithm별 case는 이 공용 세 파일
+  중 책임에 맞는 파일에 둔다.
+
 * Header public symbol/type inventory와 처분
 
 | kind | symbol | disposition | 이유 |
