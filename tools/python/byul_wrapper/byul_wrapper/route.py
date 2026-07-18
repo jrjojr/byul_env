@@ -81,6 +81,13 @@ typedef struct s_route route_t;
  const coord_t* route_get_coord_at(const route_t* p, int index);
  int   route_length(const route_t* p);
 
+ size_t route_get_coord_count(const route_t* route);
+
+ navsys_status_t route_fetch_coord(
+    const route_t* route,
+    size_t index,
+    coord_t* out_coord);
+
  navsys_status_t route_export_coords(
     const route_t* route,
     coord_t* output,
@@ -200,6 +207,21 @@ class c_route:
 
     def length(self):
         return C.route_length(self._c)
+
+    def coord_count(self):
+        return C.route_get_coord_count(self._c)
+
+    def fetch_coord(self, index):
+        """Return one coordinate value without borrowing native storage."""
+        output = ffi.new("coord_t*")
+        status = NavsysStatus(
+            C.route_fetch_coord(self._c, index, output)
+        )
+        if status is NavsysStatus.NOT_FOUND:
+            raise IndexError(index)
+        if status is not NavsysStatus.OK:
+            raise RuntimeError(f"route coordinate fetch failed: {status.name}")
+        return output.x, output.y
 
     def export_coords(self):
         """Return a caller-buffer snapshot as ``[(x, y), ...]``."""

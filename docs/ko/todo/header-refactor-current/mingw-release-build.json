@@ -3,9 +3,9 @@
   "profile": "windows-x64-mingw-release",
   "dll": {
     "name": "libbyul.dll",
-    "size": 844383,
-    "sha256": "2659636a465582b648e0d3f785e8f5e80dd4e1d753f425bb33d24c2b79029b80",
-    "export_count": 1353
+    "size": 844495,
+    "sha256": "1149c1fa3471862d2f3a3d33c2e9a11515863b2938eb8b7d67cb43c692fd0d7b",
+    "export_count": 1355
   },
   "exports": [
     {
@@ -4301,6 +4301,10 @@
       "type": "T"
     },
     {
+      "name": "route_fetch_coord",
+      "type": "T"
+    },
+    {
       "name": "route_find",
       "type": "T"
     },
@@ -4498,6 +4502,10 @@
     },
     {
       "name": "route_get_coord_at",
+      "type": "T"
+    },
+    {
+      "name": "route_get_coord_count",
       "type": "T"
     },
     {
@@ -5428,8 +5436,8 @@
     "files": [
       {
         "path": "bin/libbyul.dll",
-        "size": 844383,
-        "sha256": "2659636a465582b648e0d3f785e8f5e80dd4e1d753f425bb33d24c2b79029b80"
+        "size": 844495,
+        "sha256": "1149c1fa3471862d2f3a3d33c2e9a11515863b2938eb8b7d67cb43c692fd0d7b"
       },
       {
         "path": "bin/libgcc_s_seh-1.dll",
@@ -5533,8 +5541,8 @@
       },
       {
         "path": "bin/test_route.exe",
-        "size": 622856,
-        "sha256": "cbecd51961861f76b0ef74ccb81d5a4f58561a56737629d222e3b276617bb549"
+        "size": 630958,
+        "sha256": "061d79125049718a6f2485f211c8abf9a52bb074d5c7f193fe0d895c1803c5d4"
       },
       {
         "path": "bin/test_route_finder.exe",
@@ -5943,8 +5951,8 @@
       },
       {
         "path": "include/byul/route.h",
-        "size": 6450,
-        "sha256": "1f0192c9b1c817791a622a73415a6686407b89e974ef1e87085e566ba3b8825d"
+        "size": 7671,
+        "sha256": "b28c676556262d89800f823de407256a35d08e78f3d2d692933007f213797beb"
       },
       {
         "path": "include/byul/route_carver.h",
@@ -6008,8 +6016,8 @@
       },
       {
         "path": "lib/byul/libbyul.dll.a",
-        "size": 667394,
-        "sha256": "7bdfe2a77c30d95fa735c5eb63a7964ab2b1a452a4b5e6e1b8414808d2096a9e"
+        "size": 668712,
+        "sha256": "815849f09c14423f385a21f016504c8ba3982ab7db7d255ed25d542ba0b156c1"
       }
     ]
   },

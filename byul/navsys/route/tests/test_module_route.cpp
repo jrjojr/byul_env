@@ -72,6 +72,37 @@ TEST_CASE("route exports coordinates with two-call buffer semantics") {
     route_destroy(route);
 }
 
+TEST_CASE("route fetches coordinate values without exposing storage") {
+    route_t* route = route_create();
+    REQUIRE(route != nullptr);
+    const coord_t first = {7, 8};
+    const coord_t second = {9, 10};
+    REQUIRE(route_add_coord(route, &first) == 1);
+    REQUIRE(route_add_coord(route, &second) == 1);
+
+    CHECK(route_get_coord_count(route) == 2);
+    CHECK(route_get_coord_count(nullptr) == 0);
+
+    coord_t output = {-1, -2};
+    CHECK(route_fetch_coord(route, 1, &output) == NAVSYS_STATUS_OK);
+    CHECK(output.x == 9);
+    CHECK(output.y == 10);
+
+    output = {-3, -4};
+    CHECK(route_fetch_coord(route, 2, &output)
+        == NAVSYS_STATUS_NOT_FOUND);
+    CHECK(output.x == -3);
+    CHECK(output.y == -4);
+    CHECK(route_fetch_coord(nullptr, 0, &output)
+        == NAVSYS_STATUS_INVALID_ARGUMENT);
+    CHECK(output.x == -3);
+    CHECK(output.y == -4);
+    CHECK(route_fetch_coord(route, 0, nullptr)
+        == NAVSYS_STATUS_INVALID_ARGUMENT);
+
+    route_destroy(route);
+}
+
 TEST_CASE("route visited tracking") {
     route_t* p = route_create();
     coord_t* a = coord_create_full(5, 5);

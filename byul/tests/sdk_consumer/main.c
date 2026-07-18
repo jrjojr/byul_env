@@ -176,7 +176,13 @@ int main(void) {
     }
     size_t route_coord_count = 0;
     coord_t route_coords[2] = {{0, 0}, {0, 0}};
-    if (route_export_coords(route, NULL, 0, &route_coord_count)
+    coord_t fetched_coord = {-1, -1};
+    if (route_get_coord_count(route) != 1
+        || route_fetch_coord(route, 0, &fetched_coord)
+            != NAVSYS_STATUS_OK
+        || fetched_coord.x != 0
+        || fetched_coord.y != 0
+        || route_export_coords(route, NULL, 0, &route_coord_count)
             != NAVSYS_STATUS_OK
         || route_coord_count != 1
         || route_export_coords(

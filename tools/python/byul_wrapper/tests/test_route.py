@@ -11,9 +11,13 @@ class RouteTest(unittest.TestCase):
             route.add_coord(second)
 
             self.assertEqual(route.length(), 2)
+            self.assertEqual(route.coord_count(), 2)
             self.assertTrue(route.contains(first))
             self.assertEqual(route.coord_at(0).to_tuple(), (1, 1))
             self.assertEqual(route.last().to_tuple(), (2, 1))
+            self.assertEqual(route.fetch_coord(1), (2, 1))
+            with self.assertRaises(IndexError):
+                route.fetch_coord(2)
             self.assertEqual(route.export_coords(), [(1, 1), (2, 1)])
 
             route.clear_coords()

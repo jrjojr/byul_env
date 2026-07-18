@@ -110,6 +110,27 @@ int route_length(const route_t* p) {
     return p ? static_cast<int>(coord_list_length(p->coords)) : 0;
 }
 
+size_t route_get_coord_count(const route_t* route) {
+    return route ? static_cast<size_t>(route_length(route)) : 0;
+}
+
+navsys_status_t route_fetch_coord(
+    const route_t* route,
+    size_t index,
+    coord_t* out_coord) {
+    if (!route || !out_coord)
+        return NAVSYS_STATUS_INVALID_ARGUMENT;
+    if (index >= route_get_coord_count(route))
+        return NAVSYS_STATUS_NOT_FOUND;
+
+    const coord_t* coord =
+        route_get_coord_at(route, static_cast<int>(index));
+    if (!coord)
+        return NAVSYS_STATUS_CORRUPT_STATE;
+    *out_coord = *coord;
+    return NAVSYS_STATUS_OK;
+}
+
 navsys_status_t route_export_coords(
     const route_t* route,
     coord_t* output,

@@ -77,6 +77,43 @@ BYUL_API const coord_t* route_get_coord_at(const route_t* p, int index);
 BYUL_API int   route_length(const route_t* p);
 
 /**
+ * @brief route에 저장된 좌표 수를 반환한다.
+ *
+ * @param[in] route 조회할 route.
+ * @return 좌표 element 수. route가 NULL이면 0이다.
+ * @byul.nullable route true
+ * @byul.side_effect none
+ * @byul.thread_safety thread-compatible
+ * @byul.blocking false
+ * @byul.reentrant true
+ */
+BYUL_API size_t route_get_coord_count(const route_t* route);
+
+/**
+ * @brief 지정한 index의 좌표를 caller storage로 복사한다.
+ *
+ * 실패하면 out_coord를 변경하지 않는다.
+ *
+ * @param[in] route 조회할 route.
+ * @param[in] index 조회할 zero-based 좌표 index.
+ * @param[out] out_coord 좌표를 받을 caller storage.
+ * @return Common Navsys status value.
+ * @retval NAVSYS_STATUS_OK 좌표를 복사했다.
+ * @retval NAVSYS_STATUS_INVALID_ARGUMENT route 또는 out_coord가 NULL이다.
+ * @retval NAVSYS_STATUS_NOT_FOUND index가 좌표 범위를 벗어났다.
+ * @byul.nullable route false
+ * @byul.nullable out_coord false
+ * @byul.side_effect writes:out_coord-on-success
+ * @byul.thread_safety thread-compatible
+ * @byul.blocking false
+ * @byul.reentrant true
+ */
+BYUL_API navsys_status_t route_fetch_coord(
+    const route_t* route,
+    size_t index,
+    coord_t* out_coord);
+
+/**
  * @brief Copies route coordinates into caller-provided storage.
  *
  * Pass NULL output with zero capacity to query the required element count.

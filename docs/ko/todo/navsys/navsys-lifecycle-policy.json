@@ -101,7 +101,12 @@
       "workspace": "deferred-until-algorithms-expose-caller-storage"
     },
     "route_export_contract": {
+      "count_symbol": "route_get_coord_count",
+      "fetch_symbol": "route_fetch_coord",
       "symbol": "route_export_coords",
+      "fetch_success": "copies-one-coordinate-to-caller-storage",
+      "fetch_out_of_range": "not-found-and-preserve-output",
+      "fetch_invalid": "invalid-argument-and-preserve-output",
       "query": "null-output-and-zero-capacity-returns-ok-and-required-element-count",
       "complete": "copies-all-coordinates-and-returns-ok",
       "undersized": "copies-prefix-returns-incomplete-and-full-required-element-count",
