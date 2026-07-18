@@ -12,6 +12,14 @@ INVENTORY = (
     REPOSITORY_ROOT
     / "docs/ko/todo/navsys/navsys-current-abi-inventory.json"
 )
+ABI_SNAPSHOT = (
+    REPOSITORY_ROOT
+    / "docs/ko/todo/header-refactor-current/msvc-release-abi.json"
+)
+VOCABULARY = (
+    REPOSITORY_ROOT
+    / "docs/ko/todo/navsys/navsys-abi-vocabulary.json"
+)
 
 
 def load_json(path: Path) -> dict:
@@ -23,6 +31,8 @@ class NavsysLifecyclePolicyTest(unittest.TestCase):
     def setUpClass(cls):
         cls.policy = load_json(POLICY)
         cls.inventory = load_json(INVENTORY)
+        cls.abi_snapshot = load_json(ABI_SNAPSHOT)
+        cls.vocabulary = load_json(VOCABULARY)
 
     def test_every_inventory_resource_has_exactly_one_model(self):
         inventory_resources = {
@@ -123,6 +133,52 @@ class NavsysLifecyclePolicyTest(unittest.TestCase):
         self.assertEqual(
             "runtime-guarded-and-tested",
             abi_1["reentrancy_enforcement"]["dstar_lite"],
+        )
+
+    def test_abi_two_allocator_contract_is_failure_atomic(self):
+        abi_2 = self.policy["abi_2_policy"]
+        allocator = abi_2["allocator_binding"]
+
+        self.assertEqual("immutable-create-time-per-owner", allocator["scope"])
+        self.assertEqual("borrowed-by-BYUL", allocator["userdata_ownership"])
+        self.assertIn("deallocate-with-original-binding", allocator["operations"])
+        self.assertEqual(
+            "null-maps-to-NAVSYS_STATUS_OUT_OF_MEMORY",
+            allocator["allocation_failure"],
+        )
+        self.assertEqual(
+            -2,
+            self.vocabulary["status"]["values"][
+                "NAVSYS_STATUS_OUT_OF_MEMORY"
+            ],
+        )
+        self.assertEqual(
+            "preserve-all-output-pointers",
+            allocator["output_guarantee"],
+        )
+
+    def test_opaque_candidates_have_an_abi_one_layout_baseline(self):
+        abi_2 = self.policy["abi_2_policy"]
+        transition = abi_2["handle_transition"]
+        complete_types = {
+            row["name"] for row in self.abi_snapshot["types"]
+        }
+
+        self.assertEqual(
+            "docs/ko/todo/header-refactor-current/msvc-release-abi.json",
+            transition["abi_1_layout_snapshot"],
+        )
+        self.assertLessEqual(
+            set(abi_2["opaque_struct_candidates"]),
+            complete_types,
+        )
+        self.assertEqual(
+            "reject-before-first-object-operation",
+            transition["cross_major_loading"],
+        )
+        self.assertEqual(
+            "candidate-contract-frozen-implementation-pending",
+            abi_2["release_gates"]["current_state"],
         )
 
 

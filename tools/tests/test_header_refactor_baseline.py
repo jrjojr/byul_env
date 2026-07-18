@@ -155,6 +155,16 @@ class HeaderRefactorBaselineTest(unittest.TestCase):
         nested_fields, nested_skipped = ABI_PROBE.field_names(complete[0][0])
         self.assertEqual(("mode", "u"), nested_fields)
         self.assertEqual((), nested_skipped)
+        separated = ABI_PROBE.complete_typedefs(
+            "struct s_grid { int width; int height; }; "
+            "typedef struct s_grid grid_t; "
+            "typedef struct s_hidden hidden_t;",
+            "struct",
+        )
+        self.assertEqual([("grid_t", ("width", "height"))], [
+            (name, ABI_PROBE.field_names(body)[0])
+            for body, name in separated
+        ])
 
     def test_probe_output_parser(self):
         types, enums = ABI_PROBE.parse_probe(

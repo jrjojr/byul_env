@@ -41,6 +41,20 @@
       "skipped_field_declarations": []
     },
     {
+      "header": "controller.h",
+      "name": "controller_t",
+      "size": 40,
+      "align": 8,
+      "fields": {
+        "type": 0,
+        "impl": 8,
+        "compute": 16,
+        "reset": 24,
+        "userdata": 32
+      },
+      "skipped_field_declarations": []
+    },
+    {
       "header": "coord.h",
       "name": "coord_t",
       "size": 8,
@@ -494,6 +508,21 @@
       "skipped_field_declarations": []
     },
     {
+      "header": "navgrid.h",
+      "name": "navgrid_t",
+      "size": 40,
+      "align": 8,
+      "fields": {
+        "width": 0,
+        "height": 4,
+        "mode": 8,
+        "cell_map": 16,
+        "is_coord_blocked_fn": 24,
+        "is_coord_blocked_fn_userdata": 32
+      },
+      "skipped_field_declarations": []
+    },
+    {
       "header": "obstacle_core.h",
       "name": "obstacle_t",
       "size": 24,
@@ -583,6 +612,20 @@
         "impact_pos": 40,
         "bool_impacted": 52,
         "trajectory": 56
+      },
+      "skipped_field_declarations": []
+    },
+    {
+      "header": "projectile_core.h",
+      "name": "projectile_t",
+      "size": 168,
+      "align": 8,
+      "fields": {
+        "base": 0,
+        "damage": 144,
+        "attrs": 148,
+        "on_hit": 152,
+        "hit_userdata": 160
       },
       "skipped_field_declarations": []
     },
@@ -686,6 +729,24 @@
         "cost_fn_userdata": 56,
         "heuristic_fn": 64,
         "heuristic_fn_userdata": 72
+      },
+      "skipped_field_declarations": []
+    },
+    {
+      "header": "route.h",
+      "name": "route_t",
+      "size": 48,
+      "align": 8,
+      "fields": {
+        "coords": 0,
+        "visited_order": 8,
+        "visited_count": 16,
+        "cost": 24,
+        "success": 28,
+        "total_retry_count": 32,
+        "avg_vec_x": 36,
+        "avg_vec_y": 40,
+        "vec_count": 44
       },
       "skipped_field_declarations": []
     },
@@ -1009,7 +1070,6 @@
   ],
   "forward_or_opaque_declarations": [
     "byul_tick.h:tick_t",
-    "controller.h:controller_t",
     "coord_hash.h:coord_hash_iter_t",
     "coord_hash.h:coord_hash_t",
     "coord_list.h:coord_list_t",
@@ -1018,19 +1078,16 @@
     "entity_dynamic.h:motion_state_t",
     "environ.h:bodyprops_t",
     "environ.h:projectile_t",
-    "navgrid.h:navgrid_t",
     "projectile.h:projectile_result_t",
     "projectile.h:projectile_t",
-    "projectile_core.h:projectile_t",
-    "route.h:route_t",
     "strset.h:strset_t"
   ],
   "summary": {
-    "complete_types": 57,
-    "fields": 281,
+    "complete_types": 61,
+    "fields": 306,
     "skipped_field_declarations": 0,
     "enums": 14,
     "enumerators": 124,
-    "forward_or_opaque_declarations": 16
+    "forward_or_opaque_declarations": 12
   }
 }

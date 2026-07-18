@@ -38,7 +38,7 @@ CI의 일반 경로로 추론하지 않는다.
   2785개의 현재 회귀 snapshot
 - =msvc-release-build.json=: fresh Release DLL hash, export 976개와 clean install 파일
   113개의 snapshot
-- =msvc-release-abi.json=: complete type 57개, field 281개, enum 14개와 enumerator
+- =msvc-release-abi.json=: complete type 61개, field 306개, enum 14개와 enumerator
   124개의 layout/value snapshot
 - =header-role-manifest.json=: 기존 asset 135개, Navsys public =navsys_status.h=와
   Navgrid/D* Lite internal callback guard를 합친 asset 138개의 primary role,

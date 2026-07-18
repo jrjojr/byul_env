@@ -29,7 +29,34 @@
       "remove-split-callback-setters",
       "change-callback-signatures-to-navsys-status",
       "add-owned-callback-context-destructor"
-    ]
+    ],
+    "allocator_binding": {
+      "scope": "immutable-create-time-per-owner",
+      "operations": [
+        "allocate-size-and-alignment",
+        "deallocate-with-original-binding"
+      ],
+      "userdata_ownership": "borrowed-by-BYUL",
+      "userdata_lifetime": "create-through-owner-destroy",
+      "zero_size": "never-requested",
+      "alignment": "power-of-two-request-preserved",
+      "reallocate": "not-part-of-core-contract",
+      "allocation_failure": "null-maps-to-NAVSYS_STATUS_OUT_OF_MEMORY",
+      "output_guarantee": "preserve-all-output-pointers"
+    },
+    "handle_transition": {
+      "abi_1_layout_snapshot": "docs/ko/todo/header-refactor-current/msvc-release-abi.json",
+      "abi_2_public_form": "incomplete-struct-declaration-only",
+      "abi_1_fixture": "compile-and-run-with-abi-1-sdk-and-runtime-only",
+      "abi_2_fixture": "compile-and-run-with-abi-2-sdk-and-runtime-only",
+      "cross_major_loading": "reject-before-first-object-operation",
+      "diagnostic": "abi-major-and-header-fingerprint"
+    },
+    "release_gates": {
+      "allocator_failure_injection": "required-before-abi-2-release",
+      "old-layout-new-handle-consumers": "required-before-abi-2-release",
+      "current_state": "candidate-contract-frozen-implementation-pending"
+    }
   },
   "resource_models": [
     {"resource": "coord", "storage": "mixed-heap-and-trivial-caller-storage", "termination": "destroy-created-only"},
