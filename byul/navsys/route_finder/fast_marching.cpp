@@ -2,10 +2,11 @@
 
 #include "fast_marching.h"
 #include "navgrid.h"
-#include "coord.hpp"
+#include "coord.h"
 #include "coord_list.h"
 #include "coord_hash.h"
 #include "cost_coord_pq.h"
+#include <algorithm>
 #include <float.h>
 #include <cmath>
 #include <stdio.h>

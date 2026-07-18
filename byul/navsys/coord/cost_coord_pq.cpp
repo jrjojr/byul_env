@@ -1,5 +1,5 @@
 #include "cost_coord_pq.h"
-#include "coord.hpp"   // coord_t, coord_hash, coord_equal
+#include "coord.h"
 #include <map>
 #include <vector>
 #include <algorithm>

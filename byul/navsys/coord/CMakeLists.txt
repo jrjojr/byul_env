@@ -11,6 +11,7 @@ set(${PROJECT_NAME}_SOURCES
     ${CMAKE_CURRENT_SOURCE_DIR}/coord_hash.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/coord_list.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/cost_coord_pq.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/internal/coord_ops.hpp
 
 CACHE INTERNAL "${PROJECT_NAME} source files"  FORCE
 )

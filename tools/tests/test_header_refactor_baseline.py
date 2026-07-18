@@ -40,6 +40,24 @@ class HeaderRefactorBaselineTest(unittest.TestCase):
             len(rows), len({row["current_path"] for row in rows})
         )
 
+    def test_worktree_inventory_handles_header_replacement(self):
+        headers = BASELINE.tracked_headers()
+        paths = {BASELINE.relative(path) for path in headers}
+        self.assertIn(
+            "byul/navsys/coord/internal/coord_ops.hpp", paths
+        )
+        self.assertNotIn("byul/navsys/coord/coord.hpp", paths)
+        self.assertTrue(all(path.is_file() for path in headers))
+
+        row = next(
+            row
+            for row in self.manifest["headers"]
+            if row["current_path"]
+            == "byul/navsys/coord/internal/coord_ops.hpp"
+        )
+        self.assertEqual("private-implementation", row["role_candidate"])
+        self.assertEqual("internalize", row["naming_disposition"])
+
     def test_every_row_has_required_baseline_fields(self):
         required = {
             "asset_id",

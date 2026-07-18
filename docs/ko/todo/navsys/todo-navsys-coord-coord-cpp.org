@@ -133,7 +133,7 @@ struct coord_hash final {
 
 * 구현 순서
 
-** TODO 1단계: 실제 public 여부와 소비자 확정
+** DONE 1단계: 실제 public 여부와 소비자 확정
 
 *** 실행
 
@@ -151,7 +151,7 @@ struct coord_hash final {
 - clean install tree에 이 파일이 포함되는지 자동 검사한다.
 - 일곱 선언 이름의 repository consumer report를 보존한다.
 
-** TODO 2단계: value 기반 detail functor 도입
+** DONE 2단계: value 기반 detail functor 도입
 
 *** 실행
 
@@ -169,7 +169,7 @@ struct coord_hash final {
   경계 좌표에 대해 실행한다.
 - C++17 두 translation unit ODR/link test를 실행한다.
 
-** TODO 3단계: 호출부와 build inventory 전환
+** DONE 3단계: 호출부와 build inventory 전환
 
 *** 실행
 
@@ -186,7 +186,7 @@ struct coord_hash final {
 - module static/root shared 전체 build와 clean installed SDK file inventory를 비교한다.
 - forbidden-symbol source scan을 CI gate로 실행한다.
 
-** TODO 4단계: 기존 path 종료
+** DONE 4단계: 기존 path 종료
 
 *** 실행
 
@@ -203,3 +203,21 @@ struct coord_hash final {
 
 - old source fixture(필요 시), 새 internal source, 설치 SDK consumer를 각각 build한다.
 - header audit와 =git diff --check=를 통과한다.
+
+** 완료 기록
+
+- 2026-07-18: repository 전수 검색에서 =coord.hpp= 소비자는 production source
+  15개뿐이었고 external/test consumer는 없었다. 기준선과 새 clean install 모두 해당
+  파일을 포함하지 않았다.
+- =byul/navsys/coord/internal/coord_ops.hpp=에 by-value =coord_equal=,
+  =coord_less=, =coord_hash=를 도입하고 =coord_hash.cpp=의
+  =std::unordered_map=에 hasher/equality를 명시했다. pointer functor, global operator와
+  =std::hash<coord_t>= specialization은 제거했다.
+- 나머지 production consumer 14개는 직접 =coord.h=를 include하도록 전환했다.
+  이 과정에서 발견한 =fast_marching.cpp=의 transitive =<algorithm>= 의존도 직접
+  include로 교정했다.
+- MSVC Release =test_coord=와 root shared target build, CTest 19개, 새 clean install,
+  installed SDK C consumer를 통과했다. clean install에는 legacy =coord.hpp=와
+  =internal/coord_ops.hpp=가 모두 없었다.
+- DLL export name/ordinal 972개와 installed-header ABI snapshot의 complete type 57개,
+  field 281개, enum 13개와 enumerator 111개가 기준선과 동일했다.
