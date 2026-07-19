@@ -270,6 +270,53 @@ bool verify_cost_coord_pq_checked_allocation_failure() {
         return false;
     }
 
+    if (cost_coord_pq_push_ex(queue, 2.0f, &coord)
+        != NAVSYS_STATUS_OK) {
+        cost_coord_pq_destroy(queue);
+        return false;
+    }
+    track_allocations = true;
+    fail_after = 0;
+    const navsys_status_t pop_status =
+        cost_coord_pq_pop_min(queue, &output_cost, &output_coord);
+    fail_after = -1;
+    track_allocations = false;
+    if (pop_status != NAVSYS_STATUS_OK
+        || output_cost != 2.0f
+        || output_coord.x != coord.x
+        || output_coord.y != coord.y
+        || tracked_live_allocations != baseline) {
+        std::fprintf(
+            stderr,
+            "cost_coord_pq_pop_min unexpectedly allocated output storage\n");
+        cost_coord_pq_destroy(queue);
+        return false;
+    }
+
+    cost_coord_pq_push(queue, 3.0f, &coord);
+    track_allocations = true;
+    coord_t* legacy_output = cost_coord_pq_pop(queue);
+    track_allocations = false;
+    if (!legacy_output
+        || legacy_output->x != coord.x
+        || legacy_output->y != coord.y
+        || tracked_live_allocations != baseline + 1) {
+        std::fprintf(
+            stderr,
+            "cost_coord_pq_pop did not return one caller-owned allocation\n");
+        coord_destroy(legacy_output);
+        cost_coord_pq_destroy(queue);
+        return false;
+    }
+    coord_destroy(legacy_output);
+    if (tracked_live_allocations != baseline) {
+        std::fprintf(
+            stderr,
+            "coord_destroy did not release legacy cost_coord_pq_pop output\n");
+        cost_coord_pq_destroy(queue);
+        return false;
+    }
+
     cost_coord_pq_destroy(queue);
     return true;
 }

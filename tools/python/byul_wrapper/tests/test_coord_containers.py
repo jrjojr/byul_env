@@ -261,6 +261,71 @@ class CostCoordPriorityQueueTest(unittest.TestCase):
             self.assertTrue(queue.remove(1.5, coord))
             self.assertTrue(queue.is_empty())
 
+    def test_atomic_fifo_values_survive_mutation_close_and_gc(self):
+        queue = c_cost_coord_pq()
+        with c_coord(1, 2) as first, c_coord(3, 4) as second:
+            queue.push(1.5, first)
+            queue.push(1.5, second)
+
+        peek_cost, peek_coord = queue.peek()
+        first_cost, first_coord = queue.pop()
+        second_cost, second_coord = queue.pop_min()
+        self.assertEqual((peek_cost, peek_coord.to_tuple()), (1.5, (1, 2)))
+        self.assertEqual((first_cost, first_coord.to_tuple()), (1.5, (1, 2)))
+        self.assertEqual((second_cost, second_coord.to_tuple()), (1.5, (3, 4)))
+
+        parent_ref = weakref.ref(queue)
+        queue.close()
+        del queue
+        gc.collect()
+        self.assertIsNone(parent_ref())
+        self.assertEqual(peek_coord.to_tuple(), (1, 2))
+        self.assertEqual(first_coord.to_tuple(), (1, 2))
+        self.assertEqual(second_coord.to_tuple(), (3, 4))
+        peek_coord.close()
+        first_coord.close()
+        second_coord.close()
+
+    def test_empty_and_invalid_cost_contracts(self):
+        with c_cost_coord_pq() as queue, c_coord(2, 3) as coord:
+            self.assertIsNone(queue.peek())
+            self.assertIsNone(queue.peek_cost())
+            with self.assertRaises(IndexError):
+                queue.pop()
+            for cost in (-1.0, float("inf"), float("-inf"), float("nan")):
+                with self.subTest(cost=cost):
+                    with self.assertRaises(NavsysInvalidArgumentError):
+                        queue.push(cost, coord)
+
+    def test_bulk_mutation_trim_and_clear(self):
+        with (
+            c_coord(2, 3) as duplicate,
+            c_coord(8, 9) as other,
+            c_cost_coord_pq() as queue,
+        ):
+            queue.push(1.0, duplicate)
+            queue.push(2.0, duplicate)
+            queue.push(3.0, other)
+            self.assertEqual(queue.remove_all(duplicate), 2)
+            self.assertEqual(queue.trim_to_size(0), 1)
+            self.assertTrue(queue.is_empty())
+
+            queue.push(1.0, duplicate)
+            queue.push(2.0, other)
+            self.assertEqual(queue.trim_worst(1), 1)
+            self.assertEqual(len(queue), 1)
+            queue.clear()
+            self.assertTrue(queue.is_empty())
+
+    def test_close_invalidates_public_access(self):
+        queue = c_cost_coord_pq()
+        queue.close()
+        queue.close()
+        with self.assertRaises(ReferenceError):
+            len(queue)
+        with self.assertRaises(ReferenceError):
+            queue.ptr()
+
 
 class RouteFunctionRegistryTest(unittest.TestCase):
     def test_registers_and_resolves_functions(self):
