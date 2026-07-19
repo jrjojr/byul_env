@@ -1,0 +1,89 @@
+{
+  "schema_version": 1,
+  "evidence_kind": "navsys-header-refactor-stage-0-closure",
+  "validated_revision": "15068cca8a9e90c108d0a71791e77b2337b0c57a",
+  "host": "windows-11-x64",
+  "python": "3.13",
+  "rules": {
+    "revision": "642275431efe0d87f4fc3856ef326d6fdfbb0aba",
+    "files": 60,
+    "errors": 0,
+    "warnings": 0,
+    "command": [
+      "external/rules/validate_rules.bat"
+    ]
+  },
+  "header_baseline": {
+    "headers": 138,
+    "byul_headers": 107,
+    "tools_headers": 31,
+    "root_headers": 93,
+    "decision_required": 14,
+    "status": "current",
+    "command": [
+      "tools/python/.venv/Scripts/python.exe",
+      "tools/header_refactor_baseline.py",
+      "--check"
+    ]
+  },
+  "navsys_inventory": {
+    "headers": 46,
+    "symbols": 453,
+    "owner_todos": 44,
+    "child_owner_todos": 43,
+    "status": "current",
+    "command": [
+      "tools/python/.venv/Scripts/python.exe",
+      "tools/navsys_abi_inventory.py",
+      "--check"
+    ]
+  },
+  "stage0_boundary": {
+    "dependency_edges": 38,
+    "unclassified_dependency_edges": 0,
+    "wrapper_reference_symbols": 265,
+    "missing_cdef": 16,
+    "missing_export": 2,
+    "unclassified_wrapper_findings": 0,
+    "artifact": "docs/ko/todo/navsys/navsys-stage0-boundary-baseline.json",
+    "command": [
+      "tools/python/.venv/Scripts/python.exe",
+      "tools/navsys_stage0_audit.py",
+      "--check"
+    ]
+  },
+  "header_abi": {
+    "toolchains": [
+      "msvc-19.44.35214.0",
+      "mingw-gcc-16.1.0"
+    ],
+    "manifest_headers": 138,
+    "public_c_headers": 95,
+    "public_declarations": 968,
+    "invariant_errors": 0,
+    "approved_invariant_exclusions": 15,
+    "known_debt": 3052,
+    "new_or_strict_debt": 0,
+    "errors": 0,
+    "abi_fingerprint_sha256": "a9e9596779c5dcc3ead4f3cae5fad09d81787fd48c0dceb59cddbe1f9d4ea56f"
+  },
+  "wrapper": {
+    "generated_declarations": "current",
+    "unit_tests": 25,
+    "unit_tests_failed": 0,
+    "msvc_library_tests": 59,
+    "msvc_library_tests_failed": 0,
+    "library": "build_win_msvc/bin/Release/byul.dll"
+  },
+  "conformance": {
+    "evidence_records": 18,
+    "tool_tests": 66,
+    "tool_tests_failed": 0
+  },
+  "limitations": [
+    "The 3052 approved metadata and structural debt findings remain assigned migration debt; stage 0 proves that no new or strict debt was introduced.",
+    "The 16 missing-cdef and 2 missing-export findings are frozen and assigned to child owners; they are not claimed as resolved.",
+    "The runtime wrapper execution used the MSVC root DLL. MinGW root, module, SDK and ABI results are preserved in the common conformance evidence tree.",
+    "Windows sanitizer instrumentation was not applied."
+  ]
+}

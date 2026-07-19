@@ -3327,6 +3327,7 @@
         "byul/navsys/route_finder/sma_star.cpp",
         "byul/navsys/route_finder/tests/test_module_route_finder.cpp",
         "byul/navsys/route_finder/tests/test_module_route_finder_discrete.cpp",
+        "byul/navsys/route_finder/tests/test_route_finder_performance_gate.cpp",
         "byul/navsys/route_finder/weighted_astar.cpp",
         "byul/navsys/tests/test_module_navsys.cpp",
         "byul/navsys/tests/test_module_route_carver.cpp",
@@ -3667,6 +3668,7 @@
         "byul/navsys/route_finder/sma_star.cpp",
         "byul/navsys/route_finder/tests/test_module_route_finder.cpp",
         "byul/navsys/route_finder/tests/test_module_route_finder_discrete.cpp",
+        "byul/navsys/route_finder/tests/test_route_finder_performance_gate.cpp",
         "byul/navsys/route_finder/weighted_astar.cpp",
         "byul/navsys/tests/test_module_navsys.cpp",
         "byul/tests/sdk_consumer/main.c"
@@ -4131,6 +4133,7 @@
         "byul/navsys/navsys.cpp",
         "byul/navsys/route_finder/route_finder.cpp",
         "byul/navsys/route_finder/tests/test_module_route_finder.cpp",
+        "byul/navsys/route_finder/tests/test_route_finder_performance_gate.cpp",
         "byul/navsys/tests/test_module_navsys.cpp",
         "byul/navsys/tests/test_navsys_allocation_failure.cpp",
         "byul/tests/sdk_consumer/main.c"
