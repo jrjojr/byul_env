@@ -184,7 +184,7 @@ class NavsysLifecyclePolicyTest(unittest.TestCase):
             injection["fixture"],
         )
         self.assertEqual(
-            {"navgrid", "route_finder", "dstar_lite"},
+            {"coord", "navgrid", "route_finder", "dstar_lite"},
             set(injection["owners"]),
         )
         self.assertEqual({"msvc", "mingw"}, set(injection["toolchains"]))

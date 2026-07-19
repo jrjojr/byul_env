@@ -4,7 +4,7 @@
   "source_vocabulary": "docs/ko/todo/navsys/navsys-abi-vocabulary.json",
   "summary": {
     "headers": 46,
-    "symbols": 453,
+    "symbols": 466,
     "return_forms": {
       "nullable_pointer": 148,
       "bool_predicate": 21,
@@ -13,7 +13,7 @@
       "int_count": 15,
       "int_index_minus_one": 4,
       "void_fallible_operation": 136,
-      "enum_result": 51,
+      "enum_result": 64,
       "floating_result": 19,
       "callback_return": 0
     },
@@ -34,7 +34,7 @@
       "unnamed-parameter": 30
     },
     "lifecycle_resources": 21,
-    "lifecycle_operations": 76,
+    "lifecycle_operations": 78,
     "callback_bindings": 7
   },
   "known_debt": {
@@ -8560,13 +8560,26 @@
       "owner_todo": "docs/ko/todo/navsys/todo-navsys-coord-coord.org",
       "primary_role": "public-component",
       "wrapper_mode": "generated",
-      "symbol_count": 37,
+      "symbol_count": 50,
       "audit_issue_count": 79,
       "symbols": [
         "coord_sizeof",
         "coord_alignof",
         "coord_offsetof_x",
         "coord_offsetof_y",
+        "coord_init_checked",
+        "coord_create_checked",
+        "coord_copy_checked",
+        "coord_add_checked",
+        "coord_sub_checked",
+        "coord_mul_checked",
+        "coord_div_checked",
+        "coord_compare_canonical",
+        "coord_distance_f64",
+        "coord_manhattan_distance_i64",
+        "coord_angle_rad",
+        "coord_angle_deg",
+        "coord_step_toward",
         "coord_create_full",
         "coord_create",
         "coord_destroy",
@@ -9496,6 +9509,110 @@
       "signature": "size_t coord_offsetof_y(void);",
       "return_form": "int_count",
       "canonical": "navsys_status_t plus out_count"
+    },
+    {
+      "header": "byul/navsys/coord/coord.h",
+      "name": "coord_init_checked",
+      "return_type": "navsys_status_t",
+      "signature": "navsys_status_t coord_init_checked( coord_t* out_coord, int32_t x, int32_t y);",
+      "return_form": "enum_result",
+      "canonical": "navsys_status_t plus typed out enum"
+    },
+    {
+      "header": "byul/navsys/coord/coord.h",
+      "name": "coord_create_checked",
+      "return_type": "navsys_status_t",
+      "signature": "navsys_status_t coord_create_checked( int32_t x, int32_t y, coord_t** out_coord);",
+      "return_form": "enum_result",
+      "canonical": "navsys_status_t plus typed out enum"
+    },
+    {
+      "header": "byul/navsys/coord/coord.h",
+      "name": "coord_copy_checked",
+      "return_type": "navsys_status_t",
+      "signature": "navsys_status_t coord_copy_checked( const coord_t* source, coord_t** out_coord);",
+      "return_form": "enum_result",
+      "canonical": "navsys_status_t plus typed out enum"
+    },
+    {
+      "header": "byul/navsys/coord/coord.h",
+      "name": "coord_add_checked",
+      "return_type": "navsys_status_t",
+      "signature": "navsys_status_t coord_add_checked( coord_t* out, const coord_t* a, const coord_t* b);",
+      "return_form": "enum_result",
+      "canonical": "navsys_status_t plus typed out enum"
+    },
+    {
+      "header": "byul/navsys/coord/coord.h",
+      "name": "coord_sub_checked",
+      "return_type": "navsys_status_t",
+      "signature": "navsys_status_t coord_sub_checked( coord_t* out, const coord_t* a, const coord_t* b);",
+      "return_form": "enum_result",
+      "canonical": "navsys_status_t plus typed out enum"
+    },
+    {
+      "header": "byul/navsys/coord/coord.h",
+      "name": "coord_mul_checked",
+      "return_type": "navsys_status_t",
+      "signature": "navsys_status_t coord_mul_checked( coord_t* out, const coord_t* a, int32_t scalar);",
+      "return_form": "enum_result",
+      "canonical": "navsys_status_t plus typed out enum"
+    },
+    {
+      "header": "byul/navsys/coord/coord.h",
+      "name": "coord_div_checked",
+      "return_type": "navsys_status_t",
+      "signature": "navsys_status_t coord_div_checked( coord_t* out, const coord_t* a, int32_t scalar);",
+      "return_form": "enum_result",
+      "canonical": "navsys_status_t plus typed out enum"
+    },
+    {
+      "header": "byul/navsys/coord/coord.h",
+      "name": "coord_compare_canonical",
+      "return_type": "navsys_status_t",
+      "signature": "navsys_status_t coord_compare_canonical( const coord_t* a, const coord_t* b, int* out_order);",
+      "return_form": "enum_result",
+      "canonical": "navsys_status_t plus typed out enum"
+    },
+    {
+      "header": "byul/navsys/coord/coord.h",
+      "name": "coord_distance_f64",
+      "return_type": "navsys_status_t",
+      "signature": "navsys_status_t coord_distance_f64( const coord_t* a, const coord_t* b, double* out_distance);",
+      "return_form": "enum_result",
+      "canonical": "navsys_status_t plus typed out enum"
+    },
+    {
+      "header": "byul/navsys/coord/coord.h",
+      "name": "coord_manhattan_distance_i64",
+      "return_type": "navsys_status_t",
+      "signature": "navsys_status_t coord_manhattan_distance_i64( const coord_t* a, const coord_t* b, int64_t* out_distance);",
+      "return_form": "enum_result",
+      "canonical": "navsys_status_t plus typed out enum"
+    },
+    {
+      "header": "byul/navsys/coord/coord.h",
+      "name": "coord_angle_rad",
+      "return_type": "navsys_status_t",
+      "signature": "navsys_status_t coord_angle_rad( const coord_t* from, const coord_t* to, double* out_angle);",
+      "return_form": "enum_result",
+      "canonical": "navsys_status_t plus typed out enum"
+    },
+    {
+      "header": "byul/navsys/coord/coord.h",
+      "name": "coord_angle_deg",
+      "return_type": "navsys_status_t",
+      "signature": "navsys_status_t coord_angle_deg( const coord_t* from, const coord_t* to, double* out_angle);",
+      "return_form": "enum_result",
+      "canonical": "navsys_status_t plus typed out enum"
+    },
+    {
+      "header": "byul/navsys/coord/coord.h",
+      "name": "coord_step_toward",
+      "return_type": "navsys_status_t",
+      "signature": "navsys_status_t coord_step_toward( const coord_t* start, const coord_t* goal, coord_t* out_next);",
+      "return_form": "enum_result",
+      "canonical": "navsys_status_t plus typed out enum"
     },
     {
       "header": "byul/navsys/coord/coord.h",
@@ -13098,6 +13215,30 @@
           {
             "header": "byul/navsys/coord/coord.h",
             "resource": "coord",
+            "operation": "init",
+            "symbol": "coord_init_checked",
+            "return_type": "navsys_status_t",
+            "parameters": [
+              "coord_t* out_coord",
+              "int32_t x",
+              "int32_t y"
+            ]
+          },
+          {
+            "header": "byul/navsys/coord/coord.h",
+            "resource": "coord",
+            "operation": "create",
+            "symbol": "coord_create_checked",
+            "return_type": "navsys_status_t",
+            "parameters": [
+              "int32_t x",
+              "int32_t y",
+              "coord_t** out_coord"
+            ]
+          },
+          {
+            "header": "byul/navsys/coord/coord.h",
+            "resource": "coord",
             "operation": "create",
             "symbol": "coord_create_full",
             "return_type": "coord_t*",
@@ -14089,6 +14230,30 @@
       }
     ],
     "operations": [
+      {
+        "header": "byul/navsys/coord/coord.h",
+        "resource": "coord",
+        "operation": "init",
+        "symbol": "coord_init_checked",
+        "return_type": "navsys_status_t",
+        "parameters": [
+          "coord_t* out_coord",
+          "int32_t x",
+          "int32_t y"
+        ]
+      },
+      {
+        "header": "byul/navsys/coord/coord.h",
+        "resource": "coord",
+        "operation": "create",
+        "symbol": "coord_create_checked",
+        "return_type": "navsys_status_t",
+        "parameters": [
+          "int32_t x",
+          "int32_t y",
+          "coord_t** out_coord"
+        ]
+      },
       {
         "header": "byul/navsys/coord/coord.h",
         "resource": "coord",

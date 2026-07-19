@@ -149,7 +149,7 @@ add_test(
     COMMAND "${CMAKE_COMMAND}"
         "-DTEST_EXECUTABLE=$<TARGET_FILE:test_navsys_allocation_failure>"
         "-DTEST_ARGUMENT=--inject-route-finder-leak"
-        "-DEXPECTED_EXIT_CODE=3"
+        "-DEXPECTED_EXIT_CODE=5"
         "-DEXPECTED_PATTERN=route_finder create leaked allocations"
         -P "${CMAKE_CURRENT_SOURCE_DIR}/expect_process_failure.cmake"
 )

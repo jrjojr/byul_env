@@ -10,6 +10,11 @@ byul_apply_common_settings()
 # -----------------------------------------------------------------------------
 include(CTest)
 
+# Third-party implementation files stay in Git submodules. This directory-wide
+# include keeps the existing test sources' `#include "doctest.h"` contract.
+set(BYUL_EXTERNAL_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../external")
+include_directories(BEFORE "${BYUL_EXTERNAL_DIR}/doctest-2.4.12/doctest")
+
 # -----------------------------------------------------------------------------
 # Add modules
 # -----------------------------------------------------------------------------
@@ -93,6 +98,7 @@ byul_extract_header_dirs(BYUL_HEADER_DIRS
 # -----------------------------------------------------------------------------
 target_include_directories(${PROJECT_NAME} PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}
+    ${EXTERNAL_DIR}/eigen-3.4.0
     ${EXTERNAL_DIR}
     ${BYUL_HEADER_DIRS}
 )

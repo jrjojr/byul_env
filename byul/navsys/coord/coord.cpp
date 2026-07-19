@@ -1,11 +1,32 @@
 #include "coord.h"
 #include <cmath>
+#include <cstdint>
 #include <cstdlib>
+#include <new>
 #include <stdio.h>
-// #include "scalar.h"
 
 namespace {
 constexpr double kPi = 3.14159265358979323846;
+
+bool coord_component_is_valid(std::int64_t value) noexcept {
+    return value >= BYUL_COORD_COMPONENT_MIN
+        && value <= BYUL_COORD_COMPONENT_MAX;
+}
+
+bool coord_components_are_valid(const coord_t& coord) noexcept {
+    return coord_component_is_valid(coord.x)
+        && coord_component_is_valid(coord.y);
+}
+
+navsys_status_t coord_commit_checked(
+    coord_t* out, std::int64_t x, std::int64_t y) noexcept {
+    if (!out || !coord_component_is_valid(x) || !coord_component_is_valid(y)) {
+        return NAVSYS_STATUS_INVALID_ARGUMENT;
+    }
+    out->x = static_cast<int>(x);
+    out->y = static_cast<int>(y);
+    return NAVSYS_STATUS_OK;
+}
 }
 
 // ------------------------ Internal Utilities ------------------------
@@ -36,6 +57,221 @@ size_t coord_offsetof_x(void) {
 
 size_t coord_offsetof_y(void) {
     return offsetof(coord_t, y);
+}
+
+// ------------------------ Checked Value API ------------------------
+
+navsys_status_t coord_init_checked(
+    coord_t* out_coord, int32_t x, int32_t y) {
+    return coord_commit_checked(out_coord, x, y);
+}
+
+navsys_status_t coord_create_checked(
+    int32_t x, int32_t y, coord_t** out_coord) {
+    if (!out_coord
+        || !coord_component_is_valid(x)
+        || !coord_component_is_valid(y)) {
+        return NAVSYS_STATUS_INVALID_ARGUMENT;
+    }
+
+    try {
+        coord_t* result = new coord_t{
+            static_cast<int>(x),
+            static_cast<int>(y)
+        };
+        *out_coord = result;
+        return NAVSYS_STATUS_OK;
+    } catch (const std::bad_alloc&) {
+        return NAVSYS_STATUS_OUT_OF_MEMORY;
+    } catch (...) {
+        return NAVSYS_STATUS_OUT_OF_MEMORY;
+    }
+}
+
+navsys_status_t coord_copy_checked(
+    const coord_t* source, coord_t** out_coord) {
+    if (!source || !out_coord) {
+        return NAVSYS_STATUS_INVALID_ARGUMENT;
+    }
+
+    const coord_t snapshot = *source;
+    try {
+        coord_t* result = new coord_t{snapshot.x, snapshot.y};
+        *out_coord = result;
+        return NAVSYS_STATUS_OK;
+    } catch (const std::bad_alloc&) {
+        return NAVSYS_STATUS_OUT_OF_MEMORY;
+    } catch (...) {
+        return NAVSYS_STATUS_OUT_OF_MEMORY;
+    }
+}
+
+navsys_status_t coord_add_checked(
+    coord_t* out, const coord_t* a, const coord_t* b) {
+    if (!out || !a || !b) {
+        return NAVSYS_STATUS_INVALID_ARGUMENT;
+    }
+    const coord_t lhs = *a;
+    const coord_t rhs = *b;
+    if (!coord_components_are_valid(lhs)
+        || !coord_components_are_valid(rhs)) {
+        return NAVSYS_STATUS_INVALID_ARGUMENT;
+    }
+    return coord_commit_checked(
+        out,
+        static_cast<std::int64_t>(lhs.x) + rhs.x,
+        static_cast<std::int64_t>(lhs.y) + rhs.y);
+}
+
+navsys_status_t coord_sub_checked(
+    coord_t* out, const coord_t* a, const coord_t* b) {
+    if (!out || !a || !b) {
+        return NAVSYS_STATUS_INVALID_ARGUMENT;
+    }
+    const coord_t lhs = *a;
+    const coord_t rhs = *b;
+    if (!coord_components_are_valid(lhs)
+        || !coord_components_are_valid(rhs)) {
+        return NAVSYS_STATUS_INVALID_ARGUMENT;
+    }
+    return coord_commit_checked(
+        out,
+        static_cast<std::int64_t>(lhs.x) - rhs.x,
+        static_cast<std::int64_t>(lhs.y) - rhs.y);
+}
+
+navsys_status_t coord_mul_checked(
+    coord_t* out, const coord_t* a, int32_t scalar) {
+    if (!out || !a) {
+        return NAVSYS_STATUS_INVALID_ARGUMENT;
+    }
+    const coord_t input = *a;
+    if (!coord_components_are_valid(input)) {
+        return NAVSYS_STATUS_INVALID_ARGUMENT;
+    }
+    return coord_commit_checked(
+        out,
+        static_cast<std::int64_t>(input.x) * scalar,
+        static_cast<std::int64_t>(input.y) * scalar);
+}
+
+navsys_status_t coord_div_checked(
+    coord_t* out, const coord_t* a, int32_t scalar) {
+    if (!out || !a || scalar == 0) {
+        return NAVSYS_STATUS_INVALID_ARGUMENT;
+    }
+    const coord_t input = *a;
+    if (!coord_components_are_valid(input)) {
+        return NAVSYS_STATUS_INVALID_ARGUMENT;
+    }
+    return coord_commit_checked(
+        out,
+        static_cast<std::int64_t>(input.x) / scalar,
+        static_cast<std::int64_t>(input.y) / scalar);
+}
+
+navsys_status_t coord_compare_canonical(
+    const coord_t* a, const coord_t* b, int* out_order) {
+    if (!a || !b || !out_order) {
+        return NAVSYS_STATUS_INVALID_ARGUMENT;
+    }
+
+    int order = 0;
+    if (a->x < b->x || (a->x == b->x && a->y < b->y)) {
+        order = -1;
+    } else if (a->x > b->x || (a->x == b->x && a->y > b->y)) {
+        order = 1;
+    }
+    *out_order = order;
+    return NAVSYS_STATUS_OK;
+}
+
+navsys_status_t coord_distance_f64(
+    const coord_t* a, const coord_t* b, double* out_distance) {
+    if (!a || !b || !out_distance) {
+        return NAVSYS_STATUS_INVALID_ARGUMENT;
+    }
+    const std::int64_t dx =
+        static_cast<std::int64_t>(b->x) - a->x;
+    const std::int64_t dy =
+        static_cast<std::int64_t>(b->y) - a->y;
+    const double result = std::hypot(
+        static_cast<double>(dx),
+        static_cast<double>(dy));
+    *out_distance = result;
+    return NAVSYS_STATUS_OK;
+}
+
+navsys_status_t coord_manhattan_distance_i64(
+    const coord_t* a, const coord_t* b, int64_t* out_distance) {
+    if (!a || !b || !out_distance) {
+        return NAVSYS_STATUS_INVALID_ARGUMENT;
+    }
+    const std::int64_t dx =
+        static_cast<std::int64_t>(b->x) - a->x;
+    const std::int64_t dy =
+        static_cast<std::int64_t>(b->y) - a->y;
+    *out_distance = (dx < 0 ? -dx : dx) + (dy < 0 ? -dy : dy);
+    return NAVSYS_STATUS_OK;
+}
+
+navsys_status_t coord_angle_rad(
+    const coord_t* from, const coord_t* to, double* out_angle) {
+    if (!from || !to || !out_angle
+        || (from->x == to->x && from->y == to->y)) {
+        return NAVSYS_STATUS_INVALID_ARGUMENT;
+    }
+    const std::int64_t dx =
+        static_cast<std::int64_t>(to->x) - from->x;
+    const std::int64_t dy =
+        static_cast<std::int64_t>(to->y) - from->y;
+    double result = std::atan2(
+        static_cast<double>(dy),
+        static_cast<double>(dx));
+    if (result < 0.0) {
+        result += 2.0 * kPi;
+    }
+    *out_angle = result;
+    return NAVSYS_STATUS_OK;
+}
+
+navsys_status_t coord_angle_deg(
+    const coord_t* from, const coord_t* to, double* out_angle) {
+    if (!out_angle) {
+        return NAVSYS_STATUS_INVALID_ARGUMENT;
+    }
+    double radians = 0.0;
+    const navsys_status_t status =
+        coord_angle_rad(from, to, &radians);
+    if (status != NAVSYS_STATUS_OK) {
+        return status;
+    }
+    *out_angle = radians * (180.0 / kPi);
+    return NAVSYS_STATUS_OK;
+}
+
+navsys_status_t coord_step_toward(
+    const coord_t* start, const coord_t* goal, coord_t* out_next) {
+    if (!start || !goal || !out_next) {
+        return NAVSYS_STATUS_INVALID_ARGUMENT;
+    }
+    const coord_t start_snapshot = *start;
+    const coord_t goal_snapshot = *goal;
+    coord_t result = start_snapshot;
+
+    if (start_snapshot.x < goal_snapshot.x) {
+        ++result.x;
+    } else if (start_snapshot.x > goal_snapshot.x) {
+        --result.x;
+    }
+    if (start_snapshot.y < goal_snapshot.y) {
+        ++result.y;
+    } else if (start_snapshot.y > goal_snapshot.y) {
+        --result.y;
+    }
+
+    *out_next = result;
+    return NAVSYS_STATUS_OK;
 }
 
 // ------------------------ Creation/Destruction ------------------------

@@ -91,6 +91,7 @@ message(STATUS "${PROJECT_NAME} : EXTERNAL_DIR = ${EXTERNAL_DIR}")
 # include 경로
 # ─────────────────────────────────────────────
 target_include_directories(${PROJECT_NAME} PRIVATE
+    ${EXTERNAL_DIR}/eigen-3.4.0
     ${EXTERNAL_DIR}
     ${CMAKE_CURRENT_SOURCE_DIR}
     ${CMAKE_SOURCE_DIR}

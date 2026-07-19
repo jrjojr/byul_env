@@ -21,38 +21,6 @@
     },
     {
       "kind": "numal-include-directory",
-      "path": "byul/navsys/coord/CMakeLists.txt",
-      "occurrences": 1,
-      "owner_todo": "docs/ko/todo/navsys/todo-navsys-coord-coord.org",
-      "target_stage": 1,
-      "disposition": "remove after source-level Numal use is eliminated"
-    },
-    {
-      "kind": "numal-link",
-      "path": "byul/navsys/coord/CMakeLists.txt",
-      "occurrences": 1,
-      "owner_todo": "docs/ko/todo/navsys/todo-navsys-coord-coord.org",
-      "target_stage": 1,
-      "disposition": "remove after source-level Numal use is eliminated"
-    },
-    {
-      "kind": "numal-include-directory",
-      "path": "byul/navsys/coord/tests/CMakeLists.txt",
-      "occurrences": 1,
-      "owner_todo": "docs/ko/todo/navsys/todo-navsys-coord-coord.org",
-      "target_stage": 1,
-      "disposition": "remove after source-level Numal use is eliminated"
-    },
-    {
-      "kind": "scalar-include",
-      "path": "byul/navsys/coord/tests/test_module_coord.cpp",
-      "occurrences": 1,
-      "owner_todo": "docs/ko/todo/navsys/todo-navsys-coord-coord.org",
-      "target_stage": 1,
-      "disposition": "remove with the owning child integration gate"
-    },
-    {
-      "kind": "numal-include-directory",
       "path": "byul/navsys/dstar_lite/CMakeLists.txt",
       "occurrences": 1,
       "owner_todo": "docs/ko/todo/navsys/todo-navsys-dstar-lite-dstar-lite.org",
@@ -310,7 +278,7 @@
   ],
   "wrapper_symbol_resolution": {
     "reference_symbols": 265,
-    "cdef_symbols": 459,
+    "cdef_symbols": 472,
     "root_export_symbols": 1006,
     "missing_cdef": [
       {
@@ -462,7 +430,7 @@
     ]
   },
   "summary": {
-    "dependency_edges": 38,
+    "dependency_edges": 34,
     "unclassified_dependency_edges": 0,
     "wrapper_reference_symbols": 265,
     "missing_cdef": 16,

@@ -45,8 +45,7 @@
             "binaryDir": "${sourceDir}/../build_win_sdl_release",
             "cacheVariables": {
                 "CMAKE_BUILD_TYPE": "Release",
-                "CMAKE_TOOLCHAIN_FILE": "${sourceDir}/cmake/toolchain-mingw64.cmake",
-                "CMAKE_PREFIX_PATH": "${sourceDir}/../external/SDL3-3.2.18/cmake"
+                "CMAKE_TOOLCHAIN_FILE": "${sourceDir}/cmake/toolchain-mingw64.cmake"
             }
         },
         {
