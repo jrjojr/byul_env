@@ -6,6 +6,7 @@
 #include "byul.h"
 #include "coord.h"
 #include "coord_hash.h"
+#include "cost_coord_pq.h"
 #include "navsys_status.h"
 
 static bool cancel_immediately(void* userdata) {
@@ -410,6 +411,43 @@ int main(void) {
     coord_list_destroy(checked_slice);
     coord_list_destroy(checked_copy);
     coord_list_destroy(checked_coords);
+
+    cost_coord_pq_t* legacy_pq = cost_coord_pq_create();
+    coord_t pq_first = {1, 2};
+    coord_t pq_second = {3, 4};
+    if (legacy_pq == NULL) {
+        fprintf(stderr, "unexpected cost coord pq allocation failure\n");
+        return 17;
+    }
+    cost_coord_pq_push(legacy_pq, 5.0f, &pq_first);
+    cost_coord_pq_push(legacy_pq, 5.0f, &pq_second);
+    coord_t* borrowed_min = cost_coord_pq_peek(legacy_pq);
+    coord_t* owned_min = cost_coord_pq_pop(legacy_pq);
+    if (borrowed_min == NULL
+        || owned_min != borrowed_min
+        || owned_min->x != pq_second.x
+        || owned_min->y != pq_second.y
+        || cost_coord_pq_length(legacy_pq) != 1) {
+        fprintf(stderr, "unexpected cost coord pq ownership/tie ABI\n");
+        coord_destroy(owned_min);
+        cost_coord_pq_destroy(legacy_pq);
+        return 18;
+    }
+    coord_destroy(owned_min);
+    cost_coord_pq_push(legacy_pq, 6.0f, &pq_second);
+    cost_coord_pq_trim_worst(legacy_pq, 1);
+    owned_min = cost_coord_pq_pop(legacy_pq);
+    if (owned_min == NULL
+        || owned_min->x != pq_first.x
+        || owned_min->y != pq_first.y
+        || !cost_coord_pq_is_empty(legacy_pq)) {
+        fprintf(stderr, "unexpected cost coord pq trim ABI\n");
+        coord_destroy(owned_min);
+        cost_coord_pq_destroy(legacy_pq);
+        return 19;
+    }
+    coord_destroy(owned_min);
+    cost_coord_pq_destroy(legacy_pq);
 
     if (!route_finder_is_supported(ROUTE_FINDER_ASTAR)
         || !route_finder_is_supported(ROUTE_FINDER_WEIGHTED_ASTAR)
