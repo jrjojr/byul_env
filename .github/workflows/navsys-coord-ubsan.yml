@@ -10,6 +10,7 @@ on:
       - "byul/navsys/coord/**"
       - "byul/navsys/tests/**"
       - "byul/tests/**"
+      - "docs/ko/todo/navsys/todo-navsys-coord-coord.org"
       - "tools/header_abi_audit.py"
       - "tools/header_refactor_build_snapshot.py"
       - "tools/python/byul_wrapper/**"

@@ -402,7 +402,7 @@ storage ownership을 함께 정리할 때 이관한다.
 - Navsys ABI inventory는 46 headers/467 symbols로 갱신했고 stage-0 boundary,
   header inventory와 coord ABI policy를 함께 동기화했다.
 
-** DOING 4단계: wrapper와 통합 gate
+** DONE 4단계: wrapper와 통합 gate
 
 *** 실행
 
@@ -442,4 +442,6 @@ storage ownership을 함께 정리할 때 이관한다.
   standalone include와 wrapper intersection을 함께 검사하도록 확장했다.
 - MinGW와 MSVC의 module =test_coord= 35 cases/301 assertions, root =test_byul=
   419 cases/1925 assertions가 각각 통과했다. 현재 revision의 Linux
-  ASan/LSan/UBSan 결과는 draft PR CI에서 확인한 뒤 4단계를 완료 처리한다.
+  ASan/LSan/UBSan 결과는 GitHub Actions =Navsys Coord UBSan= run
+  =29680214632=에서 통과했다. 같은 run에서 live audit 190/190과 clean C17/C++17
+  consumer도 통과해 4단계를 완료했다.
