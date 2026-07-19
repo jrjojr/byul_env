@@ -2,6 +2,7 @@
 #define COORD_HASH_H
 
 #include <stdbool.h>
+#include <stddef.h>
 #include <stdint.h>
 
 #include "byul_config.h"
@@ -14,6 +15,7 @@ extern "C" {
 #endif
 
 typedef struct s_coord_hash coord_hash_t;
+typedef struct s_coord_hash_iter coord_hash_iter_t;
 
 typedef void* (*coord_hash_copy_func)(const void* value);
 typedef void  (*coord_hash_destroy_func)(void* value);
@@ -198,6 +200,217 @@ BYUL_API navsys_status_t coord_hash_upsert_copy(
     coord_hash_t* hash, const coord_t* key, const void* value,
     bool* out_inserted);
 
+/**
+ * @brief Caller buffer로 내보내는 key와 borrowed value view다.
+ *
+ * value는 table의 다음 mutation 또는 destroy 전까지만 유효하다.
+ *
+ * @byul.storage basic-value
+ * @byul.zero_valid true
+ * @byul.copy_semantics trivial-copy
+ * @byul.thread_safety thread-compatible
+ */
+typedef struct s_coord_hash_entry_view {
+    coord_t key;
+    const void* value;
+} coord_hash_entry_view_t;
+
+/**
+ * @brief Table의 현재 entry 수를 반환한다.
+ *
+ * @param[in] hash 조회할 table.
+ * @return Entry 수. hash가 NULL이면 0이다.
+ * @byul.nullable hash true
+ * @byul.thread_safety thread-compatible
+ * @byul.blocking false
+ */
+BYUL_API size_t coord_hash_size(const coord_hash_t* hash);
+
+/**
+ * @brief Key를 조회하고 stored NULL과 not-found를 구별한다.
+ *
+ * 성공하면 out_found를 기록하고, key가 있으면 out_borrowed_value에 다음 mutation 또는
+ * destroy 전까지 유효한 borrowed pointer를 기록한다. Stored NULL이면 found는 true이고
+ * value는 NULL이다. Key가 없으면 found는 false이고 value는 NULL이다.
+ *
+ * @param[in] hash 조회할 table.
+ * @param[in] key 조회할 key.
+ * @param[out] out_borrowed_value Borrowed value를 받을 storage.
+ * @param[out] out_found Key 존재 여부를 받을 storage.
+ * @return 공통 Navsys 상태 값.
+ * @retval NAVSYS_STATUS_OK 조회 결과를 기록했다.
+ * @retval NAVSYS_STATUS_INVALID_ARGUMENT 필수 pointer가 NULL이다.
+ * @byul.nullable hash false
+ * @byul.nullable key false
+ * @byul.nullable out_borrowed_value false
+ * @byul.nullable out_found false
+ * @byul.lifetime out_borrowed_value borrowed-until-next-mutation-or-destroy
+ * @byul.error enum:navsys_status_t
+ * @byul.side_effect mutates:out_borrowed_value,out_found-on-success
+ * @byul.thread_safety thread-compatible
+ * @byul.blocking false
+ */
+BYUL_API navsys_status_t coord_hash_find(
+    const coord_hash_t* hash, const coord_t* key,
+    const void** out_borrowed_value, bool* out_found);
+
+/**
+ * @brief 두 table의 key 집합이 같은지 비교한다.
+ *
+ * @param[in] a 비교할 첫 table.
+ * @param[in] b 비교할 둘째 table.
+ * @param[out] out_equal key 집합 비교 결과를 받을 storage.
+ * @return 공통 Navsys 상태 값.
+ * @retval NAVSYS_STATUS_OK 비교 결과를 기록했다.
+ * @retval NAVSYS_STATUS_INVALID_ARGUMENT 필수 pointer가 NULL이다.
+ * @byul.nullable a false
+ * @byul.nullable b false
+ * @byul.nullable out_equal false
+ * @byul.error enum:navsys_status_t
+ * @byul.side_effect mutates:out_equal-on-success
+ * @byul.thread_safety thread-compatible
+ * @byul.blocking false
+ */
+BYUL_API navsys_status_t coord_hash_equal_keys(
+    const coord_hash_t* a, const coord_hash_t* b, bool* out_equal);
+
+/**
+ * @brief 같은 immutable equal callback binding으로 key와 value를 비교한다.
+ *
+ * 두 table의 equal callback과 userdata identity가 같아야 한다. NULL value끼리는
+ * callback 없이 같고, 한쪽만 NULL이면 다르다. 실패하면 out_equal을 보존한다.
+ *
+ * @param[in] a 비교할 첫 table.
+ * @param[in] b 비교할 둘째 table.
+ * @param[out] out_equal 전체 비교 결과를 받을 storage.
+ * @return 공통 Navsys 상태 값.
+ * @retval NAVSYS_STATUS_OK 비교 결과를 기록했다.
+ * @retval NAVSYS_STATUS_INVALID_ARGUMENT 필수 pointer가 NULL이다.
+ * @retval NAVSYS_STATUS_UNSUPPORTED equal callback binding이 없거나 서로 다르다.
+ * @retval NAVSYS_STATUS_CALLBACK_FAILED equal callback이 예외를 던졌다.
+ * @retval NAVSYS_STATUS_IN_PROGRESS 같은 table의 callback이 실행 중이다.
+ * @byul.nullable a false
+ * @byul.nullable b false
+ * @byul.nullable out_equal false
+ * @byul.error enum:navsys_status_t
+ * @byul.side_effect mutates:out_equal-on-success
+ * @byul.thread_safety thread-compatible
+ * @byul.blocking false
+ */
+BYUL_API navsys_status_t coord_hash_equal_full(
+    const coord_hash_t* a, const coord_hash_t* b, bool* out_equal);
+
+/**
+ * @brief Key를 caller buffer에 내보낸다.
+ *
+ * out_keys가 NULL이고 capacity가 0이면 필요한 수를 out_count에 기록한다. Buffer가
+ * 짧으면 out_count만 기록하고 buffer는 보존한다. 순서는 보장하지 않는다.
+ *
+ * @param[in] hash 내보낼 table.
+ * @param[out] out_keys caller-provided key buffer 또는 query 시 NULL.
+ * @param[in] capacity out_keys의 coord_t element 용량.
+ * @param[out] out_count 필요한 전체 element 수.
+ * @return 공통 Navsys 상태 값.
+ * @retval NAVSYS_STATUS_OK query 또는 전체 export가 완료됐다.
+ * @retval NAVSYS_STATUS_INCOMPLETE capacity가 부족하다.
+ * @retval NAVSYS_STATUS_INVALID_ARGUMENT pointer/capacity 조합이 잘못됐다.
+ * @byul.nullable hash false
+ * @byul.nullable out_keys true
+ * @byul.nullable out_count false
+ * @byul.capacity out_keys capacity
+ * @byul.error enum:navsys_status_t
+ * @byul.side_effect mutates:out_count-always,out_keys-on-success
+ * @byul.thread_safety thread-compatible
+ * @byul.blocking false
+ */
+BYUL_API navsys_status_t coord_hash_export_keys(
+    const coord_hash_t* hash, coord_t* out_keys,
+    size_t capacity, size_t* out_count);
+
+/**
+ * @brief Key와 borrowed value view를 caller buffer에 내보낸다.
+ *
+ * Query/short-buffer 정책과 순서 계약은 coord_hash_export_keys()와 같다. Export한
+ * value pointer는 table의 다음 mutation 또는 destroy 전까지만 유효하다.
+ *
+ * @param[in] hash 내보낼 table.
+ * @param[out] out_entries caller-provided entry buffer 또는 query 시 NULL.
+ * @param[in] capacity out_entries의 element 용량.
+ * @param[out] out_count 필요한 전체 element 수.
+ * @return 공통 Navsys 상태 값.
+ * @retval NAVSYS_STATUS_OK query 또는 전체 export가 완료됐다.
+ * @retval NAVSYS_STATUS_INCOMPLETE capacity가 부족하다.
+ * @retval NAVSYS_STATUS_INVALID_ARGUMENT pointer/capacity 조합이 잘못됐다.
+ * @byul.nullable hash false
+ * @byul.nullable out_entries true
+ * @byul.nullable out_count false
+ * @byul.capacity out_entries capacity
+ * @byul.lifetime out_entries borrowed-elements-until-next-mutation-or-destroy
+ * @byul.error enum:navsys_status_t
+ * @byul.side_effect mutates:out_count-always,out_entries-on-success
+ * @byul.thread_safety thread-compatible
+ * @byul.blocking false
+ */
+BYUL_API navsys_status_t coord_hash_export_entries(
+    const coord_hash_t* hash, coord_hash_entry_view_t* out_entries,
+    size_t capacity, size_t* out_count);
+
+/**
+ * @brief Iterator의 다음 entry를 generation 검증과 함께 반환한다.
+ *
+ * Parent mutation 전에는 output value가 borrowed다. Parent가 destroy돼도 iterator
+ * 자체는 destroy할 수 있으며 next는 INVALIDATED를 반환한다.
+ *
+ * @param[in,out] iter 진행할 iterator.
+ * @param[out] key_out 다음 key를 받을 storage.
+ * @param[out] value_out 다음 borrowed value를 받을 storage.
+ * @return 공통 Navsys 상태 값.
+ * @retval NAVSYS_STATUS_OK 다음 entry를 기록했다.
+ * @retval NAVSYS_STATUS_NOT_FOUND iterator가 끝났다.
+ * @retval NAVSYS_STATUS_INVALIDATED parent가 mutation 또는 destroy됐다.
+ * @retval NAVSYS_STATUS_INVALID_ARGUMENT 필수 pointer가 NULL이다.
+ * @byul.nullable iter false
+ * @byul.nullable key_out false
+ * @byul.nullable value_out false
+ * @byul.lifetime value_out borrowed-until-parent-mutation-or-destroy
+ * @byul.error enum:navsys_status_t
+ * @byul.side_effect mutates:iter,key_out,value_out-on-success
+ * @byul.thread_safety thread-compatible
+ * @byul.blocking false
+ */
+BYUL_API navsys_status_t coord_hash_iter_next_ex(
+    coord_hash_iter_t* iter, coord_t* key_out, const void** value_out);
+
+/**
+ * @brief Table key를 결정적 순서의 UTF-8 문자열로 기록한다.
+ *
+ * 필요한 byte 수는 NUL을 포함한다. out_buffer가 NULL이고 capacity가 0이면
+ * out_required만 기록한다. 짧은 buffer는 보존한다.
+ *
+ * @param[in] hash format할 table.
+ * @param[out] out_buffer caller-provided byte buffer 또는 query 시 NULL.
+ * @param[in] capacity out_buffer의 byte 용량.
+ * @param[out] out_required NUL을 포함한 필요한 byte 수.
+ * @return 공통 Navsys 상태 값.
+ * @retval NAVSYS_STATUS_OK query 또는 전체 기록이 완료됐다.
+ * @retval NAVSYS_STATUS_INCOMPLETE capacity가 부족하다.
+ * @retval NAVSYS_STATUS_INVALID_ARGUMENT pointer/capacity 조합이 잘못됐다.
+ * @retval NAVSYS_STATUS_OUT_OF_MEMORY 임시 format storage 할당에 실패했다.
+ * @retval NAVSYS_STATUS_CORRUPT_STATE 내부 문자열 변환이 실패했다.
+ * @byul.nullable hash false
+ * @byul.nullable out_buffer true
+ * @byul.nullable out_required false
+ * @byul.capacity out_buffer capacity
+ * @byul.encoding out_buffer utf-8
+ * @byul.error enum:navsys_status_t
+ * @byul.side_effect mutates:out_required-always,out_buffer-on-success
+ * @byul.thread_safety thread-compatible
+ * @byul.blocking false
+ */
+BYUL_API navsys_status_t coord_hash_format(
+    const coord_hash_t* hash, char* out_buffer,
+    size_t capacity, size_t* out_required);
+
 BYUL_API void* int_copy(const void* p);
 BYUL_API void int_destroy(void* p);
 
@@ -312,8 +525,6 @@ BYUL_API void coord_hash_export(
     coord_list_t* keys_out,
     void** values_out,
     int* count_out);
-
-typedef struct s_coord_hash_iter coord_hash_iter_t;
 
 BYUL_API coord_hash_iter_t* coord_hash_iter_create(
     const coord_hash_t* hash);

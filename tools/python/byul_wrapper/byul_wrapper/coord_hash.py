@@ -10,6 +10,7 @@ ffi.cdef("""
 
 /* Source: byul/navsys/coord/coord_hash.h */
 typedef struct s_coord_hash coord_hash_t;
+typedef struct s_coord_hash_iter coord_hash_iter_t;
 
 typedef void* (*coord_hash_copy_func)(const void* value);
 typedef void  (*coord_hash_destroy_func)(void* value);
@@ -47,6 +48,38 @@ typedef struct s_coord_hash_create_info {
  navsys_status_t coord_hash_upsert_copy(
     coord_hash_t* hash, const coord_t* key, const void* value,
     bool* out_inserted);
+
+typedef struct s_coord_hash_entry_view {
+    coord_t key;
+    const void* value;
+} coord_hash_entry_view_t;
+
+ size_t coord_hash_size(const coord_hash_t* hash);
+
+ navsys_status_t coord_hash_find(
+    const coord_hash_t* hash, const coord_t* key,
+    const void** out_borrowed_value, bool* out_found);
+
+ navsys_status_t coord_hash_equal_keys(
+    const coord_hash_t* a, const coord_hash_t* b, bool* out_equal);
+
+ navsys_status_t coord_hash_equal_full(
+    const coord_hash_t* a, const coord_hash_t* b, bool* out_equal);
+
+ navsys_status_t coord_hash_export_keys(
+    const coord_hash_t* hash, coord_t* out_keys,
+    size_t capacity, size_t* out_count);
+
+ navsys_status_t coord_hash_export_entries(
+    const coord_hash_t* hash, coord_hash_entry_view_t* out_entries,
+    size_t capacity, size_t* out_count);
+
+ navsys_status_t coord_hash_iter_next_ex(
+    coord_hash_iter_t* iter, coord_t* key_out, const void** value_out);
+
+ navsys_status_t coord_hash_format(
+    const coord_hash_t* hash, char* out_buffer,
+    size_t capacity, size_t* out_required);
 
  void* int_copy(const void* p);
  void int_destroy(void* p);
@@ -115,8 +148,6 @@ typedef void (*coord_hash_func)(
     coord_list_t* keys_out,
     void** values_out,
     int* count_out);
-
-typedef struct s_coord_hash_iter coord_hash_iter_t;
 
  coord_hash_iter_t* coord_hash_iter_create(
     const coord_hash_t* hash);

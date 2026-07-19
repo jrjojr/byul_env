@@ -4,16 +4,16 @@
   "source_vocabulary": "docs/ko/todo/navsys/navsys-abi-vocabulary.json",
   "summary": {
     "headers": 46,
-    "symbols": 472,
+    "symbols": 480,
     "return_forms": {
       "nullable_pointer": 148,
       "bool_predicate": 21,
       "bool_operation": 19,
       "int_zero_nonzero_status": 40,
-      "int_count": 15,
+      "int_count": 16,
       "int_index_minus_one": 4,
       "void_fallible_operation": 136,
-      "enum_result": 70,
+      "enum_result": 77,
       "floating_result": 19,
       "callback_return": 0
     },
@@ -8522,7 +8522,7 @@
       "owner_todo": "docs/ko/todo/navsys/todo-navsys-coord-coord-hash.org",
       "primary_role": "public-component",
       "wrapper_mode": "generated",
-      "symbol_count": 40,
+      "symbol_count": 48,
       "audit_issue_count": 41,
       "symbols": [
         "coord_hash_create_ex",
@@ -8530,6 +8530,14 @@
         "coord_hash_insert_copy",
         "coord_hash_replace_copy",
         "coord_hash_upsert_copy",
+        "coord_hash_size",
+        "coord_hash_find",
+        "coord_hash_equal_keys",
+        "coord_hash_equal_full",
+        "coord_hash_export_keys",
+        "coord_hash_export_entries",
+        "coord_hash_iter_next_ex",
+        "coord_hash_format",
         "int_copy",
         "int_destroy",
         "scalar_copy",
@@ -9830,6 +9838,70 @@
       "name": "coord_hash_upsert_copy",
       "return_type": "navsys_status_t",
       "signature": "navsys_status_t coord_hash_upsert_copy( coord_hash_t* hash, const coord_t* key, const void* value, bool* out_inserted);",
+      "return_form": "enum_result",
+      "canonical": "navsys_status_t plus typed out enum"
+    },
+    {
+      "header": "byul/navsys/coord/coord_hash.h",
+      "name": "coord_hash_size",
+      "return_type": "size_t",
+      "signature": "size_t coord_hash_size(const coord_hash_t* hash);",
+      "return_form": "int_count",
+      "canonical": "navsys_status_t plus out_count"
+    },
+    {
+      "header": "byul/navsys/coord/coord_hash.h",
+      "name": "coord_hash_find",
+      "return_type": "navsys_status_t",
+      "signature": "navsys_status_t coord_hash_find( const coord_hash_t* hash, const coord_t* key, const void** out_borrowed_value, bool* out_found);",
+      "return_form": "enum_result",
+      "canonical": "navsys_status_t plus typed out enum"
+    },
+    {
+      "header": "byul/navsys/coord/coord_hash.h",
+      "name": "coord_hash_equal_keys",
+      "return_type": "navsys_status_t",
+      "signature": "navsys_status_t coord_hash_equal_keys( const coord_hash_t* a, const coord_hash_t* b, bool* out_equal);",
+      "return_form": "enum_result",
+      "canonical": "navsys_status_t plus typed out enum"
+    },
+    {
+      "header": "byul/navsys/coord/coord_hash.h",
+      "name": "coord_hash_equal_full",
+      "return_type": "navsys_status_t",
+      "signature": "navsys_status_t coord_hash_equal_full( const coord_hash_t* a, const coord_hash_t* b, bool* out_equal);",
+      "return_form": "enum_result",
+      "canonical": "navsys_status_t plus typed out enum"
+    },
+    {
+      "header": "byul/navsys/coord/coord_hash.h",
+      "name": "coord_hash_export_keys",
+      "return_type": "navsys_status_t",
+      "signature": "navsys_status_t coord_hash_export_keys( const coord_hash_t* hash, coord_t* out_keys, size_t capacity, size_t* out_count);",
+      "return_form": "enum_result",
+      "canonical": "navsys_status_t plus typed out enum"
+    },
+    {
+      "header": "byul/navsys/coord/coord_hash.h",
+      "name": "coord_hash_export_entries",
+      "return_type": "navsys_status_t",
+      "signature": "navsys_status_t coord_hash_export_entries( const coord_hash_t* hash, coord_hash_entry_view_t* out_entries, size_t capacity, size_t* out_count);",
+      "return_form": "enum_result",
+      "canonical": "navsys_status_t plus typed out enum"
+    },
+    {
+      "header": "byul/navsys/coord/coord_hash.h",
+      "name": "coord_hash_iter_next_ex",
+      "return_type": "navsys_status_t",
+      "signature": "navsys_status_t coord_hash_iter_next_ex( coord_hash_iter_t* iter, coord_t* key_out, const void** value_out);",
+      "return_form": "enum_result",
+      "canonical": "navsys_status_t plus typed out enum"
+    },
+    {
+      "header": "byul/navsys/coord/coord_hash.h",
+      "name": "coord_hash_format",
+      "return_type": "navsys_status_t",
+      "signature": "navsys_status_t coord_hash_format( const coord_hash_t* hash, char* out_buffer, size_t capacity, size_t* out_required);",
       "return_form": "enum_result",
       "canonical": "navsys_status_t plus typed out enum"
     },

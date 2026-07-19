@@ -1,14 +1,12 @@
 {
   "schema_version": 1,
-  "captured_at_utc": "2026-07-19T09:32:36.869438+00:00",
-  "git_head": "7a3761095199770ebc497f9859b5505565a37176",
+  "captured_at_utc": "2026-07-19T09:47:20.482806+00:00",
+  "git_head": "081c414d267243a33089e47a56495516b7e35178",
   "git_branch": "refactor/navsys-coord-hash",
   "git_status_porcelain": [
     "M byul/navsys/coord/coord_hash.cpp",
     " M byul/navsys/coord/coord_hash.h",
     " M byul/navsys/coord/tests/test_module_coord_hash.cpp",
-    " M docs/ko/todo/header-refactor-baseline/environment.json",
-    " M docs/ko/todo/header-refactor-baseline/header-inventory.json",
     " M docs/ko/todo/navsys/coord-hash-abi-policy.json",
     " M docs/ko/todo/navsys/navsys-current-abi-inventory.json",
     " M docs/ko/todo/navsys/todo-navsys-coord-coord-hash.org",

@@ -2,7 +2,7 @@
   "schema_version": 1,
   "header": "byul/navsys/coord/coord_hash.h",
   "abi_line": "1.x",
-  "declaration_count": 49,
+  "declaration_count": 58,
   "legacy_declaration_count": 40,
   "current_types": {
     "coord_hash_t": "keep",
@@ -12,6 +12,7 @@
     "coord_hash_value_destroy_func_ex": "add",
     "coord_hash_value_equal_func_ex": "add",
     "coord_hash_create_info_t": "add",
+    "coord_hash_entry_view_t": "add",
     "coord_hash_func": "abi-major",
     "coord_hash_iter_t": "keep"
   },
@@ -21,6 +22,14 @@
     "coord_hash_insert_copy": "add",
     "coord_hash_replace_copy": "add",
     "coord_hash_upsert_copy": "add",
+    "coord_hash_size": "add",
+    "coord_hash_find": "add",
+    "coord_hash_equal_keys": "add",
+    "coord_hash_equal_full": "add",
+    "coord_hash_export_keys": "add",
+    "coord_hash_export_entries": "add",
+    "coord_hash_iter_next_ex": "add",
+    "coord_hash_format": "add",
     "int_copy": "deprecate-forward",
     "int_destroy": "deprecate-forward",
     "scalar_copy": "deprecate-forward",
@@ -77,6 +86,30 @@
     "coord_hash_upsert_copy": {
       "result": "out-inserted-bool",
       "failure": "preserve-table-and-out-inserted"
+    }
+  },
+  "canonical_query_contracts": {
+    "coord_hash_find": {
+      "stored_null": "NAVSYS_STATUS_OK-found-true-value-null",
+      "not_found": "NAVSYS_STATUS_OK-found-false-value-null"
+    },
+    "coord_hash_equal_keys": {
+      "semantics": "key-set-only"
+    },
+    "coord_hash_equal_full": {
+      "support": "identical-non-null-equal-callback-and-userdata",
+      "callback_exception": "NAVSYS_STATUS_CALLBACK_FAILED",
+      "failure": "preserve-out-equal"
+    },
+    "coord_hash_iter_next_ex": {
+      "end": "NAVSYS_STATUS_NOT_FOUND",
+      "parent_mutation_or_destroy": "NAVSYS_STATUS_INVALIDATED",
+      "parent_lifetime": "shared-generation-state"
+    },
+    "caller_buffer": {
+      "query": "null-buffer-capacity-zero-writes-required-and-returns-ok",
+      "short": "write-required-preserve-buffer-return-incomplete",
+      "order": "unspecified-for-export-deterministic-for-format"
     }
   },
   "legacy_storage": {

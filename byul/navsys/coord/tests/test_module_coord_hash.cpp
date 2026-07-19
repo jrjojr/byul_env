@@ -1,6 +1,11 @@
 #include "doctest.h"
 
+#include <array>
+#include <map>
+#include <set>
 #include <stdexcept>
+#include <string>
+#include <vector>
 
 extern "C" {
 #include "coord.h"
@@ -46,8 +51,10 @@ struct canonical_callback_context {
     int copy_calls = 0;
     int destroy_calls = 0;
     int null_destroy_calls = 0;
+    int equal_calls = 0;
     navsys_status_t next_copy_status = NAVSYS_STATUS_OK;
     bool throw_on_copy = false;
+    bool throw_on_equal = false;
     bool write_copy_on_failure = false;
     coord_hash_t* reentry_hash = nullptr;
     navsys_status_t reentry_status = NAVSYS_STATUS_OK;
@@ -89,6 +96,18 @@ void canonical_int_destroy(void* value, void* userdata) {
     delete static_cast<int*>(value);
 }
 
+bool canonical_int_equal(
+    const void* lhs,
+    const void* rhs,
+    void* userdata) {
+    auto* context = static_cast<canonical_callback_context*>(userdata);
+    ++context->equal_calls;
+    if (context->throw_on_equal) {
+        throw std::runtime_error("equal failure");
+    }
+    return *static_cast<const int*>(lhs) == *static_cast<const int*>(rhs);
+}
+
 coord_hash_create_info_t canonical_create_info(
     canonical_callback_context* context) {
     coord_hash_create_info_t info = {};
@@ -96,6 +115,7 @@ coord_hash_create_info_t canonical_create_info(
     info.abi_version = BYUL_COORD_HASH_CREATE_INFO_ABI_VERSION;
     info.copy_value = canonical_int_copy;
     info.destroy_value = canonical_int_destroy;
+    info.equal_value = canonical_int_equal;
     info.userdata = context;
     return info;
 }
@@ -259,6 +279,281 @@ TEST_CASE("coord_hash canonical callback rejects same-table reentry") {
     context.reentry_hash = nullptr;
     coord_hash_destroy(hash);
     CHECK(context.destroy_calls == 1);
+}
+
+TEST_CASE("coord_hash canonical find distinguishes null from missing") {
+    canonical_callback_context context;
+    coord_hash_create_info_t info = canonical_create_info(&context);
+    coord_hash_t* hash = nullptr;
+    REQUIRE(coord_hash_create_ex(&info, &hash) == NAVSYS_STATUS_OK);
+
+    coord_t null_key = {21, 22};
+    coord_t value_key = {23, 24};
+    coord_t missing_key = {25, 26};
+    int value = 230;
+    REQUIRE(coord_hash_insert_copy(hash, &null_key, nullptr)
+        == NAVSYS_STATUS_OK);
+    REQUIRE(coord_hash_insert_copy(hash, &value_key, &value)
+        == NAVSYS_STATUS_OK);
+    CHECK(coord_hash_size(hash) == 2);
+
+    const void* borrowed = reinterpret_cast<const void*>(1);
+    bool found = false;
+    CHECK(coord_hash_find(hash, &null_key, &borrowed, &found)
+        == NAVSYS_STATUS_OK);
+    CHECK(found);
+    CHECK(borrowed == nullptr);
+
+    CHECK(coord_hash_find(hash, &value_key, &borrowed, &found)
+        == NAVSYS_STATUS_OK);
+    CHECK(found);
+    REQUIRE(borrowed != nullptr);
+    CHECK(*static_cast<const int*>(borrowed) == 230);
+
+    CHECK(coord_hash_find(hash, &missing_key, &borrowed, &found)
+        == NAVSYS_STATUS_OK);
+    CHECK_FALSE(found);
+    CHECK(borrowed == nullptr);
+
+    borrowed = reinterpret_cast<const void*>(1);
+    found = true;
+    CHECK(coord_hash_find(nullptr, &missing_key, &borrowed, &found)
+        == NAVSYS_STATUS_INVALID_ARGUMENT);
+    CHECK(borrowed == reinterpret_cast<const void*>(1));
+    CHECK(found);
+
+    coord_hash_destroy(hash);
+}
+
+TEST_CASE("coord_hash canonical exports preserve short buffers") {
+    canonical_callback_context context;
+    coord_hash_create_info_t info = canonical_create_info(&context);
+    coord_hash_t* hash = nullptr;
+    REQUIRE(coord_hash_create_ex(&info, &hash) == NAVSYS_STATUS_OK);
+
+    coord_t first = {27, 28};
+    coord_t second = {29, 30};
+    int value = 270;
+    REQUIRE(coord_hash_insert_copy(hash, &first, &value)
+        == NAVSYS_STATUS_OK);
+    REQUIRE(coord_hash_insert_copy(hash, &second, nullptr)
+        == NAVSYS_STATUS_OK);
+
+    size_t count = 99;
+    CHECK(coord_hash_export_keys(hash, nullptr, 0, &count)
+        == NAVSYS_STATUS_OK);
+    CHECK(count == 2);
+    CHECK(coord_hash_export_entries(hash, nullptr, 0, &count)
+        == NAVSYS_STATUS_OK);
+    CHECK(count == 2);
+
+    std::array<coord_t, 1> short_keys = {{{-7, -8}}};
+    count = 99;
+    CHECK(coord_hash_export_keys(
+        hash, short_keys.data(), short_keys.size(), &count)
+        == NAVSYS_STATUS_INCOMPLETE);
+    CHECK(count == 2);
+    CHECK(short_keys[0].x == -7);
+    CHECK(short_keys[0].y == -8);
+
+    std::array<coord_hash_entry_view_t, 1> short_entries = {{
+        {{-9, -10}, reinterpret_cast<const void*>(1)}
+    }};
+    CHECK(coord_hash_export_entries(
+        hash, short_entries.data(), short_entries.size(), &count)
+        == NAVSYS_STATUS_INCOMPLETE);
+    CHECK(count == 2);
+    CHECK(short_entries[0].key.x == -9);
+    CHECK(short_entries[0].value == reinterpret_cast<const void*>(1));
+
+    std::array<coord_hash_entry_view_t, 2> entries = {};
+    CHECK(coord_hash_export_entries(
+        hash, entries.data(), entries.size(), &count)
+        == NAVSYS_STATUS_OK);
+    CHECK(count == 2);
+    std::set<std::pair<int, int>> keys;
+    int null_values = 0;
+    for (const auto& entry : entries) {
+        keys.emplace(entry.key.x, entry.key.y);
+        if (!entry.value) ++null_values;
+    }
+    CHECK(keys == std::set<std::pair<int, int>>{{27, 28}, {29, 30}});
+    CHECK(null_values == 1);
+
+    coord_hash_destroy(hash);
+}
+
+TEST_CASE("coord_hash canonical iterator reports end mutation and parent destroy") {
+    canonical_callback_context context;
+    coord_hash_create_info_t info = canonical_create_info(&context);
+    coord_hash_t* hash = nullptr;
+    REQUIRE(coord_hash_create_ex(&info, &hash) == NAVSYS_STATUS_OK);
+
+    coord_t first = {31, 32};
+    int first_value = 310;
+    REQUIRE(coord_hash_insert_copy(hash, &first, &first_value)
+        == NAVSYS_STATUS_OK);
+
+    coord_hash_iter_t* exhausted = coord_hash_iter_create(hash);
+    REQUIRE(exhausted != nullptr);
+    coord_t key_out = {-1, -1};
+    const void* value_out = reinterpret_cast<const void*>(1);
+    CHECK(coord_hash_iter_next_ex(exhausted, &key_out, &value_out)
+        == NAVSYS_STATUS_OK);
+    CHECK(key_out.x == 31);
+    CHECK(coord_hash_iter_next_ex(exhausted, &key_out, &value_out)
+        == NAVSYS_STATUS_NOT_FOUND);
+    coord_hash_iter_destroy(exhausted);
+
+    coord_hash_iter_t* mutated = coord_hash_iter_create(hash);
+    REQUIRE(mutated != nullptr);
+    coord_t second = {33, 34};
+    int second_value = 330;
+    REQUIRE(coord_hash_insert_copy(hash, &second, &second_value)
+        == NAVSYS_STATUS_OK);
+    key_out = {-3, -4};
+    value_out = reinterpret_cast<const void*>(1);
+    CHECK(coord_hash_iter_next_ex(mutated, &key_out, &value_out)
+        == NAVSYS_STATUS_INVALIDATED);
+    CHECK(key_out.x == -3);
+    CHECK(value_out == reinterpret_cast<const void*>(1));
+    coord_hash_iter_destroy(mutated);
+
+    coord_hash_iter_t* orphaned = coord_hash_iter_create(hash);
+    REQUIRE(orphaned != nullptr);
+    coord_hash_destroy(hash);
+    CHECK(coord_hash_iter_next_ex(orphaned, &key_out, &value_out)
+        == NAVSYS_STATUS_INVALIDATED);
+    coord_hash_iter_destroy(orphaned);
+}
+
+TEST_CASE("coord_hash canonical equality separates keys values and support") {
+    canonical_callback_context context;
+    coord_hash_create_info_t info = canonical_create_info(&context);
+    coord_hash_t* a = nullptr;
+    coord_hash_t* b = nullptr;
+    REQUIRE(coord_hash_create_ex(&info, &a) == NAVSYS_STATUS_OK);
+    REQUIRE(coord_hash_create_ex(&info, &b) == NAVSYS_STATUS_OK);
+
+    coord_t key = {35, 36};
+    int first = 350;
+    int second = 360;
+    REQUIRE(coord_hash_insert_copy(a, &key, &first) == NAVSYS_STATUS_OK);
+    REQUIRE(coord_hash_insert_copy(b, &key, &first) == NAVSYS_STATUS_OK);
+
+    bool equal = false;
+    CHECK(coord_hash_equal_keys(a, b, &equal) == NAVSYS_STATUS_OK);
+    CHECK(equal);
+    CHECK(coord_hash_equal_full(a, b, &equal) == NAVSYS_STATUS_OK);
+    CHECK(equal);
+    CHECK(context.equal_calls == 1);
+
+    REQUIRE(coord_hash_replace_copy(b, &key, &second)
+        == NAVSYS_STATUS_OK);
+    CHECK(coord_hash_equal_keys(a, b, &equal) == NAVSYS_STATUS_OK);
+    CHECK(equal);
+    CHECK(coord_hash_equal_full(a, b, &equal) == NAVSYS_STATUS_OK);
+    CHECK_FALSE(equal);
+
+    context.throw_on_equal = true;
+    equal = true;
+    CHECK(coord_hash_equal_full(a, b, &equal)
+        == NAVSYS_STATUS_CALLBACK_FAILED);
+    CHECK(equal);
+    context.throw_on_equal = false;
+
+    canonical_callback_context other_context;
+    coord_hash_create_info_t other_info =
+        canonical_create_info(&other_context);
+    coord_hash_t* other = nullptr;
+    REQUIRE(coord_hash_create_ex(&other_info, &other) == NAVSYS_STATUS_OK);
+    equal = true;
+    CHECK(coord_hash_equal_full(a, other, &equal)
+        == NAVSYS_STATUS_UNSUPPORTED);
+    CHECK(equal);
+
+    coord_hash_destroy(other);
+    coord_hash_destroy(b);
+    coord_hash_destroy(a);
+}
+
+TEST_CASE("coord_hash canonical format is deterministic and two-call") {
+    canonical_callback_context context;
+    coord_hash_create_info_t info = canonical_create_info(&context);
+    coord_hash_t* hash = nullptr;
+    REQUIRE(coord_hash_create_ex(&info, &hash) == NAVSYS_STATUS_OK);
+
+    coord_t later = {2, 3};
+    coord_t earlier = {-1, 5};
+    REQUIRE(coord_hash_insert_copy(hash, &later, nullptr)
+        == NAVSYS_STATUS_OK);
+    REQUIRE(coord_hash_insert_copy(hash, &earlier, nullptr)
+        == NAVSYS_STATUS_OK);
+
+    const std::string expected = "(-1,5) (2,3) ";
+    size_t required = 0;
+    CHECK(coord_hash_format(hash, nullptr, 0, &required)
+        == NAVSYS_STATUS_OK);
+    CHECK(required == expected.size() + 1);
+
+    std::array<char, 4> short_buffer = {'x', 'y', 'z', '\0'};
+    CHECK(coord_hash_format(
+        hash, short_buffer.data(), short_buffer.size(), &required)
+        == NAVSYS_STATUS_INCOMPLETE);
+    CHECK(std::string(short_buffer.data()) == "xyz");
+
+    std::vector<char> exact(required, '\0');
+    CHECK(coord_hash_format(hash, exact.data(), exact.size(), &required)
+        == NAVSYS_STATUS_OK);
+    CHECK(std::string(exact.data()) == expected);
+
+    coord_hash_destroy(hash);
+}
+
+TEST_CASE("coord_hash canonical randomized export matches reference map") {
+    canonical_callback_context context;
+    coord_hash_create_info_t info = canonical_create_info(&context);
+    coord_hash_t* hash = nullptr;
+    REQUIRE(coord_hash_create_ex(&info, &hash) == NAVSYS_STATUS_OK);
+
+    std::map<std::pair<int, int>, int> reference;
+    uint32_t state = UINT32_C(0x6d2b79f5);
+    for (int index = 0; index < 128; ++index) {
+        state = state * UINT32_C(1664525) + UINT32_C(1013904223);
+        coord_t key = {
+            static_cast<int>((state >> 8) % 17) - 8,
+            static_cast<int>((state >> 16) % 17) - 8
+        };
+        int value = index * 3;
+        bool inserted = false;
+        REQUIRE(coord_hash_upsert_copy(hash, &key, &value, &inserted)
+            == NAVSYS_STATUS_OK);
+        reference[{key.x, key.y}] = value;
+    }
+
+    size_t count = 0;
+    REQUIRE(coord_hash_export_entries(hash, nullptr, 0, &count)
+        == NAVSYS_STATUS_OK);
+    CHECK(count == reference.size());
+    std::vector<coord_hash_entry_view_t> entries(count);
+    REQUIRE(coord_hash_export_entries(
+        hash, entries.data(), entries.size(), &count)
+        == NAVSYS_STATUS_OK);
+    for (const auto& entry : entries) {
+        auto expected = reference.find({entry.key.x, entry.key.y});
+        REQUIRE(expected != reference.end());
+        REQUIRE(entry.value != nullptr);
+        CHECK(*static_cast<const int*>(entry.value) == expected->second);
+    }
+
+    coord_hash_t* copied = nullptr;
+    REQUIRE(coord_hash_copy_ex(hash, &copied) == NAVSYS_STATUS_OK);
+    bool equal = false;
+    CHECK(coord_hash_equal_full(hash, copied, &equal) == NAVSYS_STATUS_OK);
+    CHECK(equal);
+
+    coord_hash_destroy(copied);
+    coord_hash_destroy(hash);
 }
 
 TEST_CASE("coord_hash legacy insert and replace are copy-upsert") {

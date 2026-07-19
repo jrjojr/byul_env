@@ -201,12 +201,18 @@ BYUL_API navsys_status_t coord_hash_replace_copy(
 BYUL_API navsys_status_t coord_hash_upsert_copy(
     coord_hash_t* hash, const coord_t* key, const void* value,
     bool* out_inserted);
+BYUL_API navsys_status_t coord_hash_equal_keys(
+    const coord_hash_t* a, const coord_hash_t* b, bool* out_equal);
+BYUL_API navsys_status_t coord_hash_equal_full(
+    const coord_hash_t* a, const coord_hash_t* b, bool* out_equal);
 BYUL_API navsys_status_t coord_hash_export_keys(
     const coord_hash_t* hash, coord_t* out_keys,
     size_t capacity, size_t* out_count);
 BYUL_API navsys_status_t coord_hash_export_entries(
     const coord_hash_t* hash, coord_hash_entry_view_t* out_entries,
     size_t capacity, size_t* out_count);
+BYUL_API navsys_status_t coord_hash_iter_next_ex(
+    coord_hash_iter_t* iter, coord_t* key_out, const void** value_out);
 BYUL_API navsys_status_t coord_hash_format(
     const coord_hash_t* hash, char* out_buffer,
     size_t capacity, size_t* out_required);
@@ -297,7 +303,7 @@ BYUL_API navsys_status_t coord_hash_format(
 - PR #16의 =Linux UBSan (coord static/root)=가 commit =a1bd228=에서
   1분 44초로 통과해 static/root sanitizer gate를 확인했다.
 
-** TODO 3단계: query, iterator, export와 format 구현
+** DOING 3단계: query, iterator, export와 format 구현
 
 *** 실행
 
@@ -314,6 +320,25 @@ BYUL_API navsys_status_t coord_hash_format(
 
 - capacity 0/exact/short, mutation-after-iterator, parent destroy, NULL stored value를 검사한다.
 - randomized reference map과 keys/entries/equality를 비교한다.
+
+*** 진행 기록
+
+- =coord_hash_size/find=가 =size_t= count와 found bool을 사용해 stored NULL과
+  not-found를 분리한다.
+- =coord_hash_iter_next_ex=는 table/iterator가 공유하는 generation state로 end를
+  =NOT_FOUND=, mutation과 parent destroy를 =INVALIDATED=로 구별한다. Parent destroy
+  뒤에도 iterator destroy와 status query가 table storage를 역참조하지 않는다.
+- =coord_hash_export_keys/entries=와 =coord_hash_format=은 NULL/0 query, exact write,
+  short-buffer 보존과 required count/byte 정책을 구현했다. Format은 key를 정렬해
+  결정적 UTF-8 결과를 만들며 required byte에는 NUL을 포함한다.
+- =coord_hash_equal_keys=와 =coord_hash_equal_full=을 분리했다. Full equality는 같은
+  non-NULL equal callback과 userdata identity를 요구하고 callback exception에서 output을
+  보존하며 =CALLBACK_FAILED=를 반환한다.
+- 128회 deterministic mutation을 =std::map= reference와 비교하고 export와 deep-copy
+  full equality를 검증했다.
+- 2026-07-19 MSVC와 MinGW의 coord module/root =coord_hash*= test가 각각
+  26 cases, 710 assertions를 통과했고, 두 root DLL wrapper gate가 각각 70개를
+  통과했다. Sanitizer CI 확인 후 단계 상태를 닫는다.
 
 ** TODO 4단계: legacy와 wrapper migration
 

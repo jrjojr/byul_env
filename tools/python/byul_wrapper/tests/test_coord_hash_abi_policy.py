@@ -193,6 +193,36 @@ class CoordHashAbiPolicyTest(unittest.TestCase):
             "preserve-table-and-out-inserted",
         )
 
+    def test_canonical_query_contracts_separate_observable_results(self):
+        contracts = load_manifest()["canonical_query_contracts"]
+
+        self.assertEqual(
+            contracts["coord_hash_find"]["stored_null"],
+            "NAVSYS_STATUS_OK-found-true-value-null",
+        )
+        self.assertEqual(
+            contracts["coord_hash_find"]["not_found"],
+            "NAVSYS_STATUS_OK-found-false-value-null",
+        )
+        self.assertEqual(
+            contracts["coord_hash_iter_next_ex"]["end"],
+            "NAVSYS_STATUS_NOT_FOUND",
+        )
+        self.assertEqual(
+            contracts["coord_hash_iter_next_ex"][
+                "parent_mutation_or_destroy"
+            ],
+            "NAVSYS_STATUS_INVALIDATED",
+        )
+        self.assertEqual(
+            contracts["caller_buffer"]["short"],
+            "write-required-preserve-buffer-return-incomplete",
+        )
+        self.assertEqual(
+            contracts["coord_hash_equal_full"]["failure"],
+            "preserve-out-equal",
+        )
+
 
 if __name__ == "__main__":
     unittest.main()

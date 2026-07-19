@@ -1966,8 +1966,8 @@
     {
       "asset_id": "initial:byul/navsys/coord/coord_hash.h",
       "current_path": "byul/navsys/coord/coord_hash.h",
-      "sha256": "ee36dff55588f9fc6218fe3de91bc24ba4de3d9a3872e9269c36625c0fb49b7d",
-      "line_count": 334,
+      "sha256": "a6604c34818c5f5bd3f1750e3616394739db0c9647a0606e3e453a55ca9d5db9",
+      "line_count": 545,
       "language": "c-header",
       "license": "missing-or-unclassified",
       "include_guard": "COORD_HASH_H",
@@ -1978,8 +1978,9 @@
       "representative_type_candidate": "coord_hash_t",
       "declared_type_candidates": [
         "coord_hash_t",
+        "coord_hash_iter_t",
         "coord_hash_create_info_t",
-        "coord_hash_iter_t"
+        "coord_hash_entry_view_t"
       ],
       "naming_disposition": "keep",
       "compatibility_path": null,
@@ -2012,6 +2013,14 @@
         "coord_hash_insert_copy",
         "coord_hash_replace_copy",
         "coord_hash_upsert_copy",
+        "coord_hash_size",
+        "coord_hash_find",
+        "coord_hash_equal_keys",
+        "coord_hash_equal_full",
+        "coord_hash_export_keys",
+        "coord_hash_export_entries",
+        "coord_hash_iter_next_ex",
+        "coord_hash_format",
         "int_copy",
         "int_destroy",
         "scalar_copy",
