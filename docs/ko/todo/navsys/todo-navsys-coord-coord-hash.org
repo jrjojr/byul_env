@@ -260,7 +260,7 @@ BYUL_API navsys_status_t coord_hash_format(
   CFFI와 Navsys ABI inventory check가 일치했다. 저장소 전체 header baseline은
   이 변경과 무관한 선행 header 12개의 hash stale 상태를 별도 확인했다.
 
-** DOING 2단계: create-info와 canonical mutation 구현
+** DONE 2단계: create-info와 canonical mutation 구현
 
 *** 실행
 
@@ -293,7 +293,9 @@ BYUL_API navsys_status_t coord_hash_format(
   차단한다. canonical mutation은 =IN_PROGRESS=를 반환한다.
 - 2026-07-19 MSVC와 MinGW의 coord module/root =coord_hash*= test가 각각
   20 cases, 165 assertions를 통과했고, 두 root DLL의 wrapper gate가 각각
-  69개를 통과했다. Sanitizer CI 확인 후 단계 상태를 닫는다.
+  69개를 통과했다.
+- PR #16의 =Linux UBSan (coord static/root)=가 commit =a1bd228=에서
+  1분 44초로 통과해 static/root sanitizer gate를 확인했다.
 
 ** TODO 3단계: query, iterator, export와 format 구현
 
