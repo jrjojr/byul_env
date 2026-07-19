@@ -296,6 +296,38 @@ int main(void) {
         return 11;
     }
 
+    coord_list_t* legacy_coords = coord_list_create();
+    coord_t zero_coord = {0, 0};
+    coord_t other_coord = {7, 9};
+    coord_t empty_pop = coord_list_pop_back(legacy_coords);
+    if (legacy_coords == NULL
+        || !coord_equal(&empty_pop, &zero_coord)
+        || !coord_list_push_back(legacy_coords, &zero_coord)
+        || !coord_list_push_back(legacy_coords, &other_coord)
+        || !coord_list_insert(
+            legacy_coords, coord_list_length(legacy_coords), &zero_coord)
+        || coord_list_length(legacy_coords) != 3) {
+        fprintf(stderr, "unexpected coord list legacy mutation ABI\n");
+        coord_list_destroy(legacy_coords);
+        return 12;
+    }
+    coord_list_remove_value(legacy_coords, &zero_coord);
+    coord_list_t* legacy_slice =
+        coord_list_sublist(legacy_coords, 0, coord_list_length(legacy_coords));
+    if (coord_list_length(legacy_coords) != 2
+        || !coord_equal(coord_list_front(legacy_coords), &other_coord)
+        || coord_list_find(legacy_coords, &zero_coord) != 1
+        || legacy_slice == NULL
+        || !coord_list_equals(legacy_coords, legacy_slice)
+        || coord_list_sublist(legacy_coords, 0, 0) != NULL) {
+        fprintf(stderr, "unexpected coord list legacy query ABI\n");
+        coord_list_destroy(legacy_slice);
+        coord_list_destroy(legacy_coords);
+        return 13;
+    }
+    coord_list_destroy(legacy_slice);
+    coord_list_destroy(legacy_coords);
+
     if (!route_finder_is_supported(ROUTE_FINDER_ASTAR)
         || !route_finder_is_supported(ROUTE_FINDER_WEIGHTED_ASTAR)
         || route_finder_is_supported(ROUTE_FINDER_BELLMAN_FORD)

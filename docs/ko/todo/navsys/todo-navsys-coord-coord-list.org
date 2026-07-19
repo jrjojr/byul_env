@@ -174,7 +174,7 @@ empty pop은 status 후보를 공통 enum에서 =NOT_FOUND=로 추가할지 =INC
 
 * 구현 순서
 
-** TODO 1단계: collection 의미와 ABI snapshot
+** DONE 1단계: collection 의미와 ABI snapshot
 
 *** 실행
 
@@ -190,6 +190,22 @@ empty pop은 status 후보를 공통 enum에서 =NOT_FOUND=로 추가할지 =INC
 
 - 현행 동작 characterization test를 경계 index와 valid =(0,0)=에 대해 실행한다.
 - old installed SDK consumer를 root shared에 link한다.
+
+*** 완료 기록
+
+- =coord-list-abi-policy.json=에 opaque type 1개와 기존 함수 20개, canonical 추가
+  함수 17개 및 legacy-to-canonical migration을 고정했다. 처분표의 21개 현행
+  선언과 manifest가 정확히 일치한다.
+- empty/null pop은 valid =(0,0)=을 반환하고 find는 =-1=, remove-value는 첫
+  일치 항목만 제거하며 legacy sublist는 비어 있는 =[begin,end)= 범위를
+  거부한다는 현행 동작을 characterization test로 고정했다.
+- canonical 계약은 empty pop을 =NAVSYS_STATUS_NOT_FOUND=로 구분하고,
+  remove-one, =size_t= index, empty slice 허용, caller-buffer export와 실패 시
+  list/out-parameter 보존으로 승인했다.
+- 2026-07-19 MSVC와 MinGW static =test_coord=가 통과했고 MinGW 결과는
+  52 cases, 997 assertions였다. 기존 MSVC/MinGW installed root shared SDK에
+  legacy C consumer를 다시 link하고 실행했으며 Python policy unit gate 39개와
+  =git diff --check=가 통과했다.
 
 ** TODO 2단계: status mutation과 safe fetch 구현
 

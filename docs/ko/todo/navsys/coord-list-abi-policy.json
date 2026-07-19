@@ -1,0 +1,110 @@
+{
+  "schema_version": 1,
+  "header": "byul/navsys/coord/coord_list.h",
+  "legacy_declaration_count": 21,
+  "current_types": {
+    "coord_list_t": "keep"
+  },
+  "current_functions": {
+    "coord_list_create": "deprecate-forward",
+    "coord_list_destroy": "keep",
+    "coord_list_copy": "deprecate-forward",
+    "coord_list_length": "deprecate-forward",
+    "coord_list_empty": "keep",
+    "coord_list_get": "deprecate-forward",
+    "coord_list_front": "deprecate-forward",
+    "coord_list_back": "deprecate-forward",
+    "coord_list_push_back": "deprecate-forward",
+    "coord_list_pop_back": "deprecate-forward",
+    "coord_list_pop_front": "deprecate-forward",
+    "coord_list_insert": "deprecate-forward",
+    "coord_list_remove_at": "deprecate-forward",
+    "coord_list_remove_value": "deprecate-forward",
+    "coord_list_clear": "keep",
+    "coord_list_reverse": "keep",
+    "coord_list_contains": "deprecate-forward",
+    "coord_list_find": "deprecate-forward",
+    "coord_list_sublist": "deprecate-forward",
+    "coord_list_equals": "deprecate-forward"
+  },
+  "canonical_additions": {
+    "coord_list_create_ex": "add",
+    "coord_list_copy_ex": "add",
+    "coord_list_size": "add",
+    "coord_list_reserve": "add",
+    "coord_list_fetch": "add",
+    "coord_list_fetch_front": "add",
+    "coord_list_fetch_back": "add",
+    "coord_list_push_back_ex": "add",
+    "coord_list_try_pop_back": "add",
+    "coord_list_try_pop_front": "add",
+    "coord_list_insert_ex": "add",
+    "coord_list_remove_at_ex": "add",
+    "coord_list_remove_value_ex": "add",
+    "coord_list_find_ex": "add",
+    "coord_list_create_slice": "add",
+    "coord_list_equal": "add",
+    "coord_list_export": "add"
+  },
+  "legacy_characterization": {
+    "null_receiver": {
+      "length": 0,
+      "empty": true,
+      "get_front_back": "null",
+      "push_insert": 0,
+      "pop_front_back": [0, 0],
+      "find": -1,
+      "contains": 0,
+      "sublist": "null",
+      "equals_even_both_null": false
+    },
+    "index": {
+      "get_valid": "borrowed-element-pointer",
+      "get_negative_or_size": "null",
+      "insert_negative_or_greater_than_size": 0,
+      "insert_at_size": "append",
+      "remove_at_invalid": "no-op"
+    },
+    "range": {
+      "sublist": "[start,end)",
+      "full": "owned-deep-copy",
+      "empty": "null",
+      "negative_or_reversed_or_past_end": "null"
+    },
+    "duplicates": {
+      "remove_value": "remove-first-only",
+      "contains": "any-match",
+      "find": "first-index"
+    },
+    "borrowed_lifetime": {
+      "get_front_back": "until-next-non-const-operation-or-destroy",
+      "wrapper_safe_default": "fetch-value-copy"
+    }
+  },
+  "canonical_decisions": {
+    "empty_pop_status": "NAVSYS_STATUS_NOT_FOUND",
+    "remove_value": "remove-first-only-with-out-removed",
+    "slice_range": "[begin,end)-including-empty",
+    "canonical_index_type": "size_t",
+    "failure_guarantee": "preserve-list-and-all-out-parameters",
+    "export": "two-call-caller-buffer"
+  },
+  "migration": {
+    "coord_list_create": "coord_list_create_ex",
+    "coord_list_copy": "coord_list_copy_ex",
+    "coord_list_length": "coord_list_size",
+    "coord_list_get": "coord_list_fetch",
+    "coord_list_front": "coord_list_fetch_front",
+    "coord_list_back": "coord_list_fetch_back",
+    "coord_list_push_back": "coord_list_push_back_ex",
+    "coord_list_pop_back": "coord_list_try_pop_back",
+    "coord_list_pop_front": "coord_list_try_pop_front",
+    "coord_list_insert": "coord_list_insert_ex",
+    "coord_list_remove_at": "coord_list_remove_at_ex",
+    "coord_list_remove_value": "coord_list_remove_value_ex",
+    "coord_list_contains": "coord_list_find_ex",
+    "coord_list_find": "coord_list_find_ex",
+    "coord_list_sublist": "coord_list_create_slice",
+    "coord_list_equals": "coord_list_equal"
+  }
+}

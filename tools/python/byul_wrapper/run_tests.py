@@ -16,6 +16,7 @@ GENERATOR_TESTS = (
     TEST_ROOT / "test_header_parser.py",
     TEST_ROOT / "test_coord_abi_policy.py",
     TEST_ROOT / "test_coord_hash_abi_policy.py",
+    TEST_ROOT / "test_coord_list_abi_policy.py",
     TEST_ROOT / "test_navsys_abi_vocabulary.py",
     TEST_ROOT / "test_tests_runner.py",
     TEST_ROOT / "test_wrapper_coverage.py",
