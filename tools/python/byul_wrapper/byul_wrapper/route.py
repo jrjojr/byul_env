@@ -287,7 +287,12 @@ class c_route:
         return c_coord_list(raw_ptr=C.route_get_visited_order(self._c), own=False)
 
     def visited_count(self):
-        return c_coord_hash(raw_ptr=C.route_get_visited_count(self._c), own=False)
+        return c_coord_hash(
+            raw_ptr=C.route_get_visited_count(self._c),
+            own=False,
+            value_type="int",
+            parent=self,
+        )
 
     def add_visited(self, coord: c_coord):
         return C.route_add_visited(self._c, coord.ptr())

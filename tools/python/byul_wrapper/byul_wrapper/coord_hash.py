@@ -1,4 +1,5 @@
 from .ffi_core import ffi, C
+from .navsys_status import NavsysStatus, raise_for_status
 import weakref
 
 from .coord import c_coord
@@ -49,6 +50,18 @@ typedef struct s_coord_hash_create_info {
     coord_hash_t* hash, const coord_t* key, const void* value,
     bool* out_inserted);
 
+ void* coord_hash_int_copy(const void* value);
+
+ void coord_hash_int_destroy(void* value);
+
+ void* coord_hash_float_copy(const void* value);
+
+ void coord_hash_float_destroy(void* value);
+
+ void* coord_hash_double_copy(const void* value);
+
+ void coord_hash_double_destroy(void* value);
+
 typedef struct s_coord_hash_entry_view {
     coord_t key;
     const void* value;
@@ -82,12 +95,15 @@ typedef struct s_coord_hash_entry_view {
     size_t capacity, size_t* out_required);
 
  void* int_copy(const void* p);
+
  void int_destroy(void* p);
 
  void* scalar_copy(const void* p);
+
  void scalar_destroy(void* p);
 
  void* double_copy(const void* p);
+
  void double_destroy(void* p);
 
  coord_hash_t* coord_hash_create();
@@ -132,6 +148,7 @@ typedef struct s_coord_hash_entry_view {
  bool  coord_hash_equal(const coord_hash_t* a, const coord_hash_t* b);
 
  coord_list_t* coord_hash_keys(const coord_hash_t* hash);
+
  void**        coord_hash_values(
     const coord_hash_t* hash, int* out_count);
 
@@ -160,101 +177,251 @@ typedef void (*coord_hash_func)(
 
  char* coord_hash_to_string(const coord_hash_t* hash);
  void coord_hash_print(const coord_hash_t* hash);
+
+ void coord_hash_buffer_destroy(void* buffer);
 """)
 
+_VALUE_CODECS = {
+    "int": ("int", C.coord_hash_int_copy, C.coord_hash_int_destroy),
+    "float": ("float", C.coord_hash_float_copy, C.coord_hash_float_destroy),
+    "double": ("double", C.coord_hash_double_copy, C.coord_hash_double_destroy),
+    "none": (None, ffi.NULL, ffi.NULL),
+}
+
+
 class c_coord_hash:
-    def __init__(self, raw_ptr=None, own=False):
+    """Typed coord map backed by the checked coord-hash API.
+
+    ``value_type`` is an explicit native codec: ``int``, ``float``, ``double``
+    or ``none``. Borrowed maps retain their parent wrapper for their lifetime.
+    """
+
+    def __init__(
+        self,
+        raw_ptr=None,
+        own=False,
+        *,
+        value_type="int",
+        parent=None,
+    ):
+        if value_type not in _VALUE_CODECS:
+            raise ValueError(
+                "value_type must be 'int', 'float', 'double', or 'none'"
+            )
+        if raw_ptr is not None and not own and parent is None:
+            raise ValueError("borrowed coord hash requires parent")
+
+        self._c = ffi.NULL
+        self._own = False
+        self._finalizer = None
+        self._parent = parent
+        self._value_type = value_type
+        self._ctype, copy_func, destroy_func = _VALUE_CODECS[value_type]
+
         if raw_ptr is not None:
+            if raw_ptr == ffi.NULL:
+                raise ValueError("raw_ptr must not be NULL")
             self._c = raw_ptr
             self._own = own
         else:
-            self._c = C.coord_hash_create()
-            if not self._c:
+            self._c = C.coord_hash_create_full(copy_func, destroy_func)
+            if self._c == ffi.NULL:
                 raise MemoryError("coord_hash allocation failed")
             self._own = True
 
         if self._own:
-            self._finalizer = weakref.finalize(self, C.coord_hash_destroy, self._c)
-        else:
-            self._finalizer = None
+            self._finalizer = weakref.finalize(
+                self, C.coord_hash_destroy, self._c
+            )
+
+    def _require_open(self):
+        if self._c == ffi.NULL:
+            raise ReferenceError("c_coord_hash is closed")
+        return self._c
+
+    @staticmethod
+    def _require_key(key):
+        if not isinstance(key, c_coord):
+            raise TypeError("key must be c_coord")
+        return key.ptr()
+
+    def _encode(self, value):
+        if self._ctype is None:
+            if value is not None:
+                raise TypeError("a 'none' coord hash accepts only None values")
+            return ffi.NULL
+        if value is None:
+            return ffi.NULL
+        return ffi.new(f"{self._ctype}*", value)
+
+    def _decode(self, value):
+        if value == ffi.NULL:
+            return None
+        if self._ctype is None:
+            raise RuntimeError("a 'none' coord hash contains a non-NULL value")
+        return value and ffi.cast(f"{self._ctype}*", value)[0]
 
     def __len__(self):
-        return C.coord_hash_length(self._c)
+        return int(C.coord_hash_size(self._require_open()))
 
     def empty(self):
-        return C.coord_hash_is_empty(self._c)
+        return len(self) == 0
 
-    def get(self, key: c_coord):
-        return C.coord_hash_get(self._c, key.ptr())
+    def get(self, key: c_coord, default=None):
+        value = ffi.new("const void**")
+        found = ffi.new("bool*")
+        raise_for_status(
+            C.coord_hash_find(
+                self._require_open(), self._require_key(key), value, found
+            ),
+            "coord_hash_find",
+        )
+        return self._decode(value[0]) if found[0] else default
 
     def contains(self, key: c_coord):
-        return C.coord_hash_contains(self._c, key.ptr())
-
-    def set(self, key: c_coord, value):
-        C.coord_hash_set(self._c, key.ptr(), value)
+        value = ffi.new("const void**")
+        found = ffi.new("bool*")
+        raise_for_status(
+            C.coord_hash_find(
+                self._require_open(), self._require_key(key), value, found
+            ),
+            "coord_hash_find",
+        )
+        return bool(found[0])
 
     def insert(self, key: c_coord, value):
-        return C.coord_hash_insert(self._c, key.ptr(), value)
+        encoded = self._encode(value)
+        raise_for_status(
+            C.coord_hash_insert_copy(
+                self._require_open(), self._require_key(key), encoded
+            ),
+            "coord_hash_insert_copy",
+        )
+        return True
 
     def replace(self, key: c_coord, value):
-        return C.coord_hash_replace(self._c, key.ptr(), value)
+        encoded = self._encode(value)
+        raise_for_status(
+            C.coord_hash_replace_copy(
+                self._require_open(), self._require_key(key), encoded
+            ),
+            "coord_hash_replace_copy",
+        )
+        return True
+
+    def upsert(self, key: c_coord, value):
+        encoded = self._encode(value)
+        inserted = ffi.new("bool*")
+        raise_for_status(
+            C.coord_hash_upsert_copy(
+                self._require_open(),
+                self._require_key(key),
+                encoded,
+                inserted,
+            ),
+            "coord_hash_upsert_copy",
+        )
+        return bool(inserted[0])
 
     def remove(self, key: c_coord):
-        return C.coord_hash_remove(self._c, key.ptr())
+        return bool(
+            C.coord_hash_remove(self._require_open(), self._require_key(key))
+        )
 
     def clear(self):
-        C.coord_hash_clear(self._c)
-
-    def remove_all(self):
-        C.coord_hash_remove_all(self._c)
+        C.coord_hash_clear(self._require_open())
 
     def copy(self):
-        return c_coord_hash(raw_ptr=C.coord_hash_copy(self._c), own=True)
+        output = ffi.new("coord_hash_t**")
+        raise_for_status(
+            C.coord_hash_copy_ex(self._require_open(), output),
+            "coord_hash_copy_ex",
+        )
+        return c_coord_hash(
+            raw_ptr=output[0], own=True, value_type=self._value_type
+        )
 
     def equals(self, other):
-        return isinstance(other, c_coord_hash) and C.coord_hash_equal(self._c, other._c)
+        if not isinstance(other, c_coord_hash):
+            return False
+        equal = ffi.new("bool*")
+        raise_for_status(
+            C.coord_hash_equal_keys(
+                self._require_open(), other._require_open(), equal
+            ),
+            "coord_hash_equal_keys",
+        )
+        return bool(equal[0])
+
+    def entries(self):
+        required = ffi.new("size_t*")
+        raise_for_status(
+            C.coord_hash_export_entries(
+                self._require_open(), ffi.NULL, 0, required
+            ),
+            "coord_hash_export_entries",
+        )
+        if required[0] == 0:
+            return []
+        output = ffi.new("coord_hash_entry_view_t[]", required[0])
+        raise_for_status(
+            C.coord_hash_export_entries(
+                self._require_open(), output, required[0], required
+            ),
+            "coord_hash_export_entries",
+        )
+        return [
+            (
+                c_coord(output[index].key.x, output[index].key.y),
+                self._decode(output[index].value),
+            )
+            for index in range(required[0])
+        ]
 
     def keys(self):
-        ptr = C.coord_hash_keys(self._c)
-        return c_coord_list(raw_ptr=ptr, own=True) if ptr != ffi.NULL else None
+        return [key for key, _ in self.entries()]
 
     def values(self):
-        out_count = ffi.new("int*")
-        val_ptr = C.coord_hash_values(self._c, out_count)
-        return [val_ptr[i] for i in range(out_count[0])] if val_ptr != ffi.NULL else []
-
-    def to_list(self):
-        ptr = C.coord_hash_to_list(self._c)
-        return c_coord_list(raw_ptr=ptr, own=True) if ptr != ffi.NULL else None
+        return [value for _, value in self.entries()]
 
     def export(self):
-        out_count = ffi.new("int*")
-        keys_out = C.coord_hash_keys(self._c)
-        values_out = ffi.new("void*[]", len(self))
-        C.coord_hash_export(self._c, keys_out, values_out, out_count)
-        keys = c_coord_list(raw_ptr=keys_out, own=True)
-        values = [values_out[i] for i in range(out_count[0])]
-        return keys, values
+        entries = self.entries()
+        return [key for key, _ in entries], [value for _, value in entries]
 
     def foreach(self, func):
         if not callable(func):
             raise TypeError("foreach requires a callable")
+        for key, value in self:
+            func(key, value)
 
-        @ffi.callback("void(const coord_t*, void*, void*)")
-        def callback(c_key, c_val, _):
-            func(c_coord(raw_ptr=c_key), c_val)
-
-        C.coord_hash_foreach(self._c, callback, ffi.NULL)
+    def format(self):
+        required = ffi.new("size_t*")
+        raise_for_status(
+            C.coord_hash_format(self._require_open(), ffi.NULL, 0, required),
+            "coord_hash_format",
+        )
+        output = ffi.new("char[]", required[0])
+        raise_for_status(
+            C.coord_hash_format(
+                self._require_open(), output, required[0], required
+            ),
+            "coord_hash_format",
+        )
+        return ffi.string(output).decode("utf-8")
 
     def __iter__(self):
         return c_coord_hash_iter(self)
 
     def ptr(self):
-        return self._c
+        return self._require_open()
 
     def close(self):
+        if self._c == ffi.NULL:
+            return
         if self._own and self._finalizer and self._finalizer.alive:
             self._finalizer()
+        self._c = ffi.NULL
+        self._parent = None
 
     def __del__(self):
         self.close()
@@ -266,29 +433,44 @@ class c_coord_hash:
         self.close()
 
     def __repr__(self):
-        return f"c_coord_hash(len={len(self)})"
+        return f"c_coord_hash(value_type={self._value_type!r}, len={len(self)})"
+
 
 class c_coord_hash_iter:
     def __init__(self, hash_obj: c_coord_hash):
+        if not isinstance(hash_obj, c_coord_hash):
+            raise TypeError("hash_obj must be c_coord_hash")
+        self._parent = hash_obj
         self._iter = C.coord_hash_iter_create(hash_obj.ptr())
-        if not self._iter:
+        if self._iter == ffi.NULL:
+            self._parent = None
             raise MemoryError("coord_hash_iter allocation failed")
 
     def __iter__(self):
         return self
 
     def __next__(self):
-        key_ptr = ffi.new("coord_t*")
-        val_ptr = ffi.new("void**")
-        if not C.coord_hash_iter_next(self._iter, key_ptr, val_ptr):
+        if self._iter == ffi.NULL:
+            raise StopIteration
+        key = ffi.new("coord_t*")
+        value = ffi.new("const void**")
+        status = NavsysStatus(C.coord_hash_iter_next_ex(
+            self._iter, key, value
+        ))
+        if status is NavsysStatus.NOT_FOUND:
             self.close()
             raise StopIteration
-        return c_coord(raw_ptr=key_ptr), val_ptr[0]
+        raise_for_status(status, "coord_hash_iter_next_ex")
+        return (
+            c_coord(key.x, key.y),
+            self._parent._decode(value[0]),
+        )
 
     def close(self):
-        if self._iter:
+        if self._iter != ffi.NULL:
             C.coord_hash_iter_destroy(self._iter)
-            self._iter = None
+            self._iter = ffi.NULL
+        self._parent = None
 
     def __del__(self):
         self.close()

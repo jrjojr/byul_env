@@ -372,13 +372,13 @@ dstar_lite_t* dstar_lite_create_full(navgrid_t* navgrid,
         dsl->debug_mode_enabled = debug_mode_enabled;
 
         dsl->g_table = coord_hash_create_full(
-            (coord_hash_copy_func) scalar_copy,
-            (coord_hash_destroy_func) scalar_destroy
+            coord_hash_float_copy,
+            coord_hash_float_destroy
         );
 
         dsl->rhs_table = coord_hash_create_full(
-            (coord_hash_copy_func) scalar_copy,
-            (coord_hash_destroy_func) scalar_destroy
+            coord_hash_float_copy,
+            coord_hash_float_destroy
         );
 
         dsl->frontier = dstar_lite_pqueue_create();
@@ -595,13 +595,13 @@ void dstar_lite_reset(dstar_lite_t* dsl) {
     coord_hash_destroy(dsl->rhs_table);
 
     dsl->g_table = coord_hash_create_full(
-        (coord_hash_copy_func) scalar_copy,
-        (coord_hash_destroy_func) scalar_destroy        
+        coord_hash_float_copy,
+        coord_hash_float_destroy
     );
 
     dsl->rhs_table = coord_hash_create_full(
-        (coord_hash_copy_func) scalar_copy,
-        (coord_hash_destroy_func) scalar_destroy        
+        coord_hash_float_copy,
+        coord_hash_float_destroy
     );
 
     if (dsl->proto_route) {

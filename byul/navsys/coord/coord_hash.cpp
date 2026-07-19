@@ -17,31 +17,67 @@ struct coord_hash_iteration_state {
     bool alive = true;
 };
 
+void* coord_hash_int_copy(const void* value) {
+    if (!value) return nullptr;
+    try {
+        return new int(*reinterpret_cast<const int*>(value));
+    } catch (...) {
+        return nullptr;
+    }
+}
+
+void coord_hash_int_destroy(void* value) {
+    delete reinterpret_cast<int*>(value);
+}
+
+void* coord_hash_float_copy(const void* value) {
+    if (!value) return nullptr;
+    try {
+        return new float(*reinterpret_cast<const float*>(value));
+    } catch (...) {
+        return nullptr;
+    }
+}
+
+void coord_hash_float_destroy(void* value) {
+    delete reinterpret_cast<float*>(value);
+}
+
+void* coord_hash_double_copy(const void* value) {
+    if (!value) return nullptr;
+    try {
+        return new double(*reinterpret_cast<const double*>(value));
+    } catch (...) {
+        return nullptr;
+    }
+}
+
+void coord_hash_double_destroy(void* value) {
+    delete reinterpret_cast<double*>(value);
+}
+
 void* int_copy(const void* p) {
-    if (!p) return nullptr;
-    return new int(*reinterpret_cast<const int*>(p));
+    return coord_hash_int_copy(p);
 }
 
 void int_destroy(void* p) {
-    if (p) delete reinterpret_cast<int*>(p);
+    coord_hash_int_destroy(p);
 }
 
 void* scalar_copy(const void* p) {
-    if (!p) return nullptr;
-    return new float(*reinterpret_cast<const float*>(p));
+    return coord_hash_float_copy(p);
 }
 
 void scalar_destroy(void* p) {
-    if (p) delete reinterpret_cast<float*>(p);
+    coord_hash_float_destroy(p);
 }
 
 void* double_copy(const void* p) {
-    if (!p) return nullptr;
-    return new double(*reinterpret_cast<const double*>(p));
+    return coord_hash_double_copy(p);
 }
 
 void double_destroy(void* p) {
-    if (p) delete reinterpret_cast<double*>(p);
+    coord_hash_double_destroy(p);
 }
 
 typedef struct s_coord_hash {
@@ -211,7 +247,8 @@ navsys_status_t coord_hash_create_ex(
 }
 
 coord_hash_t* coord_hash_create() {
-    return coord_hash_create_full(int_copy, int_destroy);
+    return coord_hash_create_full(
+        coord_hash_int_copy, coord_hash_int_destroy);
 }
 
 coord_hash_t* coord_hash_create_full(coord_hash_copy_func copy_func,
@@ -290,38 +327,26 @@ navsys_status_t coord_hash_copy_ex(
 }
 
 bool coord_hash_insert(coord_hash_t* hash, const coord_t* key, void* value) {
-    if (!hash || !key || !hash->value_copy_func
-        || coord_hash_callback_is_active(hash)) {
-        return false;
-    }
-    auto iter = hash->data.find(*key);
-    if (iter != hash->data.end()) {
-        if (hash->value_destroy_func && iter->second) {
-            hash->value_destroy_func(iter->second);
-        }
-        iter->second = value ? hash->value_copy_func(value) : nullptr;
-        coord_hash_mark_mutated(hash);
-        return true;
-    }
-    void* copy_value = value ? hash->value_copy_func(value) : nullptr;
-    hash->data[*key] = copy_value;
-    coord_hash_mark_mutated(hash);
-    return true;
+    bool inserted = false;
+    return coord_hash_upsert_copy(hash, key, value, &inserted)
+        == NAVSYS_STATUS_OK;
 }
 
 bool coord_hash_insert_xy(coord_hash_t* hash, int x, int y, void* value) {
     coord_t temp = { x, y };
-    return coord_hash_insert(hash, &temp, value);
+    return coord_hash_upsert_copy(hash, &temp, value, nullptr)
+        == NAVSYS_STATUS_OK;
 }
 
 bool coord_hash_replace(coord_hash_t* hash, const coord_t* key, void* value) {
-    if (!hash || !key) return false;
-    return coord_hash_insert(hash, key, value);
+    return coord_hash_upsert_copy(hash, key, value, nullptr)
+        == NAVSYS_STATUS_OK;
 }
 
 bool coord_hash_replace_xy(coord_hash_t* hash, int x, int y, void* value) {
     coord_t temp = { x, y };
-    return coord_hash_replace(hash, &temp, value);
+    return coord_hash_upsert_copy(hash, &temp, value, nullptr)
+        == NAVSYS_STATUS_OK;
 }
 
 navsys_status_t coord_hash_insert_copy(
@@ -372,7 +397,7 @@ navsys_status_t coord_hash_upsert_copy(
     const coord_t* key,
     const void* value,
     bool* out_inserted) {
-    if (!hash || !key || !out_inserted) {
+    if (!hash || !key) {
         return NAVSYS_STATUS_INVALID_ARGUMENT;
     }
     if (coord_hash_callback_is_active(hash)) {
@@ -388,7 +413,7 @@ navsys_status_t coord_hash_upsert_copy(
     if (iter == hash->data.end()) {
         status = coord_hash_commit_new_entry(hash, key, copied);
         if (status != NAVSYS_STATUS_OK) return status;
-        *out_inserted = true;
+        if (out_inserted) *out_inserted = true;
         return NAVSYS_STATUS_OK;
     }
 
@@ -396,7 +421,7 @@ navsys_status_t coord_hash_upsert_copy(
     iter->second = copied;
     coord_hash_mark_mutated(hash);
     coord_hash_destroy_stored_value(hash, replaced);
-    *out_inserted = false;
+    if (out_inserted) *out_inserted = false;
     return NAVSYS_STATUS_OK;
 }
 
@@ -816,41 +841,43 @@ navsys_status_t coord_hash_format(
 }
 
 char* coord_hash_to_string(const coord_hash_t* hash) {
-    if (!hash) return NULL;
-    size_t buf_size = 1024;
-    size_t len = 0;
-    char* buffer = (char*)malloc(buf_size);
-    if (!buffer) return NULL;
-    buffer[0] = '\0';
-    coord_hash_iter_t* iter = coord_hash_iter_create((coord_hash_t*)hash);
-    coord_t key;
-    while (coord_hash_iter_next(iter, &key, NULL)) {
-        char entry[64];
-        snprintf(entry, sizeof(entry), "(%d,%d) ", key.x, key.y);
-        size_t entry_len = strlen(entry);
-        if (len + entry_len + 1 >= buf_size) {
-            buf_size *= 2;
-            buffer = (char*)realloc(buffer, buf_size);
-            if (!buffer) {
-                coord_hash_iter_destroy(iter);
-                return NULL;
-            }
-        }
-        strcat(buffer, entry);
-        len += entry_len;
+    size_t required = 0;
+    if (coord_hash_format(hash, nullptr, 0, &required)
+        != NAVSYS_STATUS_OK) {
+        return nullptr;
     }
-    coord_hash_iter_destroy(iter);
+    char* buffer = static_cast<char*>(malloc(required));
+    if (!buffer) return nullptr;
+    if (coord_hash_format(hash, buffer, required, &required)
+        != NAVSYS_STATUS_OK) {
+        free(buffer);
+        return nullptr;
+    }
     return buffer;
 }
 
+void coord_hash_buffer_destroy(void* buffer) {
+    free(buffer);
+}
+
 void coord_hash_print(const coord_hash_t* hash) {
-    char* str = coord_hash_to_string(hash);
-    int len = coord_hash_length(hash);
-    if (str) {
-        printf("coords(len: %d): %s\n", len, str);
-        free(str);
-    }
-    else {
+    size_t required = 0;
+    if (coord_hash_format(hash, nullptr, 0, &required)
+        != NAVSYS_STATUS_OK) {
         printf("coords: (null or empty)\n");
+        return;
     }
+    std::vector<char> buffer;
+    try {
+        buffer.resize(required);
+    } catch (...) {
+        printf("coords: (null or empty)\n");
+        return;
+    }
+    if (coord_hash_format(hash, buffer.data(), buffer.size(), &required)
+        != NAVSYS_STATUS_OK) {
+        printf("coords: (null or empty)\n");
+        return;
+    }
+    printf("coords(len: %zu): %s\n", coord_hash_size(hash), buffer.data());
 }

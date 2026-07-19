@@ -1,10 +1,11 @@
+import gc
 import unittest
+import weakref
 
 from byul_wrapper.coord import c_coord
 from byul_wrapper.coord_hash import c_coord_hash, c_coord_hash_iter
 from byul_wrapper.coord_list import c_coord_list
 from byul_wrapper.cost_coord_pq import c_cost_coord_pq
-from byul_wrapper.ffi_core import ffi
 from byul_wrapper.navsys_status import (
     NavsysInvalidArgumentError,
     NavsysOutOfMemoryError,
@@ -106,20 +107,79 @@ class CoordListTest(unittest.TestCase):
 class CoordHashTest(unittest.TestCase):
     def test_insert_lookup_iteration_and_remove(self):
         with c_coord(4, 5) as key, c_coord_hash() as values:
-            value = ffi.new_handle(17)
-            self.assertTrue(values.insert(key, value))
+            self.assertTrue(values.insert(key, 17))
             self.assertTrue(values.contains(key))
+            self.assertEqual(values.get(key), 17)
             self.assertEqual(len(values), 1)
 
             iterator = c_coord_hash_iter(values)
             try:
-                iterated_key, _ = next(iterator)
+                iterated_key, iterated_value = next(iterator)
                 self.assertEqual(iterated_key.to_tuple(), (4, 5))
+                self.assertEqual(iterated_value, 17)
+                iterated_key.close()
             finally:
                 iterator.close()
 
             self.assertTrue(values.remove(key))
             self.assertTrue(values.empty())
+
+    def test_typed_upsert_export_and_format(self):
+        with (
+            c_coord(2, 3) as later,
+            c_coord(-1, 4) as earlier,
+            c_coord_hash(value_type="float") as values,
+        ):
+            self.assertTrue(values.upsert(later, 1.5))
+            self.assertFalse(values.upsert(later, 2.5))
+            self.assertTrue(values.insert(earlier, 4.0))
+            self.assertEqual(values.get(later), 2.5)
+            self.assertCountEqual(values.values(), [2.5, 4.0])
+            self.assertEqual(values.format(), "(-1,4) (2,3) ")
+            entries = values.entries()
+            try:
+                self.assertCountEqual(
+                    [(key.to_tuple(), value) for key, value in entries],
+                    [((-1, 4), 4.0), ((2, 3), 2.5)],
+                )
+            finally:
+                for key, _ in entries:
+                    key.close()
+
+    def test_none_codec_rejects_non_null_values(self):
+        with c_coord(1, 1) as key, c_coord_hash(value_type="none") as values:
+            self.assertTrue(values.insert(key, None))
+            self.assertIsNone(values.get(key))
+            with self.assertRaises(TypeError):
+                values.upsert(key, 1)
+
+    def test_iterator_retains_parent_until_close(self):
+        key = c_coord(7, 8)
+        values = c_coord_hash()
+        values.insert(key, 70)
+        iterator = iter(values)
+        values_ref = weakref.ref(values)
+        del values
+        gc.collect()
+        self.assertIsNotNone(values_ref())
+
+        iterated_key, iterated_value = next(iterator)
+        self.assertEqual(iterated_key.to_tuple(), (7, 8))
+        self.assertEqual(iterated_value, 70)
+        iterated_key.close()
+        iterator.close()
+        gc.collect()
+        self.assertIsNone(values_ref())
+        key.close()
+
+    def test_close_invalidates_public_access(self):
+        values = c_coord_hash()
+        values.close()
+        values.close()
+        with self.assertRaises(ReferenceError):
+            len(values)
+        with self.assertRaises(ReferenceError):
+            values.ptr()
 
 
 class CostCoordPriorityQueueTest(unittest.TestCase):

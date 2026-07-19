@@ -598,6 +598,46 @@ TEST_CASE("coord_hash legacy insert and replace are copy-upsert") {
     CHECK(g_counts.destroy_calls == 4);
 }
 
+TEST_CASE("coord_hash typed helpers and legacy allocation destroy adapters") {
+    int source_int = 17;
+    float source_float = 2.5f;
+    double source_double = 9.25;
+
+    int* copied_int = static_cast<int*>(coord_hash_int_copy(&source_int));
+    float* copied_float =
+        static_cast<float*>(coord_hash_float_copy(&source_float));
+    double* copied_double =
+        static_cast<double*>(coord_hash_double_copy(&source_double));
+    REQUIRE(copied_int != nullptr);
+    REQUIRE(copied_float != nullptr);
+    REQUIRE(copied_double != nullptr);
+    CHECK(*copied_int == source_int);
+    CHECK(*copied_float == source_float);
+    CHECK(*copied_double == source_double);
+    coord_hash_int_destroy(copied_int);
+    coord_hash_float_destroy(copied_float);
+    coord_hash_double_destroy(copied_double);
+
+    coord_hash_t* hash = coord_hash_create();
+    REQUIRE(hash != nullptr);
+    coord_t key = {4, 2};
+    CHECK(coord_hash_upsert_copy(hash, &key, &source_int, nullptr)
+        == NAVSYS_STATUS_OK);
+
+    int count = -1;
+    void** values = coord_hash_values(hash, &count);
+    REQUIRE(values != nullptr);
+    CHECK(count == 1);
+    CHECK(*static_cast<int*>(values[0]) == source_int);
+    coord_hash_buffer_destroy(values);
+
+    char* formatted = coord_hash_to_string(hash);
+    REQUIRE(formatted != nullptr);
+    CHECK(std::string(formatted) == "(4,2) ");
+    coord_hash_buffer_destroy(formatted);
+    coord_hash_destroy(hash);
+}
+
 TEST_CASE("coord_hash legacy set stores exact pointer and leaks replaced owner") {
     reset_copy_destroy_counts();
     coord_hash_t* hash =

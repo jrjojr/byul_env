@@ -2,7 +2,7 @@
   "schema_version": 1,
   "header": "byul/navsys/coord/coord_hash.h",
   "abi_line": "1.x",
-  "declaration_count": 58,
+  "declaration_count": 65,
   "legacy_declaration_count": 40,
   "current_types": {
     "coord_hash_t": "keep",
@@ -22,6 +22,12 @@
     "coord_hash_insert_copy": "add",
     "coord_hash_replace_copy": "add",
     "coord_hash_upsert_copy": "add",
+    "coord_hash_int_copy": "add",
+    "coord_hash_int_destroy": "add",
+    "coord_hash_float_copy": "add",
+    "coord_hash_float_destroy": "add",
+    "coord_hash_double_copy": "add",
+    "coord_hash_double_destroy": "add",
     "coord_hash_size": "add",
     "coord_hash_find": "add",
     "coord_hash_equal_keys": "add",
@@ -30,6 +36,7 @@
     "coord_hash_export_entries": "add",
     "coord_hash_iter_next_ex": "add",
     "coord_hash_format": "add",
+    "coord_hash_buffer_destroy": "add",
     "int_copy": "deprecate-forward",
     "int_destroy": "deprecate-forward",
     "scalar_copy": "deprecate-forward",
@@ -84,9 +91,11 @@
       "failure": "preserve-table"
     },
     "coord_hash_upsert_copy": {
-      "result": "out-inserted-bool",
+      "result": "optional-out-inserted-bool",
       "failure": "preserve-table-and-out-inserted"
-    }
+    },
+    "typed_helpers": "coord-hash-prefixed-int-float-double-copy-destroy",
+    "legacy_allocation_destroy": "coord_hash_buffer_destroy"
   },
   "canonical_query_contracts": {
     "coord_hash_find": {

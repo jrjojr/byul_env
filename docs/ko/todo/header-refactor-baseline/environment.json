@@ -1,17 +1,28 @@
 {
   "schema_version": 1,
-  "captured_at_utc": "2026-07-19T09:47:20.482806+00:00",
-  "git_head": "081c414d267243a33089e47a56495516b7e35178",
+  "captured_at_utc": "2026-07-19T10:11:49.230809+00:00",
+  "git_head": "a47ff080754d125a2cfe7818c3ce1dd7d530dc1f",
   "git_branch": "refactor/navsys-coord-hash",
   "git_status_porcelain": [
     "M byul/navsys/coord/coord_hash.cpp",
     " M byul/navsys/coord/coord_hash.h",
     " M byul/navsys/coord/tests/test_module_coord_hash.cpp",
+    " M byul/navsys/dstar_lite/dstar_lite.cpp",
+    " M byul/navsys/route_finder/astar.cpp",
+    " M byul/navsys/route_finder/dijkstra.cpp",
+    " M byul/navsys/route_finder/fringe_search.cpp",
+    " M byul/navsys/route_finder/ida_star.cpp",
+    " M byul/navsys/route_finder/sma_star.cpp",
+    " M byul/navsys/route_finder/weighted_astar.cpp",
+    " M byul/tests/sdk_consumer/main.c",
     " M docs/ko/todo/navsys/coord-hash-abi-policy.json",
     " M docs/ko/todo/navsys/navsys-current-abi-inventory.json",
-    " M docs/ko/todo/navsys/todo-navsys-coord-coord-hash.org",
     " M tools/python/byul_wrapper/byul_wrapper/coord_hash.py",
-    " M tools/python/byul_wrapper/tests/test_coord_hash_abi_policy.py"
+    " M tools/python/byul_wrapper/byul_wrapper/dstar_lite.py",
+    " M tools/python/byul_wrapper/byul_wrapper/navgrid.py",
+    " M tools/python/byul_wrapper/byul_wrapper/route.py",
+    " M tools/python/byul_wrapper/tests/test_coord_containers.py",
+    "?? tools/python/byul_wrapper/tests/test_coord_hash_symbol_intersection.py"
   ],
   "rules_submodule_sha": "d0818d472c7e4300f04500fa5b5a13ad0aa5ee35",
   "platform": {

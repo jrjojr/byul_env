@@ -174,15 +174,15 @@ BYUL_API navsys_status_t coord_hash_replace_copy(
 /**
  * @brief Inserts or replaces one copied value.
  *
- * NULL is a valid value. Failure preserves hash and out_inserted.
+ * NULL is a valid value. Failure preserves hash and a non-NULL out_inserted.
  *
  * @param[in,out] hash Table to mutate.
  * @param[in] key Key to insert or replace.
  * @param[in] value Borrowed source value copied during the call, or NULL.
- * @param[out] out_inserted Receives true for insertion or false for replacement.
+ * @param[out] out_inserted Optional insertion/replacement result.
  * @return Common Navsys status value.
  * @retval NAVSYS_STATUS_OK The value was committed.
- * @retval NAVSYS_STATUS_INVALID_ARGUMENT A required pointer is NULL.
+ * @retval NAVSYS_STATUS_INVALID_ARGUMENT hash or key is NULL.
  * @retval NAVSYS_STATUS_UNSUPPORTED A non-NULL value has no copy callback.
  * @retval NAVSYS_STATUS_CALLBACK_FAILED A callback failed.
  * @retval NAVSYS_STATUS_OUT_OF_MEMORY Copy or insertion allocation failed.
@@ -190,15 +190,96 @@ BYUL_API navsys_status_t coord_hash_replace_copy(
  * @byul.nullable hash false
  * @byul.nullable key false
  * @byul.nullable value true
- * @byul.nullable out_inserted false
+ * @byul.nullable out_inserted true
  * @byul.error enum:navsys_status_t
- * @byul.side_effect mutates:hash,out_inserted-on-success
+ * @byul.side_effect mutates:hash,out_inserted-on-success-when-non-null
  * @byul.thread_safety thread-compatible
  * @byul.blocking false
  */
 BYUL_API navsys_status_t coord_hash_upsert_copy(
     coord_hash_t* hash, const coord_t* key, const void* value,
     bool* out_inserted);
+
+/**
+ * @brief int 값을 coord hash callback 규약에 맞게 복제한다.
+ *
+ * @param[in] value 복제할 int 값. NULL이면 NULL을 반환한다.
+ * @return 새로 할당한 int 값 또는 NULL.
+ * @byul.nullable value true
+ * @byul.nullable return true
+ * @byul.lifetime return caller-owned
+ * @byul.memory return coord_hash_int_destroy
+ * @byul.error null-return
+ * @byul.thread_safety thread-safe
+ * @byul.blocking false
+ */
+BYUL_API void* coord_hash_int_copy(const void* value);
+
+/**
+ * @brief coord_hash_int_copy()가 할당한 값을 해제한다.
+ *
+ * @param[in,out] value 해제할 int 값. NULL은 허용한다.
+ * @byul.nullable value true
+ * @byul.side_effect frees:value
+ * @byul.error none
+ * @byul.thread_safety thread-safe
+ * @byul.blocking false
+ */
+BYUL_API void coord_hash_int_destroy(void* value);
+
+/**
+ * @brief float 값을 coord hash callback 규약에 맞게 복제한다.
+ *
+ * @param[in] value 복제할 float 값. NULL이면 NULL을 반환한다.
+ * @return 새로 할당한 float 값 또는 NULL.
+ * @byul.nullable value true
+ * @byul.nullable return true
+ * @byul.lifetime return caller-owned
+ * @byul.memory return coord_hash_float_destroy
+ * @byul.error null-return
+ * @byul.thread_safety thread-safe
+ * @byul.blocking false
+ */
+BYUL_API void* coord_hash_float_copy(const void* value);
+
+/**
+ * @brief coord_hash_float_copy()가 할당한 값을 해제한다.
+ *
+ * @param[in,out] value 해제할 float 값. NULL은 허용한다.
+ * @byul.nullable value true
+ * @byul.side_effect frees:value
+ * @byul.error none
+ * @byul.thread_safety thread-safe
+ * @byul.blocking false
+ */
+BYUL_API void coord_hash_float_destroy(void* value);
+
+/**
+ * @brief double 값을 coord hash callback 규약에 맞게 복제한다.
+ *
+ * @param[in] value 복제할 double 값. NULL이면 NULL을 반환한다.
+ * @return 새로 할당한 double 값 또는 NULL.
+ * @byul.nullable value true
+ * @byul.nullable return true
+ * @byul.lifetime return caller-owned
+ * @byul.memory return coord_hash_double_destroy
+ * @byul.error null-return
+ * @byul.thread_safety thread-safe
+ * @byul.blocking false
+ */
+BYUL_API void* coord_hash_double_copy(const void* value);
+
+/**
+ * @brief coord_hash_double_copy()가 할당한 값을 해제한다.
+ *
+ * @param[in,out] value 해제할 double 값. NULL은 허용한다.
+ * @byul.nullable value true
+ * @byul.side_effect frees:value
+ * @byul.error none
+ * @byul.thread_safety thread-safe
+ * @byul.blocking false
+ */
+BYUL_API void coord_hash_double_destroy(void* value);
 
 /**
  * @brief Caller buffer로 내보내는 key와 borrowed value view다.
@@ -411,13 +492,19 @@ BYUL_API navsys_status_t coord_hash_format(
     const coord_hash_t* hash, char* out_buffer,
     size_t capacity, size_t* out_required);
 
+BYUL_DEPRECATED("Use coord_hash_int_copy; removal is planned for ABI 2.")
 BYUL_API void* int_copy(const void* p);
+BYUL_DEPRECATED("Use coord_hash_int_destroy; removal is planned for ABI 2.")
 BYUL_API void int_destroy(void* p);
 
+BYUL_DEPRECATED("Use coord_hash_float_copy; removal is planned for ABI 2.")
 BYUL_API void* scalar_copy(const void* p);
+BYUL_DEPRECATED("Use coord_hash_float_destroy; removal is planned for ABI 2.")
 BYUL_API void scalar_destroy(void* p);
 
+BYUL_DEPRECATED("Use coord_hash_double_copy; removal is planned for ABI 2.")
 BYUL_API void* double_copy(const void* p);
+BYUL_DEPRECATED("Use coord_hash_double_destroy; removal is planned for ABI 2.")
 BYUL_API void double_destroy(void* p);
 
 // Creation/Destruction
@@ -470,9 +557,11 @@ BYUL_API bool  coord_hash_contains(
     const coord_hash_t* hash, const coord_t* key);
 
 // Set/Modify
+BYUL_DEPRECATED("Unsafe ownership transfer; use coord_hash_upsert_copy.")
 BYUL_API void  coord_hash_set(coord_hash_t* hash, 
     const coord_t* key, void* value); 
 
+BYUL_DEPRECATED("Use coord_hash_upsert_copy; removal is planned for ABI 2.")
 BYUL_API bool  coord_hash_insert(coord_hash_t* hash, 
     const coord_t* key, void* value); 
 
@@ -487,13 +576,16 @@ BYUL_API bool  coord_hash_insert(coord_hash_t* hash,
  * @param[in]  value  Pointer to value to store
  * @return true on success, false on failure (null key or hash)
  */
+BYUL_DEPRECATED("Use coord_hash_upsert_copy; removal is planned for ABI 2.")
 BYUL_API bool coord_hash_insert_xy(
     coord_hash_t* hash, int x, int y, void* value);
 
 // Keep the key but change its value. If the key already exists
+BYUL_DEPRECATED("Use coord_hash_upsert_copy; removal is planned for ABI 2.")
 BYUL_API bool coord_hash_replace(coord_hash_t* hash, 
     const coord_t* key, void* value);    
 
+BYUL_DEPRECATED("Use coord_hash_upsert_copy; removal is planned for ABI 2.")
 BYUL_API bool coord_hash_replace_xy(
     coord_hash_t* hash, int x, int y, void* value);
     
@@ -506,6 +598,7 @@ BYUL_API bool  coord_hash_equal(const coord_hash_t* a, const coord_hash_t* b);
 
 // Key/Value Access
 BYUL_API coord_list_t* coord_hash_keys(const coord_hash_t* hash);
+BYUL_DEPRECATED("Use coord_hash_export_entries; removal is planned for ABI 2.")
 BYUL_API void**        coord_hash_values(
     const coord_hash_t* hash, int* out_count);
 
@@ -535,8 +628,24 @@ BYUL_API bool coord_hash_iter_next(
 BYUL_API void coord_hash_iter_destroy(
     coord_hash_iter_t* iter);
 
+BYUL_DEPRECATED("Use coord_hash_format; removal is planned for ABI 2.")
 BYUL_API char* coord_hash_to_string(const coord_hash_t* hash);
 BYUL_API void coord_hash_print(const coord_hash_t* hash);
+
+/**
+ * @brief ABI 1 coord hash allocation 반환값을 해제한다.
+ *
+ * coord_hash_values() 또는 coord_hash_to_string()이 반환한 non-NULL pointer만
+ * 전달해야 한다.
+ *
+ * @param[in,out] buffer 해제할 allocation. NULL은 허용한다.
+ * @byul.nullable buffer true
+ * @byul.side_effect frees:buffer
+ * @byul.error none
+ * @byul.thread_safety thread-safe
+ * @byul.blocking false
+ */
+BYUL_API void coord_hash_buffer_destroy(void* buffer);
 
 #ifdef __cplusplus
 }

@@ -1966,8 +1966,8 @@
     {
       "asset_id": "initial:byul/navsys/coord/coord_hash.h",
       "current_path": "byul/navsys/coord/coord_hash.h",
-      "sha256": "a6604c34818c5f5bd3f1750e3616394739db0c9647a0606e3e453a55ca9d5db9",
-      "line_count": 545,
+      "sha256": "950707cc513b4d4bba24c1c730c702fb3a7cd841c936eb9b8ce6982f2a837c1f",
+      "line_count": 654,
       "language": "c-header",
       "license": "missing-or-unclassified",
       "include_guard": "COORD_HASH_H",
@@ -2013,6 +2013,12 @@
         "coord_hash_insert_copy",
         "coord_hash_replace_copy",
         "coord_hash_upsert_copy",
+        "coord_hash_int_copy",
+        "coord_hash_int_destroy",
+        "coord_hash_float_copy",
+        "coord_hash_float_destroy",
+        "coord_hash_double_copy",
+        "coord_hash_double_destroy",
         "coord_hash_size",
         "coord_hash_find",
         "coord_hash_equal_keys",
@@ -2055,7 +2061,8 @@
         "coord_hash_iter_next",
         "coord_hash_iter_destroy",
         "coord_hash_to_string",
-        "coord_hash_print"
+        "coord_hash_print",
+        "coord_hash_buffer_destroy"
       ],
       "source_definition_candidates": [
         "byul/console/console.cpp",
@@ -2098,7 +2105,8 @@
         "byul/navsys/route_finder/ida_star.cpp",
         "byul/navsys/route_finder/rta_star.cpp",
         "byul/navsys/route_finder/sma_star.cpp",
-        "byul/navsys/route_finder/weighted_astar.cpp"
+        "byul/navsys/route_finder/weighted_astar.cpp",
+        "byul/tests/sdk_consumer/main.c"
       ],
       "decision_status": "candidate-only"
     },

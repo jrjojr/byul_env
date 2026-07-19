@@ -5,6 +5,7 @@
 
 #include "byul.h"
 #include "coord.h"
+#include "coord_hash.h"
 #include "navsys_status.h"
 
 static bool cancel_immediately(void* userdata) {
@@ -161,6 +162,48 @@ int main(void) {
         fprintf(stderr, "unexpected coord checked/format ABI\n");
         return 8;
     }
+
+    coord_hash_t* coord_values = coord_hash_create_full(
+        coord_hash_int_copy, coord_hash_int_destroy);
+    coord_t hash_key = {4, 2};
+    int hash_value = 17;
+    bool inserted = false;
+    const void* borrowed_value = NULL;
+    bool found = false;
+    if (coord_values == NULL
+        || coord_hash_upsert_copy(
+            coord_values, &hash_key, &hash_value, &inserted)
+            != NAVSYS_STATUS_OK
+        || !inserted
+        || coord_hash_find(
+            coord_values, &hash_key, &borrowed_value, &found)
+            != NAVSYS_STATUS_OK
+        || !found
+        || borrowed_value == NULL
+        || *(const int*)borrowed_value != hash_value
+        || !coord_hash_insert(coord_values, &hash_key, &hash_value)) {
+        fprintf(stderr, "unexpected coord hash old/new ABI\n");
+        coord_hash_destroy(coord_values);
+        return 9;
+    }
+    int legacy_value_count = 0;
+    void** legacy_values =
+        coord_hash_values(coord_values, &legacy_value_count);
+    char* legacy_text = coord_hash_to_string(coord_values);
+    if (legacy_values == NULL
+        || legacy_value_count != 1
+        || legacy_text == NULL
+        || strcmp(legacy_text, "(4,2) ") != 0) {
+        fprintf(stderr, "unexpected coord hash legacy allocation ABI\n");
+        coord_hash_buffer_destroy(legacy_values);
+        coord_hash_buffer_destroy(legacy_text);
+        coord_hash_destroy(coord_values);
+        return 10;
+    }
+    coord_hash_buffer_destroy(legacy_values);
+    coord_hash_buffer_destroy(legacy_text);
+    coord_hash_destroy(coord_values);
+
     if (!route_finder_is_supported(ROUTE_FINDER_ASTAR)
         || !route_finder_is_supported(ROUTE_FINDER_WEIGHTED_ASTAR)
         || route_finder_is_supported(ROUTE_FINDER_BELLMAN_FORD)
