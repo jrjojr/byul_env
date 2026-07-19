@@ -1129,7 +1129,7 @@
     {
       "asset_id": "initial:byul/byul_config.h",
       "current_path": "byul/byul_config.h",
-      "sha256": "923d10bada82adab6e08046dbabd48ddd59de6f5c5d9c64ac33cb86f8f4b8655",
+      "sha256": "20664ae21c23124738cb0587b4721fd2bd76c49ab7d03827ca8c4b1be016ce07",
       "line_count": 75,
       "language": "c-header",
       "license": "missing-or-unclassified",
@@ -1812,7 +1812,7 @@
     {
       "asset_id": "initial:byul/navsys/coord/coord.h",
       "current_path": "byul/navsys/coord/coord.h",
-      "sha256": "f71f6b2625cea24660821d81e13eaf62eab792651650babcf8135bc064c5f94a",
+      "sha256": "78488c9096f5c687b6fead5632c0de6f135b7da63cb038d6a6d750118852bdd6",
       "line_count": 694,
       "language": "c-header",
       "license": "copyright-present-license-unclassified",
@@ -1966,8 +1966,8 @@
     {
       "asset_id": "initial:byul/navsys/coord/coord_hash.h",
       "current_path": "byul/navsys/coord/coord_hash.h",
-      "sha256": "9f816694cd8e9ea7c7be3fedca92c87f57c0599bdbcb553402065c9499a90091",
-      "line_count": 152,
+      "sha256": "ee36dff55588f9fc6218fe3de91bc24ba4de3d9a3872e9269c36625c0fb49b7d",
+      "line_count": 334,
       "language": "c-header",
       "license": "missing-or-unclassified",
       "include_guard": "COORD_HASH_H",
@@ -1978,6 +1978,7 @@
       "representative_type_candidate": "coord_hash_t",
       "declared_type_candidates": [
         "coord_hash_t",
+        "coord_hash_create_info_t",
         "coord_hash_iter_t"
       ],
       "naming_disposition": "keep",
@@ -2006,6 +2007,11 @@
       ],
       "wrapper_modules_registered": true,
       "exported_symbols": [
+        "coord_hash_create_ex",
+        "coord_hash_copy_ex",
+        "coord_hash_insert_copy",
+        "coord_hash_replace_copy",
+        "coord_hash_upsert_copy",
         "int_copy",
         "int_destroy",
         "scalar_copy",
@@ -2271,7 +2277,7 @@
     {
       "asset_id": "initial:byul/navsys/dstar_lite/dstar_lite.h",
       "current_path": "byul/navsys/dstar_lite/dstar_lite.h",
-      "sha256": "8f52659e0e18fe3778ead40e57f16f0f2228b7071557016715a796a5cda138e6",
+      "sha256": "c8aef28a23a03374b742cf6da3bcbaf16e0b8e2e03905015929ff484104fdcbb",
       "line_count": 545,
       "language": "c-header",
       "license": "missing-or-unclassified",
@@ -2592,7 +2598,7 @@
     {
       "asset_id": "initial:byul/navsys/dstar_lite/internal/dstar_lite_callback.hpp",
       "current_path": "byul/navsys/dstar_lite/internal/dstar_lite_callback.hpp",
-      "sha256": "d8e60a942ef9fbe14aa3f36dbd54f486f90ca05ab35f5c4cd41e81b937b2626d",
+      "sha256": "e75332bdf9b498c9f753306d8d69c1d90ee6c0fea4192bb6055007db6ce31434",
       "line_count": 75,
       "language": "c++-header",
       "license": "copyright-present-license-unclassified",
@@ -3169,7 +3175,7 @@
     {
       "asset_id": "initial:byul/navsys/navgrid/internal/navgrid_callback.hpp",
       "current_path": "byul/navsys/navgrid/internal/navgrid_callback.hpp",
-      "sha256": "1682e79d1ab27b86626c4c3ad4accd6fb7cd4e3434ed7ba1199108cac48c3897",
+      "sha256": "c3a30a1231840e08f9a874470f89ef6db6d4cd2481eb8a699106b28f78acf018",
       "line_count": 46,
       "language": "c++-header",
       "license": "copyright-present-license-unclassified",
@@ -3246,7 +3252,7 @@
     {
       "asset_id": "initial:byul/navsys/navgrid/navgrid.h",
       "current_path": "byul/navsys/navgrid/navgrid.h",
-      "sha256": "33578672ebedd7d51484bd43c711dc4897a672b25cb3ab91be622cc271d070f9",
+      "sha256": "8fc7a683311248b126722e6b77907e48cd2c9181e60c24704dc4ae2833bdfd6d",
       "line_count": 238,
       "language": "c-header",
       "license": "missing-or-unclassified",
@@ -3362,7 +3368,7 @@
     {
       "asset_id": "initial:byul/navsys/navsys.h",
       "current_path": "byul/navsys/navsys.h",
-      "sha256": "89552638839d7e35d2b589e84fb4f954e24d9600b25e7749a5069f4e8be51eeb",
+      "sha256": "b558b749ce4eec39755f7befe204e26605c26768fb25ac7f4e4705d38dcd29f8",
       "line_count": 126,
       "language": "c-header",
       "license": "copyright-present-license-unclassified",
@@ -3412,7 +3418,7 @@
     {
       "asset_id": "initial:byul/navsys/navsys_status.h",
       "current_path": "byul/navsys/navsys_status.h",
-      "sha256": "70fcd9d0d728faccaacefb37128750fd7d7748d0346d50cdf415cdf0c77e94a9",
+      "sha256": "478d49ff912534da7a322c877b4a94b1a8abefdd5c16e8e5a9cc06a1b6fedaa2",
       "line_count": 49,
       "language": "c-header",
       "license": "copyright-present-license-unclassified",
@@ -3439,6 +3445,7 @@
       "install_inventory": true,
       "umbrella_consumers": [
         "byul/navsys/coord/coord.h",
+        "byul/navsys/coord/coord_hash.h",
         "byul/navsys/dstar_lite/dstar_lite.h",
         "byul/navsys/navgrid/navgrid.h",
         "byul/navsys/navsys.h",
@@ -3578,7 +3585,7 @@
     {
       "asset_id": "initial:byul/navsys/route/route.h",
       "current_path": "byul/navsys/route/route.h",
-      "sha256": "a228bbf84ed1813ec740b38a5ee4b08fff48172139ff5da03cf7322b5d53a3ce",
+      "sha256": "091c82f09a699f8ca14fe77c7464a407ca6e5cb7e1779319d3025fa2bb342f3f",
       "line_count": 282,
       "language": "c-header",
       "license": "missing-or-unclassified",
@@ -4064,7 +4071,7 @@
     {
       "asset_id": "initial:byul/navsys/route_finder/route_finder.h",
       "current_path": "byul/navsys/route_finder/route_finder.h",
-      "sha256": "f9283bebd5a3db74df937d45a213eff4926f91dfe81d3383e7fdcb67185ad4c8",
+      "sha256": "6a08807a60297f2ca5c2937a1c4b00c458f200c9c0037126d143265f026198aa",
       "line_count": 620,
       "language": "c-header",
       "license": "missing-or-unclassified",
@@ -4346,7 +4353,7 @@
     {
       "asset_id": "initial:byul/numal/dualnumber.h",
       "current_path": "byul/numal/dualnumber.h",
-      "sha256": "c745a2cff5547a1d2611a3e82a60aecc0ee8ea5febf27a1f76ac659b352bc9a2",
+      "sha256": "f30a43433088949e5d57018ef6b96e1caef949146616ce3b383f1a8f4a231dbd",
       "line_count": 80,
       "language": "c-header",
       "license": "missing-or-unclassified",
@@ -4868,7 +4875,7 @@
     {
       "asset_id": "initial:byul/numal/vec3.h",
       "current_path": "byul/numal/vec3.h",
-      "sha256": "35834dd837a91955602e0bbfda0f7f6766337fc17423c88261797b75c0eb7cbf",
+      "sha256": "25960009b944e3105e2d5e6d3d0d1ac4fe1e986f91e962a91c3c2df9fcd826e8",
       "line_count": 237,
       "language": "c-header",
       "license": "missing-or-unclassified",

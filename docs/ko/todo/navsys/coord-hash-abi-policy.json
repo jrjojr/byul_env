@@ -2,15 +2,25 @@
   "schema_version": 1,
   "header": "byul/navsys/coord/coord_hash.h",
   "abi_line": "1.x",
-  "declaration_count": 40,
+  "declaration_count": 49,
+  "legacy_declaration_count": 40,
   "current_types": {
     "coord_hash_t": "keep",
     "coord_hash_copy_func": "abi-major",
     "coord_hash_destroy_func": "abi-major",
+    "coord_hash_value_copy_func_ex": "add",
+    "coord_hash_value_destroy_func_ex": "add",
+    "coord_hash_value_equal_func_ex": "add",
+    "coord_hash_create_info_t": "add",
     "coord_hash_func": "abi-major",
     "coord_hash_iter_t": "keep"
   },
   "current_functions": {
+    "coord_hash_create_ex": "add",
+    "coord_hash_copy_ex": "add",
+    "coord_hash_insert_copy": "add",
+    "coord_hash_replace_copy": "add",
+    "coord_hash_upsert_copy": "add",
     "int_copy": "deprecate-forward",
     "int_destroy": "deprecate-forward",
     "scalar_copy": "deprecate-forward",
@@ -46,6 +56,28 @@
     "coord_hash_iter_destroy": "keep",
     "coord_hash_to_string": "deprecate-forward",
     "coord_hash_print": "deprecate-forward"
+  },
+  "canonical_mutation_contracts": {
+    "create_info_abi_version": 1,
+    "callback_binding": "immutable-function-userdata-pair",
+    "callback_output_failure": "preserve-out-copy",
+    "destroy_callback": "non-throwing-no-same-table-reentry",
+    "coord_hash_copy_ex": {
+      "missing_copy_callback": "NAVSYS_STATUS_UNSUPPORTED",
+      "failure": "preserve-source-and-out-hash"
+    },
+    "coord_hash_insert_copy": {
+      "duplicate": "NAVSYS_STATUS_INVALID_ARGUMENT",
+      "failure": "preserve-table"
+    },
+    "coord_hash_replace_copy": {
+      "missing": "NAVSYS_STATUS_NOT_FOUND",
+      "failure": "preserve-table"
+    },
+    "coord_hash_upsert_copy": {
+      "result": "out-inserted-bool",
+      "failure": "preserve-table-and-out-inserted"
+    }
   },
   "legacy_storage": {
     "key_storage": "coord_t-by-value",

@@ -43,7 +43,142 @@ typedef struct s_coord_hash {
         byul::navsys::detail::coord_equal> data;
     coord_hash_copy_func value_copy_func = nullptr;
     coord_hash_destroy_func value_destroy_func = nullptr;
+    coord_hash_value_copy_func_ex value_copy_func_ex = nullptr;
+    coord_hash_value_destroy_func_ex value_destroy_func_ex = nullptr;
+    coord_hash_value_equal_func_ex value_equal_func_ex = nullptr;
+    void* callback_userdata = nullptr;
 }coord_hash_t;
+
+namespace {
+
+thread_local const coord_hash_t* active_callback_hash = nullptr;
+
+class coord_hash_callback_scope {
+public:
+    explicit coord_hash_callback_scope(const coord_hash_t* hash)
+        : previous_(active_callback_hash) {
+        active_callback_hash = hash;
+    }
+
+    ~coord_hash_callback_scope() {
+        active_callback_hash = previous_;
+    }
+
+private:
+    const coord_hash_t* previous_;
+};
+
+coord_hash_t* coord_hash_allocate() noexcept {
+    void* storage = nullptr;
+    try {
+        storage = ::operator new(sizeof(s_coord_hash));
+        return ::new (storage) s_coord_hash;
+    } catch (...) {
+        ::operator delete(storage);
+        return nullptr;
+    }
+}
+
+void coord_hash_destroy_stored_value(
+    coord_hash_t* hash, void* value) noexcept {
+    if (!hash || !value) return;
+    try {
+        coord_hash_callback_scope scope(hash);
+        if (hash->value_destroy_func_ex) {
+            hash->value_destroy_func_ex(value, hash->callback_userdata);
+        } else if (hash->value_destroy_func) {
+            hash->value_destroy_func(value);
+        }
+    } catch (...) {
+        // A destroy callback is required to be non-throwing. Keep exceptions
+        // inside the C ABI even when a legacy callback violates that contract.
+    }
+}
+
+navsys_status_t coord_hash_copy_stored_value(
+    const coord_hash_t* hash,
+    const void* source,
+    void** out_copy) noexcept {
+    if (!hash || !out_copy) return NAVSYS_STATUS_INVALID_ARGUMENT;
+    if (!source) {
+        *out_copy = nullptr;
+        return NAVSYS_STATUS_OK;
+    }
+
+    void* copied = nullptr;
+    if (hash->value_copy_func_ex) {
+        navsys_status_t status = NAVSYS_STATUS_CALLBACK_FAILED;
+        try {
+            coord_hash_callback_scope scope(hash);
+            status = hash->value_copy_func_ex(
+                source, &copied, hash->callback_userdata);
+        } catch (...) {
+            status = NAVSYS_STATUS_CALLBACK_FAILED;
+        }
+        if (status != NAVSYS_STATUS_OK) {
+            if (copied) {
+                coord_hash_destroy_stored_value(
+                    const_cast<coord_hash_t*>(hash), copied);
+            }
+            return status < NAVSYS_STATUS_OK
+                ? status
+                : NAVSYS_STATUS_CALLBACK_FAILED;
+        }
+        if (!copied) return NAVSYS_STATUS_CALLBACK_FAILED;
+    } else if (hash->value_copy_func) {
+        try {
+            coord_hash_callback_scope scope(hash);
+            copied = hash->value_copy_func(source);
+        } catch (const std::bad_alloc&) {
+            return NAVSYS_STATUS_OUT_OF_MEMORY;
+        } catch (...) {
+            return NAVSYS_STATUS_CALLBACK_FAILED;
+        }
+        if (!copied) return NAVSYS_STATUS_OUT_OF_MEMORY;
+    } else {
+        return NAVSYS_STATUS_UNSUPPORTED;
+    }
+
+    *out_copy = copied;
+    return NAVSYS_STATUS_OK;
+}
+
+navsys_status_t coord_hash_commit_new_entry(
+    coord_hash_t* hash,
+    const coord_t* key,
+    void* copied) noexcept {
+    try {
+        hash->data.emplace(*key, copied);
+        return NAVSYS_STATUS_OK;
+    } catch (...) {
+        coord_hash_destroy_stored_value(hash, copied);
+        return NAVSYS_STATUS_OUT_OF_MEMORY;
+    }
+}
+
+}
+
+navsys_status_t coord_hash_create_ex(
+    const coord_hash_create_info_t* info,
+    coord_hash_t** out_hash) {
+    if (!info || !out_hash
+        || info->struct_size < sizeof(coord_hash_create_info_t)
+        || info->abi_version != BYUL_COORD_HASH_CREATE_INFO_ABI_VERSION
+        || ((info->copy_value == nullptr)
+            != (info->destroy_value == nullptr))) {
+        return NAVSYS_STATUS_INVALID_ARGUMENT;
+    }
+
+    coord_hash_t* hash = coord_hash_allocate();
+    if (!hash) return NAVSYS_STATUS_OUT_OF_MEMORY;
+
+    hash->value_copy_func_ex = info->copy_value;
+    hash->value_destroy_func_ex = info->destroy_value;
+    hash->value_equal_func_ex = info->equal_value;
+    hash->callback_userdata = info->userdata;
+    *out_hash = hash;
+    return NAVSYS_STATUS_OK;
+}
 
 coord_hash_t* coord_hash_create() {
     return coord_hash_create_full(int_copy, int_destroy);
@@ -51,25 +186,17 @@ coord_hash_t* coord_hash_create() {
 
 coord_hash_t* coord_hash_create_full(coord_hash_copy_func copy_func,
     coord_hash_destroy_func destroy_func) {
-    void* storage = nullptr;
-    try {
-        storage = ::operator new(sizeof(s_coord_hash));
-        auto* h = ::new (storage) s_coord_hash;
-        h->value_copy_func = copy_func;
-        h->value_destroy_func = destroy_func;
-        return h;
-    } catch (...) {
-        ::operator delete(storage);
-        return nullptr;
-    }
+    coord_hash_t* hash = coord_hash_allocate();
+    if (!hash) return nullptr;
+    hash->value_copy_func = copy_func;
+    hash->value_destroy_func = destroy_func;
+    return hash;
 }
 
 void coord_hash_destroy(coord_hash_t* hash) {
-    if (!hash) return;
-    if (hash->value_destroy_func) {
-        for (auto& [key, val] : hash->data) {
-            if (val) hash->value_destroy_func(val);
-        }
+    if (!hash || active_callback_hash == hash) return;
+    for (auto& [key, val] : hash->data) {
+        coord_hash_destroy_stored_value(hash, val);
     }
     delete hash;
 }
@@ -78,6 +205,7 @@ coord_hash_t* coord_hash_copy(const coord_hash_t* original) {
     if (!original) return nullptr;
     auto* copy = coord_hash_create_full(
         original->value_copy_func, original->value_destroy_func);
+    if (!copy) return nullptr;
 
     for (const auto& [key, val] : original->data) {
         void* val_copy = val && copy->value_copy_func ?
@@ -87,8 +215,49 @@ coord_hash_t* coord_hash_copy(const coord_hash_t* original) {
     return copy;
 }
 
+navsys_status_t coord_hash_copy_ex(
+    const coord_hash_t* source,
+    coord_hash_t** out_hash) {
+    if (!source || !out_hash) return NAVSYS_STATUS_INVALID_ARGUMENT;
+    if (active_callback_hash == source) return NAVSYS_STATUS_IN_PROGRESS;
+    if (!source->value_copy_func_ex && !source->value_copy_func) {
+        return NAVSYS_STATUS_UNSUPPORTED;
+    }
+
+    coord_hash_t* copied_hash = coord_hash_allocate();
+    if (!copied_hash) return NAVSYS_STATUS_OUT_OF_MEMORY;
+    copied_hash->value_copy_func = source->value_copy_func;
+    copied_hash->value_destroy_func = source->value_destroy_func;
+    copied_hash->value_copy_func_ex = source->value_copy_func_ex;
+    copied_hash->value_destroy_func_ex = source->value_destroy_func_ex;
+    copied_hash->value_equal_func_ex = source->value_equal_func_ex;
+    copied_hash->callback_userdata = source->callback_userdata;
+
+    for (const auto& [key, value] : source->data) {
+        void* copied_value = nullptr;
+        navsys_status_t status =
+            coord_hash_copy_stored_value(source, value, &copied_value);
+        if (status != NAVSYS_STATUS_OK) {
+            coord_hash_destroy(copied_hash);
+            return status;
+        }
+        status = coord_hash_commit_new_entry(
+            copied_hash, &key, copied_value);
+        if (status != NAVSYS_STATUS_OK) {
+            coord_hash_destroy(copied_hash);
+            return status;
+        }
+    }
+
+    *out_hash = copied_hash;
+    return NAVSYS_STATUS_OK;
+}
+
 bool coord_hash_insert(coord_hash_t* hash, const coord_t* key, void* value) {
-    if (!hash || !key || !hash->value_copy_func) return false;
+    if (!hash || !key || !hash->value_copy_func
+        || active_callback_hash == hash) {
+        return false;
+    }
     auto iter = hash->data.find(*key);
     if (iter != hash->data.end()) {
         if (hash->value_destroy_func && iter->second) {
@@ -117,12 +286,79 @@ bool coord_hash_replace_xy(coord_hash_t* hash, int x, int y, void* value) {
     return coord_hash_replace(hash, &temp, value);
 }
 
+navsys_status_t coord_hash_insert_copy(
+    coord_hash_t* hash,
+    const coord_t* key,
+    const void* value) {
+    if (!hash || !key) return NAVSYS_STATUS_INVALID_ARGUMENT;
+    if (active_callback_hash == hash) return NAVSYS_STATUS_IN_PROGRESS;
+    if (hash->data.find(*key) != hash->data.end()) {
+        return NAVSYS_STATUS_INVALID_ARGUMENT;
+    }
+
+    void* copied = nullptr;
+    navsys_status_t status =
+        coord_hash_copy_stored_value(hash, value, &copied);
+    if (status != NAVSYS_STATUS_OK) return status;
+    return coord_hash_commit_new_entry(hash, key, copied);
+}
+
+navsys_status_t coord_hash_replace_copy(
+    coord_hash_t* hash,
+    const coord_t* key,
+    const void* value) {
+    if (!hash || !key) return NAVSYS_STATUS_INVALID_ARGUMENT;
+    if (active_callback_hash == hash) return NAVSYS_STATUS_IN_PROGRESS;
+
+    auto iter = hash->data.find(*key);
+    if (iter == hash->data.end()) return NAVSYS_STATUS_NOT_FOUND;
+
+    void* copied = nullptr;
+    navsys_status_t status =
+        coord_hash_copy_stored_value(hash, value, &copied);
+    if (status != NAVSYS_STATUS_OK) return status;
+
+    void* replaced = iter->second;
+    iter->second = copied;
+    coord_hash_destroy_stored_value(hash, replaced);
+    return NAVSYS_STATUS_OK;
+}
+
+navsys_status_t coord_hash_upsert_copy(
+    coord_hash_t* hash,
+    const coord_t* key,
+    const void* value,
+    bool* out_inserted) {
+    if (!hash || !key || !out_inserted) {
+        return NAVSYS_STATUS_INVALID_ARGUMENT;
+    }
+    if (active_callback_hash == hash) return NAVSYS_STATUS_IN_PROGRESS;
+
+    auto iter = hash->data.find(*key);
+    void* copied = nullptr;
+    navsys_status_t status =
+        coord_hash_copy_stored_value(hash, value, &copied);
+    if (status != NAVSYS_STATUS_OK) return status;
+
+    if (iter == hash->data.end()) {
+        status = coord_hash_commit_new_entry(hash, key, copied);
+        if (status != NAVSYS_STATUS_OK) return status;
+        *out_inserted = true;
+        return NAVSYS_STATUS_OK;
+    }
+
+    void* replaced = iter->second;
+    iter->second = copied;
+    coord_hash_destroy_stored_value(hash, replaced);
+    *out_inserted = false;
+    return NAVSYS_STATUS_OK;
+}
+
 bool coord_hash_remove(coord_hash_t* hash, const coord_t* key) {
-    if (!hash || !key) return false;
+    if (!hash || !key || active_callback_hash == hash) return false;
     auto it = hash->data.find(*key);
     if (it != hash->data.end()) {
-        if (it->second && hash->value_destroy_func)
-            hash->value_destroy_func(it->second);
+        coord_hash_destroy_stored_value(hash, it->second);
         hash->data.erase(it);
         return true;
     }
@@ -130,9 +366,20 @@ bool coord_hash_remove(coord_hash_t* hash, const coord_t* key) {
 }
 
 void coord_hash_clear(coord_hash_t* hash) {
-    if (!hash) return;
-    if (hash->value_destroy_func) {
-        for (auto& [_, val] : hash->data) hash->value_destroy_func(val);
+    if (!hash || active_callback_hash == hash) return;
+    if (hash->value_destroy_func_ex) {
+        for (auto& [_, val] : hash->data) {
+            coord_hash_destroy_stored_value(hash, val);
+        }
+    } else if (hash->value_destroy_func) {
+        for (auto& [_, val] : hash->data) {
+            try {
+                coord_hash_callback_scope scope(hash);
+                hash->value_destroy_func(val);
+            } catch (...) {
+                // Preserve the ABI 1 clear contract while containing exceptions.
+            }
+        }
     }
     hash->data.clear();
 }
@@ -163,7 +410,9 @@ bool coord_hash_contains(const coord_hash_t* hash, const coord_t* key) {
 }
 
 void coord_hash_set(coord_hash_t* hash, const coord_t* key, void* value) {
-    if (hash && key) hash->data[*key] = value;
+    if (hash && key && active_callback_hash != hash) {
+        hash->data[*key] = value;
+    }
 }
 
 void coord_hash_remove_all(coord_hash_t* hash) {

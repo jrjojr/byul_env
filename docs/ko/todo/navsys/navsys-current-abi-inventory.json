@@ -4,7 +4,7 @@
   "source_vocabulary": "docs/ko/todo/navsys/navsys-abi-vocabulary.json",
   "summary": {
     "headers": 46,
-    "symbols": 467,
+    "symbols": 472,
     "return_forms": {
       "nullable_pointer": 148,
       "bool_predicate": 21,
@@ -13,7 +13,7 @@
       "int_count": 15,
       "int_index_minus_one": 4,
       "void_fallible_operation": 136,
-      "enum_result": 65,
+      "enum_result": 70,
       "floating_result": 19,
       "callback_return": 0
     },
@@ -33,8 +33,8 @@
       "unknown-param": 12,
       "unnamed-parameter": 30
     },
-    "lifecycle_resources": 21,
-    "lifecycle_operations": 78,
+    "lifecycle_resources": 24,
+    "lifecycle_operations": 82,
     "callback_bindings": 7
   },
   "known_debt": {
@@ -8522,9 +8522,14 @@
       "owner_todo": "docs/ko/todo/navsys/todo-navsys-coord-coord-hash.org",
       "primary_role": "public-component",
       "wrapper_mode": "generated",
-      "symbol_count": 35,
+      "symbol_count": 40,
       "audit_issue_count": 41,
       "symbols": [
+        "coord_hash_create_ex",
+        "coord_hash_copy_ex",
+        "coord_hash_insert_copy",
+        "coord_hash_replace_copy",
+        "coord_hash_upsert_copy",
         "int_copy",
         "int_destroy",
         "scalar_copy",
@@ -9787,6 +9792,46 @@
       "signature": "void coord_print(const coord_t* c);",
       "return_form": "void_fallible_operation",
       "canonical": "navsys_status_t"
+    },
+    {
+      "header": "byul/navsys/coord/coord_hash.h",
+      "name": "coord_hash_create_ex",
+      "return_type": "navsys_status_t",
+      "signature": "navsys_status_t coord_hash_create_ex( const coord_hash_create_info_t* info, coord_hash_t** out_hash);",
+      "return_form": "enum_result",
+      "canonical": "navsys_status_t plus typed out enum"
+    },
+    {
+      "header": "byul/navsys/coord/coord_hash.h",
+      "name": "coord_hash_copy_ex",
+      "return_type": "navsys_status_t",
+      "signature": "navsys_status_t coord_hash_copy_ex( const coord_hash_t* source, coord_hash_t** out_hash);",
+      "return_form": "enum_result",
+      "canonical": "navsys_status_t plus typed out enum"
+    },
+    {
+      "header": "byul/navsys/coord/coord_hash.h",
+      "name": "coord_hash_insert_copy",
+      "return_type": "navsys_status_t",
+      "signature": "navsys_status_t coord_hash_insert_copy( coord_hash_t* hash, const coord_t* key, const void* value);",
+      "return_form": "enum_result",
+      "canonical": "navsys_status_t plus typed out enum"
+    },
+    {
+      "header": "byul/navsys/coord/coord_hash.h",
+      "name": "coord_hash_replace_copy",
+      "return_type": "navsys_status_t",
+      "signature": "navsys_status_t coord_hash_replace_copy( coord_hash_t* hash, const coord_t* key, const void* value);",
+      "return_form": "enum_result",
+      "canonical": "navsys_status_t plus typed out enum"
+    },
+    {
+      "header": "byul/navsys/coord/coord_hash.h",
+      "name": "coord_hash_upsert_copy",
+      "return_type": "navsys_status_t",
+      "signature": "navsys_status_t coord_hash_upsert_copy( coord_hash_t* hash, const coord_t* key, const void* value, bool* out_inserted);",
+      "return_form": "enum_result",
+      "canonical": "navsys_status_t plus typed out enum"
     },
     {
       "header": "byul/navsys/coord/coord_hash.h",
@@ -13222,6 +13267,17 @@
             "header": "byul/navsys/coord/coord_hash.h",
             "resource": "coord_hash",
             "operation": "create",
+            "symbol": "coord_hash_create_ex",
+            "return_type": "navsys_status_t",
+            "parameters": [
+              "const coord_hash_create_info_t* info",
+              "coord_hash_t** out_hash"
+            ]
+          },
+          {
+            "header": "byul/navsys/coord/coord_hash.h",
+            "resource": "coord_hash",
+            "operation": "create",
             "symbol": "coord_hash_create",
             "return_type": "coord_hash_t*",
             "parameters": []
@@ -13265,6 +13321,26 @@
         ]
       },
       {
+        "resource": "coord_hash_insert",
+        "operations": [
+          {
+            "header": "byul/navsys/coord/coord_hash.h",
+            "resource": "coord_hash_insert",
+            "operation": "copy",
+            "symbol": "coord_hash_insert_copy",
+            "return_type": "navsys_status_t",
+            "parameters": [
+              "coord_hash_t* hash",
+              "const coord_t* key",
+              "const void* value"
+            ]
+          }
+        ],
+        "operation_kinds": [
+          "copy"
+        ]
+      },
+      {
         "resource": "coord_hash_iter",
         "operations": [
           {
@@ -13291,6 +13367,47 @@
         "operation_kinds": [
           "create",
           "destroy"
+        ]
+      },
+      {
+        "resource": "coord_hash_replace",
+        "operations": [
+          {
+            "header": "byul/navsys/coord/coord_hash.h",
+            "resource": "coord_hash_replace",
+            "operation": "copy",
+            "symbol": "coord_hash_replace_copy",
+            "return_type": "navsys_status_t",
+            "parameters": [
+              "coord_hash_t* hash",
+              "const coord_t* key",
+              "const void* value"
+            ]
+          }
+        ],
+        "operation_kinds": [
+          "copy"
+        ]
+      },
+      {
+        "resource": "coord_hash_upsert",
+        "operations": [
+          {
+            "header": "byul/navsys/coord/coord_hash.h",
+            "resource": "coord_hash_upsert",
+            "operation": "copy",
+            "symbol": "coord_hash_upsert_copy",
+            "return_type": "navsys_status_t",
+            "parameters": [
+              "coord_hash_t* hash",
+              "const coord_t* key",
+              "const void* value",
+              "bool* out_inserted"
+            ]
+          }
+        ],
+        "operation_kinds": [
+          "copy"
         ]
       },
       {
@@ -14223,6 +14340,54 @@
           "coord_t* c",
           "int x",
           "int y"
+        ]
+      },
+      {
+        "header": "byul/navsys/coord/coord_hash.h",
+        "resource": "coord_hash",
+        "operation": "create",
+        "symbol": "coord_hash_create_ex",
+        "return_type": "navsys_status_t",
+        "parameters": [
+          "const coord_hash_create_info_t* info",
+          "coord_hash_t** out_hash"
+        ]
+      },
+      {
+        "header": "byul/navsys/coord/coord_hash.h",
+        "resource": "coord_hash_insert",
+        "operation": "copy",
+        "symbol": "coord_hash_insert_copy",
+        "return_type": "navsys_status_t",
+        "parameters": [
+          "coord_hash_t* hash",
+          "const coord_t* key",
+          "const void* value"
+        ]
+      },
+      {
+        "header": "byul/navsys/coord/coord_hash.h",
+        "resource": "coord_hash_replace",
+        "operation": "copy",
+        "symbol": "coord_hash_replace_copy",
+        "return_type": "navsys_status_t",
+        "parameters": [
+          "coord_hash_t* hash",
+          "const coord_t* key",
+          "const void* value"
+        ]
+      },
+      {
+        "header": "byul/navsys/coord/coord_hash.h",
+        "resource": "coord_hash_upsert",
+        "operation": "copy",
+        "symbol": "coord_hash_upsert_copy",
+        "return_type": "navsys_status_t",
+        "parameters": [
+          "coord_hash_t* hash",
+          "const coord_t* key",
+          "const void* value",
+          "bool* out_inserted"
         ]
       },
       {

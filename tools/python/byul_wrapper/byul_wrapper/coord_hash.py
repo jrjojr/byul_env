@@ -14,6 +14,40 @@ typedef struct s_coord_hash coord_hash_t;
 typedef void* (*coord_hash_copy_func)(const void* value);
 typedef void  (*coord_hash_destroy_func)(void* value);
 
+typedef navsys_status_t (*coord_hash_value_copy_func_ex)(
+    const void* source, void** out_copy, void* userdata);
+
+typedef void (*coord_hash_value_destroy_func_ex)(
+    void* value, void* userdata);
+
+typedef bool (*coord_hash_value_equal_func_ex)(
+    const void* lhs, const void* rhs, void* userdata);
+
+typedef struct s_coord_hash_create_info {
+    uint32_t struct_size;
+    uint32_t abi_version;
+    coord_hash_value_copy_func_ex copy_value;
+    coord_hash_value_destroy_func_ex destroy_value;
+    coord_hash_value_equal_func_ex equal_value;
+    void* userdata;
+} coord_hash_create_info_t;
+
+ navsys_status_t coord_hash_create_ex(
+    const coord_hash_create_info_t* info, coord_hash_t** out_hash);
+
+ navsys_status_t coord_hash_copy_ex(
+    const coord_hash_t* source, coord_hash_t** out_hash);
+
+ navsys_status_t coord_hash_insert_copy(
+    coord_hash_t* hash, const coord_t* key, const void* value);
+
+ navsys_status_t coord_hash_replace_copy(
+    coord_hash_t* hash, const coord_t* key, const void* value);
+
+ navsys_status_t coord_hash_upsert_copy(
+    coord_hash_t* hash, const coord_t* key, const void* value,
+    bool* out_inserted);
+
  void* int_copy(const void* p);
  void int_destroy(void* p);
 

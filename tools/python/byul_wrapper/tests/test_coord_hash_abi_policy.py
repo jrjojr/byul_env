@@ -50,6 +50,13 @@ def header_type_names(source: str) -> set[str]:
             re.MULTILINE,
         )
     )
+    complete_struct_types = set(
+        re.findall(
+            r"typedef\s+struct\s+\w+\s*\{[^}]*\}\s*(\w+)\s*;",
+            source,
+            re.MULTILINE | re.DOTALL,
+        )
+    )
     callback_types = set(
         re.findall(
             r"typedef\s+[^;]*?\(\s*\*(\w+)\s*\)\s*\([^;]*\)\s*;",
@@ -57,7 +64,7 @@ def header_type_names(source: str) -> set[str]:
             re.MULTILINE | re.DOTALL,
         )
     )
-    return opaque_types | callback_types
+    return opaque_types | complete_struct_types | callback_types
 
 
 class CoordHashAbiPolicyTest(unittest.TestCase):
@@ -91,11 +98,23 @@ class CoordHashAbiPolicyTest(unittest.TestCase):
             re.findall(r"^\|\s+=([^=]+)=\s+\|", table, re.MULTILINE)
         )
         manifest_symbols = (
-            set(manifest["current_types"])
-            | set(manifest["current_functions"])
+            {
+                name
+                for name, disposition in manifest["current_types"].items()
+                if disposition != "add"
+            }
+            | {
+                name
+                for name, disposition in manifest["current_functions"].items()
+                if disposition != "add"
+            }
         )
 
         self.assertEqual(table_symbols, manifest_symbols)
+        self.assertEqual(
+            manifest["legacy_declaration_count"],
+            len(manifest_symbols),
+        )
 
     def test_legacy_operation_matrix_covers_every_ownership_transition(self):
         manifest = load_manifest()
@@ -147,6 +166,31 @@ class CoordHashAbiPolicyTest(unittest.TestCase):
         self.assertEqual(
             decisions["coord_hash_replace"]["abi_1_semantic_name"],
             "copy-upsert",
+        )
+
+    def test_canonical_mutation_contracts_preserve_failure_outputs(self):
+        contracts = load_manifest()["canonical_mutation_contracts"]
+
+        self.assertEqual(contracts["create_info_abi_version"], 1)
+        self.assertEqual(
+            contracts["callback_binding"],
+            "immutable-function-userdata-pair",
+        )
+        self.assertEqual(
+            contracts["coord_hash_copy_ex"]["missing_copy_callback"],
+            "NAVSYS_STATUS_UNSUPPORTED",
+        )
+        self.assertEqual(
+            contracts["coord_hash_insert_copy"]["duplicate"],
+            "NAVSYS_STATUS_INVALID_ARGUMENT",
+        )
+        self.assertEqual(
+            contracts["coord_hash_replace_copy"]["missing"],
+            "NAVSYS_STATUS_NOT_FOUND",
+        )
+        self.assertEqual(
+            contracts["coord_hash_upsert_copy"]["failure"],
+            "preserve-table-and-out-inserted",
         )
 
 

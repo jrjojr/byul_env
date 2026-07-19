@@ -1,27 +1,24 @@
 {
   "schema_version": 1,
-  "captured_at_utc": "2026-07-19T07:56:26.221887+00:00",
-  "git_head": "e7b1a89889ec273efd15c4d824f8edc5f40e35a8",
-  "git_branch": "refactor/navsys-coord-format",
+  "captured_at_utc": "2026-07-19T09:32:36.869438+00:00",
+  "git_head": "7a3761095199770ebc497f9859b5505565a37176",
+  "git_branch": "refactor/navsys-coord-hash",
   "git_status_porcelain": [
-    "M byul/byul_config.h",
-    " M byul/navsys/coord/coord.cpp",
-    " M byul/navsys/coord/coord.h",
-    " M byul/navsys/coord/tests/test_module_coord.cpp",
+    "M byul/navsys/coord/coord_hash.cpp",
+    " M byul/navsys/coord/coord_hash.h",
+    " M byul/navsys/coord/tests/test_module_coord_hash.cpp",
     " M docs/ko/todo/header-refactor-baseline/environment.json",
     " M docs/ko/todo/header-refactor-baseline/header-inventory.json",
-    " M docs/ko/todo/navsys/coord-abi-policy.json",
+    " M docs/ko/todo/navsys/coord-hash-abi-policy.json",
     " M docs/ko/todo/navsys/navsys-current-abi-inventory.json",
-    " M docs/ko/todo/navsys/navsys-stage0-boundary-baseline.json",
-    " M docs/ko/todo/navsys/todo-navsys-coord-coord.org",
-    " M tools/python/byul_wrapper/byul_wrapper/coord.py",
-    " M tools/python/byul_wrapper/generate_wrapper_abi.py",
-    " M tools/python/byul_wrapper/tests/test_generate_wrapper_abi.py"
+    " M docs/ko/todo/navsys/todo-navsys-coord-coord-hash.org",
+    " M tools/python/byul_wrapper/byul_wrapper/coord_hash.py",
+    " M tools/python/byul_wrapper/tests/test_coord_hash_abi_policy.py"
   ],
   "rules_submodule_sha": "d0818d472c7e4300f04500fa5b5a13ad0aa5ee35",
   "platform": {
     "system": "Windows",
-    "release": "11",
+    "release": "10",
     "machine": "AMD64"
   },
   "tools": {
@@ -35,7 +32,7 @@
     },
     "python": {
       "available": true,
-      "version": "Python 3.13.3"
+      "version": "Python 3.11.8"
     },
     "cl": {
       "available": false,

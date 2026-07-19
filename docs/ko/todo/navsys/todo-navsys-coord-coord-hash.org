@@ -188,6 +188,8 @@ typedef struct s_coord_hash_entry_view {
 
 BYUL_API navsys_status_t coord_hash_create_ex(
     const coord_hash_create_info_t* info, coord_hash_t** out_hash);
+BYUL_API navsys_status_t coord_hash_copy_ex(
+    const coord_hash_t* source, coord_hash_t** out_hash);
 BYUL_API size_t coord_hash_size(const coord_hash_t* hash);
 BYUL_API navsys_status_t coord_hash_find(
     const coord_hash_t* hash, const coord_t* key,
@@ -258,7 +260,7 @@ BYUL_API navsys_status_t coord_hash_format(
   CFFI와 Navsys ABI inventory check가 일치했다. 저장소 전체 header baseline은
   이 변경과 무관한 선행 header 12개의 hash stale 상태를 별도 확인했다.
 
-** TODO 2단계: create-info와 canonical mutation 구현
+** DOING 2단계: create-info와 canonical mutation 구현
 
 *** 실행
 
@@ -274,6 +276,24 @@ BYUL_API navsys_status_t coord_hash_format(
 
 - duplicate/missing/NULL/OOM/callback-failure matrix와 sanitizer test를 실행한다.
 - callback userdata identity와 reentrancy 금지 검사를 실행한다.
+
+*** 진행 기록
+
+- ABI version/size를 검증하는 =coord_hash_create_info_t=와 immutable
+  copy/destroy/equal callback+userdata binding을 구현했다. copy/destroy는 둘 다
+  NULL이거나 둘 다 non-NULL이어야 한다.
+- =coord_hash_insert_copy=는 duplicate를 =INVALID_ARGUMENT=,
+  =coord_hash_replace_copy=는 missing을 =NOT_FOUND=로 반환하고,
+  =coord_hash_upsert_copy=는 성공할 때만 =out_inserted=를 기록한다.
+- =coord_hash_copy_ex=는 copy callback 부재를 =UNSUPPORTED=로 반환해 ABI 1의
+  NULL-filled copy를 canonical 경로에서 차단한다.
+- callback status/exception/OOM 경로는 기존 table과 output을 보존한다. callback이
+  실패하면서 잘못 기록한 임시 copy도 bound destroy callback으로 회수한다.
+- same-table callback 중 canonical/legacy mutation과 destroy는 runtime guard로
+  차단한다. canonical mutation은 =IN_PROGRESS=를 반환한다.
+- 2026-07-19 MSVC와 MinGW의 coord module/root =coord_hash*= test가 각각
+  20 cases, 165 assertions를 통과했고, 두 root DLL의 wrapper gate가 각각
+  69개를 통과했다. Sanitizer CI 확인 후 단계 상태를 닫는다.
 
 ** TODO 3단계: query, iterator, export와 format 구현
 

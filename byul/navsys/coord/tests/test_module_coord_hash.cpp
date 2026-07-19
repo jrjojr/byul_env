@@ -1,5 +1,7 @@
 #include "doctest.h"
 
+#include <stdexcept>
+
 extern "C" {
 #include "coord.h"
 #include "coord_hash.h"
@@ -40,6 +42,223 @@ void counted_int_destroy(void* value) {
     delete static_cast<int*>(value);
 }
 
+struct canonical_callback_context {
+    int copy_calls = 0;
+    int destroy_calls = 0;
+    int null_destroy_calls = 0;
+    navsys_status_t next_copy_status = NAVSYS_STATUS_OK;
+    bool throw_on_copy = false;
+    bool write_copy_on_failure = false;
+    coord_hash_t* reentry_hash = nullptr;
+    navsys_status_t reentry_status = NAVSYS_STATUS_OK;
+};
+
+navsys_status_t canonical_int_copy(
+    const void* source,
+    void** out_copy,
+    void* userdata) {
+    auto* context = static_cast<canonical_callback_context*>(userdata);
+    ++context->copy_calls;
+    if (context->reentry_hash) {
+        coord_t reentry_key = {99, 99};
+        int reentry_value = 99;
+        context->reentry_status = coord_hash_insert_copy(
+            context->reentry_hash, &reentry_key, &reentry_value);
+        coord_hash_destroy(context->reentry_hash);
+    }
+    if (context->throw_on_copy) {
+        throw std::runtime_error("copy failure");
+    }
+    if (context->next_copy_status != NAVSYS_STATUS_OK) {
+        if (context->write_copy_on_failure) {
+            *out_copy = new int(*static_cast<const int*>(source));
+        }
+        return context->next_copy_status;
+    }
+    *out_copy = new int(*static_cast<const int*>(source));
+    return NAVSYS_STATUS_OK;
+}
+
+void canonical_int_destroy(void* value, void* userdata) {
+    auto* context = static_cast<canonical_callback_context*>(userdata);
+    ++context->destroy_calls;
+    if (!value) {
+        ++context->null_destroy_calls;
+        return;
+    }
+    delete static_cast<int*>(value);
+}
+
+coord_hash_create_info_t canonical_create_info(
+    canonical_callback_context* context) {
+    coord_hash_create_info_t info = {};
+    info.struct_size = sizeof(info);
+    info.abi_version = BYUL_COORD_HASH_CREATE_INFO_ABI_VERSION;
+    info.copy_value = canonical_int_copy;
+    info.destroy_value = canonical_int_destroy;
+    info.userdata = context;
+    return info;
+}
+
+}
+
+TEST_CASE("coord_hash canonical create validates versioned callback binding") {
+    canonical_callback_context context;
+    coord_hash_create_info_t info = canonical_create_info(&context);
+    coord_hash_t* sentinel = coord_hash_create();
+    REQUIRE(sentinel != nullptr);
+    coord_hash_t* output = sentinel;
+
+    info.struct_size = sizeof(info) - 1;
+    CHECK(coord_hash_create_ex(&info, &output)
+        == NAVSYS_STATUS_INVALID_ARGUMENT);
+    CHECK(output == sentinel);
+
+    info = canonical_create_info(&context);
+    ++info.abi_version;
+    CHECK(coord_hash_create_ex(&info, &output)
+        == NAVSYS_STATUS_INVALID_ARGUMENT);
+    CHECK(output == sentinel);
+
+    info = canonical_create_info(&context);
+    info.destroy_value = nullptr;
+    CHECK(coord_hash_create_ex(&info, &output)
+        == NAVSYS_STATUS_INVALID_ARGUMENT);
+    CHECK(output == sentinel);
+
+    coord_hash_destroy(sentinel);
+}
+
+TEST_CASE("coord_hash canonical mutations are insert-only replace-only and upsert") {
+    canonical_callback_context context;
+    coord_hash_create_info_t info = canonical_create_info(&context);
+    coord_hash_t* hash = nullptr;
+    REQUIRE(coord_hash_create_ex(&info, &hash) == NAVSYS_STATUS_OK);
+    REQUIRE(hash != nullptr);
+
+    coord_t first = {11, 12};
+    coord_t second = {13, 14};
+    int first_value = 110;
+    int second_value = 120;
+    int third_value = 130;
+    bool inserted = false;
+
+    CHECK(coord_hash_insert_copy(hash, &first, &first_value)
+        == NAVSYS_STATUS_OK);
+    CHECK(context.copy_calls == 1);
+    CHECK(coord_hash_insert_copy(hash, &first, &second_value)
+        == NAVSYS_STATUS_INVALID_ARGUMENT);
+    CHECK(context.copy_calls == 1);
+
+    CHECK(coord_hash_replace_copy(hash, &second, &second_value)
+        == NAVSYS_STATUS_NOT_FOUND);
+    CHECK(context.copy_calls == 1);
+    CHECK(coord_hash_replace_copy(hash, &first, &second_value)
+        == NAVSYS_STATUS_OK);
+    CHECK(context.copy_calls == 2);
+    CHECK(context.destroy_calls == 1);
+
+    CHECK(coord_hash_upsert_copy(hash, &second, &third_value, &inserted)
+        == NAVSYS_STATUS_OK);
+    CHECK(inserted);
+    CHECK(coord_hash_upsert_copy(hash, &second, &first_value, &inserted)
+        == NAVSYS_STATUS_OK);
+    CHECK_FALSE(inserted);
+    CHECK(context.copy_calls == 4);
+    CHECK(context.destroy_calls == 2);
+
+    coord_hash_destroy(hash);
+    CHECK(context.destroy_calls == 4);
+    CHECK(context.null_destroy_calls == 0);
+}
+
+TEST_CASE("coord_hash canonical callback failure preserves table and outputs") {
+    canonical_callback_context context;
+    coord_hash_create_info_t info = canonical_create_info(&context);
+    coord_hash_t* hash = nullptr;
+    REQUIRE(coord_hash_create_ex(&info, &hash) == NAVSYS_STATUS_OK);
+
+    coord_t key = {15, 16};
+    int original_value = 150;
+    int replacement_value = 160;
+    REQUIRE(coord_hash_insert_copy(hash, &key, &original_value)
+        == NAVSYS_STATUS_OK);
+    void* original_stored = coord_hash_get(hash, &key);
+    REQUIRE(original_stored != nullptr);
+
+    context.next_copy_status = NAVSYS_STATUS_OUT_OF_MEMORY;
+    context.write_copy_on_failure = true;
+    bool inserted = true;
+    CHECK(coord_hash_upsert_copy(hash, &key, &replacement_value, &inserted)
+        == NAVSYS_STATUS_OUT_OF_MEMORY);
+    CHECK(inserted);
+    CHECK(coord_hash_get(hash, &key) == original_stored);
+    CHECK(*static_cast<int*>(coord_hash_get(hash, &key)) == 150);
+    CHECK(context.destroy_calls == 1);
+
+    context.next_copy_status = NAVSYS_STATUS_OK;
+    context.write_copy_on_failure = false;
+    context.throw_on_copy = true;
+    CHECK(coord_hash_replace_copy(hash, &key, &replacement_value)
+        == NAVSYS_STATUS_CALLBACK_FAILED);
+    CHECK(coord_hash_get(hash, &key) == original_stored);
+
+    coord_hash_destroy(hash);
+    CHECK(context.destroy_calls == 2);
+}
+
+TEST_CASE("coord_hash canonical copy is deep and rejects missing copy callback") {
+    canonical_callback_context context;
+    coord_hash_create_info_t info = canonical_create_info(&context);
+    coord_hash_t* source = nullptr;
+    REQUIRE(coord_hash_create_ex(&info, &source) == NAVSYS_STATUS_OK);
+
+    coord_t key = {17, 18};
+    int value = 170;
+    REQUIRE(coord_hash_insert_copy(source, &key, &value)
+        == NAVSYS_STATUS_OK);
+
+    coord_hash_t* copied = nullptr;
+    CHECK(coord_hash_copy_ex(source, &copied) == NAVSYS_STATUS_OK);
+    REQUIRE(copied != nullptr);
+    REQUIRE(coord_hash_get(source, &key) != nullptr);
+    REQUIRE(coord_hash_get(copied, &key) != nullptr);
+    CHECK(coord_hash_get(source, &key) != coord_hash_get(copied, &key));
+    CHECK(*static_cast<int*>(coord_hash_get(copied, &key)) == 170);
+
+    coord_hash_destroy(copied);
+    coord_hash_destroy(source);
+    CHECK(context.copy_calls == 2);
+    CHECK(context.destroy_calls == 2);
+
+    coord_hash_create_info_t null_info = {};
+    null_info.struct_size = sizeof(null_info);
+    null_info.abi_version = BYUL_COORD_HASH_CREATE_INFO_ABI_VERSION;
+    coord_hash_t* null_only = nullptr;
+    REQUIRE(coord_hash_create_ex(&null_info, &null_only) == NAVSYS_STATUS_OK);
+    coord_hash_t* unchanged = null_only;
+    CHECK(coord_hash_copy_ex(null_only, &unchanged)
+        == NAVSYS_STATUS_UNSUPPORTED);
+    CHECK(unchanged == null_only);
+    coord_hash_destroy(null_only);
+}
+
+TEST_CASE("coord_hash canonical callback rejects same-table reentry") {
+    canonical_callback_context context;
+    coord_hash_create_info_t info = canonical_create_info(&context);
+    coord_hash_t* hash = nullptr;
+    REQUIRE(coord_hash_create_ex(&info, &hash) == NAVSYS_STATUS_OK);
+    context.reentry_hash = hash;
+
+    coord_t key = {19, 20};
+    int value = 190;
+    CHECK(coord_hash_insert_copy(hash, &key, &value) == NAVSYS_STATUS_OK);
+    CHECK(context.reentry_status == NAVSYS_STATUS_IN_PROGRESS);
+    CHECK(coord_hash_length(hash) == 1);
+
+    context.reentry_hash = nullptr;
+    coord_hash_destroy(hash);
+    CHECK(context.destroy_calls == 1);
 }
 
 TEST_CASE("coord_hash legacy insert and replace are copy-upsert") {

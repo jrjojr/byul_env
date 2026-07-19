@@ -1,11 +1,13 @@
 #ifndef COORD_HASH_H
 #define COORD_HASH_H
 
-#include <stdint.h>
 #include <stdbool.h>
+#include <stdint.h>
+
 #include "byul_config.h"
 #include "coord.h"
 #include "coord_list.h"  // for coord_list_t
+#include "navsys_status.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -15,6 +17,186 @@ typedef struct s_coord_hash coord_hash_t;
 
 typedef void* (*coord_hash_copy_func)(const void* value);
 typedef void  (*coord_hash_destroy_func)(void* value);
+
+/**
+ * @brief Copies one value for canonical coord hash storage.
+ *
+ * On success, out_copy receives one value owned by the table. On failure,
+ * out_copy must remain unchanged.
+ */
+typedef navsys_status_t (*coord_hash_value_copy_func_ex)(
+    const void* source, void** out_copy, void* userdata);
+
+/**
+ * @brief Destroys one non-NULL value created by the matching copy callback.
+ *
+ * The callback must not throw or reenter an operation on the same table.
+ */
+typedef void (*coord_hash_value_destroy_func_ex)(
+    void* value, void* userdata);
+
+/**
+ * @brief Compares two stored values without taking ownership.
+ */
+typedef bool (*coord_hash_value_equal_func_ex)(
+    const void* lhs, const void* rhs, void* userdata);
+
+#define BYUL_COORD_HASH_CREATE_INFO_ABI_VERSION UINT32_C(1)
+
+/**
+ * @brief Immutable callback binding for coord_hash_create_ex().
+ *
+ * Set struct_size to sizeof(coord_hash_create_info_t) and abi_version to
+ * BYUL_COORD_HASH_CREATE_INFO_ABI_VERSION. userdata is borrowed until the
+ * table is destroyed and is passed back unchanged to every callback.
+ *
+ * @byul.storage basic-value
+ * @byul.zero_valid false
+ * @byul.copy_semantics trivial-copy
+ * @byul.thread_safety thread-compatible
+ */
+typedef struct s_coord_hash_create_info {
+    uint32_t struct_size;
+    uint32_t abi_version;
+    coord_hash_value_copy_func_ex copy_value;
+    coord_hash_value_destroy_func_ex destroy_value;
+    coord_hash_value_equal_func_ex equal_value;
+    void* userdata;
+} coord_hash_create_info_t;
+
+/**
+ * @brief Creates a table with one atomic callback and userdata binding.
+ *
+ * Failure preserves out_hash. The table accepts NULL values. A non-NULL value
+ * mutation requires copy_value; otherwise it returns NAVSYS_STATUS_UNSUPPORTED.
+ *
+ * @param[in] info Complete versioned creation information.
+ * @param[out] out_hash Receives a caller-owned table on success.
+ * @return Common Navsys status value.
+ * @retval NAVSYS_STATUS_OK The table was created.
+ * @retval NAVSYS_STATUS_INVALID_ARGUMENT A pointer, size, version, or callback
+ *     pairing is invalid.
+ * @retval NAVSYS_STATUS_OUT_OF_MEMORY Table storage could not be allocated.
+ * @byul.nullable info false
+ * @byul.nullable out_hash false
+ * @byul.lifetime out_hash caller-owned
+ * @byul.error enum:navsys_status_t
+ * @byul.side_effect mutates:out_hash-on-success
+ * @byul.thread_safety thread-compatible
+ * @byul.blocking false
+ */
+BYUL_API navsys_status_t coord_hash_create_ex(
+    const coord_hash_create_info_t* info, coord_hash_t** out_hash);
+
+/**
+ * @brief Creates an independent deep copy with the source callback binding.
+ *
+ * Failure preserves out_hash and the source. A source without a copy callback
+ * returns NAVSYS_STATUS_UNSUPPORTED instead of creating NULL-filled entries.
+ *
+ * @param[in] source Table to copy.
+ * @param[out] out_hash Receives a caller-owned table on success.
+ * @return Common Navsys status value.
+ * @retval NAVSYS_STATUS_OK The table was copied.
+ * @retval NAVSYS_STATUS_INVALID_ARGUMENT A required pointer is NULL.
+ * @retval NAVSYS_STATUS_UNSUPPORTED No copy callback is bound.
+ * @retval NAVSYS_STATUS_CALLBACK_FAILED A callback threw or violated its output
+ *     contract.
+ * @retval NAVSYS_STATUS_OUT_OF_MEMORY Copy or table allocation failed.
+ * @retval NAVSYS_STATUS_IN_PROGRESS A callback on source is active.
+ * @byul.nullable source false
+ * @byul.nullable out_hash false
+ * @byul.lifetime out_hash caller-owned
+ * @byul.error enum:navsys_status_t
+ * @byul.side_effect mutates:out_hash-on-success
+ * @byul.thread_safety thread-compatible
+ * @byul.blocking false
+ */
+BYUL_API navsys_status_t coord_hash_copy_ex(
+    const coord_hash_t* source, coord_hash_t** out_hash);
+
+/**
+ * @brief Inserts a copied value only when key is absent.
+ *
+ * NULL is a valid value. Failure preserves the table.
+ *
+ * @param[in,out] hash Table to mutate.
+ * @param[in] key Key copied by value when insertion succeeds.
+ * @param[in] value Borrowed source value copied during the call, or NULL.
+ * @return Common Navsys status value.
+ * @retval NAVSYS_STATUS_OK A new entry was inserted.
+ * @retval NAVSYS_STATUS_INVALID_ARGUMENT A required pointer is NULL or key
+ *     already exists.
+ * @retval NAVSYS_STATUS_UNSUPPORTED A non-NULL value has no copy callback.
+ * @retval NAVSYS_STATUS_CALLBACK_FAILED A callback failed.
+ * @retval NAVSYS_STATUS_OUT_OF_MEMORY Copy or insertion allocation failed.
+ * @retval NAVSYS_STATUS_IN_PROGRESS A callback on hash is active.
+ * @byul.nullable hash false
+ * @byul.nullable key false
+ * @byul.nullable value true
+ * @byul.error enum:navsys_status_t
+ * @byul.side_effect mutates:hash-on-success
+ * @byul.thread_safety thread-compatible
+ * @byul.blocking false
+ */
+BYUL_API navsys_status_t coord_hash_insert_copy(
+    coord_hash_t* hash, const coord_t* key, const void* value);
+
+/**
+ * @brief Replaces a copied value only when key exists.
+ *
+ * NULL is a valid value. Failure preserves the table and old value.
+ *
+ * @param[in,out] hash Table to mutate.
+ * @param[in] key Existing key to replace.
+ * @param[in] value Borrowed source value copied during the call, or NULL.
+ * @return Common Navsys status value.
+ * @retval NAVSYS_STATUS_OK The existing value was replaced.
+ * @retval NAVSYS_STATUS_INVALID_ARGUMENT A required pointer is NULL.
+ * @retval NAVSYS_STATUS_NOT_FOUND The key does not exist.
+ * @retval NAVSYS_STATUS_UNSUPPORTED A non-NULL value has no copy callback.
+ * @retval NAVSYS_STATUS_CALLBACK_FAILED A callback failed.
+ * @retval NAVSYS_STATUS_OUT_OF_MEMORY Value copy allocation failed.
+ * @retval NAVSYS_STATUS_IN_PROGRESS A callback on hash is active.
+ * @byul.nullable hash false
+ * @byul.nullable key false
+ * @byul.nullable value true
+ * @byul.error enum:navsys_status_t
+ * @byul.side_effect mutates:hash-on-success
+ * @byul.thread_safety thread-compatible
+ * @byul.blocking false
+ */
+BYUL_API navsys_status_t coord_hash_replace_copy(
+    coord_hash_t* hash, const coord_t* key, const void* value);
+
+/**
+ * @brief Inserts or replaces one copied value.
+ *
+ * NULL is a valid value. Failure preserves hash and out_inserted.
+ *
+ * @param[in,out] hash Table to mutate.
+ * @param[in] key Key to insert or replace.
+ * @param[in] value Borrowed source value copied during the call, or NULL.
+ * @param[out] out_inserted Receives true for insertion or false for replacement.
+ * @return Common Navsys status value.
+ * @retval NAVSYS_STATUS_OK The value was committed.
+ * @retval NAVSYS_STATUS_INVALID_ARGUMENT A required pointer is NULL.
+ * @retval NAVSYS_STATUS_UNSUPPORTED A non-NULL value has no copy callback.
+ * @retval NAVSYS_STATUS_CALLBACK_FAILED A callback failed.
+ * @retval NAVSYS_STATUS_OUT_OF_MEMORY Copy or insertion allocation failed.
+ * @retval NAVSYS_STATUS_IN_PROGRESS A callback on hash is active.
+ * @byul.nullable hash false
+ * @byul.nullable key false
+ * @byul.nullable value true
+ * @byul.nullable out_inserted false
+ * @byul.error enum:navsys_status_t
+ * @byul.side_effect mutates:hash,out_inserted-on-success
+ * @byul.thread_safety thread-compatible
+ * @byul.blocking false
+ */
+BYUL_API navsys_status_t coord_hash_upsert_copy(
+    coord_hash_t* hash, const coord_t* key, const void* value,
+    bool* out_inserted);
 
 BYUL_API void* int_copy(const void* p);
 BYUL_API void int_destroy(void* p);
