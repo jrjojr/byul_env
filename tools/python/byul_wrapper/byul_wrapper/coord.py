@@ -1,5 +1,5 @@
 from .ffi_core import ffi, C
-from .navsys_status import NavsysStatus
+from .navsys_status import raise_for_status
 import weakref
 
 ffi.cdef("""
@@ -144,100 +144,227 @@ class c_coord:
     """
 
     def __init__(self, x=0, y=0, raw_ptr=None, own=False):
+        self._c = ffi.NULL
+        self._own = False
+        self._finalizer = None
         if raw_ptr is not None:
+            if raw_ptr == ffi.NULL:
+                raise ValueError("raw_ptr must not be NULL")
             self._c = raw_ptr
             self._own = own
-            self._finalizer = None
         else:
-            self._c = C.coord_create_full(x, y)
-            if not self._c:
-                raise MemoryError("coord allocation failed")
+            output = ffi.new("coord_t**")
+            raise_for_status(
+                C.coord_create_checked(x, y, output),
+                "coord_create_checked",
+            )
+            self._c = output[0]
             self._own = True
 
         if self._own:
             self._finalizer = weakref.finalize(self, C.coord_destroy, self._c)
-        else:
-            self._finalizer = None
+
+    def _require_open(self):
+        if self._c == ffi.NULL:
+            raise ReferenceError("c_coord is closed")
+        return self._c
+
+    @staticmethod
+    def _require_coord(value, argument):
+        if not isinstance(value, c_coord):
+            raise TypeError(f"{argument} must be c_coord")
+        return value._require_open()
+
+    def _replace_checked(self, x: int, y: int):
+        raise_for_status(
+            C.coord_init_checked(self._require_open(), x, y),
+            "coord_init_checked",
+        )
 
     @property
     def x(self):
-        return C.coord_get_x(self._c)
+        return C.coord_get_x(self._require_open())
 
     @x.setter
     def x(self, value):
-        C.coord_set_x(self._c, value)
+        self._replace_checked(value, self.y)
 
     @property
     def y(self):
-        return C.coord_get_y(self._c)
+        return C.coord_get_y(self._require_open())
 
     @y.setter
     def y(self, value):
-        C.coord_set_y(self._c, value)
+        self._replace_checked(self.x, value)
 
     def init_full(self, x: int, y: int):
-        C.coord_init_full(self._c, x, y)
+        self._replace_checked(x, y)
 
     def set(self, x: int, y: int):
-        C.coord_set(self._c, x, y)
+        self._replace_checked(x, y)
 
     def copy(self):
-        c = c_coord(raw_ptr=C.coord_copy(self._c), own=True)
-        return c
+        output = ffi.new("coord_t**")
+        raise_for_status(
+            C.coord_copy_checked(self._require_open(), output),
+            "coord_copy_checked",
+        )
+        return c_coord(raw_ptr=output[0], own=True)
 
     def distance(self, other: 'c_coord'):
-        return C.coord_distance(self.ptr(), other.ptr())
+        output = ffi.new("double*")
+        raise_for_status(
+            C.coord_distance_f64(
+                self._require_open(),
+                self._require_coord(other, "other"),
+                output,
+            ),
+            "coord_distance_f64",
+        )
+        return output[0]
 
     def manhattan_distance(self, other: 'c_coord'):
-        return C.coord_manhattan_distance(self.ptr(), other.ptr())
+        output = ffi.new("int64_t*")
+        raise_for_status(
+            C.coord_manhattan_distance_i64(
+                self._require_open(),
+                self._require_coord(other, "other"),
+                output,
+            ),
+            "coord_manhattan_distance_i64",
+        )
+        return output[0]
 
     def degree(self, other: 'c_coord'):
-        return C.coord_degree(self._c, other._c)
+        output = ffi.new("double*")
+        raise_for_status(
+            C.coord_angle_deg(
+                self._require_open(),
+                self._require_coord(other, "other"),
+                output,
+            ),
+            "coord_angle_deg",
+        )
+        return output[0]
 
     def __eq__(self, other):
-        return C.coord_equal(self._c, other._c) != 0
+        if not isinstance(other, c_coord):
+            return NotImplemented
+        return C.coord_equal(
+            self._require_open(), other._require_open()
+        ) != 0
 
     def __lt__(self, other):
-        return C.coord_compare(self._c, other._c) < 0
+        output = ffi.new("int*")
+        raise_for_status(
+            C.coord_compare_canonical(
+                self._require_open(),
+                self._require_coord(other, "other"),
+                output,
+            ),
+            "coord_compare_canonical",
+        )
+        return output[0] < 0
 
     def __ge__(self, other):
-        return C.coord_compare(self._c, other._c) >= 0
+        return not self < other
 
-    def __hash__(self):
-        return C.coord_hash(self._c)
+    __hash__ = None
 
     def __del__(self):
-        self.close()
+        try:
+            self.close()
+        except Exception:
+            pass
 
     def close(self):
-        if self._own and self._finalizer and self._finalizer.alive:
-            self._finalizer()
+        finalizer = getattr(self, "_finalizer", None)
+        if getattr(self, "_own", False) and finalizer and finalizer.alive:
+            finalizer()
+        self._c = ffi.NULL
+        self._own = False
 
     def __enter__(self):
+        self._require_open()
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         self.close()
 
     def __add__(self, other):
-        result = self.copy()
-        C.coord_iadd(result._c, other._c)
-        return result
+        result = c_coord()
+        try:
+            raise_for_status(
+                C.coord_add_checked(
+                    result._require_open(),
+                    self._require_open(),
+                    self._require_coord(other, "other"),
+                ),
+                "coord_add_checked",
+            )
+            return result
+        except Exception:
+            result.close()
+            raise
 
     def __sub__(self, other):
-        result = self.copy()
-        C.coord_isub(result._c, other._c)
-        return result
+        result = c_coord()
+        try:
+            raise_for_status(
+                C.coord_sub_checked(
+                    result._require_open(),
+                    self._require_open(),
+                    self._require_coord(other, "other"),
+                ),
+                "coord_sub_checked",
+            )
+            return result
+        except Exception:
+            result.close()
+            raise
 
     def __mul__(self, scalar: int):
-        result = self.copy()
-        C.coord_imul(result._c, scalar)
-        return result
+        result = c_coord()
+        try:
+            raise_for_status(
+                C.coord_mul_checked(
+                    result._require_open(), self._require_open(), scalar
+                ),
+                "coord_mul_checked",
+            )
+            return result
+        except Exception:
+            result.close()
+            raise
 
     def __floordiv__(self, scalar: int):
-        result = self.copy()
-        C.coord_idiv(result._c, scalar)
-        return result
+        result = c_coord()
+        try:
+            raise_for_status(
+                C.coord_div_checked(
+                    result._require_open(), self._require_open(), scalar
+                ),
+                "coord_div_checked",
+            )
+            return result
+        except Exception:
+            result.close()
+            raise
+
+    def format(self):
+        required = ffi.new("size_t*")
+        raise_for_status(
+            C.coord_format(self._require_open(), ffi.NULL, 0, required),
+            "coord_format",
+        )
+        buffer = ffi.new("char[]", required[0])
+        raise_for_status(
+            C.coord_format(
+                self._require_open(), buffer, required[0], required
+            ),
+            "coord_format",
+        )
+        return ffi.string(buffer).decode("utf-8")
 
     def __str__(self):
         return f"c_coord(x={self.x}, y={self.y})"
@@ -249,7 +376,7 @@ class c_coord:
         return (self.x, self.y)
 
     def ptr(self):
-        return self._c
+        return self._require_open()
 
     @staticmethod
     def from_tuple(t: tuple):

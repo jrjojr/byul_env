@@ -5,6 +5,12 @@ from byul_wrapper.coord_hash import c_coord_hash, c_coord_hash_iter
 from byul_wrapper.coord_list import c_coord_list
 from byul_wrapper.cost_coord_pq import c_cost_coord_pq
 from byul_wrapper.ffi_core import ffi
+from byul_wrapper.navsys_status import (
+    NavsysInvalidArgumentError,
+    NavsysOutOfMemoryError,
+    NavsysStatus,
+    raise_for_status,
+)
 from byul_wrapper.route_finder_common import c_route_func_registry
 
 
@@ -18,6 +24,66 @@ class CoordTest(unittest.TestCase):
                 self.assertEqual(copied.to_tuple(), (10, 7))
             finally:
                 copied.close()
+
+    def test_mutable_coordinate_is_unhashable_even_when_equal(self):
+        with c_coord(3, 7) as first, c_coord(3, 7) as second:
+            self.assertEqual(first, second)
+            with self.assertRaises(TypeError):
+                hash(first)
+            with self.assertRaises(TypeError):
+                {first}
+
+    def test_close_invalidates_every_public_access(self):
+        coord = c_coord(3, 7)
+        coord.close()
+        coord.close()
+
+        operations = (
+            lambda: coord.x,
+            lambda: coord.y,
+            lambda: coord.to_tuple(),
+            lambda: coord.ptr(),
+            lambda: coord.copy(),
+            lambda: coord.format(),
+            lambda: str(coord),
+            lambda: repr(coord),
+        )
+        for operation in operations:
+            with self.subTest(operation=operation):
+                with self.assertRaises(ReferenceError):
+                    operation()
+        with self.assertRaises(ReferenceError):
+            coord.x = 1
+        with self.assertRaises(ReferenceError):
+            coord.y = 1
+
+    def test_checked_operations_raise_typed_status_exceptions(self):
+        with (
+            c_coord(c_coord.COORD_MAX, 0) as maximum,
+            c_coord(1, 0) as one,
+            c_coord(0, 0) as origin,
+        ):
+            with self.assertRaises(NavsysInvalidArgumentError) as overflow:
+                maximum + one
+            self.assertEqual(
+                overflow.exception.status, NavsysStatus.INVALID_ARGUMENT
+            )
+            with self.assertRaises(NavsysInvalidArgumentError):
+                origin // 0
+            with self.assertRaises(NavsysInvalidArgumentError):
+                origin.degree(origin)
+            self.assertEqual(maximum.to_tuple(), (c_coord.COORD_MAX, 0))
+
+        with self.assertRaises(NavsysOutOfMemoryError):
+            raise_for_status(
+                NavsysStatus.OUT_OF_MEMORY, "coord_create_checked"
+            )
+
+    def test_native_format_and_checked_metrics(self):
+        with c_coord(-3, 7) as first, c_coord(1, 4) as second:
+            self.assertEqual(first.format(), "(-3, 7)")
+            self.assertEqual(first.manhattan_distance(second), 7)
+            self.assertAlmostEqual(first.distance(second), 5.0)
 
 
 class CoordListTest(unittest.TestCase):

@@ -44,6 +44,7 @@ KNOWN_BYUL_TAGS = frozenset(
 
 _COMMENT_AND_DECLARATION = re.compile(
     r"(?P<comment>/\*\*.*?\*/)?\s*"
+    r'(?:BYUL_DEPRECATED\(\s*"(?:\\.|[^"\\])*"\s*\)\s*)*'
     r"BYUL_API\s+(?P<declaration>.*?;)",
     re.DOTALL,
 )

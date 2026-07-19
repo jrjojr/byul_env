@@ -608,36 +608,81 @@ BYUL_API void     coord_set(coord_t* c, int x, int y);
 BYUL_API void     coord_fetch(const coord_t* c, int* out_x, int* out_y);
 
 /**
+ * @brief ABI 1 wrapping 규칙으로 임시 좌표 값을 만든다.
+ *
  * @deprecated ABI 1.x 호환 함수다. 새 code는 coord_init_checked()를 사용한다.
+ *
+ * @param[in] x X 성분.
+ * @param[in] y Y 성분.
+ * @return ABI 1 범위로 wrapping된 좌표 값.
+ *
+ * @byul.error none
+ * @byul.thread_safety thread-safe
+ * @byul.blocking false
  */
 BYUL_DEPRECATED("Use coord_init_checked; removal is planned for ABI 2.")
 BYUL_API coord_t make_tmp_coord(int x, int y);
 
 /**
+ * @brief start에서 goal 방향으로 한 칸 이동한 좌표를 allocation한다.
+ *
  * @deprecated ABI 1.x 호환 함수다. 새 code는 coord_step_toward()와 caller storage를
  *     사용한다.
+ *
+ * @param[in] start 시작 좌표.
+ * @param[in] goal 목표 좌표.
+ * @return 새로 allocation한 좌표 또는 실패 시 NULL.
+ * @retval NULL 입력이 유효하지 않거나 allocation이 실패했다.
+ *
+ * @byul.nullable start false
+ * @byul.nullable goal false
+ * @byul.nullable return true
+ * @byul.lifetime return caller-owned
+ * @byul.memory return coord_destroy
+ * @byul.error null-return
+ * @byul.thread_safety thread-safe
+ * @byul.blocking false
  */
 BYUL_DEPRECATED("Use coord_step_toward; removal is planned for ABI 2.")
 BYUL_API coord_t* coord_clone_next_to_goal(
     const coord_t* start, const coord_t* goal);
 
 /**
+ * @brief 좌표를 ABI 1 caller buffer 문자열로 변환한다.
+ *
  * @deprecated ABI 1.x 호환 함수다. 새 code는 coord_format()을 사용한다.
  *
- * @param c 변환할 좌표.
- * @param buffer_size buffer의 byte 수.
- * @param buffer 출력 buffer.
+ * @param[in] c 변환할 좌표.
+ * @param[in] buffer_size buffer의 byte 수.
+ * @param[out] buffer 출력 buffer.
  * @return 성공하면 buffer, 실패하면 NULL.
+ *
+ * @byul.nullable c false
+ * @byul.nullable buffer false
+ * @byul.nullable return true
+ * @byul.lifetime return borrowed:buffer
+ * @byul.unit buffer_size bytes
+ * @byul.error null-return
+ * @byul.thread_safety thread-safe
+ * @byul.blocking false
  */
 BYUL_DEPRECATED("Use coord_format; removal is planned for ABI 2.")
 BYUL_API char* coord_to_string(
     const coord_t* c, size_t buffer_size, char* buffer);
 
 /**
+ * @brief 좌표를 ABI 1 stdout 형식으로 출력한다.
+ *
  * @deprecated ABI 1.x stdout adapter다. 새 code는 coord_format() 결과를 명시적인
  *     logging sink로 전달한다.
  *
- * @param c 출력할 좌표.
+ * @param[in] c 출력할 좌표. NULL이면 =(null coord)=를 출력한다.
+ *
+ * @byul.nullable c true
+ * @byul.side_effect writes:stdout
+ * @byul.error none
+ * @byul.thread_safety externally-synchronized:stdout
+ * @byul.blocking true
  */
 BYUL_DEPRECATED("Use coord_format with an explicit sink; removal is planned for ABI 2.")
 BYUL_API void coord_print(const coord_t* c);

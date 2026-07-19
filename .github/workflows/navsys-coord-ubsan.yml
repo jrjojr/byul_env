@@ -10,6 +10,10 @@ on:
       - "byul/navsys/coord/**"
       - "byul/navsys/tests/**"
       - "byul/tests/**"
+      - "docs/ko/todo/navsys/todo-navsys-coord-coord.org"
+      - "tools/header_abi_audit.py"
+      - "tools/header_refactor_build_snapshot.py"
+      - "tools/python/byul_wrapper/**"
   workflow_dispatch:
 
 permissions:
@@ -91,6 +95,41 @@ jobs:
               raise SystemExit(
                   "coord.cpp compile command is missing UBSan instrumentation"
               )
+
+      - name: Stage the root shared SDK component
+        run: >-
+          cmake --install build_debug
+          --component byul_sdk
+          --prefix build_coord_sdk
+
+      - name: Audit live headers, exports and wrapper intersection
+        run: |
+          python tools/header_refactor_build_snapshot.py \
+            --apply \
+            --nm "$(command -v nm)" \
+            --dll build_coord_sdk/lib/libbyul.so \
+            --install-root build_coord_sdk \
+            --profile linux-x64-gcc-debug-coord-gate \
+            --output build_coord_gate/live-build.json
+          python tools/header_abi_audit.py \
+            --build-snapshot build_coord_gate/live-build.json \
+            --c-compiler "$(command -v cc)" \
+            --cxx-compiler "$(command -v c++)" \
+            --compile-output-dir build_coord_gate/standalone \
+            --compile-report build_coord_gate/standalone.json \
+            --json-output build_coord_gate/header-abi.json
+
+      - name: Build and run clean C17 and C++17 SDK consumers
+        run: |
+          cmake \
+            -S byul/tests/sdk_consumer \
+            -B build_coord_sdk_consumer \
+            -DCMAKE_BUILD_TYPE=Debug \
+            -DBYUL_SDK_ROOT="${PWD}/build_coord_sdk"
+          cmake --build build_coord_sdk_consumer --parallel
+          export LD_PRELOAD="$(cc -print-file-name=libasan.so)"
+          ./build_coord_sdk_consumer/byul_sdk_consumer
+          ./build_coord_sdk_consumer/byul_sdk_consumer_cpp
 
       - name: Run coord static and root shared UBSan gates
         run: >-

@@ -61,6 +61,26 @@ class HeaderParserTest(unittest.TestCase):
 
         self.assertEqual(report.issues, ())
 
+    def test_deprecation_annotation_preserves_adjacent_doxygen(self):
+        source = r"""
+/**
+ * @brief Updates a sample through a compatibility adapter.
+ * @param[in] value New value.
+ */
+BYUL_DEPRECATED("Use sample_update_checked; removal is planned for ABI 2.")
+BYUL_API void sample_update(int value);
+"""
+        directory, path = self._write_header(source)
+        try:
+            report = audit_header(path)
+        finally:
+            directory.cleanup()
+
+        self.assertEqual(["sample_update"], [
+            item.name for item in report.declarations
+        ])
+        self.assertEqual(report.issues, ())
+
     def test_reports_missing_pointer_contract_and_unknown_tag(self):
         source = r"""
 /**

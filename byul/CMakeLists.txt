@@ -71,6 +71,13 @@ set(${PROJECT_NAME}_HEADERS
 CACHE INTERNAL "${PROJECT_NAME} header files" FORCE
 )
 
+byul_assert_module_inventory(
+    coord
+    "${CMAKE_CURRENT_SOURCE_DIR}/navsys/coord"
+    byul_SOURCES
+    byul_HEADERS
+)
+
 # -----------------------------------------------------------------------------
 # Shared library
 # -----------------------------------------------------------------------------
@@ -109,7 +116,11 @@ add_subdirectory(tests)
 # Platform-specific settings and DLL handling
 # -----------------------------------------------------------------------------
 byul_apply_library_platform_settings(${PROJECT_NAME})
-byul_copy_mingw_runtime(${PROJECT_NAME} MANDATORY_DLL)
+byul_copy_mingw_runtime(
+    ${PROJECT_NAME}
+    MANDATORY_DLL
+    COMPONENT byul_sdk
+)
 
 set(CMAKE_INSTALL_PREFIX "${HOME_DIR}/${PROJECT_NAME}"
     CACHE PATH "Install path" FORCE)
@@ -120,10 +131,11 @@ set(CMAKE_INSTALL_PREFIX "${HOME_DIR}/${PROJECT_NAME}"
 # Standard CMake install is a local SDK installation. It copies the shared
 # library, import/static library, public headers, and installed test programs
 # directly to CMAKE_INSTALL_PREFIX. It does not create either distribution ZIP.
-byul_install_target(${PROJECT_NAME})
+byul_install_target(${PROJECT_NAME} COMPONENT byul_sdk)
 
 install(FILES ${${PROJECT_NAME}_HEADERS}
     DESTINATION include/${CMAKE_PROJECT_NAME}
+    COMPONENT byul_sdk
 )
 
 # -----------------------------------------------------------------------------
