@@ -1,0 +1,90 @@
+name: Navsys Coord UBSan
+
+on:
+  pull_request:
+    paths:
+      - ".github/workflows/navsys-coord-ubsan.yml"
+      - "byul/CMakeLists.txt"
+      - "byul/CMakePresets.json"
+      - "byul/cmake/**"
+      - "byul/navsys/coord/**"
+      - "byul/navsys/tests/**"
+      - "byul/tests/**"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  linux-ubsan:
+    name: Linux UBSan (coord static/root)
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      ASAN_OPTIONS: detect_leaks=1:halt_on_error=1
+      UBSAN_OPTIONS: print_stacktrace=1:halt_on_error=1
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Configure Linux Debug with UBSan
+        working-directory: byul
+        env:
+          CFLAGS: >-
+            -fsanitize=undefined
+            -fno-sanitize-recover=undefined
+            -fno-omit-frame-pointer
+          CXXFLAGS: >-
+            -fsanitize=undefined
+            -fno-sanitize-recover=undefined
+            -fno-omit-frame-pointer
+          LDFLAGS: >-
+            -fsanitize=undefined
+            -fno-sanitize-recover=undefined
+        run: cmake --preset linux-debug
+
+      - name: Build coord module and root shared tests
+        working-directory: byul
+        run: >-
+          cmake --build --preset build-linux-debug
+          --target test_coord byul test_byul
+          test_navsys_allocation_failure
+
+      - name: Verify coord is instrumented in both inventories
+        shell: python
+        run: |
+          import json
+          from pathlib import Path
+
+          commands = json.loads(
+              Path("build_debug/compile_commands.json").read_text(
+                  encoding="utf-8"
+              )
+          )
+          coord_commands = [
+              entry["command"]
+              for entry in commands
+              if Path(entry["file"]).as_posix().endswith(
+                  "/navsys/coord/coord.cpp"
+              )
+          ]
+          if len(coord_commands) < 2:
+              raise SystemExit(
+                  "coord.cpp was not compiled for both module and root targets"
+              )
+          missing = [
+              command
+              for command in coord_commands
+              if "-fsanitize=undefined" not in command
+          ]
+          if missing:
+              raise SystemExit(
+                  "coord.cpp compile command is missing UBSan instrumentation"
+              )
+
+      - name: Run coord static and root shared UBSan gates
+        run: >-
+          ctest --test-dir build_debug
+          --output-on-failure
+          -R "^(test_coord|test_byul|test_navsys_allocation_failure|test_navsys_allocation_leak_gate)$"
