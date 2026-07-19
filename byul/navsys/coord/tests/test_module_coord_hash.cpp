@@ -1,9 +1,5 @@
 #include "doctest.h"
 
-#include <string.h> //memset
-#include <iostream>
-#include <vector>
-
 extern "C" {
 #include "coord.h"
 #include "coord_hash.h"
@@ -11,6 +7,154 @@ extern "C" {
 
 int* make_int(int value) {
     return new int(value);
+}
+
+namespace {
+
+struct copy_destroy_counts {
+    int copy_calls;
+    int destroy_calls;
+    int null_destroy_calls;
+};
+
+copy_destroy_counts g_counts = {};
+
+void reset_copy_destroy_counts() {
+    g_counts = {};
+}
+
+void* counted_int_copy(const void* value) {
+    ++g_counts.copy_calls;
+    if (!value) {
+        return nullptr;
+    }
+    return new int(*static_cast<const int*>(value));
+}
+
+void counted_int_destroy(void* value) {
+    ++g_counts.destroy_calls;
+    if (!value) {
+        ++g_counts.null_destroy_calls;
+        return;
+    }
+    delete static_cast<int*>(value);
+}
+
+}
+
+TEST_CASE("coord_hash legacy insert and replace are copy-upsert") {
+    reset_copy_destroy_counts();
+    coord_hash_t* hash =
+        coord_hash_create_full(counted_int_copy, counted_int_destroy);
+    REQUIRE(hash != nullptr);
+
+    coord_t first = {1, 2};
+    coord_t second = {3, 4};
+    int first_value = 10;
+    int second_value = 20;
+    int third_value = 30;
+    int fourth_value = 40;
+
+    CHECK(coord_hash_insert(hash, &first, &first_value));
+    CHECK(g_counts.copy_calls == 1);
+    CHECK(g_counts.destroy_calls == 0);
+
+    CHECK(coord_hash_insert(hash, &first, &second_value));
+    CHECK(g_counts.copy_calls == 2);
+    CHECK(g_counts.destroy_calls == 1);
+    REQUIRE(coord_hash_get(hash, &first) != nullptr);
+    CHECK(*static_cast<int*>(coord_hash_get(hash, &first)) == 20);
+
+    CHECK(coord_hash_replace(hash, &second, &third_value));
+    CHECK(g_counts.copy_calls == 3);
+    CHECK(g_counts.destroy_calls == 1);
+    CHECK(coord_hash_length(hash) == 2);
+
+    CHECK(coord_hash_replace(hash, &second, &fourth_value));
+    CHECK(g_counts.copy_calls == 4);
+    CHECK(g_counts.destroy_calls == 2);
+
+    CHECK(coord_hash_remove(hash, &first));
+    CHECK(g_counts.destroy_calls == 3);
+    coord_hash_clear(hash);
+    CHECK(g_counts.destroy_calls == 4);
+    CHECK(coord_hash_is_empty(hash));
+
+    coord_hash_destroy(hash);
+    CHECK(g_counts.destroy_calls == 4);
+}
+
+TEST_CASE("coord_hash legacy set stores exact pointer and leaks replaced owner") {
+    reset_copy_destroy_counts();
+    coord_hash_t* hash =
+        coord_hash_create_full(counted_int_copy, counted_int_destroy);
+    REQUIRE(hash != nullptr);
+
+    coord_t key = {5, 6};
+    int* replaced_owner = new int(50);
+    int* current_owner = new int(60);
+
+    coord_hash_set(hash, &key, replaced_owner);
+    CHECK(coord_hash_get(hash, &key) == replaced_owner);
+    CHECK(g_counts.copy_calls == 0);
+    CHECK(g_counts.destroy_calls == 0);
+
+    coord_hash_set(hash, &key, current_owner);
+    CHECK(coord_hash_get(hash, &key) == current_owner);
+    CHECK(g_counts.copy_calls == 0);
+    CHECK(g_counts.destroy_calls == 0);
+
+    delete replaced_owner;
+    coord_hash_destroy(hash);
+    CHECK(g_counts.destroy_calls == 1);
+    CHECK(g_counts.null_destroy_calls == 0);
+}
+
+TEST_CASE("coord_hash copy without copy callback substitutes null values") {
+    reset_copy_destroy_counts();
+    coord_hash_t* original =
+        coord_hash_create_full(nullptr, counted_int_destroy);
+    REQUIRE(original != nullptr);
+
+    coord_t key = {7, 8};
+    int* owned_value = new int(70);
+    coord_hash_set(original, &key, owned_value);
+
+    coord_hash_t* copied = coord_hash_copy(original);
+    REQUIRE(copied != nullptr);
+    CHECK(coord_hash_contains(copied, &key));
+    CHECK(coord_hash_get(copied, &key) == nullptr);
+    CHECK(g_counts.copy_calls == 0);
+
+    coord_hash_destroy(copied);
+    CHECK(g_counts.destroy_calls == 0);
+    coord_hash_destroy(original);
+    CHECK(g_counts.destroy_calls == 1);
+}
+
+TEST_CASE("coord_hash clear and destroy disagree on stored null callback") {
+    reset_copy_destroy_counts();
+    coord_t key = {9, 10};
+
+    coord_hash_t* cleared =
+        coord_hash_create_full(counted_int_copy, counted_int_destroy);
+    REQUIRE(cleared != nullptr);
+    CHECK(coord_hash_insert(cleared, &key, nullptr));
+    CHECK(g_counts.copy_calls == 0);
+    coord_hash_clear(cleared);
+    CHECK(g_counts.destroy_calls == 1);
+    CHECK(g_counts.null_destroy_calls == 1);
+    coord_hash_destroy(cleared);
+    CHECK(g_counts.destroy_calls == 1);
+
+    reset_copy_destroy_counts();
+    coord_hash_t* destroyed =
+        coord_hash_create_full(counted_int_copy, counted_int_destroy);
+    REQUIRE(destroyed != nullptr);
+    CHECK(coord_hash_insert(destroyed, &key, nullptr));
+    coord_hash_destroy(destroyed);
+    CHECK(g_counts.destroy_calls == 0);
+    CHECK(g_counts.null_destroy_calls == 0);
 }
 
 TEST_CASE("coord_hash: replace with int values (new/delete)") {
@@ -183,43 +327,43 @@ TEST_CASE("coord_hash: iteration test") {
     coord_hash_destroy(hash);
 }
 
-TEST_CASE("coord_hash: crash when destroying key and value after insert") {
+TEST_CASE("coord_hash: insert copies key and value") {
     coord_hash_t* hash = coord_hash_create();
 
     coord_t* c = coord_create_full(1, 1);
     int* v = new int(123);
 
-    // Insert into hash, then immediately destroy key and value
+    // The table stores the key by value and copies the input value.
     coord_hash_insert(hash, c, v);
     coord_destroy(c);  
     delete v;          
 
     coord_hash_foreach(hash, [](const coord_t* key, void* val, void* userdata) {
-        CHECK(key != nullptr);  // may trigger exception
-        CHECK(val != nullptr);  // may trigger exception
+        CHECK(key != nullptr);
+        CHECK(val != nullptr);
         }, nullptr);
 
     coord_hash_destroy(hash);
 }
 
-TEST_CASE("coord_hash: crash when using copied hash with destroyed shared key") {
+TEST_CASE("coord_hash: copied hash owns independent key and value storage") {
     coord_hash_t* a = coord_hash_create();
     coord_t* c = coord_create_full(2, 2);
     int* v = new int(456);
 
     coord_hash_insert(a, c, v);
-    coord_hash_t* b = coord_hash_copy(a);  // shallow copy of key pointer
+    coord_hash_t* b = coord_hash_copy(a);
 
     coord_destroy(c);
 
-	// Comparing a and b will equal is correctly implemented
+    // Keys are stored by value and copied values are independently owned.
     CHECK(coord_hash_equal(a, b));
 
     delete v;
     coord_hash_destroy(a);
     coord_hash_destroy(b);
 }
-TEST_CASE("coord_hash: force crash by comparing destroyed key") {
+TEST_CASE("coord_hash: lookup compares coord keys by value") {
     coord_hash_t* hash = coord_hash_create();
 
     coord_t c;
@@ -228,7 +372,7 @@ TEST_CASE("coord_hash: force crash by comparing destroyed key") {
 
     coord_hash_insert(hash, &c, v);
 
-    // Force access to internal key by finding with new object
+    // A distinct object with the same components resolves the stored key.
     coord_t probe;
     coord_init_full(&probe, 7, 7);
 
@@ -239,38 +383,20 @@ TEST_CASE("coord_hash: force crash by comparing destroyed key") {
     coord_hash_destroy(hash);
 }
 
-TEST_CASE("coord_hash: crash by accessing destroyed external key (MSVC only)") {
+TEST_CASE("coord_hash: lookup remains valid after input key lifetime ends") {
     coord_hash_t* hash = coord_hash_create();
+    REQUIRE(hash != nullptr);
 
-    coord_t c;
-    coord_init_full(&c, 5, 5);
-    int* v = new int(55);
-
-    // Insert the key (copied inside)
-    CHECK(coord_hash_insert(hash, &c, v));
-
-    // Reuse the dangling pointer as key for lookup
-    void* result = nullptr;
-#ifdef _MSC_VER
-    // MSVC may crash here due to dereferencing freed memory during coord_equal
-    result = coord_hash_get(hash, &c);
-    if (!result) {
-        std::cout << "[MSVC] coord_hash_get() returned nullptr as expected.\n";
-        CHECK(true);  // test passes: crash avoided, lookup failed as expected
+    {
+        coord_t input_key = {5, 5};
+        int input_value = 55;
+        CHECK(coord_hash_insert(hash, &input_key, &input_value));
     }
-    else {
-        std::cout << "[MSVC] Unexpectedly found value: " << *(int*)result << std::endl;
-        CHECK(true);  // unexpected success
-    }
-#else
-    // GCC/Clang: should succeed with value-based comparison
-    result = coord_hash_get(hash, &c);
+
+    coord_t probe = {5, 5};
+    void* result = coord_hash_get(hash, &probe);
     REQUIRE(result != nullptr);
-    std::cout << "[GCC/Clang] expectedly found value: " << *(int*)result << std::endl;
-    CHECK(true);  // expected success
-#endif
+    CHECK(*static_cast<int*>(result) == 55);
 
-    delete v;
     coord_hash_destroy(hash);
 }
-

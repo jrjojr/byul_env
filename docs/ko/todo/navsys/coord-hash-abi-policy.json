@@ -1,0 +1,135 @@
+{
+  "schema_version": 1,
+  "header": "byul/navsys/coord/coord_hash.h",
+  "abi_line": "1.x",
+  "declaration_count": 40,
+  "current_types": {
+    "coord_hash_t": "keep",
+    "coord_hash_copy_func": "abi-major",
+    "coord_hash_destroy_func": "abi-major",
+    "coord_hash_func": "abi-major",
+    "coord_hash_iter_t": "keep"
+  },
+  "current_functions": {
+    "int_copy": "deprecate-forward",
+    "int_destroy": "deprecate-forward",
+    "scalar_copy": "deprecate-forward",
+    "scalar_destroy": "deprecate-forward",
+    "double_copy": "deprecate-forward",
+    "double_destroy": "deprecate-forward",
+    "coord_hash_create": "deprecate-forward",
+    "coord_hash_create_full": "deprecate-forward",
+    "coord_hash_destroy": "keep",
+    "coord_hash_copy": "deprecate-forward",
+    "coord_hash_hash": "deprecate-forward",
+    "coord_hash_length": "deprecate-forward",
+    "coord_hash_is_empty": "keep",
+    "coord_hash_get": "deprecate-forward",
+    "coord_hash_get_xy": "deprecate-forward",
+    "coord_hash_contains": "keep",
+    "coord_hash_set": "deprecate-forward",
+    "coord_hash_insert": "deprecate-forward",
+    "coord_hash_insert_xy": "deprecate-forward",
+    "coord_hash_replace": "deprecate-forward",
+    "coord_hash_replace_xy": "deprecate-forward",
+    "coord_hash_remove": "keep",
+    "coord_hash_clear": "keep",
+    "coord_hash_remove_all": "deprecate-forward",
+    "coord_hash_equal": "deprecate-forward",
+    "coord_hash_keys": "deprecate-forward",
+    "coord_hash_values": "deprecate-forward",
+    "coord_hash_foreach": "deprecate-forward",
+    "coord_hash_to_list": "deprecate-forward",
+    "coord_hash_export": "deprecate-forward",
+    "coord_hash_iter_create": "deprecate-forward",
+    "coord_hash_iter_next": "deprecate-forward",
+    "coord_hash_iter_destroy": "keep",
+    "coord_hash_to_string": "deprecate-forward",
+    "coord_hash_print": "deprecate-forward"
+  },
+  "legacy_storage": {
+    "key_storage": "coord_t-by-value",
+    "null_value_allowed": true,
+    "lookup_null_ambiguity": "stored-null-and-not-found-both-return-null",
+    "callback_userdata": false,
+    "callback_failure_channel": "none",
+    "iteration_mutation": "undefined-invalidated-iterator",
+    "equality": "key-set-and-null-shape-only",
+    "hash": "key-only-order-independent-xor"
+  },
+  "legacy_operation_matrix": {
+    "coord_hash_create": {
+      "success": "bind-int-copy-and-int-destroy",
+      "failure": "return-null"
+    },
+    "coord_hash_create_full": {
+      "success": "bind-copy-and-destroy-independently",
+      "failure": "return-null",
+      "callback_pair_validation": "none"
+    },
+    "coord_hash_copy": {
+      "input_value_owner": "source-table",
+      "stored_value": "copy-callback-result-or-null",
+      "copy_callback": "once-per-non-null-value-when-configured",
+      "missing_copy_callback": "replace-every-non-null-value-with-null",
+      "failure_atomicity": "not-guaranteed"
+    },
+    "coord_hash_set": {
+      "input_value_owner_on_success": "transferred-to-table-destroy-policy",
+      "stored_value": "exact-input-pointer",
+      "copy_callback": "never",
+      "duplicate": "overwrite-without-destroying-old-value",
+      "invalid_input": "no-operation-with-caller-retaining-input"
+    },
+    "coord_hash_insert": {
+      "input_value_owner": "caller",
+      "stored_value": "copy-callback-result-or-null",
+      "copy_callback": "once-for-non-null-value",
+      "duplicate": "destroy-old-then-copy-upsert",
+      "missing": "copy-insert",
+      "requires_copy_callback": true
+    },
+    "coord_hash_replace": {
+      "input_value_owner": "caller",
+      "stored_value": "copy-callback-result-or-null",
+      "copy_callback": "once-for-non-null-value",
+      "duplicate": "destroy-old-then-copy-upsert",
+      "missing": "copy-insert",
+      "requires_copy_callback": true
+    },
+    "coord_hash_remove": {
+      "existing": "destroy-non-null-value-once-then-erase",
+      "missing": "return-false-with-no-callback"
+    },
+    "coord_hash_clear": {
+      "existing": "invoke-destroy-for-every-entry-including-null-then-clear"
+    },
+    "coord_hash_destroy": {
+      "existing": "invoke-destroy-for-every-non-null-entry-then-destroy-table"
+    }
+  },
+  "compatibility_decisions": {
+    "coord_hash_set": {
+      "abi_1": "legacy-only",
+      "canonical_forwarding": "impossible-without-changing-ownership",
+      "new_production_use": "forbidden"
+    },
+    "coord_hash_insert": {
+      "abi_1_semantic_name": "copy-upsert",
+      "canonical_target": "coord_hash_upsert_copy"
+    },
+    "coord_hash_replace": {
+      "abi_1_semantic_name": "copy-upsert",
+      "canonical_target": "coord_hash_upsert_copy"
+    },
+    "coord_hash_copy_without_copy_callback": {
+      "abi_1": "legacy-null-substitution",
+      "canonical_target": "unsupported-status-with-no-destination"
+    },
+    "null_destroy_behavior": {
+      "clear": "destroy-callback-invoked",
+      "destroy": "destroy-callback-not-invoked",
+      "canonical_target": "one-consistent-documented-policy"
+    }
+  }
+}
