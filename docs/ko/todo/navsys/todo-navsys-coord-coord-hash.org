@@ -388,7 +388,7 @@ BYUL_API navsys_status_t coord_hash_format(
   46 headers, 487 symbols로 갱신했다. PR #16의 commit =fd290d2=에서 Linux
   ASan/LSan+UBSan, clean SDK consumer와 live export audit가 2분 4초로 통과했다.
 
-** TODO 5단계: static/shared 통합 gate
+** DONE 5단계: static/shared 통합 gate
 
 *** 실행
 
@@ -403,3 +403,23 @@ BYUL_API navsys_status_t coord_hash_format(
 *** 검증
 
 - static/root/shared/wrapper matrix, sanitizer와 =git diff --check=를 통과한다.
+
+*** 완료 기록
+
+- =coord-hash-abi-policy.json=에 coord module static과 root shared가 공유하는
+  source/header inventory를 각각 4개로 고정했다. CMake 정책 test와 실제
+  =compile_commands.json= 검사는 =BYUL_STATIC=과 =BYUL_EXPORTS= 양쪽에서 source
+  4개 전부가 컴파일되는지 확인한다.
+- installed SDK C17/C++17 fixture가 callback 세 종류의 함수 포인터 type,
+  =coord_hash_create_info_t=의 x64 size/alignment/offset =40/8/[0,4,8,16,24,32]=,
+  =coord_hash_entry_view_t=의 =16/8/[0,8]=과 추가 symbol 20개를 고정한다.
+- ABI 2에서는 public generic coord hash를 종료하고 domain-specific typed map
+  family로 교체하기로 승인했다. ABI 1 symbol과 deprecation 진단은 유지하며,
+  native/Python caller는 checked API와 명시적 codec으로 이동한다.
+  ownership transfer가 불안전한 raw =coord_hash_set=에는 ABI 2 대체 API를 두지 않는다.
+- 2026-07-19 MinGW static/root 네이티브 gate 4개와 MSVC/MinGW clean SDK
+  C17/C++17 consumer가 통과했다. 두 root DLL의 Python wrapper gate는 각각
+  77개, ABI policy unit gate는 34개가 통과했고 =git diff --check=도 깨끗했다.
+- PR #16의 commit =83104d0=에서 전체 coord compile inventory, Linux
+  ASan/LSan+UBSan, installed SDK standalone compile, live export/header/wrapper
+  audit가 1분 50초로 통과했다.
