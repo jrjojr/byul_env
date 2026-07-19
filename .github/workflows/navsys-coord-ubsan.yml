@@ -126,6 +126,7 @@ jobs:
             -DCMAKE_BUILD_TYPE=Debug \
             -DBYUL_SDK_ROOT="${PWD}/build_coord_sdk"
           cmake --build build_coord_sdk_consumer --parallel
+          export LD_PRELOAD="$(cc -print-file-name=libasan.so)"
           ./build_coord_sdk_consumer/byul_sdk_consumer
           ./build_coord_sdk_consumer/byul_sdk_consumer_cpp
 
