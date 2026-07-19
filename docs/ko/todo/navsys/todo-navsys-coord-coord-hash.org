@@ -342,7 +342,7 @@ BYUL_API navsys_status_t coord_hash_format(
 - PR #16의 =Linux UBSan (coord static/root)=가 commit =eb17536=에서
   1분 51초로 통과해 generation state와 caller-buffer 경로의 sanitizer gate를 확인했다.
 
-** TODO 4단계: legacy와 wrapper migration
+** DONE 4단계: legacy와 wrapper migration
 
 *** 실행
 
@@ -363,6 +363,30 @@ BYUL_API navsys_status_t coord_hash_format(
 
 - old/new C consumer, Python GC/close/iterator test와 ASan/LSan을 실행한다.
 - declaration/definition/root export/wrapper symbol 교집합을 자동 비교한다.
+
+*** 진행 기록
+
+- =coord_hash_insert/replace=와 xy adapter는 ABI 1의 copy-upsert 의미를 유지한 채
+  =coord_hash_upsert_copy=로 forwarding한다. Raw pointer를 그대로 저장하는
+  =coord_hash_set=은 안전한 forwarding이 불가능하므로 symbol을 유지하고
+  ownership 경고를 포함한 deprecation 진단을 추가했다.
+- =coord_hash_{int,float,double}_copy/destroy=를 Navsys-owned helper로 추가하고
+  =int/scalar/double_copy/destroy=는 새 helper로 forwarding한다. Route finder와
+  D* Lite의 신규 production path는 더 이상 =scalar_copy/scalar_destroy=를
+  참조하지 않는다.
+- =coord_hash_to_string=은 canonical =coord_hash_format=의 query/exact-buffer 경로로
+  forwarding하고, =coord_hash_values/to_string= 반환값을 위한
+  =coord_hash_buffer_destroy=를 추가했다. 따라서 ABI 1 allocation도 BYUL allocator
+  domain 안에서 해제할 수 있다.
+- Python =c_coord_hash=는 =int/float/double/none= 명시적 codec만 허용하고
+  find/mutation/export/format/iteration을 checked API로 전환했다. Borrowed table과
+  iterator는 parent wrapper를 retain하며 close/GC/iterator 수명 회귀를 검증한다.
+- 2026-07-19 MSVC와 MinGW의 coord hash gate가 각각 51 cases, 962 assertions를
+  통과했고 두 root DLL Python gate가 각각 75개를 통과했다. MSVC clean SDK의
+  C17/C++17 consumer도 old/new symbol을 함께 compile/link/run했다.
+- declaration/definition/root export/CFFI 교집합 test를 추가하고 Navsys inventory를
+  46 headers, 487 symbols로 갱신했다. PR #16의 commit =fd290d2=에서 Linux
+  ASan/LSan+UBSan, clean SDK consumer와 live export audit가 2분 4초로 통과했다.
 
 ** TODO 5단계: static/shared 통합 gate
 
