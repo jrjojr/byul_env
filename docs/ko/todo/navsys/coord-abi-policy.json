@@ -47,6 +47,7 @@
     "coord_angle_rad": "add",
     "coord_angle_deg": "add",
     "coord_step_toward": "add",
+    "coord_format": "add",
     "coord_create_full": "deprecate-forward",
     "coord_create": "deprecate-forward",
     "coord_destroy": "keep",
@@ -208,7 +209,8 @@
       "query": "out_buffer==NULL and capacity==0 writes out_required and returns NAVSYS_STATUS_OK",
       "failures": {
         "NAVSYS_STATUS_INVALID_ARGUMENT": "preserve-all-outputs",
-        "NAVSYS_STATUS_INCOMPLETE": "write-out_required-preserve-out_buffer"
+        "NAVSYS_STATUS_INCOMPLETE": "write-out_required-preserve-out_buffer",
+        "NAVSYS_STATUS_CORRUPT_STATE": "preserve-all-outputs"
       },
       "required_size_includes_nul": true,
       "encoding": "utf-8"

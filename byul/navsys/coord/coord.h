@@ -396,6 +396,40 @@ BYUL_API navsys_status_t coord_angle_deg(
 BYUL_API navsys_status_t coord_step_toward(
     const coord_t* start, const coord_t* goal, coord_t* out_next);
 
+/**
+ * @brief 좌표를 UTF-8 caller buffer에 "(x, y)" 형식으로 기록한다.
+ *
+ * out_buffer가 NULL이고 capacity가 0이면 필요한 크기만 조회한다. 필요한 크기는 종료
+ * NUL을 포함한 byte 수다. Buffer가 부족하면 out_required만 갱신하고 out_buffer는
+ * 변경하지 않는다.
+ *
+ * @param[in] coord 변환할 좌표.
+ * @param[out] out_buffer 결과를 받을 byte buffer 또는 크기 조회 시 NULL.
+ * @param[in] capacity out_buffer가 제공하는 byte 수.
+ * @param[out] out_required 종료 NUL을 포함한 필요 byte 수를 받을 storage.
+ * @return 공통 Navsys 상태 값.
+ * @retval NAVSYS_STATUS_OK 크기 조회 또는 전체 문자열 기록에 성공했다.
+ * @retval NAVSYS_STATUS_INCOMPLETE capacity가 부족해 out_required만 기록했다.
+ * @retval NAVSYS_STATUS_INVALID_ARGUMENT 필수 pointer 또는 buffer/capacity 조합이
+ *     유효하지 않다.
+ * @retval NAVSYS_STATUS_CORRUPT_STATE 내부 문자열 변환이 실패했다.
+ *
+ * @byul.nullable coord false
+ * @byul.nullable out_buffer query-only
+ * @byul.nullable out_required false
+ * @byul.unit capacity bytes
+ * @byul.unit out_required bytes-including-nul
+ * @byul.error enum:navsys_status_t
+ * @byul.side_effect mutates:out_buffer-on-success,out_required-on-success-or-incomplete
+ * @byul.thread_safety thread-safe
+ * @byul.blocking false
+ */
+BYUL_API navsys_status_t coord_format(
+    const coord_t* coord,
+    char* out_buffer,
+    size_t capacity,
+    size_t* out_required);
+
 // ------------------------ Create/Destroy ------------------------
 
 /**
@@ -573,28 +607,39 @@ BYUL_API void     coord_set_y(coord_t* c, int y);
 BYUL_API void     coord_set(coord_t* c, int x, int y);
 BYUL_API void     coord_fetch(const coord_t* c, int* out_x, int* out_y);
 
-// For backward compatibility, will be removed later.
+/**
+ * @deprecated ABI 1.x 호환 함수다. 새 code는 coord_init_checked()를 사용한다.
+ */
+BYUL_DEPRECATED("Use coord_init_checked; removal is planned for ABI 2.")
 BYUL_API coord_t make_tmp_coord(int x, int y);
 
-// For backward compatibility, will be removed later.
-// Returns the closest neighbor moving from start to goal.
+/**
+ * @deprecated ABI 1.x 호환 함수다. 새 code는 coord_step_toward()와 caller storage를
+ *     사용한다.
+ */
+BYUL_DEPRECATED("Use coord_step_toward; removal is planned for ABI 2.")
 BYUL_API coord_t* coord_clone_next_to_goal(
     const coord_t* start, const coord_t* goal);
 
 /**
- * @brief Convert coord value to a string
- * @param c coord to convert
- * @param buffer_size buffer size
- * @param buffer output buffer (recommend at least 32 bytes) 
- * @return buffer (returned for convenience)
+ * @deprecated ABI 1.x 호환 함수다. 새 code는 coord_format()을 사용한다.
+ *
+ * @param c 변환할 좌표.
+ * @param buffer_size buffer의 byte 수.
+ * @param buffer 출력 buffer.
+ * @return 성공하면 buffer, 실패하면 NULL.
  */
+BYUL_DEPRECATED("Use coord_format; removal is planned for ABI 2.")
 BYUL_API char* coord_to_string(
     const coord_t* c, size_t buffer_size, char* buffer);
 
 /**
- * @brief Print coord value to console
- * @param c coord to print
+ * @deprecated ABI 1.x stdout adapter다. 새 code는 coord_format() 결과를 명시적인
+ *     logging sink로 전달한다.
+ *
+ * @param c 출력할 좌표.
  */
+BYUL_DEPRECATED("Use coord_format with an explicit sink; removal is planned for ABI 2.")
 BYUL_API void coord_print(const coord_t* c);
 
 #ifdef __cplusplus

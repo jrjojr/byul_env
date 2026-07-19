@@ -1,7 +1,10 @@
 #include "doctest.h"
+#include <algorithm>
 #include <cmath>
 #include <cstdint>
+#include <iterator>
 #include <limits>
+#include <string>
 
 #include "coord.h"
 #include "internal/coord_ops.hpp"
@@ -247,6 +250,89 @@ TEST_CASE("Checked coord direction distinguishes identical points") {
         == NAVSYS_STATUS_INVALID_ARGUMENT);
     CHECK(start.x == preserved.x);
     CHECK(start.y == preserved.y);
+}
+
+TEST_CASE("coord_format implements a failure-atomic two-call byte contract") {
+    const coord_t value{-200000000, 200000000};
+    constexpr char expected[] = "(-200000000, 200000000)";
+    constexpr size_t expected_size = sizeof(expected);
+
+    size_t required = 71;
+    CHECK(coord_format(&value, nullptr, 0, &required)
+        == NAVSYS_STATUS_OK);
+    CHECK(required == expected_size);
+
+    char exact[expected_size];
+    std::fill(std::begin(exact), std::end(exact), '#');
+    required = 71;
+    CHECK(coord_format(&value, exact, sizeof(exact), &required)
+        == NAVSYS_STATUS_OK);
+    CHECK(required == expected_size);
+    CHECK(std::string(exact) == expected);
+
+    char short_buffer[expected_size - 1];
+    std::fill(
+        std::begin(short_buffer),
+        std::end(short_buffer),
+        '#');
+    const std::string short_before(
+        std::begin(short_buffer),
+        std::end(short_buffer));
+    required = 71;
+    CHECK(coord_format(
+        &value, short_buffer, sizeof(short_buffer), &required)
+        == NAVSYS_STATUS_INCOMPLETE);
+    CHECK(required == expected_size);
+    CHECK(std::string(
+        std::begin(short_buffer),
+        std::end(short_buffer)) == short_before);
+
+    char oversized[64];
+    std::fill(std::begin(oversized), std::end(oversized), '#');
+    required = 71;
+    CHECK(coord_format(&value, oversized, sizeof(oversized), &required)
+        == NAVSYS_STATUS_OK);
+    CHECK(required == expected_size);
+    CHECK(std::string(oversized) == expected);
+
+    char preserved[8] = "keep";
+    required = 71;
+    CHECK(coord_format(nullptr, preserved, sizeof(preserved), &required)
+        == NAVSYS_STATUS_INVALID_ARGUMENT);
+    CHECK(std::string(preserved) == "keep");
+    CHECK(required == 71);
+    CHECK(coord_format(&value, nullptr, 1, &required)
+        == NAVSYS_STATUS_INVALID_ARGUMENT);
+    CHECK(required == 71);
+    CHECK(coord_format(&value, preserved, 0, &required)
+        == NAVSYS_STATUS_INVALID_ARGUMENT);
+    CHECK(std::string(preserved) == "keep");
+    CHECK(required == 71);
+    CHECK(coord_format(&value, preserved, sizeof(preserved), nullptr)
+        == NAVSYS_STATUS_INVALID_ARGUMENT);
+    CHECK(std::string(preserved) == "keep");
+}
+
+TEST_CASE("Legacy coord string and clone APIs forward to checked contracts") {
+    const coord_t value{0, 0};
+    char exact[sizeof("(0, 0)")];
+    CHECK(coord_to_string(&value, sizeof(exact), exact) == exact);
+    CHECK(std::string(exact) == "(0, 0)");
+
+    char short_buffer[sizeof("(0, 0)") - 1] = "keep";
+    CHECK(coord_to_string(
+        &value, sizeof(short_buffer), short_buffer) == nullptr);
+    CHECK(std::string(short_buffer) == "keep");
+
+    const coord_t goal{2, -3};
+    coord_t* next = coord_clone_next_to_goal(&value, &goal);
+    REQUIRE(next != nullptr);
+    CHECK(next->x == 1);
+    CHECK(next->y == -1);
+    coord_destroy(next);
+
+    CHECK(coord_clone_next_to_goal(nullptr, &goal) == nullptr);
+    CHECK(coord_clone_next_to_goal(&value, nullptr) == nullptr);
 }
 
 TEST_CASE("Legacy coord wrapping matches an int64 reference") {

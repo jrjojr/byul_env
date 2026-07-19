@@ -87,6 +87,11 @@ def header_to_cdef(path: Path) -> str:
             continue
 
         line = raw_line.replace("BYUL_API", "")
+        line = re.sub(
+            r'BYUL_DEPRECATED\(\s*"(?:\\.|[^"\\])*"\s*\)',
+            "",
+            line,
+        )
         line = re.sub(r"\s+$", "", line)
         lines.append(line)
 

@@ -1,9 +1,10 @@
 #include "coord.h"
 #include <cmath>
+#include <cstdio>
 #include <cstdint>
 #include <cstdlib>
+#include <cstring>
 #include <new>
-#include <stdio.h>
 
 namespace {
 constexpr double kPi = 3.14159265358979323846;
@@ -274,6 +275,44 @@ navsys_status_t coord_step_toward(
     return NAVSYS_STATUS_OK;
 }
 
+navsys_status_t coord_format(
+    const coord_t* coord,
+    char* out_buffer,
+    size_t capacity,
+    size_t* out_required) {
+    if (!coord || !out_required
+        || (!out_buffer && capacity != 0)
+        || (out_buffer && capacity == 0)) {
+        return NAVSYS_STATUS_INVALID_ARGUMENT;
+    }
+
+    char formatted[64];
+    const int written = std::snprintf(
+        formatted,
+        sizeof(formatted),
+        "(%d, %d)",
+        coord->x,
+        coord->y);
+    if (written < 0
+        || static_cast<size_t>(written) >= sizeof(formatted)) {
+        return NAVSYS_STATUS_CORRUPT_STATE;
+    }
+
+    const size_t required = static_cast<size_t>(written) + 1;
+    if (!out_buffer) {
+        *out_required = required;
+        return NAVSYS_STATUS_OK;
+    }
+    if (capacity < required) {
+        *out_required = required;
+        return NAVSYS_STATUS_INCOMPLETE;
+    }
+
+    std::memcpy(out_buffer, formatted, required);
+    *out_required = required;
+    return NAVSYS_STATUS_OK;
+}
+
 // ------------------------ Creation/Destruction ------------------------
 
 coord_t* coord_create_full(int x, int y) {
@@ -468,23 +507,30 @@ void coord_fetch(const coord_t* c, int* out_x, int* out_y) {
 
 coord_t make_tmp_coord(int x, int y) {
     coord_t c;
-    c.x = coord_wrap_value(x);
-    c.y = coord_wrap_value(y);
+    coord_init_full(&c, x, y);
     return c;
 }
 
 
 coord_t* coord_clone_next_to_goal(
     const coord_t* start, const coord_t* goal) {
-    coord_t* out = new coord_t;
-    coord_next_to_goal(out, start, goal);
+    coord_t next{};
+    if (coord_step_toward(start, goal, &next) != NAVSYS_STATUS_OK) {
+        return nullptr;
+    }
+    coord_t* out = nullptr;
+    if (coord_create_checked(next.x, next.y, &out) != NAVSYS_STATUS_OK) {
+        return nullptr;
+    }
     return out;
 }
 
 char* coord_to_string(const coord_t* c, size_t buffer_size, char* buffer) {
-    if (!c || !buffer || buffer_size < 16) return NULL;
-    snprintf(buffer, buffer_size, "(%d, %d)", c->x, c->y);
-    return buffer;
+    size_t required = 0;
+    return coord_format(c, buffer, buffer_size, &required)
+            == NAVSYS_STATUS_OK
+        ? buffer
+        : nullptr;
 }
 
 void coord_print(const coord_t* c) {
@@ -492,5 +538,11 @@ void coord_print(const coord_t* c) {
         printf("(null coord)\n");
         return;
     }
-    printf("(%d, %d)\n", c->x, c->y);
+    char buffer[64];
+    size_t required = 0;
+    if (coord_format(c, buffer, sizeof(buffer), &required)
+        == NAVSYS_STATUS_OK) {
+        std::fputs(buffer, stdout);
+        std::fputc('\n', stdout);
+    }
 }

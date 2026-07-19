@@ -4,7 +4,7 @@
   "source_vocabulary": "docs/ko/todo/navsys/navsys-abi-vocabulary.json",
   "summary": {
     "headers": 46,
-    "symbols": 466,
+    "symbols": 467,
     "return_forms": {
       "nullable_pointer": 148,
       "bool_predicate": 21,
@@ -13,23 +13,23 @@
       "int_count": 15,
       "int_index_minus_one": 4,
       "void_fallible_operation": 136,
-      "enum_result": 64,
+      "enum_result": 65,
       "floating_result": 19,
       "callback_return": 0
     },
     "unclassified": 0,
     "duplicate_declarations": 1,
-    "audit_issues": 945,
-    "audit_errors": 945,
+    "audit_issues": 938,
+    "audit_errors": 938,
     "audit_codes": {
       "missing-brief": 16,
-      "missing-doxygen": 305,
-      "missing-nullable": 164,
+      "missing-doxygen": 307,
+      "missing-nullable": 161,
       "missing-param": 86,
-      "missing-param-direction": 205,
+      "missing-param-direction": 201,
       "missing-return": 21,
-      "missing-return-lifetime": 53,
-      "missing-return-nullable": 53,
+      "missing-return-lifetime": 52,
+      "missing-return-nullable": 52,
       "unknown-param": 12,
       "unnamed-parameter": 30
     },
@@ -681,81 +681,18 @@
         "header": "byul/navsys/coord/coord.h",
         "owner_todo": "docs/ko/todo/navsys/todo-navsys-coord-coord.org",
         "severity": "error",
-        "code": "missing-param-direction",
+        "code": "missing-doxygen",
         "symbol": "coord_to_string",
-        "message": "parameter 'c' has no direction",
+        "message": "public function has no adjacent Doxygen block",
         "disposition": "route-to-owner-child"
       },
       {
         "header": "byul/navsys/coord/coord.h",
         "owner_todo": "docs/ko/todo/navsys/todo-navsys-coord-coord.org",
         "severity": "error",
-        "code": "missing-nullable",
-        "symbol": "coord_to_string",
-        "message": "pointer parameter 'c' has no @byul.nullable",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/coord/coord.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-coord-coord.org",
-        "severity": "error",
-        "code": "missing-param-direction",
-        "symbol": "coord_to_string",
-        "message": "parameter 'buffer_size' has no direction",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/coord/coord.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-coord-coord.org",
-        "severity": "error",
-        "code": "missing-param-direction",
-        "symbol": "coord_to_string",
-        "message": "parameter 'buffer' has no direction",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/coord/coord.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-coord-coord.org",
-        "severity": "error",
-        "code": "missing-nullable",
-        "symbol": "coord_to_string",
-        "message": "pointer parameter 'buffer' has no @byul.nullable",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/coord/coord.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-coord-coord.org",
-        "severity": "error",
-        "code": "missing-return-nullable",
-        "symbol": "coord_to_string",
-        "message": "pointer return has no @byul.nullable return",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/coord/coord.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-coord-coord.org",
-        "severity": "error",
-        "code": "missing-return-lifetime",
-        "symbol": "coord_to_string",
-        "message": "pointer return has no @byul.lifetime return",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/coord/coord.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-coord-coord.org",
-        "severity": "error",
-        "code": "missing-param-direction",
+        "code": "missing-doxygen",
         "symbol": "coord_print",
-        "message": "parameter 'c' has no direction",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/coord/coord.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-coord-coord.org",
-        "severity": "error",
-        "code": "missing-nullable",
-        "symbol": "coord_print",
-        "message": "pointer parameter 'c' has no @byul.nullable",
+        "message": "public function has no adjacent Doxygen block",
         "disposition": "route-to-owner-child"
       },
       {
@@ -8560,8 +8497,8 @@
       "owner_todo": "docs/ko/todo/navsys/todo-navsys-coord-coord.org",
       "primary_role": "public-component",
       "wrapper_mode": "generated",
-      "symbol_count": 50,
-      "audit_issue_count": 79,
+      "symbol_count": 51,
+      "audit_issue_count": 72,
       "symbols": [
         "coord_sizeof",
         "coord_alignof",
@@ -8580,6 +8517,7 @@
         "coord_angle_rad",
         "coord_angle_deg",
         "coord_step_toward",
+        "coord_format",
         "coord_create_full",
         "coord_create",
         "coord_destroy",
@@ -9611,6 +9549,14 @@
       "name": "coord_step_toward",
       "return_type": "navsys_status_t",
       "signature": "navsys_status_t coord_step_toward( const coord_t* start, const coord_t* goal, coord_t* out_next);",
+      "return_form": "enum_result",
+      "canonical": "navsys_status_t plus typed out enum"
+    },
+    {
+      "header": "byul/navsys/coord/coord.h",
+      "name": "coord_format",
+      "return_type": "navsys_status_t",
+      "signature": "navsys_status_t coord_format( const coord_t* coord, char* out_buffer, size_t capacity, size_t* out_required);",
       "return_form": "enum_result",
       "canonical": "navsys_status_t plus typed out enum"
     },

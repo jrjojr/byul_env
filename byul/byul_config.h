@@ -33,6 +33,16 @@
   #endif
 #endif
 
+#if defined(__cplusplus) && (__cplusplus >= 201402L)
+  #define BYUL_DEPRECATED(message) [[deprecated(message)]]
+#elif defined(_MSC_VER)
+  #define BYUL_DEPRECATED(message) __declspec(deprecated(message))
+#elif defined(__GNUC__) || defined(__clang__)
+  #define BYUL_DEPRECATED(message) __attribute__((deprecated(message)))
+#else
+  #define BYUL_DEPRECATED(message)
+#endif
+
 #define BYUL_VERSION_MAJOR 1
 #define BYUL_VERSION_MINOR 0
 #define BYUL_VERSION_PATCH 0
