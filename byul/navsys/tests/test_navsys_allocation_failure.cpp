@@ -8,6 +8,7 @@
 #include "navsys.h"
 
 #include <cstddef>
+#include <cstdint>
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
@@ -214,6 +215,64 @@ bool verify_coord_list_checked_allocation_failure() {
     coord_list_destroy(list);
     return true;
 }
+
+bool verify_cost_coord_pq_checked_allocation_failure() {
+    const std::size_t baseline = tracked_live_allocations;
+    const cost_coord_pq_create_info_t info = {
+        static_cast<std::uint32_t>(sizeof(cost_coord_pq_create_info_t)),
+        BYUL_COST_COORD_PQ_CREATE_INFO_ABI_VERSION,
+        0
+    };
+    cost_coord_pq_t* const sentinel =
+        reinterpret_cast<cost_coord_pq_t*>(1);
+    cost_coord_pq_t* created = sentinel;
+
+    track_allocations = true;
+    fail_after = 0;
+    const navsys_status_t create_status =
+        cost_coord_pq_create_ex(&info, &created);
+    fail_after = -1;
+    track_allocations = false;
+    if (create_status != NAVSYS_STATUS_OUT_OF_MEMORY
+        || created != sentinel
+        || tracked_live_allocations != baseline) {
+        std::fprintf(
+            stderr,
+            "cost_coord_pq_create_ex did not preserve output on allocation failure\n");
+        return false;
+    }
+
+    cost_coord_pq_t* queue = nullptr;
+    if (cost_coord_pq_create_ex(&info, &queue) != NAVSYS_STATUS_OK
+        || !queue) {
+        return false;
+    }
+    const coord_t coord = {11, 13};
+    track_allocations = true;
+    fail_after = 0;
+    const navsys_status_t push_status =
+        cost_coord_pq_push_ex(queue, 2.0f, &coord);
+    fail_after = -1;
+    track_allocations = false;
+    float output_cost = 17.0f;
+    coord_t output_coord = {19, 23};
+    if (push_status != NAVSYS_STATUS_OUT_OF_MEMORY
+        || cost_coord_pq_peek_min(
+            queue, &output_cost, &output_coord) != NAVSYS_STATUS_NOT_FOUND
+        || output_cost != 17.0f
+        || output_coord.x != 19
+        || output_coord.y != 23
+        || tracked_live_allocations != baseline) {
+        std::fprintf(
+            stderr,
+            "cost_coord_pq_push_ex was not failure-atomic\n");
+        cost_coord_pq_destroy(queue);
+        return false;
+    }
+
+    cost_coord_pq_destroy(queue);
+    return true;
+}
 #endif
 
 template <typename T>
@@ -313,6 +372,9 @@ int main(int argc, char** argv) {
     // failure-injected through the executable's global operator new.
     if (!verify_coord_list_checked_allocation_failure()) {
         return 7;
+    }
+    if (!verify_cost_coord_pq_checked_allocation_failure()) {
+        return 8;
     }
 #endif
 

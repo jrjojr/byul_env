@@ -6,6 +6,7 @@
 
 #include "coord.h"
 #include "coord_hash.h"
+#include "cost_coord_pq.h"
 
 struct coord_hash_callback_counts {
     int copies{};
@@ -54,6 +55,7 @@ int main() {
     static_assert(std::is_standard_layout_v<coord_t>);
     static_assert(std::is_standard_layout_v<coord_hash_create_info_t>);
     static_assert(std::is_standard_layout_v<coord_hash_entry_view_t>);
+    static_assert(std::is_standard_layout_v<cost_coord_pq_create_info_t>);
     static_assert(
         std::is_same_v<
             decltype(&copy_coord_hash_int),
@@ -79,6 +81,11 @@ int main() {
     static_assert(alignof(coord_hash_entry_view_t) == 8);
     static_assert(offsetof(coord_hash_entry_view_t, key) == 0);
     static_assert(offsetof(coord_hash_entry_view_t, value) == 8);
+    static_assert(sizeof(cost_coord_pq_create_info_t) == 12);
+    static_assert(alignof(cost_coord_pq_create_info_t) == 4);
+    static_assert(offsetof(cost_coord_pq_create_info_t, struct_size) == 0);
+    static_assert(offsetof(cost_coord_pq_create_info_t, abi_version) == 4);
+    static_assert(offsetof(cost_coord_pq_create_info_t, flags) == 8);
 
     assert(sizeof(coord_t) == coord_sizeof());
     assert(alignof(coord_t) == coord_alignof());
@@ -131,5 +138,27 @@ int main() {
     assert(counts.copies == 2);
     assert(counts.destroys == 2);
     assert(counts.equals == 1);
+
+    const cost_coord_pq_create_info_t pq_info{
+        static_cast<std::uint32_t>(sizeof(cost_coord_pq_create_info_t)),
+        BYUL_COST_COORD_PQ_CREATE_INFO_ABI_VERSION,
+        0,
+    };
+    cost_coord_pq_t* queue = nullptr;
+    assert(cost_coord_pq_create_ex(&pq_info, &queue) == NAVSYS_STATUS_OK);
+    assert(queue != nullptr);
+    const coord_t first{1, 2};
+    const coord_t second{3, 4};
+    assert(cost_coord_pq_push_ex(queue, 1.0f, &first) == NAVSYS_STATUS_OK);
+    assert(cost_coord_pq_push_ex(queue, 1.0f, &second) == NAVSYS_STATUS_OK);
+    float popped_cost = -1.0f;
+    coord_t popped_coord{-1, -1};
+    assert(
+        cost_coord_pq_pop_min(queue, &popped_cost, &popped_coord)
+        == NAVSYS_STATUS_OK);
+    assert(popped_cost == 1.0f);
+    assert(popped_coord.x == first.x);
+    assert(popped_coord.y == first.y);
+    cost_coord_pq_destroy(queue);
     return 0;
 }

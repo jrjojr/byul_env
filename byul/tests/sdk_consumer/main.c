@@ -449,6 +449,43 @@ int main(void) {
     coord_destroy(owned_min);
     cost_coord_pq_destroy(legacy_pq);
 
+    const cost_coord_pq_create_info_t pq_info = {
+        (uint32_t)sizeof(cost_coord_pq_create_info_t),
+        BYUL_COST_COORD_PQ_CREATE_INFO_ABI_VERSION,
+        0
+    };
+    cost_coord_pq_t* checked_pq = NULL;
+    coord_t pq_output = {91, 92};
+    float pq_cost = 93.0f;
+    if (cost_coord_pq_create_ex(&pq_info, &checked_pq)
+            != NAVSYS_STATUS_OK
+        || checked_pq == NULL
+        || cost_coord_pq_pop_min(checked_pq, &pq_cost, &pq_output)
+            != NAVSYS_STATUS_NOT_FOUND
+        || pq_cost != 93.0f
+        || pq_output.x != 91
+        || pq_output.y != 92
+        || cost_coord_pq_push_ex(checked_pq, 2.0f, &pq_first)
+            != NAVSYS_STATUS_OK
+        || cost_coord_pq_push_ex(checked_pq, 2.0f, &pq_second)
+            != NAVSYS_STATUS_OK
+        || cost_coord_pq_push_ex(checked_pq, -1.0f, &pq_first)
+            != NAVSYS_STATUS_INVALID_ARGUMENT
+        || cost_coord_pq_pop_min(checked_pq, &pq_cost, &pq_output)
+            != NAVSYS_STATUS_OK
+        || pq_cost != 2.0f
+        || pq_output.x != pq_first.x
+        || pq_output.y != pq_first.y
+        || cost_coord_pq_peek_min(checked_pq, &pq_cost, &pq_output)
+            != NAVSYS_STATUS_OK
+        || pq_output.x != pq_second.x
+        || pq_output.y != pq_second.y) {
+        fprintf(stderr, "unexpected checked cost coord pq ABI\n");
+        cost_coord_pq_destroy(checked_pq);
+        return 20;
+    }
+    cost_coord_pq_destroy(checked_pq);
+
     if (!route_finder_is_supported(ROUTE_FINDER_ASTAR)
         || !route_finder_is_supported(ROUTE_FINDER_WEIGHTED_ASTAR)
         || route_finder_is_supported(ROUTE_FINDER_BELLMAN_FORD)

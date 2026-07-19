@@ -11,12 +11,35 @@ ffi.cdef("""
 /* Source: byul/navsys/coord/cost_coord_pq.h */
 typedef struct s_cost_coord_pq cost_coord_pq_t;
 
- cost_coord_pq_t* cost_coord_pq_create();
+typedef struct s_cost_coord_pq_create_info {
+    uint32_t struct_size;
+    uint32_t abi_version;
+    uint32_t flags;
+} cost_coord_pq_create_info_t;
+
+ navsys_status_t cost_coord_pq_create_ex(
+    const cost_coord_pq_create_info_t* info,
+    cost_coord_pq_t** out_queue);
+
+ navsys_status_t cost_coord_pq_push_ex(
+    cost_coord_pq_t* queue, float cost, const coord_t* coord);
+
+ navsys_status_t cost_coord_pq_peek_min(
+    const cost_coord_pq_t* queue,
+    float* out_cost,
+    coord_t* out_coord);
+
+ navsys_status_t cost_coord_pq_pop_min(
+    cost_coord_pq_t* queue,
+    float* out_cost,
+    coord_t* out_coord);
+
+ cost_coord_pq_t* cost_coord_pq_create(void);
 
  void cost_coord_pq_destroy(cost_coord_pq_t* pq);
 
- void cost_coord_pq_push(cost_coord_pq_t* pq, float cost,
-    const coord_t* c);
+ void cost_coord_pq_push(
+    cost_coord_pq_t* pq, float cost, const coord_t* c);
 
  coord_t* cost_coord_pq_peek(cost_coord_pq_t* pq);
 
@@ -26,12 +49,14 @@ typedef struct s_cost_coord_pq cost_coord_pq_t;
 
  bool cost_coord_pq_is_empty(cost_coord_pq_t* pq);
 
- bool cost_coord_pq_contains(cost_coord_pq_t* pq, const coord_t* c);
+ bool cost_coord_pq_contains(
+    cost_coord_pq_t* pq, const coord_t* c);
 
  bool cost_coord_pq_remove(
     cost_coord_pq_t* pq, float cost, const coord_t* c);
 
  int cost_coord_pq_length(cost_coord_pq_t* pq);
+
  void cost_coord_pq_trim_worst(cost_coord_pq_t* pq, int n);
 """)
 
