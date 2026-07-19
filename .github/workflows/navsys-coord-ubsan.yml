@@ -106,7 +106,7 @@ jobs:
           python tools/header_refactor_build_snapshot.py \
             --apply \
             --nm "$(command -v nm)" \
-            --dll build_debug/lib/libbyul.so \
+            --dll build_coord_sdk/lib/libbyul.so \
             --install-root build_coord_sdk \
             --profile linux-x64-gcc-debug-coord-gate \
             --output build_coord_gate/live-build.json
