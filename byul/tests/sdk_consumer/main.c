@@ -14,6 +14,52 @@ static bool cancel_immediately(void* userdata) {
     return true;
 }
 
+typedef struct sdk_coord_hash_callbacks {
+    int copy_calls;
+    int destroy_calls;
+    int equal_calls;
+} sdk_coord_hash_callbacks_t;
+
+static navsys_status_t sdk_coord_hash_copy(
+    const void* source,
+    void** out_copy,
+    void* userdata) {
+    sdk_coord_hash_callbacks_t* callbacks =
+        (sdk_coord_hash_callbacks_t*)userdata;
+    if (source == NULL || out_copy == NULL || callbacks == NULL) {
+        return NAVSYS_STATUS_INVALID_ARGUMENT;
+    }
+    void* copied = coord_hash_int_copy(source);
+    if (copied == NULL) {
+        return NAVSYS_STATUS_OUT_OF_MEMORY;
+    }
+    ++callbacks->copy_calls;
+    *out_copy = copied;
+    return NAVSYS_STATUS_OK;
+}
+
+static void sdk_coord_hash_destroy(void* value, void* userdata) {
+    sdk_coord_hash_callbacks_t* callbacks =
+        (sdk_coord_hash_callbacks_t*)userdata;
+    if (callbacks != NULL) {
+        ++callbacks->destroy_calls;
+    }
+    coord_hash_int_destroy(value);
+}
+
+static bool sdk_coord_hash_equal(
+    const void* lhs,
+    const void* rhs,
+    void* userdata) {
+    sdk_coord_hash_callbacks_t* callbacks =
+        (sdk_coord_hash_callbacks_t*)userdata;
+    if (lhs == NULL || rhs == NULL || callbacks == NULL) {
+        return false;
+    }
+    ++callbacks->equal_calls;
+    return *(const int*)lhs == *(const int*)rhs;
+}
+
 static_assert(NAVSYS_STATUS_OK == 0, "NAVSYS_STATUS_OK ABI");
 static_assert(NAVSYS_STATUS_INVALID_ARGUMENT == -1, "NAVSYS_STATUS_INVALID_ARGUMENT ABI");
 static_assert(NAVSYS_STATUS_OUT_OF_MEMORY == -2, "NAVSYS_STATUS_OUT_OF_MEMORY ABI");
@@ -39,6 +85,36 @@ static_assert(ROUTE_COMPLETION_PARTIAL == 2, "ROUTE_COMPLETION_PARTIAL ABI");
         #type "." #field " ABI 1 offset")
 
 static_assert(sizeof(void*) == 8, "Navsys ABI 1 layout fixture requires x64");
+static_assert(
+    _Generic(
+        &sdk_coord_hash_copy,
+        coord_hash_value_copy_func_ex: 1,
+        default: 0),
+    "coord hash copy callback calling convention");
+static_assert(
+    _Generic(
+        &sdk_coord_hash_destroy,
+        coord_hash_value_destroy_func_ex: 1,
+        default: 0),
+    "coord hash destroy callback calling convention");
+static_assert(
+    _Generic(
+        &sdk_coord_hash_equal,
+        coord_hash_value_equal_func_ex: 1,
+        default: 0),
+    "coord hash equal callback calling convention");
+
+ABI1_TYPE_LAYOUT(coord_hash_create_info_t, 40, 8);
+ABI1_FIELD_OFFSET(coord_hash_create_info_t, struct_size, 0);
+ABI1_FIELD_OFFSET(coord_hash_create_info_t, abi_version, 4);
+ABI1_FIELD_OFFSET(coord_hash_create_info_t, copy_value, 8);
+ABI1_FIELD_OFFSET(coord_hash_create_info_t, destroy_value, 16);
+ABI1_FIELD_OFFSET(coord_hash_create_info_t, equal_value, 24);
+ABI1_FIELD_OFFSET(coord_hash_create_info_t, userdata, 32);
+
+ABI1_TYPE_LAYOUT(coord_hash_entry_view_t, 16, 8);
+ABI1_FIELD_OFFSET(coord_hash_entry_view_t, key, 0);
+ABI1_FIELD_OFFSET(coord_hash_entry_view_t, value, 8);
 
 ABI1_TYPE_LAYOUT(dstar_lite_t, 184, 8);
 ABI1_FIELD_OFFSET(dstar_lite_t, navgrid, 0);
@@ -163,14 +239,24 @@ int main(void) {
         return 8;
     }
 
-    coord_hash_t* coord_values = coord_hash_create_full(
-        coord_hash_int_copy, coord_hash_int_destroy);
+    sdk_coord_hash_callbacks_t hash_callbacks = {0, 0, 0};
+    coord_hash_create_info_t hash_create_info = {
+        (uint32_t)sizeof(coord_hash_create_info_t),
+        BYUL_COORD_HASH_CREATE_INFO_ABI_VERSION,
+        sdk_coord_hash_copy,
+        sdk_coord_hash_destroy,
+        sdk_coord_hash_equal,
+        &hash_callbacks
+    };
+    coord_hash_t* coord_values = NULL;
     coord_t hash_key = {4, 2};
     int hash_value = 17;
     bool inserted = false;
     const void* borrowed_value = NULL;
     bool found = false;
-    if (coord_values == NULL
+    if (coord_hash_create_ex(&hash_create_info, &coord_values)
+            != NAVSYS_STATUS_OK
+        || coord_values == NULL
         || coord_hash_upsert_copy(
             coord_values, &hash_key, &hash_value, &inserted)
             != NAVSYS_STATUS_OK
@@ -203,6 +289,12 @@ int main(void) {
     coord_hash_buffer_destroy(legacy_values);
     coord_hash_buffer_destroy(legacy_text);
     coord_hash_destroy(coord_values);
+    if (hash_callbacks.copy_calls != 2
+        || hash_callbacks.destroy_calls != 2
+        || hash_callbacks.equal_calls != 0) {
+        fprintf(stderr, "unexpected coord hash callback ABI\n");
+        return 11;
+    }
 
     if (!route_finder_is_supported(ROUTE_FINDER_ASTAR)
         || !route_finder_is_supported(ROUTE_FINDER_WEIGHTED_ASTAR)

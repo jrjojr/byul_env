@@ -29,6 +29,9 @@ TODO = (
     / "navsys"
     / "todo-navsys-coord-coord-hash.org"
 )
+COORD_CMAKE = REPOSITORY_ROOT / "byul" / "navsys" / "coord" / "CMakeLists.txt"
+NAVSYS_CMAKE = REPOSITORY_ROOT / "byul" / "navsys" / "CMakeLists.txt"
+ROOT_CMAKE = REPOSITORY_ROOT / "byul" / "CMakeLists.txt"
 ALLOWED_DISPOSITIONS = {
     "keep",
     "add",
@@ -221,6 +224,69 @@ class CoordHashAbiPolicyTest(unittest.TestCase):
         self.assertEqual(
             contracts["coord_hash_equal_full"]["failure"],
             "preserve-out-equal",
+        )
+
+    def test_static_and_root_targets_share_the_approved_coord_inventory(self):
+        manifest = load_manifest()
+        inventory = manifest["build_inventory"]
+        coord_cmake = COORD_CMAKE.read_text(encoding="utf-8")
+        navsys_cmake = NAVSYS_CMAKE.read_text(encoding="utf-8")
+        root_cmake = ROOT_CMAKE.read_text(encoding="utf-8")
+
+        for path in inventory["sources"] + inventory["headers"]:
+            relative = path.split("byul/navsys/coord/", 1)[1]
+            self.assertEqual(
+                coord_cmake.count(f"${{CMAKE_CURRENT_SOURCE_DIR}}/{relative}"),
+                1,
+            )
+        self.assertIn("${coord_SOURCES}", navsys_cmake)
+        self.assertIn("${navsys_SOURCES}", root_cmake)
+        self.assertRegex(
+            coord_cmake,
+            r"target_compile_definitions\(\$\{PROJECT_NAME\}\s+PRIVATE\s+"
+            + inventory["module_compile_definition"],
+        )
+        self.assertRegex(
+            root_cmake,
+            r"target_compile_definitions\(\$\{PROJECT_NAME\}\s+PRIVATE\s+"
+            + inventory["root_compile_definition"],
+        )
+
+    def test_abi_fingerprint_covers_every_added_function_and_abi2_decision(self):
+        manifest = load_manifest()
+        fingerprint = manifest["abi_fingerprint"]
+        added_functions = {
+            name
+            for name, disposition in manifest["current_functions"].items()
+            if disposition == "add"
+        }
+
+        self.assertEqual(set(fingerprint["new_symbols"]), added_functions)
+        self.assertEqual(
+            fingerprint["coord_hash_create_info_t"]["x64_offsets"],
+            [0, 4, 8, 16, 24, 32],
+        )
+        self.assertEqual(
+            fingerprint["coord_hash_entry_view_t"]["x64_offsets"],
+            [0, 8],
+        )
+        self.assertEqual(
+            set(fingerprint["callback_types"]),
+            {
+                "coord_hash_value_copy_func_ex",
+                "coord_hash_value_destroy_func_ex",
+                "coord_hash_value_equal_func_ex",
+            },
+        )
+
+        decision = manifest["abi_2_decision"]
+        self.assertEqual(decision["status"], "approved")
+        self.assertEqual(decision["public_generic_coord_hash"], "retire")
+        self.assertEqual(
+            decision["replacement"], "domain-specific-typed-map-families"
+        )
+        self.assertTrue(
+            any("coord_hash_set" in step for step in decision["migration"])
         )
 
 

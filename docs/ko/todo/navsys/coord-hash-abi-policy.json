@@ -205,5 +205,87 @@
       "destroy": "destroy-callback-not-invoked",
       "canonical_target": "one-consistent-documented-policy"
     }
+  },
+  "build_inventory": {
+    "module_target": "coord",
+    "module_compile_definition": "BYUL_STATIC",
+    "root_target": "byul",
+    "root_compile_definition": "BYUL_EXPORTS",
+    "sources": [
+      "byul/navsys/coord/coord.cpp",
+      "byul/navsys/coord/coord_hash.cpp",
+      "byul/navsys/coord/coord_list.cpp",
+      "byul/navsys/coord/cost_coord_pq.cpp"
+    ],
+    "headers": [
+      "byul/navsys/coord/coord.h",
+      "byul/navsys/coord/coord_hash.h",
+      "byul/navsys/coord/coord_list.h",
+      "byul/navsys/coord/cost_coord_pq.h"
+    ]
+  },
+  "abi_fingerprint": {
+    "architecture": "pointer-size-derived",
+    "coord_hash_create_info_t": {
+      "standard_layout": true,
+      "field_order": [
+        "struct_size",
+        "abi_version",
+        "copy_value",
+        "destroy_value",
+        "equal_value",
+        "userdata"
+      ],
+      "x64_size": 40,
+      "x64_alignment": 8,
+      "x64_offsets": [0, 4, 8, 16, 24, 32]
+    },
+    "coord_hash_entry_view_t": {
+      "standard_layout": true,
+      "field_order": ["key", "value"],
+      "x64_size": 16,
+      "x64_alignment": 8,
+      "x64_offsets": [0, 8]
+    },
+    "callback_types": [
+      "coord_hash_value_copy_func_ex",
+      "coord_hash_value_destroy_func_ex",
+      "coord_hash_value_equal_func_ex"
+    ],
+    "new_symbols": [
+      "coord_hash_create_ex",
+      "coord_hash_copy_ex",
+      "coord_hash_insert_copy",
+      "coord_hash_replace_copy",
+      "coord_hash_upsert_copy",
+      "coord_hash_int_copy",
+      "coord_hash_int_destroy",
+      "coord_hash_float_copy",
+      "coord_hash_float_destroy",
+      "coord_hash_double_copy",
+      "coord_hash_double_destroy",
+      "coord_hash_size",
+      "coord_hash_find",
+      "coord_hash_equal_keys",
+      "coord_hash_equal_full",
+      "coord_hash_export_keys",
+      "coord_hash_export_entries",
+      "coord_hash_iter_next_ex",
+      "coord_hash_format",
+      "coord_hash_buffer_destroy"
+    ]
+  },
+  "abi_2_decision": {
+    "status": "approved",
+    "public_generic_coord_hash": "retire",
+    "internal_implementation": "may-remain-private",
+    "replacement": "domain-specific-typed-map-families",
+    "migration": [
+      "ABI 1 keeps every existing symbol and deprecation diagnostic.",
+      "Native callers move mutation, query, export, iteration, and format to checked ABI 1 symbols.",
+      "Python callers use explicit int, float, double, or none codecs during ABI 1.",
+      "ABI 2 public headers expose domain-specific typed maps instead of void-pointer callbacks.",
+      "Raw coord_hash_set has no ABI 2 replacement because ownership transfer was unsound."
+    ]
   }
 }
