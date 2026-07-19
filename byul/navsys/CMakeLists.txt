@@ -28,6 +28,7 @@ CACHE INTERNAL "${PROJECT_NAME} source files"  FORCE
 
 set(${PROJECT_NAME}_HEADERS
     ${CMAKE_CURRENT_SOURCE_DIR}/navsys.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/navsys_status.h
 
     ${coord_HEADERS}
     ${route_HEADERS}

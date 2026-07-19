@@ -2,6 +2,7 @@
 #define NAVGRID_H
 
 #include "byul_config.h"
+#include "navsys_status.h"
 #include "coord.h"
 #include "coord_list.h"
 #include "coord_hash.h"
@@ -111,6 +112,19 @@ BYUL_API navgrid_t* navgrid_create_full(int width, int height,
     navgrid_dir_mode_t mode,
     is_coord_blocked_func is_coord_blocked_fn);
 
+/**
+ * @brief Navigation grid와 그 내부 cell map을 해제한다.
+ *
+ * 같은 grid의 차단 callback 실행 중 호출하면 안전을 위해 아무 작업도 하지 않는다.
+ *
+ * @param[in,out] navgrid 해제할 navigation grid. NULL이면 아무 작업도 하지 않는다.
+ *
+ * @byul.nullable navgrid true
+ * @byul.side_effect frees:navgrid
+ * @byul.thread_safety externally-synchronized
+ * @byul.blocking false
+ * @byul.reentrant false
+ */
 BYUL_API void navgrid_destroy(navgrid_t* navgrid);
 
 // Copy and Comparison
@@ -130,6 +144,48 @@ BYUL_API void navgrid_set_is_coord_blocked_func(
 
 BYUL_API is_coord_blocked_func navgrid_get_is_coord_blocked_fn(
     const navgrid_t* navgrid);
+
+/**
+ * @brief 좌표 차단 callback과 userdata를 하나의 binding으로 교체한다.
+ *
+ * @param[in,out] navgrid 변경할 navigation grid.
+ * @param[in] fn bind할 callback.
+ * @param[in] userdata callback에 전달할 caller 소유 data.
+ * @return 공통 Navsys 상태 값.
+ * @retval NAVSYS_STATUS_OK binding이 교체됐다.
+ * @retval NAVSYS_STATUS_INVALID_ARGUMENT navgrid 또는 fn이 NULL이다.
+ * @retval NAVSYS_STATUS_IN_PROGRESS 같은 grid의 callback 실행 중이다.
+ *
+ * @byul.nullable navgrid false
+ * @byul.nullable fn false
+ * @byul.nullable userdata true
+ * @byul.lifetime fn until-unbind
+ * @byul.lifetime userdata until-unbind
+ * @byul.side_effect mutates:navgrid
+ * @byul.thread_safety externally-synchronized
+ * @byul.blocking false
+ * @byul.reentrant false
+ */
+BYUL_API navsys_status_t navgrid_bind_is_coord_blocked_func(
+    navgrid_t* navgrid, is_coord_blocked_func fn, void* userdata);
+
+/**
+ * @brief 좌표 차단 callback binding을 제거해 모든 좌표를 통과 가능하게 한다.
+ *
+ * @param[in,out] navgrid 변경할 navigation grid.
+ * @return 공통 Navsys 상태 값.
+ * @retval NAVSYS_STATUS_OK callback과 userdata가 NULL로 변경됐다.
+ * @retval NAVSYS_STATUS_INVALID_ARGUMENT navgrid가 NULL이다.
+ * @retval NAVSYS_STATUS_IN_PROGRESS 같은 grid의 callback 실행 중이다.
+ *
+ * @byul.nullable navgrid false
+ * @byul.side_effect mutates:navgrid
+ * @byul.thread_safety externally-synchronized
+ * @byul.blocking false
+ * @byul.reentrant false
+ */
+BYUL_API navsys_status_t navgrid_unbind_is_coord_blocked_func(
+    navgrid_t* navgrid);
 
 BYUL_API navgrid_dir_mode_t navgrid_get_mode(const navgrid_t* navgrid);
 BYUL_API void navgrid_set_mode(

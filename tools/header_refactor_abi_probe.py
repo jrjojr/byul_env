@@ -51,6 +51,7 @@ def complete_typedefs(source: str, keyword: str) -> list[tuple[str, str]]:
         rf"typedef\s+{keyword}(?:\s+[A-Za-z_][A-Za-z0-9_]*)?\s*\{{"
     )
     result = []
+    aliases = set()
     for match in pattern.finditer(source):
         opening = source.find("{", match.start())
         depth = 0
@@ -69,7 +70,38 @@ def complete_typedefs(source: str, keyword: str) -> list[tuple[str, str]]:
             r"\s*([A-Za-z_][A-Za-z0-9_]*)\s*;", source[closing + 1 :]
         )
         if alias:
-            result.append((source[opening + 1 : closing], alias.group(1)))
+            name = alias.group(1)
+            result.append((source[opening + 1 : closing], name))
+            aliases.add(name)
+
+    tagged_bodies = {}
+    tagged_pattern = re.compile(
+        rf"\b{keyword}\s+([A-Za-z_][A-Za-z0-9_]*)\s*\{{"
+    )
+    for match in tagged_pattern.finditer(source):
+        opening = source.find("{", match.start())
+        depth = 0
+        closing = None
+        for index in range(opening, len(source)):
+            if source[index] == "{":
+                depth += 1
+            elif source[index] == "}":
+                depth -= 1
+                if depth == 0:
+                    closing = index
+                    break
+        if closing is not None:
+            tagged_bodies[match.group(1)] = source[opening + 1 : closing]
+
+    alias_pattern = re.compile(
+        rf"typedef\s+{keyword}\s+([A-Za-z_][A-Za-z0-9_]*)\s+"
+        r"([A-Za-z_][A-Za-z0-9_]*)\s*;"
+    )
+    for match in alias_pattern.finditer(source):
+        tag, name = match.groups()
+        if name not in aliases and tag in tagged_bodies:
+            result.append((tagged_bodies[tag], name))
+            aliases.add(name)
     return result
 
 

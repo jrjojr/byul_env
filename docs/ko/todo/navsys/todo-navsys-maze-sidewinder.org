@@ -20,6 +20,18 @@
 - 현재 구현은 첫 logical row에서도 random하게 run을 닫지만 north carve를 하지 않는다.
   따라서 first row가 여러 disconnected run으로 끊길 수 있는 P0 correctness 후보이다.
 
+* 책임 경계와 실제 검증 파일
+
+- 이 문서는 Sidewinder run/sweep algorithm state·materialization과 RNG 소비, seed/replay,
+  budget/cancel 구현을 소유한다.
+- resource/extent/enumeration/overlay primitive는 =maze_core=를 사용하고 재구현하지 않는다.
+  enum selection/options routing/capability 합류는 =maze= dispatcher가 소유하며 이 문서는
+  direct entry와 검증된 capability record만 제공한다.
+- 실제 maze native 검증 파일은 =byul/navsys/maze/tests/test_module_maze.cpp=,
+  =byul/navsys/maze/tests/test_module_maze_discrete.cpp=,
+  =byul/navsys/maze/tests/test_module_maze_room.cpp=다. Algorithm별 case는 이 공용 세 파일
+  중 책임에 맞는 파일에 둔다.
+
 * Public symbol inventory와 처분
 
 | kind | symbol | disposition |

@@ -80,7 +80,7 @@ caller가 전달한 cancellation token과 deterministic evaluation/iteration/wor
 - RK4와 adaptive integrator
 - 엄격한 absolute/relative/angular tolerance
 - 큰 iteration/subdivision/evaluation budget
-- robust/adaptive predicate와 collision refinement
+- 오차 경계 기반/적응형 기하 판정과 collision refinement
 - 오차, 잔차, 수렴과 평가 통계
 - 필요시 동적 또는 caller-provided 확장 workspace
 
@@ -136,10 +136,17 @@ typedef enum byul_math_execution_preset_t {
     BYUL_MATH_EXECUTION_HYBRID
 } byul_math_execution_preset_t;
 
+typedef enum byul_geometry_predicate_mode_t {
+    BYUL_GEOMETRY_PREDICATE_FAST_INEXACT,
+    BYUL_GEOMETRY_PREDICATE_FILTERED_EXACT,
+    BYUL_GEOMETRY_PREDICATE_EXACT
+} byul_geometry_predicate_mode_t;
+
 typedef struct byul_math_context_t {
     byul_math_execution_preset_t preset;
     byul_numeric_backend_t primary_backend;
     byul_numeric_backend_t refinement_backend;
+    byul_geometry_predicate_mode_t geometry_predicate_mode;
     double absolute_tolerance;
     double relative_tolerance;
     double angular_tolerance;
@@ -148,7 +155,6 @@ typedef struct byul_math_context_t {
     uint32_t max_refinements;
     uint64_t evaluation_budget;
     uint64_t memory_budget;
-    bool robust_geometry;
     bool adaptive_step;
     bool allow_simd;
     bool allow_gpu;
@@ -159,6 +165,10 @@ typedef struct byul_math_context_t {
 이는 설계 후보이며 아직 public ABI가 아니다. 공개 구조체로 확정하기 전에 size/version
 field가 있는 구조와 opaque context plus getter/setter를 비교한다. 설정 resolver가 만든
 immutable resolved context와 계산별 lightweight override의 책임도 분리한다.
+
+=geometry_predicate_mode=은 전체 geometry를 “견고함/견고하지 않음”으로 나누는 boolean이
+아니다. 기하 판정의 계산 방식과 fallback 계약을 선택한다. Construction 정확도,
+tolerance, refinement budget와 실패 상태는 별도 축으로 유지한다.
 
 * 결정론
 
@@ -196,7 +206,7 @@ hybrid + deterministic     승격 조건과 순서를 고정한 replay
 
 ** geometry
 
-- tolerance와 robust predicate
+- tolerance와 견고한 기하 판정
 - bounding-volume·primitive 교차 query와 uncertain 결과
 - GJK/EPA iteration과 contact manifold 크기
 
@@ -217,7 +227,7 @@ hybrid + deterministic     승격 조건과 순서를 고정한 replay
 simulation preset만으로 금융과 CAD의 전체 정책을 표현하지 않는다.
 
 - 금융: decimal exactness, scale, quantize와 rounding policy
-- CAD: geometric robustness, topology tolerance와 healing policy
+- CAD: 기하 계산의 견고성, topology tolerance와 healing policy
 
 Math Engine profile과 module-specific 계산 policy는
 =todo-math-engine-configuration.org= 가 조합한다. Product/world feature는 Balix 또는
@@ -246,8 +256,25 @@ Math Engine profile과 module-specific 계산 policy는
 - hybrid 승격 조건, 최대 비용과 실패 상태가 정의된다.
 - preset과 숫자 backend가 독립적으로 조합된다.
 - 결정론이 preset과 독립적으로 설정된다.
-- 금융 decimal과 CAD robustness 정책을 별도 축으로 결합할 수 있다.
+- 금융 decimal과 CAD 견고성 정책을 별도 축으로 결합할 수 있다.
 - 지원하지 않는 조합이 명시적 상태로 보고된다.
+
+* Configuration과 교차 실행 순서
+
+[[file:todo-math-engine-configuration.org][Configuration 계획]]과의 상호 참조는 다음
+순서로 끊는다.
+
+1. Context TODO 1: 순수 계산 policy field inventory
+2. Configuration TODO 1: stable 설정 id와 제외 축 동결
+3. Context TODO 2: versioned immutable context ABI 확정
+4. Configuration TODO 2: 위 ABI를 출력으로 만드는 schema/resolver 설계
+5. Numeq·Geometry·Physics canonical core 구현
+6. Context TODO 3~4: component adapter와 bounded refinement 적용
+7. Configuration TODO 3: 실제 capability와 대조한 built-in profile 구현
+8. Configuration TODO 4: 전체 Header 리팩터링 9단계의 shared DLL ABI에서 실행
+
+Context는 설정 파일을 읽지 않고 Configuration은 수학 알고리즘을 소유하지 않는다.
+1~4단계의 같은 field/id를 두 문서에서 동시에 별도 이름으로 설계하지 않는다.
 
 * 진행 조건
 

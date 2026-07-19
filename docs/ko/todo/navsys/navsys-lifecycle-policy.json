@@ -1,0 +1,158 @@
+{
+  "schema_version": 1,
+  "source_inventory": "docs/ko/todo/navsys/navsys-current-abi-inventory.json",
+  "abi_1_policy": {
+    "compatibility": "additive-only",
+    "existing_setters": "preserve-and-route-through-atomic-binding-implementation",
+    "public_struct_layout": "preserve",
+    "callback_context_ownership": "borrowed-by-BYUL",
+    "callback_context_lifetime": "caller-keeps-alive-until-rebind-unbind-or-owner-destroy",
+    "binding_commit": "function-and-userdata-change-together-or-remain-unchanged",
+    "binding_surface": "materialized-in-current-abi-inventory",
+    "thread_safety": "exclusive-owner-mutation-required",
+    "reentrancy": "callback-must-not-bind-unbind-or-destroy-the-same-owner",
+    "reentrancy_enforcement": {
+      "route_finder": "runtime-guarded-and-tested",
+      "navgrid": "runtime-guarded-and-tested",
+      "dstar_lite": "runtime-guarded-and-tested"
+    },
+    "allocation_failure_injection": {
+      "fixture": "byul/navsys/tests/test_navsys_allocation_failure.cpp",
+      "scope": "current-create-paths-static-module",
+      "owners": [
+        "navgrid",
+        "route_finder",
+        "dstar_lite"
+      ],
+      "toolchains": [
+        "msvc",
+        "mingw"
+      ],
+      "result": "no-exception-escape-and-no-owned-allocation-leak"
+    },
+    "callback_failure": "legacy-signatures-have-no-common-failure-channel"
+  },
+  "abi_2_policy": {
+    "opaque_struct_candidates": [
+      "dstar_lite_t",
+      "navgrid_t",
+      "route_finder_t"
+    ],
+    "breaking_changes": [
+      "remove-public-struct-fields",
+      "remove-split-callback-setters",
+      "change-callback-signatures-to-navsys-status",
+      "add-owned-callback-context-destructor"
+    ],
+    "allocator_binding": {
+      "scope": "immutable-create-time-per-owner",
+      "operations": [
+        "allocate-size-and-alignment",
+        "deallocate-with-original-binding"
+      ],
+      "userdata_ownership": "borrowed-by-BYUL",
+      "userdata_lifetime": "create-through-owner-destroy",
+      "zero_size": "never-requested",
+      "alignment": "power-of-two-request-preserved",
+      "reallocate": "not-part-of-core-contract",
+      "allocation_failure": "null-maps-to-NAVSYS_STATUS_OUT_OF_MEMORY",
+      "output_guarantee": "preserve-all-output-pointers"
+    },
+    "handle_transition": {
+      "abi_1_layout_snapshot": "docs/ko/todo/header-refactor-current/msvc-release-abi.json",
+      "abi_2_public_form": "incomplete-struct-declaration-only",
+      "abi_1_fixture": "implemented-installed-sdk-x64-public-field-consumer",
+      "abi_2_fixture": "compile-and-run-with-abi-2-sdk-and-runtime-only",
+      "cross_major_loading": "reject-before-first-object-operation",
+      "diagnostic": "abi-major-and-header-fingerprint"
+    },
+    "release_gates": {
+      "legacy-create-allocation-failure": "verified-in-abi-1-msvc-and-mingw-static-module",
+      "abi-2-bound-allocator-failure": "required-before-abi-2-release",
+      "old-layout-consumer": "verified-in-abi-1-msvc-and-mingw",
+      "new-handle-consumer": "required-before-abi-2-release",
+      "current_state": "candidate-contract-frozen-implementation-pending"
+    }
+  },
+  "resource_models": [
+    {"resource": "coord", "storage": "mixed-heap-and-trivial-caller-storage", "termination": "destroy-created-only"},
+    {"resource": "coord_hash", "storage": "heap-owned", "termination": "destroy"},
+    {"resource": "coord_hash_iter", "storage": "heap-owned", "termination": "destroy"},
+    {"resource": "coord_list", "storage": "heap-owned", "termination": "destroy"},
+    {"resource": "cost_coord_pq", "storage": "heap-owned", "termination": "destroy"},
+    {"resource": "double", "storage": "callback-owned-copy", "termination": "destroy"},
+    {"resource": "dstar_lite", "storage": "heap-owned", "termination": "destroy", "init_semantics": "mutate-created-search-state"},
+    {"resource": "dstar_lite_key", "storage": "heap-owned", "termination": "destroy"},
+    {"resource": "dstar_lite_pqueue", "storage": "heap-owned", "termination": "destroy"},
+    {"resource": "dstar_lite_tick", "storage": "heap-owned", "termination": "destroy"},
+    {"resource": "fmm_cell", "storage": "trivial-caller-storage", "termination": "none"},
+    {"resource": "fmm_grid", "storage": "heap-owned", "termination": "destroy"},
+    {"resource": "int", "storage": "callback-owned-copy", "termination": "destroy"},
+    {"resource": "maze", "storage": "heap-owned", "termination": "destroy"},
+    {"resource": "navcell", "storage": "mixed-heap-and-trivial-caller-storage", "termination": "destroy-created-only"},
+    {"resource": "navgrid", "storage": "heap-owned", "termination": "destroy"},
+    {"resource": "obstacle", "storage": "heap-owned", "termination": "destroy"},
+    {"resource": "route", "storage": "heap-owned", "termination": "destroy"},
+    {"resource": "route_finder", "storage": "mixed-heap-and-caller-storage", "termination": "destroy-created-free-initialized"},
+    {"resource": "rta_star_config", "storage": "heap-owned", "termination": "destroy"},
+    {"resource": "scalar", "storage": "callback-owned-copy", "termination": "destroy"}
+  ],
+  "callback_bindings": [
+    {
+      "family": "dstar_lite",
+      "slot": "changed_coords_callback",
+      "required": false,
+      "bind_symbol": "dstar_lite_bind_changed_coords_func",
+      "unbind_symbol": "dstar_lite_unbind_changed_coords_func",
+      "unbind_result": "function-and-userdata-null"
+    },
+    {
+      "family": "dstar_lite",
+      "slot": "cost_callback",
+      "required": true,
+      "bind_symbol": "dstar_lite_bind_cost_func",
+      "unbind_symbol": "dstar_lite_unbind_cost_func",
+      "unbind_result": "restore-dstar-lite-default-cost-and-null-userdata"
+    },
+    {
+      "family": "dstar_lite",
+      "slot": "heuristic_callback",
+      "required": true,
+      "bind_symbol": "dstar_lite_bind_heuristic_func",
+      "unbind_symbol": "dstar_lite_unbind_heuristic_func",
+      "unbind_result": "restore-dstar-lite-default-heuristic-and-null-userdata"
+    },
+    {
+      "family": "dstar_lite",
+      "slot": "move_callback",
+      "required": false,
+      "bind_symbol": "dstar_lite_bind_move_func",
+      "unbind_symbol": "dstar_lite_unbind_move_func",
+      "unbind_result": "function-and-userdata-null"
+    },
+    {
+      "family": "navgrid",
+      "slot": "is_coord_blocked_callback",
+      "required": false,
+      "bind_symbol": "navgrid_bind_is_coord_blocked_func",
+      "unbind_symbol": "navgrid_unbind_is_coord_blocked_func",
+      "unbind_result": "function-and-userdata-null-all-coordinates-walkable"
+    },
+    {
+      "family": "route_finder",
+      "slot": "cost_callback",
+      "required": true,
+      "bind_symbol": "route_finder_bind_cost_func",
+      "unbind_symbol": "route_finder_unbind_cost_func",
+      "unbind_result": "restore-default-cost-and-null-userdata"
+    },
+    {
+      "family": "route_finder",
+      "slot": "heuristic_callback",
+      "required": true,
+      "bind_symbol": "route_finder_bind_heuristic_func",
+      "unbind_symbol": "route_finder_unbind_heuristic_func",
+      "unbind_result": "restore-default-heuristic-and-null-userdata"
+    }
+  ]
+}

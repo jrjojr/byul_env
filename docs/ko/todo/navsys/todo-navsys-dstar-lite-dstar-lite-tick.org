@@ -26,6 +26,20 @@
 destroy UAF, double attach, 자동 detach 미실행, 미초기화 create/copy가 있어 ABI 2 opaque
 전환 전에도 안전 수정이 필요하다.
 
+* 실행 소유권과 테스트 위치
+
+- 이 문서는 tick subscription, deterministic =advance(dt)=, 이동 step, controller state와
+  planner/tick lifetime adapter만 소유한다.
+- Planner lifecycle/config, key/open-list, edge update와 replan correctness는
+  [[file:todo-navsys-dstar-lite-dstar-lite.org][D* Lite core 문서]]가 소유한다. Tick은
+  공개 planner operation을 호출할 뿐 g/rhs, key, queue 또는 reconstruction을 직접
+  변경하지 않는다.
+- Tick controller의 실제 native test 파일은
+  =byul/navsys/dstar_lite/tests/test_module_dstar_lite_tick.cpp=다. Planner core regression은
+  =byul/navsys/dstar_lite/tests/test_module_dstar_lite.cpp=에 두며 tick 문서가 중복하지 않는다.
+- Python 지원/제외와 lifetime assertion은 기존 shared test
+  =tools/python/byul_wrapper/tests/test_dstar_lite.py=에 추가한다.
+
 * 현재 구현 전수 분석
 
 - =create_full=은 =max_time=만 설정하고 =base=와 나머지 필드를 정상 초기화하지 않는다.

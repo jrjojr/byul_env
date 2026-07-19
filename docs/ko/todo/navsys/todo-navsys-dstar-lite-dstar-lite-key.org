@@ -25,6 +25,22 @@
 exact ordering, bitwise hash가 서로 다른 동치관계를 사용하여 ordered/unordered container와
 Python hash 계약을 동시에 위반한다.
 
+* 실행 소유권과 테스트 위치
+
+- 이 문서는 =dstar_lite_key_t= value domain, canonicalization, exact equality/order/hash,
+  진단용 =is_close=와 C ABI compatibility만 소유한다.
+- C++ functor와 install/internal 경계는
+  [[file:todo-navsys-dstar-lite-dstar-lite-key-cpp.org][dstar_lite_key.hpp 문서]],
+  entry storage/upsert/pop은
+  [[file:todo-navsys-dstar-lite-dstar-lite-pqueue.org][pqueue 문서]], key 계산식과 planner
+  control flow는 [[file:todo-navsys-dstar-lite-dstar-lite.org][D* Lite core 문서]]가 소유한다.
+- 현재 key 전용 native test 파일은 없다. Key property/special-float/ABI assertion은
+  key의 실제 production consumer가 이미 포함된 shared test
+  =byul/navsys/dstar_lite/tests/test_module_dstar_lite_pqueue.cpp=에 추가한다.
+- Root export와 Python equality/hash assertion은 각각
+  =byul/navsys/tests/test_module_navsys.cpp=와
+  =tools/python/byul_wrapper/tests/test_dstar_lite.py=에 추가한다.
+
 * 알고리즘·언어 기준
 
 - Koenig/Likhachev의 [[https://publications.ri.cmu.edu/d-lite][D* Lite 원 논문]]에서 key는

@@ -21,6 +21,23 @@
 - raster 기준은 [[https://gdal.org/en/stable/api/gdal_alg.html][GDAL rasterize C API]]의 center/all-touched 구분과
   [[https://www.boost.org/doc/libs/1_87_0/libs/geometry/doc/html/geometry/reference/algorithms/covered_by/covered_by_2.html][Boost.Geometry covered_by]]의 boundary-inclusive predicate를 비교 축으로 삼는다.
 
+* 공통 ABI 선행 Gate와 실제 Test 원본
+
+- [[file:todo-navsys-industry-api-baseline.org][공통 기준]] =TODO 1단계=의 status owner와 C symbol
+  namespace가 승인되어 =DONE=이 되기 전에는 아래 checked generator, enum, options와
+  callback target을 public header/source/export/wrapper에 구현하지 않는다.
+- =obstacle_raster_rule_t=, =obstacle_polygon_fill_rule_t=,
+  =obstacle_generate_options_t=와 그 안의 cancellation type은 owner header/include DAG가
+  미확정인 target draft type이다. RNG owner/version과 cancellation/result 계약은 공통
+  decision에 합류한 뒤 실제 소유 파일을 정한다.
+- Raster golden characterization은 준비할 수 있지만 기존 여섯 단계의 =TODO= 상태는
+  유지한다.
+- 실제 native test 원본은
+  =byul/navsys/obstacle/tests/test_module_obstacle.cpp=이다. Maze/route-carver consumer
+  회귀는 각각 =byul/navsys/maze/tests/test_module_maze.cpp=와
+  =byul/navsys/tests/test_module_route_carver.cpp=에 추가하고, 새 Obstacle test source는
+  =byul/navsys/obstacle/tests/CMakeLists.txt=에 등록한다.
+
 * Public enum/type inventory와 처분
 
 | kind | symbol | current value | disposition |

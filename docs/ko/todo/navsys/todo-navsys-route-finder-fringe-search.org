@@ -22,6 +22,23 @@ Algorithm conformance는 Björnsson/Enzenberger/Holte/Schaeffer의
 “Fringe Search: Beating A* at Pathfinding on Game Maps”의 f-limit/f-min, two-list와 cache
 locality 모델을 기준으로 한다.
 
+* 실행 소유권과 테스트 위치
+
+- 이 문서는 Fringe Search 구현·conformance와 f-limit/threshold typed
+  config/default/validation만 소유한다.
+- 공통 evaluator와 callback binding은
+  [[file:todo-navsys-route-finder-route-finder-core.org][evaluation 문서]], facade/options/
+  capability와 config 합류는
+  [[file:todo-navsys-route-finder-route-finder.org][dispatcher 문서]]가 소유한다.
+- Fringe Search direct/conformance assertion의 실제 파일은 shared native test
+  =byul/navsys/route_finder/tests/test_module_route_finder_discrete.cpp=다.
+  Dispatcher 및 root consumer assertion은 각각
+  =byul/navsys/route_finder/tests/test_module_route_finder.cpp=와
+  =byul/navsys/tests/test_module_navsys.cpp=에서 해당 owner가 추가한다.
+- Fringe Search 문서는 Python에 필요한 config/status 기대값을 제공한다. 실제 wrapper
+  consumer assertion은 dispatcher/root 통합이
+  =tools/python/byul_wrapper/tests/test_route_finder.py=에 추가한다.
+
 * 현재 구현/소비 분석
 
 - =find_fringe_search= 하나가 module/root/SDK/generated CFFI/dispatcher에 공개된다.
@@ -103,7 +120,8 @@ canonical로 한다. =threshold_increment=가 원 알고리즘 variant에 필요
 ** 실행
 
 - legacy function을 typed config + generic run에 forwarding하고 제거 ABI를 기록한다.
-- direct header internalize 전에 CFFI/high-level/SDK consumer를 generic API로 전환한다.
+- Direct header의 replacement/deprecation metadata를 제공한다. CFFI/high-level/SDK
+  consumer의 generic API 전환은 dispatcher/root 통합에 인계한다.
 
 ** 완료 조건
 

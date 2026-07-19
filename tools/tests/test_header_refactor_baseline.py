@@ -32,8 +32,8 @@ class HeaderRefactorBaselineTest(unittest.TestCase):
 
     def test_tracked_inventory_has_expected_unique_assets(self):
         rows = self.manifest["headers"]
-        self.assertEqual(135, len(rows))
-        self.assertEqual(104, self.manifest["summary"]["byul_headers"])
+        self.assertEqual(138, len(rows))
+        self.assertEqual(107, self.manifest["summary"]["byul_headers"])
         self.assertEqual(31, self.manifest["summary"]["tool_headers"])
         self.assertEqual(len(rows), len({row["asset_id"] for row in rows}))
         self.assertEqual(
@@ -45,6 +45,12 @@ class HeaderRefactorBaselineTest(unittest.TestCase):
         paths = {BASELINE.relative(path) for path in headers}
         self.assertIn(
             "byul/navsys/coord/internal/coord_ops.hpp", paths
+        )
+        self.assertIn(
+            "byul/navsys/navgrid/internal/navgrid_callback.hpp", paths
+        )
+        self.assertIn(
+            "byul/navsys/dstar_lite/internal/dstar_lite_callback.hpp", paths
         )
         self.assertNotIn("byul/navsys/coord/coord.hpp", paths)
         self.assertTrue(all(path.is_file() for path in headers))
@@ -96,7 +102,7 @@ class HeaderRefactorBaselineTest(unittest.TestCase):
 
     def test_wrapper_inventory_reuses_canonical_generator_manifest(self):
         self.assertEqual(
-            26, self.manifest["summary"]["wrapper_registered_headers"]
+            27, self.manifest["summary"]["wrapper_registered_headers"]
         )
 
     def test_atomic_write_uses_utf8_and_replaces_content(self):
@@ -149,6 +155,16 @@ class HeaderRefactorBaselineTest(unittest.TestCase):
         nested_fields, nested_skipped = ABI_PROBE.field_names(complete[0][0])
         self.assertEqual(("mode", "u"), nested_fields)
         self.assertEqual((), nested_skipped)
+        separated = ABI_PROBE.complete_typedefs(
+            "struct s_grid { int width; int height; }; "
+            "typedef struct s_grid grid_t; "
+            "typedef struct s_hidden hidden_t;",
+            "struct",
+        )
+        self.assertEqual([("grid_t", ("width", "height"))], [
+            (name, ABI_PROBE.field_names(body)[0])
+            for body, name in separated
+        ])
 
     def test_probe_output_parser(self):
         types, enums = ABI_PROBE.parse_probe(

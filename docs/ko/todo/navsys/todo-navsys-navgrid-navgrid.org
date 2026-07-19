@@ -20,6 +20,22 @@
 - 공통 status/options/callback/two-call buffer 모델은
   [[file:todo-navsys-industry-api-baseline.org][Navsys 업계 API 기준]]을 선행 decision gate로 삼는다.
 
+* 공통 ABI 선행 Gate와 실제 Test 원본
+
+- [[file:todo-navsys-industry-api-baseline.org][공통 기준]] =TODO 1단계=의 status owner와 C symbol
+  namespace가 승인되어 =DONE=이 되기 전에는 아래 status callback, create-info,
+  enum과 target symbol을 public header/source/export/wrapper에 구현하지 않는다.
+- =navgrid_diagonal_policy_t=, =navgrid_create_info_t=,
+  =navgrid_blocked_query_func=와 =navgrid_cell_entry_t=는 owner header/include DAG가
+  미확정인 target draft type이다. 공통 =TODO 2단계= callback lifecycle과 =TODO 3단계=
+  caller-buffer 결과까지 승인된 뒤 실제 소유 파일을 정한다.
+- ABI/layout snapshot과 failing characterization fixture는 준비할 수 있지만 기존 일곱
+  단계의 =TODO= 상태는 유지한다.
+- 실제 native test 원본은
+  =byul/navsys/navgrid/tests/test_module_navgrid.cpp=이다. Root consumer 합류 case는
+  =byul/navsys/tests/test_module_navsys.cpp=에 추가하고, 새 source를 만들면
+  =byul/navsys/navgrid/tests/CMakeLists.txt=에 등록한다.
+
 * Public type·callback·field inventory
 
 | kind | symbol | 현재 ABI | disposition |
@@ -163,7 +179,7 @@ Callback/userdata는 bind부터 unbind/destroy 전까지 caller가 유효하게 
 
 ** 실행
 
-- struct layout/enum/callback calling convention과 27개 function export/signature를 snapshot한다.
+- struct layout/enum/callback calling convention과 28개 function export/signature를 snapshot한다.
 - 모든 direct =navgrid->field=, route/D*/console/maze/obstacle/wrapper consumer를 분류한다.
 - uninitialized userdata, NULL setter, copy leak와 wrapper nonexistent call을 failing fixture로 만든다.
 

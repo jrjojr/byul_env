@@ -26,6 +26,19 @@
 header inventory에는 없지만 source tree의 여러 구현이 include하므로, 설치 여부와 실제
 역할이 어긋난 상태를 끝낸다.
 
+* 공통 ABI Gate와 실제 Test 원본
+
+- 이 문서의 네 단계는 이미 public draft type을 만들지 않고 internal helper 경계를
+  닫았으므로 현재 =DONE= 상태를 유지한다.
+- 이후 =coord_ops.hpp=를 public C++ SDK로 승격하거나 status 기반 companion type을
+  추가하는 작업은 [[file:todo-navsys-industry-api-baseline.org][공통 기준]] =TODO 1단계=의 owner와 C symbol
+  namespace 결정 전에는 시작하지 않는다. 아래 internal 선언 초안은 public ABI type
+  owner 승인이 아니다.
+- 실제 native regression 원본은
+  =byul/navsys/coord/tests/test_module_coord.cpp=이다. Install/internal-header 누출 검사는
+  이 파일의 fixture와 담당 SDK consumer fixture에 추가하며, 새 test source를 만들면
+  =byul/navsys/coord/tests/CMakeLists.txt=에 등록한다.
+
 * 현재 소비 경로
 
 - =coord_hash.cpp=, =coord_list.cpp=, =cost_coord_pq.cpp=, =route.cpp=와 여러

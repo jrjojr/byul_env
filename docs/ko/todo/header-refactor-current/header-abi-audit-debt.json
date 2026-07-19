@@ -1,0 +1,1704 @@
+{
+  "schema_version": 1,
+  "policy": "Only exact reviewed fingerprints are grandfathered; new or changed findings fail.",
+  "findings": [
+    {
+      "code": "c-linkage",
+      "subject": "byul/byul_config.h",
+      "message": "extern \"C\" boundary is missing",
+      "fingerprint": "c-linkage|byul/byul_config.h|extern \"C\" boundary is missing"
+    },
+    {
+      "code": "file-doxygen",
+      "subject": "byul/balix/balix.h",
+      "message": "canonical @file Doxygen block is missing",
+      "fingerprint": "file-doxygen|byul/balix/balix.h|canonical @file Doxygen block is missing"
+    },
+    {
+      "code": "file-doxygen",
+      "subject": "byul/balix/bodyprops/bodyprops.h",
+      "message": "canonical @file Doxygen block is missing",
+      "fingerprint": "file-doxygen|byul/balix/bodyprops/bodyprops.h|canonical @file Doxygen block is missing"
+    },
+    {
+      "code": "file-doxygen",
+      "subject": "byul/balix/collision/collision.h",
+      "message": "canonical @file Doxygen block is missing",
+      "fingerprint": "file-doxygen|byul/balix/collision/collision.h|canonical @file Doxygen block is missing"
+    },
+    {
+      "code": "file-doxygen",
+      "subject": "byul/balix/controller/controller.h",
+      "message": "canonical @file Doxygen block is missing",
+      "fingerprint": "file-doxygen|byul/balix/controller/controller.h|canonical @file Doxygen block is missing"
+    },
+    {
+      "code": "file-doxygen",
+      "subject": "byul/balix/environ/environ.h",
+      "message": "canonical @file Doxygen block is missing",
+      "fingerprint": "file-doxygen|byul/balix/environ/environ.h|canonical @file Doxygen block is missing"
+    },
+    {
+      "code": "file-doxygen",
+      "subject": "byul/balix/motion_state/motion_state.h",
+      "message": "canonical @file Doxygen block is missing",
+      "fingerprint": "file-doxygen|byul/balix/motion_state/motion_state.h|canonical @file Doxygen block is missing"
+    },
+    {
+      "code": "file-doxygen",
+      "subject": "byul/balix/numeq/numeq.h",
+      "message": "canonical @file Doxygen block is missing",
+      "fingerprint": "file-doxygen|byul/balix/numeq/numeq.h|canonical @file Doxygen block is missing"
+    },
+    {
+      "code": "file-doxygen",
+      "subject": "byul/balix/numeq/numeq_pid_vec3.h",
+      "message": "canonical @file Doxygen block is missing",
+      "fingerprint": "file-doxygen|byul/balix/numeq/numeq_pid_vec3.h|canonical @file Doxygen block is missing"
+    },
+    {
+      "code": "file-doxygen",
+      "subject": "byul/balix/numeq/numeq_solver.h",
+      "message": "canonical @file Doxygen block is missing",
+      "fingerprint": "file-doxygen|byul/balix/numeq/numeq_solver.h|canonical @file Doxygen block is missing"
+    },
+    {
+      "code": "file-doxygen",
+      "subject": "byul/balix/trajectory/trajectory.h",
+      "message": "canonical @file Doxygen block is missing",
+      "fingerprint": "file-doxygen|byul/balix/trajectory/trajectory.h|canonical @file Doxygen block is missing"
+    },
+    {
+      "code": "file-doxygen",
+      "subject": "byul/balix/xform/xform.h",
+      "message": "canonical @file Doxygen block is missing",
+      "fingerprint": "file-doxygen|byul/balix/xform/xform.h|canonical @file Doxygen block is missing"
+    },
+    {
+      "code": "file-doxygen",
+      "subject": "byul/byul.h",
+      "message": "canonical @file Doxygen block is missing",
+      "fingerprint": "file-doxygen|byul/byul.h|canonical @file Doxygen block is missing"
+    },
+    {
+      "code": "file-doxygen",
+      "subject": "byul/byul_config.h",
+      "message": "canonical @file Doxygen block is missing",
+      "fingerprint": "file-doxygen|byul/byul_config.h|canonical @file Doxygen block is missing"
+    },
+    {
+      "code": "file-doxygen",
+      "subject": "byul/byul_tick/byul_tick.h",
+      "message": "canonical @file Doxygen block is missing",
+      "fingerprint": "file-doxygen|byul/byul_tick/byul_tick.h|canonical @file Doxygen block is missing"
+    },
+    {
+      "code": "file-doxygen",
+      "subject": "byul/console/console.h",
+      "message": "canonical @file Doxygen block is missing",
+      "fingerprint": "file-doxygen|byul/console/console.h|canonical @file Doxygen block is missing"
+    },
+    {
+      "code": "file-doxygen",
+      "subject": "byul/console/dstar_lite_console.h",
+      "message": "canonical @file Doxygen block is missing",
+      "fingerprint": "file-doxygen|byul/console/dstar_lite_console.h|canonical @file Doxygen block is missing"
+    },
+    {
+      "code": "file-doxygen",
+      "subject": "byul/core/strset.h",
+      "message": "canonical @file Doxygen block is missing",
+      "fingerprint": "file-doxygen|byul/core/strset.h|canonical @file Doxygen block is missing"
+    },
+    {
+      "code": "file-doxygen",
+      "subject": "byul/entity/entity.h",
+      "message": "canonical @file Doxygen block is missing",
+      "fingerprint": "file-doxygen|byul/entity/entity.h|canonical @file Doxygen block is missing"
+    },
+    {
+      "code": "file-doxygen",
+      "subject": "byul/entity/entity_dynamic.h",
+      "message": "canonical @file Doxygen block is missing",
+      "fingerprint": "file-doxygen|byul/entity/entity_dynamic.h|canonical @file Doxygen block is missing"
+    },
+    {
+      "code": "file-doxygen",
+      "subject": "byul/entity/entity_dynamic_coord.h",
+      "message": "canonical @file Doxygen block is missing",
+      "fingerprint": "file-doxygen|byul/entity/entity_dynamic_coord.h|canonical @file Doxygen block is missing"
+    },
+    {
+      "code": "file-doxygen",
+      "subject": "byul/entity/entity_spring.h",
+      "message": "canonical @file Doxygen block is missing",
+      "fingerprint": "file-doxygen|byul/entity/entity_spring.h|canonical @file Doxygen block is missing"
+    },
+    {
+      "code": "file-doxygen",
+      "subject": "byul/navsys/coord/coord.h",
+      "message": "canonical @file Doxygen block is missing",
+      "fingerprint": "file-doxygen|byul/navsys/coord/coord.h|canonical @file Doxygen block is missing"
+    },
+    {
+      "code": "file-doxygen",
+      "subject": "byul/navsys/coord/coord_hash.h",
+      "message": "canonical @file Doxygen block is missing",
+      "fingerprint": "file-doxygen|byul/navsys/coord/coord_hash.h|canonical @file Doxygen block is missing"
+    },
+    {
+      "code": "file-doxygen",
+      "subject": "byul/navsys/coord/coord_list.h",
+      "message": "canonical @file Doxygen block is missing",
+      "fingerprint": "file-doxygen|byul/navsys/coord/coord_list.h|canonical @file Doxygen block is missing"
+    },
+    {
+      "code": "file-doxygen",
+      "subject": "byul/navsys/coord/cost_coord_pq.h",
+      "message": "canonical @file Doxygen block is missing",
+      "fingerprint": "file-doxygen|byul/navsys/coord/cost_coord_pq.h|canonical @file Doxygen block is missing"
+    },
+    {
+      "code": "file-doxygen",
+      "subject": "byul/navsys/dstar_lite/dstar_lite_key.h",
+      "message": "canonical @file Doxygen block is missing",
+      "fingerprint": "file-doxygen|byul/navsys/dstar_lite/dstar_lite_key.h|canonical @file Doxygen block is missing"
+    },
+    {
+      "code": "file-doxygen",
+      "subject": "byul/navsys/dstar_lite/dstar_lite_pqueue.h",
+      "message": "canonical @file Doxygen block is missing",
+      "fingerprint": "file-doxygen|byul/navsys/dstar_lite/dstar_lite_pqueue.h|canonical @file Doxygen block is missing"
+    },
+    {
+      "code": "file-doxygen",
+      "subject": "byul/navsys/maze/maze.h",
+      "message": "canonical @file Doxygen block is missing",
+      "fingerprint": "file-doxygen|byul/navsys/maze/maze.h|canonical @file Doxygen block is missing"
+    },
+    {
+      "code": "file-doxygen",
+      "subject": "byul/navsys/maze/maze_aldous_broder.h",
+      "message": "canonical @file Doxygen block is missing",
+      "fingerprint": "file-doxygen|byul/navsys/maze/maze_aldous_broder.h|canonical @file Doxygen block is missing"
+    },
+    {
+      "code": "file-doxygen",
+      "subject": "byul/navsys/maze/maze_binary.h",
+      "message": "canonical @file Doxygen block is missing",
+      "fingerprint": "file-doxygen|byul/navsys/maze/maze_binary.h|canonical @file Doxygen block is missing"
+    },
+    {
+      "code": "file-doxygen",
+      "subject": "byul/navsys/maze/maze_core.h",
+      "message": "canonical @file Doxygen block is missing",
+      "fingerprint": "file-doxygen|byul/navsys/maze/maze_core.h|canonical @file Doxygen block is missing"
+    },
+    {
+      "code": "file-doxygen",
+      "subject": "byul/navsys/maze/maze_eller.h",
+      "message": "canonical @file Doxygen block is missing",
+      "fingerprint": "file-doxygen|byul/navsys/maze/maze_eller.h|canonical @file Doxygen block is missing"
+    },
+    {
+      "code": "file-doxygen",
+      "subject": "byul/navsys/maze/maze_hunt_and_kill.h",
+      "message": "canonical @file Doxygen block is missing",
+      "fingerprint": "file-doxygen|byul/navsys/maze/maze_hunt_and_kill.h|canonical @file Doxygen block is missing"
+    },
+    {
+      "code": "file-doxygen",
+      "subject": "byul/navsys/maze/maze_kruskal.h",
+      "message": "canonical @file Doxygen block is missing",
+      "fingerprint": "file-doxygen|byul/navsys/maze/maze_kruskal.h|canonical @file Doxygen block is missing"
+    },
+    {
+      "code": "file-doxygen",
+      "subject": "byul/navsys/maze/maze_prim.h",
+      "message": "canonical @file Doxygen block is missing",
+      "fingerprint": "file-doxygen|byul/navsys/maze/maze_prim.h|canonical @file Doxygen block is missing"
+    },
+    {
+      "code": "file-doxygen",
+      "subject": "byul/navsys/maze/maze_recursive.h",
+      "message": "canonical @file Doxygen block is missing",
+      "fingerprint": "file-doxygen|byul/navsys/maze/maze_recursive.h|canonical @file Doxygen block is missing"
+    },
+    {
+      "code": "file-doxygen",
+      "subject": "byul/navsys/maze/maze_recursive_division.h",
+      "message": "canonical @file Doxygen block is missing",
+      "fingerprint": "file-doxygen|byul/navsys/maze/maze_recursive_division.h|canonical @file Doxygen block is missing"
+    },
+    {
+      "code": "file-doxygen",
+      "subject": "byul/navsys/maze/maze_room_blend.h",
+      "message": "canonical @file Doxygen block is missing",
+      "fingerprint": "file-doxygen|byul/navsys/maze/maze_room_blend.h|canonical @file Doxygen block is missing"
+    },
+    {
+      "code": "file-doxygen",
+      "subject": "byul/navsys/maze/maze_sidewinder.h",
+      "message": "canonical @file Doxygen block is missing",
+      "fingerprint": "file-doxygen|byul/navsys/maze/maze_sidewinder.h|canonical @file Doxygen block is missing"
+    },
+    {
+      "code": "file-doxygen",
+      "subject": "byul/navsys/maze/maze_wilson.h",
+      "message": "canonical @file Doxygen block is missing",
+      "fingerprint": "file-doxygen|byul/navsys/maze/maze_wilson.h|canonical @file Doxygen block is missing"
+    },
+    {
+      "code": "file-doxygen",
+      "subject": "byul/navsys/navgrid/navcell.h",
+      "message": "canonical @file Doxygen block is missing",
+      "fingerprint": "file-doxygen|byul/navsys/navgrid/navcell.h|canonical @file Doxygen block is missing"
+    },
+    {
+      "code": "file-doxygen",
+      "subject": "byul/navsys/navgrid/navgrid.h",
+      "message": "canonical @file Doxygen block is missing",
+      "fingerprint": "file-doxygen|byul/navsys/navgrid/navgrid.h|canonical @file Doxygen block is missing"
+    },
+    {
+      "code": "file-doxygen",
+      "subject": "byul/navsys/navsys.h",
+      "message": "canonical @file Doxygen block is missing",
+      "fingerprint": "file-doxygen|byul/navsys/navsys.h|canonical @file Doxygen block is missing"
+    },
+    {
+      "code": "file-doxygen",
+      "subject": "byul/navsys/obstacle/obstacle.h",
+      "message": "canonical @file Doxygen block is missing",
+      "fingerprint": "file-doxygen|byul/navsys/obstacle/obstacle.h|canonical @file Doxygen block is missing"
+    },
+    {
+      "code": "file-doxygen",
+      "subject": "byul/navsys/obstacle/obstacle_core.h",
+      "message": "canonical @file Doxygen block is missing",
+      "fingerprint": "file-doxygen|byul/navsys/obstacle/obstacle_core.h|canonical @file Doxygen block is missing"
+    },
+    {
+      "code": "file-doxygen",
+      "subject": "byul/navsys/route/route.h",
+      "message": "canonical @file Doxygen block is missing",
+      "fingerprint": "file-doxygen|byul/navsys/route/route.h|canonical @file Doxygen block is missing"
+    },
+    {
+      "code": "file-doxygen",
+      "subject": "byul/navsys/route_carver/route_carver.h",
+      "message": "canonical @file Doxygen block is missing",
+      "fingerprint": "file-doxygen|byul/navsys/route_carver/route_carver.h|canonical @file Doxygen block is missing"
+    },
+    {
+      "code": "file-doxygen",
+      "subject": "byul/navsys/route_finder/astar.h",
+      "message": "canonical @file Doxygen block is missing",
+      "fingerprint": "file-doxygen|byul/navsys/route_finder/astar.h|canonical @file Doxygen block is missing"
+    },
+    {
+      "code": "file-doxygen",
+      "subject": "byul/navsys/route_finder/bfs.h",
+      "message": "canonical @file Doxygen block is missing",
+      "fingerprint": "file-doxygen|byul/navsys/route_finder/bfs.h|canonical @file Doxygen block is missing"
+    },
+    {
+      "code": "file-doxygen",
+      "subject": "byul/navsys/route_finder/dfs.h",
+      "message": "canonical @file Doxygen block is missing",
+      "fingerprint": "file-doxygen|byul/navsys/route_finder/dfs.h|canonical @file Doxygen block is missing"
+    },
+    {
+      "code": "file-doxygen",
+      "subject": "byul/navsys/route_finder/dijkstra.h",
+      "message": "canonical @file Doxygen block is missing",
+      "fingerprint": "file-doxygen|byul/navsys/route_finder/dijkstra.h|canonical @file Doxygen block is missing"
+    },
+    {
+      "code": "file-doxygen",
+      "subject": "byul/navsys/route_finder/fast_marching.h",
+      "message": "canonical @file Doxygen block is missing",
+      "fingerprint": "file-doxygen|byul/navsys/route_finder/fast_marching.h|canonical @file Doxygen block is missing"
+    },
+    {
+      "code": "file-doxygen",
+      "subject": "byul/navsys/route_finder/fringe_search.h",
+      "message": "canonical @file Doxygen block is missing",
+      "fingerprint": "file-doxygen|byul/navsys/route_finder/fringe_search.h|canonical @file Doxygen block is missing"
+    },
+    {
+      "code": "file-doxygen",
+      "subject": "byul/navsys/route_finder/greedy_best_first.h",
+      "message": "canonical @file Doxygen block is missing",
+      "fingerprint": "file-doxygen|byul/navsys/route_finder/greedy_best_first.h|canonical @file Doxygen block is missing"
+    },
+    {
+      "code": "file-doxygen",
+      "subject": "byul/navsys/route_finder/ida_star.h",
+      "message": "canonical @file Doxygen block is missing",
+      "fingerprint": "file-doxygen|byul/navsys/route_finder/ida_star.h|canonical @file Doxygen block is missing"
+    },
+    {
+      "code": "file-doxygen",
+      "subject": "byul/navsys/route_finder/route_finder.h",
+      "message": "canonical @file Doxygen block is missing",
+      "fingerprint": "file-doxygen|byul/navsys/route_finder/route_finder.h|canonical @file Doxygen block is missing"
+    },
+    {
+      "code": "file-doxygen",
+      "subject": "byul/navsys/route_finder/route_finder_core.h",
+      "message": "canonical @file Doxygen block is missing",
+      "fingerprint": "file-doxygen|byul/navsys/route_finder/route_finder_core.h|canonical @file Doxygen block is missing"
+    },
+    {
+      "code": "file-doxygen",
+      "subject": "byul/navsys/route_finder/rta_star.h",
+      "message": "canonical @file Doxygen block is missing",
+      "fingerprint": "file-doxygen|byul/navsys/route_finder/rta_star.h|canonical @file Doxygen block is missing"
+    },
+    {
+      "code": "file-doxygen",
+      "subject": "byul/navsys/route_finder/sma_star.h",
+      "message": "canonical @file Doxygen block is missing",
+      "fingerprint": "file-doxygen|byul/navsys/route_finder/sma_star.h|canonical @file Doxygen block is missing"
+    },
+    {
+      "code": "file-doxygen",
+      "subject": "byul/navsys/route_finder/weighted_astar.h",
+      "message": "canonical @file Doxygen block is missing",
+      "fingerprint": "file-doxygen|byul/navsys/route_finder/weighted_astar.h|canonical @file Doxygen block is missing"
+    },
+    {
+      "code": "file-doxygen",
+      "subject": "byul/numal/dualquat.h",
+      "message": "canonical @file Doxygen block is missing",
+      "fingerprint": "file-doxygen|byul/numal/dualquat.h|canonical @file Doxygen block is missing"
+    },
+    {
+      "code": "file-doxygen",
+      "subject": "byul/numal/geom.h",
+      "message": "canonical @file Doxygen block is missing",
+      "fingerprint": "file-doxygen|byul/numal/geom.h|canonical @file Doxygen block is missing"
+    },
+    {
+      "code": "file-doxygen",
+      "subject": "byul/numal/numal.h",
+      "message": "canonical @file Doxygen block is missing",
+      "fingerprint": "file-doxygen|byul/numal/numal.h|canonical @file Doxygen block is missing"
+    },
+    {
+      "code": "file-doxygen",
+      "subject": "byul/numal/plane.h",
+      "message": "canonical @file Doxygen block is missing",
+      "fingerprint": "file-doxygen|byul/numal/plane.h|canonical @file Doxygen block is missing"
+    },
+    {
+      "code": "file-doxygen",
+      "subject": "byul/numal/quat.h",
+      "message": "canonical @file Doxygen block is missing",
+      "fingerprint": "file-doxygen|byul/numal/quat.h|canonical @file Doxygen block is missing"
+    },
+    {
+      "code": "file-doxygen",
+      "subject": "byul/numal/scalar.h",
+      "message": "canonical @file Doxygen block is missing",
+      "fingerprint": "file-doxygen|byul/numal/scalar.h|canonical @file Doxygen block is missing"
+    },
+    {
+      "code": "file-doxygen",
+      "subject": "byul/numal/vec3.h",
+      "message": "canonical @file Doxygen block is missing",
+      "fingerprint": "file-doxygen|byul/numal/vec3.h|canonical @file Doxygen block is missing"
+    },
+    {
+      "code": "file-doxygen",
+      "subject": "byul/number_theory/byul_prime32.h",
+      "message": "canonical @file Doxygen block is missing",
+      "fingerprint": "file-doxygen|byul/number_theory/byul_prime32.h|canonical @file Doxygen block is missing"
+    },
+    {
+      "code": "file-doxygen",
+      "subject": "byul/number_theory/byul_prime_segmented_u32.h",
+      "message": "canonical @file Doxygen block is missing",
+      "fingerprint": "file-doxygen|byul/number_theory/byul_prime_segmented_u32.h|canonical @file Doxygen block is missing"
+    },
+    {
+      "code": "file-doxygen",
+      "subject": "byul/number_theory/number_theory.h",
+      "message": "canonical @file Doxygen block is missing",
+      "fingerprint": "file-doxygen|byul/number_theory/number_theory.h|canonical @file Doxygen block is missing"
+    },
+    {
+      "code": "file-doxygen",
+      "subject": "byul/projectile/guidance.h",
+      "message": "canonical @file Doxygen block is missing",
+      "fingerprint": "file-doxygen|byul/projectile/guidance.h|canonical @file Doxygen block is missing"
+    },
+    {
+      "code": "file-doxygen",
+      "subject": "byul/projectile/projectile_core.h",
+      "message": "canonical @file Doxygen block is missing",
+      "fingerprint": "file-doxygen|byul/projectile/projectile_core.h|canonical @file Doxygen block is missing"
+    },
+    {
+      "code": "file-doxygen",
+      "subject": "byul/projectile/projectile_predict.h",
+      "message": "canonical @file Doxygen block is missing",
+      "fingerprint": "file-doxygen|byul/projectile/projectile_predict.h|canonical @file Doxygen block is missing"
+    },
+    {
+      "code": "file-doxygen",
+      "subject": "byul/projectile/projectile_tick.h",
+      "message": "canonical @file Doxygen block is missing",
+      "fingerprint": "file-doxygen|byul/projectile/projectile_tick.h|canonical @file Doxygen block is missing"
+    },
+    {
+      "code": "file-doxygen",
+      "subject": "byul/projectile/propulsion.h",
+      "message": "canonical @file Doxygen block is missing",
+      "fingerprint": "file-doxygen|byul/projectile/propulsion.h|canonical @file Doxygen block is missing"
+    },
+    {
+      "code": "file-doxygen",
+      "subject": "byul/rng/distributions.h",
+      "message": "canonical @file Doxygen block is missing",
+      "fingerprint": "file-doxygen|byul/rng/distributions.h|canonical @file Doxygen block is missing"
+    },
+    {
+      "code": "file-doxygen",
+      "subject": "byul/rng/rng.h",
+      "message": "canonical @file Doxygen block is missing",
+      "fingerprint": "file-doxygen|byul/rng/rng.h|canonical @file Doxygen block is missing"
+    },
+    {
+      "code": "file-doxygen",
+      "subject": "byul/rng/rng_core.h",
+      "message": "canonical @file Doxygen block is missing",
+      "fingerprint": "file-doxygen|byul/rng/rng_core.h|canonical @file Doxygen block is missing"
+    },
+    {
+      "code": "file-doxygen",
+      "subject": "byul/rng/rng_fill.h",
+      "message": "canonical @file Doxygen block is missing",
+      "fingerprint": "file-doxygen|byul/rng/rng_fill.h|canonical @file Doxygen block is missing"
+    },
+    {
+      "code": "file-doxygen",
+      "subject": "byul/rng/roll.h",
+      "message": "canonical @file Doxygen block is missing",
+      "fingerprint": "file-doxygen|byul/rng/roll.h|canonical @file Doxygen block is missing"
+    },
+    {
+      "code": "file-doxygen",
+      "subject": "byul/rng/shuffle.h",
+      "message": "canonical @file Doxygen block is missing",
+      "fingerprint": "file-doxygen|byul/rng/shuffle.h|canonical @file Doxygen block is missing"
+    },
+    {
+      "code": "header-license",
+      "subject": "byul/balix/balix.h",
+      "message": "header does not begin with the canonical license block and one blank line",
+      "fingerprint": "header-license|byul/balix/balix.h|header does not begin with the canonical license block and one blank line"
+    },
+    {
+      "code": "header-license",
+      "subject": "byul/balix/bodyprops/bodyprops.h",
+      "message": "header does not begin with the canonical license block and one blank line",
+      "fingerprint": "header-license|byul/balix/bodyprops/bodyprops.h|header does not begin with the canonical license block and one blank line"
+    },
+    {
+      "code": "header-license",
+      "subject": "byul/balix/collision/collision.h",
+      "message": "header does not begin with the canonical license block and one blank line",
+      "fingerprint": "header-license|byul/balix/collision/collision.h|header does not begin with the canonical license block and one blank line"
+    },
+    {
+      "code": "header-license",
+      "subject": "byul/balix/controller/controller.h",
+      "message": "header does not begin with the canonical license block and one blank line",
+      "fingerprint": "header-license|byul/balix/controller/controller.h|header does not begin with the canonical license block and one blank line"
+    },
+    {
+      "code": "header-license",
+      "subject": "byul/balix/environ/environ.h",
+      "message": "header does not begin with the canonical license block and one blank line",
+      "fingerprint": "header-license|byul/balix/environ/environ.h|header does not begin with the canonical license block and one blank line"
+    },
+    {
+      "code": "header-license",
+      "subject": "byul/balix/motion_state/motion_state.h",
+      "message": "header does not begin with the canonical license block and one blank line",
+      "fingerprint": "header-license|byul/balix/motion_state/motion_state.h|header does not begin with the canonical license block and one blank line"
+    },
+    {
+      "code": "header-license",
+      "subject": "byul/balix/numeq/filters/numeq_filters.h",
+      "message": "header does not begin with the canonical license block and one blank line",
+      "fingerprint": "header-license|byul/balix/numeq/filters/numeq_filters.h|header does not begin with the canonical license block and one blank line"
+    },
+    {
+      "code": "header-license",
+      "subject": "byul/balix/numeq/filters/numeq_kalman.h",
+      "message": "header does not begin with the canonical license block and one blank line",
+      "fingerprint": "header-license|byul/balix/numeq/filters/numeq_kalman.h|header does not begin with the canonical license block and one blank line"
+    },
+    {
+      "code": "header-license",
+      "subject": "byul/balix/numeq/numeq.h",
+      "message": "header does not begin with the canonical license block and one blank line",
+      "fingerprint": "header-license|byul/balix/numeq/numeq.h|header does not begin with the canonical license block and one blank line"
+    },
+    {
+      "code": "header-license",
+      "subject": "byul/balix/numeq/numeq_integrator.h",
+      "message": "header does not begin with the canonical license block and one blank line",
+      "fingerprint": "header-license|byul/balix/numeq/numeq_integrator.h|header does not begin with the canonical license block and one blank line"
+    },
+    {
+      "code": "header-license",
+      "subject": "byul/balix/numeq/numeq_model.h",
+      "message": "header does not begin with the canonical license block and one blank line",
+      "fingerprint": "header-license|byul/balix/numeq/numeq_model.h|header does not begin with the canonical license block and one blank line"
+    },
+    {
+      "code": "header-license",
+      "subject": "byul/balix/numeq/numeq_model_motion.h",
+      "message": "header does not begin with the canonical license block and one blank line",
+      "fingerprint": "header-license|byul/balix/numeq/numeq_model_motion.h|header does not begin with the canonical license block and one blank line"
+    },
+    {
+      "code": "header-license",
+      "subject": "byul/balix/numeq/numeq_mpc.h",
+      "message": "header does not begin with the canonical license block and one blank line",
+      "fingerprint": "header-license|byul/balix/numeq/numeq_mpc.h|header does not begin with the canonical license block and one blank line"
+    },
+    {
+      "code": "header-license",
+      "subject": "byul/balix/numeq/numeq_pid.h",
+      "message": "header does not begin with the canonical license block and one blank line",
+      "fingerprint": "header-license|byul/balix/numeq/numeq_pid.h|header does not begin with the canonical license block and one blank line"
+    },
+    {
+      "code": "header-license",
+      "subject": "byul/balix/numeq/numeq_pid_vec3.h",
+      "message": "header does not begin with the canonical license block and one blank line",
+      "fingerprint": "header-license|byul/balix/numeq/numeq_pid_vec3.h|header does not begin with the canonical license block and one blank line"
+    },
+    {
+      "code": "header-license",
+      "subject": "byul/balix/numeq/numeq_solver.h",
+      "message": "header does not begin with the canonical license block and one blank line",
+      "fingerprint": "header-license|byul/balix/numeq/numeq_solver.h|header does not begin with the canonical license block and one blank line"
+    },
+    {
+      "code": "header-license",
+      "subject": "byul/balix/trajectory/trajectory.h",
+      "message": "header does not begin with the canonical license block and one blank line",
+      "fingerprint": "header-license|byul/balix/trajectory/trajectory.h|header does not begin with the canonical license block and one blank line"
+    },
+    {
+      "code": "header-license",
+      "subject": "byul/balix/xform/xform.h",
+      "message": "header does not begin with the canonical license block and one blank line",
+      "fingerprint": "header-license|byul/balix/xform/xform.h|header does not begin with the canonical license block and one blank line"
+    },
+    {
+      "code": "header-license",
+      "subject": "byul/byul.h",
+      "message": "header does not begin with the canonical license block and one blank line",
+      "fingerprint": "header-license|byul/byul.h|header does not begin with the canonical license block and one blank line"
+    },
+    {
+      "code": "header-license",
+      "subject": "byul/byul_config.h",
+      "message": "header does not begin with the canonical license block and one blank line",
+      "fingerprint": "header-license|byul/byul_config.h|header does not begin with the canonical license block and one blank line"
+    },
+    {
+      "code": "header-license",
+      "subject": "byul/byul_tick/byul_tick.h",
+      "message": "header does not begin with the canonical license block and one blank line",
+      "fingerprint": "header-license|byul/byul_tick/byul_tick.h|header does not begin with the canonical license block and one blank line"
+    },
+    {
+      "code": "header-license",
+      "subject": "byul/console/console.h",
+      "message": "header does not begin with the canonical license block and one blank line",
+      "fingerprint": "header-license|byul/console/console.h|header does not begin with the canonical license block and one blank line"
+    },
+    {
+      "code": "header-license",
+      "subject": "byul/console/dstar_lite_console.h",
+      "message": "header does not begin with the canonical license block and one blank line",
+      "fingerprint": "header-license|byul/console/dstar_lite_console.h|header does not begin with the canonical license block and one blank line"
+    },
+    {
+      "code": "header-license",
+      "subject": "byul/core/strset.h",
+      "message": "header does not begin with the canonical license block and one blank line",
+      "fingerprint": "header-license|byul/core/strset.h|header does not begin with the canonical license block and one blank line"
+    },
+    {
+      "code": "header-license",
+      "subject": "byul/entity/entity.h",
+      "message": "header does not begin with the canonical license block and one blank line",
+      "fingerprint": "header-license|byul/entity/entity.h|header does not begin with the canonical license block and one blank line"
+    },
+    {
+      "code": "header-license",
+      "subject": "byul/entity/entity_dynamic.h",
+      "message": "header does not begin with the canonical license block and one blank line",
+      "fingerprint": "header-license|byul/entity/entity_dynamic.h|header does not begin with the canonical license block and one blank line"
+    },
+    {
+      "code": "header-license",
+      "subject": "byul/entity/entity_dynamic_coord.h",
+      "message": "header does not begin with the canonical license block and one blank line",
+      "fingerprint": "header-license|byul/entity/entity_dynamic_coord.h|header does not begin with the canonical license block and one blank line"
+    },
+    {
+      "code": "header-license",
+      "subject": "byul/entity/entity_interaction.h",
+      "message": "header does not begin with the canonical license block and one blank line",
+      "fingerprint": "header-license|byul/entity/entity_interaction.h|header does not begin with the canonical license block and one blank line"
+    },
+    {
+      "code": "header-license",
+      "subject": "byul/entity/entity_spring.h",
+      "message": "header does not begin with the canonical license block and one blank line",
+      "fingerprint": "header-license|byul/entity/entity_spring.h|header does not begin with the canonical license block and one blank line"
+    },
+    {
+      "code": "header-license",
+      "subject": "byul/ground/ground.h",
+      "message": "header does not begin with the canonical license block and one blank line",
+      "fingerprint": "header-license|byul/ground/ground.h|header does not begin with the canonical license block and one blank line"
+    },
+    {
+      "code": "header-license",
+      "subject": "byul/navsys/coord/coord.h",
+      "message": "header does not begin with the canonical license block and one blank line",
+      "fingerprint": "header-license|byul/navsys/coord/coord.h|header does not begin with the canonical license block and one blank line"
+    },
+    {
+      "code": "header-license",
+      "subject": "byul/navsys/coord/coord_hash.h",
+      "message": "header does not begin with the canonical license block and one blank line",
+      "fingerprint": "header-license|byul/navsys/coord/coord_hash.h|header does not begin with the canonical license block and one blank line"
+    },
+    {
+      "code": "header-license",
+      "subject": "byul/navsys/coord/coord_list.h",
+      "message": "header does not begin with the canonical license block and one blank line",
+      "fingerprint": "header-license|byul/navsys/coord/coord_list.h|header does not begin with the canonical license block and one blank line"
+    },
+    {
+      "code": "header-license",
+      "subject": "byul/navsys/coord/cost_coord_pq.h",
+      "message": "header does not begin with the canonical license block and one blank line",
+      "fingerprint": "header-license|byul/navsys/coord/cost_coord_pq.h|header does not begin with the canonical license block and one blank line"
+    },
+    {
+      "code": "header-license",
+      "subject": "byul/navsys/dstar_lite/dstar_lite.h",
+      "message": "header does not begin with the canonical license block and one blank line",
+      "fingerprint": "header-license|byul/navsys/dstar_lite/dstar_lite.h|header does not begin with the canonical license block and one blank line"
+    },
+    {
+      "code": "header-license",
+      "subject": "byul/navsys/dstar_lite/dstar_lite_key.h",
+      "message": "header does not begin with the canonical license block and one blank line",
+      "fingerprint": "header-license|byul/navsys/dstar_lite/dstar_lite_key.h|header does not begin with the canonical license block and one blank line"
+    },
+    {
+      "code": "header-license",
+      "subject": "byul/navsys/dstar_lite/dstar_lite_pqueue.h",
+      "message": "header does not begin with the canonical license block and one blank line",
+      "fingerprint": "header-license|byul/navsys/dstar_lite/dstar_lite_pqueue.h|header does not begin with the canonical license block and one blank line"
+    },
+    {
+      "code": "header-license",
+      "subject": "byul/navsys/dstar_lite/dstar_lite_tick.h",
+      "message": "header does not begin with the canonical license block and one blank line",
+      "fingerprint": "header-license|byul/navsys/dstar_lite/dstar_lite_tick.h|header does not begin with the canonical license block and one blank line"
+    },
+    {
+      "code": "header-license",
+      "subject": "byul/navsys/maze/maze.h",
+      "message": "header does not begin with the canonical license block and one blank line",
+      "fingerprint": "header-license|byul/navsys/maze/maze.h|header does not begin with the canonical license block and one blank line"
+    },
+    {
+      "code": "header-license",
+      "subject": "byul/navsys/maze/maze_aldous_broder.h",
+      "message": "header does not begin with the canonical license block and one blank line",
+      "fingerprint": "header-license|byul/navsys/maze/maze_aldous_broder.h|header does not begin with the canonical license block and one blank line"
+    },
+    {
+      "code": "header-license",
+      "subject": "byul/navsys/maze/maze_binary.h",
+      "message": "header does not begin with the canonical license block and one blank line",
+      "fingerprint": "header-license|byul/navsys/maze/maze_binary.h|header does not begin with the canonical license block and one blank line"
+    },
+    {
+      "code": "header-license",
+      "subject": "byul/navsys/maze/maze_core.h",
+      "message": "header does not begin with the canonical license block and one blank line",
+      "fingerprint": "header-license|byul/navsys/maze/maze_core.h|header does not begin with the canonical license block and one blank line"
+    },
+    {
+      "code": "header-license",
+      "subject": "byul/navsys/maze/maze_eller.h",
+      "message": "header does not begin with the canonical license block and one blank line",
+      "fingerprint": "header-license|byul/navsys/maze/maze_eller.h|header does not begin with the canonical license block and one blank line"
+    },
+    {
+      "code": "header-license",
+      "subject": "byul/navsys/maze/maze_hunt_and_kill.h",
+      "message": "header does not begin with the canonical license block and one blank line",
+      "fingerprint": "header-license|byul/navsys/maze/maze_hunt_and_kill.h|header does not begin with the canonical license block and one blank line"
+    },
+    {
+      "code": "header-license",
+      "subject": "byul/navsys/maze/maze_kruskal.h",
+      "message": "header does not begin with the canonical license block and one blank line",
+      "fingerprint": "header-license|byul/navsys/maze/maze_kruskal.h|header does not begin with the canonical license block and one blank line"
+    },
+    {
+      "code": "header-license",
+      "subject": "byul/navsys/maze/maze_prim.h",
+      "message": "header does not begin with the canonical license block and one blank line",
+      "fingerprint": "header-license|byul/navsys/maze/maze_prim.h|header does not begin with the canonical license block and one blank line"
+    },
+    {
+      "code": "header-license",
+      "subject": "byul/navsys/maze/maze_recursive.h",
+      "message": "header does not begin with the canonical license block and one blank line",
+      "fingerprint": "header-license|byul/navsys/maze/maze_recursive.h|header does not begin with the canonical license block and one blank line"
+    },
+    {
+      "code": "header-license",
+      "subject": "byul/navsys/maze/maze_recursive_division.h",
+      "message": "header does not begin with the canonical license block and one blank line",
+      "fingerprint": "header-license|byul/navsys/maze/maze_recursive_division.h|header does not begin with the canonical license block and one blank line"
+    },
+    {
+      "code": "header-license",
+      "subject": "byul/navsys/maze/maze_room_blend.h",
+      "message": "header does not begin with the canonical license block and one blank line",
+      "fingerprint": "header-license|byul/navsys/maze/maze_room_blend.h|header does not begin with the canonical license block and one blank line"
+    },
+    {
+      "code": "header-license",
+      "subject": "byul/navsys/maze/maze_sidewinder.h",
+      "message": "header does not begin with the canonical license block and one blank line",
+      "fingerprint": "header-license|byul/navsys/maze/maze_sidewinder.h|header does not begin with the canonical license block and one blank line"
+    },
+    {
+      "code": "header-license",
+      "subject": "byul/navsys/maze/maze_wilson.h",
+      "message": "header does not begin with the canonical license block and one blank line",
+      "fingerprint": "header-license|byul/navsys/maze/maze_wilson.h|header does not begin with the canonical license block and one blank line"
+    },
+    {
+      "code": "header-license",
+      "subject": "byul/navsys/navgrid/navcell.h",
+      "message": "header does not begin with the canonical license block and one blank line",
+      "fingerprint": "header-license|byul/navsys/navgrid/navcell.h|header does not begin with the canonical license block and one blank line"
+    },
+    {
+      "code": "header-license",
+      "subject": "byul/navsys/navgrid/navgrid.h",
+      "message": "header does not begin with the canonical license block and one blank line",
+      "fingerprint": "header-license|byul/navsys/navgrid/navgrid.h|header does not begin with the canonical license block and one blank line"
+    },
+    {
+      "code": "header-license",
+      "subject": "byul/navsys/navsys.h",
+      "message": "header does not begin with the canonical license block and one blank line",
+      "fingerprint": "header-license|byul/navsys/navsys.h|header does not begin with the canonical license block and one blank line"
+    },
+    {
+      "code": "header-license",
+      "subject": "byul/navsys/obstacle/obstacle.h",
+      "message": "header does not begin with the canonical license block and one blank line",
+      "fingerprint": "header-license|byul/navsys/obstacle/obstacle.h|header does not begin with the canonical license block and one blank line"
+    },
+    {
+      "code": "header-license",
+      "subject": "byul/navsys/obstacle/obstacle_core.h",
+      "message": "header does not begin with the canonical license block and one blank line",
+      "fingerprint": "header-license|byul/navsys/obstacle/obstacle_core.h|header does not begin with the canonical license block and one blank line"
+    },
+    {
+      "code": "header-license",
+      "subject": "byul/navsys/route/route.h",
+      "message": "header does not begin with the canonical license block and one blank line",
+      "fingerprint": "header-license|byul/navsys/route/route.h|header does not begin with the canonical license block and one blank line"
+    },
+    {
+      "code": "header-license",
+      "subject": "byul/navsys/route_carver/route_carver.h",
+      "message": "header does not begin with the canonical license block and one blank line",
+      "fingerprint": "header-license|byul/navsys/route_carver/route_carver.h|header does not begin with the canonical license block and one blank line"
+    },
+    {
+      "code": "header-license",
+      "subject": "byul/navsys/route_finder/astar.h",
+      "message": "header does not begin with the canonical license block and one blank line",
+      "fingerprint": "header-license|byul/navsys/route_finder/astar.h|header does not begin with the canonical license block and one blank line"
+    },
+    {
+      "code": "header-license",
+      "subject": "byul/navsys/route_finder/bfs.h",
+      "message": "header does not begin with the canonical license block and one blank line",
+      "fingerprint": "header-license|byul/navsys/route_finder/bfs.h|header does not begin with the canonical license block and one blank line"
+    },
+    {
+      "code": "header-license",
+      "subject": "byul/navsys/route_finder/dfs.h",
+      "message": "header does not begin with the canonical license block and one blank line",
+      "fingerprint": "header-license|byul/navsys/route_finder/dfs.h|header does not begin with the canonical license block and one blank line"
+    },
+    {
+      "code": "header-license",
+      "subject": "byul/navsys/route_finder/dijkstra.h",
+      "message": "header does not begin with the canonical license block and one blank line",
+      "fingerprint": "header-license|byul/navsys/route_finder/dijkstra.h|header does not begin with the canonical license block and one blank line"
+    },
+    {
+      "code": "header-license",
+      "subject": "byul/navsys/route_finder/fast_marching.h",
+      "message": "header does not begin with the canonical license block and one blank line",
+      "fingerprint": "header-license|byul/navsys/route_finder/fast_marching.h|header does not begin with the canonical license block and one blank line"
+    },
+    {
+      "code": "header-license",
+      "subject": "byul/navsys/route_finder/fringe_search.h",
+      "message": "header does not begin with the canonical license block and one blank line",
+      "fingerprint": "header-license|byul/navsys/route_finder/fringe_search.h|header does not begin with the canonical license block and one blank line"
+    },
+    {
+      "code": "header-license",
+      "subject": "byul/navsys/route_finder/greedy_best_first.h",
+      "message": "header does not begin with the canonical license block and one blank line",
+      "fingerprint": "header-license|byul/navsys/route_finder/greedy_best_first.h|header does not begin with the canonical license block and one blank line"
+    },
+    {
+      "code": "header-license",
+      "subject": "byul/navsys/route_finder/ida_star.h",
+      "message": "header does not begin with the canonical license block and one blank line",
+      "fingerprint": "header-license|byul/navsys/route_finder/ida_star.h|header does not begin with the canonical license block and one blank line"
+    },
+    {
+      "code": "header-license",
+      "subject": "byul/navsys/route_finder/route_finder.h",
+      "message": "header does not begin with the canonical license block and one blank line",
+      "fingerprint": "header-license|byul/navsys/route_finder/route_finder.h|header does not begin with the canonical license block and one blank line"
+    },
+    {
+      "code": "header-license",
+      "subject": "byul/navsys/route_finder/route_finder_core.h",
+      "message": "header does not begin with the canonical license block and one blank line",
+      "fingerprint": "header-license|byul/navsys/route_finder/route_finder_core.h|header does not begin with the canonical license block and one blank line"
+    },
+    {
+      "code": "header-license",
+      "subject": "byul/navsys/route_finder/rta_star.h",
+      "message": "header does not begin with the canonical license block and one blank line",
+      "fingerprint": "header-license|byul/navsys/route_finder/rta_star.h|header does not begin with the canonical license block and one blank line"
+    },
+    {
+      "code": "header-license",
+      "subject": "byul/navsys/route_finder/sma_star.h",
+      "message": "header does not begin with the canonical license block and one blank line",
+      "fingerprint": "header-license|byul/navsys/route_finder/sma_star.h|header does not begin with the canonical license block and one blank line"
+    },
+    {
+      "code": "header-license",
+      "subject": "byul/navsys/route_finder/weighted_astar.h",
+      "message": "header does not begin with the canonical license block and one blank line",
+      "fingerprint": "header-license|byul/navsys/route_finder/weighted_astar.h|header does not begin with the canonical license block and one blank line"
+    },
+    {
+      "code": "header-license",
+      "subject": "byul/numal/dualnumber.h",
+      "message": "header does not begin with the canonical license block and one blank line",
+      "fingerprint": "header-license|byul/numal/dualnumber.h|header does not begin with the canonical license block and one blank line"
+    },
+    {
+      "code": "header-license",
+      "subject": "byul/numal/dualquat.h",
+      "message": "header does not begin with the canonical license block and one blank line",
+      "fingerprint": "header-license|byul/numal/dualquat.h|header does not begin with the canonical license block and one blank line"
+    },
+    {
+      "code": "header-license",
+      "subject": "byul/numal/geom.h",
+      "message": "header does not begin with the canonical license block and one blank line",
+      "fingerprint": "header-license|byul/numal/geom.h|header does not begin with the canonical license block and one blank line"
+    },
+    {
+      "code": "header-license",
+      "subject": "byul/numal/numal.h",
+      "message": "header does not begin with the canonical license block and one blank line",
+      "fingerprint": "header-license|byul/numal/numal.h|header does not begin with the canonical license block and one blank line"
+    },
+    {
+      "code": "header-license",
+      "subject": "byul/numal/plane.h",
+      "message": "header does not begin with the canonical license block and one blank line",
+      "fingerprint": "header-license|byul/numal/plane.h|header does not begin with the canonical license block and one blank line"
+    },
+    {
+      "code": "header-license",
+      "subject": "byul/numal/quat.h",
+      "message": "header does not begin with the canonical license block and one blank line",
+      "fingerprint": "header-license|byul/numal/quat.h|header does not begin with the canonical license block and one blank line"
+    },
+    {
+      "code": "header-license",
+      "subject": "byul/numal/scalar.h",
+      "message": "header does not begin with the canonical license block and one blank line",
+      "fingerprint": "header-license|byul/numal/scalar.h|header does not begin with the canonical license block and one blank line"
+    },
+    {
+      "code": "header-license",
+      "subject": "byul/numal/vec3.h",
+      "message": "header does not begin with the canonical license block and one blank line",
+      "fingerprint": "header-license|byul/numal/vec3.h|header does not begin with the canonical license block and one blank line"
+    },
+    {
+      "code": "header-license",
+      "subject": "byul/number_theory/byul_prime32.h",
+      "message": "header does not begin with the canonical license block and one blank line",
+      "fingerprint": "header-license|byul/number_theory/byul_prime32.h|header does not begin with the canonical license block and one blank line"
+    },
+    {
+      "code": "header-license",
+      "subject": "byul/number_theory/byul_prime_segmented_u32.h",
+      "message": "header does not begin with the canonical license block and one blank line",
+      "fingerprint": "header-license|byul/number_theory/byul_prime_segmented_u32.h|header does not begin with the canonical license block and one blank line"
+    },
+    {
+      "code": "header-license",
+      "subject": "byul/number_theory/number_theory.h",
+      "message": "header does not begin with the canonical license block and one blank line",
+      "fingerprint": "header-license|byul/number_theory/number_theory.h|header does not begin with the canonical license block and one blank line"
+    },
+    {
+      "code": "header-license",
+      "subject": "byul/projectile/guidance.h",
+      "message": "header does not begin with the canonical license block and one blank line",
+      "fingerprint": "header-license|byul/projectile/guidance.h|header does not begin with the canonical license block and one blank line"
+    },
+    {
+      "code": "header-license",
+      "subject": "byul/projectile/projectile.h",
+      "message": "header does not begin with the canonical license block and one blank line",
+      "fingerprint": "header-license|byul/projectile/projectile.h|header does not begin with the canonical license block and one blank line"
+    },
+    {
+      "code": "header-license",
+      "subject": "byul/projectile/projectile_core.h",
+      "message": "header does not begin with the canonical license block and one blank line",
+      "fingerprint": "header-license|byul/projectile/projectile_core.h|header does not begin with the canonical license block and one blank line"
+    },
+    {
+      "code": "header-license",
+      "subject": "byul/projectile/projectile_predict.h",
+      "message": "header does not begin with the canonical license block and one blank line",
+      "fingerprint": "header-license|byul/projectile/projectile_predict.h|header does not begin with the canonical license block and one blank line"
+    },
+    {
+      "code": "header-license",
+      "subject": "byul/projectile/projectile_tick.h",
+      "message": "header does not begin with the canonical license block and one blank line",
+      "fingerprint": "header-license|byul/projectile/projectile_tick.h|header does not begin with the canonical license block and one blank line"
+    },
+    {
+      "code": "header-license",
+      "subject": "byul/projectile/propulsion.h",
+      "message": "header does not begin with the canonical license block and one blank line",
+      "fingerprint": "header-license|byul/projectile/propulsion.h|header does not begin with the canonical license block and one blank line"
+    },
+    {
+      "code": "header-license",
+      "subject": "byul/rng/distributions.h",
+      "message": "header does not begin with the canonical license block and one blank line",
+      "fingerprint": "header-license|byul/rng/distributions.h|header does not begin with the canonical license block and one blank line"
+    },
+    {
+      "code": "header-license",
+      "subject": "byul/rng/rng.h",
+      "message": "header does not begin with the canonical license block and one blank line",
+      "fingerprint": "header-license|byul/rng/rng.h|header does not begin with the canonical license block and one blank line"
+    },
+    {
+      "code": "header-license",
+      "subject": "byul/rng/rng_core.h",
+      "message": "header does not begin with the canonical license block and one blank line",
+      "fingerprint": "header-license|byul/rng/rng_core.h|header does not begin with the canonical license block and one blank line"
+    },
+    {
+      "code": "header-license",
+      "subject": "byul/rng/rng_fill.h",
+      "message": "header does not begin with the canonical license block and one blank line",
+      "fingerprint": "header-license|byul/rng/rng_fill.h|header does not begin with the canonical license block and one blank line"
+    },
+    {
+      "code": "header-license",
+      "subject": "byul/rng/roll.h",
+      "message": "header does not begin with the canonical license block and one blank line",
+      "fingerprint": "header-license|byul/rng/roll.h|header does not begin with the canonical license block and one blank line"
+    },
+    {
+      "code": "header-license",
+      "subject": "byul/rng/shuffle.h",
+      "message": "header does not begin with the canonical license block and one blank line",
+      "fingerprint": "header-license|byul/rng/shuffle.h|header does not begin with the canonical license block and one blank line"
+    },
+    {
+      "code": "include-guard",
+      "subject": "byul/balix/balix.h",
+      "message": "expected include guard BYUL_BALIX_H",
+      "fingerprint": "include-guard|byul/balix/balix.h|expected include guard BYUL_BALIX_H"
+    },
+    {
+      "code": "include-guard",
+      "subject": "byul/balix/bodyprops/bodyprops.h",
+      "message": "expected include guard BYUL_BODYPROPS_H",
+      "fingerprint": "include-guard|byul/balix/bodyprops/bodyprops.h|expected include guard BYUL_BODYPROPS_H"
+    },
+    {
+      "code": "include-guard",
+      "subject": "byul/balix/collision/collision.h",
+      "message": "expected include guard BYUL_COLLISION_H",
+      "fingerprint": "include-guard|byul/balix/collision/collision.h|expected include guard BYUL_COLLISION_H"
+    },
+    {
+      "code": "include-guard",
+      "subject": "byul/balix/controller/controller.h",
+      "message": "expected include guard BYUL_CONTROLLER_H",
+      "fingerprint": "include-guard|byul/balix/controller/controller.h|expected include guard BYUL_CONTROLLER_H"
+    },
+    {
+      "code": "include-guard",
+      "subject": "byul/balix/environ/environ.h",
+      "message": "expected include guard BYUL_ENVIRON_H",
+      "fingerprint": "include-guard|byul/balix/environ/environ.h|expected include guard BYUL_ENVIRON_H"
+    },
+    {
+      "code": "include-guard",
+      "subject": "byul/balix/motion_state/motion_state.h",
+      "message": "expected include guard BYUL_MOTION_STATE_H",
+      "fingerprint": "include-guard|byul/balix/motion_state/motion_state.h|expected include guard BYUL_MOTION_STATE_H"
+    },
+    {
+      "code": "include-guard",
+      "subject": "byul/balix/numeq/filters/numeq_filters.h",
+      "message": "expected include guard BYUL_NUMEQ_FILTERS_H",
+      "fingerprint": "include-guard|byul/balix/numeq/filters/numeq_filters.h|expected include guard BYUL_NUMEQ_FILTERS_H"
+    },
+    {
+      "code": "include-guard",
+      "subject": "byul/balix/numeq/filters/numeq_kalman.h",
+      "message": "expected include guard BYUL_NUMEQ_KALMAN_H",
+      "fingerprint": "include-guard|byul/balix/numeq/filters/numeq_kalman.h|expected include guard BYUL_NUMEQ_KALMAN_H"
+    },
+    {
+      "code": "include-guard",
+      "subject": "byul/balix/numeq/numeq.h",
+      "message": "expected include guard BYUL_NUMEQ_H",
+      "fingerprint": "include-guard|byul/balix/numeq/numeq.h|expected include guard BYUL_NUMEQ_H"
+    },
+    {
+      "code": "include-guard",
+      "subject": "byul/balix/numeq/numeq_integrator.h",
+      "message": "expected include guard BYUL_NUMEQ_INTEGRATOR_H",
+      "fingerprint": "include-guard|byul/balix/numeq/numeq_integrator.h|expected include guard BYUL_NUMEQ_INTEGRATOR_H"
+    },
+    {
+      "code": "include-guard",
+      "subject": "byul/balix/numeq/numeq_model.h",
+      "message": "expected include guard BYUL_NUMEQ_MODEL_H",
+      "fingerprint": "include-guard|byul/balix/numeq/numeq_model.h|expected include guard BYUL_NUMEQ_MODEL_H"
+    },
+    {
+      "code": "include-guard",
+      "subject": "byul/balix/numeq/numeq_model_motion.h",
+      "message": "expected include guard BYUL_NUMEQ_MODEL_MOTION_H",
+      "fingerprint": "include-guard|byul/balix/numeq/numeq_model_motion.h|expected include guard BYUL_NUMEQ_MODEL_MOTION_H"
+    },
+    {
+      "code": "include-guard",
+      "subject": "byul/balix/numeq/numeq_mpc.h",
+      "message": "expected include guard BYUL_NUMEQ_MPC_H",
+      "fingerprint": "include-guard|byul/balix/numeq/numeq_mpc.h|expected include guard BYUL_NUMEQ_MPC_H"
+    },
+    {
+      "code": "include-guard",
+      "subject": "byul/balix/numeq/numeq_pid.h",
+      "message": "expected include guard BYUL_NUMEQ_PID_H",
+      "fingerprint": "include-guard|byul/balix/numeq/numeq_pid.h|expected include guard BYUL_NUMEQ_PID_H"
+    },
+    {
+      "code": "include-guard",
+      "subject": "byul/balix/numeq/numeq_pid_vec3.h",
+      "message": "expected include guard BYUL_NUMEQ_PID_VEC3_H",
+      "fingerprint": "include-guard|byul/balix/numeq/numeq_pid_vec3.h|expected include guard BYUL_NUMEQ_PID_VEC3_H"
+    },
+    {
+      "code": "include-guard",
+      "subject": "byul/balix/numeq/numeq_solver.h",
+      "message": "expected include guard BYUL_NUMEQ_SOLVER_H",
+      "fingerprint": "include-guard|byul/balix/numeq/numeq_solver.h|expected include guard BYUL_NUMEQ_SOLVER_H"
+    },
+    {
+      "code": "include-guard",
+      "subject": "byul/balix/trajectory/trajectory.h",
+      "message": "expected include guard BYUL_TRAJECTORY_H",
+      "fingerprint": "include-guard|byul/balix/trajectory/trajectory.h|expected include guard BYUL_TRAJECTORY_H"
+    },
+    {
+      "code": "include-guard",
+      "subject": "byul/balix/xform/xform.h",
+      "message": "expected include guard BYUL_XFORM_H",
+      "fingerprint": "include-guard|byul/balix/xform/xform.h|expected include guard BYUL_XFORM_H"
+    },
+    {
+      "code": "include-guard",
+      "subject": "byul/byul.h",
+      "message": "expected include guard BYUL_BYUL_H",
+      "fingerprint": "include-guard|byul/byul.h|expected include guard BYUL_BYUL_H"
+    },
+    {
+      "code": "include-guard",
+      "subject": "byul/byul_config.h",
+      "message": "expected include guard BYUL_BYUL_CONFIG_H",
+      "fingerprint": "include-guard|byul/byul_config.h|expected include guard BYUL_BYUL_CONFIG_H"
+    },
+    {
+      "code": "include-guard",
+      "subject": "byul/byul_tick/byul_tick.h",
+      "message": "expected include guard BYUL_BYUL_TICK_H",
+      "fingerprint": "include-guard|byul/byul_tick/byul_tick.h|expected include guard BYUL_BYUL_TICK_H"
+    },
+    {
+      "code": "include-guard",
+      "subject": "byul/console/console.h",
+      "message": "expected include guard BYUL_CONSOLE_H",
+      "fingerprint": "include-guard|byul/console/console.h|expected include guard BYUL_CONSOLE_H"
+    },
+    {
+      "code": "include-guard",
+      "subject": "byul/console/dstar_lite_console.h",
+      "message": "expected include guard BYUL_DSTAR_LITE_CONSOLE_H",
+      "fingerprint": "include-guard|byul/console/dstar_lite_console.h|expected include guard BYUL_DSTAR_LITE_CONSOLE_H"
+    },
+    {
+      "code": "include-guard",
+      "subject": "byul/core/strset.h",
+      "message": "expected include guard BYUL_STRSET_H",
+      "fingerprint": "include-guard|byul/core/strset.h|expected include guard BYUL_STRSET_H"
+    },
+    {
+      "code": "include-guard",
+      "subject": "byul/entity/entity.h",
+      "message": "expected include guard BYUL_ENTITY_H",
+      "fingerprint": "include-guard|byul/entity/entity.h|expected include guard BYUL_ENTITY_H"
+    },
+    {
+      "code": "include-guard",
+      "subject": "byul/entity/entity_dynamic.h",
+      "message": "expected include guard BYUL_ENTITY_DYNAMIC_H",
+      "fingerprint": "include-guard|byul/entity/entity_dynamic.h|expected include guard BYUL_ENTITY_DYNAMIC_H"
+    },
+    {
+      "code": "include-guard",
+      "subject": "byul/entity/entity_dynamic_coord.h",
+      "message": "expected include guard BYUL_ENTITY_DYNAMIC_COORD_H",
+      "fingerprint": "include-guard|byul/entity/entity_dynamic_coord.h|expected include guard BYUL_ENTITY_DYNAMIC_COORD_H"
+    },
+    {
+      "code": "include-guard",
+      "subject": "byul/entity/entity_interaction.h",
+      "message": "expected include guard BYUL_ENTITY_INTERACTION_H",
+      "fingerprint": "include-guard|byul/entity/entity_interaction.h|expected include guard BYUL_ENTITY_INTERACTION_H"
+    },
+    {
+      "code": "include-guard",
+      "subject": "byul/entity/entity_spring.h",
+      "message": "expected include guard BYUL_ENTITY_SPRING_H",
+      "fingerprint": "include-guard|byul/entity/entity_spring.h|expected include guard BYUL_ENTITY_SPRING_H"
+    },
+    {
+      "code": "include-guard",
+      "subject": "byul/ground/ground.h",
+      "message": "expected include guard BYUL_GROUND_H",
+      "fingerprint": "include-guard|byul/ground/ground.h|expected include guard BYUL_GROUND_H"
+    },
+    {
+      "code": "include-guard",
+      "subject": "byul/navsys/coord/coord.h",
+      "message": "expected include guard BYUL_COORD_H",
+      "fingerprint": "include-guard|byul/navsys/coord/coord.h|expected include guard BYUL_COORD_H"
+    },
+    {
+      "code": "include-guard",
+      "subject": "byul/navsys/coord/coord_hash.h",
+      "message": "expected include guard BYUL_COORD_HASH_H",
+      "fingerprint": "include-guard|byul/navsys/coord/coord_hash.h|expected include guard BYUL_COORD_HASH_H"
+    },
+    {
+      "code": "include-guard",
+      "subject": "byul/navsys/coord/coord_list.h",
+      "message": "expected include guard BYUL_COORD_LIST_H",
+      "fingerprint": "include-guard|byul/navsys/coord/coord_list.h|expected include guard BYUL_COORD_LIST_H"
+    },
+    {
+      "code": "include-guard",
+      "subject": "byul/navsys/coord/cost_coord_pq.h",
+      "message": "expected include guard BYUL_COST_COORD_PQ_H",
+      "fingerprint": "include-guard|byul/navsys/coord/cost_coord_pq.h|expected include guard BYUL_COST_COORD_PQ_H"
+    },
+    {
+      "code": "include-guard",
+      "subject": "byul/navsys/dstar_lite/dstar_lite.h",
+      "message": "expected include guard BYUL_DSTAR_LITE_H",
+      "fingerprint": "include-guard|byul/navsys/dstar_lite/dstar_lite.h|expected include guard BYUL_DSTAR_LITE_H"
+    },
+    {
+      "code": "include-guard",
+      "subject": "byul/navsys/dstar_lite/dstar_lite_key.h",
+      "message": "expected include guard BYUL_DSTAR_LITE_KEY_H",
+      "fingerprint": "include-guard|byul/navsys/dstar_lite/dstar_lite_key.h|expected include guard BYUL_DSTAR_LITE_KEY_H"
+    },
+    {
+      "code": "include-guard",
+      "subject": "byul/navsys/dstar_lite/dstar_lite_pqueue.h",
+      "message": "expected include guard BYUL_DSTAR_LITE_PQUEUE_H",
+      "fingerprint": "include-guard|byul/navsys/dstar_lite/dstar_lite_pqueue.h|expected include guard BYUL_DSTAR_LITE_PQUEUE_H"
+    },
+    {
+      "code": "include-guard",
+      "subject": "byul/navsys/dstar_lite/dstar_lite_tick.h",
+      "message": "expected include guard BYUL_DSTAR_LITE_TICK_H",
+      "fingerprint": "include-guard|byul/navsys/dstar_lite/dstar_lite_tick.h|expected include guard BYUL_DSTAR_LITE_TICK_H"
+    },
+    {
+      "code": "include-guard",
+      "subject": "byul/navsys/maze/maze.h",
+      "message": "expected include guard BYUL_MAZE_H",
+      "fingerprint": "include-guard|byul/navsys/maze/maze.h|expected include guard BYUL_MAZE_H"
+    },
+    {
+      "code": "include-guard",
+      "subject": "byul/navsys/maze/maze_aldous_broder.h",
+      "message": "expected include guard BYUL_MAZE_ALDOUS_BRODER_H",
+      "fingerprint": "include-guard|byul/navsys/maze/maze_aldous_broder.h|expected include guard BYUL_MAZE_ALDOUS_BRODER_H"
+    },
+    {
+      "code": "include-guard",
+      "subject": "byul/navsys/maze/maze_binary.h",
+      "message": "expected include guard BYUL_MAZE_BINARY_H",
+      "fingerprint": "include-guard|byul/navsys/maze/maze_binary.h|expected include guard BYUL_MAZE_BINARY_H"
+    },
+    {
+      "code": "include-guard",
+      "subject": "byul/navsys/maze/maze_core.h",
+      "message": "expected include guard BYUL_MAZE_CORE_H",
+      "fingerprint": "include-guard|byul/navsys/maze/maze_core.h|expected include guard BYUL_MAZE_CORE_H"
+    },
+    {
+      "code": "include-guard",
+      "subject": "byul/navsys/maze/maze_eller.h",
+      "message": "expected include guard BYUL_MAZE_ELLER_H",
+      "fingerprint": "include-guard|byul/navsys/maze/maze_eller.h|expected include guard BYUL_MAZE_ELLER_H"
+    },
+    {
+      "code": "include-guard",
+      "subject": "byul/navsys/maze/maze_hunt_and_kill.h",
+      "message": "expected include guard BYUL_MAZE_HUNT_AND_KILL_H",
+      "fingerprint": "include-guard|byul/navsys/maze/maze_hunt_and_kill.h|expected include guard BYUL_MAZE_HUNT_AND_KILL_H"
+    },
+    {
+      "code": "include-guard",
+      "subject": "byul/navsys/maze/maze_kruskal.h",
+      "message": "expected include guard BYUL_MAZE_KRUSKAL_H",
+      "fingerprint": "include-guard|byul/navsys/maze/maze_kruskal.h|expected include guard BYUL_MAZE_KRUSKAL_H"
+    },
+    {
+      "code": "include-guard",
+      "subject": "byul/navsys/maze/maze_prim.h",
+      "message": "expected include guard BYUL_MAZE_PRIM_H",
+      "fingerprint": "include-guard|byul/navsys/maze/maze_prim.h|expected include guard BYUL_MAZE_PRIM_H"
+    },
+    {
+      "code": "include-guard",
+      "subject": "byul/navsys/maze/maze_recursive.h",
+      "message": "expected include guard BYUL_MAZE_RECURSIVE_H",
+      "fingerprint": "include-guard|byul/navsys/maze/maze_recursive.h|expected include guard BYUL_MAZE_RECURSIVE_H"
+    },
+    {
+      "code": "include-guard",
+      "subject": "byul/navsys/maze/maze_recursive_division.h",
+      "message": "expected include guard BYUL_MAZE_RECURSIVE_DIVISION_H",
+      "fingerprint": "include-guard|byul/navsys/maze/maze_recursive_division.h|expected include guard BYUL_MAZE_RECURSIVE_DIVISION_H"
+    },
+    {
+      "code": "include-guard",
+      "subject": "byul/navsys/maze/maze_room_blend.h",
+      "message": "expected include guard BYUL_MAZE_ROOM_BLEND_H",
+      "fingerprint": "include-guard|byul/navsys/maze/maze_room_blend.h|expected include guard BYUL_MAZE_ROOM_BLEND_H"
+    },
+    {
+      "code": "include-guard",
+      "subject": "byul/navsys/maze/maze_sidewinder.h",
+      "message": "expected include guard BYUL_MAZE_SIDEWINDER_H",
+      "fingerprint": "include-guard|byul/navsys/maze/maze_sidewinder.h|expected include guard BYUL_MAZE_SIDEWINDER_H"
+    },
+    {
+      "code": "include-guard",
+      "subject": "byul/navsys/maze/maze_wilson.h",
+      "message": "expected include guard BYUL_MAZE_WILSON_H",
+      "fingerprint": "include-guard|byul/navsys/maze/maze_wilson.h|expected include guard BYUL_MAZE_WILSON_H"
+    },
+    {
+      "code": "include-guard",
+      "subject": "byul/navsys/navgrid/navcell.h",
+      "message": "expected include guard BYUL_NAVCELL_H",
+      "fingerprint": "include-guard|byul/navsys/navgrid/navcell.h|expected include guard BYUL_NAVCELL_H"
+    },
+    {
+      "code": "include-guard",
+      "subject": "byul/navsys/navgrid/navgrid.h",
+      "message": "expected include guard BYUL_NAVGRID_H",
+      "fingerprint": "include-guard|byul/navsys/navgrid/navgrid.h|expected include guard BYUL_NAVGRID_H"
+    },
+    {
+      "code": "include-guard",
+      "subject": "byul/navsys/navsys.h",
+      "message": "expected include guard BYUL_NAVSYS_H",
+      "fingerprint": "include-guard|byul/navsys/navsys.h|expected include guard BYUL_NAVSYS_H"
+    },
+    {
+      "code": "include-guard",
+      "subject": "byul/navsys/obstacle/obstacle.h",
+      "message": "expected include guard BYUL_OBSTACLE_H",
+      "fingerprint": "include-guard|byul/navsys/obstacle/obstacle.h|expected include guard BYUL_OBSTACLE_H"
+    },
+    {
+      "code": "include-guard",
+      "subject": "byul/navsys/obstacle/obstacle_core.h",
+      "message": "expected include guard BYUL_OBSTACLE_CORE_H",
+      "fingerprint": "include-guard|byul/navsys/obstacle/obstacle_core.h|expected include guard BYUL_OBSTACLE_CORE_H"
+    },
+    {
+      "code": "include-guard",
+      "subject": "byul/navsys/route/route.h",
+      "message": "expected include guard BYUL_ROUTE_H",
+      "fingerprint": "include-guard|byul/navsys/route/route.h|expected include guard BYUL_ROUTE_H"
+    },
+    {
+      "code": "include-guard",
+      "subject": "byul/navsys/route_carver/route_carver.h",
+      "message": "expected include guard BYUL_ROUTE_CARVER_H",
+      "fingerprint": "include-guard|byul/navsys/route_carver/route_carver.h|expected include guard BYUL_ROUTE_CARVER_H"
+    },
+    {
+      "code": "include-guard",
+      "subject": "byul/navsys/route_finder/astar.h",
+      "message": "expected include guard BYUL_ASTAR_H",
+      "fingerprint": "include-guard|byul/navsys/route_finder/astar.h|expected include guard BYUL_ASTAR_H"
+    },
+    {
+      "code": "include-guard",
+      "subject": "byul/navsys/route_finder/bfs.h",
+      "message": "expected include guard BYUL_BFS_H",
+      "fingerprint": "include-guard|byul/navsys/route_finder/bfs.h|expected include guard BYUL_BFS_H"
+    },
+    {
+      "code": "include-guard",
+      "subject": "byul/navsys/route_finder/dfs.h",
+      "message": "expected include guard BYUL_DFS_H",
+      "fingerprint": "include-guard|byul/navsys/route_finder/dfs.h|expected include guard BYUL_DFS_H"
+    },
+    {
+      "code": "include-guard",
+      "subject": "byul/navsys/route_finder/dijkstra.h",
+      "message": "expected include guard BYUL_DIJKSTRA_H",
+      "fingerprint": "include-guard|byul/navsys/route_finder/dijkstra.h|expected include guard BYUL_DIJKSTRA_H"
+    },
+    {
+      "code": "include-guard",
+      "subject": "byul/navsys/route_finder/fast_marching.h",
+      "message": "expected include guard BYUL_FAST_MARCHING_H",
+      "fingerprint": "include-guard|byul/navsys/route_finder/fast_marching.h|expected include guard BYUL_FAST_MARCHING_H"
+    },
+    {
+      "code": "include-guard",
+      "subject": "byul/navsys/route_finder/fringe_search.h",
+      "message": "expected include guard BYUL_FRINGE_SEARCH_H",
+      "fingerprint": "include-guard|byul/navsys/route_finder/fringe_search.h|expected include guard BYUL_FRINGE_SEARCH_H"
+    },
+    {
+      "code": "include-guard",
+      "subject": "byul/navsys/route_finder/greedy_best_first.h",
+      "message": "expected include guard BYUL_GREEDY_BEST_FIRST_H",
+      "fingerprint": "include-guard|byul/navsys/route_finder/greedy_best_first.h|expected include guard BYUL_GREEDY_BEST_FIRST_H"
+    },
+    {
+      "code": "include-guard",
+      "subject": "byul/navsys/route_finder/ida_star.h",
+      "message": "expected include guard BYUL_IDA_STAR_H",
+      "fingerprint": "include-guard|byul/navsys/route_finder/ida_star.h|expected include guard BYUL_IDA_STAR_H"
+    },
+    {
+      "code": "include-guard",
+      "subject": "byul/navsys/route_finder/route_finder.h",
+      "message": "expected include guard BYUL_ROUTE_FINDER_H",
+      "fingerprint": "include-guard|byul/navsys/route_finder/route_finder.h|expected include guard BYUL_ROUTE_FINDER_H"
+    },
+    {
+      "code": "include-guard",
+      "subject": "byul/navsys/route_finder/route_finder_core.h",
+      "message": "expected include guard BYUL_ROUTE_FINDER_CORE_H",
+      "fingerprint": "include-guard|byul/navsys/route_finder/route_finder_core.h|expected include guard BYUL_ROUTE_FINDER_CORE_H"
+    },
+    {
+      "code": "include-guard",
+      "subject": "byul/navsys/route_finder/rta_star.h",
+      "message": "expected include guard BYUL_RTA_STAR_H",
+      "fingerprint": "include-guard|byul/navsys/route_finder/rta_star.h|expected include guard BYUL_RTA_STAR_H"
+    },
+    {
+      "code": "include-guard",
+      "subject": "byul/navsys/route_finder/sma_star.h",
+      "message": "expected include guard BYUL_SMA_STAR_H",
+      "fingerprint": "include-guard|byul/navsys/route_finder/sma_star.h|expected include guard BYUL_SMA_STAR_H"
+    },
+    {
+      "code": "include-guard",
+      "subject": "byul/navsys/route_finder/weighted_astar.h",
+      "message": "expected include guard BYUL_WEIGHTED_ASTAR_H",
+      "fingerprint": "include-guard|byul/navsys/route_finder/weighted_astar.h|expected include guard BYUL_WEIGHTED_ASTAR_H"
+    },
+    {
+      "code": "include-guard",
+      "subject": "byul/numal/dualnumber.h",
+      "message": "expected include guard BYUL_DUALNUMBER_H",
+      "fingerprint": "include-guard|byul/numal/dualnumber.h|expected include guard BYUL_DUALNUMBER_H"
+    },
+    {
+      "code": "include-guard",
+      "subject": "byul/numal/dualquat.h",
+      "message": "expected include guard BYUL_DUALQUAT_H",
+      "fingerprint": "include-guard|byul/numal/dualquat.h|expected include guard BYUL_DUALQUAT_H"
+    },
+    {
+      "code": "include-guard",
+      "subject": "byul/numal/geom.h",
+      "message": "expected include guard BYUL_GEOM_H",
+      "fingerprint": "include-guard|byul/numal/geom.h|expected include guard BYUL_GEOM_H"
+    },
+    {
+      "code": "include-guard",
+      "subject": "byul/numal/numal.h",
+      "message": "expected include guard BYUL_NUMAL_H",
+      "fingerprint": "include-guard|byul/numal/numal.h|expected include guard BYUL_NUMAL_H"
+    },
+    {
+      "code": "include-guard",
+      "subject": "byul/numal/plane.h",
+      "message": "expected include guard BYUL_PLANE_H",
+      "fingerprint": "include-guard|byul/numal/plane.h|expected include guard BYUL_PLANE_H"
+    },
+    {
+      "code": "include-guard",
+      "subject": "byul/numal/quat.h",
+      "message": "expected include guard BYUL_QUAT_H",
+      "fingerprint": "include-guard|byul/numal/quat.h|expected include guard BYUL_QUAT_H"
+    },
+    {
+      "code": "include-guard",
+      "subject": "byul/numal/scalar.h",
+      "message": "expected include guard BYUL_SCALAR_H",
+      "fingerprint": "include-guard|byul/numal/scalar.h|expected include guard BYUL_SCALAR_H"
+    },
+    {
+      "code": "include-guard",
+      "subject": "byul/numal/vec3.h",
+      "message": "expected include guard BYUL_VEC3_H",
+      "fingerprint": "include-guard|byul/numal/vec3.h|expected include guard BYUL_VEC3_H"
+    },
+    {
+      "code": "include-guard",
+      "subject": "byul/number_theory/byul_prime32.h",
+      "message": "expected include guard BYUL_BYUL_PRIME32_H",
+      "fingerprint": "include-guard|byul/number_theory/byul_prime32.h|expected include guard BYUL_BYUL_PRIME32_H"
+    },
+    {
+      "code": "include-guard",
+      "subject": "byul/number_theory/byul_prime_segmented_u32.h",
+      "message": "expected include guard BYUL_BYUL_PRIME_SEGMENTED_U32_H",
+      "fingerprint": "include-guard|byul/number_theory/byul_prime_segmented_u32.h|expected include guard BYUL_BYUL_PRIME_SEGMENTED_U32_H"
+    },
+    {
+      "code": "include-guard",
+      "subject": "byul/projectile/guidance.h",
+      "message": "expected include guard BYUL_GUIDANCE_H",
+      "fingerprint": "include-guard|byul/projectile/guidance.h|expected include guard BYUL_GUIDANCE_H"
+    },
+    {
+      "code": "include-guard",
+      "subject": "byul/projectile/projectile.h",
+      "message": "expected include guard BYUL_PROJECTILE_H",
+      "fingerprint": "include-guard|byul/projectile/projectile.h|expected include guard BYUL_PROJECTILE_H"
+    },
+    {
+      "code": "include-guard",
+      "subject": "byul/projectile/projectile_core.h",
+      "message": "expected include guard BYUL_PROJECTILE_CORE_H",
+      "fingerprint": "include-guard|byul/projectile/projectile_core.h|expected include guard BYUL_PROJECTILE_CORE_H"
+    },
+    {
+      "code": "include-guard",
+      "subject": "byul/projectile/projectile_predict.h",
+      "message": "expected include guard BYUL_PROJECTILE_PREDICT_H",
+      "fingerprint": "include-guard|byul/projectile/projectile_predict.h|expected include guard BYUL_PROJECTILE_PREDICT_H"
+    },
+    {
+      "code": "include-guard",
+      "subject": "byul/projectile/projectile_tick.h",
+      "message": "expected include guard BYUL_PROJECTILE_TICK_H",
+      "fingerprint": "include-guard|byul/projectile/projectile_tick.h|expected include guard BYUL_PROJECTILE_TICK_H"
+    },
+    {
+      "code": "include-guard",
+      "subject": "byul/projectile/propulsion.h",
+      "message": "expected include guard BYUL_PROPULSION_H",
+      "fingerprint": "include-guard|byul/projectile/propulsion.h|expected include guard BYUL_PROPULSION_H"
+    },
+    {
+      "code": "include-guard",
+      "subject": "byul/rng/shuffle.h",
+      "message": "expected include guard BYUL_SHUFFLE_H",
+      "fingerprint": "include-guard|byul/rng/shuffle.h|expected include guard BYUL_SHUFFLE_H"
+    },
+    {
+      "code": "include-inside-c-linkage",
+      "subject": "byul/balix/collision/collision.h",
+      "message": "an include appears after the extern C boundary begins",
+      "fingerprint": "include-inside-c-linkage|byul/balix/collision/collision.h|an include appears after the extern C boundary begins"
+    },
+    {
+      "code": "include-inside-c-linkage",
+      "subject": "byul/balix/environ/environ.h",
+      "message": "an include appears after the extern C boundary begins",
+      "fingerprint": "include-inside-c-linkage|byul/balix/environ/environ.h|an include appears after the extern C boundary begins"
+    },
+    {
+      "code": "include-inside-c-linkage",
+      "subject": "byul/balix/numeq/filters/numeq_filters.h",
+      "message": "an include appears after the extern C boundary begins",
+      "fingerprint": "include-inside-c-linkage|byul/balix/numeq/filters/numeq_filters.h|an include appears after the extern C boundary begins"
+    },
+    {
+      "code": "include-inside-c-linkage",
+      "subject": "byul/entity/entity.h",
+      "message": "an include appears after the extern C boundary begins",
+      "fingerprint": "include-inside-c-linkage|byul/entity/entity.h|an include appears after the extern C boundary begins"
+    },
+    {
+      "code": "include-inside-c-linkage",
+      "subject": "byul/entity/entity_dynamic.h",
+      "message": "an include appears after the extern C boundary begins",
+      "fingerprint": "include-inside-c-linkage|byul/entity/entity_dynamic.h|an include appears after the extern C boundary begins"
+    },
+    {
+      "code": "include-inside-c-linkage",
+      "subject": "byul/entity/entity_dynamic_coord.h",
+      "message": "an include appears after the extern C boundary begins",
+      "fingerprint": "include-inside-c-linkage|byul/entity/entity_dynamic_coord.h|an include appears after the extern C boundary begins"
+    },
+    {
+      "code": "include-inside-c-linkage",
+      "subject": "byul/entity/entity_interaction.h",
+      "message": "an include appears after the extern C boundary begins",
+      "fingerprint": "include-inside-c-linkage|byul/entity/entity_interaction.h|an include appears after the extern C boundary begins"
+    },
+    {
+      "code": "include-inside-c-linkage",
+      "subject": "byul/entity/entity_spring.h",
+      "message": "an include appears after the extern C boundary begins",
+      "fingerprint": "include-inside-c-linkage|byul/entity/entity_spring.h|an include appears after the extern C boundary begins"
+    },
+    {
+      "code": "include-inside-c-linkage",
+      "subject": "byul/ground/ground.h",
+      "message": "an include appears after the extern C boundary begins",
+      "fingerprint": "include-inside-c-linkage|byul/ground/ground.h|an include appears after the extern C boundary begins"
+    },
+    {
+      "code": "include-inside-c-linkage",
+      "subject": "byul/projectile/guidance.h",
+      "message": "an include appears after the extern C boundary begins",
+      "fingerprint": "include-inside-c-linkage|byul/projectile/guidance.h|an include appears after the extern C boundary begins"
+    },
+    {
+      "code": "include-inside-c-linkage",
+      "subject": "byul/projectile/projectile.h",
+      "message": "an include appears after the extern C boundary begins",
+      "fingerprint": "include-inside-c-linkage|byul/projectile/projectile.h|an include appears after the extern C boundary begins"
+    },
+    {
+      "code": "include-inside-c-linkage",
+      "subject": "byul/projectile/projectile_core.h",
+      "message": "an include appears after the extern C boundary begins",
+      "fingerprint": "include-inside-c-linkage|byul/projectile/projectile_core.h|an include appears after the extern C boundary begins"
+    },
+    {
+      "code": "include-inside-c-linkage",
+      "subject": "byul/projectile/projectile_predict.h",
+      "message": "an include appears after the extern C boundary begins",
+      "fingerprint": "include-inside-c-linkage|byul/projectile/projectile_predict.h|an include appears after the extern C boundary begins"
+    },
+    {
+      "code": "include-inside-c-linkage",
+      "subject": "byul/projectile/projectile_tick.h",
+      "message": "an include appears after the extern C boundary begins",
+      "fingerprint": "include-inside-c-linkage|byul/projectile/projectile_tick.h|an include appears after the extern C boundary begins"
+    },
+    {
+      "code": "include-inside-c-linkage",
+      "subject": "byul/rng/distributions.h",
+      "message": "an include appears after the extern C boundary begins",
+      "fingerprint": "include-inside-c-linkage|byul/rng/distributions.h|an include appears after the extern C boundary begins"
+    },
+    {
+      "code": "include-inside-c-linkage",
+      "subject": "byul/rng/rng_core.h",
+      "message": "an include appears after the extern C boundary begins",
+      "fingerprint": "include-inside-c-linkage|byul/rng/rng_core.h|an include appears after the extern C boundary begins"
+    },
+    {
+      "code": "include-inside-c-linkage",
+      "subject": "byul/rng/rng_fill.h",
+      "message": "an include appears after the extern C boundary begins",
+      "fingerprint": "include-inside-c-linkage|byul/rng/rng_fill.h|an include appears after the extern C boundary begins"
+    },
+    {
+      "code": "include-inside-c-linkage",
+      "subject": "byul/rng/roll.h",
+      "message": "an include appears after the extern C boundary begins",
+      "fingerprint": "include-inside-c-linkage|byul/rng/roll.h|an include appears after the extern C boundary begins"
+    },
+    {
+      "code": "include-inside-c-linkage",
+      "subject": "byul/rng/shuffle.h",
+      "message": "an include appears after the extern C boundary begins",
+      "fingerprint": "include-inside-c-linkage|byul/rng/shuffle.h|an include appears after the extern C boundary begins"
+    }
+  ]
+}

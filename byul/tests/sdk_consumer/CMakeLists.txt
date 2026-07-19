@@ -26,9 +26,15 @@ target_compile_options(byul_sdk_consumer PRIVATE
 )
 
 if(WIN32)
+    find_file(BYUL_RUNTIME_LIBRARY
+        NAMES byul.dll libbyul.dll
+        PATHS "${BYUL_SDK_ROOT}/bin"
+        NO_DEFAULT_PATH
+        REQUIRED
+    )
     add_custom_command(TARGET byul_sdk_consumer POST_BUILD
         COMMAND "${CMAKE_COMMAND}" -E copy_if_different
-            "${BYUL_SDK_ROOT}/bin/byul.dll"
+            "${BYUL_RUNTIME_LIBRARY}"
             "$<TARGET_FILE_DIR:byul_sdk_consumer>"
     )
 endif()

@@ -110,6 +110,20 @@ shared library”로 설명한다. Markdown은 규칙이나 계획의 원본이 
 현재 확인되지 않았다. 이 파일을 직접 고치지 않고 document rule에 맞는 canonical Org
 source와 출력 mapping을 만든 뒤 DLL cutover 문서와 함께 재생성한다.
 
+* 상위 실행 단계 Mapping
+
+이 문서 전체를 한 번에 실행하지 않는다.
+
+| 이 문서 단계 | 상위 실행 위치 | Gate |
+|--------------+----------------+------|
+| TODO 1~3 | Math Engine critical path와 전체 Header 리팩터링 5단계 | Static canonical handoff |
+| TODO 4 | 전체 Header 리팩터링 9단계 시작 전 | 중앙 규칙·runtime/package 승인 |
+| TODO 5~6 | Runtime/Simulation consumer 합류 뒤 전체 Header 리팩터링 9단계 | Shared DLL/package cutover |
+
+TODO 1~3은 현행 root shared 단일 산출물 규칙 안에서 수행한다. TODO 4~6이 아직
+=TODO= 또는 =BLOCKED=라는 이유로 Math Engine static canonical handoff를 막지 않는다.
+반대로 TODO 5~6은 consumer adapter와 중앙 규칙 승인을 앞질러 실행하지 않는다.
+
 * 실행 절차
 
 ** TODO 1. Source/header manifest와 target uniqueness를 만든다

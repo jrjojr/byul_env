@@ -6,6 +6,7 @@
 #include "coord.h"
 
 #include <cmath>
+#include <cstdio>
 #include <vector>
 #include <limits>
 #include <cstring>
@@ -21,6 +22,8 @@
 #include "rta_star.h"
 #include "sma_star.h"
 #include "weighted_astar.h"
+
+static thread_local route_finder_t* active_callback_finder = nullptr;
 
 const char* get_route_finder_name(route_finder_type_t pa) {
     switch (pa) {
@@ -64,8 +67,14 @@ route_finder_t* route_finder_create_full(
     heuristic_func heuristic_fn,
     void* heuristic_fn_userdata    
 ) {
+    if (!start || !goal) return nullptr;
 
-    route_finder_t* a = new route_finder_t{};
+    route_finder_t* a = nullptr;
+    try {
+        a = new route_finder_t{};
+    } catch (...) {
+        return nullptr;
+    }
 
     a->navgrid = navgrid;
     a->start = *start;
@@ -144,6 +153,7 @@ int route_finder_free(route_finder_t* out){
 
 int route_finder_destroy(route_finder_t* a) {
     if(!a) return -1;
+    if (active_callback_finder == a) return -1;
     delete a;
     return 0;
 }
@@ -292,9 +302,83 @@ void* route_finder_get_heuristic_fn_userdata(const route_finder_t* a){
     return a->heuristic_fn_userdata;
 }
 
+navsys_status_t route_finder_bind_cost_func(
+    route_finder_t* finder, cost_func fn, void* userdata) {
+    if (!finder || !fn) return NAVSYS_STATUS_INVALID_ARGUMENT;
+    if (active_callback_finder == finder)
+        return NAVSYS_STATUS_IN_PROGRESS;
+    finder->cost_fn = fn;
+    finder->cost_fn_userdata = userdata;
+    return NAVSYS_STATUS_OK;
+}
+
+navsys_status_t route_finder_unbind_cost_func(route_finder_t* finder) {
+    if (!finder) return NAVSYS_STATUS_INVALID_ARGUMENT;
+    if (active_callback_finder == finder)
+        return NAVSYS_STATUS_IN_PROGRESS;
+    finder->cost_fn = default_cost;
+    finder->cost_fn_userdata = nullptr;
+    return NAVSYS_STATUS_OK;
+}
+
+navsys_status_t route_finder_bind_heuristic_func(
+    route_finder_t* finder, heuristic_func fn, void* userdata) {
+    if (!finder || !fn) return NAVSYS_STATUS_INVALID_ARGUMENT;
+    if (active_callback_finder == finder)
+        return NAVSYS_STATUS_IN_PROGRESS;
+    finder->heuristic_fn = fn;
+    finder->heuristic_fn_userdata = userdata;
+    return NAVSYS_STATUS_OK;
+}
+
+navsys_status_t route_finder_unbind_heuristic_func(
+    route_finder_t* finder) {
+    if (!finder) return NAVSYS_STATUS_INVALID_ARGUMENT;
+    if (active_callback_finder == finder)
+        return NAVSYS_STATUS_IN_PROGRESS;
+    finder->heuristic_fn = euclidean_heuristic;
+    finder->heuristic_fn_userdata = nullptr;
+    return NAVSYS_STATUS_OK;
+}
+
+class route_finder_callback_scope {
+public:
+    explicit route_finder_callback_scope(route_finder_t* finder)
+        : previous_(active_callback_finder) {
+        active_callback_finder = finder;
+    }
+
+    ~route_finder_callback_scope() {
+        active_callback_finder = previous_;
+    }
+
+private:
+    route_finder_t* previous_;
+};
+
+static float route_finder_cost_bridge(
+    const navgrid_t* navgrid,
+    const coord_t* start,
+    const coord_t* goal,
+    void*) {
+    route_finder_t* finder = active_callback_finder;
+    return finder->cost_fn(
+        navgrid, start, goal, finder->cost_fn_userdata);
+}
+
+static float route_finder_heuristic_bridge(
+    const coord_t* start,
+    const coord_t* goal,
+    void*) {
+    route_finder_t* finder = active_callback_finder;
+    return finder->heuristic_fn(
+        start, goal, finder->heuristic_fn_userdata);
+}
+
 static route_t* route_finder_run_astar(route_finder_t* a){
     return find_astar(a->navgrid, &a->start, &a->goal, 
-        a->cost_fn, a->heuristic_fn, a->max_retry, a->debug_mode_enabled);
+        route_finder_cost_bridge, route_finder_heuristic_bridge,
+        a->max_retry, a->debug_mode_enabled);
 }
 
 static route_t* route_finder_run_bfs(route_finder_t* a){
@@ -308,7 +392,8 @@ static route_t* route_finder_run_dfs(route_finder_t* a){
 }
 
 static route_t* route_finder_run_dijkstra(route_finder_t* a){
-    return find_dijkstra(a->navgrid, &a->start, &a->goal, a->cost_fn,
+    return find_dijkstra(
+        a->navgrid, &a->start, &a->goal, route_finder_cost_bridge,
         a->max_retry, a->debug_mode_enabled);
 }
 
@@ -323,13 +408,13 @@ static route_t* route_finder_run_fringe_search(route_finder_t* a) {
     }
 
     return find_fringe_search(a->navgrid, &a->start, &a->goal,
-        a->cost_fn, a->heuristic_fn, delta_epsilon,
+        route_finder_cost_bridge, route_finder_heuristic_bridge, delta_epsilon,
         a->max_retry, a->debug_mode_enabled);
 }
 
 static route_t* route_finder_run_greedy_best_first(route_finder_t* a){
     return find_greedy_best_first(a->navgrid, &a->start, &a->goal,
-    a->heuristic_fn, a->max_retry, a->debug_mode_enabled);
+    route_finder_heuristic_bridge, a->max_retry, a->debug_mode_enabled);
 }
 
 static route_t* route_finder_run_ida_star(route_finder_t* a){
@@ -338,7 +423,8 @@ static route_t* route_finder_run_ida_star(route_finder_t* a){
 
     route_finder_set_heuristic_func(a, manhattan_heuristic);
     return find_ida_star(a->navgrid, &a->start, &a->goal,
-    a->cost_fn, a->heuristic_fn, a->max_retry, a->debug_mode_enabled);
+    route_finder_cost_bridge, route_finder_heuristic_bridge,
+    a->max_retry, a->debug_mode_enabled);
 }
 
 static route_t* route_finder_run_rta_star(route_finder_t* a) {
@@ -352,7 +438,7 @@ static route_t* route_finder_run_rta_star(route_finder_t* a) {
     }
 
     return find_rta_star(a->navgrid, &a->start, &a->goal,
-        a->cost_fn, a->heuristic_fn, depth_limit,
+        route_finder_cost_bridge, route_finder_heuristic_bridge, depth_limit,
         a->max_retry, a->debug_mode_enabled);
 }
 
@@ -380,7 +466,7 @@ static route_t* route_finder_run_sma_star(route_finder_t* a) {
     }
 
     return find_sma_star(a->navgrid, &a->start, &a->goal,
-        a->cost_fn, a->heuristic_fn, memory_limit,
+        route_finder_cost_bridge, route_finder_heuristic_bridge, memory_limit,
         a->max_retry, a->debug_mode_enabled);
 }
 
@@ -395,17 +481,19 @@ static route_t* route_finder_run_weighted_astar(route_finder_t* a) {
     }
 
     return find_weighted_astar(a->navgrid, &a->start, &a->goal,
-        a->cost_fn, a->heuristic_fn, weight,
+        route_finder_cost_bridge, route_finder_heuristic_bridge, weight,
         a->max_retry, a->debug_mode_enabled);
 }
 
 static route_t* route_finder_run_fast_marching(route_finder_t* a){
     return find_fast_marching(a->navgrid, &a->start, &a->goal,
-    a->cost_fn, a->max_retry, a->debug_mode_enabled);
+    route_finder_cost_bridge, a->max_retry, a->debug_mode_enabled);
 }
 
 route_t* route_finder_run(route_finder_t* a) {
     if (!a) return NULL;
+    if (active_callback_finder == a) return NULL;
+    route_finder_callback_scope callback_scope(a);
     switch (a->type) {
         case ROUTE_FINDER_ASTAR: 
             return route_finder_run_astar(a);

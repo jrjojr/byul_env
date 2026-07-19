@@ -2,6 +2,7 @@
 #define ROUTE_FINDER_H
 
 #include "route_finder_core.h"
+#include "navsys_status.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -200,6 +201,82 @@ BYUL_API void route_finder_set_heuristic_fn_userdata(
 
 BYUL_API void* route_finder_get_heuristic_fn_userdata(
     const route_finder_t* a);
+
+/**
+ * @brief Cost callback과 userdata를 하나의 binding으로 교체한다.
+ * @param[in,out] finder 변경할 route finder.
+ * @param[in] fn bind할 cost callback.
+ * @param[in] userdata callback에 전달할 caller 소유 data.
+ * @return 공통 Navsys 상태 값.
+ * @retval NAVSYS_STATUS_OK binding이 교체됐다.
+ * @retval NAVSYS_STATUS_INVALID_ARGUMENT finder 또는 fn이 NULL이다.
+ * @retval NAVSYS_STATUS_IN_PROGRESS 같은 finder의 callback 실행 중이다.
+ * @byul.nullable finder false
+ * @byul.nullable fn false
+ * @byul.nullable userdata true
+ * @byul.lifetime fn until-unbind
+ * @byul.lifetime userdata until-unbind
+ * @byul.side_effect mutates:finder
+ * @byul.thread_safety externally-synchronized
+ * @byul.blocking false
+ * @byul.reentrant false
+ */
+BYUL_API navsys_status_t route_finder_bind_cost_func(
+    route_finder_t* finder, cost_func fn, void* userdata);
+
+/**
+ * @brief Cost binding을 기본 callback과 NULL userdata로 되돌린다.
+ * @param[in,out] finder 변경할 route finder.
+ * @return 공통 Navsys 상태 값.
+ * @retval NAVSYS_STATUS_OK 기본 binding으로 변경됐다.
+ * @retval NAVSYS_STATUS_INVALID_ARGUMENT finder가 NULL이다.
+ * @retval NAVSYS_STATUS_IN_PROGRESS 같은 finder의 callback 실행 중이다.
+ * @byul.nullable finder false
+ * @byul.side_effect mutates:finder
+ * @byul.thread_safety externally-synchronized
+ * @byul.blocking false
+ * @byul.reentrant false
+ */
+BYUL_API navsys_status_t route_finder_unbind_cost_func(
+    route_finder_t* finder);
+
+/**
+ * @brief Heuristic callback과 userdata를 하나의 binding으로 교체한다.
+ * @param[in,out] finder 변경할 route finder.
+ * @param[in] fn bind할 heuristic callback.
+ * @param[in] userdata callback에 전달할 caller 소유 data.
+ * @return 공통 Navsys 상태 값.
+ * @retval NAVSYS_STATUS_OK binding이 교체됐다.
+ * @retval NAVSYS_STATUS_INVALID_ARGUMENT finder 또는 fn이 NULL이다.
+ * @retval NAVSYS_STATUS_IN_PROGRESS 같은 finder의 callback 실행 중이다.
+ * @byul.nullable finder false
+ * @byul.nullable fn false
+ * @byul.nullable userdata true
+ * @byul.lifetime fn until-unbind
+ * @byul.lifetime userdata until-unbind
+ * @byul.side_effect mutates:finder
+ * @byul.thread_safety externally-synchronized
+ * @byul.blocking false
+ * @byul.reentrant false
+ */
+BYUL_API navsys_status_t route_finder_bind_heuristic_func(
+    route_finder_t* finder, heuristic_func fn, void* userdata);
+
+/**
+ * @brief Heuristic binding을 기본 callback과 NULL userdata로 되돌린다.
+ * @param[in,out] finder 변경할 route finder.
+ * @return 공통 Navsys 상태 값.
+ * @retval NAVSYS_STATUS_OK 기본 binding으로 변경됐다.
+ * @retval NAVSYS_STATUS_INVALID_ARGUMENT finder가 NULL이다.
+ * @retval NAVSYS_STATUS_IN_PROGRESS 같은 finder의 callback 실행 중이다.
+ * @byul.nullable finder false
+ * @byul.side_effect mutates:finder
+ * @byul.thread_safety externally-synchronized
+ * @byul.blocking false
+ * @byul.reentrant false
+ */
+BYUL_API navsys_status_t route_finder_unbind_heuristic_func(
+    route_finder_t* finder);
 
 /**
  * @brief Resets and validates the configuration.

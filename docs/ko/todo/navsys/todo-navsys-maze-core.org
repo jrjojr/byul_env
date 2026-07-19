@@ -23,6 +23,20 @@
   [[file:todo-navsys-industry-api-baseline.org][Navsys 업계 API 기준]]이 우선한다. 아래
   =navsys_status_t= signature는 그 공통 결정에 종속된다.
 
+* 책임 경계와 실제 검증 파일
+
+- 이 문서와 =maze_core.cpp=가 소유하는 구현은 =maze_t= resource lifecycle,
+  origin/extent·좌표 열거와 navgrid apply/remove overlay primitive뿐이다.
+- 개별 maze algorithm, RNG 소비·seed/replay, generation budget/cancel loop는 각 generator
+  전용 TODO가 소유한다. enum 선택, options routing과 capability 합류는
+  [[file:todo-navsys-maze-maze.org][maze dispatcher TODO]]가 소유한다.
+- core 변경 때문에 generator migration이 필요하면 이 문서는 accessor 계약과 합류 조건만
+  제공하고, 각 generator source/test 변경은 해당 generator TODO에서 수행한다.
+- 실제 maze native 검증 파일은
+  =byul/navsys/maze/tests/test_module_maze.cpp=,
+  =byul/navsys/maze/tests/test_module_maze_discrete.cpp=,
+  =byul/navsys/maze/tests/test_module_maze_room.cpp=다.
+
 * 현행 구현 불변식 감사
 
 | 영역 | 현행 | 구체 결함 |
@@ -198,7 +212,9 @@ partial-result flag 중 하나를 택한다. overlay token은 navgrid 생존 기
 
 ** 실행
 
-- 모든 generator/source/test를 field access 대신 accessor/internal private representation으로 전환한다.
+- core는 accessor/internal private representation과 migration contract를 제공한다. 각
+  generator TODO가 자기 source/test의 field access를 전환한 뒤 core owner가 전체 direct
+  field access가 제거됐는지 합류 검증한다.
 - legacy public layout은 ABI-major 전까지 동일하게 유지하고 field deprecation 문서를 게시한다.
 - wrapper 등록/제외와 SDK example을 신규 API로 갱신한다.
 

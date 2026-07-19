@@ -25,12 +25,14 @@
 #ifndef DUALNUMBER_H
 #define DUALNUMBER_H
 
+#include <math.h>
+#include <stdbool.h>
+
+#include "byul_config.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
-
-#include "byul_config.h"
-#include <math.h>
 
 // DualNumber: a + b * eps, where eps^2 = 0
 typedef struct {

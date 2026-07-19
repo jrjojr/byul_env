@@ -25,6 +25,22 @@
 =coord_hash_set=의 소유권 파괴, =coord_hash_copy=의 NULL 치환, 무용량 export와 반환
 allocation의 해제 경로 부재다.
 
+* 공통 ABI 선행 Gate와 실제 Test 원본
+
+- Stored NULL과 not-found 구별, iterator invalidated, callback failure와 unsupported
+  상태는 [[file:todo-navsys-industry-api-baseline.org][공통 기준]] =TODO 1단계=의 Status 후보 합류 항목에서
+  canonical enum/mapping을 결정한다. 이 문서에서 private status 값을 먼저 만들지 않는다.
+- 공통 status owner와 C symbol namespace가 승인되어 =TODO 1단계=가 =DONE=이 되기
+  전에는 아래 =coord_hash_create_info_t=, =coord_hash_entry_view_t=, callback type과
+  status symbol을 실제 header/source/manifest/wrapper에 구현하지 않는다.
+- Callback+userdata와 allocator lifecycle은 공통 =TODO 2단계=, buffer/export 결과는
+  공통 =TODO 3단계=까지 합류한다. Target draft type은 owner header/include DAG 승인 전
+  review 초안이며 기존 다섯 단계의 =TODO= 상태를 유지한다.
+- 전용 native test 원본은
+  =byul/navsys/coord/tests/test_module_coord_hash.cpp=이다. Root 합류 fixture는
+  =byul/navsys/tests/test_module_navsys.cpp=에 추가하고, 새 source를 만들면
+  =byul/navsys/coord/tests/CMakeLists.txt=에 등록한다.
+
 * 현재 구현과 업계 비교
 
 - 구현은 =std::unordered_map<coord_t, void*>=와 copy/destroy callback을 가진다.

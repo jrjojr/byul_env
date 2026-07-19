@@ -1,4 +1,5 @@
 #include "dstar_lite_tick.h"
+#include "internal/dstar_lite_callback.hpp"
 #include "scalar.h"
 
 #include <float.h>
@@ -184,13 +185,17 @@ void dstar_lite_tick_update(dstar_lite_tick_t* dst, float dt) {
         coord_hash_insert(dst->base->real_route->visited_count, &next, visit_ptr);
         delete visit_ptr;
 
-        if (dst->base->move_fn)
-            dst->base->move_fn(&next, dst->base->move_fn_userdata);
+        byul::navsys::internal::dstar_lite_invoke_move(
+            dst->base, &next);
 
         if (dst->base->changed_coords_fn) {
-            coord_list_t* changed = dst->base->changed_coords_fn(dst->base->changed_coords_fn_userdata);
+            coord_list_t* changed =
+                byul::navsys::internal::dstar_lite_invoke_changed_coords(
+                    dst->base);
             if (changed) {
-                dst->base->km += dst->base->heuristic_fn(&dst->s_last, &start, NULL);
+                dst->base->km +=
+                    byul::navsys::internal::dstar_lite_invoke_heuristic(
+                        dst->base, &dst->s_last, &start);
                 dst->s_last = start;
                 for (int i = 0; i < coord_list_length(changed); ++i) {
                     const coord_t* c = coord_list_get(changed, i);

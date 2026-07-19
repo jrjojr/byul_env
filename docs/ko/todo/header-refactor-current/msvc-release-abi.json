@@ -1,0 +1,1093 @@
+{
+  "schema_version": 1,
+  "profile": "windows-msvc-x64-release",
+  "types": [
+    {
+      "header": "motion_state.h",
+      "name": "attitude_state_t",
+      "size": 40,
+      "align": 4,
+      "fields": {
+        "orientation": 0,
+        "angular_velocity": 16,
+        "angular_acceleration": 28
+      },
+      "skipped_field_declarations": []
+    },
+    {
+      "header": "controller.h",
+      "name": "bangbang_impl_t",
+      "size": 4,
+      "align": 4,
+      "fields": {
+        "max_output": 0
+      },
+      "skipped_field_declarations": []
+    },
+    {
+      "header": "bodyprops.h",
+      "name": "bodyprops_t",
+      "size": 28,
+      "align": 4,
+      "fields": {
+        "mass": 0,
+        "drag_coef": 4,
+        "cross_section": 8,
+        "restitution": 12,
+        "friction": 16,
+        "k_magnus": 20,
+        "k_gyro": 24
+      },
+      "skipped_field_declarations": []
+    },
+    {
+      "header": "controller.h",
+      "name": "controller_t",
+      "size": 40,
+      "align": 8,
+      "fields": {
+        "type": 0,
+        "impl": 8,
+        "compute": 16,
+        "reset": 24,
+        "userdata": 32
+      },
+      "skipped_field_declarations": []
+    },
+    {
+      "header": "coord.h",
+      "name": "coord_t",
+      "size": 8,
+      "align": 4,
+      "fields": {
+        "x": 0,
+        "y": 4
+      },
+      "skipped_field_declarations": []
+    },
+    {
+      "header": "dstar_lite_key.h",
+      "name": "dstar_lite_key_t",
+      "size": 8,
+      "align": 4,
+      "fields": {
+        "k1": 0,
+        "k2": 4
+      },
+      "skipped_field_declarations": []
+    },
+    {
+      "header": "dstar_lite.h",
+      "name": "dstar_lite_t",
+      "size": 184,
+      "align": 8,
+      "fields": {
+        "navgrid": 0,
+        "start": 8,
+        "goal": 16,
+        "cost_fn": 24,
+        "cost_fn_userdata": 32,
+        "heuristic_fn": 40,
+        "heuristic_fn_userdata": 48,
+        "max_retry": 56,
+        "debug_mode_enabled": 60,
+        "km": 64,
+        "g_table": 72,
+        "rhs_table": 80,
+        "frontier": 88,
+        "move_fn": 96,
+        "move_fn_userdata": 104,
+        "changed_coords_fn": 112,
+        "changed_coords_fn_userdata": 120,
+        "proto_route": 128,
+        "real_route": 136,
+        "real_loop_max_retry": 144,
+        "reconstruct_max_retry": 148,
+        "proto_compute_retry_count": 152,
+        "real_compute_retry_count": 156,
+        "real_loop_retry_count": 160,
+        "reconstruct_retry_count": 164,
+        "max_range": 168,
+        "interval_sec": 172,
+        "force_quit": 176
+      },
+      "skipped_field_declarations": []
+    },
+    {
+      "header": "dstar_lite_tick.h",
+      "name": "dstar_lite_tick_t",
+      "size": 48,
+      "align": 8,
+      "fields": {
+        "base": 0,
+        "max_time": 8,
+        "unit_m": 12,
+        "speed_sec": 16,
+        "cur_time": 20,
+        "cur_elapsed_time": 24,
+        "s_last": 28,
+        "ticked": 36,
+        "max_elapsed_time": 40
+      },
+      "skipped_field_declarations": []
+    },
+    {
+      "header": "dualnumber.h",
+      "name": "dualnumber_t",
+      "size": 8,
+      "align": 4,
+      "fields": {
+        "re": 0,
+        "du": 4
+      },
+      "skipped_field_declarations": []
+    },
+    {
+      "header": "dualquat.h",
+      "name": "dualquat_t",
+      "size": 32,
+      "align": 4,
+      "fields": {
+        "real": 0,
+        "dual": 16
+      },
+      "skipped_field_declarations": []
+    },
+    {
+      "header": "entity_dynamic.h",
+      "name": "entity_dynamic_t",
+      "size": 144,
+      "align": 8,
+      "fields": {
+        "base": 0,
+        "xf": 48,
+        "props": 88,
+        "velocity": 116,
+        "angular_velocity": 128,
+        "is_grounded": 140
+      },
+      "skipped_field_declarations": []
+    },
+    {
+      "header": "entity.h",
+      "name": "entity_t",
+      "size": 48,
+      "align": 8,
+      "fields": {
+        "id": 0,
+        "coord": 4,
+        "owner": 16,
+        "width_range": 24,
+        "height_range": 28,
+        "influence_ratio": 32,
+        "age": 36,
+        "lifetime": 40
+      },
+      "skipped_field_declarations": []
+    },
+    {
+      "header": "environ.h",
+      "name": "environ_periodic_t",
+      "size": 48,
+      "align": 4,
+      "fields": {
+        "base_wind": 0,
+        "gust_amplitude": 12,
+        "gust_frequency": 24,
+        "elapsed": 28,
+        "delta_time": 32,
+        "gravity": 36
+      },
+      "skipped_field_declarations": []
+    },
+    {
+      "header": "environ.h",
+      "name": "environ_t",
+      "size": 56,
+      "align": 8,
+      "fields": {
+        "gravity": 0,
+        "wind_vel": 12,
+        "air_density": 24,
+        "humidity": 28,
+        "temperature": 32,
+        "pressure": 36,
+        "environ_fn": 40,
+        "userdata": 48
+      },
+      "skipped_field_declarations": []
+    },
+    {
+      "header": "numeq_filters.h",
+      "name": "filter_interface_t",
+      "size": 32,
+      "align": 8,
+      "fields": {
+        "filter_state": 0,
+        "time_update": 8,
+        "measurement_update": 16,
+        "get_state": 24
+      },
+      "skipped_field_declarations": []
+    },
+    {
+      "header": "fast_marching.h",
+      "name": "fmm_cell_t",
+      "size": 8,
+      "align": 4,
+      "fields": {
+        "state": 0,
+        "value": 4
+      },
+      "skipped_field_declarations": []
+    },
+    {
+      "header": "fast_marching.h",
+      "name": "fmm_grid_t",
+      "size": 32,
+      "align": 8,
+      "fields": {
+        "width": 0,
+        "height": 4,
+        "cells": 8,
+        "visit_order": 16,
+        "total_retry_count": 24
+      },
+      "skipped_field_declarations": []
+    },
+    {
+      "header": "ground.h",
+      "name": "ground_heightfield_t",
+      "size": 32,
+      "align": 8,
+      "fields": {
+        "h": 4,
+        "cell": 8,
+        "height": 16,
+        "owns_buffer": 24
+      },
+      "skipped_field_declarations": []
+    },
+    {
+      "header": "ground.h",
+      "name": "ground_t",
+      "size": 56,
+      "align": 8,
+      "fields": {
+        "mode": 0,
+        "u": 8
+      },
+      "skipped_field_declarations": []
+    },
+    {
+      "header": "ground.h",
+      "name": "ground_tiles_t",
+      "size": 32,
+      "align": 8,
+      "fields": {
+        "bodyprops_table": 0,
+        "plane_table": 8,
+        "map_cb": 16,
+        "map_context": 24
+      },
+      "skipped_field_declarations": []
+    },
+    {
+      "header": "ground.h",
+      "name": "ground_uniform_t",
+      "size": 44,
+      "align": 4,
+      "fields": {
+        "body": 0,
+        "plane": 28
+      },
+      "skipped_field_declarations": []
+    },
+    {
+      "header": "guidance.h",
+      "name": "guidance_target_info_t",
+      "size": 208,
+      "align": 8,
+      "fields": {
+        "target": 0,
+        "env": 144,
+        "current_time": 200
+      },
+      "skipped_field_declarations": []
+    },
+    {
+      "header": "numeq_integrator.h",
+      "name": "integrator_t",
+      "size": 248,
+      "align": 8,
+      "fields": {
+        "state": 0,
+        "type": 76,
+        "prev_state": 80,
+        "env": 160,
+        "body": 216
+      },
+      "skipped_field_declarations": []
+    },
+    {
+      "header": "numeq_kalman.h",
+      "name": "kalman_filter_t",
+      "size": 20,
+      "align": 4,
+      "fields": {
+        "x": 0,
+        "p": 4,
+        "q": 8,
+        "r": 12,
+        "k": 16
+      },
+      "skipped_field_declarations": []
+    },
+    {
+      "header": "numeq_kalman.h",
+      "name": "kalman_filter_vec3_t",
+      "size": 48,
+      "align": 4,
+      "fields": {
+        "position": 0,
+        "velocity": 12,
+        "error_p": 24,
+        "q": 36,
+        "r": 40,
+        "dt": 44
+      },
+      "skipped_field_declarations": []
+    },
+    {
+      "header": "projectile_core.h",
+      "name": "launch_param_t",
+      "size": 20,
+      "align": 4,
+      "fields": {
+        "direction": 0,
+        "force": 12,
+        "time_to_hit": 16
+      },
+      "skipped_field_declarations": []
+    },
+    {
+      "header": "motion_state.h",
+      "name": "linear_state_t",
+      "size": 36,
+      "align": 4,
+      "fields": {
+        "position": 0,
+        "velocity": 12,
+        "acceleration": 24
+      },
+      "skipped_field_declarations": []
+    },
+    {
+      "header": "maze_core.h",
+      "name": "maze_t",
+      "size": 24,
+      "align": 8,
+      "fields": {
+        "x0": 0,
+        "y0": 4,
+        "width": 8,
+        "height": 12,
+        "blocked": 16
+      },
+      "skipped_field_declarations": []
+    },
+    {
+      "header": "projectile.h",
+      "name": "missile_t",
+      "size": 272,
+      "align": 8,
+      "fields": {
+        "base": 0,
+        "guidance": 256,
+        "guidance_userdata": 264
+      },
+      "skipped_field_declarations": []
+    },
+    {
+      "header": "motion_state.h",
+      "name": "motion_state_t",
+      "size": 76,
+      "align": 4,
+      "fields": {
+        "linear": 0,
+        "angular": 36
+      },
+      "skipped_field_declarations": []
+    },
+    {
+      "header": "numeq_mpc.h",
+      "name": "mpc_config_t",
+      "size": 60,
+      "align": 4,
+      "fields": {
+        "horizon_sec": 0,
+        "step_dt": 4,
+        "max_accel": 8,
+        "max_ang_accel": 12,
+        "max_speed": 16,
+        "max_ang_speed": 20,
+        "weight_distance": 24,
+        "weight_orientation": 28,
+        "weight_velocity": 32,
+        "weight_accel": 36,
+        "weight_ang_accel": 40,
+        "max_iter": 44,
+        "output_trajectory": 48,
+        "candidate_step": 52,
+        "ang_candidate_step": 56
+      },
+      "skipped_field_declarations": []
+    },
+    {
+      "header": "numeq_mpc.h",
+      "name": "mpc_direction_target_t",
+      "size": 40,
+      "align": 4,
+      "fields": {
+        "direction": 0,
+        "orientation": 12,
+        "weight_dir": 28,
+        "weight_rot": 32,
+        "duration": 36
+      },
+      "skipped_field_declarations": []
+    },
+    {
+      "header": "controller.h",
+      "name": "mpc_impl_t",
+      "size": 232,
+      "align": 8,
+      "fields": {
+        "config": 0,
+        "target": 60,
+        "env": 136,
+        "body": 192,
+        "cost_fn": 224
+      },
+      "skipped_field_declarations": []
+    },
+    {
+      "header": "numeq_mpc.h",
+      "name": "mpc_output_t",
+      "size": 104,
+      "align": 4,
+      "fields": {
+        "desired_accel": 0,
+        "desired_ang_accel": 12,
+        "future_state": 24,
+        "cost": 100
+      },
+      "skipped_field_declarations": []
+    },
+    {
+      "header": "numeq_mpc.h",
+      "name": "mpc_target_route_t",
+      "size": 16,
+      "align": 8,
+      "fields": {
+        "points": 0,
+        "count": 8,
+        "loop": 12
+      },
+      "skipped_field_declarations": []
+    },
+    {
+      "header": "navcell.h",
+      "name": "navcell_t",
+      "size": 8,
+      "align": 4,
+      "fields": {
+        "terrain": 0,
+        "height": 4
+      },
+      "skipped_field_declarations": []
+    },
+    {
+      "header": "navgrid.h",
+      "name": "navgrid_t",
+      "size": 40,
+      "align": 8,
+      "fields": {
+        "width": 0,
+        "height": 4,
+        "mode": 8,
+        "cell_map": 16,
+        "is_coord_blocked_fn": 24,
+        "is_coord_blocked_fn_userdata": 32
+      },
+      "skipped_field_declarations": []
+    },
+    {
+      "header": "obstacle_core.h",
+      "name": "obstacle_t",
+      "size": 24,
+      "align": 8,
+      "fields": {
+        "x0": 0,
+        "y0": 4,
+        "width": 8,
+        "height": 12,
+        "blocked": 16
+      },
+      "skipped_field_declarations": []
+    },
+    {
+      "header": "projectile.h",
+      "name": "patriot_t",
+      "size": 288,
+      "align": 8,
+      "fields": {
+        "base": 0,
+        "guidance": 272,
+        "guidance_userdata": 280
+      },
+      "skipped_field_declarations": []
+    },
+    {
+      "header": "numeq_pid.h",
+      "name": "pid_controller_t",
+      "size": 32,
+      "align": 4,
+      "fields": {
+        "kp": 0,
+        "ki": 4,
+        "kd": 8,
+        "integral": 12,
+        "prev_error": 16,
+        "output_limit": 20,
+        "dt": 24,
+        "anti_windup": 28
+      },
+      "skipped_field_declarations": []
+    },
+    {
+      "header": "numeq_pid_vec3.h",
+      "name": "pid_controller_vec3_t",
+      "size": 96,
+      "align": 4,
+      "fields": {
+        "x": 0,
+        "y": 32,
+        "z": 64
+      },
+      "skipped_field_declarations": []
+    },
+    {
+      "header": "controller.h",
+      "name": "pid_impl_t",
+      "size": 36,
+      "align": 4,
+      "fields": {
+        "pid": 0,
+        "output_limit": 32
+      },
+      "skipped_field_declarations": []
+    },
+    {
+      "header": "plane.h",
+      "name": "plane_t",
+      "size": 16,
+      "align": 4,
+      "fields": {
+        "normal_unit": 0,
+        "d": 12
+      },
+      "skipped_field_declarations": []
+    },
+    {
+      "header": "projectile_predict.h",
+      "name": "projectile_result_t",
+      "size": 64,
+      "align": 8,
+      "fields": {
+        "start_pos": 0,
+        "target_pos": 12,
+        "initial_velocity": 24,
+        "impact_time": 36,
+        "impact_pos": 40,
+        "bool_impacted": 52,
+        "trajectory": 56
+      },
+      "skipped_field_declarations": []
+    },
+    {
+      "header": "projectile_core.h",
+      "name": "projectile_t",
+      "size": 168,
+      "align": 8,
+      "fields": {
+        "base": 0,
+        "damage": 144,
+        "attrs": 148,
+        "on_hit": 152,
+        "hit_userdata": 160
+      },
+      "skipped_field_declarations": []
+    },
+    {
+      "header": "projectile_tick.h",
+      "name": "projectile_tick_t",
+      "size": 640,
+      "align": 8,
+      "fields": {
+        "proj": 0,
+        "target": 168,
+        "intgr": 312,
+        "env": 560,
+        "ground": 568,
+        "propulsion": 576,
+        "guidance_fn": 584,
+        "bool_debug": 592,
+        "trajectory": 600,
+        "impact_pos": 608,
+        "impact_time": 620,
+        "bool_impacted": 624,
+        "tick": 632
+      },
+      "skipped_field_declarations": []
+    },
+    {
+      "header": "propulsion.h",
+      "name": "propulsion_t",
+      "size": 80,
+      "align": 8,
+      "fields": {
+        "max_thrust": 0,
+        "target_thrust": 4,
+        "current_thrust": 8,
+        "fuel_capacity": 12,
+        "fuel_remaining": 16,
+        "burn_rate": 20,
+        "efficiency": 24,
+        "thermal_loss": 28,
+        "energy_density": 32,
+        "response_time": 36,
+        "max_thrust_rate": 40,
+        "delay_time": 44,
+        "heat": 48,
+        "heat_dissipation_rate": 52,
+        "wear_level": 56,
+        "controller": 64,
+        "active": 72
+      },
+      "skipped_field_declarations": []
+    },
+    {
+      "header": "quat.h",
+      "name": "quat_t",
+      "size": 16,
+      "align": 4,
+      "fields": {
+        "w": 0,
+        "x": 4,
+        "y": 8,
+        "z": 12
+      },
+      "skipped_field_declarations": []
+    },
+    {
+      "header": "projectile.h",
+      "name": "rocket_t",
+      "size": 256,
+      "align": 8,
+      "fields": {
+        "base": 0,
+        "propulsion": 176
+      },
+      "skipped_field_declarations": []
+    },
+    {
+      "header": "maze_room_blend.h",
+      "name": "room_t",
+      "size": 16,
+      "align": 4,
+      "fields": {
+        "y": 4,
+        "h": 12
+      },
+      "skipped_field_declarations": []
+    },
+    {
+      "header": "route_finder.h",
+      "name": "route_finder_t",
+      "size": 80,
+      "align": 8,
+      "fields": {
+        "navgrid": 0,
+        "start": 8,
+        "goal": 16,
+        "type": 24,
+        "typedata": 32,
+        "max_retry": 40,
+        "debug_mode_enabled": 44,
+        "cost_fn": 48,
+        "cost_fn_userdata": 56,
+        "heuristic_fn": 64,
+        "heuristic_fn_userdata": 72
+      },
+      "skipped_field_declarations": []
+    },
+    {
+      "header": "route.h",
+      "name": "route_t",
+      "size": 48,
+      "align": 8,
+      "fields": {
+        "coords": 0,
+        "visited_order": 8,
+        "visited_count": 16,
+        "cost": 24,
+        "success": 28,
+        "total_retry_count": 32,
+        "avg_vec_x": 36,
+        "avg_vec_y": 40,
+        "vec_count": 44
+      },
+      "skipped_field_declarations": []
+    },
+    {
+      "header": "rta_star.h",
+      "name": "rta_star_config_t",
+      "size": 4,
+      "align": 4,
+      "fields": {
+        "depth_limit": 0
+      },
+      "skipped_field_declarations": []
+    },
+    {
+      "header": "projectile.h",
+      "name": "shell_projectile_t",
+      "size": 176,
+      "align": 8,
+      "fields": {
+        "proj": 0,
+        "explosion_radius": 168
+      },
+      "skipped_field_declarations": []
+    },
+    {
+      "header": "entity_spring.h",
+      "name": "spring_link_t",
+      "size": 20,
+      "align": 4,
+      "fields": {
+        "j": 4,
+        "k": 8,
+        "c": 12,
+        "L0": 16
+      },
+      "skipped_field_declarations": []
+    },
+    {
+      "header": "byul_tick.h",
+      "name": "tick_entry_t",
+      "size": 16,
+      "align": 8,
+      "fields": {
+        "func": 0,
+        "context": 8
+      },
+      "skipped_field_declarations": []
+    },
+    {
+      "header": "trajectory.h",
+      "name": "trajectory_sample_t",
+      "size": 80,
+      "align": 4,
+      "fields": {
+        "t": 0,
+        "state": 4
+      },
+      "skipped_field_declarations": []
+    },
+    {
+      "header": "trajectory.h",
+      "name": "trajectory_t",
+      "size": 32,
+      "align": 8,
+      "fields": {
+        "samples": 0,
+        "count": 8,
+        "capacity": 12,
+        "impact_time": 16,
+        "impact_pos": 20
+      },
+      "skipped_field_declarations": []
+    },
+    {
+      "header": "geom.h",
+      "name": "vec3_intersect_result_t",
+      "size": 32,
+      "align": 4,
+      "fields": {
+        "point_a": 0,
+        "point_b": 12,
+        "distance": 24,
+        "intersect": 28
+      },
+      "skipped_field_declarations": []
+    },
+    {
+      "header": "vec3.h",
+      "name": "vec3_t",
+      "size": 12,
+      "align": 4,
+      "fields": {
+        "x": 0,
+        "y": 4,
+        "z": 8
+      },
+      "skipped_field_declarations": []
+    },
+    {
+      "header": "xform.h",
+      "name": "xform_t",
+      "size": 40,
+      "align": 4,
+      "fields": {
+        "pos": 0,
+        "rot": 12,
+        "scale": 28
+      },
+      "skipped_field_declarations": []
+    }
+  ],
+  "enums": [
+    {
+      "header": "controller.h",
+      "name": "controller_type_t",
+      "values": {
+        "CONTROLLER_NONE": 0,
+        "CONTROLLER_BANGBANG": 1,
+        "CONTROLLER_PID": 2,
+        "CONTROLLER_MPC": 3
+      }
+    },
+    {
+      "header": "obstacle.h",
+      "name": "enclosure_open_dir_t",
+      "values": {
+        "ENCLOSURE_OPEN_UNKNOWN": 0,
+        "ENCLOSURE_OPEN_RIGHT": 1,
+        "ENCLOSURE_OPEN_UP": 2,
+        "ENCLOSURE_OPEN_LEFT": 3,
+        "ENCLOSURE_OPEN_DOWN": 4
+      }
+    },
+    {
+      "header": "quat.h",
+      "name": "euler_order_t",
+      "values": {
+        "EULER_ORDER_ZYX": 0,
+        "EULER_ORDER_XYZ": 1,
+        "EULER_ORDER_XZY": 2,
+        "EULER_ORDER_YXZ": 3,
+        "EULER_ORDER_YZX": 4,
+        "EULER_ORDER_ZXY": 5
+      }
+    },
+    {
+      "header": "fast_marching.h",
+      "name": "fmm_state_t",
+      "values": {
+        "FMM_FAR": 0,
+        "FMM_NARROW": 1,
+        "FMM_KNOWN": 2
+      }
+    },
+    {
+      "header": "ground.h",
+      "name": "ground_mode_t",
+      "values": {
+        "GROUND_MODE_UNIFORM": 0,
+        "GROUND_MODE_TILES": 1,
+        "GROUND_MODE_HEIGHTFIELD": 2
+      }
+    },
+    {
+      "header": "numeq_integrator.h",
+      "name": "integrator_type_t",
+      "values": {
+        "INTEGRATOR_EULER": 0,
+        "INTEGRATOR_SEMI_IMPLICIT": 1,
+        "INTEGRATOR_VERLET": 2,
+        "INTEGRATOR_RK4": 3,
+        "INTEGRATOR_EULER_ENV": 4,
+        "INTEGRATOR_SEMI_IMPLICIT_ENV": 5,
+        "INTEGRATOR_VERLET_ENV": 6,
+        "INTEGRATOR_VELOCITY_VERLET_ENV": 7,
+        "INTEGRATOR_RK4_ENV": 8,
+        "INTEGRATOR_MOTION_EULER": 9,
+        "INTEGRATOR_MOTION_SEMI_IMPLICIT": 10,
+        "INTEGRATOR_MOTION_VERLET": 11,
+        "INTEGRATOR_MOTION_RK4": 12,
+        "INTEGRATOR_MOTION_RK4_ENV": 13
+      }
+    },
+    {
+      "header": "maze.h",
+      "name": "maze_type_t",
+      "values": {
+        "MAZE_TYPE_RECURSIVE": 0,
+        "MAZE_TYPE_PRIM": 1,
+        "MAZE_TYPE_BINARY": 2,
+        "MAZE_TYPE_ELLER": 3,
+        "MAZE_TYPE_ALDOUS_BRODER": 4,
+        "MAZE_TYPE_WILSON": 5,
+        "MAZE_TYPE_HUNT_AND_KILL": 6,
+        "MAZE_TYPE_SIDEWINDER": 7,
+        "MAZE_TYPE_RECURSIVE_DIVISION": 8,
+        "MAZE_TYPE_KRUSKAL": 9,
+        "MAZE_TYPE_ROOM_BLEND": 10
+      }
+    },
+    {
+      "header": "navgrid.h",
+      "name": "navgrid_dir_mode_t",
+      "values": {
+        "NAVGRID_DIR_4": 0,
+        "NAVGRID_DIR_8": 1
+      }
+    },
+    {
+      "header": "navsys_status.h",
+      "name": "navsys_status_t",
+      "values": {
+        "NAVSYS_STATUS_OK": 0,
+        "NAVSYS_STATUS_INVALID_ARGUMENT": -1,
+        "NAVSYS_STATUS_OUT_OF_MEMORY": -2,
+        "NAVSYS_STATUS_UNSUPPORTED": -3,
+        "NAVSYS_STATUS_CALLBACK_FAILED": -4,
+        "NAVSYS_STATUS_CORRUPT_STATE": -5,
+        "NAVSYS_STATUS_NOT_FOUND": -6,
+        "NAVSYS_STATUS_INVALIDATED": -7,
+        "NAVSYS_STATUS_NO_PATH": -8,
+        "NAVSYS_STATUS_CANCELLED": -9,
+        "NAVSYS_STATUS_LIMIT_REACHED": -10,
+        "NAVSYS_STATUS_INCOMPLETE": -11,
+        "NAVSYS_STATUS_IN_PROGRESS": -12
+      }
+    },
+    {
+      "header": "projectile_core.h",
+      "name": "projectile_attr_t",
+      "values": {
+        "PROJECTILE_ATTR_NONE": 0,
+        "PROJECTILE_ATTR_IMPACT": 1,
+        "PROJECTILE_ATTR_PIERCE": 2,
+        "PROJECTILE_ATTR_ANCHOR": 4
+      }
+    },
+    {
+      "header": "route.h",
+      "name": "route_dir_t",
+      "values": {
+        "ROUTE_DIR_UNKNOWN": 0,
+        "ROUTE_DIR_RIGHT": 1,
+        "ROUTE_DIR_UP_RIGHT": 2,
+        "ROUTE_DIR_UP": 3,
+        "ROUTE_DIR_UP_LEFT": 4,
+        "ROUTE_DIR_LEFT": 5,
+        "ROUTE_DIR_DOWN_LEFT": 6,
+        "ROUTE_DIR_DOWN": 7,
+        "ROUTE_DIR_DOWN_RIGHT": 8,
+        "ROUTE_DIR_COUNT": 9
+      }
+    },
+    {
+      "header": "route_finder.h",
+      "name": "route_finder_type_t",
+      "values": {
+        "ROUTE_FINDER_UNKNOWN": 0,
+        "ROUTE_FINDER_BELLMAN_FORD": 1,
+        "ROUTE_FINDER_DFS": 2,
+        "ROUTE_FINDER_BFS": 3,
+        "ROUTE_FINDER_DIJKSTRA": 4,
+        "ROUTE_FINDER_FLOYD_WARSHALL": 5,
+        "ROUTE_FINDER_ASTAR": 6,
+        "ROUTE_FINDER_BIDIRECTIONAL_DIJKSTRA": 7,
+        "ROUTE_FINDER_BIDIRECTIONAL_ASTAR": 8,
+        "ROUTE_FINDER_WEIGHTED_ASTAR": 9,
+        "ROUTE_FINDER_JOHNSON": 10,
+        "ROUTE_FINDER_K_SHORTEST_PATH": 11,
+        "ROUTE_FINDER_DIAL": 12,
+        "ROUTE_FINDER_ITERATIVE_DEEPENING": 13,
+        "ROUTE_FINDER_GREEDY_BEST_FIRST": 14,
+        "ROUTE_FINDER_IDA_STAR": 15,
+        "ROUTE_FINDER_RTA_STAR": 16,
+        "ROUTE_FINDER_SMA_STAR": 17,
+        "ROUTE_FINDER_DSTAR": 18,
+        "ROUTE_FINDER_FAST_MARCHING": 19,
+        "ROUTE_FINDER_ANT_COLONY": 20,
+        "ROUTE_FINDER_FRINGE_SEARCH": 21,
+        "ROUTE_FINDER_FOCAL_SEARCH": 22,
+        "ROUTE_FINDER_DSTAR_LITE": 23,
+        "ROUTE_FINDER_LPA_STAR": 24,
+        "ROUTE_FINDER_HPA_STAR": 25,
+        "ROUTE_FINDER_ALT": 26,
+        "ROUTE_FINDER_ANY_ANGLE_ASTAR": 27,
+        "ROUTE_FINDER_HCA_STAR": 28,
+        "ROUTE_FINDER_RTAA_STAR": 29,
+        "ROUTE_FINDER_THETA_STAR": 30,
+        "ROUTE_FINDER_CONTRACTION_HIERARCHIES": 31,
+        "ROUTE_FINDER_LAZY_THETA_STAR": 32,
+        "ROUTE_FINDER_JUMP_POINT_SEARCH": 33,
+        "ROUTE_FINDER_SIPP": 34,
+        "ROUTE_FINDER_JPS_PLUS": 35,
+        "ROUTE_FINDER_EPEA_STAR": 36,
+        "ROUTE_FINDER_MHA_STAR": 37,
+        "ROUTE_FINDER_ANYA": 38,
+        "ROUTE_FINDER_DAG_SP": 39,
+        "ROUTE_FINDER_MULTI_SOURCE_BFS": 40,
+        "ROUTE_FINDER_MCTS": 41
+      }
+    },
+    {
+      "header": "obstacle.h",
+      "name": "spiral_dir_t",
+      "values": {
+        "SPIRAL_CLOCKWISE": 0,
+        "SPIRAL_COUNTER_CLOCKWISE": 1
+      }
+    },
+    {
+      "header": "navcell.h",
+      "name": "terrain_type_t",
+      "values": {
+        "TERRAIN_TYPE_NORMAL": 0,
+        "TERRAIN_TYPE_WATER": 1,
+        "TERRAIN_TYPE_FOREST": 2,
+        "TERRAIN_TYPE_MOUNTAIN": 3,
+        "TERRAIN_TYPE_FORBIDDEN": 100
+      }
+    }
+  ],
+  "forward_or_opaque_declarations": [
+    "byul_tick.h:tick_t",
+    "coord_hash.h:coord_hash_iter_t",
+    "coord_hash.h:coord_hash_t",
+    "coord_list.h:coord_list_t",
+    "cost_coord_pq.h:cost_coord_pq_t",
+    "dstar_lite_pqueue.h:dstar_lite_pqueue_t",
+    "entity_dynamic.h:motion_state_t",
+    "environ.h:bodyprops_t",
+    "environ.h:projectile_t",
+    "projectile.h:projectile_result_t",
+    "projectile.h:projectile_t",
+    "strset.h:strset_t"
+  ],
+  "summary": {
+    "complete_types": 61,
+    "fields": 306,
+    "skipped_field_declarations": 0,
+    "enums": 14,
+    "enumerators": 124,
+    "forward_or_opaque_declarations": 12
+  }
+}

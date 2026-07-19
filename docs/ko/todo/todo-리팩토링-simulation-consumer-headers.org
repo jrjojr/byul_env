@@ -1,0 +1,225 @@
+#+TITLE: BYUL Simulation Consumer Header·Lifecycle 리팩터링 TODO
+#+TODO: TODO DOING BLOCKED | DONE CANCELLED FAILED
+#+TODO_RULES: ../../../external/rules/projects/byul/todo-rules.org
+#+PUBLIC_API_RULES: ../../../external/rules/projects/byul/public-api-rules.org
+#+HEADER_DECLARATION_RULES: ../../../external/rules/projects/byul/header-declaration-rules.org
+#+HEADER_COMMENT_RULES: ../../../external/rules/projects/byul/header-comment-rules.org
+#+HEADER_AUTHORING_RULES: ../../../external/rules/projects/byul/header-authoring-rules.org
+#+BUILD_RULES: ../../../external/rules/projects/byul/build-rules.org
+#+TEST_RULES: ../../../external/rules/projects/byul/test-rules.org
+#+TODO_PARENT: todo-리팩토링.org
+#+OWNERSHIP_MANIFEST: header-refactor-current/header-role-manifest.json
+#+AUTHOR: ByulPapa / Codex
+#+LANGUAGE: ko
+#+OPTIONS: toc:t num:nil
+
+* 목적과 실행 위치
+
+Math Engine의 54개 기존 계산 관련 header extraction이 canonical handoff를 마친 뒤
+Balix, Entity, Projectile, Ground와 Aerial의 기존 public ABI, DTO/resource lifecycle,
+callback/dispatch, storage, legacy forwarding과 install/export를 정리한다.
+
+이 문서는 공식·상수·solver·geometry·physics·control·prediction·sampling kernel을
+설계하거나 구현하지 않는다. 모든 계산은 Math Engine public API를 소비한다.
+
+#+begin_src text
+Navsys DONE
+-> Math Engine canonical headers/kernels DONE
+-> Balix/Entity/Projectile/Ground adapters
+-> Simulation lifecycle/callback/storage
+-> root/install/wrapper integration
+#+end_src
+
+* 기존 Header 33개
+
+** Balix 18개
+
+| Header 묶음 | Consumer 책임 | Math Engine owner |
+|-------------+---------------+-------------------|
+| =balix.h=, =numeq.h= | compatibility aggregate와 link | [[file:math-engine/todo-balix-math-engine-consumer.org][Balix consumer]] |
+| =bodyprops.h=, =environ.h= | preset/DTO/callback/state | [[file:math-engine/todo-balix-math-extraction.org][Balix extraction]] |
+| =motion_state.h=, =xform.h= | 기존 value ABI와 mapping | [[file:math-engine/todo-balix-motion-state-extraction.org][Motion]], [[file:math-engine/todo-balix-transform-extraction.org][Transform]] |
+| =collision.h= | monitoring/event와 legacy query forwarding | [[file:math-engine/todo-balix-collision-query-extraction.org][Collision query]] |
+| =numeq_solver.h=, =numeq_pid.h=, =numeq_pid_vec3.h= | legacy DTO/state와 forwarding | [[file:math-engine/todo-balix-solver-extraction.org][Solver]], [[file:math-engine/todo-balix-pid-extraction.org][PID]] |
+| =numeq_model.h=, =numeq_model_motion.h=, =numeq_mpc.h= | model/target DTO와 adapter | [[file:math-engine/todo-balix-physics-model-extraction.org][Physics]], [[file:math-engine/todo-balix-motion-model-extraction.org][Motion model]], [[file:math-engine/todo-balix-mpc-extraction.org][MPC]] |
+| =numeq_kalman.h=, =numeq_filters.h= | filter state/binding adapter | [[file:math-engine/todo-balix-kalman-extraction.org][Kalman]] |
+| =numeq_integrator.h= | dispatcher/state compatibility | [[file:math-engine/todo-balix-integrator-extraction.org][Integrator]] |
+| =controller.h= | controller resource/dispatch/factory | [[file:math-engine/todo-balix-controller-adapter.org][Controller adapter]] |
+| =trajectory.h= | sample storage/result lifecycle | [[file:math-engine/todo-balix-trajectory-analysis-extraction.org][Trajectory analysis]] |
+
+** Entity 7개
+
+| Header | Consumer 책임 |
+|--------+---------------|
+| =byul/entity/entity.h= | object/resource lifecycle와 owner |
+| =byul/entity/entity_dynamic.h= | state DTO, update와 Math Engine motion adapter |
+| =byul/entity/entity_dynamic_coord.h= | world/cached coordinate commit와 adapter |
+| =byul/entity/entity_interaction.h= | interaction dispatch와 result 적용 |
+| =byul/entity/entity_spring.h= | entity/trajectory mapping과 simulation orchestration |
+| =byul/entity/entity_avoidance.h= | experimental disposition와 adapter 또는 격리 |
+| =byul/entity/entity_encirclement.h= | experimental disposition와 assignment policy 또는 격리 |
+
+Canonical 계산 owner는
+[[file:math-engine/todo-entity-math-extraction.org][Entity Math extraction]]이다.
+
+** Projectile·Ground 7개
+
+| Header | Consumer 책임 |
+|--------+---------------|
+| =byul/projectile/projectile.h= | preset/lifecycle와 launch dispatch |
+| =byul/projectile/projectile_core.h= | projectile state, callback와 result 적용 |
+| =byul/projectile/guidance.h= | guidance callback/userdata와 target mapping |
+| =byul/projectile/projectile_predict.h= | result/trajectory allocation과 prediction orchestration |
+| =byul/projectile/projectile_tick.h= | tick lifecycle, collision event와 completion |
+| =byul/projectile/propulsion.h= | mutable state, controller binding와 serialization |
+| =byul/ground/ground.h= | terrain storage, mapper/material callback와 lifecycle |
+
+Canonical 계산 owner는
+[[file:math-engine/todo-projectile-math-extraction.org][Projectile Math extraction]]과
+[[file:math-engine/todo-ground-geometry-extraction.org][Ground geometry extraction]]이다.
+
+** Aerial 1개
+
+| Header | Consumer 책임 |
+|--------+---------------|
+| =byul/aerial/aerial.h= | projectile/guidance 조립, callback/userdata와 launch orchestration; dormant disposition |
+
+Aerial은 계산 owner가 아니며 Projectile과 Math Engine API를 소비한다. Public으로
+유지하면 구현/source/CMake/test/export를 완결하고, 아니면 compatibility 근거와 함께
+격리한다.
+
+* 단일 ownership Gate
+
+[[file:header-refactor-current/header-role-manifest.json][단일 ownership manifest]]에서 initial
+header와 Math Engine successor를 별도 asset으로 기록한다.
+
+- Math Engine: canonical formula/kernel/value/result/header/source/target
+- Simulation consumer: 기존 DTO/resource/lifecycle/callback/storage/adapter
+- Legacy shim: 기존 include/symbol에서 canonical Math Engine API로 forwarding
+
+한 symbol/source/header에 design owner가 둘 이상이면 진행하지 않는다. Adapter 내부에
+공식, solver, tolerance 또는 numeric heuristic를 다시 작성하지 않는다.
+
+* P0 ABI·lifecycle 결함
+
+- MPC init/assign 두 함수의 Windows export hole
+- Projectile result =free=/=destroy=의 caller/heap storage 충돌
+- Projectile tick assign의 trajectory shallow copy와 누락 state/null cleanup
+- Ground table/height copy/free 비대칭과 allocation failure를 숨기는 =void= assign
+- Trajectory fresh-init이 uninitialized =samples=를 읽는 문제
+- Controller/filter public impl/vtable와 inline layout access
+- Environ callback 문서/signature, retention/thread/reentrancy 불일치
+- Projectile/Ground의 owning pointer와 callback public layout
+
+이 결함은 수학 추출과 무관한 lifecycle 작업이지만 실행 순서는 Math Engine handoff 뒤로
+고정한다. Math Engine API를 임시로 복제해 우회하지 않는다.
+
+* 실행 절차
+
+** TODO 1. 33개 role·ABI·lifecycle baseline을 동결한다
+*** 실행
+
+Header/module/root/install/aggregate/wrapper/source 소비 경로, layout/enum/macro/export,
+pointer/callback owner/borrow/retain/copy/invalidation/destroy graph를 manifest에 기록한다.
+Math symbol 분류는 Math Engine owner 결과를 참조하고 다시 판정하지 않는다.
+
+*** 완료 조건
+
+33개 initial asset의 consumer role과 모든 Math successor link가 단일 owner를 가진다.
+
+*** 검증
+
+Filesystem/CMake/install/export/wrapper, declaration/definition와 ABI consumer를 비교한다.
+
+** TODO 2. Header 구조와 독립 compile을 정리한다
+*** 실행
+
+표준 license/file Doxygen, =BYUL_= guard, direct include, C linkage, aggregate/component
+경계와 C17 prototype을 정리한다.
+
+*** 완료 조건
+
+승인 public header가 C17/C++17에서 단독 compile되고 internal/orphan header는 SDK에 없다.
+
+*** 검증
+
+Standalone/include-order/include-DAG/header 규칙과 clean SDK compile을 실행한다.
+
+** TODO 3. P0 export·lifecycle 결함을 수정한다
+*** 실행
+
+MPC export, Projectile result/tick, Ground assign/free와 Trajectory fresh-init/reset을
+failure-safe lifecycle로 고치고 deprecated adapter 또는 ABI-major 계획을 둔다.
+
+*** 완료 조건
+
+Leak/double-free/UAF/partial mutation이 없고 exported declaration과 root symbol이 일치한다.
+
+*** 검증
+
+Stack/caller/heap, null/self assign, allocation failure, deep copy, Windows export와
+ASan/LSan을 실행한다.
+
+** TODO 4. Balix adapter·resource·callback을 전환한다
+*** 실행
+
+Math Engine handoff가 끝난 18개 header의 DTO/status/unit/frame mapping, aggregate,
+legacy forwarding과 link를 구현한다. Controller/environ/filter/integrator/trajectory의
+opaque handle, callback/userdata와 storage lifecycle을 정리한다.
+
+*** 완료 조건
+
+Balix source에 계산식이 없고 dependency는 Balix → Math Engine 단방향이다.
+
+*** 검증
+
+Old/new differential, callback/lifecycle, aggregate, root export와 source uniqueness를
+실행한다.
+
+** TODO 5. Entity consumer를 전환한다
+*** 실행
+
+Entity state/owner/update/interaction dispatch를 canonical motion/interaction/force kernel에
+mapping하고 experimental avoidance/encirclement disposition을 적용한다.
+
+*** 완료 조건
+
+Entity source에는 state orchestration과 adapter만 있으며 lifecycle graph가 cycle 없이
+닫힌다.
+
+*** 검증
+
+Entity lifecycle/update/interaction/spring consumer, orphan exclusion와 sanitizer를
+실행한다.
+
+** TODO 6. Projectile·Ground·Aerial consumer를 전환한다
+*** 실행
+
+Projectile callback/tick/result/propulsion state와 Ground terrain storage를 canonical Math
+Engine API에 mapping한다. Aerial은 승인 disposition에 따라 구현 또는 격리한다.
+
+*** 완료 조건
+
+Projectile/Ground/Aerial에 launch/guidance/trajectory/terrain/propulsion 공식 복제가 없고
+모든 public allocation에 대응 destroy path가 있다.
+
+*** 검증
+
+Projectile/ground/aerial module, tick/callback/deep-copy/allocation failure, root export와
+sanitizer를 실행한다.
+
+** TODO 7. Simulation consumer 통합 Gate를 닫는다
+*** 실행
+
+33개 role을 static/root/install/aggregate/wrapper manifest에 합류하고 legacy migration과
+callback/ownership 문서를 게시한다.
+
+*** 완료 조건
+
+Public symbol은 정확히 한 번 export되고 canonical math source/symbol 중복 compile/export가
+0이다. Wrapper는 모든 public header를 registered/manual/excluded reason으로 설명한다.
+
+*** 검증
+
+Simulation module/root/CTest, C17/C++17 clean SDK, wrapper audit/native load, ABI/layout/enum,
+platform export와 ASan/LSan gate를 실행한다.

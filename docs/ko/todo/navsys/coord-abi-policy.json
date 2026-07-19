@@ -90,7 +90,7 @@
     "source": "docs/ko/todo/navsys/todo-navsys-industry-api-baseline.org",
     "required_values": {
       "NAVSYS_STATUS_OK": 0,
-      "NAVSYS_STATUS_INCOMPLETE": 2,
+      "NAVSYS_STATUS_INCOMPLETE": -11,
       "NAVSYS_STATUS_INVALID_ARGUMENT": -1,
       "NAVSYS_STATUS_OUT_OF_MEMORY": -2
     }

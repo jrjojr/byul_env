@@ -20,6 +20,23 @@
 queue/color map, visitor event와 O(V+E) 계약을 비교한다. BFS는 동일 edge cost에서만
 최소 step path를 보장하며 weighted shortest path API로 설명하지 않는다.
 
+* 실행 소유권과 테스트 위치
+
+- 이 문서는 BFS traversal 구현·conformance와 BFS 전용 config/default/validation만
+  소유한다.
+- 공통 evaluator/callback binding은
+  [[file:todo-navsys-route-finder-route-finder-core.org][evaluation 문서]], facade/options/
+  capability와 config 합류는
+  [[file:todo-navsys-route-finder-route-finder.org][dispatcher 문서]]가 소유한다.
+- BFS direct/conformance assertion의 실제 파일은 shared native test
+  =byul/navsys/route_finder/tests/test_module_route_finder_discrete.cpp=다.
+  Dispatcher 및 root consumer assertion은 각각
+  =byul/navsys/route_finder/tests/test_module_route_finder.cpp=와
+  =byul/navsys/tests/test_module_navsys.cpp=에서 해당 owner가 추가한다.
+- BFS 문서는 Python에 필요한 config/status 기대값을 제공한다. 실제 wrapper consumer
+  assertion은 dispatcher/root 통합이
+  =tools/python/byul_wrapper/tests/test_route_finder.py=에 추가한다.
+
 * 구현/소비와 결함
 
 - =find_bfs=는 module/root/SDK와 generated CFFI에 등록되고 dispatcher/native test가 사용한다.

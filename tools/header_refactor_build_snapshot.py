@@ -72,6 +72,67 @@ def run_dumpbin(dumpbin: Path, dll: Path) -> tuple[str, list[dict[str, object]]]
     return version, exports
 
 
+def parse_nm_exports(output: str) -> list[dict[str, object]]:
+    """Parse POSIX ``nm -P`` output and retain defined external symbols."""
+    exports: list[dict[str, object]] = []
+    for line in output.splitlines():
+        parts = line.split()
+        if len(parts) < 2:
+            continue
+        name, symbol_type = parts[0], parts[1]
+        if (
+            symbol_type.upper() == "U"
+            or not name
+            or name.startswith("__imp_")
+        ):
+            continue
+        exports.append({"name": name, "type": symbol_type})
+    return exports
+
+
+def run_nm(nm: Path, library: Path) -> tuple[str, list[dict[str, object]]]:
+    environment = os.environ.copy()
+    environment["PATH"] = (
+        str(nm.parent) + os.pathsep + environment.get("PATH", "")
+    )
+    completed = subprocess.run(
+        [
+            str(nm),
+            "-P",
+            "--defined-only",
+            "--extern-only",
+            str(library),
+        ],
+        check=False,
+        capture_output=True,
+        text=True,
+        encoding="utf-8",
+        errors="replace",
+        env=environment,
+    )
+    if completed.returncode != 0:
+        raise RuntimeError(
+            f"nm failed ({completed.returncode}): {completed.stderr.strip()}"
+        )
+    exports = parse_nm_exports(completed.stdout)
+    if not exports:
+        raise ValueError("nm output did not contain defined external symbols")
+    version_result = subprocess.run(
+        [str(nm), "--version"],
+        check=False,
+        capture_output=True,
+        text=True,
+        encoding="utf-8",
+        errors="replace",
+        env=environment,
+    )
+    version = next(
+        (line.strip() for line in version_result.stdout.splitlines() if line.strip()),
+        "unknown",
+    )
+    return version, exports
+
+
 def installed_files(root: Path) -> list[dict[str, object]]:
     return [
         {
@@ -84,15 +145,27 @@ def installed_files(root: Path) -> list[dict[str, object]]:
     ]
 
 
-def build_snapshot(dumpbin: Path, dll: Path, install_root: Path) -> dict[str, object]:
+def build_snapshot(
+    export_tool: Path,
+    library: Path,
+    install_root: Path,
+    *,
+    tool_kind: str = "dumpbin",
+    profile: str = "windows-msvc-release",
+) -> dict[str, object]:
     for label, path in (
-        ("dumpbin", dumpbin),
-        ("DLL", dll),
+        (tool_kind, export_tool),
+        ("library", library),
         ("install root", install_root),
     ):
         if not path.exists():
             raise FileNotFoundError(f"{label} not found: {path}")
-    dumpbin_version, exports = run_dumpbin(dumpbin, dll)
+    if tool_kind == "dumpbin":
+        tool_version, exports = run_dumpbin(export_tool, library)
+    elif tool_kind == "nm":
+        tool_version, exports = run_nm(export_tool, library)
+    else:
+        raise ValueError(f"unsupported export tool: {tool_kind}")
     files = installed_files(install_root)
     headers = [
         item for item in files if str(item["path"]).startswith("include/byul/")
@@ -105,14 +178,13 @@ def build_snapshot(dumpbin: Path, dll: Path, install_root: Path) -> dict[str, ob
     names = [str(item["name"]) for item in exports]
     if len(names) != len(set(names)):
         raise ValueError("DLL export names are not unique")
-    return {
+    payload = {
         "schema_version": 1,
-        "profile": "windows-msvc-release",
-        "dumpbin_version": dumpbin_version,
+        "profile": profile,
         "dll": {
-            "name": dll.name,
-            "size": dll.stat().st_size,
-            "sha256": sha256(dll),
+            "name": library.name,
+            "size": library.stat().st_size,
+            "sha256": sha256(library),
             "export_count": len(exports),
         },
         "exports": exports,
@@ -123,6 +195,21 @@ def build_snapshot(dumpbin: Path, dll: Path, install_root: Path) -> dict[str, ob
             "files": files,
         },
     }
+    if tool_kind == "dumpbin":
+        # Preserve the stage-1 MSVC snapshot schema byte-for-byte.
+        payload["dumpbin_version"] = tool_version
+        payload = {
+            "schema_version": payload["schema_version"],
+            "profile": payload["profile"],
+            "dumpbin_version": payload["dumpbin_version"],
+            "dll": payload["dll"],
+            "exports": payload["exports"],
+            "install": payload["install"],
+        }
+    else:
+        payload["export_tool"] = tool_kind
+        payload["export_tool_version"] = tool_version
+    return payload
 
 
 def atomic_write(path: Path, content: str) -> None:
@@ -149,9 +236,20 @@ def main() -> int:
     mode = parser.add_mutually_exclusive_group()
     mode.add_argument("--check", action="store_true", help="기존 JSON과 현재 build를 비교한다.")
     mode.add_argument("--apply", action="store_true", help="snapshot JSON을 원자적으로 갱신한다.")
-    parser.add_argument("--dumpbin", type=Path, required=True)
+    export_tools = parser.add_mutually_exclusive_group(required=True)
+    export_tools.add_argument("--dumpbin", type=Path)
+    export_tools.add_argument(
+        "--nm",
+        type=Path,
+        help="GNU/LLVM nm; invoked with -P --defined-only --extern-only",
+    )
     parser.add_argument("--dll", type=Path, required=True)
     parser.add_argument("--install-root", type=Path, required=True)
+    parser.add_argument(
+        "--profile",
+        default="windows-msvc-release",
+        help="host/target/toolchain/configuration identifier",
+    )
     parser.add_argument("--output", type=Path, default=DEFAULT_OUTPUT)
     args = parser.parse_args()
 
@@ -161,8 +259,14 @@ def main() -> int:
     except ValueError:
         parser.error("--output must be inside the repository")
 
+    export_tool = args.dumpbin or args.nm
+    assert export_tool is not None
     snapshot = build_snapshot(
-        args.dumpbin.resolve(), args.dll.resolve(), args.install_root.resolve()
+        export_tool.resolve(),
+        args.dll.resolve(),
+        args.install_root.resolve(),
+        tool_kind="dumpbin" if args.dumpbin else "nm",
+        profile=args.profile,
     )
     text = json.dumps(snapshot, ensure_ascii=False, indent=2) + "\n"
     print(

@@ -1,0 +1,94 @@
+#+TITLE: Ground Heightfield·Ray Query의 Math Engine 추출 TODO
+#+TODO: TODO DOING BLOCKED | DONE CANCELLED FAILED
+#+TODO_RULES: ../../../../external/rules/projects/byul/todo-rules.org
+#+PUBLIC_API_RULES: ../../../../external/rules/projects/byul/public-api-rules.org
+#+HEADER_DECLARATION_RULES: ../../../../external/rules/projects/byul/header-declaration-rules.org
+#+HEADER_COMMENT_RULES: ../../../../external/rules/projects/byul/header-comment-rules.org
+#+HEADER_AUTHORING_RULES: ../../../../external/rules/projects/byul/header-authoring-rules.org
+#+BUILD_RULES: ../../../../external/rules/projects/byul/build-rules.org
+#+TEST_RULES: ../../../../external/rules/projects/byul/test-rules.org
+#+TODO_PARENT: todo-math-engine.org
+#+OWNERSHIP_MANIFEST: ../header-refactor-current/header-role-manifest.json
+#+AUTHOR: ByulPapa / Codex
+#+LANGUAGE: ko
+#+OPTIONS: toc:t num:nil
+
+* 목적과 경계
+
+=byul/ground/ground.h=와 source의 heightfield sample, normal과 raycast 계산을 Math Engine
+terrain/geometry query로 옮긴다. Ground는 tile/hash/height buffer, mapper callback,
+material과 lifecycle을 소유하고 neutral view를 Math Engine query에 전달한다.
+
+| Math Engine | Ground consumer |
+|-------------+-----------------|
+| heightfield interpolation·normal | height/table/hash storage |
+| ray/terrain intersection query | tile mapper callback과 material lookup |
+| caller-owned terrain view·query result | init/assign/reset/free와 allocation |
+| unit/frame/tolerance/status | world policy와 result 적용 |
+
+Canonical Math Engine header는 =ground_t=나 Ground callback을 받지 않는다. Ground
+adapter에는 interpolation/raycast 공식을 복제하지 않는다.
+
+* Canonical/Consumer Gate
+
+TODO 1~3이 Header 리팩터링 5단계의 canonical work이며 TODO 4는 7단계 Simulation
+consumer 결과를 합류한다. Primitive Geometry/result/tolerance 계약이 승인된 뒤
+terrain view와 query API를 확정한다.
+
+* 실행 절차
+
+** TODO 1. Ground header·source·query baseline을 동결한다
+*** 실행
+
+=ground_sample_at=, =ground_raycast=, material/storage/lifecycle와 private helper를 분류해
+ownership manifest에 연결한다.
+
+*** 완료 조건
+
+각 symbol/helper가 Math Engine query, Ground consumer 또는 legacy shim 하나다.
+
+*** 검증
+
+Declaration/definition/formula scan과 current ground test를 비교한다.
+
+** TODO 2. Neutral terrain view·query C ABI를 확정한다
+*** 실행
+
+Grid/heightfield dimension, stride, origin/spacing, bounds, ray와 sample/raycast result/status를
+caller-owned view로 설계한다.
+
+*** 완료 조건
+
+Ground include 없는 header와 out-of-bounds/degenerate/non-finite 계약이 존재한다.
+
+*** 검증
+
+Standalone compile, layout/stride/bounds, flat/slope/discontinuous terrain corpus를 실행한다.
+
+** TODO 3. Sample·normal·raycast kernel을 추출한다
+*** 실행
+
+Interpolation, surface normal과 ray intersection을 Math Engine geometry source로 이동한다.
+
+*** 완료 조건
+
+Canonical source가 Ground 없이 build/test되고 Ground source에는 storage/adapter만 남는다.
+
+*** 검증
+
+Analytic terrain, randomized differential, grazing/parallel ray와 tolerance corpus를 실행한다.
+
+** TODO 4. Ground adapter·lifecycle와 compatibility를 합류한다
+*** 실행
+
+[[file:../todo-리팩토링-simulation-consumer-headers.org][Simulation consumer TODO]]가
+Ground storage를 neutral view로 mapping하고 기존 query symbol을 forwarding한다.
+
+*** 완료 조건
+
+Dependency는 Ground → Math Engine 단방향이고 storage leak/partial assign이 없다.
+
+*** 검증
+
+Ground module/root/install consumer, allocation failure, sanitizer와 source uniqueness를
+검사한다.

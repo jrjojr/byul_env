@@ -20,6 +20,18 @@
   연결성을 유지한다. 현재 raster가 실제로 연결되는지 검증한 뒤 잘못된 설명을 고친다.
 - 공통 API는 [[file:todo-navsys-industry-api-baseline.org][Navsys 업계 API 기준]]을 선행한다.
 
+* 책임 경계와 실제 검증 파일
+
+- 이 문서는 Recursive Division region/split algorithm state·materialization과 RNG 소비,
+  seed/replay, budget/cancel 구현을 소유한다.
+- resource/extent/enumeration/overlay primitive는 =maze_core=를 사용하고 재구현하지 않는다.
+  enum selection/options routing/capability 합류는 =maze= dispatcher가 소유하며 이 문서는
+  direct entry와 검증된 capability record만 제공한다.
+- 실제 maze native 검증 파일은 =byul/navsys/maze/tests/test_module_maze.cpp=,
+  =byul/navsys/maze/tests/test_module_maze_discrete.cpp=,
+  =byul/navsys/maze/tests/test_module_maze_room.cpp=다. Algorithm별 case는 이 공용 세 파일
+  중 책임에 맞는 파일에 둔다.
+
 * Public symbol inventory와 처분
 
 | kind | symbol | disposition |

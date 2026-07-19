@@ -24,6 +24,20 @@
   [[file:todo-navsys-industry-api-baseline.org][Navsys 업계 API 기준]]이 우선한다. 아래
   =navsys_status_t=와 symbol prefix는 공통 결정 전의 구체 검토안이다.
 
+* 책임 경계와 실제 검증 파일
+
+- 이 문서와 =maze.cpp=는 enum-to-generator selection, 공통 options 검증·routing,
+  unsupported/fallback 판정과 11개 generator capability의 합류를 소유한다.
+- 개별 algorithm state machine, RNG 소비·seed/replay와 generation loop 구현은 각 generator
+  전용 TODO가 소유한다. dispatcher는 승인된 context를 전달할 뿐 그 구현을 복제하지 않는다.
+- =maze_core.cpp=의 resource/extent/enumeration/overlay primitive는
+  [[file:todo-navsys-maze-core.org][maze core TODO]]가 소유하며 dispatcher가 재구현하지 않는다.
+- 실제 maze native 검증 파일은
+  =byul/navsys/maze/tests/test_module_maze.cpp=,
+  =byul/navsys/maze/tests/test_module_maze_discrete.cpp=,
+  =byul/navsys/maze/tests/test_module_maze_room.cpp=다. 이 문서는 세 파일의 dispatcher
+  selection/capability 통합 case를 합류 검증한다.
+
 * 현행 선언과 구현 지도
 
 | 항목 | 현재 사실 | 결함/위험 |
@@ -173,8 +187,10 @@ retention 없음, reentrancy 금지/허용을 명시한다.
 
 ** 실행
 
-- 모든 algorithm에 fixed-seed golden hash, connectivity, edge count, cycle, border invariant를 둔다.
-- Aldous-Broder/Wilson만 uniformity claim을 허용하고 작은 graph 분포를 통계 검증한다.
+- 각 generator TODO가 자기 algorithm의 fixed-seed golden hash, connectivity, edge count,
+  cycle, border invariant를 소유하게 하고 dispatcher는 capability 선언과 결과를 합류한다.
+- Aldous-Broder/Wilson TODO만 uniformity claim과 작은 graph 분포 검증을 소유하며
+  dispatcher는 해당 capability가 검증 결과와 일치하는지만 확인한다.
 - max step과 cancellation이 bounded latency로 끝나며 partial output을 반환하지 않는지 검사한다.
 
 ** 완료 조건

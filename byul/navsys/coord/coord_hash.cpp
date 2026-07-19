@@ -4,7 +4,9 @@
 #include <unordered_map>
 #include <functional>
 #include <cstdlib>
+#include <cstdio>
 #include <cstring>
+#include <new>
 
 void* int_copy(const void* p) {
     if (!p) return nullptr;
@@ -49,11 +51,17 @@ coord_hash_t* coord_hash_create() {
 
 coord_hash_t* coord_hash_create_full(coord_hash_copy_func copy_func,
     coord_hash_destroy_func destroy_func) {
-    auto* h = new s_coord_hash;
-    h->data.clear();
-    h->value_copy_func = copy_func;
-    h->value_destroy_func = destroy_func;
-    return h;
+    void* storage = nullptr;
+    try {
+        storage = ::operator new(sizeof(s_coord_hash));
+        auto* h = ::new (storage) s_coord_hash;
+        h->value_copy_func = copy_func;
+        h->value_destroy_func = destroy_func;
+        return h;
+    } catch (...) {
+        ::operator delete(storage);
+        return nullptr;
+    }
 }
 
 void coord_hash_destroy(coord_hash_t* hash) {

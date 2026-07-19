@@ -1,0 +1,151 @@
+{
+  "schema_version": 1,
+  "abi_line": "1.x",
+  "status": {
+    "type": "navsys_status_t",
+    "owner": {
+      "planned_header": "byul/navsys/navsys_status.h",
+      "role": "public-foundation",
+      "materialized": true,
+      "asset_class": "generated-by-refactor",
+      "include_dag": [
+        "navsys.h -> navsys_status.h",
+        "public component -> navsys_status.h",
+        "navsys_status.h -> no Navsys component"
+      ]
+    },
+    "values": {
+      "NAVSYS_STATUS_OK": 0,
+      "NAVSYS_STATUS_INVALID_ARGUMENT": -1,
+      "NAVSYS_STATUS_OUT_OF_MEMORY": -2,
+      "NAVSYS_STATUS_UNSUPPORTED": -3,
+      "NAVSYS_STATUS_CALLBACK_FAILED": -4,
+      "NAVSYS_STATUS_CORRUPT_STATE": -5,
+      "NAVSYS_STATUS_NOT_FOUND": -6,
+      "NAVSYS_STATUS_INVALIDATED": -7,
+      "NAVSYS_STATUS_NO_PATH": -8,
+      "NAVSYS_STATUS_CANCELLED": -9,
+      "NAVSYS_STATUS_LIMIT_REACHED": -10,
+      "NAVSYS_STATUS_INCOMPLETE": -11,
+      "NAVSYS_STATUS_IN_PROGRESS": -12
+    },
+    "classification": {
+      "success": [
+        "NAVSYS_STATUS_OK"
+      ],
+      "expected_outcome": [
+        "NAVSYS_STATUS_NOT_FOUND",
+        "NAVSYS_STATUS_NO_PATH",
+        "NAVSYS_STATUS_CANCELLED",
+        "NAVSYS_STATUS_LIMIT_REACHED",
+        "NAVSYS_STATUS_INCOMPLETE",
+        "NAVSYS_STATUS_IN_PROGRESS"
+      ],
+      "error": [
+        "NAVSYS_STATUS_INVALID_ARGUMENT",
+        "NAVSYS_STATUS_OUT_OF_MEMORY",
+        "NAVSYS_STATUS_UNSUPPORTED",
+        "NAVSYS_STATUS_CALLBACK_FAILED",
+        "NAVSYS_STATUS_CORRUPT_STATE",
+        "NAVSYS_STATUS_INVALIDATED"
+      ]
+    },
+    "unknown_future_value": {
+      "wrapper_mapping": "raise-unknown-navsys-status",
+      "native_mapping": "preserve-numeric-value",
+      "must_not_map_to_ok": true
+    }
+  },
+  "c_symbol_namespace": {
+    "policy": "preserve-representative-family-prefix",
+    "abi_1x": "Existing exported names remain unchanged. New API uses the representative type or stable public module prefix.",
+    "abi_2": "Unprefixed legacy helpers may be removed only after a family-prefixed forwarding period.",
+    "forbidden_new_prefixes": [
+      "byul_navsys_",
+      "navsys_"
+    ],
+    "exception": "navsys_status_t and NAVSYS_STATUS_* are module-foundation type and enum names, not function symbols.",
+    "canonical_family_prefixes": [
+      "coord_",
+      "coord_list_",
+      "coord_hash_",
+      "cost_coord_pq_",
+      "navcell_",
+      "navgrid_",
+      "route_",
+      "route_carver_",
+      "route_finder_",
+      "maze_",
+      "obstacle_",
+      "dstar_lite_",
+      "dstar_lite_key_",
+      "dstar_lite_pqueue_",
+      "dstar_lite_tick_",
+      "fmm_cell_",
+      "fmm_grid_"
+    ],
+    "legacy_unprefixed_disposition": "deprecate-forward-or-internalize"
+  },
+  "legacy_return_mapping": {
+    "nullable_pointer": {
+      "current_meaning": "allocation failure, invalid input, no path, or not found may all be NULL",
+      "canonical": "status return plus typed out pointer",
+      "null_output_on_failure": true
+    },
+    "bool_predicate": {
+      "current_meaning": "true or false domain result",
+      "canonical": "keep bool when evaluation itself cannot fail"
+    },
+    "bool_operation": {
+      "current_meaning": "success and domain outcome are conflated",
+      "canonical": "navsys_status_t"
+    },
+    "int_zero_nonzero_status": {
+      "current_meaning": "family-specific success convention",
+      "canonical": "navsys_status_t"
+    },
+    "int_count": {
+      "current_meaning": "non-negative count with no separate error channel",
+      "canonical": "navsys_status_t plus out_count"
+    },
+    "int_index_minus_one": {
+      "current_meaning": "-1 means not found",
+      "canonical": "NAVSYS_STATUS_NOT_FOUND plus out_index"
+    },
+    "void_fallible_operation": {
+      "current_meaning": "invalid input, allocation, callback, or cancellation cannot be reported",
+      "canonical": "navsys_status_t"
+    },
+    "enum_result": {
+      "current_meaning": "unknown value may combine invalid input and unsupported state",
+      "canonical": "navsys_status_t plus typed out enum"
+    },
+    "floating_result": {
+      "current_meaning": "NaN, infinity, and sentinel values are not a stable error channel",
+      "canonical": "navsys_status_t plus typed out scalar"
+    },
+    "callback_return": {
+      "current_meaning": "callback failure is absent or family-specific",
+      "canonical": "navsys_status_t callback with userdata bound atomically"
+    }
+  },
+  "output_policy": {
+    "negative_status": "Preserve every output unless the function contract explicitly permits a partial result.",
+    "incomplete": "Write required counts and explicitly documented partial outputs only.",
+    "not_found": "Preserve value outputs; query-specific out_found may be written only when declared.",
+    "diagnostics": "No global or thread-local last-error is the sole error channel."
+  },
+  "compatibility": {
+    "abi_1x": [
+      "add navsys_status_t based symbols",
+      "retain all existing exported symbols and enum numeric values",
+      "forward deprecated functions without changing legacy semantics"
+    ],
+    "abi_major_only": [
+      "remove legacy symbols",
+      "change public struct layout",
+      "change callback signatures",
+      "renumber existing enums"
+    ]
+  }
+}

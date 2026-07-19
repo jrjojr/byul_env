@@ -20,6 +20,21 @@
   versioned value 또는 opaque cell-properties handle을 별도로 추가한다.
 - 공통 status는 [[file:todo-navsys-industry-api-baseline.org][Navsys 업계 API 기준]]의 결정을 사용한다.
 
+* 공통 ABI 선행 Gate와 실제 Test 원본
+
+- [[file:todo-navsys-industry-api-baseline.org][공통 기준]] =TODO 1단계=에서 status owner와 C symbol
+  namespace가 승인되어 =DONE=이 되기 전에는 =navcell_validate=,
+  =navcell_create_checked=와 =navcell_is_terrain_supported=를 구현하지 않는다.
+- 아래 =byul_navcell_properties=는 owner header, namespace와 include DAG가 정해지지 않은
+  target draft type이다. 이름이 적혀 있다는 이유로 =navcell.h=나 다른 foundation
+  header에 먼저 선언하지 않는다.
+- Value ABI와 현행 동작 characterization은 준비할 수 있지만 기존 네 단계의 =TODO=
+  상태는 유지한다.
+- Navcell 전용 test source는 현재 없다. 실제 shared native test 원본
+  =byul/navsys/navgrid/tests/test_module_navgrid.cpp=에 =navcell_t= layout,
+  create/init/copy/invalid/allocator case를 추가한다. 별도 파일로 분리하면
+  =byul/navsys/navgrid/tests/CMakeLists.txt=에 등록한다.
+
 * Public symbol·field inventory와 처분
 
 | kind | symbol | 현재 값/layout | disposition |
@@ -63,7 +78,7 @@
   =navcell_t=는 lifecycle resource가 없으므로 stack =init/assign=을 canonical fast path로 두고
   heap create/copy는 convenience로 유지한다.
 
-Target 후보(공통 status 확정 전에는 ABI placeholder):
+Target 후보(공통 status/owner/namespace 확정 전에는 구현 금지인 ABI placeholder):
 
 #+begin_src c
 BYUL_API navsys_status_t navcell_validate(

@@ -297,6 +297,23 @@ minimal
 =math_dimension_t= 계약 작성이다. public header를 생성하거나 수정할 때는 BYUL header
 선언·comment·license 규칙을 먼저 읽고 따른다.
 
+* =unit_1003= Child 합류 Gate
+
+[[file:todo-unit-1003-migration.org][unit_1003 migration]]은 별도 Mathunits 구현 owner가
+아니라 provenance/data/regression work package다.
+
+1. Child TODO 1~2로 source/data/license와 known-bug corpus를 동결하고 이 문서 TODO 1을
+   닫는다.
+2. 이 문서 TODO 2에서 canonical Dimension·Unit·Quantity ABI를 먼저 승인한다.
+3. Child TODO 3에서 승인 ABI에 맞는 BYUL-owned schema/generated table을 작성한다.
+4. 이 문서 TODO 3이 registry/conversion/constants를 구현하고 Child TODO 4가 migration
+   corpus와 conformance를 합류한다.
+5. 이 문서 TODO 4의 Expression·Physics·package 통합은 Header canonical handoff 뒤
+   Post-handoff product/consumer 단계에서 수행한다.
+
+Child는 canonical public 이름이나 API를 독립적으로 만들지 않고 이 문서의 승인 계약을
+따른다.
+
 * 실행 절차
 
 ** TODO 1. unit_1003 provenance와 requirements를 동결한다

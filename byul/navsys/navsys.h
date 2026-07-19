@@ -6,6 +6,8 @@
 #ifndef NAVSYS_H
 #define NAVSYS_H
 
+#include "navsys_status.h"
+
 #include "coord.h"
 #include "coord_list.h"
 #include "coord_hash.h"

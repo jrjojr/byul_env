@@ -21,6 +21,21 @@
 =route_finder_evaluation.h= public-component를 새 canonical header로 만들고 기존 파일은
 source compatibility를 위한 deprecated forwarding header로 둔다.
 
+* 실행 소유권과 테스트 위치
+
+- 이 문서는 cost/heuristic callback typedef, 기본 evaluator, 수치 전제와
+  callback+userdata의 원자적 bind/unbind·retention·reentrancy 계약을 유일하게 소유한다.
+- =route_finder.h= facade는 이 component의 binding을 노출하고 dispatcher에 전달할 뿐,
+  evaluator나 binding lifetime을 다시 구현하지 않는다. 개별 algorithm 문서는 받은
+  evaluation view를 소비하며 자체 callback type을 만들지 않는다.
+- 현재 evaluation 전용 native test 파일은 없다. Evaluator와 binding 단위 assertion은
+  기존 shared test인
+  =byul/navsys/route_finder/tests/test_module_route_finder.cpp=에 추가한다.
+- 모든 algorithm으로 userdata/status가 전달되는 합류 assertion은
+  =byul/navsys/route_finder/tests/test_module_route_finder_discrete.cpp=에 추가한다.
+- Python callback lifetime/exception/GC assertion은
+  =tools/python/byul_wrapper/tests/test_route_finder.py=에 추가한다.
+
 * 구현/소비 현황
 
 - =route_finder_core.cpp=는 3개 cost와 6개 heuristic을 구현한다. NULL 좌표는

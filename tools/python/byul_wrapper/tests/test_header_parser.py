@@ -101,6 +101,23 @@ BYUL_API void sample_update(int value);
         self.assertIn("missing-param", codes)
         self.assertIn("unknown-param", codes)
 
+    def test_ignores_commented_out_export_declarations(self):
+        source = r"""
+// BYUL_API bool sample_old_api(int value);
+/* BYUL_API bool sample_removed_api(int value); */
+/**
+ * @brief Updates a sample.
+ * @param[in] value New value.
+ */
+BYUL_API void sample_update(int value);
+"""
+        directory, path = self._write_header(source)
+        try:
+            declarations = parse_header(path)
+        finally:
+            directory.cleanup()
+        self.assertEqual(["sample_update"], [item.name for item in declarations])
+
 
 if __name__ == "__main__":
     unittest.main()

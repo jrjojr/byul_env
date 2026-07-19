@@ -15,11 +15,11 @@
     "tool-move"
   ],
   "summary": {
-    "headers": 135,
-    "byul_headers": 104,
+    "headers": 138,
+    "byul_headers": 107,
     "tool_headers": 31,
-    "root_inventory_headers": 92,
-    "wrapper_registered_headers": 26,
+    "root_inventory_headers": 93,
+    "wrapper_registered_headers": 27,
     "decision_required": 14
   },
   "headers": [
@@ -1121,6 +1121,7 @@
       ],
       "source_definition_candidates": [
         "byul/byul.cpp",
+        "byul/tests/sdk_consumer/main.c",
         "byul/tests/test_module_byul.cpp"
       ],
       "decision_status": "candidate-only"
@@ -1361,8 +1362,8 @@
     {
       "asset_id": "initial:byul/core/strset.h",
       "current_path": "byul/core/strset.h",
-      "sha256": "3ff9b3b35b49fb29b55478852cea2ab21837558fd2e7692bbf44933461ff2d1c",
-      "line_count": 55,
+      "sha256": "d71ec09b18f371322f8fa6147606062566f16a6aacee0617b35d0a6b04f63bf3",
+      "line_count": 57,
       "language": "c-header",
       "license": "missing-or-unclassified",
       "include_guard": "STRSET_H",
@@ -1804,8 +1805,8 @@
     {
       "asset_id": "initial:byul/navsys/coord/coord.h",
       "current_path": "byul/navsys/coord/coord.h",
-      "sha256": "e739dde6073fe8564c74359bd1fa02de980697fc37992cb92b65318fd380e775",
-      "line_count": 196,
+      "sha256": "3325914efe812aaa1dd3f7a6dccde6c77ff97f6e45ca01e797315e46a2d931c2",
+      "line_count": 268,
       "language": "c-header",
       "license": "missing-or-unclassified",
       "include_guard": "COORD_H",
@@ -1835,10 +1836,10 @@
         "byul/console/dstar_lite_console.h",
         "byul/entity/entity.h",
         "byul/ground/ground.h",
-        "byul/navsys/coord/coord.hpp",
         "byul/navsys/coord/coord_hash.h",
         "byul/navsys/coord/coord_list.h",
         "byul/navsys/coord/cost_coord_pq.h",
+        "byul/navsys/coord/internal/coord_ops.hpp",
         "byul/navsys/dstar_lite/dstar_lite.h",
         "byul/navsys/dstar_lite/dstar_lite_key.h",
         "byul/navsys/dstar_lite/dstar_lite_key.hpp",
@@ -1859,6 +1860,10 @@
       ],
       "wrapper_modules_registered": true,
       "exported_symbols": [
+        "coord_sizeof",
+        "coord_alignof",
+        "coord_offsetof_x",
+        "coord_offsetof_y",
         "coord_create_full",
         "coord_create",
         "coord_destroy",
@@ -1930,38 +1935,10 @@
         "byul/navsys/route_finder/tests/test_module_route_finder.cpp",
         "byul/navsys/route_finder/tests/test_module_route_finder_discrete.cpp",
         "byul/navsys/route_finder/weighted_astar.cpp",
-        "byul/navsys/tests/test_module_navsys.cpp"
+        "byul/navsys/tests/test_module_navsys.cpp",
+        "byul/tests/sdk_consumer/main.c"
       ],
       "decision_status": "candidate-only"
-    },
-    {
-      "asset_id": "initial:byul/navsys/coord/coord.hpp",
-      "current_path": "byul/navsys/coord/coord.hpp",
-      "sha256": "d49ef1c4ef905b0a8b8e34c32f41d31d10a27878391840d47b12f814f22abf18",
-      "line_count": 56,
-      "language": "c++-header",
-      "license": "missing-or-unclassified",
-      "include_guard": "COORD_HPP",
-      "role_candidate": "cpp-facade",
-      "current_owner": "navsys",
-      "public_module_boundary_candidate": "coord",
-      "responsibility": "coord",
-      "representative_type_candidate": null,
-      "declared_type_candidates": [],
-      "naming_disposition": "decision-required",
-      "compatibility_path": null,
-      "successor_headers": [],
-      "canonical_owner": null,
-      "design_todo": null,
-      "naming_exception": null,
-      "module_header_groups": [],
-      "root_header_inventory": false,
-      "install_inventory": false,
-      "umbrella_consumers": [],
-      "wrapper_modules_registered": false,
-      "exported_symbols": [],
-      "source_definition_candidates": [],
-      "decision_status": "decision-required"
     },
     {
       "asset_id": "initial:byul/navsys/coord/coord_hash.h",
@@ -2173,7 +2150,8 @@
         "byul/navsys/route_finder/ida_star.cpp",
         "byul/navsys/route_finder/rta_star.cpp",
         "byul/navsys/route_finder/sma_star.cpp",
-        "byul/navsys/route_finder/weighted_astar.cpp"
+        "byul/navsys/route_finder/weighted_astar.cpp",
+        "byul/navsys/tests/test_module_navsys.cpp"
       ],
       "decision_status": "candidate-only"
     },
@@ -2239,10 +2217,39 @@
       "decision_status": "candidate-only"
     },
     {
+      "asset_id": "initial:byul/navsys/coord/internal/coord_ops.hpp",
+      "current_path": "byul/navsys/coord/internal/coord_ops.hpp",
+      "sha256": "4dc3971dcc363c3e54180da723736e8f19fc1184ca2c805f3f1a0f42e56347b6",
+      "line_count": 45,
+      "language": "c++-header",
+      "license": "copyright-present-license-unclassified",
+      "include_guard": "BYUL_NAVSYS_COORD_INTERNAL_COORD_OPS_HPP",
+      "role_candidate": "private-implementation",
+      "current_owner": "navsys",
+      "public_module_boundary_candidate": "coord",
+      "responsibility": "coord_ops",
+      "representative_type_candidate": null,
+      "declared_type_candidates": [],
+      "naming_disposition": "internalize",
+      "compatibility_path": null,
+      "successor_headers": [],
+      "canonical_owner": null,
+      "design_todo": null,
+      "naming_exception": null,
+      "module_header_groups": [],
+      "root_header_inventory": false,
+      "install_inventory": false,
+      "umbrella_consumers": [],
+      "wrapper_modules_registered": false,
+      "exported_symbols": [],
+      "source_definition_candidates": [],
+      "decision_status": "candidate-only"
+    },
+    {
       "asset_id": "initial:byul/navsys/dstar_lite/dstar_lite.h",
       "current_path": "byul/navsys/dstar_lite/dstar_lite.h",
-      "sha256": "21c4a40fe397fb45f55826336bd661989c80410117786d8ab9d8fa22d97b71fb",
-      "line_count": 401,
+      "sha256": "8f52659e0e18fe3778ead40e57f16f0f2228b7071557016715a796a5cda138e6",
+      "line_count": 545,
       "language": "c-header",
       "license": "missing-or-unclassified",
       "include_guard": "DSTAR_LITE_H",
@@ -2270,6 +2277,7 @@
       "umbrella_consumers": [
         "byul/console/dstar_lite_console.h",
         "byul/navsys/dstar_lite/dstar_lite_tick.h",
+        "byul/navsys/dstar_lite/internal/dstar_lite_callback.hpp",
         "byul/navsys/navsys.h"
       ],
       "wrapper_modules_registered": true,
@@ -2331,6 +2339,14 @@
         "dstar_lite_set_changed_coords_func",
         "dstar_lite_get_changed_coords_func_userdata",
         "dstar_lite_set_changed_coords_func_userdata",
+        "dstar_lite_bind_cost_func",
+        "dstar_lite_unbind_cost_func",
+        "dstar_lite_bind_heuristic_func",
+        "dstar_lite_unbind_heuristic_func",
+        "dstar_lite_bind_move_func",
+        "dstar_lite_unbind_move_func",
+        "dstar_lite_bind_changed_coords_func",
+        "dstar_lite_unbind_changed_coords_func",
         "dstar_lite_calc_key",
         "dstar_lite_init",
         "dstar_lite_update_vertex",
@@ -2354,7 +2370,10 @@
         "byul/navsys/dstar_lite/dstar_lite_tick.cpp",
         "byul/navsys/dstar_lite/tests/test_module_dstar_lite.cpp",
         "byul/navsys/dstar_lite/tests/test_module_dstar_lite_tick.cpp",
-        "byul/navsys/navsys.cpp"
+        "byul/navsys/navsys.cpp",
+        "byul/navsys/tests/test_module_navsys.cpp",
+        "byul/navsys/tests/test_navsys_allocation_failure.cpp",
+        "byul/tests/sdk_consumer/main.c"
       ],
       "decision_status": "candidate-only"
     },
@@ -2406,7 +2425,8 @@
         "byul/navsys/dstar_lite/dstar_lite.cpp",
         "byul/navsys/dstar_lite/dstar_lite_key.cpp",
         "byul/navsys/dstar_lite/dstar_lite_pqueue.cpp",
-        "byul/navsys/dstar_lite/tests/test_module_dstar_lite_pqueue.cpp"
+        "byul/navsys/dstar_lite/tests/test_module_dstar_lite_pqueue.cpp",
+        "byul/navsys/tests/test_module_navsys.cpp"
       ],
       "decision_status": "candidate-only"
     },
@@ -2544,6 +2564,35 @@
         "byul/navsys/dstar_lite/dstar_lite_tick.cpp",
         "byul/navsys/dstar_lite/tests/test_module_dstar_lite_tick.cpp"
       ],
+      "decision_status": "candidate-only"
+    },
+    {
+      "asset_id": "initial:byul/navsys/dstar_lite/internal/dstar_lite_callback.hpp",
+      "current_path": "byul/navsys/dstar_lite/internal/dstar_lite_callback.hpp",
+      "sha256": "d8e60a942ef9fbe14aa3f36dbd54f486f90ca05ab35f5c4cd41e81b937b2626d",
+      "line_count": 75,
+      "language": "c++-header",
+      "license": "copyright-present-license-unclassified",
+      "include_guard": "BYUL_DSTAR_LITE_CALLBACK_INTERNAL_HPP",
+      "role_candidate": "private-implementation",
+      "current_owner": "navsys",
+      "public_module_boundary_candidate": "dstar_lite",
+      "responsibility": "dstar_lite_callback",
+      "representative_type_candidate": null,
+      "declared_type_candidates": [],
+      "naming_disposition": "internalize",
+      "compatibility_path": null,
+      "successor_headers": [],
+      "canonical_owner": null,
+      "design_todo": null,
+      "naming_exception": null,
+      "module_header_groups": [],
+      "root_header_inventory": false,
+      "install_inventory": false,
+      "umbrella_consumers": [],
+      "wrapper_modules_registered": false,
+      "exported_symbols": [],
+      "source_definition_candidates": [],
       "decision_status": "candidate-only"
     },
     {
@@ -3095,6 +3144,35 @@
       "decision_status": "candidate-only"
     },
     {
+      "asset_id": "initial:byul/navsys/navgrid/internal/navgrid_callback.hpp",
+      "current_path": "byul/navsys/navgrid/internal/navgrid_callback.hpp",
+      "sha256": "1682e79d1ab27b86626c4c3ad4accd6fb7cd4e3434ed7ba1199108cac48c3897",
+      "line_count": 46,
+      "language": "c++-header",
+      "license": "copyright-present-license-unclassified",
+      "include_guard": "BYUL_NAVGRID_CALLBACK_INTERNAL_HPP",
+      "role_candidate": "private-implementation",
+      "current_owner": "navsys",
+      "public_module_boundary_candidate": "navgrid",
+      "responsibility": "navgrid_callback",
+      "representative_type_candidate": null,
+      "declared_type_candidates": [],
+      "naming_disposition": "internalize",
+      "compatibility_path": null,
+      "successor_headers": [],
+      "canonical_owner": null,
+      "design_todo": null,
+      "naming_exception": null,
+      "module_header_groups": [],
+      "root_header_inventory": false,
+      "install_inventory": false,
+      "umbrella_consumers": [],
+      "wrapper_modules_registered": false,
+      "exported_symbols": [],
+      "source_definition_candidates": [],
+      "decision_status": "candidate-only"
+    },
+    {
       "asset_id": "initial:byul/navsys/navgrid/navcell.h",
       "current_path": "byul/navsys/navgrid/navcell.h",
       "sha256": "557ac86d263f328066542bc79f03f4ec8e7b32e029e372c1f44fc2f5984509f5",
@@ -3145,8 +3223,8 @@
     {
       "asset_id": "initial:byul/navsys/navgrid/navgrid.h",
       "current_path": "byul/navsys/navgrid/navgrid.h",
-      "sha256": "910c15e23035a1b2480d91d51c256ff91c887b00ecfc7778e589fb2b7d9da670",
-      "line_count": 182,
+      "sha256": "33578672ebedd7d51484bd43c711dc4897a672b25cb3ab91be622cc271d070f9",
+      "line_count": 238,
       "language": "c-header",
       "license": "missing-or-unclassified",
       "include_guard": "NAVGRID_H",
@@ -3176,6 +3254,7 @@
         "byul/console/dstar_lite_console.h",
         "byul/navsys/dstar_lite/dstar_lite.h",
         "byul/navsys/maze/maze_core.h",
+        "byul/navsys/navgrid/internal/navgrid_callback.hpp",
         "byul/navsys/navsys.h",
         "byul/navsys/obstacle/obstacle_core.h",
         "byul/navsys/route_carver/route_carver.h",
@@ -3202,6 +3281,8 @@
         "navgrid_set_height",
         "navgrid_set_is_coord_blocked_func",
         "navgrid_get_is_coord_blocked_fn",
+        "navgrid_bind_is_coord_blocked_func",
+        "navgrid_unbind_is_coord_blocked_func",
         "navgrid_get_mode",
         "navgrid_set_mode",
         "navgrid_block_coord",
@@ -3248,15 +3329,17 @@
         "byul/navsys/route_finder/tests/test_module_route_finder_discrete.cpp",
         "byul/navsys/route_finder/weighted_astar.cpp",
         "byul/navsys/tests/test_module_navsys.cpp",
-        "byul/navsys/tests/test_module_route_carver.cpp"
+        "byul/navsys/tests/test_module_route_carver.cpp",
+        "byul/navsys/tests/test_navsys_allocation_failure.cpp",
+        "byul/tests/sdk_consumer/main.c"
       ],
       "decision_status": "candidate-only"
     },
     {
       "asset_id": "initial:byul/navsys/navsys.h",
       "current_path": "byul/navsys/navsys.h",
-      "sha256": "6a0ccec9c600ef8e43a656a70582b5c03d830071051a982716cb6f4f3b193da0",
-      "line_count": 124,
+      "sha256": "89552638839d7e35d2b589e84fb4f954e24d9600b25e7749a5069f4e8be51eeb",
+      "line_count": 126,
       "language": "c-header",
       "license": "copyright-present-license-unclassified",
       "include_guard": "NAVSYS_H",
@@ -3301,6 +3384,45 @@
         "byul/navsys/tests/test_module_navsys.cpp"
       ],
       "decision_status": "candidate-only"
+    },
+    {
+      "asset_id": "initial:byul/navsys/navsys_status.h",
+      "current_path": "byul/navsys/navsys_status.h",
+      "sha256": "70fcd9d0d728faccaacefb37128750fd7d7748d0346d50cdf415cdf0c77e94a9",
+      "line_count": 49,
+      "language": "c-header",
+      "license": "copyright-present-license-unclassified",
+      "include_guard": "BYUL_NAVSYS_STATUS_H",
+      "role_candidate": "decision-required",
+      "current_owner": "navsys",
+      "public_module_boundary_candidate": "navsys",
+      "responsibility": "navsys_status",
+      "representative_type_candidate": "navsys_status_t",
+      "declared_type_candidates": [
+        "navsys_status_t"
+      ],
+      "naming_disposition": "decision-required",
+      "compatibility_path": null,
+      "successor_headers": [],
+      "canonical_owner": null,
+      "design_todo": null,
+      "naming_exception": null,
+      "module_header_groups": [
+        "byul",
+        "navsys"
+      ],
+      "root_header_inventory": true,
+      "install_inventory": true,
+      "umbrella_consumers": [
+        "byul/navsys/dstar_lite/dstar_lite.h",
+        "byul/navsys/navgrid/navgrid.h",
+        "byul/navsys/navsys.h",
+        "byul/navsys/route_finder/route_finder.h"
+      ],
+      "wrapper_modules_registered": true,
+      "exported_symbols": [],
+      "source_definition_candidates": [],
+      "decision_status": "decision-required"
     },
     {
       "asset_id": "initial:byul/navsys/obstacle/obstacle.h",
@@ -3907,8 +4029,8 @@
     {
       "asset_id": "initial:byul/navsys/route_finder/route_finder.h",
       "current_path": "byul/navsys/route_finder/route_finder.h",
-      "sha256": "e71e78fbd05d116a7870bd7f7f95ef512847cfcf8a35da1d93aee71981876184",
-      "line_count": 234,
+      "sha256": "7db6f3a9b85876bdfeed1a7dffda18dd71521c454f4690aba68112b0a95df97d",
+      "line_count": 311,
       "language": "c-header",
       "license": "missing-or-unclassified",
       "include_guard": "ROUTE_FINDER_H",
@@ -3970,6 +4092,10 @@
         "route_finder_get_heuristic_func",
         "route_finder_set_heuristic_fn_userdata",
         "route_finder_get_heuristic_fn_userdata",
+        "route_finder_bind_cost_func",
+        "route_finder_unbind_cost_func",
+        "route_finder_bind_heuristic_func",
+        "route_finder_unbind_heuristic_func",
         "route_finder_clear",
         "route_finder_set_defaults",
         "route_finder_is_valid",
@@ -3980,7 +4106,9 @@
         "byul/navsys/navsys.cpp",
         "byul/navsys/route_finder/route_finder.cpp",
         "byul/navsys/route_finder/tests/test_module_route_finder.cpp",
-        "byul/navsys/tests/test_module_navsys.cpp"
+        "byul/navsys/tests/test_module_navsys.cpp",
+        "byul/navsys/tests/test_navsys_allocation_failure.cpp",
+        "byul/tests/sdk_consumer/main.c"
       ],
       "decision_status": "candidate-only"
     },
@@ -4166,8 +4294,8 @@
     {
       "asset_id": "initial:byul/numal/dualnumber.h",
       "current_path": "byul/numal/dualnumber.h",
-      "sha256": "8315d7bfa142f3101a55d1c308c7181a570828ee12d7eb1a2eab999512eb7f03",
-      "line_count": 78,
+      "sha256": "c745a2cff5547a1d2611a3e82a60aecc0ee8ea5febf27a1f76ac659b352bc9a2",
+      "line_count": 80,
       "language": "c-header",
       "license": "missing-or-unclassified",
       "include_guard": "DUALNUMBER_H",
@@ -4688,8 +4816,8 @@
     {
       "asset_id": "initial:byul/numal/vec3.h",
       "current_path": "byul/numal/vec3.h",
-      "sha256": "f93b14f691e29abe37e043597a17576f4a0d719258ca7f1fa7121f0d479ea599",
-      "line_count": 236,
+      "sha256": "35834dd837a91955602e0bbfda0f7f6766337fc17423c88261797b75c0eb7cbf",
+      "line_count": 237,
       "language": "c-header",
       "license": "missing-or-unclassified",
       "include_guard": "VEC3_H",

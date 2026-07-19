@@ -16,12 +16,22 @@ struct s_dstar_lite_pqueue {
 };
 
 dstar_lite_pqueue_t* dstar_lite_pqueue_create() {
-    auto* q = new dstar_lite_pqueue_t{};
-    q->coord_to_key = coord_hash_create_full(
-        (coord_hash_copy_func)dstar_lite_key_copy,
-        (coord_hash_destroy_func)dstar_lite_key_destroy
-    );
-    return q;
+    dstar_lite_pqueue_t* q = nullptr;
+    try {
+        q = new dstar_lite_pqueue_t{};
+        q->coord_to_key = coord_hash_create_full(
+            (coord_hash_copy_func)dstar_lite_key_copy,
+            (coord_hash_destroy_func)dstar_lite_key_destroy
+        );
+        if (!q->coord_to_key) {
+            dstar_lite_pqueue_destroy(q);
+            return nullptr;
+        }
+        return q;
+    } catch (...) {
+        dstar_lite_pqueue_destroy(q);
+        return nullptr;
+    }
 }
 
 void dstar_lite_pqueue_destroy(dstar_lite_pqueue_t* q) {

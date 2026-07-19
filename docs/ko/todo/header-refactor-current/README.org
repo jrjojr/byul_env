@@ -1,0 +1,141 @@
+#+TITLE: BYUL Header 리팩터링 현재 기준선
+#+LANGUAGE: ko
+#+OPTIONS: toc:2 num:nil
+#+TODO_RULES: ../../../../external/rules/projects/byul/todo-rules.org
+#+TODO_PARENT: ../todo-리팩토링.org
+
+* 책임
+
+이 directory는 상위 Header 리팩터링 TODO 1단계에서 최초 불변 기준선과 현재 working
+tree를 구분하기 위한 current revision이다. 최초 artifact는
+=../header-refactor-baseline/=에 그대로 보존한다. 이 directory의 JSON은 source와 fresh
+MSVC build/install에서 다시 생성한 산출물이며 직접 고치지 않는다.
+
+* Revision
+
+- BYUL Git HEAD: =40ec5d42b4fadce8b98415254e5e6926a76290eb=
+- Rules submodule base revision: =e0489c383190dcb4831b391406d098c8e49bac50=
+- Header/environment capture: =2026-07-18T09:18:36.259826+00:00=
+- Capture 당시 dirty status entry: 94개
+- Python: repository =tools/python/.venv=의 Python 3.13.3
+- Python base: 사용자가 승인한 Win11
+  =C:\Users\critl\AppData\Local\Programs\Python\Python313\python.exe=
+- Native profile A: Windows x64, MSVC 19.44, Release
+- Native profile B: Windows x64, MSYS2 MinGW-w64 GCC 16.1.0-5, CMake 4.4.0-1,
+  GNU Make 4.4.1-5, Release
+
+=environment.json=의 Git status가 이 revision의 정확한 dirty 범위를 소유한다. 위 Python
+절대경로는 사용자가 이 Win11 checkout에 명시 승인한 venv bootstrap이며 다른 사용자나
+CI의 일반 경로로 추론하지 않는다.
+
+* 산출물
+
+- =header-inventory.json=: 현재 tracked header 138개의 path, hash, 역할·명명 후보와
+  module/root/install/wrapper/source 교차 inventory
+- =naming-report.json=: 현재 naming 후보 report
+- =environment.json=: Git/submodule, dirty status, OS와 Python/tool snapshot
+- =header-audit.json=: 전체 public header audit 85개, declaration 948개와 알려진 오류
+  2785개의 현재 회귀 snapshot
+- =msvc-release-build.json=: fresh Release DLL hash, export 976개와 clean install 파일
+  113개의 snapshot
+- =msvc-release-abi.json=: complete type 61개, field 306개, enum 14개와 enumerator
+  124개의 layout/value snapshot
+- =header-role-manifest.json=: 기존 asset 135개, Navsys public =navsys_status.h=와
+  Navgrid/D* Lite internal callback guard를 합친 asset 138개의 primary role,
+  owner/public module, install,
+  wrapper와 versioned naming/compatibility 처분, Math Engine
+  created successor 20개와 public resource migration 10개
+- =header-install-intent-report.json=: 현행 install 92개와 승인 의도 path 138개의
+  additions/retained/removals 비교
+- =header-abi-audit.json=: manifest/header/wrapper/MSVC export/ABI fingerprint 통합 감사
+- =header-abi-audit-debt.json=: 현재 structural header 부채 283개의 exact fingerprint
+- =header-abi-audit-exclusions.json=: 정의·signature·root export가 완결되지 않은 기존
+  public symbol 16개의 owner와 해결 단계
+- =header-abi-audit-msvc.json=, =header-abi-audit-mingw.json=: MSVC 19.44와 MinGW GCC
+  16.1의 C17/C++17 standalone matrix 결과
+- =msvc-standalone-headers.json=, =mingw-standalone-headers.json=: compiler command와
+  public C header의 header별 190개 결과
+- Navsys status 추가 증거인
+  =../navsys/navsys-status-standalone-msvc.json=과
+  =../navsys/navsys-status-standalone-mingw.json=: 현재 public C header 95개의
+  C17/C++17 matrix 190/190 결과
+- =mingw-release-build.json=: GNU =nm=으로 얻은 MinGW =libbyul.dll= export와 install
+  snapshot
+
+* 최초 기준선과 차이
+
+- 최초 기준선 asset은 135개로 보존되고, 승인된 새 Navsys public-foundation
+  =byul/navsys/navsys_status.h=와 설치하지 않는
+  =byul/navsys/navgrid/internal/navgrid_callback.hpp=와
+  =byul/navsys/dstar_lite/internal/dstar_lite_callback.hpp=가 추가되어 현재 Header 수는
+  138개다.
+- =byul/navsys/coord/coord.hpp=가 제거되고
+  =byul/navsys/coord/internal/coord_ops.hpp=가 추가됐다.
+- =byul/navsys/coord/coord.h=의 SHA-256가 변경됐다.
+- 3단계 C17 standalone 수정 뒤 =byul/core/strset.h=,
+  =byul/numal/dualnumber.h=, =byul/numal/vec3.h=의 새 SHA-256를 current inventory에
+  반영했다.
+- 최초 =decision-required= 후보는 14개에서 13개로 줄었고, 새
+  =navsys_status.h=가 raw inventory 후보 1개를 추가해 현재는 14개다. 승인 role
+  manifest에서는 이 header를 =public-foundation=으로 처분해 remaining gate는 0이다.
+- DLL에는 =coord_sizeof=, =coord_alignof=, =coord_offsetof_x=,
+  =coord_offsetof_y= 네 export가 추가되어 972개에서 976개가 됐다.
+- DLL SHA-256는
+  =cd5c1c828b6a76077c305ddc1db44c02747f1c0acf5aa0099932055f6257f9f7=이다.
+- Install file 113개, header 92개, test executable 19개와 layout/enum 측정값은 최초
+  기준선과 같다.
+
+* 재생성과 검증
+
+#+begin_src bat
+set "BYUL_PYTHON=<repository-python-3.10-or-newer>"
+tools\header_refactor_baseline.bat --apply --output-dir docs\ko\todo\header-refactor-current
+tools\header_refactor_baseline.bat --check --output-dir docs\ko\todo\header-refactor-current
+#+end_src
+
+Wrapper audit는 알려진 오류를 보존하므로 exit 1이 현재 기대 결과다. Generator stale
+check, rules validator와 unit test의 기대 결과는 exit 0이다.
+
+#+begin_src bat
+tools\python\.venv\Scripts\python.exe tools\header_role_manifest.py --apply
+tools\python\.venv\Scripts\python.exe tools\header_role_manifest.py --check
+tools\python\.venv\Scripts\python.exe tools\header_abi_audit.py
+#+end_src
+
+수정한 public header의 기존 부채까지 완결하는 단계에서는 다음처럼 strict gate를
+추가한다.
+
+#+begin_src bat
+tools\python\.venv\Scripts\python.exe tools\header_abi_audit.py ^
+  --strict-header byul/PATH/HEADER.h
+#+end_src
+
+Standalone matrix는 C/C++ compiler를 함께 지정한다. MSVC는 =VsDevCmd.bat -arch=x64=
+환경에서 =cl.exe=를 두 인수에 같이 전달하고, MinGW/Linux/macOS는 해당 target의
+=cc/c++= 또는 =clang/clang++=을 전달한다. Export snapshot은 MSVC =dumpbin=뿐 아니라
+GNU/LLVM =nm -P --defined-only --extern-only=를 지원하므로 Windows, Linux와 macOS가
+같은 symbol subset gate를 사용한다.
+
+현재 metadata 부채 2,773개와 structural 부채 283개는 해결 완료가 아니다. Exact
+fingerprint와 일치하는 기존 항목만 기본 gate에서 grandfather하며 새 오류는 실패한다.
+승인 export exclusion 16개도 supported symbol이 아니며 4단계 Navsys, 5단계 Math Engine,
+7단계 Simulation owner가 해결하면 exclusion을 같은 변경에서 제거해야 한다. 이미
+해결된 exclusion이 남아도 stale exclusion으로 실패한다.
+
+Role manifest는 기존 asset 135개, 새 Math Engine successor 20개와 public resource의
+ABI 1.x additive API/ABI 2.0 opaque migration 10개를 서로 다른 record로 승인한다.
+생성 successor는 기존 asset count와 중복 계산하지 않고 모든 source asset에 역링크한다.
+ABI 2.0 layout 전환은 이 설계 승인만으로 실행하지 않으며 별도 ABI-major release gate가
+필요하다.
+
+Fresh MSVC build/install, SDK consumer, build snapshot과 ABI probe는 상위 TODO의 진행
+기록에 사용한 =build_header_refactor_current= 격리 build tree에서 실행했다. Build tree는
+추적 artifact가 아니며 이 directory의 JSON과 명령·profile 기록만 재현 근거로 보존한다.
+
+MSYS2 MinGW-w64 검증은 =build_header_refactor_mingw= 격리 build tree에서
+=MinGW Makefiles= generator로 실행했다. Release 전체 build와 CTest 19/19가 통과했고,
+clean install은 header 92개, test executable 19개와 MinGW runtime DLL 3개를 포함한
+파일 116개다. =libbyul.dll= SHA-256는
+=2fe4b1abd5fb48e660fdb3284a1c32269197518ab086660ff31f206de82534e6=이다. 설치
+header/import library/DLL만 찾도록 구성한 별도 C consumer도 빌드·실행에 성공해 version
+=1.0.0.0 (1000)=을 확인했다.
