@@ -6,6 +6,8 @@
 #include "coord_hash.h"
 #include "route.h"
 
+extern bool route_finder_poll_cancel_internal(void);
+
 route_t* find_dijkstra(const navgrid_t* m,
     const coord_t* start, const coord_t* goal, cost_func cost_fn,
     int max_retry, bool debug_mode_enabled) {
@@ -41,7 +43,8 @@ route_t* find_dijkstra(const navgrid_t* m,
     coord_t* final = nullptr;
     int retry = 0;
 
-    while (!cost_coord_pq_is_empty(pq) && retry++ < max_retry) {
+    while (!cost_coord_pq_is_empty(pq)
+        && !route_finder_poll_cancel_internal() && retry++ < max_retry) {
         coord_t* current = cost_coord_pq_pop(pq);
 
         if (coord_equal(current, goal)) {

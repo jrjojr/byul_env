@@ -1,84 +1,84 @@
 {
   "schema_version": 1,
-  "profile": "windows-msvc-release",
+  "profile": "windows-x64-msvc-release",
   "dumpbin_version": "Microsoft (R) COFF/PE Dumper Version 14.44.35214.0",
   "dll": {
     "name": "byul.dll",
-    "size": 388096,
-    "sha256": "32422b9bbc4909db9c3eff20585d932bec664191be6785369339455ebd1a7bd0",
-    "export_count": 972
+    "size": 397824,
+    "sha256": "2290926418019748cda3dea2c01f7cbf372e2dba6f3856fc8135c997c758f221",
+    "export_count": 1006
   },
   "exports": [
     {
       "ordinal": 1,
       "hint": "0",
-      "rva": "00035A00",
+      "rva": "00037020",
       "name": "attitude_state_assign"
     },
     {
       "ordinal": 2,
       "hint": "1",
-      "rva": "000387C0",
+      "rva": "00039DF0",
       "name": "attitude_state_init"
     },
     {
       "ordinal": 3,
       "hint": "2",
-      "rva": "000387F0",
+      "rva": "00039E20",
       "name": "attitude_state_init_full"
     },
     {
       "ordinal": 4,
       "hint": "3",
-      "rva": "00038B90",
+      "rva": "0003A1D0",
       "name": "bangbang_impl_assign"
     },
     {
       "ordinal": 5,
       "hint": "4",
-      "rva": "00038BA0",
+      "rva": "0003A1E0",
       "name": "bangbang_impl_init"
     },
     {
       "ordinal": 6,
       "hint": "5",
-      "rva": "00038BB0",
+      "rva": "0003A1F0",
       "name": "bangbang_impl_init_full"
     },
     {
       "ordinal": 7,
       "hint": "6",
-      "rva": "000277C0",
+      "rva": "00028DE0",
       "name": "bodyprops_apply_friction"
     },
     {
       "ordinal": 8,
       "hint": "7",
-      "rva": "00027880",
+      "rva": "00028EA0",
       "name": "bodyprops_apply_friction_heat"
     },
     {
       "ordinal": 9,
       "hint": "8",
-      "rva": "00027930",
+      "rva": "00028F50",
       "name": "bodyprops_assign"
     },
     {
       "ordinal": 10,
       "hint": "9",
-      "rva": "00027960",
+      "rva": "00028F80",
       "name": "bodyprops_estimate_stop_time"
     },
     {
       "ordinal": 11,
       "hint": "A",
-      "rva": "000279C0",
+      "rva": "00028FE0",
       "name": "bodyprops_init"
     },
     {
       "ordinal": 12,
       "hint": "B",
-      "rva": "00027A00",
+      "rva": "00029020",
       "name": "bodyprops_init_full"
     },
     {
@@ -126,55 +126,55 @@
     {
       "ordinal": 20,
       "hint": "13",
-      "rva": "000129D0",
+      "rva": "00012CE0",
       "name": "calc_direction"
     },
     {
       "ordinal": 21,
       "hint": "14",
-      "rva": "00031B10",
+      "rva": "00033130",
       "name": "calc_spin_accel"
     },
     {
       "ordinal": 22,
       "hint": "15",
-      "rva": "0003F470",
+      "rva": "00040AB0",
       "name": "calc_suitable_dt"
     },
     {
       "ordinal": 23,
       "hint": "16",
-      "rva": "0003F4F0",
+      "rva": "00040B30",
       "name": "calc_suitable_max_time"
     },
     {
       "ordinal": 24,
       "hint": "17",
-      "rva": "00022360",
+      "rva": "000229C0",
       "name": "chebyshev_heuristic"
     },
     {
       "ordinal": 25,
       "hint": "18",
-      "rva": "00038BC0",
+      "rva": "0003A200",
       "name": "controller_create_bangbang"
     },
     {
       "ordinal": 26,
       "hint": "19",
-      "rva": "00038C30",
+      "rva": "0003A270",
       "name": "controller_create_mpc"
     },
     {
       "ordinal": 27,
       "hint": "1A",
-      "rva": "00038D30",
+      "rva": "0003A370",
       "name": "controller_create_pid"
     },
     {
       "ordinal": 28,
       "hint": "1B",
-      "rva": "00038DB0",
+      "rva": "0003A3F0",
       "name": "controller_destroy"
     },
     {
@@ -187,5765 +187,5969 @@
       "ordinal": 30,
       "hint": "1D",
       "rva": "0000EE50",
-      "name": "coord_angle"
+      "name": "coord_alignof"
     },
     {
       "ordinal": 31,
       "hint": "1E",
-      "rva": "00001470",
-      "name": "coord_assign"
+      "rva": "0000EE60",
+      "name": "coord_angle"
     },
     {
       "ordinal": 32,
       "hint": "1F",
-      "rva": "0000EEA0",
-      "name": "coord_clone_next_to_goal"
+      "rva": "00001470",
+      "name": "coord_assign"
     },
     {
       "ordinal": 33,
       "hint": "20",
-      "rva": "0000EEF0",
-      "name": "coord_compare"
+      "rva": "0000EEB0",
+      "name": "coord_clone_next_to_goal"
     },
     {
       "ordinal": 34,
       "hint": "21",
-      "rva": "0000EF20",
-      "name": "coord_copy"
+      "rva": "0000EF00",
+      "name": "coord_compare"
     },
     {
       "ordinal": 35,
       "hint": "22",
-      "rva": "0000EF50",
-      "name": "coord_create"
+      "rva": "0000EF30",
+      "name": "coord_copy"
     },
     {
       "ordinal": 36,
       "hint": "23",
-      "rva": "0000EF70",
-      "name": "coord_create_full"
+      "rva": "0000EF60",
+      "name": "coord_create"
     },
     {
       "ordinal": 37,
       "hint": "24",
-      "rva": "0000F040",
-      "name": "coord_degree"
+      "rva": "0000EF80",
+      "name": "coord_create_full"
     },
     {
       "ordinal": 38,
       "hint": "25",
-      "rva": "0000F0A0",
-      "name": "coord_destroy"
+      "rva": "0000F050",
+      "name": "coord_degree"
     },
     {
       "ordinal": 39,
       "hint": "26",
       "rva": "0000F0B0",
-      "name": "coord_distance"
+      "name": "coord_destroy"
     },
     {
       "ordinal": 40,
       "hint": "27",
-      "rva": "0000F100",
-      "name": "coord_div"
+      "rva": "0000F0C0",
+      "name": "coord_distance"
     },
     {
       "ordinal": 41,
       "hint": "28",
-      "rva": "0000F1E0",
-      "name": "coord_equal"
+      "rva": "0000F110",
+      "name": "coord_div"
     },
     {
       "ordinal": 42,
       "hint": "29",
-      "rva": "0000F200",
-      "name": "coord_fetch"
+      "rva": "0000F1F0",
+      "name": "coord_equal"
     },
     {
       "ordinal": 43,
       "hint": "2A",
-      "rva": "0000F220",
-      "name": "coord_get_x"
+      "rva": "0000F210",
+      "name": "coord_fetch"
     },
     {
       "ordinal": 44,
       "hint": "2B",
       "rva": "0000F230",
-      "name": "coord_get_y"
+      "name": "coord_get_x"
     },
     {
       "ordinal": 45,
       "hint": "2C",
       "rva": "0000F240",
-      "name": "coord_hash"
+      "name": "coord_get_y"
     },
     {
       "ordinal": 46,
       "hint": "2D",
-      "rva": "00010100",
-      "name": "coord_hash_clear"
+      "rva": "0000F250",
+      "name": "coord_hash"
     },
     {
       "ordinal": 47,
       "hint": "2E",
-      "rva": "00010160",
-      "name": "coord_hash_contains"
+      "rva": "000102C0",
+      "name": "coord_hash_clear"
     },
     {
       "ordinal": 48,
       "hint": "2F",
-      "rva": "000101B0",
-      "name": "coord_hash_copy"
+      "rva": "00010320",
+      "name": "coord_hash_contains"
     },
     {
       "ordinal": 49,
       "hint": "30",
-      "rva": "00010250",
-      "name": "coord_hash_create"
+      "rva": "00010370",
+      "name": "coord_hash_copy"
     },
     {
       "ordinal": 50,
       "hint": "31",
-      "rva": "00010270",
-      "name": "coord_hash_create_full"
+      "rva": "00010410",
+      "name": "coord_hash_create"
     },
     {
       "ordinal": 51,
       "hint": "32",
-      "rva": "00010410",
-      "name": "coord_hash_destroy"
+      "rva": "00010430",
+      "name": "coord_hash_create_full"
     },
     {
       "ordinal": 52,
       "hint": "33",
-      "rva": "000104C0",
-      "name": "coord_hash_equal"
+      "rva": "00010560",
+      "name": "coord_hash_destroy"
     },
     {
       "ordinal": 53,
       "hint": "34",
-      "rva": "00010550",
-      "name": "coord_hash_export"
+      "rva": "00010610",
+      "name": "coord_hash_equal"
     },
     {
       "ordinal": 54,
       "hint": "35",
-      "rva": "000105F0",
-      "name": "coord_hash_foreach"
+      "rva": "000106A0",
+      "name": "coord_hash_export"
     },
     {
       "ordinal": 55,
       "hint": "36",
-      "rva": "00010650",
-      "name": "coord_hash_get"
+      "rva": "00010740",
+      "name": "coord_hash_foreach"
     },
     {
       "ordinal": 56,
       "hint": "37",
-      "rva": "000106B0",
-      "name": "coord_hash_get_xy"
+      "rva": "000107A0",
+      "name": "coord_hash_get"
     },
     {
       "ordinal": 57,
       "hint": "38",
-      "rva": "00010770",
-      "name": "coord_hash_hash"
+      "rva": "00010800",
+      "name": "coord_hash_get_xy"
     },
     {
       "ordinal": 58,
       "hint": "39",
-      "rva": "00010810",
-      "name": "coord_hash_insert"
+      "rva": "000108C0",
+      "name": "coord_hash_hash"
     },
     {
       "ordinal": 59,
       "hint": "3A",
-      "rva": "000108F0",
-      "name": "coord_hash_insert_xy"
+      "rva": "00010960",
+      "name": "coord_hash_insert"
     },
     {
       "ordinal": 60,
       "hint": "3B",
-      "rva": "000109D0",
-      "name": "coord_hash_is_empty"
+      "rva": "00010A40",
+      "name": "coord_hash_insert_xy"
     },
     {
       "ordinal": 61,
       "hint": "3C",
-      "rva": "000109F0",
-      "name": "coord_hash_iter_create"
+      "rva": "00010B20",
+      "name": "coord_hash_is_empty"
     },
     {
       "ordinal": 62,
       "hint": "3D",
-      "rva": "00010A50",
-      "name": "coord_hash_iter_destroy"
+      "rva": "00010B40",
+      "name": "coord_hash_iter_create"
     },
     {
       "ordinal": 63,
       "hint": "3E",
-      "rva": "00010A60",
-      "name": "coord_hash_iter_next"
+      "rva": "00010BA0",
+      "name": "coord_hash_iter_destroy"
     },
     {
       "ordinal": 64,
       "hint": "3F",
-      "rva": "00010AA0",
-      "name": "coord_hash_keys"
+      "rva": "00010BB0",
+      "name": "coord_hash_iter_next"
     },
     {
       "ordinal": 65,
       "hint": "40",
-      "rva": "00010B00",
-      "name": "coord_hash_length"
+      "rva": "00010BF0",
+      "name": "coord_hash_keys"
     },
     {
       "ordinal": 66,
       "hint": "41",
-      "rva": "00010B10",
-      "name": "coord_hash_print"
+      "rva": "00010C50",
+      "name": "coord_hash_length"
     },
     {
       "ordinal": 67,
       "hint": "42",
-      "rva": "00010B70",
-      "name": "coord_hash_remove"
+      "rva": "00010C60",
+      "name": "coord_hash_print"
     },
     {
       "ordinal": 68,
       "hint": "43",
-      "rva": "00010100",
-      "name": "coord_hash_remove_all"
+      "rva": "00010CC0",
+      "name": "coord_hash_remove"
     },
     {
       "ordinal": 69,
       "hint": "44",
-      "rva": "00010C50",
-      "name": "coord_hash_replace"
+      "rva": "000102C0",
+      "name": "coord_hash_remove_all"
     },
     {
       "ordinal": 70,
       "hint": "45",
-      "rva": "00010D70",
-      "name": "coord_hash_replace_xy"
+      "rva": "00010DA0",
+      "name": "coord_hash_replace"
     },
     {
       "ordinal": 71,
       "hint": "46",
-      "rva": "00010E70",
-      "name": "coord_hash_set"
+      "rva": "00010EC0",
+      "name": "coord_hash_replace_xy"
     },
     {
       "ordinal": 72,
       "hint": "47",
-      "rva": "00010AA0",
-      "name": "coord_hash_to_list"
+      "rva": "00010FC0",
+      "name": "coord_hash_set"
     },
     {
       "ordinal": 73,
       "hint": "48",
-      "rva": "00010EA0",
-      "name": "coord_hash_to_string"
+      "rva": "00010BF0",
+      "name": "coord_hash_to_list"
     },
     {
       "ordinal": 74,
       "hint": "49",
-      "rva": "00011030",
-      "name": "coord_hash_values"
+      "rva": "00010FF0",
+      "name": "coord_hash_to_string"
     },
     {
       "ordinal": 75,
       "hint": "4A",
-      "rva": "0000F260",
-      "name": "coord_iadd"
+      "rva": "00011180",
+      "name": "coord_hash_values"
     },
     {
       "ordinal": 76,
       "hint": "4B",
-      "rva": "0000F340",
-      "name": "coord_idiv"
+      "rva": "0000F270",
+      "name": "coord_iadd"
     },
     {
       "ordinal": 77,
       "hint": "4C",
-      "rva": "0000F410",
-      "name": "coord_imul"
+      "rva": "0000F350",
+      "name": "coord_idiv"
     },
     {
       "ordinal": 78,
       "hint": "4D",
-      "rva": "00001520",
-      "name": "coord_init"
+      "rva": "0000F420",
+      "name": "coord_imul"
     },
     {
       "ordinal": 79,
       "hint": "4E",
-      "rva": "0000F4D0",
-      "name": "coord_init_full"
+      "rva": "00001520",
+      "name": "coord_init"
     },
     {
       "ordinal": 80,
       "hint": "4F",
-      "rva": "0000F580",
-      "name": "coord_isub"
+      "rva": "0000F4E0",
+      "name": "coord_init_full"
     },
     {
       "ordinal": 81,
       "hint": "50",
-      "rva": "000112C0",
-      "name": "coord_list_back"
+      "rva": "0000F590",
+      "name": "coord_isub"
     },
     {
       "ordinal": 82,
       "hint": "51",
-      "rva": "000112E0",
-      "name": "coord_list_clear"
+      "rva": "00011450",
+      "name": "coord_list_back"
     },
     {
       "ordinal": 83,
       "hint": "52",
-      "rva": "00011300",
-      "name": "coord_list_contains"
+      "rva": "00011470",
+      "name": "coord_list_clear"
     },
     {
       "ordinal": 84,
       "hint": "53",
-      "rva": "00011340",
-      "name": "coord_list_copy"
+      "rva": "00011490",
+      "name": "coord_list_contains"
     },
     {
       "ordinal": 85,
       "hint": "54",
-      "rva": "000113F0",
-      "name": "coord_list_create"
+      "rva": "000114D0",
+      "name": "coord_list_copy"
     },
     {
       "ordinal": 86,
       "hint": "55",
-      "rva": "00011420",
-      "name": "coord_list_destroy"
+      "rva": "00011580",
+      "name": "coord_list_create"
     },
     {
       "ordinal": 87,
       "hint": "56",
-      "rva": "00011450",
-      "name": "coord_list_empty"
+      "rva": "000115B0",
+      "name": "coord_list_destroy"
     },
     {
       "ordinal": 88,
       "hint": "57",
-      "rva": "00011470",
-      "name": "coord_list_equals"
+      "rva": "000115E0",
+      "name": "coord_list_empty"
     },
     {
       "ordinal": 89,
       "hint": "58",
-      "rva": "000114E0",
-      "name": "coord_list_find"
+      "rva": "00011600",
+      "name": "coord_list_equals"
     },
     {
       "ordinal": 90,
       "hint": "59",
-      "rva": "00011530",
-      "name": "coord_list_front"
+      "rva": "00011670",
+      "name": "coord_list_find"
     },
     {
       "ordinal": 91,
       "hint": "5A",
-      "rva": "00011550",
-      "name": "coord_list_get"
+      "rva": "000116C0",
+      "name": "coord_list_front"
     },
     {
       "ordinal": 92,
       "hint": "5B",
-      "rva": "00011580",
-      "name": "coord_list_insert"
+      "rva": "000116E0",
+      "name": "coord_list_get"
     },
     {
       "ordinal": 93,
       "hint": "5C",
-      "rva": "00011650",
-      "name": "coord_list_length"
+      "rva": "00011710",
+      "name": "coord_list_insert"
     },
     {
       "ordinal": 94,
       "hint": "5D",
-      "rva": "00011670",
-      "name": "coord_list_pop_back"
+      "rva": "000117E0",
+      "name": "coord_list_length"
     },
     {
       "ordinal": 95,
       "hint": "5E",
-      "rva": "000116A0",
-      "name": "coord_list_pop_front"
+      "rva": "00011800",
+      "name": "coord_list_pop_back"
     },
     {
       "ordinal": 96,
       "hint": "5F",
-      "rva": "00011700",
-      "name": "coord_list_push_back"
+      "rva": "00011830",
+      "name": "coord_list_pop_front"
     },
     {
       "ordinal": 97,
       "hint": "60",
-      "rva": "00011750",
-      "name": "coord_list_remove_at"
+      "rva": "00011890",
+      "name": "coord_list_push_back"
     },
     {
       "ordinal": 98,
       "hint": "61",
-      "rva": "000117A0",
-      "name": "coord_list_remove_value"
+      "rva": "000118E0",
+      "name": "coord_list_remove_at"
     },
     {
       "ordinal": 99,
       "hint": "62",
-      "rva": "00011800",
-      "name": "coord_list_reverse"
+      "rva": "00011930",
+      "name": "coord_list_remove_value"
     },
     {
       "ordinal": 100,
       "hint": "63",
-      "rva": "00011820",
-      "name": "coord_list_sublist"
+      "rva": "00011990",
+      "name": "coord_list_reverse"
     },
     {
       "ordinal": 101,
       "hint": "64",
-      "rva": "0000F650",
-      "name": "coord_manhattan_distance"
+      "rva": "000119B0",
+      "name": "coord_list_sublist"
     },
     {
       "ordinal": 102,
       "hint": "65",
-      "rva": "0000F680",
-      "name": "coord_mul"
+      "rva": "0000F660",
+      "name": "coord_manhattan_distance"
     },
     {
       "ordinal": 103,
       "hint": "66",
-      "rva": "0000F750",
-      "name": "coord_next_to_goal"
+      "rva": "0000F690",
+      "name": "coord_mul"
     },
     {
       "ordinal": 104,
       "hint": "67",
-      "rva": "0000F8A0",
-      "name": "coord_print"
+      "rva": "0000F760",
+      "name": "coord_next_to_goal"
     },
     {
       "ordinal": 105,
       "hint": "68",
-      "rva": "0000F4D0",
-      "name": "coord_set"
+      "rva": "0000F8B0",
+      "name": "coord_offsetof_x"
     },
     {
       "ordinal": 106,
       "hint": "69",
-      "rva": "0000F8D0",
-      "name": "coord_set_x"
+      "rva": "0000EE50",
+      "name": "coord_offsetof_y"
     },
     {
       "ordinal": 107,
       "hint": "6A",
-      "rva": "0000F930",
-      "name": "coord_set_y"
+      "rva": "0000F8C0",
+      "name": "coord_print"
     },
     {
       "ordinal": 108,
       "hint": "6B",
-      "rva": "0000F990",
-      "name": "coord_sub"
+      "rva": "0000F4E0",
+      "name": "coord_set"
     },
     {
       "ordinal": 109,
       "hint": "6C",
-      "rva": "0000FA70",
-      "name": "coord_to_string"
+      "rva": "0000F8F0",
+      "name": "coord_set_x"
     },
     {
       "ordinal": 110,
       "hint": "6D",
-      "rva": "000121A0",
-      "name": "cost_coord_pq_contains"
+      "rva": "0000F950",
+      "name": "coord_set_y"
     },
     {
       "ordinal": 111,
       "hint": "6E",
-      "rva": "00012290",
-      "name": "cost_coord_pq_create"
+      "rva": "0000F9B0",
+      "name": "coord_sizeof"
     },
     {
       "ordinal": 112,
       "hint": "6F",
-      "rva": "000122F0",
-      "name": "cost_coord_pq_destroy"
+      "rva": "0000F9C0",
+      "name": "coord_sub"
     },
     {
       "ordinal": 113,
       "hint": "70",
-      "rva": "000123E0",
-      "name": "cost_coord_pq_is_empty"
+      "rva": "0000FAA0",
+      "name": "coord_to_string"
     },
     {
       "ordinal": 114,
       "hint": "71",
-      "rva": "00012460",
-      "name": "cost_coord_pq_length"
+      "rva": "000124B0",
+      "name": "cost_coord_pq_contains"
     },
     {
       "ordinal": 115,
       "hint": "72",
-      "rva": "000124F0",
-      "name": "cost_coord_pq_peek"
+      "rva": "000125A0",
+      "name": "cost_coord_pq_create"
     },
     {
       "ordinal": 116,
       "hint": "73",
-      "rva": "00012520",
-      "name": "cost_coord_pq_peek_cost"
+      "rva": "00012600",
+      "name": "cost_coord_pq_destroy"
     },
     {
       "ordinal": 117,
       "hint": "74",
-      "rva": "00012550",
-      "name": "cost_coord_pq_pop"
+      "rva": "000126F0",
+      "name": "cost_coord_pq_is_empty"
     },
     {
       "ordinal": 118,
       "hint": "75",
-      "rva": "000125B0",
-      "name": "cost_coord_pq_push"
+      "rva": "00012770",
+      "name": "cost_coord_pq_length"
     },
     {
       "ordinal": 119,
       "hint": "76",
-      "rva": "000126F0",
-      "name": "cost_coord_pq_remove"
+      "rva": "00012800",
+      "name": "cost_coord_pq_peek"
     },
     {
       "ordinal": 120,
       "hint": "77",
-      "rva": "00012870",
-      "name": "cost_coord_pq_trim_worst"
+      "rva": "00012830",
+      "name": "cost_coord_pq_peek_cost"
     },
     {
       "ordinal": 121,
       "hint": "78",
-      "rva": "000223A0",
-      "name": "default_cost"
+      "rva": "00012860",
+      "name": "cost_coord_pq_pop"
     },
     {
       "ordinal": 122,
       "hint": "79",
-      "rva": "000223B0",
-      "name": "default_heuristic"
+      "rva": "000128C0",
+      "name": "cost_coord_pq_push"
     },
     {
       "ordinal": 123,
       "hint": "7A",
-      "rva": "00029150",
-      "name": "detect_plane_collision"
+      "rva": "00012A00",
+      "name": "cost_coord_pq_remove"
     },
     {
       "ordinal": 124,
       "hint": "7B",
-      "rva": "000295D0",
-      "name": "detect_sphere_collision"
+      "rva": "00012B80",
+      "name": "cost_coord_pq_trim_worst"
     },
     {
       "ordinal": 125,
       "hint": "7C",
-      "rva": "00029910",
-      "name": "detect_sphere_collision_moving"
+      "rva": "00022A00",
+      "name": "default_cost"
     },
     {
       "ordinal": 126,
       "hint": "7D",
-      "rva": "00029D50",
-      "name": "detect_sphere_collision_moving_precise"
+      "rva": "00022A10",
+      "name": "default_heuristic"
     },
     {
       "ordinal": 127,
       "hint": "7E",
-      "rva": "0002A6F0",
-      "name": "detect_sphere_collision_precise"
+      "rva": "0002A770",
+      "name": "detect_plane_collision"
     },
     {
       "ordinal": 128,
       "hint": "7F",
-      "rva": "0002ADA0",
-      "name": "detect_triangle_collision_moving"
+      "rva": "0002ABF0",
+      "name": "detect_sphere_collision"
     },
     {
       "ordinal": 129,
       "hint": "80",
-      "rva": "0002B120",
-      "name": "detect_triangle_collision_rotating"
+      "rva": "0002AF30",
+      "name": "detect_sphere_collision_moving"
     },
     {
       "ordinal": 130,
       "hint": "81",
-      "rva": "0002B770",
-      "name": "detect_triangle_collision_rotating_alpha"
+      "rva": "0002B370",
+      "name": "detect_sphere_collision_moving_precise"
     },
     {
       "ordinal": 131,
       "hint": "82",
-      "rva": "00022400",
-      "name": "diagonal_cost"
+      "rva": "0002BD10",
+      "name": "detect_sphere_collision_precise"
     },
     {
       "ordinal": 132,
       "hint": "83",
-      "rva": "00012A80",
-      "name": "direction_to_coord"
+      "rva": "0002C3C0",
+      "name": "detect_triangle_collision_moving"
     },
     {
       "ordinal": 133,
       "hint": "84",
-      "rva": "000110B0",
-      "name": "double_copy"
+      "rva": "0002C740",
+      "name": "detect_triangle_collision_rotating"
     },
     {
       "ordinal": 134,
       "hint": "85",
-      "rva": "000110F0",
-      "name": "double_destroy"
+      "rva": "0002CD90",
+      "name": "detect_triangle_collision_rotating_alpha"
     },
     {
       "ordinal": 135,
       "hint": "86",
-      "rva": "0000E120",
-      "name": "dsl_debug_print_g_table"
+      "rva": "00022A60",
+      "name": "diagonal_cost"
     },
     {
       "ordinal": 136,
       "hint": "87",
-      "rva": "0000E1B0",
-      "name": "dsl_debug_print_rhs_table"
+      "rva": "00012D90",
+      "name": "direction_to_coord"
     },
     {
       "ordinal": 137,
       "hint": "88",
-      "rva": "0000E240",
-      "name": "dsl_print_ascii_only_navgrid"
+      "rva": "00011200",
+      "name": "double_copy"
     },
     {
       "ordinal": 138,
       "hint": "89",
-      "rva": "0000E250",
-      "name": "dsl_print_ascii_route"
+      "rva": "00011240",
+      "name": "double_destroy"
     },
     {
       "ordinal": 139,
       "hint": "8A",
-      "rva": "0000E270",
-      "name": "dsl_print_ascii_update_count"
+      "rva": "0000E120",
+      "name": "dsl_debug_print_g_table"
     },
     {
       "ordinal": 140,
       "hint": "8B",
-      "rva": "0000E290",
-      "name": "dsl_print_info"
+      "rva": "0000E1B0",
+      "name": "dsl_debug_print_rhs_table"
     },
     {
       "ordinal": 141,
       "hint": "8C",
-      "rva": "00024F00",
-      "name": "dstar_lite_calc_key"
+      "rva": "0000E240",
+      "name": "dsl_print_ascii_only_navgrid"
     },
     {
       "ordinal": 142,
       "hint": "8D",
-      "rva": "00024F90",
-      "name": "dstar_lite_compute_shortest_route"
+      "rva": "0000E250",
+      "name": "dsl_print_ascii_route"
     },
     {
       "ordinal": 143,
       "hint": "8E",
-      "rva": "000253D0",
-      "name": "dstar_lite_copy"
+      "rva": "0000E270",
+      "name": "dsl_print_ascii_update_count"
     },
     {
       "ordinal": 144,
       "hint": "8F",
-      "rva": "00025550",
-      "name": "dstar_lite_cost"
+      "rva": "0000E290",
+      "name": "dsl_print_info"
     },
     {
       "ordinal": 145,
       "hint": "90",
-      "rva": "000255C0",
-      "name": "dstar_lite_create"
+      "rva": "00025E50",
+      "name": "dstar_lite_bind_changed_coords_func"
     },
     {
       "ordinal": 146,
       "hint": "91",
-      "rva": "00025700",
-      "name": "dstar_lite_create_full"
+      "rva": "00025EA0",
+      "name": "dstar_lite_bind_cost_func"
     },
     {
       "ordinal": 147,
       "hint": "92",
-      "rva": "00025860",
-      "name": "dstar_lite_destroy"
+      "rva": "00025EF0",
+      "name": "dstar_lite_bind_heuristic_func"
     },
     {
       "ordinal": 148,
       "hint": "93",
-      "rva": "000258C0",
-      "name": "dstar_lite_dynamic_cost"
+      "rva": "00025F40",
+      "name": "dstar_lite_bind_move_func"
     },
     {
       "ordinal": 149,
       "hint": "94",
-      "rva": "00025990",
-      "name": "dstar_lite_enable_debug_mode"
+      "rva": "00025F90",
+      "name": "dstar_lite_calc_key"
     },
     {
       "ordinal": 150,
       "hint": "95",
-      "rva": "000259A0",
-      "name": "dstar_lite_fetch_goal"
+      "rva": "00026090",
+      "name": "dstar_lite_compute_shortest_route"
     },
     {
       "ordinal": 151,
       "hint": "96",
-      "rva": "000259C0",
-      "name": "dstar_lite_fetch_next"
+      "rva": "00026570",
+      "name": "dstar_lite_copy"
     },
     {
       "ordinal": 152,
       "hint": "97",
-      "rva": "00025B50",
-      "name": "dstar_lite_fetch_start"
+      "rva": "000266F0",
+      "name": "dstar_lite_cost"
     },
     {
       "ordinal": 153,
       "hint": "98",
-      "rva": "00025B70",
-      "name": "dstar_lite_find"
+      "rva": "000267C0",
+      "name": "dstar_lite_create"
     },
     {
       "ordinal": 154,
       "hint": "99",
-      "rva": "00025BB0",
-      "name": "dstar_lite_find_full"
+      "rva": "00026810",
+      "name": "dstar_lite_create_full"
     },
     {
       "ordinal": 155,
       "hint": "9A",
-      "rva": "00025BE0",
-      "name": "dstar_lite_find_loop"
+      "rva": "000269C0",
+      "name": "dstar_lite_destroy"
     },
     {
       "ordinal": 156,
       "hint": "9B",
-      "rva": "00025FF0",
-      "name": "dstar_lite_find_proto"
+      "rva": "00026A40",
+      "name": "dstar_lite_dynamic_cost"
     },
     {
       "ordinal": 157,
       "hint": "9C",
-      "rva": "00026020",
-      "name": "dstar_lite_force_quit"
+      "rva": "00026B50",
+      "name": "dstar_lite_enable_debug_mode"
     },
     {
       "ordinal": 158,
       "hint": "9D",
-      "rva": "00026030",
-      "name": "dstar_lite_get_changed_coords_func"
+      "rva": "00026B60",
+      "name": "dstar_lite_fetch_goal"
     },
     {
       "ordinal": 159,
       "hint": "9E",
-      "rva": "00026040",
-      "name": "dstar_lite_get_changed_coords_func_userdata"
+      "rva": "00026B80",
+      "name": "dstar_lite_fetch_next"
     },
     {
       "ordinal": 160,
       "hint": "9F",
-      "rva": "00026050",
-      "name": "dstar_lite_get_cost_func"
+      "rva": "00026D80",
+      "name": "dstar_lite_fetch_start"
     },
     {
       "ordinal": 161,
       "hint": "A0",
-      "rva": "000229A0",
-      "name": "dstar_lite_get_cost_func_userdata"
+      "rva": "00026DA0",
+      "name": "dstar_lite_find"
     },
     {
       "ordinal": 162,
       "hint": "A1",
-      "rva": "00026060",
-      "name": "dstar_lite_get_frontier"
+      "rva": "00026DE0",
+      "name": "dstar_lite_find_full"
     },
     {
       "ordinal": 163,
       "hint": "A2",
-      "rva": "00022950",
-      "name": "dstar_lite_get_g_table"
+      "rva": "00026E10",
+      "name": "dstar_lite_find_loop"
     },
     {
       "ordinal": 164,
       "hint": "A3",
-      "rva": "00026070",
-      "name": "dstar_lite_get_heuristic_func"
+      "rva": "000272B0",
+      "name": "dstar_lite_find_proto"
     },
     {
       "ordinal": 165,
       "hint": "A4",
-      "rva": "00026080",
-      "name": "dstar_lite_get_km"
+      "rva": "000272E0",
+      "name": "dstar_lite_force_quit"
     },
     {
       "ordinal": 166,
       "hint": "A5",
-      "rva": "00026090",
-      "name": "dstar_lite_get_max_range"
+      "rva": "000272F0",
+      "name": "dstar_lite_get_changed_coords_func"
     },
     {
       "ordinal": 167,
       "hint": "A6",
-      "rva": "000260A0",
-      "name": "dstar_lite_get_max_retry"
+      "rva": "00027300",
+      "name": "dstar_lite_get_changed_coords_func_userdata"
     },
     {
       "ordinal": 168,
       "hint": "A7",
-      "rva": "000260B0",
-      "name": "dstar_lite_get_move_func"
+      "rva": "00027310",
+      "name": "dstar_lite_get_cost_func"
     },
     {
       "ordinal": 169,
       "hint": "A8",
-      "rva": "000260C0",
-      "name": "dstar_lite_get_move_func_userdata"
+      "rva": "000237E0",
+      "name": "dstar_lite_get_cost_func_userdata"
     },
     {
       "ordinal": 170,
       "hint": "A9",
-      "rva": "00022980",
-      "name": "dstar_lite_get_navgrid"
+      "rva": "00027320",
+      "name": "dstar_lite_get_frontier"
     },
     {
       "ordinal": 171,
       "hint": "AA",
-      "rva": "000260D0",
-      "name": "dstar_lite_get_proto_route"
+      "rva": "00023790",
+      "name": "dstar_lite_get_g_table"
     },
     {
       "ordinal": 172,
       "hint": "AB",
-      "rva": "000260E0",
-      "name": "dstar_lite_get_real_loop_max_retry"
+      "rva": "00027330",
+      "name": "dstar_lite_get_heuristic_func"
     },
     {
       "ordinal": 173,
       "hint": "AC",
-      "rva": "000260F0",
-      "name": "dstar_lite_get_real_route"
+      "rva": "00023780",
+      "name": "dstar_lite_get_heuristic_func_userdata"
     },
     {
       "ordinal": 174,
       "hint": "AD",
-      "rva": "00026100",
-      "name": "dstar_lite_get_reconstruct_max_retry"
+      "rva": "00027340",
+      "name": "dstar_lite_get_km"
     },
     {
       "ordinal": 175,
       "hint": "AE",
-      "rva": "00026110",
-      "name": "dstar_lite_get_rhs_table"
+      "rva": "00027350",
+      "name": "dstar_lite_get_max_range"
     },
     {
       "ordinal": 176,
       "hint": "AF",
-      "rva": "00026120",
-      "name": "dstar_lite_heuristic"
+      "rva": "00027360",
+      "name": "dstar_lite_get_max_retry"
     },
     {
       "ordinal": 177,
       "hint": "B0",
-      "rva": "00026150",
-      "name": "dstar_lite_init"
+      "rva": "00027370",
+      "name": "dstar_lite_get_move_func"
     },
     {
       "ordinal": 178,
       "hint": "B1",
-      "rva": "000261D0",
-      "name": "dstar_lite_is_debug_mode_enabled"
+      "rva": "00027380",
+      "name": "dstar_lite_get_move_func_userdata"
     },
     {
       "ordinal": 179,
       "hint": "B2",
-      "rva": "000261E0",
-      "name": "dstar_lite_is_quit_forced"
+      "rva": "000237C0",
+      "name": "dstar_lite_get_navgrid"
     },
     {
       "ordinal": 180,
       "hint": "B3",
-      "rva": "00023D60",
-      "name": "dstar_lite_key_compare"
+      "rva": "00027390",
+      "name": "dstar_lite_get_proto_route"
     },
     {
       "ordinal": 181,
       "hint": "B4",
-      "rva": "00023E00",
-      "name": "dstar_lite_key_copy"
+      "rva": "000273A0",
+      "name": "dstar_lite_get_real_loop_max_retry"
     },
     {
       "ordinal": 182,
       "hint": "B5",
-      "rva": "00023E50",
-      "name": "dstar_lite_key_create"
+      "rva": "000273B0",
+      "name": "dstar_lite_get_real_route"
     },
     {
       "ordinal": 183,
       "hint": "B6",
-      "rva": "00023E80",
-      "name": "dstar_lite_key_create_full"
+      "rva": "000273C0",
+      "name": "dstar_lite_get_reconstruct_max_retry"
     },
     {
       "ordinal": 184,
       "hint": "B7",
-      "rva": "0000F0A0",
-      "name": "dstar_lite_key_destroy"
+      "rva": "000273D0",
+      "name": "dstar_lite_get_rhs_table"
     },
     {
       "ordinal": 185,
       "hint": "B8",
-      "rva": "00023ED0",
-      "name": "dstar_lite_key_equal"
+      "rva": "000273E0",
+      "name": "dstar_lite_heuristic"
     },
     {
       "ordinal": 186,
       "hint": "B9",
-      "rva": "00023F30",
-      "name": "dstar_lite_key_hash"
+      "rva": "00027410",
+      "name": "dstar_lite_init"
     },
     {
       "ordinal": 187,
       "hint": "BA",
-      "rva": "00024200",
-      "name": "dstar_lite_pqueue_contains"
+      "rva": "00027490",
+      "name": "dstar_lite_is_debug_mode_enabled"
     },
     {
       "ordinal": 188,
       "hint": "BB",
-      "rva": "00024220",
-      "name": "dstar_lite_pqueue_copy"
+      "rva": "000274A0",
+      "name": "dstar_lite_is_quit_forced"
     },
     {
       "ordinal": 189,
       "hint": "BC",
-      "rva": "000245A0",
-      "name": "dstar_lite_pqueue_create"
+      "rva": "00024C80",
+      "name": "dstar_lite_key_compare"
     },
     {
       "ordinal": 190,
       "hint": "BD",
-      "rva": "00024610",
-      "name": "dstar_lite_pqueue_destroy"
+      "rva": "00024D20",
+      "name": "dstar_lite_key_copy"
     },
     {
       "ordinal": 191,
       "hint": "BE",
-      "rva": "00024720",
-      "name": "dstar_lite_pqueue_get_key_by_coord"
+      "rva": "00024D70",
+      "name": "dstar_lite_key_create"
     },
     {
       "ordinal": 192,
       "hint": "BF",
-      "rva": "00024740",
-      "name": "dstar_lite_pqueue_is_empty"
+      "rva": "00024DA0",
+      "name": "dstar_lite_key_create_full"
     },
     {
       "ordinal": 193,
       "hint": "C0",
-      "rva": "00024760",
-      "name": "dstar_lite_pqueue_peek"
+      "rva": "0000F0B0",
+      "name": "dstar_lite_key_destroy"
     },
     {
       "ordinal": 194,
       "hint": "C1",
-      "rva": "00024790",
-      "name": "dstar_lite_pqueue_pop"
+      "rva": "00024DF0",
+      "name": "dstar_lite_key_equal"
     },
     {
       "ordinal": 195,
       "hint": "C2",
-      "rva": "00024850",
-      "name": "dstar_lite_pqueue_push"
+      "rva": "00024E50",
+      "name": "dstar_lite_key_hash"
     },
     {
       "ordinal": 196,
       "hint": "C3",
-      "rva": "00024B40",
-      "name": "dstar_lite_pqueue_remove"
+      "rva": "00025120",
+      "name": "dstar_lite_pqueue_contains"
     },
     {
       "ordinal": 197,
       "hint": "C4",
-      "rva": "00024CA0",
-      "name": "dstar_lite_pqueue_remove_full"
+      "rva": "00025140",
+      "name": "dstar_lite_pqueue_copy"
     },
     {
       "ordinal": 198,
       "hint": "C5",
-      "rva": "00024E00",
-      "name": "dstar_lite_pqueue_top_key"
+      "rva": "000254C0",
+      "name": "dstar_lite_pqueue_create"
     },
     {
       "ordinal": 199,
       "hint": "C6",
-      "rva": "000261F0",
-      "name": "dstar_lite_proto_compute_retry_count"
+      "rva": "00025560",
+      "name": "dstar_lite_pqueue_destroy"
     },
     {
       "ordinal": 200,
       "hint": "C7",
-      "rva": "00026200",
-      "name": "dstar_lite_real_compute_retry_count"
+      "rva": "00025670",
+      "name": "dstar_lite_pqueue_get_key_by_coord"
     },
     {
       "ordinal": 201,
       "hint": "C8",
-      "rva": "00026210",
-      "name": "dstar_lite_real_loop_retry_count"
+      "rva": "00025690",
+      "name": "dstar_lite_pqueue_is_empty"
     },
     {
       "ordinal": 202,
       "hint": "C9",
-      "rva": "00026220",
-      "name": "dstar_lite_reconstruct_retry_count"
+      "rva": "000256B0",
+      "name": "dstar_lite_pqueue_peek"
     },
     {
       "ordinal": 203,
       "hint": "CA",
-      "rva": "00026230",
-      "name": "dstar_lite_reconstruct_route"
+      "rva": "000256E0",
+      "name": "dstar_lite_pqueue_pop"
     },
     {
       "ordinal": 204,
       "hint": "CB",
-      "rva": "00026490",
-      "name": "dstar_lite_reset"
+      "rva": "000257A0",
+      "name": "dstar_lite_pqueue_push"
     },
     {
       "ordinal": 205,
       "hint": "CC",
-      "rva": "00026550",
-      "name": "dstar_lite_set_changed_coords_func"
+      "rva": "00025A90",
+      "name": "dstar_lite_pqueue_remove"
     },
     {
       "ordinal": 206,
       "hint": "CD",
-      "rva": "00026560",
-      "name": "dstar_lite_set_changed_coords_func_userdata"
+      "rva": "00025BF0",
+      "name": "dstar_lite_pqueue_remove_full"
     },
     {
       "ordinal": 207,
       "hint": "CE",
-      "rva": "00014C00",
-      "name": "dstar_lite_set_cost_func"
+      "rva": "00025D50",
+      "name": "dstar_lite_pqueue_top_key"
     },
     {
       "ordinal": 208,
       "hint": "CF",
-      "rva": "00026570",
-      "name": "dstar_lite_set_cost_func_userdata"
+      "rva": "000274B0",
+      "name": "dstar_lite_proto_compute_retry_count"
     },
     {
       "ordinal": 209,
       "hint": "D0",
-      "rva": "00026580",
-      "name": "dstar_lite_set_force_quit"
+      "rva": "000274C0",
+      "name": "dstar_lite_real_compute_retry_count"
     },
     {
       "ordinal": 210,
       "hint": "D1",
-      "rva": "00026590",
-      "name": "dstar_lite_set_frontier"
+      "rva": "000274D0",
+      "name": "dstar_lite_real_loop_retry_count"
     },
     {
       "ordinal": 211,
       "hint": "D2",
-      "rva": "00022F40",
-      "name": "dstar_lite_set_goal"
+      "rva": "000274E0",
+      "name": "dstar_lite_reconstruct_retry_count"
     },
     {
       "ordinal": 212,
       "hint": "D3",
-      "rva": "000265C0",
-      "name": "dstar_lite_set_heuristic_func"
+      "rva": "000274F0",
+      "name": "dstar_lite_reconstruct_route"
     },
     {
       "ordinal": 213,
       "hint": "D4",
-      "rva": "00022F00",
-      "name": "dstar_lite_set_heuristic_func_userdata"
+      "rva": "000277A0",
+      "name": "dstar_lite_reset"
     },
     {
       "ordinal": 214,
       "hint": "D5",
-      "rva": "000265D0",
-      "name": "dstar_lite_set_interval_sec"
+      "rva": "00027860",
+      "name": "dstar_lite_set_changed_coords_func"
     },
     {
       "ordinal": 215,
       "hint": "D6",
-      "rva": "000265E0",
-      "name": "dstar_lite_set_km"
+      "rva": "00027870",
+      "name": "dstar_lite_set_changed_coords_func_userdata"
     },
     {
       "ordinal": 216,
       "hint": "D7",
-      "rva": "000265F0",
-      "name": "dstar_lite_set_max_range"
+      "rva": "000151D0",
+      "name": "dstar_lite_set_cost_func"
     },
     {
       "ordinal": 217,
       "hint": "D8",
-      "rva": "00026600",
-      "name": "dstar_lite_set_max_retry"
+      "rva": "00027880",
+      "name": "dstar_lite_set_cost_func_userdata"
     },
     {
       "ordinal": 218,
       "hint": "D9",
-      "rva": "00026610",
-      "name": "dstar_lite_set_move_func"
+      "rva": "00027890",
+      "name": "dstar_lite_set_force_quit"
     },
     {
       "ordinal": 219,
       "hint": "DA",
-      "rva": "00026620",
-      "name": "dstar_lite_set_move_func_userdata"
+      "rva": "000278A0",
+      "name": "dstar_lite_set_frontier"
     },
     {
       "ordinal": 220,
       "hint": "DB",
-      "rva": "00022F80",
-      "name": "dstar_lite_set_navgrid"
+      "rva": "00023CC0",
+      "name": "dstar_lite_set_goal"
     },
     {
       "ordinal": 221,
       "hint": "DC",
-      "rva": "00026630",
-      "name": "dstar_lite_set_real_loop_max_retry"
+      "rva": "000278D0",
+      "name": "dstar_lite_set_heuristic_func"
     },
     {
       "ordinal": 222,
       "hint": "DD",
-      "rva": "00026640",
-      "name": "dstar_lite_set_reconstruct_max_retry"
+      "rva": "00023C80",
+      "name": "dstar_lite_set_heuristic_func_userdata"
     },
     {
       "ordinal": 223,
       "hint": "DE",
-      "rva": "00022F90",
-      "name": "dstar_lite_set_start"
+      "rva": "000278E0",
+      "name": "dstar_lite_set_interval_sec"
     },
     {
       "ordinal": 224,
       "hint": "DF",
-      "rva": "00026B80",
-      "name": "dstar_lite_tick_complete"
+      "rva": "000278F0",
+      "name": "dstar_lite_set_km"
     },
     {
       "ordinal": 225,
       "hint": "E0",
-      "rva": "00026BC0",
-      "name": "dstar_lite_tick_copy"
+      "rva": "00027900",
+      "name": "dstar_lite_set_max_range"
     },
     {
       "ordinal": 226,
       "hint": "E1",
-      "rva": "00026C00",
-      "name": "dstar_lite_tick_create"
+      "rva": "00027910",
+      "name": "dstar_lite_set_max_retry"
     },
     {
       "ordinal": 227,
       "hint": "E2",
-      "rva": "00026C70",
-      "name": "dstar_lite_tick_create_full"
+      "rva": "00027920",
+      "name": "dstar_lite_set_move_func"
     },
     {
       "ordinal": 228,
       "hint": "E3",
-      "rva": "00026CD0",
-      "name": "dstar_lite_tick_destroy"
+      "rva": "00027930",
+      "name": "dstar_lite_set_move_func_userdata"
     },
     {
       "ordinal": 229,
       "hint": "E4",
-      "rva": "00026CE0",
-      "name": "dstar_lite_tick_prepare"
+      "rva": "00023D60",
+      "name": "dstar_lite_set_navgrid"
     },
     {
       "ordinal": 230,
       "hint": "E5",
-      "rva": "00026DA0",
-      "name": "dstar_lite_tick_prepare_full"
+      "rva": "00027940",
+      "name": "dstar_lite_set_real_loop_max_retry"
     },
     {
       "ordinal": 231,
       "hint": "E6",
-      "rva": "00026E80",
-      "name": "dstar_lite_tick_reset"
+      "rva": "00027950",
+      "name": "dstar_lite_set_reconstruct_max_retry"
     },
     {
       "ordinal": 232,
       "hint": "E7",
-      "rva": "00026EA0",
-      "name": "dstar_lite_tick_update"
+      "rva": "00023D70",
+      "name": "dstar_lite_set_start"
     },
     {
       "ordinal": 233,
       "hint": "E8",
-      "rva": "00026650",
-      "name": "dstar_lite_update_vertex"
+      "rva": "000280A0",
+      "name": "dstar_lite_tick_complete"
     },
     {
       "ordinal": 234,
       "hint": "E9",
-      "rva": "00026820",
-      "name": "dstar_lite_update_vertex_auto_range"
+      "rva": "000280E0",
+      "name": "dstar_lite_tick_copy"
     },
     {
       "ordinal": 235,
       "hint": "EA",
-      "rva": "00026830",
-      "name": "dstar_lite_update_vertex_range"
+      "rva": "00028120",
+      "name": "dstar_lite_tick_create"
     },
     {
       "ordinal": 236,
       "hint": "EB",
-      "rva": "00001440",
-      "name": "dualnumber_add"
+      "rva": "00028190",
+      "name": "dstar_lite_tick_create_full"
     },
     {
       "ordinal": 237,
       "hint": "EC",
-      "rva": "00001470",
-      "name": "dualnumber_assign"
+      "rva": "000281F0",
+      "name": "dstar_lite_tick_destroy"
     },
     {
       "ordinal": 238,
       "hint": "ED",
-      "rva": "00001490",
-      "name": "dualnumber_div"
+      "rva": "00028200",
+      "name": "dstar_lite_tick_prepare"
     },
     {
       "ordinal": 239,
       "hint": "EE",
-      "rva": "000014E0",
-      "name": "dualnumber_equal"
+      "rva": "000282C0",
+      "name": "dstar_lite_tick_prepare_full"
     },
     {
       "ordinal": 240,
       "hint": "EF",
-      "rva": "00001510",
-      "name": "dualnumber_hash"
+      "rva": "000283A0",
+      "name": "dstar_lite_tick_reset"
     },
     {
       "ordinal": 241,
       "hint": "F0",
-      "rva": "00001520",
-      "name": "dualnumber_init"
+      "rva": "000283C0",
+      "name": "dstar_lite_tick_update"
     },
     {
       "ordinal": 242,
       "hint": "F1",
-      "rva": "00001530",
-      "name": "dualnumber_init_full"
+      "rva": "00027960",
+      "name": "dstar_lite_unbind_changed_coords_func"
     },
     {
       "ordinal": 243,
       "hint": "F2",
-      "rva": "00001540",
-      "name": "dualnumber_invscale"
+      "rva": "000279A0",
+      "name": "dstar_lite_unbind_cost_func"
     },
     {
       "ordinal": 244,
       "hint": "F3",
-      "rva": "00001570",
-      "name": "dualnumber_mul"
+      "rva": "000279F0",
+      "name": "dstar_lite_unbind_heuristic_func"
     },
     {
       "ordinal": 245,
       "hint": "F4",
-      "rva": "000015B0",
-      "name": "dualnumber_neg"
+      "rva": "00027A40",
+      "name": "dstar_lite_unbind_move_func"
     },
     {
       "ordinal": 246,
       "hint": "F5",
-      "rva": "000015E0",
-      "name": "dualnumber_powf"
+      "rva": "00027A80",
+      "name": "dstar_lite_update_vertex"
     },
     {
       "ordinal": 247,
       "hint": "F6",
-      "rva": "00001660",
-      "name": "dualnumber_scale"
+      "rva": "00027CD0",
+      "name": "dstar_lite_update_vertex_auto_range"
     },
     {
       "ordinal": 248,
       "hint": "F7",
-      "rva": "00001680",
-      "name": "dualnumber_sub"
+      "rva": "00027CE0",
+      "name": "dstar_lite_update_vertex_range"
     },
     {
       "ordinal": 249,
       "hint": "F8",
-      "rva": "00001800",
-      "name": "dualquat_add"
+      "rva": "00001440",
+      "name": "dualnumber_add"
     },
     {
       "ordinal": 250,
       "hint": "F9",
-      "rva": "00001840",
-      "name": "dualquat_align"
+      "rva": "00001470",
+      "name": "dualnumber_assign"
     },
     {
       "ordinal": 251,
       "hint": "FA",
-      "rva": "000018B0",
-      "name": "dualquat_apply_inverse_to_point"
+      "rva": "00001490",
+      "name": "dualnumber_div"
     },
     {
       "ordinal": 252,
       "hint": "FB",
-      "rva": "00001970",
-      "name": "dualquat_apply_to_point"
+      "rva": "000014E0",
+      "name": "dualnumber_equal"
     },
     {
       "ordinal": 253,
       "hint": "FC",
-      "rva": "00001C20",
-      "name": "dualquat_apply_to_point_inplace"
+      "rva": "00001510",
+      "name": "dualnumber_hash"
     },
     {
       "ordinal": 254,
       "hint": "FD",
-      "rva": "00001C60",
-      "name": "dualquat_assign"
+      "rva": "00001520",
+      "name": "dualnumber_init"
     },
     {
       "ordinal": 255,
       "hint": "FE",
-      "rva": "00001C80",
-      "name": "dualquat_blend_weighted"
+      "rva": "00001530",
+      "name": "dualnumber_init_full"
     },
     {
       "ordinal": 256,
       "hint": "FF",
-      "rva": "00001DC0",
-      "name": "dualquat_conjugate"
+      "rva": "00001540",
+      "name": "dualnumber_invscale"
     },
     {
       "ordinal": 257,
       "hint": "100",
-      "rva": "00001DF0",
-      "name": "dualquat_dot"
+      "rva": "00001570",
+      "name": "dualnumber_mul"
     },
     {
       "ordinal": 258,
       "hint": "101",
-      "rva": "00001E40",
-      "name": "dualquat_equal"
+      "rva": "000015B0",
+      "name": "dualnumber_neg"
     },
     {
       "ordinal": 259,
       "hint": "102",
-      "rva": "00001E90",
-      "name": "dualquat_hash"
+      "rva": "000015E0",
+      "name": "dualnumber_powf"
     },
     {
       "ordinal": 260,
       "hint": "103",
-      "rva": "00001EC0",
-      "name": "dualquat_init"
+      "rva": "00001660",
+      "name": "dualnumber_scale"
     },
     {
       "ordinal": 261,
       "hint": "104",
-      "rva": "00001EF0",
-      "name": "dualquat_init_from_mat3"
+      "rva": "00001680",
+      "name": "dualnumber_sub"
     },
     {
       "ordinal": 262,
       "hint": "105",
-      "rva": "00002150",
-      "name": "dualquat_init_from_mat4"
+      "rva": "00001800",
+      "name": "dualquat_add"
     },
     {
       "ordinal": 263,
       "hint": "106",
-      "rva": "00002580",
-      "name": "dualquat_init_quat_vec"
+      "rva": "00001840",
+      "name": "dualquat_align"
     },
     {
       "ordinal": 264,
       "hint": "107",
-      "rva": "000026F0",
-      "name": "dualquat_inverse"
+      "rva": "000018B0",
+      "name": "dualquat_apply_inverse_to_point"
     },
     {
       "ordinal": 265,
       "hint": "108",
-      "rva": "00002780",
-      "name": "dualquat_length"
+      "rva": "00001970",
+      "name": "dualquat_apply_to_point"
     },
     {
       "ordinal": 266,
       "hint": "109",
-      "rva": "000027E0",
-      "name": "dualquat_lerp"
+      "rva": "00001C20",
+      "name": "dualquat_apply_to_point_inplace"
     },
     {
       "ordinal": 267,
       "hint": "10A",
-      "rva": "00002920",
-      "name": "dualquat_mul"
+      "rva": "00001C60",
+      "name": "dualquat_assign"
     },
     {
       "ordinal": 268,
       "hint": "10B",
-      "rva": "00002C20",
-      "name": "dualquat_nlerp"
+      "rva": "00001C80",
+      "name": "dualquat_blend_weighted"
     },
     {
       "ordinal": 269,
       "hint": "10C",
-      "rva": "00002C30",
-      "name": "dualquat_normalize"
+      "rva": "00001DC0",
+      "name": "dualquat_conjugate"
     },
     {
       "ordinal": 270,
       "hint": "10D",
-      "rva": "00002DB0",
-      "name": "dualquat_scale"
+      "rva": "00001DF0",
+      "name": "dualquat_dot"
     },
     {
       "ordinal": 271,
       "hint": "10E",
-      "rva": "00002DF0",
-      "name": "dualquat_slerp"
+      "rva": "00001E40",
+      "name": "dualquat_equal"
     },
     {
       "ordinal": 272,
       "hint": "10F",
-      "rva": "00002FC0",
-      "name": "dualquat_sub"
+      "rva": "00001E90",
+      "name": "dualquat_hash"
     },
     {
       "ordinal": 273,
       "hint": "110",
-      "rva": "00003000",
-      "name": "dualquat_to_mat3"
+      "rva": "00001EC0",
+      "name": "dualquat_init"
     },
     {
       "ordinal": 274,
       "hint": "111",
-      "rva": "000030A0",
-      "name": "dualquat_to_mat4"
+      "rva": "00001EF0",
+      "name": "dualquat_init_from_mat3"
     },
     {
       "ordinal": 275,
       "hint": "112",
-      "rva": "000033A0",
-      "name": "dualquat_to_quat_vec"
+      "rva": "00002150",
+      "name": "dualquat_init_from_mat4"
     },
     {
       "ordinal": 276,
       "hint": "113",
-      "rva": "00003520",
-      "name": "dualquat_unit"
+      "rva": "00002580",
+      "name": "dualquat_init_quat_vec"
     },
     {
       "ordinal": 277,
       "hint": "114",
-      "rva": "00030710",
-      "name": "entity_assign"
+      "rva": "000026F0",
+      "name": "dualquat_inverse"
     },
     {
       "ordinal": 278,
       "hint": "115",
-      "rva": "00039220",
-      "name": "entity_dynamic_assign"
+      "rva": "00002780",
+      "name": "dualquat_length"
     },
     {
       "ordinal": 279,
       "hint": "116",
-      "rva": "00039280",
-      "name": "entity_dynamic_bounce"
+      "rva": "000027E0",
+      "name": "dualquat_lerp"
     },
     {
       "ordinal": 280,
       "hint": "117",
-      "rva": "00039350",
-      "name": "entity_dynamic_calc_accel"
+      "rva": "00002920",
+      "name": "dualquat_mul"
     },
     {
       "ordinal": 281,
       "hint": "118",
-      "rva": "000393C0",
-      "name": "entity_dynamic_calc_accel_env"
+      "rva": "00002C20",
+      "name": "dualquat_nlerp"
     },
     {
       "ordinal": 282,
       "hint": "119",
-      "rva": "000394E0",
-      "name": "entity_dynamic_calc_drag_accel"
+      "rva": "00002C30",
+      "name": "dualquat_normalize"
     },
     {
       "ordinal": 283,
       "hint": "11A",
-      "rva": "000395A0",
-      "name": "entity_dynamic_calc_position"
+      "rva": "00002DB0",
+      "name": "dualquat_scale"
     },
     {
       "ordinal": 284,
       "hint": "11B",
-      "rva": "00039660",
-      "name": "entity_dynamic_calc_position_env"
+      "rva": "00002DF0",
+      "name": "dualquat_slerp"
     },
     {
       "ordinal": 285,
       "hint": "11C",
-      "rva": "00039800",
-      "name": "entity_dynamic_calc_state_env"
+      "rva": "00002FC0",
+      "name": "dualquat_sub"
     },
     {
       "ordinal": 286,
       "hint": "11D",
-      "rva": "00039920",
-      "name": "entity_dynamic_calc_velocity"
+      "rva": "00003000",
+      "name": "dualquat_to_mat3"
     },
     {
       "ordinal": 287,
       "hint": "11E",
-      "rva": "00039990",
-      "name": "entity_dynamic_calc_velocity_env"
+      "rva": "000030A0",
+      "name": "dualquat_to_mat4"
     },
     {
       "ordinal": 288,
       "hint": "11F",
-      "rva": "0003B7F0",
-      "name": "entity_dynamic_collision_point"
+      "rva": "000033A0",
+      "name": "dualquat_to_quat_vec"
     },
     {
       "ordinal": 289,
       "hint": "120",
-      "rva": "0003B8D0",
-      "name": "entity_dynamic_collision_point_env"
+      "rva": "00003520",
+      "name": "dualquat_unit"
     },
     {
       "ordinal": 290,
       "hint": "121",
-      "rva": "00039F60",
-      "name": "entity_dynamic_commit_coord"
+      "rva": "00031D30",
+      "name": "entity_assign"
     },
     {
       "ordinal": 291,
       "hint": "122",
-      "rva": "0003A040",
-      "name": "entity_dynamic_coord_distance"
+      "rva": "0003A860",
+      "name": "entity_dynamic_assign"
     },
     {
       "ordinal": 292,
       "hint": "123",
-      "rva": "0003A060",
-      "name": "entity_dynamic_coord_in_range"
+      "rva": "0003A8C0",
+      "name": "entity_dynamic_bounce"
     },
     {
       "ordinal": 293,
       "hint": "124",
-      "rva": "0003B990",
-      "name": "entity_dynamic_distance"
+      "rva": "0003A990",
+      "name": "entity_dynamic_calc_accel"
     },
     {
       "ordinal": 294,
       "hint": "125",
-      "rva": "00039A90",
-      "name": "entity_dynamic_from_motion_state"
+      "rva": "0003AA00",
+      "name": "entity_dynamic_calc_accel_env"
     },
     {
       "ordinal": 295,
       "hint": "126",
-      "rva": "0003A0A0",
-      "name": "entity_dynamic_get_world_coord"
+      "rva": "0003AB20",
+      "name": "entity_dynamic_calc_drag_accel"
     },
     {
       "ordinal": 296,
       "hint": "127",
-      "rva": "0003B9A0",
-      "name": "entity_dynamic_in_contact"
+      "rva": "0003ABE0",
+      "name": "entity_dynamic_calc_position"
     },
     {
       "ordinal": 297,
       "hint": "128",
-      "rva": "00039AF0",
-      "name": "entity_dynamic_init"
+      "rva": "0003ACA0",
+      "name": "entity_dynamic_calc_position_env"
     },
     {
       "ordinal": 298,
       "hint": "129",
-      "rva": "00039B30",
-      "name": "entity_dynamic_init_full"
+      "rva": "0003AE40",
+      "name": "entity_dynamic_calc_state_env"
     },
     {
       "ordinal": 299,
       "hint": "12A",
-      "rva": "0003BA10",
-      "name": "entity_dynamic_predict_collision_time"
+      "rva": "0003AF60",
+      "name": "entity_dynamic_calc_velocity"
     },
     {
       "ordinal": 300,
       "hint": "12B",
-      "rva": "0003BAD0",
-      "name": "entity_dynamic_predict_collision_time_env"
+      "rva": "0003AFD0",
+      "name": "entity_dynamic_calc_velocity_env"
     },
     {
       "ordinal": 301,
       "hint": "12C",
-      "rva": "00039C80",
-      "name": "entity_dynamic_to_motion_state"
+      "rva": "0003CE30",
+      "name": "entity_dynamic_collision_point"
     },
     {
       "ordinal": 302,
       "hint": "12D",
-      "rva": "00039D40",
-      "name": "entity_dynamic_update"
+      "rva": "0003CF10",
+      "name": "entity_dynamic_collision_point_env"
     },
     {
       "ordinal": 303,
       "hint": "12E",
-      "rva": "00039E30",
-      "name": "entity_dynamic_update_env"
+      "rva": "0003B5A0",
+      "name": "entity_dynamic_commit_coord"
     },
     {
       "ordinal": 304,
       "hint": "12F",
-      "rva": "00039030",
-      "name": "entity_influence_radius"
+      "rva": "0003B680",
+      "name": "entity_dynamic_coord_distance"
     },
     {
       "ordinal": 305,
       "hint": "130",
-      "rva": "000390A0",
-      "name": "entity_init"
+      "rva": "0003B6A0",
+      "name": "entity_dynamic_coord_in_range"
     },
     {
       "ordinal": 306,
       "hint": "131",
-      "rva": "000390D0",
-      "name": "entity_init_full"
+      "rva": "0003CFD0",
+      "name": "entity_dynamic_distance"
     },
     {
       "ordinal": 307,
       "hint": "132",
-      "rva": "0003BBF0",
-      "name": "entity_interact_apply_force"
+      "rva": "0003B0D0",
+      "name": "entity_dynamic_from_motion_state"
     },
     {
       "ordinal": 308,
       "hint": "133",
-      "rva": "0003BC90",
-      "name": "entity_interact_check_collision"
+      "rva": "0003B6E0",
+      "name": "entity_dynamic_get_world_coord"
     },
     {
       "ordinal": 309,
       "hint": "134",
-      "rva": "0003BCE0",
-      "name": "entity_interact_check_fov"
+      "rva": "0003CFE0",
+      "name": "entity_dynamic_in_contact"
     },
     {
       "ordinal": 310,
       "hint": "135",
-      "rva": "0003BD80",
-      "name": "entity_interact_resolve_bounce"
+      "rva": "0003B130",
+      "name": "entity_dynamic_init"
     },
     {
       "ordinal": 311,
       "hint": "136",
-      "rva": "0003BF20",
-      "name": "entity_interact_update"
+      "rva": "0003B170",
+      "name": "entity_dynamic_init_full"
     },
     {
       "ordinal": 312,
       "hint": "137",
-      "rva": "0003BFD0",
-      "name": "entity_interact_within_aoe"
+      "rva": "0003D050",
+      "name": "entity_dynamic_predict_collision_time"
     },
     {
       "ordinal": 313,
       "hint": "138",
-      "rva": "00039170",
-      "name": "entity_is_expired"
+      "rva": "0003D110",
+      "name": "entity_dynamic_predict_collision_time_env"
     },
     {
       "ordinal": 314,
       "hint": "139",
-      "rva": "000391A0",
-      "name": "entity_size"
+      "rva": "0003B2C0",
+      "name": "entity_dynamic_to_motion_state"
     },
     {
       "ordinal": 315,
       "hint": "13A",
-      "rva": "000391F0",
-      "name": "entity_tick"
+      "rva": "0003B380",
+      "name": "entity_dynamic_update"
     },
     {
       "ordinal": 316,
       "hint": "13B",
-      "rva": "00027A40",
-      "name": "environ_apply_wind"
+      "rva": "0003B470",
+      "name": "entity_dynamic_update_env"
     },
     {
       "ordinal": 317,
       "hint": "13C",
-      "rva": "00027A70",
-      "name": "environ_assign"
+      "rva": "0003A670",
+      "name": "entity_influence_radius"
     },
     {
       "ordinal": 318,
       "hint": "13D",
-      "rva": "00027AA0",
-      "name": "environ_calc_gravity"
+      "rva": "0003A6E0",
+      "name": "entity_init"
     },
     {
       "ordinal": 319,
       "hint": "13E",
-      "rva": "00027B30",
-      "name": "environ_calc_gravity_wind"
+      "rva": "0003A710",
+      "name": "entity_init_full"
     },
     {
       "ordinal": 320,
       "hint": "13F",
-      "rva": "00027BE0",
-      "name": "environ_calc_none"
+      "rva": "0003D230",
+      "name": "entity_interact_apply_force"
     },
     {
       "ordinal": 321,
       "hint": "140",
-      "rva": "00027C10",
-      "name": "environ_calc_periodic"
+      "rva": "0003D2D0",
+      "name": "entity_interact_check_collision"
     },
     {
       "ordinal": 322,
       "hint": "141",
-      "rva": "00027D00",
-      "name": "environ_distort_accel"
+      "rva": "0003D320",
+      "name": "entity_interact_check_fov"
     },
     {
       "ordinal": 323,
       "hint": "142",
-      "rva": "00027D20",
-      "name": "environ_distort_accel_except_gravity"
+      "rva": "0003D3C0",
+      "name": "entity_interact_resolve_bounce"
     },
     {
       "ordinal": 324,
       "hint": "143",
-      "rva": "00027F50",
-      "name": "environ_init"
+      "rva": "0003D560",
+      "name": "entity_interact_update"
     },
     {
       "ordinal": 325,
       "hint": "144",
-      "rva": "00027FB0",
-      "name": "environ_init_full"
+      "rva": "0003D610",
+      "name": "entity_interact_within_aoe"
     },
     {
       "ordinal": 326,
       "hint": "145",
-      "rva": "00028090",
-      "name": "environ_periodic_assign"
+      "rva": "0003A7B0",
+      "name": "entity_is_expired"
     },
     {
       "ordinal": 327,
       "hint": "146",
-      "rva": "000280C0",
-      "name": "environ_periodic_init"
+      "rva": "0003A7E0",
+      "name": "entity_size"
     },
     {
       "ordinal": 328,
       "hint": "147",
-      "rva": "00028100",
-      "name": "environ_periodic_init_full"
+      "rva": "0003A830",
+      "name": "entity_tick"
     },
     {
       "ordinal": 329,
       "hint": "148",
-      "rva": "000223B0",
-      "name": "euclidean_heuristic"
+      "rva": "00029060",
+      "name": "environ_apply_wind"
     },
     {
       "ordinal": 330,
       "hint": "149",
-      "rva": "0001FA50",
-      "name": "find_astar"
+      "rva": "00029090",
+      "name": "environ_assign"
     },
     {
       "ordinal": 331,
       "hint": "14A",
-      "rva": "0001FE70",
-      "name": "find_bfs"
+      "rva": "000290C0",
+      "name": "environ_calc_gravity"
     },
     {
       "ordinal": 332,
       "hint": "14B",
-      "rva": "00020230",
-      "name": "find_dfs"
+      "rva": "00029150",
+      "name": "environ_calc_gravity_wind"
     },
     {
       "ordinal": 333,
       "hint": "14C",
-      "rva": "000205F0",
-      "name": "find_dijkstra"
+      "rva": "00029200",
+      "name": "environ_calc_none"
     },
     {
       "ordinal": 334,
       "hint": "14D",
-      "rva": "000209C0",
-      "name": "find_fast_marching"
+      "rva": "00029230",
+      "name": "environ_calc_periodic"
     },
     {
       "ordinal": 335,
       "hint": "14E",
-      "rva": "00021280",
-      "name": "find_fringe_search"
+      "rva": "00029320",
+      "name": "environ_distort_accel"
     },
     {
       "ordinal": 336,
       "hint": "14F",
-      "rva": "000218A0",
-      "name": "find_greedy_best_first"
+      "rva": "00029340",
+      "name": "environ_distort_accel_except_gravity"
     },
     {
       "ordinal": 337,
       "hint": "150",
-      "rva": "00021C90",
-      "name": "find_ida_star"
+      "rva": "00029570",
+      "name": "environ_init"
     },
     {
       "ordinal": 338,
       "hint": "151",
-      "rva": "00022FC0",
-      "name": "find_rta_star"
+      "rva": "000295D0",
+      "name": "environ_init_full"
     },
     {
       "ordinal": 339,
       "hint": "152",
-      "rva": "000234C0",
-      "name": "find_sma_star"
+      "rva": "000296B0",
+      "name": "environ_periodic_assign"
     },
     {
       "ordinal": 340,
       "hint": "153",
-      "rva": "00023900",
-      "name": "find_weighted_astar"
+      "rva": "000296E0",
+      "name": "environ_periodic_init"
     },
     {
       "ordinal": 341,
       "hint": "154",
-      "rva": "00001470",
-      "name": "fmm_cell_assign"
+      "rva": "00029720",
+      "name": "environ_periodic_init_full"
     },
     {
       "ordinal": 342,
       "hint": "155",
-      "rva": "00001520",
-      "name": "fmm_cell_init"
+      "rva": "00022A10",
+      "name": "euclidean_heuristic"
     },
     {
       "ordinal": 343,
       "hint": "156",
-      "rva": "00020CE0",
-      "name": "fmm_cell_init_full"
+      "rva": "00020060",
+      "name": "find_astar"
     },
     {
       "ordinal": 344,
       "hint": "157",
-      "rva": "00020CF0",
-      "name": "fmm_dump_ascii"
+      "rva": "00020480",
+      "name": "find_bfs"
     },
     {
       "ordinal": 345,
       "hint": "158",
-      "rva": "00020D90",
-      "name": "fmm_grid_create_full"
+      "rva": "00020840",
+      "name": "find_dfs"
     },
     {
       "ordinal": 346,
       "hint": "159",
-      "rva": "00021240",
-      "name": "fmm_grid_destroy"
+      "rva": "00020C00",
+      "name": "find_dijkstra"
     },
     {
       "ordinal": 347,
       "hint": "15A",
-      "rva": "00026AA0",
-      "name": "get_changed_coord"
+      "rva": "00020FD0",
+      "name": "find_fast_marching"
     },
     {
       "ordinal": 348,
       "hint": "15B",
-      "rva": "00026B00",
-      "name": "get_changed_coords"
+      "rva": "000218A0",
+      "name": "find_fringe_search"
     },
     {
       "ordinal": 349,
       "hint": "15C",
-      "rva": "00022540",
-      "name": "get_route_finder_name"
+      "rva": "00021ED0",
+      "name": "find_greedy_best_first"
     },
     {
       "ordinal": 350,
       "hint": "15D",
-      "rva": "00040980",
-      "name": "ground_assign"
+      "rva": "000222D0",
+      "name": "find_ida_star"
     },
     {
       "ordinal": 351,
       "hint": "15E",
-      "rva": "00040B30",
-      "name": "ground_free"
+      "rva": "00023EF0",
+      "name": "find_rta_star"
     },
     {
       "ordinal": 352,
       "hint": "15F",
-      "rva": "00040B80",
-      "name": "ground_init"
+      "rva": "000243F0",
+      "name": "find_sma_star"
     },
     {
       "ordinal": 353,
       "hint": "160",
-      "rva": "00040C10",
-      "name": "ground_init_heightfield"
+      "rva": "00024820",
+      "name": "find_weighted_astar"
     },
     {
       "ordinal": 354,
       "hint": "161",
-      "rva": "00040C70",
-      "name": "ground_init_tiles"
+      "rva": "00001470",
+      "name": "fmm_cell_assign"
     },
     {
       "ordinal": 355,
       "hint": "162",
-      "rva": "00040CB0",
-      "name": "ground_init_uniform"
+      "rva": "00001520",
+      "name": "fmm_cell_init"
     },
     {
       "ordinal": 356,
       "hint": "163",
-      "rva": "00040D00",
-      "name": "ground_material_at"
+      "rva": "000212F0",
+      "name": "fmm_cell_init_full"
     },
     {
       "ordinal": 357,
       "hint": "164",
-      "rva": "00040DC0",
-      "name": "ground_raycast"
+      "rva": "00021300",
+      "name": "fmm_dump_ascii"
     },
     {
       "ordinal": 358,
       "hint": "165",
-      "rva": "00040FD0",
-      "name": "ground_reset"
+      "rva": "000213A0",
+      "name": "fmm_grid_create_full"
     },
     {
       "ordinal": 359,
       "hint": "166",
-      "rva": "00040FF0",
-      "name": "ground_sample_at"
+      "rva": "00021860",
+      "name": "fmm_grid_destroy"
     },
     {
       "ordinal": 360,
       "hint": "167",
-      "rva": "0003DF20",
-      "name": "guidance_lead"
+      "rva": "00027FC0",
+      "name": "get_changed_coord"
     },
     {
       "ordinal": 361,
       "hint": "168",
-      "rva": "0003E060",
-      "name": "guidance_none"
+      "rva": "00028020",
+      "name": "get_changed_coords"
     },
     {
       "ordinal": 362,
       "hint": "169",
-      "rva": "0003E090",
-      "name": "guidance_point"
+      "rva": "000230E0",
+      "name": "get_route_finder_name"
     },
     {
       "ordinal": 363,
       "hint": "16A",
-      "rva": "0003E120",
-      "name": "guidance_predict"
+      "rva": "00041FC0",
+      "name": "ground_assign"
     },
     {
       "ordinal": 364,
       "hint": "16B",
-      "rva": "0003E350",
-      "name": "guidance_predict_accel"
+      "rva": "00042170",
+      "name": "ground_free"
     },
     {
       "ordinal": 365,
       "hint": "16C",
-      "rva": "0003E560",
-      "name": "guidance_predict_accel_env"
+      "rva": "000421C0",
+      "name": "ground_init"
     },
     {
       "ordinal": 366,
       "hint": "16D",
-      "rva": "000010D0",
-      "name": "int_compare"
+      "rva": "00042250",
+      "name": "ground_init_heightfield"
     },
     {
       "ordinal": 367,
       "hint": "16E",
-      "rva": "00011100",
-      "name": "int_copy"
+      "rva": "000422B0",
+      "name": "ground_init_tiles"
     },
     {
       "ordinal": 368,
       "hint": "16F",
-      "rva": "00011130",
-      "name": "int_destroy"
+      "rva": "000422F0",
+      "name": "ground_init_uniform"
     },
     {
       "ordinal": 369,
       "hint": "170",
-      "rva": "0002BFA0",
-      "name": "integrator_assign"
+      "rva": "00042340",
+      "name": "ground_material_at"
     },
     {
       "ordinal": 370,
       "hint": "171",
-      "rva": "0002C040",
-      "name": "integrator_clear"
+      "rva": "00042400",
+      "name": "ground_raycast"
     },
     {
       "ordinal": 371,
       "hint": "172",
-      "rva": "0002C100",
-      "name": "integrator_free"
+      "rva": "00042610",
+      "name": "ground_reset"
     },
     {
       "ordinal": 372,
       "hint": "173",
-      "rva": "0002C110",
-      "name": "integrator_init"
+      "rva": "00042630",
+      "name": "ground_sample_at"
     },
     {
       "ordinal": 373,
       "hint": "174",
-      "rva": "0002C210",
-      "name": "integrator_init_full"
+      "rva": "0003F560",
+      "name": "guidance_lead"
     },
     {
       "ordinal": 374,
       "hint": "175",
-      "rva": "0002C290",
-      "name": "integrator_step"
+      "rva": "0003F6A0",
+      "name": "guidance_none"
     },
     {
       "ordinal": 375,
       "hint": "176",
-      "rva": "0002C3E0",
-      "name": "integrator_step_attitude_euler"
+      "rva": "0003F6D0",
+      "name": "guidance_point"
     },
     {
       "ordinal": 376,
       "hint": "177",
-      "rva": "0002C480",
-      "name": "integrator_step_attitude_euler_env"
+      "rva": "0003F760",
+      "name": "guidance_predict"
     },
     {
       "ordinal": 377,
       "hint": "178",
-      "rva": "0002C600",
-      "name": "integrator_step_attitude_rk4"
+      "rva": "0003F990",
+      "name": "guidance_predict_accel"
     },
     {
       "ordinal": 378,
       "hint": "179",
-      "rva": "0002C730",
-      "name": "integrator_step_attitude_rk4_env"
+      "rva": "0003FBA0",
+      "name": "guidance_predict_accel_env"
     },
     {
       "ordinal": 379,
       "hint": "17A",
-      "rva": "0002C3E0",
-      "name": "integrator_step_attitude_semi_implicit"
+      "rva": "000010D0",
+      "name": "int_compare"
     },
     {
       "ordinal": 380,
       "hint": "17B",
-      "rva": "0002C480",
-      "name": "integrator_step_attitude_semi_implicit_env"
+      "rva": "00011250",
+      "name": "int_copy"
     },
     {
       "ordinal": 381,
       "hint": "17C",
-      "rva": "0002CD60",
-      "name": "integrator_step_attitude_velocity_verlet"
+      "rva": "00011280",
+      "name": "int_destroy"
     },
     {
       "ordinal": 382,
       "hint": "17D",
-      "rva": "0002CEE0",
-      "name": "integrator_step_attitude_velocity_verlet_env"
+      "rva": "0002D5C0",
+      "name": "integrator_assign"
     },
     {
       "ordinal": 383,
       "hint": "17E",
-      "rva": "0002D160",
-      "name": "integrator_step_euler"
+      "rva": "0002D660",
+      "name": "integrator_clear"
     },
     {
       "ordinal": 384,
       "hint": "17F",
-      "rva": "0002D2F0",
-      "name": "integrator_step_euler_env"
+      "rva": "0002D720",
+      "name": "integrator_free"
     },
     {
       "ordinal": 385,
       "hint": "180",
-      "rva": "0002D4B0",
-      "name": "integrator_step_motion_euler"
+      "rva": "0002D730",
+      "name": "integrator_init"
     },
     {
       "ordinal": 386,
       "hint": "181",
-      "rva": "0002D740",
-      "name": "integrator_step_motion_rk4"
+      "rva": "0002D830",
+      "name": "integrator_init_full"
     },
     {
       "ordinal": 387,
       "hint": "182",
-      "rva": "0002E000",
-      "name": "integrator_step_motion_rk4_env"
+      "rva": "0002D8B0",
+      "name": "integrator_step"
     },
     {
       "ordinal": 388,
       "hint": "183",
-      "rva": "0002EBC0",
-      "name": "integrator_step_motion_semi_implicit"
+      "rva": "0002DA00",
+      "name": "integrator_step_attitude_euler"
     },
     {
       "ordinal": 389,
       "hint": "184",
-      "rva": "0002ECB0",
-      "name": "integrator_step_rk4"
+      "rva": "0002DAA0",
+      "name": "integrator_step_attitude_euler_env"
     },
     {
       "ordinal": 390,
       "hint": "185",
-      "rva": "0002F2C0",
-      "name": "integrator_step_rk4_env"
+      "rva": "0002DC20",
+      "name": "integrator_step_attitude_rk4"
     },
     {
       "ordinal": 391,
       "hint": "186",
-      "rva": "0002FB10",
-      "name": "integrator_step_semi_implicit"
+      "rva": "0002DD50",
+      "name": "integrator_step_attitude_rk4_env"
     },
     {
       "ordinal": 392,
       "hint": "187",
-      "rva": "0002FCA0",
-      "name": "integrator_step_semi_implicit_env"
+      "rva": "0002DA00",
+      "name": "integrator_step_attitude_semi_implicit"
     },
     {
       "ordinal": 393,
       "hint": "188",
-      "rva": "0002FE50",
-      "name": "integrator_step_velocity_verlet_env"
+      "rva": "0002DAA0",
+      "name": "integrator_step_attitude_semi_implicit_env"
     },
     {
       "ordinal": 394,
       "hint": "189",
-      "rva": "000301A0",
-      "name": "integrator_step_verlet"
+      "rva": "0002E380",
+      "name": "integrator_step_attitude_velocity_verlet"
     },
     {
       "ordinal": 395,
       "hint": "18A",
-      "rva": "00030390",
-      "name": "integrator_step_verlet_env"
+      "rva": "0002E500",
+      "name": "integrator_step_attitude_velocity_verlet_env"
     },
     {
       "ordinal": 396,
       "hint": "18B",
-      "rva": "00013CA0",
-      "name": "is_coord_blocked_navgrid"
+      "rva": "0002E780",
+      "name": "integrator_step_euler"
     },
     {
       "ordinal": 397,
       "hint": "18C",
-      "rva": "00030630",
-      "name": "kalman_assign"
+      "rva": "0002E910",
+      "name": "integrator_step_euler_env"
     },
     {
       "ordinal": 398,
       "hint": "18D",
-      "rva": "00030650",
-      "name": "kalman_init"
+      "rva": "0002EAD0",
+      "name": "integrator_step_motion_euler"
     },
     {
       "ordinal": 399,
       "hint": "18E",
-      "rva": "00030670",
-      "name": "kalman_init_full"
+      "rva": "0002ED60",
+      "name": "integrator_step_motion_rk4"
     },
     {
       "ordinal": 400,
       "hint": "18F",
-      "rva": "000306A0",
-      "name": "kalman_measurement_update"
+      "rva": "0002F620",
+      "name": "integrator_step_motion_rk4_env"
     },
     {
       "ordinal": 401,
       "hint": "190",
-      "rva": "000306F0",
-      "name": "kalman_time_update"
+      "rva": "000301E0",
+      "name": "integrator_step_motion_semi_implicit"
     },
     {
       "ordinal": 402,
       "hint": "191",
-      "rva": "00030710",
-      "name": "kalman_vec3_assign"
+      "rva": "000302D0",
+      "name": "integrator_step_rk4"
     },
     {
       "ordinal": 403,
       "hint": "192",
-      "rva": "00030740",
-      "name": "kalman_vec3_init"
+      "rva": "000308E0",
+      "name": "integrator_step_rk4_env"
     },
     {
       "ordinal": 404,
       "hint": "193",
-      "rva": "00030780",
-      "name": "kalman_vec3_init_full"
+      "rva": "00031130",
+      "name": "integrator_step_semi_implicit"
     },
     {
       "ordinal": 405,
       "hint": "194",
-      "rva": "00030850",
-      "name": "kalman_vec3_measurement_update"
+      "rva": "000312C0",
+      "name": "integrator_step_semi_implicit_env"
     },
     {
       "ordinal": 406,
       "hint": "195",
-      "rva": "00030990",
-      "name": "kalman_vec3_project"
+      "rva": "00031470",
+      "name": "integrator_step_velocity_verlet_env"
     },
     {
       "ordinal": 407,
       "hint": "196",
-      "rva": "000309D0",
-      "name": "kalman_vec3_time_update"
+      "rva": "000317C0",
+      "name": "integrator_step_verlet"
     },
     {
       "ordinal": 408,
       "hint": "197",
-      "rva": "00038820",
-      "name": "linear_state_assign"
+      "rva": "000319B0",
+      "name": "integrator_step_verlet_env"
     },
     {
       "ordinal": 409,
       "hint": "198",
-      "rva": "00038840",
-      "name": "linear_state_init"
+      "rva": "00014210",
+      "name": "is_coord_blocked_navgrid"
     },
     {
       "ordinal": 410,
       "hint": "199",
-      "rva": "00038870",
-      "name": "linear_state_init_full"
+      "rva": "00031C50",
+      "name": "kalman_assign"
     },
     {
       "ordinal": 411,
       "hint": "19A",
-      "rva": "00030600",
-      "name": "make_kalman_vec3_interface"
+      "rva": "00031C70",
+      "name": "kalman_init"
     },
     {
       "ordinal": 412,
       "hint": "19B",
-      "rva": "0000FAC0",
-      "name": "make_tmp_coord"
+      "rva": "00031C90",
+      "name": "kalman_init_full"
     },
     {
       "ordinal": 413,
       "hint": "19C",
-      "rva": "00022450",
-      "name": "manhattan_heuristic"
+      "rva": "00031CC0",
+      "name": "kalman_measurement_update"
     },
     {
       "ordinal": 414,
       "hint": "19D",
-      "rva": "00016F90",
-      "name": "maze_apply_to_navgrid"
+      "rva": "00031D10",
+      "name": "kalman_time_update"
     },
     {
       "ordinal": 415,
       "hint": "19E",
-      "rva": "00016250",
-      "name": "maze_clear"
+      "rva": "00031D30",
+      "name": "kalman_vec3_assign"
     },
     {
       "ordinal": 416,
       "hint": "19F",
-      "rva": "00016B50",
-      "name": "maze_copy"
+      "rva": "00031D60",
+      "name": "kalman_vec3_init"
     },
     {
       "ordinal": 417,
       "hint": "1A0",
-      "rva": "00016BB0",
-      "name": "maze_create"
+      "rva": "00031DA0",
+      "name": "kalman_vec3_init_full"
     },
     {
       "ordinal": 418,
       "hint": "1A1",
-      "rva": "00016BF0",
-      "name": "maze_create_full"
+      "rva": "00031E70",
+      "name": "kalman_vec3_measurement_update"
     },
     {
       "ordinal": 419,
       "hint": "1A2",
-      "rva": "00016C60",
-      "name": "maze_destroy"
+      "rva": "00031FB0",
+      "name": "kalman_vec3_project"
     },
     {
       "ordinal": 420,
       "hint": "1A3",
-      "rva": "00016C90",
-      "name": "maze_equal"
+      "rva": "00031FF0",
+      "name": "kalman_vec3_time_update"
     },
     {
       "ordinal": 421,
       "hint": "1A4",
-      "rva": "0000D260",
-      "name": "maze_get_blocked_coords"
+      "rva": "00039E50",
+      "name": "linear_state_assign"
     },
     {
       "ordinal": 422,
       "hint": "1A5",
-      "rva": "00016CE0",
-      "name": "maze_get_height"
+      "rva": "00039E70",
+      "name": "linear_state_init"
     },
     {
       "ordinal": 423,
       "hint": "1A6",
-      "rva": "0000F200",
-      "name": "maze_get_origin"
+      "rva": "00039EA0",
+      "name": "linear_state_init_full"
     },
     {
       "ordinal": 424,
       "hint": "1A7",
-      "rva": "00014AC0",
-      "name": "maze_get_width"
+      "rva": "00031C20",
+      "name": "make_kalman_vec3_interface"
     },
     {
       "ordinal": 425,
       "hint": "1A8",
-      "rva": "00016CF0",
-      "name": "maze_hash"
+      "rva": "0000FAF0",
+      "name": "make_tmp_coord"
     },
     {
       "ordinal": 426,
       "hint": "1A9",
-      "rva": "00016F00",
-      "name": "maze_make"
+      "rva": "00022AB0",
+      "name": "manhattan_heuristic"
     },
     {
       "ordinal": 427,
       "hint": "1AA",
-      "rva": "00017690",
-      "name": "maze_make_aldous_broder"
+      "rva": "000175A0",
+      "name": "maze_apply_to_navgrid"
     },
     {
       "ordinal": 428,
       "hint": "1AB",
-      "rva": "000181E0",
-      "name": "maze_make_binary"
+      "rva": "00016860",
+      "name": "maze_clear"
     },
     {
       "ordinal": 429,
       "hint": "1AC",
-      "rva": "000188F0",
-      "name": "maze_make_eller"
+      "rva": "00017160",
+      "name": "maze_copy"
     },
     {
       "ordinal": 430,
       "hint": "1AD",
-      "rva": "000193A0",
-      "name": "maze_make_hunt_and_kill"
+      "rva": "000171C0",
+      "name": "maze_create"
     },
     {
       "ordinal": 431,
       "hint": "1AE",
-      "rva": "0001A330",
-      "name": "maze_make_kruskal"
+      "rva": "00017200",
+      "name": "maze_create_full"
     },
     {
       "ordinal": 432,
       "hint": "1AF",
-      "rva": "0001C630",
-      "name": "maze_make_recursive"
+      "rva": "00017270",
+      "name": "maze_destroy"
     },
     {
       "ordinal": 433,
       "hint": "1B0",
-      "rva": "0001BDB0",
-      "name": "maze_make_recursive_division"
+      "rva": "000172A0",
+      "name": "maze_equal"
     },
     {
       "ordinal": 434,
       "hint": "1B1",
-      "rva": "0001D5B0",
-      "name": "maze_make_room_blend"
+      "rva": "0000D260",
+      "name": "maze_get_blocked_coords"
     },
     {
       "ordinal": 435,
       "hint": "1B2",
-      "rva": "0001DD50",
-      "name": "maze_make_sidewinder"
+      "rva": "000172F0",
+      "name": "maze_get_height"
     },
     {
       "ordinal": 436,
       "hint": "1B3",
-      "rva": "0001ECF0",
-      "name": "maze_make_wilson"
+      "rva": "0000F210",
+      "name": "maze_get_origin"
     },
     {
       "ordinal": 437,
       "hint": "1B4",
-      "rva": "0001AC60",
-      "name": "maze_maze_prim"
+      "rva": "00015090",
+      "name": "maze_get_width"
     },
     {
       "ordinal": 438,
       "hint": "1B5",
-      "rva": "00016E10",
-      "name": "maze_remove_from_navgrid"
+      "rva": "00017300",
+      "name": "maze_hash"
     },
     {
       "ordinal": 439,
       "hint": "1B6",
-      "rva": "00016EA0",
-      "name": "maze_set_origin"
+      "rva": "00017510",
+      "name": "maze_make"
     },
     {
       "ordinal": 440,
       "hint": "1B7",
-      "rva": "0003C020",
-      "name": "missile_assign"
+      "rva": "00017CA0",
+      "name": "maze_make_aldous_broder"
     },
     {
       "ordinal": 441,
       "hint": "1B8",
-      "rva": "0003C090",
-      "name": "missile_init"
+      "rva": "000187F0",
+      "name": "maze_make_binary"
     },
     {
       "ordinal": 442,
       "hint": "1B9",
-      "rva": "0003C140",
-      "name": "missile_init_full"
+      "rva": "00018F00",
+      "name": "maze_make_eller"
     },
     {
       "ordinal": 443,
       "hint": "1BA",
-      "rva": "0003C190",
-      "name": "missile_launch"
+      "rva": "000199B0",
+      "name": "maze_make_hunt_and_kill"
     },
     {
       "ordinal": 444,
       "hint": "1BB",
-      "rva": "000388B0",
-      "name": "motion_state_assign"
+      "rva": "0001A940",
+      "name": "maze_make_kruskal"
     },
     {
       "ordinal": 445,
       "hint": "1BC",
-      "rva": "000388F0",
-      "name": "motion_state_init"
+      "rva": "0001CC40",
+      "name": "maze_make_recursive"
     },
     {
       "ordinal": 446,
       "hint": "1BD",
-      "rva": "00038940",
-      "name": "motion_state_init_full"
+      "rva": "0001C3C0",
+      "name": "maze_make_recursive_division"
     },
     {
       "ordinal": 447,
       "hint": "1BE",
-      "rva": "00026B50",
-      "name": "move_to"
+      "rva": "0001DBC0",
+      "name": "maze_make_room_blend"
     },
     {
       "ordinal": 448,
       "hint": "1BF",
-      "rva": "00032250",
-      "name": "mpc_config_assign"
+      "rva": "0001E360",
+      "name": "maze_make_sidewinder"
     },
     {
       "ordinal": 449,
       "hint": "1C0",
-      "rva": "00032290",
-      "name": "mpc_config_init"
+      "rva": "0001F300",
+      "name": "maze_make_wilson"
     },
     {
       "ordinal": 450,
       "hint": "1C1",
-      "rva": "00032300",
-      "name": "mpc_config_init_full"
+      "rva": "0001B270",
+      "name": "maze_maze_prim"
     },
     {
       "ordinal": 451,
       "hint": "1C2",
-      "rva": "000323A0",
-      "name": "mpc_direction_target_init"
+      "rva": "00017420",
+      "name": "maze_remove_from_navgrid"
     },
     {
       "ordinal": 452,
       "hint": "1C3",
-      "rva": "00038DF0",
-      "name": "mpc_impl_assign"
+      "rva": "000174B0",
+      "name": "maze_set_origin"
     },
     {
       "ordinal": 453,
       "hint": "1C4",
-      "rva": "00038EE0",
-      "name": "mpc_impl_init"
+      "rva": "0003D660",
+      "name": "missile_assign"
     },
     {
       "ordinal": 454,
       "hint": "1C5",
-      "rva": "00038F30",
-      "name": "mpc_impl_init_full"
+      "rva": "0003D6D0",
+      "name": "missile_init"
     },
     {
       "ordinal": 455,
       "hint": "1C6",
-      "rva": "00006810",
-      "name": "mpc_target_route_assign"
+      "rva": "0003D780",
+      "name": "missile_init_full"
     },
     {
       "ordinal": 456,
       "hint": "1C7",
-      "rva": "000323E0",
-      "name": "mpc_target_route_init"
+      "rva": "0003D7D0",
+      "name": "missile_launch"
     },
     {
       "ordinal": 457,
       "hint": "1C8",
-      "rva": "00032400",
-      "name": "mpc_target_route_init_full"
+      "rva": "00039EE0",
+      "name": "motion_state_assign"
     },
     {
       "ordinal": 458,
       "hint": "1C9",
-      "rva": "00014C80",
-      "name": "navcell_assign"
+      "rva": "00039F20",
+      "name": "motion_state_init"
     },
     {
       "ordinal": 459,
       "hint": "1CA",
-      "rva": "00014CA0",
-      "name": "navcell_copy"
+      "rva": "00039F70",
+      "name": "motion_state_init_full"
     },
     {
       "ordinal": 460,
       "hint": "1CB",
-      "rva": "0000EF50",
-      "name": "navcell_create"
+      "rva": "00028070",
+      "name": "move_to"
     },
     {
       "ordinal": 461,
       "hint": "1CC",
-      "rva": "00014CE0",
-      "name": "navcell_create_full"
+      "rva": "00033870",
+      "name": "mpc_config_assign"
     },
     {
       "ordinal": 462,
       "hint": "1CD",
-      "rva": "000110F0",
-      "name": "navcell_destroy"
+      "rva": "000338B0",
+      "name": "mpc_config_init"
     },
     {
       "ordinal": 463,
       "hint": "1CE",
-      "rva": "00014D10",
-      "name": "navcell_init"
+      "rva": "00033920",
+      "name": "mpc_config_init_full"
     },
     {
       "ordinal": 464,
       "hint": "1CF",
-      "rva": "00014D30",
-      "name": "navcell_init_full"
+      "rva": "000339C0",
+      "name": "mpc_direction_target_init"
     },
     {
       "ordinal": 465,
       "hint": "1D0",
-      "rva": "00013D40",
-      "name": "navgrid_block_coord"
+      "rva": "0003A430",
+      "name": "mpc_impl_assign"
     },
     {
       "ordinal": 466,
       "hint": "1D1",
-      "rva": "00013D90",
-      "name": "navgrid_clear"
+      "rva": "0003A520",
+      "name": "mpc_impl_init"
     },
     {
       "ordinal": 467,
       "hint": "1D2",
-      "rva": "00013DA0",
-      "name": "navgrid_copy"
+      "rva": "0003A570",
+      "name": "mpc_impl_init_full"
     },
     {
       "ordinal": 468,
       "hint": "1D3",
-      "rva": "00013E70",
-      "name": "navgrid_copy_neighbor_at_degree"
+      "rva": "00006810",
+      "name": "mpc_target_route_assign"
     },
     {
       "ordinal": 469,
       "hint": "1D4",
-      "rva": "00014090",
-      "name": "navgrid_copy_neighbor_at_goal"
+      "rva": "00033A00",
+      "name": "mpc_target_route_init"
     },
     {
       "ordinal": 470,
       "hint": "1D5",
-      "rva": "00014210",
-      "name": "navgrid_copy_neighbors"
+      "rva": "00033A20",
+      "name": "mpc_target_route_init_full"
     },
     {
       "ordinal": 471,
       "hint": "1D6",
-      "rva": "00014370",
-      "name": "navgrid_copy_neighbors_all"
+      "rva": "00015290",
+      "name": "navcell_assign"
     },
     {
       "ordinal": 472,
       "hint": "1D7",
-      "rva": "000144B0",
-      "name": "navgrid_copy_neighbors_all_range"
+      "rva": "000152B0",
+      "name": "navcell_copy"
     },
     {
       "ordinal": 473,
       "hint": "1D8",
-      "rva": "00014660",
-      "name": "navgrid_copy_neighbors_at_degree_range"
+      "rva": "0000EF60",
+      "name": "navcell_create"
     },
     {
       "ordinal": 474,
       "hint": "1D9",
-      "rva": "000148B0",
-      "name": "navgrid_create"
+      "rva": "000152F0",
+      "name": "navcell_create_full"
     },
     {
       "ordinal": 475,
       "hint": "1DA",
-      "rva": "00014920",
-      "name": "navgrid_create_full"
+      "rva": "00011240",
+      "name": "navcell_destroy"
     },
     {
       "ordinal": 476,
       "hint": "1DB",
-      "rva": "000149C0",
-      "name": "navgrid_destroy"
+      "rva": "00015320",
+      "name": "navcell_init"
     },
     {
       "ordinal": 477,
       "hint": "1DC",
-      "rva": "000149F0",
-      "name": "navgrid_equal"
+      "rva": "00015340",
+      "name": "navcell_init_full"
     },
     {
       "ordinal": 478,
       "hint": "1DD",
-      "rva": "00014A40",
-      "name": "navgrid_fetch_cell"
+      "rva": "000142B0",
+      "name": "navgrid_bind_is_coord_blocked_func"
     },
     {
       "ordinal": 479,
       "hint": "1DE",
-      "rva": "0000D260",
-      "name": "navgrid_get_cell_map"
+      "rva": "00014300",
+      "name": "navgrid_block_coord"
     },
     {
       "ordinal": 480,
       "hint": "1DF",
-      "rva": "0000F230",
-      "name": "navgrid_get_height"
+      "rva": "00014350",
+      "name": "navgrid_clear"
     },
     {
       "ordinal": 481,
       "hint": "1E0",
-      "rva": "00014AB0",
-      "name": "navgrid_get_is_coord_blocked_fn"
+      "rva": "00014360",
+      "name": "navgrid_copy"
     },
     {
       "ordinal": 482,
       "hint": "1E1",
-      "rva": "00014AC0",
-      "name": "navgrid_get_mode"
+      "rva": "000143C0",
+      "name": "navgrid_copy_neighbor_at_degree"
     },
     {
       "ordinal": 483,
       "hint": "1E2",
-      "rva": "0000F220",
-      "name": "navgrid_get_width"
+      "rva": "000145E0",
+      "name": "navgrid_copy_neighbor_at_goal"
     },
     {
       "ordinal": 484,
       "hint": "1E3",
-      "rva": "00014AD0",
-      "name": "navgrid_hash"
+      "rva": "00014760",
+      "name": "navgrid_copy_neighbors"
     },
     {
       "ordinal": 485,
       "hint": "1E4",
-      "rva": "00014B10",
-      "name": "navgrid_is_inside"
+      "rva": "00014920",
+      "name": "navgrid_copy_neighbors_all"
     },
     {
       "ordinal": 486,
       "hint": "1E5",
-      "rva": "0000D890",
-      "name": "navgrid_print_ascii"
+      "rva": "00014A60",
+      "name": "navgrid_copy_neighbors_all_range"
     },
     {
       "ordinal": 487,
       "hint": "1E6",
-      "rva": "0000DA50",
-      "name": "navgrid_print_ascii_with_route"
+      "rva": "00014C10",
+      "name": "navgrid_copy_neighbors_at_degree_range"
     },
     {
       "ordinal": 488,
       "hint": "1E7",
-      "rva": "0000DD80",
-      "name": "navgrid_print_ascii_with_visited_count"
+      "rva": "00014E60",
+      "name": "navgrid_create"
     },
     {
       "ordinal": 489,
       "hint": "1E8",
-      "rva": "00014B90",
-      "name": "navgrid_set_cell"
+      "rva": "00014E80",
+      "name": "navgrid_create_full"
     },
     {
       "ordinal": 490,
       "hint": "1E9",
-      "rva": "00014BF0",
-      "name": "navgrid_set_height"
+      "rva": "00014F70",
+      "name": "navgrid_destroy"
     },
     {
       "ordinal": 491,
       "hint": "1EA",
-      "rva": "00014C00",
-      "name": "navgrid_set_is_coord_blocked_func"
+      "rva": "00014FC0",
+      "name": "navgrid_equal"
     },
     {
       "ordinal": 492,
       "hint": "1EB",
-      "rva": "00014C10",
-      "name": "navgrid_set_mode"
+      "rva": "00015010",
+      "name": "navgrid_fetch_cell"
     },
     {
       "ordinal": 493,
       "hint": "1EC",
-      "rva": "00014C20",
-      "name": "navgrid_set_width"
+      "rva": "0000D260",
+      "name": "navgrid_get_cell_map"
     },
     {
       "ordinal": 494,
       "hint": "1ED",
-      "rva": "00014C30",
-      "name": "navgrid_unblock_coord"
+      "rva": "0000F240",
+      "name": "navgrid_get_height"
     },
     {
       "ordinal": 495,
       "hint": "1EE",
-      "rva": "0000E340",
-      "name": "navsys_find_astar"
+      "rva": "00015080",
+      "name": "navgrid_get_is_coord_blocked_fn"
     },
     {
       "ordinal": 496,
       "hint": "1EF",
-      "rva": "0000E410",
-      "name": "navsys_find_bfs"
+      "rva": "00015090",
+      "name": "navgrid_get_mode"
     },
     {
       "ordinal": 497,
       "hint": "1F0",
-      "rva": "0000E4E0",
-      "name": "navsys_find_dfs"
+      "rva": "0000F230",
+      "name": "navgrid_get_width"
     },
     {
       "ordinal": 498,
       "hint": "1F1",
-      "rva": "0000E5B0",
-      "name": "navsys_find_dijkstra"
+      "rva": "000150A0",
+      "name": "navgrid_hash"
     },
     {
       "ordinal": 499,
       "hint": "1F2",
-      "rva": "0000E680",
-      "name": "navsys_find_dstar_lite"
+      "rva": "000150E0",
+      "name": "navgrid_is_inside"
     },
     {
       "ordinal": 500,
       "hint": "1F3",
-      "rva": "0000E6D0",
-      "name": "navsys_find_fast_marching"
+      "rva": "0000D890",
+      "name": "navgrid_print_ascii"
     },
     {
       "ordinal": 501,
       "hint": "1F4",
-      "rva": "0000E7A0",
-      "name": "navsys_find_fringe_search"
+      "rva": "0000DA50",
+      "name": "navgrid_print_ascii_with_route"
     },
     {
       "ordinal": 502,
       "hint": "1F5",
-      "rva": "0000E8B0",
-      "name": "navsys_find_greedy_best_first"
+      "rva": "0000DD80",
+      "name": "navgrid_print_ascii_with_visited_count"
     },
     {
       "ordinal": 503,
       "hint": "1F6",
-      "rva": "0000E980",
-      "name": "navsys_find_ida_star"
+      "rva": "00015160",
+      "name": "navgrid_set_cell"
     },
     {
       "ordinal": 504,
       "hint": "1F7",
-      "rva": "0000EA50",
-      "name": "navsys_find_rta_star"
+      "rva": "000151C0",
+      "name": "navgrid_set_height"
     },
     {
       "ordinal": 505,
       "hint": "1F8",
-      "rva": "0000EB50",
-      "name": "navsys_find_sma_star"
+      "rva": "000151D0",
+      "name": "navgrid_set_is_coord_blocked_func"
     },
     {
       "ordinal": 506,
       "hint": "1F9",
-      "rva": "0000EC50",
-      "name": "navsys_find_weighted_astar"
+      "rva": "000151E0",
+      "name": "navgrid_set_mode"
     },
     {
       "ordinal": 507,
       "hint": "1FA",
-      "rva": "00030BC0",
-      "name": "numeq_model_accel"
+      "rva": "000151F0",
+      "name": "navgrid_set_width"
     },
     {
       "ordinal": 508,
       "hint": "1FB",
-      "rva": "00030C00",
-      "name": "numeq_model_accel_except_gravity"
+      "rva": "00015200",
+      "name": "navgrid_unbind_is_coord_blocked_func"
     },
     {
       "ordinal": 509,
       "hint": "1FC",
-      "rva": "00030D40",
-      "name": "numeq_model_accel_predict"
+      "rva": "00015240",
+      "name": "navgrid_unblock_coord"
     },
     {
       "ordinal": 510,
       "hint": "1FD",
-      "rva": "00030DE0",
-      "name": "numeq_model_bounce"
+      "rva": "0000E340",
+      "name": "navsys_find_astar"
     },
     {
       "ordinal": 511,
       "hint": "1FE",
-      "rva": "00031030",
-      "name": "numeq_model_drag_accel"
+      "rva": "0000E410",
+      "name": "navsys_find_bfs"
     },
     {
       "ordinal": 512,
       "hint": "1FF",
-      "rva": "00031BE0",
-      "name": "numeq_model_motion_accel"
+      "rva": "0000E4E0",
+      "name": "navsys_find_dfs"
     },
     {
       "ordinal": 513,
       "hint": "200",
-      "rva": "00031CB0",
-      "name": "numeq_model_motion_drag_scale"
+      "rva": "0000E5B0",
+      "name": "navsys_find_dijkstra"
     },
     {
       "ordinal": 514,
       "hint": "201",
-      "rva": "00031E20",
-      "name": "numeq_model_motion_predict"
+      "rva": "0000E680",
+      "name": "navsys_find_dstar_lite"
     },
     {
       "ordinal": 515,
       "hint": "202",
-      "rva": "00031F20",
-      "name": "numeq_model_motion_predict_rk4"
+      "rva": "0000E6D0",
+      "name": "navsys_find_fast_marching"
     },
     {
       "ordinal": 516,
       "hint": "203",
-      "rva": "000311C0",
-      "name": "numeq_model_pos_predict"
+      "rva": "0000E7A0",
+      "name": "navsys_find_fringe_search"
     },
     {
       "ordinal": 517,
       "hint": "204",
-      "rva": "00031380",
-      "name": "numeq_model_predict"
+      "rva": "0000E8B0",
+      "name": "navsys_find_greedy_best_first"
     },
     {
       "ordinal": 518,
       "hint": "205",
-      "rva": "00031460",
-      "name": "numeq_model_predict_collision"
+      "rva": "0000E980",
+      "name": "navsys_find_ida_star"
     },
     {
       "ordinal": 519,
       "hint": "206",
-      "rva": "00031680",
-      "name": "numeq_model_predict_collision_plane"
+      "rva": "0000EA50",
+      "name": "navsys_find_rta_star"
     },
     {
       "ordinal": 520,
       "hint": "207",
-      "rva": "00031830",
-      "name": "numeq_model_predict_rk4"
+      "rva": "0000EB50",
+      "name": "navsys_find_sma_star"
     },
     {
       "ordinal": 521,
       "hint": "208",
-      "rva": "000319C0",
-      "name": "numeq_model_vel_predict"
+      "rva": "0000EC50",
+      "name": "navsys_find_weighted_astar"
     },
     {
       "ordinal": 522,
       "hint": "209",
-      "rva": "00032420",
-      "name": "numeq_mpc_cost_default"
+      "rva": "000321E0",
+      "name": "numeq_model_accel"
     },
     {
       "ordinal": 523,
       "hint": "20A",
-      "rva": "00032580",
-      "name": "numeq_mpc_cost_hybrid"
+      "rva": "00032220",
+      "name": "numeq_model_accel_except_gravity"
     },
     {
       "ordinal": 524,
       "hint": "20B",
-      "rva": "00032710",
-      "name": "numeq_mpc_cost_speed"
+      "rva": "00032360",
+      "name": "numeq_model_accel_predict"
     },
     {
       "ordinal": 525,
       "hint": "20C",
-      "rva": "000327B0",
-      "name": "numeq_mpc_solve"
+      "rva": "00032400",
+      "name": "numeq_model_bounce"
     },
     {
       "ordinal": 526,
       "hint": "20D",
-      "rva": "00032EB0",
-      "name": "numeq_mpc_solve_coarse2fine"
+      "rva": "00032650",
+      "name": "numeq_model_drag_accel"
     },
     {
       "ordinal": 527,
       "hint": "20E",
-      "rva": "00033860",
-      "name": "numeq_mpc_solve_directional"
+      "rva": "00033200",
+      "name": "numeq_model_motion_accel"
     },
     {
       "ordinal": 528,
       "hint": "20F",
-      "rva": "000339A0",
-      "name": "numeq_mpc_solve_fast"
+      "rva": "000332D0",
+      "name": "numeq_model_motion_drag_scale"
     },
     {
       "ordinal": 529,
       "hint": "210",
-      "rva": "00034170",
-      "name": "numeq_mpc_solve_route"
+      "rva": "00033440",
+      "name": "numeq_model_motion_predict"
     },
     {
       "ordinal": 530,
       "hint": "211",
-      "rva": "00034F20",
-      "name": "numeq_solve_bisection"
+      "rva": "00033540",
+      "name": "numeq_model_motion_predict_rk4"
     },
     {
       "ordinal": 531,
       "hint": "212",
-      "rva": "000350A0",
-      "name": "numeq_solve_cubic"
+      "rva": "000327E0",
+      "name": "numeq_model_pos_predict"
     },
     {
       "ordinal": 532,
       "hint": "213",
-      "rva": "00035460",
-      "name": "numeq_solve_linear"
+      "rva": "000329A0",
+      "name": "numeq_model_predict"
     },
     {
       "ordinal": 533,
       "hint": "214",
-      "rva": "000354A0",
-      "name": "numeq_solve_quadratic"
+      "rva": "00032A80",
+      "name": "numeq_model_predict_collision"
     },
     {
       "ordinal": 534,
       "hint": "215",
-      "rva": "00035580",
-      "name": "numeq_solve_quadratic_stable"
+      "rva": "00032CA0",
+      "name": "numeq_model_predict_collision_plane"
     },
     {
       "ordinal": 535,
       "hint": "216",
-      "rva": "00015F10",
-      "name": "obstacle_apply_to_navgrid"
+      "rva": "00032E50",
+      "name": "numeq_model_predict_rk4"
     },
     {
       "ordinal": 536,
       "hint": "217",
-      "rva": "00015F90",
-      "name": "obstacle_block_coord"
+      "rva": "00032FE0",
+      "name": "numeq_model_vel_predict"
     },
     {
       "ordinal": 537,
       "hint": "218",
-      "rva": "00015FE0",
-      "name": "obstacle_block_range"
+      "rva": "00033A40",
+      "name": "numeq_mpc_cost_default"
     },
     {
       "ordinal": 538,
       "hint": "219",
-      "rva": "000160A0",
-      "name": "obstacle_block_straight"
+      "rva": "00033BA0",
+      "name": "numeq_mpc_cost_hybrid"
     },
     {
       "ordinal": 539,
       "hint": "21A",
-      "rva": "00016250",
-      "name": "obstacle_clear"
+      "rva": "00033D30",
+      "name": "numeq_mpc_cost_speed"
     },
     {
       "ordinal": 540,
       "hint": "21B",
-      "rva": "00016270",
-      "name": "obstacle_clone_neighbor_at_degree"
+      "rva": "00033DD0",
+      "name": "numeq_mpc_solve"
     },
     {
       "ordinal": 541,
       "hint": "21C",
-      "rva": "00016440",
-      "name": "obstacle_clone_neighbor_at_goal"
+      "rva": "000344D0",
+      "name": "numeq_mpc_solve_coarse2fine"
     },
     {
       "ordinal": 542,
       "hint": "21D",
-      "rva": "000165C0",
-      "name": "obstacle_clone_neighbors_all"
+      "rva": "00034E80",
+      "name": "numeq_mpc_solve_directional"
     },
     {
       "ordinal": 543,
       "hint": "21E",
-      "rva": "000166B0",
-      "name": "obstacle_clone_neighbors_all_range"
+      "rva": "00034FC0",
+      "name": "numeq_mpc_solve_fast"
     },
     {
       "ordinal": 544,
       "hint": "21F",
-      "rva": "00016900",
-      "name": "obstacle_clone_neighbors_at_degree_range"
+      "rva": "00035790",
+      "name": "numeq_mpc_solve_route"
     },
     {
       "ordinal": 545,
       "hint": "220",
-      "rva": "00016B50",
-      "name": "obstacle_copy"
+      "rva": "00036540",
+      "name": "numeq_solve_bisection"
     },
     {
       "ordinal": 546,
       "hint": "221",
-      "rva": "00016BB0",
-      "name": "obstacle_create"
+      "rva": "000366C0",
+      "name": "numeq_solve_cubic"
     },
     {
       "ordinal": 547,
       "hint": "222",
-      "rva": "00016BF0",
-      "name": "obstacle_create_full"
+      "rva": "00036A80",
+      "name": "numeq_solve_linear"
     },
     {
       "ordinal": 548,
       "hint": "223",
-      "rva": "00016C60",
-      "name": "obstacle_destroy"
+      "rva": "00036AC0",
+      "name": "numeq_solve_quadratic"
     },
     {
       "ordinal": 549,
       "hint": "224",
-      "rva": "00016C90",
-      "name": "obstacle_equal"
+      "rva": "00036BA0",
+      "name": "numeq_solve_quadratic_stable"
     },
     {
       "ordinal": 550,
       "hint": "225",
-      "rva": "0000F200",
-      "name": "obstacle_fetch_origin"
+      "rva": "00016520",
+      "name": "obstacle_apply_to_navgrid"
     },
     {
       "ordinal": 551,
       "hint": "226",
-      "rva": "0000D260",
-      "name": "obstacle_get_blocked_coords"
+      "rva": "000165A0",
+      "name": "obstacle_block_coord"
     },
     {
       "ordinal": 552,
       "hint": "227",
-      "rva": "00016CE0",
-      "name": "obstacle_get_height"
+      "rva": "000165F0",
+      "name": "obstacle_block_range"
     },
     {
       "ordinal": 553,
       "hint": "228",
-      "rva": "00014AC0",
-      "name": "obstacle_get_width"
+      "rva": "000166B0",
+      "name": "obstacle_block_straight"
     },
     {
       "ordinal": 554,
       "hint": "229",
-      "rva": "00016CF0",
-      "name": "obstacle_hash"
+      "rva": "00016860",
+      "name": "obstacle_clear"
     },
     {
       "ordinal": 555,
       "hint": "22A",
-      "rva": "00016D70",
-      "name": "obstacle_is_inside"
+      "rva": "00016880",
+      "name": "obstacle_clone_neighbor_at_degree"
     },
     {
       "ordinal": 556,
       "hint": "22B",
-      "rva": "00014E50",
-      "name": "obstacle_make_beam"
+      "rva": "00016A50",
+      "name": "obstacle_clone_neighbor_at_goal"
     },
     {
       "ordinal": 557,
       "hint": "22C",
-      "rva": "00015020",
-      "name": "obstacle_make_cross"
+      "rva": "00016BD0",
+      "name": "obstacle_clone_neighbors_all"
     },
     {
       "ordinal": 558,
       "hint": "22D",
-      "rva": "00015170",
-      "name": "obstacle_make_enclosure"
+      "rva": "00016CC0",
+      "name": "obstacle_clone_neighbors_all_range"
     },
     {
       "ordinal": 559,
       "hint": "22E",
-      "rva": "000152B0",
-      "name": "obstacle_make_polygon"
+      "rva": "00016F10",
+      "name": "obstacle_clone_neighbors_at_degree_range"
     },
     {
       "ordinal": 560,
       "hint": "22F",
-      "rva": "000154A0",
-      "name": "obstacle_make_polygon_torus"
+      "rva": "00017160",
+      "name": "obstacle_copy"
     },
     {
       "ordinal": 561,
       "hint": "230",
-      "rva": "000155F0",
-      "name": "obstacle_make_rect_all_blocked"
+      "rva": "000171C0",
+      "name": "obstacle_create"
     },
     {
       "ordinal": 562,
       "hint": "231",
-      "rva": "000156A0",
-      "name": "obstacle_make_rect_random_blocked"
+      "rva": "00017200",
+      "name": "obstacle_create_full"
     },
     {
       "ordinal": 563,
       "hint": "232",
-      "rva": "000157B0",
-      "name": "obstacle_make_spiral"
+      "rva": "00017270",
+      "name": "obstacle_destroy"
     },
     {
       "ordinal": 564,
       "hint": "233",
-      "rva": "00015A00",
-      "name": "obstacle_make_torus"
+      "rva": "000172A0",
+      "name": "obstacle_equal"
     },
     {
       "ordinal": 565,
       "hint": "234",
-      "rva": "00015B60",
-      "name": "obstacle_make_triangle"
+      "rva": "0000F210",
+      "name": "obstacle_fetch_origin"
     },
     {
       "ordinal": 566,
       "hint": "235",
-      "rva": "00015DB0",
-      "name": "obstacle_make_triangle_torus"
+      "rva": "0000D260",
+      "name": "obstacle_get_blocked_coords"
     },
     {
       "ordinal": 567,
       "hint": "236",
-      "rva": "00016E10",
-      "name": "obstacle_remove_from_navgrid"
+      "rva": "000172F0",
+      "name": "obstacle_get_height"
     },
     {
       "ordinal": 568,
       "hint": "237",
-      "rva": "00016E90",
-      "name": "obstacle_set_height"
+      "rva": "00015090",
+      "name": "obstacle_get_width"
     },
     {
       "ordinal": 569,
       "hint": "238",
-      "rva": "00016EA0",
-      "name": "obstacle_set_origin"
+      "rva": "00017300",
+      "name": "obstacle_hash"
     },
     {
       "ordinal": 570,
       "hint": "239",
-      "rva": "00014C10",
-      "name": "obstacle_set_width"
+      "rva": "00017380",
+      "name": "obstacle_is_inside"
     },
     {
       "ordinal": 571,
       "hint": "23A",
-      "rva": "00016EB0",
-      "name": "obstacle_unblock_coord"
+      "rva": "00015460",
+      "name": "obstacle_make_beam"
     },
     {
       "ordinal": 572,
       "hint": "23B",
-      "rva": "00022490",
-      "name": "octile_heuristic"
+      "rva": "00015630",
+      "name": "obstacle_make_cross"
     },
     {
       "ordinal": 573,
       "hint": "23C",
-      "rva": "0003C2F0",
-      "name": "patriot_assign"
+      "rva": "00015780",
+      "name": "obstacle_make_enclosure"
     },
     {
       "ordinal": 574,
       "hint": "23D",
-      "rva": "0003C370",
-      "name": "patriot_init"
+      "rva": "000158C0",
+      "name": "obstacle_make_polygon"
     },
     {
       "ordinal": 575,
       "hint": "23E",
-      "rva": "0003C3C0",
-      "name": "patriot_init_full"
+      "rva": "00015AB0",
+      "name": "obstacle_make_polygon_torus"
     },
     {
       "ordinal": 576,
       "hint": "23F",
-      "rva": "0003C430",
-      "name": "patriot_launch"
+      "rva": "00015C00",
+      "name": "obstacle_make_rect_all_blocked"
     },
     {
       "ordinal": 577,
       "hint": "240",
-      "rva": "000345D0",
-      "name": "pid_assign"
+      "rva": "00015CB0",
+      "name": "obstacle_make_rect_random_blocked"
     },
     {
       "ordinal": 578,
       "hint": "241",
-      "rva": "00038820",
-      "name": "pid_impl_assign"
+      "rva": "00015DC0",
+      "name": "obstacle_make_spiral"
     },
     {
       "ordinal": 579,
       "hint": "242",
-      "rva": "00038FE0",
-      "name": "pid_impl_init"
+      "rva": "00016010",
+      "name": "obstacle_make_torus"
     },
     {
       "ordinal": 580,
       "hint": "243",
-      "rva": "00039000",
-      "name": "pid_impl_init_full"
+      "rva": "00016170",
+      "name": "obstacle_make_triangle"
     },
     {
       "ordinal": 581,
       "hint": "244",
-      "rva": "000345E0",
-      "name": "pid_init"
+      "rva": "000163C0",
+      "name": "obstacle_make_triangle_torus"
     },
     {
       "ordinal": 582,
       "hint": "245",
-      "rva": "00034610",
-      "name": "pid_init_auto"
+      "rva": "00017420",
+      "name": "obstacle_remove_from_navgrid"
     },
     {
       "ordinal": 583,
       "hint": "246",
-      "rva": "00034670",
-      "name": "pid_init_full"
+      "rva": "000174A0",
+      "name": "obstacle_set_height"
     },
     {
       "ordinal": 584,
       "hint": "247",
-      "rva": "000346A0",
-      "name": "pid_preview"
+      "rva": "000174B0",
+      "name": "obstacle_set_origin"
     },
     {
       "ordinal": 585,
       "hint": "248",
-      "rva": "00034700",
-      "name": "pid_reset"
+      "rva": "000151E0",
+      "name": "obstacle_set_width"
     },
     {
       "ordinal": 586,
       "hint": "249",
-      "rva": "00034710",
-      "name": "pid_set_state"
+      "rva": "000174C0",
+      "name": "obstacle_unblock_coord"
     },
     {
       "ordinal": 587,
       "hint": "24A",
-      "rva": "00034720",
-      "name": "pid_update"
+      "rva": "00022AF0",
+      "name": "octile_heuristic"
     },
     {
       "ordinal": 588,
       "hint": "24B",
-      "rva": "00034340",
-      "name": "pid_vec3_assign"
+      "rva": "0003D930",
+      "name": "patriot_assign"
     },
     {
       "ordinal": 589,
       "hint": "24C",
-      "rva": "00034380",
-      "name": "pid_vec3_init"
+      "rva": "0003D9B0",
+      "name": "patriot_init"
     },
     {
       "ordinal": 590,
       "hint": "24D",
-      "rva": "000343B0",
-      "name": "pid_vec3_init_full"
+      "rva": "0003DA00",
+      "name": "patriot_init_full"
     },
     {
       "ordinal": 591,
       "hint": "24E",
-      "rva": "00034440",
-      "name": "pid_vec3_preview"
+      "rva": "0003DA70",
+      "name": "patriot_launch"
     },
     {
       "ordinal": 592,
       "hint": "24F",
-      "rva": "000344C0",
-      "name": "pid_vec3_reset"
+      "rva": "00035BF0",
+      "name": "pid_assign"
     },
     {
       "ordinal": 593,
       "hint": "250",
-      "rva": "000344F0",
-      "name": "pid_vec3_set_state"
+      "rva": "00039E50",
+      "name": "pid_impl_assign"
     },
     {
       "ordinal": 594,
       "hint": "251",
-      "rva": "00034550",
-      "name": "pid_vec3_update"
+      "rva": "0003A620",
+      "name": "pid_impl_init"
     },
     {
       "ordinal": 595,
       "hint": "252",
-      "rva": "00004D90",
-      "name": "plane_anchor_point"
+      "rva": "0003A640",
+      "name": "pid_impl_init_full"
     },
     {
       "ordinal": 596,
       "hint": "253",
-      "rva": "00004E00",
-      "name": "plane_assign"
+      "rva": "00035C00",
+      "name": "pid_init"
     },
     {
       "ordinal": 597,
       "hint": "254",
-      "rva": "00004E20",
-      "name": "plane_flip"
+      "rva": "00035C30",
+      "name": "pid_init_auto"
     },
     {
       "ordinal": 598,
       "hint": "255",
-      "rva": "00004E60",
-      "name": "plane_init"
+      "rva": "00035C90",
+      "name": "pid_init_full"
     },
     {
       "ordinal": 599,
       "hint": "256",
-      "rva": "00004E80",
-      "name": "plane_init_full"
+      "rva": "00035CC0",
+      "name": "pid_preview"
     },
     {
       "ordinal": 600,
       "hint": "257",
-      "rva": "00004F00",
-      "name": "plane_init_normal_height"
+      "rva": "00035D20",
+      "name": "pid_reset"
     },
     {
       "ordinal": 601,
       "hint": "258",
-      "rva": "00004F90",
-      "name": "plane_init_point_normal"
+      "rva": "00035D30",
+      "name": "pid_set_state"
     },
     {
       "ordinal": 602,
       "hint": "259",
-      "rva": "00005030",
-      "name": "plane_init_points"
+      "rva": "00035D40",
+      "name": "pid_update"
     },
     {
       "ordinal": 603,
       "hint": "25A",
-      "rva": "00005140",
-      "name": "plane_project"
+      "rva": "00035960",
+      "name": "pid_vec3_assign"
     },
     {
       "ordinal": 604,
       "hint": "25B",
-      "rva": "000051E0",
-      "name": "plane_ray_intersect"
+      "rva": "000359A0",
+      "name": "pid_vec3_init"
     },
     {
       "ordinal": 605,
       "hint": "25C",
-      "rva": "000052F0",
-      "name": "plane_rotate_axis_angle_origin"
+      "rva": "000359D0",
+      "name": "pid_vec3_init_full"
     },
     {
       "ordinal": 606,
       "hint": "25D",
-      "rva": "000053C0",
-      "name": "plane_rotate_axis_angle_pivot"
+      "rva": "00035A60",
+      "name": "pid_vec3_preview"
     },
     {
       "ordinal": 607,
       "hint": "25E",
-      "rva": "000055A0",
-      "name": "plane_rotate_mat3_origin"
+      "rva": "00035AE0",
+      "name": "pid_vec3_reset"
     },
     {
       "ordinal": 608,
       "hint": "25F",
-      "rva": "00005650",
-      "name": "plane_rotate_mat3_pivot"
+      "rva": "00035B10",
+      "name": "pid_vec3_set_state"
     },
     {
       "ordinal": 609,
       "hint": "260",
-      "rva": "00005890",
-      "name": "plane_rotated_axis_angle_origin"
+      "rva": "00035B70",
+      "name": "pid_vec3_update"
     },
     {
       "ordinal": 610,
       "hint": "261",
-      "rva": "000058B0",
-      "name": "plane_rotated_axis_angle_pivot"
+      "rva": "00004D90",
+      "name": "plane_anchor_point"
     },
     {
       "ordinal": 611,
       "hint": "262",
-      "rva": "000058E0",
-      "name": "plane_segment_intersect"
+      "rva": "00004E00",
+      "name": "plane_assign"
     },
     {
       "ordinal": 612,
       "hint": "263",
-      "rva": "00005A30",
-      "name": "plane_signed_distance"
+      "rva": "00004E20",
+      "name": "plane_flip"
     },
     {
       "ordinal": 613,
       "hint": "264",
-      "rva": "00005A70",
-      "name": "plane_translate_along_normal"
+      "rva": "00004E60",
+      "name": "plane_init"
     },
     {
       "ordinal": 614,
       "hint": "265",
-      "rva": "0003CC90",
-      "name": "projectile_assign"
+      "rva": "00004E80",
+      "name": "plane_init_full"
     },
     {
       "ordinal": 615,
       "hint": "266",
-      "rva": "0003CD10",
-      "name": "projectile_calc_launch_param"
+      "rva": "00004F00",
+      "name": "plane_init_normal_height"
     },
     {
       "ordinal": 616,
       "hint": "267",
-      "rva": "0003CF60",
-      "name": "projectile_calc_launch_param_env"
+      "rva": "00004F90",
+      "name": "plane_init_point_normal"
     },
     {
       "ordinal": 617,
       "hint": "268",
-      "rva": "0003D230",
-      "name": "projectile_calc_launch_param_inverse"
+      "rva": "00005030",
+      "name": "plane_init_points"
     },
     {
       "ordinal": 618,
       "hint": "269",
-      "rva": "0003D370",
-      "name": "projectile_calc_launch_param_inverse_env"
+      "rva": "00005140",
+      "name": "plane_project"
     },
     {
       "ordinal": 619,
       "hint": "26A",
-      "rva": "0003D500",
-      "name": "projectile_default_expire_cb"
+      "rva": "000051E0",
+      "name": "plane_ray_intersect"
     },
     {
       "ordinal": 620,
       "hint": "26B",
-      "rva": "0003D530",
-      "name": "projectile_default_hit_cb"
+      "rva": "000052F0",
+      "name": "plane_rotate_axis_angle_origin"
     },
     {
       "ordinal": 621,
       "hint": "26C",
-      "rva": "0003D560",
-      "name": "projectile_init"
+      "rva": "000053C0",
+      "name": "plane_rotate_axis_angle_pivot"
     },
     {
       "ordinal": 622,
       "hint": "26D",
-      "rva": "0003D5B0",
-      "name": "projectile_init_full"
+      "rva": "000055A0",
+      "name": "plane_rotate_mat3_origin"
     },
     {
       "ordinal": 623,
       "hint": "26E",
-      "rva": "0003C580",
-      "name": "projectile_launch"
+      "rva": "00005650",
+      "name": "plane_rotate_mat3_pivot"
     },
     {
       "ordinal": 624,
       "hint": "26F",
-      "rva": "0003E970",
-      "name": "projectile_predict"
+      "rva": "00005890",
+      "name": "plane_rotated_axis_angle_origin"
     },
     {
       "ordinal": 625,
       "hint": "270",
-      "rva": "0003EF70",
-      "name": "projectile_result_calc_initial_force_scalar"
+      "rva": "000058B0",
+      "name": "plane_rotated_axis_angle_pivot"
     },
     {
       "ordinal": 626,
       "hint": "271",
-      "rva": "0003F020",
-      "name": "projectile_result_copy"
+      "rva": "000058E0",
+      "name": "plane_segment_intersect"
     },
     {
       "ordinal": 627,
       "hint": "272",
-      "rva": "0003F0D0",
-      "name": "projectile_result_create"
+      "rva": "00005A30",
+      "name": "plane_signed_distance"
     },
     {
       "ordinal": 628,
       "hint": "273",
-      "rva": "0003F150",
-      "name": "projectile_result_create_full"
+      "rva": "00005A70",
+      "name": "plane_translate_along_normal"
     },
     {
       "ordinal": 629,
       "hint": "274",
-      "rva": "0003F1E0",
-      "name": "projectile_result_destroy"
+      "rva": "0003E2D0",
+      "name": "projectile_assign"
     },
     {
       "ordinal": 630,
       "hint": "275",
-      "rva": "0003F220",
-      "name": "projectile_result_free"
+      "rva": "0003E350",
+      "name": "projectile_calc_launch_param"
     },
     {
       "ordinal": 631,
       "hint": "276",
-      "rva": "0003F290",
-      "name": "projectile_result_print"
+      "rva": "0003E5A0",
+      "name": "projectile_calc_launch_param_env"
     },
     {
       "ordinal": 632,
       "hint": "277",
-      "rva": "0003F2F0",
-      "name": "projectile_result_print_detailed"
+      "rva": "0003E870",
+      "name": "projectile_calc_launch_param_inverse"
     },
     {
       "ordinal": 633,
       "hint": "278",
-      "rva": "0003F380",
-      "name": "projectile_result_reset"
+      "rva": "0003E9B0",
+      "name": "projectile_calc_launch_param_inverse_env"
     },
     {
       "ordinal": 634,
       "hint": "279",
-      "rva": "0003F3D0",
-      "name": "projectile_result_resize"
+      "rva": "0003EB40",
+      "name": "projectile_default_expire_cb"
     },
     {
       "ordinal": 635,
       "hint": "27A",
-      "rva": "0003F540",
-      "name": "projectile_tick"
+      "rva": "0003EB70",
+      "name": "projectile_default_hit_cb"
     },
     {
       "ordinal": 636,
       "hint": "27B",
-      "rva": "0003FA90",
-      "name": "projectile_tick_assign"
+      "rva": "0003EBA0",
+      "name": "projectile_init"
     },
     {
       "ordinal": 637,
       "hint": "27C",
-      "rva": "0003FCB0",
-      "name": "projectile_tick_complete"
+      "rva": "0003EBF0",
+      "name": "projectile_init_full"
     },
     {
       "ordinal": 638,
       "hint": "27D",
-      "rva": "0003FCF0",
-      "name": "projectile_tick_free"
+      "rva": "0003DBC0",
+      "name": "projectile_launch"
     },
     {
       "ordinal": 639,
       "hint": "27E",
-      "rva": "0003FDB0",
-      "name": "projectile_tick_init"
+      "rva": "0003FFB0",
+      "name": "projectile_predict"
     },
     {
       "ordinal": 640,
       "hint": "27F",
-      "rva": "0003FE40",
-      "name": "projectile_tick_init_full"
+      "rva": "000405B0",
+      "name": "projectile_result_calc_initial_force_scalar"
     },
     {
       "ordinal": 641,
       "hint": "280",
-      "rva": "0003FFC0",
-      "name": "projectile_tick_prepare"
+      "rva": "00040660",
+      "name": "projectile_result_copy"
     },
     {
       "ordinal": 642,
       "hint": "281",
-      "rva": "00040090",
-      "name": "projectile_tick_prepare_full"
+      "rva": "00040710",
+      "name": "projectile_result_create"
     },
     {
       "ordinal": 643,
       "hint": "282",
-      "rva": "0003D620",
-      "name": "projectile_update"
+      "rva": "00040790",
+      "name": "projectile_result_create_full"
     },
     {
       "ordinal": 644,
       "hint": "283",
-      "rva": "0003D680",
-      "name": "propulsion_assign"
+      "rva": "00040820",
+      "name": "projectile_result_destroy"
     },
     {
       "ordinal": 645,
       "hint": "284",
-      "rva": "0003D6C0",
-      "name": "propulsion_attach_controller"
+      "rva": "00040860",
+      "name": "projectile_result_free"
     },
     {
       "ordinal": 646,
       "hint": "285",
-      "rva": "0003D6D0",
-      "name": "propulsion_consume"
+      "rva": "000408D0",
+      "name": "projectile_result_print"
     },
     {
       "ordinal": 647,
       "hint": "286",
-      "rva": "0003D700",
-      "name": "propulsion_detach_controller"
+      "rva": "00040930",
+      "name": "projectile_result_print_detailed"
     },
     {
       "ordinal": 648,
       "hint": "287",
-      "rva": "0003D710",
-      "name": "propulsion_get_fuel_ratio"
+      "rva": "000409C0",
+      "name": "projectile_result_reset"
     },
     {
       "ordinal": 649,
       "hint": "288",
-      "rva": "0003D730",
-      "name": "propulsion_get_max_runtime"
+      "rva": "00040A10",
+      "name": "projectile_result_resize"
     },
     {
       "ordinal": 650,
       "hint": "289",
-      "rva": "0003D760",
-      "name": "propulsion_get_remaining_impulse"
+      "rva": "00040B80",
+      "name": "projectile_tick"
     },
     {
       "ordinal": 651,
       "hint": "28A",
-      "rva": "0003D780",
-      "name": "propulsion_get_target"
+      "rva": "000410D0",
+      "name": "projectile_tick_assign"
     },
     {
       "ordinal": 652,
       "hint": "28B",
-      "rva": "0003D790",
-      "name": "propulsion_get_thrust"
+      "rva": "000412F0",
+      "name": "projectile_tick_complete"
     },
     {
       "ordinal": 653,
       "hint": "28C",
-      "rva": "0003D7B0",
-      "name": "propulsion_init"
+      "rva": "00041330",
+      "name": "projectile_tick_free"
     },
     {
       "ordinal": 654,
       "hint": "28D",
-      "rva": "0003D820",
-      "name": "propulsion_init_full"
+      "rva": "000413F0",
+      "name": "projectile_tick_init"
     },
     {
       "ordinal": 655,
       "hint": "28E",
-      "rva": "0003D8D0",
-      "name": "propulsion_is_empty"
+      "rva": "00041480",
+      "name": "projectile_tick_init_full"
     },
     {
       "ordinal": 656,
       "hint": "28F",
-      "rva": "0003D8F0",
-      "name": "propulsion_predict_empty_time"
+      "rva": "00041600",
+      "name": "projectile_tick_prepare"
     },
     {
       "ordinal": 657,
       "hint": "290",
-      "rva": "0003D930",
-      "name": "propulsion_predict_max_thrust"
+      "rva": "000416D0",
+      "name": "projectile_tick_prepare_full"
     },
     {
       "ordinal": 658,
       "hint": "291",
-      "rva": "0003D970",
-      "name": "propulsion_predict_runtime"
+      "rva": "0003EC60",
+      "name": "projectile_update"
     },
     {
       "ordinal": 659,
       "hint": "292",
-      "rva": "0003D9A0",
-      "name": "propulsion_print"
+      "rva": "0003ECC0",
+      "name": "propulsion_assign"
     },
     {
       "ordinal": 660,
       "hint": "293",
-      "rva": "0003DA00",
-      "name": "propulsion_refuel"
+      "rva": "0003ED00",
+      "name": "propulsion_attach_controller"
     },
     {
       "ordinal": 661,
       "hint": "294",
-      "rva": "0003DA30",
-      "name": "propulsion_reset"
+      "rva": "0003ED10",
+      "name": "propulsion_consume"
     },
     {
       "ordinal": 662,
       "hint": "295",
-      "rva": "0003DA50",
-      "name": "propulsion_set_active"
+      "rva": "0003ED40",
+      "name": "propulsion_detach_controller"
     },
     {
       "ordinal": 663,
       "hint": "296",
-      "rva": "0003DA60",
-      "name": "propulsion_set_target"
+      "rva": "0003ED50",
+      "name": "propulsion_get_fuel_ratio"
     },
     {
       "ordinal": 664,
       "hint": "297",
-      "rva": "0003DA70",
-      "name": "propulsion_to_json"
+      "rva": "0003ED70",
+      "name": "propulsion_get_max_runtime"
     },
     {
       "ordinal": 665,
       "hint": "298",
-      "rva": "0003DAE0",
-      "name": "propulsion_to_string"
+      "rva": "0003EDA0",
+      "name": "propulsion_get_remaining_impulse"
     },
     {
       "ordinal": 666,
       "hint": "299",
-      "rva": "0003DB50",
-      "name": "propulsion_update"
+      "rva": "0003EDC0",
+      "name": "propulsion_get_target"
     },
     {
       "ordinal": 667,
       "hint": "29A",
-      "rva": "0003A470",
-      "name": "push_simulate_network"
+      "rva": "0003EDD0",
+      "name": "propulsion_get_thrust"
     },
     {
       "ordinal": 668,
       "hint": "29B",
-      "rva": "00006730",
-      "name": "quat_add"
+      "rva": "0003EDF0",
+      "name": "propulsion_init"
     },
     {
       "ordinal": 669,
       "hint": "29C",
-      "rva": "00006800",
-      "name": "quat_apply_to_vec3"
+      "rva": "0003EE60",
+      "name": "propulsion_init_full"
     },
     {
       "ordinal": 670,
       "hint": "29D",
-      "rva": "00006810",
-      "name": "quat_assign"
+      "rva": "0003EF10",
+      "name": "propulsion_is_empty"
     },
     {
       "ordinal": 671,
       "hint": "29E",
-      "rva": "00006830",
-      "name": "quat_conjugate"
+      "rva": "0003EF30",
+      "name": "propulsion_predict_empty_time"
     },
     {
       "ordinal": 672,
       "hint": "29F",
-      "rva": "000068D0",
-      "name": "quat_dot"
+      "rva": "0003EF70",
+      "name": "propulsion_predict_max_thrust"
     },
     {
       "ordinal": 673,
       "hint": "2A0",
-      "rva": "00006980",
-      "name": "quat_equal"
+      "rva": "0003EFB0",
+      "name": "propulsion_predict_runtime"
     },
     {
       "ordinal": 674,
       "hint": "2A1",
-      "rva": "00006A10",
-      "name": "quat_get"
+      "rva": "0003EFE0",
+      "name": "propulsion_print"
     },
     {
       "ordinal": 675,
       "hint": "2A2",
-      "rva": "00006A50",
-      "name": "quat_get_forward"
+      "rva": "0003F040",
+      "name": "propulsion_refuel"
     },
     {
       "ordinal": 676,
       "hint": "2A3",
-      "rva": "00006BB0",
-      "name": "quat_get_right"
+      "rva": "0003F070",
+      "name": "propulsion_reset"
     },
     {
       "ordinal": 677,
       "hint": "2A4",
-      "rva": "00006D00",
-      "name": "quat_get_up"
+      "rva": "0003F090",
+      "name": "propulsion_set_active"
     },
     {
       "ordinal": 678,
       "hint": "2A5",
-      "rva": "00006E50",
-      "name": "quat_hash"
+      "rva": "0003F0A0",
+      "name": "propulsion_set_target"
     },
     {
       "ordinal": 679,
       "hint": "2A6",
-      "rva": "00006EC0",
-      "name": "quat_identity"
+      "rva": "0003F0B0",
+      "name": "propulsion_to_json"
     },
     {
       "ordinal": 680,
       "hint": "2A7",
-      "rva": "00006EC0",
-      "name": "quat_init"
+      "rva": "0003F120",
+      "name": "propulsion_to_string"
     },
     {
       "ordinal": 681,
       "hint": "2A8",
-      "rva": "00006EE0",
-      "name": "quat_init_angular_velocity"
+      "rva": "0003F190",
+      "name": "propulsion_update"
     },
     {
       "ordinal": 682,
       "hint": "2A9",
-      "rva": "00007000",
-      "name": "quat_init_axes"
+      "rva": "0003BAB0",
+      "name": "push_simulate_network"
     },
     {
       "ordinal": 683,
       "hint": "2AA",
-      "rva": "00007350",
-      "name": "quat_init_axis_angle"
+      "rva": "00006730",
+      "name": "quat_add"
     },
     {
       "ordinal": 684,
       "hint": "2AB",
-      "rva": "00007440",
-      "name": "quat_init_axis_deg"
+      "rva": "00006800",
+      "name": "quat_apply_to_vec3"
     },
     {
       "ordinal": 685,
       "hint": "2AC",
-      "rva": "00007460",
-      "name": "quat_init_euler"
+      "rva": "00006810",
+      "name": "quat_assign"
     },
     {
       "ordinal": 686,
       "hint": "2AD",
-      "rva": "000078A0",
-      "name": "quat_init_euler_deg"
+      "rva": "00006830",
+      "name": "quat_conjugate"
     },
     {
       "ordinal": 687,
       "hint": "2AE",
-      "rva": "000078D0",
-      "name": "quat_init_from_mat3"
+      "rva": "000068D0",
+      "name": "quat_dot"
     },
     {
       "ordinal": 688,
       "hint": "2AF",
-      "rva": "00007AF0",
-      "name": "quat_init_from_mat4"
+      "rva": "00006980",
+      "name": "quat_equal"
     },
     {
       "ordinal": 689,
       "hint": "2B0",
-      "rva": "00007D00",
-      "name": "quat_init_full"
+      "rva": "00006A10",
+      "name": "quat_get"
     },
     {
       "ordinal": 690,
       "hint": "2B1",
-      "rva": "00007D20",
-      "name": "quat_init_two_vector"
+      "rva": "00006A50",
+      "name": "quat_get_forward"
     },
     {
       "ordinal": 691,
       "hint": "2B2",
-      "rva": "00008540",
-      "name": "quat_inverse"
+      "rva": "00006BB0",
+      "name": "quat_get_right"
     },
     {
       "ordinal": 692,
       "hint": "2B3",
-      "rva": "00008660",
-      "name": "quat_is_valid"
+      "rva": "00006D00",
+      "name": "quat_get_up"
     },
     {
       "ordinal": 693,
       "hint": "2B4",
-      "rva": "000086E0",
-      "name": "quat_length"
+      "rva": "00006E50",
+      "name": "quat_hash"
     },
     {
       "ordinal": 694,
       "hint": "2B5",
-      "rva": "00008750",
-      "name": "quat_lerp"
+      "rva": "00006EC0",
+      "name": "quat_identity"
     },
     {
       "ordinal": 695,
       "hint": "2B6",
-      "rva": "00008880",
-      "name": "quat_mul"
+      "rva": "00006EC0",
+      "name": "quat_init"
     },
     {
       "ordinal": 696,
       "hint": "2B7",
-      "rva": "000089E0",
-      "name": "quat_normalize"
+      "rva": "00006EE0",
+      "name": "quat_init_angular_velocity"
     },
     {
       "ordinal": 697,
       "hint": "2B8",
-      "rva": "00006EC0",
-      "name": "quat_reset"
+      "rva": "00007000",
+      "name": "quat_init_axes"
     },
     {
       "ordinal": 698,
       "hint": "2B9",
-      "rva": "00008A80",
-      "name": "quat_rotate_around_pivot"
+      "rva": "00007350",
+      "name": "quat_init_axis_angle"
     },
     {
       "ordinal": 699,
       "hint": "2BA",
-      "rva": "00008AF0",
-      "name": "quat_rotate_vector"
+      "rva": "00007440",
+      "name": "quat_init_axis_deg"
     },
     {
       "ordinal": 700,
       "hint": "2BB",
-      "rva": "00008C70",
-      "name": "quat_scale"
+      "rva": "00007460",
+      "name": "quat_init_euler"
     },
     {
       "ordinal": 701,
       "hint": "2BC",
-      "rva": "00007D00",
-      "name": "quat_set"
+      "rva": "000078A0",
+      "name": "quat_init_euler_deg"
     },
     {
       "ordinal": 702,
       "hint": "2BD",
-      "rva": "00008CF0",
-      "name": "quat_slerp"
+      "rva": "000078D0",
+      "name": "quat_init_from_mat3"
     },
     {
       "ordinal": 703,
       "hint": "2BE",
-      "rva": "00008EC0",
-      "name": "quat_sub"
+      "rva": "00007AF0",
+      "name": "quat_init_from_mat4"
     },
     {
       "ordinal": 704,
       "hint": "2BF",
-      "rva": "00008F90",
-      "name": "quat_to_axis_angle"
+      "rva": "00007D00",
+      "name": "quat_init_full"
     },
     {
       "ordinal": 705,
       "hint": "2C0",
-      "rva": "00009170",
-      "name": "quat_to_euler"
+      "rva": "00007D20",
+      "name": "quat_init_two_vector"
     },
     {
       "ordinal": 706,
       "hint": "2C1",
-      "rva": "00003000",
-      "name": "quat_to_mat3"
+      "rva": "00008540",
+      "name": "quat_inverse"
     },
     {
       "ordinal": 707,
       "hint": "2C2",
-      "rva": "00009400",
-      "name": "quat_to_mat4"
+      "rva": "00008660",
+      "name": "quat_is_valid"
     },
     {
       "ordinal": 708,
       "hint": "2C3",
-      "rva": "00009590",
-      "name": "quat_unit"
+      "rva": "000086E0",
+      "name": "quat_length"
     },
     {
       "ordinal": 709,
       "hint": "2C4",
-      "rva": "0003A6E0",
-      "name": "repulsion_simulate_network"
+      "rva": "00008750",
+      "name": "quat_lerp"
     },
     {
       "ordinal": 710,
       "hint": "2C5",
-      "rva": "0003C690",
-      "name": "rocket_assign"
+      "rva": "00008880",
+      "name": "quat_mul"
     },
     {
       "ordinal": 711,
       "hint": "2C6",
-      "rva": "0003C700",
-      "name": "rocket_init"
+      "rva": "000089E0",
+      "name": "quat_normalize"
     },
     {
       "ordinal": 712,
       "hint": "2C7",
-      "rva": "0003C780",
-      "name": "rocket_init_full"
+      "rva": "00006EC0",
+      "name": "quat_reset"
     },
     {
       "ordinal": 713,
       "hint": "2C8",
-      "rva": "0003C830",
-      "name": "rocket_launch"
+      "rva": "00008A80",
+      "name": "quat_rotate_around_pivot"
     },
     {
       "ordinal": 714,
       "hint": "2C9",
-      "rva": "00012AB0",
-      "name": "route_add_coord"
+      "rva": "00008AF0",
+      "name": "quat_rotate_vector"
     },
     {
       "ordinal": 715,
       "hint": "2CA",
-      "rva": "00012AC0",
-      "name": "route_add_visited"
+      "rva": "00008C70",
+      "name": "quat_scale"
     },
     {
       "ordinal": 716,
       "hint": "2CB",
-      "rva": "00012B60",
-      "name": "route_append"
+      "rva": "00007D00",
+      "name": "quat_set"
     },
     {
       "ordinal": 717,
       "hint": "2CC",
-      "rva": "00012BD0",
-      "name": "route_append_nodup"
+      "rva": "00008CF0",
+      "name": "quat_slerp"
     },
     {
       "ordinal": 718,
       "hint": "2CD",
-      "rva": "00012CC0",
-      "name": "route_calc_average_dir"
+      "rva": "00008EC0",
+      "name": "quat_sub"
     },
     {
       "ordinal": 719,
       "hint": "2CE",
-      "rva": "00012DA0",
-      "name": "route_calc_average_facing"
+      "rva": "00008F90",
+      "name": "quat_to_axis_angle"
     },
     {
       "ordinal": 720,
       "hint": "2CF",
-      "rva": "000271E0",
-      "name": "route_carve_beam"
+      "rva": "00009170",
+      "name": "quat_to_euler"
     },
     {
       "ordinal": 721,
       "hint": "2D0",
-      "rva": "000273B0",
-      "name": "route_carve_bomb"
+      "rva": "00003000",
+      "name": "quat_to_mat3"
     },
     {
       "ordinal": 722,
       "hint": "2D1",
-      "rva": "00012E90",
-      "name": "route_clear_coords"
+      "rva": "00009400",
+      "name": "quat_to_mat4"
     },
     {
       "ordinal": 723,
       "hint": "2D2",
-      "rva": "00012EA0",
-      "name": "route_clear_visited"
+      "rva": "00009590",
+      "name": "quat_unit"
     },
     {
       "ordinal": 724,
       "hint": "2D3",
-      "rva": "00012ED0",
-      "name": "route_contains"
+      "rva": "0003BD20",
+      "name": "repulsion_simulate_network"
     },
     {
       "ordinal": 725,
       "hint": "2D4",
-      "rva": "00012EF0",
-      "name": "route_copy"
+      "rva": "0003DCD0",
+      "name": "rocket_assign"
     },
     {
       "ordinal": 726,
       "hint": "2D5",
-      "rva": "00012F90",
-      "name": "route_create"
+      "rva": "0003DD40",
+      "name": "rocket_init"
     },
     {
       "ordinal": 727,
       "hint": "2D6",
-      "rva": "00013000",
-      "name": "route_destroy"
+      "rva": "0003DDC0",
+      "name": "rocket_init_full"
     },
     {
       "ordinal": 728,
       "hint": "2D7",
-      "rva": "00013040",
-      "name": "route_equal"
+      "rva": "0003DE70",
+      "name": "rocket_launch"
     },
     {
       "ordinal": 729,
       "hint": "2D8",
-      "rva": "00013050",
-      "name": "route_find"
+      "rva": "00012DC0",
+      "name": "route_add_coord"
     },
     {
       "ordinal": 730,
       "hint": "2D9",
-      "rva": "000226B0",
-      "name": "route_finder_clear"
+      "rva": "00012DD0",
+      "name": "route_add_visited"
     },
     {
       "ordinal": 731,
       "hint": "2DA",
-      "rva": "000226D0",
-      "name": "route_finder_copy"
+      "rva": "00012E70",
+      "name": "route_append"
     },
     {
       "ordinal": 732,
       "hint": "2DB",
-      "rva": "00022740",
-      "name": "route_finder_create"
+      "rva": "00012EE0",
+      "name": "route_append_nodup"
     },
     {
       "ordinal": 733,
       "hint": "2DC",
-      "rva": "000227D0",
-      "name": "route_finder_create_full"
+      "rva": "00012FD0",
+      "name": "route_calc_average_dir"
     },
     {
       "ordinal": 734,
       "hint": "2DD",
-      "rva": "000228A0",
-      "name": "route_finder_destroy"
+      "rva": "000130B0",
+      "name": "route_calc_average_facing"
     },
     {
       "ordinal": 735,
       "hint": "2DE",
-      "rva": "000228D0",
-      "name": "route_finder_enable_debug_mode"
+      "rva": "00028800",
+      "name": "route_carve_beam"
     },
     {
       "ordinal": 736,
       "hint": "2DF",
-      "rva": "000228E0",
-      "name": "route_finder_fetch_goal"
+      "rva": "000289D0",
+      "name": "route_carve_bomb"
     },
     {
       "ordinal": 737,
       "hint": "2E0",
-      "rva": "000228F0",
-      "name": "route_finder_fetch_start"
+      "rva": "000131A0",
+      "name": "route_clear_coords"
     },
     {
       "ordinal": 738,
       "hint": "2E1",
-      "rva": "00022900",
-      "name": "route_finder_free"
+      "rva": "000131B0",
+      "name": "route_clear_visited"
     },
     {
       "ordinal": 739,
       "hint": "2E2",
-      "rva": "00022930",
-      "name": "route_finder_get_cost_fn_userdata"
+      "rva": "000131E0",
+      "name": "route_contains"
     },
     {
       "ordinal": 740,
       "hint": "2E3",
-      "rva": "00022940",
-      "name": "route_finder_get_cost_func"
+      "rva": "00013200",
+      "name": "route_copy"
     },
     {
       "ordinal": 741,
       "hint": "2E4",
-      "rva": "00022950",
-      "name": "route_finder_get_heuristic_fn_userdata"
+      "rva": "000132A0",
+      "name": "route_create"
     },
     {
       "ordinal": 742,
       "hint": "2E5",
-      "rva": "00022960",
-      "name": "route_finder_get_heuristic_func"
+      "rva": "00013340",
+      "name": "route_destroy"
     },
     {
       "ordinal": 743,
       "hint": "2E6",
-      "rva": "00022970",
-      "name": "route_finder_get_max_retry"
+      "rva": "00013380",
+      "name": "route_equal"
     },
     {
       "ordinal": 744,
       "hint": "2E7",
-      "rva": "00022980",
-      "name": "route_finder_get_navgrid"
+      "rva": "00013390",
+      "name": "route_export_coords"
     },
     {
       "ordinal": 745,
       "hint": "2E8",
-      "rva": "00022990",
-      "name": "route_finder_get_type"
+      "rva": "00013470",
+      "name": "route_fetch_completion"
     },
     {
       "ordinal": 746,
       "hint": "2E9",
-      "rva": "000229A0",
-      "name": "route_finder_get_typedata"
+      "rva": "000134D0",
+      "name": "route_fetch_coord"
     },
     {
       "ordinal": 747,
       "hint": "2EA",
-      "rva": "000229B0",
-      "name": "route_finder_init"
+      "rva": "00013580",
+      "name": "route_fetch_total_cost"
     },
     {
       "ordinal": 748,
       "hint": "2EB",
-      "rva": "000229F0",
-      "name": "route_finder_init_full"
+      "rva": "000135A0",
+      "name": "route_find"
     },
     {
       "ordinal": 749,
       "hint": "2EC",
-      "rva": "00022A50",
-      "name": "route_finder_is_debug_mode_enabled"
+      "rva": "00023250",
+      "name": "route_finder_bind_cost_func"
     },
     {
       "ordinal": 750,
       "hint": "2ED",
-      "rva": "00022A60",
-      "name": "route_finder_is_valid"
+      "rva": "000232A0",
+      "name": "route_finder_bind_fringe_search_config"
     },
     {
       "ordinal": 751,
       "hint": "2EE",
-      "rva": "00022A80",
-      "name": "route_finder_print"
+      "rva": "00023350",
+      "name": "route_finder_bind_heuristic_func"
     },
     {
       "ordinal": 752,
       "hint": "2EF",
-      "rva": "00022B70",
-      "name": "route_finder_run"
+      "rva": "000233A0",
+      "name": "route_finder_bind_rta_star_config"
     },
     {
       "ordinal": 753,
       "hint": "2F0",
-      "rva": "00022EF0",
-      "name": "route_finder_set_cost_fn_userdata"
+      "rva": "000233F0",
+      "name": "route_finder_bind_sma_star_config"
     },
     {
       "ordinal": 754,
       "hint": "2F1",
-      "rva": "00022F00",
-      "name": "route_finder_set_cost_func"
+      "rva": "00023440",
+      "name": "route_finder_bind_weighted_astar_config"
     },
     {
       "ordinal": 755,
       "hint": "2F2",
-      "rva": "00022F10",
-      "name": "route_finder_set_defaults"
+      "rva": "000234F0",
+      "name": "route_finder_clear"
     },
     {
       "ordinal": 756,
       "hint": "2F3",
-      "rva": "00022F40",
-      "name": "route_finder_set_goal"
+      "rva": "00023510",
+      "name": "route_finder_copy"
     },
     {
       "ordinal": 757,
       "hint": "2F4",
-      "rva": "00022F50",
-      "name": "route_finder_set_heuristic_fn_userdata"
+      "rva": "00023580",
+      "name": "route_finder_create"
     },
     {
       "ordinal": 758,
       "hint": "2F5",
-      "rva": "00022F60",
-      "name": "route_finder_set_heuristic_func"
+      "rva": "000235E0",
+      "name": "route_finder_create_full"
     },
     {
       "ordinal": 759,
       "hint": "2F6",
-      "rva": "00022F70",
-      "name": "route_finder_set_max_retry"
+      "rva": "000236C0",
+      "name": "route_finder_destroy"
     },
     {
       "ordinal": 760,
       "hint": "2F7",
-      "rva": "00022F80",
-      "name": "route_finder_set_navgrid"
+      "rva": "00023710",
+      "name": "route_finder_enable_debug_mode"
     },
     {
       "ordinal": 761,
       "hint": "2F8",
-      "rva": "00022F90",
-      "name": "route_finder_set_start"
+      "rva": "00023720",
+      "name": "route_finder_fetch_goal"
     },
     {
       "ordinal": 762,
       "hint": "2F9",
-      "rva": "00022FA0",
-      "name": "route_finder_set_type"
+      "rva": "00023730",
+      "name": "route_finder_fetch_start"
     },
     {
       "ordinal": 763,
       "hint": "2FA",
-      "rva": "00022FB0",
-      "name": "route_finder_set_typedata"
+      "rva": "00023740",
+      "name": "route_finder_free"
     },
     {
       "ordinal": 764,
       "hint": "2FB",
-      "rva": "00013070",
-      "name": "route_get_coord_at"
+      "rva": "00023770",
+      "name": "route_finder_get_cost_fn_userdata"
     },
     {
       "ordinal": 765,
       "hint": "2FC",
-      "rva": "000130C0",
-      "name": "route_get_coords"
+      "rva": "00023780",
+      "name": "route_finder_get_cost_func"
     },
     {
       "ordinal": 766,
       "hint": "2FD",
-      "rva": "000130D0",
-      "name": "route_get_cost"
+      "rva": "00023790",
+      "name": "route_finder_get_heuristic_fn_userdata"
     },
     {
       "ordinal": 767,
       "hint": "2FE",
-      "rva": "000130E0",
-      "name": "route_get_direction_by_dir_coord"
+      "rva": "000237A0",
+      "name": "route_finder_get_heuristic_func"
     },
     {
       "ordinal": 768,
       "hint": "2FF",
-      "rva": "00013190",
-      "name": "route_get_direction_by_index"
+      "rva": "000237B0",
+      "name": "route_finder_get_max_retry"
     },
     {
       "ordinal": 769,
       "hint": "300",
-      "rva": "000131D0",
-      "name": "route_get_last"
+      "rva": "000237C0",
+      "name": "route_finder_get_navgrid"
     },
     {
       "ordinal": 770,
       "hint": "301",
-      "rva": "00013200",
-      "name": "route_get_success"
+      "rva": "000237D0",
+      "name": "route_finder_get_type"
     },
     {
       "ordinal": 771,
       "hint": "302",
-      "rva": "00013210",
-      "name": "route_get_total_retry_count"
+      "rva": "000237E0",
+      "name": "route_finder_get_typedata"
     },
     {
       "ordinal": 772,
       "hint": "303",
-      "rva": "0000D260",
-      "name": "route_get_visited_count"
+      "rva": "000237F0",
+      "name": "route_finder_init"
     },
     {
       "ordinal": 773,
       "hint": "304",
-      "rva": "00013220",
-      "name": "route_get_visited_order"
+      "rva": "00023830",
+      "name": "route_finder_init_full"
     },
     {
       "ordinal": 774,
       "hint": "305",
-      "rva": "00013230",
-      "name": "route_has_changed"
+      "rva": "00023890",
+      "name": "route_finder_is_debug_mode_enabled"
     },
     {
       "ordinal": 775,
       "hint": "306",
-      "rva": "00013370",
-      "name": "route_has_changed_by_index"
+      "rva": "000238A0",
+      "name": "route_finder_is_supported"
     },
     {
       "ordinal": 776,
       "hint": "307",
-      "rva": "00013410",
-      "name": "route_has_changed_with_angle"
+      "rva": "000238C0",
+      "name": "route_finder_is_valid"
     },
     {
       "ordinal": 777,
       "hint": "308",
-      "rva": "00013620",
-      "name": "route_has_changed_with_angle_by_index"
+      "rva": "000238E0",
+      "name": "route_finder_print"
     },
     {
       "ordinal": 778,
       "hint": "309",
-      "rva": "000136C0",
-      "name": "route_hash"
+      "rva": "000239D0",
+      "name": "route_finder_run"
     },
     {
       "ordinal": 779,
       "hint": "30A",
-      "rva": "000136D0",
-      "name": "route_insert"
+      "rva": "00023A20",
+      "name": "route_finder_run_ex"
     },
     {
       "ordinal": 780,
       "hint": "30B",
-      "rva": "00013720",
-      "name": "route_length"
+      "rva": "00023A30",
+      "name": "route_finder_run_with_options"
     },
     {
       "ordinal": 781,
       "hint": "30C",
-      "rva": "00013730",
-      "name": "route_make_direction"
+      "rva": "00023C70",
+      "name": "route_finder_set_cost_fn_userdata"
     },
     {
       "ordinal": 782,
       "hint": "30D",
-      "rva": "00013850",
-      "name": "route_print"
+      "rva": "00023C80",
+      "name": "route_finder_set_cost_func"
     },
     {
       "ordinal": 783,
       "hint": "30E",
-      "rva": "00013920",
-      "name": "route_reconstruct"
+      "rva": "00023C90",
+      "name": "route_finder_set_defaults"
     },
     {
       "ordinal": 784,
       "hint": "30F",
-      "rva": "00013A20",
-      "name": "route_remove_at"
+      "rva": "00023CC0",
+      "name": "route_finder_set_goal"
     },
     {
       "ordinal": 785,
       "hint": "310",
-      "rva": "00013A60",
-      "name": "route_remove_value"
+      "rva": "00023CD0",
+      "name": "route_finder_set_heuristic_fn_userdata"
     },
     {
       "ordinal": 786,
       "hint": "311",
-      "rva": "00013A80",
-      "name": "route_set_cost"
+      "rva": "00023CE0",
+      "name": "route_finder_set_heuristic_func"
     },
     {
       "ordinal": 787,
       "hint": "312",
-      "rva": "00013A90",
-      "name": "route_set_success"
+      "rva": "00023CF0",
+      "name": "route_finder_set_max_retry"
     },
     {
       "ordinal": 788,
       "hint": "313",
-      "rva": "00013AA0",
-      "name": "route_set_total_retry_count"
+      "rva": "00023D20",
+      "name": "route_finder_set_max_retry_checked"
     },
     {
       "ordinal": 789,
       "hint": "314",
-      "rva": "00013AB0",
-      "name": "route_slice"
+      "rva": "00023D60",
+      "name": "route_finder_set_navgrid"
     },
     {
       "ordinal": 790,
       "hint": "315",
-      "rva": "00013B40",
-      "name": "route_update_average_vector"
+      "rva": "00023D70",
+      "name": "route_finder_set_start"
     },
     {
       "ordinal": 791,
       "hint": "316",
-      "rva": "00013C20",
-      "name": "route_update_average_vector_by_index"
+      "rva": "00023D80",
+      "name": "route_finder_set_type"
     },
     {
       "ordinal": 792,
       "hint": "317",
-      "rva": "000010F0",
-      "name": "scalar_clamp"
+      "rva": "00023D90",
+      "name": "route_finder_set_type_checked"
     },
     {
       "ordinal": 793,
       "hint": "318",
-      "rva": "00001110",
-      "name": "scalar_clamp01"
+      "rva": "00023E00",
+      "name": "route_finder_set_typedata"
     },
     {
       "ordinal": 794,
       "hint": "319",
-      "rva": "00001130",
-      "name": "scalar_compare"
+      "rva": "00023E10",
+      "name": "route_finder_unbind_algorithm_config"
     },
     {
       "ordinal": 795,
       "hint": "31A",
-      "rva": "00011100",
-      "name": "scalar_copy"
+      "rva": "00023E50",
+      "name": "route_finder_unbind_cost_func"
     },
     {
       "ordinal": 796,
       "hint": "31B",
-      "rva": "000011C0",
-      "name": "scalar_deg2rad"
+      "rva": "00023EA0",
+      "name": "route_finder_unbind_heuristic_func"
     },
     {
       "ordinal": 797,
       "hint": "31C",
-      "rva": "00011130",
-      "name": "scalar_destroy"
+      "rva": "000135C0",
+      "name": "route_get_coord_at"
     },
     {
       "ordinal": 798,
       "hint": "31D",
-      "rva": "000011E0",
-      "name": "scalar_equal"
+      "rva": "00013610",
+      "name": "route_get_coord_count"
     },
     {
       "ordinal": 799,
       "hint": "31E",
-      "rva": "00001230",
-      "name": "scalar_equal_tol"
+      "rva": "00013630",
+      "name": "route_get_coords"
     },
     {
       "ordinal": 800,
       "hint": "31F",
-      "rva": "00001260",
-      "name": "scalar_equal_tol_all"
+      "rva": "00013640",
+      "name": "route_get_cost"
     },
     {
       "ordinal": 801,
       "hint": "320",
-      "rva": "000012A0",
-      "name": "scalar_inv_lerp"
+      "rva": "00013650",
+      "name": "route_get_direction_by_dir_coord"
     },
     {
       "ordinal": 802,
       "hint": "321",
-      "rva": "000012D0",
-      "name": "scalar_lerp"
+      "rva": "00013700",
+      "name": "route_get_direction_by_index"
     },
     {
       "ordinal": 803,
       "hint": "322",
-      "rva": "000012E0",
-      "name": "scalar_rad2deg"
+      "rva": "00013740",
+      "name": "route_get_last"
     },
     {
       "ordinal": 804,
       "hint": "323",
-      "rva": "00001300",
-      "name": "scalar_remap"
+      "rva": "00013770",
+      "name": "route_get_success"
     },
     {
       "ordinal": 805,
       "hint": "324",
-      "rva": "00001360",
-      "name": "scalar_safe_div"
+      "rva": "00013780",
+      "name": "route_get_total_retry_count"
     },
     {
       "ordinal": 806,
       "hint": "325",
-      "rva": "00001380",
-      "name": "scalar_sign"
+      "rva": "0000D260",
+      "name": "route_get_visited_count"
     },
     {
       "ordinal": 807,
       "hint": "326",
-      "rva": "000013B0",
-      "name": "scalar_smoothstep"
+      "rva": "00013790",
+      "name": "route_get_visited_order"
     },
     {
       "ordinal": 808,
       "hint": "327",
-      "rva": "00001410",
-      "name": "scalar_square"
+      "rva": "000137A0",
+      "name": "route_has_changed"
     },
     {
       "ordinal": 809,
       "hint": "328",
-      "rva": "00001420",
-      "name": "scalar_zero"
+      "rva": "000138E0",
+      "name": "route_has_changed_by_index"
     },
     {
       "ordinal": 810,
       "hint": "329",
-      "rva": "0003C990",
-      "name": "shell_projectile_assign"
+      "rva": "00013980",
+      "name": "route_has_changed_with_angle"
     },
     {
       "ordinal": 811,
       "hint": "32A",
-      "rva": "0003CA10",
-      "name": "shell_projectile_hit_cb"
+      "rva": "00013B90",
+      "name": "route_has_changed_with_angle_by_index"
     },
     {
       "ordinal": 812,
       "hint": "32B",
-      "rva": "0003CA50",
-      "name": "shell_projectile_init"
+      "rva": "00013C30",
+      "name": "route_hash"
     },
     {
       "ordinal": 813,
       "hint": "32C",
-      "rva": "0003CAA0",
-      "name": "shell_projectile_init_full"
+      "rva": "00013C40",
+      "name": "route_insert"
     },
     {
       "ordinal": 814,
       "hint": "32D",
-      "rva": "0003CB10",
-      "name": "shell_projectile_launch"
+      "rva": "00013C90",
+      "name": "route_length"
     },
     {
       "ordinal": 815,
       "hint": "32E",
-      "rva": "0003ABB0",
-      "name": "spring_force"
+      "rva": "00013CA0",
+      "name": "route_make_direction"
     },
     {
       "ordinal": 816,
       "hint": "32F",
-      "rva": "0003ACD0",
-      "name": "spring_force_total"
+      "rva": "00013DC0",
+      "name": "route_print"
     },
     {
       "ordinal": 817,
       "hint": "330",
-      "rva": "0003ADC0",
-      "name": "spring_simulate"
+      "rva": "00013E90",
+      "name": "route_reconstruct"
     },
     {
       "ordinal": 818,
       "hint": "331",
-      "rva": "0003B0B0",
-      "name": "spring_simulate_network"
+      "rva": "00013F90",
+      "name": "route_remove_at"
     },
     {
       "ordinal": 819,
       "hint": "332",
-      "rva": "0003B3A0",
-      "name": "spring_simulate_pairwise"
+      "rva": "00013FD0",
+      "name": "route_remove_value"
     },
     {
       "ordinal": 820,
       "hint": "333",
-      "rva": "0000C770",
-      "name": "strset_add"
+      "rva": "00013FF0",
+      "name": "route_set_cost"
     },
     {
       "ordinal": 821,
       "hint": "334",
-      "rva": "0000C870",
-      "name": "strset_clear"
+      "rva": "00014000",
+      "name": "route_set_success"
     },
     {
       "ordinal": 822,
       "hint": "335",
-      "rva": "0000C880",
-      "name": "strset_contains"
+      "rva": "00014010",
+      "name": "route_set_total_retry_count"
     },
     {
       "ordinal": 823,
       "hint": "336",
-      "rva": "0000CA30",
-      "name": "strset_copy"
+      "rva": "00014020",
+      "name": "route_slice"
     },
     {
       "ordinal": 824,
       "hint": "337",
-      "rva": "0000CAC0",
-      "name": "strset_create"
+      "rva": "000140B0",
+      "name": "route_update_average_vector"
     },
     {
       "ordinal": 825,
       "hint": "338",
-      "rva": "0000CB00",
-      "name": "strset_destroy"
+      "rva": "00014190",
+      "name": "route_update_average_vector_by_index"
     },
     {
       "ordinal": 826,
       "hint": "339",
-      "rva": "0000CB40",
-      "name": "strset_difference"
+      "rva": "000010F0",
+      "name": "scalar_clamp"
     },
     {
       "ordinal": 827,
       "hint": "33A",
-      "rva": "0000CC70",
-      "name": "strset_equal"
+      "rva": "00001110",
+      "name": "scalar_clamp01"
     },
     {
       "ordinal": 828,
       "hint": "33B",
-      "rva": "0000CCA0",
-      "name": "strset_foreach"
+      "rva": "00001130",
+      "name": "scalar_compare"
     },
     {
       "ordinal": 829,
       "hint": "33C",
-      "rva": "0000CD00",
-      "name": "strset_intersect"
+      "rva": "00011250",
+      "name": "scalar_copy"
     },
     {
       "ordinal": 830,
       "hint": "33D",
-      "rva": "0000CE30",
-      "name": "strset_peek"
+      "rva": "000011C0",
+      "name": "scalar_deg2rad"
     },
     {
       "ordinal": 831,
       "hint": "33E",
-      "rva": "0000CE60",
-      "name": "strset_pop"
+      "rva": "00011280",
+      "name": "scalar_destroy"
     },
     {
       "ordinal": 832,
       "hint": "33F",
-      "rva": "0000D020",
-      "name": "strset_remove"
+      "rva": "000011E0",
+      "name": "scalar_equal"
     },
     {
       "ordinal": 833,
       "hint": "340",
-      "rva": "0000D260",
-      "name": "strset_size"
+      "rva": "00001230",
+      "name": "scalar_equal_tol"
     },
     {
       "ordinal": 834,
       "hint": "341",
-      "rva": "0000D270",
-      "name": "strset_union"
+      "rva": "00001260",
+      "name": "scalar_equal_tol_all"
     },
     {
       "ordinal": 835,
       "hint": "342",
-      "rva": "0000A600",
-      "name": "tick_attach"
+      "rva": "000012A0",
+      "name": "scalar_inv_lerp"
     },
     {
       "ordinal": 836,
       "hint": "343",
-      "rva": "0000A7D0",
-      "name": "tick_create"
+      "rva": "000012D0",
+      "name": "scalar_lerp"
     },
     {
       "ordinal": 837,
       "hint": "344",
-      "rva": "0000A840",
-      "name": "tick_destroy"
+      "rva": "000012E0",
+      "name": "scalar_rad2deg"
     },
     {
       "ordinal": 838,
       "hint": "345",
-      "rva": "0000A880",
-      "name": "tick_detach"
+      "rva": "00001300",
+      "name": "scalar_remap"
     },
     {
       "ordinal": 839,
       "hint": "346",
-      "rva": "0000A960",
-      "name": "tick_list_attached"
+      "rva": "00001360",
+      "name": "scalar_safe_div"
     },
     {
       "ordinal": 840,
       "hint": "347",
-      "rva": "0000AA40",
-      "name": "tick_request_detach"
+      "rva": "00001380",
+      "name": "scalar_sign"
     },
     {
       "ordinal": 841,
       "hint": "348",
-      "rva": "0000AC10",
-      "name": "tick_update"
+      "rva": "000013B0",
+      "name": "scalar_smoothstep"
     },
     {
       "ordinal": 842,
       "hint": "349",
-      "rva": "00036D50",
-      "name": "trajectory_add_sample"
+      "rva": "00001410",
+      "name": "scalar_square"
     },
     {
       "ordinal": 843,
       "hint": "34A",
-      "rva": "00036DC0",
-      "name": "trajectory_assign"
+      "rva": "00001420",
+      "name": "scalar_zero"
     },
     {
       "ordinal": 844,
       "hint": "34B",
-      "rva": "00016CE0",
-      "name": "trajectory_capacity"
+      "rva": "0003DFD0",
+      "name": "shell_projectile_assign"
     },
     {
       "ordinal": 845,
       "hint": "34C",
-      "rva": "00036E60",
-      "name": "trajectory_clear"
+      "rva": "0003E050",
+      "name": "shell_projectile_hit_cb"
     },
     {
       "ordinal": 846,
       "hint": "34D",
-      "rva": "00036EB0",
-      "name": "trajectory_copy"
+      "rva": "0003E090",
+      "name": "shell_projectile_init"
     },
     {
       "ordinal": 847,
       "hint": "34E",
-      "rva": "00036F20",
-      "name": "trajectory_create"
+      "rva": "0003E0E0",
+      "name": "shell_projectile_init_full"
     },
     {
       "ordinal": 848,
       "hint": "34F",
-      "rva": "00036F70",
-      "name": "trajectory_create_full"
+      "rva": "0003E150",
+      "name": "shell_projectile_launch"
     },
     {
       "ordinal": 849,
       "hint": "350",
-      "rva": "00036FF0",
-      "name": "trajectory_destroy"
+      "rva": "0003C1F0",
+      "name": "spring_force"
     },
     {
       "ordinal": 850,
       "hint": "351",
-      "rva": "00037040",
-      "name": "trajectory_estimate_acceleration"
+      "rva": "0003C310",
+      "name": "spring_force_total"
     },
     {
       "ordinal": 851,
       "hint": "352",
-      "rva": "00037210",
-      "name": "trajectory_estimate_velocity"
+      "rva": "0003C400",
+      "name": "spring_simulate"
     },
     {
       "ordinal": 852,
       "hint": "353",
-      "rva": "00037340",
-      "name": "trajectory_export_pos"
+      "rva": "0003C6F0",
+      "name": "spring_simulate_network"
     },
     {
       "ordinal": 853,
       "hint": "354",
-      "rva": "00037410",
-      "name": "trajectory_export_resample_distance"
+      "rva": "0003C9E0",
+      "name": "spring_simulate_pairwise"
     },
     {
       "ordinal": 854,
       "hint": "355",
-      "rva": "00037910",
-      "name": "trajectory_export_resample_time"
+      "rva": "0000C770",
+      "name": "strset_add"
     },
     {
       "ordinal": 855,
       "hint": "356",
-      "rva": "00037D50",
-      "name": "trajectory_export_until_impact"
+      "rva": "0000C870",
+      "name": "strset_clear"
     },
     {
       "ordinal": 856,
       "hint": "357",
-      "rva": "00037F10",
-      "name": "trajectory_free"
+      "rva": "0000C880",
+      "name": "strset_contains"
     },
     {
       "ordinal": 857,
       "hint": "358",
-      "rva": "00037F50",
-      "name": "trajectory_get_positions"
+      "rva": "0000CA30",
+      "name": "strset_copy"
     },
     {
       "ordinal": 858,
       "hint": "359",
-      "rva": "00037FB0",
-      "name": "trajectory_get_speeds"
+      "rva": "0000CAC0",
+      "name": "strset_create"
     },
     {
       "ordinal": 859,
       "hint": "35A",
-      "rva": "00038210",
-      "name": "trajectory_init"
+      "rva": "0000CB00",
+      "name": "strset_destroy"
     },
     {
       "ordinal": 860,
       "hint": "35B",
-      "rva": "00038270",
-      "name": "trajectory_init_full"
+      "rva": "0000CB40",
+      "name": "strset_difference"
     },
     {
       "ordinal": 861,
       "hint": "35C",
-      "rva": "000382E0",
-      "name": "trajectory_interpolate_position"
+      "rva": "0000CC70",
+      "name": "strset_equal"
     },
     {
       "ordinal": 862,
       "hint": "35D",
-      "rva": "00014AC0",
-      "name": "trajectory_length"
+      "rva": "0000CCA0",
+      "name": "strset_foreach"
     },
     {
       "ordinal": 863,
       "hint": "35E",
-      "rva": "000383D0",
-      "name": "trajectory_print"
+      "rva": "0000CD00",
+      "name": "strset_intersect"
     },
     {
       "ordinal": 864,
       "hint": "35F",
-      "rva": "00038540",
-      "name": "trajectory_resize"
+      "rva": "0000CE30",
+      "name": "strset_peek"
     },
     {
       "ordinal": 865,
       "hint": "360",
-      "rva": "00038610",
-      "name": "trajectory_to_string"
+      "rva": "0000CE60",
+      "name": "strset_pop"
     },
     {
       "ordinal": 866,
       "hint": "361",
-      "rva": "00009690",
-      "name": "vec3_add"
+      "rva": "0000D020",
+      "name": "strset_remove"
     },
     {
       "ordinal": 867,
       "hint": "362",
-      "rva": "000096C0",
-      "name": "vec3_assign"
+      "rva": "0000D260",
+      "name": "strset_size"
     },
     {
       "ordinal": 868,
       "hint": "363",
-      "rva": "00003540",
-      "name": "vec3_barycentric"
+      "rva": "0000D270",
+      "name": "strset_union"
     },
     {
       "ordinal": 869,
       "hint": "364",
-      "rva": "000036C0",
-      "name": "vec3_barycentric_inside"
+      "rva": "0000A600",
+      "name": "tick_attach"
     },
     {
       "ordinal": 870,
       "hint": "365",
-      "rva": "00003740",
-      "name": "vec3_closest_point_on_segment"
+      "rva": "0000A7D0",
+      "name": "tick_create"
     },
     {
       "ordinal": 871,
       "hint": "366",
-      "rva": "00003800",
-      "name": "vec3_colinear"
+      "rva": "0000A840",
+      "name": "tick_destroy"
     },
     {
       "ordinal": 872,
       "hint": "367",
-      "rva": "000038C0",
-      "name": "vec3_colinear_cross"
+      "rva": "0000A880",
+      "name": "tick_detach"
     },
     {
       "ordinal": 873,
       "hint": "368",
-      "rva": "000096E0",
-      "name": "vec3_cross"
+      "rva": "0000A960",
+      "name": "tick_list_attached"
     },
     {
       "ordinal": 874,
       "hint": "369",
-      "rva": "00009740",
-      "name": "vec3_distance"
+      "rva": "0000AA40",
+      "name": "tick_request_detach"
     },
     {
       "ordinal": 875,
       "hint": "36A",
-      "rva": "00009790",
-      "name": "vec3_distance_sq"
+      "rva": "0000AC10",
+      "name": "tick_update"
     },
     {
       "ordinal": 876,
       "hint": "36B",
-      "rva": "000097D0",
-      "name": "vec3_div"
+      "rva": "00038370",
+      "name": "trajectory_add_sample"
     },
     {
       "ordinal": 877,
       "hint": "36C",
-      "rva": "00009870",
-      "name": "vec3_div_scalar"
+      "rva": "000383E0",
+      "name": "trajectory_assign"
     },
     {
       "ordinal": 878,
       "hint": "36D",
-      "rva": "000098D0",
-      "name": "vec3_dot"
+      "rva": "000172F0",
+      "name": "trajectory_capacity"
     },
     {
       "ordinal": 879,
       "hint": "36E",
-      "rva": "00009900",
-      "name": "vec3_equal"
+      "rva": "00038480",
+      "name": "trajectory_clear"
     },
     {
       "ordinal": 880,
       "hint": "36F",
-      "rva": "00009970",
-      "name": "vec3_equal_tol"
+      "rva": "000384D0",
+      "name": "trajectory_copy"
     },
     {
       "ordinal": 881,
       "hint": "370",
-      "rva": "00009A00",
-      "name": "vec3_equal_tol_all"
+      "rva": "00038540",
+      "name": "trajectory_create"
     },
     {
       "ordinal": 882,
       "hint": "371",
-      "rva": "00009A90",
-      "name": "vec3_hash"
+      "rva": "00038590",
+      "name": "trajectory_create_full"
     },
     {
       "ordinal": 883,
       "hint": "372",
-      "rva": "00009AC0",
-      "name": "vec3_iadd"
+      "rva": "00038610",
+      "name": "trajectory_destroy"
     },
     {
       "ordinal": 884,
       "hint": "373",
-      "rva": "00009AF0",
-      "name": "vec3_init"
+      "rva": "00038660",
+      "name": "trajectory_estimate_acceleration"
     },
     {
       "ordinal": 885,
       "hint": "374",
-      "rva": "00009B00",
-      "name": "vec3_init_full"
+      "rva": "00038830",
+      "name": "trajectory_estimate_velocity"
     },
     {
       "ordinal": 886,
       "hint": "375",
-      "rva": "00009B20",
-      "name": "vec3_is_zero"
+      "rva": "00038960",
+      "name": "trajectory_export_pos"
     },
     {
       "ordinal": 887,
       "hint": "376",
-      "rva": "00009B70",
-      "name": "vec3_iscale"
+      "rva": "00038A30",
+      "name": "trajectory_export_resample_distance"
     },
     {
       "ordinal": 888,
       "hint": "377",
-      "rva": "00009BA0",
-      "name": "vec3_isub"
+      "rva": "00038F40",
+      "name": "trajectory_export_resample_time"
     },
     {
       "ordinal": 889,
       "hint": "378",
-      "rva": "00009BD0",
-      "name": "vec3_length"
+      "rva": "00039380",
+      "name": "trajectory_export_until_impact"
     },
     {
       "ordinal": 890,
       "hint": "379",
-      "rva": "00009C10",
-      "name": "vec3_length_sq"
+      "rva": "00039540",
+      "name": "trajectory_free"
     },
     {
       "ordinal": 891,
       "hint": "37A",
-      "rva": "00009C40",
-      "name": "vec3_lerp"
+      "rva": "00039580",
+      "name": "trajectory_get_positions"
     },
     {
       "ordinal": 892,
       "hint": "37B",
-      "rva": "00009C90",
-      "name": "vec3_madd"
+      "rva": "000395E0",
+      "name": "trajectory_get_speeds"
     },
     {
       "ordinal": 893,
       "hint": "37C",
-      "rva": "00009CD0",
-      "name": "vec3_mul"
+      "rva": "00039840",
+      "name": "trajectory_init"
     },
     {
       "ordinal": 894,
       "hint": "37D",
-      "rva": "00009D00",
-      "name": "vec3_negate"
+      "rva": "000398A0",
+      "name": "trajectory_init_full"
     },
     {
       "ordinal": 895,
       "hint": "37E",
-      "rva": "00009D30",
-      "name": "vec3_normalize"
+      "rva": "00039910",
+      "name": "trajectory_interpolate_position"
     },
     {
       "ordinal": 896,
       "hint": "37F",
-      "rva": "00003980",
-      "name": "vec3_point_in_triangle"
+      "rva": "00015090",
+      "name": "trajectory_length"
     },
     {
       "ordinal": 897,
       "hint": "380",
-      "rva": "00003AE0",
-      "name": "vec3_point_plane_distance"
+      "rva": "00039A00",
+      "name": "trajectory_print"
     },
     {
       "ordinal": 898,
       "hint": "381",
-      "rva": "00003B30",
-      "name": "vec3_point_plane_signed_distance"
+      "rva": "00039B70",
+      "name": "trajectory_resize"
     },
     {
       "ordinal": 899,
       "hint": "382",
-      "rva": "00003BF0",
-      "name": "vec3_point_segment_distance"
+      "rva": "00039C40",
+      "name": "trajectory_to_string"
     },
     {
       "ordinal": 900,
       "hint": "383",
-      "rva": "00003CD0",
-      "name": "vec3_point_segment_param"
+      "rva": "00009690",
+      "name": "vec3_add"
     },
     {
       "ordinal": 901,
       "hint": "384",
-      "rva": "00009DE0",
-      "name": "vec3_print"
+      "rva": "000096C0",
+      "name": "vec3_assign"
     },
     {
       "ordinal": 902,
       "hint": "385",
-      "rva": "00009E30",
-      "name": "vec3_project"
+      "rva": "00003540",
+      "name": "vec3_barycentric"
     },
     {
       "ordinal": 903,
       "hint": "386",
-      "rva": "00003D80",
-      "name": "vec3_project_on_plane"
+      "rva": "000036C0",
+      "name": "vec3_barycentric_inside"
     },
     {
       "ordinal": 904,
       "hint": "387",
-      "rva": "00003E10",
-      "name": "vec3_ray_plane_intersect"
+      "rva": "00003740",
+      "name": "vec3_closest_point_on_segment"
     },
     {
       "ordinal": 905,
       "hint": "388",
-      "rva": "00003EE0",
-      "name": "vec3_ray_sphere_intersect"
+      "rva": "00003800",
+      "name": "vec3_colinear"
     },
     {
       "ordinal": 906,
       "hint": "389",
-      "rva": "00004010",
-      "name": "vec3_ray_triangle_intersect"
+      "rva": "000038C0",
+      "name": "vec3_colinear_cross"
     },
     {
       "ordinal": 907,
       "hint": "38A",
-      "rva": "00009EC0",
-      "name": "vec3_reflect"
+      "rva": "000096E0",
+      "name": "vec3_cross"
     },
     {
       "ordinal": 908,
       "hint": "38B",
-      "rva": "00009F40",
-      "name": "vec3_scale"
+      "rva": "00009740",
+      "name": "vec3_distance"
     },
     {
       "ordinal": 909,
       "hint": "38C",
-      "rva": "00004310",
-      "name": "vec3_segment_intersect_closest"
+      "rva": "00009790",
+      "name": "vec3_distance_sq"
     },
     {
       "ordinal": 910,
       "hint": "38D",
-      "rva": "00004500",
-      "name": "vec3_segment_plane_intersect"
+      "rva": "000097D0",
+      "name": "vec3_div"
     },
     {
       "ordinal": 911,
       "hint": "38E",
-      "rva": "00004610",
-      "name": "vec3_segment_segment_distance"
+      "rva": "00009870",
+      "name": "vec3_div_scalar"
     },
     {
       "ordinal": 912,
       "hint": "38F",
-      "rva": "00004650",
-      "name": "vec3_segment_sphere_intersect"
+      "rva": "000098D0",
+      "name": "vec3_dot"
     },
     {
       "ordinal": 913,
       "hint": "390",
-      "rva": "00004750",
-      "name": "vec3_segment_sphere_intersect_ex"
+      "rva": "00009900",
+      "name": "vec3_equal"
     },
     {
       "ordinal": 914,
       "hint": "391",
-      "rva": "00004940",
-      "name": "vec3_segment_triangle_intersect"
+      "rva": "00009970",
+      "name": "vec3_equal_tol"
     },
     {
       "ordinal": 915,
       "hint": "392",
-      "rva": "00004A70",
-      "name": "vec3_sphere_sphere_distance"
+      "rva": "00009A00",
+      "name": "vec3_equal_tol_all"
     },
     {
       "ordinal": 916,
       "hint": "393",
-      "rva": "00009F70",
-      "name": "vec3_sub"
+      "rva": "00009A90",
+      "name": "vec3_hash"
     },
     {
       "ordinal": 917,
       "hint": "394",
-      "rva": "00009FA0",
-      "name": "vec3_to_mat4"
+      "rva": "00009AC0",
+      "name": "vec3_iadd"
     },
     {
       "ordinal": 918,
       "hint": "395",
-      "rva": "00009FF0",
-      "name": "vec3_to_string"
+      "rva": "00009AF0",
+      "name": "vec3_init"
     },
     {
       "ordinal": 919,
       "hint": "396",
-      "rva": "00004AB0",
-      "name": "vec3_triangle_area"
+      "rva": "00009B00",
+      "name": "vec3_init_full"
     },
     {
       "ordinal": 920,
       "hint": "397",
-      "rva": "00004B30",
-      "name": "vec3_triangle_normal"
+      "rva": "00009B20",
+      "name": "vec3_is_zero"
     },
     {
       "ordinal": 921,
       "hint": "398",
-      "rva": "0000A060",
-      "name": "vec3_unit"
+      "rva": "00009B70",
+      "name": "vec3_iscale"
     },
     {
       "ordinal": 922,
       "hint": "399",
-      "rva": "0000A110",
-      "name": "vec3_zero"
+      "rva": "00009BA0",
+      "name": "vec3_isub"
     },
     {
       "ordinal": 923,
       "hint": "39A",
-      "rva": "00035730",
-      "name": "xform_align_axis"
+      "rva": "00009BD0",
+      "name": "vec3_length"
     },
     {
       "ordinal": 924,
       "hint": "39B",
-      "rva": "000357E0",
-      "name": "xform_align_vectors"
+      "rva": "00009C10",
+      "name": "vec3_length_sq"
     },
     {
       "ordinal": 925,
       "hint": "39C",
-      "rva": "00035810",
-      "name": "xform_apply"
+      "rva": "00009C40",
+      "name": "vec3_lerp"
     },
     {
       "ordinal": 926,
       "hint": "39D",
-      "rva": "00035820",
-      "name": "xform_apply_inverse"
+      "rva": "00009C90",
+      "name": "vec3_madd"
     },
     {
       "ordinal": 927,
       "hint": "39E",
-      "rva": "00035880",
-      "name": "xform_apply_to_direction"
+      "rva": "00009CD0",
+      "name": "vec3_mul"
     },
     {
       "ordinal": 928,
       "hint": "39F",
-      "rva": "000358C0",
-      "name": "xform_apply_to_direction_inverse"
+      "rva": "00009D00",
+      "name": "vec3_negate"
     },
     {
       "ordinal": 929,
       "hint": "3A0",
-      "rva": "00035930",
-      "name": "xform_apply_to_point"
+      "rva": "00009D30",
+      "name": "vec3_normalize"
     },
     {
       "ordinal": 930,
       "hint": "3A1",
-      "rva": "00035980",
-      "name": "xform_apply_to_point_inverse"
+      "rva": "00003980",
+      "name": "vec3_point_in_triangle"
     },
     {
       "ordinal": 931,
       "hint": "3A2",
-      "rva": "00035A00",
-      "name": "xform_assign"
+      "rva": "00003AE0",
+      "name": "vec3_point_plane_distance"
     },
     {
       "ordinal": 932,
       "hint": "3A3",
-      "rva": "00035A30",
-      "name": "xform_equal"
+      "rva": "00003B30",
+      "name": "vec3_point_plane_signed_distance"
     },
     {
       "ordinal": 933,
       "hint": "3A4",
-      "rva": "00035A90",
-      "name": "xform_from_forward"
+      "rva": "00003BF0",
+      "name": "vec3_point_segment_distance"
     },
     {
       "ordinal": 934,
       "hint": "3A5",
-      "rva": "00035B50",
-      "name": "xform_get_axis_angle"
+      "rva": "00003CD0",
+      "name": "vec3_point_segment_param"
     },
     {
       "ordinal": 935,
       "hint": "3A6",
-      "rva": "00035B60",
-      "name": "xform_get_axis_deg"
+      "rva": "00009DE0",
+      "name": "vec3_print"
     },
     {
       "ordinal": 936,
       "hint": "3A7",
-      "rva": "00035BB0",
-      "name": "xform_get_euler"
+      "rva": "00009E30",
+      "name": "vec3_project"
     },
     {
       "ordinal": 937,
       "hint": "3A8",
-      "rva": "00035BC0",
-      "name": "xform_get_euler_deg"
+      "rva": "00003D80",
+      "name": "vec3_project_on_plane"
     },
     {
       "ordinal": 938,
       "hint": "3A9",
-      "rva": "00035C50",
-      "name": "xform_get_position"
+      "rva": "00003E10",
+      "name": "vec3_ray_plane_intersect"
     },
     {
       "ordinal": 939,
       "hint": "3AA",
-      "rva": "00035C70",
-      "name": "xform_get_scale"
+      "rva": "00003EE0",
+      "name": "vec3_ray_sphere_intersect"
     },
     {
       "ordinal": 940,
       "hint": "3AB",
-      "rva": "00035C90",
-      "name": "xform_init"
+      "rva": "00004010",
+      "name": "vec3_ray_triangle_intersect"
     },
     {
       "ordinal": 941,
       "hint": "3AC",
-      "rva": "00035CD0",
-      "name": "xform_init_axis_angle"
+      "rva": "00009EC0",
+      "name": "vec3_reflect"
     },
     {
       "ordinal": 942,
       "hint": "3AD",
-      "rva": "00035D70",
-      "name": "xform_init_axis_deg"
+      "rva": "00009F40",
+      "name": "vec3_scale"
     },
     {
       "ordinal": 943,
       "hint": "3AE",
-      "rva": "00035E20",
-      "name": "xform_init_euler"
+      "rva": "00004310",
+      "name": "vec3_segment_intersect_closest"
     },
     {
       "ordinal": 944,
       "hint": "3AF",
-      "rva": "00035ED0",
-      "name": "xform_init_euler_deg"
+      "rva": "00004500",
+      "name": "vec3_segment_plane_intersect"
     },
     {
       "ordinal": 945,
       "hint": "3B0",
-      "rva": "00035FB0",
-      "name": "xform_inverse"
+      "rva": "00004610",
+      "name": "vec3_segment_segment_distance"
     },
     {
       "ordinal": 946,
       "hint": "3B1",
-      "rva": "00036060",
-      "name": "xform_lerp"
+      "rva": "00004650",
+      "name": "vec3_segment_sphere_intersect"
     },
     {
       "ordinal": 947,
       "hint": "3B2",
-      "rva": "000360E0",
-      "name": "xform_look_at"
+      "rva": "00004750",
+      "name": "vec3_segment_sphere_intersect_ex"
     },
     {
       "ordinal": 948,
       "hint": "3B3",
-      "rva": "000361C0",
-      "name": "xform_look_at_pivot"
+      "rva": "00004940",
+      "name": "vec3_segment_triangle_intersect"
     },
     {
       "ordinal": 949,
       "hint": "3B4",
-      "rva": "00036230",
-      "name": "xform_look_to"
+      "rva": "00004A70",
+      "name": "vec3_sphere_sphere_distance"
     },
     {
       "ordinal": 950,
       "hint": "3B5",
-      "rva": "00036290",
-      "name": "xform_mul"
+      "rva": "00009F70",
+      "name": "vec3_sub"
     },
     {
       "ordinal": 951,
       "hint": "3B6",
-      "rva": "00036340",
-      "name": "xform_nlerp"
+      "rva": "00009FA0",
+      "name": "vec3_to_mat4"
     },
     {
       "ordinal": 952,
       "hint": "3B7",
-      "rva": "00036430",
-      "name": "xform_print"
+      "rva": "00009FF0",
+      "name": "vec3_to_string"
     },
     {
       "ordinal": 953,
       "hint": "3B8",
-      "rva": "00036590",
-      "name": "xform_reflect"
+      "rva": "00004AB0",
+      "name": "vec3_triangle_area"
     },
     {
       "ordinal": 954,
       "hint": "3B9",
-      "rva": "00036690",
-      "name": "xform_rotate_around_pivot"
+      "rva": "00004B30",
+      "name": "vec3_triangle_normal"
     },
     {
       "ordinal": 955,
       "hint": "3BA",
-      "rva": "00036710",
-      "name": "xform_rotate_axis_angle"
+      "rva": "0000A060",
+      "name": "vec3_unit"
     },
     {
       "ordinal": 956,
       "hint": "3BB",
-      "rva": "00036760",
-      "name": "xform_rotate_axis_deg"
+      "rva": "0000A110",
+      "name": "vec3_zero"
     },
     {
       "ordinal": 957,
       "hint": "3BC",
-      "rva": "000367C0",
-      "name": "xform_rotate_local_around_pivot"
+      "rva": "00036D50",
+      "name": "xform_align_axis"
     },
     {
       "ordinal": 958,
       "hint": "3BD",
-      "rva": "00036850",
-      "name": "xform_rotate_local_axis_angle"
+      "rva": "00036E00",
+      "name": "xform_align_vectors"
     },
     {
       "ordinal": 959,
       "hint": "3BE",
-      "rva": "000368A0",
-      "name": "xform_rotate_local_axis_deg"
+      "rva": "00036E30",
+      "name": "xform_apply"
     },
     {
       "ordinal": 960,
       "hint": "3BF",
-      "rva": "00036900",
-      "name": "xform_set_axis_angle"
+      "rva": "00036E40",
+      "name": "xform_apply_inverse"
     },
     {
       "ordinal": 961,
       "hint": "3C0",
-      "rva": "00036910",
-      "name": "xform_set_axis_deg"
+      "rva": "00036EA0",
+      "name": "xform_apply_to_direction"
     },
     {
       "ordinal": 962,
       "hint": "3C1",
-      "rva": "00036940",
-      "name": "xform_set_euler"
+      "rva": "00036EE0",
+      "name": "xform_apply_to_direction_inverse"
     },
     {
       "ordinal": 963,
       "hint": "3C2",
-      "rva": "00036950",
-      "name": "xform_set_euler_deg"
+      "rva": "00036F50",
+      "name": "xform_apply_to_point"
     },
     {
       "ordinal": 964,
       "hint": "3C3",
-      "rva": "000369A0",
-      "name": "xform_set_position"
+      "rva": "00036FA0",
+      "name": "xform_apply_to_point_inverse"
     },
     {
       "ordinal": 965,
       "hint": "3C4",
-      "rva": "000369C0",
-      "name": "xform_set_scale"
+      "rva": "00037020",
+      "name": "xform_assign"
     },
     {
       "ordinal": 966,
       "hint": "3C5",
-      "rva": "000369E0",
-      "name": "xform_slerp"
+      "rva": "00037050",
+      "name": "xform_equal"
     },
     {
       "ordinal": 967,
       "hint": "3C6",
-      "rva": "00036AD0",
-      "name": "xform_slerp_pivot"
+      "rva": "000370B0",
+      "name": "xform_from_forward"
     },
     {
       "ordinal": 968,
       "hint": "3C7",
-      "rva": "00036B80",
-      "name": "xform_to_mat4"
+      "rva": "00037170",
+      "name": "xform_get_axis_angle"
     },
     {
       "ordinal": 969,
       "hint": "3C8",
-      "rva": "00036C90",
-      "name": "xform_translate"
+      "rva": "00037180",
+      "name": "xform_get_axis_deg"
     },
     {
       "ordinal": 970,
       "hint": "3C9",
-      "rva": "00036CD0",
-      "name": "xform_translate_local"
+      "rva": "000371D0",
+      "name": "xform_get_euler"
     },
     {
       "ordinal": 971,
       "hint": "3CA",
-      "rva": "00022530",
-      "name": "zero_cost"
+      "rva": "000371E0",
+      "name": "xform_get_euler_deg"
     },
     {
       "ordinal": 972,
       "hint": "3CB",
-      "rva": "00022530",
+      "rva": "00037270",
+      "name": "xform_get_position"
+    },
+    {
+      "ordinal": 973,
+      "hint": "3CC",
+      "rva": "00037290",
+      "name": "xform_get_scale"
+    },
+    {
+      "ordinal": 974,
+      "hint": "3CD",
+      "rva": "000372B0",
+      "name": "xform_init"
+    },
+    {
+      "ordinal": 975,
+      "hint": "3CE",
+      "rva": "000372F0",
+      "name": "xform_init_axis_angle"
+    },
+    {
+      "ordinal": 976,
+      "hint": "3CF",
+      "rva": "00037390",
+      "name": "xform_init_axis_deg"
+    },
+    {
+      "ordinal": 977,
+      "hint": "3D0",
+      "rva": "00037440",
+      "name": "xform_init_euler"
+    },
+    {
+      "ordinal": 978,
+      "hint": "3D1",
+      "rva": "000374F0",
+      "name": "xform_init_euler_deg"
+    },
+    {
+      "ordinal": 979,
+      "hint": "3D2",
+      "rva": "000375D0",
+      "name": "xform_inverse"
+    },
+    {
+      "ordinal": 980,
+      "hint": "3D3",
+      "rva": "00037680",
+      "name": "xform_lerp"
+    },
+    {
+      "ordinal": 981,
+      "hint": "3D4",
+      "rva": "00037700",
+      "name": "xform_look_at"
+    },
+    {
+      "ordinal": 982,
+      "hint": "3D5",
+      "rva": "000377E0",
+      "name": "xform_look_at_pivot"
+    },
+    {
+      "ordinal": 983,
+      "hint": "3D6",
+      "rva": "00037850",
+      "name": "xform_look_to"
+    },
+    {
+      "ordinal": 984,
+      "hint": "3D7",
+      "rva": "000378B0",
+      "name": "xform_mul"
+    },
+    {
+      "ordinal": 985,
+      "hint": "3D8",
+      "rva": "00037960",
+      "name": "xform_nlerp"
+    },
+    {
+      "ordinal": 986,
+      "hint": "3D9",
+      "rva": "00037A50",
+      "name": "xform_print"
+    },
+    {
+      "ordinal": 987,
+      "hint": "3DA",
+      "rva": "00037BB0",
+      "name": "xform_reflect"
+    },
+    {
+      "ordinal": 988,
+      "hint": "3DB",
+      "rva": "00037CB0",
+      "name": "xform_rotate_around_pivot"
+    },
+    {
+      "ordinal": 989,
+      "hint": "3DC",
+      "rva": "00037D30",
+      "name": "xform_rotate_axis_angle"
+    },
+    {
+      "ordinal": 990,
+      "hint": "3DD",
+      "rva": "00037D80",
+      "name": "xform_rotate_axis_deg"
+    },
+    {
+      "ordinal": 991,
+      "hint": "3DE",
+      "rva": "00037DE0",
+      "name": "xform_rotate_local_around_pivot"
+    },
+    {
+      "ordinal": 992,
+      "hint": "3DF",
+      "rva": "00037E70",
+      "name": "xform_rotate_local_axis_angle"
+    },
+    {
+      "ordinal": 993,
+      "hint": "3E0",
+      "rva": "00037EC0",
+      "name": "xform_rotate_local_axis_deg"
+    },
+    {
+      "ordinal": 994,
+      "hint": "3E1",
+      "rva": "00037F20",
+      "name": "xform_set_axis_angle"
+    },
+    {
+      "ordinal": 995,
+      "hint": "3E2",
+      "rva": "00037F30",
+      "name": "xform_set_axis_deg"
+    },
+    {
+      "ordinal": 996,
+      "hint": "3E3",
+      "rva": "00037F60",
+      "name": "xform_set_euler"
+    },
+    {
+      "ordinal": 997,
+      "hint": "3E4",
+      "rva": "00037F70",
+      "name": "xform_set_euler_deg"
+    },
+    {
+      "ordinal": 998,
+      "hint": "3E5",
+      "rva": "00037FC0",
+      "name": "xform_set_position"
+    },
+    {
+      "ordinal": 999,
+      "hint": "3E6",
+      "rva": "00037FE0",
+      "name": "xform_set_scale"
+    },
+    {
+      "ordinal": 1000,
+      "hint": "3E7",
+      "rva": "00038000",
+      "name": "xform_slerp"
+    },
+    {
+      "ordinal": 1001,
+      "hint": "3E8",
+      "rva": "000380F0",
+      "name": "xform_slerp_pivot"
+    },
+    {
+      "ordinal": 1002,
+      "hint": "3E9",
+      "rva": "000381A0",
+      "name": "xform_to_mat4"
+    },
+    {
+      "ordinal": 1003,
+      "hint": "3EA",
+      "rva": "000382B0",
+      "name": "xform_translate"
+    },
+    {
+      "ordinal": 1004,
+      "hint": "3EB",
+      "rva": "000382F0",
+      "name": "xform_translate_local"
+    },
+    {
+      "ordinal": 1005,
+      "hint": "3EC",
+      "rva": "00022B90",
+      "name": "zero_cost"
+    },
+    {
+      "ordinal": 1006,
+      "hint": "3ED",
+      "rva": "00022B90",
       "name": "zero_heuristic"
     }
   ],
   "install": {
-    "file_count": 113,
-    "header_count": 92,
+    "file_count": 114,
+    "header_count": 93,
     "test_executable_count": 19,
     "files": [
       {
         "path": "bin/byul.dll",
-        "size": 388096,
-        "sha256": "32422b9bbc4909db9c3eff20585d932bec664191be6785369339455ebd1a7bd0"
+        "size": 397824,
+        "sha256": "2290926418019748cda3dea2c01f7cbf372e2dba6f3856fc8135c997c758f221"
       },
       {
         "path": "bin/test_balix.exe",
         "size": 369152,
-        "sha256": "07c3731616d8323d67e929bb4a19ddb0d2b0afaa13331f9580443ddac6aa61ec"
+        "sha256": "32cf033eef849da067ede8fc11031d6ce7b145ee7010551b492a3d726bbf2e8b"
       },
       {
         "path": "bin/test_byul.exe",
-        "size": 912896,
-        "sha256": "d188f6fc77690c425d5fef98dc60f50ccf1d7a042adc353f422eec4c223d9050"
+        "size": 932864,
+        "sha256": "98e68f08cae07a2fe60fe12894b493c25acce2b67bb2d97bf59b107f8c49d3be"
       },
       {
         "path": "bin/test_byul_tick.exe",
         "size": 204288,
-        "sha256": "9a6a9ab1022961bf4aef762d53cd5b80273ef2c4ef753f74574daff286e5ebb3"
+        "sha256": "128eec3f2c3dba11d51a093f8795e3e4ae811ab8542d487ffef269ce35bcc825"
       },
       {
         "path": "bin/test_collision.exe",
         "size": 238080,
-        "sha256": "def816c260fa6a775b29291a0a8544d6f5a79e3ca7af6d6c0b1076b40a383c39"
+        "sha256": "b18bb6a42fd2aa0cdde0ff39af29af351fc01a0c2a9cfbde23282e453800be2d"
       },
       {
         "path": "bin/test_coord.exe",
-        "size": 259072,
-        "sha256": "835ba45079b8ebc0b937560ef3dc72909961dbe141d4f6217db2f1f6a248e054"
+        "size": 281600,
+        "sha256": "1347f8e01b65904689841ed1979234430d58a722f2cc930e067ba7b08b06355c"
       },
       {
         "path": "bin/test_core.exe",
         "size": 201728,
-        "sha256": "2532c2dae8fc09a6ff543dd183b9efff1e3d87b0311d4e5030dfb88ab326d741"
+        "sha256": "97d9ab6df3a0259abce35adb7f518c03320dcbbcc4cbb0415e6016b11005bd68"
       },
       {
         "path": "bin/test_dstar_lite.exe",
-        "size": 275968,
-        "sha256": "ea4288190257ee3b37fcc6b726618f889583e1f8b14d904b4204c466a25f2ea9"
+        "size": 277504,
+        "sha256": "a25bb02fb523e434c06137a72400523c80de5dab542edd706dc2904a7f00cea1"
       },
       {
         "path": "bin/test_entity.exe",
         "size": 270336,
-        "sha256": "f30e2296699ddfb6f8c4bb2b0ae4353e8b98202d0e2ebf78148bb463bdb73043"
+        "sha256": "352498046d1a4ef62729eea5616ad5e9a913e1248d0db87b4579e7193c78bf5c"
       },
       {
         "path": "bin/test_ground.exe",
         "size": 215040,
-        "sha256": "497b6b527dccb0d298a3f0e6d3fac6063586673ce70f596fc0b669d0ac0890f7"
+        "sha256": "9f50d3ac4140497c9d01529a032e213f8f2c246cbcc28aab7729cfa702b907ba"
       },
       {
         "path": "bin/test_maze.exe",
-        "size": 270336,
-        "sha256": "4a474fd3e1658a09222da6e527fe0683c74927c53d463d6a6c754b00c3f4bebd"
+        "size": 271360,
+        "sha256": "d109d7fb43bae4a5626008dd4aab6968a82a1ad446825b35a43d849a69d3977d"
       },
       {
         "path": "bin/test_navgrid.exe",
-        "size": 210432,
-        "sha256": "64171d96171d6e30245bebfaa3c2e34946f85c2032b08e9d44030ec89daf4856"
+        "size": 211456,
+        "sha256": "6510e59d169e3b225904973f7f7eeee89eba2aff77c0b8158fb63a24cbf912cc"
       },
       {
         "path": "bin/test_navsys.exe",
-        "size": 252416,
-        "sha256": "9d32b1c6752b9b03943ded0b5783838e70216963a3423ee40a6d51841e93f791"
+        "size": 305664,
+        "sha256": "fe41e58392d28614000f227d6ac0430cec4f087a9c68a66c8bdba1f189c48ba7"
       },
       {
         "path": "bin/test_numal.exe",
         "size": 347136,
-        "sha256": "21baa2c3734711df2cfd80ba4f15c45f3df5e95a411374450254e26c80efe4dc"
+        "sha256": "4c94604c5147e5c2268ff3ef43d7ae29796d2e3807790bab457c5051d0bad04f"
       },
       {
         "path": "bin/test_number_theory.exe",
         "size": 219648,
-        "sha256": "2fab4b0faad8bc3746a284993bae95920aa48521087030f9b04243147737e1ac"
+        "sha256": "31521e3c37fba69bd4283539b1d44a14b56b1f9c53b3c945802ab47a34d05cee"
       },
       {
         "path": "bin/test_obstacle.exe",
-        "size": 246784,
-        "sha256": "cd4c7d0ea9cfc50a4af353eb6a7dba31f2942b1d6b1caf00854086a4c82ddd81"
+        "size": 247808,
+        "sha256": "a264e6c055078d02731345ef21b98419c2c87839339129af0d39fcdc6e98d822"
       },
       {
         "path": "bin/test_projectile.exe",
-        "size": 338432,
-        "sha256": "71360e012354696bda4bfef80215adae160bfd773eaa9dc177700e2b80816802"
+        "size": 338944,
+        "sha256": "217a7b3f04f7118e435e572f71814b4cc9b24695b09a17c2b20407a4042d2871"
       },
       {
         "path": "bin/test_rng.exe",
         "size": 284160,
-        "sha256": "6777506655498e5cc9d0dd95a9efd478d557abc35f71d74518ef43e68b593440"
+        "sha256": "ab2b2977abf83dc5b426e503a85c187241dad4a84685980d03810e0d1210b971"
       },
       {
         "path": "bin/test_route.exe",
-        "size": 225280,
-        "sha256": "52acc720b92a0d2afdc04030a580385348ce5de9dabf6c726b3fc5676a764b40"
+        "size": 249856,
+        "sha256": "86483ecbfdee2d9af32e3373a8d13f61d347d98df31acf882e8627f95f5a04b1"
       },
       {
         "path": "bin/test_route_finder.exe",
-        "size": 281088,
-        "sha256": "311cbde31ec69d1fa2f9c6504965bca4156ae146db4bd53538d6f5593486a138"
+        "size": 325120,
+        "sha256": "995cffac2a091702df09376bf45190fa32507e4e3347822b244de82fd03d48ae"
       },
       {
         "path": "include/byul/astar.h",
@@ -6009,8 +6213,8 @@
       },
       {
         "path": "include/byul/coord.h",
-        "size": 5761,
-        "sha256": "e739dde6073fe8564c74359bd1fa02de980697fc37992cb92b65318fd380e775"
+        "size": 7476,
+        "sha256": "3325914efe812aaa1dd3f7a6dccde6c77ff97f6e45ca01e797315e46a2d931c2"
       },
       {
         "path": "include/byul/coord_hash.h",
@@ -6039,8 +6243,8 @@
       },
       {
         "path": "include/byul/dstar_lite.h",
-        "size": 13691,
-        "sha256": "21c4a40fe397fb45f55826336bd661989c80410117786d8ab9d8fa22d97b71fb"
+        "size": 18951,
+        "sha256": "8f52659e0e18fe3778ead40e57f16f0f2228b7071557016715a796a5cda138e6"
       },
       {
         "path": "include/byul/dstar_lite_console.h",
@@ -6069,8 +6273,8 @@
       },
       {
         "path": "include/byul/dualnumber.h",
-        "size": 2416,
-        "sha256": "8315d7bfa142f3101a55d1c308c7181a570828ee12d7eb1a2eab999512eb7f03"
+        "size": 2427,
+        "sha256": "c745a2cff5547a1d2611a3e82a60aecc0ee8ea5febf27a1f76ac659b352bc9a2"
       },
       {
         "path": "include/byul/dualquat.h",
@@ -6224,13 +6428,18 @@
       },
       {
         "path": "include/byul/navgrid.h",
-        "size": 6322,
-        "sha256": "910c15e23035a1b2480d91d51c256ff91c887b00ecfc7778e589fb2b7d9da670"
+        "size": 8396,
+        "sha256": "33578672ebedd7d51484bd43c711dc4897a672b25cb3ab91be622cc271d070f9"
       },
       {
         "path": "include/byul/navsys.h",
-        "size": 3907,
-        "sha256": "6a0ccec9c600ef8e43a656a70582b5c03d830071051a982716cb6f4f3b193da0"
+        "size": 3935,
+        "sha256": "89552638839d7e35d2b589e84fb4f954e24d9600b25e7749a5069f4e8be51eeb"
+      },
+      {
+        "path": "include/byul/navsys_status.h",
+        "size": 1511,
+        "sha256": "70fcd9d0d728faccaacefb37128750fd7d7748d0346d50cdf415cdf0c77e94a9"
       },
       {
         "path": "include/byul/numal.h",
@@ -6344,8 +6553,8 @@
       },
       {
         "path": "include/byul/route.h",
-        "size": 5175,
-        "sha256": "33335e3ad6a7e12a02dfebb626e3b224bec1b87eaf5649b52f90ddb382db7eb6"
+        "size": 9870,
+        "sha256": "a228bbf84ed1813ec740b38a5ee4b08fff48172139ff5da03cf7322b5d53a3ce"
       },
       {
         "path": "include/byul/route_carver.h",
@@ -6354,8 +6563,8 @@
       },
       {
         "path": "include/byul/route_finder.h",
-        "size": 7733,
-        "sha256": "e71e78fbd05d116a7870bd7f7f95ef512847cfcf8a35da1d93aee71981876184"
+        "size": 23288,
+        "sha256": "f9283bebd5a3db74df937d45a213eff4926f91dfe81d3383e7fdcb67185ad4c8"
       },
       {
         "path": "include/byul/route_finder_core.h",
@@ -6379,8 +6588,8 @@
       },
       {
         "path": "include/byul/strset.h",
-        "size": 1724,
-        "sha256": "3ff9b3b35b49fb29b55478852cea2ab21837558fd2e7692bbf44933461ff2d1c"
+        "size": 1732,
+        "sha256": "d71ec09b18f371322f8fa6147606062566f16a6aacee0617b35d0a6b04f63bf3"
       },
       {
         "path": "include/byul/trajectory.h",
@@ -6389,8 +6598,8 @@
       },
       {
         "path": "include/byul/vec3.h",
-        "size": 6713,
-        "sha256": "f93b14f691e29abe37e043597a17576f4a0d719258ca7f1fa7121f0d479ea599"
+        "size": 6733,
+        "sha256": "35834dd837a91955602e0bbfda0f7f6766337fc17423c88261797b75c0eb7cbf"
       },
       {
         "path": "include/byul/vec3.hpp",
@@ -6409,8 +6618,8 @@
       },
       {
         "path": "lib/byul/byul.lib",
-        "size": 216236,
-        "sha256": "b8115b48f5d17fa0b8587d23eb738749c11b160d43557a6ed696964d5f0b8133"
+        "size": 225108,
+        "sha256": "f1393519ac7685cb601eab5769eae00d7bab094ac61b997818ea0577fe7f33c3"
       }
     ]
   }

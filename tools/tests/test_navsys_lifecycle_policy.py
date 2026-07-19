@@ -26,6 +26,10 @@ ALLOCATION_FAILURE_FIXTURE = (
     / "byul/navsys/tests/test_navsys_allocation_failure.cpp"
 )
 NAVSYS_TEST_CMAKE = REPOSITORY_ROOT / "byul/navsys/tests/CMakeLists.txt"
+ROUTE_FINDER_WRAPPER = (
+    REPOSITORY_ROOT
+    / "tools/python/byul_wrapper/byul_wrapper/route_finder.py"
+)
 
 
 def load_json(path: Path) -> dict:
@@ -44,6 +48,9 @@ class NavsysLifecyclePolicyTest(unittest.TestCase):
             ALLOCATION_FAILURE_FIXTURE.read_text(encoding="utf-8")
         )
         cls.navsys_test_cmake = NAVSYS_TEST_CMAKE.read_text(encoding="utf-8")
+        cls.route_finder_wrapper = ROUTE_FINDER_WRAPPER.read_text(
+            encoding="utf-8"
+        )
 
     def test_every_inventory_resource_has_exactly_one_model(self):
         inventory_resources = {
@@ -205,6 +212,14 @@ class NavsysLifecyclePolicyTest(unittest.TestCase):
             "required-before-abi-2-release",
             release_gates["abi-2-bound-allocator-failure"],
         )
+        self.assertEqual(
+            "approved",
+            release_gates["stage-2-contract-approval"],
+        )
+        self.assertEqual(
+            "after-runtime-foundation-before-abi-2-release",
+            release_gates["abi-2-runtime-gate-phase"],
+        )
 
     def test_opaque_candidates_have_an_abi_one_layout_baseline(self):
         abi_2 = self.policy["abi_2_policy"]
@@ -238,7 +253,7 @@ class NavsysLifecyclePolicyTest(unittest.TestCase):
             abi_2["release_gates"]["new-handle-consumer"],
         )
         self.assertEqual(
-            "candidate-contract-frozen-implementation-pending",
+            "contract-approved-runtime-implementation-pending",
             abi_2["release_gates"]["current_state"],
         )
 
@@ -265,6 +280,110 @@ class NavsysLifecyclePolicyTest(unittest.TestCase):
                         f"ABI1_FIELD_OFFSET({name}, {field}, {offset});",
                         self.sdk_consumer,
                     )
+
+    def test_route_finder_capability_query_reaches_consumers(self):
+        exported_symbols = {
+            symbol
+            for header in self.inventory["headers"]
+            for symbol in header["symbols"]
+        }
+
+        self.assertIn("route_finder_is_supported", exported_symbols)
+        self.assertIn(
+            "route_finder_is_supported(ROUTE_FINDER_ASTAR)",
+            self.sdk_consumer,
+        )
+        self.assertIn(
+            "bool route_finder_is_supported(route_finder_type_t type);",
+            self.route_finder_wrapper,
+        )
+        self.assertIn(
+            "def list_supported_route_finders():",
+            self.route_finder_wrapper,
+        )
+
+    def test_typed_route_finder_configs_reach_all_consumers(self):
+        binding = self.policy["abi_1_policy"]["algorithm_config_binding"]
+        exported_symbols = {
+            symbol
+            for header in self.inventory["headers"]
+            for symbol in header["symbols"]
+        }
+
+        self.assertEqual(
+            "type-and-config-pointer-change-together-or-remain-unchanged",
+            binding["binding_commit"],
+        )
+        self.assertEqual(
+            "clear-config-pointer-and-preserve-selected-type",
+            binding["unbind_result"],
+        )
+        self.assertEqual(4, len(binding["configs"]))
+        for config in binding["configs"]:
+            with self.subTest(config=config["config"]):
+                self.assertIn(config["bind_symbol"], exported_symbols)
+                self.assertIn(config["bind_symbol"], self.sdk_consumer)
+                self.assertIn(config["bind_symbol"], self.route_finder_wrapper)
+                self.assertIn(config["config"], self.route_finder_wrapper)
+
+        self.assertIn(binding["unbind_symbol"], exported_symbols)
+        self.assertIn(binding["unbind_symbol"], self.sdk_consumer)
+        self.assertIn(binding["unbind_symbol"], self.route_finder_wrapper)
+        self.assertIn(
+            "self._algorithm_config = config",
+            self.route_finder_wrapper,
+        )
+
+    def test_route_finder_run_contract_reaches_all_consumers(self):
+        contract = self.policy["abi_1_policy"]["route_finder_run_contract"]
+        exported_symbols = {
+            symbol
+            for header in self.inventory["headers"]
+            for symbol in header["symbols"]
+        }
+
+        self.assertEqual(
+            {
+                "NAVSYS_STATUS_OK",
+                "NAVSYS_STATUS_NO_PATH",
+                "NAVSYS_STATUS_LIMIT_REACHED",
+            },
+            set(contract["normal_termination"]),
+        )
+        self.assertEqual(
+            "preserve-route-and-stats",
+            contract["failure_output"],
+        )
+        self.assertEqual(
+            "call-scoped-cooperative-polling",
+            contract["cancellation"],
+        )
+        self.assertEqual(
+            "before-each-expansion-and-during-unbounded-reconstruction",
+            contract["cancel_polling"],
+        )
+        self.assertEqual(
+            "synchronous-calling-thread",
+            contract["cancel_callback_thread"],
+        )
+        self.assertEqual(
+            "deferred-until-algorithms-expose-caller-storage",
+            contract["workspace"],
+        )
+        for symbol in [
+            *contract["checked_setters"],
+            contract["run_symbol"],
+            contract["controlled_run_symbol"],
+        ]:
+            with self.subTest(symbol=symbol):
+                self.assertIn(symbol, exported_symbols)
+                self.assertIn(symbol, self.sdk_consumer)
+                self.assertIn(symbol, self.route_finder_wrapper)
+        self.assertIn(contract["stats_type"], self.route_finder_wrapper)
+        self.assertIn(contract["options_type"], self.route_finder_wrapper)
+        self.assertIn(contract["cancel_callback"], self.route_finder_wrapper)
+        self.assertIn("def find_ex(", self.route_finder_wrapper)
+        self.assertIn("cancel_callback", self.route_finder_wrapper)
 
 
 if __name__ == "__main__":

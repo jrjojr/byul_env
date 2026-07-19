@@ -2372,6 +2372,7 @@
         "byul/navsys/dstar_lite/tests/test_module_dstar_lite_tick.cpp",
         "byul/navsys/navsys.cpp",
         "byul/navsys/tests/test_module_navsys.cpp",
+        "byul/navsys/tests/test_navsys_allocation_failure.cpp",
         "byul/tests/sdk_consumer/main.c"
       ],
       "decision_status": "candidate-only"
@@ -3329,6 +3330,7 @@
         "byul/navsys/route_finder/weighted_astar.cpp",
         "byul/navsys/tests/test_module_navsys.cpp",
         "byul/navsys/tests/test_module_route_carver.cpp",
+        "byul/navsys/tests/test_navsys_allocation_failure.cpp",
         "byul/tests/sdk_consumer/main.c"
       ],
       "decision_status": "candidate-only"
@@ -3415,6 +3417,7 @@
         "byul/navsys/dstar_lite/dstar_lite.h",
         "byul/navsys/navgrid/navgrid.h",
         "byul/navsys/navsys.h",
+        "byul/navsys/route/route.h",
         "byul/navsys/route_finder/route_finder.h"
       ],
       "wrapper_modules_registered": true,
@@ -3550,8 +3553,8 @@
     {
       "asset_id": "initial:byul/navsys/route/route.h",
       "current_path": "byul/navsys/route/route.h",
-      "sha256": "33335e3ad6a7e12a02dfebb626e3b224bec1b87eaf5649b52f90ddb382db7eb6",
-      "line_count": 155,
+      "sha256": "a228bbf84ed1813ec740b38a5ee4b08fff48172139ff5da03cf7322b5d53a3ce",
+      "line_count": 282,
       "language": "c-header",
       "license": "missing-or-unclassified",
       "include_guard": "ROUTE_H",
@@ -3562,6 +3565,7 @@
       "representative_type_candidate": "route_t",
       "declared_type_candidates": [
         "route_dir_t",
+        "route_completion_t",
         "route_t"
       ],
       "naming_disposition": "keep",
@@ -3610,6 +3614,11 @@
         "route_get_last",
         "route_get_coord_at",
         "route_length",
+        "route_get_coord_count",
+        "route_fetch_coord",
+        "route_fetch_total_cost",
+        "route_fetch_completion",
+        "route_export_coords",
         "route_add_visited",
         "route_clear_visited",
         "route_append",
@@ -3653,12 +3662,14 @@
         "byul/navsys/route_finder/fringe_search.cpp",
         "byul/navsys/route_finder/greedy_best_first.cpp",
         "byul/navsys/route_finder/ida_star.cpp",
+        "byul/navsys/route_finder/route_finder.cpp",
         "byul/navsys/route_finder/rta_star.cpp",
         "byul/navsys/route_finder/sma_star.cpp",
         "byul/navsys/route_finder/tests/test_module_route_finder.cpp",
         "byul/navsys/route_finder/tests/test_module_route_finder_discrete.cpp",
         "byul/navsys/route_finder/weighted_astar.cpp",
-        "byul/navsys/tests/test_module_navsys.cpp"
+        "byul/navsys/tests/test_module_navsys.cpp",
+        "byul/tests/sdk_consumer/main.c"
       ],
       "decision_status": "candidate-only"
     },
@@ -4027,8 +4038,8 @@
     {
       "asset_id": "initial:byul/navsys/route_finder/route_finder.h",
       "current_path": "byul/navsys/route_finder/route_finder.h",
-      "sha256": "7db6f3a9b85876bdfeed1a7dffda18dd71521c454f4690aba68112b0a95df97d",
-      "line_count": 311,
+      "sha256": "f9283bebd5a3db74df937d45a213eff4926f91dfe81d3383e7fdcb67185ad4c8",
+      "line_count": 620,
       "language": "c-header",
       "license": "missing-or-unclassified",
       "include_guard": "ROUTE_FINDER_H",
@@ -4039,6 +4050,12 @@
       "representative_type_candidate": "route_finder_t",
       "declared_type_candidates": [
         "route_finder_type_t",
+        "route_finder_fringe_search_config_t",
+        "route_finder_rta_star_config_t",
+        "route_finder_sma_star_config_t",
+        "route_finder_weighted_astar_config_t",
+        "route_finder_run_stats_t",
+        "route_finder_run_options_t",
         "route_finder_t"
       ],
       "naming_disposition": "keep",
@@ -4061,6 +4078,7 @@
       "wrapper_modules_registered": true,
       "exported_symbols": [
         "get_route_finder_name",
+        "route_finder_is_supported",
         "route_finder_create",
         "route_finder_create_full",
         "route_finder_init",
@@ -4076,10 +4094,17 @@
         "route_finder_fetch_goal",
         "route_finder_set_type",
         "route_finder_get_type",
+        "route_finder_set_type_checked",
         "route_finder_set_typedata",
         "route_finder_get_typedata",
+        "route_finder_bind_fringe_search_config",
+        "route_finder_bind_rta_star_config",
+        "route_finder_bind_sma_star_config",
+        "route_finder_bind_weighted_astar_config",
+        "route_finder_unbind_algorithm_config",
         "route_finder_set_max_retry",
         "route_finder_get_max_retry",
+        "route_finder_set_max_retry_checked",
         "route_finder_enable_debug_mode",
         "route_finder_is_debug_mode_enabled",
         "route_finder_set_cost_func",
@@ -4098,13 +4123,16 @@
         "route_finder_set_defaults",
         "route_finder_is_valid",
         "route_finder_print",
-        "route_finder_run"
+        "route_finder_run",
+        "route_finder_run_ex",
+        "route_finder_run_with_options"
       ],
       "source_definition_candidates": [
         "byul/navsys/navsys.cpp",
         "byul/navsys/route_finder/route_finder.cpp",
         "byul/navsys/route_finder/tests/test_module_route_finder.cpp",
         "byul/navsys/tests/test_module_navsys.cpp",
+        "byul/navsys/tests/test_navsys_allocation_failure.cpp",
         "byul/tests/sdk_consumer/main.c"
       ],
       "decision_status": "candidate-only"

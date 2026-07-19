@@ -3,6 +3,7 @@ import unittest
 from byul_wrapper.coord import c_coord
 from byul_wrapper.navgrid import c_navgrid, NavgridDirMode
 from byul_wrapper.route_finder import c_route_finder, RouteFinderType
+from byul_wrapper.navsys_status import NavsysStatus
 from byul_wrapper.console import c_console
 
 class TestRouteFinder(unittest.TestCase):
@@ -22,11 +23,114 @@ class TestRouteFinder(unittest.TestCase):
     def tearDown(self):
         self.route_finder.close()
 
+    def test_capability_query(self):
+        supported = c_route_finder.list_supported_route_finders()
+
+        self.assertEqual(11, len(supported))
+        self.assertIn(RouteFinderType.ASTAR, supported)
+        self.assertIn(RouteFinderType.WEIGHTED_ASTAR, supported)
+        self.assertNotIn(RouteFinderType.DSTAR_LITE, supported)
+        self.assertFalse(
+            c_route_finder.is_supported(RouteFinderType.BELLMAN_FORD)
+        )
+
+    def test_typed_algorithm_configs(self):
+        bindings = [
+            (
+                self.route_finder.bind_fringe_search_config,
+                0.5,
+                RouteFinderType.FRINGE_SEARCH,
+            ),
+            (
+                self.route_finder.bind_rta_star_config,
+                7,
+                RouteFinderType.RTA_STAR,
+            ),
+            (
+                self.route_finder.bind_sma_star_config,
+                64,
+                RouteFinderType.SMA_STAR,
+            ),
+            (
+                self.route_finder.bind_weighted_astar_config,
+                2.0,
+                RouteFinderType.WEIGHTED_ASTAR,
+            ),
+        ]
+
+        for bind, value, expected_type in bindings:
+            bind(value)
+            self.assertEqual(expected_type, self.route_finder.get_type())
+            self.assertIsNotNone(self.route_finder._algorithm_config)
+
+        with self.assertRaises(ValueError):
+            self.route_finder.bind_weighted_astar_config(10.1)
+        with self.assertRaises(ValueError):
+            self.route_finder.bind_fringe_search_config(float("nan"))
+        with self.assertRaises(ValueError):
+            self.route_finder.bind_weighted_astar_config(float("inf"))
+        self.assertEqual(
+            RouteFinderType.WEIGHTED_ASTAR,
+            self.route_finder.get_type(),
+        )
+        self.assertIsNotNone(self.route_finder._algorithm_config)
+
+        self.route_finder.unbind_algorithm_config()
+        self.assertEqual(
+            RouteFinderType.WEIGHTED_ASTAR,
+            self.route_finder.get_type(),
+        )
+        self.assertIsNone(self.route_finder._algorithm_config)
+
     def test_find_default(self):
         print("test_find_default")
         route = self.route_finder.find()
         route.print()
         c_console.print_ascii_with_visited_count(self.navgrid, route)
+
+    def test_find_ex_reports_stats_and_checked_settings(self):
+        status, route, stats = self.route_finder.find_ex()
+        self.assertEqual(NavsysStatus.OK, status)
+        self.assertIsNotNone(route)
+        self.assertTrue(stats.complete)
+        self.assertFalse(stats.partial)
+        self.assertEqual(route.length(), stats.route_length)
+        route.close()
+
+        self.route_finder.set_max_retry(1)
+        status, route, stats = self.route_finder.find_ex()
+        self.assertEqual(NavsysStatus.LIMIT_REACHED, status)
+        self.assertIsNotNone(route)
+        self.assertFalse(stats.complete)
+        route.close()
+
+        with self.assertRaises(ValueError):
+            self.route_finder.set_max_retry(0)
+        self.assertEqual(1, self.route_finder.get_max_retry())
+        with self.assertRaises(ValueError):
+            self.route_finder.set_type(RouteFinderType.BELLMAN_FORD)
+        self.assertEqual(RouteFinderType.ASTAR, self.route_finder.get_type())
+
+    def test_find_ex_supports_call_scoped_cancellation(self):
+        calls = []
+
+        def cancel():
+            calls.append(len(calls) + 1)
+            return len(calls) >= 2
+
+        status, route, stats = self.route_finder.find_ex(cancel=cancel)
+        self.assertEqual(NavsysStatus.CANCELLED, status)
+        self.assertEqual([1, 2], calls)
+        self.assertIsNotNone(route)
+        self.assertFalse(stats.complete)
+        self.assertEqual(route.length(), stats.route_length)
+        route.close()
+
+        def fail_cancel():
+            raise RuntimeError("cancel failed")
+
+        with self.assertRaisesRegex(RuntimeError, "cancel failed"):
+            self.route_finder.find_ex(cancel=fail_cancel)
 
     def test_find_bfs(self):
         print('test_find_bfs')

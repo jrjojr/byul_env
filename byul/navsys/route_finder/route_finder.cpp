@@ -25,6 +25,43 @@
 
 static thread_local route_finder_t* active_callback_finder = nullptr;
 
+struct route_finder_cancel_context {
+    route_finder_cancel_func callback;
+    void* userdata;
+    bool requested;
+    bool failed;
+};
+
+static thread_local route_finder_cancel_context* active_cancel_context = nullptr;
+
+bool route_finder_poll_cancel_internal(void) {
+    route_finder_cancel_context* context = active_cancel_context;
+    if (!context || context->requested || context->failed)
+        return context && (context->requested || context->failed);
+    if (!context->callback) return false;
+    try {
+        context->requested = context->callback(context->userdata);
+    } catch (...) {
+        context->failed = true;
+    }
+    return context->requested || context->failed;
+}
+
+class route_finder_cancel_scope {
+public:
+    explicit route_finder_cancel_scope(route_finder_cancel_context* context)
+        : previous_(active_cancel_context) {
+        active_cancel_context = context;
+    }
+
+    ~route_finder_cancel_scope() {
+        active_cancel_context = previous_;
+    }
+
+private:
+    route_finder_cancel_context* previous_;
+};
+
 const char* get_route_finder_name(route_finder_type_t pa) {
     switch (pa) {
         case ROUTE_FINDER_BFS: return "bfs";
@@ -245,6 +282,17 @@ route_finder_type_t route_finder_get_type(const route_finder_t* a){
     return a->type;
 }
 
+navsys_status_t route_finder_set_type_checked(
+    route_finder_t* finder, route_finder_type_t type) {
+    if (!finder) return NAVSYS_STATUS_INVALID_ARGUMENT;
+    if (active_callback_finder == finder)
+        return NAVSYS_STATUS_IN_PROGRESS;
+    if (!route_finder_is_supported(type))
+        return NAVSYS_STATUS_UNSUPPORTED;
+    finder->type = type;
+    return NAVSYS_STATUS_OK;
+}
+
 void route_finder_set_typedata(route_finder_t* a, void* typedata){
     a->typedata = typedata;
 }
@@ -253,12 +301,86 @@ void* route_finder_get_typedata(const route_finder_t* a){
     return a->typedata;
 }
 
+static navsys_status_t route_finder_bind_algorithm_config(
+    route_finder_t* finder, route_finder_type_t type, const void* config) {
+    if (!finder || !config) return NAVSYS_STATUS_INVALID_ARGUMENT;
+    if (active_callback_finder == finder)
+        return NAVSYS_STATUS_IN_PROGRESS;
+    finder->type = type;
+    finder->typedata = const_cast<void*>(config);
+    return NAVSYS_STATUS_OK;
+}
+
+navsys_status_t route_finder_bind_fringe_search_config(
+    route_finder_t* finder,
+    const route_finder_fringe_search_config_t* config) {
+    if (!config ||
+        !std::isfinite(config->delta_epsilon) ||
+        config->delta_epsilon < 0.001f ||
+        config->delta_epsilon > 5.0f)
+        return NAVSYS_STATUS_INVALID_ARGUMENT;
+    return route_finder_bind_algorithm_config(
+        finder, ROUTE_FINDER_FRINGE_SEARCH, config);
+}
+
+navsys_status_t route_finder_bind_rta_star_config(
+    route_finder_t* finder,
+    const route_finder_rta_star_config_t* config) {
+    if (!config || config->depth_limit < 1 || config->depth_limit > 100)
+        return NAVSYS_STATUS_INVALID_ARGUMENT;
+    return route_finder_bind_algorithm_config(
+        finder, ROUTE_FINDER_RTA_STAR, config);
+}
+
+navsys_status_t route_finder_bind_sma_star_config(
+    route_finder_t* finder,
+    const route_finder_sma_star_config_t* config) {
+    if (!config ||
+        config->memory_limit < 10 ||
+        config->memory_limit > 1000000)
+        return NAVSYS_STATUS_INVALID_ARGUMENT;
+    return route_finder_bind_algorithm_config(
+        finder, ROUTE_FINDER_SMA_STAR, config);
+}
+
+navsys_status_t route_finder_bind_weighted_astar_config(
+    route_finder_t* finder,
+    const route_finder_weighted_astar_config_t* config) {
+    if (!config ||
+        !std::isfinite(config->weight) ||
+        config->weight < 0.1f ||
+        config->weight > 10.0f)
+        return NAVSYS_STATUS_INVALID_ARGUMENT;
+    return route_finder_bind_algorithm_config(
+        finder, ROUTE_FINDER_WEIGHTED_ASTAR, config);
+}
+
+navsys_status_t route_finder_unbind_algorithm_config(
+    route_finder_t* finder) {
+    if (!finder) return NAVSYS_STATUS_INVALID_ARGUMENT;
+    if (active_callback_finder == finder)
+        return NAVSYS_STATUS_IN_PROGRESS;
+    finder->typedata = nullptr;
+    return NAVSYS_STATUS_OK;
+}
+
 void route_finder_set_max_retry(route_finder_t* a, int max_retry){
-    a->max_retry;
+    if (!a) return;
+    (void)route_finder_set_max_retry_checked(a, max_retry);
 }
 
 int route_finder_get_max_retry(route_finder_t* a){
     return a->max_retry;
+}
+
+navsys_status_t route_finder_set_max_retry_checked(
+    route_finder_t* finder, int max_retry) {
+    if (!finder || max_retry <= 0)
+        return NAVSYS_STATUS_INVALID_ARGUMENT;
+    if (active_callback_finder == finder)
+        return NAVSYS_STATUS_IN_PROGRESS;
+    finder->max_retry = max_retry;
+    return NAVSYS_STATUS_OK;
 }
 
 void route_finder_enable_debug_mode(route_finder_t* a, bool is_logging){
@@ -401,7 +523,8 @@ static route_t* route_finder_run_fringe_search(route_finder_t* a) {
     float delta_epsilon = 0.3f;
 
     if (a->typedata) {
-        float v = *(float*)a->typedata;
+        float v = static_cast<const route_finder_fringe_search_config_t*>(
+            a->typedata)->delta_epsilon;
         if (v >= 0.001f && v <= 5.0f) {
             delta_epsilon = v;
         }
@@ -431,7 +554,8 @@ static route_t* route_finder_run_rta_star(route_finder_t* a) {
     int depth_limit = 5;
 
     if (a->typedata) {
-        int v = *(int*)a->typedata;
+        int v = static_cast<const route_finder_rta_star_config_t*>(
+            a->typedata)->depth_limit;
         if (v >= 1 && v <= 100) {
             depth_limit = v;
         }
@@ -448,7 +572,8 @@ static route_t* route_finder_run_sma_star(route_finder_t* a) {
     int memory_limit = 0;
 
     if (a->typedata) {
-        int val = *(int*)a->typedata;
+        int val = static_cast<const route_finder_sma_star_config_t*>(
+            a->typedata)->memory_limit;
 
         if (val >= 10 && val <= 1000000) {
             memory_limit = val;
@@ -474,7 +599,8 @@ static route_t* route_finder_run_weighted_astar(route_finder_t* a) {
     float weight = 1.5f;
 
     if (a->typedata) {
-        float v = *(float*)a->typedata;
+        float v = static_cast<const route_finder_weighted_astar_config_t*>(
+            a->typedata)->weight;
         if (v >= 0.1f && v <= 10.0f) {
             weight = v;
         }
@@ -490,33 +616,109 @@ static route_t* route_finder_run_fast_marching(route_finder_t* a){
     route_finder_cost_bridge, a->max_retry, a->debug_mode_enabled);
 }
 
-route_t* route_finder_run(route_finder_t* a) {
-    if (!a) return NULL;
-    if (active_callback_finder == a) return NULL;
-    route_finder_callback_scope callback_scope(a);
-    switch (a->type) {
-        case ROUTE_FINDER_ASTAR: 
-            return route_finder_run_astar(a);
-        case ROUTE_FINDER_BFS: 
-            return route_finder_run_bfs(a);
-        case ROUTE_FINDER_DFS: 
-            return route_finder_run_dfs(a);
-        case ROUTE_FINDER_DIJKSTRA: 
-            return route_finder_run_dijkstra(a);
-        case ROUTE_FINDER_FAST_MARCHING: 
-            return route_finder_run_fast_marching(a);
-        case ROUTE_FINDER_FRINGE_SEARCH: 
-            return route_finder_run_fringe_search(a);
-        case ROUTE_FINDER_GREEDY_BEST_FIRST: 
-            return route_finder_run_greedy_best_first(a);
-        case ROUTE_FINDER_IDA_STAR: 
-            return route_finder_run_ida_star(a);
-        case ROUTE_FINDER_RTA_STAR: 
-            return route_finder_run_rta_star(a);
-        case ROUTE_FINDER_SMA_STAR: 
-            return route_finder_run_sma_star(a);
-        case ROUTE_FINDER_WEIGHTED_ASTAR: 
-            return route_finder_run_weighted_astar(a);
-        default: return NULL;
+using route_finder_run_func = route_t* (*)(route_finder_t*);
+
+static route_finder_run_func route_finder_get_run_func(
+    route_finder_type_t type) {
+    switch (type) {
+        case ROUTE_FINDER_ASTAR:
+            return route_finder_run_astar;
+        case ROUTE_FINDER_BFS:
+            return route_finder_run_bfs;
+        case ROUTE_FINDER_DFS:
+            return route_finder_run_dfs;
+        case ROUTE_FINDER_DIJKSTRA:
+            return route_finder_run_dijkstra;
+        case ROUTE_FINDER_FAST_MARCHING:
+            return route_finder_run_fast_marching;
+        case ROUTE_FINDER_FRINGE_SEARCH:
+            return route_finder_run_fringe_search;
+        case ROUTE_FINDER_GREEDY_BEST_FIRST:
+            return route_finder_run_greedy_best_first;
+        case ROUTE_FINDER_IDA_STAR:
+            return route_finder_run_ida_star;
+        case ROUTE_FINDER_RTA_STAR:
+            return route_finder_run_rta_star;
+        case ROUTE_FINDER_SMA_STAR:
+            return route_finder_run_sma_star;
+        case ROUTE_FINDER_WEIGHTED_ASTAR:
+            return route_finder_run_weighted_astar;
+        default:
+            return nullptr;
     }
+}
+
+bool route_finder_is_supported(route_finder_type_t type) {
+    return route_finder_get_run_func(type) != nullptr;
+}
+
+navsys_status_t route_finder_run_with_options(
+    route_finder_t* finder,
+    const route_finder_run_options_t* options,
+    route_t** out_route,
+    route_finder_run_stats_t* out_stats) {
+    if (!finder || !out_route || !out_stats || !route_finder_is_valid(finder)
+        || finder->max_retry <= 0)
+        return NAVSYS_STATUS_INVALID_ARGUMENT;
+    if (options && options->struct_size < sizeof(route_finder_run_options_t))
+        return NAVSYS_STATUS_INVALID_ARGUMENT;
+    if (active_callback_finder == finder)
+        return NAVSYS_STATUS_IN_PROGRESS;
+
+    route_finder_run_func run = route_finder_get_run_func(finder->type);
+    if (!run) return NAVSYS_STATUS_UNSUPPORTED;
+
+    route_finder_cancel_context cancel_context = {
+        options ? options->cancel_func : nullptr,
+        options ? options->cancel_userdata : nullptr,
+        false,
+        false
+    };
+    route_finder_callback_scope callback_scope(finder);
+    route_finder_cancel_scope cancel_scope(&cancel_context);
+    route_t* route = run(finder);
+    if (cancel_context.failed) {
+        if (route) route_destroy(route);
+        return NAVSYS_STATUS_CALLBACK_FAILED;
+    }
+    if (!route) return NAVSYS_STATUS_OUT_OF_MEMORY;
+
+    route_finder_run_stats_t stats = {};
+    stats.total_retry_count = route_get_total_retry_count(route);
+    stats.route_length = route_length(route);
+    stats.route_cost = route_get_cost(route);
+    stats.complete = route_get_success(route) != 0;
+    stats.partial = !stats.complete && stats.route_length > 0;
+
+    navsys_status_t status = NAVSYS_STATUS_OK;
+    if (cancel_context.requested) {
+        status = NAVSYS_STATUS_CANCELLED;
+    } else if (!stats.complete) {
+        status = stats.total_retry_count >= finder->max_retry
+            ? NAVSYS_STATUS_LIMIT_REACHED
+            : NAVSYS_STATUS_NO_PATH;
+    }
+
+    *out_route = route;
+    *out_stats = stats;
+    return status;
+}
+
+navsys_status_t route_finder_run_ex(
+    route_finder_t* finder,
+    route_t** out_route,
+    route_finder_run_stats_t* out_stats) {
+    return route_finder_run_with_options(
+        finder, nullptr, out_route, out_stats);
+}
+
+route_t* route_finder_run(route_finder_t* finder) {
+    route_t* route = nullptr;
+    route_finder_run_stats_t stats = {};
+    navsys_status_t status = route_finder_run_ex(finder, &route, &stats);
+    if (status == NAVSYS_STATUS_OK ||
+        status == NAVSYS_STATUS_NO_PATH ||
+        status == NAVSYS_STATUS_LIMIT_REACHED)
+        return route;
+    return nullptr;
 }

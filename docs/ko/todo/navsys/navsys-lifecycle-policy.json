@@ -30,7 +30,102 @@
       ],
       "result": "no-exception-escape-and-no-owned-allocation-leak"
     },
-    "callback_failure": "legacy-signatures-have-no-common-failure-channel"
+    "callback_failure": "legacy-signatures-have-no-common-failure-channel",
+    "algorithm_config_binding": {
+      "ownership": "caller-owned-borrowed-by-BYUL",
+      "lifetime": "caller-keeps-alive-until-rebind-unbind-or-owner-destroy",
+      "binding_commit": "type-and-config-pointer-change-together-or-remain-unchanged",
+      "unbind_result": "clear-config-pointer-and-preserve-selected-type",
+      "legacy_typedata": "preserved-for-abi-1-source-and-binary-compatibility",
+      "configs": [
+        {
+          "type": "ROUTE_FINDER_FRINGE_SEARCH",
+          "config": "route_finder_fringe_search_config_t",
+          "field": "delta_epsilon",
+          "minimum": 0.001,
+          "maximum": 5.0,
+          "bind_symbol": "route_finder_bind_fringe_search_config"
+        },
+        {
+          "type": "ROUTE_FINDER_RTA_STAR",
+          "config": "route_finder_rta_star_config_t",
+          "field": "depth_limit",
+          "minimum": 1,
+          "maximum": 100,
+          "bind_symbol": "route_finder_bind_rta_star_config"
+        },
+        {
+          "type": "ROUTE_FINDER_SMA_STAR",
+          "config": "route_finder_sma_star_config_t",
+          "field": "memory_limit",
+          "minimum": 10,
+          "maximum": 1000000,
+          "bind_symbol": "route_finder_bind_sma_star_config"
+        },
+        {
+          "type": "ROUTE_FINDER_WEIGHTED_ASTAR",
+          "config": "route_finder_weighted_astar_config_t",
+          "field": "weight",
+          "minimum": 0.1,
+          "maximum": 10.0,
+          "bind_symbol": "route_finder_bind_weighted_astar_config"
+        }
+      ],
+      "unbind_symbol": "route_finder_unbind_algorithm_config"
+    },
+    "route_finder_run_contract": {
+      "checked_setters": [
+        "route_finder_set_type_checked",
+        "route_finder_set_max_retry_checked"
+      ],
+      "run_symbol": "route_finder_run_ex",
+      "controlled_run_symbol": "route_finder_run_with_options",
+      "options_type": "route_finder_run_options_t",
+      "cancel_callback": "route_finder_cancel_func",
+      "stats_type": "route_finder_run_stats_t",
+      "normal_termination": [
+        "NAVSYS_STATUS_OK",
+        "NAVSYS_STATUS_NO_PATH",
+        "NAVSYS_STATUS_LIMIT_REACHED"
+      ],
+      "normal_output": "caller-owned-route-and-value-stats",
+      "failure_output": "preserve-route-and-stats",
+      "route_termination": "route_destroy",
+      "legacy_run": "forwards-to-run-ex-and-preserves-null-on-runtime-failure",
+      "limit": "positive-max-retry-required",
+      "cancellation": "call-scoped-cooperative-polling",
+      "cancel_polling": "before-each-expansion-and-during-unbounded-reconstruction",
+      "cancel_output": "caller-owned-partial-route-and-value-stats-when-produced",
+      "cancel_callback_thread": "synchronous-calling-thread",
+      "cancel_callback_failure": "cpp-exception-maps-to-callback-failed-and-preserves-outputs",
+      "workspace": "deferred-until-algorithms-expose-caller-storage"
+    },
+    "route_export_contract": {
+      "count_symbol": "route_get_coord_count",
+      "fetch_symbol": "route_fetch_coord",
+      "symbol": "route_export_coords",
+      "fetch_success": "copies-one-coordinate-to-caller-storage",
+      "fetch_out_of_range": "not-found-and-preserve-output",
+      "fetch_invalid": "invalid-argument-and-preserve-output",
+      "query": "null-output-and-zero-capacity-returns-ok-and-required-element-count",
+      "complete": "copies-all-coordinates-and-returns-ok",
+      "undersized": "copies-prefix-returns-incomplete-and-full-required-element-count",
+      "invalid": "preserves-required-count",
+      "output_storage": "caller-owned",
+      "internal_container_pointer": "not-exposed",
+      "metadata": {
+        "cost_symbol": "route_fetch_total_cost",
+        "cost_storage": "double-caller-output-promoted-exactly-from-stored-float",
+        "completion_symbol": "route_fetch_completion",
+        "completion_values": {
+          "none": 0,
+          "complete": 1,
+          "partial": 2
+        },
+        "completion_mapping": "success-then-non-empty-then-empty",
+        "failure": "invalid-argument-and-preserve-output"
+      }
+    }
   },
   "abi_2_policy": {
     "opaque_struct_candidates": [
@@ -67,11 +162,13 @@
       "diagnostic": "abi-major-and-header-fingerprint"
     },
     "release_gates": {
+      "stage-2-contract-approval": "approved",
       "legacy-create-allocation-failure": "verified-in-abi-1-msvc-and-mingw-static-module",
       "abi-2-bound-allocator-failure": "required-before-abi-2-release",
       "old-layout-consumer": "verified-in-abi-1-msvc-and-mingw",
       "new-handle-consumer": "required-before-abi-2-release",
-      "current_state": "candidate-contract-frozen-implementation-pending"
+      "abi-2-runtime-gate-phase": "after-runtime-foundation-before-abi-2-release",
+      "current_state": "contract-approved-runtime-implementation-pending"
     }
   },
   "resource_models": [

@@ -11,6 +11,8 @@
 #include <cmath>
 #include <stdio.h>
 
+extern bool route_finder_poll_cancel_internal(void);
+
 void fmm_cell_init(fmm_cell_t* out){
     if (!out) return;
 
@@ -76,6 +78,7 @@ fmm_grid_t* fmm_grid_create_full(const navgrid_t* m, const coord_t* start,
 
     int retry = 0;
     while (!cost_coord_pq_is_empty(narrow_band)) {
+        if (route_finder_poll_cancel_internal()) break;
         if (max_retry > 0 && retry++ >= max_retry) break;
 
         coord_t* current = cost_coord_pq_pop(narrow_band);
@@ -224,7 +227,8 @@ route_t* find_fast_marching(const navgrid_t* m,
     coord_t* current = coord_copy(goal);
     route_insert(route, 0, current);
 
-    while (!coord_equal(current, start)) {
+    while (!coord_equal(current, start)
+        && !route_finder_poll_cancel_internal()) {
         coord_list_t* neighbors = navgrid_copy_neighbors(m, current->x, current->y);
         int len = coord_list_length(neighbors);
 

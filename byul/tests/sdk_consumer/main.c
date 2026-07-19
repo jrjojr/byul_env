@@ -6,6 +6,12 @@
 #include "byul.h"
 #include "navsys_status.h"
 
+static bool cancel_immediately(void* userdata) {
+    int* calls = (int*)userdata;
+    ++*calls;
+    return true;
+}
+
 static_assert(NAVSYS_STATUS_OK == 0, "NAVSYS_STATUS_OK ABI");
 static_assert(NAVSYS_STATUS_INVALID_ARGUMENT == -1, "NAVSYS_STATUS_INVALID_ARGUMENT ABI");
 static_assert(NAVSYS_STATUS_OUT_OF_MEMORY == -2, "NAVSYS_STATUS_OUT_OF_MEMORY ABI");
@@ -19,6 +25,9 @@ static_assert(NAVSYS_STATUS_CANCELLED == -9, "NAVSYS_STATUS_CANCELLED ABI");
 static_assert(NAVSYS_STATUS_LIMIT_REACHED == -10, "NAVSYS_STATUS_LIMIT_REACHED ABI");
 static_assert(NAVSYS_STATUS_INCOMPLETE == -11, "NAVSYS_STATUS_INCOMPLETE ABI");
 static_assert(NAVSYS_STATUS_IN_PROGRESS == -12, "NAVSYS_STATUS_IN_PROGRESS ABI");
+static_assert(ROUTE_COMPLETION_NONE == 0, "ROUTE_COMPLETION_NONE ABI");
+static_assert(ROUTE_COMPLETION_COMPLETE == 1, "ROUTE_COMPLETION_COMPLETE ABI");
+static_assert(ROUTE_COMPLETION_PARTIAL == 2, "ROUTE_COMPLETION_PARTIAL ABI");
 
 #define ABI1_TYPE_LAYOUT(type, expected_size, expected_align) \
     static_assert(sizeof(type) == expected_size, #type " ABI 1 size"); \
@@ -137,18 +146,103 @@ int main(void) {
         fprintf(stderr, "unexpected coord_t ABI layout\n");
         return 2;
     }
+    if (!route_finder_is_supported(ROUTE_FINDER_ASTAR)
+        || !route_finder_is_supported(ROUTE_FINDER_WEIGHTED_ASTAR)
+        || route_finder_is_supported(ROUTE_FINDER_BELLMAN_FORD)
+        || route_finder_is_supported(ROUTE_FINDER_DSTAR_LITE)) {
+        fprintf(stderr, "unexpected route finder capability set\n");
+        return 3;
+    }
 
     int callback_identity = 7;
+    route_finder_fringe_search_config_t fringe = {0.5f};
+    route_finder_rta_star_config_t rta = {7};
+    route_finder_sma_star_config_t sma = {64};
+    route_finder_weighted_astar_config_t weighted = {2.0f};
     navgrid_t* navgrid = navgrid_create();
     route_finder_t* finder = route_finder_create(navgrid);
     dstar_lite_t* dsl = dstar_lite_create(navgrid);
+    route_t* route = NULL;
+    route_finder_run_stats_t run_stats = {0};
     if (navgrid == NULL || finder == NULL || dsl == NULL
-        || navgrid_bind_is_coord_blocked_func(
+        || route_finder_set_type_checked(
+            finder, ROUTE_FINDER_ASTAR) != NAVSYS_STATUS_OK
+        || route_finder_set_max_retry_checked(
+            finder, 1000) != NAVSYS_STATUS_OK
+        || route_finder_run_ex(
+            finder, &route, &run_stats) != NAVSYS_STATUS_OK
+        || route == NULL
+        || !run_stats.complete
+        || run_stats.partial) {
+        fprintf(stderr, "unexpected route finder run ABI\n");
+        return 4;
+    }
+    size_t route_coord_count = 0;
+    coord_t route_coords[2] = {{0, 0}, {0, 0}};
+    coord_t fetched_coord = {-1, -1};
+    double total_cost = -1.0;
+    route_completion_t completion = ROUTE_COMPLETION_NONE;
+    if (route_get_coord_count(route) != 1
+        || route_fetch_coord(route, 0, &fetched_coord)
+            != NAVSYS_STATUS_OK
+        || fetched_coord.x != 0
+        || fetched_coord.y != 0
+        || route_fetch_total_cost(route, &total_cost)
+            != NAVSYS_STATUS_OK
+        || total_cost != 0.0
+        || route_fetch_completion(route, &completion)
+            != NAVSYS_STATUS_OK
+        || completion != ROUTE_COMPLETION_COMPLETE
+        || route_export_coords(route, NULL, 0, &route_coord_count)
+            != NAVSYS_STATUS_OK
+        || route_coord_count != 1
+        || route_export_coords(
+            route, route_coords, 1, &route_coord_count)
+            != NAVSYS_STATUS_OK
+        || route_coord_count != 1
+        || route_coords[0].x != 0
+        || route_coords[0].y != 0) {
+        fprintf(stderr, "unexpected route coordinate export ABI\n");
+        return 5;
+    }
+    route_destroy(route);
+    route = NULL;
+
+    int cancel_calls = 0;
+    route_finder_run_options_t run_options = {
+        (uint32_t)sizeof(route_finder_run_options_t),
+        cancel_immediately,
+        &cancel_calls
+    };
+    if (route_finder_run_with_options(
+            finder, &run_options, &route, &run_stats)
+            != NAVSYS_STATUS_CANCELLED
+        || cancel_calls != 1
+        || route == NULL
+        || run_stats.complete) {
+        fprintf(stderr, "unexpected route finder cancellation ABI\n");
+        return 6;
+    }
+    route_destroy(route);
+
+    if (navgrid_bind_is_coord_blocked_func(
             navgrid, sdk_is_blocked, &callback_identity) != NAVSYS_STATUS_OK
         || route_finder_bind_cost_func(
             finder, sdk_cost, &callback_identity) != NAVSYS_STATUS_OK
         || route_finder_bind_heuristic_func(
             finder, sdk_heuristic, &callback_identity) != NAVSYS_STATUS_OK
+        || route_finder_bind_fringe_search_config(
+            finder, &fringe) != NAVSYS_STATUS_OK
+        || route_finder_bind_rta_star_config(
+            finder, &rta) != NAVSYS_STATUS_OK
+        || route_finder_bind_sma_star_config(
+            finder, &sma) != NAVSYS_STATUS_OK
+        || route_finder_bind_weighted_astar_config(
+            finder, &weighted) != NAVSYS_STATUS_OK
+        || route_finder_get_type(finder) != ROUTE_FINDER_WEIGHTED_ASTAR
+        || route_finder_get_typedata(finder) != &weighted
+        || route_finder_unbind_algorithm_config(finder) != NAVSYS_STATUS_OK
+        || route_finder_get_typedata(finder) != NULL
         || dstar_lite_bind_cost_func(
             dsl, sdk_cost, &callback_identity) != NAVSYS_STATUS_OK
         || dstar_lite_bind_heuristic_func(
@@ -165,7 +259,7 @@ int main(void) {
         || route_finder_unbind_cost_func(finder) != NAVSYS_STATUS_OK
         || navgrid_unbind_is_coord_blocked_func(navgrid) != NAVSYS_STATUS_OK) {
         fprintf(stderr, "unexpected Navsys callback binding ABI\n");
-        return 3;
+        return 7;
     }
     dstar_lite_destroy(dsl);
     route_finder_destroy(finder);

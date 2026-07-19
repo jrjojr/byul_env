@@ -1,11 +1,11 @@
 {
   "schema_version": 1,
-  "profile": "windows-mingw64-gcc16-release",
+  "profile": "windows-x64-mingw-release",
   "dll": {
     "name": "libbyul.dll",
-    "size": 834598,
-    "sha256": "18e3ee653757e8392d7d762d8848bd7d1c39f84486e7bb8e8c61dd18b8358d8c",
-    "export_count": 1338
+    "size": 845125,
+    "sha256": "70642fb6c5cb1c1d25f6ae05b2a2f9f38ab3d5687ceb7e039f8a14e717d6df2d",
+    "export_count": 1357
   },
   "exports": [
     {
@@ -873,6 +873,10 @@
       "type": "T"
     },
     {
+      "name": "_Z33route_finder_poll_cancel_internalv",
+      "type": "T"
+    },
+    {
       "name": "_Z36projectile_result_to_string_detailedPK19s_projectile_resultyPc",
       "type": "T"
     },
@@ -881,8 +885,20 @@
       "type": "T"
     },
     {
+      "name": "_ZdlPv",
+      "type": "T"
+    },
+    {
       "name": "_ZdlPvy",
       "type": "T"
+    },
+    {
+      "name": "_ZN4byul6navsys8internal23active_callback_navgridE",
+      "type": "D"
+    },
+    {
+      "name": "_ZN4byul6navsys8internal26active_callback_dstar_liteE",
+      "type": "D"
     },
     {
       "name": "_ZN5Eigen8internal27stable_norm_impl_inner_stepINS_5BlockIKNS_6MatrixIfLi4ELi1ELi0ELi4ELi1EEELi3ELi1ELb0EEEfEEvRKT_RT0_SB_SB_",
@@ -4281,6 +4297,22 @@
       "type": "T"
     },
     {
+      "name": "route_export_coords",
+      "type": "T"
+    },
+    {
+      "name": "route_fetch_completion",
+      "type": "T"
+    },
+    {
+      "name": "route_fetch_coord",
+      "type": "T"
+    },
+    {
+      "name": "route_fetch_total_cost",
+      "type": "T"
+    },
+    {
       "name": "route_find",
       "type": "T"
     },
@@ -4289,7 +4321,23 @@
       "type": "T"
     },
     {
+      "name": "route_finder_bind_fringe_search_config",
+      "type": "T"
+    },
+    {
       "name": "route_finder_bind_heuristic_func",
+      "type": "T"
+    },
+    {
+      "name": "route_finder_bind_rta_star_config",
+      "type": "T"
+    },
+    {
+      "name": "route_finder_bind_sma_star_config",
+      "type": "T"
+    },
+    {
+      "name": "route_finder_bind_weighted_astar_config",
       "type": "T"
     },
     {
@@ -4373,6 +4421,10 @@
       "type": "T"
     },
     {
+      "name": "route_finder_is_supported",
+      "type": "T"
+    },
+    {
       "name": "route_finder_is_valid",
       "type": "T"
     },
@@ -4382,6 +4434,14 @@
     },
     {
       "name": "route_finder_run",
+      "type": "T"
+    },
+    {
+      "name": "route_finder_run_ex",
+      "type": "T"
+    },
+    {
+      "name": "route_finder_run_with_options",
       "type": "T"
     },
     {
@@ -4413,6 +4473,10 @@
       "type": "T"
     },
     {
+      "name": "route_finder_set_max_retry_checked",
+      "type": "T"
+    },
+    {
       "name": "route_finder_set_navgrid",
       "type": "T"
     },
@@ -4425,7 +4489,15 @@
       "type": "T"
     },
     {
+      "name": "route_finder_set_type_checked",
+      "type": "T"
+    },
+    {
       "name": "route_finder_set_typedata",
+      "type": "T"
+    },
+    {
+      "name": "route_finder_unbind_algorithm_config",
       "type": "T"
     },
     {
@@ -4438,6 +4510,10 @@
     },
     {
       "name": "route_get_coord_at",
+      "type": "T"
+    },
+    {
+      "name": "route_get_coord_count",
       "type": "T"
     },
     {
@@ -5368,8 +5444,8 @@
     "files": [
       {
         "path": "bin/libbyul.dll",
-        "size": 834598,
-        "sha256": "18e3ee653757e8392d7d762d8848bd7d1c39f84486e7bb8e8c61dd18b8358d8c"
+        "size": 845125,
+        "sha256": "70642fb6c5cb1c1d25f6ae05b2a2f9f38ab3d5687ceb7e039f8a14e717d6df2d"
       },
       {
         "path": "bin/libgcc_s_seh-1.dll",
@@ -5393,8 +5469,8 @@
       },
       {
         "path": "bin/test_byul.exe",
-        "size": 1593895,
-        "sha256": "5c8975075150e68dbec6b50d9d60b2a9c02f5fda668683d9a082f24d58fb0d7c"
+        "size": 1677681,
+        "sha256": "37ba6405d7a4e589ae1e20574ff28eaca4dcb492477f8d32fcb69c355efe9285"
       },
       {
         "path": "bin/test_byul_tick.exe",
@@ -5443,8 +5519,8 @@
       },
       {
         "path": "bin/test_navsys.exe",
-        "size": 767338,
-        "sha256": "6ac9373eed7e00bf473eb6bed5c8ffd67719aff11433e2ae66f950e9116ccf80"
+        "size": 808830,
+        "sha256": "d9878ff3904488c3df65165027f340b465a1547c2a887b0dc683056c821392b5"
       },
       {
         "path": "bin/test_numal.exe",
@@ -5473,13 +5549,13 @@
       },
       {
         "path": "bin/test_route.exe",
-        "size": 609793,
-        "sha256": "771ce9775d29a798145dedbe082855c56e80314e4ed4b983d54400026dc4058a"
+        "size": 642763,
+        "sha256": "823c943ff6cb417c8b958e414438119644d2037dc72d438768e354e880a3e5d3"
       },
       {
         "path": "bin/test_route_finder.exe",
-        "size": 708299,
-        "sha256": "e94ca2d69876deadadf65739547a51ebd7954f28277e1ade672cf1f454d61e48"
+        "size": 781584,
+        "sha256": "c1b36b12b2a978b24cc1e9c617011186e80566d558a58edbdd62722af4fa0816"
       },
       {
         "path": "include/byul/astar.h",
@@ -5573,8 +5649,8 @@
       },
       {
         "path": "include/byul/dstar_lite.h",
-        "size": 18274,
-        "sha256": "49463131bbee9bec8c4948e2aa1a1c08181947afe48a3fd66e6031c74c35ff07"
+        "size": 18951,
+        "sha256": "8f52659e0e18fe3778ead40e57f16f0f2228b7071557016715a796a5cda138e6"
       },
       {
         "path": "include/byul/dstar_lite_console.h",
@@ -5758,8 +5834,8 @@
       },
       {
         "path": "include/byul/navgrid.h",
-        "size": 7785,
-        "sha256": "04e1d89c8079e59d7761f292a9047034006566279f1439e7306f35534b0fbedb"
+        "size": 8396,
+        "sha256": "33578672ebedd7d51484bd43c711dc4897a672b25cb3ab91be622cc271d070f9"
       },
       {
         "path": "include/byul/navsys.h",
@@ -5883,8 +5959,8 @@
       },
       {
         "path": "include/byul/route.h",
-        "size": 5175,
-        "sha256": "33335e3ad6a7e12a02dfebb626e3b224bec1b87eaf5649b52f90ddb382db7eb6"
+        "size": 9870,
+        "sha256": "a228bbf84ed1813ec740b38a5ee4b08fff48172139ff5da03cf7322b5d53a3ce"
       },
       {
         "path": "include/byul/route_carver.h",
@@ -5893,8 +5969,8 @@
       },
       {
         "path": "include/byul/route_finder.h",
-        "size": 10505,
-        "sha256": "b60b2e2813aff855fb6992bc088f34e2fa59e69cdd67f1195dd0293a5200c559"
+        "size": 23288,
+        "sha256": "f9283bebd5a3db74df937d45a213eff4926f91dfe81d3383e7fdcb67185ad4c8"
       },
       {
         "path": "include/byul/route_finder_core.h",
@@ -5948,8 +6024,8 @@
       },
       {
         "path": "lib/byul/libbyul.dll.a",
-        "size": 659508,
-        "sha256": "dc1efdce00d4f1ba11c20fb76362352c7c6567fb937cb76f5999323ac3667982"
+        "size": 670066,
+        "sha256": "e5fa5b68f0cf8a8d90e986aa166fc99a68df3d7d1b3a4014e8632c2561d5646e"
       }
     ]
   },

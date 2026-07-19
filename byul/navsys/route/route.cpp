@@ -7,6 +7,7 @@
 #include <cmath>
 #include <cstdio>
 #include <algorithm>
+#include <cstddef>
 
 static const int ROUTE_DIRECTION_VECTORS[9][2] = {
     {  0,  0 },  // UNKNOWN
@@ -107,6 +108,76 @@ void route_clear_coords(route_t* p) {
 
 int route_length(const route_t* p) {
     return p ? static_cast<int>(coord_list_length(p->coords)) : 0;
+}
+
+size_t route_get_coord_count(const route_t* route) {
+    return route ? static_cast<size_t>(route_length(route)) : 0;
+}
+
+navsys_status_t route_fetch_coord(
+    const route_t* route,
+    size_t index,
+    coord_t* out_coord) {
+    if (!route || !out_coord)
+        return NAVSYS_STATUS_INVALID_ARGUMENT;
+    if (index >= route_get_coord_count(route))
+        return NAVSYS_STATUS_NOT_FOUND;
+
+    const coord_t* coord =
+        route_get_coord_at(route, static_cast<int>(index));
+    if (!coord)
+        return NAVSYS_STATUS_CORRUPT_STATE;
+    *out_coord = *coord;
+    return NAVSYS_STATUS_OK;
+}
+
+navsys_status_t route_fetch_total_cost(
+    const route_t* route,
+    double* out_total_cost) {
+    if (!route || !out_total_cost)
+        return NAVSYS_STATUS_INVALID_ARGUMENT;
+    *out_total_cost = static_cast<double>(route_get_cost(route));
+    return NAVSYS_STATUS_OK;
+}
+
+navsys_status_t route_fetch_completion(
+    const route_t* route,
+    route_completion_t* out_completion) {
+    if (!route || !out_completion)
+        return NAVSYS_STATUS_INVALID_ARGUMENT;
+
+    route_completion_t completion = ROUTE_COMPLETION_NONE;
+    if (route_get_success(route)) {
+        completion = ROUTE_COMPLETION_COMPLETE;
+    } else if (route_get_coord_count(route) > 0) {
+        completion = ROUTE_COMPLETION_PARTIAL;
+    }
+    *out_completion = completion;
+    return NAVSYS_STATUS_OK;
+}
+
+navsys_status_t route_export_coords(
+    const route_t* route,
+    coord_t* output,
+    size_t capacity,
+    size_t* out_required_count) {
+    if (!route || !out_required_count || (!output && capacity != 0))
+        return NAVSYS_STATUS_INVALID_ARGUMENT;
+
+    const size_t required = static_cast<size_t>(route_length(route));
+    if (!output) {
+        *out_required_count = required;
+        return NAVSYS_STATUS_OK;
+    }
+
+    const size_t copy_count = std::min(capacity, required);
+    for (size_t i = 0; i < copy_count; ++i) {
+        output[i] = *route_get_coord_at(route, static_cast<int>(i));
+    }
+    *out_required_count = required;
+    return capacity < required
+        ? NAVSYS_STATUS_INCOMPLETE
+        : NAVSYS_STATUS_OK;
 }
 
 const coord_t* route_get_last(const route_t* p) {

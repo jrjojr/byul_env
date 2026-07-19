@@ -1,10 +1,13 @@
 #ifndef ROUTE_H
 #define ROUTE_H
 
+#include <stddef.h>
+
 #include "byul_config.h"
 #include "coord.h"
 #include "coord_list.h"
 #include "coord_hash.h"
+#include "navsys_status.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -23,6 +26,20 @@ typedef enum e_route_dir {
     ROUTE_DIR_DOWN_RIGHT,
     ROUTE_DIR_COUNT
 } route_dir_t;
+
+/**
+ * @brief route 결과의 완료 상태를 나타낸다.
+ *
+ * @byul.storage basic-value
+ * @byul.zero_valid true
+ * @byul.copy_semantics trivial-copy
+ * @byul.thread_safety thread-compatible
+ */
+typedef enum e_route_completion {
+    ROUTE_COMPLETION_NONE = 0, /**< 경로 결과가 비어 있고 완료되지 않았다. */
+    ROUTE_COMPLETION_COMPLETE = 1, /**< 목표에 도달한 완성 경로다. */
+    ROUTE_COMPLETION_PARTIAL = 2 /**< 좌표가 있지만 목표에 도달하지 못했다. */
+} route_completion_t;
 
 struct s_route {
     coord_list_t* coords;
@@ -72,6 +89,116 @@ BYUL_API void route_clear_coords(route_t* p);
 BYUL_API const coord_t* route_get_last(const route_t* p);
 BYUL_API const coord_t* route_get_coord_at(const route_t* p, int index);
 BYUL_API int   route_length(const route_t* p);
+
+/**
+ * @brief route에 저장된 좌표 수를 반환한다.
+ *
+ * @param[in] route 조회할 route.
+ * @return 좌표 element 수. route가 NULL이면 0이다.
+ * @byul.nullable route true
+ * @byul.side_effect none
+ * @byul.thread_safety thread-compatible
+ * @byul.blocking false
+ * @byul.reentrant true
+ */
+BYUL_API size_t route_get_coord_count(const route_t* route);
+
+/**
+ * @brief 지정한 index의 좌표를 caller storage로 복사한다.
+ *
+ * 실패하면 out_coord를 변경하지 않는다.
+ *
+ * @param[in] route 조회할 route.
+ * @param[in] index 조회할 zero-based 좌표 index.
+ * @param[out] out_coord 좌표를 받을 caller storage.
+ * @return Common Navsys status value.
+ * @retval NAVSYS_STATUS_OK 좌표를 복사했다.
+ * @retval NAVSYS_STATUS_INVALID_ARGUMENT route 또는 out_coord가 NULL이다.
+ * @retval NAVSYS_STATUS_NOT_FOUND index가 좌표 범위를 벗어났다.
+ * @byul.nullable route false
+ * @byul.nullable out_coord false
+ * @byul.side_effect writes:out_coord-on-success
+ * @byul.thread_safety thread-compatible
+ * @byul.blocking false
+ * @byul.reentrant true
+ */
+BYUL_API navsys_status_t route_fetch_coord(
+    const route_t* route,
+    size_t index,
+    coord_t* out_coord);
+
+/**
+ * @brief route의 누적 cost를 caller storage로 복사한다.
+ *
+ * 저장된 float 값을 double로 정확히 승격한다. 실패하면 out_total_cost를 변경하지 않는다.
+ *
+ * @param[in] route 조회할 route.
+ * @param[out] out_total_cost 누적 cost를 받을 caller storage.
+ * @return Common Navsys status value.
+ * @retval NAVSYS_STATUS_OK cost를 복사했다.
+ * @retval NAVSYS_STATUS_INVALID_ARGUMENT route 또는 out_total_cost가 NULL이다.
+ * @byul.nullable route false
+ * @byul.nullable out_total_cost false
+ * @byul.side_effect writes:out_total_cost-on-success
+ * @byul.thread_safety thread-compatible
+ * @byul.blocking false
+ * @byul.reentrant true
+ */
+BYUL_API navsys_status_t route_fetch_total_cost(
+    const route_t* route,
+    double* out_total_cost);
+
+/**
+ * @brief route 결과의 완료 상태를 caller storage로 복사한다.
+ *
+ * Legacy success가 true이면 COMPLETE, success가 false이고 좌표가 있으면 PARTIAL,
+ * 그 외에는 NONE이다. 실패하면 out_completion을 변경하지 않는다.
+ *
+ * @param[in] route 조회할 route.
+ * @param[out] out_completion 완료 상태를 받을 caller storage.
+ * @return Common Navsys status value.
+ * @retval NAVSYS_STATUS_OK 완료 상태를 복사했다.
+ * @retval NAVSYS_STATUS_INVALID_ARGUMENT route 또는 out_completion이 NULL이다.
+ * @byul.nullable route false
+ * @byul.nullable out_completion false
+ * @byul.side_effect writes:out_completion-on-success
+ * @byul.thread_safety thread-compatible
+ * @byul.blocking false
+ * @byul.reentrant true
+ */
+BYUL_API navsys_status_t route_fetch_completion(
+    const route_t* route,
+    route_completion_t* out_completion);
+
+/**
+ * @brief Copies route coordinates into caller-provided storage.
+ *
+ * Pass NULL output with zero capacity to query the required element count.
+ * When capacity is smaller than the route length, the function copies the
+ * prefix that fits, reports the full required count, and returns
+ * NAVSYS_STATUS_INCOMPLETE.
+ *
+ * @param[in] route Route to export.
+ * @param[out] output Caller-provided coordinate array, or NULL for a query.
+ * @param[in] capacity Number of coord_t elements available in output.
+ * @param[out] out_required_count Full number of route coordinates.
+ * @return Common Navsys status value.
+ * @retval NAVSYS_STATUS_OK The query or complete copy succeeded.
+ * @retval NAVSYS_STATUS_INCOMPLETE A prefix was copied into a short buffer.
+ * @retval NAVSYS_STATUS_INVALID_ARGUMENT An argument combination is invalid.
+ * @byul.nullable route false
+ * @byul.nullable output query-only
+ * @byul.nullable out_required_count false
+ * @byul.side_effect writes:output,out_required_count
+ * @byul.thread_safety thread-compatible
+ * @byul.blocking false
+ * @byul.reentrant true
+ */
+BYUL_API navsys_status_t route_export_coords(
+    const route_t* route,
+    coord_t* output,
+    size_t capacity,
+    size_t* out_required_count);
 
 /** Visit Manipulation **/
 BYUL_API int  route_add_visited(route_t* p, const coord_t* c);

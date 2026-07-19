@@ -1,13 +1,22 @@
 {
   "schema_version": 1,
-  "captured_at_utc": "2026-07-18T11:26:23.310853+00:00",
-  "git_head": "b350a22f1ea8fc25d522f7db257cffb1884eeebe",
+  "captured_at_utc": "2026-07-18T14:31:10.359676+00:00",
+  "git_head": "940aeba18c90e05bea9bb9317311d214c00ad9d6",
   "git_branch": "test/navsys-coord-numeric-baseline",
   "git_status_porcelain": [
-    "M byul/tests/sdk_consumer/main.c",
+    "M byul/navsys/route/route.cpp",
+    " M byul/navsys/route/route.h",
+    " M byul/navsys/route/tests/test_module_route.cpp",
+    " M byul/tests/sdk_consumer/main.c",
+    " M docs/ko/todo/header-refactor-baseline/msvc-release-build.json",
+    " M docs/ko/todo/header-refactor-current/mingw-release-build.json",
+    " M docs/ko/todo/header-refactor-current/msvc-release-build.json",
+    " M docs/ko/todo/navsys/navsys-current-abi-inventory.json",
     " M docs/ko/todo/navsys/navsys-lifecycle-policy.json",
     " M docs/ko/todo/navsys/todo-navsys-industry-api-baseline.org",
-    " M tools/tests/test_navsys_lifecycle_policy.py"
+    " M docs/ko/todo/navsys/todo-navsys-route-route.org",
+    " M tools/python/byul_wrapper/byul_wrapper/route.py",
+    " M tools/python/byul_wrapper/tests/test_route.py"
   ],
   "rules_submodule_sha": "642275431efe0d87f4fc3856ef326d6fdfbb0aba",
   "platform": {

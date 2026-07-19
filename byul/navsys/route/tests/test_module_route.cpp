@@ -28,6 +28,120 @@ TEST_CASE("route creation and basic ops") {
     route_destroy(p);
 }
 
+TEST_CASE("route exports coordinates with two-call buffer semantics") {
+    route_t* route = route_create();
+    REQUIRE(route != nullptr);
+    const coord_t coords[] = {{1, 2}, {3, 4}, {5, 6}};
+    for (const coord_t& coord : coords) {
+        REQUIRE(route_add_coord(route, &coord) == 1);
+    }
+
+    size_t required = 99;
+    CHECK(route_export_coords(route, nullptr, 0, &required)
+        == NAVSYS_STATUS_OK);
+    CHECK(required == 3);
+
+    coord_t short_output[2] = {{-1, -1}, {-1, -1}};
+    required = 99;
+    CHECK(route_export_coords(route, short_output, 2, &required)
+        == NAVSYS_STATUS_INCOMPLETE);
+    CHECK(required == 3);
+    CHECK(short_output[0].x == 1);
+    CHECK(short_output[0].y == 2);
+    CHECK(short_output[1].x == 3);
+    CHECK(short_output[1].y == 4);
+
+    coord_t exact_output[3] = {};
+    required = 99;
+    CHECK(route_export_coords(route, exact_output, 3, &required)
+        == NAVSYS_STATUS_OK);
+    CHECK(required == 3);
+    CHECK(exact_output[2].x == 5);
+    CHECK(exact_output[2].y == 6);
+
+    required = 77;
+    CHECK(route_export_coords(nullptr, exact_output, 3, &required)
+        == NAVSYS_STATUS_INVALID_ARGUMENT);
+    CHECK(required == 77);
+    CHECK(route_export_coords(route, nullptr, 1, &required)
+        == NAVSYS_STATUS_INVALID_ARGUMENT);
+    CHECK(required == 77);
+    CHECK(route_export_coords(route, exact_output, 3, nullptr)
+        == NAVSYS_STATUS_INVALID_ARGUMENT);
+
+    route_destroy(route);
+}
+
+TEST_CASE("route fetches coordinate values without exposing storage") {
+    route_t* route = route_create();
+    REQUIRE(route != nullptr);
+    const coord_t first = {7, 8};
+    const coord_t second = {9, 10};
+    REQUIRE(route_add_coord(route, &first) == 1);
+    REQUIRE(route_add_coord(route, &second) == 1);
+
+    CHECK(route_get_coord_count(route) == 2);
+    CHECK(route_get_coord_count(nullptr) == 0);
+
+    coord_t output = {-1, -2};
+    CHECK(route_fetch_coord(route, 1, &output) == NAVSYS_STATUS_OK);
+    CHECK(output.x == 9);
+    CHECK(output.y == 10);
+
+    output = {-3, -4};
+    CHECK(route_fetch_coord(route, 2, &output)
+        == NAVSYS_STATUS_NOT_FOUND);
+    CHECK(output.x == -3);
+    CHECK(output.y == -4);
+    CHECK(route_fetch_coord(nullptr, 0, &output)
+        == NAVSYS_STATUS_INVALID_ARGUMENT);
+    CHECK(output.x == -3);
+    CHECK(output.y == -4);
+    CHECK(route_fetch_coord(route, 0, nullptr)
+        == NAVSYS_STATUS_INVALID_ARGUMENT);
+
+    route_destroy(route);
+}
+
+TEST_CASE("route fetches cost and completion as result values") {
+    route_t* route = route_create();
+    REQUIRE(route != nullptr);
+
+    double cost = -1.0;
+    route_completion_t completion = ROUTE_COMPLETION_COMPLETE;
+    CHECK(route_fetch_total_cost(route, &cost) == NAVSYS_STATUS_OK);
+    CHECK(cost == doctest::Approx(0.0));
+    CHECK(route_fetch_completion(route, &completion) == NAVSYS_STATUS_OK);
+    CHECK(completion == ROUTE_COMPLETION_NONE);
+
+    route_set_cost(route, 12.5f);
+    const coord_t coord = {3, 4};
+    REQUIRE(route_add_coord(route, &coord) == 1);
+    CHECK(route_fetch_total_cost(route, &cost) == NAVSYS_STATUS_OK);
+    CHECK(cost == doctest::Approx(12.5));
+    CHECK(route_fetch_completion(route, &completion) == NAVSYS_STATUS_OK);
+    CHECK(completion == ROUTE_COMPLETION_PARTIAL);
+
+    route_set_success(route, 1);
+    CHECK(route_fetch_completion(route, &completion) == NAVSYS_STATUS_OK);
+    CHECK(completion == ROUTE_COMPLETION_COMPLETE);
+
+    cost = -2.0;
+    completion = ROUTE_COMPLETION_PARTIAL;
+    CHECK(route_fetch_total_cost(nullptr, &cost)
+        == NAVSYS_STATUS_INVALID_ARGUMENT);
+    CHECK(cost == doctest::Approx(-2.0));
+    CHECK(route_fetch_total_cost(route, nullptr)
+        == NAVSYS_STATUS_INVALID_ARGUMENT);
+    CHECK(route_fetch_completion(nullptr, &completion)
+        == NAVSYS_STATUS_INVALID_ARGUMENT);
+    CHECK(completion == ROUTE_COMPLETION_PARTIAL);
+    CHECK(route_fetch_completion(route, nullptr)
+        == NAVSYS_STATUS_INVALID_ARGUMENT);
+
+    route_destroy(route);
+}
+
 TEST_CASE("route visited tracking") {
     route_t* p = route_create();
     coord_t* a = coord_create_full(5, 5);

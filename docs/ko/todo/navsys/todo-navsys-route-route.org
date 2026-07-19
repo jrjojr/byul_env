@@ -257,7 +257,7 @@ BYUL_API navsys_status_t route_export_coords(
 BYUL_API navsys_status_t route_fetch_total_cost(
     const route_t* route,
     double* out_total_cost);
-BYUL_API navsys_status_t route_get_completion(
+BYUL_API navsys_status_t route_fetch_completion(
     const route_t* route,
     route_completion_t* out_completion);
 
