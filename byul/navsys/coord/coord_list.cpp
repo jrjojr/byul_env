@@ -5,10 +5,168 @@
 #include <cmath>
 #include <cstdint>
 #include <cstdlib>
+#include <memory>
+#include <new>
 
 struct s_coord_list {
     std::vector<coord_t> data;
 };
+
+navsys_status_t coord_list_create_ex(coord_list_t** out_list) {
+    if (!out_list) return NAVSYS_STATUS_INVALID_ARGUMENT;
+    try {
+        std::unique_ptr<coord_list_t> list(new coord_list_t());
+        *out_list = list.release();
+        return NAVSYS_STATUS_OK;
+    } catch (const std::bad_alloc&) {
+        return NAVSYS_STATUS_OUT_OF_MEMORY;
+    } catch (...) {
+        return NAVSYS_STATUS_CORRUPT_STATE;
+    }
+}
+
+navsys_status_t coord_list_copy_ex(
+    const coord_list_t* source, coord_list_t** out_list) {
+    if (!source || !out_list) return NAVSYS_STATUS_INVALID_ARGUMENT;
+    try {
+        std::unique_ptr<coord_list_t> copied(new coord_list_t(*source));
+        *out_list = copied.release();
+        return NAVSYS_STATUS_OK;
+    } catch (const std::bad_alloc&) {
+        return NAVSYS_STATUS_OUT_OF_MEMORY;
+    } catch (...) {
+        return NAVSYS_STATUS_CORRUPT_STATE;
+    }
+}
+
+size_t coord_list_size(const coord_list_t* list) {
+    return list ? list->data.size() : 0;
+}
+
+navsys_status_t coord_list_fetch(
+    const coord_list_t* list, size_t index, coord_t* out_coord) {
+    if (!list || !out_coord) return NAVSYS_STATUS_INVALID_ARGUMENT;
+    if (index >= list->data.size()) return NAVSYS_STATUS_NOT_FOUND;
+    *out_coord = list->data[index];
+    return NAVSYS_STATUS_OK;
+}
+
+navsys_status_t coord_list_fetch_front(
+    const coord_list_t* list, coord_t* out_coord) {
+    return coord_list_fetch(list, 0, out_coord);
+}
+
+navsys_status_t coord_list_fetch_back(
+    const coord_list_t* list, coord_t* out_coord) {
+    if (!list || !out_coord) return NAVSYS_STATUS_INVALID_ARGUMENT;
+    if (list->data.empty()) return NAVSYS_STATUS_NOT_FOUND;
+    *out_coord = list->data.back();
+    return NAVSYS_STATUS_OK;
+}
+
+navsys_status_t coord_list_push_back_ex(
+    coord_list_t* list, const coord_t* coord) {
+    if (!list || !coord) return NAVSYS_STATUS_INVALID_ARGUMENT;
+    const coord_t copied = *coord;
+    try {
+        list->data.push_back(copied);
+        return NAVSYS_STATUS_OK;
+    } catch (const std::bad_alloc&) {
+        return NAVSYS_STATUS_OUT_OF_MEMORY;
+    } catch (...) {
+        return NAVSYS_STATUS_CORRUPT_STATE;
+    }
+}
+
+navsys_status_t coord_list_try_pop_back(
+    coord_list_t* list, coord_t* out_coord) {
+    if (!list || !out_coord) return NAVSYS_STATUS_INVALID_ARGUMENT;
+    if (list->data.empty()) return NAVSYS_STATUS_NOT_FOUND;
+    const coord_t removed = list->data.back();
+    list->data.pop_back();
+    *out_coord = removed;
+    return NAVSYS_STATUS_OK;
+}
+
+navsys_status_t coord_list_try_pop_front(
+    coord_list_t* list, coord_t* out_coord) {
+    if (!list || !out_coord) return NAVSYS_STATUS_INVALID_ARGUMENT;
+    if (list->data.empty()) return NAVSYS_STATUS_NOT_FOUND;
+    const coord_t removed = list->data.front();
+    list->data.erase(list->data.begin());
+    *out_coord = removed;
+    return NAVSYS_STATUS_OK;
+}
+
+navsys_status_t coord_list_insert_ex(
+    coord_list_t* list, size_t index, const coord_t* coord) {
+    if (!list || !coord || index > list->data.size()) {
+        return NAVSYS_STATUS_INVALID_ARGUMENT;
+    }
+    const coord_t copied = *coord;
+    try {
+        list->data.insert(
+            list->data.begin() + static_cast<std::ptrdiff_t>(index),
+            copied);
+        return NAVSYS_STATUS_OK;
+    } catch (const std::bad_alloc&) {
+        return NAVSYS_STATUS_OUT_OF_MEMORY;
+    } catch (...) {
+        return NAVSYS_STATUS_CORRUPT_STATE;
+    }
+}
+
+navsys_status_t coord_list_remove_at_ex(
+    coord_list_t* list, size_t index, coord_t* out_removed) {
+    if (!list || !out_removed) return NAVSYS_STATUS_INVALID_ARGUMENT;
+    if (index >= list->data.size()) return NAVSYS_STATUS_NOT_FOUND;
+    const coord_t removed = list->data[index];
+    list->data.erase(
+        list->data.begin() + static_cast<std::ptrdiff_t>(index));
+    *out_removed = removed;
+    return NAVSYS_STATUS_OK;
+}
+
+navsys_status_t coord_list_remove_value_ex(
+    coord_list_t* list, const coord_t* coord, bool* out_removed) {
+    if (!list || !coord || !out_removed) {
+        return NAVSYS_STATUS_INVALID_ARGUMENT;
+    }
+    const coord_t copied = *coord;
+    const auto it = std::find_if(
+        list->data.begin(),
+        list->data.end(),
+        [&](const coord_t& item) {
+            return item.x == copied.x && item.y == copied.y;
+        });
+    if (it == list->data.end()) {
+        *out_removed = false;
+        return NAVSYS_STATUS_OK;
+    }
+    list->data.erase(it);
+    *out_removed = true;
+    return NAVSYS_STATUS_OK;
+}
+
+navsys_status_t coord_list_find_ex(
+    const coord_list_t* list,
+    const coord_t* coord,
+    size_t* out_index,
+    bool* out_found) {
+    if (!list || !coord || !out_index || !out_found) {
+        return NAVSYS_STATUS_INVALID_ARGUMENT;
+    }
+    for (size_t index = 0; index < list->data.size(); ++index) {
+        if (list->data[index].x == coord->x
+            && list->data[index].y == coord->y) {
+            *out_index = index;
+            *out_found = true;
+            return NAVSYS_STATUS_OK;
+        }
+    }
+    *out_found = false;
+    return NAVSYS_STATUS_OK;
+}
 
 coord_list_t* coord_list_create() {
     return new s_coord_list();

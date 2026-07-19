@@ -207,7 +207,7 @@ empty pop은 status 후보를 공통 enum에서 =NOT_FOUND=로 추가할지 =INC
   legacy C consumer를 다시 link하고 실행했으며 Python policy unit gate 39개와
   =git diff --check=가 통과했다.
 
-** TODO 2단계: status mutation과 safe fetch 구현
+** DONE 2단계: status mutation과 safe fetch 구현
 
 *** 실행
 
@@ -223,6 +223,23 @@ empty pop은 status 후보를 공통 enum에서 =NOT_FOUND=로 추가할지 =INC
 
 - failure injection, aliasing, boundary index와 randomized vector reference test를
   static/root 양쪽에서 실행한다.
+
+*** 완료 기록
+
+- 2026-07-19 =create/copy/fetch/front/back/push/insert/pop/remove/find=의
+  canonical status API 13개를 구현했다. 모든 entry point는 invalid/empty/OOM을
+  정상 =(0,0)= 좌표와 구분하고, C++ exception을
+  =OUT_OF_MEMORY/CORRUPT_STATE=로 변환하며 실패 시 list와 out parameter를
+  보존한다.
+- alias 입력, empty/boundary/output 보존과 128-step randomized vector reference를
+  MSVC/MinGW static =test_coord=에서 통과했다. coord_list mutation/copy OOM 주입은
+  MinGW에서 통과했으며 MSVC 전역 =operator new= fixture는 STL iterator-proxy와
+  양립하지 않아 기존 navgrid fixture를 보존하고 Linux CI에서 교차 검증한다.
+- canonical 선언의 ABI audit 신규 오류는 0건이고 남은 20건은 3단계 대상인 legacy
+  선언의 Doxygen baseline이다. 생성물 =--check=, Python policy unit 39개,
+  MSVC/MinGW DLL wrapper 각 82개가 통과했다.
+- 현재 revision의 root shared DLL/import library와 평탄화 설치 헤더를 사용한
+  MSVC/MinGW C17/C++17 SDK consumer를 clean link하고 실행했다.
 
 ** TODO 3단계: bulk/slice와 legacy forwarding
 

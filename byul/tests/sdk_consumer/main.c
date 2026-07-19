@@ -328,6 +328,55 @@ int main(void) {
     coord_list_destroy(legacy_slice);
     coord_list_destroy(legacy_coords);
 
+    coord_list_t* checked_coords = NULL;
+    coord_t checked_output = {91, 92};
+    if (coord_list_create_ex(&checked_coords) != NAVSYS_STATUS_OK
+        || checked_coords == NULL
+        || coord_list_try_pop_back(checked_coords, &checked_output)
+            != NAVSYS_STATUS_NOT_FOUND
+        || checked_output.x != 91
+        || checked_output.y != 92
+        || coord_list_push_back_ex(checked_coords, &zero_coord)
+            != NAVSYS_STATUS_OK
+        || coord_list_push_back_ex(checked_coords, &other_coord)
+            != NAVSYS_STATUS_OK
+        || coord_list_fetch(checked_coords, 1, &checked_output)
+            != NAVSYS_STATUS_OK
+        || !coord_equal(&checked_output, &other_coord)) {
+        fprintf(stderr, "unexpected coord list checked mutation ABI\n");
+        coord_list_destroy(checked_coords);
+        return 14;
+    }
+    coord_list_t* checked_copy = NULL;
+    size_t checked_index = 99;
+    bool checked_found = false;
+    bool checked_removed = false;
+    if (coord_list_copy_ex(checked_coords, &checked_copy)
+            != NAVSYS_STATUS_OK
+        || checked_copy == NULL
+        || coord_list_size(checked_copy) != 2
+        || coord_list_find_ex(
+            checked_copy,
+            &zero_coord,
+            &checked_index,
+            &checked_found) != NAVSYS_STATUS_OK
+        || !checked_found
+        || checked_index != 0
+        || coord_list_remove_value_ex(
+            checked_coords,
+            &zero_coord,
+            &checked_removed) != NAVSYS_STATUS_OK
+        || !checked_removed
+        || coord_list_size(checked_coords) != 1
+        || coord_list_size(checked_copy) != 2) {
+        fprintf(stderr, "unexpected coord list checked query ABI\n");
+        coord_list_destroy(checked_copy);
+        coord_list_destroy(checked_coords);
+        return 15;
+    }
+    coord_list_destroy(checked_copy);
+    coord_list_destroy(checked_coords);
+
     if (!route_finder_is_supported(ROUTE_FINDER_ASTAR)
         || !route_finder_is_supported(ROUTE_FINDER_WEIGHTED_ASTAR)
         || route_finder_is_supported(ROUTE_FINDER_BELLMAN_FORD)

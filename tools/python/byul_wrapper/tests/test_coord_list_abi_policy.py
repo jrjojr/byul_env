@@ -53,9 +53,14 @@ class CoordListAbiPolicyTest(unittest.TestCase):
         self.assertEqual(len(declarations), len(actual_functions))
         self.assertEqual(actual_functions, set(manifest["current_functions"]))
         self.assertEqual(actual_types, set(manifest["current_types"]))
+        legacy_functions = {
+            name
+            for name, disposition in manifest["current_functions"].items()
+            if disposition != "add"
+        }
         self.assertEqual(
             manifest["legacy_declaration_count"],
-            len(actual_functions) + len(actual_types),
+            len(legacy_functions) + len(actual_types),
         )
         dispositions = (
             set(manifest["current_functions"].values())
@@ -73,9 +78,11 @@ class CoordListAbiPolicyTest(unittest.TestCase):
             re.findall(r"^\|\s+=([^=]+)=\s+\|", table, re.MULTILINE)
         )
         manifest = load_manifest()
-        manifest_symbols = set(manifest["current_types"]) | set(
-            manifest["current_functions"]
-        )
+        manifest_symbols = set(manifest["current_types"]) | {
+            name
+            for name, disposition in manifest["current_functions"].items()
+            if disposition != "add"
+        }
 
         self.assertEqual(table_symbols, manifest_symbols)
 

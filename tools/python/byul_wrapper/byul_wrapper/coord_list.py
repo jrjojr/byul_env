@@ -10,6 +10,44 @@ ffi.cdef("""
 /* Source: byul/navsys/coord/coord_list.h */
 typedef struct s_coord_list coord_list_t;
 
+ navsys_status_t coord_list_create_ex(coord_list_t** out_list);
+
+ navsys_status_t coord_list_copy_ex(
+    const coord_list_t* source, coord_list_t** out_list);
+
+ size_t coord_list_size(const coord_list_t* list);
+
+ navsys_status_t coord_list_fetch(
+    const coord_list_t* list, size_t index, coord_t* out_coord);
+
+ navsys_status_t coord_list_fetch_front(
+    const coord_list_t* list, coord_t* out_coord);
+
+ navsys_status_t coord_list_fetch_back(
+    const coord_list_t* list, coord_t* out_coord);
+
+ navsys_status_t coord_list_push_back_ex(
+    coord_list_t* list, const coord_t* coord);
+
+ navsys_status_t coord_list_try_pop_back(
+    coord_list_t* list, coord_t* out_coord);
+
+ navsys_status_t coord_list_try_pop_front(
+    coord_list_t* list, coord_t* out_coord);
+
+ navsys_status_t coord_list_insert_ex(
+    coord_list_t* list, size_t index, const coord_t* coord);
+
+ navsys_status_t coord_list_remove_at_ex(
+    coord_list_t* list, size_t index, coord_t* out_removed);
+
+ navsys_status_t coord_list_remove_value_ex(
+    coord_list_t* list, const coord_t* coord, bool* out_removed);
+
+ navsys_status_t coord_list_find_ex(
+    const coord_list_t* list, const coord_t* coord,
+    size_t* out_index, bool* out_found);
+
  coord_list_t* coord_list_create(void);
  void coord_list_destroy(coord_list_t* list);
  coord_list_t* coord_list_copy(const coord_list_t* list);

@@ -5,6 +5,11 @@ extern "C" {
 #include "coord.h"
 }
 
+#include <algorithm>
+#include <cstddef>
+#include <cstdint>
+#include <vector>
+
 TEST_CASE("coord_list") {
     coord_list_t* list = coord_list_create();
     REQUIRE(list != nullptr);
@@ -203,5 +208,172 @@ TEST_CASE("coord_list: legacy boundary characterization") {
     CHECK(coord_list_sublist(list, 0, 3) == nullptr);
 
     coord_list_destroy(full);
+    coord_list_destroy(list);
+}
+
+TEST_CASE("coord_list: checked status preserves outputs and supports aliases") {
+    coord_list_t* const pointer_sentinel =
+        reinterpret_cast<coord_list_t*>(1);
+    coord_list_t* created = pointer_sentinel;
+    CHECK(
+        coord_list_create_ex(nullptr)
+        == NAVSYS_STATUS_INVALID_ARGUMENT);
+    CHECK(created == pointer_sentinel);
+    REQUIRE(coord_list_create_ex(&created) == NAVSYS_STATUS_OK);
+    REQUIRE(created != nullptr);
+
+    coord_t output = {91, 92};
+    CHECK(
+        coord_list_fetch(created, 0, &output)
+        == NAVSYS_STATUS_NOT_FOUND);
+    CHECK(output.x == 91);
+    CHECK(output.y == 92);
+    CHECK(
+        coord_list_try_pop_front(created, &output)
+        == NAVSYS_STATUS_NOT_FOUND);
+    CHECK(output.x == 91);
+    CHECK(output.y == 92);
+    CHECK(
+        coord_list_fetch(nullptr, 0, &output)
+        == NAVSYS_STATUS_INVALID_ARGUMENT);
+    CHECK(output.x == 91);
+    CHECK(output.y == 92);
+
+    coord_t first = {1, 2};
+    coord_t second = {3, 4};
+    REQUIRE(
+        coord_list_push_back_ex(created, &first)
+        == NAVSYS_STATUS_OK);
+    REQUIRE(
+        coord_list_push_back_ex(created, &second)
+        == NAVSYS_STATUS_OK);
+
+    const coord_t* borrowed = coord_list_get(created, 0);
+    REQUIRE(borrowed != nullptr);
+    REQUIRE(
+        coord_list_push_back_ex(created, borrowed)
+        == NAVSYS_STATUS_OK);
+    CHECK(coord_list_size(created) == 3);
+    REQUIRE(
+        coord_list_insert_ex(created, 1, coord_list_get(created, 2))
+        == NAVSYS_STATUS_OK);
+    CHECK(coord_list_size(created) == 4);
+
+    bool removed = false;
+    REQUIRE(
+        coord_list_remove_value_ex(
+            created, coord_list_get(created, 0), &removed)
+        == NAVSYS_STATUS_OK);
+    CHECK(removed);
+    CHECK(coord_list_size(created) == 3);
+
+    size_t found_index = 99;
+    bool found = false;
+    REQUIRE(
+        coord_list_find_ex(
+            created, &first, &found_index, &found)
+        == NAVSYS_STATUS_OK);
+    CHECK(found);
+    CHECK(found_index == 0);
+
+    coord_t missing = {8, 8};
+    found_index = 77;
+    found = true;
+    REQUIRE(
+        coord_list_find_ex(
+            created, &missing, &found_index, &found)
+        == NAVSYS_STATUS_OK);
+    CHECK_FALSE(found);
+    CHECK(found_index == 77);
+
+    coord_list_t* copied = pointer_sentinel;
+    REQUIRE(coord_list_copy_ex(created, &copied) == NAVSYS_STATUS_OK);
+    REQUIRE(copied != nullptr);
+    CHECK(copied != created);
+    CHECK(coord_list_size(copied) == coord_list_size(created));
+
+    coord_t removed_coord = {0, 0};
+    REQUIRE(
+        coord_list_remove_at_ex(created, 0, &removed_coord)
+        == NAVSYS_STATUS_OK);
+    CHECK(coord_equal(&removed_coord, &first));
+    CHECK(coord_list_size(created) + 1 == coord_list_size(copied));
+
+    coord_list_destroy(copied);
+    coord_list_destroy(created);
+}
+
+TEST_CASE("coord_list: checked mutations match deterministic vector reference") {
+    coord_list_t* list = nullptr;
+    REQUIRE(coord_list_create_ex(&list) == NAVSYS_STATUS_OK);
+    std::vector<coord_t> reference;
+    std::uint32_t state = UINT32_C(0x5a17c9e3);
+
+    for (size_t step = 0; step < 128; ++step) {
+        state = state * UINT32_C(1664525) + UINT32_C(1013904223);
+        const unsigned operation = state % 5U;
+        coord_t value = {
+            static_cast<int>(state & UINT32_C(0x7fff)),
+            static_cast<int>((state >> 16) & UINT32_C(0x7fff)),
+        };
+
+        if (operation == 0 || reference.empty()) {
+            REQUIRE(
+                coord_list_push_back_ex(list, &value)
+                == NAVSYS_STATUS_OK);
+            reference.push_back(value);
+        } else if (operation == 1) {
+            const size_t index = state % (reference.size() + 1);
+            REQUIRE(
+                coord_list_insert_ex(list, index, &value)
+                == NAVSYS_STATUS_OK);
+            reference.insert(
+                reference.begin() + static_cast<std::ptrdiff_t>(index),
+                value);
+        } else if (operation == 2) {
+            coord_t actual = {-1, -1};
+            REQUIRE(
+                coord_list_try_pop_back(list, &actual)
+                == NAVSYS_STATUS_OK);
+            CHECK(coord_equal(&actual, &reference.back()));
+            reference.pop_back();
+        } else if (operation == 3) {
+            const size_t index = state % reference.size();
+            coord_t actual = {-1, -1};
+            REQUIRE(
+                coord_list_remove_at_ex(list, index, &actual)
+                == NAVSYS_STATUS_OK);
+            CHECK(coord_equal(&actual, &reference[index]));
+            reference.erase(
+                reference.begin() + static_cast<std::ptrdiff_t>(index));
+        } else {
+            const size_t index = state % reference.size();
+            const coord_t target = reference[index];
+            bool actual_removed = false;
+            REQUIRE(
+                coord_list_remove_value_ex(
+                    list, &target, &actual_removed)
+                == NAVSYS_STATUS_OK);
+            CHECK(actual_removed);
+            const auto expected = std::find_if(
+                reference.begin(),
+                reference.end(),
+                [&](const coord_t& item) {
+                    return item.x == target.x && item.y == target.y;
+                });
+            REQUIRE(expected != reference.end());
+            reference.erase(expected);
+        }
+
+        REQUIRE(coord_list_size(list) == reference.size());
+        for (size_t index = 0; index < reference.size(); ++index) {
+            coord_t actual = {-1, -1};
+            REQUIRE(
+                coord_list_fetch(list, index, &actual)
+                == NAVSYS_STATUS_OK);
+            CHECK(coord_equal(&actual, &reference[index]));
+        }
+    }
+
     coord_list_destroy(list);
 }
