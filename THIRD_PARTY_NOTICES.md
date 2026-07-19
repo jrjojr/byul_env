@@ -28,4 +28,11 @@ Notes:
 
 ## Components
 
-None listed.
+Name: Simple DirectMedia Layer (SDL)
+Source: https://github.com/libsdl-org/SDL
+Version or commit: release-3.2.18 / 68bfcb6c5419f51104e74e72ea0f8d405a4615b0
+License: zlib License
+Purpose: Cross-platform window, input, and OpenGL context support for GPU Compute Tester
+Files or directories: external/SDL3-3.2.18/source
+Notes: Git submodule pinned to the official SDL release tag. Existing MSVC and
+MinGW development packages remain under external/SDL3-3.2.18.

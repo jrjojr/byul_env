@@ -71,14 +71,29 @@ else()
 endif()
 
 # ----------------------------------------
-# 🧭 SDL2 / SDL3 자동 분기 (Linux vs Windows)
+# 🧭 SDL3 platform package selection
 # ----------------------------------------
 if (CMAKE_SYSTEM_NAME STREQUAL "Linux")
-    # Linux에서는 SDL2 사용
-    find_package(SDL2 REQUIRED)
-    target_include_directories(${PROJECT_NAME} PRIVATE ${SDL2_INCLUDE_DIRS})
-    target_link_libraries(${PROJECT_NAME} PRIVATE ${SDL2_LIBRARIES})
-    message(STATUS "🐧 Using SDL2 on Linux: ${SDL2_LIBRARIES}")
+    # Linux는 저장소가 pin한 platform-neutral SDL3 source를 직접 build한다.
+    set(SDL3_SOURCE_DIR "${EXTERNAL_DIR}/SDL3-3.2.18/source")
+    if(NOT EXISTS "${SDL3_SOURCE_DIR}/CMakeLists.txt")
+        message(FATAL_ERROR
+            "Vendored SDL3 source is missing. Run: "
+            "git submodule update --init external/SDL3-3.2.18/source"
+        )
+    endif()
+
+    set(SDL_TESTS OFF CACHE BOOL "Build SDL tests" FORCE)
+    set(SDL_EXAMPLES OFF CACHE BOOL "Build SDL examples" FORCE)
+    add_subdirectory(
+        "${SDL3_SOURCE_DIR}"
+        "${CMAKE_BINARY_DIR}/external/SDL3"
+        EXCLUDE_FROM_ALL
+    )
+
+    target_compile_definitions(${PROJECT_NAME} PRIVATE USE_SDL3=1)
+    target_link_libraries(${PROJECT_NAME} PRIVATE SDL3::SDL3)
+    message(STATUS "🐧 Using vendored SDL3 source: ${SDL3_SOURCE_DIR}")
 
 elseif (CMAKE_SYSTEM_NAME STREQUAL "Windows")
     set(USE_SDL3 ON)  # Windows에서는 SDL3 사용

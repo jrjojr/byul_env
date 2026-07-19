@@ -28,6 +28,11 @@ jobs:
       - name: Check out repository
         uses: actions/checkout@v4
 
+      - name: Check out vendored SDL3 source
+        run: >-
+          git submodule update --init --depth 1
+          external/SDL3-3.2.18/source
+
       - name: Configure Linux Debug with UBSan
         working-directory: byul
         env:
