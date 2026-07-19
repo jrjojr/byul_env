@@ -484,6 +484,35 @@ int main(void) {
         cost_coord_pq_destroy(checked_pq);
         return 20;
     }
+    bool pq_removed = false;
+    size_t pq_removed_count = 99;
+    if (cost_coord_pq_size(checked_pq) != 1
+        || cost_coord_pq_empty(checked_pq)
+        || cost_coord_pq_remove_one(
+            checked_pq, 2.0f, &pq_second, &pq_removed)
+            != NAVSYS_STATUS_OK
+        || !pq_removed
+        || !cost_coord_pq_empty(checked_pq)
+        || cost_coord_pq_push_ex(checked_pq, 1.0f, &pq_first)
+            != NAVSYS_STATUS_OK
+        || cost_coord_pq_push_ex(checked_pq, 3.0f, &pq_first)
+            != NAVSYS_STATUS_OK
+        || cost_coord_pq_push_ex(checked_pq, 5.0f, &pq_second)
+            != NAVSYS_STATUS_OK
+        || cost_coord_pq_remove_all(
+            checked_pq, &pq_first, &pq_removed_count)
+            != NAVSYS_STATUS_OK
+        || pq_removed_count != 2
+        || cost_coord_pq_trim_to_size(
+            checked_pq, 0, &pq_removed_count)
+            != NAVSYS_STATUS_OK
+        || pq_removed_count != 1
+        || !cost_coord_pq_empty(checked_pq)) {
+        fprintf(stderr, "unexpected checked cost coord pq collection ABI\n");
+        cost_coord_pq_destroy(checked_pq);
+        return 21;
+    }
+    cost_coord_pq_clear(checked_pq);
     cost_coord_pq_destroy(checked_pq);
 
     if (!route_finder_is_supported(ROUTE_FINDER_ASTAR)

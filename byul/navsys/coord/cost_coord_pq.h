@@ -149,11 +149,119 @@ BYUL_API navsys_status_t cost_coord_pq_pop_min(
     float* out_cost,
     coord_t* out_coord);
 
+/**
+ * @brief Queue element 수를 O(1)로 반환한다.
+ * @param[in] queue 조회할 queue 또는 NULL이다.
+ * @return element 수이며 NULL이면 0이다.
+ * @byul.nullable queue true
+ * @byul.side_effect none
+ * @byul.thread_safety external-synchronization
+ * @byul.blocking false
+ */
+BYUL_API size_t cost_coord_pq_size(const cost_coord_pq_t* queue);
+
+/**
+ * @brief Queue가 NULL이거나 비었는지 반환한다.
+ * @param[in] queue 조회할 queue 또는 NULL이다.
+ * @return 비었으면 true다.
+ * @byul.nullable queue true
+ * @byul.side_effect none
+ * @byul.thread_safety external-synchronization
+ * @byul.blocking false
+ */
+BYUL_API bool cost_coord_pq_empty(const cost_coord_pq_t* queue);
+
+/**
+ * @brief Exact canonical cost에서 FIFO 첫 coordinate 일치 하나를 제거한다.
+ *
+ * 찾지 못한 것은 성공이며 out_removed에 false를 기록한다. 실패하면 queue와 출력을
+ * 보존한다.
+ *
+ * @param[in,out] queue 변경할 queue다.
+ * @param[in] cost finite non-negative exact cost다.
+ * @param[in] coord 찾을 coordinate다.
+ * @param[out] out_removed 제거 여부를 받는다.
+ * @return Common Navsys status value다.
+ * @retval NAVSYS_STATUS_OK 검색과 선택적 제거를 완료했다.
+ * @retval NAVSYS_STATUS_INVALID_ARGUMENT pointer 또는 cost가 유효하지 않다.
+ * @byul.nullable queue false
+ * @byul.nullable coord false
+ * @byul.nullable out_removed false
+ * @byul.error enum:navsys_status_t
+ * @byul.side_effect mutates:queue-when-found
+ * @byul.thread_safety external-synchronization
+ * @byul.blocking false
+ */
+BYUL_API navsys_status_t cost_coord_pq_remove_one(
+    cost_coord_pq_t* queue,
+    float cost,
+    const coord_t* coord,
+    bool* out_removed);
+
+/**
+ * @brief 모든 cost bucket에서 coordinate 일치를 제거한다.
+ *
+ * 실패하면 queue와 출력을 보존한다.
+ *
+ * @param[in,out] queue 변경할 queue다.
+ * @param[in] coord 찾을 coordinate다.
+ * @param[out] out_removed_count 제거한 수를 받는다.
+ * @return Common Navsys status value다.
+ * @retval NAVSYS_STATUS_OK 검색과 제거를 완료했다.
+ * @retval NAVSYS_STATUS_INVALID_ARGUMENT required pointer가 NULL이다.
+ * @byul.nullable queue false
+ * @byul.nullable coord false
+ * @byul.nullable out_removed_count false
+ * @byul.error enum:navsys_status_t
+ * @byul.side_effect mutates:queue-when-found
+ * @byul.thread_safety external-synchronization
+ * @byul.blocking false
+ */
+BYUL_API navsys_status_t cost_coord_pq_remove_all(
+    cost_coord_pq_t* queue,
+    const coord_t* coord,
+    size_t* out_removed_count);
+
+/**
+ * @brief 모든 항목을 제거한다.
+ * @param[in,out] queue 변경할 queue 또는 NULL이다.
+ * @byul.nullable queue true
+ * @byul.side_effect mutates:queue
+ * @byul.thread_safety external-synchronization
+ * @byul.blocking false
+ */
+BYUL_API void cost_coord_pq_clear(cost_coord_pq_t* queue);
+
+/**
+ * @brief 큰 cost부터 제거해 queue 크기를 max_size 이하로 만든다.
+ *
+ * 같은 cost에서는 최신 항목부터 제거해 남은 canonical FIFO 순서를 보존한다.
+ * 실패하면 queue와 출력을 보존한다.
+ *
+ * @param[in,out] queue 변경할 queue다.
+ * @param[in] max_size 유지할 최대 element 수다.
+ * @param[out] out_removed_count 제거한 수를 받는다.
+ * @return Common Navsys status value다.
+ * @retval NAVSYS_STATUS_OK trim을 완료했다.
+ * @retval NAVSYS_STATUS_INVALID_ARGUMENT required pointer가 NULL이다.
+ * @byul.nullable queue false
+ * @byul.nullable out_removed_count false
+ * @byul.error enum:navsys_status_t
+ * @byul.side_effect mutates:queue-when-oversize
+ * @byul.thread_safety external-synchronization
+ * @byul.blocking false
+ */
+BYUL_API navsys_status_t cost_coord_pq_trim_to_size(
+    cost_coord_pq_t* queue,
+    size_t max_size,
+    size_t* out_removed_count);
+
 /** @brief Legacy 기본 queue 생성 adapter다.
  * @return 새 caller-owned queue 또는 allocation 실패 시 NULL이다.
  * @byul.nullable return true
  * @byul.lifetime return caller-owned
  */
+BYUL_DEPRECATED("Use cost_coord_pq_create_ex; removal is planned for ABI 2.")
 BYUL_API cost_coord_pq_t* cost_coord_pq_create(void);
 
 /** @brief Queue와 남은 항목을 파괴한다.
@@ -170,6 +278,7 @@ BYUL_API void cost_coord_pq_destroy(cost_coord_pq_t* pq);
  * @byul.nullable pq false
  * @byul.nullable c false
  */
+BYUL_DEPRECATED("Use cost_coord_pq_push_ex; removal is planned for ABI 2.")
 BYUL_API void cost_coord_pq_push(
     cost_coord_pq_t* pq, float cost, const coord_t* c);
 
@@ -180,6 +289,7 @@ BYUL_API void cost_coord_pq_push(
  * @byul.nullable return true
  * @byul.lifetime return borrowed:pq
  */
+BYUL_DEPRECATED("Use cost_coord_pq_peek_min; removal is planned for ABI 2.")
 BYUL_API coord_t* cost_coord_pq_peek(cost_coord_pq_t* pq);
 
 /** @brief Legacy LIFO 최소 항목을 제거해 owned pointer로 반환한다.
@@ -189,6 +299,7 @@ BYUL_API coord_t* cost_coord_pq_peek(cost_coord_pq_t* pq);
  * @byul.nullable return true
  * @byul.lifetime return caller-owned
  */
+BYUL_DEPRECATED("Use cost_coord_pq_pop_min; removal is planned for ABI 2.")
 BYUL_API coord_t* cost_coord_pq_pop(cost_coord_pq_t* pq);
 
 /** @brief Legacy 최소 cost를 조회한다.
@@ -196,6 +307,7 @@ BYUL_API coord_t* cost_coord_pq_pop(cost_coord_pq_t* pq);
  * @return 최소 cost이며 NULL/empty이면 0이다.
  * @byul.nullable pq true
  */
+BYUL_DEPRECATED("Use cost_coord_pq_peek_min; removal is planned for ABI 2.")
 BYUL_API float cost_coord_pq_peek_cost(cost_coord_pq_t* pq);
 
 /** @brief Queue가 NULL이거나 비었는지 반환한다.
@@ -223,6 +335,7 @@ BYUL_API bool cost_coord_pq_contains(
  * @byul.nullable pq false
  * @byul.nullable c false
  */
+BYUL_DEPRECATED("Use cost_coord_pq_remove_one or cost_coord_pq_remove_all; removal is planned for ABI 2.")
 BYUL_API bool cost_coord_pq_remove(
     cost_coord_pq_t* pq, float cost, const coord_t* c);
 
@@ -231,6 +344,7 @@ BYUL_API bool cost_coord_pq_remove(
  * @return element 수이며 int 범위를 넘으면 INT_MAX다.
  * @byul.nullable pq true
  */
+BYUL_DEPRECATED("Use cost_coord_pq_size; removal is planned for ABI 2.")
 BYUL_API int cost_coord_pq_length(cost_coord_pq_t* pq);
 
 /** @brief 큰 cost부터 최대 n개를 제거한다.
@@ -238,6 +352,7 @@ BYUL_API int cost_coord_pq_length(cost_coord_pq_t* pq);
  * @param[in] n 제거할 최대 개수이며 0 이하는 no-op이다.
  * @byul.nullable pq true
  */
+BYUL_DEPRECATED("Use cost_coord_pq_trim_to_size; removal is planned for ABI 2.")
 BYUL_API void cost_coord_pq_trim_worst(cost_coord_pq_t* pq, int n);
 
 #ifdef __cplusplus

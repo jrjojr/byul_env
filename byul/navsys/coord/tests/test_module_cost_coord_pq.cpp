@@ -383,3 +383,142 @@ TEST_CASE("cost_coord_pq canonical randomized trace matches stable reference") {
     CHECK(cost_coord_pq_is_empty(queue));
     cost_coord_pq_destroy(queue);
 }
+
+TEST_CASE("cost_coord_pq canonical remove contracts and zero key") {
+    const cost_coord_pq_create_info_t info = {
+        static_cast<uint32_t>(sizeof(cost_coord_pq_create_info_t)),
+        BYUL_COST_COORD_PQ_CREATE_INFO_ABI_VERSION,
+        0
+    };
+    cost_coord_pq_t* queue = nullptr;
+    REQUIRE(cost_coord_pq_create_ex(&info, &queue) == NAVSYS_STATUS_OK);
+    const coord_t same = {5, 8};
+    const coord_t other = {13, 21};
+
+    REQUIRE(cost_coord_pq_push_ex(queue, 0.0f, &same) == NAVSYS_STATUS_OK);
+    REQUIRE(cost_coord_pq_push_ex(queue, -0.0f, &same) == NAVSYS_STATUS_OK);
+    REQUIRE(cost_coord_pq_push_ex(queue, 0.0f, &other) == NAVSYS_STATUS_OK);
+    REQUIRE(cost_coord_pq_push_ex(queue, 2.0f, &same) == NAVSYS_STATUS_OK);
+    CHECK(cost_coord_pq_size(queue) == 4);
+    CHECK(!cost_coord_pq_empty(queue));
+    CHECK(cost_coord_pq_size(nullptr) == 0);
+    CHECK(cost_coord_pq_empty(nullptr));
+
+    bool removed = false;
+    CHECK(cost_coord_pq_remove_one(queue, -0.0f, &same, &removed)
+        == NAVSYS_STATUS_OK);
+    CHECK(removed);
+    CHECK(cost_coord_pq_size(queue) == 3);
+
+    float cost = -1.0f;
+    coord_t output = {-1, -1};
+    CHECK(cost_coord_pq_pop_min(queue, &cost, &output)
+        == NAVSYS_STATUS_OK);
+    CHECK(cost == 0.0f);
+    CHECK(output.x == same.x);
+    CHECK(output.y == same.y);
+
+    size_t removed_count = 99;
+    CHECK(cost_coord_pq_remove_all(queue, &same, &removed_count)
+        == NAVSYS_STATUS_OK);
+    CHECK(removed_count == 1);
+    CHECK(cost_coord_pq_size(queue) == 1);
+    CHECK(cost_coord_pq_remove_all(queue, &same, &removed_count)
+        == NAVSYS_STATUS_OK);
+    CHECK(removed_count == 0);
+
+    removed = true;
+    CHECK(cost_coord_pq_remove_one(queue, -1.0f, &same, &removed)
+        == NAVSYS_STATUS_INVALID_ARGUMENT);
+    CHECK(removed);
+    removed_count = 77;
+    CHECK(cost_coord_pq_remove_all(nullptr, &same, &removed_count)
+        == NAVSYS_STATUS_INVALID_ARGUMENT);
+    CHECK(removed_count == 77);
+    CHECK(cost_coord_pq_remove_all(queue, nullptr, &removed_count)
+        == NAVSYS_STATUS_INVALID_ARGUMENT);
+    CHECK(removed_count == 77);
+
+    cost_coord_pq_clear(queue);
+    CHECK(cost_coord_pq_empty(queue));
+    cost_coord_pq_clear(nullptr);
+    cost_coord_pq_destroy(queue);
+}
+
+TEST_CASE("cost_coord_pq canonical trim preserves FIFO among equal costs") {
+    const cost_coord_pq_create_info_t info = {
+        static_cast<uint32_t>(sizeof(cost_coord_pq_create_info_t)),
+        BYUL_COST_COORD_PQ_CREATE_INFO_ABI_VERSION,
+        0
+    };
+    cost_coord_pq_t* queue = nullptr;
+    REQUIRE(cost_coord_pq_create_ex(&info, &queue) == NAVSYS_STATUS_OK);
+    const coord_t low = {1, 0};
+    const coord_t high_first = {2, 0};
+    const coord_t high_second = {3, 0};
+    REQUIRE(cost_coord_pq_push_ex(queue, 1.0f, &low) == NAVSYS_STATUS_OK);
+    REQUIRE(cost_coord_pq_push_ex(queue, 9.0f, &high_first)
+        == NAVSYS_STATUS_OK);
+    REQUIRE(cost_coord_pq_push_ex(queue, 9.0f, &high_second)
+        == NAVSYS_STATUS_OK);
+
+    size_t removed = 99;
+    CHECK(cost_coord_pq_trim_to_size(queue, 3, &removed)
+        == NAVSYS_STATUS_OK);
+    CHECK(removed == 0);
+    CHECK(cost_coord_pq_trim_to_size(queue, 2, &removed)
+        == NAVSYS_STATUS_OK);
+    CHECK(removed == 1);
+    CHECK(cost_coord_pq_size(queue) == 2);
+
+    float cost = -1.0f;
+    coord_t output = {-1, -1};
+    CHECK(cost_coord_pq_pop_min(queue, &cost, &output)
+        == NAVSYS_STATUS_OK);
+    CHECK(output.x == low.x);
+    CHECK(cost_coord_pq_pop_min(queue, &cost, &output)
+        == NAVSYS_STATUS_OK);
+    CHECK(output.x == high_first.x);
+
+    removed = 41;
+    CHECK(cost_coord_pq_trim_to_size(queue, 0, &removed)
+        == NAVSYS_STATUS_OK);
+    CHECK(removed == 0);
+    CHECK(cost_coord_pq_trim_to_size(nullptr, 0, &removed)
+        == NAVSYS_STATUS_INVALID_ARGUMENT);
+    CHECK(removed == 0);
+    CHECK(cost_coord_pq_trim_to_size(queue, 0, nullptr)
+        == NAVSYS_STATUS_INVALID_ARGUMENT);
+
+    cost_coord_pq_destroy(queue);
+}
+
+TEST_CASE("cost_coord_pq canonical large size and oversize trim") {
+    const cost_coord_pq_create_info_t info = {
+        static_cast<uint32_t>(sizeof(cost_coord_pq_create_info_t)),
+        BYUL_COST_COORD_PQ_CREATE_INFO_ABI_VERSION,
+        0
+    };
+    cost_coord_pq_t* queue = nullptr;
+    REQUIRE(cost_coord_pq_create_ex(&info, &queue) == NAVSYS_STATUS_OK);
+    constexpr size_t count = 4096;
+    for (size_t index = 0; index < count; ++index) {
+        const coord_t coord = {
+            static_cast<int>(index),
+            -static_cast<int>(index)
+        };
+        REQUIRE(cost_coord_pq_push_ex(
+            queue, static_cast<float>(index % 17), &coord)
+            == NAVSYS_STATUS_OK);
+    }
+    CHECK(cost_coord_pq_size(queue) == count);
+    size_t removed = 99;
+    CHECK(cost_coord_pq_trim_to_size(queue, count + 1, &removed)
+        == NAVSYS_STATUS_OK);
+    CHECK(removed == 0);
+    CHECK(cost_coord_pq_trim_to_size(queue, 17, &removed)
+        == NAVSYS_STATUS_OK);
+    CHECK(removed == count - 17);
+    CHECK(cost_coord_pq_size(queue) == 17);
+    cost_coord_pq_destroy(queue);
+}

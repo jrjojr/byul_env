@@ -159,6 +159,21 @@ int main() {
     assert(popped_cost == 1.0f);
     assert(popped_coord.x == first.x);
     assert(popped_coord.y == first.y);
+    assert(cost_coord_pq_size(queue) == 1);
+    bool removed = false;
+    assert(
+        cost_coord_pq_remove_one(queue, 1.0f, &second, &removed)
+        == NAVSYS_STATUS_OK);
+    assert(removed);
+    assert(cost_coord_pq_empty(queue));
+    assert(cost_coord_pq_push_ex(queue, 3.0f, &first) == NAVSYS_STATUS_OK);
+    assert(cost_coord_pq_push_ex(queue, 4.0f, &first) == NAVSYS_STATUS_OK);
+    std::size_t removed_count = 0;
+    assert(
+        cost_coord_pq_remove_all(queue, &first, &removed_count)
+        == NAVSYS_STATUS_OK);
+    assert(removed_count == 2);
+    cost_coord_pq_clear(queue);
     cost_coord_pq_destroy(queue);
     return 0;
 }

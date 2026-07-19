@@ -34,6 +34,28 @@ typedef struct s_cost_coord_pq_create_info {
     float* out_cost,
     coord_t* out_coord);
 
+ size_t cost_coord_pq_size(const cost_coord_pq_t* queue);
+
+ bool cost_coord_pq_empty(const cost_coord_pq_t* queue);
+
+ navsys_status_t cost_coord_pq_remove_one(
+    cost_coord_pq_t* queue,
+    float cost,
+    const coord_t* coord,
+    bool* out_removed);
+
+ navsys_status_t cost_coord_pq_remove_all(
+    cost_coord_pq_t* queue,
+    const coord_t* coord,
+    size_t* out_removed_count);
+
+ void cost_coord_pq_clear(cost_coord_pq_t* queue);
+
+ navsys_status_t cost_coord_pq_trim_to_size(
+    cost_coord_pq_t* queue,
+    size_t max_size,
+    size_t* out_removed_count);
+
  cost_coord_pq_t* cost_coord_pq_create(void);
 
  void cost_coord_pq_destroy(cost_coord_pq_t* pq);

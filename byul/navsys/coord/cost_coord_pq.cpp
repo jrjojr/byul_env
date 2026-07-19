@@ -114,6 +114,23 @@ auto first_nonempty_bucket(const cost_coord_pq_t* queue) {
     return it;
 }
 
+std::size_t remove_matching_from_bucket(
+    std::deque<cost_coord_entry>& bucket,
+    const coord_t& coord,
+    bool one_only) noexcept {
+    std::size_t removed = 0;
+    for (auto entry = bucket.begin(); entry != bucket.end();) {
+        if (coord_equal(&entry->coord, &coord)) {
+            entry = bucket.erase(entry);
+            ++removed;
+            if (one_only) break;
+        } else {
+            ++entry;
+        }
+    }
+    return removed;
+}
+
 }  // namespace
 
 navsys_status_t cost_coord_pq_create_ex(
@@ -178,6 +195,85 @@ navsys_status_t cost_coord_pq_pop_min(
     return NAVSYS_STATUS_OK;
 }
 
+size_t cost_coord_pq_size(const cost_coord_pq_t* queue) {
+    return queue ? queue->size : 0;
+}
+
+bool cost_coord_pq_empty(const cost_coord_pq_t* queue) {
+    return !queue || queue->size == 0;
+}
+
+navsys_status_t cost_coord_pq_remove_one(
+    cost_coord_pq_t* queue,
+    float cost,
+    const coord_t* coord,
+    bool* out_removed) {
+    if (!queue || !coord || !out_removed || !canonical_cost_valid(cost)) {
+        return NAVSYS_STATUS_INVALID_ARGUMENT;
+    }
+    const coord_t copied = *coord;
+    const auto bucket = queue->buckets.find(canonical_cost(cost));
+    if (bucket == queue->buckets.end()) {
+        *out_removed = false;
+        return NAVSYS_STATUS_OK;
+    }
+    const std::size_t removed =
+        remove_matching_from_bucket(bucket->second, copied, true);
+    queue->size -= removed;
+    if (bucket->second.empty()) queue->buckets.erase(bucket);
+    *out_removed = removed != 0;
+    return NAVSYS_STATUS_OK;
+}
+
+navsys_status_t cost_coord_pq_remove_all(
+    cost_coord_pq_t* queue,
+    const coord_t* coord,
+    size_t* out_removed_count) {
+    if (!queue || !coord || !out_removed_count) {
+        return NAVSYS_STATUS_INVALID_ARGUMENT;
+    }
+    const coord_t copied = *coord;
+    std::size_t removed = 0;
+    for (auto bucket = queue->buckets.begin();
+         bucket != queue->buckets.end();) {
+        removed += remove_matching_from_bucket(
+            bucket->second, copied, false);
+        if (bucket->second.empty()) {
+            bucket = queue->buckets.erase(bucket);
+        } else {
+            ++bucket;
+        }
+    }
+    queue->size -= removed;
+    *out_removed_count = removed;
+    return NAVSYS_STATUS_OK;
+}
+
+void cost_coord_pq_clear(cost_coord_pq_t* queue) {
+    if (!queue) return;
+    queue->buckets.clear();
+    queue->next_sequence = 0;
+    queue->size = 0;
+}
+
+navsys_status_t cost_coord_pq_trim_to_size(
+    cost_coord_pq_t* queue,
+    size_t max_size,
+    size_t* out_removed_count) {
+    if (!queue || !out_removed_count) {
+        return NAVSYS_STATUS_INVALID_ARGUMENT;
+    }
+    const std::size_t original_size = queue->size;
+    while (queue->size > max_size) {
+        auto bucket = std::prev(queue->buckets.end());
+        bucket->second.pop_back();
+        --queue->size;
+        if (bucket->second.empty()) queue->buckets.erase(bucket);
+    }
+    *out_removed_count = original_size - queue->size;
+    return NAVSYS_STATUS_OK;
+}
+
 cost_coord_pq_t* cost_coord_pq_create(void) {
     const cost_coord_pq_create_info_t info = {
         (uint32_t)sizeof(cost_coord_pq_create_info_t),
@@ -234,7 +330,7 @@ float cost_coord_pq_peek_cost(cost_coord_pq_t* pq) {
 }
 
 bool cost_coord_pq_is_empty(cost_coord_pq_t* pq) {
-    return !pq || pq->size == 0;
+    return cost_coord_pq_empty(pq);
 }
 
 bool cost_coord_pq_contains(cost_coord_pq_t* pq, const coord_t* c) {
@@ -252,41 +348,28 @@ bool cost_coord_pq_remove(
     if (!pq || !c) return false;
     const auto it = pq->buckets.find(canonical_cost(cost));
     if (it == pq->buckets.end()) return false;
-    bool removed = false;
-    auto& bucket = it->second;
-    for (auto entry = bucket.begin(); entry != bucket.end();) {
-        if (coord_equal(&entry->coord, c)) {
-            entry = bucket.erase(entry);
-            --pq->size;
-            removed = true;
-        } else {
-            ++entry;
-        }
-    }
-    if (bucket.empty()) pq->buckets.erase(it);
-    return removed;
+    const std::size_t removed =
+        remove_matching_from_bucket(it->second, *c, false);
+    pq->size -= removed;
+    if (it->second.empty()) pq->buckets.erase(it);
+    return removed != 0;
 }
 
 int cost_coord_pq_length(cost_coord_pq_t* pq) {
-    if (!pq) return 0;
+    const std::size_t size = cost_coord_pq_size(pq);
     const auto maximum = static_cast<std::size_t>(
         std::numeric_limits<int>::max());
-    return pq->size > maximum
+    return size > maximum
         ? std::numeric_limits<int>::max()
-        : static_cast<int>(pq->size);
+        : static_cast<int>(size);
 }
 
 void cost_coord_pq_trim_worst(cost_coord_pq_t* pq, int n) {
     if (!pq || n <= 0) return;
-    std::size_t remaining = static_cast<std::size_t>(n);
-    while (remaining > 0 && !pq->buckets.empty()) {
-        auto it = std::prev(pq->buckets.end());
-        auto& bucket = it->second;
-        while (remaining > 0 && !bucket.empty()) {
-            bucket.pop_back();
-            --pq->size;
-            --remaining;
-        }
-        if (bucket.empty()) pq->buckets.erase(it);
-    }
+    const std::size_t remove_count = static_cast<std::size_t>(n);
+    const std::size_t max_size = pq->size > remove_count
+        ? pq->size - remove_count
+        : 0;
+    std::size_t removed = 0;
+    (void)cost_coord_pq_trim_to_size(pq, max_size, &removed);
 }
