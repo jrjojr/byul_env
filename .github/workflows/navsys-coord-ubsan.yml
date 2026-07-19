@@ -47,7 +47,9 @@ jobs:
           LDFLAGS: >-
             -fsanitize=undefined
             -fno-sanitize-recover=undefined
-        run: cmake --preset linux-debug
+        run: >-
+          cmake --preset linux-debug
+          -DSDL_UNIX_CONSOLE_BUILD=ON
 
       - name: Build coord module and root shared tests
         working-directory: byul
