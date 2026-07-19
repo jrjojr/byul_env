@@ -381,15 +381,9 @@ function(byul_add_gpu_zip_target target_name app_version app_root repository_roo
                 "${GPU_OUTPUT}/"
         )
 
-        if(MSVC)
-            set(SDL3_PACKAGE_LICENSE
-                "${repository_root}/external/SDL3-3.2.18/msvc/LICENSE.txt"
-            )
-        else()
-            set(SDL3_PACKAGE_LICENSE
-                "${repository_root}/external/SDL3-3.2.18/mingw/LICENSE.txt"
-            )
-        endif()
+        set(SDL3_PACKAGE_LICENSE
+            "${repository_root}/external/SDL3-3.2.18/source/LICENSE.txt"
+        )
 
         list(APPEND GPU_STAGE_COMMANDS
             COMMAND ${CMAKE_COMMAND} -E copy_if_different

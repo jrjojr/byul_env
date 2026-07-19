@@ -23,10 +23,62 @@ set(${PROJECT_NAME}_SOURCES
     ${CMAKE_CURRENT_SOURCE_DIR}/main.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/gpu.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/gpu_compute.cpp
-    ${EXTERNAL_DIR}/glad/src/gl.c
 
 CACHE INTERNAL "${PROJECT_NAME} source files"  FORCE
 )
+
+# Generate the platform-neutral OpenGL loader from the pinned glad revision
+# only when the GPU tool is actually built.
+set(GLAD_SOURCE_DIR "${EXTERNAL_DIR}/glad-2.0.8")
+if(NOT EXISTS "${GLAD_SOURCE_DIR}/glad/__main__.py")
+    message(FATAL_ERROR
+        "Vendored glad source is missing. Run: "
+        "git submodule update --init external/glad-2.0.8"
+    )
+endif()
+
+find_package(Python COMPONENTS Interpreter QUIET)
+if(Python_Interpreter_FOUND)
+    set(GLAD_PYTHON_COMMAND "${Python_EXECUTABLE}")
+elseif(WIN32)
+    set(GLAD_PYTHON_COMMAND py -3)
+else()
+    set(GLAD_PYTHON_COMMAND python3)
+endif()
+
+set(GLAD_GENERATED_DIR "${CMAKE_BINARY_DIR}/external/glad/generated")
+set(GLAD_GENERATED_SOURCE "${GLAD_GENERATED_DIR}/src/gl.c")
+set(GLAD_GENERATED_HEADER "${GLAD_GENERATED_DIR}/include/glad/gl.h")
+set(GLAD_KHR_HEADER "${GLAD_GENERATED_DIR}/include/KHR/khrplatform.h")
+
+add_custom_command(
+    OUTPUT
+        "${GLAD_GENERATED_SOURCE}"
+        "${GLAD_GENERATED_HEADER}"
+        "${GLAD_KHR_HEADER}"
+    COMMAND ${GLAD_PYTHON_COMMAND} -m glad
+        --out-path "${GLAD_GENERATED_DIR}"
+        --api gl:core=4.6
+        --reproducible
+        c
+    WORKING_DIRECTORY "${GLAD_SOURCE_DIR}"
+    DEPENDS
+        "${GLAD_SOURCE_DIR}/glad/__main__.py"
+        "${GLAD_SOURCE_DIR}/glad/files/gl.xml"
+        "${GLAD_SOURCE_DIR}/glad/files/khrplatform.h"
+    COMMENT "Generating reproducible OpenGL 4.6 loader with glad 2.0.8"
+    VERBATIM
+)
+
+add_library(byul_glad STATIC
+    "${GLAD_GENERATED_SOURCE}"
+    "${GLAD_GENERATED_HEADER}"
+    "${GLAD_KHR_HEADER}"
+)
+target_include_directories(byul_glad PUBLIC
+    "${GLAD_GENERATED_DIR}/include"
+)
+target_link_libraries(byul_glad PUBLIC ${CMAKE_DL_LIBS})
 
 # ----------------------------------------
 # 🔧 바이너리 생성
@@ -71,76 +123,34 @@ else()
 endif()
 
 # ----------------------------------------
-# 🧭 SDL3 platform package selection
+# 🧭 SDL3 source dependency shared by every platform
 # ----------------------------------------
-if (CMAKE_SYSTEM_NAME STREQUAL "Linux")
-    # Linux는 저장소가 pin한 platform-neutral SDL3 source를 직접 build한다.
-    set(SDL3_SOURCE_DIR "${EXTERNAL_DIR}/SDL3-3.2.18/source")
-    if(NOT EXISTS "${SDL3_SOURCE_DIR}/CMakeLists.txt")
-        message(FATAL_ERROR
-            "Vendored SDL3 source is missing. Run: "
-            "git submodule update --init external/SDL3-3.2.18/source"
-        )
-    endif()
-
-    set(SDL_TESTS OFF CACHE BOOL "Build SDL tests" FORCE)
-    set(SDL_EXAMPLES OFF CACHE BOOL "Build SDL examples" FORCE)
-    add_subdirectory(
-        "${SDL3_SOURCE_DIR}"
-        "${CMAKE_BINARY_DIR}/external/SDL3"
-        EXCLUDE_FROM_ALL
+set(SDL3_SOURCE_DIR "${EXTERNAL_DIR}/SDL3-3.2.18/source")
+if(NOT EXISTS "${SDL3_SOURCE_DIR}/CMakeLists.txt")
+    message(FATAL_ERROR
+        "Vendored SDL3 source is missing. Run: "
+        "git submodule update --init external/SDL3-3.2.18/source"
     )
+endif()
 
-    target_compile_definitions(${PROJECT_NAME} PRIVATE USE_SDL3=1)
-    target_link_libraries(${PROJECT_NAME} PRIVATE SDL3::SDL3)
-    message(STATUS "🐧 Using vendored SDL3 source: ${SDL3_SOURCE_DIR}")
+set(SDL_TESTS OFF CACHE BOOL "Build SDL tests" FORCE)
+set(SDL_EXAMPLES OFF CACHE BOOL "Build SDL examples" FORCE)
+add_subdirectory(
+    "${SDL3_SOURCE_DIR}"
+    "${CMAKE_BINARY_DIR}/external/SDL3"
+    EXCLUDE_FROM_ALL
+)
 
-elseif (CMAKE_SYSTEM_NAME STREQUAL "Windows")
-    set(USE_SDL3 ON)  # Windows에서는 SDL3 사용
+target_compile_definitions(${PROJECT_NAME} PRIVATE USE_SDL3=1)
+target_link_libraries(${PROJECT_NAME} PRIVATE SDL3::SDL3)
+message(STATUS "Using vendored SDL3 source: ${SDL3_SOURCE_DIR}")
 
-    if (MSVC)
-        # -----------------------------
-        # MSVC 전용 SDL3 설정
-        # -----------------------------
-        set(SDL3_DIR "${EXTERNAL_DIR}/SDL3-3.2.18/msvc/cmake")
-        find_package(SDL3 CONFIG REQUIRED)
-
-        target_compile_definitions(${PROJECT_NAME} PRIVATE USE_SDL3=1)
-        target_link_libraries(${PROJECT_NAME} PRIVATE SDL3::SDL3)
-
-        # 실행 시 필요한 DLL 복사
-        set(SDL3_DLL ${EXTERNAL_DIR}/SDL3-3.2.18/msvc/lib/x64/SDL3.dll)
-        set(SDL3_LICENSE ${EXTERNAL_DIR}/SDL3-3.2.18/msvc/LICENSE.txt)
-        add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
-            COMMAND ${CMAKE_COMMAND} -E copy_if_different
-                "${SDL3_DLL}"
-                $<TARGET_FILE_DIR:${PROJECT_NAME}>
-        )
-        message(STATUS "🪟 SDL3.dll copied for MSVC build: ${SDL3_DLL}")
-
-    else()
-        # -----------------------------
-        # MinGW 전용 SDL3 설정
-        # -----------------------------
-        set(SDL3_DIR "${EXTERNAL_DIR}/SDL3-3.2.18/mingw/cmake")
-        find_package(SDL3 CONFIG REQUIRED)
-
-        target_compile_definitions(${PROJECT_NAME} PRIVATE USE_SDL3=1)
-        target_link_libraries(${PROJECT_NAME} PRIVATE SDL3::SDL3)
-
-        # 실행 시 필요한 DLL 복사
-        set(SDL3_DLL ${EXTERNAL_DIR}/SDL3-3.2.18/mingw/x86_64-w64-mingw32/bin/SDL3.dll)
-        set(SDL3_LICENSE ${EXTERNAL_DIR}/SDL3-3.2.18/mingw/LICENSE.txt)
-        add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
-            COMMAND ${CMAKE_COMMAND} -E copy_if_different
-                "${SDL3_DLL}"
-                $<TARGET_FILE_DIR:${PROJECT_NAME}>
-        )
-        message(STATUS "🪟 SDL3.dll copied for MinGW build: ${SDL3_DLL}")
-    endif()
-
-else()
-    message(FATAL_ERROR "⚠️ Unsupported platform: ${CMAKE_SYSTEM_NAME}")
+if(WIN32)
+    add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different
+            "$<TARGET_FILE:SDL3::SDL3>"
+            "$<TARGET_FILE_DIR:${PROJECT_NAME}>"
+    )
 endif()
 
 # ----------------------------------------
@@ -158,9 +168,6 @@ target_include_directories(${PROJECT_NAME} PRIVATE
 
     ${CMAKE_CURRENT_SOURCE_DIR}
     ${CMAKE_BINARY_DIR}/include/byul
-    ${EXTERNAL_DIR}
-    ${EXTERNAL_DIR}/glad/include
-    ${SDL_INCLUDE_DIRS}
 )
 
 # ----------------------------------------
@@ -172,13 +179,13 @@ target_link_directories(${PROJECT_NAME} PRIVATE
 
 if(CMAKE_SYSTEM_NAME STREQUAL "Windows")
     target_link_libraries(${PROJECT_NAME} PRIVATE
-        ${SDL_LIBRARIES}
+        byul_glad
         opengl32
         balix
     )
 else()
     target_link_libraries(${PROJECT_NAME} PRIVATE
-        ${SDL_LIBRARIES}
+        byul_glad
         GL
         balix
         m

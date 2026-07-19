@@ -4,3 +4,12 @@
 [submodule "external/SDL3-3.2.18/source"]
 	path = external/SDL3-3.2.18/source
 	url = https://github.com/libsdl-org/SDL.git
+[submodule "external/eigen-3.4.0"]
+	path = external/eigen-3.4.0
+	url = https://gitlab.com/libeigen/eigen.git
+[submodule "external/doctest-2.4.12"]
+	path = external/doctest-2.4.12
+	url = https://github.com/doctest/doctest.git
+[submodule "external/glad-2.0.8"]
+	path = external/glad-2.0.8
+	url = https://github.com/Dav1dde/glad.git

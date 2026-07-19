@@ -46,4 +46,12 @@ images/
 byul/docs/
 
 # external
-external/
+# Keep machine-local packages ignored, but version reproducible build inputs.
+external/*
+!external/rules
+!external/SDL3-3.2.18/
+external/SDL3-3.2.18/*
+!external/SDL3-3.2.18/source
+!external/eigen-3.4.0
+!external/doctest-2.4.12
+!external/glad-2.0.8
