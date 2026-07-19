@@ -7,10 +7,12 @@
 #include <cstdlib>
 #include <limits>
 #include <memory>
+#include <mutex>
 #include <new>
 #include <stdexcept>
 
 struct s_coord_list {
+    mutable std::mutex mutex;
     std::vector<coord_t> data;
 };
 
@@ -31,7 +33,11 @@ navsys_status_t coord_list_copy_ex(
     const coord_list_t* source, coord_list_t** out_list) {
     if (!source || !out_list) return NAVSYS_STATUS_INVALID_ARGUMENT;
     try {
-        std::unique_ptr<coord_list_t> copied(new coord_list_t(*source));
+        std::unique_ptr<coord_list_t> copied(new coord_list_t());
+        {
+            const std::lock_guard<std::mutex> lock(source->mutex);
+            copied->data = source->data;
+        }
         *out_list = copied.release();
         return NAVSYS_STATUS_OK;
     } catch (const std::bad_alloc&) {
@@ -42,12 +48,15 @@ navsys_status_t coord_list_copy_ex(
 }
 
 size_t coord_list_size(const coord_list_t* list) {
-    return list ? list->data.size() : 0;
+    if (!list) return 0;
+    const std::lock_guard<std::mutex> lock(list->mutex);
+    return list->data.size();
 }
 
 navsys_status_t coord_list_fetch(
     const coord_list_t* list, size_t index, coord_t* out_coord) {
     if (!list || !out_coord) return NAVSYS_STATUS_INVALID_ARGUMENT;
+    const std::lock_guard<std::mutex> lock(list->mutex);
     if (index >= list->data.size()) return NAVSYS_STATUS_NOT_FOUND;
     *out_coord = list->data[index];
     return NAVSYS_STATUS_OK;
@@ -61,6 +70,7 @@ navsys_status_t coord_list_fetch_front(
 navsys_status_t coord_list_fetch_back(
     const coord_list_t* list, coord_t* out_coord) {
     if (!list || !out_coord) return NAVSYS_STATUS_INVALID_ARGUMENT;
+    const std::lock_guard<std::mutex> lock(list->mutex);
     if (list->data.empty()) return NAVSYS_STATUS_NOT_FOUND;
     *out_coord = list->data.back();
     return NAVSYS_STATUS_OK;
@@ -71,6 +81,7 @@ navsys_status_t coord_list_push_back_ex(
     if (!list || !coord) return NAVSYS_STATUS_INVALID_ARGUMENT;
     const coord_t copied = *coord;
     try {
+        const std::lock_guard<std::mutex> lock(list->mutex);
         list->data.push_back(copied);
         return NAVSYS_STATUS_OK;
     } catch (const std::bad_alloc&) {
@@ -83,6 +94,7 @@ navsys_status_t coord_list_push_back_ex(
 navsys_status_t coord_list_try_pop_back(
     coord_list_t* list, coord_t* out_coord) {
     if (!list || !out_coord) return NAVSYS_STATUS_INVALID_ARGUMENT;
+    const std::lock_guard<std::mutex> lock(list->mutex);
     if (list->data.empty()) return NAVSYS_STATUS_NOT_FOUND;
     const coord_t removed = list->data.back();
     list->data.pop_back();
@@ -93,6 +105,7 @@ navsys_status_t coord_list_try_pop_back(
 navsys_status_t coord_list_try_pop_front(
     coord_list_t* list, coord_t* out_coord) {
     if (!list || !out_coord) return NAVSYS_STATUS_INVALID_ARGUMENT;
+    const std::lock_guard<std::mutex> lock(list->mutex);
     if (list->data.empty()) return NAVSYS_STATUS_NOT_FOUND;
     const coord_t removed = list->data.front();
     list->data.erase(list->data.begin());
@@ -107,6 +120,7 @@ navsys_status_t coord_list_insert_ex(
     }
     const coord_t copied = *coord;
     try {
+        const std::lock_guard<std::mutex> lock(list->mutex);
         list->data.insert(
             list->data.begin() + static_cast<std::ptrdiff_t>(index),
             copied);
@@ -121,6 +135,7 @@ navsys_status_t coord_list_insert_ex(
 navsys_status_t coord_list_remove_at_ex(
     coord_list_t* list, size_t index, coord_t* out_removed) {
     if (!list || !out_removed) return NAVSYS_STATUS_INVALID_ARGUMENT;
+    const std::lock_guard<std::mutex> lock(list->mutex);
     if (index >= list->data.size()) return NAVSYS_STATUS_NOT_FOUND;
     const coord_t removed = list->data[index];
     list->data.erase(
@@ -135,6 +150,7 @@ navsys_status_t coord_list_remove_value_ex(
         return NAVSYS_STATUS_INVALID_ARGUMENT;
     }
     const coord_t copied = *coord;
+    const std::lock_guard<std::mutex> lock(list->mutex);
     const auto it = std::find_if(
         list->data.begin(),
         list->data.end(),
@@ -158,6 +174,7 @@ navsys_status_t coord_list_find_ex(
     if (!list || !coord || !out_index || !out_found) {
         return NAVSYS_STATUS_INVALID_ARGUMENT;
     }
+    const std::lock_guard<std::mutex> lock(list->mutex);
     for (size_t index = 0; index < list->data.size(); ++index) {
         if (list->data[index].x == coord->x
             && list->data[index].y == coord->y) {
@@ -174,6 +191,7 @@ navsys_status_t coord_list_reserve(
     coord_list_t* list, size_t capacity) {
     if (!list) return NAVSYS_STATUS_INVALID_ARGUMENT;
     try {
+        const std::lock_guard<std::mutex> lock(list->mutex);
         list->data.reserve(capacity);
         return NAVSYS_STATUS_OK;
     } catch (const std::bad_alloc&) {
@@ -190,14 +208,20 @@ navsys_status_t coord_list_create_slice(
     size_t begin,
     size_t end,
     coord_list_t** out_list) {
-    if (!source || !out_list || begin > end || end > source->data.size()) {
+    if (!source || !out_list || begin > end) {
         return NAVSYS_STATUS_INVALID_ARGUMENT;
     }
     try {
         std::unique_ptr<coord_list_t> slice(new coord_list_t());
-        slice->data.assign(
-            source->data.begin() + static_cast<std::ptrdiff_t>(begin),
-            source->data.begin() + static_cast<std::ptrdiff_t>(end));
+        {
+            const std::lock_guard<std::mutex> lock(source->mutex);
+            if (end > source->data.size()) {
+                return NAVSYS_STATUS_INVALID_ARGUMENT;
+            }
+            slice->data.assign(
+                source->data.begin() + static_cast<std::ptrdiff_t>(begin),
+                source->data.begin() + static_cast<std::ptrdiff_t>(end));
+        }
         *out_list = slice.release();
         return NAVSYS_STATUS_OK;
     } catch (const std::bad_alloc&) {
@@ -214,6 +238,11 @@ navsys_status_t coord_list_equal(
     if (!a || !b || !out_equal) {
         return NAVSYS_STATUS_INVALID_ARGUMENT;
     }
+    if (a == b) {
+        *out_equal = true;
+        return NAVSYS_STATUS_OK;
+    }
+    const std::scoped_lock lock(a->mutex, b->mutex);
     if (a->data.size() != b->data.size()) {
         *out_equal = false;
         return NAVSYS_STATUS_OK;
@@ -239,6 +268,7 @@ navsys_status_t coord_list_export(
         || (out_coords && capacity == 0)) {
         return NAVSYS_STATUS_INVALID_ARGUMENT;
     }
+    const std::lock_guard<std::mutex> lock(list->mutex);
 
     const size_t required = list->data.size();
     if (!out_coords) {
@@ -279,23 +309,31 @@ int coord_list_length(const coord_list_t* list) {
 }
 
 bool coord_list_empty(const coord_list_t* list) {
-    return !list || list->data.empty();
+    if (!list) return true;
+    const std::lock_guard<std::mutex> lock(list->mutex);
+    return list->data.empty();
 }
 
 const coord_t* coord_list_get(const coord_list_t* list, int index) {
-    if (!list || index < 0 || index >= static_cast<int>(list->data.size())) {
+    if (!list || index < 0) {
         return nullptr;
     }
+    const std::lock_guard<std::mutex> lock(list->mutex);
+    if (static_cast<size_t>(index) >= list->data.size()) return nullptr;
     return &list->data[index];
 }
 
 const coord_t* coord_list_front(const coord_list_t* list) {
-    if (!list || list->data.empty()) return nullptr;
+    if (!list) return nullptr;
+    const std::lock_guard<std::mutex> lock(list->mutex);
+    if (list->data.empty()) return nullptr;
     return &list->data.front();
 }
 
 const coord_t* coord_list_back(const coord_list_t* list) {
-    if (!list || list->data.empty()) return nullptr;
+    if (!list) return nullptr;
+    const std::lock_guard<std::mutex> lock(list->mutex);
+    if (list->data.empty()) return nullptr;
     return &list->data.back();
 }
 
@@ -376,9 +414,12 @@ bool coord_list_equals(const coord_list_t* a, const coord_list_t* b) {
 
 void coord_list_clear(coord_list_t* list) {
     if (!list) return;
+    const std::lock_guard<std::mutex> lock(list->mutex);
     list->data.clear();
 }
 
 void coord_list_reverse(coord_list_t* list) {
-    if (list) std::reverse(list->data.begin(), list->data.end());
+    if (!list) return;
+    const std::lock_guard<std::mutex> lock(list->mutex);
+    std::reverse(list->data.begin(), list->data.end());
 }

@@ -174,27 +174,33 @@ void navgrid_print_ascii_with_visited_count(
     if (!navgrid || !p || !route_get_visited_count(p)) return;
 
     const coord_hash_t* visited = route_get_visited_count(p);
-    const coord_list_t* list = route_get_coords(p);
     coord_hash_t* route_coords = coord_hash_create();
+    const coord_list_t* list = route_get_coords(p);
+    const size_t len = coord_list_size(list);
 
-    if (!list || coord_list_length(list) == 0) {
+    if (!list || len == 0) {
         coord_hash_destroy(route_coords);
         return;
     }
 
-    const coord_t* start = coord_list_get(list, 0);
-    const coord_t* goal = coord_list_get(list, coord_list_length(list) - 1);
+    coord_t start = {};
+    coord_t goal = {};
+    if (coord_list_fetch_front(list, &start) != NAVSYS_STATUS_OK
+        || coord_list_fetch_back(list, &goal) != NAVSYS_STATUS_OK) {
+        coord_hash_destroy(route_coords);
+        return;
+    }
 
-    int min_x = coord_get_x(start), max_x = coord_get_x(start);
-    int min_y = coord_get_y(start), max_y = coord_get_y(start);
+    int min_x = coord_get_x(&start), max_x = coord_get_x(&start);
+    int min_y = coord_get_y(&start), max_y = coord_get_y(&start);
 
-    int len = coord_list_length(list);
-    for (int i = 0; i < len; ++i) {
-        const coord_t* c = coord_list_get(list, i);
-        coord_hash_replace(route_coords, c, NULL);
+    for (size_t i = 0; i < len; ++i) {
+        coord_t coord = {};
+        if (coord_list_fetch(list, i, &coord) != NAVSYS_STATUS_OK) break;
+        coord_hash_replace(route_coords, &coord, NULL);
 
-        int x = coord_get_x(c);
-        int y = coord_get_y(c);
+        int x = coord_get_x(&coord);
+        int y = coord_get_y(&coord);
         if (x < min_x) min_x = x;
         if (x > max_x) max_x = x;
         if (y < min_y) min_y = y;
@@ -219,7 +225,7 @@ void navgrid_print_ascii_with_visited_count(
     for (int y = min_y; y <= max_y; ++y) {
         for (int x = min_x; x <= max_x; ++x) {
             printf("%s", get_navgrid_string(navgrid, x, y, 
-                start, goal, route_coords, visited));
+                &start, &goal, route_coords, visited));
         }
         putchar('\n');
     }
