@@ -1,0 +1,472 @@
+{
+  "schema_version": 1,
+  "scope": "byul/navsys-stage-0",
+  "export_snapshot": "docs/ko/todo/header-refactor-current/msvc-release-build.json",
+  "dependency_edges": [
+    {
+      "kind": "numal-include-directory",
+      "path": "byul/navsys/CMakeLists.txt",
+      "occurrences": 1,
+      "owner_todo": "docs/ko/todo/navsys/todo-리팩토링-navsys-headers.org",
+      "target_stage": 7,
+      "disposition": "remove after source-level Numal use is eliminated"
+    },
+    {
+      "kind": "numal-link",
+      "path": "byul/navsys/CMakeLists.txt",
+      "occurrences": 1,
+      "owner_todo": "docs/ko/todo/navsys/todo-리팩토링-navsys-headers.org",
+      "target_stage": 7,
+      "disposition": "remove after source-level Numal use is eliminated"
+    },
+    {
+      "kind": "numal-include-directory",
+      "path": "byul/navsys/coord/CMakeLists.txt",
+      "occurrences": 1,
+      "owner_todo": "docs/ko/todo/navsys/todo-navsys-coord-coord.org",
+      "target_stage": 1,
+      "disposition": "remove after source-level Numal use is eliminated"
+    },
+    {
+      "kind": "numal-link",
+      "path": "byul/navsys/coord/CMakeLists.txt",
+      "occurrences": 1,
+      "owner_todo": "docs/ko/todo/navsys/todo-navsys-coord-coord.org",
+      "target_stage": 1,
+      "disposition": "remove after source-level Numal use is eliminated"
+    },
+    {
+      "kind": "numal-include-directory",
+      "path": "byul/navsys/coord/tests/CMakeLists.txt",
+      "occurrences": 1,
+      "owner_todo": "docs/ko/todo/navsys/todo-navsys-coord-coord.org",
+      "target_stage": 1,
+      "disposition": "remove after source-level Numal use is eliminated"
+    },
+    {
+      "kind": "scalar-include",
+      "path": "byul/navsys/coord/tests/test_module_coord.cpp",
+      "occurrences": 1,
+      "owner_todo": "docs/ko/todo/navsys/todo-navsys-coord-coord.org",
+      "target_stage": 1,
+      "disposition": "remove with the owning child integration gate"
+    },
+    {
+      "kind": "numal-include-directory",
+      "path": "byul/navsys/dstar_lite/CMakeLists.txt",
+      "occurrences": 1,
+      "owner_todo": "docs/ko/todo/navsys/todo-navsys-dstar-lite-dstar-lite.org",
+      "target_stage": 5,
+      "disposition": "remove after source-level Numal use is eliminated"
+    },
+    {
+      "kind": "numal-link",
+      "path": "byul/navsys/dstar_lite/CMakeLists.txt",
+      "occurrences": 1,
+      "owner_todo": "docs/ko/todo/navsys/todo-navsys-dstar-lite-dstar-lite.org",
+      "target_stage": 5,
+      "disposition": "remove after source-level Numal use is eliminated"
+    },
+    {
+      "kind": "scalar-equal-call",
+      "path": "byul/navsys/dstar_lite/dstar_lite.cpp",
+      "occurrences": 6,
+      "owner_todo": "docs/ko/todo/navsys/todo-navsys-dstar-lite-dstar-lite.org",
+      "target_stage": 5,
+      "disposition": "remove with the owning child integration gate"
+    },
+    {
+      "kind": "scalar-include",
+      "path": "byul/navsys/dstar_lite/dstar_lite.cpp",
+      "occurrences": 1,
+      "owner_todo": "docs/ko/todo/navsys/todo-navsys-dstar-lite-dstar-lite.org",
+      "target_stage": 5,
+      "disposition": "remove with the owning child integration gate"
+    },
+    {
+      "kind": "scalar-equal-call",
+      "path": "byul/navsys/dstar_lite/dstar_lite_key.cpp",
+      "occurrences": 2,
+      "owner_todo": "docs/ko/todo/navsys/todo-navsys-dstar-lite-dstar-lite-key.org",
+      "target_stage": 5,
+      "disposition": "remove with the owning child integration gate"
+    },
+    {
+      "kind": "scalar-include",
+      "path": "byul/navsys/dstar_lite/dstar_lite_key.cpp",
+      "occurrences": 1,
+      "owner_todo": "docs/ko/todo/navsys/todo-navsys-dstar-lite-dstar-lite-key.org",
+      "target_stage": 5,
+      "disposition": "remove with the owning child integration gate"
+    },
+    {
+      "kind": "scalar-include",
+      "path": "byul/navsys/dstar_lite/dstar_lite_pqueue.cpp",
+      "occurrences": 1,
+      "owner_todo": "docs/ko/todo/navsys/todo-navsys-dstar-lite-dstar-lite-pqueue.org",
+      "target_stage": 5,
+      "disposition": "remove with the owning child integration gate"
+    },
+    {
+      "kind": "scalar-equal-call",
+      "path": "byul/navsys/dstar_lite/dstar_lite_tick.cpp",
+      "occurrences": 1,
+      "owner_todo": "docs/ko/todo/navsys/todo-navsys-dstar-lite-dstar-lite-tick.org",
+      "target_stage": 5,
+      "disposition": "remove with the owning child integration gate"
+    },
+    {
+      "kind": "scalar-include",
+      "path": "byul/navsys/dstar_lite/dstar_lite_tick.cpp",
+      "occurrences": 1,
+      "owner_todo": "docs/ko/todo/navsys/todo-navsys-dstar-lite-dstar-lite-tick.org",
+      "target_stage": 5,
+      "disposition": "remove with the owning child integration gate"
+    },
+    {
+      "kind": "numal-include-directory",
+      "path": "byul/navsys/dstar_lite/tests/CMakeLists.txt",
+      "occurrences": 1,
+      "owner_todo": "docs/ko/todo/navsys/todo-navsys-dstar-lite-dstar-lite.org",
+      "target_stage": 5,
+      "disposition": "remove after source-level Numal use is eliminated"
+    },
+    {
+      "kind": "numal-link",
+      "path": "byul/navsys/dstar_lite/tests/CMakeLists.txt",
+      "occurrences": 1,
+      "owner_todo": "docs/ko/todo/navsys/todo-navsys-dstar-lite-dstar-lite.org",
+      "target_stage": 5,
+      "disposition": "remove after source-level Numal use is eliminated"
+    },
+    {
+      "kind": "numal-include-directory",
+      "path": "byul/navsys/maze/CMakeLists.txt",
+      "occurrences": 1,
+      "owner_todo": "docs/ko/todo/navsys/todo-navsys-maze-maze.org",
+      "target_stage": 3,
+      "disposition": "remove after source-level Numal use is eliminated"
+    },
+    {
+      "kind": "numal-link",
+      "path": "byul/navsys/maze/CMakeLists.txt",
+      "occurrences": 1,
+      "owner_todo": "docs/ko/todo/navsys/todo-navsys-maze-maze.org",
+      "target_stage": 3,
+      "disposition": "remove after source-level Numal use is eliminated"
+    },
+    {
+      "kind": "numal-include-directory",
+      "path": "byul/navsys/maze/tests/CMakeLists.txt",
+      "occurrences": 1,
+      "owner_todo": "docs/ko/todo/navsys/todo-navsys-maze-maze.org",
+      "target_stage": 3,
+      "disposition": "remove after source-level Numal use is eliminated"
+    },
+    {
+      "kind": "numal-link",
+      "path": "byul/navsys/maze/tests/CMakeLists.txt",
+      "occurrences": 1,
+      "owner_todo": "docs/ko/todo/navsys/todo-navsys-maze-maze.org",
+      "target_stage": 3,
+      "disposition": "remove after source-level Numal use is eliminated"
+    },
+    {
+      "kind": "numal-include-directory",
+      "path": "byul/navsys/obstacle/CMakeLists.txt",
+      "occurrences": 1,
+      "owner_todo": "docs/ko/todo/navsys/todo-navsys-obstacle-obstacle.org",
+      "target_stage": 2,
+      "disposition": "remove after source-level Numal use is eliminated"
+    },
+    {
+      "kind": "numal-link",
+      "path": "byul/navsys/obstacle/CMakeLists.txt",
+      "occurrences": 1,
+      "owner_todo": "docs/ko/todo/navsys/todo-navsys-obstacle-obstacle.org",
+      "target_stage": 2,
+      "disposition": "remove after source-level Numal use is eliminated"
+    },
+    {
+      "kind": "numal-include-directory",
+      "path": "byul/navsys/obstacle/tests/CMakeLists.txt",
+      "occurrences": 1,
+      "owner_todo": "docs/ko/todo/navsys/todo-navsys-obstacle-obstacle.org",
+      "target_stage": 2,
+      "disposition": "remove after source-level Numal use is eliminated"
+    },
+    {
+      "kind": "numal-link",
+      "path": "byul/navsys/obstacle/tests/CMakeLists.txt",
+      "occurrences": 1,
+      "owner_todo": "docs/ko/todo/navsys/todo-navsys-obstacle-obstacle.org",
+      "target_stage": 2,
+      "disposition": "remove after source-level Numal use is eliminated"
+    },
+    {
+      "kind": "numal-include-directory",
+      "path": "byul/navsys/route/CMakeLists.txt",
+      "occurrences": 1,
+      "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-route.org",
+      "target_stage": 2,
+      "disposition": "remove after source-level Numal use is eliminated"
+    },
+    {
+      "kind": "numal-link",
+      "path": "byul/navsys/route/CMakeLists.txt",
+      "occurrences": 1,
+      "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-route.org",
+      "target_stage": 2,
+      "disposition": "remove after source-level Numal use is eliminated"
+    },
+    {
+      "kind": "m-pi-token",
+      "path": "byul/navsys/route/route.cpp",
+      "occurrences": 3,
+      "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-route.org",
+      "target_stage": 2,
+      "disposition": "remove with the owning child integration gate"
+    },
+    {
+      "kind": "scalar-include",
+      "path": "byul/navsys/route/route.cpp",
+      "occurrences": 1,
+      "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-route.org",
+      "target_stage": 2,
+      "disposition": "remove with the owning child integration gate"
+    },
+    {
+      "kind": "numal-include-directory",
+      "path": "byul/navsys/route/tests/CMakeLists.txt",
+      "occurrences": 1,
+      "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-route.org",
+      "target_stage": 2,
+      "disposition": "remove after source-level Numal use is eliminated"
+    },
+    {
+      "kind": "numal-include-directory",
+      "path": "byul/navsys/route_finder/CMakeLists.txt",
+      "occurrences": 1,
+      "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-finder-route-finder.org",
+      "target_stage": 4,
+      "disposition": "remove after source-level Numal use is eliminated"
+    },
+    {
+      "kind": "numal-link",
+      "path": "byul/navsys/route_finder/CMakeLists.txt",
+      "occurrences": 1,
+      "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-finder-route-finder.org",
+      "target_stage": 4,
+      "disposition": "remove after source-level Numal use is eliminated"
+    },
+    {
+      "kind": "scalar-include",
+      "path": "byul/navsys/route_finder/dfs.h",
+      "occurrences": 1,
+      "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-finder-dfs.org",
+      "target_stage": 4,
+      "disposition": "remove with the owning child integration gate"
+    },
+    {
+      "kind": "numal-include-directory",
+      "path": "byul/navsys/route_finder/tests/CMakeLists.txt",
+      "occurrences": 2,
+      "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-finder-route-finder.org",
+      "target_stage": 4,
+      "disposition": "remove after source-level Numal use is eliminated"
+    },
+    {
+      "kind": "numal-link",
+      "path": "byul/navsys/route_finder/tests/CMakeLists.txt",
+      "occurrences": 2,
+      "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-finder-route-finder.org",
+      "target_stage": 4,
+      "disposition": "remove after source-level Numal use is eliminated"
+    },
+    {
+      "kind": "scalar-include",
+      "path": "byul/navsys/route_finder/weighted_astar.h",
+      "occurrences": 1,
+      "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-finder-weighted-astar.org",
+      "target_stage": 4,
+      "disposition": "remove with the owning child integration gate"
+    },
+    {
+      "kind": "numal-include-directory",
+      "path": "byul/navsys/tests/CMakeLists.txt",
+      "occurrences": 2,
+      "owner_todo": "docs/ko/todo/navsys/todo-리팩토링-navsys-headers.org",
+      "target_stage": 7,
+      "disposition": "remove after source-level Numal use is eliminated"
+    },
+    {
+      "kind": "numal-link",
+      "path": "byul/navsys/tests/CMakeLists.txt",
+      "occurrences": 2,
+      "owner_todo": "docs/ko/todo/navsys/todo-리팩토링-navsys-headers.org",
+      "target_stage": 7,
+      "disposition": "remove after source-level Numal use is eliminated"
+    }
+  ],
+  "wrapper_symbol_resolution": {
+    "reference_symbols": 265,
+    "cdef_symbols": 459,
+    "root_export_symbols": 1006,
+    "missing_cdef": [
+      {
+        "symbol": "dstar_lite_add_update_count",
+        "modules": [
+          "dstar_lite.py"
+        ],
+        "owner_todo": "docs/ko/todo/navsys/todo-navsys-dstar-lite-dstar-lite.org",
+        "disposition": "add canonical declaration or remove the unsupported wrapper method"
+      },
+      {
+        "symbol": "dstar_lite_calculate_key",
+        "modules": [
+          "dstar_lite.py"
+        ],
+        "owner_todo": "docs/ko/todo/navsys/todo-navsys-dstar-lite-dstar-lite.org",
+        "disposition": "add canonical declaration or remove the unsupported wrapper method"
+      },
+      {
+        "symbol": "dstar_lite_clear_update_count",
+        "modules": [
+          "dstar_lite.py"
+        ],
+        "owner_todo": "docs/ko/todo/navsys/todo-navsys-dstar-lite-dstar-lite.org",
+        "disposition": "add canonical declaration or remove the unsupported wrapper method"
+      },
+      {
+        "symbol": "dstar_lite_cost",
+        "modules": [
+          "dstar_lite.py"
+        ],
+        "owner_todo": "docs/ko/todo/navsys/todo-navsys-dstar-lite-dstar-lite.org",
+        "disposition": "add canonical declaration or remove the unsupported wrapper method"
+      },
+      {
+        "symbol": "dstar_lite_get_compute_max_retry",
+        "modules": [
+          "dstar_lite.py"
+        ],
+        "owner_todo": "docs/ko/todo/navsys/todo-navsys-dstar-lite-dstar-lite.org",
+        "disposition": "add canonical declaration or remove the unsupported wrapper method"
+      },
+      {
+        "symbol": "dstar_lite_get_debug_mode_enabled",
+        "modules": [
+          "dstar_lite.py"
+        ],
+        "owner_todo": "docs/ko/todo/navsys/todo-navsys-dstar-lite-dstar-lite.org",
+        "disposition": "add canonical declaration or remove the unsupported wrapper method"
+      },
+      {
+        "symbol": "dstar_lite_get_update_count",
+        "modules": [
+          "dstar_lite.py"
+        ],
+        "owner_todo": "docs/ko/todo/navsys/todo-navsys-dstar-lite-dstar-lite.org",
+        "disposition": "add canonical declaration or remove the unsupported wrapper method"
+      },
+      {
+        "symbol": "dstar_lite_get_update_count_table",
+        "modules": [
+          "dstar_lite.py"
+        ],
+        "owner_todo": "docs/ko/todo/navsys/todo-navsys-dstar-lite-dstar-lite.org",
+        "disposition": "add canonical declaration or remove the unsupported wrapper method"
+      },
+      {
+        "symbol": "dstar_lite_set_compute_max_retry",
+        "modules": [
+          "dstar_lite.py"
+        ],
+        "owner_todo": "docs/ko/todo/navsys/todo-navsys-dstar-lite-dstar-lite.org",
+        "disposition": "add canonical declaration or remove the unsupported wrapper method"
+      },
+      {
+        "symbol": "dstar_lite_set_is_blocked_func",
+        "modules": [
+          "dstar_lite.py"
+        ],
+        "owner_todo": "docs/ko/todo/navsys/todo-navsys-dstar-lite-dstar-lite.org",
+        "disposition": "add canonical declaration or remove the unsupported wrapper method"
+      },
+      {
+        "symbol": "dstar_lite_set_is_blocked_func_userdata",
+        "modules": [
+          "dstar_lite.py"
+        ],
+        "owner_todo": "docs/ko/todo/navsys/todo-navsys-dstar-lite-dstar-lite.org",
+        "disposition": "add canonical declaration or remove the unsupported wrapper method"
+      },
+      {
+        "symbol": "dstar_lite_set_map",
+        "modules": [
+          "dstar_lite.py"
+        ],
+        "owner_todo": "docs/ko/todo/navsys/todo-navsys-dstar-lite-dstar-lite.org",
+        "disposition": "add canonical declaration or remove the unsupported wrapper method"
+      },
+      {
+        "symbol": "get_route_finder_name",
+        "modules": [
+          "route_finder.py"
+        ],
+        "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-finder-route-finder.org",
+        "disposition": "add canonical declaration or remove the unsupported wrapper method"
+      },
+      {
+        "symbol": "navgrid_get_blocked_coords",
+        "modules": [
+          "navgrid.py"
+        ],
+        "owner_todo": "docs/ko/todo/navsys/todo-navsys-navgrid-navgrid.org",
+        "disposition": "add canonical declaration or remove the unsupported wrapper method"
+      },
+      {
+        "symbol": "route_finder_set_userdata",
+        "modules": [
+          "route_finder.py"
+        ],
+        "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-finder-route-finder.org",
+        "disposition": "add canonical declaration or remove the unsupported wrapper method"
+      },
+      {
+        "symbol": "route_reconstruct_path",
+        "modules": [
+          "route.py"
+        ],
+        "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-route.org",
+        "disposition": "add canonical declaration or remove the unsupported wrapper method"
+      }
+    ],
+    "missing_export": [
+      {
+        "symbol": "dstar_lite_get_interval_sec",
+        "modules": [
+          "dstar_lite.py"
+        ],
+        "owner_todo": "docs/ko/todo/navsys/todo-navsys-dstar-lite-dstar-lite.org",
+        "disposition": "restore the root export or migrate the wrapper to a supported symbol"
+      },
+      {
+        "symbol": "dstar_lite_update_vertex_by_route",
+        "modules": [
+          "dstar_lite.py"
+        ],
+        "owner_todo": "docs/ko/todo/navsys/todo-navsys-dstar-lite-dstar-lite.org",
+        "disposition": "restore the root export or migrate the wrapper to a supported symbol"
+      }
+    ]
+  },
+  "summary": {
+    "dependency_edges": 38,
+    "unclassified_dependency_edges": 0,
+    "wrapper_reference_symbols": 265,
+    "missing_cdef": 16,
+    "missing_export": 2,
+    "unclassified_wrapper_findings": 0
+  }
+}

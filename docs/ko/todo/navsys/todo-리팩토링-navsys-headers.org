@@ -313,7 +313,7 @@ clean build/install 환경에서 반복하는 release gate다. Class 이름이 t
 
 * 통합 실행 계획
 
-** DOING 0단계: 공통 vocabulary와 ABI 기준선 확정
+** DONE 0단계: 공통 vocabulary와 ABI 기준선 확정
 
 *** 실행
 
@@ -335,17 +335,19 @@ clean build/install 환경에서 반복하는 release gate다. Class 이름이 t
 - child별 target declaration이 공통 결정을 참조하도록 맞춘다.
 
 공통 Status/namespace의 승인 원본은
-[[file:navsys-abi-vocabulary.json][navsys-abi-vocabulary.json]], 43개 Header와 425개
-현행 =BYUL_API= 선언의 return mapping snapshot은
+[[file:navsys-abi-vocabulary.json][navsys-abi-vocabulary.json]], 원본 43개 child와 추가
+foundation/internal header를 포함한 현재 46개 Header와 453개 현행 =BYUL_API= 선언의
+return mapping snapshot은
 [[file:navsys-current-abi-inventory.json][navsys-current-abi-inventory.json]]이다.
 후자는 =tools/navsys_abi_inventory.py --check=로 stale과 unclassified symbol을
-fail-closed 검사한다. 같은 artifact가 Navsys Header audit debt 949건을 Header와
+fail-closed 검사한다. 같은 artifact가 Navsys Header audit debt 945건을 Header와
 실제 owner child에 연결하며, 무소유 issue를 허용하지 않는다.
 
 승인 뒤 생성한 =byul/navsys/navsys_status.h=는 최초 43개와 1:1인 child가 아니라
-공통 public-foundation asset이다. 따라서 현재 Navsys inventory는 44개지만 기존 child
-coverage 분모는 43개로 유지한다. 이 header의 enum 13개는 native/CFFI/Python 왕복,
-MSVC/MinGW standalone 190/190과 두 installed-SDK C consumer로 검증했다.
+공통 public-foundation asset이다. 두 internal callback helper도 별도 public child가
+아니다. 따라서 현재 Navsys inventory는 46개지만 기존 child coverage 분모는 43개로
+유지한다. 이 header의 enum 13개는 native/CFFI/Python 왕복, MSVC/MinGW standalone
+190/190과 두 installed-SDK C consumer로 검증했다.
 
 *** 완료 조건
 
@@ -376,6 +378,37 @@ MSVC/MinGW standalone 190/190과 두 installed-SDK C consumer로 검증했다.
 - 기존 shared library와 installed SDK의 ABI/header snapshot을 재현한다.
 - CFFI =--check=, Navsys-scope audit, 전체 module import 후 symbol resolution과 현행
   Python/native suite를 실행하고 각 exit code를 별도 기록한다.
+
+*** 마감 근거
+
+Revision =15068cca8a9e90c108d0a71791e77b2337b0c57a=에서 중앙 rules revision
+=642275431efe0d87f4fc3856ef326d6fdfbb0aba=와 checkout 일치를 확인했고 60개 Org rule
+validator가 error/warning 0으로 통과했다. 공식 header baseline은 138개
+(BYUL 107, tools 31), root 93개와 decision-required 14개를 현재 source에 맞춰
+갱신했다. Navsys ABI inventory는 46 header/453 symbol, owner TODO 44개와 원본 child
+owner 43개를 유지한다.
+
+[[file:navsys-stage0-boundary-baseline.json][Stage 0 경계 기준선]]은 active
+=scalar.h/scalar_equal/M_PI/numal= include·call·link edge 38개를 모두 owner와 후속
+stage에 배정해 unclassified edge 0을 확인한다. Handwritten wrapper =C.*= 참조
+265개도 CFFI declaration과 MSVC root export snapshot에 대조했다. 현행
+missing-cdef 16개와 missing-export 2개는 해결로 오인하지 않고 각각 담당 child와
+처분에 연결했으며 unclassified wrapper finding은 0이다. Audit의 dependency edge
+제거, 미분류 dependency와 미분류 wrapper를 다루는 current 검증 1개와 mutation 3개가
+모두 fail-closed로 통과했다.
+
+MSVC와 MinGW header/ABI audit은 138 manifest header, 95 public C header와 968
+declaration에서 invariant error 0, new/strict debt 0과 error 0을 보고했다. 승인된
+metadata/structural debt 3052건과 invariant exclusion 15건은 후속 child migration
+입력으로 유지한다. CFFI 생성물은 current이고 wrapper unit 25개와 MSVC root DLL
+통합 59개가 통과했다. 공통 conformance evidence 18 record와 전체 tools test 66개도
+통과했다. 명령, 수치와 Windows sanitizer 제한은
+[[file:navsys-stage0-closure-evidence.json][Stage 0 마감 evidence]]에 고정한다.
+
+이로써 공통 type owner/include DAG, ABI 1.x와 ABI-major 처분, 43 child symbol
+coverage, Numal 제거 목록, wrapper omission/불일치 owner와 후속 local integration
+loop가 모두 실행 가능한 상태다. 0단계를 닫되 기존 debt와 wrapper 불일치를 해결한
+것으로 확대 해석하지 않으며, 다음 순차 단계인 Coord value/collection 착수를 허용한다.
 
 ** TODO 1단계: Coord value와 collection 계약 확정
 
