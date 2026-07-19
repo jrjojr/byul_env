@@ -12,7 +12,7 @@ SPEC.loader.exec_module(GENERATOR)
 
 
 class GenerateWrapperAbiTest(unittest.TestCase):
-    def test_header_to_cdef_removes_preprocessor_and_export_macro(self):
+    def test_header_to_cdef_removes_public_annotations(self):
         source = """\
 #ifndef SAMPLE_H
 #define SAMPLE_H
@@ -20,6 +20,7 @@ class GenerateWrapperAbiTest(unittest.TestCase):
 typedef struct s_sample {
     int value;
 } sample_t;
+BYUL_DEPRECATED("Use sample_set_checked; removal is planned for ABI 2.")
 BYUL_API void sample_set(sample_t* sample, int value);
 #endif
 """
@@ -31,6 +32,8 @@ BYUL_API void sample_set(sample_t* sample, int value);
         self.assertIn("typedef struct s_sample", result)
         self.assertIn("void sample_set(sample_t* sample, int value);", result)
         self.assertNotIn("BYUL_API", result)
+        self.assertNotIn("BYUL_DEPRECATED", result)
+        self.assertNotIn("removal is planned", result)
         self.assertNotIn("#define", result)
         self.assertNotIn("comment", result)
 

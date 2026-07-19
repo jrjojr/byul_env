@@ -59,6 +59,12 @@ typedef struct s_coord {
  navsys_status_t coord_step_toward(
     const coord_t* start, const coord_t* goal, coord_t* out_next);
 
+ navsys_status_t coord_format(
+    const coord_t* coord,
+    char* out_buffer,
+    size_t capacity,
+    size_t* out_required);
+
  coord_t* coord_create_full(int x, int y);
 
  coord_t* coord_create(void);

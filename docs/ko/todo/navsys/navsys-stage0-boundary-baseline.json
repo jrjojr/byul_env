@@ -278,7 +278,7 @@
   ],
   "wrapper_symbol_resolution": {
     "reference_symbols": 265,
-    "cdef_symbols": 472,
+    "cdef_symbols": 473,
     "root_export_symbols": 1006,
     "missing_cdef": [
       {

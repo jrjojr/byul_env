@@ -1129,8 +1129,8 @@
     {
       "asset_id": "initial:byul/byul_config.h",
       "current_path": "byul/byul_config.h",
-      "sha256": "f735417c56d88b6fbada1f5aad2a3ae7db52f98ca82d9cb1dd82071a8935474d",
-      "line_count": 65,
+      "sha256": "923d10bada82adab6e08046dbabd48ddd59de6f5c5d9c64ac33cb86f8f4b8655",
+      "line_count": 75,
       "language": "c-header",
       "license": "missing-or-unclassified",
       "include_guard": "BYUL_CONFIG_H",
@@ -1208,9 +1208,16 @@
       "wrapper_modules_registered": false,
       "exported_symbols": [
         "__declspec",
-        "BYUL_VERSION"
+        "defined"
       ],
-      "source_definition_candidates": [],
+      "source_definition_candidates": [
+        "byul/number_theory/tools/gen.base_primes_65535.c",
+        "byul/rng/rng_core.cpp",
+        "byul/rng/rng_fill.cpp",
+        "tools/gpu_comp_tester/gpu.cpp",
+        "tools/gpu_comp_tester/gpu_compute.cpp",
+        "tools/gpu_comp_tester/main.cpp"
+      ],
       "decision_status": "candidate-only"
     },
     {
@@ -1805,8 +1812,8 @@
     {
       "asset_id": "initial:byul/navsys/coord/coord.h",
       "current_path": "byul/navsys/coord/coord.h",
-      "sha256": "3a9bbba8ee66b0591541dacac861599a780b75c2a711af76244055b6212e9ced",
-      "line_count": 604,
+      "sha256": "2c60db048243118dd194bb506665ba291b21ba124504edef32a884a98caafdce",
+      "line_count": 649,
       "language": "c-header",
       "license": "copyright-present-license-unclassified",
       "include_guard": "BYUL_COORD_H",
@@ -1877,6 +1884,7 @@
         "coord_angle_rad",
         "coord_angle_deg",
         "coord_step_toward",
+        "coord_format",
         "coord_create_full",
         "coord_create",
         "coord_destroy",
