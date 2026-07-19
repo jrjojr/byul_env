@@ -1,5 +1,6 @@
 #include "doctest.h"
 #include <cmath>
+#include <cstdint>
 
 #include "coord.h"
 #include "internal/coord_ops.hpp"
@@ -7,6 +8,14 @@
 
 namespace {
 constexpr double kPi = 3.14159265358979323846;
+
+int legacy_wrap_reference(std::int64_t value) {
+    constexpr std::int64_t range =
+        static_cast<std::int64_t>(COORD_MAX) - COORD_MIN + 1;
+    std::int64_t offset = value - COORD_MIN;
+    offset = ((offset % range) + range) % range;
+    return static_cast<int>(COORD_MIN + offset);
+}
 }
 
 TEST_CASE("coord ABI layout diagnostics match the compiled value type") {
@@ -28,6 +37,74 @@ TEST_CASE("Wrap-Around Test") {
 
     CHECK(result.x == COORD_MIN);
     CHECK(result.y == 0);
+}
+
+TEST_CASE("Legacy coord wrapping matches an int64 reference") {
+    constexpr int range = COORD_MAX - COORD_MIN + 1;
+    const int inputs[] = {
+        COORD_MIN - range,
+        COORD_MIN - 1,
+        COORD_MIN,
+        -1,
+        0,
+        1,
+        COORD_MAX,
+        COORD_MAX + 1,
+        COORD_MAX + range,
+    };
+
+    for (const int input : inputs) {
+        CAPTURE(input);
+        coord_t coord;
+        coord_init_full(&coord, input, -input);
+        CHECK(coord.x == legacy_wrap_reference(input));
+        CHECK(coord.y == legacy_wrap_reference(-static_cast<std::int64_t>(input)));
+    }
+
+    coord_t value{COORD_MAX, COORD_MIN};
+    const coord_t delta{1, -1};
+    coord_t result{};
+
+    coord_add(&result, &value, &delta);
+    CHECK(result.x == legacy_wrap_reference(
+        static_cast<std::int64_t>(value.x) + delta.x));
+    CHECK(result.y == legacy_wrap_reference(
+        static_cast<std::int64_t>(value.y) + delta.y));
+
+    coord_sub(&result, &value, &delta);
+    CHECK(result.x == legacy_wrap_reference(
+        static_cast<std::int64_t>(value.x) - delta.x));
+    CHECK(result.y == legacy_wrap_reference(
+        static_cast<std::int64_t>(value.y) - delta.y));
+
+    value = coord_t{150000000, -150000000};
+    coord_mul(&result, &value, 2);
+    CHECK(result.x == legacy_wrap_reference(
+        static_cast<std::int64_t>(value.x) * 2));
+    CHECK(result.y == legacy_wrap_reference(
+        static_cast<std::int64_t>(value.y) * 2));
+}
+
+TEST_CASE("Legacy coord operations preserve established aliasing behavior") {
+    coord_t value{COORD_MAX, COORD_MIN};
+    coord_t other{1, -1};
+
+    coord_add(&value, &value, &other);
+    CHECK(value.x == COORD_MIN);
+    CHECK(value.y == COORD_MAX);
+
+    coord_sub(&other, &value, &other);
+    CHECK(other.x == COORD_MAX);
+    CHECK(other.y == COORD_MIN);
+
+    coord_mul(&value, &value, 1);
+    CHECK(value.x == COORD_MIN);
+    CHECK(value.y == COORD_MAX);
+
+    const coord_t before_divide = value;
+    coord_div(&value, &value, 0);
+    CHECK(value.x == before_divide.x);
+    CHECK(value.y == before_divide.y);
 }
 
 TEST_CASE("Distance and Angle Test") {
@@ -85,6 +162,18 @@ TEST_CASE("Next To Goal Test") {
 
     CHECK(next.x == 1);
     CHECK(next.y == 1);
+}
+
+TEST_CASE("Legacy direction baselines cover identical points and aliased start") {
+    coord_t start{0, 0};
+    const coord_t goal{3, -4};
+
+    CHECK(coord_angle(&start, &start) == 0.0);
+    CHECK(coord_degree(&start, &start) == 0.0);
+
+    coord_next_to_goal(&start, &start, &goal);
+    CHECK(start.x == 1);
+    CHECK(start.y == -1);
 }
 
 

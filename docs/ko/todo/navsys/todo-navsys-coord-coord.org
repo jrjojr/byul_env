@@ -54,6 +54,10 @@
 | =COORD_MAX= | 전역 비이름공간 macro, 구현 wrapping 상한 | deprecate-forward |
 | =COORD_MIN= | 전역 비이름공간 macro, 구현 wrapping 하한 | deprecate-forward |
 | =coord_t= | 공개 value layout ={int x,y}= | keep |
+| =coord_sizeof= | ABI 1.x layout 크기 조회 | add |
+| =coord_alignof= | ABI 1.x layout 정렬 조회 | add |
+| =coord_offsetof_x= | ABI 1.x x field offset 조회 | add |
+| =coord_offsetof_y= | ABI 1.x y field offset 조회 | add |
 | =coord_create_full= | heap 생성, 실패/예외 채널 없음 | deprecate-forward |
 | =coord_create= | (0,0) heap 생성 | deprecate-forward |
 | =coord_destroy= | library allocation 해제 | keep |
@@ -88,7 +92,7 @@
 | =coord_to_string= | 인자 순서 비표준, 길이/status 없음 | deprecate-forward |
 | =coord_print= | stdout 전역 부작용 | deprecate-forward |
 
-추가할 선언은 모두 =add=이다. ABI 2에서 =coord_t= field를 =int32_t=로 명시하는
+추가할 checked 선언은 모두 =add=이다. ABI 2에서 =coord_t= field를 =int32_t=로 명시하는
 후보는 =abi-major=이며 ABI 1 layout에 덮어쓰지 않는다.
 
 * 함수군별 상세 결함과 목표 계약
@@ -98,8 +102,7 @@
 - =COORD_MIN/MAX=는 저장 가능한 C =int= 범위가 아니라 프로젝트 정책 범위다. 이름을
   =BYUL_COORD_COMPONENT_MIN/MAX=로 바꾸고 exact numeric ABI manifest에 기록한다.
 - checked 연산은 64-bit 중간값으로 계산하고 범위 초과 시
-  =NAVSYS_STATUS_INVALID_ARGUMENT= 또는 별도 =OUT_OF_RANGE= 결정 전까지 출력과 원본을
-  보존한다.
+  =NAVSYS_STATUS_INVALID_ARGUMENT=을 반환하며 출력과 원본을 보존한다.
 - legacy 연산은 기존 wrapping을 재현하는 adapter로 남기되 deprecated annotation과
   문서로 silent policy를 노출한다. 새 코드가 legacy를 호출하지 않게 lint한다.
 - =coord_div_checked=는 scalar 0을 거부하고 C 정수 나눗셈의 truncation-toward-zero를
@@ -112,15 +115,15 @@
   Manhattan은 =int64_t= out을 우선 후보로 한다.
 - 동일한 두 점은 방향이 정의되지 않은 입력으로 취급한다. 기존 0 반환은 legacy에서만
   보존하고 새 함수는 status를 반환한다.
-- =coord_next_to_goal=의 이웃 topology를 8-neighbor로 고정하는지, 대각선 tie가
-  x/y 중 어느 축 우선인지 golden test로 선언한다.
+- =coord_next_to_goal=의 이웃 topology는 8-neighbor다. 서로 다른 x/y 축을 각각 한 칸씩
+  동시에 goal 방향으로 이동하며 축 우선순위는 두지 않는다.
 
 ** allocation, format와 I/O
 
 - =create/copy=는 C++ =new= 예외가 C 경계를 넘지 않게 catch하고 status/out handle을
   제공한다. 작은 value type은 caller storage 초기화가 canonical이다.
 - 문자열 변환은 =(object, buffer, capacity, out_required)= 순서와 two-call 규칙을 쓴다.
-  NUL 포함 필요 크기인지 제외 길이인지 하나로 고정한다.
+  =out_required=는 NUL을 포함한 byte 수다.
 - =coord_print=는 library core에서 stdout을 만지지 않는다. debug/log sink 층으로
   옮기고 ABI 1 함수는 =coord_format= 결과를 출력하는 deprecated adapter로만 둔다.
 
@@ -151,8 +154,8 @@ BYUL_API navsys_status_t coord_mul_checked(
 BYUL_API navsys_status_t coord_div_checked(
     coord_t* out, const coord_t* a, int32_t scalar);
 
-BYUL_API int coord_compare_canonical(
-    const coord_t* a, const coord_t* b);
+BYUL_API navsys_status_t coord_compare_canonical(
+    const coord_t* a, const coord_t* b, int* out_order);
 BYUL_API navsys_status_t coord_distance_f64(
     const coord_t* a, const coord_t* b, double* out_distance);
 BYUL_API navsys_status_t coord_manhattan_distance_i64(
@@ -171,8 +174,8 @@ BYUL_API navsys_status_t coord_format(
     size_t* out_required);
 #+end_src
 
-=coord_add_checked(out, out, b)= 같은 aliasing을 허용하는지 모든 산술 함수에서 동일하게
-결정한다. 허용 시 입력을 local snapshot한 뒤 출력한다.
+=coord_add_checked(out, out, b)=와 =coord_add_checked(out, a, out)= 같은 aliasing을
+허용한다. 모든 checked 산술 함수는 입력을 local snapshot한 뒤 출력한다.
 
 * ABI, wrapper, build와 test 영향
 
@@ -187,9 +190,50 @@ BYUL_API navsys_status_t coord_format(
 - test는 NULL, 경계값, 산술 overflow, 0 나눗셈, aliasing, 동일점 각도, 모든 사분면,
   two-call format, OOM/예외 경계, layout size/align/offset을 포함한다.
 
+* ABI와 수치 정책 결정 기록
+
+Machine-readable 원본은 =coord-abi-policy.json=이다. 이 문서의 표와 manifest가 다르면
+manifest test가 실패하며 둘을 같은 변경에서 고친다.
+
+** ABI 1.x와 legacy
+
+- =coord_t=는 ABI 1.x에서 ={int x; int y;}= field 순서와 공개 layout을 유지한다.
+- component 정책 범위는 양 끝을 포함한 =[-200000000, 200000000]=이며 period는
+  =400000001=이다.
+- legacy 함수는 C =int= 중간 연산이 overflow하지 않는 domain에서 Euclidean modulo
+  wrapping을 유지한다. Signed overflow가 가능한 임의 scalar 입력은 보장된 legacy
+  domain이 아니며 checked 구현은 반드시 =int64_t= 중간값을 사용한다.
+- 기존 동일점 angle 0, 0 나눗셈 무동작과 기존 symbol은 ABI 1.x adapter에서만 보존한다.
+
+** Checked status와 output 보존
+
+coord 계약은 상위 업계 기준의 =navsys_status_t= numeric value를 사용한다.
+=OK= 0, =INCOMPLETE= 2, =INVALID_ARGUMENT= -1, =OUT_OF_MEMORY= -2를
+=coord-abi-policy.json=에 pin한다. Status type의 공통 owner와 header 도입은 상위
+=todo-navsys-industry-api-baseline.org= 구현을 선행 dependency로 사용한다.
+
+| 함수군 | 실패 조건 | status | output 계약 |
+|--------+-----------+--------+-------------|
+| init/add/sub/mul/div | 필수 pointer NULL, component 범위 초과, 0 divisor | =INVALID_ARGUMENT= | 모든 output과 aliased input 보존 |
+| create/copy | invalid input | =INVALID_ARGUMENT= | =*out_coord= 보존 |
+| create/copy | allocation 실패 | =OUT_OF_MEMORY= | =*out_coord= 보존 |
+| compare/distance/manhattan | 필수 pointer NULL | =INVALID_ARGUMENT= | scalar out 보존 |
+| angle rad/deg | 필수 pointer NULL 또는 동일점 | =INVALID_ARGUMENT= | =out_angle= 보존 |
+| step | 필수 pointer NULL | =INVALID_ARGUMENT= | =out_next= 보존 |
+| format | 필수 =coord/out_required= NULL 또는 buffer/capacity 조합 오류 | =INVALID_ARGUMENT= | 모든 output 보존 |
+| format | capacity 부족 | =INCOMPLETE= | NUL 포함 필요량을 =out_required=에 쓰고 buffer 보존 |
+
+- Checked add/sub는 =out==a=와 =out==b=를, mul/div는 =out==a=를 허용한다.
+- Checked step은 =out_next==start=와 =out_next==goal=을 허용한다. 구현은 모든 입력을
+  snapshot한 뒤 결과를 쓴다.
+- Format query는 =out_buffer==NULL && capacity==0=을 허용하고 NUL 포함 필요 byte 수를
+  =out_required=에 쓴 뒤 =OK=를 반환한다. 문자열 encoding은 UTF-8이다.
+- Negative status는 항상 모든 output을 보존한다. =INCOMPLETE=의 =out_required= 갱신만
+  명시적 예외다.
+
 * 구현 순서
 
-** DOING 1단계: ABI와 수치 정책 고정
+** DONE 1단계: ABI와 수치 정책 고정
 
 *** 실행
 
@@ -220,8 +264,17 @@ BYUL_API navsys_status_t coord_format(
 - canonical generator로 Python CFFI 선언을 갱신하고 =--check=를 통과했다. 사용 가능한
   UE Python에는 =cffi=가 없어 wrapper runtime test는 실행하지 못했으며 generator 단위
   test로 생성 경로를 검증했다.
-- 범위 초과, wrapping, aliasing과 실패 시 output 보존 정책은 아직 결정하지 않았으므로
-  1단계는 =DOING=으로 유지한다.
+- legacy 정책 변경 전에 64-bit reference 계산과 비교하는 wrapping truth table을
+  추가했다. 안전한 =int= 중간값 범위에서 init/add/sub/mul의 modulo 동작, 산술
+  =out == input= aliasing, 0 나눗셈 시 output 보존, 동일점 각도 0과
+  =coord_next_to_goal(out == start)= 동작을 MSVC Release module/root test로 고정했다.
+- =coord-abi-policy.json=에 2개 macro, =coord_t=와 현행 37개 함수의 처분을 기록하고
+  header parser와 exact set 비교를 추가했다. 14개 planned checked API의 aliasing,
+  status와 실패 output 정책도 machine-readable하게 고정했다.
+- repository 기본 =tools/python/.venv/Scripts/python.exe=에서 CFFI와 pytest를 확인하고
+  generator/parser/manifest unit test 17개를 통과했다.
+- 같은 interpreter에 MSVC Release =byul.dll=을 명시한 wrapper/native integration
+  test 46개를 통과해 앞서 UE Python에서 실행하지 못한 runtime 검증을 보완했다.
 
 ** TODO 2단계: checked value API 구현
 

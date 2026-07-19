@@ -28,11 +28,12 @@ class TestsRunnerTest(unittest.TestCase):
     def test_unit_only_unittest_builds_one_discovery_per_file(self):
         commands = RUNNER.build_commands("unittest", unit_only=True, quiet=False)
 
-        self.assertEqual(len(commands), 4)
+        self.assertEqual(len(commands), 5)
         self.assertIn("test_generate_wrapper_abi.py", commands[0])
         self.assertIn("test_header_parser.py", commands[1])
-        self.assertIn("test_tests_runner.py", commands[2])
-        self.assertIn("test_wrapper_coverage.py", commands[3])
+        self.assertIn("test_coord_abi_policy.py", commands[2])
+        self.assertIn("test_tests_runner.py", commands[3])
+        self.assertIn("test_wrapper_coverage.py", commands[4])
 
     def test_argument_parser_defaults_to_all_pytest_tests(self):
         args = RUNNER.parse_args([])
