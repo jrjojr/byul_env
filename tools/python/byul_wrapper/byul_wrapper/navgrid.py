@@ -222,7 +222,12 @@ class c_navgrid:
         C.navgrid_clear(self._c)
 
     def blocked_coords(self):
-        return c_coord_hash(raw_ptr=C.navgrid_get_blocked_coords(self._c), own=False)
+        return c_coord_hash(
+            raw_ptr=C.navgrid_get_blocked_coords(self._c),
+            own=False,
+            value_type="none",
+            parent=self,
+        )
 
     # ───── 이웃 탐색 ─────
     def neighbors(self, x, y):

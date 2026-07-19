@@ -10,6 +10,8 @@ on:
       - "byul/navsys/coord/**"
       - "byul/navsys/tests/**"
       - "byul/tests/**"
+      - "docs/ko/todo/navsys/coord-hash-abi-policy.json"
+      - "docs/ko/todo/navsys/todo-navsys-coord-coord-hash.org"
       - "docs/ko/todo/navsys/todo-navsys-coord-coord.org"
       - "tools/header_abi_audit.py"
       - "tools/header_refactor_build_snapshot.py"
@@ -64,37 +66,65 @@ jobs:
           --target test_coord byul test_byul
           test_navsys_allocation_failure
 
-      - name: Verify coord is instrumented in both inventories
+      - name: Verify the complete coord inventory in static and root targets
         shell: python
         run: |
           import json
           from pathlib import Path
 
+          manifest = json.loads(
+              Path(
+                  "docs/ko/todo/navsys/coord-hash-abi-policy.json"
+              ).read_text(encoding="utf-8")
+          )
+          inventory = manifest["build_inventory"]
+          expected = set(inventory["sources"])
+          definitions = {
+              "module": f'-D{inventory["module_compile_definition"]}',
+              "root": f'-D{inventory["root_compile_definition"]}',
+          }
           commands = json.loads(
               Path("build_debug/compile_commands.json").read_text(
                   encoding="utf-8"
               )
           )
-          coord_commands = [
-              entry["command"]
-              for entry in commands
-              if Path(entry["file"]).as_posix().endswith(
-                  "/navsys/coord/coord.cpp"
+          observed = {target: set() for target in definitions}
+          uninstrumented = []
+          for entry in commands:
+              source = Path(entry["file"]).resolve().as_posix()
+              matched = next(
+                  (
+                      approved
+                      for approved in expected
+                      if source.endswith(approved)
+                  ),
+                  None,
               )
-          ]
-          if len(coord_commands) < 2:
+              if matched is None:
+                  continue
+              command = entry["command"]
+              for target, definition in definitions.items():
+                  if definition not in command:
+                      continue
+                  observed[target].add(matched)
+                  if "-fsanitize=undefined" not in command:
+                      uninstrumented.append((target, matched))
+
+          for target, sources in observed.items():
+              missing = sorted(expected - sources)
+              if missing:
+                  raise SystemExit(
+                      f"{target} coord inventory is incomplete: {missing}"
+                  )
+          if uninstrumented:
               raise SystemExit(
-                  "coord.cpp was not compiled for both module and root targets"
+                  "coord compile commands are missing UBSan: "
+                  f"{uninstrumented}"
               )
-          missing = [
-              command
-              for command in coord_commands
-              if "-fsanitize=undefined" not in command
-          ]
-          if missing:
-              raise SystemExit(
-                  "coord.cpp compile command is missing UBSan instrumentation"
-              )
+          print(
+              "verified coord inventory:",
+              {target: len(sources) for target, sources in observed.items()},
+          )
 
       - name: Stage the root shared SDK component
         run: >-

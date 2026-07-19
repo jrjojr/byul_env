@@ -8,6 +8,7 @@
 #include "navsys.h"
 
 #include <cstddef>
+#include <cstdint>
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
@@ -119,6 +120,208 @@ bool verify_coord_checked_allocation_failure() {
     return true;
 }
 
+#if !defined(_MSC_VER)
+bool verify_coord_list_checked_allocation_failure() {
+    const std::size_t baseline = tracked_live_allocations;
+    coord_list_t* const pointer_sentinel =
+        reinterpret_cast<coord_list_t*>(1);
+
+    coord_list_t* created = pointer_sentinel;
+    track_allocations = true;
+    fail_after = 0;
+    const navsys_status_t create_status =
+        coord_list_create_ex(&created);
+    fail_after = -1;
+    track_allocations = false;
+    if (create_status != NAVSYS_STATUS_OUT_OF_MEMORY
+        || created != pointer_sentinel
+        || tracked_live_allocations != baseline) {
+        std::fprintf(
+            stderr,
+            "coord_list_create_ex did not preserve output on allocation failure\n");
+        return false;
+    }
+
+    coord_list_t* list = nullptr;
+    if (coord_list_create_ex(&list) != NAVSYS_STATUS_OK || !list) {
+        return false;
+    }
+    coord_t first = {1, 2};
+    coord_t second = {3, 4};
+
+    track_allocations = true;
+    fail_after = 0;
+    const navsys_status_t push_status =
+        coord_list_push_back_ex(list, &first);
+    fail_after = -1;
+    track_allocations = false;
+    if (push_status != NAVSYS_STATUS_OUT_OF_MEMORY
+        || coord_list_size(list) != 0
+        || tracked_live_allocations != baseline) {
+        std::fprintf(
+            stderr,
+            "coord_list_push_back_ex was not failure-atomic\n");
+        coord_list_destroy(list);
+        return false;
+    }
+
+    if (coord_list_push_back_ex(list, &first) != NAVSYS_STATUS_OK) {
+        coord_list_destroy(list);
+        return false;
+    }
+
+    track_allocations = true;
+    fail_after = 0;
+    const navsys_status_t insert_status =
+        coord_list_insert_ex(list, 0, &second);
+    fail_after = -1;
+    track_allocations = false;
+    coord_t preserved = {-1, -1};
+    if (insert_status != NAVSYS_STATUS_OUT_OF_MEMORY
+        || coord_list_size(list) != 1
+        || coord_list_fetch(list, 0, &preserved) != NAVSYS_STATUS_OK
+        || preserved.x != first.x
+        || preserved.y != first.y
+        || tracked_live_allocations != baseline) {
+        std::fprintf(
+            stderr,
+            "coord_list_insert_ex was not failure-atomic\n");
+        coord_list_destroy(list);
+        return false;
+    }
+
+    const std::ptrdiff_t copy_failure_points[] = {0, 1};
+    for (const std::ptrdiff_t allocation : copy_failure_points) {
+        coord_list_t* copied = pointer_sentinel;
+        track_allocations = true;
+        fail_after = allocation;
+        const navsys_status_t copy_status =
+            coord_list_copy_ex(list, &copied);
+        fail_after = -1;
+        track_allocations = false;
+        if (copy_status != NAVSYS_STATUS_OUT_OF_MEMORY
+            || copied != pointer_sentinel
+            || coord_list_size(list) != 1
+            || tracked_live_allocations != baseline) {
+            std::fprintf(
+                stderr,
+                "coord_list_copy_ex was not failure-atomic at allocation %td\n",
+                allocation);
+            coord_list_destroy(list);
+            return false;
+        }
+    }
+
+    coord_list_destroy(list);
+    return true;
+}
+
+bool verify_cost_coord_pq_checked_allocation_failure() {
+    const std::size_t baseline = tracked_live_allocations;
+    const cost_coord_pq_create_info_t info = {
+        static_cast<std::uint32_t>(sizeof(cost_coord_pq_create_info_t)),
+        BYUL_COST_COORD_PQ_CREATE_INFO_ABI_VERSION,
+        0
+    };
+    cost_coord_pq_t* const sentinel =
+        reinterpret_cast<cost_coord_pq_t*>(1);
+    cost_coord_pq_t* created = sentinel;
+
+    track_allocations = true;
+    fail_after = 0;
+    const navsys_status_t create_status =
+        cost_coord_pq_create_ex(&info, &created);
+    fail_after = -1;
+    track_allocations = false;
+    if (create_status != NAVSYS_STATUS_OUT_OF_MEMORY
+        || created != sentinel
+        || tracked_live_allocations != baseline) {
+        std::fprintf(
+            stderr,
+            "cost_coord_pq_create_ex did not preserve output on allocation failure\n");
+        return false;
+    }
+
+    cost_coord_pq_t* queue = nullptr;
+    if (cost_coord_pq_create_ex(&info, &queue) != NAVSYS_STATUS_OK
+        || !queue) {
+        return false;
+    }
+    const coord_t coord = {11, 13};
+    track_allocations = true;
+    fail_after = 0;
+    const navsys_status_t push_status =
+        cost_coord_pq_push_ex(queue, 2.0f, &coord);
+    fail_after = -1;
+    track_allocations = false;
+    float output_cost = 17.0f;
+    coord_t output_coord = {19, 23};
+    if (push_status != NAVSYS_STATUS_OUT_OF_MEMORY
+        || cost_coord_pq_peek_min(
+            queue, &output_cost, &output_coord) != NAVSYS_STATUS_NOT_FOUND
+        || output_cost != 17.0f
+        || output_coord.x != 19
+        || output_coord.y != 23
+        || tracked_live_allocations != baseline) {
+        std::fprintf(
+            stderr,
+            "cost_coord_pq_push_ex was not failure-atomic\n");
+        cost_coord_pq_destroy(queue);
+        return false;
+    }
+
+    if (cost_coord_pq_push_ex(queue, 2.0f, &coord)
+        != NAVSYS_STATUS_OK) {
+        cost_coord_pq_destroy(queue);
+        return false;
+    }
+    track_allocations = true;
+    fail_after = 0;
+    const navsys_status_t pop_status =
+        cost_coord_pq_pop_min(queue, &output_cost, &output_coord);
+    fail_after = -1;
+    track_allocations = false;
+    if (pop_status != NAVSYS_STATUS_OK
+        || output_cost != 2.0f
+        || output_coord.x != coord.x
+        || output_coord.y != coord.y
+        || tracked_live_allocations != baseline) {
+        std::fprintf(
+            stderr,
+            "cost_coord_pq_pop_min unexpectedly allocated output storage\n");
+        cost_coord_pq_destroy(queue);
+        return false;
+    }
+
+    cost_coord_pq_push(queue, 3.0f, &coord);
+    track_allocations = true;
+    coord_t* legacy_output = cost_coord_pq_pop(queue);
+    track_allocations = false;
+    if (!legacy_output
+        || legacy_output->x != coord.x
+        || legacy_output->y != coord.y
+        || tracked_live_allocations != baseline + 1) {
+        std::fprintf(
+            stderr,
+            "cost_coord_pq_pop did not return one caller-owned allocation\n");
+        coord_destroy(legacy_output);
+        cost_coord_pq_destroy(queue);
+        return false;
+    }
+    coord_destroy(legacy_output);
+    if (tracked_live_allocations != baseline) {
+        std::fprintf(
+            stderr,
+            "coord_destroy did not release legacy cost_coord_pq_pop output\n");
+        cost_coord_pq_destroy(queue);
+        return false;
+    }
+
+    cost_coord_pq_destroy(queue);
+    return true;
+}
+#endif
+
 template <typename T>
 bool verify_failure_atomic_create(
     const char* family,
@@ -211,6 +414,16 @@ int main(int argc, char** argv) {
     if (!verify_coord_checked_allocation_failure()) {
         return 1;
     }
+#if !defined(_MSC_VER)
+    // MSVC's STL uses iterator-proxy allocation that cannot be safely
+    // failure-injected through the executable's global operator new.
+    if (!verify_coord_list_checked_allocation_failure()) {
+        return 7;
+    }
+    if (!verify_cost_coord_pq_checked_allocation_failure()) {
+        return 8;
+    }
+#endif
 
     if (!verify_failure_atomic_create(
             "coord", create_checked_coord, coord_destroy)) {

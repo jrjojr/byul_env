@@ -1,4 +1,5 @@
 from .ffi_core import ffi, C
+from .navsys_status import NavsysStatus, raise_for_status
 import weakref
 
 from .coord import c_coord
@@ -10,14 +11,72 @@ ffi.cdef("""
 /* Source: byul/navsys/coord/coord_list.h */
 typedef struct s_coord_list coord_list_t;
 
+ navsys_status_t coord_list_create_ex(coord_list_t** out_list);
+
+ navsys_status_t coord_list_copy_ex(
+    const coord_list_t* source, coord_list_t** out_list);
+
+ size_t coord_list_size(const coord_list_t* list);
+
+ navsys_status_t coord_list_fetch(
+    const coord_list_t* list, size_t index, coord_t* out_coord);
+
+ navsys_status_t coord_list_fetch_front(
+    const coord_list_t* list, coord_t* out_coord);
+
+ navsys_status_t coord_list_fetch_back(
+    const coord_list_t* list, coord_t* out_coord);
+
+ navsys_status_t coord_list_push_back_ex(
+    coord_list_t* list, const coord_t* coord);
+
+ navsys_status_t coord_list_try_pop_back(
+    coord_list_t* list, coord_t* out_coord);
+
+ navsys_status_t coord_list_try_pop_front(
+    coord_list_t* list, coord_t* out_coord);
+
+ navsys_status_t coord_list_insert_ex(
+    coord_list_t* list, size_t index, const coord_t* coord);
+
+ navsys_status_t coord_list_remove_at_ex(
+    coord_list_t* list, size_t index, coord_t* out_removed);
+
+ navsys_status_t coord_list_remove_value_ex(
+    coord_list_t* list, const coord_t* coord, bool* out_removed);
+
+ navsys_status_t coord_list_find_ex(
+    const coord_list_t* list, const coord_t* coord,
+    size_t* out_index, bool* out_found);
+
+ navsys_status_t coord_list_reserve(
+    coord_list_t* list, size_t capacity);
+
+ navsys_status_t coord_list_create_slice(
+    const coord_list_t* source, size_t begin, size_t end,
+    coord_list_t** out_list);
+
+ navsys_status_t coord_list_equal(
+    const coord_list_t* a, const coord_list_t* b, bool* out_equal);
+
+ navsys_status_t coord_list_export(
+    const coord_list_t* list, coord_t* out_coords,
+    size_t capacity, size_t* out_count);
+
  coord_list_t* coord_list_create(void);
+
  void coord_list_destroy(coord_list_t* list);
+
  coord_list_t* coord_list_copy(const coord_list_t* list);
 
  int coord_list_length(const coord_list_t* list);
+
  bool coord_list_empty(const coord_list_t* list);
+
  const coord_t* coord_list_get(const coord_list_t* list, int index);
+
  const coord_t* coord_list_front(const coord_list_t* list);
+
  const coord_t* coord_list_back(const coord_list_t* list);
 
  int coord_list_push_back(coord_list_t* list, const coord_t* c);
@@ -27,110 +86,242 @@ typedef struct s_coord_list coord_list_t;
  coord_t coord_list_pop_front(coord_list_t* list);
 
  int coord_list_insert(coord_list_t* list, int index, const coord_t* c);
+
  void coord_list_remove_at(coord_list_t* list, int index);
+
  void coord_list_remove_value(coord_list_t* list, const coord_t* c);
+
  void coord_list_clear(coord_list_t* list);
+
  void coord_list_reverse(coord_list_t* list);
 
- int  coord_list_contains(const coord_list_t* list, const coord_t* c);
- int  coord_list_find(const coord_list_t* list, const coord_t* c);
+ int coord_list_contains(
+    const coord_list_t* list, const coord_t* c);
 
- coord_list_t* coord_list_sublist(const coord_list_t* list, int start, int end);
+ int coord_list_find(
+    const coord_list_t* list, const coord_t* c);
+
+ coord_list_t* coord_list_sublist(
+    const coord_list_t* list, int start, int end);
 
  bool coord_list_equals(const coord_list_t* a, const coord_list_t* b);
 """)
 
 class c_coord_list:
     def __init__(self, raw_ptr=None, own=False):
+        self._c = ffi.NULL
+        self._own = False
+        self._finalizer = None
         if raw_ptr is not None:
+            if raw_ptr == ffi.NULL:
+                raise ValueError("raw_ptr must not be NULL")
             self._c = raw_ptr
             self._own = own
         else:
-            self._c = C.coord_list_create()
-            if not self._c:
-                raise MemoryError("coord_list allocation failed")
+            output = ffi.new("coord_list_t**")
+            raise_for_status(
+                C.coord_list_create_ex(output),
+                "coord_list_create_ex",
+            )
+            self._c = output[0]
             self._own = True
 
         if self._own:
             self._finalizer = weakref.finalize(self, C.coord_list_destroy, self._c)
-        else:
-            self._finalizer = None
+
+    def _require_open(self):
+        if self._c == ffi.NULL:
+            raise ReferenceError("c_coord_list is closed")
+        return self._c
+
+    @staticmethod
+    def _require_coord(value, argument="coord"):
+        if not isinstance(value, c_coord):
+            raise TypeError(f"{argument} must be c_coord")
+        return value.ptr()
+
+    @staticmethod
+    def _coord_from_value(value):
+        return c_coord(raw_ptr=ffi.new("coord_t *", value))
 
     def __len__(self):
-        return C.coord_list_length(self._c)
+        return C.coord_list_size(self._require_open())
 
     def __getitem__(self, index):
+        if isinstance(index, slice):
+            if index.step not in (None, 1):
+                raise ValueError("coord_list slices require a step of 1")
+            start, stop, _ = index.indices(len(self))
+            return self.sublist(start, stop)
+        if not isinstance(index, int):
+            raise TypeError("coord_list indices must be integers or slices")
         if index < 0 or index >= len(self):
             raise IndexError("coord_list index out of range")
-        ptr = C.coord_list_get(self._c, index)
-        return c_coord(raw_ptr=ptr) if ptr != ffi.NULL else None
+        output = ffi.new("coord_t*")
+        raise_for_status(
+            C.coord_list_fetch(self._require_open(), index, output),
+            "coord_list_fetch",
+        )
+        return self._coord_from_value(output[0])
 
     def __iter__(self):
-        for i in range(len(self)):
-            yield self[i]
+        return iter(self.to_list())
 
     def __contains__(self, item):
-        return isinstance(item, c_coord) and C.coord_list_contains(self._c, item.ptr()) != 0
+        if not isinstance(item, c_coord):
+            return False
+        index = ffi.new("size_t*")
+        found = ffi.new("bool*")
+        raise_for_status(
+            C.coord_list_find_ex(
+                self._require_open(), item.ptr(), index, found
+            ),
+            "coord_list_find_ex",
+        )
+        return bool(found[0])
 
     def index(self, item):
-        if not isinstance(item, c_coord):
-            raise TypeError("index() expects a c_coord object")
-        return C.coord_list_find(self._c, item.ptr())
+        pointer = self._require_coord(item, "item")
+        index = ffi.new("size_t*")
+        found = ffi.new("bool*")
+        raise_for_status(
+            C.coord_list_find_ex(
+                self._require_open(), pointer, index, found
+            ),
+            "coord_list_find_ex",
+        )
+        return int(index[0]) if found[0] else -1
 
     def front(self):
-        ptr = C.coord_list_front(self._c)
-        return c_coord(raw_ptr=ptr) if ptr != ffi.NULL else None
+        output = ffi.new("coord_t*")
+        status = NavsysStatus(
+            C.coord_list_fetch_front(self._require_open(), output)
+        )
+        if status is NavsysStatus.NOT_FOUND:
+            return None
+        raise_for_status(status, "coord_list_fetch_front")
+        return self._coord_from_value(output[0])
 
     def back(self):
-        ptr = C.coord_list_back(self._c)
-        return c_coord(raw_ptr=ptr) if ptr != ffi.NULL else None
+        output = ffi.new("coord_t*")
+        status = NavsysStatus(
+            C.coord_list_fetch_back(self._require_open(), output)
+        )
+        if status is NavsysStatus.NOT_FOUND:
+            return None
+        raise_for_status(status, "coord_list_fetch_back")
+        return self._coord_from_value(output[0])
 
     def append(self, coord):
-        if not isinstance(coord, c_coord):
-            raise TypeError("append expects a c_coord object")
-        return C.coord_list_push_back(self._c, coord.ptr())
+        raise_for_status(
+            C.coord_list_push_back_ex(
+                self._require_open(), self._require_coord(coord)
+            ),
+            "coord_list_push_back_ex",
+        )
+        return True
 
     def pop(self):
-        val = C.coord_list_pop_back(self._c)
-        return c_coord(raw_ptr=ffi.new("coord_t *", val))
+        output = ffi.new("coord_t*")
+        status = NavsysStatus(
+            C.coord_list_try_pop_back(self._require_open(), output)
+        )
+        if status is NavsysStatus.NOT_FOUND:
+            raise IndexError("pop from empty coord_list")
+        raise_for_status(status, "coord_list_try_pop_back")
+        return self._coord_from_value(output[0])
 
     def pop_front(self):
-        val = C.coord_list_pop_front(self._c)
-        return c_coord(raw_ptr=ffi.new("coord_t *", val))
+        output = ffi.new("coord_t*")
+        status = NavsysStatus(
+            C.coord_list_try_pop_front(self._require_open(), output)
+        )
+        if status is NavsysStatus.NOT_FOUND:
+            raise IndexError("pop from empty coord_list")
+        raise_for_status(status, "coord_list_try_pop_front")
+        return self._coord_from_value(output[0])
 
     def insert(self, index, coord):
-        if not isinstance(coord, c_coord):
-            raise TypeError("insert expects a c_coord object")
-        return C.coord_list_insert(self._c, index, coord.ptr())
+        if not isinstance(index, int):
+            raise TypeError("index must be int")
+        if index < 0 or index > len(self):
+            raise IndexError("coord_list insert index out of range")
+        raise_for_status(
+            C.coord_list_insert_ex(
+                self._require_open(), index, self._require_coord(coord)
+            ),
+            "coord_list_insert_ex",
+        )
+        return True
 
     def remove_at(self, index):
-        C.coord_list_remove_at(self._c, index)
+        if not isinstance(index, int) or index < 0 or index >= len(self):
+            raise IndexError("coord_list index out of range")
+        removed = ffi.new("coord_t*")
+        raise_for_status(
+            C.coord_list_remove_at_ex(
+                self._require_open(), index, removed
+            ),
+            "coord_list_remove_at_ex",
+        )
 
     def remove_value(self, coord):
-        if not isinstance(coord, c_coord):
-            raise TypeError("remove_value expects a c_coord object")
-        C.coord_list_remove_value(self._c, coord.ptr())
+        removed = ffi.new("bool*")
+        raise_for_status(
+            C.coord_list_remove_value_ex(
+                self._require_open(),
+                self._require_coord(coord),
+                removed,
+            ),
+            "coord_list_remove_value_ex",
+        )
+        return bool(removed[0])
 
     def clear(self):
-        C.coord_list_clear(self._c)
+        C.coord_list_clear(self._require_open())
 
     def reverse(self):
-        C.coord_list_reverse(self._c)
+        C.coord_list_reverse(self._require_open())
 
     def copy(self):
-        return c_coord_list(raw_ptr=C.coord_list_copy(self._c), own=True)
+        output = ffi.new("coord_list_t**")
+        raise_for_status(
+            C.coord_list_copy_ex(self._require_open(), output),
+            "coord_list_copy_ex",
+        )
+        return c_coord_list(raw_ptr=output[0], own=True)
 
     def sublist(self, start, end):
-        return c_coord_list(raw_ptr=C.coord_list_sublist(self._c, start, end), own=True)
+        if not isinstance(start, int) or not isinstance(end, int):
+            raise TypeError("slice bounds must be integers")
+        if start < 0 or end < start or end > len(self):
+            raise IndexError("coord_list slice out of range")
+        output = ffi.new("coord_list_t**")
+        raise_for_status(
+            C.coord_list_create_slice(
+                self._require_open(), start, end, output
+            ),
+            "coord_list_create_slice",
+        )
+        return c_coord_list(raw_ptr=output[0], own=True)
 
     def equals(self, other):
-        return isinstance(other, c_coord_list) and C.coord_list_equals(self._c, other._c)
+        if not isinstance(other, c_coord_list):
+            return False
+        equal = ffi.new("bool*")
+        raise_for_status(
+            C.coord_list_equal(
+                self._require_open(), other._require_open(), equal
+            ),
+            "coord_list_equal",
+        )
+        return bool(equal[0])
 
     def empty(self):
-        return C.coord_list_empty(self._c)
+        return len(self) == 0
 
     def ptr(self):
-        return self._c
+        return self._require_open()
 
     def __str__(self):
         return "[" + ", ".join(str(c) for c in self) + "]"
@@ -139,26 +330,53 @@ class c_coord_list:
         return f"c_coord_list(len={len(self)})"
 
     def __del__(self):
-        self.close()
+        try:
+            self.close()
+        except Exception:
+            pass
 
     def close(self):
-        if self._own and self._finalizer and self._finalizer.alive:
-            self._finalizer()
+        finalizer = getattr(self, "_finalizer", None)
+        if getattr(self, "_own", False) and finalizer and finalizer.alive:
+            finalizer()
+        self._c = ffi.NULL
+        self._own = False
 
     def __enter__(self):
+        self._require_open()
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         self.close()
 
     def to_list(self):
-        return [c.copy() for c in self]
+        required = ffi.new("size_t*")
+        raise_for_status(
+            C.coord_list_export(
+                self._require_open(), ffi.NULL, 0, required
+            ),
+            "coord_list_export",
+        )
+        if required[0] == 0:
+            return []
+        buffer = ffi.new("coord_t[]", required[0])
+        raise_for_status(
+            C.coord_list_export(
+                self._require_open(), buffer, required[0], required
+            ),
+            "coord_list_export",
+        )
+        return [self._coord_from_value(buffer[index]) for index in range(required[0])]
 
     @classmethod
     def from_list(cls, lst):
         clist = cls()
-        for c in lst:
-            if not isinstance(c, c_coord):
-                raise TypeError("from_list() expects only c_coord elements")
-            clist.append(c)
-        return clist
+        try:
+            for c in lst:
+                if not isinstance(c, c_coord):
+                    raise TypeError("from_list() expects only c_coord elements")
+                clist.append(c)
+            return clist
+        except Exception:
+            clist.close()
+            raise

@@ -1,12 +1,92 @@
 #include <cassert>
 #include <cstddef>
+#include <cstdint>
 #include <cstring>
 #include <type_traits>
 
 #include "coord.h"
+#include "coord_hash.h"
+#include "cost_coord_pq.h"
+
+struct coord_hash_callback_counts {
+    int copies{};
+    int destroys{};
+    int equals{};
+};
+
+static navsys_status_t copy_coord_hash_int(
+    const void* source,
+    void** out_copy,
+    void* userdata) {
+    auto* counts = static_cast<coord_hash_callback_counts*>(userdata);
+    if (!source || !out_copy || !counts) {
+        return NAVSYS_STATUS_INVALID_ARGUMENT;
+    }
+    void* copied = coord_hash_int_copy(source);
+    if (!copied) {
+        return NAVSYS_STATUS_OUT_OF_MEMORY;
+    }
+    ++counts->copies;
+    *out_copy = copied;
+    return NAVSYS_STATUS_OK;
+}
+
+static void destroy_coord_hash_int(void* value, void* userdata) {
+    auto* counts = static_cast<coord_hash_callback_counts*>(userdata);
+    if (counts) {
+        ++counts->destroys;
+    }
+    coord_hash_int_destroy(value);
+}
+
+static bool equal_coord_hash_int(
+    const void* lhs,
+    const void* rhs,
+    void* userdata) {
+    auto* counts = static_cast<coord_hash_callback_counts*>(userdata);
+    if (!lhs || !rhs || !counts) {
+        return false;
+    }
+    ++counts->equals;
+    return *static_cast<const int*>(lhs) == *static_cast<const int*>(rhs);
+}
 
 int main() {
     static_assert(std::is_standard_layout_v<coord_t>);
+    static_assert(std::is_standard_layout_v<coord_hash_create_info_t>);
+    static_assert(std::is_standard_layout_v<coord_hash_entry_view_t>);
+    static_assert(std::is_standard_layout_v<cost_coord_pq_create_info_t>);
+    static_assert(
+        std::is_same_v<
+            decltype(&copy_coord_hash_int),
+            coord_hash_value_copy_func_ex>);
+    static_assert(
+        std::is_same_v<
+            decltype(&destroy_coord_hash_int),
+            coord_hash_value_destroy_func_ex>);
+    static_assert(
+        std::is_same_v<
+            decltype(&equal_coord_hash_int),
+            coord_hash_value_equal_func_ex>);
+    static_assert(sizeof(void*) == 8);
+    static_assert(sizeof(coord_hash_create_info_t) == 40);
+    static_assert(alignof(coord_hash_create_info_t) == 8);
+    static_assert(offsetof(coord_hash_create_info_t, struct_size) == 0);
+    static_assert(offsetof(coord_hash_create_info_t, abi_version) == 4);
+    static_assert(offsetof(coord_hash_create_info_t, copy_value) == 8);
+    static_assert(offsetof(coord_hash_create_info_t, destroy_value) == 16);
+    static_assert(offsetof(coord_hash_create_info_t, equal_value) == 24);
+    static_assert(offsetof(coord_hash_create_info_t, userdata) == 32);
+    static_assert(sizeof(coord_hash_entry_view_t) == 16);
+    static_assert(alignof(coord_hash_entry_view_t) == 8);
+    static_assert(offsetof(coord_hash_entry_view_t, key) == 0);
+    static_assert(offsetof(coord_hash_entry_view_t, value) == 8);
+    static_assert(sizeof(cost_coord_pq_create_info_t) == 12);
+    static_assert(alignof(cost_coord_pq_create_info_t) == 4);
+    static_assert(offsetof(cost_coord_pq_create_info_t, struct_size) == 0);
+    static_assert(offsetof(cost_coord_pq_create_info_t, abi_version) == 4);
+    static_assert(offsetof(cost_coord_pq_create_info_t, flags) == 8);
+
     assert(sizeof(coord_t) == coord_sizeof());
     assert(alignof(coord_t) == coord_alignof());
     assert(offsetof(coord_t, x) == coord_offsetof_x());
@@ -24,5 +104,76 @@ int main() {
         coord_format(&value, buffer, sizeof(buffer), &required)
         == NAVSYS_STATUS_OK);
     assert(std::strcmp(buffer, "(-3, 7)") == 0);
+
+    coord_hash_callback_counts counts{};
+    coord_hash_create_info_t info{
+        static_cast<std::uint32_t>(sizeof(coord_hash_create_info_t)),
+        BYUL_COORD_HASH_CREATE_INFO_ABI_VERSION,
+        copy_coord_hash_int,
+        destroy_coord_hash_int,
+        equal_coord_hash_int,
+        &counts,
+    };
+    coord_hash_t* hash = nullptr;
+    assert(coord_hash_create_ex(&info, &hash) == NAVSYS_STATUS_OK);
+    assert(hash != nullptr);
+
+    coord_t key{5, 6};
+    int stored = 42;
+    bool inserted = false;
+    assert(
+        coord_hash_upsert_copy(hash, &key, &stored, &inserted)
+        == NAVSYS_STATUS_OK);
+    assert(inserted);
+
+    coord_hash_t* copied = nullptr;
+    assert(coord_hash_copy_ex(hash, &copied) == NAVSYS_STATUS_OK);
+    assert(copied != nullptr);
+    bool equal = false;
+    assert(coord_hash_equal_full(hash, copied, &equal) == NAVSYS_STATUS_OK);
+    assert(equal);
+
+    coord_hash_destroy(copied);
+    coord_hash_destroy(hash);
+    assert(counts.copies == 2);
+    assert(counts.destroys == 2);
+    assert(counts.equals == 1);
+
+    const cost_coord_pq_create_info_t pq_info{
+        static_cast<std::uint32_t>(sizeof(cost_coord_pq_create_info_t)),
+        BYUL_COST_COORD_PQ_CREATE_INFO_ABI_VERSION,
+        0,
+    };
+    cost_coord_pq_t* queue = nullptr;
+    assert(cost_coord_pq_create_ex(&pq_info, &queue) == NAVSYS_STATUS_OK);
+    assert(queue != nullptr);
+    const coord_t first{1, 2};
+    const coord_t second{3, 4};
+    assert(cost_coord_pq_push_ex(queue, 1.0f, &first) == NAVSYS_STATUS_OK);
+    assert(cost_coord_pq_push_ex(queue, 1.0f, &second) == NAVSYS_STATUS_OK);
+    float popped_cost = -1.0f;
+    coord_t popped_coord{-1, -1};
+    assert(
+        cost_coord_pq_pop_min(queue, &popped_cost, &popped_coord)
+        == NAVSYS_STATUS_OK);
+    assert(popped_cost == 1.0f);
+    assert(popped_coord.x == first.x);
+    assert(popped_coord.y == first.y);
+    assert(cost_coord_pq_size(queue) == 1);
+    bool removed = false;
+    assert(
+        cost_coord_pq_remove_one(queue, 1.0f, &second, &removed)
+        == NAVSYS_STATUS_OK);
+    assert(removed);
+    assert(cost_coord_pq_empty(queue));
+    assert(cost_coord_pq_push_ex(queue, 3.0f, &first) == NAVSYS_STATUS_OK);
+    assert(cost_coord_pq_push_ex(queue, 4.0f, &first) == NAVSYS_STATUS_OK);
+    std::size_t removed_count = 0;
+    assert(
+        cost_coord_pq_remove_all(queue, &first, &removed_count)
+        == NAVSYS_STATUS_OK);
+    assert(removed_count == 2);
+    cost_coord_pq_clear(queue);
+    cost_coord_pq_destroy(queue);
     return 0;
 }

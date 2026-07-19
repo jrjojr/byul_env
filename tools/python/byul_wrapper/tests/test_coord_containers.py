@@ -1,10 +1,11 @@
+import gc
 import unittest
+import weakref
 
 from byul_wrapper.coord import c_coord
 from byul_wrapper.coord_hash import c_coord_hash, c_coord_hash_iter
 from byul_wrapper.coord_list import c_coord_list
 from byul_wrapper.cost_coord_pq import c_cost_coord_pq
-from byul_wrapper.ffi_core import ffi
 from byul_wrapper.navsys_status import (
     NavsysInvalidArgumentError,
     NavsysOutOfMemoryError,
@@ -102,24 +103,153 @@ class CoordListTest(unittest.TestCase):
             coords.clear()
             self.assertTrue(coords.empty())
 
+    def test_empty_pop_index_and_slice_contracts(self):
+        with c_coord_list() as coords:
+            self.assertIsNone(coords.front())
+            self.assertIsNone(coords.back())
+            with self.assertRaises(IndexError):
+                coords.pop()
+            with self.assertRaises(IndexError):
+                coords.pop_front()
+            with self.assertRaises(IndexError):
+                _ = coords[0]
+
+            empty = coords[0:0]
+            try:
+                self.assertEqual(len(empty), 0)
+            finally:
+                empty.close()
+
+            with self.assertRaises(ValueError):
+                _ = coords[::2]
+
+    def test_fetch_values_survive_mutation_parent_close_and_gc(self):
+        coords = c_coord_list()
+        with c_coord(4, 5) as first:
+            coords.append(first)
+        fetched = coords[0]
+        for index in range(32):
+            with c_coord(index, -index) as value:
+                coords.append(value)
+        self.assertEqual(fetched.to_tuple(), (4, 5))
+
+        parent_ref = weakref.ref(coords)
+        coords.close()
+        del coords
+        gc.collect()
+        self.assertIsNone(parent_ref())
+        self.assertEqual(fetched.to_tuple(), (4, 5))
+        fetched.close()
+
+    def test_checked_mutation_copy_export_and_close_state(self):
+        with (
+            c_coord(1, 2) as first,
+            c_coord(3, 4) as second,
+            c_coord_list.from_list([first, second]) as coords,
+        ):
+            self.assertEqual(
+                [coord.to_tuple() for coord in coords.to_list()],
+                [(1, 2), (3, 4)],
+            )
+            full = coords[:]
+            empty = coords[1:1]
+            try:
+                self.assertTrue(full.equals(coords))
+                self.assertEqual(len(empty), 0)
+            finally:
+                full.close()
+                empty.close()
+
+            self.assertEqual(coords.index(second), 1)
+            self.assertTrue(coords.remove_value(first))
+            self.assertFalse(coords.remove_value(first))
+            self.assertEqual(coords.pop_front().to_tuple(), (3, 4))
+
+        closed = c_coord_list()
+        closed.close()
+        closed.close()
+        with self.assertRaises(ReferenceError):
+            len(closed)
+        with self.assertRaises(ReferenceError):
+            closed.ptr()
+
 
 class CoordHashTest(unittest.TestCase):
     def test_insert_lookup_iteration_and_remove(self):
         with c_coord(4, 5) as key, c_coord_hash() as values:
-            value = ffi.new_handle(17)
-            self.assertTrue(values.insert(key, value))
+            self.assertTrue(values.insert(key, 17))
             self.assertTrue(values.contains(key))
+            self.assertEqual(values.get(key), 17)
             self.assertEqual(len(values), 1)
 
             iterator = c_coord_hash_iter(values)
             try:
-                iterated_key, _ = next(iterator)
+                iterated_key, iterated_value = next(iterator)
                 self.assertEqual(iterated_key.to_tuple(), (4, 5))
+                self.assertEqual(iterated_value, 17)
+                iterated_key.close()
             finally:
                 iterator.close()
 
             self.assertTrue(values.remove(key))
             self.assertTrue(values.empty())
+
+    def test_typed_upsert_export_and_format(self):
+        with (
+            c_coord(2, 3) as later,
+            c_coord(-1, 4) as earlier,
+            c_coord_hash(value_type="float") as values,
+        ):
+            self.assertTrue(values.upsert(later, 1.5))
+            self.assertFalse(values.upsert(later, 2.5))
+            self.assertTrue(values.insert(earlier, 4.0))
+            self.assertEqual(values.get(later), 2.5)
+            self.assertCountEqual(values.values(), [2.5, 4.0])
+            self.assertEqual(values.format(), "(-1,4) (2,3) ")
+            entries = values.entries()
+            try:
+                self.assertCountEqual(
+                    [(key.to_tuple(), value) for key, value in entries],
+                    [((-1, 4), 4.0), ((2, 3), 2.5)],
+                )
+            finally:
+                for key, _ in entries:
+                    key.close()
+
+    def test_none_codec_rejects_non_null_values(self):
+        with c_coord(1, 1) as key, c_coord_hash(value_type="none") as values:
+            self.assertTrue(values.insert(key, None))
+            self.assertIsNone(values.get(key))
+            with self.assertRaises(TypeError):
+                values.upsert(key, 1)
+
+    def test_iterator_retains_parent_until_close(self):
+        key = c_coord(7, 8)
+        values = c_coord_hash()
+        values.insert(key, 70)
+        iterator = iter(values)
+        values_ref = weakref.ref(values)
+        del values
+        gc.collect()
+        self.assertIsNotNone(values_ref())
+
+        iterated_key, iterated_value = next(iterator)
+        self.assertEqual(iterated_key.to_tuple(), (7, 8))
+        self.assertEqual(iterated_value, 70)
+        iterated_key.close()
+        iterator.close()
+        gc.collect()
+        self.assertIsNone(values_ref())
+        key.close()
+
+    def test_close_invalidates_public_access(self):
+        values = c_coord_hash()
+        values.close()
+        values.close()
+        with self.assertRaises(ReferenceError):
+            len(values)
+        with self.assertRaises(ReferenceError):
+            values.ptr()
 
 
 class CostCoordPriorityQueueTest(unittest.TestCase):
@@ -130,6 +260,71 @@ class CostCoordPriorityQueueTest(unittest.TestCase):
             self.assertTrue(queue.contains(coord))
             self.assertTrue(queue.remove(1.5, coord))
             self.assertTrue(queue.is_empty())
+
+    def test_atomic_fifo_values_survive_mutation_close_and_gc(self):
+        queue = c_cost_coord_pq()
+        with c_coord(1, 2) as first, c_coord(3, 4) as second:
+            queue.push(1.5, first)
+            queue.push(1.5, second)
+
+        peek_cost, peek_coord = queue.peek()
+        first_cost, first_coord = queue.pop()
+        second_cost, second_coord = queue.pop_min()
+        self.assertEqual((peek_cost, peek_coord.to_tuple()), (1.5, (1, 2)))
+        self.assertEqual((first_cost, first_coord.to_tuple()), (1.5, (1, 2)))
+        self.assertEqual((second_cost, second_coord.to_tuple()), (1.5, (3, 4)))
+
+        parent_ref = weakref.ref(queue)
+        queue.close()
+        del queue
+        gc.collect()
+        self.assertIsNone(parent_ref())
+        self.assertEqual(peek_coord.to_tuple(), (1, 2))
+        self.assertEqual(first_coord.to_tuple(), (1, 2))
+        self.assertEqual(second_coord.to_tuple(), (3, 4))
+        peek_coord.close()
+        first_coord.close()
+        second_coord.close()
+
+    def test_empty_and_invalid_cost_contracts(self):
+        with c_cost_coord_pq() as queue, c_coord(2, 3) as coord:
+            self.assertIsNone(queue.peek())
+            self.assertIsNone(queue.peek_cost())
+            with self.assertRaises(IndexError):
+                queue.pop()
+            for cost in (-1.0, float("inf"), float("-inf"), float("nan")):
+                with self.subTest(cost=cost):
+                    with self.assertRaises(NavsysInvalidArgumentError):
+                        queue.push(cost, coord)
+
+    def test_bulk_mutation_trim_and_clear(self):
+        with (
+            c_coord(2, 3) as duplicate,
+            c_coord(8, 9) as other,
+            c_cost_coord_pq() as queue,
+        ):
+            queue.push(1.0, duplicate)
+            queue.push(2.0, duplicate)
+            queue.push(3.0, other)
+            self.assertEqual(queue.remove_all(duplicate), 2)
+            self.assertEqual(queue.trim_to_size(0), 1)
+            self.assertTrue(queue.is_empty())
+
+            queue.push(1.0, duplicate)
+            queue.push(2.0, other)
+            self.assertEqual(queue.trim_worst(1), 1)
+            self.assertEqual(len(queue), 1)
+            queue.clear()
+            self.assertTrue(queue.is_empty())
+
+    def test_close_invalidates_public_access(self):
+        queue = c_cost_coord_pq()
+        queue.close()
+        queue.close()
+        with self.assertRaises(ReferenceError):
+            len(queue)
+        with self.assertRaises(ReferenceError):
+            queue.ptr()
 
 
 class RouteFunctionRegistryTest(unittest.TestCase):

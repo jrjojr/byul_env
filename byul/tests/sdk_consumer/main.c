@@ -5,12 +5,60 @@
 
 #include "byul.h"
 #include "coord.h"
+#include "coord_hash.h"
+#include "cost_coord_pq.h"
 #include "navsys_status.h"
 
 static bool cancel_immediately(void* userdata) {
     int* calls = (int*)userdata;
     ++*calls;
     return true;
+}
+
+typedef struct sdk_coord_hash_callbacks {
+    int copy_calls;
+    int destroy_calls;
+    int equal_calls;
+} sdk_coord_hash_callbacks_t;
+
+static navsys_status_t sdk_coord_hash_copy(
+    const void* source,
+    void** out_copy,
+    void* userdata) {
+    sdk_coord_hash_callbacks_t* callbacks =
+        (sdk_coord_hash_callbacks_t*)userdata;
+    if (source == NULL || out_copy == NULL || callbacks == NULL) {
+        return NAVSYS_STATUS_INVALID_ARGUMENT;
+    }
+    void* copied = coord_hash_int_copy(source);
+    if (copied == NULL) {
+        return NAVSYS_STATUS_OUT_OF_MEMORY;
+    }
+    ++callbacks->copy_calls;
+    *out_copy = copied;
+    return NAVSYS_STATUS_OK;
+}
+
+static void sdk_coord_hash_destroy(void* value, void* userdata) {
+    sdk_coord_hash_callbacks_t* callbacks =
+        (sdk_coord_hash_callbacks_t*)userdata;
+    if (callbacks != NULL) {
+        ++callbacks->destroy_calls;
+    }
+    coord_hash_int_destroy(value);
+}
+
+static bool sdk_coord_hash_equal(
+    const void* lhs,
+    const void* rhs,
+    void* userdata) {
+    sdk_coord_hash_callbacks_t* callbacks =
+        (sdk_coord_hash_callbacks_t*)userdata;
+    if (lhs == NULL || rhs == NULL || callbacks == NULL) {
+        return false;
+    }
+    ++callbacks->equal_calls;
+    return *(const int*)lhs == *(const int*)rhs;
 }
 
 static_assert(NAVSYS_STATUS_OK == 0, "NAVSYS_STATUS_OK ABI");
@@ -38,6 +86,36 @@ static_assert(ROUTE_COMPLETION_PARTIAL == 2, "ROUTE_COMPLETION_PARTIAL ABI");
         #type "." #field " ABI 1 offset")
 
 static_assert(sizeof(void*) == 8, "Navsys ABI 1 layout fixture requires x64");
+static_assert(
+    _Generic(
+        &sdk_coord_hash_copy,
+        coord_hash_value_copy_func_ex: 1,
+        default: 0),
+    "coord hash copy callback calling convention");
+static_assert(
+    _Generic(
+        &sdk_coord_hash_destroy,
+        coord_hash_value_destroy_func_ex: 1,
+        default: 0),
+    "coord hash destroy callback calling convention");
+static_assert(
+    _Generic(
+        &sdk_coord_hash_equal,
+        coord_hash_value_equal_func_ex: 1,
+        default: 0),
+    "coord hash equal callback calling convention");
+
+ABI1_TYPE_LAYOUT(coord_hash_create_info_t, 40, 8);
+ABI1_FIELD_OFFSET(coord_hash_create_info_t, struct_size, 0);
+ABI1_FIELD_OFFSET(coord_hash_create_info_t, abi_version, 4);
+ABI1_FIELD_OFFSET(coord_hash_create_info_t, copy_value, 8);
+ABI1_FIELD_OFFSET(coord_hash_create_info_t, destroy_value, 16);
+ABI1_FIELD_OFFSET(coord_hash_create_info_t, equal_value, 24);
+ABI1_FIELD_OFFSET(coord_hash_create_info_t, userdata, 32);
+
+ABI1_TYPE_LAYOUT(coord_hash_entry_view_t, 16, 8);
+ABI1_FIELD_OFFSET(coord_hash_entry_view_t, key, 0);
+ABI1_FIELD_OFFSET(coord_hash_entry_view_t, value, 8);
 
 ABI1_TYPE_LAYOUT(dstar_lite_t, 184, 8);
 ABI1_FIELD_OFFSET(dstar_lite_t, navgrid, 0);
@@ -161,6 +239,282 @@ int main(void) {
         fprintf(stderr, "unexpected coord checked/format ABI\n");
         return 8;
     }
+
+    sdk_coord_hash_callbacks_t hash_callbacks = {0, 0, 0};
+    coord_hash_create_info_t hash_create_info = {
+        (uint32_t)sizeof(coord_hash_create_info_t),
+        BYUL_COORD_HASH_CREATE_INFO_ABI_VERSION,
+        sdk_coord_hash_copy,
+        sdk_coord_hash_destroy,
+        sdk_coord_hash_equal,
+        &hash_callbacks
+    };
+    coord_hash_t* coord_values = NULL;
+    coord_t hash_key = {4, 2};
+    int hash_value = 17;
+    bool inserted = false;
+    const void* borrowed_value = NULL;
+    bool found = false;
+    if (coord_hash_create_ex(&hash_create_info, &coord_values)
+            != NAVSYS_STATUS_OK
+        || coord_values == NULL
+        || coord_hash_upsert_copy(
+            coord_values, &hash_key, &hash_value, &inserted)
+            != NAVSYS_STATUS_OK
+        || !inserted
+        || coord_hash_find(
+            coord_values, &hash_key, &borrowed_value, &found)
+            != NAVSYS_STATUS_OK
+        || !found
+        || borrowed_value == NULL
+        || *(const int*)borrowed_value != hash_value
+        || !coord_hash_insert(coord_values, &hash_key, &hash_value)) {
+        fprintf(stderr, "unexpected coord hash old/new ABI\n");
+        coord_hash_destroy(coord_values);
+        return 9;
+    }
+    int legacy_value_count = 0;
+    void** legacy_values =
+        coord_hash_values(coord_values, &legacy_value_count);
+    char* legacy_text = coord_hash_to_string(coord_values);
+    if (legacy_values == NULL
+        || legacy_value_count != 1
+        || legacy_text == NULL
+        || strcmp(legacy_text, "(4,2) ") != 0) {
+        fprintf(stderr, "unexpected coord hash legacy allocation ABI\n");
+        coord_hash_buffer_destroy(legacy_values);
+        coord_hash_buffer_destroy(legacy_text);
+        coord_hash_destroy(coord_values);
+        return 10;
+    }
+    coord_hash_buffer_destroy(legacy_values);
+    coord_hash_buffer_destroy(legacy_text);
+    coord_hash_destroy(coord_values);
+    if (hash_callbacks.copy_calls != 2
+        || hash_callbacks.destroy_calls != 2
+        || hash_callbacks.equal_calls != 0) {
+        fprintf(stderr, "unexpected coord hash callback ABI\n");
+        return 11;
+    }
+
+    coord_list_t* legacy_coords = coord_list_create();
+    coord_t zero_coord = {0, 0};
+    coord_t other_coord = {7, 9};
+    coord_t empty_pop = coord_list_pop_back(legacy_coords);
+    if (legacy_coords == NULL
+        || !coord_equal(&empty_pop, &zero_coord)
+        || !coord_list_push_back(legacy_coords, &zero_coord)
+        || !coord_list_push_back(legacy_coords, &other_coord)
+        || !coord_list_insert(
+            legacy_coords, coord_list_length(legacy_coords), &zero_coord)
+        || coord_list_length(legacy_coords) != 3) {
+        fprintf(stderr, "unexpected coord list legacy mutation ABI\n");
+        coord_list_destroy(legacy_coords);
+        return 12;
+    }
+    coord_list_remove_value(legacy_coords, &zero_coord);
+    coord_list_t* legacy_slice =
+        coord_list_sublist(legacy_coords, 0, coord_list_length(legacy_coords));
+    if (coord_list_length(legacy_coords) != 2
+        || !coord_equal(coord_list_front(legacy_coords), &other_coord)
+        || coord_list_find(legacy_coords, &zero_coord) != 1
+        || legacy_slice == NULL
+        || !coord_list_equals(legacy_coords, legacy_slice)
+        || coord_list_sublist(legacy_coords, 0, 0) != NULL) {
+        fprintf(stderr, "unexpected coord list legacy query ABI\n");
+        coord_list_destroy(legacy_slice);
+        coord_list_destroy(legacy_coords);
+        return 13;
+    }
+    coord_list_destroy(legacy_slice);
+    coord_list_destroy(legacy_coords);
+
+    coord_list_t* checked_coords = NULL;
+    coord_t checked_output = {91, 92};
+    if (coord_list_create_ex(&checked_coords) != NAVSYS_STATUS_OK
+        || checked_coords == NULL
+        || coord_list_try_pop_back(checked_coords, &checked_output)
+            != NAVSYS_STATUS_NOT_FOUND
+        || checked_output.x != 91
+        || checked_output.y != 92
+        || coord_list_push_back_ex(checked_coords, &zero_coord)
+            != NAVSYS_STATUS_OK
+        || coord_list_push_back_ex(checked_coords, &other_coord)
+            != NAVSYS_STATUS_OK
+        || coord_list_fetch(checked_coords, 1, &checked_output)
+            != NAVSYS_STATUS_OK
+        || !coord_equal(&checked_output, &other_coord)) {
+        fprintf(stderr, "unexpected coord list checked mutation ABI\n");
+        coord_list_destroy(checked_coords);
+        return 14;
+    }
+    coord_list_t* checked_copy = NULL;
+    size_t checked_index = 99;
+    bool checked_found = false;
+    bool checked_removed = false;
+    if (coord_list_copy_ex(checked_coords, &checked_copy)
+            != NAVSYS_STATUS_OK
+        || checked_copy == NULL
+        || coord_list_size(checked_copy) != 2
+        || coord_list_find_ex(
+            checked_copy,
+            &zero_coord,
+            &checked_index,
+            &checked_found) != NAVSYS_STATUS_OK
+        || !checked_found
+        || checked_index != 0
+        || coord_list_remove_value_ex(
+            checked_coords,
+            &zero_coord,
+            &checked_removed) != NAVSYS_STATUS_OK
+        || !checked_removed
+        || coord_list_size(checked_coords) != 1
+        || coord_list_size(checked_copy) != 2) {
+        fprintf(stderr, "unexpected coord list checked query ABI\n");
+        coord_list_destroy(checked_copy);
+        coord_list_destroy(checked_coords);
+        return 15;
+    }
+    coord_list_t* checked_slice = NULL;
+    coord_t exported_coords[2] = {{91, 92}, {93, 94}};
+    size_t exported_count = 0;
+    bool checked_equal = false;
+    if (coord_list_reserve(checked_copy, 8) != NAVSYS_STATUS_OK
+        || coord_list_export(
+            checked_copy, NULL, 0, &exported_count) != NAVSYS_STATUS_OK
+        || exported_count != 2
+        || coord_list_export(
+            checked_copy, exported_coords, 1, &exported_count)
+            != NAVSYS_STATUS_INCOMPLETE
+        || exported_count != 2
+        || exported_coords[0].x != 91
+        || exported_coords[0].y != 92
+        || coord_list_create_slice(
+            checked_copy, 0, 2, &checked_slice) != NAVSYS_STATUS_OK
+        || checked_slice == NULL
+        || coord_list_equal(
+            checked_copy, checked_slice, &checked_equal)
+            != NAVSYS_STATUS_OK
+        || !checked_equal
+        || coord_list_export(
+            checked_slice, exported_coords, 2, &exported_count)
+            != NAVSYS_STATUS_OK
+        || exported_count != 2
+        || !coord_equal(&exported_coords[0], &zero_coord)
+        || !coord_equal(&exported_coords[1], &other_coord)) {
+        fprintf(stderr, "unexpected coord list bulk ABI\n");
+        coord_list_destroy(checked_slice);
+        coord_list_destroy(checked_copy);
+        coord_list_destroy(checked_coords);
+        return 16;
+    }
+    coord_list_destroy(checked_slice);
+    coord_list_destroy(checked_copy);
+    coord_list_destroy(checked_coords);
+
+    cost_coord_pq_t* legacy_pq = cost_coord_pq_create();
+    coord_t pq_first = {1, 2};
+    coord_t pq_second = {3, 4};
+    if (legacy_pq == NULL) {
+        fprintf(stderr, "unexpected cost coord pq allocation failure\n");
+        return 17;
+    }
+    cost_coord_pq_push(legacy_pq, 5.0f, &pq_first);
+    cost_coord_pq_push(legacy_pq, 5.0f, &pq_second);
+    coord_t* borrowed_min = cost_coord_pq_peek(legacy_pq);
+    coord_t* owned_min = cost_coord_pq_pop(legacy_pq);
+    if (borrowed_min == NULL
+        || owned_min != borrowed_min
+        || owned_min->x != pq_second.x
+        || owned_min->y != pq_second.y
+        || cost_coord_pq_length(legacy_pq) != 1) {
+        fprintf(stderr, "unexpected cost coord pq ownership/tie ABI\n");
+        coord_destroy(owned_min);
+        cost_coord_pq_destroy(legacy_pq);
+        return 18;
+    }
+    coord_destroy(owned_min);
+    cost_coord_pq_push(legacy_pq, 6.0f, &pq_second);
+    cost_coord_pq_trim_worst(legacy_pq, 1);
+    owned_min = cost_coord_pq_pop(legacy_pq);
+    if (owned_min == NULL
+        || owned_min->x != pq_first.x
+        || owned_min->y != pq_first.y
+        || !cost_coord_pq_is_empty(legacy_pq)) {
+        fprintf(stderr, "unexpected cost coord pq trim ABI\n");
+        coord_destroy(owned_min);
+        cost_coord_pq_destroy(legacy_pq);
+        return 19;
+    }
+    coord_destroy(owned_min);
+    cost_coord_pq_destroy(legacy_pq);
+
+    const cost_coord_pq_create_info_t pq_info = {
+        (uint32_t)sizeof(cost_coord_pq_create_info_t),
+        BYUL_COST_COORD_PQ_CREATE_INFO_ABI_VERSION,
+        0
+    };
+    cost_coord_pq_t* checked_pq = NULL;
+    coord_t pq_output = {91, 92};
+    float pq_cost = 93.0f;
+    if (cost_coord_pq_create_ex(&pq_info, &checked_pq)
+            != NAVSYS_STATUS_OK
+        || checked_pq == NULL
+        || cost_coord_pq_pop_min(checked_pq, &pq_cost, &pq_output)
+            != NAVSYS_STATUS_NOT_FOUND
+        || pq_cost != 93.0f
+        || pq_output.x != 91
+        || pq_output.y != 92
+        || cost_coord_pq_push_ex(checked_pq, 2.0f, &pq_first)
+            != NAVSYS_STATUS_OK
+        || cost_coord_pq_push_ex(checked_pq, 2.0f, &pq_second)
+            != NAVSYS_STATUS_OK
+        || cost_coord_pq_push_ex(checked_pq, -1.0f, &pq_first)
+            != NAVSYS_STATUS_INVALID_ARGUMENT
+        || cost_coord_pq_pop_min(checked_pq, &pq_cost, &pq_output)
+            != NAVSYS_STATUS_OK
+        || pq_cost != 2.0f
+        || pq_output.x != pq_first.x
+        || pq_output.y != pq_first.y
+        || cost_coord_pq_peek_min(checked_pq, &pq_cost, &pq_output)
+            != NAVSYS_STATUS_OK
+        || pq_output.x != pq_second.x
+        || pq_output.y != pq_second.y) {
+        fprintf(stderr, "unexpected checked cost coord pq ABI\n");
+        cost_coord_pq_destroy(checked_pq);
+        return 20;
+    }
+    bool pq_removed = false;
+    size_t pq_removed_count = 99;
+    if (cost_coord_pq_size(checked_pq) != 1
+        || cost_coord_pq_empty(checked_pq)
+        || cost_coord_pq_remove_one(
+            checked_pq, 2.0f, &pq_second, &pq_removed)
+            != NAVSYS_STATUS_OK
+        || !pq_removed
+        || !cost_coord_pq_empty(checked_pq)
+        || cost_coord_pq_push_ex(checked_pq, 1.0f, &pq_first)
+            != NAVSYS_STATUS_OK
+        || cost_coord_pq_push_ex(checked_pq, 3.0f, &pq_first)
+            != NAVSYS_STATUS_OK
+        || cost_coord_pq_push_ex(checked_pq, 5.0f, &pq_second)
+            != NAVSYS_STATUS_OK
+        || cost_coord_pq_remove_all(
+            checked_pq, &pq_first, &pq_removed_count)
+            != NAVSYS_STATUS_OK
+        || pq_removed_count != 2
+        || cost_coord_pq_trim_to_size(
+            checked_pq, 0, &pq_removed_count)
+            != NAVSYS_STATUS_OK
+        || pq_removed_count != 1
+        || !cost_coord_pq_empty(checked_pq)) {
+        fprintf(stderr, "unexpected checked cost coord pq collection ABI\n");
+        cost_coord_pq_destroy(checked_pq);
+        return 21;
+    }
+    cost_coord_pq_clear(checked_pq);
+    cost_coord_pq_destroy(checked_pq);
+
     if (!route_finder_is_supported(ROUTE_FINDER_ASTAR)
         || !route_finder_is_supported(ROUTE_FINDER_WEIGHTED_ASTAR)
         || route_finder_is_supported(ROUTE_FINDER_BELLMAN_FORD)

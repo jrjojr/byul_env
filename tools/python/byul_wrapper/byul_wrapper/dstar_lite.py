@@ -332,11 +332,13 @@ class c_dstar_lite:
     # ───── 테이블 접근 ─────
     def g_table(self):
         return c_coord_hash(
-            raw_ptr=C.dstar_lite_get_g_table(self._c), own=False)
+            raw_ptr=C.dstar_lite_get_g_table(self._c), own=False,
+            value_type="float", parent=self)
 
     def rhs_table(self):
         return c_coord_hash(
-            raw_ptr=C.dstar_lite_get_rhs_table(self._c), own=False)
+            raw_ptr=C.dstar_lite_get_rhs_table(self._c), own=False,
+            value_type="float", parent=self)
 
     def frontier(self):
         return c_dstar_lite_pqueue(
@@ -494,7 +496,8 @@ class c_dstar_lite:
 
     def update_count_table(self):
         return c_coord_hash(
-            raw_ptr=C.dstar_lite_get_update_count_table(self._c), own=False)
+            raw_ptr=C.dstar_lite_get_update_count_table(self._c), own=False,
+            value_type="int", parent=self)
 
     def add_update_count(self, coord: c_coord):
         C.dstar_lite_add_update_count(self._c, coord.ptr())
