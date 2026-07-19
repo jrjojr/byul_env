@@ -275,7 +275,7 @@ empty pop은 status 후보를 공통 enum에서 =NOT_FOUND=로 추가할지 =INC
 - canonical 4개 선언의 ABI audit 신규 오류는 0건이고 생성물 =--check=, Python
   policy unit 39개와 MSVC/MinGW DLL wrapper 각 82개가 통과했다.
 
-** TODO 4단계: wrapper와 통합 검증
+** DONE 4단계: wrapper와 통합 검증
 
 *** 실행
 
@@ -291,3 +291,21 @@ empty pop은 status 후보를 공통 enum에서 =NOT_FOUND=로 추가할지 =INC
 
 - Python empty/pop/index/slice/GC/close test, ASan/LSan/UBSan, ABI fixture와
   =git diff --check=를 통과한다.
+
+*** 완료 기록
+
+- 2026-07-19 Python =c_coord_list=를 =create/copy/fetch/try-pop/find/slice/equal/export=
+  canonical API로 전환했다. Element는 caller-owned Python value copy로 반환하므로
+  list mutation, parent close와 GC 뒤에도 borrowed native vector storage를 참조하지
+  않는다.
+- empty pop은 =IndexError=, invalid index/slice와 closed state는 명시적 exception으로
+  구분하고 empty/full slice, remove, copy, export, double-close와 parent GC를
+  검증했다. MSVC/MinGW DLL 전체 wrapper와 실제 export intersection은 각각 86개를
+  통과했다.
+- coord_list의 개별 canonical operation을 내부 동기화하고 concurrent console
+  rendering을 fetch value snapshot으로 바꿨다. 이로써 Linux ASan이 발견한 route
+  vector reallocation 중 legacy borrowed pointer UAF를 제거했고 재실행한
+  ASan/UBSan CI가 1분 55초에 통과했다.
+- =coord_list.h= strict metadata issue는 0건이다. MinGW header audit standalone
+  matrix 190/190과 MSVC C17/C++17 단독 include syntax compile, 생성물 =--check=,
+  MSVC/MinGW SDK C17/C++17 consumer와 =git diff --check=를 통과했다.

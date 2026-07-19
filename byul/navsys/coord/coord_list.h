@@ -10,7 +10,8 @@
  * @brief 2차원 좌표 sequence를 위한 public C ABI를 선언한다.
  *
  * Opaque 좌표 list의 생성, 값 복사, 안전한 조회와 mutation API를 제공한다.
- * 별도 언급이 없으면 같은 list에 대한 동시 mutation에는 외부 동기화가 필요하다.
+ * 개별 canonical operation은 내부 동기화된다. Legacy borrowed pointer를 사용하는
+ * 동안에는 caller가 같은 list의 mutation을 외부 동기화해야 한다.
  */
 
 #ifndef BYUL_COORD_LIST_H
@@ -32,7 +33,7 @@ extern "C" {
  *
  * @byul.storage opaque-object
  * @byul.copy_semantics deep-copy
- * @byul.thread_safety external-synchronization
+ * @byul.thread_safety thread-safe
  */
 typedef struct s_coord_list coord_list_t;
 
@@ -348,56 +349,193 @@ BYUL_API navsys_status_t coord_list_export(
     const coord_list_t* list, coord_t* out_coords,
     size_t capacity, size_t* out_count);
 
-// Creation/Destruction
+/** @brief Legacy 빈 list 생성 adapter다.
+ * @return 새 caller-owned list 또는 allocation 실패 시 NULL이다.
+ * @byul.nullable return true
+ * @byul.lifetime return caller-owned
+ */
 BYUL_DEPRECATED("Use coord_list_create_ex; removal is planned for ABI 2.")
 BYUL_API coord_list_t* coord_list_create(void);
+
+/** @brief list를 파괴한다.
+ * @param[in,out] list 파괴할 list 또는 NULL이다.
+ * @byul.nullable list true
+ * @byul.lifetime list consumed
+ */
 BYUL_API void coord_list_destroy(coord_list_t* list);
+
+/** @brief Legacy deep-copy adapter다.
+ * @param[in] list 복사할 list다.
+ * @return 새 caller-owned list 또는 실패 시 NULL이다.
+ * @byul.nullable list false
+ * @byul.nullable return true
+ * @byul.lifetime return caller-owned
+ */
 BYUL_DEPRECATED("Use coord_list_copy_ex; removal is planned for ABI 2.")
 BYUL_API coord_list_t* coord_list_copy(const coord_list_t* list);
 
-// Information
+/** @brief Legacy int 길이 adapter다.
+ * @param[in] list 조회할 list 또는 NULL이다.
+ * @return element 수이며 int 범위를 넘으면 INT_MAX다.
+ * @byul.nullable list true
+ */
 BYUL_DEPRECATED("Use coord_list_size; removal is planned for ABI 2.")
 BYUL_API int coord_list_length(const coord_list_t* list);
+
+/** @brief list가 NULL이거나 비었는지 반환한다.
+ * @param[in] list 조회할 list 또는 NULL이다.
+ * @return 비었으면 true다.
+ * @byul.nullable list true
+ */
 BYUL_API bool coord_list_empty(const coord_list_t* list);
+
+/** @brief Legacy borrowed element 조회 adapter다.
+ * @param[in] list 조회할 list다.
+ * @param[in] index legacy signed index다.
+ * @return borrowed element 또는 실패 시 NULL이다.
+ * @byul.nullable list false
+ * @byul.nullable return true
+ * @byul.lifetime return borrowed:list
+ */
 BYUL_DEPRECATED("Use coord_list_fetch; removal is planned for ABI 2.")
 BYUL_API const coord_t* coord_list_get(const coord_list_t* list, int index);
+
+/** @brief Legacy borrowed first element 조회 adapter다.
+ * @param[in] list 조회할 list다.
+ * @return borrowed element 또는 empty일 때 NULL이다.
+ * @byul.nullable list false
+ * @byul.nullable return true
+ * @byul.lifetime return borrowed:list
+ */
 BYUL_DEPRECATED("Use coord_list_fetch_front; removal is planned for ABI 2.")
 BYUL_API const coord_t* coord_list_front(const coord_list_t* list);
+
+/** @brief Legacy borrowed last element 조회 adapter다.
+ * @param[in] list 조회할 list다.
+ * @return borrowed element 또는 empty일 때 NULL이다.
+ * @byul.nullable list false
+ * @byul.nullable return true
+ * @byul.lifetime return borrowed:list
+ */
 BYUL_DEPRECATED("Use coord_list_fetch_back; removal is planned for ABI 2.")
 BYUL_API const coord_t* coord_list_back(const coord_list_t* list);
 
-// Modification
+/** @brief Legacy append adapter다.
+ * @param[in,out] list 변경할 list다.
+ * @param[in] c 복사할 좌표다.
+ * @return 성공하면 1, 실패하면 0이다.
+ * @byul.nullable list false
+ * @byul.nullable c false
+ * @byul.invalidates list element-pointers on-reallocation
+ */
 BYUL_DEPRECATED("Use coord_list_push_back_ex; removal is planned for ABI 2.")
 BYUL_API int coord_list_push_back(coord_list_t* list, const coord_t* c);
 
-/// @brief Removes and returns the last element of the list (NULL if none)
+/** @brief Legacy last-element pop adapter다.
+ * @param[in,out] list 변경할 list 또는 NULL이다.
+ * @return 제거한 좌표이며 empty/NULL이면 유효한 (0,0)이다.
+ * @byul.nullable list true
+ * @byul.invalidates list element-pointers
+ */
 BYUL_DEPRECATED("Use coord_list_try_pop_back; removal is planned for ABI 2.")
 BYUL_API coord_t coord_list_pop_back(coord_list_t* list);
 
-/// @brief Removes and returns the first element of the list (NULL if none)
+/** @brief Legacy first-element pop adapter다.
+ * @param[in,out] list 변경할 list 또는 NULL이다.
+ * @return 제거한 좌표이며 empty/NULL이면 유효한 (0,0)이다.
+ * @byul.nullable list true
+ * @byul.invalidates list element-pointers
+ */
 BYUL_DEPRECATED("Use coord_list_try_pop_front; removal is planned for ABI 2.")
 BYUL_API coord_t coord_list_pop_front(coord_list_t* list);
 
+/** @brief Legacy signed-index insert adapter다.
+ * @param[in,out] list 변경할 list다.
+ * @param[in] index 삽입 index다.
+ * @param[in] c 복사할 좌표다.
+ * @return 성공하면 1, 실패하면 0이다.
+ * @byul.nullable list false
+ * @byul.nullable c false
+ * @byul.invalidates list element-pointers on-reallocation
+ */
 BYUL_DEPRECATED("Use coord_list_insert_ex; removal is planned for ABI 2.")
 BYUL_API int coord_list_insert(coord_list_t* list, int index, const coord_t* c);
+
+/** @brief Legacy signed-index remove adapter다.
+ * @param[in,out] list 변경할 list다.
+ * @param[in] index 제거할 index다.
+ * @byul.nullable list false
+ * @byul.invalidates list element-pointers when-removed
+ */
 BYUL_DEPRECATED("Use coord_list_remove_at_ex; removal is planned for ABI 2.")
 BYUL_API void coord_list_remove_at(coord_list_t* list, int index);
+
+/** @brief Legacy first-match remove adapter다.
+ * @param[in,out] list 변경할 list다.
+ * @param[in] c 제거할 좌표다.
+ * @byul.nullable list false
+ * @byul.nullable c false
+ * @byul.invalidates list element-pointers when-removed
+ */
 BYUL_DEPRECATED("Use coord_list_remove_value_ex; removal is planned for ABI 2.")
 BYUL_API void coord_list_remove_value(coord_list_t* list, const coord_t* c);
+
+/** @brief 모든 element를 제거한다.
+ * @param[in,out] list 변경할 list 또는 NULL이다.
+ * @byul.nullable list true
+ * @byul.invalidates list element-pointers
+ */
 BYUL_API void coord_list_clear(coord_list_t* list);
+
+/** @brief element 순서를 뒤집는다.
+ * @param[in,out] list 변경할 list 또는 NULL이다.
+ * @byul.nullable list true
+ * @byul.invalidates list element-pointers
+ */
 BYUL_API void coord_list_reverse(coord_list_t* list);
 
-// Search
+/** @brief Legacy contains adapter다.
+ * @param[in] list 조회할 list다.
+ * @param[in] c 찾을 좌표다.
+ * @return 찾으면 1, 아니면 0이다.
+ * @byul.nullable list false
+ * @byul.nullable c false
+ */
 BYUL_DEPRECATED("Use coord_list_find_ex; removal is planned for ABI 2.")
-BYUL_API int  coord_list_contains(const coord_list_t* list, const coord_t* c);  // returns 1 if contains
-BYUL_DEPRECATED("Use coord_list_find_ex; removal is planned for ABI 2.")
-BYUL_API int  coord_list_find(const coord_list_t* list, const coord_t* c);      // returns index, -1 if not found
+BYUL_API int coord_list_contains(
+    const coord_list_t* list, const coord_t* c);
 
-// Sublist extraction
+/** @brief Legacy first-index find adapter다.
+ * @param[in] list 조회할 list다.
+ * @param[in] c 찾을 좌표다.
+ * @return 첫 index 또는 찾지 못하면 -1이다.
+ * @byul.nullable list false
+ * @byul.nullable c false
+ */
+BYUL_DEPRECATED("Use coord_list_find_ex; removal is planned for ABI 2.")
+BYUL_API int coord_list_find(
+    const coord_list_t* list, const coord_t* c);
+
+/** @brief Legacy non-empty [start,end) slice adapter다.
+ * @param[in] list 복사할 list다.
+ * @param[in] start 첫 index다.
+ * @param[in] end 마지막 다음 index다.
+ * @return 새 caller-owned list이며 empty/invalid/실패 시 NULL이다.
+ * @byul.nullable list false
+ * @byul.nullable return true
+ * @byul.lifetime return caller-owned
+ */
 BYUL_DEPRECATED("Use coord_list_create_slice; removal is planned for ABI 2.")
-BYUL_API coord_list_t* coord_list_sublist(const coord_list_t* list, int start, int end);
+BYUL_API coord_list_t* coord_list_sublist(
+    const coord_list_t* list, int start, int end);
 
-// Comparison
+/** @brief Legacy equality adapter다.
+ * @param[in] a 비교할 list다.
+ * @param[in] b 비교할 list다.
+ * @return 두 non-NULL sequence가 같으면 true다.
+ * @byul.nullable a false
+ * @byul.nullable b false
+ */
 BYUL_DEPRECATED("Use coord_list_equal; removal is planned for ABI 2.")
 BYUL_API bool coord_list_equals(const coord_list_t* a, const coord_list_t* b);
 

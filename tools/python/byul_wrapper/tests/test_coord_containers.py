@@ -103,6 +103,76 @@ class CoordListTest(unittest.TestCase):
             coords.clear()
             self.assertTrue(coords.empty())
 
+    def test_empty_pop_index_and_slice_contracts(self):
+        with c_coord_list() as coords:
+            self.assertIsNone(coords.front())
+            self.assertIsNone(coords.back())
+            with self.assertRaises(IndexError):
+                coords.pop()
+            with self.assertRaises(IndexError):
+                coords.pop_front()
+            with self.assertRaises(IndexError):
+                _ = coords[0]
+
+            empty = coords[0:0]
+            try:
+                self.assertEqual(len(empty), 0)
+            finally:
+                empty.close()
+
+            with self.assertRaises(ValueError):
+                _ = coords[::2]
+
+    def test_fetch_values_survive_mutation_parent_close_and_gc(self):
+        coords = c_coord_list()
+        with c_coord(4, 5) as first:
+            coords.append(first)
+        fetched = coords[0]
+        for index in range(32):
+            with c_coord(index, -index) as value:
+                coords.append(value)
+        self.assertEqual(fetched.to_tuple(), (4, 5))
+
+        parent_ref = weakref.ref(coords)
+        coords.close()
+        del coords
+        gc.collect()
+        self.assertIsNone(parent_ref())
+        self.assertEqual(fetched.to_tuple(), (4, 5))
+        fetched.close()
+
+    def test_checked_mutation_copy_export_and_close_state(self):
+        with (
+            c_coord(1, 2) as first,
+            c_coord(3, 4) as second,
+            c_coord_list.from_list([first, second]) as coords,
+        ):
+            self.assertEqual(
+                [coord.to_tuple() for coord in coords.to_list()],
+                [(1, 2), (3, 4)],
+            )
+            full = coords[:]
+            empty = coords[1:1]
+            try:
+                self.assertTrue(full.equals(coords))
+                self.assertEqual(len(empty), 0)
+            finally:
+                full.close()
+                empty.close()
+
+            self.assertEqual(coords.index(second), 1)
+            self.assertTrue(coords.remove_value(first))
+            self.assertFalse(coords.remove_value(first))
+            self.assertEqual(coords.pop_front().to_tuple(), (3, 4))
+
+        closed = c_coord_list()
+        closed.close()
+        closed.close()
+        with self.assertRaises(ReferenceError):
+            len(closed)
+        with self.assertRaises(ReferenceError):
+            closed.ptr()
+
 
 class CoordHashTest(unittest.TestCase):
     def test_insert_lookup_iteration_and_remove(self):
