@@ -1,13 +1,14 @@
 #include "doctest.h"
 #include <cmath>
 #include <cstdint>
+#include <limits>
 
 #include "coord.h"
 #include "internal/coord_ops.hpp"
-#include "scalar.h"
 
 namespace {
 constexpr double kPi = 3.14159265358979323846;
+constexpr double kCoordTestEpsilon = 1e-6;
 
 int legacy_wrap_reference(std::int64_t value) {
     constexpr std::int64_t range =
@@ -37,6 +38,215 @@ TEST_CASE("Wrap-Around Test") {
 
     CHECK(result.x == COORD_MIN);
     CHECK(result.y == 0);
+}
+
+TEST_CASE("Checked coord construction validates range and preserves outputs") {
+    coord_t value{71, 72};
+    CHECK(coord_init_checked(&value, 3, -4) == NAVSYS_STATUS_OK);
+    CHECK(value.x == 3);
+    CHECK(value.y == -4);
+
+    const coord_t preserved = value;
+    CHECK(coord_init_checked(
+        &value, BYUL_COORD_COMPONENT_MAX + INT32_C(1), 0)
+        == NAVSYS_STATUS_INVALID_ARGUMENT);
+    CHECK(value.x == preserved.x);
+    CHECK(value.y == preserved.y);
+    CHECK(coord_init_checked(nullptr, 0, 0)
+        == NAVSYS_STATUS_INVALID_ARGUMENT);
+
+    coord_t* created = reinterpret_cast<coord_t*>(1);
+    CHECK(coord_create_checked(
+        BYUL_COORD_COMPONENT_MAX + INT32_C(1), 0, &created)
+        == NAVSYS_STATUS_INVALID_ARGUMENT);
+    CHECK(created == reinterpret_cast<coord_t*>(1));
+    CHECK(coord_create_checked(5, 6, &created) == NAVSYS_STATUS_OK);
+    REQUIRE(created != nullptr);
+    CHECK(created->x == 5);
+    CHECK(created->y == 6);
+
+    coord_t* copied = reinterpret_cast<coord_t*>(1);
+    CHECK(coord_copy_checked(created, &copied) == NAVSYS_STATUS_OK);
+    REQUIRE(copied != nullptr);
+    CHECK(copied != created);
+    CHECK(copied->x == created->x);
+    CHECK(copied->y == created->y);
+    copied->x = 9;
+    CHECK(created->x == 5);
+
+    coord_t* preserved_pointer = reinterpret_cast<coord_t*>(1);
+    CHECK(coord_copy_checked(nullptr, &preserved_pointer)
+        == NAVSYS_STATUS_INVALID_ARGUMENT);
+    CHECK(preserved_pointer == reinterpret_cast<coord_t*>(1));
+    CHECK(coord_create_checked(0, 0, nullptr)
+        == NAVSYS_STATUS_INVALID_ARGUMENT);
+    CHECK(coord_copy_checked(created, nullptr)
+        == NAVSYS_STATUS_INVALID_ARGUMENT);
+
+    coord_destroy(copied);
+    coord_destroy(created);
+}
+
+TEST_CASE("Checked coord arithmetic is alias-safe and failure-atomic") {
+    coord_t value{10, -20};
+    const coord_t delta{3, 4};
+
+    CHECK(coord_add_checked(&value, &value, &delta)
+        == NAVSYS_STATUS_OK);
+    CHECK(value.x == 13);
+    CHECK(value.y == -16);
+
+    coord_t rhs{3, 4};
+    CHECK(coord_sub_checked(&rhs, &value, &rhs)
+        == NAVSYS_STATUS_OK);
+    CHECK(rhs.x == 10);
+    CHECK(rhs.y == -20);
+
+    CHECK(coord_mul_checked(&value, &value, -2)
+        == NAVSYS_STATUS_OK);
+    CHECK(value.x == -26);
+    CHECK(value.y == 32);
+    CHECK(coord_div_checked(&value, &value, 3)
+        == NAVSYS_STATUS_OK);
+    CHECK(value.x == -8);
+    CHECK(value.y == 10);
+
+    const coord_t before_failure = value;
+    const coord_t max_value{
+        static_cast<int>(BYUL_COORD_COMPONENT_MAX),
+        static_cast<int>(BYUL_COORD_COMPONENT_MIN)
+    };
+    const coord_t one{1, -1};
+    const coord_t negative_one{-1, 1};
+    CHECK(coord_add_checked(&value, &max_value, &one)
+        == NAVSYS_STATUS_INVALID_ARGUMENT);
+    CHECK(value.x == before_failure.x);
+    CHECK(value.y == before_failure.y);
+    CHECK(coord_sub_checked(&value, &max_value, &negative_one)
+        == NAVSYS_STATUS_INVALID_ARGUMENT);
+    CHECK(value.x == before_failure.x);
+    CHECK(value.y == before_failure.y);
+    CHECK(coord_mul_checked(&value, &max_value, 2)
+        == NAVSYS_STATUS_INVALID_ARGUMENT);
+    CHECK(value.x == before_failure.x);
+    CHECK(value.y == before_failure.y);
+    CHECK(coord_div_checked(&value, &max_value, 0)
+        == NAVSYS_STATUS_INVALID_ARGUMENT);
+    CHECK(value.x == before_failure.x);
+    CHECK(value.y == before_failure.y);
+
+    const coord_t outside_policy{
+        static_cast<int>(BYUL_COORD_COMPONENT_MAX + INT32_C(1)),
+        0
+    };
+    CHECK(coord_add_checked(&value, &outside_policy, &one)
+        == NAVSYS_STATUS_INVALID_ARGUMENT);
+    CHECK(value.x == before_failure.x);
+    CHECK(value.y == before_failure.y);
+    CHECK(coord_add_checked(nullptr, &value, &one)
+        == NAVSYS_STATUS_INVALID_ARGUMENT);
+    CHECK(coord_sub_checked(&value, nullptr, &one)
+        == NAVSYS_STATUS_INVALID_ARGUMENT);
+    CHECK(coord_mul_checked(&value, nullptr, 1)
+        == NAVSYS_STATUS_INVALID_ARGUMENT);
+    CHECK(coord_div_checked(&value, nullptr, 1)
+        == NAVSYS_STATUS_INVALID_ARGUMENT);
+}
+
+TEST_CASE("Checked coord queries preserve scalar outputs on failure") {
+    const coord_t min_value{
+        std::numeric_limits<int>::min(),
+        std::numeric_limits<int>::min()
+    };
+    const coord_t max_value{
+        std::numeric_limits<int>::max(),
+        std::numeric_limits<int>::max()
+    };
+
+    int order = 71;
+    CHECK(coord_compare_canonical(&min_value, &max_value, &order)
+        == NAVSYS_STATUS_OK);
+    CHECK(order == -1);
+    CHECK(coord_compare_canonical(&max_value, &min_value, &order)
+        == NAVSYS_STATUS_OK);
+    CHECK(order == 1);
+    CHECK(coord_compare_canonical(&max_value, &max_value, &order)
+        == NAVSYS_STATUS_OK);
+    CHECK(order == 0);
+    order = 71;
+    CHECK(coord_compare_canonical(nullptr, &max_value, &order)
+        == NAVSYS_STATUS_INVALID_ARGUMENT);
+    CHECK(order == 71);
+
+    double distance = -1.0;
+    CHECK(coord_distance_f64(&min_value, &max_value, &distance)
+        == NAVSYS_STATUS_OK);
+    CHECK(std::isfinite(distance));
+    CHECK(distance > 0.0);
+    const double preserved_distance = distance;
+    CHECK(coord_distance_f64(&min_value, nullptr, &distance)
+        == NAVSYS_STATUS_INVALID_ARGUMENT);
+    CHECK(distance == preserved_distance);
+
+    int64_t manhattan = -1;
+    CHECK(coord_manhattan_distance_i64(
+        &min_value, &max_value, &manhattan) == NAVSYS_STATUS_OK);
+    CHECK(manhattan == INT64_C(8589934590));
+    const int64_t preserved_manhattan = manhattan;
+    CHECK(coord_manhattan_distance_i64(
+        nullptr, &max_value, &manhattan)
+        == NAVSYS_STATUS_INVALID_ARGUMENT);
+    CHECK(manhattan == preserved_manhattan);
+}
+
+TEST_CASE("Checked coord direction distinguishes identical points") {
+    const coord_t origin{0, 0};
+    const coord_t east{1, 0};
+    const coord_t north{0, 1};
+    const coord_t west{-1, 0};
+    const coord_t south{0, -1};
+
+    double angle = -1.0;
+    CHECK(coord_angle_rad(&origin, &east, &angle) == NAVSYS_STATUS_OK);
+    CHECK(angle == doctest::Approx(0.0).epsilon(kCoordTestEpsilon));
+    CHECK(coord_angle_rad(&origin, &north, &angle) == NAVSYS_STATUS_OK);
+    CHECK(angle == doctest::Approx(kPi / 2.0).epsilon(kCoordTestEpsilon));
+    CHECK(coord_angle_rad(&origin, &west, &angle) == NAVSYS_STATUS_OK);
+    CHECK(angle == doctest::Approx(kPi).epsilon(kCoordTestEpsilon));
+    CHECK(coord_angle_rad(&origin, &south, &angle) == NAVSYS_STATUS_OK);
+    CHECK(angle == doctest::Approx(3.0 * kPi / 2.0)
+        .epsilon(kCoordTestEpsilon));
+
+    angle = 71.0;
+    CHECK(coord_angle_rad(&origin, &origin, &angle)
+        == NAVSYS_STATUS_INVALID_ARGUMENT);
+    CHECK(angle == 71.0);
+    CHECK(coord_angle_deg(nullptr, &east, &angle)
+        == NAVSYS_STATUS_INVALID_ARGUMENT);
+    CHECK(angle == 71.0);
+    CHECK(coord_angle_deg(&origin, &north, &angle)
+        == NAVSYS_STATUS_OK);
+    CHECK(angle == doctest::Approx(90.0).epsilon(kCoordTestEpsilon));
+
+    coord_t start{0, 0};
+    const coord_t goal{3, -4};
+    CHECK(coord_step_toward(&start, &goal, &start)
+        == NAVSYS_STATUS_OK);
+    CHECK(start.x == 1);
+    CHECK(start.y == -1);
+
+    coord_t goal_alias{3, -4};
+    const coord_t start_value{0, 0};
+    CHECK(coord_step_toward(&start_value, &goal_alias, &goal_alias)
+        == NAVSYS_STATUS_OK);
+    CHECK(goal_alias.x == 1);
+    CHECK(goal_alias.y == -1);
+
+    const coord_t preserved = start;
+    CHECK(coord_step_toward(nullptr, &goal, &start)
+        == NAVSYS_STATUS_INVALID_ARGUMENT);
+    CHECK(start.x == preserved.x);
+    CHECK(start.y == preserved.y);
 }
 
 TEST_CASE("Legacy coord wrapping matches an int64 reference") {
@@ -187,10 +397,10 @@ TEST_CASE("Angle in Radian Test") {
     coord_init_full(&west, -1, 0);
     coord_init_full(&south, 0, -1);
 
-     CHECK(doctest::Approx(coord_angle(&origin, &east)).epsilon(SCALAR_EPSILON) == 0.0);
-    CHECK(doctest::Approx(coord_angle(&origin, &north)).epsilon(SCALAR_EPSILON) == kPi / 2.0);
-    CHECK(doctest::Approx(coord_angle(&origin, &west)).epsilon(SCALAR_EPSILON) == kPi);
-    CHECK(doctest::Approx(coord_angle(&origin, &south)).epsilon(SCALAR_EPSILON) == 3.0 * kPi / 2.0);
+     CHECK(doctest::Approx(coord_angle(&origin, &east)).epsilon(kCoordTestEpsilon) == 0.0);
+    CHECK(doctest::Approx(coord_angle(&origin, &north)).epsilon(kCoordTestEpsilon) == kPi / 2.0);
+    CHECK(doctest::Approx(coord_angle(&origin, &west)).epsilon(kCoordTestEpsilon) == kPi);
+    CHECK(doctest::Approx(coord_angle(&origin, &south)).epsilon(kCoordTestEpsilon) == 3.0 * kPi / 2.0);
 }
 
 TEST_CASE("Internal coord value functors form consistent container contracts") {

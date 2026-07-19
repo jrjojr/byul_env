@@ -20,6 +20,7 @@
       "fixture": "byul/navsys/tests/test_navsys_allocation_failure.cpp",
       "scope": "current-create-paths-static-module",
       "owners": [
+        "coord",
         "navgrid",
         "route_finder",
         "dstar_lite"

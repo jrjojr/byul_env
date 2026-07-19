@@ -72,6 +72,53 @@ void destroy_dstar_lite(dstar_lite_t* dsl) {
     dstar_lite_destroy(dsl);
 }
 
+coord_t* create_checked_coord() {
+    coord_t* coord = nullptr;
+    return coord_create_checked(7, 9, &coord) == NAVSYS_STATUS_OK
+        ? coord
+        : nullptr;
+}
+
+bool verify_coord_checked_allocation_failure() {
+    const std::size_t baseline = tracked_live_allocations;
+    coord_t source = {7, 9};
+    coord_t* const sentinel = reinterpret_cast<coord_t*>(1);
+
+    coord_t* created = sentinel;
+    track_allocations = true;
+    fail_after = 0;
+    const navsys_status_t create_status =
+        coord_create_checked(source.x, source.y, &created);
+    fail_after = -1;
+    track_allocations = false;
+    if (create_status != NAVSYS_STATUS_OUT_OF_MEMORY
+        || created != sentinel
+        || tracked_live_allocations != baseline) {
+        std::fprintf(
+            stderr,
+            "coord_create_checked did not preserve output on allocation failure\n");
+        return false;
+    }
+
+    coord_t* copied = sentinel;
+    track_allocations = true;
+    fail_after = 0;
+    const navsys_status_t copy_status =
+        coord_copy_checked(&source, &copied);
+    fail_after = -1;
+    track_allocations = false;
+    if (copy_status != NAVSYS_STATUS_OUT_OF_MEMORY
+        || copied != sentinel
+        || tracked_live_allocations != baseline) {
+        std::fprintf(
+            stderr,
+            "coord_copy_checked did not preserve output on allocation failure\n");
+        return false;
+    }
+
+    return true;
+}
+
 template <typename T>
 bool verify_failure_atomic_create(
     const char* family,
@@ -161,13 +208,22 @@ int main(int argc, char** argv) {
         return 64;
     }
 
-    if (!verify_failure_atomic_create(
-            "navgrid", create_navgrid, destroy_navgrid)) {
+    if (!verify_coord_checked_allocation_failure()) {
         return 1;
     }
 
+    if (!verify_failure_atomic_create(
+            "coord", create_checked_coord, coord_destroy)) {
+        return 2;
+    }
+
+    if (!verify_failure_atomic_create(
+            "navgrid", create_navgrid, destroy_navgrid)) {
+        return 3;
+    }
+
     dependency_navgrid = navgrid_create();
-    if (!dependency_navgrid) return 2;
+    if (!dependency_navgrid) return 4;
 
     if (!verify_failure_atomic_create(
             "route_finder",
@@ -175,12 +231,12 @@ int main(int argc, char** argv) {
             destroy_route_finder,
             inject_route_finder_leak)) {
         navgrid_destroy(dependency_navgrid);
-        return 3;
+        return 5;
     }
     if (!verify_failure_atomic_create(
             "dstar_lite", create_dstar_lite, destroy_dstar_lite)) {
         navgrid_destroy(dependency_navgrid);
-        return 4;
+        return 6;
     }
 
     navgrid_destroy(dependency_navgrid);

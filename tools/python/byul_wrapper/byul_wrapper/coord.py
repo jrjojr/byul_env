@@ -1,4 +1,5 @@
 from .ffi_core import ffi, C
+from .navsys_status import NavsysStatus
 import weakref
 
 ffi.cdef("""
@@ -18,6 +19,45 @@ typedef struct s_coord {
  size_t coord_offsetof_x(void);
 
  size_t coord_offsetof_y(void);
+
+ navsys_status_t coord_init_checked(
+    coord_t* out_coord, int32_t x, int32_t y);
+
+ navsys_status_t coord_create_checked(
+    int32_t x, int32_t y, coord_t** out_coord);
+
+ navsys_status_t coord_copy_checked(
+    const coord_t* source, coord_t** out_coord);
+
+ navsys_status_t coord_add_checked(
+    coord_t* out, const coord_t* a, const coord_t* b);
+
+ navsys_status_t coord_sub_checked(
+    coord_t* out, const coord_t* a, const coord_t* b);
+
+ navsys_status_t coord_mul_checked(
+    coord_t* out, const coord_t* a, int32_t scalar);
+
+ navsys_status_t coord_div_checked(
+    coord_t* out, const coord_t* a, int32_t scalar);
+
+ navsys_status_t coord_compare_canonical(
+    const coord_t* a, const coord_t* b, int* out_order);
+
+ navsys_status_t coord_distance_f64(
+    const coord_t* a, const coord_t* b, double* out_distance);
+
+ navsys_status_t coord_manhattan_distance_i64(
+    const coord_t* a, const coord_t* b, int64_t* out_distance);
+
+ navsys_status_t coord_angle_rad(
+    const coord_t* from, const coord_t* to, double* out_angle);
+
+ navsys_status_t coord_angle_deg(
+    const coord_t* from, const coord_t* to, double* out_angle);
+
+ navsys_status_t coord_step_toward(
+    const coord_t* start, const coord_t* goal, coord_t* out_next);
 
  coord_t* coord_create_full(int x, int y);
 

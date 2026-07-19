@@ -410,7 +410,7 @@ coverage, Numal 제거 목록, wrapper omission/불일치 owner와 후속 local 
 loop가 모두 실행 가능한 상태다. 0단계를 닫되 기존 debt와 wrapper 불일치를 해결한
 것으로 확대 해석하지 않으며, 다음 순차 단계인 Coord value/collection 착수를 허용한다.
 
-** TODO 1단계: Coord value와 collection 계약 확정
+** DOING 1단계: Coord value와 collection 계약 확정
 
 *** 실행
 
