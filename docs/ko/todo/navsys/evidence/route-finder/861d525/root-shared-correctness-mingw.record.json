@@ -1,0 +1,25 @@
+{
+  "header": "byul/navsys/route_finder/route_finder.h",
+  "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-finder-route-finder.org",
+  "category": "correctness",
+  "layer": "root_shared",
+  "revision": "861d525149b86378a54d78d3105dcb79bc21c771",
+  "host": "windows-11-x64",
+  "target": "windows-x64",
+  "toolchain": "mingw-gcc-16.1.0",
+  "configuration": "Release",
+  "command": [
+    "build_header_refactor_mingw/bin/test_byul.exe"
+  ],
+  "artifacts": [
+    "docs/ko/todo/navsys/evidence/route-finder/861d525/root-shared-correctness.result.json"
+  ],
+  "verdict": "pass",
+  "assertions": 1802,
+  "limitations": [
+    "The 413 cases and 1802 assertions are the complete root integration suite, not a route-finder-only selection.",
+    "Execution requires C:/msys64/mingw64/bin on PATH.",
+    "The one-assertion difference from MSVC is preserved as toolchain-conditional coverage.",
+    "Windows sanitizer instrumentation was not applied."
+  ]
+}

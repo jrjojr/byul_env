@@ -1,0 +1,34 @@
+{
+  "schema_version": 1,
+  "evidence_kind": "header-signature-and-root-export",
+  "revision": "3cd9871e82de7bd457d60d3ca64522cdc849ade9",
+  "header": "byul/navsys/route_finder/route_finder.h",
+  "source_inventory": "docs/ko/todo/navsys/navsys-current-abi-inventory.json",
+  "signature_count": 48,
+  "header_abi_audit": {
+    "public_headers": 95,
+    "public_declarations": 968,
+    "invariant_errors": 0,
+    "errors": 0
+  },
+  "root_exports": {
+    "msvc": {
+      "snapshot": "docs/ko/todo/header-refactor-current/msvc-release-build.json",
+      "profile": "windows-x64-msvc-release",
+      "total_exports": 1006,
+      "checked_symbols": 48,
+      "missing_symbols": []
+    },
+    "mingw": {
+      "snapshot": "docs/ko/todo/header-refactor-current/mingw-release-build.json",
+      "profile": "windows-x64-mingw-release",
+      "total_exports": 1357,
+      "checked_symbols": 48,
+      "missing_symbols": []
+    }
+  },
+  "limitations": [
+    "Windows export-name inventories do not independently prove parameter calling convention; the signature-aware source inventory is checked separately.",
+    "Installed SDK and wrapper execution require separate layer records."
+  ]
+}

@@ -1,0 +1,35 @@
+{
+  "schema_version": 1,
+  "evidence_kind": "route-finder-execution-correctness",
+  "revision": "744c413bb3b0317d087d7db03c929c90766d58c8",
+  "header": "byul/navsys/route_finder/route_finder.h",
+  "executions": {
+    "module_static_msvc": {
+      "executable": "build_win_msvc/bin/Release/test_route_finder.exe",
+      "exit_code": 0,
+      "test_cases": 40,
+      "assertions": 381,
+      "status": "passed"
+    },
+    "module_static_mingw": {
+      "executable": "build_header_refactor_mingw/bin/test_route_finder.exe",
+      "runtime_path": "C:/msys64/mingw64/bin",
+      "exit_code": 0,
+      "test_cases": 40,
+      "assertions": 381,
+      "status": "passed"
+    },
+    "wrapper_msvc_root_shared": {
+      "runner": "tools/python/byul_wrapper/run_tests.py",
+      "library": "build_win_msvc/bin/Release/byul.dll",
+      "exit_code": 0,
+      "tests": 59,
+      "status": "passed"
+    }
+  },
+  "limitations": [
+    "The wrapper execution is the complete wrapper suite, not a route-finder-only selection.",
+    "No Windows sanitizer configuration was applied to these executions.",
+    "Installed SDK consumer execution is not covered by this artifact."
+  ]
+}

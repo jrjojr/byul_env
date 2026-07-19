@@ -1,0 +1,41 @@
+{
+  "schema_version": 1,
+  "evidence_kind": "route-finder-allocation-leak-negative-gate",
+  "revision": "ee0d3f5a37da8ec3446134a9ce71456265047ea6",
+  "header": "byul/navsys/route_finder/route_finder.h",
+  "fixture": {
+    "source": "byul/navsys/tests/test_navsys_allocation_failure.cpp",
+    "normal_test": "test_navsys_allocation_failure",
+    "negative_test": "test_navsys_allocation_leak_gate",
+    "injection_argument": "--inject-route-finder-leak",
+    "expected_exit_code": 3,
+    "expected_diagnostic": "route_finder create leaked allocations",
+    "expected_failure_helper": "byul/navsys/tests/expect_process_failure.cmake"
+  },
+  "assertions": [
+    "the normal allocation-failure fixture exits successfully",
+    "the injected route-finder leak exits with code 3",
+    "the injected route-finder leak emits the exact required diagnostic"
+  ],
+  "executions": {
+    "msvc": {
+      "ctest_tests": 2,
+      "ctest_passed": 2,
+      "ctest_failed": 0,
+      "configuration": "Release",
+      "status": "passed"
+    },
+    "mingw": {
+      "ctest_tests": 2,
+      "ctest_passed": 2,
+      "ctest_failed": 0,
+      "configuration": "Release",
+      "status": "passed"
+    }
+  },
+  "limitations": [
+    "The fixture replaces C++ new/delete in the module-static test process; it does not cover every C allocator or a separately loaded root shared library.",
+    "The injected allocation is deliberately reclaimed after the live-allocation mismatch is observed.",
+    "Windows sanitizer instrumentation was not applied."
+  ]
+}

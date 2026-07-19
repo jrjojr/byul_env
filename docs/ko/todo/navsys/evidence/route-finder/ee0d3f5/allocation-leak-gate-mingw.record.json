@@ -1,0 +1,29 @@
+{
+  "header": "byul/navsys/route_finder/route_finder.h",
+  "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-finder-route-finder.org",
+  "category": "correctness",
+  "layer": "module_static",
+  "revision": "ee0d3f5a37da8ec3446134a9ce71456265047ea6",
+  "host": "windows-11-x64",
+  "target": "windows-x64",
+  "toolchain": "mingw-gcc-16.1.0",
+  "configuration": "Release",
+  "command": [
+    "ctest",
+    "--test-dir",
+    "build_header_refactor_mingw",
+    "-R",
+    "test_navsys_allocation_(failure|leak_gate)$",
+    "--output-on-failure"
+  ],
+  "artifacts": [
+    "docs/ko/todo/navsys/evidence/route-finder/ee0d3f5/allocation-leak-gate.result.json"
+  ],
+  "verdict": "pass",
+  "assertions": 3,
+  "limitations": [
+    "This module-static fixture covers C++ new/delete tracking, not every C allocator or the root shared DLL.",
+    "The injected allocation is reclaimed after detection.",
+    "Windows sanitizer instrumentation was not applied."
+  ]
+}

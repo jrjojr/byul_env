@@ -1,5 +1,5 @@
 {
-  "schema_version": 1,
+  "schema_version": 2,
   "source_role_manifest": "docs/ko/todo/header-refactor-current/header-role-manifest.json",
   "source_vocabulary": "docs/ko/todo/navsys/navsys-abi-vocabulary.json",
   "summary": {
@@ -9469,6 +9469,7 @@
       "header": "byul/navsys/coord/coord.h",
       "name": "coord_sizeof",
       "return_type": "size_t",
+      "signature": "size_t coord_sizeof(void);",
       "return_form": "int_count",
       "canonical": "navsys_status_t plus out_count"
     },
@@ -9476,6 +9477,7 @@
       "header": "byul/navsys/coord/coord.h",
       "name": "coord_alignof",
       "return_type": "size_t",
+      "signature": "size_t coord_alignof(void);",
       "return_form": "int_count",
       "canonical": "navsys_status_t plus out_count"
     },
@@ -9483,6 +9485,7 @@
       "header": "byul/navsys/coord/coord.h",
       "name": "coord_offsetof_x",
       "return_type": "size_t",
+      "signature": "size_t coord_offsetof_x(void);",
       "return_form": "int_count",
       "canonical": "navsys_status_t plus out_count"
     },
@@ -9490,6 +9493,7 @@
       "header": "byul/navsys/coord/coord.h",
       "name": "coord_offsetof_y",
       "return_type": "size_t",
+      "signature": "size_t coord_offsetof_y(void);",
       "return_form": "int_count",
       "canonical": "navsys_status_t plus out_count"
     },
@@ -9497,6 +9501,7 @@
       "header": "byul/navsys/coord/coord.h",
       "name": "coord_create_full",
       "return_type": "coord_t*",
+      "signature": "coord_t* coord_create_full(int x, int y);",
       "return_form": "nullable_pointer",
       "canonical": "status return plus typed out pointer"
     },
@@ -9504,6 +9509,7 @@
       "header": "byul/navsys/coord/coord.h",
       "name": "coord_create",
       "return_type": "coord_t*",
+      "signature": "coord_t* coord_create(void);",
       "return_form": "nullable_pointer",
       "canonical": "status return plus typed out pointer"
     },
@@ -9511,6 +9517,7 @@
       "header": "byul/navsys/coord/coord.h",
       "name": "coord_destroy",
       "return_type": "void",
+      "signature": "void coord_destroy(coord_t* c);",
       "return_form": "void_fallible_operation",
       "canonical": "navsys_status_t"
     },
@@ -9518,6 +9525,7 @@
       "header": "byul/navsys/coord/coord.h",
       "name": "coord_copy",
       "return_type": "coord_t*",
+      "signature": "coord_t* coord_copy(const coord_t* c);",
       "return_form": "nullable_pointer",
       "canonical": "status return plus typed out pointer"
     },
@@ -9525,6 +9533,7 @@
       "header": "byul/navsys/coord/coord.h",
       "name": "coord_init",
       "return_type": "void",
+      "signature": "void coord_init(coord_t* c);",
       "return_form": "void_fallible_operation",
       "canonical": "navsys_status_t"
     },
@@ -9532,6 +9541,7 @@
       "header": "byul/navsys/coord/coord.h",
       "name": "coord_init_full",
       "return_type": "void",
+      "signature": "void coord_init_full(coord_t* c, int x, int y);",
       "return_form": "void_fallible_operation",
       "canonical": "navsys_status_t"
     },
@@ -9539,6 +9549,7 @@
       "header": "byul/navsys/coord/coord.h",
       "name": "coord_assign",
       "return_type": "void",
+      "signature": "void coord_assign(coord_t* dst, const coord_t* src);",
       "return_form": "void_fallible_operation",
       "canonical": "navsys_status_t"
     },
@@ -9546,6 +9557,7 @@
       "header": "byul/navsys/coord/coord.h",
       "name": "coord_add",
       "return_type": "void",
+      "signature": "void coord_add(coord_t* dst, const coord_t* a, const coord_t* b);",
       "return_form": "void_fallible_operation",
       "canonical": "navsys_status_t"
     },
@@ -9553,6 +9565,7 @@
       "header": "byul/navsys/coord/coord.h",
       "name": "coord_sub",
       "return_type": "void",
+      "signature": "void coord_sub(coord_t* dst, const coord_t* a, const coord_t* b);",
       "return_form": "void_fallible_operation",
       "canonical": "navsys_status_t"
     },
@@ -9560,6 +9573,7 @@
       "header": "byul/navsys/coord/coord.h",
       "name": "coord_mul",
       "return_type": "void",
+      "signature": "void coord_mul(coord_t* dst, const coord_t* a, int scalar);",
       "return_form": "void_fallible_operation",
       "canonical": "navsys_status_t"
     },
@@ -9567,6 +9581,7 @@
       "header": "byul/navsys/coord/coord.h",
       "name": "coord_div",
       "return_type": "void",
+      "signature": "void coord_div(coord_t* dst, const coord_t* a, int scalar);",
       "return_form": "void_fallible_operation",
       "canonical": "navsys_status_t"
     },
@@ -9574,6 +9589,7 @@
       "header": "byul/navsys/coord/coord.h",
       "name": "coord_iadd",
       "return_type": "void",
+      "signature": "void coord_iadd(coord_t* c, const coord_t* other);",
       "return_form": "void_fallible_operation",
       "canonical": "navsys_status_t"
     },
@@ -9581,6 +9597,7 @@
       "header": "byul/navsys/coord/coord.h",
       "name": "coord_isub",
       "return_type": "void",
+      "signature": "void coord_isub(coord_t* c, const coord_t* other);",
       "return_form": "void_fallible_operation",
       "canonical": "navsys_status_t"
     },
@@ -9588,6 +9605,7 @@
       "header": "byul/navsys/coord/coord.h",
       "name": "coord_imul",
       "return_type": "void",
+      "signature": "void coord_imul(coord_t* c, int scalar);",
       "return_form": "void_fallible_operation",
       "canonical": "navsys_status_t"
     },
@@ -9595,6 +9613,7 @@
       "header": "byul/navsys/coord/coord.h",
       "name": "coord_idiv",
       "return_type": "void",
+      "signature": "void coord_idiv(coord_t* c, int scalar);",
       "return_form": "void_fallible_operation",
       "canonical": "navsys_status_t"
     },
@@ -9602,6 +9621,7 @@
       "header": "byul/navsys/coord/coord.h",
       "name": "coord_hash",
       "return_type": "unsigned",
+      "signature": "unsigned coord_hash(const coord_t* c);",
       "return_form": "enum_result",
       "canonical": "navsys_status_t plus typed out enum"
     },
@@ -9609,6 +9629,7 @@
       "header": "byul/navsys/coord/coord.h",
       "name": "coord_equal",
       "return_type": "bool",
+      "signature": "bool coord_equal(const coord_t* c1, const coord_t* c2);",
       "return_form": "bool_predicate",
       "canonical": "keep bool when evaluation itself cannot fail"
     },
@@ -9616,6 +9637,7 @@
       "header": "byul/navsys/coord/coord.h",
       "name": "coord_compare",
       "return_type": "int",
+      "signature": "int coord_compare(const coord_t* c1, const coord_t* c2);",
       "return_form": "int_zero_nonzero_status",
       "canonical": "navsys_status_t"
     },
@@ -9623,6 +9645,7 @@
       "header": "byul/navsys/coord/coord.h",
       "name": "coord_distance",
       "return_type": "float",
+      "signature": "float coord_distance(const coord_t* a, const coord_t* b);",
       "return_form": "floating_result",
       "canonical": "navsys_status_t plus typed out scalar"
     },
@@ -9630,6 +9653,7 @@
       "header": "byul/navsys/coord/coord.h",
       "name": "coord_manhattan_distance",
       "return_type": "int",
+      "signature": "int coord_manhattan_distance(const coord_t* a, const coord_t* b);",
       "return_form": "int_zero_nonzero_status",
       "canonical": "navsys_status_t"
     },
@@ -9637,6 +9661,7 @@
       "header": "byul/navsys/coord/coord.h",
       "name": "coord_angle",
       "return_type": "double",
+      "signature": "double coord_angle(const coord_t* a, const coord_t* b);",
       "return_form": "floating_result",
       "canonical": "navsys_status_t plus typed out scalar"
     },
@@ -9644,6 +9669,7 @@
       "header": "byul/navsys/coord/coord.h",
       "name": "coord_degree",
       "return_type": "double",
+      "signature": "double coord_degree(const coord_t* a, const coord_t* b);",
       "return_form": "floating_result",
       "canonical": "navsys_status_t plus typed out scalar"
     },
@@ -9651,6 +9677,7 @@
       "header": "byul/navsys/coord/coord.h",
       "name": "coord_next_to_goal",
       "return_type": "void",
+      "signature": "void coord_next_to_goal( coord_t* out, const coord_t* start, const coord_t* goal);",
       "return_form": "void_fallible_operation",
       "canonical": "navsys_status_t"
     },
@@ -9658,6 +9685,7 @@
       "header": "byul/navsys/coord/coord.h",
       "name": "coord_get_x",
       "return_type": "int",
+      "signature": "int coord_get_x(const coord_t* c);",
       "return_form": "int_zero_nonzero_status",
       "canonical": "navsys_status_t"
     },
@@ -9665,6 +9693,7 @@
       "header": "byul/navsys/coord/coord.h",
       "name": "coord_set_x",
       "return_type": "void",
+      "signature": "void coord_set_x(coord_t* c, int x);",
       "return_form": "void_fallible_operation",
       "canonical": "navsys_status_t"
     },
@@ -9672,6 +9701,7 @@
       "header": "byul/navsys/coord/coord.h",
       "name": "coord_get_y",
       "return_type": "int",
+      "signature": "int coord_get_y(const coord_t* c);",
       "return_form": "int_zero_nonzero_status",
       "canonical": "navsys_status_t"
     },
@@ -9679,6 +9709,7 @@
       "header": "byul/navsys/coord/coord.h",
       "name": "coord_set_y",
       "return_type": "void",
+      "signature": "void coord_set_y(coord_t* c, int y);",
       "return_form": "void_fallible_operation",
       "canonical": "navsys_status_t"
     },
@@ -9686,6 +9717,7 @@
       "header": "byul/navsys/coord/coord.h",
       "name": "coord_set",
       "return_type": "void",
+      "signature": "void coord_set(coord_t* c, int x, int y);",
       "return_form": "void_fallible_operation",
       "canonical": "navsys_status_t"
     },
@@ -9693,6 +9725,7 @@
       "header": "byul/navsys/coord/coord.h",
       "name": "coord_fetch",
       "return_type": "void",
+      "signature": "void coord_fetch(const coord_t* c, int* out_x, int* out_y);",
       "return_form": "void_fallible_operation",
       "canonical": "navsys_status_t"
     },
@@ -9700,6 +9733,7 @@
       "header": "byul/navsys/coord/coord.h",
       "name": "make_tmp_coord",
       "return_type": "coord_t",
+      "signature": "coord_t make_tmp_coord(int x, int y);",
       "return_form": "enum_result",
       "canonical": "navsys_status_t plus typed out enum"
     },
@@ -9707,6 +9741,7 @@
       "header": "byul/navsys/coord/coord.h",
       "name": "coord_clone_next_to_goal",
       "return_type": "coord_t*",
+      "signature": "coord_t* coord_clone_next_to_goal( const coord_t* start, const coord_t* goal);",
       "return_form": "nullable_pointer",
       "canonical": "status return plus typed out pointer"
     },
@@ -9714,6 +9749,7 @@
       "header": "byul/navsys/coord/coord.h",
       "name": "coord_to_string",
       "return_type": "char*",
+      "signature": "char* coord_to_string( const coord_t* c, size_t buffer_size, char* buffer);",
       "return_form": "nullable_pointer",
       "canonical": "status return plus typed out pointer"
     },
@@ -9721,6 +9757,7 @@
       "header": "byul/navsys/coord/coord.h",
       "name": "coord_print",
       "return_type": "void",
+      "signature": "void coord_print(const coord_t* c);",
       "return_form": "void_fallible_operation",
       "canonical": "navsys_status_t"
     },
@@ -9728,6 +9765,7 @@
       "header": "byul/navsys/coord/coord_hash.h",
       "name": "int_copy",
       "return_type": "void*",
+      "signature": "void* int_copy(const void* p);",
       "return_form": "nullable_pointer",
       "canonical": "status return plus typed out pointer"
     },
@@ -9735,6 +9773,7 @@
       "header": "byul/navsys/coord/coord_hash.h",
       "name": "int_destroy",
       "return_type": "void",
+      "signature": "void int_destroy(void* p);",
       "return_form": "void_fallible_operation",
       "canonical": "navsys_status_t"
     },
@@ -9742,6 +9781,7 @@
       "header": "byul/navsys/coord/coord_hash.h",
       "name": "scalar_copy",
       "return_type": "void*",
+      "signature": "void* scalar_copy(const void* p);",
       "return_form": "nullable_pointer",
       "canonical": "status return plus typed out pointer"
     },
@@ -9749,6 +9789,7 @@
       "header": "byul/navsys/coord/coord_hash.h",
       "name": "scalar_destroy",
       "return_type": "void",
+      "signature": "void scalar_destroy(void* p);",
       "return_form": "void_fallible_operation",
       "canonical": "navsys_status_t"
     },
@@ -9756,6 +9797,7 @@
       "header": "byul/navsys/coord/coord_hash.h",
       "name": "double_copy",
       "return_type": "void*",
+      "signature": "void* double_copy(const void* p);",
       "return_form": "nullable_pointer",
       "canonical": "status return plus typed out pointer"
     },
@@ -9763,6 +9805,7 @@
       "header": "byul/navsys/coord/coord_hash.h",
       "name": "double_destroy",
       "return_type": "void",
+      "signature": "void double_destroy(void* p);",
       "return_form": "void_fallible_operation",
       "canonical": "navsys_status_t"
     },
@@ -9770,6 +9813,7 @@
       "header": "byul/navsys/coord/coord_hash.h",
       "name": "coord_hash_create",
       "return_type": "coord_hash_t*",
+      "signature": "coord_hash_t* coord_hash_create();",
       "return_form": "nullable_pointer",
       "canonical": "status return plus typed out pointer"
     },
@@ -9777,6 +9821,7 @@
       "header": "byul/navsys/coord/coord_hash.h",
       "name": "coord_hash_create_full",
       "return_type": "coord_hash_t*",
+      "signature": "coord_hash_t* coord_hash_create_full(coord_hash_copy_func copy_func, coord_hash_destroy_func destroy_func);",
       "return_form": "nullable_pointer",
       "canonical": "status return plus typed out pointer"
     },
@@ -9784,6 +9829,7 @@
       "header": "byul/navsys/coord/coord_hash.h",
       "name": "coord_hash_destroy",
       "return_type": "void",
+      "signature": "void coord_hash_destroy(coord_hash_t* hash);",
       "return_form": "void_fallible_operation",
       "canonical": "navsys_status_t"
     },
@@ -9791,6 +9837,7 @@
       "header": "byul/navsys/coord/coord_hash.h",
       "name": "coord_hash_copy",
       "return_type": "coord_hash_t*",
+      "signature": "coord_hash_t* coord_hash_copy(const coord_hash_t* original);",
       "return_form": "nullable_pointer",
       "canonical": "status return plus typed out pointer"
     },
@@ -9798,6 +9845,7 @@
       "header": "byul/navsys/coord/coord_hash.h",
       "name": "coord_hash_hash",
       "return_type": "uint32_t",
+      "signature": "uint32_t coord_hash_hash(const coord_hash_t* h);",
       "return_form": "enum_result",
       "canonical": "navsys_status_t plus typed out enum"
     },
@@ -9805,6 +9853,7 @@
       "header": "byul/navsys/coord/coord_hash.h",
       "name": "coord_hash_length",
       "return_type": "int",
+      "signature": "int coord_hash_length(const coord_hash_t* hash);",
       "return_form": "int_count",
       "canonical": "navsys_status_t plus out_count"
     },
@@ -9812,6 +9861,7 @@
       "header": "byul/navsys/coord/coord_hash.h",
       "name": "coord_hash_is_empty",
       "return_type": "bool",
+      "signature": "bool coord_hash_is_empty(const coord_hash_t* hash);",
       "return_form": "bool_predicate",
       "canonical": "keep bool when evaluation itself cannot fail"
     },
@@ -9819,6 +9869,7 @@
       "header": "byul/navsys/coord/coord_hash.h",
       "name": "coord_hash_get",
       "return_type": "void*",
+      "signature": "void* coord_hash_get(const coord_hash_t* hash, const coord_t* key);",
       "return_form": "nullable_pointer",
       "canonical": "status return plus typed out pointer"
     },
@@ -9826,6 +9877,7 @@
       "header": "byul/navsys/coord/coord_hash.h",
       "name": "coord_hash_get_xy",
       "return_type": "void*",
+      "signature": "void* coord_hash_get_xy(const coord_hash_t* hash, int x, int y);",
       "return_form": "nullable_pointer",
       "canonical": "status return plus typed out pointer"
     },
@@ -9833,6 +9885,7 @@
       "header": "byul/navsys/coord/coord_hash.h",
       "name": "coord_hash_contains",
       "return_type": "bool",
+      "signature": "bool coord_hash_contains( const coord_hash_t* hash, const coord_t* key);",
       "return_form": "bool_predicate",
       "canonical": "keep bool when evaluation itself cannot fail"
     },
@@ -9840,6 +9893,7 @@
       "header": "byul/navsys/coord/coord_hash.h",
       "name": "coord_hash_set",
       "return_type": "void",
+      "signature": "void coord_hash_set(coord_hash_t* hash, const coord_t* key, void* value);",
       "return_form": "void_fallible_operation",
       "canonical": "navsys_status_t"
     },
@@ -9847,6 +9901,7 @@
       "header": "byul/navsys/coord/coord_hash.h",
       "name": "coord_hash_insert",
       "return_type": "bool",
+      "signature": "bool coord_hash_insert(coord_hash_t* hash, const coord_t* key, void* value);",
       "return_form": "bool_operation",
       "canonical": "navsys_status_t"
     },
@@ -9854,6 +9909,7 @@
       "header": "byul/navsys/coord/coord_hash.h",
       "name": "coord_hash_insert_xy",
       "return_type": "bool",
+      "signature": "bool coord_hash_insert_xy( coord_hash_t* hash, int x, int y, void* value);",
       "return_form": "bool_operation",
       "canonical": "navsys_status_t"
     },
@@ -9861,6 +9917,7 @@
       "header": "byul/navsys/coord/coord_hash.h",
       "name": "coord_hash_replace",
       "return_type": "bool",
+      "signature": "bool coord_hash_replace(coord_hash_t* hash, const coord_t* key, void* value);",
       "return_form": "bool_operation",
       "canonical": "navsys_status_t"
     },
@@ -9868,6 +9925,7 @@
       "header": "byul/navsys/coord/coord_hash.h",
       "name": "coord_hash_replace_xy",
       "return_type": "bool",
+      "signature": "bool coord_hash_replace_xy( coord_hash_t* hash, int x, int y, void* value);",
       "return_form": "bool_operation",
       "canonical": "navsys_status_t"
     },
@@ -9875,6 +9933,7 @@
       "header": "byul/navsys/coord/coord_hash.h",
       "name": "coord_hash_remove",
       "return_type": "bool",
+      "signature": "bool coord_hash_remove(coord_hash_t* hash, const coord_t* key);",
       "return_form": "bool_operation",
       "canonical": "navsys_status_t"
     },
@@ -9882,6 +9941,7 @@
       "header": "byul/navsys/coord/coord_hash.h",
       "name": "coord_hash_clear",
       "return_type": "void",
+      "signature": "void coord_hash_clear(coord_hash_t* hash);",
       "return_form": "void_fallible_operation",
       "canonical": "navsys_status_t"
     },
@@ -9889,6 +9949,7 @@
       "header": "byul/navsys/coord/coord_hash.h",
       "name": "coord_hash_remove_all",
       "return_type": "void",
+      "signature": "void coord_hash_remove_all(coord_hash_t* hash);",
       "return_form": "void_fallible_operation",
       "canonical": "navsys_status_t"
     },
@@ -9896,6 +9957,7 @@
       "header": "byul/navsys/coord/coord_hash.h",
       "name": "coord_hash_equal",
       "return_type": "bool",
+      "signature": "bool coord_hash_equal(const coord_hash_t* a, const coord_hash_t* b);",
       "return_form": "bool_predicate",
       "canonical": "keep bool when evaluation itself cannot fail"
     },
@@ -9903,6 +9965,7 @@
       "header": "byul/navsys/coord/coord_hash.h",
       "name": "coord_hash_keys",
       "return_type": "coord_list_t*",
+      "signature": "coord_list_t* coord_hash_keys(const coord_hash_t* hash);",
       "return_form": "nullable_pointer",
       "canonical": "status return plus typed out pointer"
     },
@@ -9910,6 +9973,7 @@
       "header": "byul/navsys/coord/coord_hash.h",
       "name": "coord_hash_values",
       "return_type": "void**",
+      "signature": "void** coord_hash_values( const coord_hash_t* hash, int* out_count);",
       "return_form": "nullable_pointer",
       "canonical": "status return plus typed out pointer"
     },
@@ -9917,6 +9981,7 @@
       "header": "byul/navsys/coord/coord_hash.h",
       "name": "coord_hash_foreach",
       "return_type": "void",
+      "signature": "void coord_hash_foreach( coord_hash_t* hash, coord_hash_func func, void* user_data);",
       "return_form": "void_fallible_operation",
       "canonical": "navsys_status_t"
     },
@@ -9924,6 +9989,7 @@
       "header": "byul/navsys/coord/coord_hash.h",
       "name": "coord_hash_to_list",
       "return_type": "coord_list_t*",
+      "signature": "coord_list_t* coord_hash_to_list(const coord_hash_t* hash);",
       "return_form": "nullable_pointer",
       "canonical": "status return plus typed out pointer"
     },
@@ -9931,6 +9997,7 @@
       "header": "byul/navsys/coord/coord_hash.h",
       "name": "coord_hash_export",
       "return_type": "void",
+      "signature": "void coord_hash_export( const coord_hash_t* hash, coord_list_t* keys_out, void** values_out, int* count_out);",
       "return_form": "void_fallible_operation",
       "canonical": "navsys_status_t"
     },
@@ -9938,6 +10005,7 @@
       "header": "byul/navsys/coord/coord_hash.h",
       "name": "coord_hash_iter_create",
       "return_type": "coord_hash_iter_t*",
+      "signature": "coord_hash_iter_t* coord_hash_iter_create( const coord_hash_t* hash);",
       "return_form": "nullable_pointer",
       "canonical": "status return plus typed out pointer"
     },
@@ -9945,6 +10013,7 @@
       "header": "byul/navsys/coord/coord_hash.h",
       "name": "coord_hash_iter_next",
       "return_type": "bool",
+      "signature": "bool coord_hash_iter_next( coord_hash_iter_t* iter, coord_t* key_out, void** val_out);",
       "return_form": "bool_operation",
       "canonical": "navsys_status_t"
     },
@@ -9952,6 +10021,7 @@
       "header": "byul/navsys/coord/coord_hash.h",
       "name": "coord_hash_iter_destroy",
       "return_type": "void",
+      "signature": "void coord_hash_iter_destroy( coord_hash_iter_t* iter);",
       "return_form": "void_fallible_operation",
       "canonical": "navsys_status_t"
     },
@@ -9959,6 +10029,7 @@
       "header": "byul/navsys/coord/coord_hash.h",
       "name": "coord_hash_to_string",
       "return_type": "char*",
+      "signature": "char* coord_hash_to_string(const coord_hash_t* hash);",
       "return_form": "nullable_pointer",
       "canonical": "status return plus typed out pointer"
     },
@@ -9966,6 +10037,7 @@
       "header": "byul/navsys/coord/coord_hash.h",
       "name": "coord_hash_print",
       "return_type": "void",
+      "signature": "void coord_hash_print(const coord_hash_t* hash);",
       "return_form": "void_fallible_operation",
       "canonical": "navsys_status_t"
     },
@@ -9973,6 +10045,7 @@
       "header": "byul/navsys/coord/coord_list.h",
       "name": "coord_list_create",
       "return_type": "coord_list_t*",
+      "signature": "coord_list_t* coord_list_create(void);",
       "return_form": "nullable_pointer",
       "canonical": "status return plus typed out pointer"
     },
@@ -9980,6 +10053,7 @@
       "header": "byul/navsys/coord/coord_list.h",
       "name": "coord_list_destroy",
       "return_type": "void",
+      "signature": "void coord_list_destroy(coord_list_t* list);",
       "return_form": "void_fallible_operation",
       "canonical": "navsys_status_t"
     },
@@ -9987,6 +10061,7 @@
       "header": "byul/navsys/coord/coord_list.h",
       "name": "coord_list_copy",
       "return_type": "coord_list_t*",
+      "signature": "coord_list_t* coord_list_copy(const coord_list_t* list);",
       "return_form": "nullable_pointer",
       "canonical": "status return plus typed out pointer"
     },
@@ -9994,6 +10069,7 @@
       "header": "byul/navsys/coord/coord_list.h",
       "name": "coord_list_length",
       "return_type": "int",
+      "signature": "int coord_list_length(const coord_list_t* list);",
       "return_form": "int_count",
       "canonical": "navsys_status_t plus out_count"
     },
@@ -10001,6 +10077,7 @@
       "header": "byul/navsys/coord/coord_list.h",
       "name": "coord_list_empty",
       "return_type": "bool",
+      "signature": "bool coord_list_empty(const coord_list_t* list);",
       "return_form": "bool_operation",
       "canonical": "navsys_status_t"
     },
@@ -10008,6 +10085,7 @@
       "header": "byul/navsys/coord/coord_list.h",
       "name": "coord_list_get",
       "return_type": "const coord_t*",
+      "signature": "const coord_t* coord_list_get(const coord_list_t* list, int index);",
       "return_form": "nullable_pointer",
       "canonical": "status return plus typed out pointer"
     },
@@ -10015,6 +10093,7 @@
       "header": "byul/navsys/coord/coord_list.h",
       "name": "coord_list_front",
       "return_type": "const coord_t*",
+      "signature": "const coord_t* coord_list_front(const coord_list_t* list);",
       "return_form": "nullable_pointer",
       "canonical": "status return plus typed out pointer"
     },
@@ -10022,6 +10101,7 @@
       "header": "byul/navsys/coord/coord_list.h",
       "name": "coord_list_back",
       "return_type": "const coord_t*",
+      "signature": "const coord_t* coord_list_back(const coord_list_t* list);",
       "return_form": "nullable_pointer",
       "canonical": "status return plus typed out pointer"
     },
@@ -10029,6 +10109,7 @@
       "header": "byul/navsys/coord/coord_list.h",
       "name": "coord_list_push_back",
       "return_type": "int",
+      "signature": "int coord_list_push_back(coord_list_t* list, const coord_t* c);",
       "return_form": "int_zero_nonzero_status",
       "canonical": "navsys_status_t"
     },
@@ -10036,6 +10117,7 @@
       "header": "byul/navsys/coord/coord_list.h",
       "name": "coord_list_pop_back",
       "return_type": "coord_t",
+      "signature": "coord_t coord_list_pop_back(coord_list_t* list);",
       "return_form": "enum_result",
       "canonical": "navsys_status_t plus typed out enum"
     },
@@ -10043,6 +10125,7 @@
       "header": "byul/navsys/coord/coord_list.h",
       "name": "coord_list_pop_front",
       "return_type": "coord_t",
+      "signature": "coord_t coord_list_pop_front(coord_list_t* list);",
       "return_form": "enum_result",
       "canonical": "navsys_status_t plus typed out enum"
     },
@@ -10050,6 +10133,7 @@
       "header": "byul/navsys/coord/coord_list.h",
       "name": "coord_list_insert",
       "return_type": "int",
+      "signature": "int coord_list_insert(coord_list_t* list, int index, const coord_t* c);",
       "return_form": "int_zero_nonzero_status",
       "canonical": "navsys_status_t"
     },
@@ -10057,6 +10141,7 @@
       "header": "byul/navsys/coord/coord_list.h",
       "name": "coord_list_remove_at",
       "return_type": "void",
+      "signature": "void coord_list_remove_at(coord_list_t* list, int index);",
       "return_form": "void_fallible_operation",
       "canonical": "navsys_status_t"
     },
@@ -10064,6 +10149,7 @@
       "header": "byul/navsys/coord/coord_list.h",
       "name": "coord_list_remove_value",
       "return_type": "void",
+      "signature": "void coord_list_remove_value(coord_list_t* list, const coord_t* c);",
       "return_form": "void_fallible_operation",
       "canonical": "navsys_status_t"
     },
@@ -10071,6 +10157,7 @@
       "header": "byul/navsys/coord/coord_list.h",
       "name": "coord_list_clear",
       "return_type": "void",
+      "signature": "void coord_list_clear(coord_list_t* list);",
       "return_form": "void_fallible_operation",
       "canonical": "navsys_status_t"
     },
@@ -10078,6 +10165,7 @@
       "header": "byul/navsys/coord/coord_list.h",
       "name": "coord_list_reverse",
       "return_type": "void",
+      "signature": "void coord_list_reverse(coord_list_t* list);",
       "return_form": "void_fallible_operation",
       "canonical": "navsys_status_t"
     },
@@ -10085,6 +10173,7 @@
       "header": "byul/navsys/coord/coord_list.h",
       "name": "coord_list_contains",
       "return_type": "int",
+      "signature": "int coord_list_contains(const coord_list_t* list, const coord_t* c);",
       "return_form": "int_zero_nonzero_status",
       "canonical": "navsys_status_t"
     },
@@ -10092,6 +10181,7 @@
       "header": "byul/navsys/coord/coord_list.h",
       "name": "coord_list_find",
       "return_type": "int",
+      "signature": "int coord_list_find(const coord_list_t* list, const coord_t* c);",
       "return_form": "int_index_minus_one",
       "canonical": "NAVSYS_STATUS_NOT_FOUND plus out_index"
     },
@@ -10099,6 +10189,7 @@
       "header": "byul/navsys/coord/coord_list.h",
       "name": "coord_list_sublist",
       "return_type": "coord_list_t*",
+      "signature": "coord_list_t* coord_list_sublist(const coord_list_t* list, int start, int end);",
       "return_form": "nullable_pointer",
       "canonical": "status return plus typed out pointer"
     },
@@ -10106,6 +10197,7 @@
       "header": "byul/navsys/coord/coord_list.h",
       "name": "coord_list_equals",
       "return_type": "bool",
+      "signature": "bool coord_list_equals(const coord_list_t* a, const coord_list_t* b);",
       "return_form": "bool_predicate",
       "canonical": "keep bool when evaluation itself cannot fail"
     },
@@ -10113,6 +10205,7 @@
       "header": "byul/navsys/coord/cost_coord_pq.h",
       "name": "cost_coord_pq_create",
       "return_type": "cost_coord_pq_t*",
+      "signature": "cost_coord_pq_t* cost_coord_pq_create();",
       "return_form": "nullable_pointer",
       "canonical": "status return plus typed out pointer"
     },
@@ -10120,6 +10213,7 @@
       "header": "byul/navsys/coord/cost_coord_pq.h",
       "name": "cost_coord_pq_destroy",
       "return_type": "void",
+      "signature": "void cost_coord_pq_destroy(cost_coord_pq_t* pq);",
       "return_form": "void_fallible_operation",
       "canonical": "navsys_status_t"
     },
@@ -10127,6 +10221,7 @@
       "header": "byul/navsys/coord/cost_coord_pq.h",
       "name": "cost_coord_pq_push",
       "return_type": "void",
+      "signature": "void cost_coord_pq_push(cost_coord_pq_t* pq, float cost, const coord_t* c);",
       "return_form": "void_fallible_operation",
       "canonical": "navsys_status_t"
     },
@@ -10134,6 +10229,7 @@
       "header": "byul/navsys/coord/cost_coord_pq.h",
       "name": "cost_coord_pq_peek",
       "return_type": "coord_t*",
+      "signature": "coord_t* cost_coord_pq_peek(cost_coord_pq_t* pq);",
       "return_form": "nullable_pointer",
       "canonical": "status return plus typed out pointer"
     },
@@ -10141,6 +10237,7 @@
       "header": "byul/navsys/coord/cost_coord_pq.h",
       "name": "cost_coord_pq_pop",
       "return_type": "coord_t*",
+      "signature": "coord_t* cost_coord_pq_pop(cost_coord_pq_t* pq);",
       "return_form": "nullable_pointer",
       "canonical": "status return plus typed out pointer"
     },
@@ -10148,6 +10245,7 @@
       "header": "byul/navsys/coord/cost_coord_pq.h",
       "name": "cost_coord_pq_peek_cost",
       "return_type": "float",
+      "signature": "float cost_coord_pq_peek_cost(cost_coord_pq_t* pq);",
       "return_form": "floating_result",
       "canonical": "navsys_status_t plus typed out scalar"
     },
@@ -10155,6 +10253,7 @@
       "header": "byul/navsys/coord/cost_coord_pq.h",
       "name": "cost_coord_pq_is_empty",
       "return_type": "bool",
+      "signature": "bool cost_coord_pq_is_empty(cost_coord_pq_t* pq);",
       "return_form": "bool_predicate",
       "canonical": "keep bool when evaluation itself cannot fail"
     },
@@ -10162,6 +10261,7 @@
       "header": "byul/navsys/coord/cost_coord_pq.h",
       "name": "cost_coord_pq_contains",
       "return_type": "bool",
+      "signature": "bool cost_coord_pq_contains(cost_coord_pq_t* pq, const coord_t* c);",
       "return_form": "bool_predicate",
       "canonical": "keep bool when evaluation itself cannot fail"
     },
@@ -10169,6 +10269,7 @@
       "header": "byul/navsys/coord/cost_coord_pq.h",
       "name": "cost_coord_pq_remove",
       "return_type": "bool",
+      "signature": "bool cost_coord_pq_remove( cost_coord_pq_t* pq, float cost, const coord_t* c);",
       "return_form": "bool_operation",
       "canonical": "navsys_status_t"
     },
@@ -10176,6 +10277,7 @@
       "header": "byul/navsys/coord/cost_coord_pq.h",
       "name": "cost_coord_pq_length",
       "return_type": "int",
+      "signature": "int cost_coord_pq_length(cost_coord_pq_t* pq);",
       "return_form": "int_count",
       "canonical": "navsys_status_t plus out_count"
     },
@@ -10183,6 +10285,7 @@
       "header": "byul/navsys/coord/cost_coord_pq.h",
       "name": "cost_coord_pq_trim_worst",
       "return_type": "void",
+      "signature": "void cost_coord_pq_trim_worst(cost_coord_pq_t* pq, int n);",
       "return_form": "void_fallible_operation",
       "canonical": "navsys_status_t"
     },
@@ -10190,6 +10293,7 @@
       "header": "byul/navsys/dstar_lite/dstar_lite.h",
       "name": "dstar_lite_dynamic_cost",
       "return_type": "float",
+      "signature": "float dstar_lite_dynamic_cost( const navgrid_t* navgrid, const coord_t* start, const coord_t* goal, void* userdata);",
       "return_form": "floating_result",
       "canonical": "navsys_status_t plus typed out scalar"
     },
@@ -10197,6 +10301,7 @@
       "header": "byul/navsys/dstar_lite/dstar_lite.h",
       "name": "dstar_lite_heuristic",
       "return_type": "float",
+      "signature": "float dstar_lite_heuristic( const coord_t* start, const coord_t* goal, void* userdata);",
       "return_form": "floating_result",
       "canonical": "navsys_status_t plus typed out scalar"
     },
@@ -10204,6 +10309,7 @@
       "header": "byul/navsys/dstar_lite/dstar_lite.h",
       "name": "move_to",
       "return_type": "void",
+      "signature": "void move_to(const coord_t* c, void* userdata);",
       "return_form": "void_fallible_operation",
       "canonical": "navsys_status_t"
     },
@@ -10211,6 +10317,7 @@
       "header": "byul/navsys/dstar_lite/dstar_lite.h",
       "name": "get_changed_coord",
       "return_type": "coord_list_t*",
+      "signature": "coord_list_t* get_changed_coord(void* userdata);",
       "return_form": "nullable_pointer",
       "canonical": "status return plus typed out pointer"
     },
@@ -10218,6 +10325,7 @@
       "header": "byul/navsys/dstar_lite/dstar_lite.h",
       "name": "get_changed_coords",
       "return_type": "coord_list_t*",
+      "signature": "coord_list_t* get_changed_coords(void* userdata);",
       "return_form": "nullable_pointer",
       "canonical": "status return plus typed out pointer"
     },
@@ -10225,6 +10333,7 @@
       "header": "byul/navsys/dstar_lite/dstar_lite.h",
       "name": "dstar_lite_create",
       "return_type": "dstar_lite_t*",
+      "signature": "dstar_lite_t* dstar_lite_create(navgrid_t* navgrid);",
       "return_form": "nullable_pointer",
       "canonical": "status return plus typed out pointer"
     },
@@ -10232,6 +10341,7 @@
       "header": "byul/navsys/dstar_lite/dstar_lite.h",
       "name": "dstar_lite_create_full",
       "return_type": "dstar_lite_t*",
+      "signature": "dstar_lite_t* dstar_lite_create_full( navgrid_t* navgrid, const coord_t* start, const coord_t* goal, cost_func cost_fn, heuristic_func heuristic_fn, bool debug_mode_enabled);",
       "return_form": "nullable_pointer",
       "canonical": "status return plus typed out pointer"
     },
@@ -10239,6 +10349,7 @@
       "header": "byul/navsys/dstar_lite/dstar_lite.h",
       "name": "dstar_lite_destroy",
       "return_type": "void",
+      "signature": "void dstar_lite_destroy(dstar_lite_t* dsl);",
       "return_form": "void_fallible_operation",
       "canonical": "navsys_status_t"
     },
@@ -10246,6 +10357,7 @@
       "header": "byul/navsys/dstar_lite/dstar_lite.h",
       "name": "dstar_lite_copy",
       "return_type": "dstar_lite_t*",
+      "signature": "dstar_lite_t* dstar_lite_copy(const dstar_lite_t* src);",
       "return_form": "nullable_pointer",
       "canonical": "status return plus typed out pointer"
     },
@@ -10253,6 +10365,7 @@
       "header": "byul/navsys/dstar_lite/dstar_lite.h",
       "name": "dstar_lite_fetch_start",
       "return_type": "int",
+      "signature": "int dstar_lite_fetch_start(const dstar_lite_t* dsl, coord_t* out);",
       "return_form": "int_zero_nonzero_status",
       "canonical": "navsys_status_t"
     },
@@ -10260,6 +10373,7 @@
       "header": "byul/navsys/dstar_lite/dstar_lite.h",
       "name": "dstar_lite_set_start",
       "return_type": "void",
+      "signature": "void dstar_lite_set_start(dstar_lite_t* dsl, const coord_t* c);",
       "return_form": "void_fallible_operation",
       "canonical": "navsys_status_t"
     },
@@ -10267,6 +10381,7 @@
       "header": "byul/navsys/dstar_lite/dstar_lite.h",
       "name": "dstar_lite_fetch_goal",
       "return_type": "int",
+      "signature": "int dstar_lite_fetch_goal(const dstar_lite_t* dsl, coord_t* out);",
       "return_form": "int_zero_nonzero_status",
       "canonical": "navsys_status_t"
     },
@@ -10274,6 +10389,7 @@
       "header": "byul/navsys/dstar_lite/dstar_lite.h",
       "name": "dstar_lite_set_goal",
       "return_type": "void",
+      "signature": "void dstar_lite_set_goal(dstar_lite_t* dsl, const coord_t* c);",
       "return_form": "void_fallible_operation",
       "canonical": "navsys_status_t"
     },
@@ -10281,6 +10397,7 @@
       "header": "byul/navsys/dstar_lite/dstar_lite.h",
       "name": "dstar_lite_get_g_table",
       "return_type": "coord_hash_t*",
+      "signature": "coord_hash_t* dstar_lite_get_g_table(const dstar_lite_t* dsl);",
       "return_form": "nullable_pointer",
       "canonical": "status return plus typed out pointer"
     },
@@ -10288,6 +10405,7 @@
       "header": "byul/navsys/dstar_lite/dstar_lite.h",
       "name": "dstar_lite_get_rhs_table",
       "return_type": "coord_hash_t*",
+      "signature": "coord_hash_t* dstar_lite_get_rhs_table(const dstar_lite_t* dsl);",
       "return_form": "nullable_pointer",
       "canonical": "status return plus typed out pointer"
     },
@@ -10295,6 +10413,7 @@
       "header": "byul/navsys/dstar_lite/dstar_lite.h",
       "name": "dstar_lite_get_frontier",
       "return_type": "dstar_lite_pqueue_t*",
+      "signature": "dstar_lite_pqueue_t* dstar_lite_get_frontier( const dstar_lite_t* dsl);",
       "return_form": "nullable_pointer",
       "canonical": "status return plus typed out pointer"
     },
@@ -10302,6 +10421,7 @@
       "header": "byul/navsys/dstar_lite/dstar_lite.h",
       "name": "dstar_lite_set_frontier",
       "return_type": "void",
+      "signature": "void dstar_lite_set_frontier( dstar_lite_t* dsl, dstar_lite_pqueue_t* frontier);",
       "return_form": "void_fallible_operation",
       "canonical": "navsys_status_t"
     },
@@ -10309,6 +10429,7 @@
       "header": "byul/navsys/dstar_lite/dstar_lite.h",
       "name": "dstar_lite_get_km",
       "return_type": "float",
+      "signature": "float dstar_lite_get_km(const dstar_lite_t* dsl);",
       "return_form": "floating_result",
       "canonical": "navsys_status_t plus typed out scalar"
     },
@@ -10316,6 +10437,7 @@
       "header": "byul/navsys/dstar_lite/dstar_lite.h",
       "name": "dstar_lite_set_km",
       "return_type": "void",
+      "signature": "void dstar_lite_set_km(dstar_lite_t* dsl, float km);",
       "return_form": "void_fallible_operation",
       "canonical": "navsys_status_t"
     },
@@ -10323,6 +10445,7 @@
       "header": "byul/navsys/dstar_lite/dstar_lite.h",
       "name": "dstar_lite_get_max_range",
       "return_type": "int",
+      "signature": "int dstar_lite_get_max_range(const dstar_lite_t* dsl);",
       "return_form": "int_zero_nonzero_status",
       "canonical": "navsys_status_t"
     },
@@ -10330,6 +10453,7 @@
       "header": "byul/navsys/dstar_lite/dstar_lite.h",
       "name": "dstar_lite_set_max_range",
       "return_type": "void",
+      "signature": "void dstar_lite_set_max_range(dstar_lite_t* dsl, int value);",
       "return_form": "void_fallible_operation",
       "canonical": "navsys_status_t"
     },
@@ -10337,6 +10461,7 @@
       "header": "byul/navsys/dstar_lite/dstar_lite.h",
       "name": "dstar_lite_get_real_loop_max_retry",
       "return_type": "int",
+      "signature": "int dstar_lite_get_real_loop_max_retry(const dstar_lite_t* dsl);",
       "return_form": "int_zero_nonzero_status",
       "canonical": "navsys_status_t"
     },
@@ -10344,6 +10469,7 @@
       "header": "byul/navsys/dstar_lite/dstar_lite.h",
       "name": "dstar_lite_set_real_loop_max_retry",
       "return_type": "void",
+      "signature": "void dstar_lite_set_real_loop_max_retry( dstar_lite_t* dsl, int value);",
       "return_form": "void_fallible_operation",
       "canonical": "navsys_status_t"
     },
@@ -10351,6 +10477,7 @@
       "header": "byul/navsys/dstar_lite/dstar_lite.h",
       "name": "dstar_lite_real_loop_retry_count",
       "return_type": "int",
+      "signature": "int dstar_lite_real_loop_retry_count(const dstar_lite_t* dsl);",
       "return_form": "int_count",
       "canonical": "navsys_status_t plus out_count"
     },
@@ -10358,6 +10485,7 @@
       "header": "byul/navsys/dstar_lite/dstar_lite.h",
       "name": "dstar_lite_get_max_retry",
       "return_type": "int",
+      "signature": "int dstar_lite_get_max_retry(const dstar_lite_t* dsl);",
       "return_form": "int_zero_nonzero_status",
       "canonical": "navsys_status_t"
     },
@@ -10365,6 +10493,7 @@
       "header": "byul/navsys/dstar_lite/dstar_lite.h",
       "name": "dstar_lite_set_max_retry",
       "return_type": "void",
+      "signature": "void dstar_lite_set_max_retry( dstar_lite_t* dsl, int v);",
       "return_form": "void_fallible_operation",
       "canonical": "navsys_status_t"
     },
@@ -10372,6 +10501,7 @@
       "header": "byul/navsys/dstar_lite/dstar_lite.h",
       "name": "dstar_lite_proto_compute_retry_count",
       "return_type": "int",
+      "signature": "int dstar_lite_proto_compute_retry_count(const dstar_lite_t* dsl);",
       "return_form": "int_count",
       "canonical": "navsys_status_t plus out_count"
     },
@@ -10379,6 +10509,7 @@
       "header": "byul/navsys/dstar_lite/dstar_lite.h",
       "name": "dstar_lite_real_compute_retry_count",
       "return_type": "int",
+      "signature": "int dstar_lite_real_compute_retry_count(const dstar_lite_t* dsl);",
       "return_form": "int_count",
       "canonical": "navsys_status_t plus out_count"
     },
@@ -10386,6 +10517,7 @@
       "header": "byul/navsys/dstar_lite/dstar_lite.h",
       "name": "dstar_lite_get_reconstruct_max_retry",
       "return_type": "int",
+      "signature": "int dstar_lite_get_reconstruct_max_retry(const dstar_lite_t* dsl);",
       "return_form": "int_zero_nonzero_status",
       "canonical": "navsys_status_t"
     },
@@ -10393,6 +10525,7 @@
       "header": "byul/navsys/dstar_lite/dstar_lite.h",
       "name": "dstar_lite_set_reconstruct_max_retry",
       "return_type": "void",
+      "signature": "void dstar_lite_set_reconstruct_max_retry(dstar_lite_t* dsl, int v);",
       "return_form": "void_fallible_operation",
       "canonical": "navsys_status_t"
     },
@@ -10400,6 +10533,7 @@
       "header": "byul/navsys/dstar_lite/dstar_lite.h",
       "name": "dstar_lite_reconstruct_retry_count",
       "return_type": "int",
+      "signature": "int dstar_lite_reconstruct_retry_count(const dstar_lite_t* dsl);",
       "return_form": "int_count",
       "canonical": "navsys_status_t plus out_count"
     },
@@ -10407,6 +10541,7 @@
       "header": "byul/navsys/dstar_lite/dstar_lite.h",
       "name": "dstar_lite_is_debug_mode_enabled",
       "return_type": "bool",
+      "signature": "bool dstar_lite_is_debug_mode_enabled(const dstar_lite_t* dsl);",
       "return_form": "bool_predicate",
       "canonical": "keep bool when evaluation itself cannot fail"
     },
@@ -10414,6 +10549,7 @@
       "header": "byul/navsys/dstar_lite/dstar_lite.h",
       "name": "dstar_lite_enable_debug_mode",
       "return_type": "void",
+      "signature": "void dstar_lite_enable_debug_mode( dstar_lite_t* dsl, bool enabled);",
       "return_form": "void_fallible_operation",
       "canonical": "navsys_status_t"
     },
@@ -10421,6 +10557,7 @@
       "header": "byul/navsys/dstar_lite/dstar_lite.h",
       "name": "dstar_lite_get_navgrid",
       "return_type": "const navgrid_t*",
+      "signature": "const navgrid_t* dstar_lite_get_navgrid(const dstar_lite_t* dsl);",
       "return_form": "nullable_pointer",
       "canonical": "status return plus typed out pointer"
     },
@@ -10428,6 +10565,7 @@
       "header": "byul/navsys/dstar_lite/dstar_lite.h",
       "name": "dstar_lite_set_navgrid",
       "return_type": "void",
+      "signature": "void dstar_lite_set_navgrid(dstar_lite_t* dsl, navgrid_t* navgrid);",
       "return_form": "void_fallible_operation",
       "canonical": "navsys_status_t"
     },
@@ -10435,6 +10573,7 @@
       "header": "byul/navsys/dstar_lite/dstar_lite.h",
       "name": "dstar_lite_get_proto_route",
       "return_type": "const route_t*",
+      "signature": "const route_t* dstar_lite_get_proto_route(const dstar_lite_t* dsl);",
       "return_form": "nullable_pointer",
       "canonical": "status return plus typed out pointer"
     },
@@ -10442,6 +10581,7 @@
       "header": "byul/navsys/dstar_lite/dstar_lite.h",
       "name": "dstar_lite_get_real_route",
       "return_type": "const route_t*",
+      "signature": "const route_t* dstar_lite_get_real_route(const dstar_lite_t* dsl);",
       "return_form": "nullable_pointer",
       "canonical": "status return plus typed out pointer"
     },
@@ -10449,6 +10589,7 @@
       "header": "byul/navsys/dstar_lite/dstar_lite.h",
       "name": "dstar_lite_reset",
       "return_type": "void",
+      "signature": "void dstar_lite_reset(dstar_lite_t* dsl);",
       "return_form": "void_fallible_operation",
       "canonical": "navsys_status_t"
     },
@@ -10456,6 +10597,7 @@
       "header": "byul/navsys/dstar_lite/dstar_lite.h",
       "name": "dstar_lite_get_interval_sec",
       "return_type": "float",
+      "signature": "float dstar_lite_get_interval_sec(dstar_lite_t* dsl);",
       "return_form": "floating_result",
       "canonical": "navsys_status_t plus typed out scalar"
     },
@@ -10463,6 +10605,7 @@
       "header": "byul/navsys/dstar_lite/dstar_lite.h",
       "name": "dstar_lite_set_interval_sec",
       "return_type": "void",
+      "signature": "void dstar_lite_set_interval_sec( dstar_lite_t* dsl, float interval_sec);",
       "return_form": "void_fallible_operation",
       "canonical": "navsys_status_t"
     },
@@ -10470,6 +10613,7 @@
       "header": "byul/navsys/dstar_lite/dstar_lite.h",
       "name": "dstar_lite_get_cost_func",
       "return_type": "cost_func",
+      "signature": "cost_func dstar_lite_get_cost_func(const dstar_lite_t* dsl);",
       "return_form": "enum_result",
       "canonical": "navsys_status_t plus typed out enum"
     },
@@ -10477,6 +10621,7 @@
       "header": "byul/navsys/dstar_lite/dstar_lite.h",
       "name": "dstar_lite_set_cost_func",
       "return_type": "void",
+      "signature": "void dstar_lite_set_cost_func(dstar_lite_t* dsl, cost_func fn);",
       "return_form": "void_fallible_operation",
       "canonical": "navsys_status_t"
     },
@@ -10484,6 +10629,7 @@
       "header": "byul/navsys/dstar_lite/dstar_lite.h",
       "name": "dstar_lite_get_cost_func_userdata",
       "return_type": "void*",
+      "signature": "void* dstar_lite_get_cost_func_userdata(const dstar_lite_t* dsl);",
       "return_form": "nullable_pointer",
       "canonical": "status return plus typed out pointer"
     },
@@ -10491,6 +10637,7 @@
       "header": "byul/navsys/dstar_lite/dstar_lite.h",
       "name": "dstar_lite_set_cost_func_userdata",
       "return_type": "void",
+      "signature": "void dstar_lite_set_cost_func_userdata( dstar_lite_t* dsl, void* userdata);",
       "return_form": "void_fallible_operation",
       "canonical": "navsys_status_t"
     },
@@ -10498,6 +10645,7 @@
       "header": "byul/navsys/dstar_lite/dstar_lite.h",
       "name": "dstar_lite_get_heuristic_func",
       "return_type": "heuristic_func",
+      "signature": "heuristic_func dstar_lite_get_heuristic_func( const dstar_lite_t* dsl);",
       "return_form": "enum_result",
       "canonical": "navsys_status_t plus typed out enum"
     },
@@ -10505,6 +10653,7 @@
       "header": "byul/navsys/dstar_lite/dstar_lite.h",
       "name": "dstar_lite_set_heuristic_func",
       "return_type": "void",
+      "signature": "void dstar_lite_set_heuristic_func( dstar_lite_t* dsl, heuristic_func func);",
       "return_form": "void_fallible_operation",
       "canonical": "navsys_status_t"
     },
@@ -10512,6 +10661,7 @@
       "header": "byul/navsys/dstar_lite/dstar_lite.h",
       "name": "dstar_lite_get_heuristic_func_userdata",
       "return_type": "void*",
+      "signature": "void* dstar_lite_get_heuristic_func_userdata( const dstar_lite_t* dsl);",
       "return_form": "nullable_pointer",
       "canonical": "status return plus typed out pointer"
     },
@@ -10519,6 +10669,7 @@
       "header": "byul/navsys/dstar_lite/dstar_lite.h",
       "name": "dstar_lite_set_heuristic_func_userdata",
       "return_type": "void",
+      "signature": "void dstar_lite_set_heuristic_func_userdata( dstar_lite_t* dsl, void* userdata);",
       "return_form": "void_fallible_operation",
       "canonical": "navsys_status_t"
     },
@@ -10526,6 +10677,7 @@
       "header": "byul/navsys/dstar_lite/dstar_lite.h",
       "name": "dstar_lite_get_move_func",
       "return_type": "move_func",
+      "signature": "move_func dstar_lite_get_move_func(const dstar_lite_t* dsl);",
       "return_form": "enum_result",
       "canonical": "navsys_status_t plus typed out enum"
     },
@@ -10533,6 +10685,7 @@
       "header": "byul/navsys/dstar_lite/dstar_lite.h",
       "name": "dstar_lite_set_move_func",
       "return_type": "void",
+      "signature": "void dstar_lite_set_move_func(dstar_lite_t* dsl, move_func fn);",
       "return_form": "void_fallible_operation",
       "canonical": "navsys_status_t"
     },
@@ -10540,6 +10693,7 @@
       "header": "byul/navsys/dstar_lite/dstar_lite.h",
       "name": "dstar_lite_get_move_func_userdata",
       "return_type": "void*",
+      "signature": "void* dstar_lite_get_move_func_userdata(const dstar_lite_t* dsl);",
       "return_form": "nullable_pointer",
       "canonical": "status return plus typed out pointer"
     },
@@ -10547,6 +10701,7 @@
       "header": "byul/navsys/dstar_lite/dstar_lite.h",
       "name": "dstar_lite_set_move_func_userdata",
       "return_type": "void",
+      "signature": "void dstar_lite_set_move_func_userdata( dstar_lite_t* dsl, void* userdata);",
       "return_form": "void_fallible_operation",
       "canonical": "navsys_status_t"
     },
@@ -10554,6 +10709,7 @@
       "header": "byul/navsys/dstar_lite/dstar_lite.h",
       "name": "dstar_lite_get_changed_coords_func",
       "return_type": "changed_coords_func",
+      "signature": "changed_coords_func dstar_lite_get_changed_coords_func( const dstar_lite_t* dsl);",
       "return_form": "enum_result",
       "canonical": "navsys_status_t plus typed out enum"
     },
@@ -10561,6 +10717,7 @@
       "header": "byul/navsys/dstar_lite/dstar_lite.h",
       "name": "dstar_lite_set_changed_coords_func",
       "return_type": "void",
+      "signature": "void dstar_lite_set_changed_coords_func( dstar_lite_t* dsl, changed_coords_func fn);",
       "return_form": "void_fallible_operation",
       "canonical": "navsys_status_t"
     },
@@ -10568,6 +10725,7 @@
       "header": "byul/navsys/dstar_lite/dstar_lite.h",
       "name": "dstar_lite_get_changed_coords_func_userdata",
       "return_type": "void*",
+      "signature": "void* dstar_lite_get_changed_coords_func_userdata( const dstar_lite_t* dsl);",
       "return_form": "nullable_pointer",
       "canonical": "status return plus typed out pointer"
     },
@@ -10575,6 +10733,7 @@
       "header": "byul/navsys/dstar_lite/dstar_lite.h",
       "name": "dstar_lite_set_changed_coords_func_userdata",
       "return_type": "void",
+      "signature": "void dstar_lite_set_changed_coords_func_userdata( dstar_lite_t* dsl, void* userdata);",
       "return_form": "void_fallible_operation",
       "canonical": "navsys_status_t"
     },
@@ -10582,6 +10741,7 @@
       "header": "byul/navsys/dstar_lite/dstar_lite.h",
       "name": "dstar_lite_bind_cost_func",
       "return_type": "navsys_status_t",
+      "signature": "navsys_status_t dstar_lite_bind_cost_func( dstar_lite_t* dsl, cost_func fn, void* userdata);",
       "return_form": "enum_result",
       "canonical": "navsys_status_t plus typed out enum"
     },
@@ -10589,6 +10749,7 @@
       "header": "byul/navsys/dstar_lite/dstar_lite.h",
       "name": "dstar_lite_unbind_cost_func",
       "return_type": "navsys_status_t",
+      "signature": "navsys_status_t dstar_lite_unbind_cost_func(dstar_lite_t* dsl);",
       "return_form": "enum_result",
       "canonical": "navsys_status_t plus typed out enum"
     },
@@ -10596,6 +10757,7 @@
       "header": "byul/navsys/dstar_lite/dstar_lite.h",
       "name": "dstar_lite_bind_heuristic_func",
       "return_type": "navsys_status_t",
+      "signature": "navsys_status_t dstar_lite_bind_heuristic_func( dstar_lite_t* dsl, heuristic_func fn, void* userdata);",
       "return_form": "enum_result",
       "canonical": "navsys_status_t plus typed out enum"
     },
@@ -10603,6 +10765,7 @@
       "header": "byul/navsys/dstar_lite/dstar_lite.h",
       "name": "dstar_lite_unbind_heuristic_func",
       "return_type": "navsys_status_t",
+      "signature": "navsys_status_t dstar_lite_unbind_heuristic_func( dstar_lite_t* dsl);",
       "return_form": "enum_result",
       "canonical": "navsys_status_t plus typed out enum"
     },
@@ -10610,6 +10773,7 @@
       "header": "byul/navsys/dstar_lite/dstar_lite.h",
       "name": "dstar_lite_bind_move_func",
       "return_type": "navsys_status_t",
+      "signature": "navsys_status_t dstar_lite_bind_move_func( dstar_lite_t* dsl, move_func fn, void* userdata);",
       "return_form": "enum_result",
       "canonical": "navsys_status_t plus typed out enum"
     },
@@ -10617,6 +10781,7 @@
       "header": "byul/navsys/dstar_lite/dstar_lite.h",
       "name": "dstar_lite_unbind_move_func",
       "return_type": "navsys_status_t",
+      "signature": "navsys_status_t dstar_lite_unbind_move_func(dstar_lite_t* dsl);",
       "return_form": "enum_result",
       "canonical": "navsys_status_t plus typed out enum"
     },
@@ -10624,6 +10789,7 @@
       "header": "byul/navsys/dstar_lite/dstar_lite.h",
       "name": "dstar_lite_bind_changed_coords_func",
       "return_type": "navsys_status_t",
+      "signature": "navsys_status_t dstar_lite_bind_changed_coords_func( dstar_lite_t* dsl, changed_coords_func fn, void* userdata);",
       "return_form": "enum_result",
       "canonical": "navsys_status_t plus typed out enum"
     },
@@ -10631,6 +10797,7 @@
       "header": "byul/navsys/dstar_lite/dstar_lite.h",
       "name": "dstar_lite_unbind_changed_coords_func",
       "return_type": "navsys_status_t",
+      "signature": "navsys_status_t dstar_lite_unbind_changed_coords_func( dstar_lite_t* dsl);",
       "return_form": "enum_result",
       "canonical": "navsys_status_t plus typed out enum"
     },
@@ -10638,6 +10805,7 @@
       "header": "byul/navsys/dstar_lite/dstar_lite.h",
       "name": "dstar_lite_calc_key",
       "return_type": "dstar_lite_key_t*",
+      "signature": "dstar_lite_key_t* dstar_lite_calc_key( dstar_lite_t* dsl, const coord_t* s);",
       "return_form": "nullable_pointer",
       "canonical": "status return plus typed out pointer"
     },
@@ -10645,6 +10813,7 @@
       "header": "byul/navsys/dstar_lite/dstar_lite.h",
       "name": "dstar_lite_init",
       "return_type": "void",
+      "signature": "void dstar_lite_init(dstar_lite_t* dsl);",
       "return_form": "void_fallible_operation",
       "canonical": "navsys_status_t"
     },
@@ -10652,6 +10821,7 @@
       "header": "byul/navsys/dstar_lite/dstar_lite.h",
       "name": "dstar_lite_update_vertex",
       "return_type": "void",
+      "signature": "void dstar_lite_update_vertex(dstar_lite_t* dsl, const coord_t* u);",
       "return_form": "void_fallible_operation",
       "canonical": "navsys_status_t"
     },
@@ -10659,6 +10829,7 @@
       "header": "byul/navsys/dstar_lite/dstar_lite.h",
       "name": "dstar_lite_update_vertex_range",
       "return_type": "void",
+      "signature": "void dstar_lite_update_vertex_range(dstar_lite_t* dsl, const coord_t* s, int max_range);",
       "return_form": "void_fallible_operation",
       "canonical": "navsys_status_t"
     },
@@ -10666,6 +10837,7 @@
       "header": "byul/navsys/dstar_lite/dstar_lite.h",
       "name": "dstar_lite_update_vertex_auto_range",
       "return_type": "void",
+      "signature": "void dstar_lite_update_vertex_auto_range( dstar_lite_t* dsl, const coord_t* s);",
       "return_form": "void_fallible_operation",
       "canonical": "navsys_status_t"
     },
@@ -10673,6 +10845,7 @@
       "header": "byul/navsys/dstar_lite/dstar_lite.h",
       "name": "dstar_lite_compute_shortest_route",
       "return_type": "void",
+      "signature": "void dstar_lite_compute_shortest_route(dstar_lite_t* dsl);",
       "return_form": "void_fallible_operation",
       "canonical": "navsys_status_t"
     },
@@ -10680,6 +10853,7 @@
       "header": "byul/navsys/dstar_lite/dstar_lite.h",
       "name": "dstar_lite_reconstruct_route",
       "return_type": "bool",
+      "signature": "bool dstar_lite_reconstruct_route(dstar_lite_t* dsl);",
       "return_form": "bool_operation",
       "canonical": "navsys_status_t"
     },
@@ -10687,6 +10861,7 @@
       "header": "byul/navsys/dstar_lite/dstar_lite.h",
       "name": "dstar_lite_find",
       "return_type": "route_t*",
+      "signature": "route_t* dstar_lite_find(dstar_lite_t* dsl);",
       "return_form": "nullable_pointer",
       "canonical": "status return plus typed out pointer"
     },
@@ -10694,6 +10869,7 @@
       "header": "byul/navsys/dstar_lite/dstar_lite.h",
       "name": "dstar_lite_find_full",
       "return_type": "void",
+      "signature": "void dstar_lite_find_full(dstar_lite_t* dsl);",
       "return_form": "void_fallible_operation",
       "canonical": "navsys_status_t"
     },
@@ -10701,6 +10877,7 @@
       "header": "byul/navsys/dstar_lite/dstar_lite.h",
       "name": "dstar_lite_find_proto",
       "return_type": "bool",
+      "signature": "bool dstar_lite_find_proto(dstar_lite_t* dsl);",
       "return_form": "bool_operation",
       "canonical": "navsys_status_t"
     },
@@ -10708,6 +10885,7 @@
       "header": "byul/navsys/dstar_lite/dstar_lite.h",
       "name": "dstar_lite_find_loop",
       "return_type": "void",
+      "signature": "void dstar_lite_find_loop(dstar_lite_t* dsl);",
       "return_form": "void_fallible_operation",
       "canonical": "navsys_status_t"
     },
@@ -10715,6 +10893,7 @@
       "header": "byul/navsys/dstar_lite/dstar_lite.h",
       "name": "dstar_lite_update_vertex_by_route",
       "return_type": "void",
+      "signature": "void dstar_lite_update_vertex_by_route( dstar_lite_t* dsl, route_t* p);",
       "return_form": "void_fallible_operation",
       "canonical": "navsys_status_t"
     },
@@ -10722,6 +10901,7 @@
       "header": "byul/navsys/dstar_lite/dstar_lite.h",
       "name": "dstar_lite_force_quit",
       "return_type": "void",
+      "signature": "void dstar_lite_force_quit(dstar_lite_t* dsl);",
       "return_form": "void_fallible_operation",
       "canonical": "navsys_status_t"
     },
@@ -10729,6 +10909,7 @@
       "header": "byul/navsys/dstar_lite/dstar_lite.h",
       "name": "dstar_lite_is_quit_forced",
       "return_type": "bool",
+      "signature": "bool dstar_lite_is_quit_forced(dstar_lite_t* dsl);",
       "return_form": "bool_predicate",
       "canonical": "keep bool when evaluation itself cannot fail"
     },
@@ -10736,6 +10917,7 @@
       "header": "byul/navsys/dstar_lite/dstar_lite.h",
       "name": "dstar_lite_set_force_quit",
       "return_type": "void",
+      "signature": "void dstar_lite_set_force_quit(dstar_lite_t* dsl, bool v);",
       "return_form": "void_fallible_operation",
       "canonical": "navsys_status_t"
     },
@@ -10743,6 +10925,7 @@
       "header": "byul/navsys/dstar_lite/dstar_lite.h",
       "name": "dstar_lite_fetch_next",
       "return_type": "bool",
+      "signature": "bool dstar_lite_fetch_next( const dstar_lite_t* dsl, const coord_t* start, coord_t* out);",
       "return_form": "bool_operation",
       "canonical": "navsys_status_t"
     },
@@ -10750,6 +10933,7 @@
       "header": "byul/navsys/dstar_lite/dstar_lite_key.h",
       "name": "dstar_lite_key_create",
       "return_type": "dstar_lite_key_t*",
+      "signature": "dstar_lite_key_t* dstar_lite_key_create(void);",
       "return_form": "nullable_pointer",
       "canonical": "status return plus typed out pointer"
     },
@@ -10757,6 +10941,7 @@
       "header": "byul/navsys/dstar_lite/dstar_lite_key.h",
       "name": "dstar_lite_key_create_full",
       "return_type": "dstar_lite_key_t*",
+      "signature": "dstar_lite_key_t* dstar_lite_key_create_full(float k1, float k2);",
       "return_form": "nullable_pointer",
       "canonical": "status return plus typed out pointer"
     },
@@ -10764,6 +10949,7 @@
       "header": "byul/navsys/dstar_lite/dstar_lite_key.h",
       "name": "dstar_lite_key_copy",
       "return_type": "dstar_lite_key_t*",
+      "signature": "dstar_lite_key_t* dstar_lite_key_copy(const dstar_lite_key_t* key);",
       "return_form": "nullable_pointer",
       "canonical": "status return plus typed out pointer"
     },
@@ -10771,6 +10957,7 @@
       "header": "byul/navsys/dstar_lite/dstar_lite_key.h",
       "name": "dstar_lite_key_destroy",
       "return_type": "void",
+      "signature": "void dstar_lite_key_destroy(dstar_lite_key_t* key);",
       "return_form": "void_fallible_operation",
       "canonical": "navsys_status_t"
     },
@@ -10778,6 +10965,7 @@
       "header": "byul/navsys/dstar_lite/dstar_lite_key.h",
       "name": "dstar_lite_key_equal",
       "return_type": "bool",
+      "signature": "bool dstar_lite_key_equal(const dstar_lite_key_t* dsk0, const dstar_lite_key_t* dsk1);",
       "return_form": "bool_predicate",
       "canonical": "keep bool when evaluation itself cannot fail"
     },
@@ -10785,6 +10973,7 @@
       "header": "byul/navsys/dstar_lite/dstar_lite_key.h",
       "name": "dstar_lite_key_compare",
       "return_type": "int",
+      "signature": "int dstar_lite_key_compare(const dstar_lite_key_t* dsk0, const dstar_lite_key_t* dsk1);",
       "return_form": "int_zero_nonzero_status",
       "canonical": "navsys_status_t"
     },
@@ -10792,6 +10981,7 @@
       "header": "byul/navsys/dstar_lite/dstar_lite_key.h",
       "name": "dstar_lite_key_hash",
       "return_type": "unsigned int",
+      "signature": "unsigned int dstar_lite_key_hash(const dstar_lite_key_t* key);",
       "return_form": "int_count",
       "canonical": "navsys_status_t plus out_count"
     },
@@ -10799,6 +10989,7 @@
       "header": "byul/navsys/dstar_lite/dstar_lite_pqueue.h",
       "name": "dstar_lite_pqueue_create",
       "return_type": "dstar_lite_pqueue_t*",
+      "signature": "dstar_lite_pqueue_t* dstar_lite_pqueue_create(void);",
       "return_form": "nullable_pointer",
       "canonical": "status return plus typed out pointer"
     },
@@ -10806,6 +10997,7 @@
       "header": "byul/navsys/dstar_lite/dstar_lite_pqueue.h",
       "name": "dstar_lite_pqueue_destroy",
       "return_type": "void",
+      "signature": "void dstar_lite_pqueue_destroy(dstar_lite_pqueue_t* q);",
       "return_form": "void_fallible_operation",
       "canonical": "navsys_status_t"
     },
@@ -10813,6 +11005,7 @@
       "header": "byul/navsys/dstar_lite/dstar_lite_pqueue.h",
       "name": "dstar_lite_pqueue_copy",
       "return_type": "dstar_lite_pqueue_t*",
+      "signature": "dstar_lite_pqueue_t* dstar_lite_pqueue_copy( const dstar_lite_pqueue_t* src);",
       "return_form": "nullable_pointer",
       "canonical": "status return plus typed out pointer"
     },
@@ -10820,6 +11013,7 @@
       "header": "byul/navsys/dstar_lite/dstar_lite_pqueue.h",
       "name": "dstar_lite_pqueue_push",
       "return_type": "void",
+      "signature": "void dstar_lite_pqueue_push( dstar_lite_pqueue_t* q, const dstar_lite_key_t* key, const coord_t* c);",
       "return_form": "void_fallible_operation",
       "canonical": "navsys_status_t"
     },
@@ -10827,6 +11021,7 @@
       "header": "byul/navsys/dstar_lite/dstar_lite_pqueue.h",
       "name": "dstar_lite_pqueue_peek",
       "return_type": "const coord_t*",
+      "signature": "const coord_t* dstar_lite_pqueue_peek(dstar_lite_pqueue_t* q);",
       "return_form": "nullable_pointer",
       "canonical": "status return plus typed out pointer"
     },
@@ -10834,6 +11029,7 @@
       "header": "byul/navsys/dstar_lite/dstar_lite_pqueue.h",
       "name": "dstar_lite_pqueue_pop",
       "return_type": "coord_t*",
+      "signature": "coord_t* dstar_lite_pqueue_pop(dstar_lite_pqueue_t* q);",
       "return_form": "nullable_pointer",
       "canonical": "status return plus typed out pointer"
     },
@@ -10841,6 +11037,7 @@
       "header": "byul/navsys/dstar_lite/dstar_lite_pqueue.h",
       "name": "dstar_lite_pqueue_is_empty",
       "return_type": "bool",
+      "signature": "bool dstar_lite_pqueue_is_empty(dstar_lite_pqueue_t* q);",
       "return_form": "bool_predicate",
       "canonical": "keep bool when evaluation itself cannot fail"
     },
@@ -10848,6 +11045,7 @@
       "header": "byul/navsys/dstar_lite/dstar_lite_pqueue.h",
       "name": "dstar_lite_pqueue_remove",
       "return_type": "bool",
+      "signature": "bool dstar_lite_pqueue_remove( dstar_lite_pqueue_t* q, const coord_t* u);",
       "return_form": "bool_operation",
       "canonical": "navsys_status_t"
     },
@@ -10855,6 +11053,7 @@
       "header": "byul/navsys/dstar_lite/dstar_lite_pqueue.h",
       "name": "dstar_lite_pqueue_remove_full",
       "return_type": "bool",
+      "signature": "bool dstar_lite_pqueue_remove_full( dstar_lite_pqueue_t* q, const dstar_lite_key_t* key, const coord_t* c);",
       "return_form": "bool_operation",
       "canonical": "navsys_status_t"
     },
@@ -10862,6 +11061,7 @@
       "header": "byul/navsys/dstar_lite/dstar_lite_pqueue.h",
       "name": "dstar_lite_pqueue_get_key_by_coord",
       "return_type": "dstar_lite_key_t*",
+      "signature": "dstar_lite_key_t* dstar_lite_pqueue_get_key_by_coord( dstar_lite_pqueue_t* q, const coord_t* c);",
       "return_form": "nullable_pointer",
       "canonical": "status return plus typed out pointer"
     },
@@ -10869,6 +11069,7 @@
       "header": "byul/navsys/dstar_lite/dstar_lite_pqueue.h",
       "name": "dstar_lite_pqueue_top_key",
       "return_type": "dstar_lite_key_t*",
+      "signature": "dstar_lite_key_t* dstar_lite_pqueue_top_key(dstar_lite_pqueue_t* q);",
       "return_form": "nullable_pointer",
       "canonical": "status return plus typed out pointer"
     },
@@ -10876,6 +11077,7 @@
       "header": "byul/navsys/dstar_lite/dstar_lite_pqueue.h",
       "name": "dstar_lite_pqueue_contains",
       "return_type": "bool",
+      "signature": "bool dstar_lite_pqueue_contains( dstar_lite_pqueue_t* q, const coord_t* u);",
       "return_form": "bool_predicate",
       "canonical": "keep bool when evaluation itself cannot fail"
     },
@@ -10883,6 +11085,7 @@
       "header": "byul/navsys/dstar_lite/dstar_lite_tick.h",
       "name": "dstar_lite_tick_create",
       "return_type": "dstar_lite_tick_t*",
+      "signature": "dstar_lite_tick_t* dstar_lite_tick_create(dstar_lite_t* dsl);",
       "return_form": "nullable_pointer",
       "canonical": "status return plus typed out pointer"
     },
@@ -10890,6 +11093,7 @@
       "header": "byul/navsys/dstar_lite/dstar_lite_tick.h",
       "name": "dstar_lite_tick_create_full",
       "return_type": "dstar_lite_tick_t*",
+      "signature": "dstar_lite_tick_t* dstar_lite_tick_create_full( dstar_lite_t* dsl, float max_time);",
       "return_form": "nullable_pointer",
       "canonical": "status return plus typed out pointer"
     },
@@ -10897,6 +11101,7 @@
       "header": "byul/navsys/dstar_lite/dstar_lite_tick.h",
       "name": "dstar_lite_tick_destroy",
       "return_type": "void",
+      "signature": "void dstar_lite_tick_destroy(dstar_lite_tick_t* dst);",
       "return_form": "void_fallible_operation",
       "canonical": "navsys_status_t"
     },
@@ -10904,6 +11109,7 @@
       "header": "byul/navsys/dstar_lite/dstar_lite_tick.h",
       "name": "dstar_lite_tick_copy",
       "return_type": "dstar_lite_tick_t*",
+      "signature": "dstar_lite_tick_t* dstar_lite_tick_copy(const dstar_lite_tick_t* src);",
       "return_form": "nullable_pointer",
       "canonical": "status return plus typed out pointer"
     },
@@ -10911,6 +11117,7 @@
       "header": "byul/navsys/dstar_lite/dstar_lite_tick.h",
       "name": "dstar_lite_tick_reset",
       "return_type": "void",
+      "signature": "void dstar_lite_tick_reset(dstar_lite_tick_t* dst);",
       "return_form": "void_fallible_operation",
       "canonical": "navsys_status_t"
     },
@@ -10918,6 +11125,7 @@
       "header": "byul/navsys/dstar_lite/dstar_lite_tick.h",
       "name": "dstar_lite_tick_prepare",
       "return_type": "void",
+      "signature": "void dstar_lite_tick_prepare( dstar_lite_tick_t* dst, tick_t* tk);",
       "return_form": "void_fallible_operation",
       "canonical": "navsys_status_t"
     },
@@ -10925,6 +11133,7 @@
       "header": "byul/navsys/dstar_lite/dstar_lite_tick.h",
       "name": "dstar_lite_tick_prepare_full",
       "return_type": "void",
+      "signature": "void dstar_lite_tick_prepare_full( dstar_lite_tick_t* dst, float unit_m, float speed_sec, float max_time, tick_t* tk);",
       "return_form": "void_fallible_operation",
       "canonical": "navsys_status_t"
     },
@@ -10932,6 +11141,7 @@
       "header": "byul/navsys/dstar_lite/dstar_lite_tick.h",
       "name": "dstar_lite_tick_update",
       "return_type": "void",
+      "signature": "void dstar_lite_tick_update(dstar_lite_tick_t* dst, float dt);",
       "return_form": "void_fallible_operation",
       "canonical": "navsys_status_t"
     },
@@ -10939,6 +11149,7 @@
       "header": "byul/navsys/dstar_lite/dstar_lite_tick.h",
       "name": "dstar_lite_tick_complete",
       "return_type": "void",
+      "signature": "void dstar_lite_tick_complete( dstar_lite_tick_t* dst, tick_t* tk);",
       "return_form": "void_fallible_operation",
       "canonical": "navsys_status_t"
     },
@@ -10946,6 +11157,7 @@
       "header": "byul/navsys/maze/maze.h",
       "name": "maze_make",
       "return_type": "maze_t*",
+      "signature": "maze_t* maze_make( int x0, int y0, int width, int height, maze_type_t type);",
       "return_form": "nullable_pointer",
       "canonical": "status return plus typed out pointer"
     },
@@ -10953,6 +11165,7 @@
       "header": "byul/navsys/maze/maze_aldous_broder.h",
       "name": "maze_make_aldous_broder",
       "return_type": "maze_t*",
+      "signature": "maze_t* maze_make_aldous_broder(int x0, int y0, int width, int height);",
       "return_form": "nullable_pointer",
       "canonical": "status return plus typed out pointer"
     },
@@ -10960,6 +11173,7 @@
       "header": "byul/navsys/maze/maze_binary.h",
       "name": "maze_make_binary",
       "return_type": "maze_t*",
+      "signature": "maze_t* maze_make_binary(int x0, int y0, int width, int height);",
       "return_form": "nullable_pointer",
       "canonical": "status return plus typed out pointer"
     },
@@ -10967,6 +11181,7 @@
       "header": "byul/navsys/maze/maze_core.h",
       "name": "maze_create",
       "return_type": "maze_t*",
+      "signature": "maze_t* maze_create();",
       "return_form": "nullable_pointer",
       "canonical": "status return plus typed out pointer"
     },
@@ -10974,6 +11189,7 @@
       "header": "byul/navsys/maze/maze_core.h",
       "name": "maze_create_full",
       "return_type": "maze_t*",
+      "signature": "maze_t* maze_create_full(int x0, int y0, int width, int height);",
       "return_form": "nullable_pointer",
       "canonical": "status return plus typed out pointer"
     },
@@ -10981,6 +11197,7 @@
       "header": "byul/navsys/maze/maze_core.h",
       "name": "maze_destroy",
       "return_type": "void",
+      "signature": "void maze_destroy(maze_t* maze);",
       "return_form": "void_fallible_operation",
       "canonical": "navsys_status_t"
     },
@@ -10988,6 +11205,7 @@
       "header": "byul/navsys/maze/maze_core.h",
       "name": "maze_clear",
       "return_type": "void",
+      "signature": "void maze_clear(maze_t* maze);",
       "return_form": "void_fallible_operation",
       "canonical": "navsys_status_t"
     },
@@ -10995,6 +11213,7 @@
       "header": "byul/navsys/maze/maze_core.h",
       "name": "maze_copy",
       "return_type": "maze_t*",
+      "signature": "maze_t* maze_copy(const maze_t* maze);",
       "return_form": "nullable_pointer",
       "canonical": "status return plus typed out pointer"
     },
@@ -11002,6 +11221,7 @@
       "header": "byul/navsys/maze/maze_core.h",
       "name": "maze_equal",
       "return_type": "bool",
+      "signature": "bool maze_equal(const maze_t* a, const maze_t* b);",
       "return_form": "bool_predicate",
       "canonical": "keep bool when evaluation itself cannot fail"
     },
@@ -11009,6 +11229,7 @@
       "header": "byul/navsys/maze/maze_core.h",
       "name": "maze_hash",
       "return_type": "uint32_t",
+      "signature": "uint32_t maze_hash(const maze_t* maze);",
       "return_form": "enum_result",
       "canonical": "navsys_status_t plus typed out enum"
     },
@@ -11016,6 +11237,7 @@
       "header": "byul/navsys/maze/maze_core.h",
       "name": "maze_set_origin",
       "return_type": "void",
+      "signature": "void maze_set_origin(maze_t* maze, int x0, int y0);",
       "return_form": "void_fallible_operation",
       "canonical": "navsys_status_t"
     },
@@ -11023,6 +11245,7 @@
       "header": "byul/navsys/maze/maze_core.h",
       "name": "maze_get_origin",
       "return_type": "void",
+      "signature": "void maze_get_origin( const maze_t* maze, int* out_x0, int* out_y0);",
       "return_form": "void_fallible_operation",
       "canonical": "navsys_status_t"
     },
@@ -11030,6 +11253,7 @@
       "header": "byul/navsys/maze/maze_core.h",
       "name": "maze_get_width",
       "return_type": "int",
+      "signature": "int maze_get_width(const maze_t* maze);",
       "return_form": "int_zero_nonzero_status",
       "canonical": "navsys_status_t"
     },
@@ -11037,6 +11261,7 @@
       "header": "byul/navsys/maze/maze_core.h",
       "name": "maze_get_height",
       "return_type": "int",
+      "signature": "int maze_get_height(const maze_t* maze);",
       "return_form": "int_zero_nonzero_status",
       "canonical": "navsys_status_t"
     },
@@ -11044,6 +11269,7 @@
       "header": "byul/navsys/maze/maze_core.h",
       "name": "maze_get_blocked_coords",
       "return_type": "const coord_hash_t*",
+      "signature": "const coord_hash_t* maze_get_blocked_coords( const maze_t* maze);",
       "return_form": "nullable_pointer",
       "canonical": "status return plus typed out pointer"
     },
@@ -11051,6 +11277,7 @@
       "header": "byul/navsys/maze/maze_core.h",
       "name": "maze_apply_to_navgrid",
       "return_type": "void",
+      "signature": "void maze_apply_to_navgrid(const maze_t* maze, navgrid_t* navgrid);",
       "return_form": "void_fallible_operation",
       "canonical": "navsys_status_t"
     },
@@ -11058,6 +11285,7 @@
       "header": "byul/navsys/maze/maze_core.h",
       "name": "maze_remove_from_navgrid",
       "return_type": "void",
+      "signature": "void maze_remove_from_navgrid(const maze_t* maze, navgrid_t* navgrid);",
       "return_form": "void_fallible_operation",
       "canonical": "navsys_status_t"
     },
@@ -11065,6 +11293,7 @@
       "header": "byul/navsys/maze/maze_eller.h",
       "name": "maze_make_eller",
       "return_type": "maze_t*",
+      "signature": "maze_t* maze_make_eller(int x0, int y0, int width, int height);",
       "return_form": "nullable_pointer",
       "canonical": "status return plus typed out pointer"
     },
@@ -11072,6 +11301,7 @@
       "header": "byul/navsys/maze/maze_hunt_and_kill.h",
       "name": "maze_make_hunt_and_kill",
       "return_type": "maze_t*",
+      "signature": "maze_t* maze_make_hunt_and_kill(int x0, int y0, int width, int height);",
       "return_form": "nullable_pointer",
       "canonical": "status return plus typed out pointer"
     },
@@ -11079,6 +11309,7 @@
       "header": "byul/navsys/maze/maze_kruskal.h",
       "name": "maze_make_kruskal",
       "return_type": "maze_t*",
+      "signature": "maze_t* maze_make_kruskal(int x0, int y0, int width, int height);",
       "return_form": "nullable_pointer",
       "canonical": "status return plus typed out pointer"
     },
@@ -11086,6 +11317,7 @@
       "header": "byul/navsys/maze/maze_prim.h",
       "name": "maze_maze_prim",
       "return_type": "maze_t*",
+      "signature": "maze_t* maze_maze_prim(int x0, int y0, int width, int height);",
       "return_form": "nullable_pointer",
       "canonical": "status return plus typed out pointer"
     },
@@ -11093,6 +11325,7 @@
       "header": "byul/navsys/maze/maze_recursive.h",
       "name": "maze_make_recursive",
       "return_type": "maze_t*",
+      "signature": "maze_t* maze_make_recursive(int x0, int y0, int width, int height);",
       "return_form": "nullable_pointer",
       "canonical": "status return plus typed out pointer"
     },
@@ -11100,6 +11333,7 @@
       "header": "byul/navsys/maze/maze_recursive_division.h",
       "name": "maze_make_recursive_division",
       "return_type": "maze_t*",
+      "signature": "maze_t* maze_make_recursive_division( int x0, int y0, int width, int height);",
       "return_form": "nullable_pointer",
       "canonical": "status return plus typed out pointer"
     },
@@ -11107,6 +11341,7 @@
       "header": "byul/navsys/maze/maze_room_blend.h",
       "name": "maze_make_room_blend",
       "return_type": "maze_t*",
+      "signature": "maze_t* maze_make_room_blend(int x0, int y0, int width, int height);",
       "return_form": "nullable_pointer",
       "canonical": "status return plus typed out pointer"
     },
@@ -11114,6 +11349,7 @@
       "header": "byul/navsys/maze/maze_sidewinder.h",
       "name": "maze_make_sidewinder",
       "return_type": "maze_t*",
+      "signature": "maze_t* maze_make_sidewinder(int x0, int y0, int width, int height);",
       "return_form": "nullable_pointer",
       "canonical": "status return plus typed out pointer"
     },
@@ -11121,6 +11357,7 @@
       "header": "byul/navsys/maze/maze_wilson.h",
       "name": "maze_make_wilson",
       "return_type": "maze_t*",
+      "signature": "maze_t* maze_make_wilson(int x0, int y0, int width, int height);",
       "return_form": "nullable_pointer",
       "canonical": "status return plus typed out pointer"
     },
@@ -11128,6 +11365,7 @@
       "header": "byul/navsys/navgrid/navcell.h",
       "name": "navcell_create_full",
       "return_type": "navcell_t*",
+      "signature": "navcell_t* navcell_create_full(terrain_type_t terrain, int height);",
       "return_form": "nullable_pointer",
       "canonical": "status return plus typed out pointer"
     },
@@ -11135,6 +11373,7 @@
       "header": "byul/navsys/navgrid/navcell.h",
       "name": "navcell_create",
       "return_type": "navcell_t*",
+      "signature": "navcell_t* navcell_create();",
       "return_form": "nullable_pointer",
       "canonical": "status return plus typed out pointer"
     },
@@ -11142,6 +11381,7 @@
       "header": "byul/navsys/navgrid/navcell.h",
       "name": "navcell_destroy",
       "return_type": "void",
+      "signature": "void navcell_destroy(navcell_t* nc);",
       "return_form": "void_fallible_operation",
       "canonical": "navsys_status_t"
     },
@@ -11149,6 +11389,7 @@
       "header": "byul/navsys/navgrid/navcell.h",
       "name": "navcell_copy",
       "return_type": "navcell_t*",
+      "signature": "navcell_t* navcell_copy(const navcell_t* nc);",
       "return_form": "nullable_pointer",
       "canonical": "status return plus typed out pointer"
     },
@@ -11156,6 +11397,7 @@
       "header": "byul/navsys/navgrid/navcell.h",
       "name": "navcell_init_full",
       "return_type": "int",
+      "signature": "int navcell_init_full( navcell_t* nc, terrain_type_t terrain, int height);",
       "return_form": "int_zero_nonzero_status",
       "canonical": "navsys_status_t"
     },
@@ -11163,6 +11405,7 @@
       "header": "byul/navsys/navgrid/navcell.h",
       "name": "navcell_init",
       "return_type": "int",
+      "signature": "int navcell_init(navcell_t* nc);",
       "return_form": "int_zero_nonzero_status",
       "canonical": "navsys_status_t"
     },
@@ -11170,6 +11413,7 @@
       "header": "byul/navsys/navgrid/navcell.h",
       "name": "navcell_assign",
       "return_type": "int",
+      "signature": "int navcell_assign(navcell_t* nc, const navcell_t* src);",
       "return_form": "int_zero_nonzero_status",
       "canonical": "navsys_status_t"
     },
@@ -11177,6 +11421,7 @@
       "header": "byul/navsys/navgrid/navgrid.h",
       "name": "is_coord_blocked_navgrid",
       "return_type": "bool",
+      "signature": "bool is_coord_blocked_navgrid( const void* context, int x, int y, void* userdata);",
       "return_form": "bool_predicate",
       "canonical": "keep bool when evaluation itself cannot fail"
     },
@@ -11184,6 +11429,7 @@
       "header": "byul/navsys/navgrid/navgrid.h",
       "name": "navgrid_create",
       "return_type": "navgrid_t*",
+      "signature": "navgrid_t* navgrid_create();",
       "return_form": "nullable_pointer",
       "canonical": "status return plus typed out pointer"
     },
@@ -11191,6 +11437,7 @@
       "header": "byul/navsys/navgrid/navgrid.h",
       "name": "navgrid_create_full",
       "return_type": "navgrid_t*",
+      "signature": "navgrid_t* navgrid_create_full(int width, int height, navgrid_dir_mode_t mode, is_coord_blocked_func is_coord_blocked_fn);",
       "return_form": "nullable_pointer",
       "canonical": "status return plus typed out pointer"
     },
@@ -11198,6 +11445,7 @@
       "header": "byul/navsys/navgrid/navgrid.h",
       "name": "navgrid_destroy",
       "return_type": "void",
+      "signature": "void navgrid_destroy(navgrid_t* navgrid);",
       "return_form": "void_fallible_operation",
       "canonical": "navsys_status_t"
     },
@@ -11205,6 +11453,7 @@
       "header": "byul/navsys/navgrid/navgrid.h",
       "name": "navgrid_copy",
       "return_type": "navgrid_t*",
+      "signature": "navgrid_t* navgrid_copy(const navgrid_t* navgrid);",
       "return_form": "nullable_pointer",
       "canonical": "status return plus typed out pointer"
     },
@@ -11212,6 +11461,7 @@
       "header": "byul/navsys/navgrid/navgrid.h",
       "name": "navgrid_hash",
       "return_type": "uint32_t",
+      "signature": "uint32_t navgrid_hash(const navgrid_t* navgrid);",
       "return_form": "enum_result",
       "canonical": "navsys_status_t plus typed out enum"
     },
@@ -11219,6 +11469,7 @@
       "header": "byul/navsys/navgrid/navgrid.h",
       "name": "navgrid_equal",
       "return_type": "bool",
+      "signature": "bool navgrid_equal(const navgrid_t* a, const navgrid_t* b);",
       "return_form": "bool_predicate",
       "canonical": "keep bool when evaluation itself cannot fail"
     },
@@ -11226,6 +11477,7 @@
       "header": "byul/navsys/navgrid/navgrid.h",
       "name": "navgrid_get_width",
       "return_type": "int",
+      "signature": "int navgrid_get_width(const navgrid_t* navgrid);",
       "return_form": "int_zero_nonzero_status",
       "canonical": "navsys_status_t"
     },
@@ -11233,6 +11485,7 @@
       "header": "byul/navsys/navgrid/navgrid.h",
       "name": "navgrid_set_width",
       "return_type": "void",
+      "signature": "void navgrid_set_width(navgrid_t* navgrid, int width);",
       "return_form": "void_fallible_operation",
       "canonical": "navsys_status_t"
     },
@@ -11240,6 +11493,7 @@
       "header": "byul/navsys/navgrid/navgrid.h",
       "name": "navgrid_get_height",
       "return_type": "int",
+      "signature": "int navgrid_get_height(const navgrid_t* navgrid);",
       "return_form": "int_zero_nonzero_status",
       "canonical": "navsys_status_t"
     },
@@ -11247,6 +11501,7 @@
       "header": "byul/navsys/navgrid/navgrid.h",
       "name": "navgrid_set_height",
       "return_type": "void",
+      "signature": "void navgrid_set_height(navgrid_t* navgrid, int height);",
       "return_form": "void_fallible_operation",
       "canonical": "navsys_status_t"
     },
@@ -11254,6 +11509,7 @@
       "header": "byul/navsys/navgrid/navgrid.h",
       "name": "navgrid_set_is_coord_blocked_func",
       "return_type": "void",
+      "signature": "void navgrid_set_is_coord_blocked_func( navgrid_t* navgrid, is_coord_blocked_func fn);",
       "return_form": "void_fallible_operation",
       "canonical": "navsys_status_t"
     },
@@ -11261,6 +11517,7 @@
       "header": "byul/navsys/navgrid/navgrid.h",
       "name": "navgrid_get_is_coord_blocked_fn",
       "return_type": "is_coord_blocked_func",
+      "signature": "is_coord_blocked_func navgrid_get_is_coord_blocked_fn( const navgrid_t* navgrid);",
       "return_form": "enum_result",
       "canonical": "navsys_status_t plus typed out enum"
     },
@@ -11268,6 +11525,7 @@
       "header": "byul/navsys/navgrid/navgrid.h",
       "name": "navgrid_bind_is_coord_blocked_func",
       "return_type": "navsys_status_t",
+      "signature": "navsys_status_t navgrid_bind_is_coord_blocked_func( navgrid_t* navgrid, is_coord_blocked_func fn, void* userdata);",
       "return_form": "enum_result",
       "canonical": "navsys_status_t plus typed out enum"
     },
@@ -11275,6 +11533,7 @@
       "header": "byul/navsys/navgrid/navgrid.h",
       "name": "navgrid_unbind_is_coord_blocked_func",
       "return_type": "navsys_status_t",
+      "signature": "navsys_status_t navgrid_unbind_is_coord_blocked_func( navgrid_t* navgrid);",
       "return_form": "enum_result",
       "canonical": "navsys_status_t plus typed out enum"
     },
@@ -11282,6 +11541,7 @@
       "header": "byul/navsys/navgrid/navgrid.h",
       "name": "navgrid_get_mode",
       "return_type": "navgrid_dir_mode_t",
+      "signature": "navgrid_dir_mode_t navgrid_get_mode(const navgrid_t* navgrid);",
       "return_form": "enum_result",
       "canonical": "navsys_status_t plus typed out enum"
     },
@@ -11289,6 +11549,7 @@
       "header": "byul/navsys/navgrid/navgrid.h",
       "name": "navgrid_set_mode",
       "return_type": "void",
+      "signature": "void navgrid_set_mode( navgrid_t* navgrid, navgrid_dir_mode_t mode);",
       "return_form": "void_fallible_operation",
       "canonical": "navsys_status_t"
     },
@@ -11296,6 +11557,7 @@
       "header": "byul/navsys/navgrid/navgrid.h",
       "name": "navgrid_block_coord",
       "return_type": "bool",
+      "signature": "bool navgrid_block_coord(navgrid_t* navgrid, int x, int y);",
       "return_form": "bool_operation",
       "canonical": "navsys_status_t"
     },
@@ -11303,6 +11565,7 @@
       "header": "byul/navsys/navgrid/navgrid.h",
       "name": "navgrid_unblock_coord",
       "return_type": "bool",
+      "signature": "bool navgrid_unblock_coord(navgrid_t* navgrid, int x, int y);",
       "return_form": "bool_operation",
       "canonical": "navsys_status_t"
     },
@@ -11310,6 +11573,7 @@
       "header": "byul/navsys/navgrid/navgrid.h",
       "name": "navgrid_is_inside",
       "return_type": "bool",
+      "signature": "bool navgrid_is_inside(const navgrid_t* navgrid, int x, int y);",
       "return_form": "bool_predicate",
       "canonical": "keep bool when evaluation itself cannot fail"
     },
@@ -11317,6 +11581,7 @@
       "header": "byul/navsys/navgrid/navgrid.h",
       "name": "navgrid_clear",
       "return_type": "void",
+      "signature": "void navgrid_clear(navgrid_t* navgrid);",
       "return_form": "void_fallible_operation",
       "canonical": "navsys_status_t"
     },
@@ -11324,6 +11589,7 @@
       "header": "byul/navsys/navgrid/navgrid.h",
       "name": "navgrid_set_cell",
       "return_type": "bool",
+      "signature": "bool navgrid_set_cell( navgrid_t* navgrid, int x, int y, const navcell_t* cell);",
       "return_form": "bool_operation",
       "canonical": "navsys_status_t"
     },
@@ -11331,6 +11597,7 @@
       "header": "byul/navsys/navgrid/navgrid.h",
       "name": "navgrid_fetch_cell",
       "return_type": "int",
+      "signature": "int navgrid_fetch_cell( const navgrid_t* navgrid, int x, int y, navcell_t* out);",
       "return_form": "int_zero_nonzero_status",
       "canonical": "navsys_status_t"
     },
@@ -11338,6 +11605,7 @@
       "header": "byul/navsys/navgrid/navgrid.h",
       "name": "navgrid_get_cell_map",
       "return_type": "const coord_hash_t*",
+      "signature": "const coord_hash_t* navgrid_get_cell_map(const navgrid_t* navgrid);",
       "return_form": "nullable_pointer",
       "canonical": "status return plus typed out pointer"
     },
@@ -11345,6 +11613,7 @@
       "header": "byul/navsys/navgrid/navgrid.h",
       "name": "navgrid_copy_neighbors",
       "return_type": "coord_list_t*",
+      "signature": "coord_list_t* navgrid_copy_neighbors( const navgrid_t* navgrid, int x, int y);",
       "return_form": "nullable_pointer",
       "canonical": "status return plus typed out pointer"
     },
@@ -11352,6 +11621,7 @@
       "header": "byul/navsys/navgrid/navgrid.h",
       "name": "navgrid_copy_neighbors_all",
       "return_type": "coord_list_t*",
+      "signature": "coord_list_t* navgrid_copy_neighbors_all( const navgrid_t* navgrid, int x, int y);",
       "return_form": "nullable_pointer",
       "canonical": "status return plus typed out pointer"
     },
@@ -11359,6 +11629,7 @@
       "header": "byul/navsys/navgrid/navgrid.h",
       "name": "navgrid_copy_neighbors_all_range",
       "return_type": "coord_list_t*",
+      "signature": "coord_list_t* navgrid_copy_neighbors_all_range( navgrid_t* navgrid, int x, int y, int range);",
       "return_form": "nullable_pointer",
       "canonical": "status return plus typed out pointer"
     },
@@ -11366,6 +11637,7 @@
       "header": "byul/navsys/navgrid/navgrid.h",
       "name": "navgrid_copy_neighbor_at_degree",
       "return_type": "coord_t*",
+      "signature": "coord_t* navgrid_copy_neighbor_at_degree(const navgrid_t* navgrid, int x, int y, double degree);",
       "return_form": "nullable_pointer",
       "canonical": "status return plus typed out pointer"
     },
@@ -11373,6 +11645,7 @@
       "header": "byul/navsys/navgrid/navgrid.h",
       "name": "navgrid_copy_neighbor_at_goal",
       "return_type": "coord_t*",
+      "signature": "coord_t* navgrid_copy_neighbor_at_goal(const navgrid_t* navgrid, const coord_t* center, const coord_t* goal);",
       "return_form": "nullable_pointer",
       "canonical": "status return plus typed out pointer"
     },
@@ -11380,6 +11653,7 @@
       "header": "byul/navsys/navgrid/navgrid.h",
       "name": "navgrid_copy_neighbors_at_degree_range",
       "return_type": "coord_list_t*",
+      "signature": "coord_list_t* navgrid_copy_neighbors_at_degree_range( const navgrid_t* navgrid, const coord_t* center, const coord_t* goal, double start_deg, double end_deg, int range);",
       "return_form": "nullable_pointer",
       "canonical": "status return plus typed out pointer"
     },
@@ -11387,6 +11661,7 @@
       "header": "byul/navsys/navsys.h",
       "name": "navsys_find_astar",
       "return_type": "route_t*",
+      "signature": "route_t* navsys_find_astar( navgrid_t* ng, const coord_t* start, const coord_t* goal);",
       "return_form": "nullable_pointer",
       "canonical": "status return plus typed out pointer"
     },
@@ -11394,6 +11669,7 @@
       "header": "byul/navsys/navsys.h",
       "name": "navsys_find_bfs",
       "return_type": "route_t*",
+      "signature": "route_t* navsys_find_bfs( navgrid_t* ng, const coord_t* start, const coord_t* goal);",
       "return_form": "nullable_pointer",
       "canonical": "status return plus typed out pointer"
     },
@@ -11401,6 +11677,7 @@
       "header": "byul/navsys/navsys.h",
       "name": "navsys_find_dfs",
       "return_type": "route_t*",
+      "signature": "route_t* navsys_find_dfs( navgrid_t* ng, const coord_t* start, const coord_t* goal);",
       "return_form": "nullable_pointer",
       "canonical": "status return plus typed out pointer"
     },
@@ -11408,6 +11685,7 @@
       "header": "byul/navsys/navsys.h",
       "name": "navsys_find_dijkstra",
       "return_type": "route_t*",
+      "signature": "route_t* navsys_find_dijkstra( navgrid_t* ng, const coord_t* start, const coord_t* goal);",
       "return_form": "nullable_pointer",
       "canonical": "status return plus typed out pointer"
     },
@@ -11415,6 +11693,7 @@
       "header": "byul/navsys/navsys.h",
       "name": "navsys_find_greedy_best_first",
       "return_type": "route_t*",
+      "signature": "route_t* navsys_find_greedy_best_first( navgrid_t* ng, const coord_t* start, const coord_t* goal);",
       "return_form": "nullable_pointer",
       "canonical": "status return plus typed out pointer"
     },
@@ -11422,6 +11701,7 @@
       "header": "byul/navsys/navsys.h",
       "name": "navsys_find_fast_marching",
       "return_type": "route_t*",
+      "signature": "route_t* navsys_find_fast_marching( navgrid_t* ng, const coord_t* start, const coord_t* goal);",
       "return_form": "nullable_pointer",
       "canonical": "status return plus typed out pointer"
     },
@@ -11429,6 +11709,7 @@
       "header": "byul/navsys/navsys.h",
       "name": "navsys_find_ida_star",
       "return_type": "route_t*",
+      "signature": "route_t* navsys_find_ida_star( navgrid_t* ng, const coord_t* start, const coord_t* goal);",
       "return_form": "nullable_pointer",
       "canonical": "status return plus typed out pointer"
     },
@@ -11436,6 +11717,7 @@
       "header": "byul/navsys/navsys.h",
       "name": "navsys_find_fringe_search",
       "return_type": "route_t*",
+      "signature": "route_t* navsys_find_fringe_search(navgrid_t* ng, const coord_t* start, const coord_t* goal, float delta_epsilon);",
       "return_form": "nullable_pointer",
       "canonical": "status return plus typed out pointer"
     },
@@ -11443,6 +11725,7 @@
       "header": "byul/navsys/navsys.h",
       "name": "navsys_find_rta_star",
       "return_type": "route_t*",
+      "signature": "route_t* navsys_find_rta_star(navgrid_t* ng, const coord_t* start, const coord_t* goal, int depth_limit);",
       "return_form": "nullable_pointer",
       "canonical": "status return plus typed out pointer"
     },
@@ -11450,6 +11733,7 @@
       "header": "byul/navsys/navsys.h",
       "name": "navsys_find_sma_star",
       "return_type": "route_t*",
+      "signature": "route_t* navsys_find_sma_star(navgrid_t* ng, const coord_t* start, const coord_t* goal, int memory_limit);",
       "return_form": "nullable_pointer",
       "canonical": "status return plus typed out pointer"
     },
@@ -11457,6 +11741,7 @@
       "header": "byul/navsys/navsys.h",
       "name": "navsys_find_weighted_astar",
       "return_type": "route_t*",
+      "signature": "route_t* navsys_find_weighted_astar(navgrid_t* ng, const coord_t* start, const coord_t* goal, float weight);",
       "return_form": "nullable_pointer",
       "canonical": "status return plus typed out pointer"
     },
@@ -11464,6 +11749,7 @@
       "header": "byul/navsys/navsys.h",
       "name": "navsys_find_dstar_lite",
       "return_type": "route_t*",
+      "signature": "route_t* navsys_find_dstar_lite(navgrid_t* ng, const coord_t* start, const coord_t* goal);",
       "return_form": "nullable_pointer",
       "canonical": "status return plus typed out pointer"
     },
@@ -11471,6 +11757,7 @@
       "header": "byul/navsys/obstacle/obstacle.h",
       "name": "obstacle_make_rect_all_blocked",
       "return_type": "obstacle_t*",
+      "signature": "obstacle_t* obstacle_make_rect_all_blocked( int x0, int y0, int width, int height);",
       "return_form": "nullable_pointer",
       "canonical": "status return plus typed out pointer"
     },
@@ -11478,6 +11765,7 @@
       "header": "byul/navsys/obstacle/obstacle.h",
       "name": "obstacle_make_rect_random_blocked",
       "return_type": "obstacle_t*",
+      "signature": "obstacle_t* obstacle_make_rect_random_blocked( int x0, int y0, int width, int height, float ratio);",
       "return_form": "nullable_pointer",
       "canonical": "status return plus typed out pointer"
     },
@@ -11485,6 +11773,7 @@
       "header": "byul/navsys/obstacle/obstacle.h",
       "name": "obstacle_make_beam",
       "return_type": "obstacle_t*",
+      "signature": "obstacle_t* obstacle_make_beam( const coord_t* start, const coord_t* goal, int range);",
       "return_form": "nullable_pointer",
       "canonical": "status return plus typed out pointer"
     },
@@ -11492,6 +11781,7 @@
       "header": "byul/navsys/obstacle/obstacle.h",
       "name": "obstacle_make_torus",
       "return_type": "obstacle_t*",
+      "signature": "obstacle_t* obstacle_make_torus( const coord_t* start, const coord_t* goal, int thickness);",
       "return_form": "nullable_pointer",
       "canonical": "status return plus typed out pointer"
     },
@@ -11499,6 +11789,7 @@
       "header": "byul/navsys/obstacle/obstacle.h",
       "name": "obstacle_make_enclosure",
       "return_type": "obstacle_t*",
+      "signature": "obstacle_t* obstacle_make_enclosure( const coord_t* start, const coord_t* goal, int thickness, enclosure_open_dir_t open);",
       "return_form": "nullable_pointer",
       "canonical": "status return plus typed out pointer"
     },
@@ -11506,6 +11797,7 @@
       "header": "byul/navsys/obstacle/obstacle.h",
       "name": "obstacle_make_cross",
       "return_type": "obstacle_t*",
+      "signature": "obstacle_t* obstacle_make_cross( const coord_t* center, int length, int range);",
       "return_form": "nullable_pointer",
       "canonical": "status return plus typed out pointer"
     },
@@ -11513,6 +11805,7 @@
       "header": "byul/navsys/obstacle/obstacle.h",
       "name": "obstacle_make_spiral",
       "return_type": "obstacle_t*",
+      "signature": "obstacle_t* obstacle_make_spiral( const coord_t* center, int radius, int turns, int range, int gap, spiral_dir_t direction );",
       "return_form": "nullable_pointer",
       "canonical": "status return plus typed out pointer"
     },
@@ -11520,6 +11813,7 @@
       "header": "byul/navsys/obstacle/obstacle.h",
       "name": "obstacle_make_triangle",
       "return_type": "obstacle_t*",
+      "signature": "obstacle_t* obstacle_make_triangle( const coord_t* a, const coord_t* b, const coord_t* c);",
       "return_form": "nullable_pointer",
       "canonical": "status return plus typed out pointer"
     },
@@ -11527,6 +11821,7 @@
       "header": "byul/navsys/obstacle/obstacle.h",
       "name": "obstacle_make_triangle_torus",
       "return_type": "obstacle_t*",
+      "signature": "obstacle_t* obstacle_make_triangle_torus( const coord_t* a, const coord_t* b, const coord_t* c, int thickness);",
       "return_form": "nullable_pointer",
       "canonical": "status return plus typed out pointer"
     },
@@ -11534,6 +11829,7 @@
       "header": "byul/navsys/obstacle/obstacle.h",
       "name": "obstacle_make_polygon",
       "return_type": "obstacle_t*",
+      "signature": "obstacle_t* obstacle_make_polygon(coord_list_t* list);",
       "return_form": "nullable_pointer",
       "canonical": "status return plus typed out pointer"
     },
@@ -11541,6 +11837,7 @@
       "header": "byul/navsys/obstacle/obstacle.h",
       "name": "obstacle_make_polygon_torus",
       "return_type": "obstacle_t*",
+      "signature": "obstacle_t* obstacle_make_polygon_torus( coord_list_t* list, int thickness);",
       "return_form": "nullable_pointer",
       "canonical": "status return plus typed out pointer"
     },
@@ -11548,6 +11845,7 @@
       "header": "byul/navsys/obstacle/obstacle_core.h",
       "name": "obstacle_create",
       "return_type": "obstacle_t*",
+      "signature": "obstacle_t* obstacle_create();",
       "return_form": "nullable_pointer",
       "canonical": "status return plus typed out pointer"
     },
@@ -11555,6 +11853,7 @@
       "header": "byul/navsys/obstacle/obstacle_core.h",
       "name": "obstacle_create_full",
       "return_type": "obstacle_t*",
+      "signature": "obstacle_t* obstacle_create_full( int x0, int y0, int width, int height);",
       "return_form": "nullable_pointer",
       "canonical": "status return plus typed out pointer"
     },
@@ -11562,6 +11861,7 @@
       "header": "byul/navsys/obstacle/obstacle_core.h",
       "name": "obstacle_destroy",
       "return_type": "void",
+      "signature": "void obstacle_destroy(obstacle_t* obstacle);",
       "return_form": "void_fallible_operation",
       "canonical": "navsys_status_t"
     },
@@ -11569,6 +11869,7 @@
       "header": "byul/navsys/obstacle/obstacle_core.h",
       "name": "obstacle_clear",
       "return_type": "void",
+      "signature": "void obstacle_clear(obstacle_t* obstacle);",
       "return_form": "void_fallible_operation",
       "canonical": "navsys_status_t"
     },
@@ -11576,6 +11877,7 @@
       "header": "byul/navsys/obstacle/obstacle_core.h",
       "name": "obstacle_copy",
       "return_type": "obstacle_t*",
+      "signature": "obstacle_t* obstacle_copy(const obstacle_t* obstacle);",
       "return_form": "nullable_pointer",
       "canonical": "status return plus typed out pointer"
     },
@@ -11583,6 +11885,7 @@
       "header": "byul/navsys/obstacle/obstacle_core.h",
       "name": "obstacle_equal",
       "return_type": "bool",
+      "signature": "bool obstacle_equal(const obstacle_t* a, const obstacle_t* b);",
       "return_form": "bool_predicate",
       "canonical": "keep bool when evaluation itself cannot fail"
     },
@@ -11590,6 +11893,7 @@
       "header": "byul/navsys/obstacle/obstacle_core.h",
       "name": "obstacle_hash",
       "return_type": "uint32_t",
+      "signature": "uint32_t obstacle_hash(const obstacle_t* obstacle);",
       "return_form": "enum_result",
       "canonical": "navsys_status_t plus typed out enum"
     },
@@ -11597,6 +11901,7 @@
       "header": "byul/navsys/obstacle/obstacle_core.h",
       "name": "obstacle_set_origin",
       "return_type": "void",
+      "signature": "void obstacle_set_origin(obstacle_t* obstacle, int x0, int y0);",
       "return_form": "void_fallible_operation",
       "canonical": "navsys_status_t"
     },
@@ -11604,6 +11909,7 @@
       "header": "byul/navsys/obstacle/obstacle_core.h",
       "name": "obstacle_fetch_origin",
       "return_type": "void",
+      "signature": "void obstacle_fetch_origin( const obstacle_t* obstacle, int* out_x0, int* out_y0);",
       "return_form": "void_fallible_operation",
       "canonical": "navsys_status_t"
     },
@@ -11611,6 +11917,7 @@
       "header": "byul/navsys/obstacle/obstacle_core.h",
       "name": "obstacle_get_width",
       "return_type": "int",
+      "signature": "int obstacle_get_width(const obstacle_t* m);",
       "return_form": "int_zero_nonzero_status",
       "canonical": "navsys_status_t"
     },
@@ -11618,6 +11925,7 @@
       "header": "byul/navsys/obstacle/obstacle_core.h",
       "name": "obstacle_set_width",
       "return_type": "void",
+      "signature": "void obstacle_set_width(obstacle_t* m, int width);",
       "return_form": "void_fallible_operation",
       "canonical": "navsys_status_t"
     },
@@ -11625,6 +11933,7 @@
       "header": "byul/navsys/obstacle/obstacle_core.h",
       "name": "obstacle_get_height",
       "return_type": "int",
+      "signature": "int obstacle_get_height(const obstacle_t* m);",
       "return_form": "int_zero_nonzero_status",
       "canonical": "navsys_status_t"
     },
@@ -11632,6 +11941,7 @@
       "header": "byul/navsys/obstacle/obstacle_core.h",
       "name": "obstacle_set_height",
       "return_type": "void",
+      "signature": "void obstacle_set_height(obstacle_t* m, int height);",
       "return_form": "void_fallible_operation",
       "canonical": "navsys_status_t"
     },
@@ -11639,6 +11949,7 @@
       "header": "byul/navsys/obstacle/obstacle_core.h",
       "name": "obstacle_get_blocked_coords",
       "return_type": "const coord_hash_t*",
+      "signature": "const coord_hash_t* obstacle_get_blocked_coords( const obstacle_t* obstacle);",
       "return_form": "nullable_pointer",
       "canonical": "status return plus typed out pointer"
     },
@@ -11646,6 +11957,7 @@
       "header": "byul/navsys/obstacle/obstacle_core.h",
       "name": "obstacle_block_coord",
       "return_type": "bool",
+      "signature": "bool obstacle_block_coord(obstacle_t* m, int x, int y);",
       "return_form": "bool_operation",
       "canonical": "navsys_status_t"
     },
@@ -11653,6 +11965,7 @@
       "header": "byul/navsys/obstacle/obstacle_core.h",
       "name": "obstacle_unblock_coord",
       "return_type": "bool",
+      "signature": "bool obstacle_unblock_coord(obstacle_t* m, int x, int y);",
       "return_form": "bool_operation",
       "canonical": "navsys_status_t"
     },
@@ -11660,6 +11973,7 @@
       "header": "byul/navsys/obstacle/obstacle_core.h",
       "name": "obstacle_is_inside",
       "return_type": "bool",
+      "signature": "bool obstacle_is_inside(const obstacle_t* m, int x, int y);",
       "return_form": "bool_predicate",
       "canonical": "keep bool when evaluation itself cannot fail"
     },
@@ -11667,6 +11981,7 @@
       "header": "byul/navsys/obstacle/obstacle_core.h",
       "name": "obstacle_clear",
       "return_type": "void",
+      "signature": "void obstacle_clear(obstacle_t* m);",
       "return_form": "void_fallible_operation",
       "canonical": "navsys_status_t"
     },
@@ -11674,6 +11989,7 @@
       "header": "byul/navsys/obstacle/obstacle_core.h",
       "name": "obstacle_clone_neighbors",
       "return_type": "coord_list_t*",
+      "signature": "coord_list_t* obstacle_clone_neighbors( const obstacle_t* m, int x, int y);",
       "return_form": "nullable_pointer",
       "canonical": "status return plus typed out pointer"
     },
@@ -11681,6 +11997,7 @@
       "header": "byul/navsys/obstacle/obstacle_core.h",
       "name": "obstacle_clone_neighbors_all",
       "return_type": "coord_list_t*",
+      "signature": "coord_list_t* obstacle_clone_neighbors_all( const obstacle_t* m, int x, int y);",
       "return_form": "nullable_pointer",
       "canonical": "status return plus typed out pointer"
     },
@@ -11688,6 +12005,7 @@
       "header": "byul/navsys/obstacle/obstacle_core.h",
       "name": "obstacle_clone_neighbors_all_range",
       "return_type": "coord_list_t*",
+      "signature": "coord_list_t* obstacle_clone_neighbors_all_range( obstacle_t* m, int x, int y, int range);",
       "return_form": "nullable_pointer",
       "canonical": "status return plus typed out pointer"
     },
@@ -11695,6 +12013,7 @@
       "header": "byul/navsys/obstacle/obstacle_core.h",
       "name": "obstacle_clone_neighbor_at_degree",
       "return_type": "coord_t*",
+      "signature": "coord_t* obstacle_clone_neighbor_at_degree(const obstacle_t* m, int x, int y, double degree);",
       "return_form": "nullable_pointer",
       "canonical": "status return plus typed out pointer"
     },
@@ -11702,6 +12021,7 @@
       "header": "byul/navsys/obstacle/obstacle_core.h",
       "name": "obstacle_clone_neighbor_at_goal",
       "return_type": "coord_t*",
+      "signature": "coord_t* obstacle_clone_neighbor_at_goal(const obstacle_t* m, const coord_t* center, const coord_t* goal);",
       "return_form": "nullable_pointer",
       "canonical": "status return plus typed out pointer"
     },
@@ -11709,6 +12029,7 @@
       "header": "byul/navsys/obstacle/obstacle_core.h",
       "name": "obstacle_clone_neighbors_at_degree_range",
       "return_type": "coord_list_t*",
+      "signature": "coord_list_t* obstacle_clone_neighbors_at_degree_range( const obstacle_t* m, const coord_t* center, const coord_t* goal, double start_deg, double end_deg, int range);",
       "return_form": "nullable_pointer",
       "canonical": "status return plus typed out pointer"
     },
@@ -11716,6 +12037,7 @@
       "header": "byul/navsys/obstacle/obstacle_core.h",
       "name": "obstacle_apply_to_navgrid",
       "return_type": "void",
+      "signature": "void obstacle_apply_to_navgrid(const obstacle_t* obstacle, navgrid_t* navgrid);",
       "return_form": "void_fallible_operation",
       "canonical": "navsys_status_t"
     },
@@ -11723,6 +12045,7 @@
       "header": "byul/navsys/obstacle/obstacle_core.h",
       "name": "obstacle_remove_from_navgrid",
       "return_type": "void",
+      "signature": "void obstacle_remove_from_navgrid( const obstacle_t* obstacle, navgrid_t* navgrid);",
       "return_form": "void_fallible_operation",
       "canonical": "navsys_status_t"
     },
@@ -11730,6 +12053,7 @@
       "header": "byul/navsys/obstacle/obstacle_core.h",
       "name": "obstacle_block_range",
       "return_type": "void",
+      "signature": "void obstacle_block_range(obstacle_t* obs, int x, int y, int range);",
       "return_form": "void_fallible_operation",
       "canonical": "navsys_status_t"
     },
@@ -11737,6 +12061,7 @@
       "header": "byul/navsys/obstacle/obstacle_core.h",
       "name": "obstacle_block_straight",
       "return_type": "void",
+      "signature": "void obstacle_block_straight(obstacle_t* obs, int x0, int y0, int x1, int y1, int range);",
       "return_form": "void_fallible_operation",
       "canonical": "navsys_status_t"
     },
@@ -11744,6 +12069,7 @@
       "header": "byul/navsys/route/route.h",
       "name": "route_create",
       "return_type": "route_t*",
+      "signature": "route_t* route_create();",
       "return_form": "nullable_pointer",
       "canonical": "status return plus typed out pointer"
     },
@@ -11751,6 +12077,7 @@
       "header": "byul/navsys/route/route.h",
       "name": "route_destroy",
       "return_type": "void",
+      "signature": "void route_destroy(route_t* p);",
       "return_form": "void_fallible_operation",
       "canonical": "navsys_status_t"
     },
@@ -11758,6 +12085,7 @@
       "header": "byul/navsys/route/route.h",
       "name": "route_copy",
       "return_type": "route_t*",
+      "signature": "route_t* route_copy(const route_t* p);",
       "return_form": "nullable_pointer",
       "canonical": "status return plus typed out pointer"
     },
@@ -11765,6 +12093,7 @@
       "header": "byul/navsys/route/route.h",
       "name": "route_hash",
       "return_type": "uintptr_t",
+      "signature": "uintptr_t route_hash(const route_t* a);",
       "return_form": "enum_result",
       "canonical": "navsys_status_t plus typed out enum"
     },
@@ -11772,6 +12101,7 @@
       "header": "byul/navsys/route/route.h",
       "name": "route_equal",
       "return_type": "int",
+      "signature": "int route_equal(const route_t* a, const route_t* b);",
       "return_form": "int_zero_nonzero_status",
       "canonical": "navsys_status_t"
     },
@@ -11779,6 +12109,7 @@
       "header": "byul/navsys/route/route.h",
       "name": "route_set_cost",
       "return_type": "void",
+      "signature": "void route_set_cost(route_t* p, float cost);",
       "return_form": "void_fallible_operation",
       "canonical": "navsys_status_t"
     },
@@ -11786,6 +12117,7 @@
       "header": "byul/navsys/route/route.h",
       "name": "route_get_cost",
       "return_type": "float",
+      "signature": "float route_get_cost(const route_t* p);",
       "return_form": "floating_result",
       "canonical": "navsys_status_t plus typed out scalar"
     },
@@ -11793,6 +12125,7 @@
       "header": "byul/navsys/route/route.h",
       "name": "route_set_success",
       "return_type": "void",
+      "signature": "void route_set_success(route_t* p, int success);",
       "return_form": "void_fallible_operation",
       "canonical": "navsys_status_t"
     },
@@ -11800,6 +12133,7 @@
       "header": "byul/navsys/route/route.h",
       "name": "route_get_success",
       "return_type": "int",
+      "signature": "int route_get_success(const route_t* p);",
       "return_form": "int_zero_nonzero_status",
       "canonical": "navsys_status_t"
     },
@@ -11807,6 +12141,7 @@
       "header": "byul/navsys/route/route.h",
       "name": "route_get_coords",
       "return_type": "const coord_list_t*",
+      "signature": "const coord_list_t* route_get_coords(const route_t* p);",
       "return_form": "nullable_pointer",
       "canonical": "status return plus typed out pointer"
     },
@@ -11814,6 +12149,7 @@
       "header": "byul/navsys/route/route.h",
       "name": "route_get_visited_order",
       "return_type": "const coord_list_t*",
+      "signature": "const coord_list_t* route_get_visited_order(const route_t* p);",
       "return_form": "nullable_pointer",
       "canonical": "status return plus typed out pointer"
     },
@@ -11821,6 +12157,7 @@
       "header": "byul/navsys/route/route.h",
       "name": "route_get_visited_count",
       "return_type": "const coord_hash_t*",
+      "signature": "const coord_hash_t* route_get_visited_count(const route_t* p);",
       "return_form": "nullable_pointer",
       "canonical": "status return plus typed out pointer"
     },
@@ -11828,6 +12165,7 @@
       "header": "byul/navsys/route/route.h",
       "name": "route_get_total_retry_count",
       "return_type": "int",
+      "signature": "int route_get_total_retry_count(const route_t* p);",
       "return_form": "int_count",
       "canonical": "navsys_status_t plus out_count"
     },
@@ -11835,6 +12173,7 @@
       "header": "byul/navsys/route/route.h",
       "name": "route_set_total_retry_count",
       "return_type": "void",
+      "signature": "void route_set_total_retry_count(route_t* p, int retry_count);",
       "return_form": "void_fallible_operation",
       "canonical": "navsys_status_t"
     },
@@ -11842,6 +12181,7 @@
       "header": "byul/navsys/route/route.h",
       "name": "route_add_coord",
       "return_type": "int",
+      "signature": "int route_add_coord(route_t* p, const coord_t* c);",
       "return_form": "int_zero_nonzero_status",
       "canonical": "navsys_status_t"
     },
@@ -11849,6 +12189,7 @@
       "header": "byul/navsys/route/route.h",
       "name": "route_clear_coords",
       "return_type": "void",
+      "signature": "void route_clear_coords(route_t* p);",
       "return_form": "void_fallible_operation",
       "canonical": "navsys_status_t"
     },
@@ -11856,6 +12197,7 @@
       "header": "byul/navsys/route/route.h",
       "name": "route_get_last",
       "return_type": "const coord_t*",
+      "signature": "const coord_t* route_get_last(const route_t* p);",
       "return_form": "nullable_pointer",
       "canonical": "status return plus typed out pointer"
     },
@@ -11863,6 +12205,7 @@
       "header": "byul/navsys/route/route.h",
       "name": "route_get_coord_at",
       "return_type": "const coord_t*",
+      "signature": "const coord_t* route_get_coord_at(const route_t* p, int index);",
       "return_form": "nullable_pointer",
       "canonical": "status return plus typed out pointer"
     },
@@ -11870,6 +12213,7 @@
       "header": "byul/navsys/route/route.h",
       "name": "route_length",
       "return_type": "int",
+      "signature": "int route_length(const route_t* p);",
       "return_form": "int_count",
       "canonical": "navsys_status_t plus out_count"
     },
@@ -11877,6 +12221,7 @@
       "header": "byul/navsys/route/route.h",
       "name": "route_get_coord_count",
       "return_type": "size_t",
+      "signature": "size_t route_get_coord_count(const route_t* route);",
       "return_form": "int_count",
       "canonical": "navsys_status_t plus out_count"
     },
@@ -11884,6 +12229,7 @@
       "header": "byul/navsys/route/route.h",
       "name": "route_fetch_coord",
       "return_type": "navsys_status_t",
+      "signature": "navsys_status_t route_fetch_coord( const route_t* route, size_t index, coord_t* out_coord);",
       "return_form": "enum_result",
       "canonical": "navsys_status_t plus typed out enum"
     },
@@ -11891,6 +12237,7 @@
       "header": "byul/navsys/route/route.h",
       "name": "route_fetch_total_cost",
       "return_type": "navsys_status_t",
+      "signature": "navsys_status_t route_fetch_total_cost( const route_t* route, double* out_total_cost);",
       "return_form": "enum_result",
       "canonical": "navsys_status_t plus typed out enum"
     },
@@ -11898,6 +12245,7 @@
       "header": "byul/navsys/route/route.h",
       "name": "route_fetch_completion",
       "return_type": "navsys_status_t",
+      "signature": "navsys_status_t route_fetch_completion( const route_t* route, route_completion_t* out_completion);",
       "return_form": "enum_result",
       "canonical": "navsys_status_t plus typed out enum"
     },
@@ -11905,6 +12253,7 @@
       "header": "byul/navsys/route/route.h",
       "name": "route_export_coords",
       "return_type": "navsys_status_t",
+      "signature": "navsys_status_t route_export_coords( const route_t* route, coord_t* output, size_t capacity, size_t* out_required_count);",
       "return_form": "enum_result",
       "canonical": "navsys_status_t plus typed out enum"
     },
@@ -11912,6 +12261,7 @@
       "header": "byul/navsys/route/route.h",
       "name": "route_add_visited",
       "return_type": "int",
+      "signature": "int route_add_visited(route_t* p, const coord_t* c);",
       "return_form": "int_zero_nonzero_status",
       "canonical": "navsys_status_t"
     },
@@ -11919,6 +12269,7 @@
       "header": "byul/navsys/route/route.h",
       "name": "route_clear_visited",
       "return_type": "void",
+      "signature": "void route_clear_visited(route_t* p);",
       "return_form": "void_fallible_operation",
       "canonical": "navsys_status_t"
     },
@@ -11926,6 +12277,7 @@
       "header": "byul/navsys/route/route.h",
       "name": "route_append",
       "return_type": "void",
+      "signature": "void route_append(route_t* dest, const route_t* src);",
       "return_form": "void_fallible_operation",
       "canonical": "navsys_status_t"
     },
@@ -11933,6 +12285,7 @@
       "header": "byul/navsys/route/route.h",
       "name": "route_append_nodup",
       "return_type": "void",
+      "signature": "void route_append_nodup(route_t* dest, const route_t* src);",
       "return_form": "void_fallible_operation",
       "canonical": "navsys_status_t"
     },
@@ -11940,6 +12293,7 @@
       "header": "byul/navsys/route/route.h",
       "name": "route_insert",
       "return_type": "void",
+      "signature": "void route_insert(route_t* p, int index, const coord_t* c);",
       "return_form": "void_fallible_operation",
       "canonical": "navsys_status_t"
     },
@@ -11947,6 +12301,7 @@
       "header": "byul/navsys/route/route.h",
       "name": "route_remove_at",
       "return_type": "void",
+      "signature": "void route_remove_at(route_t* p, int index);",
       "return_form": "void_fallible_operation",
       "canonical": "navsys_status_t"
     },
@@ -11954,6 +12309,7 @@
       "header": "byul/navsys/route/route.h",
       "name": "route_remove_value",
       "return_type": "void",
+      "signature": "void route_remove_value(route_t* p, const coord_t* c);",
       "return_form": "void_fallible_operation",
       "canonical": "navsys_status_t"
     },
@@ -11961,6 +12317,7 @@
       "header": "byul/navsys/route/route.h",
       "name": "route_contains",
       "return_type": "int",
+      "signature": "int route_contains(const route_t* p, const coord_t* c);",
       "return_form": "int_zero_nonzero_status",
       "canonical": "navsys_status_t"
     },
@@ -11968,6 +12325,7 @@
       "header": "byul/navsys/route/route.h",
       "name": "route_find",
       "return_type": "int",
+      "signature": "int route_find(const route_t* p, const coord_t* c);",
       "return_form": "int_index_minus_one",
       "canonical": "NAVSYS_STATUS_NOT_FOUND plus out_index"
     },
@@ -11975,6 +12333,7 @@
       "header": "byul/navsys/route/route.h",
       "name": "route_slice",
       "return_type": "route_t*",
+      "signature": "route_t* route_slice(const route_t* p, int start, int end);",
       "return_form": "nullable_pointer",
       "canonical": "status return plus typed out pointer"
     },
@@ -11982,6 +12341,7 @@
       "header": "byul/navsys/route/route.h",
       "name": "route_print",
       "return_type": "void",
+      "signature": "void route_print(const route_t* p);",
       "return_form": "void_fallible_operation",
       "canonical": "navsys_status_t"
     },
@@ -11989,6 +12349,7 @@
       "header": "byul/navsys/route/route.h",
       "name": "route_make_direction",
       "return_type": "coord_t*",
+      "signature": "coord_t* route_make_direction(route_t* p, int index);",
       "return_form": "nullable_pointer",
       "canonical": "status return plus typed out pointer"
     },
@@ -11996,6 +12357,7 @@
       "header": "byul/navsys/route/route.h",
       "name": "route_get_direction_by_dir_coord",
       "return_type": "route_dir_t",
+      "signature": "route_dir_t route_get_direction_by_dir_coord(const coord_t* dxdy);",
       "return_form": "enum_result",
       "canonical": "navsys_status_t plus typed out enum"
     },
@@ -12003,6 +12365,7 @@
       "header": "byul/navsys/route/route.h",
       "name": "route_get_direction_by_index",
       "return_type": "route_dir_t",
+      "signature": "route_dir_t route_get_direction_by_index(route_t* p, int index);",
       "return_form": "enum_result",
       "canonical": "navsys_status_t plus typed out enum"
     },
@@ -12010,6 +12373,7 @@
       "header": "byul/navsys/route/route.h",
       "name": "route_calc_average_facing",
       "return_type": "route_dir_t",
+      "signature": "route_dir_t route_calc_average_facing(route_t* p, int history);",
       "return_form": "enum_result",
       "canonical": "navsys_status_t plus typed out enum"
     },
@@ -12017,6 +12381,7 @@
       "header": "byul/navsys/route/route.h",
       "name": "route_calc_average_dir",
       "return_type": "float",
+      "signature": "float route_calc_average_dir(route_t* p, int history);",
       "return_form": "floating_result",
       "canonical": "navsys_status_t plus typed out scalar"
     },
@@ -12024,6 +12389,7 @@
       "header": "byul/navsys/route/route.h",
       "name": "direction_to_coord",
       "return_type": "coord_t*",
+      "signature": "coord_t* direction_to_coord(route_dir_t route_dir);",
       "return_form": "nullable_pointer",
       "canonical": "status return plus typed out pointer"
     },
@@ -12031,6 +12397,7 @@
       "header": "byul/navsys/route/route.h",
       "name": "route_has_changed",
       "return_type": "int",
+      "signature": "int route_has_changed( route_t* p, const coord_t* from, const coord_t* to, float angle_threshold_deg);",
       "return_form": "int_zero_nonzero_status",
       "canonical": "navsys_status_t"
     },
@@ -12038,6 +12405,7 @@
       "header": "byul/navsys/route/route.h",
       "name": "route_has_changed_with_angle",
       "return_type": "int",
+      "signature": "int route_has_changed_with_angle( route_t* p, const coord_t* from, const coord_t* to, float angle_threshold_deg, float* out_angle_deg);",
       "return_form": "int_zero_nonzero_status",
       "canonical": "navsys_status_t"
     },
@@ -12045,6 +12413,7 @@
       "header": "byul/navsys/route/route.h",
       "name": "route_has_changed_by_index",
       "return_type": "int",
+      "signature": "int route_has_changed_by_index( route_t* p, int index_from, int index_to, float angle_threshold_deg);",
       "return_form": "int_index_minus_one",
       "canonical": "NAVSYS_STATUS_NOT_FOUND plus out_index"
     },
@@ -12052,6 +12421,7 @@
       "header": "byul/navsys/route/route.h",
       "name": "route_has_changed_with_angle_by_index",
       "return_type": "int",
+      "signature": "int route_has_changed_with_angle_by_index( route_t* p, int index_from, int index_to, float angle_threshold_deg, float* out_angle_deg);",
       "return_form": "int_index_minus_one",
       "canonical": "NAVSYS_STATUS_NOT_FOUND plus out_index"
     },
@@ -12059,6 +12429,7 @@
       "header": "byul/navsys/route/route.h",
       "name": "route_update_average_vector",
       "return_type": "void",
+      "signature": "void route_update_average_vector( route_t* p, const coord_t* from, const coord_t* to);",
       "return_form": "void_fallible_operation",
       "canonical": "navsys_status_t"
     },
@@ -12066,6 +12437,7 @@
       "header": "byul/navsys/route/route.h",
       "name": "route_update_average_vector_by_index",
       "return_type": "void",
+      "signature": "void route_update_average_vector_by_index( route_t* p, int index_from, int index_to);",
       "return_form": "void_fallible_operation",
       "canonical": "navsys_status_t"
     },
@@ -12073,6 +12445,7 @@
       "header": "byul/navsys/route/route.h",
       "name": "calc_direction",
       "return_type": "route_dir_t",
+      "signature": "route_dir_t calc_direction( const coord_t* start, const coord_t* goal);",
       "return_form": "enum_result",
       "canonical": "navsys_status_t plus typed out enum"
     },
@@ -12080,6 +12453,7 @@
       "header": "byul/navsys/route/route.h",
       "name": "route_reconstruct",
       "return_type": "bool",
+      "signature": "bool route_reconstruct( route_t* route, const coord_hash_t* came_from, const coord_t* start, const coord_t* goal);",
       "return_form": "bool_operation",
       "canonical": "navsys_status_t"
     },
@@ -12087,6 +12461,7 @@
       "header": "byul/navsys/route_carver/route_carver.h",
       "name": "route_carve_beam",
       "return_type": "int",
+      "signature": "int route_carve_beam(navgrid_t* navgrid, const coord_t* start, const coord_t* goal, int range);",
       "return_form": "int_zero_nonzero_status",
       "canonical": "navsys_status_t"
     },
@@ -12094,6 +12469,7 @@
       "header": "byul/navsys/route_carver/route_carver.h",
       "name": "route_carve_bomb",
       "return_type": "int",
+      "signature": "int route_carve_bomb( navgrid_t* navgrid, const coord_t* center, int range);",
       "return_form": "int_zero_nonzero_status",
       "canonical": "navsys_status_t"
     },
@@ -12101,6 +12477,7 @@
       "header": "byul/navsys/route_finder/astar.h",
       "name": "find_astar",
       "return_type": "route_t*",
+      "signature": "route_t* find_astar(const navgrid_t* m, const coord_t* start, const coord_t* goal, cost_func cost_fn, heuristic_func heuristic_fn, int max_retry, bool debug_mode_enabled);",
       "return_form": "nullable_pointer",
       "canonical": "status return plus typed out pointer"
     },
@@ -12108,6 +12485,7 @@
       "header": "byul/navsys/route_finder/bfs.h",
       "name": "find_bfs",
       "return_type": "route_t*",
+      "signature": "route_t* find_bfs(const navgrid_t* m, const coord_t* start, const coord_t* goal, int max_retry, bool debug_mode_enabled);",
       "return_form": "nullable_pointer",
       "canonical": "status return plus typed out pointer"
     },
@@ -12115,6 +12493,7 @@
       "header": "byul/navsys/route_finder/dfs.h",
       "name": "find_dfs",
       "return_type": "route_t*",
+      "signature": "route_t* find_dfs(const navgrid_t* m, const coord_t* start, const coord_t* goal, int max_retry, bool debug_mode_enabled);",
       "return_form": "nullable_pointer",
       "canonical": "status return plus typed out pointer"
     },
@@ -12122,6 +12501,7 @@
       "header": "byul/navsys/route_finder/dijkstra.h",
       "name": "find_dijkstra",
       "return_type": "route_t*",
+      "signature": "route_t* find_dijkstra(const navgrid_t* m, const coord_t* start, const coord_t* goal, cost_func cost_fn, int max_retry, bool debug_mode_enabled);",
       "return_form": "nullable_pointer",
       "canonical": "status return plus typed out pointer"
     },
@@ -12129,6 +12509,7 @@
       "header": "byul/navsys/route_finder/fast_marching.h",
       "name": "fmm_cell_init",
       "return_type": "void",
+      "signature": "void fmm_cell_init(fmm_cell_t* out);",
       "return_form": "void_fallible_operation",
       "canonical": "navsys_status_t"
     },
@@ -12136,6 +12517,7 @@
       "header": "byul/navsys/route_finder/fast_marching.h",
       "name": "fmm_cell_init_full",
       "return_type": "void",
+      "signature": "void fmm_cell_init_full( fmm_cell_t* out, fmm_state_t state, float value);",
       "return_form": "void_fallible_operation",
       "canonical": "navsys_status_t"
     },
@@ -12143,6 +12525,7 @@
       "header": "byul/navsys/route_finder/fast_marching.h",
       "name": "fmm_cell_assign",
       "return_type": "void",
+      "signature": "void fmm_cell_assign(fmm_cell_t* out, const fmm_cell_t* src);",
       "return_form": "void_fallible_operation",
       "canonical": "navsys_status_t"
     },
@@ -12150,6 +12533,7 @@
       "header": "byul/navsys/route_finder/fast_marching.h",
       "name": "fmm_grid_create_full",
       "return_type": "fmm_grid_t*",
+      "signature": "fmm_grid_t* fmm_grid_create_full(const navgrid_t* m, const coord_t* start, cost_func cost_fn, float radius_limit, int max_retry);",
       "return_form": "nullable_pointer",
       "canonical": "status return plus typed out pointer"
     },
@@ -12157,6 +12541,7 @@
       "header": "byul/navsys/route_finder/fast_marching.h",
       "name": "fmm_grid_destroy",
       "return_type": "void",
+      "signature": "void fmm_grid_destroy(fmm_grid_t* grid);",
       "return_form": "void_fallible_operation",
       "canonical": "navsys_status_t"
     },
@@ -12164,6 +12549,7 @@
       "header": "byul/navsys/route_finder/fast_marching.h",
       "name": "fmm_dump_ascii",
       "return_type": "void",
+      "signature": "void fmm_dump_ascii(const fmm_grid_t* grid);",
       "return_form": "void_fallible_operation",
       "canonical": "navsys_status_t"
     },
@@ -12171,6 +12557,7 @@
       "header": "byul/navsys/route_finder/fast_marching.h",
       "name": "find_fast_marching",
       "return_type": "route_t*",
+      "signature": "route_t* find_fast_marching(const navgrid_t* m, const coord_t* start, const coord_t* goal, cost_func cost_fn, int max_retry, bool debug_mode_enabled);",
       "return_form": "nullable_pointer",
       "canonical": "status return plus typed out pointer"
     },
@@ -12178,6 +12565,7 @@
       "header": "byul/navsys/route_finder/fringe_search.h",
       "name": "find_fringe_search",
       "return_type": "route_t*",
+      "signature": "route_t* find_fringe_search(const navgrid_t* m, const coord_t* start, const coord_t* goal, cost_func cost_fn, heuristic_func heuristic_fn, float delta_epsilon, int max_retry, bool debug_mode_enabled);",
       "return_form": "nullable_pointer",
       "canonical": "status return plus typed out pointer"
     },
@@ -12185,6 +12573,7 @@
       "header": "byul/navsys/route_finder/greedy_best_first.h",
       "name": "find_greedy_best_first",
       "return_type": "route_t*",
+      "signature": "route_t* find_greedy_best_first(const navgrid_t* m, const coord_t* start, const coord_t* goal, heuristic_func heuristic_fn, int max_retry, bool debug_mode_enabled);",
       "return_form": "nullable_pointer",
       "canonical": "status return plus typed out pointer"
     },
@@ -12192,6 +12581,7 @@
       "header": "byul/navsys/route_finder/ida_star.h",
       "name": "find_ida_star",
       "return_type": "route_t*",
+      "signature": "route_t* find_ida_star(const navgrid_t* m, const coord_t* start, const coord_t* goal, cost_func cost_fn, heuristic_func heuristic_fn, int max_retry, bool debug_mode_enabled);",
       "return_form": "nullable_pointer",
       "canonical": "status return plus typed out pointer"
     },
@@ -12199,6 +12589,7 @@
       "header": "byul/navsys/route_finder/route_finder.h",
       "name": "route_finder_is_supported",
       "return_type": "bool",
+      "signature": "bool route_finder_is_supported(route_finder_type_t type);",
       "return_form": "bool_predicate",
       "canonical": "keep bool when evaluation itself cannot fail"
     },
@@ -12206,6 +12597,7 @@
       "header": "byul/navsys/route_finder/route_finder.h",
       "name": "route_finder_create",
       "return_type": "route_finder_t*",
+      "signature": "route_finder_t* route_finder_create(navgrid_t* navgrid);",
       "return_form": "nullable_pointer",
       "canonical": "status return plus typed out pointer"
     },
@@ -12213,6 +12605,7 @@
       "header": "byul/navsys/route_finder/route_finder.h",
       "name": "route_finder_create_full",
       "return_type": "route_finder_t*",
+      "signature": "route_finder_t* route_finder_create_full( navgrid_t* navgrid, const coord_t* start, const coord_t* goal, route_finder_type_t type, void* typedata, int max_retry, bool debug_mode_enabled, cost_func cost_fn, void* cost_fn_userdata, heuristic_func heuristic_fn, void* heuristic_fn_userdata );",
       "return_form": "nullable_pointer",
       "canonical": "status return plus typed out pointer"
     },
@@ -12220,6 +12613,7 @@
       "header": "byul/navsys/route_finder/route_finder.h",
       "name": "route_finder_init",
       "return_type": "int",
+      "signature": "int route_finder_init(route_finder_t* out, navgrid_t* navgrid);",
       "return_form": "int_zero_nonzero_status",
       "canonical": "navsys_status_t"
     },
@@ -12227,6 +12621,7 @@
       "header": "byul/navsys/route_finder/route_finder.h",
       "name": "route_finder_init_full",
       "return_type": "int",
+      "signature": "int route_finder_init_full( route_finder_t* out, navgrid_t* navgrid, const coord_t* start, const coord_t* goal, route_finder_type_t type, void* typedata, int max_retry, bool debug_mode_enabled, cost_func cost_fn, void* cost_fn_userdata, heuristic_func heuristic_fn, void* heuristic_fn_userdata );",
       "return_form": "int_zero_nonzero_status",
       "canonical": "navsys_status_t"
     },
@@ -12234,6 +12629,7 @@
       "header": "byul/navsys/route_finder/route_finder.h",
       "name": "route_finder_free",
       "return_type": "int",
+      "signature": "int route_finder_free(route_finder_t* out);",
       "return_form": "int_zero_nonzero_status",
       "canonical": "navsys_status_t"
     },
@@ -12241,6 +12637,7 @@
       "header": "byul/navsys/route_finder/route_finder.h",
       "name": "route_finder_destroy",
       "return_type": "int",
+      "signature": "int route_finder_destroy(route_finder_t* a);",
       "return_form": "int_zero_nonzero_status",
       "canonical": "navsys_status_t"
     },
@@ -12248,6 +12645,7 @@
       "header": "byul/navsys/route_finder/route_finder.h",
       "name": "route_finder_copy",
       "return_type": "route_finder_t*",
+      "signature": "route_finder_t* route_finder_copy(const route_finder_t* src);",
       "return_form": "nullable_pointer",
       "canonical": "status return plus typed out pointer"
     },
@@ -12255,6 +12653,7 @@
       "header": "byul/navsys/route_finder/route_finder.h",
       "name": "route_finder_set_navgrid",
       "return_type": "void",
+      "signature": "void route_finder_set_navgrid(route_finder_t* a, navgrid_t* navgrid);",
       "return_form": "void_fallible_operation",
       "canonical": "navsys_status_t"
     },
@@ -12262,6 +12661,7 @@
       "header": "byul/navsys/route_finder/route_finder.h",
       "name": "route_finder_set_start",
       "return_type": "void",
+      "signature": "void route_finder_set_start(route_finder_t* a, const coord_t* start);",
       "return_form": "void_fallible_operation",
       "canonical": "navsys_status_t"
     },
@@ -12269,6 +12669,7 @@
       "header": "byul/navsys/route_finder/route_finder.h",
       "name": "route_finder_set_goal",
       "return_type": "void",
+      "signature": "void route_finder_set_goal(route_finder_t* a, const coord_t* goal);",
       "return_form": "void_fallible_operation",
       "canonical": "navsys_status_t"
     },
@@ -12276,6 +12677,7 @@
       "header": "byul/navsys/route_finder/route_finder.h",
       "name": "route_finder_get_navgrid",
       "return_type": "const navgrid_t*",
+      "signature": "const navgrid_t* route_finder_get_navgrid(const route_finder_t* a);",
       "return_form": "nullable_pointer",
       "canonical": "status return plus typed out pointer"
     },
@@ -12283,6 +12685,7 @@
       "header": "byul/navsys/route_finder/route_finder.h",
       "name": "route_finder_fetch_start",
       "return_type": "int",
+      "signature": "int route_finder_fetch_start(const route_finder_t* a, coord_t* out);",
       "return_form": "int_zero_nonzero_status",
       "canonical": "navsys_status_t"
     },
@@ -12290,6 +12693,7 @@
       "header": "byul/navsys/route_finder/route_finder.h",
       "name": "route_finder_fetch_goal",
       "return_type": "int",
+      "signature": "int route_finder_fetch_goal(const route_finder_t* a, coord_t* out);",
       "return_form": "int_zero_nonzero_status",
       "canonical": "navsys_status_t"
     },
@@ -12297,6 +12701,7 @@
       "header": "byul/navsys/route_finder/route_finder.h",
       "name": "route_finder_set_type",
       "return_type": "void",
+      "signature": "void route_finder_set_type( route_finder_t* a, route_finder_type_t type);",
       "return_form": "void_fallible_operation",
       "canonical": "navsys_status_t"
     },
@@ -12304,6 +12709,7 @@
       "header": "byul/navsys/route_finder/route_finder.h",
       "name": "route_finder_get_type",
       "return_type": "route_finder_type_t",
+      "signature": "route_finder_type_t route_finder_get_type(const route_finder_t* a);",
       "return_form": "enum_result",
       "canonical": "navsys_status_t plus typed out enum"
     },
@@ -12311,6 +12717,7 @@
       "header": "byul/navsys/route_finder/route_finder.h",
       "name": "route_finder_set_type_checked",
       "return_type": "navsys_status_t",
+      "signature": "navsys_status_t route_finder_set_type_checked( route_finder_t* finder, route_finder_type_t type);",
       "return_form": "enum_result",
       "canonical": "navsys_status_t plus typed out enum"
     },
@@ -12318,6 +12725,7 @@
       "header": "byul/navsys/route_finder/route_finder.h",
       "name": "route_finder_set_typedata",
       "return_type": "void",
+      "signature": "void route_finder_set_typedata( route_finder_t* a, void* typedata);",
       "return_form": "void_fallible_operation",
       "canonical": "navsys_status_t"
     },
@@ -12325,6 +12733,7 @@
       "header": "byul/navsys/route_finder/route_finder.h",
       "name": "route_finder_get_typedata",
       "return_type": "void*",
+      "signature": "void* route_finder_get_typedata(const route_finder_t* a);",
       "return_form": "nullable_pointer",
       "canonical": "status return plus typed out pointer"
     },
@@ -12332,6 +12741,7 @@
       "header": "byul/navsys/route_finder/route_finder.h",
       "name": "route_finder_bind_fringe_search_config",
       "return_type": "navsys_status_t",
+      "signature": "navsys_status_t route_finder_bind_fringe_search_config( route_finder_t* finder, const route_finder_fringe_search_config_t* config);",
       "return_form": "enum_result",
       "canonical": "navsys_status_t plus typed out enum"
     },
@@ -12339,6 +12749,7 @@
       "header": "byul/navsys/route_finder/route_finder.h",
       "name": "route_finder_bind_rta_star_config",
       "return_type": "navsys_status_t",
+      "signature": "navsys_status_t route_finder_bind_rta_star_config( route_finder_t* finder, const route_finder_rta_star_config_t* config);",
       "return_form": "enum_result",
       "canonical": "navsys_status_t plus typed out enum"
     },
@@ -12346,6 +12757,7 @@
       "header": "byul/navsys/route_finder/route_finder.h",
       "name": "route_finder_bind_sma_star_config",
       "return_type": "navsys_status_t",
+      "signature": "navsys_status_t route_finder_bind_sma_star_config( route_finder_t* finder, const route_finder_sma_star_config_t* config);",
       "return_form": "enum_result",
       "canonical": "navsys_status_t plus typed out enum"
     },
@@ -12353,6 +12765,7 @@
       "header": "byul/navsys/route_finder/route_finder.h",
       "name": "route_finder_bind_weighted_astar_config",
       "return_type": "navsys_status_t",
+      "signature": "navsys_status_t route_finder_bind_weighted_astar_config( route_finder_t* finder, const route_finder_weighted_astar_config_t* config);",
       "return_form": "enum_result",
       "canonical": "navsys_status_t plus typed out enum"
     },
@@ -12360,6 +12773,7 @@
       "header": "byul/navsys/route_finder/route_finder.h",
       "name": "route_finder_unbind_algorithm_config",
       "return_type": "navsys_status_t",
+      "signature": "navsys_status_t route_finder_unbind_algorithm_config( route_finder_t* finder);",
       "return_form": "enum_result",
       "canonical": "navsys_status_t plus typed out enum"
     },
@@ -12367,6 +12781,7 @@
       "header": "byul/navsys/route_finder/route_finder.h",
       "name": "route_finder_set_max_retry",
       "return_type": "void",
+      "signature": "void route_finder_set_max_retry(route_finder_t* a, int max_retry);",
       "return_form": "void_fallible_operation",
       "canonical": "navsys_status_t"
     },
@@ -12374,6 +12789,7 @@
       "header": "byul/navsys/route_finder/route_finder.h",
       "name": "route_finder_get_max_retry",
       "return_type": "int",
+      "signature": "int route_finder_get_max_retry(route_finder_t* a);",
       "return_form": "int_zero_nonzero_status",
       "canonical": "navsys_status_t"
     },
@@ -12381,6 +12797,7 @@
       "header": "byul/navsys/route_finder/route_finder.h",
       "name": "route_finder_set_max_retry_checked",
       "return_type": "navsys_status_t",
+      "signature": "navsys_status_t route_finder_set_max_retry_checked( route_finder_t* finder, int max_retry);",
       "return_form": "enum_result",
       "canonical": "navsys_status_t plus typed out enum"
     },
@@ -12388,6 +12805,7 @@
       "header": "byul/navsys/route_finder/route_finder.h",
       "name": "route_finder_enable_debug_mode",
       "return_type": "void",
+      "signature": "void route_finder_enable_debug_mode( route_finder_t* a, bool is_logging);",
       "return_form": "void_fallible_operation",
       "canonical": "navsys_status_t"
     },
@@ -12395,6 +12813,7 @@
       "header": "byul/navsys/route_finder/route_finder.h",
       "name": "route_finder_is_debug_mode_enabled",
       "return_type": "bool",
+      "signature": "bool route_finder_is_debug_mode_enabled(route_finder_t* a);",
       "return_form": "bool_predicate",
       "canonical": "keep bool when evaluation itself cannot fail"
     },
@@ -12402,6 +12821,7 @@
       "header": "byul/navsys/route_finder/route_finder.h",
       "name": "route_finder_set_cost_func",
       "return_type": "void",
+      "signature": "void route_finder_set_cost_func( route_finder_t* a, cost_func cost_fn);",
       "return_form": "void_fallible_operation",
       "canonical": "navsys_status_t"
     },
@@ -12409,6 +12829,7 @@
       "header": "byul/navsys/route_finder/route_finder.h",
       "name": "route_finder_get_cost_func",
       "return_type": "cost_func",
+      "signature": "cost_func route_finder_get_cost_func(route_finder_t* a);",
       "return_form": "enum_result",
       "canonical": "navsys_status_t plus typed out enum"
     },
@@ -12416,6 +12837,7 @@
       "header": "byul/navsys/route_finder/route_finder.h",
       "name": "route_finder_set_cost_fn_userdata",
       "return_type": "void",
+      "signature": "void route_finder_set_cost_fn_userdata( route_finder_t* a, void* cost_fn_userdata);",
       "return_form": "void_fallible_operation",
       "canonical": "navsys_status_t"
     },
@@ -12423,6 +12845,7 @@
       "header": "byul/navsys/route_finder/route_finder.h",
       "name": "route_finder_get_cost_fn_userdata",
       "return_type": "void*",
+      "signature": "void* route_finder_get_cost_fn_userdata(const route_finder_t* a);",
       "return_form": "nullable_pointer",
       "canonical": "status return plus typed out pointer"
     },
@@ -12430,6 +12853,7 @@
       "header": "byul/navsys/route_finder/route_finder.h",
       "name": "route_finder_set_heuristic_func",
       "return_type": "void",
+      "signature": "void route_finder_set_heuristic_func( route_finder_t* a, heuristic_func heuristic_fn);",
       "return_form": "void_fallible_operation",
       "canonical": "navsys_status_t"
     },
@@ -12437,6 +12861,7 @@
       "header": "byul/navsys/route_finder/route_finder.h",
       "name": "route_finder_get_heuristic_func",
       "return_type": "heuristic_func",
+      "signature": "heuristic_func route_finder_get_heuristic_func(route_finder_t* a);",
       "return_form": "enum_result",
       "canonical": "navsys_status_t plus typed out enum"
     },
@@ -12444,6 +12869,7 @@
       "header": "byul/navsys/route_finder/route_finder.h",
       "name": "route_finder_set_heuristic_fn_userdata",
       "return_type": "void",
+      "signature": "void route_finder_set_heuristic_fn_userdata( route_finder_t* a, void* heuristic_fn_userdata);",
       "return_form": "void_fallible_operation",
       "canonical": "navsys_status_t"
     },
@@ -12451,6 +12877,7 @@
       "header": "byul/navsys/route_finder/route_finder.h",
       "name": "route_finder_get_heuristic_fn_userdata",
       "return_type": "void*",
+      "signature": "void* route_finder_get_heuristic_fn_userdata( const route_finder_t* a);",
       "return_form": "nullable_pointer",
       "canonical": "status return plus typed out pointer"
     },
@@ -12458,6 +12885,7 @@
       "header": "byul/navsys/route_finder/route_finder.h",
       "name": "route_finder_bind_cost_func",
       "return_type": "navsys_status_t",
+      "signature": "navsys_status_t route_finder_bind_cost_func( route_finder_t* finder, cost_func fn, void* userdata);",
       "return_form": "enum_result",
       "canonical": "navsys_status_t plus typed out enum"
     },
@@ -12465,6 +12893,7 @@
       "header": "byul/navsys/route_finder/route_finder.h",
       "name": "route_finder_unbind_cost_func",
       "return_type": "navsys_status_t",
+      "signature": "navsys_status_t route_finder_unbind_cost_func( route_finder_t* finder);",
       "return_form": "enum_result",
       "canonical": "navsys_status_t plus typed out enum"
     },
@@ -12472,6 +12901,7 @@
       "header": "byul/navsys/route_finder/route_finder.h",
       "name": "route_finder_bind_heuristic_func",
       "return_type": "navsys_status_t",
+      "signature": "navsys_status_t route_finder_bind_heuristic_func( route_finder_t* finder, heuristic_func fn, void* userdata);",
       "return_form": "enum_result",
       "canonical": "navsys_status_t plus typed out enum"
     },
@@ -12479,6 +12909,7 @@
       "header": "byul/navsys/route_finder/route_finder.h",
       "name": "route_finder_unbind_heuristic_func",
       "return_type": "navsys_status_t",
+      "signature": "navsys_status_t route_finder_unbind_heuristic_func( route_finder_t* finder);",
       "return_form": "enum_result",
       "canonical": "navsys_status_t plus typed out enum"
     },
@@ -12486,6 +12917,7 @@
       "header": "byul/navsys/route_finder/route_finder.h",
       "name": "route_finder_clear",
       "return_type": "void",
+      "signature": "void route_finder_clear(route_finder_t* a);",
       "return_form": "void_fallible_operation",
       "canonical": "navsys_status_t"
     },
@@ -12493,6 +12925,7 @@
       "header": "byul/navsys/route_finder/route_finder.h",
       "name": "route_finder_set_defaults",
       "return_type": "void",
+      "signature": "void route_finder_set_defaults(route_finder_t* a);",
       "return_form": "void_fallible_operation",
       "canonical": "navsys_status_t"
     },
@@ -12500,6 +12933,7 @@
       "header": "byul/navsys/route_finder/route_finder.h",
       "name": "route_finder_is_valid",
       "return_type": "bool",
+      "signature": "bool route_finder_is_valid(const route_finder_t* a);",
       "return_form": "bool_predicate",
       "canonical": "keep bool when evaluation itself cannot fail"
     },
@@ -12507,6 +12941,7 @@
       "header": "byul/navsys/route_finder/route_finder.h",
       "name": "route_finder_print",
       "return_type": "void",
+      "signature": "void route_finder_print(const route_finder_t* a);",
       "return_form": "void_fallible_operation",
       "canonical": "navsys_status_t"
     },
@@ -12514,6 +12949,7 @@
       "header": "byul/navsys/route_finder/route_finder.h",
       "name": "route_finder_run",
       "return_type": "route_t*",
+      "signature": "route_t* route_finder_run(route_finder_t* a);",
       "return_form": "nullable_pointer",
       "canonical": "status return plus typed out pointer"
     },
@@ -12521,6 +12957,7 @@
       "header": "byul/navsys/route_finder/route_finder.h",
       "name": "route_finder_run_ex",
       "return_type": "navsys_status_t",
+      "signature": "navsys_status_t route_finder_run_ex( route_finder_t* finder, route_t** out_route, route_finder_run_stats_t* out_stats);",
       "return_form": "enum_result",
       "canonical": "navsys_status_t plus typed out enum"
     },
@@ -12528,6 +12965,7 @@
       "header": "byul/navsys/route_finder/route_finder.h",
       "name": "route_finder_run_with_options",
       "return_type": "navsys_status_t",
+      "signature": "navsys_status_t route_finder_run_with_options( route_finder_t* finder, const route_finder_run_options_t* options, route_t** out_route, route_finder_run_stats_t* out_stats);",
       "return_form": "enum_result",
       "canonical": "navsys_status_t plus typed out enum"
     },
@@ -12535,6 +12973,7 @@
       "header": "byul/navsys/route_finder/route_finder_core.h",
       "name": "default_cost",
       "return_type": "float",
+      "signature": "float default_cost( const navgrid_t*, const coord_t*, const coord_t*, void*);",
       "return_form": "floating_result",
       "canonical": "navsys_status_t plus typed out scalar"
     },
@@ -12542,6 +12981,7 @@
       "header": "byul/navsys/route_finder/route_finder_core.h",
       "name": "zero_cost",
       "return_type": "float",
+      "signature": "float zero_cost(const navgrid_t*, const coord_t*, const coord_t*, void*);",
       "return_form": "floating_result",
       "canonical": "navsys_status_t plus typed out scalar"
     },
@@ -12549,6 +12989,7 @@
       "header": "byul/navsys/route_finder/route_finder_core.h",
       "name": "diagonal_cost",
       "return_type": "float",
+      "signature": "float diagonal_cost( const navgrid_t*, const coord_t*, const coord_t*, void*);",
       "return_form": "floating_result",
       "canonical": "navsys_status_t plus typed out scalar"
     },
@@ -12556,6 +12997,7 @@
       "header": "byul/navsys/route_finder/route_finder_core.h",
       "name": "euclidean_heuristic",
       "return_type": "float",
+      "signature": "float euclidean_heuristic(const coord_t*, const coord_t*, void*);",
       "return_form": "floating_result",
       "canonical": "navsys_status_t plus typed out scalar"
     },
@@ -12563,6 +13005,7 @@
       "header": "byul/navsys/route_finder/route_finder_core.h",
       "name": "manhattan_heuristic",
       "return_type": "float",
+      "signature": "float manhattan_heuristic(const coord_t*, const coord_t*, void*);",
       "return_form": "floating_result",
       "canonical": "navsys_status_t plus typed out scalar"
     },
@@ -12570,6 +13013,7 @@
       "header": "byul/navsys/route_finder/route_finder_core.h",
       "name": "chebyshev_heuristic",
       "return_type": "float",
+      "signature": "float chebyshev_heuristic(const coord_t*, const coord_t*, void*);",
       "return_form": "floating_result",
       "canonical": "navsys_status_t plus typed out scalar"
     },
@@ -12577,6 +13021,7 @@
       "header": "byul/navsys/route_finder/route_finder_core.h",
       "name": "octile_heuristic",
       "return_type": "float",
+      "signature": "float octile_heuristic(const coord_t*, const coord_t*, void*);",
       "return_form": "floating_result",
       "canonical": "navsys_status_t plus typed out scalar"
     },
@@ -12584,6 +13029,7 @@
       "header": "byul/navsys/route_finder/route_finder_core.h",
       "name": "zero_heuristic",
       "return_type": "float",
+      "signature": "float zero_heuristic(const coord_t*, const coord_t*, void*);",
       "return_form": "floating_result",
       "canonical": "navsys_status_t plus typed out scalar"
     },
@@ -12591,6 +13037,7 @@
       "header": "byul/navsys/route_finder/route_finder_core.h",
       "name": "default_heuristic",
       "return_type": "float",
+      "signature": "float default_heuristic(const coord_t*, const coord_t*, void*);",
       "return_form": "floating_result",
       "canonical": "navsys_status_t plus typed out scalar"
     },
@@ -12598,6 +13045,7 @@
       "header": "byul/navsys/route_finder/rta_star.h",
       "name": "rta_star_config_create",
       "return_type": "rta_star_config",
+      "signature": "rta_star_config rta_star_config_create();",
       "return_form": "enum_result",
       "canonical": "navsys_status_t plus typed out enum"
     },
@@ -12605,6 +13053,7 @@
       "header": "byul/navsys/route_finder/rta_star.h",
       "name": "rta_star_config_create_full",
       "return_type": "rta_star_config",
+      "signature": "rta_star_config rta_star_config_create_full(int depth_limit);",
       "return_form": "enum_result",
       "canonical": "navsys_status_t plus typed out enum"
     },
@@ -12612,6 +13061,7 @@
       "header": "byul/navsys/route_finder/rta_star.h",
       "name": "rta_star_config_destroy",
       "return_type": "void",
+      "signature": "void rta_star_config_destroy(rta_star_config cfg);",
       "return_form": "void_fallible_operation",
       "canonical": "navsys_status_t"
     },
@@ -12619,6 +13069,7 @@
       "header": "byul/navsys/route_finder/rta_star.h",
       "name": "find_rta_star",
       "return_type": "route_t*",
+      "signature": "route_t* find_rta_star(const navgrid_t* m, const coord_t* start, const coord_t* goal, cost_func cost_fn, heuristic_func heuristic_fn, int depth_limit, int max_retry, bool debug_mode_enabled);",
       "return_form": "nullable_pointer",
       "canonical": "status return plus typed out pointer"
     },
@@ -12626,6 +13077,7 @@
       "header": "byul/navsys/route_finder/sma_star.h",
       "name": "find_sma_star",
       "return_type": "route_t*",
+      "signature": "route_t* find_sma_star(const navgrid_t* m, const coord_t* start, const coord_t* goal, cost_func cost_fn, heuristic_func heuristic_fn, int memory_limit, int max_retry, bool debug_mode_enabled);",
       "return_form": "nullable_pointer",
       "canonical": "status return plus typed out pointer"
     },
@@ -12633,6 +13085,7 @@
       "header": "byul/navsys/route_finder/weighted_astar.h",
       "name": "find_weighted_astar",
       "return_type": "route_t*",
+      "signature": "route_t* find_weighted_astar(const navgrid_t* m, const coord_t* start, const coord_t* goal, cost_func cost_fn, heuristic_func heuristic_fn, float weight, int max_retry, bool debug_mode_enabled);",
       "return_form": "nullable_pointer",
       "canonical": "status return plus typed out pointer"
     }

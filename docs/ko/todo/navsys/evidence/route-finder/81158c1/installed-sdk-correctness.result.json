@@ -1,0 +1,46 @@
+{
+  "schema_version": 1,
+  "evidence_kind": "route-finder-installed-sdk-correctness",
+  "revision": "81158c1c25ca3e8c25c1f25fb695433a6e1b7b2f",
+  "header": "byul/navsys/route_finder/route_finder.h",
+  "consumer_source": "byul/tests/sdk_consumer/main.c",
+  "correctness_gates": [
+    "route-finder capability query",
+    "successful route-finder run and completion stats",
+    "route coordinate and result metadata fetch",
+    "call-scoped cancellation",
+    "callback and algorithm-config binding lifecycle"
+  ],
+  "executions": {
+    "msvc": {
+      "generator": "Visual Studio 17 2022",
+      "c_compiler": "MSVC 19.44.35214.0",
+      "configuration": "Release",
+      "install_prefix": "build_navsys_sdk_81158c1_msvc/install",
+      "installed_runtime": "build_navsys_sdk_81158c1_msvc/install/bin/byul.dll",
+      "installed_import_library": "build_navsys_sdk_81158c1_msvc/install/lib/byul/byul.lib",
+      "consumer_executable": "build_navsys_sdk_consumer_81158c1_msvc/Release/byul_sdk_consumer.exe",
+      "exit_code": 0,
+      "stdout": "byul version 1.0.0.0 (1000)",
+      "status": "passed"
+    },
+    "mingw": {
+      "generator": "MinGW Makefiles",
+      "c_compiler": "GNU 16.1.0",
+      "configuration": "Release",
+      "install_prefix": "build_navsys_sdk_81158c1_mingw/install",
+      "installed_runtime": "build_navsys_sdk_81158c1_mingw/install/bin/libbyul.dll",
+      "installed_import_library": "build_navsys_sdk_81158c1_mingw/install/lib/byul/libbyul.dll.a",
+      "runtime_path_prepend": "build_navsys_sdk_81158c1_mingw/install/bin",
+      "consumer_executable": "build_navsys_sdk_consumer_81158c1_mingw/byul_sdk_consumer.exe",
+      "exit_code": 0,
+      "stdout": "byul version 1.0.0.0 (1000)",
+      "status": "passed"
+    }
+  },
+  "limitations": [
+    "The installed SDK consumer combines correctness and ABI checks; these records claim only the five route-finder correctness gates.",
+    "The MinGW consumer build emits an existing s_environ parameter-list declaration warning and was not compiled with -Werror.",
+    "Windows sanitizer instrumentation was not applied."
+  ]
+}

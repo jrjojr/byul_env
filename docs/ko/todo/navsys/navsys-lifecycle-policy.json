@@ -93,6 +93,13 @@
       "route_termination": "route_destroy",
       "legacy_run": "forwards-to-run-ex-and-preserves-null-on-runtime-failure",
       "limit": "positive-max-retry-required",
+      "limit_model": {
+        "expansion": "deterministic-positive-max-retry",
+        "memory": "typed-sma-star-node-limit-only-in-abi-1",
+        "general_workspace": "deferred-to-abi-2-bound-allocator-and-caller-storage",
+        "wall_clock": "not-part-of-abi-1-use-call-scoped-cancellation",
+        "deadline_clock_injection": "required-before-adding-a-time-limit"
+      },
       "cancellation": "call-scoped-cooperative-polling",
       "cancel_polling": "before-each-expansion-and-during-unbounded-reconstruction",
       "cancel_output": "caller-owned-partial-route-and-value-stats-when-produced",

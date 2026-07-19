@@ -1,0 +1,207 @@
+{
+  "schema_version": 1,
+  "source_inventory": "docs/ko/todo/navsys/navsys-current-abi-inventory.json",
+  "coverage": {
+    "headers": 46,
+    "owner_todos": 44,
+    "child_owner_todos": 43,
+    "baseline_owner": "docs/ko/todo/navsys/todo-navsys-industry-api-baseline.org"
+  },
+  "categories": {
+    "correctness": {
+      "verdict_source": "logical assertions and failure-injection outcomes",
+      "must_not_use": [
+        "abi-fingerprint-only",
+        "wall-clock-only"
+      ]
+    },
+    "abi": {
+      "verdict_source": "header signature, layout, export, wrapper and install checks",
+      "must_not_use": [
+        "correctness-test-count-only",
+        "benchmark-only"
+      ]
+    },
+    "performance": {
+      "verdict_source": "deterministic work budget or explicitly labeled timing benchmark",
+      "must_not_use": [
+        "correctness-pass",
+        "abi-pass"
+      ]
+    }
+  },
+  "layers": {
+    "module_static": {
+      "categories": [
+        "correctness",
+        "performance"
+      ],
+      "command_templates": [
+        [
+          "cmake",
+          "--build",
+          "<build-dir>",
+          "--target",
+          "<module-test-target>",
+          "--config",
+          "<config>"
+        ],
+        [
+          "<build-dir>/<bin-dir>/<module-test-executable>"
+        ],
+        [
+          "<ctest>",
+          "--test-dir",
+          "<build-dir>",
+          "-C",
+          "<config>",
+          "-R",
+          "<test-regex>",
+          "--output-on-failure"
+        ],
+        [
+          "<ctest>",
+          "--test-dir",
+          "<build-dir>",
+          "-R",
+          "<test-regex>",
+          "--output-on-failure"
+        ],
+        [
+          "<python>",
+          "-m",
+          "pytest",
+          "tools/tests/<test-file>",
+          "-q"
+        ],
+        [
+          "<build-dir>/<bin-dir>/<module-test-executable>",
+          "<test-arguments>"
+        ]
+      ]
+    },
+    "root_shared": {
+      "categories": [
+        "correctness",
+        "abi",
+        "performance"
+      ],
+      "command_templates": [
+        [
+          "cmake",
+          "--build",
+          "<build-dir>",
+          "--target",
+          "byul",
+          "--config",
+          "<config>"
+        ],
+        [
+          "<python>",
+          "tools/header_abi_audit.py"
+        ],
+        [
+          "<python>",
+          "tools/header_abi_audit.py",
+          "--build-snapshot",
+          "<build-snapshot>"
+        ],
+        [
+          "<build-dir>/<bin-dir>/<root-test-executable>"
+        ]
+      ]
+    },
+    "wrapper": {
+      "categories": [
+        "correctness",
+        "abi"
+      ],
+      "command_templates": [
+        [
+          "<python>",
+          "tools/python/byul_wrapper/generate_wrapper_abi.py",
+          "--check"
+        ],
+        [
+          "<python>",
+          "tools/python/byul_wrapper/run_tests.py",
+          "--library",
+          "<shared-library>"
+        ],
+        [
+          "<python>",
+          "tools/python/byul_wrapper/run_tests.py",
+          "--library",
+          "<shared-library>",
+          "--quiet"
+        ]
+      ]
+    },
+    "installed_sdk": {
+      "categories": [
+        "correctness",
+        "abi"
+      ],
+      "command_templates": [
+        [
+          "cmake",
+          "-S",
+          "byul/tests/sdk_consumer",
+          "-B",
+          "<consumer-build-dir>",
+          "-DBYUL_SDK_ROOT=<clean-install-prefix>"
+        ],
+        [
+          "cmake",
+          "--build",
+          "<consumer-build-dir>",
+          "--config",
+          "<config>"
+        ],
+        [
+          "<consumer-build-dir>/<bin-dir>/<consumer-executable>"
+        ],
+        [
+          "powershell",
+          "-NoProfile",
+          "-Command",
+          "$env:PATH=(Resolve-Path '<runtime-bin>').Path + ';' + $env:PATH; & <consumer-executable>"
+        ]
+      ]
+    }
+  },
+  "record_schema": {
+    "artifact_root": "docs/ko/todo/navsys/evidence",
+    "required_fields": [
+      "header",
+      "owner_todo",
+      "category",
+      "layer",
+      "revision",
+      "host",
+      "target",
+      "toolchain",
+      "configuration",
+      "command",
+      "artifacts",
+      "verdict",
+      "assertions",
+      "limitations"
+    ],
+    "verdicts": [
+      "pass",
+      "fail",
+      "not-run",
+      "not-applicable"
+    ],
+    "rules": [
+      "pass-requires-artifact",
+      "fail-requires-artifact",
+      "not-run-requires-limitation",
+      "not-applicable-requires-limitation",
+      "artifact-paths-are-repository-relative",
+      "category-and-layer-must-be-compatible",
+      "owner-todo-must-match-inventory"
+    ]
+  }
+}

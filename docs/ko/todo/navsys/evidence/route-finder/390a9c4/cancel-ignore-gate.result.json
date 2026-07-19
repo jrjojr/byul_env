@@ -1,0 +1,45 @@
+{
+  "schema_version": 1,
+  "evidence_kind": "route-finder-cancel-ignore-negative-gate",
+  "revision": "390a9c49e6ef2c83bb1e1ff675be7aad6b0c10e9",
+  "header": "byul/navsys/route_finder/route_finder.h",
+  "source_audit": {
+    "tool": "tools/navsys_cancellation_audit.py",
+    "test": "tools/tests/test_navsys_cancellation_audit.py",
+    "algorithms": 11,
+    "polling_points": 14,
+    "mutation_tests": 3,
+    "mutation_tests_passed": 3,
+    "detected_mutations": [
+      "A* cancellation polling replaced with an unconditional true condition",
+      "weighted A* algorithm source removed"
+    ],
+    "status": "passed"
+  },
+  "runtime_executions": {
+    "msvc": {
+      "executable": "build_win_msvc/bin/Release/test_route_finder.exe",
+      "test_case": "run options cooperatively cancel every dispatcher algorithm",
+      "test_cases": 1,
+      "assertions": 140,
+      "failed_assertions": 0,
+      "exit_code": 0,
+      "status": "passed"
+    },
+    "mingw": {
+      "executable": "build_header_refactor_mingw/bin/test_route_finder.exe",
+      "runtime_path": "C:/msys64/mingw64/bin",
+      "test_case": "run options cooperatively cancel every dispatcher algorithm",
+      "test_cases": 1,
+      "assertions": 140,
+      "failed_assertions": 0,
+      "exit_code": 0,
+      "status": "passed"
+    }
+  },
+  "limitations": [
+    "The source audit uses approved exact polling-point counts and requires review if cancellation is refactored without reducing behavior.",
+    "The runtime fixture requests immediate cancellation for all 11 dispatcher algorithms; it does not establish a wall-clock cancellation latency bound.",
+    "Windows sanitizer instrumentation was not applied."
+  ]
+}

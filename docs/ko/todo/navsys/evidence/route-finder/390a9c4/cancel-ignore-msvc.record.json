@@ -1,0 +1,24 @@
+{
+  "header": "byul/navsys/route_finder/route_finder.h",
+  "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-finder-route-finder.org",
+  "category": "correctness",
+  "layer": "module_static",
+  "revision": "390a9c49e6ef2c83bb1e1ff675be7aad6b0c10e9",
+  "host": "windows-11-x64",
+  "target": "windows-x64",
+  "toolchain": "msvc-19.44.35214.0",
+  "configuration": "Release",
+  "command": [
+    "build_win_msvc/bin/Release/test_route_finder.exe",
+    "--test-case=run options cooperatively cancel every dispatcher algorithm"
+  ],
+  "artifacts": [
+    "docs/ko/todo/navsys/evidence/route-finder/390a9c4/cancel-ignore-gate.result.json"
+  ],
+  "verdict": "pass",
+  "assertions": 140,
+  "limitations": [
+    "This fixture requests immediate cancellation for all 11 dispatcher algorithms; it does not establish a wall-clock latency bound.",
+    "Windows sanitizer instrumentation was not applied."
+  ]
+}

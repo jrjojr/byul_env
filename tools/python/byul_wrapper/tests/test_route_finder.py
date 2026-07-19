@@ -2,6 +2,7 @@ import unittest
 
 from byul_wrapper.coord import c_coord
 from byul_wrapper.navgrid import c_navgrid, NavgridDirMode
+from byul_wrapper.route import RouteCompletion
 from byul_wrapper.route_finder import c_route_finder, RouteFinderType
 from byul_wrapper.navsys_status import NavsysStatus
 from byul_wrapper.console import c_console
@@ -95,6 +96,8 @@ class TestRouteFinder(unittest.TestCase):
         self.assertTrue(stats.complete)
         self.assertFalse(stats.partial)
         self.assertEqual(route.length(), stats.route_length)
+        self.assertEqual(RouteCompletion.COMPLETE, route.completion())
+        self.assertAlmostEqual(stats.route_cost, route.total_cost())
         route.close()
 
         self.route_finder.set_max_retry(1)
@@ -102,6 +105,13 @@ class TestRouteFinder(unittest.TestCase):
         self.assertEqual(NavsysStatus.LIMIT_REACHED, status)
         self.assertIsNotNone(route)
         self.assertFalse(stats.complete)
+        expected = (
+            RouteCompletion.PARTIAL
+            if stats.partial
+            else RouteCompletion.NONE
+        )
+        self.assertEqual(expected, route.completion())
+        self.assertAlmostEqual(stats.route_cost, route.total_cost())
         route.close()
 
         with self.assertRaises(ValueError):
@@ -124,6 +134,13 @@ class TestRouteFinder(unittest.TestCase):
         self.assertIsNotNone(route)
         self.assertFalse(stats.complete)
         self.assertEqual(route.length(), stats.route_length)
+        expected = (
+            RouteCompletion.PARTIAL
+            if stats.partial
+            else RouteCompletion.NONE
+        )
+        self.assertEqual(expected, route.completion())
+        self.assertAlmostEqual(stats.route_cost, route.total_cost())
         route.close()
 
         def fail_cancel():
