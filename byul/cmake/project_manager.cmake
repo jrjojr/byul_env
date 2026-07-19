@@ -55,6 +55,44 @@ function(byul_extract_header_dirs out_var)
     set(${out_var} "${dirs}" PARENT_SCOPE)
 endfunction()
 
+# Fail configuration when one module's canonical source/header inventory is
+# not aggregated as the same exact set in the root shared target inventory.
+function(byul_assert_module_inventory
+    module_name module_dir root_sources_var root_headers_var)
+    file(TO_CMAKE_PATH "${module_dir}" normalized_module_dir)
+
+    foreach(kind IN ITEMS SOURCES HEADERS)
+        set(module_var "${module_name}_${kind}")
+        if(kind STREQUAL "SOURCES")
+            set(root_var "${root_sources_var}")
+        else()
+            set(root_var "${root_headers_var}")
+        endif()
+        set(expected ${${module_var}})
+        set(actual "")
+
+        foreach(path IN LISTS ${root_var})
+            file(TO_CMAKE_PATH "${path}" normalized_path)
+            string(FIND
+                "${normalized_path}"
+                "${normalized_module_dir}/"
+                module_prefix)
+            if(module_prefix EQUAL 0)
+                list(APPEND actual "${path}")
+            endif()
+        endforeach()
+
+        list(SORT expected)
+        list(SORT actual)
+        if(NOT "${expected}" STREQUAL "${actual}")
+            message(FATAL_ERROR
+                "${module_name} ${kind} inventory differs between "
+                "the module target and root shared target.\n"
+                "module: ${expected}\nroot: ${actual}")
+        endif()
+    endforeach()
+endfunction()
+
 # ---------------------------------------------------------
 # 플랫폼별 출력 디렉토리
 # ---------------------------------------------------------
@@ -147,17 +185,23 @@ endfunction()
 # install / uninstall / package 공통 처리
 # ---------------------------------------------------------
 function(byul_install_target target_name)
+    cmake_parse_arguments(BYUL_INSTALL "" "COMPONENT" "" ${ARGN})
+    set(component_args "")
+    if(BYUL_INSTALL_COMPONENT)
+        set(component_args COMPONENT "${BYUL_INSTALL_COMPONENT}")
+    endif()
+
     if(WIN32)
         install(TARGETS ${target_name}
-            RUNTIME DESTINATION bin
-            LIBRARY DESTINATION bin
-            ARCHIVE DESTINATION lib/${target_name}
+            RUNTIME DESTINATION bin ${component_args}
+            LIBRARY DESTINATION bin ${component_args}
+            ARCHIVE DESTINATION lib/${target_name} ${component_args}
         )
     else()
         install(TARGETS ${target_name}
-            RUNTIME DESTINATION bin
-            LIBRARY DESTINATION lib
-            ARCHIVE DESTINATION lib/${target_name}
+            RUNTIME DESTINATION bin ${component_args}
+            LIBRARY DESTINATION lib ${component_args}
+            ARCHIVE DESTINATION lib/${target_name} ${component_args}
         )
     endif()
 endfunction()
@@ -172,6 +216,7 @@ function(byul_add_uninstall_target template_file)
 endfunction()
 
 function(byul_copy_mingw_runtime target_name out_var)
+    cmake_parse_arguments(BYUL_RUNTIME "" "COMPONENT" "" ${ARGN})
     if(NOT MSVC AND DEFINED MINGW_DLL_PATH)
         add_custom_command(TARGET ${target_name} POST_BUILD
             COMMAND ${CMAKE_COMMAND} -E copy_if_different
@@ -190,7 +235,14 @@ function(byul_copy_mingw_runtime target_name out_var)
             ${CMAKE_BINARY_DIR}/bin/libgcc_s_seh-1.dll
             ${CMAKE_BINARY_DIR}/bin/libwinpthread-1.dll
         )
-        install(FILES ${runtime_files} DESTINATION bin)
+        if(BYUL_RUNTIME_COMPONENT)
+            install(FILES ${runtime_files}
+                DESTINATION bin
+                COMPONENT "${BYUL_RUNTIME_COMPONENT}"
+            )
+        else()
+            install(FILES ${runtime_files} DESTINATION bin)
+        endif()
         set(${out_var} "${runtime_files}" PARENT_SCOPE)
     else()
         set(${out_var} "" PARENT_SCOPE)

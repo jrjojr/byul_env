@@ -4,6 +4,7 @@
 #include <string.h>
 
 #include "byul.h"
+#include "coord.h"
 #include "navsys_status.h"
 
 static bool cancel_immediately(void* userdata) {
@@ -145,6 +146,20 @@ int main(void) {
         || coord_offsetof_y() != offsetof(coord_t, y)) {
         fprintf(stderr, "unexpected coord_t ABI layout\n");
         return 2;
+    }
+    coord_t formatted_coord = {0, 0};
+    size_t required = 0;
+    char formatted[32] = {0};
+    if (coord_init_checked(&formatted_coord, -3, 7) != NAVSYS_STATUS_OK
+        || coord_format(
+            &formatted_coord, NULL, 0, &required) != NAVSYS_STATUS_OK
+        || required != sizeof("(-3, 7)")
+        || coord_format(
+            &formatted_coord, formatted, sizeof(formatted), &required)
+            != NAVSYS_STATUS_OK
+        || strcmp(formatted, "(-3, 7)") != 0) {
+        fprintf(stderr, "unexpected coord checked/format ABI\n");
+        return 8;
     }
     if (!route_finder_is_supported(ROUTE_FINDER_ASTAR)
         || !route_finder_is_supported(ROUTE_FINDER_WEIGHTED_ASTAR)

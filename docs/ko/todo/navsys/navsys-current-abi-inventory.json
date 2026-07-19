@@ -19,11 +19,11 @@
     },
     "unclassified": 0,
     "duplicate_declarations": 1,
-    "audit_issues": 938,
-    "audit_errors": 938,
+    "audit_issues": 934,
+    "audit_errors": 934,
     "audit_codes": {
       "missing-brief": 16,
-      "missing-doxygen": 307,
+      "missing-doxygen": 303,
       "missing-nullable": 161,
       "missing-param": 86,
       "missing-param-direction": 201,
@@ -656,42 +656,6 @@
         "severity": "error",
         "code": "missing-doxygen",
         "symbol": "coord_fetch",
-        "message": "public function has no adjacent Doxygen block",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/coord/coord.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-coord-coord.org",
-        "severity": "error",
-        "code": "missing-doxygen",
-        "symbol": "make_tmp_coord",
-        "message": "public function has no adjacent Doxygen block",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/coord/coord.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-coord-coord.org",
-        "severity": "error",
-        "code": "missing-doxygen",
-        "symbol": "coord_clone_next_to_goal",
-        "message": "public function has no adjacent Doxygen block",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/coord/coord.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-coord-coord.org",
-        "severity": "error",
-        "code": "missing-doxygen",
-        "symbol": "coord_to_string",
-        "message": "public function has no adjacent Doxygen block",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/coord/coord.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-coord-coord.org",
-        "severity": "error",
-        "code": "missing-doxygen",
-        "symbol": "coord_print",
         "message": "public function has no adjacent Doxygen block",
         "disposition": "route-to-owner-child"
       },
@@ -8498,7 +8462,7 @@
       "primary_role": "public-component",
       "wrapper_mode": "generated",
       "symbol_count": 51,
-      "audit_issue_count": 72,
+      "audit_issue_count": 68,
       "symbols": [
         "coord_sizeof",
         "coord_alignof",

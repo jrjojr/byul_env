@@ -1812,8 +1812,8 @@
     {
       "asset_id": "initial:byul/navsys/coord/coord.h",
       "current_path": "byul/navsys/coord/coord.h",
-      "sha256": "2c60db048243118dd194bb506665ba291b21ba124504edef32a884a98caafdce",
-      "line_count": 649,
+      "sha256": "f71f6b2625cea24660821d81e13eaf62eab792651650babcf8135bc064c5f94a",
+      "line_count": 694,
       "language": "c-header",
       "license": "copyright-present-license-unclassified",
       "include_guard": "BYUL_COORD_H",
@@ -1958,7 +1958,8 @@
         "byul/navsys/route_finder/weighted_astar.cpp",
         "byul/navsys/tests/test_module_navsys.cpp",
         "byul/navsys/tests/test_navsys_allocation_failure.cpp",
-        "byul/tests/sdk_consumer/main.c"
+        "byul/tests/sdk_consumer/main.c",
+        "byul/tests/sdk_consumer/main.cpp"
       ],
       "decision_status": "candidate-only"
     },
