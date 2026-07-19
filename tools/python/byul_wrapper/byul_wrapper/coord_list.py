@@ -48,14 +48,32 @@ typedef struct s_coord_list coord_list_t;
     const coord_list_t* list, const coord_t* coord,
     size_t* out_index, bool* out_found);
 
+ navsys_status_t coord_list_reserve(
+    coord_list_t* list, size_t capacity);
+
+ navsys_status_t coord_list_create_slice(
+    const coord_list_t* source, size_t begin, size_t end,
+    coord_list_t** out_list);
+
+ navsys_status_t coord_list_equal(
+    const coord_list_t* a, const coord_list_t* b, bool* out_equal);
+
+ navsys_status_t coord_list_export(
+    const coord_list_t* list, coord_t* out_coords,
+    size_t capacity, size_t* out_count);
+
  coord_list_t* coord_list_create(void);
  void coord_list_destroy(coord_list_t* list);
+
  coord_list_t* coord_list_copy(const coord_list_t* list);
 
  int coord_list_length(const coord_list_t* list);
  bool coord_list_empty(const coord_list_t* list);
+
  const coord_t* coord_list_get(const coord_list_t* list, int index);
+
  const coord_t* coord_list_front(const coord_list_t* list);
+
  const coord_t* coord_list_back(const coord_list_t* list);
 
  int coord_list_push_back(coord_list_t* list, const coord_t* c);
@@ -65,12 +83,15 @@ typedef struct s_coord_list coord_list_t;
  coord_t coord_list_pop_front(coord_list_t* list);
 
  int coord_list_insert(coord_list_t* list, int index, const coord_t* c);
+
  void coord_list_remove_at(coord_list_t* list, int index);
+
  void coord_list_remove_value(coord_list_t* list, const coord_t* c);
  void coord_list_clear(coord_list_t* list);
  void coord_list_reverse(coord_list_t* list);
 
  int  coord_list_contains(const coord_list_t* list, const coord_t* c);
+
  int  coord_list_find(const coord_list_t* list, const coord_t* c);
 
  coord_list_t* coord_list_sublist(const coord_list_t* list, int start, int end);

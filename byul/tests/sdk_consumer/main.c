@@ -374,6 +374,40 @@ int main(void) {
         coord_list_destroy(checked_coords);
         return 15;
     }
+    coord_list_t* checked_slice = NULL;
+    coord_t exported_coords[2] = {{91, 92}, {93, 94}};
+    size_t exported_count = 0;
+    bool checked_equal = false;
+    if (coord_list_reserve(checked_copy, 8) != NAVSYS_STATUS_OK
+        || coord_list_export(
+            checked_copy, NULL, 0, &exported_count) != NAVSYS_STATUS_OK
+        || exported_count != 2
+        || coord_list_export(
+            checked_copy, exported_coords, 1, &exported_count)
+            != NAVSYS_STATUS_INCOMPLETE
+        || exported_count != 2
+        || exported_coords[0].x != 91
+        || exported_coords[0].y != 92
+        || coord_list_create_slice(
+            checked_copy, 0, 2, &checked_slice) != NAVSYS_STATUS_OK
+        || checked_slice == NULL
+        || coord_list_equal(
+            checked_copy, checked_slice, &checked_equal)
+            != NAVSYS_STATUS_OK
+        || !checked_equal
+        || coord_list_export(
+            checked_slice, exported_coords, 2, &exported_count)
+            != NAVSYS_STATUS_OK
+        || exported_count != 2
+        || !coord_equal(&exported_coords[0], &zero_coord)
+        || !coord_equal(&exported_coords[1], &other_coord)) {
+        fprintf(stderr, "unexpected coord list bulk ABI\n");
+        coord_list_destroy(checked_slice);
+        coord_list_destroy(checked_copy);
+        coord_list_destroy(checked_coords);
+        return 16;
+    }
+    coord_list_destroy(checked_slice);
     coord_list_destroy(checked_copy);
     coord_list_destroy(checked_coords);
 

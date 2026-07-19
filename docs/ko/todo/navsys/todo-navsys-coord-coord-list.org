@@ -241,7 +241,7 @@ empty pop은 status 후보를 공통 enum에서 =NOT_FOUND=로 추가할지 =INC
 - 현재 revision의 root shared DLL/import library와 평탄화 설치 헤더를 사용한
   MSVC/MinGW C17/C++17 SDK consumer를 clean link하고 실행했다.
 
-** TODO 3단계: bulk/slice와 legacy forwarding
+** DONE 3단계: bulk/slice와 legacy forwarding
 
 *** 실행
 
@@ -257,6 +257,23 @@ empty pop은 status 후보를 공통 enum에서 =NOT_FOUND=로 추가할지 =INC
 
 - empty/exact/short/oversized export, full/empty slice, 최대 size 경계를 검사한다.
 - old/new source consumer와 export manifest를 비교한다.
+
+*** 완료 기록
+
+- 2026-07-19 =coord_list_reserve/create_slice/equal/export=를 추가했다.
+  Slice는 =[begin,end)=와 empty range를 지원하고, export는 query/exact/oversized
+  caller buffer를 지원하며 short buffer에서 좌표 buffer를 보존하고 필요한 count와
+  =NAVSYS_STATUS_INCOMPLETE=를 반환한다.
+- ABI 1 legacy symbol은 제거하지 않고 migration target을 가진 deprecated adapter로
+  유지했다. create/copy/length/push/insert/pop/remove/find/sublist/equals adapter는
+  canonical 구현을 호출하며 기존 empty pop, borrowed 조회, non-empty legacy sublist
+  의미를 보존한다.
+- MSVC/MinGW static =test_coord=와 root shared DLL을 통과했고 empty/full/invalid
+  slice, equal output 보존, query/short/exact/oversized/empty export를 검증했다.
+  현재 revision의 평탄화 SDK로 legacy와 canonical 호출을 함께 포함한 C17 consumer를
+  MSVC/MinGW에서 clean link하고 실행했다.
+- canonical 4개 선언의 ABI audit 신규 오류는 0건이고 생성물 =--check=, Python
+  policy unit 39개와 MSVC/MinGW DLL wrapper 각 82개가 통과했다.
 
 ** TODO 4단계: wrapper와 통합 검증
 

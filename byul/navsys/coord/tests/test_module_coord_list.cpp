@@ -377,3 +377,119 @@ TEST_CASE("coord_list: checked mutations match deterministic vector reference") 
 
     coord_list_destroy(list);
 }
+
+TEST_CASE("coord_list: canonical slice and equality include empty ranges") {
+    coord_list_t* list = nullptr;
+    REQUIRE(coord_list_create_ex(&list) == NAVSYS_STATUS_OK);
+    const coord_t values[] = {{1, 2}, {3, 4}, {5, 6}};
+    for (const coord_t& value : values) {
+        REQUIRE(
+            coord_list_push_back_ex(list, &value)
+            == NAVSYS_STATUS_OK);
+    }
+
+    coord_list_t* const sentinel = reinterpret_cast<coord_list_t*>(1);
+    coord_list_t* slice = sentinel;
+    CHECK(
+        coord_list_create_slice(list, 2, 1, &slice)
+        == NAVSYS_STATUS_INVALID_ARGUMENT);
+    CHECK(slice == sentinel);
+    CHECK(
+        coord_list_create_slice(list, 0, 4, &slice)
+        == NAVSYS_STATUS_INVALID_ARGUMENT);
+    CHECK(slice == sentinel);
+
+    REQUIRE(
+        coord_list_create_slice(list, 1, 1, &slice)
+        == NAVSYS_STATUS_OK);
+    REQUIRE(slice != nullptr);
+    CHECK(coord_list_size(slice) == 0);
+    bool equal = true;
+    REQUIRE(
+        coord_list_equal(list, slice, &equal)
+        == NAVSYS_STATUS_OK);
+    CHECK_FALSE(equal);
+    coord_list_destroy(slice);
+
+    REQUIRE(
+        coord_list_create_slice(list, 1, 3, &slice)
+        == NAVSYS_STATUS_OK);
+    REQUIRE(coord_list_size(slice) == 2);
+    coord_t fetched = {-1, -1};
+    REQUIRE(coord_list_fetch(slice, 0, &fetched) == NAVSYS_STATUS_OK);
+    CHECK(coord_equal(&fetched, &values[1]));
+
+    coord_list_t* copied = nullptr;
+    REQUIRE(coord_list_copy_ex(slice, &copied) == NAVSYS_STATUS_OK);
+    equal = false;
+    REQUIRE(
+        coord_list_equal(slice, copied, &equal)
+        == NAVSYS_STATUS_OK);
+    CHECK(equal);
+
+    equal = true;
+    CHECK(
+        coord_list_equal(nullptr, copied, &equal)
+        == NAVSYS_STATUS_INVALID_ARGUMENT);
+    CHECK(equal);
+
+    coord_list_destroy(copied);
+    coord_list_destroy(slice);
+    coord_list_destroy(list);
+}
+
+TEST_CASE("coord_list: canonical export preserves short buffers") {
+    coord_list_t* list = nullptr;
+    REQUIRE(coord_list_create_ex(&list) == NAVSYS_STATUS_OK);
+    const coord_t values[] = {{7, 8}, {9, 10}, {11, 12}};
+    for (const coord_t& value : values) {
+        REQUIRE(
+            coord_list_push_back_ex(list, &value)
+            == NAVSYS_STATUS_OK);
+    }
+    REQUIRE(coord_list_reserve(list, 8) == NAVSYS_STATUS_OK);
+
+    size_t count = 99;
+    REQUIRE(
+        coord_list_export(list, nullptr, 0, &count)
+        == NAVSYS_STATUS_OK);
+    CHECK(count == 3);
+
+    coord_t short_buffer[] = {{91, 92}, {93, 94}};
+    count = 0;
+    CHECK(
+        coord_list_export(list, short_buffer, 2, &count)
+        == NAVSYS_STATUS_INCOMPLETE);
+    CHECK(count == 3);
+    CHECK(short_buffer[0].x == 91);
+    CHECK(short_buffer[0].y == 92);
+    CHECK(short_buffer[1].x == 93);
+    CHECK(short_buffer[1].y == 94);
+
+    coord_t exact_buffer[3] = {};
+    REQUIRE(
+        coord_list_export(list, exact_buffer, 3, &count)
+        == NAVSYS_STATUS_OK);
+    CHECK(count == 3);
+    for (size_t index = 0; index < count; ++index) {
+        CHECK(coord_equal(&exact_buffer[index], &values[index]));
+    }
+
+    coord_t oversized_buffer[5] = {};
+    REQUIRE(
+        coord_list_export(list, oversized_buffer, 5, &count)
+        == NAVSYS_STATUS_OK);
+    CHECK(count == 3);
+    CHECK(
+        coord_list_export(list, oversized_buffer, 0, &count)
+        == NAVSYS_STATUS_INVALID_ARGUMENT);
+
+    coord_list_clear(list);
+    count = 99;
+    REQUIRE(
+        coord_list_export(list, nullptr, 0, &count)
+        == NAVSYS_STATUS_OK);
+    CHECK(count == 0);
+
+    coord_list_destroy(list);
+}
