@@ -13,19 +13,19 @@
     ]
   },
   "summary": {
-    "headers": 138,
-    "approved": 138,
+    "headers": 139,
+    "approved": 139,
     "approved_install": 99,
     "wrapper_generated": 27,
     "wrapper_manual": 64,
-    "wrapper_excluded": 47,
+    "wrapper_excluded": 48,
     "compatibility_forwarders": 21,
     "successor_headers": 20,
     "successor_links": 39,
     "public_resource_migrations": 10,
     "sdk_basename_collisions": 0,
     "abi_2_sdk_basename_collisions": 0,
-    "current_include_edges": 311,
+    "current_include_edges": 312,
     "current_include_cycles": 0
   },
   "remaining_stage_2_design_gate": [],
@@ -3309,6 +3309,40 @@
         "deprecated_since": null,
         "remove_in": null,
         "reason": "Already migrated to the canonical internal implementation path.",
+        "compatibility_path": null
+      },
+      "successor_headers": [],
+      "source_evidence": {
+        "module_header_groups": [],
+        "root_header_inventory": false,
+        "install_inventory": false,
+        "wrapper_modules_registered": false,
+        "exported_symbols": [],
+        "source_definition_candidates": []
+      },
+      "decision_status": "approved"
+    },
+    {
+      "asset_id": "initial:byul/navsys/dstar_lite/internal/dstar_lite_key_ops.hpp",
+      "current_path": "byul/navsys/dstar_lite/internal/dstar_lite_key_ops.hpp",
+      "sha256": "374797c06c09ace745a2089411c5bef45349bdaaa938a18799c6c84976b8b7cd",
+      "primary_role": "internal",
+      "role_reason": "Canonical exact by-value D* Lite key ordering helper for internal containers.",
+      "owner_module": "navsys",
+      "public_module": "dstar_lite",
+      "approved_install": false,
+      "install_reason": "internal is excluded from the SDK install inventory.",
+      "wrapper": {
+        "mode": "excluded",
+        "reason": "internal headers are outside the installed C ABI wrapper input."
+      },
+      "naming": {
+        "disposition": "keep",
+        "canonical_path": "byul/navsys/dstar_lite/internal/dstar_lite_key_ops.hpp",
+        "canonical_install": false,
+        "deprecated_since": null,
+        "remove_in": null,
+        "reason": "Canonical private key-operation helper path.",
         "compatibility_path": null
       },
       "successor_headers": [],
