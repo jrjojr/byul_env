@@ -70,6 +70,41 @@ jobs:
           ctest --test-dir build_memory --output-on-failure
           -R "^test_navsys_allocation_(failure|leak_gate)$"
 
+      - name: Verify tests-off Release production artifacts
+        env:
+          ASAN_OPTIONS: ""
+          UBSAN_OPTIONS: ""
+          CFLAGS: ""
+          CXXFLAGS: ""
+          LDFLAGS: ""
+        run: |
+          cmake -S byul -B build_package \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DBUILD_TESTING=OFF \
+            -DSDL_UNIX_CONSOLE_BUILD=ON
+          cmake --build build_package --parallel \
+            --target byul gpu_comp_tester
+
+          listing="$(ctest --test-dir build_package -N)"
+          printf '%s\n' "$listing"
+          grep -q '^Total Tests: 0$' <<< "$listing"
+
+          if find build_package/bin -maxdepth 1 -type f \
+              -name 'test*' -print -quit | grep -q .; then
+            echo "tests-off Release produced a test executable" >&2
+            exit 1
+          fi
+
+          byul_so="$(find build_package -type f -name 'libbyul.so' -print -quit)"
+          production_exe="$(find build_package -type f -name 'gpu_comp_tester' -print -quit)"
+          test -n "$byul_so"
+          test -n "$production_exe"
+          if ldd "$byul_so" "$production_exe" | \
+              grep -E 'lib(asan|lsan|ubsan)'; then
+            echo "tests-off Release production artifact links a sanitizer runtime" >&2
+            exit 1
+          fi
+
   windows-msvc-memory:
     name: Windows MSVC Release memory fixture
     runs-on: windows-2022

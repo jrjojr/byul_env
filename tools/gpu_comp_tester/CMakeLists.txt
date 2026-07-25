@@ -101,9 +101,15 @@ endif()
 # 플랫폼별 설정
 # ─────────────────────────────────────────────
 if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
-    message(STATUS "${PROJECT_NAME}: Applying ASan + LSan for Linux")
-    target_compile_options(${PROJECT_NAME} PRIVATE -fsanitize=address -fsanitize=leak -g -O1)
-    target_link_options(${PROJECT_NAME} PRIVATE -fsanitize=address -fsanitize=leak)
+    if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+        message(STATUS "${PROJECT_NAME}: Applying ASan + LSan for Linux Debug verification")
+        target_compile_options(${PROJECT_NAME} PRIVATE -fsanitize=address -fsanitize=leak -g -O1)
+        target_link_options(${PROJECT_NAME} PRIVATE -fsanitize=address -fsanitize=leak)
+    else()
+        message(STATUS "${PROJECT_NAME}: Linux Release production build without sanitizer")
+        target_compile_options(${PROJECT_NAME} PRIVATE -O3 -DNDEBUG -g0)
+        target_link_options(${PROJECT_NAME} PRIVATE -s)
+    endif()
     set_target_properties(${PROJECT_NAME} PROPERTIES
         BUILD_RPATH "\$ORIGIN/../lib"
         INSTALL_RPATH "\$ORIGIN/../lib"
