@@ -168,7 +168,7 @@ struct key_hash final {
   header-role manifest대로 1.1에서 deprecated compatibility include로 유지하고 2.0에서
   비설치 =internal/dstar_lite_key_ops.hpp=로 종료한다.
 
-** TODO 2단계: exact by-value detail comparator 도입
+** DONE 2단계: exact by-value detail comparator 도입
 
 *** 실행
 
@@ -184,6 +184,27 @@ struct key_hash final {
 
 - ordering/hash property test와 C++17 two-TU ODR test를 실행한다.
 - clang/gcc/msvc warning-as-error include audit를 실행한다.
+
+*** 완료 기록
+
+- 2026-07-25 =internal/dstar_lite_key_ops.hpp=에 license, =@file/@brief=,
+  BYUL guard와 =byul::navsys::dstar_lite_detail= namespace를 갖춘 =key_less=만
+  도입했다. ordered container가 요구하지 않는 =key_equal/key_hash=는 만들지 않았다.
+- =key_less=는 두 canonical C key 값을 const reference로 받고 =noexcept=이며
+  =dstar_lite_key_compare_exact=만 호출한다. 새 helper surface에는 pointer, NULL,
+  approximate equality와 global namespace 선언이 없다.
+- MSVC Release module/root build에서 two-TU ODR source를 =/W4 /WX=로 컴파일했다.
+  exact relation 집중 test는 module/root 각각 1 case, 1410 assertions를 통과했고,
+  D* Lite module 전체는 32 cases, 1581 assertions를 통과했다.
+- GitHub Actions run =30156835676=은 2분에 성공했다. Ubuntu에서 GCC/Clang C++17
+  =-Wall -Wextra -Werror= two-TU compile, private-helper inventory, clean SDK consumer,
+  static/root UBSan gate와 139-header ABI role audit를 모두 통과했다.
+- C++ helper inventory는 helpers=5, production consumers=1, external=0이며 Navsys ABI
+  inventory는 headers=46, symbols=525다. inventory SHA는 CRLF/LF에 무관하도록
+  정규화해 Windows와 Linux checkout에서 동일하게 검사한다.
+- 현행 =dstar_lite_pqueue.cpp=의 legacy pointer comparator/storage는 이 단계에서
+  전환하지 않았다. 새 canonical production surface만 exact by-value로 동결했고 실제
+  pqueue 소비 전환은 이 문서 3단계와 pqueue 문서 TODO 2단계의 소유 경계를 따른다.
 
 ** TODO 3단계: private helper와 build inventory 전환
 
