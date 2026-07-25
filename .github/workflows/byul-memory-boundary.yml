@@ -1,0 +1,163 @@
+name: BYUL Memory Boundary
+
+on:
+  pull_request:
+    paths:
+      - ".github/workflows/byul-memory-boundary.yml"
+      - "byul/CMakeLists.txt"
+      - "byul/CMakePresets.json"
+      - "byul/cmake/**"
+      - "byul/**/CMakeLists.txt"
+      - "byul/**/tests/**"
+      - "docs/ko/todo/byul-memory-test-matrix.json"
+      - "docs/ko/todo/todo-byul-test-production-boundary.org"
+      - "external/rules"
+      - "tools/gpu_comp_tester/CMakeLists.txt"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  linux-memory:
+    name: Ubuntu ${{ matrix.compiler }} memory fixture
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - compiler: gcc
+            cc: gcc
+            cxx: g++
+          - compiler: clang
+            cc: clang
+            cxx: clang++
+    env:
+      ASAN_OPTIONS: detect_leaks=1:halt_on_error=1
+      UBSAN_OPTIONS: print_stacktrace=1:halt_on_error=1
+      CC: ${{ matrix.cc }}
+      CXX: ${{ matrix.cxx }}
+      CFLAGS: -fsanitize=undefined -fno-sanitize-recover=undefined
+      CXXFLAGS: -fsanitize=undefined -fno-sanitize-recover=undefined
+      LDFLAGS: -fsanitize=undefined -fno-sanitize-recover=undefined
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Check out build dependencies
+        run: |
+          git submodule update --init --depth 1 external/SDL3-3.2.18/source
+          git submodule update --init --depth 1 external/eigen-3.4.0
+          git submodule update --init --depth 1 external/doctest-2.4.12
+          git submodule update --init --depth 1 external/glad-2.0.8
+
+      - name: Configure tests-on production graph
+        run: >-
+          cmake -S byul -B build_memory
+          -DCMAKE_BUILD_TYPE=Debug
+          -DBUILD_TESTING=ON
+          -DSDL_UNIX_CONSOLE_BUILD=ON
+
+      - name: Build production SO and memory fixture
+        run: >-
+          cmake --build build_memory --parallel
+          --target byul test_navsys_allocation_failure
+
+      - name: Run allocation and leak gates
+        run: >-
+          ctest --test-dir build_memory --output-on-failure
+          -R "^test_navsys_allocation_(failure|leak_gate)$"
+
+  windows-msvc-memory:
+    name: Windows MSVC Release memory fixture
+    runs-on: windows-latest
+    timeout-minutes: 25
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Check out build dependencies
+        shell: pwsh
+        run: |
+          git submodule update --init --depth 1 external/SDL3-3.2.18/source
+          git submodule update --init --depth 1 external/eigen-3.4.0
+          git submodule update --init --depth 1 external/doctest-2.4.12
+          git submodule update --init --depth 1 external/glad-2.0.8
+
+      - name: Configure tests-on production graph
+        run: >-
+          cmake -S byul -B build_memory
+          -G "Visual Studio 17 2022" -A x64
+          -DBUILD_TESTING=ON
+
+      - name: Build production DLL and memory fixture
+        run: >-
+          cmake --build build_memory --config Release
+          --target byul test_navsys_allocation_failure
+
+      - name: Run allocation and leak gates
+        run: >-
+          ctest --test-dir build_memory -C Release --output-on-failure
+          -R "^test_navsys_allocation_(failure|leak_gate)$"
+
+      - name: Verify tests-off discovery
+        shell: pwsh
+        run: |
+          cmake -S byul -B build_package `
+            -G "Visual Studio 17 2022" -A x64 `
+            -DBUILD_TESTING=OFF
+          $listing = ctest --test-dir build_package -C Release -N
+          $listing | Write-Output
+          if ($listing -notmatch "Total Tests: 0") {
+            throw "tests-off tree contains CTest entries"
+          }
+
+  windows-mingw-memory:
+    name: Windows MinGW Release memory fixture
+    runs-on: windows-latest
+    timeout-minutes: 25
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up MSYS2 MinGW
+        uses: msys2/setup-msys2@v2
+        with:
+          msystem: MINGW64
+          update: true
+          install: >-
+            git
+            mingw-w64-x86_64-cmake
+            mingw-w64-x86_64-gcc
+            mingw-w64-x86_64-ninja
+
+      - name: Check out build dependencies
+        shell: msys2 {0}
+        run: |
+          git submodule update --init --depth 1 external/SDL3-3.2.18/source
+          git submodule update --init --depth 1 external/eigen-3.4.0
+          git submodule update --init --depth 1 external/doctest-2.4.12
+          git submodule update --init --depth 1 external/glad-2.0.8
+
+      - name: Configure tests-on production graph
+        shell: msys2 {0}
+        run: >-
+          cmake -S byul -B build_memory -G Ninja
+          -DCMAKE_BUILD_TYPE=Release
+          -DBUILD_TESTING=ON
+
+      - name: Build production DLL and memory fixture
+        shell: msys2 {0}
+        run: >-
+          cmake --build build_memory --parallel
+          --target byul test_navsys_allocation_failure
+
+      - name: Run allocation and leak gates
+        shell: msys2 {0}
+        run: >-
+          ctest --test-dir build_memory --output-on-failure
+          -R "^test_navsys_allocation_(failure|leak_gate)$"

@@ -75,6 +75,9 @@ add_library(byul_glad STATIC
     "${GLAD_GENERATED_HEADER}"
     "${GLAD_KHR_HEADER}"
 )
+if(COMMAND byul_register_production_target)
+    byul_register_production_target(byul_glad)
+endif()
 target_include_directories(byul_glad PUBLIC
     "${GLAD_GENERATED_DIR}/include"
 )
@@ -84,6 +87,9 @@ target_link_libraries(byul_glad PUBLIC ${CMAKE_DL_LIBS})
 # 🔧 바이너리 생성
 # ----------------------------------------
 add_executable(${PROJECT_NAME} ${${PROJECT_NAME}_SOURCES})
+if(COMMAND byul_register_production_target)
+    byul_register_production_target(${PROJECT_NAME})
+endif()
 
 if(WIN32)
     target_sources(${PROJECT_NAME} PRIVATE

@@ -140,9 +140,19 @@ elseif(CMAKE_SYSTEM_NAME STREQUAL "Linux")
         INSTALL_RPATH "\$ORIGIN/../lib"
     )
 endif()
+
+set(BYUL_ALLOCATION_TEST_CONFIGURATIONS "")
+if(MSVC)
+    # MSVC Debug STL iterator proxies are not compatible with executable-wide
+    # operator new failure injection. The same production static inventory is
+    # covered by the verified Release fixture instead.
+    set(BYUL_ALLOCATION_TEST_CONFIGURATIONS CONFIGURATIONS Release)
+endif()
+
 add_test(
     NAME test_navsys_allocation_failure
     COMMAND test_navsys_allocation_failure
+    ${BYUL_ALLOCATION_TEST_CONFIGURATIONS}
 )
 add_test(
     NAME test_navsys_allocation_leak_gate
@@ -152,6 +162,7 @@ add_test(
         "-DEXPECTED_EXIT_CODE=5"
         "-DEXPECTED_PATTERN=route_finder create leaked allocations"
         -P "${CMAKE_CURRENT_SOURCE_DIR}/expect_process_failure.cmake"
+    ${BYUL_ALLOCATION_TEST_CONFIGURATIONS}
 )
 
 # ─────────────────────────────────────────────

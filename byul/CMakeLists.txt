@@ -87,6 +87,7 @@ byul_assert_module_inventory(
 # Shared library
 # -----------------------------------------------------------------------------
 add_library(${PROJECT_NAME} SHARED ${${PROJECT_NAME}_SOURCES})
+byul_register_production_target(${PROJECT_NAME})
 target_compile_definitions(${PROJECT_NAME} PRIVATE BYUL_EXPORTS)
 
 set(EXTERNAL_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../external)
@@ -115,7 +116,9 @@ target_include_directories(${PROJECT_NAME} PRIVATE
     ${BYUL_HEADER_DIRS}
 )
 
-add_subdirectory(tests)
+if(BUILD_TESTING)
+    add_subdirectory(tests)
+endif()
 
 # -----------------------------------------------------------------------------
 # Platform-specific settings and DLL handling
@@ -165,3 +168,7 @@ byul_add_gpu_zip_target(
     "${CMAKE_CURRENT_SOURCE_DIR}/.."
 )
 byul_add_help_target()
+
+# Run after every production target has received its complete source,
+# definition and link graph.
+byul_assert_all_production_targets_clean()

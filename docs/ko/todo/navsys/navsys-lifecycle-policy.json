@@ -26,9 +26,13 @@
         "dstar_lite"
       ],
       "toolchains": [
-        "msvc",
-        "mingw"
+        "msvc-release",
+        "mingw-release",
+        "linux-gcc-or-clang-debug-sanitized"
       ],
+      "test_artifact_only": true,
+      "production_artifact_test_code_or_fault_injection": "forbidden",
+      "msvc_debug": "excluded-stl-iterator-proxy-use-release-fixture",
       "result": "no-exception-escape-and-no-owned-allocation-leak"
     },
     "callback_failure": "legacy-signatures-have-no-common-failure-channel",

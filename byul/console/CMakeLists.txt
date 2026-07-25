@@ -22,6 +22,7 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 # 스태틱 라이브러리 생성
 add_library(${PROJECT_NAME} STATIC ${${PROJECT_NAME}_SOURCES})
+byul_register_production_target(${PROJECT_NAME})
 
 # 헤더 파일 디렉토리 추가
 target_include_directories(${PROJECT_NAME} PRIVATE 

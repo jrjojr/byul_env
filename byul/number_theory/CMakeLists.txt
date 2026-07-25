@@ -18,6 +18,7 @@ CACHE INTERNAL "${PROJECT_NAME} header files" FORCE
 )
 
 add_library(${PROJECT_NAME} STATIC ${${PROJECT_NAME}_SOURCES})
+byul_register_production_target(${PROJECT_NAME})
 
 target_include_directories(${PROJECT_NAME} PRIVATE
     ${CMAKE_SOURCE_DIR}
@@ -26,4 +27,6 @@ target_include_directories(${PROJECT_NAME} PRIVATE
 
 target_compile_definitions(${PROJECT_NAME} PRIVATE BYUL_STATIC)
 
-add_subdirectory(tests)
+if(BUILD_TESTING)
+    add_subdirectory(tests)
+endif()
