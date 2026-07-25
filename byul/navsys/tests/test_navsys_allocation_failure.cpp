@@ -120,6 +120,82 @@ bool verify_coord_checked_allocation_failure() {
     return true;
 }
 
+bool verify_dstar_lite_key_allocation_failure() {
+    const std::size_t baseline = tracked_live_allocations;
+    const dstar_lite_key_t source = {7.0f, 9.0f};
+    dstar_lite_key_t* const sentinel =
+        reinterpret_cast<dstar_lite_key_t*>(1);
+
+    dstar_lite_key_t* created = sentinel;
+    track_allocations = true;
+    fail_after = 0;
+    const navsys_status_t create_status =
+        dstar_lite_key_create_ex(source.k1, source.k2, &created);
+    fail_after = -1;
+    track_allocations = false;
+    if (create_status != NAVSYS_STATUS_OUT_OF_MEMORY
+        || created != sentinel
+        || tracked_live_allocations != baseline) {
+        std::fprintf(
+            stderr,
+            "dstar_lite_key_create_ex did not preserve output on allocation failure\n");
+        return false;
+    }
+
+    dstar_lite_key_t* copied = sentinel;
+    track_allocations = true;
+    fail_after = 0;
+    const navsys_status_t copy_status =
+        dstar_lite_key_copy_ex(&source, &copied);
+    fail_after = -1;
+    track_allocations = false;
+    if (copy_status != NAVSYS_STATUS_OUT_OF_MEMORY
+        || copied != sentinel
+        || tracked_live_allocations != baseline) {
+        std::fprintf(
+            stderr,
+            "dstar_lite_key_copy_ex did not preserve output on allocation failure\n");
+        return false;
+    }
+
+    track_allocations = true;
+    fail_after = 0;
+    dstar_lite_key_t* legacy_created = dstar_lite_key_create();
+    fail_after = -1;
+    track_allocations = false;
+    if (legacy_created != nullptr || tracked_live_allocations != baseline) {
+        std::fprintf(stderr, "dstar_lite_key_create leaked an allocation failure\n");
+        dstar_lite_key_destroy(legacy_created);
+        return false;
+    }
+
+    track_allocations = true;
+    fail_after = 0;
+    legacy_created = dstar_lite_key_create_full(source.k1, source.k2);
+    fail_after = -1;
+    track_allocations = false;
+    if (legacy_created != nullptr || tracked_live_allocations != baseline) {
+        std::fprintf(
+            stderr,
+            "dstar_lite_key_create_full leaked an allocation failure\n");
+        dstar_lite_key_destroy(legacy_created);
+        return false;
+    }
+
+    track_allocations = true;
+    fail_after = 0;
+    dstar_lite_key_t* legacy_copied = dstar_lite_key_copy(&source);
+    fail_after = -1;
+    track_allocations = false;
+    if (legacy_copied != nullptr || tracked_live_allocations != baseline) {
+        std::fprintf(stderr, "dstar_lite_key_copy leaked an allocation failure\n");
+        dstar_lite_key_destroy(legacy_copied);
+        return false;
+    }
+
+    return true;
+}
+
 #if !defined(_MSC_VER)
 bool verify_coord_list_checked_allocation_failure() {
     const std::size_t baseline = tracked_live_allocations;
@@ -413,6 +489,9 @@ int main(int argc, char** argv) {
 
     if (!verify_coord_checked_allocation_failure()) {
         return 1;
+    }
+    if (!verify_dstar_lite_key_allocation_failure()) {
+        return 9;
     }
 #if !defined(_MSC_VER)
     // MSVC's STL uses iterator-proxy allocation that cannot be safely

@@ -1,7 +1,6 @@
 #include "dstar_lite_pqueue.h"
 #include "coord.h"
 #include "dstar_lite_key.hpp"
-#include "scalar.h"
 #include "coord_hash.h"
 
 #include <map>

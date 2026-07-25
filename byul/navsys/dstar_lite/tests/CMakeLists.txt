@@ -76,7 +76,6 @@ target_link_directories(${PROJECT_NAME} PRIVATE
 
 target_link_libraries(${PROJECT_NAME} PRIVATE
     core
-    numal
     console
     byul_tick
     

@@ -1,13 +1,24 @@
 #include "dstar_lite_tick.h"
 #include "internal/dstar_lite_callback.hpp"
-#include "scalar.h"
 
 #include <float.h>
 #include <math.h>
 #include <stdlib.h>
 #include <stdio.h>
+#include <cmath>
 #include <thread>
 #include <climits>
+
+namespace {
+
+bool legacy_scalar_equal(float lhs, float rhs) noexcept {
+    if (lhs == rhs) return true;
+    const float difference = std::fabs(lhs - rhs);
+    const float largest = std::fmax(std::fabs(lhs), std::fabs(rhs));
+    return difference <= 1e-5f * largest;
+}
+
+} // namespace
 
 static void dstar_lite_tick_proxy(void* context, float dt) {
     dstar_lite_tick_update((dstar_lite_tick_t*)context, dt);
@@ -159,7 +170,7 @@ void dstar_lite_tick_update(dstar_lite_tick_t* dst, float dt) {
 
         float* rhs_start_ptr = (float*)coord_hash_get(dst->base->rhs_table, &start);
         float rhs_start = rhs_start_ptr ? *rhs_start_ptr : FLT_MAX;
-        if (scalar_equal(rhs_start, FLT_MAX)) {
+        if (legacy_scalar_equal(rhs_start, FLT_MAX)) {
             route_set_success(dst->base->real_route, false);
             dst->ticked = false;
             return;

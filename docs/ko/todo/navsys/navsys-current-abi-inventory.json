@@ -4,29 +4,29 @@
   "source_vocabulary": "docs/ko/todo/navsys/navsys-abi-vocabulary.json",
   "summary": {
     "headers": 46,
-    "symbols": 487,
+    "symbols": 524,
     "return_forms": {
       "nullable_pointer": 151,
-      "bool_predicate": 21,
-      "bool_operation": 19,
+      "bool_predicate": 22,
+      "bool_operation": 20,
       "int_zero_nonzero_status": 40,
-      "int_count": 16,
+      "int_count": 22,
       "int_index_minus_one": 4,
-      "void_fallible_operation": 140,
-      "enum_result": 77,
+      "void_fallible_operation": 141,
+      "enum_result": 105,
       "floating_result": 19,
       "callback_return": 0
     },
     "unclassified": 0,
     "duplicate_declarations": 1,
-    "audit_issues": 934,
-    "audit_errors": 934,
+    "audit_issues": 893,
+    "audit_errors": 893,
     "audit_codes": {
       "missing-brief": 16,
-      "missing-doxygen": 303,
-      "missing-nullable": 161,
+      "missing-doxygen": 266,
+      "missing-nullable": 159,
       "missing-param": 86,
-      "missing-param-direction": 201,
+      "missing-param-direction": 199,
       "missing-return": 21,
       "missing-return-lifetime": 52,
       "missing-return-nullable": 52,
@@ -34,7 +34,7 @@
       "unnamed-parameter": 30
     },
     "lifecycle_resources": 28,
-    "lifecycle_operations": 89,
+    "lifecycle_operations": 94,
     "callback_bindings": 7
   },
   "known_debt": {
@@ -1025,285 +1025,6 @@
         "severity": "error",
         "code": "missing-doxygen",
         "symbol": "coord_hash_print",
-        "message": "public function has no adjacent Doxygen block",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/coord/coord_list.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-coord-coord-list.org",
-        "severity": "error",
-        "code": "missing-doxygen",
-        "symbol": "coord_list_create",
-        "message": "public function has no adjacent Doxygen block",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/coord/coord_list.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-coord-coord-list.org",
-        "severity": "error",
-        "code": "missing-doxygen",
-        "symbol": "coord_list_destroy",
-        "message": "public function has no adjacent Doxygen block",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/coord/coord_list.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-coord-coord-list.org",
-        "severity": "error",
-        "code": "missing-doxygen",
-        "symbol": "coord_list_copy",
-        "message": "public function has no adjacent Doxygen block",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/coord/coord_list.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-coord-coord-list.org",
-        "severity": "error",
-        "code": "missing-doxygen",
-        "symbol": "coord_list_length",
-        "message": "public function has no adjacent Doxygen block",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/coord/coord_list.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-coord-coord-list.org",
-        "severity": "error",
-        "code": "missing-doxygen",
-        "symbol": "coord_list_empty",
-        "message": "public function has no adjacent Doxygen block",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/coord/coord_list.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-coord-coord-list.org",
-        "severity": "error",
-        "code": "missing-doxygen",
-        "symbol": "coord_list_get",
-        "message": "public function has no adjacent Doxygen block",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/coord/coord_list.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-coord-coord-list.org",
-        "severity": "error",
-        "code": "missing-doxygen",
-        "symbol": "coord_list_front",
-        "message": "public function has no adjacent Doxygen block",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/coord/coord_list.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-coord-coord-list.org",
-        "severity": "error",
-        "code": "missing-doxygen",
-        "symbol": "coord_list_back",
-        "message": "public function has no adjacent Doxygen block",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/coord/coord_list.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-coord-coord-list.org",
-        "severity": "error",
-        "code": "missing-doxygen",
-        "symbol": "coord_list_push_back",
-        "message": "public function has no adjacent Doxygen block",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/coord/coord_list.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-coord-coord-list.org",
-        "severity": "error",
-        "code": "missing-doxygen",
-        "symbol": "coord_list_pop_back",
-        "message": "public function has no adjacent Doxygen block",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/coord/coord_list.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-coord-coord-list.org",
-        "severity": "error",
-        "code": "missing-doxygen",
-        "symbol": "coord_list_pop_front",
-        "message": "public function has no adjacent Doxygen block",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/coord/coord_list.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-coord-coord-list.org",
-        "severity": "error",
-        "code": "missing-doxygen",
-        "symbol": "coord_list_insert",
-        "message": "public function has no adjacent Doxygen block",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/coord/coord_list.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-coord-coord-list.org",
-        "severity": "error",
-        "code": "missing-doxygen",
-        "symbol": "coord_list_remove_at",
-        "message": "public function has no adjacent Doxygen block",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/coord/coord_list.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-coord-coord-list.org",
-        "severity": "error",
-        "code": "missing-doxygen",
-        "symbol": "coord_list_remove_value",
-        "message": "public function has no adjacent Doxygen block",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/coord/coord_list.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-coord-coord-list.org",
-        "severity": "error",
-        "code": "missing-doxygen",
-        "symbol": "coord_list_clear",
-        "message": "public function has no adjacent Doxygen block",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/coord/coord_list.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-coord-coord-list.org",
-        "severity": "error",
-        "code": "missing-doxygen",
-        "symbol": "coord_list_reverse",
-        "message": "public function has no adjacent Doxygen block",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/coord/coord_list.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-coord-coord-list.org",
-        "severity": "error",
-        "code": "missing-doxygen",
-        "symbol": "coord_list_contains",
-        "message": "public function has no adjacent Doxygen block",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/coord/coord_list.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-coord-coord-list.org",
-        "severity": "error",
-        "code": "missing-doxygen",
-        "symbol": "coord_list_find",
-        "message": "public function has no adjacent Doxygen block",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/coord/coord_list.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-coord-coord-list.org",
-        "severity": "error",
-        "code": "missing-doxygen",
-        "symbol": "coord_list_sublist",
-        "message": "public function has no adjacent Doxygen block",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/coord/coord_list.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-coord-coord-list.org",
-        "severity": "error",
-        "code": "missing-doxygen",
-        "symbol": "coord_list_equals",
-        "message": "public function has no adjacent Doxygen block",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/coord/cost_coord_pq.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-coord-cost-coord-pq.org",
-        "severity": "error",
-        "code": "missing-doxygen",
-        "symbol": "cost_coord_pq_create",
-        "message": "public function has no adjacent Doxygen block",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/coord/cost_coord_pq.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-coord-cost-coord-pq.org",
-        "severity": "error",
-        "code": "missing-doxygen",
-        "symbol": "cost_coord_pq_destroy",
-        "message": "public function has no adjacent Doxygen block",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/coord/cost_coord_pq.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-coord-cost-coord-pq.org",
-        "severity": "error",
-        "code": "missing-doxygen",
-        "symbol": "cost_coord_pq_push",
-        "message": "public function has no adjacent Doxygen block",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/coord/cost_coord_pq.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-coord-cost-coord-pq.org",
-        "severity": "error",
-        "code": "missing-doxygen",
-        "symbol": "cost_coord_pq_peek",
-        "message": "public function has no adjacent Doxygen block",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/coord/cost_coord_pq.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-coord-cost-coord-pq.org",
-        "severity": "error",
-        "code": "missing-doxygen",
-        "symbol": "cost_coord_pq_pop",
-        "message": "public function has no adjacent Doxygen block",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/coord/cost_coord_pq.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-coord-cost-coord-pq.org",
-        "severity": "error",
-        "code": "missing-doxygen",
-        "symbol": "cost_coord_pq_peek_cost",
-        "message": "public function has no adjacent Doxygen block",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/coord/cost_coord_pq.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-coord-cost-coord-pq.org",
-        "severity": "error",
-        "code": "missing-doxygen",
-        "symbol": "cost_coord_pq_is_empty",
-        "message": "public function has no adjacent Doxygen block",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/coord/cost_coord_pq.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-coord-cost-coord-pq.org",
-        "severity": "error",
-        "code": "missing-doxygen",
-        "symbol": "cost_coord_pq_contains",
-        "message": "public function has no adjacent Doxygen block",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/coord/cost_coord_pq.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-coord-cost-coord-pq.org",
-        "severity": "error",
-        "code": "missing-doxygen",
-        "symbol": "cost_coord_pq_remove",
-        "message": "public function has no adjacent Doxygen block",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/coord/cost_coord_pq.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-coord-cost-coord-pq.org",
-        "severity": "error",
-        "code": "missing-doxygen",
-        "symbol": "cost_coord_pq_length",
-        "message": "public function has no adjacent Doxygen block",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/coord/cost_coord_pq.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-coord-cost-coord-pq.org",
-        "severity": "error",
-        "code": "missing-doxygen",
-        "symbol": "cost_coord_pq_trim_worst",
         "message": "public function has no adjacent Doxygen block",
         "disposition": "route-to-owner-child"
       },
@@ -2366,96 +2087,6 @@
         "severity": "error",
         "code": "missing-doxygen",
         "symbol": "dstar_lite_fetch_next",
-        "message": "public function has no adjacent Doxygen block",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/dstar_lite/dstar_lite_key.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-dstar-lite-dstar-lite-key.org",
-        "severity": "error",
-        "code": "missing-doxygen",
-        "symbol": "dstar_lite_key_create",
-        "message": "public function has no adjacent Doxygen block",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/dstar_lite/dstar_lite_key.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-dstar-lite-dstar-lite-key.org",
-        "severity": "error",
-        "code": "missing-doxygen",
-        "symbol": "dstar_lite_key_create_full",
-        "message": "public function has no adjacent Doxygen block",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/dstar_lite/dstar_lite_key.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-dstar-lite-dstar-lite-key.org",
-        "severity": "error",
-        "code": "missing-doxygen",
-        "symbol": "dstar_lite_key_copy",
-        "message": "public function has no adjacent Doxygen block",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/dstar_lite/dstar_lite_key.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-dstar-lite-dstar-lite-key.org",
-        "severity": "error",
-        "code": "missing-doxygen",
-        "symbol": "dstar_lite_key_destroy",
-        "message": "public function has no adjacent Doxygen block",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/dstar_lite/dstar_lite_key.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-dstar-lite-dstar-lite-key.org",
-        "severity": "error",
-        "code": "missing-doxygen",
-        "symbol": "dstar_lite_key_equal",
-        "message": "public function has no adjacent Doxygen block",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/dstar_lite/dstar_lite_key.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-dstar-lite-dstar-lite-key.org",
-        "severity": "error",
-        "code": "missing-param-direction",
-        "symbol": "dstar_lite_key_compare",
-        "message": "parameter 'dsk0' has no direction",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/dstar_lite/dstar_lite_key.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-dstar-lite-dstar-lite-key.org",
-        "severity": "error",
-        "code": "missing-nullable",
-        "symbol": "dstar_lite_key_compare",
-        "message": "pointer parameter 'dsk0' has no @byul.nullable",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/dstar_lite/dstar_lite_key.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-dstar-lite-dstar-lite-key.org",
-        "severity": "error",
-        "code": "missing-param-direction",
-        "symbol": "dstar_lite_key_compare",
-        "message": "parameter 'dsk1' has no direction",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/dstar_lite/dstar_lite_key.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-dstar-lite-dstar-lite-key.org",
-        "severity": "error",
-        "code": "missing-nullable",
-        "symbol": "dstar_lite_key_compare",
-        "message": "pointer parameter 'dsk1' has no @byul.nullable",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/dstar_lite/dstar_lite_key.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-dstar-lite-dstar-lite-key.org",
-        "severity": "error",
-        "code": "missing-doxygen",
-        "symbol": "dstar_lite_key_hash",
         "message": "public function has no adjacent Doxygen block",
         "disposition": "route-to-owner-child"
       },
@@ -8587,9 +8218,26 @@
       "owner_todo": "docs/ko/todo/navsys/todo-navsys-coord-coord-list.org",
       "primary_role": "public-component",
       "wrapper_mode": "generated",
-      "symbol_count": 20,
-      "audit_issue_count": 20,
+      "symbol_count": 37,
+      "audit_issue_count": 0,
       "symbols": [
+        "coord_list_create_ex",
+        "coord_list_copy_ex",
+        "coord_list_size",
+        "coord_list_fetch",
+        "coord_list_fetch_front",
+        "coord_list_fetch_back",
+        "coord_list_push_back_ex",
+        "coord_list_try_pop_back",
+        "coord_list_try_pop_front",
+        "coord_list_insert_ex",
+        "coord_list_remove_at_ex",
+        "coord_list_remove_value_ex",
+        "coord_list_find_ex",
+        "coord_list_reserve",
+        "coord_list_create_slice",
+        "coord_list_equal",
+        "coord_list_export",
         "coord_list_create",
         "coord_list_destroy",
         "coord_list_copy",
@@ -8617,9 +8265,19 @@
       "owner_todo": "docs/ko/todo/navsys/todo-navsys-coord-cost-coord-pq.org",
       "primary_role": "public-component",
       "wrapper_mode": "generated",
-      "symbol_count": 11,
-      "audit_issue_count": 11,
+      "symbol_count": 21,
+      "audit_issue_count": 0,
       "symbols": [
+        "cost_coord_pq_create_ex",
+        "cost_coord_pq_push_ex",
+        "cost_coord_pq_peek_min",
+        "cost_coord_pq_pop_min",
+        "cost_coord_pq_size",
+        "cost_coord_pq_empty",
+        "cost_coord_pq_remove_one",
+        "cost_coord_pq_remove_all",
+        "cost_coord_pq_clear",
+        "cost_coord_pq_trim_to_size",
         "cost_coord_pq_create",
         "cost_coord_pq_destroy",
         "cost_coord_pq_push",
@@ -8737,9 +8395,19 @@
       "owner_todo": "docs/ko/todo/navsys/todo-navsys-dstar-lite-dstar-lite-key.org",
       "primary_role": "public-component",
       "wrapper_mode": "generated",
-      "symbol_count": 7,
-      "audit_issue_count": 10,
+      "symbol_count": 17,
+      "audit_issue_count": 0,
       "symbols": [
+        "dstar_lite_key_sizeof",
+        "dstar_lite_key_alignof",
+        "dstar_lite_key_offsetof_k1",
+        "dstar_lite_key_offsetof_k2",
+        "dstar_lite_key_init",
+        "dstar_lite_key_create_ex",
+        "dstar_lite_key_copy_ex",
+        "dstar_lite_key_equal_exact",
+        "dstar_lite_key_compare_exact",
+        "dstar_lite_key_hash_exact",
         "dstar_lite_key_create",
         "dstar_lite_key_create_full",
         "dstar_lite_key_copy",
@@ -10250,6 +9918,142 @@
     },
     {
       "header": "byul/navsys/coord/coord_list.h",
+      "name": "coord_list_create_ex",
+      "return_type": "navsys_status_t",
+      "signature": "navsys_status_t coord_list_create_ex(coord_list_t** out_list);",
+      "return_form": "enum_result",
+      "canonical": "navsys_status_t plus typed out enum"
+    },
+    {
+      "header": "byul/navsys/coord/coord_list.h",
+      "name": "coord_list_copy_ex",
+      "return_type": "navsys_status_t",
+      "signature": "navsys_status_t coord_list_copy_ex( const coord_list_t* source, coord_list_t** out_list);",
+      "return_form": "enum_result",
+      "canonical": "navsys_status_t plus typed out enum"
+    },
+    {
+      "header": "byul/navsys/coord/coord_list.h",
+      "name": "coord_list_size",
+      "return_type": "size_t",
+      "signature": "size_t coord_list_size(const coord_list_t* list);",
+      "return_form": "int_count",
+      "canonical": "navsys_status_t plus out_count"
+    },
+    {
+      "header": "byul/navsys/coord/coord_list.h",
+      "name": "coord_list_fetch",
+      "return_type": "navsys_status_t",
+      "signature": "navsys_status_t coord_list_fetch( const coord_list_t* list, size_t index, coord_t* out_coord);",
+      "return_form": "enum_result",
+      "canonical": "navsys_status_t plus typed out enum"
+    },
+    {
+      "header": "byul/navsys/coord/coord_list.h",
+      "name": "coord_list_fetch_front",
+      "return_type": "navsys_status_t",
+      "signature": "navsys_status_t coord_list_fetch_front( const coord_list_t* list, coord_t* out_coord);",
+      "return_form": "enum_result",
+      "canonical": "navsys_status_t plus typed out enum"
+    },
+    {
+      "header": "byul/navsys/coord/coord_list.h",
+      "name": "coord_list_fetch_back",
+      "return_type": "navsys_status_t",
+      "signature": "navsys_status_t coord_list_fetch_back( const coord_list_t* list, coord_t* out_coord);",
+      "return_form": "enum_result",
+      "canonical": "navsys_status_t plus typed out enum"
+    },
+    {
+      "header": "byul/navsys/coord/coord_list.h",
+      "name": "coord_list_push_back_ex",
+      "return_type": "navsys_status_t",
+      "signature": "navsys_status_t coord_list_push_back_ex( coord_list_t* list, const coord_t* coord);",
+      "return_form": "enum_result",
+      "canonical": "navsys_status_t plus typed out enum"
+    },
+    {
+      "header": "byul/navsys/coord/coord_list.h",
+      "name": "coord_list_try_pop_back",
+      "return_type": "navsys_status_t",
+      "signature": "navsys_status_t coord_list_try_pop_back( coord_list_t* list, coord_t* out_coord);",
+      "return_form": "enum_result",
+      "canonical": "navsys_status_t plus typed out enum"
+    },
+    {
+      "header": "byul/navsys/coord/coord_list.h",
+      "name": "coord_list_try_pop_front",
+      "return_type": "navsys_status_t",
+      "signature": "navsys_status_t coord_list_try_pop_front( coord_list_t* list, coord_t* out_coord);",
+      "return_form": "enum_result",
+      "canonical": "navsys_status_t plus typed out enum"
+    },
+    {
+      "header": "byul/navsys/coord/coord_list.h",
+      "name": "coord_list_insert_ex",
+      "return_type": "navsys_status_t",
+      "signature": "navsys_status_t coord_list_insert_ex( coord_list_t* list, size_t index, const coord_t* coord);",
+      "return_form": "enum_result",
+      "canonical": "navsys_status_t plus typed out enum"
+    },
+    {
+      "header": "byul/navsys/coord/coord_list.h",
+      "name": "coord_list_remove_at_ex",
+      "return_type": "navsys_status_t",
+      "signature": "navsys_status_t coord_list_remove_at_ex( coord_list_t* list, size_t index, coord_t* out_removed);",
+      "return_form": "enum_result",
+      "canonical": "navsys_status_t plus typed out enum"
+    },
+    {
+      "header": "byul/navsys/coord/coord_list.h",
+      "name": "coord_list_remove_value_ex",
+      "return_type": "navsys_status_t",
+      "signature": "navsys_status_t coord_list_remove_value_ex( coord_list_t* list, const coord_t* coord, bool* out_removed);",
+      "return_form": "enum_result",
+      "canonical": "navsys_status_t plus typed out enum"
+    },
+    {
+      "header": "byul/navsys/coord/coord_list.h",
+      "name": "coord_list_find_ex",
+      "return_type": "navsys_status_t",
+      "signature": "navsys_status_t coord_list_find_ex( const coord_list_t* list, const coord_t* coord, size_t* out_index, bool* out_found);",
+      "return_form": "enum_result",
+      "canonical": "navsys_status_t plus typed out enum"
+    },
+    {
+      "header": "byul/navsys/coord/coord_list.h",
+      "name": "coord_list_reserve",
+      "return_type": "navsys_status_t",
+      "signature": "navsys_status_t coord_list_reserve( coord_list_t* list, size_t capacity);",
+      "return_form": "enum_result",
+      "canonical": "navsys_status_t plus typed out enum"
+    },
+    {
+      "header": "byul/navsys/coord/coord_list.h",
+      "name": "coord_list_create_slice",
+      "return_type": "navsys_status_t",
+      "signature": "navsys_status_t coord_list_create_slice( const coord_list_t* source, size_t begin, size_t end, coord_list_t** out_list);",
+      "return_form": "enum_result",
+      "canonical": "navsys_status_t plus typed out enum"
+    },
+    {
+      "header": "byul/navsys/coord/coord_list.h",
+      "name": "coord_list_equal",
+      "return_type": "navsys_status_t",
+      "signature": "navsys_status_t coord_list_equal( const coord_list_t* a, const coord_list_t* b, bool* out_equal);",
+      "return_form": "enum_result",
+      "canonical": "navsys_status_t plus typed out enum"
+    },
+    {
+      "header": "byul/navsys/coord/coord_list.h",
+      "name": "coord_list_export",
+      "return_type": "navsys_status_t",
+      "signature": "navsys_status_t coord_list_export( const coord_list_t* list, coord_t* out_coords, size_t capacity, size_t* out_count);",
+      "return_form": "enum_result",
+      "canonical": "navsys_status_t plus typed out enum"
+    },
+    {
+      "header": "byul/navsys/coord/coord_list.h",
       "name": "coord_list_create",
       "return_type": "coord_list_t*",
       "signature": "coord_list_t* coord_list_create(void);",
@@ -10380,7 +10184,7 @@
       "header": "byul/navsys/coord/coord_list.h",
       "name": "coord_list_contains",
       "return_type": "int",
-      "signature": "int coord_list_contains(const coord_list_t* list, const coord_t* c);",
+      "signature": "int coord_list_contains( const coord_list_t* list, const coord_t* c);",
       "return_form": "int_zero_nonzero_status",
       "canonical": "navsys_status_t"
     },
@@ -10388,7 +10192,7 @@
       "header": "byul/navsys/coord/coord_list.h",
       "name": "coord_list_find",
       "return_type": "int",
-      "signature": "int coord_list_find(const coord_list_t* list, const coord_t* c);",
+      "signature": "int coord_list_find( const coord_list_t* list, const coord_t* c);",
       "return_form": "int_index_minus_one",
       "canonical": "NAVSYS_STATUS_NOT_FOUND plus out_index"
     },
@@ -10396,7 +10200,7 @@
       "header": "byul/navsys/coord/coord_list.h",
       "name": "coord_list_sublist",
       "return_type": "coord_list_t*",
-      "signature": "coord_list_t* coord_list_sublist(const coord_list_t* list, int start, int end);",
+      "signature": "coord_list_t* coord_list_sublist( const coord_list_t* list, int start, int end);",
       "return_form": "nullable_pointer",
       "canonical": "status return plus typed out pointer"
     },
@@ -10410,9 +10214,89 @@
     },
     {
       "header": "byul/navsys/coord/cost_coord_pq.h",
+      "name": "cost_coord_pq_create_ex",
+      "return_type": "navsys_status_t",
+      "signature": "navsys_status_t cost_coord_pq_create_ex( const cost_coord_pq_create_info_t* info, cost_coord_pq_t** out_queue);",
+      "return_form": "enum_result",
+      "canonical": "navsys_status_t plus typed out enum"
+    },
+    {
+      "header": "byul/navsys/coord/cost_coord_pq.h",
+      "name": "cost_coord_pq_push_ex",
+      "return_type": "navsys_status_t",
+      "signature": "navsys_status_t cost_coord_pq_push_ex( cost_coord_pq_t* queue, float cost, const coord_t* coord);",
+      "return_form": "enum_result",
+      "canonical": "navsys_status_t plus typed out enum"
+    },
+    {
+      "header": "byul/navsys/coord/cost_coord_pq.h",
+      "name": "cost_coord_pq_peek_min",
+      "return_type": "navsys_status_t",
+      "signature": "navsys_status_t cost_coord_pq_peek_min( const cost_coord_pq_t* queue, float* out_cost, coord_t* out_coord);",
+      "return_form": "enum_result",
+      "canonical": "navsys_status_t plus typed out enum"
+    },
+    {
+      "header": "byul/navsys/coord/cost_coord_pq.h",
+      "name": "cost_coord_pq_pop_min",
+      "return_type": "navsys_status_t",
+      "signature": "navsys_status_t cost_coord_pq_pop_min( cost_coord_pq_t* queue, float* out_cost, coord_t* out_coord);",
+      "return_form": "enum_result",
+      "canonical": "navsys_status_t plus typed out enum"
+    },
+    {
+      "header": "byul/navsys/coord/cost_coord_pq.h",
+      "name": "cost_coord_pq_size",
+      "return_type": "size_t",
+      "signature": "size_t cost_coord_pq_size(const cost_coord_pq_t* queue);",
+      "return_form": "int_count",
+      "canonical": "navsys_status_t plus out_count"
+    },
+    {
+      "header": "byul/navsys/coord/cost_coord_pq.h",
+      "name": "cost_coord_pq_empty",
+      "return_type": "bool",
+      "signature": "bool cost_coord_pq_empty(const cost_coord_pq_t* queue);",
+      "return_form": "bool_operation",
+      "canonical": "navsys_status_t"
+    },
+    {
+      "header": "byul/navsys/coord/cost_coord_pq.h",
+      "name": "cost_coord_pq_remove_one",
+      "return_type": "navsys_status_t",
+      "signature": "navsys_status_t cost_coord_pq_remove_one( cost_coord_pq_t* queue, float cost, const coord_t* coord, bool* out_removed);",
+      "return_form": "enum_result",
+      "canonical": "navsys_status_t plus typed out enum"
+    },
+    {
+      "header": "byul/navsys/coord/cost_coord_pq.h",
+      "name": "cost_coord_pq_remove_all",
+      "return_type": "navsys_status_t",
+      "signature": "navsys_status_t cost_coord_pq_remove_all( cost_coord_pq_t* queue, const coord_t* coord, size_t* out_removed_count);",
+      "return_form": "enum_result",
+      "canonical": "navsys_status_t plus typed out enum"
+    },
+    {
+      "header": "byul/navsys/coord/cost_coord_pq.h",
+      "name": "cost_coord_pq_clear",
+      "return_type": "void",
+      "signature": "void cost_coord_pq_clear(cost_coord_pq_t* queue);",
+      "return_form": "void_fallible_operation",
+      "canonical": "navsys_status_t"
+    },
+    {
+      "header": "byul/navsys/coord/cost_coord_pq.h",
+      "name": "cost_coord_pq_trim_to_size",
+      "return_type": "navsys_status_t",
+      "signature": "navsys_status_t cost_coord_pq_trim_to_size( cost_coord_pq_t* queue, size_t max_size, size_t* out_removed_count);",
+      "return_form": "enum_result",
+      "canonical": "navsys_status_t plus typed out enum"
+    },
+    {
+      "header": "byul/navsys/coord/cost_coord_pq.h",
       "name": "cost_coord_pq_create",
       "return_type": "cost_coord_pq_t*",
-      "signature": "cost_coord_pq_t* cost_coord_pq_create();",
+      "signature": "cost_coord_pq_t* cost_coord_pq_create(void);",
       "return_form": "nullable_pointer",
       "canonical": "status return plus typed out pointer"
     },
@@ -10428,7 +10312,7 @@
       "header": "byul/navsys/coord/cost_coord_pq.h",
       "name": "cost_coord_pq_push",
       "return_type": "void",
-      "signature": "void cost_coord_pq_push(cost_coord_pq_t* pq, float cost, const coord_t* c);",
+      "signature": "void cost_coord_pq_push( cost_coord_pq_t* pq, float cost, const coord_t* c);",
       "return_form": "void_fallible_operation",
       "canonical": "navsys_status_t"
     },
@@ -10468,7 +10352,7 @@
       "header": "byul/navsys/coord/cost_coord_pq.h",
       "name": "cost_coord_pq_contains",
       "return_type": "bool",
-      "signature": "bool cost_coord_pq_contains(cost_coord_pq_t* pq, const coord_t* c);",
+      "signature": "bool cost_coord_pq_contains( cost_coord_pq_t* pq, const coord_t* c);",
       "return_form": "bool_predicate",
       "canonical": "keep bool when evaluation itself cannot fail"
     },
@@ -11138,6 +11022,86 @@
     },
     {
       "header": "byul/navsys/dstar_lite/dstar_lite_key.h",
+      "name": "dstar_lite_key_sizeof",
+      "return_type": "size_t",
+      "signature": "size_t dstar_lite_key_sizeof(void);",
+      "return_form": "int_count",
+      "canonical": "navsys_status_t plus out_count"
+    },
+    {
+      "header": "byul/navsys/dstar_lite/dstar_lite_key.h",
+      "name": "dstar_lite_key_alignof",
+      "return_type": "size_t",
+      "signature": "size_t dstar_lite_key_alignof(void);",
+      "return_form": "int_count",
+      "canonical": "navsys_status_t plus out_count"
+    },
+    {
+      "header": "byul/navsys/dstar_lite/dstar_lite_key.h",
+      "name": "dstar_lite_key_offsetof_k1",
+      "return_type": "size_t",
+      "signature": "size_t dstar_lite_key_offsetof_k1(void);",
+      "return_form": "int_count",
+      "canonical": "navsys_status_t plus out_count"
+    },
+    {
+      "header": "byul/navsys/dstar_lite/dstar_lite_key.h",
+      "name": "dstar_lite_key_offsetof_k2",
+      "return_type": "size_t",
+      "signature": "size_t dstar_lite_key_offsetof_k2(void);",
+      "return_form": "int_count",
+      "canonical": "navsys_status_t plus out_count"
+    },
+    {
+      "header": "byul/navsys/dstar_lite/dstar_lite_key.h",
+      "name": "dstar_lite_key_init",
+      "return_type": "navsys_status_t",
+      "signature": "navsys_status_t dstar_lite_key_init( dstar_lite_key_t* out_key, float k1, float k2);",
+      "return_form": "enum_result",
+      "canonical": "navsys_status_t plus typed out enum"
+    },
+    {
+      "header": "byul/navsys/dstar_lite/dstar_lite_key.h",
+      "name": "dstar_lite_key_create_ex",
+      "return_type": "navsys_status_t",
+      "signature": "navsys_status_t dstar_lite_key_create_ex( float k1, float k2, dstar_lite_key_t** out_key);",
+      "return_form": "enum_result",
+      "canonical": "navsys_status_t plus typed out enum"
+    },
+    {
+      "header": "byul/navsys/dstar_lite/dstar_lite_key.h",
+      "name": "dstar_lite_key_copy_ex",
+      "return_type": "navsys_status_t",
+      "signature": "navsys_status_t dstar_lite_key_copy_ex( const dstar_lite_key_t* source, dstar_lite_key_t** out_key);",
+      "return_form": "enum_result",
+      "canonical": "navsys_status_t plus typed out enum"
+    },
+    {
+      "header": "byul/navsys/dstar_lite/dstar_lite_key.h",
+      "name": "dstar_lite_key_equal_exact",
+      "return_type": "bool",
+      "signature": "bool dstar_lite_key_equal_exact( const dstar_lite_key_t* lhs, const dstar_lite_key_t* rhs);",
+      "return_form": "bool_predicate",
+      "canonical": "keep bool when evaluation itself cannot fail"
+    },
+    {
+      "header": "byul/navsys/dstar_lite/dstar_lite_key.h",
+      "name": "dstar_lite_key_compare_exact",
+      "return_type": "navsys_status_t",
+      "signature": "navsys_status_t dstar_lite_key_compare_exact( const dstar_lite_key_t* lhs, const dstar_lite_key_t* rhs, int* out_compare);",
+      "return_form": "enum_result",
+      "canonical": "navsys_status_t plus typed out enum"
+    },
+    {
+      "header": "byul/navsys/dstar_lite/dstar_lite_key.h",
+      "name": "dstar_lite_key_hash_exact",
+      "return_type": "uint32_t",
+      "signature": "uint32_t dstar_lite_key_hash_exact( const dstar_lite_key_t* key);",
+      "return_form": "enum_result",
+      "canonical": "navsys_status_t plus typed out enum"
+    },
+    {
+      "header": "byul/navsys/dstar_lite/dstar_lite_key.h",
       "name": "dstar_lite_key_create",
       "return_type": "dstar_lite_key_t*",
       "signature": "dstar_lite_key_t* dstar_lite_key_create(void);",
@@ -11172,7 +11136,7 @@
       "header": "byul/navsys/dstar_lite/dstar_lite_key.h",
       "name": "dstar_lite_key_equal",
       "return_type": "bool",
-      "signature": "bool dstar_lite_key_equal(const dstar_lite_key_t* dsk0, const dstar_lite_key_t* dsk1);",
+      "signature": "bool dstar_lite_key_equal( const dstar_lite_key_t* dsk0, const dstar_lite_key_t* dsk1);",
       "return_form": "bool_predicate",
       "canonical": "keep bool when evaluation itself cannot fail"
     },
@@ -11180,7 +11144,7 @@
       "header": "byul/navsys/dstar_lite/dstar_lite_key.h",
       "name": "dstar_lite_key_compare",
       "return_type": "int",
-      "signature": "int dstar_lite_key_compare(const dstar_lite_key_t* dsk0, const dstar_lite_key_t* dsk1);",
+      "signature": "int dstar_lite_key_compare( const dstar_lite_key_t* dsk0, const dstar_lite_key_t* dsk1);",
       "return_form": "int_zero_nonzero_status",
       "canonical": "navsys_status_t"
     },
@@ -13657,6 +13621,29 @@
             "header": "byul/navsys/coord/coord_list.h",
             "resource": "coord_list",
             "operation": "create",
+            "symbol": "coord_list_create_ex",
+            "return_type": "navsys_status_t",
+            "parameters": [
+              "coord_list_t** out_list"
+            ]
+          },
+          {
+            "header": "byul/navsys/coord/coord_list.h",
+            "resource": "coord_list",
+            "operation": "create",
+            "symbol": "coord_list_create_slice",
+            "return_type": "navsys_status_t",
+            "parameters": [
+              "const coord_list_t* source",
+              "size_t begin",
+              "size_t end",
+              "coord_list_t** out_list"
+            ]
+          },
+          {
+            "header": "byul/navsys/coord/coord_list.h",
+            "resource": "coord_list",
+            "operation": "create",
             "symbol": "coord_list_create",
             "return_type": "coord_list_t*",
             "parameters": []
@@ -13691,6 +13678,17 @@
       {
         "resource": "cost_coord_pq",
         "operations": [
+          {
+            "header": "byul/navsys/coord/cost_coord_pq.h",
+            "resource": "cost_coord_pq",
+            "operation": "create",
+            "symbol": "cost_coord_pq_create_ex",
+            "return_type": "navsys_status_t",
+            "parameters": [
+              "const cost_coord_pq_create_info_t* info",
+              "cost_coord_pq_t** out_queue"
+            ]
+          },
           {
             "header": "byul/navsys/coord/cost_coord_pq.h",
             "resource": "cost_coord_pq",
@@ -13827,6 +13825,30 @@
           {
             "header": "byul/navsys/dstar_lite/dstar_lite_key.h",
             "resource": "dstar_lite_key",
+            "operation": "init",
+            "symbol": "dstar_lite_key_init",
+            "return_type": "navsys_status_t",
+            "parameters": [
+              "dstar_lite_key_t* out_key",
+              "float k1",
+              "float k2"
+            ]
+          },
+          {
+            "header": "byul/navsys/dstar_lite/dstar_lite_key.h",
+            "resource": "dstar_lite_key",
+            "operation": "create",
+            "symbol": "dstar_lite_key_create_ex",
+            "return_type": "navsys_status_t",
+            "parameters": [
+              "float k1",
+              "float k2",
+              "dstar_lite_key_t** out_key"
+            ]
+          },
+          {
+            "header": "byul/navsys/dstar_lite/dstar_lite_key.h",
+            "resource": "dstar_lite_key",
             "operation": "create",
             "symbol": "dstar_lite_key_create",
             "return_type": "dstar_lite_key_t*",
@@ -13867,7 +13889,8 @@
         "operation_kinds": [
           "copy",
           "create",
-          "destroy"
+          "destroy",
+          "init"
         ]
       },
       {
@@ -14823,6 +14846,29 @@
         "header": "byul/navsys/coord/coord_list.h",
         "resource": "coord_list",
         "operation": "create",
+        "symbol": "coord_list_create_ex",
+        "return_type": "navsys_status_t",
+        "parameters": [
+          "coord_list_t** out_list"
+        ]
+      },
+      {
+        "header": "byul/navsys/coord/coord_list.h",
+        "resource": "coord_list",
+        "operation": "create",
+        "symbol": "coord_list_create_slice",
+        "return_type": "navsys_status_t",
+        "parameters": [
+          "const coord_list_t* source",
+          "size_t begin",
+          "size_t end",
+          "coord_list_t** out_list"
+        ]
+      },
+      {
+        "header": "byul/navsys/coord/coord_list.h",
+        "resource": "coord_list",
+        "operation": "create",
         "symbol": "coord_list_create",
         "return_type": "coord_list_t*",
         "parameters": []
@@ -14845,6 +14891,17 @@
         "return_type": "coord_list_t*",
         "parameters": [
           "const coord_list_t* list"
+        ]
+      },
+      {
+        "header": "byul/navsys/coord/cost_coord_pq.h",
+        "resource": "cost_coord_pq",
+        "operation": "create",
+        "symbol": "cost_coord_pq_create_ex",
+        "return_type": "navsys_status_t",
+        "parameters": [
+          "const cost_coord_pq_create_info_t* info",
+          "cost_coord_pq_t** out_queue"
         ]
       },
       {
@@ -14928,6 +14985,30 @@
         "return_type": "void",
         "parameters": [
           "dstar_lite_t* dsl"
+        ]
+      },
+      {
+        "header": "byul/navsys/dstar_lite/dstar_lite_key.h",
+        "resource": "dstar_lite_key",
+        "operation": "init",
+        "symbol": "dstar_lite_key_init",
+        "return_type": "navsys_status_t",
+        "parameters": [
+          "dstar_lite_key_t* out_key",
+          "float k1",
+          "float k2"
+        ]
+      },
+      {
+        "header": "byul/navsys/dstar_lite/dstar_lite_key.h",
+        "resource": "dstar_lite_key",
+        "operation": "create",
+        "symbol": "dstar_lite_key_create_ex",
+        "return_type": "navsys_status_t",
+        "parameters": [
+          "float k1",
+          "float k2",
+          "dstar_lite_key_t** out_key"
         ]
       },
       {

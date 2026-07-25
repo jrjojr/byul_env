@@ -12,6 +12,36 @@ typedef struct s_dstar_lite_key {
     float k2;
 } dstar_lite_key_t;
 
+ size_t dstar_lite_key_sizeof(void);
+
+ size_t dstar_lite_key_alignof(void);
+
+ size_t dstar_lite_key_offsetof_k1(void);
+
+ size_t dstar_lite_key_offsetof_k2(void);
+
+ navsys_status_t dstar_lite_key_init(
+    dstar_lite_key_t* out_key, float k1, float k2);
+
+ navsys_status_t dstar_lite_key_create_ex(
+    float k1, float k2, dstar_lite_key_t** out_key);
+
+ navsys_status_t dstar_lite_key_copy_ex(
+    const dstar_lite_key_t* source,
+    dstar_lite_key_t** out_key);
+
+ bool dstar_lite_key_equal_exact(
+    const dstar_lite_key_t* lhs,
+    const dstar_lite_key_t* rhs);
+
+ navsys_status_t dstar_lite_key_compare_exact(
+    const dstar_lite_key_t* lhs,
+    const dstar_lite_key_t* rhs,
+    int* out_compare);
+
+ uint32_t dstar_lite_key_hash_exact(
+    const dstar_lite_key_t* key);
+
  dstar_lite_key_t* dstar_lite_key_create(void);
 
  dstar_lite_key_t* dstar_lite_key_create_full(float k1, float k2);
@@ -20,11 +50,13 @@ typedef struct s_dstar_lite_key {
 
  void dstar_lite_key_destroy(dstar_lite_key_t* key);
 
- bool dstar_lite_key_equal(const dstar_lite_key_t* dsk0,
-                                   const dstar_lite_key_t* dsk1);
+ bool dstar_lite_key_equal(
+    const dstar_lite_key_t* dsk0,
+    const dstar_lite_key_t* dsk1);
 
- int dstar_lite_key_compare(const dstar_lite_key_t* dsk0,
-                                    const dstar_lite_key_t* dsk1);
+ int dstar_lite_key_compare(
+    const dstar_lite_key_t* dsk0,
+    const dstar_lite_key_t* dsk1);
 
  unsigned int dstar_lite_key_hash(const dstar_lite_key_t* key);
 """)

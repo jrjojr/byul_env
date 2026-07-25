@@ -3,7 +3,6 @@
 #include "route.h"
 #include "dstar_lite_pqueue.h"
 #include "dstar_lite_key.h"
-#include "scalar.h"
 #include "../navgrid/internal/navgrid_callback.hpp"
 #include "internal/dstar_lite_callback.hpp"
 
@@ -11,8 +10,20 @@
 #include <math.h>
 #include <stdlib.h>
 #include <stdio.h>
+#include <cmath>
 #include <thread>
 #include <climits>
+
+namespace {
+
+bool legacy_scalar_equal(float lhs, float rhs) noexcept {
+    if (lhs == rhs) return true;
+    const float difference = std::fabs(lhs - rhs);
+    const float largest = std::fmax(std::fabs(lhs), std::fabs(rhs));
+    return difference <= 1e-5f * largest;
+}
+
+} // namespace
 
 bool dstar_lite_fetch_next(const dstar_lite_t* dsl, 
     const coord_t* start, coord_t* out) {
@@ -738,7 +749,7 @@ void dstar_lite_update_vertex(dstar_lite_t* dsl, const coord_t* u) {
         rhs_u = FLT_MAX;
     }
 
-    if (!scalar_equal(g_u, rhs_u)) {
+    if (!legacy_scalar_equal(g_u, rhs_u)) {
         dstar_lite_key_t* key = dstar_lite_calc_key(dsl, u);
         dstar_lite_pqueue_push(dsl->frontier, key, u);
         dstar_lite_key_destroy(key);
@@ -812,7 +823,7 @@ void dstar_lite_compute_shortest_route(dstar_lite_t* dsl) {
         float rhs_start = rhs_start_ptr ? *rhs_start_ptr : FLT_MAX;
 
         if (dstar_lite_key_compare(top_key, start_key) >= 0 &&
-            scalar_equal(rhs_start, g_start)) {
+            legacy_scalar_equal(rhs_start, g_start)) {
             dstar_lite_key_destroy(top_key);
             dstar_lite_key_destroy(start_key);
             coord_destroy(u);
@@ -851,7 +862,7 @@ void dstar_lite_compute_shortest_route(dstar_lite_t* dsl) {
                 float cost = byul::navsys::internal::dstar_lite_invoke_cost(
                     dsl, dsl->navgrid, s, u);
 
-                if (scalar_equal(rhs_s, cost + g_u)) {
+                if (legacy_scalar_equal(rhs_s, cost + g_u)) {
                     if (!coord_equal(s, &dsl->goal)) {
                         float min_rhs = FLT_MAX;
                         coord_list_t* succs = navgrid_copy_neighbors_all(dsl->navgrid, s->x, s->y);
@@ -894,7 +905,7 @@ bool dstar_lite_reconstruct_route(dstar_lite_t* dsl) {
     route_add_coord(p, &dsl->start);    
 
     float* g_start_ptr = (float*) coord_hash_get(dsl->g_table, &dsl->start);
-    if (!g_start_ptr || scalar_equal(*g_start_ptr, FLT_MAX)) {
+    if (!g_start_ptr || legacy_scalar_equal(*g_start_ptr, FLT_MAX)) {
         if (dsl->debug_mode_enabled) {
             // p->visited_count = coord_hash_copy(dsl->update_count_table);
             p->total_retry_count = dstar_lite_proto_compute_retry_count(dsl);
@@ -950,7 +961,7 @@ bool dstar_lite_reconstruct_route(dstar_lite_t* dsl) {
         }
 
         float* g_next_ptr = (float*) coord_hash_get(dsl->g_table, &next);
-        if (!g_next_ptr || scalar_equal(*g_next_ptr, FLT_MAX)) {
+        if (!g_next_ptr || legacy_scalar_equal(*g_next_ptr, FLT_MAX)) {
             // coord_destroy(current);
             // coord_destroy(next);
             // route_destroy(p);
@@ -1022,7 +1033,7 @@ void dstar_lite_find_loop(dstar_lite_t* dsl) {
 
         float* rhs_ptr = (float*)coord_hash_get(dsl->rhs_table, &current);
         float rhs_val = rhs_ptr ? *rhs_ptr : FLT_MAX;
-        if (scalar_equal(rhs_val, FLT_MAX)) {
+        if (legacy_scalar_equal(rhs_val, FLT_MAX)) {
             route_set_success(dsl->real_route, false);
             dsl->real_loop_retry_count = loop;
             return;

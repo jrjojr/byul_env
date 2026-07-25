@@ -1,5 +1,7 @@
 #include <assert.h>
+#include <math.h>
 #include <stddef.h>
+#include <stdint.h>
 #include <stdio.h>
 #include <string.h>
 
@@ -545,6 +547,69 @@ int main(void) {
     dstar_lite_key_destroy(legacy_key_copy);
     dstar_lite_key_destroy(legacy_close_key);
     dstar_lite_key_destroy(legacy_key);
+
+    if (dstar_lite_key_sizeof() != sizeof(dstar_lite_key_t)
+        || dstar_lite_key_alignof() != _Alignof(dstar_lite_key_t)
+        || dstar_lite_key_offsetof_k1() != offsetof(dstar_lite_key_t, k1)
+        || dstar_lite_key_offsetof_k2() != offsetof(dstar_lite_key_t, k2)) {
+        fprintf(stderr, "unexpected D* Lite key runtime layout ABI\n");
+        return 24;
+    }
+    dstar_lite_key_t canonical_key = {17.0f, 19.0f};
+    const dstar_lite_key_t preserved_key = canonical_key;
+    dstar_lite_key_t* const key_sentinel =
+        (dstar_lite_key_t*)(uintptr_t)1;
+    dstar_lite_key_t* exact_key = key_sentinel;
+    dstar_lite_key_t* exact_key_copy = key_sentinel;
+    int exact_compare = 23;
+    if (dstar_lite_key_init(&canonical_key, -0.0f, 2.0f)
+            != NAVSYS_STATUS_OK
+        || canonical_key.k1 != 0.0f
+        || signbit(canonical_key.k1)
+        || dstar_lite_key_init(&canonical_key, NAN, 0.0f)
+            != NAVSYS_STATUS_INVALID_ARGUMENT
+        || canonical_key.k1 != 0.0f
+        || canonical_key.k2 != 2.0f
+        || dstar_lite_key_create_ex(-0.0f, INFINITY, &exact_key)
+            != NAVSYS_STATUS_OK
+        || exact_key == NULL
+        || exact_key == key_sentinel
+        || dstar_lite_key_copy_ex(exact_key, &exact_key_copy)
+            != NAVSYS_STATUS_OK
+        || exact_key_copy == NULL
+        || exact_key_copy == key_sentinel
+        || !dstar_lite_key_equal_exact(exact_key, exact_key_copy)
+        || dstar_lite_key_hash_exact(exact_key)
+            != dstar_lite_key_hash_exact(exact_key_copy)
+        || dstar_lite_key_compare_exact(
+            exact_key, exact_key_copy, &exact_compare) != NAVSYS_STATUS_OK
+        || exact_compare != 0) {
+        fprintf(stderr, "unexpected D* Lite key exact value ABI\n");
+        if (exact_key_copy != key_sentinel) {
+            dstar_lite_key_destroy(exact_key_copy);
+        }
+        if (exact_key != key_sentinel) {
+            dstar_lite_key_destroy(exact_key);
+        }
+        return 25;
+    }
+    canonical_key = preserved_key;
+    exact_compare = 23;
+    if (dstar_lite_key_init(&canonical_key, -INFINITY, 0.0f)
+            != NAVSYS_STATUS_INVALID_ARGUMENT
+        || canonical_key.k1 != preserved_key.k1
+        || canonical_key.k2 != preserved_key.k2
+        || dstar_lite_key_compare_exact(
+            &canonical_key, NULL, &exact_compare)
+            != NAVSYS_STATUS_INVALID_ARGUMENT
+        || exact_compare != 23) {
+        fprintf(stderr, "D* Lite key failure output was not preserved\n");
+        dstar_lite_key_destroy(exact_key_copy);
+        dstar_lite_key_destroy(exact_key);
+        return 26;
+    }
+    dstar_lite_key_destroy(exact_key_copy);
+    dstar_lite_key_destroy(exact_key);
 
     if (!route_finder_is_supported(ROUTE_FINDER_ASTAR)
         || !route_finder_is_supported(ROUTE_FINDER_WEIGHTED_ASTAR)
