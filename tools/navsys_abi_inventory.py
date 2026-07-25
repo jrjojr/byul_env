@@ -37,6 +37,8 @@ OWNER_TODO_OVERRIDES = {
         "docs/ko/todo/navsys/todo-navsys-coord-coord-cpp.org",
     "byul/navsys/dstar_lite/internal/dstar_lite_callback.hpp":
         "docs/ko/todo/navsys/todo-navsys-dstar-lite-dstar-lite.org",
+    "byul/navsys/dstar_lite/internal/dstar_lite_key_ops.hpp":
+        "docs/ko/todo/navsys/todo-navsys-dstar-lite-dstar-lite-key-cpp.org",
     "byul/navsys/navgrid/internal/navgrid_callback.hpp":
         "docs/ko/todo/navsys/todo-navsys-navgrid-navgrid.org",
 }

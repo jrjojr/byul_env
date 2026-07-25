@@ -1,15 +1,27 @@
 #include "dstar_lite_pqueue.h"
 #include "coord.h"
-#include "dstar_lite_key.hpp"
 #include "coord_hash.h"
+#include "internal/dstar_lite_key_ops.hpp"
 
+#include <algorithm>
 #include <map>
 #include <vector>
-#include <algorithm>
+
+namespace {
+
+struct legacy_key_pointer_less final {
+    bool operator()(
+        const dstar_lite_key_t* lhs,
+        const dstar_lite_key_t* rhs) const noexcept {
+        return byul::navsys::dstar_lite_detail::key_less{}(*lhs, *rhs);
+    }
+};
+
+} // namespace
 
 struct s_dstar_lite_pqueue {
     std::map<dstar_lite_key_t*, std::vector<coord_t*>, 
-        DstarLiteKeyLess> key_to_coords;
+        legacy_key_pointer_less> key_to_coords;
         
     coord_hash_t* coord_to_key;
 };

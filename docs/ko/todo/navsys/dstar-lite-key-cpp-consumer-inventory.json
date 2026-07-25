@@ -6,26 +6,18 @@
     "declared_helpers": 5
   },
   "summary": {
-    "unique_consumers": 1,
-    "internal_production": 1,
+    "unique_consumers": 0,
+    "internal_production": 0,
     "test_only": 0,
     "external": 0,
     "old_sdk_source_fixture_present": false
   },
   "consumers": {
-    "internal-production": [
-      "byul/navsys/dstar_lite/dstar_lite_pqueue.cpp"
-    ],
+    "internal-production": [],
     "test-only": [],
     "external": []
   },
-  "header_includes": [
-    {
-      "path": "byul/navsys/dstar_lite/dstar_lite_pqueue.cpp",
-      "line": 3,
-      "category": "internal-production"
-    }
-  ],
+  "header_includes": [],
   "symbols": [
     {
       "name": "DstarLiteKeyHash",
@@ -46,13 +38,7 @@
       "declaration_lines": [
         25
       ],
-      "consumers": [
-        {
-          "path": "byul/navsys/dstar_lite/dstar_lite_pqueue.cpp",
-          "line": 12,
-          "category": "internal-production"
-        }
-      ]
+      "consumers": []
     },
     {
       "name": "std::hash<dstar_lite_key_t>",
@@ -70,10 +56,11 @@
     }
   ],
   "build_and_distribution": {
-    "module_public_header_inventory": true,
+    "module_public_header_inventory": false,
+    "module_private_header_inventory": true,
     "install_path": "include/byul/dstar_lite_key.hpp",
-    "clean_install_present": true,
-    "clean_install_sha256": "314927b67fb02d983f395be69a4d209659dfba484e765dd2c1ef0c72a9143932",
+    "clean_install_present": false,
+    "clean_install_sha256": null,
     "manifest_exported_symbols": [],
     "wrapper_registered": false,
     "wrapper_disposition": {
@@ -85,17 +72,22 @@
     "manifest": "docs/ko/todo/header-refactor-current/header-role-manifest.json",
     "decision_status": "approved",
     "primary_role": "compatibility-forwarder",
-    "abi_1_x_install": true,
+    "stage_3_install": false,
     "naming": {
       "disposition": "forward",
       "canonical_path": "byul/navsys/dstar_lite/internal/dstar_lite_key_ops.hpp",
       "canonical_install": false,
       "deprecated_since": "1.1.0",
       "remove_in": "2.0.0",
-      "reason": "C++ ordering/hash helpers are implementation-only; retain the installed legacy include through ABI 1.x.",
+      "reason": "C++ ordering/hash helpers are implementation-only; retain only the source compatibility path until the Stage-4 removal gate.",
       "compatibility_path": "byul/navsys/dstar_lite/dstar_lite_key.hpp"
     },
-    "forwarding_required": true,
-    "forwarding_reason": "The helper shipped in the ABI 1.x SDK; retain the legacy include path through 1.x even though no external source fixture was found."
+    "legacy_source_path_present": true,
+    "removal_deferred_to_stage_4": true,
+    "stage_3_reason": "No external source consumer was found. Stage 3 removes the legacy C++ helper from installation while Stage 4 owns source-path removal."
+  },
+  "forbidden_surface": {
+    "production_legacy_references": 0,
+    "installed_legacy_path": false
   }
 }

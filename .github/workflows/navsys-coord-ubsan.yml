@@ -15,10 +15,12 @@ on:
       - "docs/ko/todo/navsys/todo-navsys-coord-coord-hash.org"
       - "docs/ko/todo/navsys/todo-navsys-coord-coord.org"
       - "docs/ko/todo/navsys/dstar-lite-key-cpp-consumer-inventory.json"
+      - "docs/ko/todo/navsys/navsys-current-abi-inventory.json"
       - "docs/ko/todo/navsys/todo-navsys-dstar-lite-dstar-lite-key-cpp.org"
       - "tools/header_abi_audit.py"
       - "tools/header_refactor_build_snapshot.py"
       - "tools/dstar_lite_key_cpp_inventory.py"
+      - "tools/navsys_abi_inventory.py"
       - "tools/python/byul_wrapper/**"
   workflow_dispatch:
 
@@ -136,7 +138,7 @@ jobs:
           --component byul_sdk
           --prefix build_coord_sdk
 
-      - name: Audit D* Lite key private C++ helper
+      - name: Audit D* Lite key private helper and forbidden legacy surface
         run: |
           mkdir -p build_coord_gate/key-ops
           c++ -std=c++17 -Wall -Wextra -Werror \
@@ -150,6 +152,7 @@ jobs:
           python tools/dstar_lite_key_cpp_inventory.py \
             --check \
             --install-root build_coord_sdk
+          python tools/navsys_abi_inventory.py --check
 
       - name: Audit live headers, exports and wrapper intersection
         run: |

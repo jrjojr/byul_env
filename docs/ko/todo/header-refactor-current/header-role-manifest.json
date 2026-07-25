@@ -15,7 +15,7 @@
   "summary": {
     "headers": 139,
     "approved": 139,
-    "approved_install": 99,
+    "approved_install": 98,
     "wrapper_generated": 27,
     "wrapper_manual": 64,
     "wrapper_excluded": 48,
@@ -3149,11 +3149,11 @@
       "current_path": "byul/navsys/dstar_lite/dstar_lite_key.hpp",
       "sha256": "f9a01da3637d3436967e710e8e18ade033f74db01bbe38fe459f6df9979a00cb",
       "primary_role": "compatibility-forwarder",
-      "role_reason": "Installed C++ implementation helpers move behind the D* Lite internal boundary; the old include path remains through ABI 1.x.",
+      "role_reason": "C++ implementation helpers moved behind the D* Lite internal boundary; the legacy source path remains only until the Stage-4 removal gate.",
       "owner_module": "navsys",
       "public_module": "dstar_lite",
-      "approved_install": true,
-      "install_reason": "Public or compatibility SDK surface.",
+      "approved_install": false,
+      "install_reason": "Stage 3 removes this C++ implementation helper from the SDK while retaining the source path until the Stage-4 removal gate.",
       "wrapper": {
         "mode": "excluded",
         "reason": "C++ compatibility include has no independent C wrapper surface."
@@ -3164,18 +3164,14 @@
         "canonical_install": false,
         "deprecated_since": "1.1.0",
         "remove_in": "2.0.0",
-        "reason": "C++ ordering/hash helpers are implementation-only; retain the installed legacy include through ABI 1.x.",
+        "reason": "C++ ordering/hash helpers are implementation-only; retain only the source compatibility path until the Stage-4 removal gate.",
         "compatibility_path": "byul/navsys/dstar_lite/dstar_lite_key.hpp"
       },
       "successor_headers": [],
       "source_evidence": {
-        "module_header_groups": [
-          "byul",
-          "dstar_lite",
-          "navsys"
-        ],
-        "root_header_inventory": true,
-        "install_inventory": true,
+        "module_header_groups": [],
+        "root_header_inventory": false,
+        "install_inventory": false,
         "wrapper_modules_registered": false,
         "exported_symbols": [],
         "source_definition_candidates": []

@@ -14,6 +14,9 @@ import tempfile
 
 REPOSITORY_ROOT = Path(__file__).resolve().parents[1]
 HEADER = Path("byul/navsys/dstar_lite/dstar_lite_key.hpp")
+PRIVATE_HEADER = Path(
+    "byul/navsys/dstar_lite/internal/dstar_lite_key_ops.hpp"
+)
 MODULE_CMAKE = Path("byul/navsys/dstar_lite/CMakeLists.txt")
 ROLE_MANIFEST = Path(
     "docs/ko/todo/header-refactor-current/header-role-manifest.json"
@@ -161,6 +164,10 @@ def build_inventory(install_root: Path) -> dict:
             "module_public_header_inventory": (
                 f"/dstar_lite_key.hpp" in cmake_text.replace("\\", "/")
             ),
+            "module_private_header_inventory": (
+                f"/{PRIVATE_HEADER.relative_to(HEADER.parent).as_posix()}"
+                in cmake_text.replace("\\", "/")
+            ),
             "install_path": INSTALL_PATH.as_posix(),
             "clean_install_present": installed.is_file(),
             "clean_install_sha256": sha256(installed) if installed.is_file() else None,
@@ -172,15 +179,33 @@ def build_inventory(install_root: Path) -> dict:
             "manifest": ROLE_MANIFEST.as_posix(),
             "decision_status": role["decision_status"],
             "primary_role": role["primary_role"],
-            "abi_1_x_install": role["approved_install"],
+            "stage_3_install": role["approved_install"],
             "naming": role["naming"],
-            "forwarding_required": True,
-            "forwarding_reason": (
-                "The helper shipped in the ABI 1.x SDK; retain the legacy include "
-                "path through 1.x even though no external source fixture was found."
+            "legacy_source_path_present": (
+                REPOSITORY_ROOT / HEADER
+            ).is_file(),
+            "removal_deferred_to_stage_4": True,
+            "stage_3_reason": (
+                "No external source consumer was found. Stage 3 removes the legacy "
+                "C++ helper from installation while Stage 4 owns source-path removal."
             ),
         },
+        "forbidden_surface": {
+            "production_legacy_references": summary_count(
+                symbol_rows, "internal-production"
+            ),
+            "installed_legacy_path": installed.is_file(),
+        },
     }
+
+
+def summary_count(symbol_rows: list[dict], category: str) -> int:
+    return sum(
+        1
+        for symbol in symbol_rows
+        for consumer in symbol["consumers"]
+        if consumer["category"] == category
+    )
 
 
 def write_json_atomic(path: Path, payload: dict) -> None:
@@ -199,26 +224,33 @@ def validate(payload: dict) -> list[str]:
     if payload["header"]["declared_helpers"] != 5:
         errors.append("the helper declaration inventory is not exactly five")
     summary = payload["summary"]
-    if summary["internal_production"] != 1:
-        errors.append("expected exactly one internal production consumer")
+    if summary["internal_production"]:
+        errors.append("legacy C++ helper remains in production source")
     if summary["test_only"] or summary["external"]:
-        errors.append("unexpected test or external C++ helper consumer")
+        errors.append("unexpected test or external legacy C++ helper consumer")
     build = payload["build_and_distribution"]
-    if not build["module_public_header_inventory"]:
-        errors.append("the ABI 1.x CMake header inventory no longer contains the helper")
-    if not build["clean_install_present"]:
-        errors.append("the clean ABI 1.x install does not contain the helper")
-    if build["clean_install_sha256"] != payload["header"]["sha256"]:
-        errors.append("the clean installed helper differs from the source header")
+    if build["module_public_header_inventory"]:
+        errors.append("the legacy C++ helper remains in the public CMake inventory")
+    if not build["module_private_header_inventory"]:
+        errors.append("the canonical private helper is absent from the source inventory")
+    if build["clean_install_present"] or build["clean_install_sha256"] is not None:
+        errors.append("the legacy C++ helper remains in the clean SDK install")
     if build["manifest_exported_symbols"] or build["wrapper_registered"]:
         errors.append("the C++ helper leaked into exports or the wrapper manifest")
     boundary = payload["approved_boundary"]
     if boundary["decision_status"] != "approved":
         errors.append("the header boundary decision is not approved")
     if boundary["primary_role"] != "compatibility-forwarder":
-        errors.append("the ABI 1.x header is not classified as a compatibility forwarder")
+        errors.append("the legacy source path is not a compatibility forwarder")
+    if boundary["stage_3_install"]:
+        errors.append("the role manifest still approves legacy helper installation")
     if boundary["naming"]["canonical_install"]:
         errors.append("the internal canonical helper is incorrectly installable")
+    forbidden = payload["forbidden_surface"]
+    if forbidden["production_legacy_references"]:
+        errors.append("forbidden legacy helper names remain in production source")
+    if forbidden["installed_legacy_path"]:
+        errors.append("forbidden legacy helper path remains installed")
     return errors
 
 
@@ -243,12 +275,12 @@ def main(argv: list[str] | None = None) -> int:
         return 1
     if args.apply:
         write_json_atomic(output, payload)
-        print(f"[WRITTEN] {output} helpers=5 consumers=1 external=0")
+        print(f"[WRITTEN] {output} helpers=5 consumers=0 external=0")
         return 0
     if not output.is_file() or load_json(output) != payload:
         print(f"[ERROR] stale inventory: {output}", file=sys.stderr)
         return 1
-    print(f"[OK] {output} helpers=5 consumers=1 external=0")
+    print(f"[OK] {output} helpers=5 consumers=0 external=0")
     return 0
 
 
