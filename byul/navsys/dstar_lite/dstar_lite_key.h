@@ -220,6 +220,42 @@ BYUL_API navsys_status_t dstar_lite_key_compare_exact(
 BYUL_API uint32_t dstar_lite_key_hash_exact(
     const dstar_lite_key_t* key);
 
+/**
+ * @brief Reports whether two canonical keys are close under explicit tolerances.
+ *
+ * Each finite component is close when its absolute difference is at most the
+ * greater of absolute_tolerance and relative_tolerance times the greater
+ * component magnitude. Positive infinity is close only to positive infinity.
+ * This non-transitive relation is for diagnostics and convergence reporting;
+ * it must not define container identity, ordering, hashing, or algorithm
+ * termination. On failure, out_is_close is unchanged.
+ *
+ * @param[in] lhs Left canonical key.
+ * @param[in] rhs Right canonical key.
+ * @param[in] absolute_tolerance Finite, non-negative absolute tolerance.
+ * @param[in] relative_tolerance Finite, non-negative relative tolerance.
+ * @param[out] out_is_close Storage for the result.
+ * @return Common Navsys status.
+ * @retval NAVSYS_STATUS_OK The result was written.
+ * @retval NAVSYS_STATUS_INVALID_ARGUMENT A pointer is NULL, a key is outside
+ *     the canonical domain, or a tolerance is negative or non-finite.
+ * @byul.nullable lhs false
+ * @byul.nullable rhs false
+ * @byul.nullable out_is_close false
+ * @byul.unit absolute_tolerance unitless
+ * @byul.unit relative_tolerance unitless
+ * @byul.error enum:navsys_status_t
+ * @byul.side_effect mutates:out_is_close-on-success
+ * @byul.thread_safety thread-safe
+ * @byul.blocking false
+ */
+BYUL_API navsys_status_t dstar_lite_key_is_close(
+    const dstar_lite_key_t* lhs,
+    const dstar_lite_key_t* rhs,
+    float absolute_tolerance,
+    float relative_tolerance,
+    bool* out_is_close);
+
 /* ------------------------ ABI 1.x Compatibility API ------------------------ */
 
 /**
@@ -232,12 +268,14 @@ BYUL_API uint32_t dstar_lite_key_hash_exact(
  * @byul.thread_safety thread-safe
  * @byul.blocking false
  */
+BYUL_DEPRECATED(
+    "Use dstar_lite_key_init or dstar_lite_key_create_ex; removal is planned for ABI 2.")
 BYUL_API dstar_lite_key_t* dstar_lite_key_create(void);
 
 /**
- * @brief 입력 성분을 그대로 저장한 legacy D* Lite key를 할당한다.
+ * @brief canonical 생성 API로 전달하여 legacy D* Lite key를 할당한다.
  *
- * 이 ABI는 NaN, 양과 음의 infinity, 음의 zero를 정규화나 거부 없이 저장한다.
+ * NaN과 음의 infinity는 거부하고 음의 zero는 양의 zero로 정규화한다.
  *
  * @param[in] k1 첫 번째 key 성분.
  * @param[in] k2 두 번째 key 성분.
@@ -251,12 +289,14 @@ BYUL_API dstar_lite_key_t* dstar_lite_key_create(void);
  * @byul.thread_safety thread-safe
  * @byul.blocking false
  */
+BYUL_DEPRECATED(
+    "Use dstar_lite_key_init or dstar_lite_key_create_ex; removal is planned for ABI 2.")
 BYUL_API dstar_lite_key_t* dstar_lite_key_create_full(float k1, float k2);
 
 /**
- * @brief legacy key의 입력 비트를 보존하는 복사본을 할당한다.
+ * @brief canonical 복사 API로 전달하여 legacy key의 복사본을 할당한다.
  * @param[in] key 복사할 key.
- * @return 할당한 복사본. key가 NULL이거나 할당에 실패하면 NULL.
+ * @return 할당한 복사본. key가 NULL이거나 canonical domain 밖이거나 할당에 실패하면 NULL.
  * @byul.nullable key false
  * @byul.nullable return true
  * @byul.lifetime return caller-owned
@@ -265,6 +305,8 @@ BYUL_API dstar_lite_key_t* dstar_lite_key_create_full(float k1, float k2);
  * @byul.thread_safety thread-safe
  * @byul.blocking false
  */
+BYUL_DEPRECATED(
+    "Use dstar_lite_key_copy_ex; removal is planned for ABI 2.")
 BYUL_API dstar_lite_key_t* dstar_lite_key_copy(const dstar_lite_key_t* key);
 
 /**
@@ -280,10 +322,10 @@ BYUL_API dstar_lite_key_t* dstar_lite_key_copy(const dstar_lite_key_t* key);
 BYUL_API void dstar_lite_key_destroy(dstar_lite_key_t* key);
 
 /**
- * @brief 두 legacy key를 상대 허용 오차 1e-5로 비교한다.
+ * @brief exact canonical equality API로 전달한다.
  * @param[in] dsk0 왼쪽 key.
  * @param[in] dsk1 오른쪽 key.
- * @return 두 pointer가 유효하고 각 성분이 legacy 근사 비교에서 같으면 true.
+ * @return 두 key가 canonical domain에서 exact하게 같으면 true.
  * @byul.nullable dsk0 false
  * @byul.nullable dsk1 false
  * @byul.error false-return
@@ -291,36 +333,42 @@ BYUL_API void dstar_lite_key_destroy(dstar_lite_key_t* key);
  * @byul.thread_safety thread-safe
  * @byul.blocking false
  */
+BYUL_DEPRECATED(
+    "Use dstar_lite_key_equal_exact or dstar_lite_key_is_close; removal is planned for ABI 2.")
 BYUL_API bool dstar_lite_key_equal(
     const dstar_lite_key_t* dsk0,
     const dstar_lite_key_t* dsk1);
 
 /**
- * @brief legacy 근사 동등성 뒤에 lexicographic 비교를 적용한다.
+ * @brief exact canonical lexicographic 비교 API로 전달한다.
  * @param[in] dsk0 왼쪽 key.
  * @param[in] dsk1 오른쪽 key.
- * @return 왼쪽이 작으면 -1, legacy 근사 비교에서 같으면 0, 크면 1.
+ * @return 왼쪽이 작으면 -1, exact하게 같으면 0, 크면 1. 입력이 유효하지 않으면 0.
  * @byul.nullable dsk0 false
  * @byul.nullable dsk1 false
- * @byul.error undefined-behavior-on-null
+ * @byul.error sentinel-return:0
  * @byul.side_effect none
  * @byul.thread_safety thread-safe
  * @byul.blocking false
  */
+BYUL_DEPRECATED(
+    "Use dstar_lite_key_compare_exact; removal is planned for ABI 2.")
 BYUL_API int dstar_lite_key_compare(
     const dstar_lite_key_t* dsk0,
     const dstar_lite_key_t* dsk1);
 
 /**
- * @brief 두 float의 원시 비트로 legacy hash를 계산한다.
+ * @brief exact canonical hash API로 전달한다.
  * @param[in] key hash를 계산할 key.
- * @return 32-bit legacy hash. key가 NULL이면 0.
+ * @return 32-bit canonical hash. key가 NULL이거나 canonical domain 밖이면 0.
  * @byul.nullable key true
  * @byul.error sentinel-return:0
  * @byul.side_effect none
  * @byul.thread_safety thread-safe
  * @byul.blocking false
  */
+BYUL_DEPRECATED(
+    "Use dstar_lite_key_hash_exact; removal is planned for ABI 2.")
 BYUL_API unsigned int dstar_lite_key_hash(const dstar_lite_key_t* key);
 
 #ifdef __cplusplus

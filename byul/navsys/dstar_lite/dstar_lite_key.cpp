@@ -1,5 +1,6 @@
 #include "dstar_lite_key.h"
 
+#include <algorithm>
 #include <cmath>
 #include <cstddef>
 #include <cstdint>
@@ -7,15 +8,6 @@
 #include <new>
 
 namespace {
-
-constexpr float kLegacyRelativeTolerance = 1e-5f;
-
-bool legacy_component_equal(float lhs, float rhs) noexcept {
-    if (lhs == rhs) return true;
-    const float difference = std::fabs(lhs - rhs);
-    const float largest = std::fmax(std::fabs(lhs), std::fabs(rhs));
-    return difference <= kLegacyRelativeTolerance * largest;
-}
 
 bool component_is_valid(float value) noexcept {
     return !std::isnan(value)
@@ -28,6 +20,23 @@ float canonicalize_component(float value) noexcept {
 
 bool key_is_valid(const dstar_lite_key_t& key) noexcept {
     return component_is_valid(key.k1) && component_is_valid(key.k2);
+}
+
+bool tolerance_is_valid(float value) noexcept {
+    return std::isfinite(value) && value >= 0.0f;
+}
+
+bool component_is_close(
+    float lhs,
+    float rhs,
+    float absolute_tolerance,
+    float relative_tolerance) noexcept {
+    if (lhs == rhs) return true;
+    if (std::isinf(lhs) || std::isinf(rhs)) return false;
+    const float difference = std::fabs(lhs - rhs);
+    const float scale = std::max(std::fabs(lhs), std::fabs(rhs));
+    return difference <= std::max(
+        absolute_tolerance, relative_tolerance * scale);
 }
 
 std::uint32_t component_bits(float value) noexcept {
@@ -132,55 +141,65 @@ std::uint32_t dstar_lite_key_hash_exact(const dstar_lite_key_t* key) {
         ^ component_bits(key->k2);
 }
 
+navsys_status_t dstar_lite_key_is_close(
+    const dstar_lite_key_t* lhs,
+    const dstar_lite_key_t* rhs,
+    float absolute_tolerance,
+    float relative_tolerance,
+    bool* out_is_close) {
+    if (!lhs || !rhs || !out_is_close
+        || !key_is_valid(*lhs) || !key_is_valid(*rhs)
+        || !tolerance_is_valid(absolute_tolerance)
+        || !tolerance_is_valid(relative_tolerance)) {
+        return NAVSYS_STATUS_INVALID_ARGUMENT;
+    }
+    const bool result = component_is_close(
+            lhs->k1, rhs->k1, absolute_tolerance, relative_tolerance)
+        && component_is_close(
+            lhs->k2, rhs->k2, absolute_tolerance, relative_tolerance);
+    *out_is_close = result;
+    return NAVSYS_STATUS_OK;
+}
+
 bool dstar_lite_key_equal(
     const dstar_lite_key_t* dsk0, const dstar_lite_key_t* dsk1) {
-    if (!dsk0 || !dsk1) return false;
-    return legacy_component_equal(dsk0->k1, dsk1->k1)
-        && legacy_component_equal(dsk0->k2, dsk1->k2);
+    return dstar_lite_key_equal_exact(dsk0, dsk1);
 }
 
 int dstar_lite_key_compare(
     const dstar_lite_key_t* dsk0, const dstar_lite_key_t* dsk1) {
-    if (dstar_lite_key_equal(dsk0, dsk1)) return 0;
-    if (dsk0->k1 < dsk1->k1) return -1;
-    if (dsk0->k1 > dsk1->k1) return 1;
-    if (dsk0->k2 < dsk1->k2) return -1;
-    if (dsk0->k2 > dsk1->k2) return 1;
-    return 0;
+    int result = 0;
+    if (dstar_lite_key_compare_exact(dsk0, dsk1, &result)
+        != NAVSYS_STATUS_OK) {
+        return 0;
+    }
+    return result;
 }
 
 unsigned int dstar_lite_key_hash(const dstar_lite_key_t* key) {
-    if (!key) return 0;
-    union { float f; std::uint32_t u; } u1, u2;
-    u1.f = key->k1;
-    u2.f = key->k2;
-    return (u1.u * 31) ^ u2.u;
+    return dstar_lite_key_hash_exact(key);
 }
 
 dstar_lite_key_t* dstar_lite_key_create() {
-    try {
-        return new dstar_lite_key_t{0.0f, 0.0f};
-    } catch (...) {
-        return nullptr;
-    }
+    dstar_lite_key_t* result = nullptr;
+    return dstar_lite_key_create_ex(0.0f, 0.0f, &result)
+            == NAVSYS_STATUS_OK
+        ? result
+        : nullptr;
 }
 
 dstar_lite_key_t* dstar_lite_key_create_full(float k1, float k2) {
-    try {
-        return new dstar_lite_key_t{k1, k2};
-    } catch (...) {
-        return nullptr;
-    }
+    dstar_lite_key_t* result = nullptr;
+    return dstar_lite_key_create_ex(k1, k2, &result) == NAVSYS_STATUS_OK
+        ? result
+        : nullptr;
 }
 
 dstar_lite_key_t* dstar_lite_key_copy(const dstar_lite_key_t* key) {
-    if (!key) return nullptr;
-    const dstar_lite_key_t snapshot = *key;
-    try {
-        return new dstar_lite_key_t{snapshot.k1, snapshot.k2};
-    } catch (...) {
-        return nullptr;
-    }
+    dstar_lite_key_t* result = nullptr;
+    return dstar_lite_key_copy_ex(key, &result) == NAVSYS_STATUS_OK
+        ? result
+        : nullptr;
 }
 
 void dstar_lite_key_destroy(dstar_lite_key_t* key) {

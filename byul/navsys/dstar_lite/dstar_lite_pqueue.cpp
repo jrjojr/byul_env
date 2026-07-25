@@ -65,7 +65,7 @@ void dstar_lite_pqueue_push(dstar_lite_pqueue_t* q,
     if (!q || !key || !c) return;
 
     for (auto& [k, vec] : q->key_to_coords) {
-        if (dstar_lite_key_equal(k, key)) {
+        if (dstar_lite_key_equal_exact(k, key)) {
             vec.push_back(coord_copy(c));
             //coord_hash_replace(q->coord_to_key, c, k);
 			coord_hash_replace_xy(q->coord_to_key, c->x, c->y, k);
@@ -120,7 +120,7 @@ bool dstar_lite_pqueue_remove(dstar_lite_pqueue_t* q, const coord_t* u) {
     if (!key_ptr) return false;
 
     for (auto it = q->key_to_coords.begin(); it != q->key_to_coords.end(); ++it) {
-        if (dstar_lite_key_equal(it->first, key_ptr)) {
+        if (dstar_lite_key_equal_exact(it->first, key_ptr)) {
             auto& vec = it->second;
             auto found = std::find_if(vec.begin(), vec.end(), [&](coord_t* c) {
                 return coord_equal(c, u);
@@ -145,7 +145,7 @@ bool dstar_lite_pqueue_remove_full(dstar_lite_pqueue_t* q,
     if (!q || !key || !c) return false;
 
     for (auto it = q->key_to_coords.begin(); it != q->key_to_coords.end(); ++it) {
-        if (dstar_lite_key_equal(it->first, key)) {
+        if (dstar_lite_key_equal_exact(it->first, key)) {
             auto& vec = it->second;
             auto found = std::find_if(vec.begin(), vec.end(), [&](coord_t* item) {
                 return coord_equal(item, c);

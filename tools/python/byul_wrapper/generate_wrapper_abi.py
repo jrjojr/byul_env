@@ -68,6 +68,11 @@ def strip_comments(source: str) -> str:
 def header_to_cdef(path: Path) -> str:
     """Convert one C-compatible public header to CFFI parser input."""
     source = strip_comments(path.read_text(encoding="utf-8"))
+    source = re.sub(
+        r'BYUL_DEPRECATED\(\s*"(?:\\.|[^"\\])*"\s*\)',
+        "",
+        source,
+    )
     lines: list[str] = []
     skipping_directive = False
 
@@ -87,11 +92,6 @@ def header_to_cdef(path: Path) -> str:
             continue
 
         line = raw_line.replace("BYUL_API", "")
-        line = re.sub(
-            r'BYUL_DEPRECATED\(\s*"(?:\\.|[^"\\])*"\s*\)',
-            "",
-            line,
-        )
         line = re.sub(r"\s+$", "", line)
         lines.append(line)
 

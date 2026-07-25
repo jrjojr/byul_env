@@ -66,6 +66,7 @@ TEST_CASE("dstar_lite_key legacy layout and allocation ABI") {
 
     dstar_lite_key_t* full = dstar_lite_key_create_full(-0.0f, 7.0f);
     REQUIRE(full != nullptr);
+    CHECK_FALSE(std::signbit(full->k1));
     dstar_lite_key_t* copied = dstar_lite_key_copy(full);
     REQUIRE(copied != nullptr);
     CHECK(copied->k1 == full->k1);
@@ -80,29 +81,52 @@ TEST_CASE("dstar_lite_key legacy layout and allocation ABI") {
     dstar_lite_key_destroy(nullptr);
 }
 
-TEST_CASE("dstar_lite_key legacy approximate relation conflicts with hash") {
+TEST_CASE("dstar_lite_key explicit closeness is not container identity") {
     const dstar_lite_key_t exact = {1.0f, 2.0f};
     const dstar_lite_key_t close = {1.000005f, 2.0f};
-    CHECK(dstar_lite_key_equal(&exact, &close));
-    CHECK(dstar_lite_key_compare(&exact, &close) == 0);
+    CHECK_FALSE(dstar_lite_key_equal(&exact, &close));
+    CHECK(dstar_lite_key_compare(&exact, &close) < 0);
     CHECK(dstar_lite_key_hash(&exact) != dstar_lite_key_hash(&close));
+
+    bool is_close = false;
+    CHECK(dstar_lite_key_is_close(
+        &exact, &close, 0.0f, 1e-5f, &is_close) == NAVSYS_STATUS_OK);
+    CHECK(is_close);
 
     const dstar_lite_key_t a = {1.0f, 0.0f};
     const dstar_lite_key_t b = {1.000009f, 0.0f};
     const dstar_lite_key_t c = {1.000018f, 0.0f};
-    CHECK(dstar_lite_key_equal(&a, &b));
-    CHECK(dstar_lite_key_equal(&b, &c));
-    CHECK_FALSE(dstar_lite_key_equal(&a, &c));
-    CHECK(dstar_lite_key_compare(&a, &b) == 0);
-    CHECK(dstar_lite_key_compare(&b, &c) == 0);
-    CHECK(dstar_lite_key_compare(&a, &c) < 0);
+    CHECK(dstar_lite_key_is_close(
+        &a, &b, 0.0f, 1e-5f, &is_close) == NAVSYS_STATUS_OK);
+    CHECK(is_close);
+    CHECK(dstar_lite_key_is_close(
+        &b, &c, 0.0f, 1e-5f, &is_close) == NAVSYS_STATUS_OK);
+    CHECK(is_close);
+    CHECK(dstar_lite_key_is_close(
+        &a, &c, 0.0f, 1e-5f, &is_close) == NAVSYS_STATUS_OK);
+    CHECK_FALSE(is_close);
 
     CHECK(reference_lexicographic_compare(exact, close) < 0);
     CHECK(reference_lexicographic_compare(a, b) < 0);
     CHECK(reference_lexicographic_compare(b, c) < 0);
+
+    is_close = true;
+    CHECK(dstar_lite_key_is_close(
+        &exact, &close, 0.0f, 0.0f, &is_close) == NAVSYS_STATUS_OK);
+    CHECK_FALSE(is_close);
+    is_close = true;
+    CHECK(dstar_lite_key_is_close(
+        &exact, &close, -1.0f, 0.0f, &is_close)
+        == NAVSYS_STATUS_INVALID_ARGUMENT);
+    CHECK(is_close);
+    CHECK(dstar_lite_key_is_close(
+        &exact, &close, 0.0f,
+        std::numeric_limits<float>::infinity(), &is_close)
+        == NAVSYS_STATUS_INVALID_ARGUMENT);
+    CHECK(is_close);
 }
 
-TEST_CASE("dstar_lite_key legacy special float behavior") {
+TEST_CASE("dstar_lite_key legacy API forwards canonical semantics") {
     const float infinity = std::numeric_limits<float>::infinity();
     const float nan = std::numeric_limits<float>::quiet_NaN();
     const dstar_lite_key_t positive_zero = {0.0f, 0.0f};
@@ -111,16 +135,26 @@ TEST_CASE("dstar_lite_key legacy special float behavior") {
     CHECK(dstar_lite_key_compare(&positive_zero, &negative_zero) == 0);
     CHECK(
         dstar_lite_key_hash(&positive_zero)
-        != dstar_lite_key_hash(&negative_zero));
+        == dstar_lite_key_hash(&negative_zero));
 
     const dstar_lite_key_t finite = {3.0f, 0.0f};
     const dstar_lite_key_t positive_infinity = {infinity, 0.0f};
     const dstar_lite_key_t negative_infinity = {-infinity, 0.0f};
     CHECK(dstar_lite_key_equal(&positive_infinity, &positive_infinity));
-    CHECK(dstar_lite_key_equal(&finite, &positive_infinity));
-    CHECK(dstar_lite_key_equal(&negative_infinity, &finite));
-    CHECK(dstar_lite_key_compare(&finite, &positive_infinity) == 0);
+    CHECK_FALSE(dstar_lite_key_equal(&finite, &positive_infinity));
+    CHECK_FALSE(dstar_lite_key_equal(&negative_infinity, &finite));
+    CHECK(dstar_lite_key_compare(&finite, &positive_infinity) < 0);
     CHECK(dstar_lite_key_compare(&negative_infinity, &finite) == 0);
+
+    bool is_close = false;
+    CHECK(dstar_lite_key_is_close(
+        &positive_infinity, &positive_infinity, 0.0f, 0.0f, &is_close)
+        == NAVSYS_STATUS_OK);
+    CHECK(is_close);
+    CHECK(dstar_lite_key_is_close(
+        &finite, &positive_infinity, infinity, 0.0f, &is_close)
+        == NAVSYS_STATUS_INVALID_ARGUMENT);
+    CHECK(is_close);
 
     const dstar_lite_key_t nan_key = {nan, 0.0f};
     CHECK_FALSE(dstar_lite_key_equal(&nan_key, &nan_key));
@@ -132,9 +166,9 @@ TEST_CASE("dstar_lite_key legacy special float behavior") {
         dstar_lite_key_create_full(infinity, 1.0f);
     dstar_lite_key_t* accepted_negative_infinity =
         dstar_lite_key_create_full(-infinity, 1.0f);
-    REQUIRE(accepted_nan != nullptr);
+    CHECK(accepted_nan == nullptr);
     REQUIRE(accepted_positive_infinity != nullptr);
-    REQUIRE(accepted_negative_infinity != nullptr);
+    CHECK(accepted_negative_infinity == nullptr);
     dstar_lite_key_destroy(accepted_nan);
     dstar_lite_key_destroy(accepted_positive_infinity);
     dstar_lite_key_destroy(accepted_negative_infinity);

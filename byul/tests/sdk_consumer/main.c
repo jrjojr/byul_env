@@ -530,14 +530,22 @@ int main(void) {
     dstar_lite_key_t* legacy_close_key =
         dstar_lite_key_create_full(1.000005f, 2.0f);
     dstar_lite_key_t* legacy_key_copy = dstar_lite_key_copy(legacy_key);
+    bool legacy_is_close = false;
     if (legacy_key == NULL
         || legacy_close_key == NULL
         || legacy_key_copy == NULL
-        || !dstar_lite_key_equal(legacy_key, legacy_close_key)
-        || dstar_lite_key_compare(legacy_key, legacy_close_key) != 0
+        || dstar_lite_key_equal(legacy_key, legacy_close_key)
+        || dstar_lite_key_compare(legacy_key, legacy_close_key) >= 0
         || dstar_lite_key_hash(legacy_key)
             == dstar_lite_key_hash(legacy_close_key)
-        || !dstar_lite_key_equal(legacy_key, legacy_key_copy)) {
+        || !dstar_lite_key_equal(legacy_key, legacy_key_copy)
+        || dstar_lite_key_hash(legacy_key)
+            != dstar_lite_key_hash(legacy_key_copy)
+        || dstar_lite_key_is_close(
+            legacy_key, legacy_close_key, 0.0f, 1e-5f,
+            &legacy_is_close) != NAVSYS_STATUS_OK
+        || !legacy_is_close
+        || dstar_lite_key_create_full(NAN, 0.0f) != NULL) {
         fprintf(stderr, "unexpected D* Lite key legacy relation ABI\n");
         dstar_lite_key_destroy(legacy_key_copy);
         dstar_lite_key_destroy(legacy_close_key);
@@ -547,6 +555,17 @@ int main(void) {
     dstar_lite_key_destroy(legacy_key_copy);
     dstar_lite_key_destroy(legacy_close_key);
     dstar_lite_key_destroy(legacy_key);
+
+    legacy_is_close = true;
+    const dstar_lite_key_t close_lhs = {1.0f, 2.0f};
+    const dstar_lite_key_t close_rhs = {1.000005f, 2.0f};
+    if (dstar_lite_key_is_close(
+            &close_lhs, &close_rhs, -1.0f, 0.0f,
+            &legacy_is_close) != NAVSYS_STATUS_INVALID_ARGUMENT
+        || !legacy_is_close) {
+        fprintf(stderr, "D* Lite key closeness failure output changed\n");
+        return 23;
+    }
 
     if (dstar_lite_key_sizeof() != sizeof(dstar_lite_key_t)
         || dstar_lite_key_alignof() != _Alignof(dstar_lite_key_t)

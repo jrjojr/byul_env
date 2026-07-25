@@ -822,7 +822,10 @@ void dstar_lite_compute_shortest_route(dstar_lite_t* dsl) {
         float* rhs_start_ptr = (float*)coord_hash_get(dsl->rhs_table, &dsl->start);
         float rhs_start = rhs_start_ptr ? *rhs_start_ptr : FLT_MAX;
 
-        if (dstar_lite_key_compare(top_key, start_key) >= 0 &&
+        int key_compare = 0;
+        if (dstar_lite_key_compare_exact(
+                top_key, start_key, &key_compare) == NAVSYS_STATUS_OK
+            && key_compare >= 0 &&
             legacy_scalar_equal(rhs_start, g_start)) {
             dstar_lite_key_destroy(top_key);
             dstar_lite_key_destroy(start_key);

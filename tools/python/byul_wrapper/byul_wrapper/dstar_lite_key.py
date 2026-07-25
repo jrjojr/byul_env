@@ -42,6 +42,13 @@ typedef struct s_dstar_lite_key {
  uint32_t dstar_lite_key_hash_exact(
     const dstar_lite_key_t* key);
 
+ navsys_status_t dstar_lite_key_is_close(
+    const dstar_lite_key_t* lhs,
+    const dstar_lite_key_t* rhs,
+    float absolute_tolerance,
+    float relative_tolerance,
+    bool* out_is_close);
+
  dstar_lite_key_t* dstar_lite_key_create(void);
 
  dstar_lite_key_t* dstar_lite_key_create_full(float k1, float k2);

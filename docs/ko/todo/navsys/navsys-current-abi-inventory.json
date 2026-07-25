@@ -4,7 +4,7 @@
   "source_vocabulary": "docs/ko/todo/navsys/navsys-abi-vocabulary.json",
   "summary": {
     "headers": 46,
-    "symbols": 524,
+    "symbols": 525,
     "return_forms": {
       "nullable_pointer": 151,
       "bool_predicate": 22,
@@ -13,7 +13,7 @@
       "int_count": 22,
       "int_index_minus_one": 4,
       "void_fallible_operation": 141,
-      "enum_result": 105,
+      "enum_result": 106,
       "floating_result": 19,
       "callback_return": 0
     },
@@ -8395,7 +8395,7 @@
       "owner_todo": "docs/ko/todo/navsys/todo-navsys-dstar-lite-dstar-lite-key.org",
       "primary_role": "public-component",
       "wrapper_mode": "generated",
-      "symbol_count": 17,
+      "symbol_count": 18,
       "audit_issue_count": 0,
       "symbols": [
         "dstar_lite_key_sizeof",
@@ -8408,6 +8408,7 @@
         "dstar_lite_key_equal_exact",
         "dstar_lite_key_compare_exact",
         "dstar_lite_key_hash_exact",
+        "dstar_lite_key_is_close",
         "dstar_lite_key_create",
         "dstar_lite_key_create_full",
         "dstar_lite_key_copy",
@@ -11097,6 +11098,14 @@
       "name": "dstar_lite_key_hash_exact",
       "return_type": "uint32_t",
       "signature": "uint32_t dstar_lite_key_hash_exact( const dstar_lite_key_t* key);",
+      "return_form": "enum_result",
+      "canonical": "navsys_status_t plus typed out enum"
+    },
+    {
+      "header": "byul/navsys/dstar_lite/dstar_lite_key.h",
+      "name": "dstar_lite_key_is_close",
+      "return_type": "navsys_status_t",
+      "signature": "navsys_status_t dstar_lite_key_is_close( const dstar_lite_key_t* lhs, const dstar_lite_key_t* rhs, float absolute_tolerance, float relative_tolerance, bool* out_is_close);",
       "return_form": "enum_result",
       "canonical": "navsys_status_t plus typed out enum"
     },
