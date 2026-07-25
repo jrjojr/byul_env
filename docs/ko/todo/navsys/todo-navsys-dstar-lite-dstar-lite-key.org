@@ -180,7 +180,7 @@ status+out_compare 대안을 최종 API review에서 결정한다.
   public-header root를 한 번 제공했다. MinGW 전체 SDK build/install과 설치 SDK C17/C++17
   consumer까지 통과했다.
 
-** TODO 2단계: exact value API 구현
+** DONE 2단계: exact value API 구현
 
 *** 실행
 
@@ -199,6 +199,29 @@ status+out_compare 대안을 최종 API review에서 결정한다.
 
 - property-based ordering/hash test와 exhaustive special-float corpus를 실행한다.
 - UBSan/ASan과 debug STL ordered/unordered container test를 실행한다.
+
+*** 완료 기록
+
+- 2026-07-25 =init/create_ex/copy_ex=, ABI layout query와 exact
+  equality/compare/hash를 구현했다. Compare는 invalid pointer/key를 정상적인 equality 0으로
+  숨기지 않도록 =navsys_status_t + int* out_compare= 계약으로 확정했으며 실패 시 모든 output을
+  보존한다. Canonical domain은 finite와 =+Inf=를 허용하고 NaN과 =-Inf=를 거부하며 =-0=은
+  =+0=으로 정규화한다.
+- exact compare 0과 exact equality의 동치, equality가 같은 hash를 보장함을 전체 key pair와
+  transitivity corpus로 검증했다. =std::set/std::unordered_set=에서 =+0/-0= dedup, 인접 float,
+  infinity와 invalid special-float 경계를 확인했다. Legacy 함수의 ABI 1.x 의미는 3단계 전까지
+  유지하되 모든 allocation entry point에 C++ exception barrier를 추가했다.
+- key 구현에서 =scalar.h/scalar_equal=을 제거했고 D* Lite source의 남은 상대오차 사용은 동일
+  수식의 local compatibility helper로 격리했다. 독립 =dstar_lite= target의 Numal include/link도
+  제거하여 production dependency graph를 닫았다.
+- MinGW/MSVC Release key gate는 각각 6 case/1,345 assertion, 전체 D* Lite gate는 각각
+  32 case/1,432 assertion을 통과했다. 강제 allocation-failure fixture와 MSVC Debug STL key
+  gate도 통과했고, 두 toolchain의 새 설치 prefix에서 C17/C++17 SDK consumer가 exact symbol을
+  링크·실행했다. CFFI 생성 check, key header structured audit 0 error, Navsys ABI inventory
+  46 header/524 symbol과 =git diff --check=를 통과했다.
+- draft PR #16의 Linux Debug sanitizer gate(run =30154602803=)에서 UBSan, root shared
+  =test_byul=, allocation failure/leak gate와 ASan-preloaded 설치 SDK consumer가 2분 14초에
+  통과했다.
 
 ** TODO 3단계: 근사 비교 분리와 legacy forwarding
 
