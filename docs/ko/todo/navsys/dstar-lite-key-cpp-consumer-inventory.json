@@ -1,0 +1,101 @@
+{
+  "schema_version": 1,
+  "header": {
+    "path": "byul/navsys/dstar_lite/dstar_lite_key.hpp",
+    "sha256": "385f701c8eb5572235265a3e14feca517b53c68db3e9575efb0e7fea36e58c9b",
+    "declared_helpers": 5
+  },
+  "summary": {
+    "unique_consumers": 1,
+    "internal_production": 1,
+    "test_only": 0,
+    "external": 0,
+    "old_sdk_source_fixture_present": false
+  },
+  "consumers": {
+    "internal-production": [
+      "byul/navsys/dstar_lite/dstar_lite_pqueue.cpp"
+    ],
+    "test-only": [],
+    "external": []
+  },
+  "header_includes": [
+    {
+      "path": "byul/navsys/dstar_lite/dstar_lite_pqueue.cpp",
+      "line": 3,
+      "category": "internal-production"
+    }
+  ],
+  "symbols": [
+    {
+      "name": "DstarLiteKeyHash",
+      "declaration_lines": [
+        13
+      ],
+      "consumers": []
+    },
+    {
+      "name": "DstarLiteKeyEqual",
+      "declaration_lines": [
+        19
+      ],
+      "consumers": []
+    },
+    {
+      "name": "DstarLiteKeyLess",
+      "declaration_lines": [
+        25
+      ],
+      "consumers": [
+        {
+          "path": "byul/navsys/dstar_lite/dstar_lite_pqueue.cpp",
+          "line": 12,
+          "category": "internal-production"
+        }
+      ]
+    },
+    {
+      "name": "std::hash<dstar_lite_key_t>",
+      "declaration_lines": [
+        35
+      ],
+      "consumers": []
+    },
+    {
+      "name": "dstar_lite_key_ptr_less",
+      "declaration_lines": [
+        42
+      ],
+      "consumers": []
+    }
+  ],
+  "build_and_distribution": {
+    "module_public_header_inventory": true,
+    "install_path": "include/byul/dstar_lite_key.hpp",
+    "clean_install_present": true,
+    "clean_install_sha256": "385f701c8eb5572235265a3e14feca517b53c68db3e9575efb0e7fea36e58c9b",
+    "manifest_exported_symbols": [],
+    "wrapper_registered": false,
+    "wrapper_disposition": {
+      "mode": "excluded",
+      "reason": "C++ compatibility include has no independent C wrapper surface."
+    }
+  },
+  "approved_boundary": {
+    "manifest": "docs/ko/todo/header-refactor-current/header-role-manifest.json",
+    "decision_status": "approved",
+    "primary_role": "compatibility-forwarder",
+    "abi_1_x_install": true,
+    "naming": {
+      "disposition": "forward",
+      "canonical_path": "byul/navsys/dstar_lite/internal/dstar_lite_key_ops.hpp",
+      "canonical_install": false,
+      "deprecated_since": "1.1.0",
+      "remove_in": "2.0.0",
+      "reason": "C++ ordering/hash helpers are implementation-only; retain the installed legacy include through ABI 1.x.",
+      "compatibility_path": "byul/navsys/dstar_lite/dstar_lite_key.hpp"
+    },
+    "forwarding_required": true,
+    "forwarding_reason": "The helper shipped in the ABI 1.x SDK; retain the legacy include path through 1.x even though no external source fixture was found."
+  }
+}

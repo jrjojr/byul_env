@@ -8,6 +8,7 @@
 #+BUILD_RULES: ../../../../external/rules/projects/byul/build-rules.org
 #+TEST_RULES: ../../../../external/rules/projects/byul/test-rules.org
 #+TODO_PARENT: todo-리팩토링-navsys-headers.org
+#+CONSUMER_INVENTORY: dstar-lite-key-cpp-consumer-inventory.json
 #+AUTHOR: ByulPapa / Codex
 #+LANGUAGE: ko
 #+OPTIONS: toc:t num:nil
@@ -133,7 +134,7 @@ struct key_hash final {
 
 * 구현 순서
 
-** TODO 1단계: consumer와 install 사실 확정
+** DONE 1단계: consumer와 install 사실 확정
 
 *** 실행
 
@@ -149,6 +150,23 @@ struct key_hash final {
 
 - clean install file list와 five-symbol source report를 자동 생성한다.
 - old SDK source fixture가 실제로 존재하면 별도 build한다.
+
+*** 완료 기록
+
+- 2026-07-25 =tools/dstar_lite_key_cpp_inventory.py=와
+  =dstar-lite-key-cpp-consumer-inventory.json=으로 repository, external source, CMake,
+  clean install과 header-role manifest의 판정을 하나의 재생성 가능한 report로 고정했다.
+- 다섯 선언 중 production에서 소비되는 것은
+  =dstar_lite_pqueue.cpp=의 =DstarLiteKeyLess= 하나뿐이다. =DstarLiteKeyHash=,
+  =DstarLiteKeyEqual=, =std::hash<dstar_lite_key_t>=와
+  =dstar_lite_key_ptr_less=는 선언 외 consumer가 없고 test-only/external consumer도 0개다.
+- MSVC Release stage-4 clean install의 =include/byul/dstar_lite_key.hpp=는 source와 같은
+  SHA-256이며 CMake ABI 1.x public header inventory에 포함된다. C++ helper export는 없고
+  wrapper manifest는 독립 C surface가 없다는 이유로 =excluded=다.
+- 별도 old-SDK external source fixture는 발견되지 않아 fixture build는 적용 대상이 아니다.
+  그러나 이 경로가 기존 SDK에 실제 배포됐으므로 forwarding은 생략하지 않는다. 승인된
+  header-role manifest대로 1.1에서 deprecated compatibility include로 유지하고 2.0에서
+  비설치 =internal/dstar_lite_key_ops.hpp=로 종료한다.
 
 ** TODO 2단계: exact by-value detail comparator 도입
 
