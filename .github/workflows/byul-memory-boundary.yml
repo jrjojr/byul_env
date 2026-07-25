@@ -44,7 +44,7 @@ jobs:
 
     steps:
       - name: Check out repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Check out build dependencies
         run: |
@@ -77,7 +77,7 @@ jobs:
 
     steps:
       - name: Check out repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Check out build dependencies
         shell: pwsh
@@ -111,7 +111,8 @@ jobs:
             -DBUILD_TESTING=OFF
           $listing = ctest --test-dir build_package -C Release -N
           $listing | Write-Output
-          if ($listing -notmatch "Total Tests: 0") {
+          $listingText = [string]::Join([Environment]::NewLine, $listing)
+          if ($listingText -notmatch "(?m)^Total Tests: 0$") {
             throw "tests-off tree contains CTest entries"
           }
 
@@ -122,7 +123,7 @@ jobs:
 
     steps:
       - name: Check out repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Set up MSYS2 MinGW
         uses: msys2/setup-msys2@v2
