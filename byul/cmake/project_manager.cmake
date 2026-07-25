@@ -201,8 +201,10 @@ function(byul_apply_library_platform_settings target_name)
         message(STATUS "${target_name} No ASan for Windows (unsupported).")
 
         if(NOT MSVC)
-            set(MINGW_DLL_PATH "C:/msys64/mingw64/bin" PARENT_SCOPE)
-            set(MINGW_PTHREAD_DLL "C:/msys64/mingw64/bin/libwinpthread-1.dll" PARENT_SCOPE)
+            get_filename_component(_byul_mingw_bin "${CMAKE_CXX_COMPILER}" DIRECTORY)
+            set(MINGW_DLL_PATH "${_byul_mingw_bin}" PARENT_SCOPE)
+            set(MINGW_PTHREAD_DLL
+                "${_byul_mingw_bin}/libwinpthread-1.dll" PARENT_SCOPE)
         endif()
 
         byul_set_target_output_dirs(${target_name})
