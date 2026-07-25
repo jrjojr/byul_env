@@ -206,7 +206,7 @@ struct key_hash final {
   전환하지 않았다. 새 canonical production surface만 exact by-value로 동결했고 실제
   pqueue 소비 전환은 이 문서 3단계와 pqueue 문서 TODO 2단계의 소유 경계를 따른다.
 
-** TODO 3단계: private helper와 build inventory 전환
+** DONE 3단계: private helper와 build inventory 전환
 
 *** 실행
 
@@ -223,6 +223,32 @@ struct key_hash final {
 
 - static D* Lite/root shared build와 clean install inventory를 실행한다.
 - forbidden symbol/path scan을 CI gate로 실행한다.
+
+*** 완료 기록
+
+- 2026-07-25 =dstar_lite_key.hpp=를 =dstar_lite_HEADERS=에서 제거하고
+  =internal/dstar_lite_key_ops.hpp=를 =dstar_lite_SOURCES=에 연결했다. 생성된 MSVC
+  project에서 private helper가 =dstar_lite= static, =navsys= static과 root =byul= shared
+  세 target에 모두 포함되고 legacy header는 포함되지 않음을 확인했다.
+- =dstar_lite_pqueue.cpp=는 현행 pointer-key storage를 유지하는 local transitional adapter
+  안에서 by-value =dstar_lite_detail::key_less=를 호출한다. 따라서 이 문서가 소유하지 않는
+  queue storage 전환 없이도 다섯 legacy helper 이름의 production 참조를 0으로 만들었다.
+- 새 MSVC Release clean install은 headers=92이며 legacy =dstar_lite_key.hpp=와 private
+  =dstar_lite_key_ops.hpp=를 모두 설치하지 않는다. C17/C++17 SDK consumer를 이 install로
+  새로 configure/build/run했다.
+- MSVC Release에서 module static, root shared, =test_dstar_lite=와 =test_byul=을
+  재빌드했다. exact relation 집중 test는 module/root 각각 1 case, 1410 assertions,
+  D* Lite module 전체는 32 cases, 1581 assertions를 통과했다.
+- header-role manifest는 legacy path의 =approved_install=false=와 private helper의
+  internal/wrapper-excluded 경계를 기록한다. Navsys ABI inventory는 private header를
+  symbols=0으로 포함해 headers=47, symbols=525이며 CFFI 생성 결과는 변하지 않았다.
+- GitHub Actions run =30157358793=은 2분 24초에 성공했다. Linux clean install은
+  install-files=93, headers=92였고 forbidden inventory는 helpers=5, consumers=0,
+  external=0이었다. GCC/Clang C++17 =-Werror=, header ABI compile=190/190,
+  clean SDK consumer와 static/root UBSan gate도 모두 통과했다.
+- Legacy source file과 그 안의 다섯 선언은 Stage 4의 compatibility-path 종료 전까지
+  repository에만 남는다. 실제 pqueue by-value storage 전환은 pqueue 문서 TODO 2단계가
+  계속 소유한다.
 
 ** TODO 4단계: compatibility path 종료
 
