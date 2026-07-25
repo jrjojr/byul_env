@@ -7,6 +7,7 @@
 #include "coord.h"
 #include "coord_hash.h"
 #include "cost_coord_pq.h"
+#include "route.h"
 
 struct coord_hash_callback_counts {
     int copies{};
@@ -69,6 +70,24 @@ int main() {
             decltype(&equal_coord_hash_int),
             coord_hash_value_equal_func_ex>);
     static_assert(sizeof(void*) == 8);
+    static_assert(ROUTE_DIR_UNKNOWN == 0);
+    static_assert(ROUTE_DIR_DOWN_RIGHT == 8);
+    static_assert(ROUTE_DIR_COUNT == 9);
+    static_assert(ROUTE_COMPLETION_NONE == 0);
+    static_assert(ROUTE_COMPLETION_COMPLETE == 1);
+    static_assert(ROUTE_COMPLETION_PARTIAL == 2);
+    static_assert(std::is_standard_layout_v<route_t>);
+    static_assert(sizeof(route_t) == 48);
+    static_assert(alignof(route_t) == 8);
+    static_assert(offsetof(route_t, coords) == 0);
+    static_assert(offsetof(route_t, visited_order) == 8);
+    static_assert(offsetof(route_t, visited_count) == 16);
+    static_assert(offsetof(route_t, cost) == 24);
+    static_assert(offsetof(route_t, success) == 28);
+    static_assert(offsetof(route_t, total_retry_count) == 32);
+    static_assert(offsetof(route_t, avg_vec_x) == 36);
+    static_assert(offsetof(route_t, avg_vec_y) == 40);
+    static_assert(offsetof(route_t, vec_count) == 44);
     static_assert(sizeof(coord_hash_create_info_t) == 40);
     static_assert(alignof(coord_hash_create_info_t) == 8);
     static_assert(offsetof(coord_hash_create_info_t, struct_size) == 0);

@@ -2,6 +2,88 @@
 #include "route.h"
 #include "coord.h"
 
+#include <cstddef>
+
+TEST_CASE("[ROUTE-ABI-001] route ABI 1 enum and public layout baseline") {
+    CHECK(ROUTE_DIR_UNKNOWN == 0);
+    CHECK(ROUTE_DIR_RIGHT == 1);
+    CHECK(ROUTE_DIR_UP_RIGHT == 2);
+    CHECK(ROUTE_DIR_UP == 3);
+    CHECK(ROUTE_DIR_UP_LEFT == 4);
+    CHECK(ROUTE_DIR_LEFT == 5);
+    CHECK(ROUTE_DIR_DOWN_LEFT == 6);
+    CHECK(ROUTE_DIR_DOWN == 7);
+    CHECK(ROUTE_DIR_DOWN_RIGHT == 8);
+    CHECK(ROUTE_DIR_COUNT == 9);
+    CHECK(ROUTE_COMPLETION_NONE == 0);
+    CHECK(ROUTE_COMPLETION_COMPLETE == 1);
+    CHECK(ROUTE_COMPLETION_PARTIAL == 2);
+
+    CHECK(sizeof(route_dir_t) == 4);
+    CHECK(sizeof(route_completion_t) == 4);
+    CHECK(sizeof(route_t) == (sizeof(void*) == 8 ? 48u : 36u));
+    CHECK(alignof(route_t) == (sizeof(void*) == 8 ? 8u : 4u));
+    CHECK(offsetof(route_t, coords) == 0);
+    CHECK(offsetof(route_t, visited_order) == sizeof(void*));
+    CHECK(offsetof(route_t, visited_count) == 2 * sizeof(void*));
+    CHECK(offsetof(route_t, cost) == 3 * sizeof(void*));
+    CHECK(offsetof(route_t, success) == 3 * sizeof(void*) + 4);
+    CHECK(offsetof(route_t, total_retry_count) == 3 * sizeof(void*) + 8);
+    CHECK(offsetof(route_t, avg_vec_x) == 3 * sizeof(void*) + 12);
+    CHECK(offsetof(route_t, avg_vec_y) == 3 * sizeof(void*) + 16);
+    CHECK(offsetof(route_t, vec_count) == 3 * sizeof(void*) + 20);
+}
+
+TEST_CASE("[ROUTE-LEGACY-001] route identity and NULL sentinel baseline") {
+    route_t* route = route_create();
+    REQUIRE(route != nullptr);
+    route_t* copy = route_copy(route);
+    REQUIRE(copy != nullptr);
+
+    CHECK(route_equal(route, route) == 1);
+    CHECK(route_equal(route, copy) == 0);
+    CHECK(route_hash(route) == reinterpret_cast<uintptr_t>(route));
+    CHECK(route_get_cost(nullptr) == doctest::Approx(0.0f));
+    CHECK(route_get_success(nullptr) == 0);
+    CHECK(route_length(nullptr) == 0);
+
+    route_destroy(copy);
+    route_destroy(route);
+}
+
+TEST_CASE("[ROUTE-LEGACY-002] slice and append copy coordinates only") {
+    route_t* source = route_create();
+    route_t* destination = route_create();
+    REQUIRE(source != nullptr);
+    REQUIRE(destination != nullptr);
+    const coord_t first = {1, 2};
+    const coord_t second = {3, 4};
+    REQUIRE(route_add_coord(source, &first) == 1);
+    REQUIRE(route_add_coord(source, &second) == 1);
+    route_set_cost(source, 7.5f);
+    route_set_success(source, 1);
+    route_set_total_retry_count(source, 3);
+
+    route_t* slice = route_slice(source, 0, 1);
+    REQUIRE(slice != nullptr);
+    CHECK(route_length(slice) == 1);
+    CHECK(route_get_cost(slice) == doctest::Approx(0.0f));
+    CHECK(route_get_success(slice) == 0);
+    CHECK(route_get_total_retry_count(slice) == 0);
+
+    route_set_cost(destination, 2.0f);
+    route_set_total_retry_count(destination, 5);
+    route_append(destination, source);
+    CHECK(route_length(destination) == 2);
+    CHECK(route_get_cost(destination) == doctest::Approx(2.0f));
+    CHECK(route_get_success(destination) == 0);
+    CHECK(route_get_total_retry_count(destination) == 5);
+
+    route_destroy(slice);
+    route_destroy(destination);
+    route_destroy(source);
+}
+
 TEST_CASE("route creation and basic ops") {
     route_t* p = route_create();
     CHECK(route_get_cost(p) == doctest::Approx(0.0f));

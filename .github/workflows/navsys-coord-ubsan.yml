@@ -1,4 +1,4 @@
-name: Navsys Coord UBSan
+name: Navsys Integration UBSan
 
 on:
   pull_request:
@@ -9,6 +9,7 @@ on:
       - "byul/cmake/**"
       - "byul/navsys/coord/**"
       - "byul/navsys/dstar_lite/**"
+      - "byul/navsys/route/**"
       - "byul/navsys/tests/**"
       - "byul/tests/**"
       - "docs/ko/todo/navsys/coord-hash-abi-policy.json"
@@ -16,11 +17,15 @@ on:
       - "docs/ko/todo/navsys/todo-navsys-coord-coord.org"
       - "docs/ko/todo/navsys/dstar-lite-key-cpp-consumer-inventory.json"
       - "docs/ko/todo/navsys/navsys-current-abi-inventory.json"
+      - "docs/ko/todo/navsys/route-abi-consumer-inventory.json"
+      - "docs/ko/todo/navsys/todo-navsys-route-route.org"
+      - "docs/ko/todo/navsys/todo-리팩토링-navsys-headers.org"
       - "docs/ko/todo/navsys/todo-navsys-dstar-lite-dstar-lite-key-cpp.org"
       - "tools/header_abi_audit.py"
       - "tools/header_refactor_build_snapshot.py"
       - "tools/dstar_lite_key_cpp_inventory.py"
       - "tools/navsys_abi_inventory.py"
+      - "tools/route_abi_inventory.py"
       - "tools/python/byul_wrapper/**"
   workflow_dispatch:
 
@@ -29,7 +34,7 @@ permissions:
 
 jobs:
   linux-ubsan:
-    name: Linux UBSan (coord static/root)
+    name: Linux UBSan (Navsys static/root)
     runs-on: ubuntu-latest
     timeout-minutes: 20
     env:
@@ -65,11 +70,11 @@ jobs:
           cmake --preset linux-debug
           -DSDL_UNIX_CONSOLE_BUILD=ON
 
-      - name: Build coord module and root shared tests
+      - name: Build Navsys modules and root shared tests
         working-directory: byul
         run: >-
           cmake --build --preset build-linux-debug
-          --target test_coord byul test_byul
+          --target test_coord test_route byul test_byul
           test_navsys_allocation_failure
 
       - name: Verify the complete coord inventory in static and root targets
@@ -170,6 +175,10 @@ jobs:
             --compile-output-dir build_coord_gate/standalone \
             --compile-report build_coord_gate/standalone.json \
             --json-output build_coord_gate/header-abi.json
+          python tools/route_abi_inventory.py \
+            --check \
+            --install-root build_coord_sdk \
+            --build-snapshot build_coord_gate/live-build.json
 
       - name: Build and run clean C17 and C++17 SDK consumers
         run: |
@@ -183,8 +192,8 @@ jobs:
           ./build_coord_sdk_consumer/byul_sdk_consumer
           ./build_coord_sdk_consumer/byul_sdk_consumer_cpp
 
-      - name: Run coord static and root shared UBSan gates
+      - name: Run Navsys static and root shared UBSan gates
         run: >-
           ctest --test-dir build_debug
           --output-on-failure
-          -R "^(test_coord|test_byul|test_navsys_allocation_failure|test_navsys_allocation_leak_gate)$"
+          -R "^(test_coord|test_route|test_byul|test_navsys_allocation_failure|test_navsys_allocation_leak_gate)$"

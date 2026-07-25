@@ -458,7 +458,7 @@ Navsys ABI inventory는 headers=46, symbols=525이고 header/ABI standalone comp
 성공해 Linux static/root UBSan, live export/wrapper audit와 clean C17/C++17 SDK consumer를
 통과했다. 이로써 1단계 gate만 닫으며 2단계는 =TODO= 상태로 유지한다.
 
-** TODO 2단계: Route, navgrid, obstacle와 mutation 경계 확정
+** DOING 2단계: Route, navgrid, obstacle와 mutation 경계 확정
 
 *** 실행
 

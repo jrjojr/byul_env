@@ -80,6 +80,16 @@ static_assert(NAVSYS_STATUS_IN_PROGRESS == -12, "NAVSYS_STATUS_IN_PROGRESS ABI")
 static_assert(ROUTE_COMPLETION_NONE == 0, "ROUTE_COMPLETION_NONE ABI");
 static_assert(ROUTE_COMPLETION_COMPLETE == 1, "ROUTE_COMPLETION_COMPLETE ABI");
 static_assert(ROUTE_COMPLETION_PARTIAL == 2, "ROUTE_COMPLETION_PARTIAL ABI");
+static_assert(ROUTE_DIR_UNKNOWN == 0, "ROUTE_DIR_UNKNOWN ABI");
+static_assert(ROUTE_DIR_RIGHT == 1, "ROUTE_DIR_RIGHT ABI");
+static_assert(ROUTE_DIR_UP_RIGHT == 2, "ROUTE_DIR_UP_RIGHT ABI");
+static_assert(ROUTE_DIR_UP == 3, "ROUTE_DIR_UP ABI");
+static_assert(ROUTE_DIR_UP_LEFT == 4, "ROUTE_DIR_UP_LEFT ABI");
+static_assert(ROUTE_DIR_LEFT == 5, "ROUTE_DIR_LEFT ABI");
+static_assert(ROUTE_DIR_DOWN_LEFT == 6, "ROUTE_DIR_DOWN_LEFT ABI");
+static_assert(ROUTE_DIR_DOWN == 7, "ROUTE_DIR_DOWN ABI");
+static_assert(ROUTE_DIR_DOWN_RIGHT == 8, "ROUTE_DIR_DOWN_RIGHT ABI");
+static_assert(ROUTE_DIR_COUNT == 9, "ROUTE_DIR_COUNT ABI");
 
 #define ABI1_TYPE_LAYOUT(type, expected_size, expected_align) \
     static_assert(sizeof(type) == expected_size, #type " ABI 1 size"); \
@@ -170,6 +180,17 @@ ABI1_FIELD_OFFSET(route_finder_t, cost_fn, 48);
 ABI1_FIELD_OFFSET(route_finder_t, cost_fn_userdata, 56);
 ABI1_FIELD_OFFSET(route_finder_t, heuristic_fn, 64);
 ABI1_FIELD_OFFSET(route_finder_t, heuristic_fn_userdata, 72);
+
+ABI1_TYPE_LAYOUT(route_t, 48, 8);
+ABI1_FIELD_OFFSET(route_t, coords, 0);
+ABI1_FIELD_OFFSET(route_t, visited_order, 8);
+ABI1_FIELD_OFFSET(route_t, visited_count, 16);
+ABI1_FIELD_OFFSET(route_t, cost, 24);
+ABI1_FIELD_OFFSET(route_t, success, 28);
+ABI1_FIELD_OFFSET(route_t, total_retry_count, 32);
+ABI1_FIELD_OFFSET(route_t, avg_vec_x, 36);
+ABI1_FIELD_OFFSET(route_t, avg_vec_y, 40);
+ABI1_FIELD_OFFSET(route_t, vec_count, 44);
 
 #undef ABI1_FIELD_OFFSET
 #undef ABI1_TYPE_LAYOUT

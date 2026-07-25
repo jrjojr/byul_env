@@ -320,7 +320,7 @@ coordinate axis와 cost unit은 public contract test로 고정한다.
   =route_reconstruct_path= 호출은 제거한다. replacement는 C header에서 생성된 declaration을
   단일 source of truth로 등록한다.
 
-* TODO 1단계: ABI와 불변식 기준선 고정
+* DOING 1단계: ABI와 불변식 기준선 고정
 
 ** 실행
 
