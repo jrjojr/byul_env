@@ -2,7 +2,7 @@
   "schema_version": 1,
   "header": {
     "path": "byul/navsys/dstar_lite/dstar_lite_key.hpp",
-    "sha256": "385f701c8eb5572235265a3e14feca517b53c68db3e9575efb0e7fea36e58c9b",
+    "sha256": "314927b67fb02d983f395be69a4d209659dfba484e765dd2c1ef0c72a9143932",
     "declared_helpers": 5
   },
   "summary": {
@@ -73,7 +73,7 @@
     "module_public_header_inventory": true,
     "install_path": "include/byul/dstar_lite_key.hpp",
     "clean_install_present": true,
-    "clean_install_sha256": "385f701c8eb5572235265a3e14feca517b53c68db3e9575efb0e7fea36e58c9b",
+    "clean_install_sha256": "314927b67fb02d983f395be69a4d209659dfba484e765dd2c1ef0c72a9143932",
     "manifest_exported_symbols": [],
     "wrapper_registered": false,
     "wrapper_disposition": {
