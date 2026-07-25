@@ -136,7 +136,7 @@ status+out_compare 대안을 최종 API review에서 결정한다.
 
 * 구현 순서
 
-** TODO 1단계: key domain과 ABI 고정
+** DONE 1단계: key domain과 ABI 고정
 
 *** 실행
 
@@ -152,6 +152,33 @@ status+out_compare 대안을 최종 API review에서 결정한다.
 
 - old installed SDK layout/behavior fixture와 key corpus를 root shared에서 실행한다.
 - 원 논문 key ordering 예제를 exact reference comparator와 비교한다.
+
+*** 완료 기록
+
+- 2026-07-25 현행 8개 선언의 ABI 1.x 처분을 표와 같이 고정했다. 공개
+  ={float k1, k2}= layout은 size 8, align 4, offset 0/4이며 create/create-full/copy는
+  caller-owned heap allocation, destroy는 NULL-safe, copy(NULL)는 NULL이다.
+- legacy equal/compare는 =scalar_equal= 상대 tolerance를 equivalence로 사용한다.
+  따라서 근접한 서로 다른 key가 compare 0이면서 서로 다른 hash를 가지며, tolerance
+  chain은 비추이적이다. =+0/-0=도 equal/compare 0이지만 bit hash는 다르다.
+- legacy create-full은 NaN과 양·음 infinity를 모두 보존한다. =scalar_equal= 특성상
+  finite와 양·음 infinity도 같은 두 번째 성분을 가지면 equal/compare 0이고, NaN도
+  같은 두 번째 성분의 임의 key와 compare 0이 된다. 이는 ordered/unordered container
+  계약과 D* Lite의 exact lexicographic ordering에 사용할 수 없다.
+- 실제 planner는 infinity가 아니라 =FLT_MAX=를 g/rhs sentinel로 사용한다. Canonical
+  key domain은 finite과 =+Inf=를 허용하고 NaN과 =-Inf=를 거부하며, =-0=은 =+0=으로
+  canonicalize한다. Exact equality/order/hash만 container identity로 사용하고 tolerance는
+  명시적 진단 함수로 분리한다.
+- MinGW static D* Lite key corpus에서 layout, NULL, allocation/copy, tolerance chain,
+  zero, infinity와 NaN 동작을 고정했고 CMU D* Lite 정의의 exact lexicographic reference와
+  legacy 결과 차이를 확인했다. MinGW/MSVC key gate 36/36과 D* Lite 전체 123/123이
+  통과했다. 설치 C17 consumer에도 layout과 legacy equal/compare/hash 불일치 fixture를
+  추가했다.
+- 앞선 =coord.h=의 =navsys_status.h= 공개 의존성을 legacy module/test target이 전달받지
+  못하는 include graph 결함을 발견했다. =coord=/=navsys= target의 public usage requirement를
+  선언하고, 직접 header를 소비하는 기존 target을 위해 project scope에 =byul/navsys=
+  public-header root를 한 번 제공했다. MinGW 전체 SDK build/install과 설치 SDK C17/C++17
+  consumer까지 통과했다.
 
 ** TODO 2단계: exact value API 구현
 

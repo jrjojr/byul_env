@@ -50,8 +50,10 @@ add_library(${PROJECT_NAME} STATIC
 # ─────────────────────────────────────────────
 # include 경로
 # ─────────────────────────────────────────────
-target_include_directories(${PROJECT_NAME} PRIVATE
-    ${CMAKE_CURRENT_SOURCE_DIR}    
+target_include_directories(${PROJECT_NAME}
+PUBLIC
+    ${CMAKE_CURRENT_SOURCE_DIR}
+PRIVATE
     ${CMAKE_SOURCE_DIR}
 
     ${CMAKE_SOURCE_DIR}/byul_tick

@@ -15,6 +15,11 @@ include(CTest)
 set(BYUL_EXTERNAL_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../external")
 include_directories(BEFORE "${BYUL_EXTERNAL_DIR}/doctest-2.4.12/doctest")
 
+# Legacy module and test targets include coord headers directly instead of
+# inheriting the coord/navsys targets' public usage requirements.  Keep the
+# navsys public-header root visible so coord.h can resolve navsys_status.h.
+include_directories("${CMAKE_CURRENT_SOURCE_DIR}/navsys")
+
 # -----------------------------------------------------------------------------
 # Add modules
 # -----------------------------------------------------------------------------

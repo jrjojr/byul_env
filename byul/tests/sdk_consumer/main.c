@@ -7,6 +7,7 @@
 #include "coord.h"
 #include "coord_hash.h"
 #include "cost_coord_pq.h"
+#include "dstar_lite_key.h"
 #include "navsys_status.h"
 
 static bool cancel_immediately(void* userdata) {
@@ -514,6 +515,36 @@ int main(void) {
     }
     cost_coord_pq_clear(checked_pq);
     cost_coord_pq_destroy(checked_pq);
+
+    if (sizeof(dstar_lite_key_t) != 8
+        || _Alignof(dstar_lite_key_t) != 4
+        || offsetof(dstar_lite_key_t, k1) != 0
+        || offsetof(dstar_lite_key_t, k2) != 4) {
+        fprintf(stderr, "unexpected D* Lite key layout ABI\n");
+        return 22;
+    }
+    dstar_lite_key_t* legacy_key =
+        dstar_lite_key_create_full(1.0f, 2.0f);
+    dstar_lite_key_t* legacy_close_key =
+        dstar_lite_key_create_full(1.000005f, 2.0f);
+    dstar_lite_key_t* legacy_key_copy = dstar_lite_key_copy(legacy_key);
+    if (legacy_key == NULL
+        || legacy_close_key == NULL
+        || legacy_key_copy == NULL
+        || !dstar_lite_key_equal(legacy_key, legacy_close_key)
+        || dstar_lite_key_compare(legacy_key, legacy_close_key) != 0
+        || dstar_lite_key_hash(legacy_key)
+            == dstar_lite_key_hash(legacy_close_key)
+        || !dstar_lite_key_equal(legacy_key, legacy_key_copy)) {
+        fprintf(stderr, "unexpected D* Lite key legacy relation ABI\n");
+        dstar_lite_key_destroy(legacy_key_copy);
+        dstar_lite_key_destroy(legacy_close_key);
+        dstar_lite_key_destroy(legacy_key);
+        return 23;
+    }
+    dstar_lite_key_destroy(legacy_key_copy);
+    dstar_lite_key_destroy(legacy_close_key);
+    dstar_lite_key_destroy(legacy_key);
 
     if (!route_finder_is_supported(ROUTE_FINDER_ASTAR)
         || !route_finder_is_supported(ROUTE_FINDER_WEIGHTED_ASTAR)
