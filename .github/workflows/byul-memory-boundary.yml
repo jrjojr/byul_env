@@ -46,6 +46,11 @@ jobs:
       - name: Check out repository
         uses: actions/checkout@v5
 
+      - name: Install production executable link dependency
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends libgl-dev
+
       - name: Check out build dependencies
         run: |
           git submodule update --init --depth 1 external/SDL3-3.2.18/source
