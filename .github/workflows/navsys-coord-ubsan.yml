@@ -8,13 +8,17 @@ on:
       - "byul/CMakePresets.json"
       - "byul/cmake/**"
       - "byul/navsys/coord/**"
+      - "byul/navsys/dstar_lite/**"
       - "byul/navsys/tests/**"
       - "byul/tests/**"
       - "docs/ko/todo/navsys/coord-hash-abi-policy.json"
       - "docs/ko/todo/navsys/todo-navsys-coord-coord-hash.org"
       - "docs/ko/todo/navsys/todo-navsys-coord-coord.org"
+      - "docs/ko/todo/navsys/dstar-lite-key-cpp-consumer-inventory.json"
+      - "docs/ko/todo/navsys/todo-navsys-dstar-lite-dstar-lite-key-cpp.org"
       - "tools/header_abi_audit.py"
       - "tools/header_refactor_build_snapshot.py"
+      - "tools/dstar_lite_key_cpp_inventory.py"
       - "tools/python/byul_wrapper/**"
   workflow_dispatch:
 
@@ -131,6 +135,21 @@ jobs:
           cmake --install build_debug
           --component byul_sdk
           --prefix build_coord_sdk
+
+      - name: Audit D* Lite key private C++ helper
+        run: |
+          mkdir -p build_coord_gate/key-ops
+          c++ -std=c++17 -Wall -Wextra -Werror \
+            -Ibyul -Ibyul/navsys -Ibyul/navsys/dstar_lite \
+            -c byul/navsys/dstar_lite/tests/test_module_dstar_lite_key_ops_odr_a.cpp \
+            -o build_coord_gate/key-ops/gcc-key-ops.o
+          clang++ -std=c++17 -Wall -Wextra -Werror \
+            -Ibyul -Ibyul/navsys -Ibyul/navsys/dstar_lite \
+            -c byul/navsys/dstar_lite/tests/test_module_dstar_lite_key_ops_odr_b.cpp \
+            -o build_coord_gate/key-ops/clang-key-ops.o
+          python tools/dstar_lite_key_cpp_inventory.py \
+            --check \
+            --install-root build_coord_sdk
 
       - name: Audit live headers, exports and wrapper intersection
         run: |

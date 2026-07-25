@@ -1,4 +1,5 @@
 #include "doctest.h"
+#include "internal/dstar_lite_key_ops.hpp"
 
 #include <array>
 #include <cmath>
@@ -26,17 +27,6 @@ int reference_lexicographic_compare(
     return 0;
 }
 
-struct ExactKeyLess {
-    bool operator()(
-        const dstar_lite_key_t& lhs,
-        const dstar_lite_key_t& rhs) const {
-        int result = 0;
-        return dstar_lite_key_compare_exact(&lhs, &rhs, &result)
-                == NAVSYS_STATUS_OK
-            && result < 0;
-    }
-};
-
 struct ExactKeyHash {
     std::size_t operator()(const dstar_lite_key_t& key) const {
         return dstar_lite_key_hash_exact(&key);
@@ -52,6 +42,13 @@ struct ExactKeyEqual {
 };
 
 } // namespace
+
+bool dstar_lite_key_ops_odr_a(
+    const dstar_lite_key_t& lhs,
+    const dstar_lite_key_t& rhs);
+bool dstar_lite_key_ops_odr_b(
+    const dstar_lite_key_t& lhs,
+    const dstar_lite_key_t& rhs);
 
 TEST_CASE("dstar_lite_key legacy layout and allocation ABI") {
     static_assert(sizeof(dstar_lite_key_t) == 8);
@@ -309,7 +306,45 @@ TEST_CASE("dstar_lite_key exact relation orders canonical corpus") {
         == dstar_lite_key_hash_exact(&keys[3]));
     CHECK_FALSE(dstar_lite_key_equal_exact(&keys[4], &keys[6]));
 
-    std::set<dstar_lite_key_t, ExactKeyLess> ordered;
+    using byul::navsys::dstar_lite_detail::key_less;
+    static_assert(noexcept(
+        key_less{}(dstar_lite_key_t{}, dstar_lite_key_t{})));
+    const key_less less;
+    for (std::size_t i = 1; i < keys.size(); ++i) {
+        CHECK_FALSE(less(keys[i], keys[i]));
+        for (std::size_t j = 1; j < keys.size(); ++j) {
+            const int expected = reference_lexicographic_compare(
+                keys[i], keys[j]);
+            CHECK(less(keys[i], keys[j]) == (expected < 0));
+            if (less(keys[i], keys[j])) {
+                CHECK_FALSE(less(keys[j], keys[i]));
+            }
+        }
+    }
+    for (std::size_t i = 1; i < keys.size(); ++i) {
+        for (std::size_t j = 1; j < keys.size(); ++j) {
+            for (std::size_t k = 1; k < keys.size(); ++k) {
+                const bool ij_equivalent =
+                    !less(keys[i], keys[j]) && !less(keys[j], keys[i]);
+                const bool jk_equivalent =
+                    !less(keys[j], keys[k]) && !less(keys[k], keys[j]);
+                if (less(keys[i], keys[j]) && less(keys[j], keys[k])) {
+                    CHECK(less(keys[i], keys[k]));
+                }
+                if (ij_equivalent && jk_equivalent) {
+                    CHECK_FALSE(less(keys[i], keys[k]));
+                    CHECK_FALSE(less(keys[k], keys[i]));
+                }
+            }
+        }
+    }
+
+    CHECK(dstar_lite_key_ops_odr_a(keys[4], keys[6]));
+    CHECK(dstar_lite_key_ops_odr_b(keys[4], keys[6]));
+    CHECK_FALSE(dstar_lite_key_ops_odr_a(keys[6], keys[4]));
+    CHECK_FALSE(dstar_lite_key_ops_odr_b(keys[6], keys[4]));
+
+    std::set<dstar_lite_key_t, key_less> ordered;
     std::unordered_set<dstar_lite_key_t, ExactKeyHash, ExactKeyEqual> hashed;
     for (std::size_t i = 1; i < keys.size(); ++i) {
         ordered.insert(keys[i]);
