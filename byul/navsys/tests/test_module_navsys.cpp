@@ -2,7 +2,9 @@
 #include "navsys.h"
 #include "console.h"
 
+#include <cstddef>
 #include <iostream>
+#include <limits>
 
 static float bound_cost(
     const navgrid_t*, const coord_t*, const coord_t*, void* userdata) {
@@ -151,6 +153,47 @@ TEST_CASE("navsys: public status numeric ABI") {
     CHECK(static_cast<int>(NAVSYS_STATUS_LIMIT_REACHED) == -10);
     CHECK(static_cast<int>(NAVSYS_STATUS_INCOMPLETE) == -11);
     CHECK(static_cast<int>(NAVSYS_STATUS_IN_PROGRESS) == -12);
+}
+
+TEST_CASE("navsys: D* Lite key exact ABI is available from root") {
+    CHECK(dstar_lite_key_sizeof() == sizeof(dstar_lite_key_t));
+    CHECK(dstar_lite_key_alignof() == alignof(dstar_lite_key_t));
+    CHECK(dstar_lite_key_offsetof_k1() == offsetof(dstar_lite_key_t, k1));
+    CHECK(dstar_lite_key_offsetof_k2() == offsetof(dstar_lite_key_t, k2));
+
+    dstar_lite_key_t exact = {};
+    dstar_lite_key_t close = {};
+    REQUIRE(dstar_lite_key_init(&exact, -0.0f, 2.0f)
+        == NAVSYS_STATUS_OK);
+    REQUIRE(dstar_lite_key_init(&close, 0.000001f, 2.0f)
+        == NAVSYS_STATUS_OK);
+    CHECK_FALSE(dstar_lite_key_equal_exact(&exact, &close));
+
+    int order = 7;
+    REQUIRE(dstar_lite_key_compare_exact(&exact, &close, &order)
+        == NAVSYS_STATUS_OK);
+    CHECK(order < 0);
+
+    bool is_close = false;
+    REQUIRE(dstar_lite_key_is_close(
+        &exact, &close, 0.000001f, 0.0f, &is_close)
+        == NAVSYS_STATUS_OK);
+    CHECK(is_close);
+
+    const dstar_lite_key_t positive_zero = {0.0f, 2.0f};
+    const dstar_lite_key_t negative_zero = {-0.0f, 2.0f};
+    CHECK(dstar_lite_key_equal_exact(&positive_zero, &negative_zero));
+    CHECK(dstar_lite_key_hash_exact(&positive_zero)
+        == dstar_lite_key_hash_exact(&negative_zero));
+
+    const dstar_lite_key_t invalid = {
+        std::numeric_limits<float>::quiet_NaN(), 0.0f
+    };
+    is_close = true;
+    CHECK(dstar_lite_key_is_close(
+        &invalid, &exact, 0.0f, 0.0f, &is_close)
+        == NAVSYS_STATUS_INVALID_ARGUMENT);
+    CHECK(is_close);
 }
 
 TEST_CASE("navsys: callback bindings commit and unbind as pairs") {
