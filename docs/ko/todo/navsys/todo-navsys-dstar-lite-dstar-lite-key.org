@@ -282,7 +282,7 @@ status+out_compare 대안을 최종 API review에서 결정한다.
   반환하여 Stage 3 local MinGW 재실행 결과로 계산하지 않았다. 동일 commit의 Linux
   sanitizer와 MSVC Release/Debug/installed SDK 결과를 완료 근거로 사용한다.
 
-** TODO 4단계: wrapper와 통합 gate
+** DONE 4단계: wrapper와 통합 gate
 
 *** 실행
 
@@ -298,3 +298,22 @@ status+out_compare 대안을 최종 API review에서 결정한다.
 
 - Python equal/hash/NaN/close test, C17/C++17 clean SDK, sanitizer와
   =git diff --check=를 통과한다.
+
+*** 완료 기록
+
+- 2026-07-25 Python key wrapper를 immutable canonical value로 고정했다. =__eq__=,
+  ordering과 =__hash__=는 native exact relation을 공유하고, =ptr()=는 외부 field 쓰기가
+  wrapper 값과 hash를 바꾸지 못하는 detached snapshot을 반환한다. 근사 비교는 keyword-only
+  tolerance를 받는 =is_close=로만 노출했으며 create/copy/compare/is-close 실패는 공통
+  =navsys_status_t= 예외 mapping을 사용한다.
+- Python dict/set에서 인접 float는 별도 key, =+0/-0=은 동일 key가 되고 close 전후 hash가
+  보존됨을 확인했다. NaN/-Inf rejection, +Inf canonical value, 명시적 비추이 closeness chain과
+  pointer snapshot mutability를 포함한 wrapper 전체 gate는 설치 DLL에서 95 test를 통과했다.
+- static =test_navsys=와 root =test_byul=은 동일 exact ABI layout/symbol test 15 assertion을
+  각각 통과했다. Header 선언/source 정의/generated CFFI/root export의 18-symbol 교집합을
+  추가했고 Navsys ABI inventory는 46 header/525 symbol, CFFI stale check와
+  =git diff --check=는 clean이다.
+- MSVC Release 새 설치 prefix에서 C17/C++17 clean SDK consumer를 구성·빌드·실행했다.
+  구현 commit =e27e5c4=의 draft PR #16 Linux Debug sanitizer gate(run =30155776961=)는
+  UBSan static/root test, live header/export/wrapper audit와 ASan-preloaded 설치 SDK consumer를
+  2분 19초에 통과했다.
