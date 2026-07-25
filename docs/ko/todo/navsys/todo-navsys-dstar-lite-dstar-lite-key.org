@@ -223,7 +223,7 @@ status+out_compare 대안을 최종 API review에서 결정한다.
   =test_byul=, allocation failure/leak gate와 ASan-preloaded 설치 SDK consumer가 2분 14초에
   통과했다.
 
-** TODO 3단계: 근사 비교 분리와 legacy forwarding
+** DONE 3단계: 근사 비교 분리와 legacy forwarding
 
 *** 실행
 
@@ -240,6 +240,47 @@ status+out_compare 대안을 최종 API review에서 결정한다.
 - 비추이 tolerance chain이 container equivalence에 들어가지 않는 compile/source scan을
   실행한다.
 - old/new consumer와 export symbol을 비교한다.
+
+*** ABI 1 migration
+
+| legacy API | replacement | ABI 1.x semantic migration |
+|------------+-------------+------------------------------|
+| =create/create_full= | =init/create_ex= | symbol은 유지하되 NaN/-Inf를 NULL로 거부하고 -0을 +0으로 정규화한다. |
+| =copy= | =copy_ex= | symbol은 유지하되 source를 canonical validation하고 -0을 +0으로 정규화한다. |
+| =equal= | =equal_exact= 또는 =is_close= | container identity는 exact로 forward하며 근사 판정은 tolerance를 명시해야 한다. |
+| =compare= | =compare_exact= | exact lexicographic order로 forward한다. Legacy signature는 invalid input에서 0 fallback을 유지한다. |
+| =hash= | =hash_exact= | canonical hash로 forward하여 +0/-0과 exact equality가 같은 hash를 가진다. |
+
+- 위 legacy symbol은 ABI 1.x에서 제거하지 않고 =BYUL_DEPRECATED= migration target을
+  header에 제공한다. ABI 2 전까지 source/binary compatibility entry point로 남긴다.
+- =is_close(lhs,rhs,absolute_tolerance,relative_tolerance,out)=는 finite nonnegative tolerance만
+  받는다. 각 finite 성분은 =abs(a-b) <= max(abs_tol, rel_tol*max(abs(a),abs(b)))=로
+  판정하고 =+Inf=는 =+Inf=에만 close다. 이 관계는 비추이적이므로 진단/수렴 보고에만
+  쓰며 container identity/order/hash와 algorithm termination에는 사용하지 않는다.
+
+*** 완료 기록
+
+- 2026-07-25 explicit =dstar_lite_key_is_close= status API를 추가하고 invalid key/tolerance에서
+  output을 보존했다. 비추이 tolerance chain은 새 함수의 진단 성질로만 test하며 legacy
+  equal/compare/hash와 C++ hash/equality/order functor, production pqueue와 termination key
+  compare는 모두 exact canonical API를 직접 사용한다.
+- disposition 표의 =deprecate-forward=를 완결하여 create/create-full/copy도 canonical
+  create/copy로 전달했다. 모든 legacy symbol은 유지하고 header deprecation message와 위
+  migration 표에 replacement와 의도적인 의미 변경을 기록했다.
+- Stage 2 MSVC DLL의 key export 17개와 Stage 3 DLL을 비교해 기존 symbol 17개가 모두
+  유지되고 =dstar_lite_key_is_close= 하나만 추가된 18개임을 확인했다. 새 설치 prefix의
+  C17/C++17 consumer가 legacy forwarding, explicit closeness와 failure-output 계약을
+  링크·실행했다.
+- MSVC Release D* Lite 전체 32 case/1,445 assertion, Debug key 6 case/1,358 assertion과
+  강제 allocation-failure gate가 통과했다. CFFI multi-line deprecation 제거 회귀 4개,
+  generated CFFI stale/import, key header audit 0 error, Navsys ABI inventory 46 header/525
+  symbol과 =git diff --check=도 통과했다.
+- production source scan에서 =is_close= termination/container 사용과 legacy
+  equal/compare/hash 사용은 각각 0건이고 exact relation 사용만 남았다. Draft PR #16의
+  Linux Debug UBSan/root shared/설치 SDK gate(run =30155168206=)가 2분 10초에 통과했다.
+- 로컬 MSYS2 MinGW GCC 16.1.0은 이 변경과 무관한 빈 C++ source도 진단 없이 exit 1을
+  반환하여 Stage 3 local MinGW 재실행 결과로 계산하지 않았다. 동일 commit의 Linux
+  sanitizer와 MSVC Release/Debug/installed SDK 결과를 완료 근거로 사용한다.
 
 ** TODO 4단계: wrapper와 통합 gate
 
