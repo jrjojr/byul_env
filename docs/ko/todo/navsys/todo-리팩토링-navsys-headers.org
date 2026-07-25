@@ -410,7 +410,7 @@ coverage, Numal 제거 목록, wrapper omission/불일치 owner와 후속 local 
 loop가 모두 실행 가능한 상태다. 0단계를 닫되 기존 debt와 wrapper 불일치를 해결한
 것으로 확대 해석하지 않으며, 다음 순차 단계인 Coord value/collection 착수를 허용한다.
 
-** DOING 1단계: Coord value와 collection 계약 확정
+** DONE 1단계: Coord value와 collection 계약 확정
 
 *** 실행
 
@@ -429,6 +429,34 @@ loop가 모두 실행 가능한 상태다. 0단계를 닫되 기존 debt와 wrap
 
 - boundary/overflow/OOM/invalidation/property test와 old/new C/C++ consumer를 static/shared에서
   실행한다.
+
+*** 마감 근거
+
+2026-07-25 =coord.h=, =coord.hpp=, =coord_hash.h=, =coord_list.h=와
+=cost_coord_pq.h=의 다섯 child가 선언한 모든 순차 단계를 terminal =DONE=으로 닫았다.
+=coord.h=는 checked arithmetic, exact value relation과 caller-buffer format을 제공하고,
+=coord.hpp=의 C++ helper는 by-value internal helper로 전환한 뒤 legacy source/install path를
+종료했다. 따라서 수치 sentinel을 정상 결과로 재사용하거나 C++ exception을 C ABI 밖으로
+전파하는 신규 경로가 없다.
+
+=coord_hash.h=는 callback+userdata ownership, checked mutation/query, generation iterator,
+caller-buffer export/format과 Navsys-prefixed scalar callback을 고정했다. 안전한 ABI 1
+operation은 canonical 경로로 forward하고 ownership transfer가 모호한 =coord_hash_set=은
+legacy-only로 격리했다. Python wrapper는 raw pointer map 대신 명시적
+=int/float/double/none= codec와 parent/iterator lifetime을 사용한다.
+
+=coord_list.h=는 status mutation, safe fetch, bulk/slice와 legacy forwarding을,
+=cost_coord_pq.h=는 by-value entry, atomic min, remove/size/trim과 deterministic queue 계약을
+구현했다. 두 wrapper 모두 borrowed/owned pointer 추론 대신 value snapshot을 사용한다.
+각 child 완료 기록의 boundary/overflow/OOM/invalidation/property, allocation failure,
+wrapper GC/close와 old/new installed SDK consumer 검증을 1단계 마감 근거로 채택한다.
+
+1단계 구현 종점은 =871f042=이며 이후 같은 미합류 Navsys integration branch에서 진행한
+D* Lite 변경 뒤에도 결과를 반복 검증했다. 현재 =refactor/navsys= SHA =8155514=에서
+Navsys ABI inventory는 headers=46, symbols=525이고 header/ABI standalone compile은
+190/190, errors=0이다. Draft PR #17의 GitHub Actions run =30158173580=은 2분 9초에
+성공해 Linux static/root UBSan, live export/wrapper audit와 clean C17/C++17 SDK consumer를
+통과했다. 이로써 1단계 gate만 닫으며 2단계는 =TODO= 상태로 유지한다.
 
 ** TODO 2단계: Route, navgrid, obstacle와 mutation 경계 확정
 
