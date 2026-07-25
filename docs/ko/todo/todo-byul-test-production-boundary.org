@@ -75,7 +75,7 @@ intentional leak와 mutation instrumentation은 =test*.exe=만 소유하고 =byu
   =byul.dll= export 집합은 1,078개로 완전히 동일했다.
 - Tests-off install을 사용하는 C17/C++17 SDK consumer가 각각 build와 실행에 성공했다.
 
-* DOING 3단계: Platform별 memory와 sanitizer gate 정렬
+* DONE 3단계: Platform별 memory와 sanitizer gate 정렬
 
 ** 실행
 
@@ -92,7 +92,16 @@ intentional leak와 mutation instrumentation은 =test*.exe=만 소유하고 =byu
 - Fault injection과 test source는 각 platform의 test executable에만 있다. Sanitizer가 적용된
   verification shared/executable과 sanitizer가 없는 tests-off package를 별도로 검증한다.
 
-* TODO 4단계: Clean package와 공통 audit 종료
+** 완료 기록
+
+- GitHub Actions =BYUL Memory Boundary= run =30180043015=에서 Ubuntu GCC/Clang,
+  Windows MSVC/MinGW allocation normal/leak gate가 모두 통과했다.
+- Ubuntu GCC/Clang Debug fixture에는 ASan/LSan/UBSan을 적용했고 MSVC는 STL Debug 제약을
+  production 변경 없이 Release fixture로 대체했다.
+- 새 지원 platform은 =byul-memory-test-matrix.json=에 memory fixture와 sanitizer gate를
+  추가하기 전까지 지원 완료로 판정하지 않는 계약을 중앙 규칙에 기록했다.
+
+* DONE 4단계: Clean package와 공통 audit 종료
 
 ** 실행
 
@@ -105,3 +114,15 @@ intentional leak와 mutation instrumentation은 =test*.exe=만 소유하고 =byu
 - Production artifact에 test-only source, definition, dependency와 export가 0개다.
 - Test executable은 필요 시 SDK verification artifact로 남지만 production artifact의 내용과
   동작을 바꾸지 않는다.
+
+** 완료 기록
+
+- 같은 run의 MSVC tests-off tree는 CTest 0개였고 Ubuntu GCC/Clang tests-off Release는
+  =libbyul.so=와 =gpu_comp_tester=를 실제 build한 뒤 test 실행파일 0개를 확인했다.
+- Ubuntu Release 생산 SO와 실행파일의 dynamic dependency에 =libasan=, =liblsan=,
+  =libubsan=이 없음을 검사했다. =gpu_comp_tester= sanitizer는 Debug verification에서만
+  적용되며 Release에는 적용되지 않는다.
+- 로컬 MSVC tests-on/off =byul.dll= export 1,078개가 동일했고 tests-off install 기반
+  C17/C++17 SDK consumer가 build와 실행에 성공했다.
+- 중앙 rules validator, production target configure audit, 기존 Navsys UBSan run
+  =30180043010=과 공통 memory/package run =30180043015=가 모두 통과했다.
