@@ -37,7 +37,9 @@ SYMBOL_PATTERNS = {
         r"\bdstar_lite_key_ptr_less\b"
     ),
 }
-HEADER_INCLUDE = re.compile(r"#\s*include\s*[<\"]dstar_lite_key\.hpp[>\"]")
+HEADER_INCLUDE = re.compile(
+    r"#\s*include\s*[<\"][^>\"]*dstar_lite_key\.hpp[>\"]"
+)
 
 
 def relative(path: Path) -> str:
@@ -132,10 +134,15 @@ def build_inventory(install_root: Path) -> dict:
         )
 
     manifest = load_json(REPOSITORY_ROOT / ROLE_MANIFEST)
-    role = next(
+    legacy_roles = [
         row
         for row in manifest["headers"]
         if row["current_path"] == HEADER.as_posix()
+    ]
+    private_role = next(
+        row
+        for row in manifest["headers"]
+        if row["current_path"] == PRIVATE_HEADER.as_posix()
     )
     cmake_text = (REPOSITORY_ROOT / MODULE_CMAKE).read_text(encoding="utf-8")
     installed = install_root.resolve() / INSTALL_PATH
@@ -144,11 +151,14 @@ def build_inventory(install_root: Path) -> dict:
         for category in ("internal-production", "test-only", "external")
     }
     return {
-        "schema_version": 1,
+        "schema_version": 2,
         "header": {
             "path": HEADER.as_posix(),
-            "sha256": sha256(header_path),
-            "declared_helpers": len(SYMBOL_PATTERNS),
+            "present": header_path.is_file(),
+            "sha256": sha256(header_path) if header_path.is_file() else None,
+            "declared_helpers": sum(
+                1 for row in symbol_rows if row["declaration_lines"]
+            ),
         },
         "summary": {
             "unique_consumers": len(all_consumers),
@@ -168,32 +178,43 @@ def build_inventory(install_root: Path) -> dict:
                 f"/{PRIVATE_HEADER.relative_to(HEADER.parent).as_posix()}"
                 in cmake_text.replace("\\", "/")
             ),
+            "private_header_present": (
+                REPOSITORY_ROOT / PRIVATE_HEADER
+            ).is_file(),
             "install_path": INSTALL_PATH.as_posix(),
             "clean_install_present": installed.is_file(),
             "clean_install_sha256": sha256(installed) if installed.is_file() else None,
-            "manifest_exported_symbols": role["source_evidence"]["exported_symbols"],
-            "wrapper_registered": role["source_evidence"]["wrapper_modules_registered"],
-            "wrapper_disposition": role["wrapper"],
+            "manifest_legacy_role_present": bool(legacy_roles),
+            "manifest_exported_symbols": private_role["source_evidence"][
+                "exported_symbols"
+            ],
+            "wrapper_registered": private_role["source_evidence"][
+                "wrapper_modules_registered"
+            ],
+            "wrapper_disposition": private_role["wrapper"],
         },
         "approved_boundary": {
             "manifest": ROLE_MANIFEST.as_posix(),
-            "decision_status": role["decision_status"],
-            "primary_role": role["primary_role"],
-            "stage_3_install": role["approved_install"],
-            "naming": role["naming"],
-            "legacy_source_path_present": (
-                REPOSITORY_ROOT / HEADER
-            ).is_file(),
-            "removal_deferred_to_stage_4": True,
-            "stage_3_reason": (
-                "No external source consumer was found. Stage 3 removes the legacy "
-                "C++ helper from installation while Stage 4 owns source-path removal."
+            "decision_status": private_role["decision_status"],
+            "primary_role": private_role["primary_role"],
+            "approved_install": private_role["approved_install"],
+            "naming": private_role["naming"],
+            "legacy_source_path_present": header_path.is_file(),
+            "stage_4_removal_complete": not header_path.is_file(),
+            "stage_4_reason": (
+                "No external source consumer was found. The ABI-major Stage-4 gate "
+                "removes the legacy C++ source and SDK compatibility path."
             ),
         },
         "forbidden_surface": {
             "production_legacy_references": summary_count(
                 symbol_rows, "internal-production"
             ),
+            "test_legacy_references": summary_count(symbol_rows, "test-only"),
+            "external_legacy_references": summary_count(symbol_rows, "external"),
+            "legacy_header_includes": len(include_consumers),
+            "repository_legacy_path": header_path.is_file(),
+            "manifest_legacy_role": bool(legacy_roles),
             "installed_legacy_path": installed.is_file(),
         },
     }
@@ -221,8 +242,10 @@ def write_json_atomic(path: Path, payload: dict) -> None:
 
 def validate(payload: dict) -> list[str]:
     errors = []
-    if payload["header"]["declared_helpers"] != 5:
-        errors.append("the helper declaration inventory is not exactly five")
+    if payload["header"]["present"] or payload["header"]["sha256"] is not None:
+        errors.append("the legacy C++ helper source path remains present")
+    if payload["header"]["declared_helpers"]:
+        errors.append("legacy C++ helper declarations remain present")
     summary = payload["summary"]
     if summary["internal_production"]:
         errors.append("legacy C++ helper remains in production source")
@@ -233,22 +256,36 @@ def validate(payload: dict) -> list[str]:
         errors.append("the legacy C++ helper remains in the public CMake inventory")
     if not build["module_private_header_inventory"]:
         errors.append("the canonical private helper is absent from the source inventory")
+    if not build["private_header_present"]:
+        errors.append("the canonical private helper source path is absent")
     if build["clean_install_present"] or build["clean_install_sha256"] is not None:
         errors.append("the legacy C++ helper remains in the clean SDK install")
+    if build["manifest_legacy_role_present"]:
+        errors.append("the removed legacy helper remains in the role manifest")
     if build["manifest_exported_symbols"] or build["wrapper_registered"]:
         errors.append("the C++ helper leaked into exports or the wrapper manifest")
     boundary = payload["approved_boundary"]
     if boundary["decision_status"] != "approved":
         errors.append("the header boundary decision is not approved")
-    if boundary["primary_role"] != "compatibility-forwarder":
-        errors.append("the legacy source path is not a compatibility forwarder")
-    if boundary["stage_3_install"]:
-        errors.append("the role manifest still approves legacy helper installation")
+    if boundary["primary_role"] != "internal":
+        errors.append("the canonical helper is not classified as internal")
+    if boundary["approved_install"]:
+        errors.append("the role manifest approves private helper installation")
     if boundary["naming"]["canonical_install"]:
         errors.append("the internal canonical helper is incorrectly installable")
     forbidden = payload["forbidden_surface"]
-    if forbidden["production_legacy_references"]:
-        errors.append("forbidden legacy helper names remain in production source")
+    if any(
+        forbidden[key]
+        for key in (
+            "production_legacy_references",
+            "test_legacy_references",
+            "external_legacy_references",
+            "legacy_header_includes",
+            "repository_legacy_path",
+            "manifest_legacy_role",
+        )
+    ):
+        errors.append("forbidden legacy C++ compatibility surface remains")
     if forbidden["installed_legacy_path"]:
         errors.append("forbidden legacy helper path remains installed")
     return errors
@@ -275,12 +312,12 @@ def main(argv: list[str] | None = None) -> int:
         return 1
     if args.apply:
         write_json_atomic(output, payload)
-        print(f"[WRITTEN] {output} helpers=5 consumers=0 external=0")
+        print(f"[WRITTEN] {output} legacy-helpers=0 consumers=0 external=0")
         return 0
     if not output.is_file() or load_json(output) != payload:
         print(f"[ERROR] stale inventory: {output}", file=sys.stderr)
         return 1
-    print(f"[OK] {output} helpers=5 consumers=0 external=0")
+    print(f"[OK] {output} legacy-helpers=0 consumers=0 external=0")
     return 0
 
 

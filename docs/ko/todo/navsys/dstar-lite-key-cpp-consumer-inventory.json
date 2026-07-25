@@ -1,9 +1,10 @@
 {
-  "schema_version": 1,
+  "schema_version": 2,
   "header": {
     "path": "byul/navsys/dstar_lite/dstar_lite_key.hpp",
-    "sha256": "314927b67fb02d983f395be69a4d209659dfba484e765dd2c1ef0c72a9143932",
-    "declared_helpers": 5
+    "present": false,
+    "sha256": null,
+    "declared_helpers": 0
   },
   "summary": {
     "unique_consumers": 0,
@@ -21,73 +22,70 @@
   "symbols": [
     {
       "name": "DstarLiteKeyHash",
-      "declaration_lines": [
-        13
-      ],
+      "declaration_lines": [],
       "consumers": []
     },
     {
       "name": "DstarLiteKeyEqual",
-      "declaration_lines": [
-        19
-      ],
+      "declaration_lines": [],
       "consumers": []
     },
     {
       "name": "DstarLiteKeyLess",
-      "declaration_lines": [
-        25
-      ],
+      "declaration_lines": [],
       "consumers": []
     },
     {
       "name": "std::hash<dstar_lite_key_t>",
-      "declaration_lines": [
-        35
-      ],
+      "declaration_lines": [],
       "consumers": []
     },
     {
       "name": "dstar_lite_key_ptr_less",
-      "declaration_lines": [
-        42
-      ],
+      "declaration_lines": [],
       "consumers": []
     }
   ],
   "build_and_distribution": {
     "module_public_header_inventory": false,
     "module_private_header_inventory": true,
+    "private_header_present": true,
     "install_path": "include/byul/dstar_lite_key.hpp",
     "clean_install_present": false,
     "clean_install_sha256": null,
+    "manifest_legacy_role_present": false,
     "manifest_exported_symbols": [],
     "wrapper_registered": false,
     "wrapper_disposition": {
       "mode": "excluded",
-      "reason": "C++ compatibility include has no independent C wrapper surface."
+      "reason": "internal headers are outside the installed C ABI wrapper input."
     }
   },
   "approved_boundary": {
     "manifest": "docs/ko/todo/header-refactor-current/header-role-manifest.json",
     "decision_status": "approved",
-    "primary_role": "compatibility-forwarder",
-    "stage_3_install": false,
+    "primary_role": "internal",
+    "approved_install": false,
     "naming": {
-      "disposition": "forward",
+      "disposition": "keep",
       "canonical_path": "byul/navsys/dstar_lite/internal/dstar_lite_key_ops.hpp",
       "canonical_install": false,
-      "deprecated_since": "1.1.0",
-      "remove_in": "2.0.0",
-      "reason": "C++ ordering/hash helpers are implementation-only; retain only the source compatibility path until the Stage-4 removal gate.",
-      "compatibility_path": "byul/navsys/dstar_lite/dstar_lite_key.hpp"
+      "deprecated_since": null,
+      "remove_in": null,
+      "reason": "Canonical private key-operation helper path.",
+      "compatibility_path": null
     },
-    "legacy_source_path_present": true,
-    "removal_deferred_to_stage_4": true,
-    "stage_3_reason": "No external source consumer was found. Stage 3 removes the legacy C++ helper from installation while Stage 4 owns source-path removal."
+    "legacy_source_path_present": false,
+    "stage_4_removal_complete": true,
+    "stage_4_reason": "No external source consumer was found. The ABI-major Stage-4 gate removes the legacy C++ source and SDK compatibility path."
   },
   "forbidden_surface": {
     "production_legacy_references": 0,
+    "test_legacy_references": 0,
+    "external_legacy_references": 0,
+    "legacy_header_includes": 0,
+    "repository_legacy_path": false,
+    "manifest_legacy_role": false,
     "installed_legacy_path": false
   }
 }

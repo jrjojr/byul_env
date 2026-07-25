@@ -13,19 +13,19 @@
     ]
   },
   "summary": {
-    "headers": 139,
-    "approved": 139,
+    "headers": 138,
+    "approved": 138,
     "approved_install": 98,
     "wrapper_generated": 27,
     "wrapper_manual": 64,
-    "wrapper_excluded": 48,
-    "compatibility_forwarders": 21,
+    "wrapper_excluded": 47,
+    "compatibility_forwarders": 20,
     "successor_headers": 20,
     "successor_links": 39,
     "public_resource_migrations": 10,
     "sdk_basename_collisions": 0,
     "abi_2_sdk_basename_collisions": 0,
-    "current_include_edges": 312,
+    "current_include_edges": 309,
     "current_include_cycles": 0
   },
   "remaining_stage_2_design_gate": [],
@@ -3141,40 +3141,6 @@
           "byul/navsys/dstar_lite/tests/test_module_dstar_lite_pqueue.cpp",
           "byul/navsys/tests/test_module_navsys.cpp"
         ]
-      },
-      "decision_status": "approved"
-    },
-    {
-      "asset_id": "initial:byul/navsys/dstar_lite/dstar_lite_key.hpp",
-      "current_path": "byul/navsys/dstar_lite/dstar_lite_key.hpp",
-      "sha256": "f9a01da3637d3436967e710e8e18ade033f74db01bbe38fe459f6df9979a00cb",
-      "primary_role": "compatibility-forwarder",
-      "role_reason": "C++ implementation helpers moved behind the D* Lite internal boundary; the legacy source path remains only until the Stage-4 removal gate.",
-      "owner_module": "navsys",
-      "public_module": "dstar_lite",
-      "approved_install": false,
-      "install_reason": "Stage 3 removes this C++ implementation helper from the SDK while retaining the source path until the Stage-4 removal gate.",
-      "wrapper": {
-        "mode": "excluded",
-        "reason": "C++ compatibility include has no independent C wrapper surface."
-      },
-      "naming": {
-        "disposition": "forward",
-        "canonical_path": "byul/navsys/dstar_lite/internal/dstar_lite_key_ops.hpp",
-        "canonical_install": false,
-        "deprecated_since": "1.1.0",
-        "remove_in": "2.0.0",
-        "reason": "C++ ordering/hash helpers are implementation-only; retain only the source compatibility path until the Stage-4 removal gate.",
-        "compatibility_path": "byul/navsys/dstar_lite/dstar_lite_key.hpp"
-      },
-      "successor_headers": [],
-      "source_evidence": {
-        "module_header_groups": [],
-        "root_header_inventory": false,
-        "install_inventory": false,
-        "wrapper_modules_registered": false,
-        "exported_symbols": [],
-        "source_definition_candidates": []
       },
       "decision_status": "approved"
     },

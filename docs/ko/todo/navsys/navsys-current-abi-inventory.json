@@ -3,7 +3,7 @@
   "source_role_manifest": "docs/ko/todo/header-refactor-current/header-role-manifest.json",
   "source_vocabulary": "docs/ko/todo/navsys/navsys-abi-vocabulary.json",
   "summary": {
-    "headers": 47,
+    "headers": 46,
     "symbols": 525,
     "return_forms": {
       "nullable_pointer": 151,
@@ -8417,15 +8417,6 @@
         "dstar_lite_key_compare",
         "dstar_lite_key_hash"
       ]
-    },
-    {
-      "path": "byul/navsys/dstar_lite/dstar_lite_key.hpp",
-      "owner_todo": "docs/ko/todo/navsys/todo-navsys-dstar-lite-dstar-lite-key-cpp.org",
-      "primary_role": "compatibility-forwarder",
-      "wrapper_mode": "excluded",
-      "symbol_count": 0,
-      "audit_issue_count": 0,
-      "symbols": []
     },
     {
       "path": "byul/navsys/dstar_lite/dstar_lite_pqueue.h",
