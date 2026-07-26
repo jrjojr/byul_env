@@ -1956,6 +1956,14 @@
                 199,
                 273
               ]
+            },
+            {
+              "path": "byul/navsys/route/route_heading.cpp",
+              "lines": [
+                104,
+                125,
+                145
+              ]
             }
           ],
           "test-only": [
@@ -2021,6 +2029,17 @@
                 198,
                 201,
                 216
+              ]
+            },
+            {
+              "path": "byul/navsys/route/route_heading.cpp",
+              "lines": [
+                111,
+                113,
+                131,
+                133,
+                151,
+                153
               ]
             }
           ],
@@ -3379,7 +3398,16 @@
       {
         "name": "route_direction_between",
         "consumers": {
-          "internal-production": [],
+          "internal-production": [
+            {
+              "path": "byul/navsys/route/route_heading.cpp",
+              "lines": [
+                69,
+                116,
+                136
+              ]
+            }
+          ],
           "test-only": [
             {
               "path": "byul/navsys/route/tests/test_module_route.cpp",
@@ -3405,7 +3433,14 @@
       {
         "name": "route_direction_fetch_vector",
         "consumers": {
-          "internal-production": [],
+          "internal-production": [
+            {
+              "path": "byul/navsys/route/route_heading.cpp",
+              "lines": [
+                81
+              ]
+            }
+          ],
           "test-only": [
             {
               "path": "byul/navsys/route/tests/test_module_route.cpp",
@@ -3430,7 +3465,14 @@
       {
         "name": "route_fetch_direction_at",
         "consumers": {
-          "internal-production": [],
+          "internal-production": [
+            {
+              "path": "byul/navsys/route/route_heading.cpp",
+              "lines": [
+                98
+              ]
+            }
+          ],
           "test-only": [
             {
               "path": "byul/navsys/route/tests/test_module_route.cpp",
@@ -3455,7 +3497,14 @@
       {
         "name": "route_compute_recent_facing",
         "consumers": {
-          "internal-production": [],
+          "internal-production": [
+            {
+              "path": "byul/navsys/route/route_heading.cpp",
+              "lines": [
+                119
+              ]
+            }
+          ],
           "test-only": [
             {
               "path": "byul/navsys/route/tests/test_module_route.cpp",
@@ -3479,7 +3528,14 @@
       {
         "name": "route_compute_recent_heading_degrees",
         "consumers": {
-          "internal-production": [],
+          "internal-production": [
+            {
+              "path": "byul/navsys/route/route_heading.cpp",
+              "lines": [
+                139
+              ]
+            }
+          ],
           "test-only": [
             {
               "path": "byul/navsys/route/tests/test_module_route.cpp",
@@ -3503,7 +3559,14 @@
       {
         "name": "route_heading_tracker_create",
         "consumers": {
-          "internal-production": [],
+          "internal-production": [
+            {
+              "path": "byul/navsys/route/route_heading.cpp",
+              "lines": [
+                166
+              ]
+            }
+          ],
           "test-only": [
             {
               "path": "byul/navsys/route/tests/test_module_route.cpp",
@@ -3534,7 +3597,14 @@
       {
         "name": "route_heading_tracker_destroy",
         "consumers": {
-          "internal-production": [],
+          "internal-production": [
+            {
+              "path": "byul/navsys/route/route_heading.cpp",
+              "lines": [
+                178
+              ]
+            }
+          ],
           "test-only": [
             {
               "path": "byul/navsys/route/tests/test_module_route.cpp",
@@ -3564,7 +3634,14 @@
       {
         "name": "route_heading_tracker_reset",
         "consumers": {
-          "internal-production": [],
+          "internal-production": [
+            {
+              "path": "byul/navsys/route/route_heading.cpp",
+              "lines": [
+                182
+              ]
+            }
+          ],
           "test-only": [
             {
               "path": "byul/navsys/route/tests/test_module_route.cpp",
@@ -3591,7 +3668,14 @@
       {
         "name": "route_heading_tracker_get_sample_count",
         "consumers": {
-          "internal-production": [],
+          "internal-production": [
+            {
+              "path": "byul/navsys/route/route_heading.cpp",
+              "lines": [
+                190
+              ]
+            }
+          ],
           "test-only": [
             {
               "path": "byul/navsys/route/tests/test_module_route.cpp",
@@ -3617,7 +3701,14 @@
       {
         "name": "route_heading_tracker_fetch_heading_degrees",
         "consumers": {
-          "internal-production": [],
+          "internal-production": [
+            {
+              "path": "byul/navsys/route/route_heading.cpp",
+              "lines": [
+                195
+              ]
+            }
+          ],
           "test-only": [
             {
               "path": "byul/navsys/route/tests/test_module_route.cpp",
@@ -3642,7 +3733,15 @@
       {
         "name": "route_heading_tracker_observe_vector",
         "consumers": {
-          "internal-production": [],
+          "internal-production": [
+            {
+              "path": "byul/navsys/route/route_heading.cpp",
+              "lines": [
+                211,
+                293
+              ]
+            }
+          ],
           "test-only": [
             {
               "path": "byul/navsys/route/tests/test_module_route.cpp",
@@ -3676,7 +3775,14 @@
       {
         "name": "route_heading_tracker_observe",
         "consumers": {
-          "internal-production": [],
+          "internal-production": [
+            {
+              "path": "byul/navsys/route/route_heading.cpp",
+              "lines": [
+                266
+              ]
+            }
+          ],
           "test-only": [],
           "wrapper": [
             {
