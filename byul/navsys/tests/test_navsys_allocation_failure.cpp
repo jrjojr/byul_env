@@ -92,6 +92,17 @@ void destroy_route_builder(route_builder_t* builder) {
     route_builder_destroy(builder);
 }
 
+route_heading_tracker_t* create_route_heading_tracker() {
+    route_heading_tracker_t* tracker = nullptr;
+    return route_heading_tracker_create(&tracker) == NAVSYS_STATUS_OK
+        ? tracker
+        : nullptr;
+}
+
+void destroy_route_heading_tracker(route_heading_tracker_t* tracker) {
+    route_heading_tracker_destroy(tracker);
+}
+
 navsys_search_trace_t* create_navsys_search_trace() {
     navsys_search_trace_t* trace = nullptr;
     return navsys_search_trace_create(&trace) == NAVSYS_STATUS_OK
@@ -744,6 +755,13 @@ int main(int argc, char** argv) {
     if (!verify_failure_atomic_create(
             "route_builder", create_route_builder, destroy_route_builder)) {
         return 12;
+    }
+
+    if (!verify_failure_atomic_create(
+            "route_heading_tracker",
+            create_route_heading_tracker,
+            destroy_route_heading_tracker)) {
+        return 14;
     }
 
     if (!verify_failure_atomic_create(

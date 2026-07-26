@@ -85,6 +85,18 @@ CANONICAL_SYMBOLS = {
     "navsys_search_trace_fetch_visit",
     "navsys_search_trace_fetch_coord_visit_count",
     "navsys_search_trace_export_visits",
+    "route_direction_between",
+    "route_direction_fetch_vector",
+    "route_fetch_direction_at",
+    "route_compute_recent_facing",
+    "route_compute_recent_heading_degrees",
+    "route_heading_tracker_create",
+    "route_heading_tracker_destroy",
+    "route_heading_tracker_reset",
+    "route_heading_tracker_get_sample_count",
+    "route_heading_tracker_fetch_heading_degrees",
+    "route_heading_tracker_observe_vector",
+    "route_heading_tracker_observe",
 }
 
 
@@ -414,12 +426,12 @@ def build_inventory(install_root: Path, build_snapshot: Path) -> dict[str, Any]:
 def validate(payload: dict[str, Any]) -> list[str]:
     errors: list[str] = []
     header = payload["header"]
-    if header["function_count"] != 70:
-        errors.append("route.h function inventory is not exactly 70")
+    if header["function_count"] != 82:
+        errors.append("route.h function inventory is not exactly 82")
     if header["legacy_function_count"] != 44:
         errors.append("legacy Route function inventory is not exactly 44")
-    if header["canonical_function_count"] != 26:
-        errors.append("canonical Route function inventory is not exactly 26")
+    if header["canonical_function_count"] != 38:
+        errors.append("canonical Route function inventory is not exactly 38")
     if header["enums"]["route_dir_t"] != ROUTE_DIR_VALUES:
         errors.append("route_dir_t numeric values changed")
     if header["enums"]["route_completion_t"] != ROUTE_COMPLETION_VALUES:
@@ -492,12 +504,12 @@ def main(argv: list[str] | None = None) -> int:
         return 1
     if args.apply:
         write_json_atomic(output, payload)
-        print(f"[WRITTEN] {output} functions=70 legacy=44 canonical=26")
+        print(f"[WRITTEN] {output} functions=82 legacy=44 canonical=38")
         return 0
     if not output.is_file() or load_json(output) != payload:
         print(f"[ERROR] stale inventory: {output}", file=sys.stderr)
         return 1
-    print(f"[OK] {output} functions=70 legacy=44 canonical=26")
+    print(f"[OK] {output} functions=82 legacy=44 canonical=38")
     return 0
 
 

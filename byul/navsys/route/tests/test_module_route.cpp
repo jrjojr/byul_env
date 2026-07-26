@@ -7,6 +7,7 @@
 #endif
 
 #include <cstddef>
+#include <limits>
 
 namespace {
 
@@ -563,6 +564,154 @@ TEST_CASE("route direction and angle") {
     coord_destroy(to2);
     route_destroy(p);
     coord_destroy(dir);    
+}
+
+TEST_CASE("[ROUTE-DIRECTION-001] canonical directions are allocation-free values") {
+    const coord_t origin = {0, 0};
+    const coord_t targets[8] = {
+        {99, 0}, {99, -77}, {0, -77}, {-99, -77},
+        {-99, 0}, {-99, 77}, {0, 77}, {99, 77}};
+    const route_dir_t expected[8] = {
+        ROUTE_DIR_RIGHT, ROUTE_DIR_UP_RIGHT, ROUTE_DIR_UP,
+        ROUTE_DIR_UP_LEFT, ROUTE_DIR_LEFT, ROUTE_DIR_DOWN_LEFT,
+        ROUTE_DIR_DOWN, ROUTE_DIR_DOWN_RIGHT};
+
+    for (size_t index = 0; index < 8; ++index) {
+        route_dir_t direction = ROUTE_DIR_UNKNOWN;
+        REQUIRE(route_direction_between(
+            &origin, &targets[index], &direction) == NAVSYS_STATUS_OK);
+        CHECK(direction == expected[index]);
+        coord_t vector = {17, 19};
+        REQUIRE(route_direction_fetch_vector(direction, &vector)
+            == NAVSYS_STATUS_OK);
+        CHECK((coord_get_x(&vector) >= -1 && coord_get_x(&vector) <= 1));
+        CHECK((coord_get_y(&vector) >= -1 && coord_get_y(&vector) <= 1));
+    }
+
+    route_dir_t preserved = ROUTE_DIR_LEFT;
+    CHECK(route_direction_between(&origin, &origin, &preserved)
+        == NAVSYS_STATUS_NOT_FOUND);
+    CHECK(preserved == ROUTE_DIR_LEFT);
+    coord_t preserved_vector = {17, 19};
+    CHECK(route_direction_fetch_vector(ROUTE_DIR_UNKNOWN, &preserved_vector)
+        == NAVSYS_STATUS_INVALID_ARGUMENT);
+    CHECK(coord_get_x(&preserved_vector) == 17);
+    CHECK(coord_get_y(&preserved_vector) == 19);
+
+    const coord_t minimum = {
+        std::numeric_limits<int>::min(), std::numeric_limits<int>::min()};
+    const coord_t maximum = {
+        std::numeric_limits<int>::max(), std::numeric_limits<int>::max()};
+    REQUIRE(route_direction_between(&minimum, &maximum, &preserved)
+        == NAVSYS_STATUS_OK);
+    CHECK(preserved == ROUTE_DIR_DOWN_RIGHT);
+}
+
+TEST_CASE("[ROUTE-DIRECTION-002] const route queries preserve route value") {
+    route_t* route = route_create();
+    REQUIRE(route != nullptr);
+    const coord_t points[] = {{0, 0}, {5, 0}, {5, -8}};
+    for (const coord_t& point : points)
+        REQUIRE(route_add_coord(route, &point) == 1);
+    route_set_cost(route, 12.5f);
+    route_set_success(route, 1);
+    route_t* clone = route_copy(route);
+    REQUIRE(clone != nullptr);
+
+    route_dir_t direction = ROUTE_DIR_UNKNOWN;
+    CHECK(route_fetch_direction_at(route, 0, &direction) == NAVSYS_STATUS_OK);
+    CHECK(direction == ROUTE_DIR_RIGHT);
+    CHECK(route_fetch_direction_at(route, 2, &direction) == NAVSYS_STATUS_OK);
+    CHECK(direction == ROUTE_DIR_UP);
+    CHECK(route_compute_recent_facing(route, 2, &direction)
+        == NAVSYS_STATUS_OK);
+    CHECK(direction == ROUTE_DIR_UP_RIGHT);
+    double heading = 999.0;
+    CHECK(route_compute_recent_heading_degrees(route, 1, &heading)
+        == NAVSYS_STATUS_OK);
+    CHECK(heading == doctest::Approx(-90.0));
+    CHECK(route_get_cost(route) == route_get_cost(clone));
+    CHECK(route_get_success(route) == route_get_success(clone));
+    CHECK(route_get_coord_count(route) == route_get_coord_count(clone));
+
+    route_destroy(clone);
+    route_destroy(route);
+}
+
+TEST_CASE("[ROUTE-HEADING-001] tracker threshold and opposite direction are deterministic") {
+    route_heading_tracker_t* tracker = nullptr;
+    REQUIRE(route_heading_tracker_create(&tracker) == NAVSYS_STATUS_OK);
+    const coord_t right = {1, 0};
+    const coord_t almost_ten = {984807753, 173648178};
+    const coord_t ten = {984807753, 173648178};
+    const coord_t above_ten = {984503180, 175366726};
+    const coord_t left = {-1, 0};
+    double angle = -1.0;
+    bool changed = true;
+
+    REQUIRE(route_heading_tracker_observe_vector(
+        tracker, &right, 10.0, &angle, &changed) == NAVSYS_STATUS_OK);
+    CHECK(angle == doctest::Approx(0.0));
+    CHECK_FALSE(changed);
+    REQUIRE(route_heading_tracker_reset(tracker) == NAVSYS_STATUS_OK);
+    REQUIRE(route_heading_tracker_observe_vector(
+        tracker, &right, 10.0, &angle, &changed) == NAVSYS_STATUS_OK);
+    REQUIRE(route_heading_tracker_observe_vector(
+        tracker, &almost_ten, 10.01, &angle, &changed) == NAVSYS_STATUS_OK);
+    CHECK_FALSE(changed);
+    REQUIRE(route_heading_tracker_reset(tracker) == NAVSYS_STATUS_OK);
+    REQUIRE(route_heading_tracker_observe_vector(
+        tracker, &right, 10.0, &angle, &changed) == NAVSYS_STATUS_OK);
+    REQUIRE(route_heading_tracker_observe_vector(
+        tracker, &ten, 10.0, &angle, &changed) == NAVSYS_STATUS_OK);
+    CHECK(changed);
+    REQUIRE(route_heading_tracker_reset(tracker) == NAVSYS_STATUS_OK);
+    REQUIRE(route_heading_tracker_observe_vector(
+        tracker, &right, 10.0, &angle, &changed) == NAVSYS_STATUS_OK);
+    REQUIRE(route_heading_tracker_observe_vector(
+        tracker, &above_ten, 10.0, &angle, &changed) == NAVSYS_STATUS_OK);
+    CHECK(changed);
+    REQUIRE(route_heading_tracker_observe_vector(
+        tracker, &left, 180.0, &angle, &changed) == NAVSYS_STATUS_OK);
+    CHECK(angle > 170.0);
+    CHECK_FALSE(changed);
+    CHECK(route_heading_tracker_get_sample_count(tracker) == 3);
+
+    route_heading_tracker_destroy(tracker);
+}
+
+TEST_CASE("[ROUTE-HEADING-002] tracker wraparound, reset and large count") {
+    route_heading_tracker_t* tracker = nullptr;
+    REQUIRE(route_heading_tracker_create(&tracker) == NAVSYS_STATUS_OK);
+    const coord_t near_positive_180 = {-1000, 17};
+    const coord_t near_negative_180 = {-1000, -17};
+    double angle = -1.0;
+    bool changed = true;
+    REQUIRE(route_heading_tracker_observe_vector(
+        tracker, &near_positive_180, 2.0, &angle, &changed)
+        == NAVSYS_STATUS_OK);
+    REQUIRE(route_heading_tracker_observe_vector(
+        tracker, &near_negative_180, 2.0, &angle, &changed)
+        == NAVSYS_STATUS_OK);
+    CHECK(angle < 2.0);
+    CHECK_FALSE(changed);
+
+    const coord_t down = {0, 1};
+    for (size_t index = 0; index < 100000; ++index) {
+        REQUIRE(route_heading_tracker_observe_vector(
+            tracker, &down, 180.0, &angle, &changed) == NAVSYS_STATUS_OK);
+    }
+    CHECK(route_heading_tracker_get_sample_count(tracker) == 100002);
+    double heading = 0.0;
+    CHECK(route_heading_tracker_fetch_heading_degrees(tracker, &heading)
+        == NAVSYS_STATUS_OK);
+    CHECK(heading == doctest::Approx(90.0).epsilon(0.001));
+    REQUIRE(route_heading_tracker_reset(tracker) == NAVSYS_STATUS_OK);
+    CHECK(route_heading_tracker_get_sample_count(tracker) == 0);
+    CHECK(route_heading_tracker_fetch_heading_degrees(tracker, &heading)
+        == NAVSYS_STATUS_NOT_FOUND);
+
+    route_heading_tracker_destroy(tracker);
 }
 
 TEST_CASE("route insert, remove, find") {

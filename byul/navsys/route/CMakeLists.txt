@@ -10,6 +10,7 @@ set(${PROJECT_NAME}_SOURCES
 
     ${CMAKE_CURRENT_SOURCE_DIR}/route.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/route_builder.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/route_heading.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/route_trace.cpp
 
 CACHE INTERNAL "${PROJECT_NAME} source files"  FORCE
@@ -29,14 +30,11 @@ target_include_directories(${PROJECT_NAME} PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}    
     ${CMAKE_SOURCE_DIR}
     
-    ${CMAKE_SOURCE_DIR}/numal
-
     ${CMAKE_SOURCE_DIR}/navsys
     ${CMAKE_SOURCE_DIR}/navsys/coord
 )
 
 target_link_libraries(${PROJECT_NAME} PRIVATE 
-    numal
     coord
 )
 

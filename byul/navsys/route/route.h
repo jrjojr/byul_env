@@ -69,6 +69,7 @@ struct s_route {
 
 typedef struct s_route route_t;
 typedef struct s_route_builder route_builder_t;
+typedef struct s_route_heading_tracker route_heading_tracker_t;
 typedef struct s_navsys_search_trace navsys_search_trace_t;
 
 /** Creation and Destruction **/
@@ -656,6 +657,199 @@ BYUL_API navsys_status_t route_slice_ex(
 BYUL_API void route_print(const route_t* p);
 
 /** Direction Calculation **/
+/**
+ * @brief 두 좌표의 부호 정규화 delta를 8방향 값으로 변환한다.
+ *
+ * +x는 오른쪽, +y는 아래쪽이다. 크기가 1보다 큰 delta도 각 축의 부호로
+ * 정규화하며 zero delta는 NOT_FOUND다. 실패하면 out_direction을 보존한다.
+ * 이 함수는 allocation과 입력 mutation을 수행하지 않는다.
+ *
+ * @param[in] from 시작 좌표.
+ * @param[in] to 끝 좌표.
+ * @param[out] out_direction 성공 시 방향을 받을 storage.
+ * @return Common Navsys status value.
+ * @byul.nullable from false
+ * @byul.nullable to false
+ * @byul.nullable out_direction false
+ * @byul.side_effect none
+ */
+BYUL_API navsys_status_t route_direction_between(
+    const coord_t* from,
+    const coord_t* to,
+    route_dir_t* out_direction);
+
+/**
+ * @brief 8방향 값을 caller-owned coordinate value로 복사한다.
+ *
+ * UNKNOWN, COUNT와 범위 밖 값은 INVALID_ARGUMENT다. 성공 vector는 각 축이
+ * -1, 0, 1 중 하나이며 allocation을 수행하지 않는다.
+ *
+ * @param[in] direction 변환할 방향.
+ * @param[out] out_vector 성공 시 vector를 받을 storage.
+ * @return Common Navsys status value.
+ * @byul.nullable out_vector false
+ * @byul.side_effect writes:out_vector-on-success
+ */
+BYUL_API navsys_status_t route_direction_fetch_vector(
+    route_dir_t direction,
+    coord_t* out_vector);
+
+/**
+ * @brief route의 index에서 진행 방향을 allocation 없이 조회한다.
+ *
+ * 마지막 좌표는 직전 좌표에서 마지막 좌표로 향하는 방향을 사용한다. 좌표가
+ * 2개 미만이거나 index가 범위 밖이면 NOT_FOUND이며 route를 변경하지 않는다.
+ *
+ * @param[in] route 조회할 route.
+ * @param[in] index 조회할 coordinate index.
+ * @param[out] out_direction 성공 시 방향을 받을 storage.
+ * @return Common Navsys status value.
+ * @byul.nullable route false
+ * @byul.nullable out_direction false
+ * @byul.side_effect none
+ */
+BYUL_API navsys_status_t route_fetch_direction_at(
+    const route_t* route,
+    size_t index,
+    route_dir_t* out_direction);
+
+/**
+ * @brief route 끝의 history segment를 합친 최근 진행 방향을 조회한다.
+ * @param[in] route 조회할 route.
+ * @param[in] history 합칠 최대 segment 수.
+ * @param[out] out_direction 성공 시 방향을 받을 storage.
+ * @return Common Navsys status value.
+ * @byul.nullable route false
+ * @byul.nullable out_direction false
+ * @byul.side_effect none
+ */
+BYUL_API navsys_status_t route_compute_recent_facing(
+    const route_t* route,
+    size_t history,
+    route_dir_t* out_direction);
+
+/**
+ * @brief route 끝의 history segment를 합친 heading을 degree로 조회한다.
+ *
+ * +x가 0도이고 +y 방향으로 각도가 증가한다. 결과 범위는 [-180, 180)이다.
+ * zero delta에는 NOT_FOUND를 반환하며 출력은 보존한다.
+ *
+ * @param[in] route 조회할 route.
+ * @param[in] history 합칠 최대 segment 수.
+ * @param[out] out_heading_degrees 성공 시 heading을 받을 storage.
+ * @return Common Navsys status value.
+ * @byul.nullable route false
+ * @byul.nullable out_heading_degrees false
+ * @byul.side_effect none
+ */
+BYUL_API navsys_status_t route_compute_recent_heading_degrees(
+    const route_t* route,
+    size_t history,
+    double* out_heading_degrees);
+
+/**
+ * @brief 독립적인 heading observation state를 생성한다.
+ * @param[out] out_tracker 생성한 tracker를 받을 storage.
+ * @return Common Navsys status value.
+ * @byul.nullable out_tracker false
+ * @byul.lifetime out_tracker caller-owned
+ * @byul.side_effect writes:out_tracker-on-success
+ */
+BYUL_API navsys_status_t route_heading_tracker_create(
+    route_heading_tracker_t** out_tracker);
+
+/**
+ * @brief heading tracker를 파괴한다. NULL은 허용한다.
+ * @param[in,out] tracker 파괴할 tracker 또는 NULL.
+ * @byul.nullable tracker true
+ */
+BYUL_API void route_heading_tracker_destroy(
+    route_heading_tracker_t* tracker);
+
+/**
+ * @brief tracker를 sample이 없는 초기 상태로 되돌린다.
+ * @param[in,out] tracker 초기화할 tracker.
+ * @return Common Navsys status value.
+ * @byul.nullable tracker false
+ * @byul.side_effect mutates:tracker
+ */
+BYUL_API navsys_status_t route_heading_tracker_reset(
+    route_heading_tracker_t* tracker);
+
+/**
+ * @brief tracker가 받아들인 non-zero sample 수를 반환한다.
+ * @param[in] tracker 조회할 tracker. NULL이면 0이다.
+ * @return 받아들인 sample 수 또는 NULL tracker의 0.
+ * @byul.nullable tracker true
+ * @byul.side_effect none
+ */
+BYUL_API size_t route_heading_tracker_get_sample_count(
+    const route_heading_tracker_t* tracker);
+
+/**
+ * @brief 현재 정규화 평균 heading을 [-180, 180) degree로 조회한다.
+ * @param[in] tracker 조회할 tracker.
+ * @param[out] out_heading_degrees 성공 시 heading을 받을 storage.
+ * @return Common Navsys status value.
+ * @byul.nullable tracker false
+ * @byul.nullable out_heading_degrees false
+ * @byul.side_effect none
+ */
+BYUL_API navsys_status_t route_heading_tracker_fetch_heading_degrees(
+    const route_heading_tracker_t* tracker,
+    double* out_heading_degrees);
+
+/**
+ * @brief vector sample을 관찰하고 기존 평균과의 각도 차이를 반환한다.
+ *
+ * vector는 길이와 무관하게 정규화된다. 첫 sample의 angle/changed는 0/false다.
+ * 이후 angle은 [0, 180]이고 changed는 angle >= threshold_degrees다. threshold는
+ * [0, 180] 범위여야 한다. 정규화 온라인 평균을 사용하므로 누적합 overflow가
+ * 없고 sample count는 SIZE_MAX에서 포화한다. 실패 시 tracker와 출력을 보존한다.
+ *
+ * @param[in,out] tracker 갱신할 tracker.
+ * @param[in] vector 관찰할 non-zero vector.
+ * @param[in] threshold_degrees [0, 180] 포함 경계 threshold.
+ * @param[out] out_angle_degrees 성공 시 각도 차이를 받을 storage.
+ * @param[out] out_changed 성공 시 변경 여부를 받을 storage.
+ * @return Common Navsys status value.
+ * @byul.nullable tracker false
+ * @byul.nullable vector false
+ * @byul.nullable out_angle_degrees false
+ * @byul.nullable out_changed false
+ * @byul.side_effect mutates:tracker-on-success
+ */
+BYUL_API navsys_status_t route_heading_tracker_observe_vector(
+    route_heading_tracker_t* tracker,
+    const coord_t* vector,
+    double threshold_degrees,
+    double* out_angle_degrees,
+    bool* out_changed);
+
+/**
+ * @brief from-to vector를 tracker에 관찰한다.
+ * @param[in,out] tracker 갱신할 tracker.
+ * @param[in] from 시작 좌표.
+ * @param[in] to 끝 좌표.
+ * @param[in] threshold_degrees [0, 180] 포함 경계 threshold.
+ * @param[out] out_angle_degrees 성공 시 각도 차이를 받을 storage.
+ * @param[out] out_changed 성공 시 변경 여부를 받을 storage.
+ * @return Common Navsys status value.
+ * @byul.nullable tracker false
+ * @byul.nullable from false
+ * @byul.nullable to false
+ * @byul.nullable out_angle_degrees false
+ * @byul.nullable out_changed false
+ * @byul.side_effect mutates:tracker-on-success
+ */
+BYUL_API navsys_status_t route_heading_tracker_observe(
+    route_heading_tracker_t* tracker,
+    const coord_t* from,
+    const coord_t* to,
+    double threshold_degrees,
+    double* out_angle_degrees,
+    bool* out_changed);
+
 /**
  * @brief Create the direction vector at index.
  * @param[in] p Source route.

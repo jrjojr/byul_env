@@ -4,16 +4,16 @@
   "source_vocabulary": "docs/ko/todo/navsys/navsys-abi-vocabulary.json",
   "summary": {
     "headers": 47,
-    "symbols": 546,
+    "symbols": 558,
     "return_forms": {
       "nullable_pointer": 151,
       "bool_predicate": 22,
       "bool_operation": 20,
       "int_zero_nonzero_status": 40,
-      "int_count": 23,
+      "int_count": 24,
       "int_index_minus_one": 4,
-      "void_fallible_operation": 143,
-      "enum_result": 124,
+      "void_fallible_operation": 144,
+      "enum_result": 134,
       "floating_result": 19,
       "callback_return": 0
     },
@@ -33,8 +33,8 @@
       "unknown-param": 12,
       "unnamed-parameter": 30
     },
-    "lifecycle_resources": 27,
-    "lifecycle_operations": 96,
+    "lifecycle_resources": 28,
+    "lifecycle_operations": 99,
     "callback_bindings": 7
   },
   "known_debt": {
@@ -8614,7 +8614,7 @@
       "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-route.org",
       "primary_role": "public-component",
       "wrapper_mode": "generated",
-      "symbol_count": 70,
+      "symbol_count": 82,
       "audit_issue_count": 79,
       "symbols": [
         "route_create",
@@ -8672,6 +8672,18 @@
         "route_slice",
         "route_slice_ex",
         "route_print",
+        "route_direction_between",
+        "route_direction_fetch_vector",
+        "route_fetch_direction_at",
+        "route_compute_recent_facing",
+        "route_compute_recent_heading_degrees",
+        "route_heading_tracker_create",
+        "route_heading_tracker_destroy",
+        "route_heading_tracker_reset",
+        "route_heading_tracker_get_sample_count",
+        "route_heading_tracker_fetch_heading_degrees",
+        "route_heading_tracker_observe_vector",
+        "route_heading_tracker_observe",
         "route_make_direction",
         "route_get_direction_by_dir_coord",
         "route_get_direction_by_index",
@@ -12528,6 +12540,102 @@
     },
     {
       "header": "byul/navsys/route/route.h",
+      "name": "route_direction_between",
+      "return_type": "navsys_status_t",
+      "signature": "navsys_status_t route_direction_between( const coord_t* from, const coord_t* to, route_dir_t* out_direction);",
+      "return_form": "enum_result",
+      "canonical": "navsys_status_t plus typed out enum"
+    },
+    {
+      "header": "byul/navsys/route/route.h",
+      "name": "route_direction_fetch_vector",
+      "return_type": "navsys_status_t",
+      "signature": "navsys_status_t route_direction_fetch_vector( route_dir_t direction, coord_t* out_vector);",
+      "return_form": "enum_result",
+      "canonical": "navsys_status_t plus typed out enum"
+    },
+    {
+      "header": "byul/navsys/route/route.h",
+      "name": "route_fetch_direction_at",
+      "return_type": "navsys_status_t",
+      "signature": "navsys_status_t route_fetch_direction_at( const route_t* route, size_t index, route_dir_t* out_direction);",
+      "return_form": "enum_result",
+      "canonical": "navsys_status_t plus typed out enum"
+    },
+    {
+      "header": "byul/navsys/route/route.h",
+      "name": "route_compute_recent_facing",
+      "return_type": "navsys_status_t",
+      "signature": "navsys_status_t route_compute_recent_facing( const route_t* route, size_t history, route_dir_t* out_direction);",
+      "return_form": "enum_result",
+      "canonical": "navsys_status_t plus typed out enum"
+    },
+    {
+      "header": "byul/navsys/route/route.h",
+      "name": "route_compute_recent_heading_degrees",
+      "return_type": "navsys_status_t",
+      "signature": "navsys_status_t route_compute_recent_heading_degrees( const route_t* route, size_t history, double* out_heading_degrees);",
+      "return_form": "enum_result",
+      "canonical": "navsys_status_t plus typed out enum"
+    },
+    {
+      "header": "byul/navsys/route/route.h",
+      "name": "route_heading_tracker_create",
+      "return_type": "navsys_status_t",
+      "signature": "navsys_status_t route_heading_tracker_create( route_heading_tracker_t** out_tracker);",
+      "return_form": "enum_result",
+      "canonical": "navsys_status_t plus typed out enum"
+    },
+    {
+      "header": "byul/navsys/route/route.h",
+      "name": "route_heading_tracker_destroy",
+      "return_type": "void",
+      "signature": "void route_heading_tracker_destroy( route_heading_tracker_t* tracker);",
+      "return_form": "void_fallible_operation",
+      "canonical": "navsys_status_t"
+    },
+    {
+      "header": "byul/navsys/route/route.h",
+      "name": "route_heading_tracker_reset",
+      "return_type": "navsys_status_t",
+      "signature": "navsys_status_t route_heading_tracker_reset( route_heading_tracker_t* tracker);",
+      "return_form": "enum_result",
+      "canonical": "navsys_status_t plus typed out enum"
+    },
+    {
+      "header": "byul/navsys/route/route.h",
+      "name": "route_heading_tracker_get_sample_count",
+      "return_type": "size_t",
+      "signature": "size_t route_heading_tracker_get_sample_count( const route_heading_tracker_t* tracker);",
+      "return_form": "int_count",
+      "canonical": "navsys_status_t plus out_count"
+    },
+    {
+      "header": "byul/navsys/route/route.h",
+      "name": "route_heading_tracker_fetch_heading_degrees",
+      "return_type": "navsys_status_t",
+      "signature": "navsys_status_t route_heading_tracker_fetch_heading_degrees( const route_heading_tracker_t* tracker, double* out_heading_degrees);",
+      "return_form": "enum_result",
+      "canonical": "navsys_status_t plus typed out enum"
+    },
+    {
+      "header": "byul/navsys/route/route.h",
+      "name": "route_heading_tracker_observe_vector",
+      "return_type": "navsys_status_t",
+      "signature": "navsys_status_t route_heading_tracker_observe_vector( route_heading_tracker_t* tracker, const coord_t* vector, double threshold_degrees, double* out_angle_degrees, bool* out_changed);",
+      "return_form": "enum_result",
+      "canonical": "navsys_status_t plus typed out enum"
+    },
+    {
+      "header": "byul/navsys/route/route.h",
+      "name": "route_heading_tracker_observe",
+      "return_type": "navsys_status_t",
+      "signature": "navsys_status_t route_heading_tracker_observe( route_heading_tracker_t* tracker, const coord_t* from, const coord_t* to, double threshold_degrees, double* out_angle_degrees, bool* out_changed);",
+      "return_form": "enum_result",
+      "canonical": "navsys_status_t plus typed out enum"
+    },
+    {
+      "header": "byul/navsys/route/route.h",
       "name": "route_make_direction",
       "return_type": "coord_t*",
       "signature": "coord_t* route_make_direction(route_t* p, int index);",
@@ -14479,6 +14587,46 @@
         ]
       },
       {
+        "resource": "route_heading_tracker",
+        "operations": [
+          {
+            "header": "byul/navsys/route/route.h",
+            "resource": "route_heading_tracker",
+            "operation": "create",
+            "symbol": "route_heading_tracker_create",
+            "return_type": "navsys_status_t",
+            "parameters": [
+              "route_heading_tracker_t** out_tracker"
+            ]
+          },
+          {
+            "header": "byul/navsys/route/route.h",
+            "resource": "route_heading_tracker",
+            "operation": "destroy",
+            "symbol": "route_heading_tracker_destroy",
+            "return_type": "void",
+            "parameters": [
+              "route_heading_tracker_t* tracker"
+            ]
+          },
+          {
+            "header": "byul/navsys/route/route.h",
+            "resource": "route_heading_tracker",
+            "operation": "reset",
+            "symbol": "route_heading_tracker_reset",
+            "return_type": "navsys_status_t",
+            "parameters": [
+              "route_heading_tracker_t* tracker"
+            ]
+          }
+        ],
+        "operation_kinds": [
+          "create",
+          "destroy",
+          "reset"
+        ]
+      },
+      {
         "resource": "rta_star_config",
         "operations": [
           {
@@ -15379,6 +15527,36 @@
         "return_type": "void",
         "parameters": [
           "navsys_search_trace_t* trace"
+        ]
+      },
+      {
+        "header": "byul/navsys/route/route.h",
+        "resource": "route_heading_tracker",
+        "operation": "create",
+        "symbol": "route_heading_tracker_create",
+        "return_type": "navsys_status_t",
+        "parameters": [
+          "route_heading_tracker_t** out_tracker"
+        ]
+      },
+      {
+        "header": "byul/navsys/route/route.h",
+        "resource": "route_heading_tracker",
+        "operation": "destroy",
+        "symbol": "route_heading_tracker_destroy",
+        "return_type": "void",
+        "parameters": [
+          "route_heading_tracker_t* tracker"
+        ]
+      },
+      {
+        "header": "byul/navsys/route/route.h",
+        "resource": "route_heading_tracker",
+        "operation": "reset",
+        "symbol": "route_heading_tracker_reset",
+        "return_type": "navsys_status_t",
+        "parameters": [
+          "route_heading_tracker_t* tracker"
         ]
       },
       {

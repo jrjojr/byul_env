@@ -1,7 +1,6 @@
 #include "route.h"
 #include "internal/route_internal.h"
 #include "coord.h"
-#include "scalar.h"
 #include "coord_list.h"
 
 #include <vector>
@@ -483,7 +482,9 @@ float route_calc_average_dir(route_t* p, int history) {
     int dy = coord_get_y(c_to) - coord_get_y(c_from);
 
     if (dx == 0 && dy == 0) return 0.0f;
-    return std::atan2((float)dy, (float)dx) * (180.0f / M_PI);
+    constexpr float kRadiansToDegrees =
+        180.0f / 3.14159265358979323846f;
+    return std::atan2((float)dy, (float)dx) * kRadiansToDegrees;
 }
 
 route_dir_t calc_direction(const coord_t* start, const coord_t* goal) {
@@ -522,7 +523,7 @@ int route_has_changed(route_t* p,
     float dx = (float)(coord_get_x(to) - coord_get_x(from));
     float dy = (float)(coord_get_y(to) - coord_get_y(from));
     float len = std::sqrt(dx * dx + dy * dy);
-    if (len < SCALAR_EPSILON) return 0;
+    if (len <= 0.0f) return 0;
 
     float curr_x = dx / len;
     float curr_y = dy / len;
@@ -532,7 +533,9 @@ int route_has_changed(route_t* p,
     float dot = curr_x * avg_x + curr_y * avg_y;
 
     dot = std::max(-1.0f, std::min(1.0f, dot));
-    float angle = std::acos(dot) * (180.0f / M_PI);
+    constexpr float kRadiansToDegrees =
+        180.0f / 3.14159265358979323846f;
+    float angle = std::acos(dot) * kRadiansToDegrees;
 
     return angle > angle_threshold_deg;
 }
@@ -546,7 +549,7 @@ int route_has_changed_with_angle(route_t* p,
     float dx = (float)(coord_get_x(to) - coord_get_x(from));
     float dy = (float)(coord_get_y(to) - coord_get_y(from));
     float len = std::sqrt(dx * dx + dy * dy);
-    if (len < SCALAR_EPSILON) {
+    if (len <= 0.0f) {
         *out_angle_deg = 0.0f;
         return 0;
     }
@@ -565,7 +568,7 @@ int route_has_changed_with_angle(route_t* p,
     float avg_len = std::sqrt(
         p->avg_vec_x * p->avg_vec_x + p->avg_vec_y * p->avg_vec_y);
         
-    if (avg_len < SCALAR_EPSILON) {
+    if (avg_len <= 0.0f) {
         *out_angle_deg = 0.0f;
         return 0;
     }
@@ -575,7 +578,9 @@ int route_has_changed_with_angle(route_t* p,
     float dot = curr_x * avg_x + curr_y * avg_y;
 
     dot = std::max(-1.0f, std::min(1.0f, dot));
-    float angle = std::acos(dot) * (180.0f / M_PI);
+    constexpr float kRadiansToDegrees =
+        180.0f / 3.14159265358979323846f;
+    float angle = std::acos(dot) * kRadiansToDegrees;
     *out_angle_deg = angle;
 
     p->avg_vec_x += curr_x;
@@ -617,7 +622,7 @@ void route_update_average_vector(route_t* p,
     float dx = (float)(coord_get_x(to) - coord_get_x(from));
     float dy = (float)(coord_get_y(to) - coord_get_y(from));
     float len = std::sqrt(dx * dx + dy * dy);
-    if (len < SCALAR_EPSILON) return;
+    if (len <= 0.0f) return;
 
     p->avg_vec_x += dx / len;
     p->avg_vec_y += dy / len;

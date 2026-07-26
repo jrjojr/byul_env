@@ -5,9 +5,11 @@ import weakref
 from byul_wrapper.coord import c_coord
 from byul_wrapper.route import (
     RouteCompletion,
+    RouteDir,
     RouteJoinPolicy,
     c_route,
     c_route_builder,
+    c_route_heading_tracker,
 )
 
 
@@ -130,6 +132,55 @@ class RouteTest(unittest.TestCase):
                 result.close()
         finally:
             source.close()
+
+    def test_canonical_direction_values_and_route_queries(self):
+        expected = {
+            RouteDir.RIGHT: (1, 0),
+            RouteDir.UP_RIGHT: (1, -1),
+            RouteDir.UP: (0, -1),
+            RouteDir.UP_LEFT: (-1, -1),
+            RouteDir.LEFT: (-1, 0),
+            RouteDir.DOWN_LEFT: (-1, 1),
+            RouteDir.DOWN: (0, 1),
+            RouteDir.DOWN_RIGHT: (1, 1),
+        }
+        for _ in range(1000):
+            for direction, vector in expected.items():
+                with c_route.direction_to_coord(direction) as converted:
+                    self.assertEqual(converted.to_tuple(), vector)
+
+        with c_coord(0, 0) as start, c_coord(100, -50) as goal:
+            self.assertEqual(
+                c_route.calc_direction(start, goal), RouteDir.UP_RIGHT
+            )
+
+        with c_route() as route:
+            for x, y in ((0, 0), (5, 0), (5, -8)):
+                with c_coord(x, y) as point:
+                    route.add_coord(point)
+            self.assertEqual(route.direction_at(0), RouteDir.RIGHT)
+            self.assertEqual(route.direction_at(2), RouteDir.UP)
+            self.assertEqual(route.recent_facing(2), RouteDir.UP_RIGHT)
+            self.assertAlmostEqual(route.recent_heading_degrees(1), -90.0)
+
+    def test_heading_tracker_is_independent_and_deterministic(self):
+        route = c_route(cost=7.5)
+        route.set_success(True)
+        with c_route_heading_tracker() as tracker:
+            with c_coord(1, 0) as right, c_coord(0, 1) as down:
+                changed, angle = tracker.observe_vector(right, 90.0)
+                self.assertFalse(changed)
+                self.assertAlmostEqual(angle, 0.0)
+                changed, angle = tracker.observe_vector(down, 90.0)
+                self.assertTrue(changed)
+                self.assertAlmostEqual(angle, 90.0)
+                self.assertEqual(tracker.sample_count, 2)
+                self.assertAlmostEqual(tracker.heading_degrees, 45.0)
+                tracker.reset()
+                self.assertEqual(tracker.sample_count, 0)
+        self.assertAlmostEqual(route.cost(), 7.5)
+        self.assertTrue(route.is_success())
+        route.close()
 
 
 if __name__ == "__main__":

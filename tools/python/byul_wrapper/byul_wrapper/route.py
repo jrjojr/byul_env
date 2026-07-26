@@ -73,6 +73,7 @@ struct s_route {
 
 typedef struct s_route route_t;
 typedef struct s_route_builder route_builder_t;
+typedef struct s_route_heading_tracker route_heading_tracker_t;
 typedef struct s_navsys_search_trace navsys_search_trace_t;
 
  route_t* route_create(void);
@@ -224,6 +225,61 @@ typedef struct s_navsys_search_trace navsys_search_trace_t;
     route_t** out_route);
 
  void route_print(const route_t* p);
+
+ navsys_status_t route_direction_between(
+    const coord_t* from,
+    const coord_t* to,
+    route_dir_t* out_direction);
+
+ navsys_status_t route_direction_fetch_vector(
+    route_dir_t direction,
+    coord_t* out_vector);
+
+ navsys_status_t route_fetch_direction_at(
+    const route_t* route,
+    size_t index,
+    route_dir_t* out_direction);
+
+ navsys_status_t route_compute_recent_facing(
+    const route_t* route,
+    size_t history,
+    route_dir_t* out_direction);
+
+ navsys_status_t route_compute_recent_heading_degrees(
+    const route_t* route,
+    size_t history,
+    double* out_heading_degrees);
+
+ navsys_status_t route_heading_tracker_create(
+    route_heading_tracker_t** out_tracker);
+
+ void route_heading_tracker_destroy(
+    route_heading_tracker_t* tracker);
+
+ navsys_status_t route_heading_tracker_reset(
+    route_heading_tracker_t* tracker);
+
+ size_t route_heading_tracker_get_sample_count(
+    const route_heading_tracker_t* tracker);
+
+ navsys_status_t route_heading_tracker_fetch_heading_degrees(
+    const route_heading_tracker_t* tracker,
+    double* out_heading_degrees);
+
+ navsys_status_t route_heading_tracker_observe_vector(
+    route_heading_tracker_t* tracker,
+    const coord_t* vector,
+    double threshold_degrees,
+    double* out_angle_degrees,
+    bool* out_changed);
+
+ navsys_status_t route_heading_tracker_observe(
+    route_heading_tracker_t* tracker,
+    const coord_t* from,
+    const coord_t* to,
+    double threshold_degrees,
+    double* out_angle_degrees,
+    bool* out_changed);
 
  coord_t* route_make_direction(route_t* p, int index);
  route_dir_t route_get_direction_by_dir_coord(const coord_t* dxdy);
@@ -460,6 +516,36 @@ class c_route:
     def get_direction_by_index(self, index):
         return RouteDir(C.route_get_direction_by_index(self._c, index))
 
+    def direction_at(self, index):
+        output = ffi.new("route_dir_t*")
+        status = NavsysStatus(
+            C.route_fetch_direction_at(self._require_open(), index, output)
+        )
+        if status is NavsysStatus.NOT_FOUND:
+            raise IndexError(index)
+        raise_for_status(status, "route_fetch_direction_at")
+        return RouteDir(output[0])
+
+    def recent_facing(self, history):
+        output = ffi.new("route_dir_t*")
+        raise_for_status(
+            C.route_compute_recent_facing(
+                self._require_open(), history, output
+            ),
+            "route_compute_recent_facing",
+        )
+        return RouteDir(output[0])
+
+    def recent_heading_degrees(self, history):
+        output = ffi.new("double*")
+        raise_for_status(
+            C.route_compute_recent_heading_degrees(
+                self._require_open(), history, output
+            ),
+            "route_compute_recent_heading_degrees",
+        )
+        return output[0]
+
     def has_changed(self, from_coord, to_coord, angle_threshold):
         return bool(C.route_has_changed(self._c, from_coord.ptr(), to_coord.ptr(), angle_threshold))
 
@@ -530,12 +616,21 @@ class c_route:
 
     @staticmethod
     def direction_to_coord(direction: RouteDir) -> c_coord:
-        ptr = C.direction_to_coord(direction)
-        return c_coord(raw_ptr=ptr, own=True) if ptr != ffi.NULL else None
+        output = ffi.new("coord_t*")
+        raise_for_status(
+            C.route_direction_fetch_vector(direction, output),
+            "route_direction_fetch_vector",
+        )
+        return c_coord(output.x, output.y)
 
     @staticmethod
     def calc_direction(start: c_coord, goal: c_coord) -> RouteDir:
-        return RouteDir(C.calc_direction(start.ptr(), goal.ptr()))
+        output = ffi.new("route_dir_t*")
+        raise_for_status(
+            C.route_direction_between(start.ptr(), goal.ptr(), output),
+            "route_direction_between",
+        )
+        return RouteDir(output[0])
 
     @staticmethod
     def get_direction_by_dir_coord(dxdy: c_coord):
@@ -649,5 +744,87 @@ class c_route_builder:
     def __exit__(self, exc_type, exc_val, exc_tb):
         self.close()
 
+
+class c_route_heading_tracker:
+    """Opaque normalized heading history, independent from route values."""
+
+    def __init__(self):
+        self._c = ffi.NULL
+        self._finalizer = None
+        output = ffi.new("route_heading_tracker_t**")
+        raise_for_status(
+            C.route_heading_tracker_create(output),
+            "route_heading_tracker_create",
+        )
+        self._c = output[0]
+        self._finalizer = weakref.finalize(
+            self, C.route_heading_tracker_destroy, self._c
+        )
+
+    def _require_open(self):
+        if self._c == ffi.NULL:
+            raise ReferenceError("c_route_heading_tracker is closed")
+        return self._c
+
+    @property
+    def sample_count(self):
+        return C.route_heading_tracker_get_sample_count(self._require_open())
+
+    @property
+    def heading_degrees(self):
+        output = ffi.new("double*")
+        raise_for_status(
+            C.route_heading_tracker_fetch_heading_degrees(
+                self._require_open(), output
+            ),
+            "route_heading_tracker_fetch_heading_degrees",
+        )
+        return output[0]
+
+    def observe_vector(self, vector: c_coord, threshold_degrees):
+        angle = ffi.new("double*")
+        changed = ffi.new("bool*")
+        raise_for_status(
+            C.route_heading_tracker_observe_vector(
+                self._require_open(), vector.ptr(), threshold_degrees,
+                angle, changed
+            ),
+            "route_heading_tracker_observe_vector",
+        )
+        return bool(changed[0]), angle[0]
+
+    def observe(self, start: c_coord, goal: c_coord, threshold_degrees):
+        angle = ffi.new("double*")
+        changed = ffi.new("bool*")
+        raise_for_status(
+            C.route_heading_tracker_observe(
+                self._require_open(), start.ptr(), goal.ptr(),
+                threshold_degrees, angle, changed
+            ),
+            "route_heading_tracker_observe",
+        )
+        return bool(changed[0]), angle[0]
+
+    def reset(self):
+        raise_for_status(
+            C.route_heading_tracker_reset(self._require_open()),
+            "route_heading_tracker_reset",
+        )
+
+    def close(self):
+        if self._finalizer and self._finalizer.alive:
+            self._finalizer()
+        self._c = ffi.NULL
+
     def __del__(self):
+        try:
+            self.close()
+        except Exception:
+            pass
+
+    def __enter__(self):
+        self._require_open()
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
         self.close()
