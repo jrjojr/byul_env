@@ -2,7 +2,6 @@
 
 #include <cmath>
 #include <limits>
-#include <new>
 
 struct s_route_heading_tracker {
     double mean_x;
@@ -167,10 +166,12 @@ navsys_status_t route_heading_tracker_create(
     route_heading_tracker_t** out_tracker) {
     if (!out_tracker)
         return NAVSYS_STATUS_INVALID_ARGUMENT;
-    route_heading_tracker_t* tracker = new (std::nothrow)
-        route_heading_tracker_t{};
-    if (!tracker)
+    route_heading_tracker_t* tracker = nullptr;
+    try {
+        tracker = new route_heading_tracker_t{};
+    } catch (...) {
         return NAVSYS_STATUS_OUT_OF_MEMORY;
+    }
     *out_tracker = tracker;
     return NAVSYS_STATUS_OK;
 }
