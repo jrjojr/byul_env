@@ -401,7 +401,7 @@ coordinate axis와 cost unit은 public contract test로 고정한다.
   Windows MSVC/MinGW Release memory fixture가 모두 통과했다. 테스트 주입은 fixture
   실행파일에만 있고 tests-off Ubuntu/Windows 생산 artifact 검증도 통과했다.
 
-* DOING 3단계: Opaque route, immutable result와 builder 도입
+* DONE 3단계: Opaque route, immutable result와 builder 도입
 
 ** 실행
 
@@ -423,6 +423,27 @@ coordinate axis와 cost unit은 public contract test로 고정한다.
   검사한다.
 - tiny search 결과를 reference vector/cost/status와 비교하고 direct field access lint 0건을
   확인한다.
+
+** 완료 기록 (2026-07-26)
+
+- opaque =route_builder_t=와 =navsys_search_trace_t=를 additive C ABI로 도입했다.
+  builder의 push/insert/remove/append/slice/cost/completion/finish는 실패 시 기존
+  candidate와 output을 보존하며, finish 후 builder는 invalidated 상태가 된다.
+  trace는 ordered visit/count를 별도 owner로 보관하고 internal writer와 public
+  count/fetch/export/clone 계약을 분리했다.
+- Route ABI inventory는 70 functions(legacy 44 + canonical additive 26), root export 누락
+  0개, direct-field candidate 0경로를 고정했다. private
+  =route/internal/route_internal.h=는 role manifest에서 internal/install 제외/wrapper
+  제외로 분류했고 clean SDK C17/C++17 consumer와 CFFI declaration이 통과했다.
+- MSVC Release =test_route=는 18 cases/1273 assertions, root =test_byul=은
+  467 cases/12178 assertions, Python wrapper는 99 tests, policy/generator는 66 tests가
+  통과했다. =BUILD_TESTING=OFF= clean Release =byul.dll=에서 test executable,
+  fail-injection symbol과 test-only target 유입이 없음을 확인했다.
+- GitHub Actions =Navsys Integration UBSan= run =30182423894=와
+  =BYUL Memory Boundary= run =30182423895=에서 Linux static/root UBSan, Ubuntu
+  GCC/Clang memory fixture, Windows MSVC/MinGW Release memory fixture가 모두 통과했다.
+  할당 실패 주입은 test executable에만 있고 Ubuntu/Windows 생산 artifact에는
+  포함되지 않는다. 이로써 3단계만 닫고 4단계는 =TODO=로 유지한다.
 
 * TODO 4단계: Direction과 heading API를 pure/value 중심으로 교체
 
