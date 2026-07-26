@@ -494,7 +494,7 @@ coordinate axis와 cost unit은 public contract test로 고정한다.
   MSVC/MinGW allocation/leak gate가 모두 통과했다. 이로써 4단계만 닫고 5단계는
   =TODO= 상태로 유지한다.
 
-* DOING 5단계: Legacy forwarding과 ABI-major 정리
+* DONE 5단계: Legacy forwarding과 ABI-major 정리
 
 ** 실행
 
@@ -530,6 +530,22 @@ coordinate axis와 cost unit은 public contract test로 고정한다.
 - ABI 1에서는 =route_t= layout, enum 숫자와 기존 symbol을 숨기거나 제거하지 않는다.
   Opaque =route_t=와 내부 predecessor/hash representation은 별도 ABI-major 계약과 release
   gate가 승인된 ABI 2 SDK에서만 적용하며, 이 ABI 1 refactor가 선행 실행하지 않는다.
+
+** 완료 기록 (2026-07-26)
+
+- 44개 legacy symbol의 disposition을 =route-abi-policy.json=으로 고정했다. ABI 1에서
+  35개는 replacement/no-replacement 사유가 있는 deprecation adapter로 표시하고 9개는
+  호환 API로 유지했으며, 기존 symbol, =route_t= layout과 enum 숫자는 변경하지 않았다.
+- identity/value 의미를 분리한 hash/equality, checked find, caller-buffer format과
+  allocation 없는 vector/direction API를 추가했다. Python wrapper는 canonical API를
+  사용하며 generated CFFI와 policy regression 106 tests가 통과했다.
+- Route inventory는 89 functions(legacy 44 + canonical additive 45)이고 root DLL export
+  누락은 0개다. MSVC Release =test_route= 25 cases/101409 assertions, clean installed
+  C17/C++17 consumer와 Stage 4 old consumer binary/new DLL 조합이 모두 통과했다.
+- GitHub Actions =Navsys Integration UBSan= run =30184274507=과
+  =BYUL Memory Boundary= run =30184274487=에서 Linux static/root UBSan, Ubuntu GCC/Clang,
+  Windows MSVC/MinGW memory fixture가 모두 통과했다. 이로써 5단계만 닫고 6단계는
+  =TODO= 상태로 유지한다.
 
 * TODO 6단계: Route correctness, Wrapper와 배포 Gate
 
