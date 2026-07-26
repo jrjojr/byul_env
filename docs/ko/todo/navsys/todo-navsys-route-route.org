@@ -359,7 +359,7 @@ coordinate axis와 cost unit은 public contract test로 고정한다.
   live export/CFFI audit와 clean SDK consumer를 포함한 전체 gate가 2m22s에 성공했다.
   이로써 1단계만 닫으며 2단계는 =TODO= 상태로 유지한다.
 
-* DOING 2단계: P0 안전성, ownership와 반환 계약 수정
+* DONE 2단계: P0 안전성, ownership와 반환 계약 수정
 
 ** 실행
 
@@ -383,6 +383,23 @@ coordinate axis와 cost unit은 public contract test로 고정한다.
   실행한다.
 - valgrind 또는 Windows sanitizer에서 두 allocation-return direction helper를 반복 호출해
   leak 0을 확인한다.
+
+** 완료 기록 (2026-07-26)
+
+- retry/direction NULL 경로를 crash 없는 sentinel/no-op 계약으로 고정하고,
+  =route_clone_ex=, =route_slice_ex=, =route_reconstruct_ex=에 status와 output strong
+  guarantee를 추가했다. predecessor missing/cycle과 allocation 실패 시 기존 route는
+  변경되지 않는다.
+- route의 borrowed coordinate/list/hash 계약을 문서화하고 Python child wrapper가 parent를
+  유지하도록 수정했다. 반환 coordinate는 독립 owned value로 복사하며 direction allocation도
+  =coord_destroy= 책임을 갖는다. forced GC와 parent-before-child close를 포함한 Python 전체
+  97개 테스트가 통과했다.
+- MSVC Debug =test_route=와 root =test_byul=, Release allocation fail-at-N/leak gate,
+  clean SDK C17/C++17 consumer, CFFI 동기화, root DLL export 52/52를 확인했다.
+- GitHub Actions =Navsys Coord UBSan= run =30181074948=과 =BYUL Memory Boundary=
+  run =30181074951=에서 Linux static/root UBSan, Ubuntu GCC/Clang memory fixture,
+  Windows MSVC/MinGW Release memory fixture가 모두 통과했다. 테스트 주입은 fixture
+  실행파일에만 있고 tests-off Ubuntu/Windows 생산 artifact 검증도 통과했다.
 
 * TODO 3단계: Opaque route, immutable result와 builder 도입
 
