@@ -21,10 +21,11 @@ navsys_status_t builder_candidate(
 }
 
 void reset_edit_metadata(route_t* route) {
-    route_set_cost(route, 0.0f);
-    route_set_success(route, 0);
-    route_set_total_retry_count(route, 0);
-    route_clear_visited(route);
+    route->cost = 0.0f;
+    route->success = false;
+    route->total_retry_count = 0;
+    coord_list_clear(route->visited_order);
+    coord_hash_clear(route->visited_count);
     route->avg_vec_x = 0.0f;
     route->avg_vec_y = 0.0f;
     route->vec_count = 0;
@@ -35,8 +36,9 @@ navsys_status_t clone_for_edit(
     route_t** out_route) {
     navsys_status_t status = route_clone_ex(source, out_route);
     if (status == NAVSYS_STATUS_OK) {
-        route_clear_visited(*out_route);
-        route_set_total_retry_count(*out_route, 0);
+        coord_list_clear((*out_route)->visited_order);
+        coord_hash_clear((*out_route)->visited_count);
+        (*out_route)->total_retry_count = 0;
         (*out_route)->avg_vec_x = 0.0f;
         (*out_route)->avg_vec_y = 0.0f;
         (*out_route)->vec_count = 0;
@@ -259,7 +261,7 @@ navsys_status_t route_builder_set_total_cost(
         || total_cost > std::numeric_limits<float>::max()) {
         return NAVSYS_STATUS_INVALID_ARGUMENT;
     }
-    route_set_cost(candidate, static_cast<float>(total_cost));
+    candidate->cost = static_cast<float>(total_cost);
     return NAVSYS_STATUS_OK;
 }
 
@@ -277,8 +279,7 @@ navsys_status_t route_builder_set_completion(
         || (!empty && completion == ROUTE_COMPLETION_NONE)) {
         return NAVSYS_STATUS_INVALID_ARGUMENT;
     }
-    route_set_success(
-        candidate, completion == ROUTE_COMPLETION_COMPLETE ? 1 : 0);
+    candidate->success = completion == ROUTE_COMPLETION_COMPLETE;
     return NAVSYS_STATUS_OK;
 }
 

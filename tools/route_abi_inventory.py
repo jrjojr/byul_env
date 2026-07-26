@@ -60,11 +60,17 @@ STRUCT_FIELDS = [
 ]
 CANONICAL_SYMBOLS = {
     "route_clone_ex",
+    "route_identity_hash",
+    "route_is_same",
+    "route_content_equal",
+    "route_fetch_content_hash",
     "route_get_coord_count",
     "route_fetch_coord",
+    "route_find_coord",
     "route_fetch_total_cost",
     "route_fetch_completion",
     "route_export_coords",
+    "route_format",
     "route_slice_ex",
     "route_reconstruct_ex",
     "route_builder_create",
@@ -86,6 +92,7 @@ CANONICAL_SYMBOLS = {
     "navsys_search_trace_fetch_coord_visit_count",
     "navsys_search_trace_export_visits",
     "route_direction_between",
+    "route_direction_from_vector",
     "route_direction_fetch_vector",
     "route_fetch_direction_at",
     "route_compute_recent_facing",
@@ -426,12 +433,12 @@ def build_inventory(install_root: Path, build_snapshot: Path) -> dict[str, Any]:
 def validate(payload: dict[str, Any]) -> list[str]:
     errors: list[str] = []
     header = payload["header"]
-    if header["function_count"] != 82:
-        errors.append("route.h function inventory is not exactly 82")
+    if header["function_count"] != 89:
+        errors.append("route.h function inventory is not exactly 89")
     if header["legacy_function_count"] != 44:
         errors.append("legacy Route function inventory is not exactly 44")
-    if header["canonical_function_count"] != 38:
-        errors.append("canonical Route function inventory is not exactly 38")
+    if header["canonical_function_count"] != 45:
+        errors.append("canonical Route function inventory is not exactly 45")
     if header["enums"]["route_dir_t"] != ROUTE_DIR_VALUES:
         errors.append("route_dir_t numeric values changed")
     if header["enums"]["route_completion_t"] != ROUTE_COMPLETION_VALUES:
@@ -504,12 +511,12 @@ def main(argv: list[str] | None = None) -> int:
         return 1
     if args.apply:
         write_json_atomic(output, payload)
-        print(f"[WRITTEN] {output} functions=82 legacy=44 canonical=38")
+        print(f"[WRITTEN] {output} functions=89 legacy=44 canonical=45")
         return 0
     if not output.is_file() or load_json(output) != payload:
         print(f"[ERROR] stale inventory: {output}", file=sys.stderr)
         return 1
-    print(f"[OK] {output} functions=82 legacy=44 canonical=38")
+    print(f"[OK] {output} functions=89 legacy=44 canonical=45")
     return 0
 
 

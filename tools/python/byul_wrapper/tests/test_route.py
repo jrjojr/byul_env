@@ -182,6 +182,37 @@ class RouteTest(unittest.TestCase):
         self.assertTrue(route.is_success())
         route.close()
 
+    def test_identity_content_find_slice_and_format_use_canonical_api(self):
+        with c_route() as route:
+            for x, y in ((1, 2), (-3, 4)):
+                with c_coord(x, y) as point:
+                    route.add_coord(point)
+            route.set_cost(2.5)
+            route.set_success(True)
+            with route.to_builder() as builder:
+                copy = builder.finish()
+
+            try:
+                self.assertFalse(route.is_same(copy))
+                self.assertNotEqual(route.identity_hash(), copy.identity_hash())
+                self.assertTrue(route.content_equal(copy))
+                self.assertEqual(route.content_hash(), copy.content_hash())
+                self.assertEqual(
+                    route.format(),
+                    "Route(len : 2): (1, 2) -> (-3, 4)\n",
+                )
+                self.assertEqual(
+                    route.to_string(),
+                    "Route(len : 2): (1, 2) -> (-3, 4)",
+                )
+                with c_coord(-3, 4) as present, c_coord(9, 9) as missing:
+                    self.assertEqual(route.find(present), 1)
+                    self.assertEqual(route.find(missing), -1)
+                with route.slice(1, 2) as sliced:
+                    self.assertEqual(sliced.export_coords(), [(-3, 4)])
+            finally:
+                copy.close()
+
 
 if __name__ == "__main__":
     unittest.main()

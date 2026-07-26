@@ -35,16 +35,16 @@ ffi.cdef("""
 
 /* Source: byul/navsys/route/route.h */
 typedef enum e_route_dir {
-    ROUTE_DIR_UNKNOWN,
-    ROUTE_DIR_RIGHT,
-    ROUTE_DIR_UP_RIGHT,
-    ROUTE_DIR_UP,
-    ROUTE_DIR_UP_LEFT,
-    ROUTE_DIR_LEFT,
-    ROUTE_DIR_DOWN_LEFT,
-    ROUTE_DIR_DOWN,
-    ROUTE_DIR_DOWN_RIGHT,
-    ROUTE_DIR_COUNT
+    ROUTE_DIR_UNKNOWN = 0,
+    ROUTE_DIR_RIGHT = 1,
+    ROUTE_DIR_UP_RIGHT = 2,
+    ROUTE_DIR_UP = 3,
+    ROUTE_DIR_UP_LEFT = 4,
+    ROUTE_DIR_LEFT = 5,
+    ROUTE_DIR_DOWN_LEFT = 6,
+    ROUTE_DIR_DOWN = 7,
+    ROUTE_DIR_DOWN_RIGHT = 8,
+    ROUTE_DIR_COUNT = 9
 } route_dir_t;
 
 typedef enum e_route_completion {
@@ -85,11 +85,27 @@ typedef struct s_navsys_search_trace navsys_search_trace_t;
  navsys_status_t route_clone_ex(
     const route_t* source,
     route_t** out_route);
+
+ uintptr_t route_identity_hash(const route_t* route);
+
+ int route_is_same(const route_t* left, const route_t* right);
+
+ navsys_status_t route_content_equal(
+    const route_t* left,
+    const route_t* right,
+    bool* out_equal);
+
+ navsys_status_t route_fetch_content_hash(
+    const route_t* route,
+    uint64_t* out_hash);
+
  uintptr_t route_hash(const route_t* a);
+
  int route_equal(const route_t* a, const route_t* b);
 
  void  route_set_cost(route_t* p, float cost);
  float route_get_cost(const route_t* p);
+
  void  route_set_success(route_t* p, int success);
  int   route_get_success(const route_t* p);
 
@@ -104,8 +120,11 @@ typedef struct s_navsys_search_trace navsys_search_trace_t;
  void route_set_total_retry_count(route_t* p, int retry_count);
 
  int  route_add_coord(route_t* p, const coord_t* c);
+
  void route_clear_coords(route_t* p);
+
  const coord_t* route_get_last(const route_t* p);
+
  const coord_t* route_get_coord_at(const route_t* p, int index);
  int   route_length(const route_t* p);
 
@@ -115,6 +134,11 @@ typedef struct s_navsys_search_trace navsys_search_trace_t;
     const route_t* route,
     size_t index,
     coord_t* out_coord);
+
+ navsys_status_t route_find_coord(
+    const route_t* route,
+    const coord_t* coord,
+    size_t* out_index);
 
  navsys_status_t route_fetch_total_cost(
     const route_t* route,
@@ -211,9 +235,12 @@ typedef struct s_navsys_search_trace navsys_search_trace_t;
  void route_append_nodup(route_t* dest, const route_t* src);
 
  void route_insert(route_t* p, int index, const coord_t* c);
+
  void route_remove_at(route_t* p, int index);
+
  void route_remove_value(route_t* p, const coord_t* c);
  int  route_contains(const route_t* p, const coord_t* c);
+
  int  route_find(const route_t* p, const coord_t* c);
 
  route_t* route_slice(const route_t* p, int start, int end);
@@ -224,11 +251,21 @@ typedef struct s_navsys_search_trace navsys_search_trace_t;
     size_t end,
     route_t** out_route);
 
+ navsys_status_t route_format(
+    const route_t* route,
+    char* output,
+    size_t capacity,
+    size_t* out_required_size);
+
  void route_print(const route_t* p);
 
  navsys_status_t route_direction_between(
     const coord_t* from,
     const coord_t* to,
+    route_dir_t* out_direction);
+
+ navsys_status_t route_direction_from_vector(
+    const coord_t* vector,
     route_dir_t* out_direction);
 
  navsys_status_t route_direction_fetch_vector(
@@ -282,9 +319,13 @@ typedef struct s_navsys_search_trace navsys_search_trace_t;
     bool* out_changed);
 
  coord_t* route_make_direction(route_t* p, int index);
+
  route_dir_t route_get_direction_by_dir_coord(const coord_t* dxdy);
+
  route_dir_t route_get_direction_by_index(route_t* p, int index);
+
  route_dir_t route_calc_average_facing(route_t* p, int history);
+
  float route_calc_average_dir(route_t* p, int history);
 
  coord_t* direction_to_coord(route_dir_t route_dir);
@@ -396,7 +437,7 @@ class c_route:
         return c_coord(x, y)
 
     def length(self):
-        return C.route_length(self._c)
+        return self.coord_count()
 
     def coord_count(self):
         return C.route_get_coord_count(self._c)
@@ -421,6 +462,36 @@ class c_route:
         if status is not NavsysStatus.OK:
             raise RuntimeError(f"route cost fetch failed: {status.name}")
         return output[0]
+
+    def identity_hash(self):
+        """Return the process-local native handle identity hash."""
+        return int(C.route_identity_hash(self._require_open()))
+
+    def is_same(self, other: 'c_route'):
+        """Return whether two wrappers reference the same native route."""
+        return bool(C.route_is_same(
+            self._require_open(), other._require_open()
+        ))
+
+    def content_equal(self, other: 'c_route'):
+        """Compare immutable route result coordinates, completion, and cost."""
+        output = ffi.new("bool*")
+        raise_for_status(
+            C.route_content_equal(
+                self._require_open(), other._require_open(), output
+            ),
+            "route_content_equal",
+        )
+        return bool(output[0])
+
+    def content_hash(self):
+        """Return the native 64-bit result-content hash."""
+        output = ffi.new("uint64_t*")
+        raise_for_status(
+            C.route_fetch_content_hash(self._require_open(), output),
+            "route_fetch_content_hash",
+        )
+        return int(output[0])
 
     def completion(self):
         output = ffi.new("route_completion_t*")
@@ -498,10 +569,28 @@ class c_route:
         return bool(C.route_contains(self._c, coord.ptr()))
 
     def find(self, coord: c_coord):
-        return C.route_find(self._c, coord.ptr())
+        output = ffi.new("size_t*")
+        status = NavsysStatus(
+            C.route_find_coord(
+                self._require_open(), coord.ptr(), output
+            )
+        )
+        if status is NavsysStatus.NOT_FOUND:
+            return -1
+        raise_for_status(status, "route_find_coord")
+        return int(output[0])
 
     def slice(self, start, end):
-        return c_route(raw_ptr=C.route_slice(self._c, start, end), own=True)
+        if start < 0 or end < start:
+            raise ValueError("route slice requires 0 <= start <= end")
+        output = ffi.new("route_t**")
+        raise_for_status(
+            C.route_slice_ex(
+                self._require_open(), start, end, output
+            ),
+            "route_slice_ex",
+        )
+        return c_route(raw_ptr=output[0], own=True)
 
     def look_at(self, index):
         ptr = C.route_make_direction(self._require_open(), index)
@@ -581,13 +670,16 @@ class c_route:
         return True
 
     def print(self):
-        C.route_print(self._c)
+        print(self.format(), end="")
 
     def ptr(self):
         return self._c
 
     def __repr__(self):
-        return f"c_route(len={self.length()}, cost={self.cost():.2f}, success={self.is_success()})"
+        return (
+            f"c_route(len={self.coord_count()}, cost={self.total_cost():.2f}, "
+            f"completion={self.completion().name})"
+        )
 
     def __del__(self):
         self.close()
@@ -607,12 +699,26 @@ class c_route:
     def __len__(self):
         return self.length()
 
+    def format(self):
+        """Return the native diagnostic representation, including newline."""
+        required = ffi.new("size_t*")
+        raise_for_status(
+            C.route_format(
+                self._require_open(), ffi.NULL, 0, required
+            ),
+            "route_format",
+        )
+        output = ffi.new("char[]", required[0])
+        raise_for_status(
+            C.route_format(
+                self._require_open(), output, required[0], required
+            ),
+            "route_format",
+        )
+        return ffi.string(output).decode("utf-8")
+
     def to_string(self):
-        coords = self.coords()
-        parts = []
-        for c in coords:
-            parts.append(f"({c.x}, {c.y})")
-        return f"Route(len : {len(parts)}): " + " -> ".join(parts)
+        return self.format().removesuffix("\n")
 
     @staticmethod
     def direction_to_coord(direction: RouteDir) -> c_coord:
@@ -634,7 +740,12 @@ class c_route:
 
     @staticmethod
     def get_direction_by_dir_coord(dxdy: c_coord):
-        return RouteDir(C.route_get_direction_by_dir_coord(dxdy.ptr()))
+        output = ffi.new("route_dir_t*")
+        raise_for_status(
+            C.route_direction_from_vector(dxdy.ptr(), output),
+            "route_direction_from_vector",
+        )
+        return RouteDir(output[0])
 
 
 class c_route_builder:

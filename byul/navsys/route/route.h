@@ -2,6 +2,7 @@
 #define ROUTE_H
 
 #include <stddef.h>
+#include <stdint.h>
 
 #include "byul_config.h"
 #include "coord.h"
@@ -15,16 +16,16 @@ extern "C" {
 
 /** Direction enumeration **/
 typedef enum e_route_dir {
-    ROUTE_DIR_UNKNOWN, 
-    ROUTE_DIR_RIGHT,
-    ROUTE_DIR_UP_RIGHT,
-    ROUTE_DIR_UP,
-    ROUTE_DIR_UP_LEFT,
-    ROUTE_DIR_LEFT,
-    ROUTE_DIR_DOWN_LEFT,
-    ROUTE_DIR_DOWN,
-    ROUTE_DIR_DOWN_RIGHT,
-    ROUTE_DIR_COUNT
+    ROUTE_DIR_UNKNOWN = 0,
+    ROUTE_DIR_RIGHT = 1,
+    ROUTE_DIR_UP_RIGHT = 2,
+    ROUTE_DIR_UP = 3,
+    ROUTE_DIR_UP_LEFT = 4,
+    ROUTE_DIR_LEFT = 5,
+    ROUTE_DIR_DOWN_LEFT = 6,
+    ROUTE_DIR_DOWN = 7,
+    ROUTE_DIR_DOWN_RIGHT = 8,
+    ROUTE_DIR_COUNT = 9
 } route_dir_t;
 
 /**
@@ -78,6 +79,7 @@ BYUL_API route_t* route_create(void);
 BYUL_API void  route_destroy(route_t* p);
 
 /** Copy and Comparison **/
+BYUL_DEPRECATED("Use route_clone_ex; removal is planned for ABI 2.")
 BYUL_API route_t* route_copy(const route_t* p);
 
 /**
@@ -101,12 +103,82 @@ BYUL_API route_t* route_copy(const route_t* p);
 BYUL_API navsys_status_t route_clone_ex(
     const route_t* source,
     route_t** out_route);
+
+/**
+ * @brief route handle의 process-local identity hash를 반환한다.
+ *
+ * 이 값은 content hash가 아니며 process 밖에 저장할 수 없다. NULL은 0이다.
+ *
+ * @param[in] route identity를 조회할 route 또는 NULL.
+ * @return process-local identity hash 또는 NULL의 0.
+ * @byul.nullable route true
+ * @byul.side_effect none
+ */
+BYUL_API uintptr_t route_identity_hash(const route_t* route);
+
+/**
+ * @brief 두 route handle이 같은 object인지 판정한다.
+ *
+ * 두 NULL handle은 같은 identity로 판정한다. Route content는 비교하지 않는다.
+ *
+ * @param[in] left 비교할 첫 handle 또는 NULL.
+ * @param[in] right 비교할 둘째 handle 또는 NULL.
+ * @return 같은 handle이면 1, 아니면 0.
+ * @byul.nullable left true
+ * @byul.nullable right true
+ * @byul.side_effect none
+ */
+BYUL_API int route_is_same(const route_t* left, const route_t* right);
+
+/**
+ * @brief 두 route result의 coordinate, completion과 cost content를 비교한다.
+ *
+ * Trace, retry count와 legacy heading field는 result value가 아니므로 비교하지 않는다.
+ * Cost는 IEEE value equality를 사용해 +0과 -0은 같고 NaN은 서로 같지 않다.
+ * 실패하면 out_equal을 보존한다.
+ *
+ * @param[in] left 비교할 첫 route.
+ * @param[in] right 비교할 둘째 route.
+ * @param[out] out_equal content equality 결과를 받을 storage.
+ * @return Common Navsys status value.
+ * @byul.nullable left false
+ * @byul.nullable right false
+ * @byul.nullable out_equal false
+ * @byul.side_effect writes:out_equal-on-success
+ */
+BYUL_API navsys_status_t route_content_equal(
+    const route_t* left,
+    const route_t* right,
+    bool* out_equal);
+
+/**
+ * @brief route result content의 안정된 64-bit hash를 계산한다.
+ *
+ * Coordinate, completion과 cost만 포함한다. +0과 -0 cost는 같은 hash를 사용한다.
+ * Hash는 persistence protocol이 아니며 같은 ABI의 equality accelerator 용도다.
+ * 실패하면 out_hash를 보존한다.
+ *
+ * @param[in] route hash할 route.
+ * @param[out] out_hash content hash를 받을 storage.
+ * @return Common Navsys status value.
+ * @byul.nullable route false
+ * @byul.nullable out_hash false
+ * @byul.side_effect writes:out_hash-on-success
+ */
+BYUL_API navsys_status_t route_fetch_content_hash(
+    const route_t* route,
+    uint64_t* out_hash);
+
+BYUL_DEPRECATED("Use route_identity_hash or route_fetch_content_hash; removal is planned for ABI 2.")
 BYUL_API uintptr_t route_hash(const route_t* a);
+BYUL_DEPRECATED("Use route_is_same or route_content_equal; removal is planned for ABI 2.")
 BYUL_API int route_equal(const route_t* a, const route_t* b);
 
 /** Basic Information **/
+BYUL_DEPRECATED("Use route_builder_set_total_cost; removal is planned for ABI 2.")
 BYUL_API void  route_set_cost(route_t* p, float cost);
 BYUL_API float route_get_cost(const route_t* p);
+BYUL_DEPRECATED("Use route_builder_set_completion; removal is planned for ABI 2.")
 BYUL_API void  route_set_success(route_t* p, int success);
 BYUL_API int   route_get_success(const route_t* p);
 
@@ -124,6 +196,7 @@ BYUL_API int   route_get_success(const route_t* p);
  * @byul.lifetime return borrowed-from:p
  * @byul.invalidates route-coordinate-mutation,route_destroy
  */
+BYUL_DEPRECATED("Use route_get_coord_count, route_fetch_coord, or route_export_coords; removal is planned for ABI 2.")
 BYUL_API const coord_list_t* route_get_coords(const route_t* p);
 
 /** Visit Logs **/
@@ -136,6 +209,7 @@ BYUL_API const coord_list_t* route_get_coords(const route_t* p);
  * @byul.lifetime return borrowed-from:p
  * @byul.invalidates route_clear_visited,route_destroy
  */
+BYUL_DEPRECATED("Use navsys_search_trace query APIs; removal is planned for ABI 2.")
 BYUL_API const coord_list_t* route_get_visited_order(const route_t* p);
 /**
  * @brief route가 소유한 방문 횟수 hash의 borrowed view를 반환한다.
@@ -146,16 +220,23 @@ BYUL_API const coord_list_t* route_get_visited_order(const route_t* p);
  * @byul.lifetime return borrowed-from:p
  * @byul.invalidates route_clear_visited,route_destroy
  */
+BYUL_DEPRECATED("Use navsys_search_trace query APIs; removal is planned for ABI 2.")
 BYUL_API const coord_hash_t*  route_get_visited_count(const route_t* p);
 
+BYUL_DEPRECATED("Search retry statistics are no longer part of route values; removal is planned for ABI 2.")
 BYUL_API int route_get_total_retry_count(const route_t* p);
 
+BYUL_DEPRECATED("Search retry statistics are no longer part of route values; removal is planned for ABI 2.")
 BYUL_API void route_set_total_retry_count(route_t* p, int retry_count);
 
 /** Coordinate Manipulation **/
+BYUL_DEPRECATED("Use route_builder_push_coord; removal is planned for ABI 2.")
 BYUL_API int  route_add_coord(route_t* p, const coord_t* c);
+BYUL_DEPRECATED("Use a new route_builder_t result; removal is planned for ABI 2.")
 BYUL_API void route_clear_coords(route_t* p);
+BYUL_DEPRECATED("Use route_get_coord_count and route_fetch_coord; removal is planned for ABI 2.")
 BYUL_API const coord_t* route_get_last(const route_t* p);
+BYUL_DEPRECATED("Use route_fetch_coord; removal is planned for ABI 2.")
 BYUL_API const coord_t* route_get_coord_at(const route_t* p, int index);
 BYUL_API int   route_length(const route_t* p);
 
@@ -195,6 +276,25 @@ BYUL_API navsys_status_t route_fetch_coord(
     const route_t* route,
     size_t index,
     coord_t* out_coord);
+
+/**
+ * @brief route에서 첫 번째 matching coordinate index를 조회한다.
+ *
+ * 찾지 못하면 NAVSYS_STATUS_NOT_FOUND를 반환하고 out_index를 보존한다.
+ *
+ * @param[in] route 검색할 route.
+ * @param[in] coord 검색할 coordinate value.
+ * @param[out] out_index 첫 matching index를 받을 storage.
+ * @return Common Navsys status value.
+ * @byul.nullable route false
+ * @byul.nullable coord false
+ * @byul.nullable out_index false
+ * @byul.side_effect writes:out_index-on-success
+ */
+BYUL_API navsys_status_t route_find_coord(
+    const route_t* route,
+    const coord_t* coord,
+    size_t* out_index);
 
 /**
  * @brief route의 누적 cost를 caller storage로 복사한다.
@@ -606,23 +706,30 @@ BYUL_API int  route_add_visited(route_t* p, const coord_t* c);
 BYUL_API void route_clear_visited(route_t* p);
 
 /** Merge and Edit **/
+BYUL_DEPRECATED("Use route_builder_append with ROUTE_JOIN_KEEP_ALL; removal is planned for ABI 2.")
 BYUL_API void route_append(route_t* dest, const route_t* src);
 
 // When merging multiple routes, if there are overlapping start and end points,
 // only merge the start and end into a single coordinate.
 // Intermediate duplicate paths are not merged, only start and end are.
+BYUL_DEPRECATED("Use route_builder_append with ROUTE_JOIN_DEDUP_BOUNDARY; removal is planned for ABI 2.")
 BYUL_API void route_append_nodup(route_t* dest, const route_t* src);
 
+BYUL_DEPRECATED("Use route_builder_insert_coord; removal is planned for ABI 2.")
 BYUL_API void route_insert(route_t* p, int index, const coord_t* c);
+BYUL_DEPRECATED("Use route_builder_remove_coord; removal is planned for ABI 2.")
 BYUL_API void route_remove_at(route_t* p, int index);
+BYUL_DEPRECATED("Use route_find_coord and route_builder_remove_coord; removal is planned for ABI 2.")
 BYUL_API void route_remove_value(route_t* p, const coord_t* c);
 BYUL_API int  route_contains(const route_t* p, const coord_t* c);
+BYUL_DEPRECATED("Use route_find_coord; removal is planned for ABI 2.")
 BYUL_API int  route_find(const route_t* p, const coord_t* c);
 
 // BYUL_API void route_slice(route_t* p, int start, int end);
 
 // Returns a new route_t* sliced from the original route between start and end indices.
 // The original route remains unchanged.
+BYUL_DEPRECATED("Use route_slice_ex; removal is planned for ABI 2.")
 BYUL_API route_t* route_slice(const route_t* p, int start, int end);
 
 /**
@@ -654,6 +761,36 @@ BYUL_API navsys_status_t route_slice_ex(
     route_t** out_route);
 
 /** Output and Debugging **/
+/**
+ * @brief route coordinate sequence를 UTF-8 caller buffer로 format한다.
+ *
+ * required size는 trailing NUL을 포함한다. output NULL/capacity 0 query를 지원하고
+ * buffer가 부족하면 output을 보존한다. 출력 형식은 diagnostic이며 serialization
+ * protocol이 아니다.
+ *
+ * @param[in] route format할 route.
+ * @param[out] output caller buffer 또는 size query용 NULL.
+ * @param[in] capacity output의 byte capacity.
+ * @param[out] out_required_size trailing NUL을 포함한 required byte 수.
+ * @return Common Navsys status value.
+ * @byul.nullable route false
+ * @byul.nullable output query-only
+ * @byul.nullable out_required_size false
+ * @byul.side_effect writes:output-on-success,out_required_size-on-nonargument-status
+ */
+BYUL_API navsys_status_t route_format(
+    const route_t* route,
+    char* output,
+    size_t capacity,
+    size_t* out_required_size);
+
+/**
+ * @brief route를 표준 출력에 기록하는 ABI 1 호환 어댑터다.
+ * @param[in] p 출력할 route. NULL이면 아무 작업도 하지 않는다.
+ * @byul.nullable p true
+ * @byul.side_effect writes:stdout
+ */
+BYUL_DEPRECATED("Use route_format with an explicit sink; removal is planned for ABI 2.")
 BYUL_API void route_print(const route_t* p);
 
 /** Direction Calculation **/
@@ -676,6 +813,23 @@ BYUL_API void route_print(const route_t* p);
 BYUL_API navsys_status_t route_direction_between(
     const coord_t* from,
     const coord_t* to,
+    route_dir_t* out_direction);
+
+/**
+ * @brief non-zero vector를 부호 정규화한 8방향 값으로 변환한다.
+ *
+ * +x는 오른쪽, +y는 아래쪽이다. Zero vector에는 NOT_FOUND를 반환하고
+ * out_direction을 보존한다.
+ *
+ * @param[in] vector 변환할 vector.
+ * @param[out] out_direction 성공 시 방향을 받을 storage.
+ * @return Common Navsys status value.
+ * @byul.nullable vector false
+ * @byul.nullable out_direction false
+ * @byul.side_effect writes:out_direction-on-success
+ */
+BYUL_API navsys_status_t route_direction_from_vector(
+    const coord_t* vector,
     route_dir_t* out_direction);
 
 /**
@@ -859,10 +1013,15 @@ BYUL_API navsys_status_t route_heading_tracker_observe(
  * @byul.nullable return true
  * @byul.lifetime return caller-owned
  */
+BYUL_DEPRECATED("Use route_fetch_direction_at and route_direction_fetch_vector; removal is planned for ABI 2.")
 BYUL_API coord_t* route_make_direction(route_t* p, int index);
+BYUL_DEPRECATED("Use route_direction_from_vector; removal is planned for ABI 2.")
 BYUL_API route_dir_t route_get_direction_by_dir_coord(const coord_t* dxdy);
+BYUL_DEPRECATED("Use route_fetch_direction_at; removal is planned for ABI 2.")
 BYUL_API route_dir_t route_get_direction_by_index(route_t* p, int index);
+BYUL_DEPRECATED("Use route_compute_recent_facing; removal is planned for ABI 2.")
 BYUL_API route_dir_t route_calc_average_facing(route_t* p, int history);
+BYUL_DEPRECATED("Use route_compute_recent_heading_degrees; removal is planned for ABI 2.")
 BYUL_API float route_calc_average_dir(route_t* p, int history);
 
 /**
@@ -872,33 +1031,41 @@ BYUL_API float route_calc_average_dir(route_t* p, int history);
  * @byul.nullable return true
  * @byul.lifetime return caller-owned
  */
+BYUL_DEPRECATED("Use route_direction_fetch_vector; removal is planned for ABI 2.")
 BYUL_API coord_t* direction_to_coord(route_dir_t route_dir);
 
 /** Direction Change Detection **/
+BYUL_DEPRECATED("Use route_heading_tracker_observe; removal is planned for ABI 2.")
 BYUL_API int route_has_changed(
     route_t* p, const coord_t* from,
     const coord_t* to, float angle_threshold_deg);
 
+BYUL_DEPRECATED("Use route_heading_tracker_observe; removal is planned for ABI 2.")
 BYUL_API int route_has_changed_with_angle(
     route_t* p, const coord_t* from,
     const coord_t* to, float angle_threshold_deg,
     float* out_angle_deg);
 
+BYUL_DEPRECATED("Use route_fetch_coord and route_heading_tracker_observe; removal is planned for ABI 2.")
 BYUL_API int route_has_changed_by_index(
     route_t* p, int index_from,
     int index_to, float angle_threshold_deg);
 
+BYUL_DEPRECATED("Use route_fetch_coord and route_heading_tracker_observe; removal is planned for ABI 2.")
 BYUL_API int route_has_changed_with_angle_by_index(
     route_t* p, int index_from, int index_to,
     float angle_threshold_deg, float* out_angle_deg);
 
 /** Average Vector Update **/
+BYUL_DEPRECATED("Use route_heading_tracker_observe; removal is planned for ABI 2.")
 BYUL_API void route_update_average_vector(
     route_t* p, const coord_t* from, const coord_t* to);
 
+BYUL_DEPRECATED("Use route_fetch_coord and route_heading_tracker_observe; removal is planned for ABI 2.")
 BYUL_API void route_update_average_vector_by_index(
     route_t* p, int index_from, int index_to);
 
+BYUL_DEPRECATED("Use route_direction_between; removal is planned for ABI 2.")
 BYUL_API route_dir_t calc_direction(
     const coord_t* start, const coord_t* goal);
 

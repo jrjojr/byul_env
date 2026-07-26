@@ -77,6 +77,17 @@ navsys_status_t route_direction_between(
         out_direction);
 }
 
+navsys_status_t route_direction_from_vector(
+    const coord_t* vector,
+    route_dir_t* out_direction) {
+    if (!vector || !out_direction)
+        return NAVSYS_STATUS_INVALID_ARGUMENT;
+    return direction_from_delta(
+        static_cast<long long>(coord_get_x(vector)),
+        static_cast<long long>(coord_get_y(vector)),
+        out_direction);
+}
+
 navsys_status_t route_direction_fetch_vector(
     route_dir_t direction,
     coord_t* out_vector) {

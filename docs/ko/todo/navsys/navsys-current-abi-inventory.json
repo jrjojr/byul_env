@@ -4,28 +4,28 @@
   "source_vocabulary": "docs/ko/todo/navsys/navsys-abi-vocabulary.json",
   "summary": {
     "headers": 47,
-    "symbols": 558,
+    "symbols": 565,
     "return_forms": {
       "nullable_pointer": 151,
       "bool_predicate": 22,
       "bool_operation": 20,
-      "int_zero_nonzero_status": 40,
+      "int_zero_nonzero_status": 41,
       "int_count": 24,
       "int_index_minus_one": 4,
       "void_fallible_operation": 144,
-      "enum_result": 134,
+      "enum_result": 140,
       "floating_result": 19,
       "callback_return": 0
     },
     "unclassified": 0,
     "duplicate_declarations": 1,
-    "audit_issues": 872,
-    "audit_errors": 872,
+    "audit_issues": 869,
+    "audit_errors": 869,
     "audit_codes": {
-      "missing-brief": 13,
+      "missing-brief": 12,
       "missing-doxygen": 264,
-      "missing-nullable": 156,
-      "missing-param": 82,
+      "missing-nullable": 155,
+      "missing-param": 81,
       "missing-param-direction": 199,
       "missing-return": 18,
       "missing-return-lifetime": 49,
@@ -5370,33 +5370,6 @@
         "header": "byul/navsys/route/route.h",
         "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-route.org",
         "severity": "error",
-        "code": "missing-brief",
-        "symbol": "route_print",
-        "message": "public function has no @brief",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/route/route.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-route.org",
-        "severity": "error",
-        "code": "missing-param",
-        "symbol": "route_print",
-        "message": "parameter 'p' has no @param",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/route/route.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-route.org",
-        "severity": "error",
-        "code": "missing-nullable",
-        "symbol": "route_print",
-        "message": "pointer parameter 'p' has no @byul.nullable",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/route/route.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-route.org",
-        "severity": "error",
         "code": "missing-doxygen",
         "symbol": "route_get_direction_by_dir_coord",
         "message": "public function has no adjacent Doxygen block",
@@ -8614,13 +8587,17 @@
       "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-route.org",
       "primary_role": "public-component",
       "wrapper_mode": "generated",
-      "symbol_count": 82,
-      "audit_issue_count": 79,
+      "symbol_count": 89,
+      "audit_issue_count": 76,
       "symbols": [
         "route_create",
         "route_destroy",
         "route_copy",
         "route_clone_ex",
+        "route_identity_hash",
+        "route_is_same",
+        "route_content_equal",
+        "route_fetch_content_hash",
         "route_hash",
         "route_equal",
         "route_set_cost",
@@ -8639,6 +8616,7 @@
         "route_length",
         "route_get_coord_count",
         "route_fetch_coord",
+        "route_find_coord",
         "route_fetch_total_cost",
         "route_fetch_completion",
         "route_export_coords",
@@ -8671,8 +8649,10 @@
         "route_find",
         "route_slice",
         "route_slice_ex",
+        "route_format",
         "route_print",
         "route_direction_between",
+        "route_direction_from_vector",
         "route_direction_fetch_vector",
         "route_fetch_direction_at",
         "route_compute_recent_facing",
@@ -12132,6 +12112,38 @@
     },
     {
       "header": "byul/navsys/route/route.h",
+      "name": "route_identity_hash",
+      "return_type": "uintptr_t",
+      "signature": "uintptr_t route_identity_hash(const route_t* route);",
+      "return_form": "enum_result",
+      "canonical": "navsys_status_t plus typed out enum"
+    },
+    {
+      "header": "byul/navsys/route/route.h",
+      "name": "route_is_same",
+      "return_type": "int",
+      "signature": "int route_is_same(const route_t* left, const route_t* right);",
+      "return_form": "int_zero_nonzero_status",
+      "canonical": "navsys_status_t"
+    },
+    {
+      "header": "byul/navsys/route/route.h",
+      "name": "route_content_equal",
+      "return_type": "navsys_status_t",
+      "signature": "navsys_status_t route_content_equal( const route_t* left, const route_t* right, bool* out_equal);",
+      "return_form": "enum_result",
+      "canonical": "navsys_status_t plus typed out enum"
+    },
+    {
+      "header": "byul/navsys/route/route.h",
+      "name": "route_fetch_content_hash",
+      "return_type": "navsys_status_t",
+      "signature": "navsys_status_t route_fetch_content_hash( const route_t* route, uint64_t* out_hash);",
+      "return_form": "enum_result",
+      "canonical": "navsys_status_t plus typed out enum"
+    },
+    {
+      "header": "byul/navsys/route/route.h",
       "name": "route_hash",
       "return_type": "uintptr_t",
       "signature": "uintptr_t route_hash(const route_t* a);",
@@ -12271,6 +12283,14 @@
       "name": "route_fetch_coord",
       "return_type": "navsys_status_t",
       "signature": "navsys_status_t route_fetch_coord( const route_t* route, size_t index, coord_t* out_coord);",
+      "return_form": "enum_result",
+      "canonical": "navsys_status_t plus typed out enum"
+    },
+    {
+      "header": "byul/navsys/route/route.h",
+      "name": "route_find_coord",
+      "return_type": "navsys_status_t",
+      "signature": "navsys_status_t route_find_coord( const route_t* route, const coord_t* coord, size_t* out_index);",
       "return_form": "enum_result",
       "canonical": "navsys_status_t plus typed out enum"
     },
@@ -12532,6 +12552,14 @@
     },
     {
       "header": "byul/navsys/route/route.h",
+      "name": "route_format",
+      "return_type": "navsys_status_t",
+      "signature": "navsys_status_t route_format( const route_t* route, char* output, size_t capacity, size_t* out_required_size);",
+      "return_form": "enum_result",
+      "canonical": "navsys_status_t plus typed out enum"
+    },
+    {
+      "header": "byul/navsys/route/route.h",
       "name": "route_print",
       "return_type": "void",
       "signature": "void route_print(const route_t* p);",
@@ -12543,6 +12571,14 @@
       "name": "route_direction_between",
       "return_type": "navsys_status_t",
       "signature": "navsys_status_t route_direction_between( const coord_t* from, const coord_t* to, route_dir_t* out_direction);",
+      "return_form": "enum_result",
+      "canonical": "navsys_status_t plus typed out enum"
+    },
+    {
+      "header": "byul/navsys/route/route.h",
+      "name": "route_direction_from_vector",
+      "return_type": "navsys_status_t",
+      "signature": "navsys_status_t route_direction_from_vector( const coord_t* vector, route_dir_t* out_direction);",
       "return_form": "enum_result",
       "canonical": "navsys_status_t plus typed out enum"
     },

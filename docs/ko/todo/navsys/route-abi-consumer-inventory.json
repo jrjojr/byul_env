@@ -2,10 +2,10 @@
   "schema_version": 1,
   "header": {
     "path": "byul/navsys/route/route.h",
-    "sha256": "bf9ba32d83181f700aa8996ed92213fe9feea8eb635faedb98ab889f3065f29a",
-    "function_count": 82,
+    "sha256": "f4fe1df30a1946cdd1241a64e18cf74c02cd89edd0dae5f331ad519e2ab02df8",
+    "function_count": 89,
     "legacy_function_count": 44,
-    "canonical_function_count": 38,
+    "canonical_function_count": 45,
     "functions": [
       {
         "name": "route_create",
@@ -25,6 +25,26 @@
       {
         "name": "route_clone_ex",
         "signature": "navsys_status_t route_clone_ex( const route_t* source, route_t** out_route);",
+        "surface": "canonical-additive"
+      },
+      {
+        "name": "route_identity_hash",
+        "signature": "uintptr_t route_identity_hash(const route_t* route);",
+        "surface": "canonical-additive"
+      },
+      {
+        "name": "route_is_same",
+        "signature": "int route_is_same(const route_t* left, const route_t* right);",
+        "surface": "canonical-additive"
+      },
+      {
+        "name": "route_content_equal",
+        "signature": "navsys_status_t route_content_equal( const route_t* left, const route_t* right, bool* out_equal);",
+        "surface": "canonical-additive"
+      },
+      {
+        "name": "route_fetch_content_hash",
+        "signature": "navsys_status_t route_fetch_content_hash( const route_t* route, uint64_t* out_hash);",
         "surface": "canonical-additive"
       },
       {
@@ -115,6 +135,11 @@
       {
         "name": "route_fetch_coord",
         "signature": "navsys_status_t route_fetch_coord( const route_t* route, size_t index, coord_t* out_coord);",
+        "surface": "canonical-additive"
+      },
+      {
+        "name": "route_find_coord",
+        "signature": "navsys_status_t route_find_coord( const route_t* route, const coord_t* coord, size_t* out_index);",
         "surface": "canonical-additive"
       },
       {
@@ -278,6 +303,11 @@
         "surface": "canonical-additive"
       },
       {
+        "name": "route_format",
+        "signature": "navsys_status_t route_format( const route_t* route, char* output, size_t capacity, size_t* out_required_size);",
+        "surface": "canonical-additive"
+      },
+      {
         "name": "route_print",
         "signature": "void route_print(const route_t* p);",
         "surface": "legacy-abi-1"
@@ -285,6 +315,11 @@
       {
         "name": "route_direction_between",
         "signature": "navsys_status_t route_direction_between( const coord_t* from, const coord_t* to, route_dir_t* out_direction);",
+        "surface": "canonical-additive"
+      },
+      {
+        "name": "route_direction_from_vector",
+        "signature": "navsys_status_t route_direction_from_vector( const coord_t* vector, route_dir_t* out_direction);",
         "surface": "canonical-additive"
       },
       {
@@ -521,7 +556,7 @@
     "manifest_approved_install": true,
     "manifest_wrapper_mode": "generated",
     "clean_install_present": true,
-    "root_export_expected": 82,
+    "root_export_expected": 89,
     "root_export_missing": []
   },
   "consumer_matrix": {
@@ -549,7 +584,7 @@
             {
               "path": "byul/navsys/route/route_builder.cpp",
               "lines": [
-                72
+                74
               ]
             },
             {
@@ -623,26 +658,28 @@
             {
               "path": "byul/navsys/route/tests/test_module_route.cpp",
               "lines": [
-                55,
-                72,
+                56,
                 73,
-                110,
-                124,
-                178,
-                225,
-                251,
-                295,
-                441,
-                472,
-                511,
-                534,
-                611,
-                718,
-                745,
-                769,
-                775,
-                781,
-                793
+                74,
+                111,
+                125,
+                179,
+                226,
+                252,
+                296,
+                442,
+                473,
+                512,
+                535,
+                612,
+                719,
+                773,
+                820,
+                847,
+                871,
+                877,
+                883,
+                895
               ]
             },
             {
@@ -660,7 +697,7 @@
               "path": "tools/python/byul_wrapper/byul_wrapper/route.py",
               "lines": [
                 79,
-                338
+                379
               ]
             }
           ],
@@ -685,13 +722,13 @@
             {
               "path": "byul/navsys/route/route_builder.cpp",
               "lines": [
-                50,
-                60,
-                93,
-                113,
-                140,
-                166,
-                220
+                52,
+                62,
+                95,
+                115,
+                142,
+                168,
+                222
               ]
             },
             {
@@ -743,36 +780,39 @@
             {
               "path": "byul/navsys/route/tests/test_module_route.cpp",
               "lines": [
-                67,
                 68,
-                99,
+                69,
                 100,
                 101,
-                120,
-                166,
+                102,
+                121,
                 167,
                 168,
                 169,
-                221,
-                247,
-                291,
-                353,
+                170,
+                222,
+                248,
+                292,
                 354,
-                385,
+                355,
                 386,
-                468,
-                507,
-                530,
-                565,
-                637,
+                387,
+                469,
+                508,
+                531,
+                566,
                 638,
-                741,
-                757,
-                759,
-                789,
-                808,
-                816,
-                817
+                639,
+                768,
+                769,
+                803,
+                843,
+                859,
+                861,
+                891,
+                910,
+                918,
+                919
               ]
             },
             {
@@ -919,8 +959,9 @@
             {
               "path": "byul/navsys/route/tests/test_module_route.cpp",
               "lines": [
-                57,
-                618
+                58,
+                619,
+                725
               ]
             }
           ],
@@ -942,7 +983,7 @@
             {
               "path": "byul/navsys/route/route_builder.cpp",
               "lines": [
-                36
+                37
               ]
             }
           ],
@@ -950,9 +991,9 @@
             {
               "path": "byul/navsys/route/tests/test_module_route.cpp",
               "lines": [
-                135,
-                144,
-                146
+                136,
+                145,
+                147
               ]
             },
             {
@@ -974,14 +1015,14 @@
         }
       },
       {
-        "name": "route_hash",
+        "name": "route_identity_hash",
         "consumers": {
           "internal-production": [],
           "test-only": [
             {
               "path": "byul/navsys/route/tests/test_module_route.cpp",
               "lines": [
-                62
+                730
               ]
             }
           ],
@@ -989,7 +1030,112 @@
             {
               "path": "tools/python/byul_wrapper/byul_wrapper/route.py",
               "lines": [
-                88
+                89,
+                468
+              ]
+            }
+          ],
+          "external": []
+        }
+      },
+      {
+        "name": "route_is_same",
+        "consumers": {
+          "internal-production": [],
+          "test-only": [
+            {
+              "path": "byul/navsys/route/tests/test_module_route.cpp",
+              "lines": [
+                728,
+                729
+              ]
+            }
+          ],
+          "wrapper": [
+            {
+              "path": "tools/python/byul_wrapper/byul_wrapper/route.py",
+              "lines": [
+                91,
+                472
+              ]
+            }
+          ],
+          "external": []
+        }
+      },
+      {
+        "name": "route_content_equal",
+        "consumers": {
+          "internal-production": [],
+          "test-only": [
+            {
+              "path": "byul/navsys/route/tests/test_module_route.cpp",
+              "lines": [
+                734,
+                747,
+                752,
+                761,
+                764
+              ]
+            }
+          ],
+          "wrapper": [
+            {
+              "path": "tools/python/byul_wrapper/byul_wrapper/route.py",
+              "lines": [
+                93,
+                480
+              ]
+            }
+          ],
+          "external": []
+        }
+      },
+      {
+        "name": "route_fetch_content_hash",
+        "consumers": {
+          "internal-production": [],
+          "test-only": [
+            {
+              "path": "byul/navsys/route/tests/test_module_route.cpp",
+              "lines": [
+                738,
+                740,
+                754,
+                756
+              ]
+            }
+          ],
+          "wrapper": [
+            {
+              "path": "tools/python/byul_wrapper/byul_wrapper/route.py",
+              "lines": [
+                98,
+                491
+              ]
+            }
+          ],
+          "external": []
+        }
+      },
+      {
+        "name": "route_hash",
+        "consumers": {
+          "internal-production": [],
+          "test-only": [
+            {
+              "path": "byul/navsys/route/tests/test_module_route.cpp",
+              "lines": [
+                63,
+                730
+              ]
+            }
+          ],
+          "wrapper": [
+            {
+              "path": "tools/python/byul_wrapper/byul_wrapper/route.py",
+              "lines": [
+                102
               ]
             }
           ],
@@ -1004,8 +1150,9 @@
             {
               "path": "byul/navsys/route/tests/test_module_route.cpp",
               "lines": [
-                60,
-                61
+                61,
+                62,
+                731
               ]
             }
           ],
@@ -1013,7 +1160,7 @@
             {
               "path": "tools/python/byul_wrapper/byul_wrapper/route.py",
               "lines": [
-                89
+                104
               ]
             }
           ],
@@ -1023,25 +1170,21 @@
       {
         "name": "route_set_cost",
         "consumers": {
-          "internal-production": [
-            {
-              "path": "byul/navsys/route/route_builder.cpp",
-              "lines": [
-                24,
-                262
-              ]
-            }
-          ],
+          "internal-production": [],
           "test-only": [
             {
               "path": "byul/navsys/route/tests/test_module_route.cpp",
               "lines": [
-                80,
-                91,
-                130,
-                301,
-                482,
-                616
+                81,
+                92,
+                131,
+                302,
+                483,
+                617,
+                723,
+                750,
+                751,
+                760
               ]
             }
           ],
@@ -1049,9 +1192,9 @@
             {
               "path": "tools/python/byul_wrapper/byul_wrapper/route.py",
               "lines": [
-                91,
-                347,
-                358
+                106,
+                388,
+                399
               ]
             }
           ],
@@ -1073,13 +1216,13 @@
             {
               "path": "byul/navsys/route/tests/test_module_route.cpp",
               "lines": [
-                63,
-                87,
-                95,
-                138,
-                162,
-                226,
-                633
+                64,
+                88,
+                96,
+                139,
+                163,
+                227,
+                634
               ]
             }
           ],
@@ -1087,8 +1230,8 @@
             {
               "path": "tools/python/byul_wrapper/byul_wrapper/route.py",
               "lines": [
-                92,
-                355
+                107,
+                396
               ]
             }
           ],
@@ -1119,13 +1262,6 @@
                 184,
                 227,
                 234
-              ]
-            },
-            {
-              "path": "byul/navsys/route/route_builder.cpp",
-              "lines": [
-                25,
-                280
               ]
             },
             {
@@ -1217,11 +1353,12 @@
             {
               "path": "byul/navsys/route/tests/test_module_route.cpp",
               "lines": [
-                81,
-                131,
-                302,
-                490,
-                617
+                82,
+                132,
+                303,
+                491,
+                618,
+                724
               ]
             }
           ],
@@ -1229,8 +1366,8 @@
             {
               "path": "tools/python/byul_wrapper/byul_wrapper/route.py",
               "lines": [
-                93,
-                364
+                109,
+                405
               ]
             }
           ],
@@ -1331,13 +1468,13 @@
             {
               "path": "byul/navsys/route/tests/test_module_route.cpp",
               "lines": [
-                64,
-                88,
-                96,
-                139,
-                163,
-                227,
-                634
+                65,
+                89,
+                97,
+                140,
+                164,
+                228,
+                635
               ]
             },
             {
@@ -1419,8 +1556,8 @@
             {
               "path": "tools/python/byul_wrapper/byul_wrapper/route.py",
               "lines": [
-                94,
-                361
+                110,
+                402
               ]
             }
           ],
@@ -1449,7 +1586,7 @@
             {
               "path": "byul/navsys/route/tests/test_module_route.cpp",
               "lines": [
-                236
+                237
               ]
             }
           ],
@@ -1457,8 +1594,8 @@
             {
               "path": "tools/python/byul_wrapper/byul_wrapper/route.py",
               "lines": [
-                96,
-                374
+                112,
+                415
               ]
             }
           ],
@@ -1473,7 +1610,7 @@
             {
               "path": "byul/navsys/route/tests/test_module_route.cpp",
               "lines": [
-                523
+                524
               ]
             },
             {
@@ -1488,8 +1625,8 @@
             {
               "path": "tools/python/byul_wrapper/byul_wrapper/route.py",
               "lines": [
-                98,
-                463
+                114,
+                534
               ]
             }
           ],
@@ -1524,7 +1661,7 @@
             {
               "path": "byul/navsys/route/tests/test_module_route.cpp",
               "lines": [
-                518
+                519
               ]
             },
             {
@@ -1539,8 +1676,8 @@
             {
               "path": "tools/python/byul_wrapper/byul_wrapper/route.py",
               "lines": [
-                100,
-                470
+                116,
+                541
               ]
             }
           ],
@@ -1569,12 +1706,12 @@
             {
               "path": "byul/navsys/route/tests/test_module_route.cpp",
               "lines": [
-                89,
-                97,
-                105,
-                140,
-                164,
-                344
+                90,
+                98,
+                106,
+                141,
+                165,
+                345
               ]
             },
             {
@@ -1588,8 +1725,8 @@
             {
               "path": "tools/python/byul_wrapper/byul_wrapper/route.py",
               "lines": [
-                102,
-                367
+                118,
+                408
               ]
             }
           ],
@@ -1613,13 +1750,6 @@
                 962,
                 975,
                 991
-              ]
-            },
-            {
-              "path": "byul/navsys/route/route_builder.cpp",
-              "lines": [
-                26,
-                39
               ]
             },
             {
@@ -1694,11 +1824,12 @@
             {
               "path": "byul/navsys/route/tests/test_module_route.cpp",
               "lines": [
-                82,
-                92,
-                106,
-                132,
-                303
+                83,
+                93,
+                107,
+                133,
+                304,
+                744
               ]
             }
           ],
@@ -1706,8 +1837,8 @@
             {
               "path": "tools/python/byul_wrapper/byul_wrapper/route.py",
               "lines": [
-                104,
-                370
+                120,
+                411
               ]
             }
           ],
@@ -1747,32 +1878,35 @@
             {
               "path": "byul/navsys/route/tests/test_module_route.cpp",
               "lines": [
-                78,
                 79,
-                128,
+                80,
                 129,
-                180,
-                197,
-                232,
+                130,
+                181,
+                198,
                 233,
                 234,
-                255,
-                299,
+                235,
+                256,
                 300,
-                445,
+                301,
                 446,
-                484,
-                538,
+                447,
+                485,
                 539,
                 540,
-                615,
-                749,
-                770,
-                771,
-                772,
-                777,
+                541,
+                616,
+                722,
                 778,
-                803
+                779,
+                851,
+                872,
+                873,
+                874,
+                879,
+                880,
+                905
               ]
             },
             {
@@ -1788,8 +1922,8 @@
             {
               "path": "tools/python/byul_wrapper/byul_wrapper/route.py",
               "lines": [
-                106,
-                380
+                122,
+                421
               ]
             }
           ],
@@ -1804,7 +1938,7 @@
             {
               "path": "byul/navsys/route/tests/test_module_route.cpp",
               "lines": [
-                196
+                197
               ]
             }
           ],
@@ -1812,8 +1946,8 @@
             {
               "path": "tools/python/byul_wrapper/byul_wrapper/route.py",
               "lines": [
-                107,
-                383
+                124,
+                424
               ]
             }
           ],
@@ -1829,7 +1963,7 @@
             {
               "path": "tools/python/byul_wrapper/byul_wrapper/route.py",
               "lines": [
-                108
+                126
               ]
             }
           ],
@@ -1844,18 +1978,18 @@
             {
               "path": "byul/navsys/route/tests/test_module_route.cpp",
               "lines": [
-                191,
                 192,
                 193,
                 194,
-                205,
-                216,
-                753,
-                754,
-                786,
-                787,
-                798,
-                799
+                195,
+                206,
+                217,
+                855,
+                856,
+                888,
+                889,
+                900,
+                901
               ]
             },
             {
@@ -1869,7 +2003,7 @@
             {
               "path": "tools/python/byul_wrapper/byul_wrapper/route.py",
               "lines": [
-                109
+                128
               ]
             }
           ],
@@ -1897,21 +2031,21 @@
             {
               "path": "byul/navsys/route/tests/test_module_route.cpp",
               "lines": [
-                65,
-                86,
-                94,
-                137,
-                156,
-                161,
-                190,
-                204,
-                215,
-                726,
-                731,
-                735,
-                752,
-                785,
-                797
+                66,
+                87,
+                95,
+                138,
+                157,
+                162,
+                191,
+                205,
+                216,
+                828,
+                833,
+                837,
+                854,
+                887,
+                899
               ]
             },
             {
@@ -1934,8 +2068,7 @@
             {
               "path": "tools/python/byul_wrapper/byul_wrapper/route.py",
               "lines": [
-                110,
-                399
+                129
               ]
             }
           ],
@@ -1949,20 +2082,20 @@
             {
               "path": "byul/navsys/route/route_builder.cpp",
               "lines": [
-                131,
-                156,
-                191,
-                194,
-                199,
-                273
+                133,
+                158,
+                193,
+                196,
+                201,
+                275
               ]
             },
             {
               "path": "byul/navsys/route/route_heading.cpp",
               "lines": [
-                103,
-                124,
-                144
+                114,
+                135,
+                155
               ]
             }
           ],
@@ -1978,12 +2111,12 @@
             {
               "path": "byul/navsys/route/tests/test_module_route.cpp",
               "lines": [
-                328,
-                367,
-                379,
-                448,
+                329,
+                368,
+                380,
                 449,
-                635
+                450,
+                636
               ]
             },
             {
@@ -2011,8 +2144,8 @@
             {
               "path": "tools/python/byul_wrapper/byul_wrapper/route.py",
               "lines": [
-                112,
-                402
+                131,
+                443
               ]
             }
           ],
@@ -2026,20 +2159,20 @@
             {
               "path": "byul/navsys/route/route_builder.cpp",
               "lines": [
-                198,
-                201,
-                216
+                200,
+                203,
+                218
               ]
             },
             {
               "path": "byul/navsys/route/route_heading.cpp",
               "lines": [
-                110,
-                112,
-                130,
-                132,
-                150,
-                152
+                121,
+                123,
+                141,
+                143,
+                161,
+                163
               ]
             }
           ],
@@ -2047,10 +2180,10 @@
             {
               "path": "byul/navsys/route/tests/test_module_route.cpp",
               "lines": [
-                452,
-                457,
-                461,
-                465
+                453,
+                458,
+                462,
+                466
               ]
             },
             {
@@ -2064,8 +2197,33 @@
             {
               "path": "tools/python/byul_wrapper/byul_wrapper/route.py",
               "lines": [
-                114,
-                408
+                133,
+                449
+              ]
+            }
+          ],
+          "external": []
+        }
+      },
+      {
+        "name": "route_find_coord",
+        "consumers": {
+          "internal-production": [],
+          "test-only": [
+            {
+              "path": "byul/navsys/route/tests/test_module_route.cpp",
+              "lines": [
+                782,
+                785
+              ]
+            }
+          ],
+          "wrapper": [
+            {
+              "path": "tools/python/byul_wrapper/byul_wrapper/route.py",
+              "lines": [
+                138,
+                574
               ]
             }
           ],
@@ -2080,11 +2238,11 @@
             {
               "path": "byul/navsys/route/tests/test_module_route.cpp",
               "lines": [
-                340,
-                477,
-                485,
-                496,
-                499
+                341,
+                478,
+                486,
+                497,
+                500
               ]
             },
             {
@@ -2104,8 +2262,8 @@
             {
               "path": "tools/python/byul_wrapper/byul_wrapper/route.py",
               "lines": [
-                119,
-                419
+                143,
+                460
               ]
             }
           ],
@@ -2120,13 +2278,13 @@
             {
               "path": "byul/navsys/route/tests/test_module_route.cpp",
               "lines": [
-                342,
-                381,
-                479,
-                487,
-                491,
-                501,
-                504
+                343,
+                382,
+                480,
+                488,
+                492,
+                502,
+                505
               ]
             },
             {
@@ -2146,8 +2304,8 @@
             {
               "path": "tools/python/byul_wrapper/byul_wrapper/route.py",
               "lines": [
-                123,
-                428
+                147,
+                499
               ]
             }
           ],
@@ -2162,13 +2320,13 @@
             {
               "path": "byul/navsys/route/tests/test_module_route.cpp",
               "lines": [
-                259,
-                265,
-                275,
-                282,
-                285,
-                288,
-                331
+                260,
+                266,
+                276,
+                283,
+                286,
+                289,
+                332
               ]
             },
             {
@@ -2183,9 +2341,9 @@
             {
               "path": "tools/python/byul_wrapper/byul_wrapper/route.py",
               "lines": [
-                127,
-                440,
-                449
+                151,
+                511,
+                520
               ]
             }
           ],
@@ -2199,7 +2357,7 @@
             {
               "path": "byul/navsys/route/route_builder.cpp",
               "lines": [
-                69
+                71
               ]
             }
           ],
@@ -2207,8 +2365,8 @@
             {
               "path": "byul/navsys/route/tests/test_module_route.cpp",
               "lines": [
-                359,
-                370
+                360,
+                371
               ]
             },
             {
@@ -2228,8 +2386,8 @@
             {
               "path": "tools/python/byul_wrapper/byul_wrapper/route.py",
               "lines": [
-                133,
-                648
+                157,
+                759
               ]
             }
           ],
@@ -2243,7 +2401,7 @@
             {
               "path": "byul/navsys/route/route_builder.cpp",
               "lines": [
-                78
+                80
               ]
             }
           ],
@@ -2251,7 +2409,7 @@
             {
               "path": "byul/navsys/route/tests/test_module_route.cpp",
               "lines": [
-                306
+                307
               ]
             },
             {
@@ -2265,8 +2423,8 @@
             {
               "path": "tools/python/byul_wrapper/byul_wrapper/route.py",
               "lines": [
-                135,
-                650
+                159,
+                761
               ]
             }
           ],
@@ -2280,7 +2438,7 @@
             {
               "path": "byul/navsys/route/route_builder.cpp",
               "lines": [
-                90
+                92
               ]
             }
           ],
@@ -2288,9 +2446,9 @@
             {
               "path": "byul/navsys/route/tests/test_module_route.cpp",
               "lines": [
-                352,
-                368,
-                384
+                353,
+                369,
+                385
               ]
             },
             {
@@ -2311,7 +2469,7 @@
             {
               "path": "tools/python/byul_wrapper/byul_wrapper/route.py",
               "lines": [
-                139
+                163
               ]
             }
           ],
@@ -2325,7 +2483,7 @@
             {
               "path": "byul/navsys/route/route_builder.cpp",
               "lines": [
-                97
+                99
               ]
             }
           ],
@@ -2333,7 +2491,7 @@
             {
               "path": "byul/navsys/route/tests/test_module_route.cpp",
               "lines": [
-                362
+                363
               ]
             },
             {
@@ -2347,8 +2505,8 @@
             {
               "path": "tools/python/byul_wrapper/byul_wrapper/route.py",
               "lines": [
-                141,
-                666
+                165,
+                777
               ]
             }
           ],
@@ -2362,7 +2520,7 @@
             {
               "path": "byul/navsys/route/route_builder.cpp",
               "lines": [
-                121
+                123
               ]
             }
           ],
@@ -2370,7 +2528,7 @@
             {
               "path": "byul/navsys/route/tests/test_module_route.cpp",
               "lines": [
-                313
+                314
               ]
             }
           ],
@@ -2378,8 +2536,8 @@
             {
               "path": "tools/python/byul_wrapper/byul_wrapper/route.py",
               "lines": [
-                145,
-                675
+                169,
+                786
               ]
             }
           ],
@@ -2393,7 +2551,7 @@
             {
               "path": "byul/navsys/route/route_builder.cpp",
               "lines": [
-                148
+                150
               ]
             }
           ],
@@ -2401,7 +2559,7 @@
             {
               "path": "byul/navsys/route/tests/test_module_route.cpp",
               "lines": [
-                316
+                317
               ]
             }
           ],
@@ -2409,8 +2567,8 @@
             {
               "path": "tools/python/byul_wrapper/byul_wrapper/route.py",
               "lines": [
-                150,
-                685
+                174,
+                796
               ]
             }
           ],
@@ -2424,7 +2582,7 @@
             {
               "path": "byul/navsys/route/route_builder.cpp",
               "lines": [
-                176
+                178
               ]
             }
           ],
@@ -2432,7 +2590,7 @@
             {
               "path": "byul/navsys/route/tests/test_module_route.cpp",
               "lines": [
-                310
+                311
               ]
             },
             {
@@ -2446,8 +2604,8 @@
             {
               "path": "tools/python/byul_wrapper/byul_wrapper/route.py",
               "lines": [
-                155,
-                694
+                179,
+                805
               ]
             }
           ],
@@ -2461,7 +2619,7 @@
             {
               "path": "byul/navsys/route/route_builder.cpp",
               "lines": [
-                229
+                231
               ]
             }
           ],
@@ -2469,8 +2627,8 @@
             {
               "path": "byul/navsys/route/tests/test_module_route.cpp",
               "lines": [
-                371,
-                373
+                372,
+                374
               ]
             }
           ],
@@ -2478,8 +2636,8 @@
             {
               "path": "tools/python/byul_wrapper/byul_wrapper/route.py",
               "lines": [
-                160,
-                703
+                184,
+                814
               ]
             }
           ],
@@ -2493,7 +2651,7 @@
             {
               "path": "byul/navsys/route/route_builder.cpp",
               "lines": [
-                250
+                252
               ]
             }
           ],
@@ -2501,7 +2659,7 @@
             {
               "path": "byul/navsys/route/tests/test_module_route.cpp",
               "lines": [
-                320
+                321
               ]
             },
             {
@@ -2515,8 +2673,8 @@
             {
               "path": "tools/python/byul_wrapper/byul_wrapper/route.py",
               "lines": [
-                166,
-                712
+                190,
+                823
               ]
             }
           ],
@@ -2530,7 +2688,7 @@
             {
               "path": "byul/navsys/route/route_builder.cpp",
               "lines": [
-                266
+                268
               ]
             }
           ],
@@ -2538,8 +2696,8 @@
             {
               "path": "byul/navsys/route/tests/test_module_route.cpp",
               "lines": [
-                322,
-                375
+                323,
+                376
               ]
             },
             {
@@ -2553,8 +2711,8 @@
             {
               "path": "tools/python/byul_wrapper/byul_wrapper/route.py",
               "lines": [
-                170,
-                721
+                194,
+                832
               ]
             }
           ],
@@ -2568,7 +2726,7 @@
             {
               "path": "byul/navsys/route/route_builder.cpp",
               "lines": [
-                285
+                286
               ]
             }
           ],
@@ -2576,10 +2734,10 @@
             {
               "path": "byul/navsys/route/tests/test_module_route.cpp",
               "lines": [
-                326,
-                348,
-                366,
-                378
+                327,
+                349,
+                367,
+                379
               ]
             },
             {
@@ -2599,8 +2757,8 @@
             {
               "path": "tools/python/byul_wrapper/byul_wrapper/route.py",
               "lines": [
-                174,
-                731
+                198,
+                842
               ]
             }
           ],
@@ -2622,7 +2780,7 @@
             {
               "path": "byul/navsys/route/tests/test_module_route.cpp",
               "lines": [
-                392
+                393
               ]
             },
             {
@@ -2642,7 +2800,7 @@
             {
               "path": "tools/python/byul_wrapper/byul_wrapper/route.py",
               "lines": [
-                178
+                202
               ]
             }
           ],
@@ -2666,8 +2824,8 @@
             {
               "path": "byul/navsys/route/tests/test_module_route.cpp",
               "lines": [
-                435,
-                436
+                436,
+                437
               ]
             },
             {
@@ -2688,7 +2846,7 @@
             {
               "path": "tools/python/byul_wrapper/byul_wrapper/route.py",
               "lines": [
-                181
+                205
               ]
             }
           ],
@@ -2710,7 +2868,7 @@
             {
               "path": "byul/navsys/route/tests/test_module_route.cpp",
               "lines": [
-                428
+                429
               ]
             },
             {
@@ -2724,7 +2882,7 @@
             {
               "path": "tools/python/byul_wrapper/byul_wrapper/route.py",
               "lines": [
-                183
+                207
               ]
             }
           ],
@@ -2746,10 +2904,10 @@
             {
               "path": "byul/navsys/route/tests/test_module_route.cpp",
               "lines": [
-                402,
-                430,
-                432,
-                433
+                403,
+                431,
+                433,
+                434
               ]
             },
             {
@@ -2763,7 +2921,7 @@
             {
               "path": "tools/python/byul_wrapper/byul_wrapper/route.py",
               "lines": [
-                187
+                211
               ]
             }
           ],
@@ -2786,7 +2944,7 @@
             {
               "path": "tools/python/byul_wrapper/byul_wrapper/route.py",
               "lines": [
-                190
+                214
               ]
             }
           ],
@@ -2808,8 +2966,8 @@
             {
               "path": "byul/navsys/route/tests/test_module_route.cpp",
               "lines": [
-                405,
-                410
+                406,
+                411
               ]
             }
           ],
@@ -2817,7 +2975,7 @@
             {
               "path": "tools/python/byul_wrapper/byul_wrapper/route.py",
               "lines": [
-                195
+                219
               ]
             }
           ],
@@ -2839,8 +2997,8 @@
             {
               "path": "byul/navsys/route/tests/test_module_route.cpp",
               "lines": [
-                416,
-                421
+                417,
+                422
               ]
             }
           ],
@@ -2848,7 +3006,7 @@
             {
               "path": "tools/python/byul_wrapper/byul_wrapper/route.py",
               "lines": [
-                200
+                224
               ]
             }
           ],
@@ -2948,9 +3106,9 @@
             {
               "path": "byul/navsys/route/tests/test_module_route.cpp",
               "lines": [
-                514,
                 515,
-                516
+                516,
+                517
               ]
             },
             {
@@ -2964,8 +3122,8 @@
             {
               "path": "tools/python/byul_wrapper/byul_wrapper/route.py",
               "lines": [
-                206,
-                477
+                230,
+                548
               ]
             }
           ],
@@ -2975,22 +3133,14 @@
       {
         "name": "route_clear_visited",
         "consumers": {
-          "internal-production": [
-            {
-              "path": "byul/navsys/route/route_builder.cpp",
-              "lines": [
-                27,
-                38
-              ]
-            }
-          ],
+          "internal-production": [],
           "test-only": [],
           "wrapper": [
             {
               "path": "tools/python/byul_wrapper/byul_wrapper/route.py",
               "lines": [
-                207,
-                480
+                231,
+                551
               ]
             }
           ],
@@ -3005,10 +3155,10 @@
             {
               "path": "byul/navsys/route/tests/test_module_route.cpp",
               "lines": [
-                93,
-                782,
-                783,
-                794
+                94,
+                884,
+                885,
+                896
               ]
             }
           ],
@@ -3016,8 +3166,8 @@
             {
               "path": "tools/python/byul_wrapper/byul_wrapper/route.py",
               "lines": [
-                209,
-                486
+                233,
+                557
               ]
             }
           ],
@@ -3032,8 +3182,8 @@
             {
               "path": "byul/navsys/route/tests/test_module_route.cpp",
               "lines": [
-                795,
-                804
+                897,
+                906
               ]
             }
           ],
@@ -3041,8 +3191,8 @@
             {
               "path": "tools/python/byul_wrapper/byul_wrapper/route.py",
               "lines": [
-                211,
-                484
+                235,
+                555
               ]
             }
           ],
@@ -3065,9 +3215,9 @@
             {
               "path": "byul/navsys/route/tests/test_module_route.cpp",
               "lines": [
-                722,
-                723,
-                724
+                824,
+                825,
+                826
               ]
             }
           ],
@@ -3075,8 +3225,8 @@
             {
               "path": "tools/python/byul_wrapper/byul_wrapper/route.py",
               "lines": [
-                213,
-                489
+                237,
+                560
               ]
             }
           ],
@@ -3091,7 +3241,7 @@
             {
               "path": "byul/navsys/route/tests/test_module_route.cpp",
               "lines": [
-                730
+                832
               ]
             }
           ],
@@ -3099,8 +3249,8 @@
             {
               "path": "tools/python/byul_wrapper/byul_wrapper/route.py",
               "lines": [
-                214,
-                492
+                239,
+                563
               ]
             }
           ],
@@ -3115,7 +3265,7 @@
             {
               "path": "byul/navsys/route/tests/test_module_route.cpp",
               "lines": [
-                734
+                836
               ]
             }
           ],
@@ -3123,8 +3273,8 @@
             {
               "path": "tools/python/byul_wrapper/byul_wrapper/route.py",
               "lines": [
-                215,
-                495
+                241,
+                566
               ]
             }
           ],
@@ -3139,9 +3289,9 @@
             {
               "path": "byul/navsys/route/tests/test_module_route.cpp",
               "lines": [
-                728,
-                732,
-                805
+                830,
+                834,
+                907
               ]
             }
           ],
@@ -3149,8 +3299,8 @@
             {
               "path": "tools/python/byul_wrapper/byul_wrapper/route.py",
               "lines": [
-                216,
-                498
+                242,
+                569
               ]
             }
           ],
@@ -3165,8 +3315,8 @@
             {
               "path": "byul/navsys/route/tests/test_module_route.cpp",
               "lines": [
-                727,
-                736
+                829,
+                838
               ]
             }
           ],
@@ -3174,8 +3324,7 @@
             {
               "path": "tools/python/byul_wrapper/byul_wrapper/route.py",
               "lines": [
-                217,
-                501
+                244
               ]
             }
           ],
@@ -3190,8 +3339,8 @@
             {
               "path": "byul/navsys/route/tests/test_module_route.cpp",
               "lines": [
-                84,
-                751
+                85,
+                853
               ]
             }
           ],
@@ -3199,8 +3348,7 @@
             {
               "path": "tools/python/byul_wrapper/byul_wrapper/route.py",
               "lines": [
-                219,
-                504
+                246
               ]
             }
           ],
@@ -3214,7 +3362,7 @@
             {
               "path": "byul/navsys/route/route_builder.cpp",
               "lines": [
-                242
+                244
               ]
             }
           ],
@@ -3222,9 +3370,9 @@
             {
               "path": "byul/navsys/route/tests/test_module_route.cpp",
               "lines": [
-                149,
-                154,
-                159
+                150,
+                155,
+                160
               ]
             },
             {
@@ -3238,7 +3386,35 @@
             {
               "path": "tools/python/byul_wrapper/byul_wrapper/route.py",
               "lines": [
-                221
+                248,
+                588
+              ]
+            }
+          ],
+          "external": []
+        }
+      },
+      {
+        "name": "route_format",
+        "consumers": {
+          "internal-production": [],
+          "test-only": [
+            {
+              "path": "byul/navsys/route/tests/test_module_route.cpp",
+              "lines": [
+                790,
+                794,
+                799
+              ]
+            }
+          ],
+          "wrapper": [
+            {
+              "path": "tools/python/byul_wrapper/byul_wrapper/route.py",
+              "lines": [
+                254,
+                706,
+                713
               ]
             }
           ],
@@ -3387,8 +3563,7 @@
             {
               "path": "tools/python/byul_wrapper/byul_wrapper/route.py",
               "lines": [
-                227,
-                584
+                260
               ]
             }
           ],
@@ -3403,8 +3578,8 @@
               "path": "byul/navsys/route/route_heading.cpp",
               "lines": [
                 68,
-                115,
-                135
+                126,
+                146
               ]
             }
           ],
@@ -3412,9 +3587,9 @@
             {
               "path": "byul/navsys/route/tests/test_module_route.cpp",
               "lines": [
-                581,
-                592,
-                605
+                582,
+                593,
+                606
               ]
             }
           ],
@@ -3422,8 +3597,8 @@
             {
               "path": "tools/python/byul_wrapper/byul_wrapper/route.py",
               "lines": [
-                229,
-                630
+                262,
+                736
               ]
             }
           ],
@@ -3431,7 +3606,7 @@
         }
       },
       {
-        "name": "route_direction_fetch_vector",
+        "name": "route_direction_from_vector",
         "consumers": {
           "internal-production": [
             {
@@ -3445,8 +3620,8 @@
             {
               "path": "byul/navsys/route/tests/test_module_route.cpp",
               "lines": [
-                585,
-                596
+                809,
+                814
               ]
             }
           ],
@@ -3454,8 +3629,40 @@
             {
               "path": "tools/python/byul_wrapper/byul_wrapper/route.py",
               "lines": [
-                234,
-                621
+                267,
+                745
+              ]
+            }
+          ],
+          "external": []
+        }
+      },
+      {
+        "name": "route_direction_fetch_vector",
+        "consumers": {
+          "internal-production": [
+            {
+              "path": "byul/navsys/route/route_heading.cpp",
+              "lines": [
+                91
+              ]
+            }
+          ],
+          "test-only": [
+            {
+              "path": "byul/navsys/route/tests/test_module_route.cpp",
+              "lines": [
+                586,
+                597
+              ]
+            }
+          ],
+          "wrapper": [
+            {
+              "path": "tools/python/byul_wrapper/byul_wrapper/route.py",
+              "lines": [
+                271,
+                727
               ]
             }
           ],
@@ -3469,7 +3676,7 @@
             {
               "path": "byul/navsys/route/route_heading.cpp",
               "lines": [
-                97
+                108
               ]
             }
           ],
@@ -3477,8 +3684,8 @@
             {
               "path": "byul/navsys/route/tests/test_module_route.cpp",
               "lines": [
-                622,
-                624
+                623,
+                625
               ]
             }
           ],
@@ -3486,8 +3693,8 @@
             {
               "path": "tools/python/byul_wrapper/byul_wrapper/route.py",
               "lines": [
-                238,
-                522
+                275,
+                611
               ]
             }
           ],
@@ -3501,7 +3708,7 @@
             {
               "path": "byul/navsys/route/route_heading.cpp",
               "lines": [
-                118
+                129
               ]
             }
           ],
@@ -3509,7 +3716,7 @@
             {
               "path": "byul/navsys/route/tests/test_module_route.cpp",
               "lines": [
-                626
+                627
               ]
             }
           ],
@@ -3517,8 +3724,8 @@
             {
               "path": "tools/python/byul_wrapper/byul_wrapper/route.py",
               "lines": [
-                243,
-                532
+                280,
+                621
               ]
             }
           ],
@@ -3532,7 +3739,7 @@
             {
               "path": "byul/navsys/route/route_heading.cpp",
               "lines": [
-                138
+                149
               ]
             }
           ],
@@ -3540,7 +3747,7 @@
             {
               "path": "byul/navsys/route/tests/test_module_route.cpp",
               "lines": [
-                630
+                631
               ]
             }
           ],
@@ -3548,8 +3755,8 @@
             {
               "path": "tools/python/byul_wrapper/byul_wrapper/route.py",
               "lines": [
-                248,
-                542
+                285,
+                631
               ]
             }
           ],
@@ -3563,7 +3770,7 @@
             {
               "path": "byul/navsys/route/route_heading.cpp",
               "lines": [
-                165
+                176
               ]
             }
           ],
@@ -3571,8 +3778,8 @@
             {
               "path": "byul/navsys/route/tests/test_module_route.cpp",
               "lines": [
-                643,
-                685
+                644,
+                686
               ]
             },
             {
@@ -3586,8 +3793,8 @@
             {
               "path": "tools/python/byul_wrapper/byul_wrapper/route.py",
               "lines": [
-                253,
-                756
+                290,
+                867
               ]
             }
           ],
@@ -3601,7 +3808,7 @@
             {
               "path": "byul/navsys/route/route_heading.cpp",
               "lines": [
-                179
+                190
               ]
             }
           ],
@@ -3609,8 +3816,8 @@
             {
               "path": "byul/navsys/route/tests/test_module_route.cpp",
               "lines": [
-                680,
-                714
+                681,
+                715
               ]
             },
             {
@@ -3624,7 +3831,7 @@
             {
               "path": "tools/python/byul_wrapper/byul_wrapper/route.py",
               "lines": [
-                256
+                293
               ]
             }
           ],
@@ -3638,7 +3845,7 @@
             {
               "path": "byul/navsys/route/route_heading.cpp",
               "lines": [
-                183
+                194
               ]
             }
           ],
@@ -3646,10 +3853,10 @@
             {
               "path": "byul/navsys/route/tests/test_module_route.cpp",
               "lines": [
-                656,
-                662,
-                668,
-                709
+                657,
+                663,
+                669,
+                710
               ]
             }
           ],
@@ -3657,8 +3864,8 @@
             {
               "path": "tools/python/byul_wrapper/byul_wrapper/route.py",
               "lines": [
-                259,
-                810
+                296,
+                921
               ]
             }
           ],
@@ -3672,7 +3879,7 @@
             {
               "path": "byul/navsys/route/route_heading.cpp",
               "lines": [
-                191
+                202
               ]
             }
           ],
@@ -3680,9 +3887,9 @@
             {
               "path": "byul/navsys/route/tests/test_module_route.cpp",
               "lines": [
-                678,
-                704,
-                710
+                679,
+                705,
+                711
               ]
             }
           ],
@@ -3690,8 +3897,8 @@
             {
               "path": "tools/python/byul_wrapper/byul_wrapper/route.py",
               "lines": [
-                262,
-                771
+                299,
+                882
               ]
             }
           ],
@@ -3705,7 +3912,7 @@
             {
               "path": "byul/navsys/route/route_heading.cpp",
               "lines": [
-                196
+                207
               ]
             }
           ],
@@ -3713,8 +3920,8 @@
             {
               "path": "byul/navsys/route/tests/test_module_route.cpp",
               "lines": [
-                706,
-                711
+                707,
+                712
               ]
             }
           ],
@@ -3722,8 +3929,8 @@
             {
               "path": "tools/python/byul_wrapper/byul_wrapper/route.py",
               "lines": [
-                265,
-                777
+                302,
+                888
               ]
             }
           ],
@@ -3737,8 +3944,8 @@
             {
               "path": "byul/navsys/route/route_heading.cpp",
               "lines": [
-                212,
-                294
+                223,
+                305
               ]
             }
           ],
@@ -3746,17 +3953,17 @@
             {
               "path": "byul/navsys/route/tests/test_module_route.cpp",
               "lines": [
-                652,
-                657,
-                659,
-                663,
-                665,
-                669,
-                671,
-                674,
-                690,
-                693,
-                701
+                653,
+                658,
+                660,
+                664,
+                666,
+                670,
+                672,
+                675,
+                691,
+                694,
+                702
               ]
             }
           ],
@@ -3764,8 +3971,8 @@
             {
               "path": "tools/python/byul_wrapper/byul_wrapper/route.py",
               "lines": [
-                269,
-                788
+                306,
+                899
               ]
             }
           ],
@@ -3779,7 +3986,7 @@
             {
               "path": "byul/navsys/route/route_heading.cpp",
               "lines": [
-                267
+                278
               ]
             }
           ],
@@ -3788,8 +3995,8 @@
             {
               "path": "tools/python/byul_wrapper/byul_wrapper/route.py",
               "lines": [
-                276,
-                800
+                313,
+                911
               ]
             }
           ],
@@ -3804,7 +4011,7 @@
             {
               "path": "byul/navsys/route/tests/test_module_route.cpp",
               "lines": [
-                542
+                543
               ]
             }
           ],
@@ -3812,8 +4019,8 @@
             {
               "path": "tools/python/byul_wrapper/byul_wrapper/route.py",
               "lines": [
-                284,
-                507
+                321,
+                596
               ]
             }
           ],
@@ -3828,8 +4035,8 @@
             {
               "path": "byul/navsys/route/tests/test_module_route.cpp",
               "lines": [
-                107,
-                546
+                108,
+                547
               ]
             }
           ],
@@ -3837,8 +4044,7 @@
             {
               "path": "tools/python/byul_wrapper/byul_wrapper/route.py",
               "lines": [
-                285,
-                637
+                323
               ]
             }
           ],
@@ -3853,7 +4059,7 @@
             {
               "path": "byul/navsys/route/tests/test_module_route.cpp",
               "lines": [
-                547
+                548
               ]
             }
           ],
@@ -3861,8 +4067,8 @@
             {
               "path": "tools/python/byul_wrapper/byul_wrapper/route.py",
               "lines": [
-                286,
-                517
+                325,
+                606
               ]
             }
           ],
@@ -3878,8 +4084,8 @@
             {
               "path": "tools/python/byul_wrapper/byul_wrapper/route.py",
               "lines": [
-                287,
-                511
+                327,
+                600
               ]
             }
           ],
@@ -3895,8 +4101,8 @@
             {
               "path": "tools/python/byul_wrapper/byul_wrapper/route.py",
               "lines": [
-                288,
-                514
+                329,
+                603
               ]
             }
           ],
@@ -3919,8 +4125,8 @@
             {
               "path": "tools/python/byul_wrapper/byul_wrapper/route.py",
               "lines": [
-                290,
-                618
+                331,
+                724
               ]
             }
           ],
@@ -3935,7 +4141,7 @@
             {
               "path": "byul/navsys/route/tests/test_module_route.cpp",
               "lines": [
-                114
+                115
               ]
             }
           ],
@@ -3943,8 +4149,8 @@
             {
               "path": "tools/python/byul_wrapper/byul_wrapper/route.py",
               "lines": [
-                292,
-                550
+                333,
+                639
               ]
             }
           ],
@@ -3959,8 +4165,8 @@
             {
               "path": "byul/navsys/route/tests/test_module_route.cpp",
               "lines": [
-                115,
-                555
+                116,
+                556
               ]
             }
           ],
@@ -3968,8 +4174,8 @@
             {
               "path": "tools/python/byul_wrapper/byul_wrapper/route.py",
               "lines": [
-                296,
-                554
+                337,
+                643
               ]
             }
           ],
@@ -3985,8 +4191,8 @@
             {
               "path": "tools/python/byul_wrapper/byul_wrapper/route.py",
               "lines": [
-                301,
-                558
+                342,
+                647
               ]
             }
           ],
@@ -4002,8 +4208,8 @@
             {
               "path": "tools/python/byul_wrapper/byul_wrapper/route.py",
               "lines": [
-                305,
-                562
+                346,
+                651
               ]
             }
           ],
@@ -4018,8 +4224,8 @@
             {
               "path": "byul/navsys/route/tests/test_module_route.cpp",
               "lines": [
-                118,
-                552
+                119,
+                553
               ]
             }
           ],
@@ -4027,8 +4233,8 @@
             {
               "path": "tools/python/byul_wrapper/byul_wrapper/route.py",
               "lines": [
-                309,
-                566
+                350,
+                655
               ]
             }
           ],
@@ -4044,8 +4250,8 @@
             {
               "path": "tools/python/byul_wrapper/byul_wrapper/route.py",
               "lines": [
-                312,
-                569
+                353,
+                658
               ]
             }
           ],
@@ -4060,7 +4266,7 @@
             {
               "path": "byul/navsys/route/tests/test_module_route.cpp",
               "lines": [
-                108
+                109
               ]
             },
             {
@@ -4074,8 +4280,8 @@
             {
               "path": "tools/python/byul_wrapper/byul_wrapper/route.py",
               "lines": [
-                315,
-                627
+                356,
+                733
               ]
             }
           ],
@@ -4148,7 +4354,7 @@
             {
               "path": "tools/python/byul_wrapper/byul_wrapper/route.py",
               "lines": [
-                318
+                359
               ]
             }
           ],
@@ -4163,9 +4369,9 @@
             {
               "path": "byul/navsys/route/tests/test_module_route.cpp",
               "lines": [
-                188,
-                202,
-                213
+                189,
+                203,
+                214
               ]
             },
             {
@@ -4179,8 +4385,8 @@
             {
               "path": "tools/python/byul_wrapper/byul_wrapper/route.py",
               "lines": [
-                322,
-                573
+                363,
+                662
               ]
             }
           ],
@@ -4247,7 +4453,14 @@
         "name": "avg_vec_x",
         "candidate_consumers": {
           "internal-production": [],
-          "test-only": [],
+          "test-only": [
+            {
+              "path": "byul/navsys/route/tests/test_module_route.cpp",
+              "lines": [
+                745
+              ]
+            }
+          ],
           "wrapper": [],
           "external": []
         }
@@ -4265,7 +4478,14 @@
         "name": "vec_count",
         "candidate_consumers": {
           "internal-production": [],
-          "test-only": [],
+          "test-only": [
+            {
+              "path": "byul/navsys/route/tests/test_module_route.cpp",
+              "lines": [
+                746
+              ]
+            }
+          ],
           "wrapper": [],
           "external": []
         }

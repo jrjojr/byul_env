@@ -8,6 +8,7 @@
 
 #include <cstddef>
 #include <limits>
+#include <string>
 
 namespace {
 
@@ -712,6 +713,107 @@ TEST_CASE("[ROUTE-HEADING-002] tracker wraparound, reset and large count") {
         == NAVSYS_STATUS_NOT_FOUND);
 
     route_heading_tracker_destroy(tracker);
+}
+
+TEST_CASE("[ROUTE-VALUE-001] identity and result content are distinct") {
+    route_t* route = route_create();
+    REQUIRE(route != nullptr);
+    const coord_t point = {4, -7};
+    REQUIRE(route_add_coord(route, &point) == 1);
+    route_set_cost(route, 3.5f);
+    route_set_success(route, 1);
+    route_t* copy = route_copy(route);
+    REQUIRE(copy != nullptr);
+
+    CHECK(route_is_same(route, route) == 1);
+    CHECK(route_is_same(route, copy) == 0);
+    CHECK(route_identity_hash(route) == route_hash(route));
+    CHECK(route_equal(route, copy) == 0);
+
+    bool equal = false;
+    REQUIRE(route_content_equal(route, copy, &equal) == NAVSYS_STATUS_OK);
+    CHECK(equal);
+    uint64_t route_hash_value = 0;
+    uint64_t copy_hash_value = 1;
+    REQUIRE(route_fetch_content_hash(route, &route_hash_value)
+        == NAVSYS_STATUS_OK);
+    REQUIRE(route_fetch_content_hash(copy, &copy_hash_value)
+        == NAVSYS_STATUS_OK);
+    CHECK(route_hash_value == copy_hash_value);
+
+    route_set_total_retry_count(copy, 99);
+    copy->avg_vec_x = 1.0f;
+    copy->vec_count = 1;
+    REQUIRE(route_content_equal(route, copy, &equal) == NAVSYS_STATUS_OK);
+    CHECK(equal);
+
+    route_set_cost(copy, -0.0f);
+    route_set_cost(route, 0.0f);
+    REQUIRE(route_content_equal(route, copy, &equal) == NAVSYS_STATUS_OK);
+    CHECK(equal);
+    REQUIRE(route_fetch_content_hash(route, &route_hash_value)
+        == NAVSYS_STATUS_OK);
+    REQUIRE(route_fetch_content_hash(copy, &copy_hash_value)
+        == NAVSYS_STATUS_OK);
+    CHECK(route_hash_value == copy_hash_value);
+
+    route_set_cost(copy, 2.0f);
+    REQUIRE(route_content_equal(route, copy, &equal) == NAVSYS_STATUS_OK);
+    CHECK_FALSE(equal);
+    equal = true;
+    CHECK(route_content_equal(nullptr, copy, &equal)
+        == NAVSYS_STATUS_INVALID_ARGUMENT);
+    CHECK(equal);
+
+    route_destroy(copy);
+    route_destroy(route);
+}
+
+TEST_CASE("[ROUTE-VALUE-002] find and format preserve outputs on failure") {
+    route_t* route = route_create();
+    REQUIRE(route != nullptr);
+    const coord_t first = {1, 2};
+    const coord_t second = {-3, 4};
+    const coord_t missing = {9, 9};
+    REQUIRE(route_add_coord(route, &first) == 1);
+    REQUIRE(route_add_coord(route, &second) == 1);
+
+    size_t index = 99;
+    REQUIRE(route_find_coord(route, &second, &index) == NAVSYS_STATUS_OK);
+    CHECK(index == 1);
+    index = 99;
+    CHECK(route_find_coord(route, &missing, &index)
+        == NAVSYS_STATUS_NOT_FOUND);
+    CHECK(index == 99);
+
+    size_t required = 0;
+    REQUIRE(route_format(route, nullptr, 0, &required) == NAVSYS_STATUS_OK);
+    CHECK(required > 1);
+    char output[128] = "preserved";
+    size_t observed = 0;
+    CHECK(route_format(route, output, required - 1, &observed)
+        == NAVSYS_STATUS_INCOMPLETE);
+    CHECK(std::string(output) == "preserved");
+    CHECK(observed == required);
+    REQUIRE(required <= sizeof(output));
+    REQUIRE(route_format(route, output, required, &observed)
+        == NAVSYS_STATUS_OK);
+    CHECK(std::string(output) == "Route(len : 2): (1, 2) -> (-3, 4)\n");
+
+    route_destroy(route);
+}
+
+TEST_CASE("[ROUTE-DIRECTION-003] vector conversion is status checked") {
+    const coord_t vector = {-50, 90};
+    route_dir_t direction = ROUTE_DIR_UNKNOWN;
+    REQUIRE(route_direction_from_vector(&vector, &direction)
+        == NAVSYS_STATUS_OK);
+    CHECK(direction == ROUTE_DIR_DOWN_LEFT);
+    const coord_t zero = {0, 0};
+    direction = ROUTE_DIR_RIGHT;
+    CHECK(route_direction_from_vector(&zero, &direction)
+        == NAVSYS_STATUS_NOT_FOUND);
+    CHECK(direction == ROUTE_DIR_RIGHT);
 }
 
 TEST_CASE("route insert, remove, find") {
