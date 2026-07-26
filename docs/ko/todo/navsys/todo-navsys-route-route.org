@@ -547,7 +547,7 @@ coordinate axis와 cost unit은 public contract test로 고정한다.
   Windows MSVC/MinGW memory fixture가 모두 통과했다. 이로써 5단계만 닫고 6단계는
   =TODO= 상태로 유지한다.
 
-* DOING 6단계: Route correctness, Wrapper와 배포 Gate
+* DONE 6단계: Route correctness, Wrapper와 배포 Gate
 
 ** 실행
 
@@ -573,3 +573,23 @@ coordinate axis와 cost unit은 public contract test로 고정한다.
   check를 release gate로 묶는다.
 - =module static BYUL_STATIC=와 =root shared BYUL_EXPORTS=를 각각 compile/run하고
   symbol/export/behavior parity를 비교한다.
+
+** 완료 기록 (2026-07-26)
+
+- start==goal, partial, no-path, cancelled, limit/OOM 결과를 native fixture로 고정했다.
+  start==goal은 좌표 1개, cost 0, =ROUTE_COMPLETION_COMPLETE=를 canonical query로
+  관찰하며, builder/result, root dispatcher와 allocation-failure fixture가 같은 상태 계약을
+  사용한다.
+- Python =c_route=와 =c_route_builder=는 NULL/closed handle, 잘못된 argument type과
+  closed child를 호출 전에 차단한다. context manager 예외 종료, idempotent close, GC
+  finalizer와 finish 후 builder invalidation을 검증했으며 wrapper 전체 111 tests가 통과했다.
+- =route.h=는 표준 license를 첫 바이트에 두고 =BYUL_ROUTE_H= guard, file Doxygen와 ABI 1
+  legacy 44개 선언의 nullable/lifetime/deprecation 계약을 완성했다. strict header audit는
+  오류 0, MSVC C/C++ standalone compile은 190/190을 통과했고 generated CFFI와 Route/Navsys
+  ABI inventory를 동기화했다. ABI 1 symbol, enum 숫자와 =route_t= layout은 변경하지 않았다.
+- tests-off MSVC Release clean SDK는 export 1118개, 설치 헤더 92개, test artifact 0개였고
+  installed C17/C++17 consumer가 빌드·실행됐다. module Route/finder/Navsys, root shared와
+  allocation CTest 5개도 모두 통과했다.
+- GitHub Actions =Navsys Coord UBSan= run =30185193815=와 =BYUL Memory Boundary= run
+  =30185193817=에서 Linux static/root UBSan, Ubuntu GCC/Clang과 Windows MSVC/MinGW memory
+  fixture가 모두 통과했다. 이로써 Route TODO의 6단계를 닫고 다음 작업은 시작하지 않는다.
