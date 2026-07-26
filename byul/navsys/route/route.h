@@ -101,15 +101,35 @@ BYUL_API int   route_get_success(const route_t* p);
  * 반환 pointer는 route보다 먼저 파괴할 수 없고, route coordinate mutation 또는
  * route_destroy() 뒤에는 사용할 수 없다.
  *
+ * @param[in] p 조회할 route.
+ * @return Borrowed coordinate list. p가 NULL이면 NULL이다.
+ * @byul.nullable p true
+ * @byul.nullable return true
  * @byul.lifetime return borrowed-from:p
  * @byul.invalidates route-coordinate-mutation,route_destroy
  */
 BYUL_API const coord_list_t* route_get_coords(const route_t* p);
 
 /** Visit Logs **/
-/** @byul.lifetime return borrowed-from:p @byul.invalidates route_clear_visited,route_destroy */
+/**
+ * @brief route가 소유한 방문 순서 list의 borrowed view를 반환한다.
+ * @param[in] p 조회할 route.
+ * @return Borrowed 방문 순서 list. p가 NULL이면 NULL이다.
+ * @byul.nullable p true
+ * @byul.nullable return true
+ * @byul.lifetime return borrowed-from:p
+ * @byul.invalidates route_clear_visited,route_destroy
+ */
 BYUL_API const coord_list_t* route_get_visited_order(const route_t* p);
-/** @byul.lifetime return borrowed-from:p @byul.invalidates route_clear_visited,route_destroy */
+/**
+ * @brief route가 소유한 방문 횟수 hash의 borrowed view를 반환한다.
+ * @param[in] p 조회할 route.
+ * @return Borrowed 방문 횟수 hash. p가 NULL이면 NULL이다.
+ * @byul.nullable p true
+ * @byul.nullable return true
+ * @byul.lifetime return borrowed-from:p
+ * @byul.invalidates route_clear_visited,route_destroy
+ */
 BYUL_API const coord_hash_t*  route_get_visited_count(const route_t* p);
 
 BYUL_API int route_get_total_retry_count(const route_t* p);

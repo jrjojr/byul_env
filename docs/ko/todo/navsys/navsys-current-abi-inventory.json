@@ -19,17 +19,17 @@
     },
     "unclassified": 0,
     "duplicate_declarations": 1,
-    "audit_issues": 887,
-    "audit_errors": 887,
+    "audit_issues": 872,
+    "audit_errors": 872,
     "audit_codes": {
-      "missing-brief": 15,
+      "missing-brief": 13,
       "missing-doxygen": 264,
-      "missing-nullable": 159,
-      "missing-param": 85,
+      "missing-nullable": 156,
+      "missing-param": 82,
       "missing-param-direction": 199,
-      "missing-return": 21,
-      "missing-return-lifetime": 50,
-      "missing-return-nullable": 52,
+      "missing-return": 18,
+      "missing-return-lifetime": 49,
+      "missing-return-nullable": 49,
       "unknown-param": 12,
       "unnamed-parameter": 30
     },
@@ -5091,141 +5091,6 @@
         "header": "byul/navsys/route/route.h",
         "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-route.org",
         "severity": "error",
-        "code": "missing-param",
-        "symbol": "route_get_coords",
-        "message": "parameter 'p' has no @param",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/route/route.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-route.org",
-        "severity": "error",
-        "code": "missing-nullable",
-        "symbol": "route_get_coords",
-        "message": "pointer parameter 'p' has no @byul.nullable",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/route/route.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-route.org",
-        "severity": "error",
-        "code": "missing-return",
-        "symbol": "route_get_coords",
-        "message": "non-void function has no @return",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/route/route.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-route.org",
-        "severity": "error",
-        "code": "missing-return-nullable",
-        "symbol": "route_get_coords",
-        "message": "pointer return has no @byul.nullable return",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/route/route.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-route.org",
-        "severity": "error",
-        "code": "missing-brief",
-        "symbol": "route_get_visited_order",
-        "message": "public function has no @brief",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/route/route.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-route.org",
-        "severity": "error",
-        "code": "missing-param",
-        "symbol": "route_get_visited_order",
-        "message": "parameter 'p' has no @param",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/route/route.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-route.org",
-        "severity": "error",
-        "code": "missing-nullable",
-        "symbol": "route_get_visited_order",
-        "message": "pointer parameter 'p' has no @byul.nullable",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/route/route.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-route.org",
-        "severity": "error",
-        "code": "missing-return",
-        "symbol": "route_get_visited_order",
-        "message": "non-void function has no @return",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/route/route.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-route.org",
-        "severity": "error",
-        "code": "missing-return-nullable",
-        "symbol": "route_get_visited_order",
-        "message": "pointer return has no @byul.nullable return",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/route/route.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-route.org",
-        "severity": "error",
-        "code": "missing-return-lifetime",
-        "symbol": "route_get_visited_order",
-        "message": "pointer return has no @byul.lifetime return",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/route/route.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-route.org",
-        "severity": "error",
-        "code": "missing-brief",
-        "symbol": "route_get_visited_count",
-        "message": "public function has no @brief",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/route/route.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-route.org",
-        "severity": "error",
-        "code": "missing-param",
-        "symbol": "route_get_visited_count",
-        "message": "parameter 'p' has no @param",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/route/route.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-route.org",
-        "severity": "error",
-        "code": "missing-nullable",
-        "symbol": "route_get_visited_count",
-        "message": "pointer parameter 'p' has no @byul.nullable",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/route/route.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-route.org",
-        "severity": "error",
-        "code": "missing-return",
-        "symbol": "route_get_visited_count",
-        "message": "non-void function has no @return",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/route/route.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-route.org",
-        "severity": "error",
-        "code": "missing-return-nullable",
-        "symbol": "route_get_visited_count",
-        "message": "pointer return has no @byul.nullable return",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/route/route.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-route.org",
-        "severity": "error",
         "code": "missing-doxygen",
         "symbol": "route_get_total_retry_count",
         "message": "public function has no adjacent Doxygen block",
@@ -8741,7 +8606,7 @@
       "primary_role": "public-component",
       "wrapper_mode": "generated",
       "symbol_count": 52,
-      "audit_issue_count": 94,
+      "audit_issue_count": 79,
       "symbols": [
         "route_create",
         "route_destroy",

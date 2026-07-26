@@ -81,6 +81,14 @@ void destroy_route(route_t* route) {
     route_destroy(route);
 }
 
+void* copy_coord_for_hash(const void* value) {
+    return coord_copy(static_cast<const coord_t*>(value));
+}
+
+void destroy_coord_for_hash(void* value) {
+    coord_destroy(static_cast<coord_t*>(value));
+}
+
 coord_t* create_checked_coord() {
     coord_t* coord = nullptr;
     return coord_create_checked(7, 9, &coord) == NAVSYS_STATUS_OK
@@ -259,8 +267,8 @@ bool verify_route_checked_allocation_failure() {
     }
 
     coord_hash_t* predecessors = coord_hash_create_full(
-        reinterpret_cast<coord_hash_copy_func>(coord_copy),
-        reinterpret_cast<coord_hash_destroy_func>(coord_destroy));
+        copy_coord_for_hash,
+        destroy_coord_for_hash);
     if (!predecessors
         || !coord_hash_replace(
             predecessors, &second, const_cast<coord_t*>(&first))) {

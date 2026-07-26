@@ -5,6 +5,18 @@
 
 #include <cstddef>
 
+namespace {
+
+void* copy_coord_for_hash(const void* value) {
+    return coord_copy(static_cast<const coord_t*>(value));
+}
+
+void destroy_coord_for_hash(void* value) {
+    coord_destroy(static_cast<coord_t*>(value));
+}
+
+}  // namespace
+
 TEST_CASE("[ROUTE-ABI-001] route ABI 1 enum and public layout baseline") {
     CHECK(ROUTE_DIR_UNKNOWN == 0);
     CHECK(ROUTE_DIR_RIGHT == 1);
@@ -164,8 +176,8 @@ TEST_CASE("[ROUTE-P0-003] reconstruction rejects missing and cyclic predecessors
     REQUIRE(route_add_coord(route, &marker) == 1);
 
     coord_hash_t* complete = coord_hash_create_full(
-        reinterpret_cast<coord_hash_copy_func>(coord_copy),
-        reinterpret_cast<coord_hash_destroy_func>(coord_destroy));
+        copy_coord_for_hash,
+        destroy_coord_for_hash);
     REQUIRE(complete != nullptr);
     REQUIRE(coord_hash_replace(complete, &goal, const_cast<coord_t*>(&middle)));
     REQUIRE(coord_hash_replace(complete, &middle, const_cast<coord_t*>(&start)));
@@ -180,8 +192,8 @@ TEST_CASE("[ROUTE-P0-003] reconstruction rejects missing and cyclic predecessors
     route_clear_coords(route);
     REQUIRE(route_add_coord(route, &marker) == 1);
     coord_hash_t* missing = coord_hash_create_full(
-        reinterpret_cast<coord_hash_copy_func>(coord_copy),
-        reinterpret_cast<coord_hash_destroy_func>(coord_destroy));
+        copy_coord_for_hash,
+        destroy_coord_for_hash);
     REQUIRE(missing != nullptr);
     CHECK(route_reconstruct_ex(route, missing, &start, &goal)
         == NAVSYS_STATUS_NO_PATH);
@@ -189,8 +201,8 @@ TEST_CASE("[ROUTE-P0-003] reconstruction rejects missing and cyclic predecessors
     CHECK(coord_equal(route_get_coord_at(route, 0), &marker));
 
     coord_hash_t* cyclic = coord_hash_create_full(
-        reinterpret_cast<coord_hash_copy_func>(coord_copy),
-        reinterpret_cast<coord_hash_destroy_func>(coord_destroy));
+        copy_coord_for_hash,
+        destroy_coord_for_hash);
     REQUIRE(cyclic != nullptr);
     REQUIRE(coord_hash_replace(cyclic, &goal, const_cast<coord_t*>(&middle)));
     REQUIRE(coord_hash_replace(cyclic, &middle, const_cast<coord_t*>(&goal)));

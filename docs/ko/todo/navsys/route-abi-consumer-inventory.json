@@ -2,7 +2,7 @@
   "schema_version": 1,
   "header": {
     "path": "byul/navsys/route/route.h",
-    "sha256": "bd6c2019925a1d5c32eb8b6a9cd414b5d9c12d4b4aadc620fbe8f3816f0b48ac",
+    "sha256": "8c1058e024821528fe25ab2f6a21b2925d3e7481095d2c9287d39ce5e639c7ef",
     "function_count": 52,
     "legacy_function_count": 44,
     "canonical_function_count": 8,
@@ -463,33 +463,33 @@
             {
               "path": "byul/navsys/route/tests/test_module_route.cpp",
               "lines": [
-                39,
-                56,
-                57,
-                94,
-                108,
-                162,
-                209,
-                235,
-                279,
-                310,
-                349,
-                372,
-                408,
-                435,
-                459,
-                465,
+                51,
+                68,
+                69,
+                106,
+                120,
+                174,
+                221,
+                247,
+                291,
+                322,
+                361,
+                384,
+                420,
+                447,
                 471,
-                483
+                477,
+                483,
+                495
               ]
             },
             {
               "path": "byul/navsys/tests/test_navsys_allocation_failure.cpp",
               "lines": [
                 77,
-                211,
-                274,
-                316
+                219,
+                282,
+                324
               ]
             }
           ],
@@ -569,30 +569,30 @@
             {
               "path": "byul/navsys/route/tests/test_module_route.cpp",
               "lines": [
-                51,
-                52,
-                83,
-                84,
-                85,
-                104,
-                150,
-                151,
-                152,
-                153,
-                205,
-                231,
-                275,
-                306,
-                345,
-                368,
-                403,
-                431,
-                447,
-                449,
-                479,
-                498,
-                506,
-                507
+                63,
+                64,
+                95,
+                96,
+                97,
+                116,
+                162,
+                163,
+                164,
+                165,
+                217,
+                243,
+                287,
+                318,
+                357,
+                380,
+                415,
+                443,
+                459,
+                461,
+                491,
+                510,
+                518,
+                519
               ]
             },
             {
@@ -686,16 +686,16 @@
               "path": "byul/navsys/tests/test_navsys_allocation_failure.cpp",
               "lines": [
                 81,
-                215,
-                237,
-                257,
-                268,
-                277,
-                300,
+                223,
+                245,
+                265,
+                276,
+                285,
                 308,
-                329,
+                316,
                 337,
-                344
+                345,
+                352
               ]
             },
             {
@@ -734,7 +734,7 @@
             {
               "path": "byul/navsys/route/tests/test_module_route.cpp",
               "lines": [
-                41
+                53
               ]
             }
           ],
@@ -757,15 +757,15 @@
             {
               "path": "byul/navsys/route/tests/test_module_route.cpp",
               "lines": [
-                119,
-                128,
-                130
+                131,
+                140,
+                142
               ]
             },
             {
               "path": "byul/navsys/tests/test_navsys_allocation_failure.cpp",
               "lines": [
-                229
+                237
               ]
             }
           ],
@@ -788,7 +788,7 @@
             {
               "path": "byul/navsys/route/tests/test_module_route.cpp",
               "lines": [
-                46
+                58
               ]
             }
           ],
@@ -811,8 +811,8 @@
             {
               "path": "byul/navsys/route/tests/test_module_route.cpp",
               "lines": [
-                44,
-                45
+                56,
+                57
               ]
             }
           ],
@@ -835,10 +835,10 @@
             {
               "path": "byul/navsys/route/tests/test_module_route.cpp",
               "lines": [
-                64,
-                75,
-                114,
-                320
+                76,
+                87,
+                126,
+                332
               ]
             }
           ],
@@ -870,12 +870,12 @@
             {
               "path": "byul/navsys/route/tests/test_module_route.cpp",
               "lines": [
-                47,
-                71,
-                79,
-                122,
-                146,
-                210
+                59,
+                83,
+                91,
+                134,
+                158,
+                222
               ]
             }
           ],
@@ -1006,9 +1006,9 @@
             {
               "path": "byul/navsys/route/tests/test_module_route.cpp",
               "lines": [
-                65,
-                115,
-                328
+                77,
+                127,
+                340
               ]
             }
           ],
@@ -1109,12 +1109,12 @@
             {
               "path": "byul/navsys/route/tests/test_module_route.cpp",
               "lines": [
-                48,
-                72,
-                80,
-                123,
-                147,
-                211
+                60,
+                84,
+                92,
+                135,
+                159,
+                223
               ]
             },
             {
@@ -1226,7 +1226,7 @@
             {
               "path": "byul/navsys/route/tests/test_module_route.cpp",
               "lines": [
-                220
+                232
               ]
             }
           ],
@@ -1250,14 +1250,14 @@
             {
               "path": "byul/navsys/route/tests/test_module_route.cpp",
               "lines": [
-                361
+                373
               ]
             },
             {
               "path": "byul/navsys/tests/test_navsys_allocation_failure.cpp",
               "lines": [
-                324,
-                326
+                332,
+                334
               ]
             }
           ],
@@ -1295,14 +1295,14 @@
             {
               "path": "byul/navsys/route/tests/test_module_route.cpp",
               "lines": [
-                356
+                368
               ]
             },
             {
               "path": "byul/navsys/tests/test_navsys_allocation_failure.cpp",
               "lines": [
-                325,
-                327
+                333,
+                335
               ]
             }
           ],
@@ -1333,11 +1333,11 @@
             {
               "path": "byul/navsys/route/tests/test_module_route.cpp",
               "lines": [
-                73,
-                81,
-                89,
-                124,
-                148
+                85,
+                93,
+                101,
+                136,
+                160
               ]
             },
             {
@@ -1441,10 +1441,10 @@
             {
               "path": "byul/navsys/route/tests/test_module_route.cpp",
               "lines": [
-                66,
-                76,
-                90,
-                116
+                78,
+                88,
+                102,
+                128
               ]
             }
           ],
@@ -1493,37 +1493,37 @@
             {
               "path": "byul/navsys/route/tests/test_module_route.cpp",
               "lines": [
-                62,
-                63,
-                112,
-                113,
-                164,
-                181,
-                216,
-                217,
-                218,
-                239,
-                283,
-                284,
-                322,
-                376,
-                377,
-                378,
-                439,
-                460,
-                461,
-                462,
-                467,
-                468,
-                493
+                74,
+                75,
+                124,
+                125,
+                176,
+                193,
+                228,
+                229,
+                230,
+                251,
+                295,
+                296,
+                334,
+                388,
+                389,
+                390,
+                451,
+                472,
+                473,
+                474,
+                479,
+                480,
+                505
               ]
             },
             {
               "path": "byul/navsys/tests/test_navsys_allocation_failure.cpp",
               "lines": [
-                213,
-                214,
-                276
+                221,
+                222,
+                284
               ]
             }
           ],
@@ -1547,7 +1547,7 @@
             {
               "path": "byul/navsys/route/tests/test_module_route.cpp",
               "lines": [
-                180
+                192
               ]
             }
           ],
@@ -1587,24 +1587,24 @@
             {
               "path": "byul/navsys/route/tests/test_module_route.cpp",
               "lines": [
-                175,
-                176,
-                177,
-                178,
+                187,
+                188,
                 189,
-                200,
-                443,
-                444,
-                476,
-                477,
+                190,
+                201,
+                212,
+                455,
+                456,
                 488,
-                489
+                489,
+                500,
+                501
               ]
             },
             {
               "path": "byul/navsys/tests/test_navsys_allocation_failure.cpp",
               "lines": [
-                293
+                301
               ]
             }
           ],
@@ -1640,21 +1640,21 @@
             {
               "path": "byul/navsys/route/tests/test_module_route.cpp",
               "lines": [
-                49,
-                70,
-                78,
-                121,
-                140,
-                145,
-                174,
-                188,
-                199,
-                416,
-                421,
-                425,
-                442,
-                475,
-                487
+                61,
+                82,
+                90,
+                133,
+                152,
+                157,
+                186,
+                200,
+                211,
+                428,
+                433,
+                437,
+                454,
+                487,
+                499
               ]
             },
             {
@@ -1667,9 +1667,9 @@
             {
               "path": "byul/navsys/tests/test_navsys_allocation_failure.cpp",
               "lines": [
-                233,
-                290,
-                295
+                241,
+                298,
+                303
               ]
             }
           ],
@@ -1693,8 +1693,8 @@
             {
               "path": "byul/navsys/route/tests/test_module_route.cpp",
               "lines": [
-                286,
-                287
+                298,
+                299
               ]
             },
             {
@@ -1730,10 +1730,10 @@
             {
               "path": "byul/navsys/route/tests/test_module_route.cpp",
               "lines": [
-                290,
-                295,
-                299,
-                303
+                302,
+                307,
+                311,
+                315
               ]
             },
             {
@@ -1763,10 +1763,10 @@
             {
               "path": "byul/navsys/route/tests/test_module_route.cpp",
               "lines": [
-                315,
-                323,
-                334,
-                337
+                327,
+                335,
+                346,
+                349
               ]
             },
             {
@@ -1802,11 +1802,11 @@
             {
               "path": "byul/navsys/route/tests/test_module_route.cpp",
               "lines": [
-                317,
-                325,
                 329,
-                339,
-                342
+                337,
+                341,
+                351,
+                354
               ]
             },
             {
@@ -1842,12 +1842,12 @@
             {
               "path": "byul/navsys/route/tests/test_module_route.cpp",
               "lines": [
-                243,
-                249,
-                259,
-                266,
-                269,
-                272
+                255,
+                261,
+                271,
+                278,
+                281,
+                284
               ]
             },
             {
@@ -1964,15 +1964,15 @@
             {
               "path": "byul/navsys/route/tests/test_module_route.cpp",
               "lines": [
-                352,
-                353,
-                354
+                364,
+                365,
+                366
               ]
             },
             {
               "path": "byul/navsys/tests/test_navsys_allocation_failure.cpp",
               "lines": [
-                321
+                329
               ]
             }
           ],
@@ -2013,10 +2013,10 @@
             {
               "path": "byul/navsys/route/tests/test_module_route.cpp",
               "lines": [
-                77,
-                472,
-                473,
-                484
+                89,
+                484,
+                485,
+                496
               ]
             }
           ],
@@ -2040,8 +2040,8 @@
             {
               "path": "byul/navsys/route/tests/test_module_route.cpp",
               "lines": [
-                485,
-                494
+                497,
+                506
               ]
             }
           ],
@@ -2073,9 +2073,9 @@
             {
               "path": "byul/navsys/route/tests/test_module_route.cpp",
               "lines": [
-                412,
-                413,
-                414
+                424,
+                425,
+                426
               ]
             }
           ],
@@ -2099,7 +2099,7 @@
             {
               "path": "byul/navsys/route/tests/test_module_route.cpp",
               "lines": [
-                420
+                432
               ]
             }
           ],
@@ -2123,7 +2123,7 @@
             {
               "path": "byul/navsys/route/tests/test_module_route.cpp",
               "lines": [
-                424
+                436
               ]
             }
           ],
@@ -2147,9 +2147,9 @@
             {
               "path": "byul/navsys/route/tests/test_module_route.cpp",
               "lines": [
-                418,
-                422,
-                495
+                430,
+                434,
+                507
               ]
             }
           ],
@@ -2173,8 +2173,8 @@
             {
               "path": "byul/navsys/route/tests/test_module_route.cpp",
               "lines": [
-                417,
-                426
+                429,
+                438
               ]
             }
           ],
@@ -2198,8 +2198,8 @@
             {
               "path": "byul/navsys/route/tests/test_module_route.cpp",
               "lines": [
-                68,
-                441
+                80,
+                453
               ]
             }
           ],
@@ -2223,15 +2223,15 @@
             {
               "path": "byul/navsys/route/tests/test_module_route.cpp",
               "lines": [
-                133,
-                138,
-                143
+                145,
+                150,
+                155
               ]
             },
             {
               "path": "byul/navsys/tests/test_navsys_allocation_failure.cpp",
               "lines": [
-                228
+                236
               ]
             }
           ],
@@ -2404,7 +2404,7 @@
             {
               "path": "byul/navsys/route/tests/test_module_route.cpp",
               "lines": [
-                380
+                392
               ]
             }
           ],
@@ -2428,8 +2428,8 @@
             {
               "path": "byul/navsys/route/tests/test_module_route.cpp",
               "lines": [
-                91,
-                384
+                103,
+                396
               ]
             }
           ],
@@ -2453,7 +2453,7 @@
             {
               "path": "byul/navsys/route/tests/test_module_route.cpp",
               "lines": [
-                385
+                397
               ]
             }
           ],
@@ -2529,7 +2529,7 @@
             {
               "path": "byul/navsys/route/tests/test_module_route.cpp",
               "lines": [
-                98
+                110
               ]
             }
           ],
@@ -2553,8 +2553,8 @@
             {
               "path": "byul/navsys/route/tests/test_module_route.cpp",
               "lines": [
-                99,
-                393
+                111,
+                405
               ]
             }
           ],
@@ -2612,8 +2612,8 @@
             {
               "path": "byul/navsys/route/tests/test_module_route.cpp",
               "lines": [
-                102,
-                390
+                114,
+                402
               ]
             }
           ],
@@ -2654,7 +2654,7 @@
             {
               "path": "byul/navsys/route/tests/test_module_route.cpp",
               "lines": [
-                92
+                104
               ]
             }
           ],
@@ -2752,15 +2752,15 @@
             {
               "path": "byul/navsys/route/tests/test_module_route.cpp",
               "lines": [
-                172,
-                186,
-                197
+                184,
+                198,
+                209
               ]
             },
             {
               "path": "byul/navsys/tests/test_navsys_allocation_failure.cpp",
               "lines": [
-                284
+                292
               ]
             }
           ],
