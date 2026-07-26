@@ -72,7 +72,7 @@
       "canonical_install": false,
       "deprecated_since": null,
       "remove_in": null,
-      "reason": "Canonical private key-operation helper path.",
+      "reason": "Already migrated to the canonical internal implementation path.",
       "compatibility_path": null
     },
     "legacy_source_path_present": false,
