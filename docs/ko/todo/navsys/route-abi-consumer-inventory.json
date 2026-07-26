@@ -1960,9 +1960,9 @@
             {
               "path": "byul/navsys/route/route_heading.cpp",
               "lines": [
-                104,
-                125,
-                145
+                103,
+                124,
+                144
               ]
             }
           ],
@@ -2034,12 +2034,12 @@
             {
               "path": "byul/navsys/route/route_heading.cpp",
               "lines": [
-                111,
-                113,
-                131,
-                133,
-                151,
-                153
+                110,
+                112,
+                130,
+                132,
+                150,
+                152
               ]
             }
           ],
@@ -3402,9 +3402,9 @@
             {
               "path": "byul/navsys/route/route_heading.cpp",
               "lines": [
-                69,
-                116,
-                136
+                68,
+                115,
+                135
               ]
             }
           ],
@@ -3437,7 +3437,7 @@
             {
               "path": "byul/navsys/route/route_heading.cpp",
               "lines": [
-                81
+                80
               ]
             }
           ],
@@ -3469,7 +3469,7 @@
             {
               "path": "byul/navsys/route/route_heading.cpp",
               "lines": [
-                98
+                97
               ]
             }
           ],
@@ -3501,7 +3501,7 @@
             {
               "path": "byul/navsys/route/route_heading.cpp",
               "lines": [
-                119
+                118
               ]
             }
           ],
@@ -3532,7 +3532,7 @@
             {
               "path": "byul/navsys/route/route_heading.cpp",
               "lines": [
-                139
+                138
               ]
             }
           ],
@@ -3563,7 +3563,7 @@
             {
               "path": "byul/navsys/route/route_heading.cpp",
               "lines": [
-                166
+                165
               ]
             }
           ],
@@ -3601,7 +3601,7 @@
             {
               "path": "byul/navsys/route/route_heading.cpp",
               "lines": [
-                178
+                179
               ]
             }
           ],
@@ -3638,7 +3638,7 @@
             {
               "path": "byul/navsys/route/route_heading.cpp",
               "lines": [
-                182
+                183
               ]
             }
           ],
@@ -3672,7 +3672,7 @@
             {
               "path": "byul/navsys/route/route_heading.cpp",
               "lines": [
-                190
+                191
               ]
             }
           ],
@@ -3705,7 +3705,7 @@
             {
               "path": "byul/navsys/route/route_heading.cpp",
               "lines": [
-                195
+                196
               ]
             }
           ],
@@ -3737,8 +3737,8 @@
             {
               "path": "byul/navsys/route/route_heading.cpp",
               "lines": [
-                211,
-                293
+                212,
+                294
               ]
             }
           ],
@@ -3779,7 +3779,7 @@
             {
               "path": "byul/navsys/route/route_heading.cpp",
               "lines": [
-                266
+                267
               ]
             }
           ],
