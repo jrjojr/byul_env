@@ -445,7 +445,7 @@ coordinate axis와 cost unit은 public contract test로 고정한다.
   할당 실패 주입은 test executable에만 있고 Ubuntu/Windows 생산 artifact에는
   포함되지 않는다. 이로써 3단계만 닫고 4단계는 =TODO=로 유지한다.
 
-* DOING 4단계: Direction과 heading API를 pure/value 중심으로 교체
+* DONE 4단계: Direction과 heading API를 pure/value 중심으로 교체
 
 ** 실행
 
@@ -469,6 +469,30 @@ coordinate axis와 cost unit은 public contract test로 고정한다.
 - 8방향, zero, long delta, 반대 방향, threshold 직전/동일/직후, wrap-around와 큰 sample
   count test를 실행한다.
 - wrapper에서 모든 direction 변환을 대량 반복하고 allocation/GC/lifetime leak 0을 검사한다.
+
+** 완료 기록 (2026-07-26)
+
+- allocation 없는 =route_direction_between=, =route_direction_fetch_vector=,
+  =route_fetch_direction_at=과 recent facing/heading pure query를 추가했다. 8방향 enum 숫자와
+  화면 좌표계 =+X= right, =+Y= down을 유지하고 zero/invalid/long delta, angle
+  =[-180,180)=와 threshold inclusive 계약을 고정했다.
+- 누적 heading 상태는 opaque =route_heading_tracker_t= owner로 분리했다. 정규화된 online
+  mean과 포화 sample count를 사용해 큰 입력에서도 합계 overflow를 피하고,
+  create/destroy/reset/query/observe의 상태·소유권 경계를 명시했다. Route value의
+  clone/equality 상태에는 tracker history가 유입되지 않는다.
+- Route 구현과 target link graph에서 =scalar.h=, =M_PI=, Numal/Math Engine 의존을
+  제거했다. Route ABI inventory는 82 functions(legacy 44 + canonical additive 38),
+  root export 누락 0개로 갱신했고 clean installed C17/C++17 consumer와 CFFI 생성
+  =--check=가 통과했다.
+- MSVC Release =test_route=는 22 cases/101367 assertions, Python wrapper는 101 tests가
+  통과했다. allocation fixture는 정상 경로 exit 0과 의도적 leak 경로 exit 5를 확인했다.
+  fail injection은 test executable에만 있고 =BUILD_TESTING=OFF= =byul.dll/libbyul.so=와
+  Ubuntu 생산 실행파일에는 포함되지 않는다.
+- GitHub Actions =Navsys Integration UBSan= run =30183379804=와
+  =BYUL Memory Boundary= run =30183379809=에서 Linux static/root UBSan, live
+  header/export/wrapper audit, clean SDK consumer, Ubuntu GCC/Clang 및 Windows
+  MSVC/MinGW allocation/leak gate가 모두 통과했다. 이로써 4단계만 닫고 5단계는
+  =TODO= 상태로 유지한다.
 
 * TODO 5단계: Legacy forwarding과 ABI-major 정리
 
