@@ -51,6 +51,40 @@ static void check_route_stats_contract(
     }
 }
 
+TEST_CASE("[ROUTE-RESULT-001] start equals goal is one complete canonical value") {
+    navgrid_t* navgrid = navgrid_create();
+    REQUIRE(navgrid != nullptr);
+    route_finder_t* finder = route_finder_create(navgrid);
+    REQUIRE(finder != nullptr);
+
+    const coord_t endpoint = {4, -3};
+    route_finder_set_start(finder, &endpoint);
+    route_finder_set_goal(finder, &endpoint);
+
+    route_t* route = nullptr;
+    route_finder_run_stats_t stats = {};
+    REQUIRE(route_finder_run_ex(finder, &route, &stats)
+        == NAVSYS_STATUS_OK);
+    REQUIRE(route != nullptr);
+    check_route_stats_contract(route, stats);
+
+    CHECK(route_get_coord_count(route) == 1);
+    coord_t observed = {};
+    CHECK(route_fetch_coord(route, 0, &observed) == NAVSYS_STATUS_OK);
+    CHECK(observed.x == endpoint.x);
+    CHECK(observed.y == endpoint.y);
+    double cost = -1.0;
+    route_completion_t completion = ROUTE_COMPLETION_NONE;
+    CHECK(route_fetch_total_cost(route, &cost) == NAVSYS_STATUS_OK);
+    CHECK(cost == doctest::Approx(0.0));
+    CHECK(route_fetch_completion(route, &completion) == NAVSYS_STATUS_OK);
+    CHECK(completion == ROUTE_COMPLETION_COMPLETE);
+
+    route_destroy(route);
+    route_finder_destroy(finder);
+    navgrid_destroy(navgrid);
+}
+
 TEST_CASE("route finder capability query matches the dispatcher") {
     const route_finder_type_t supported[] = {
         ROUTE_FINDER_ASTAR,

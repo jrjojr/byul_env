@@ -3,6 +3,7 @@ import unittest
 import weakref
 
 from byul_wrapper.coord import c_coord
+from byul_wrapper.ffi_core import ffi
 from byul_wrapper.route import (
     RouteCompletion,
     RouteDir,
@@ -14,6 +15,54 @@ from byul_wrapper.route import (
 
 
 class RouteTest(unittest.TestCase):
+    def test_null_pointer_and_closed_route_are_rejected(self):
+        with self.assertRaises(ValueError):
+            c_route(raw_ptr=ffi.NULL, own=False)
+
+        route = c_route()
+        route.close()
+        closed_calls = (
+            route.ptr,
+            route.cost,
+            route.coord_count,
+            route.export_coords,
+            route.completion,
+            route.format,
+            route.identity_hash,
+            route.__enter__,
+        )
+        for call in closed_calls:
+            with self.subTest(call=call.__name__):
+                with self.assertRaises(ReferenceError):
+                    call()
+
+        route.close()
+
+    def test_route_arguments_validate_type_and_lifetime(self):
+        with c_route() as route:
+            with self.assertRaises(TypeError):
+                route.append(object())
+            with self.assertRaises(TypeError):
+                route.add_coord(object())
+
+            closed_route = c_route()
+            closed_route.close()
+            with self.assertRaises(ReferenceError):
+                route.append(closed_route)
+
+            closed_coord = c_coord(1, 2)
+            closed_coord.close()
+            with self.assertRaises(ReferenceError):
+                route.add_coord(closed_coord)
+
+    def test_context_manager_closes_route_when_body_raises(self):
+        route = c_route()
+        with self.assertRaisesRegex(RuntimeError, "body failure"):
+            with route:
+                raise RuntimeError("body failure")
+        with self.assertRaises(ReferenceError):
+            route.ptr()
+
     def test_add_query_and_clear_coordinates(self):
         with c_coord(1, 1) as first, c_coord(2, 1) as second, c_route() as route:
             route.add_coord(first)
@@ -110,6 +159,39 @@ class RouteTest(unittest.TestCase):
                 self.assertAlmostEqual(result.total_cost(), 4.5)
                 self.assertEqual(result.completion(), RouteCompletion.COMPLETE)
                 self.assertEqual(result.retry_count(), 0)
+            finally:
+                result.close()
+
+    def test_builder_finish_consumes_builder_and_close_is_idempotent(self):
+        builder = c_route_builder()
+        with c_coord(3, 4) as coord:
+            builder.push(coord)
+        result = builder.finish()
+        try:
+            self.assertEqual(result.export_coords(), [(3, 4)])
+            with self.assertRaises(ReferenceError):
+                builder.finish()
+            with self.assertRaises(ReferenceError):
+                builder.__enter__()
+        finally:
+            builder.close()
+            builder.close()
+            result.close()
+
+    def test_builder_finalizer_and_repeated_owned_results(self):
+        builder = c_route_builder()
+        builder_ref = weakref.ref(builder)
+        del builder
+        gc.collect()
+        self.assertIsNone(builder_ref())
+
+        for value in range(250):
+            with c_route_builder() as repeated:
+                with c_coord(value, -value) as coord:
+                    repeated.push(coord)
+                result = repeated.finish()
+            try:
+                self.assertEqual(result.fetch_coord(0), (value, -value))
             finally:
                 result.close()
 

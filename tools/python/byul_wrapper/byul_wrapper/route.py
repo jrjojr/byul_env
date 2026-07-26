@@ -104,9 +104,11 @@ typedef struct s_navsys_search_trace navsys_search_trace_t;
  int route_equal(const route_t* a, const route_t* b);
 
  void  route_set_cost(route_t* p, float cost);
+
  float route_get_cost(const route_t* p);
 
  void  route_set_success(route_t* p, int success);
+
  int   route_get_success(const route_t* p);
 
  const coord_list_t* route_get_coords(const route_t* p);
@@ -126,6 +128,7 @@ typedef struct s_navsys_search_trace navsys_search_trace_t;
  const coord_t* route_get_last(const route_t* p);
 
  const coord_t* route_get_coord_at(const route_t* p, int index);
+
  int   route_length(const route_t* p);
 
  size_t route_get_coord_count(const route_t* route);
@@ -228,6 +231,7 @@ typedef struct s_navsys_search_trace navsys_search_trace_t;
     size_t* out_required_count);
 
  int  route_add_visited(route_t* p, const coord_t* c);
+
  void route_clear_visited(route_t* p);
 
  void route_append(route_t* dest, const route_t* src);
@@ -239,6 +243,7 @@ typedef struct s_navsys_search_trace navsys_search_trace_t;
  void route_remove_at(route_t* p, int index);
 
  void route_remove_value(route_t* p, const coord_t* c);
+
  int  route_contains(const route_t* p, const coord_t* c);
 
  int  route_find(const route_t* p, const coord_t* c);
@@ -372,7 +377,9 @@ class c_route:
         self._c = ffi.NULL
         self._own = False
         self._finalizer = None
-        if raw_ptr:
+        if raw_ptr is not None:
+            if raw_ptr == ffi.NULL:
+                raise ValueError("raw_ptr must not be NULL")
             self._c = raw_ptr
             self._own = own
         else:
@@ -392,23 +399,29 @@ class c_route:
             raise ReferenceError("c_route is closed")
         return self._c
 
+    @staticmethod
+    def _require_route(value, argument):
+        if not isinstance(value, c_route):
+            raise TypeError(f"{argument} must be c_route")
+        return value._require_open()
+
     def cost(self):
-        return C.route_get_cost(self._c)
+        return C.route_get_cost(self._require_open())
 
     def set_cost(self, cost: float):
-        C.route_set_cost(self._c, cost)
+        C.route_set_cost(self._require_open(), cost)
 
     def is_success(self):
-        return bool(C.route_get_success(self._c))
+        return bool(C.route_get_success(self._require_open()))
 
     def set_success(self, success: bool):
-        C.route_set_success(self._c, int(success))
+        C.route_set_success(self._require_open(), int(success))
 
     def retry_count(self):
-        return C.route_get_total_retry_count(self._c)
+        return C.route_get_total_retry_count(self._require_open())
 
     def set_retry_count(self, count: int):
-        C.route_set_total_retry_count(self._c, count)
+        C.route_set_total_retry_count(self._require_open(), count)
 
     def coords(self):
         return c_coord_list(
@@ -418,10 +431,12 @@ class c_route:
         )
 
     def add_coord(self, coord: c_coord):
-        return C.route_add_coord(self._c, coord.ptr())
+        return C.route_add_coord(
+            self._require_open(), c_coord._require_coord(coord, "coord")
+        )
 
     def clear_coords(self):
-        C.route_clear_coords(self._c)
+        C.route_clear_coords(self._require_open())
 
     def last(self):
         count = self.coord_count()
@@ -440,13 +455,13 @@ class c_route:
         return self.coord_count()
 
     def coord_count(self):
-        return C.route_get_coord_count(self._c)
+        return C.route_get_coord_count(self._require_open())
 
     def fetch_coord(self, index):
         """Return one coordinate value without borrowing native storage."""
         output = ffi.new("coord_t*")
         status = NavsysStatus(
-            C.route_fetch_coord(self._c, index, output)
+            C.route_fetch_coord(self._require_open(), index, output)
         )
         if status is NavsysStatus.NOT_FOUND:
             raise IndexError(index)
@@ -456,11 +471,10 @@ class c_route:
 
     def total_cost(self):
         output = ffi.new("double*")
-        status = NavsysStatus(
-            C.route_fetch_total_cost(self._c, output)
+        raise_for_status(
+            C.route_fetch_total_cost(self._require_open(), output),
+            "route_fetch_total_cost",
         )
-        if status is not NavsysStatus.OK:
-            raise RuntimeError(f"route cost fetch failed: {status.name}")
         return output[0]
 
     def identity_hash(self):
@@ -470,7 +484,7 @@ class c_route:
     def is_same(self, other: 'c_route'):
         """Return whether two wrappers reference the same native route."""
         return bool(C.route_is_same(
-            self._require_open(), other._require_open()
+            self._require_open(), self._require_route(other, "other")
         ))
 
     def content_equal(self, other: 'c_route'):
@@ -478,7 +492,9 @@ class c_route:
         output = ffi.new("bool*")
         raise_for_status(
             C.route_content_equal(
-                self._require_open(), other._require_open(), output
+                self._require_open(),
+                self._require_route(other, "other"),
+                output,
             ),
             "route_content_equal",
         )
@@ -495,34 +511,31 @@ class c_route:
 
     def completion(self):
         output = ffi.new("route_completion_t*")
-        status = NavsysStatus(
-            C.route_fetch_completion(self._c, output)
+        raise_for_status(
+            C.route_fetch_completion(self._require_open(), output),
+            "route_fetch_completion",
         )
-        if status is not NavsysStatus.OK:
-            raise RuntimeError(
-                f"route completion fetch failed: {status.name}"
-            )
         return RouteCompletion(output[0])
 
     def export_coords(self):
         """Return a caller-buffer snapshot as ``[(x, y), ...]``."""
         required = ffi.new("size_t*")
-        status = NavsysStatus(
-            C.route_export_coords(self._c, ffi.NULL, 0, required)
+        raise_for_status(
+            C.route_export_coords(
+                self._require_open(), ffi.NULL, 0, required
+            ),
+            "route_export_coords",
         )
-        if status is not NavsysStatus.OK:
-            raise RuntimeError(f"route coordinate query failed: {status.name}")
         if required[0] == 0:
             return []
 
         output = ffi.new("coord_t[]", required[0])
-        status = NavsysStatus(
+        raise_for_status(
             C.route_export_coords(
-                self._c, output, required[0], required
-            )
+                self._require_open(), output, required[0], required
+            ),
+            "route_export_coords",
         )
-        if status is not NavsysStatus.OK:
-            raise RuntimeError(f"route coordinate export failed: {status.name}")
         return [(output[i].x, output[i].y) for i in range(required[0])]
 
     def to_builder(self):
@@ -545,34 +558,47 @@ class c_route:
         )
 
     def add_visited(self, coord: c_coord):
-        return C.route_add_visited(self._c, coord.ptr())
+        return C.route_add_visited(
+            self._require_open(), c_coord._require_coord(coord, "coord")
+        )
 
     def clear_visited(self):
-        C.route_clear_visited(self._c)
+        C.route_clear_visited(self._require_open())
 
     def append(self, other: 'c_route', nodup=False):
+        other_ptr = self._require_route(other, "other")
         if nodup:
-            C.route_append_nodup(self._c, other._c)
+            C.route_append_nodup(self._require_open(), other_ptr)
         else:
-            C.route_append(self._c, other._c)
+            C.route_append(self._require_open(), other_ptr)
 
     def insert(self, index, coord: c_coord):
-        C.route_insert(self._c, index, coord.ptr())
+        C.route_insert(
+            self._require_open(),
+            index,
+            c_coord._require_coord(coord, "coord"),
+        )
 
     def remove_at(self, index):
-        C.route_remove_at(self._c, index)
+        C.route_remove_at(self._require_open(), index)
 
     def remove_value(self, coord: c_coord):
-        C.route_remove_value(self._c, coord.ptr())
+        C.route_remove_value(
+            self._require_open(), c_coord._require_coord(coord, "coord")
+        )
 
     def contains(self, coord: c_coord):
-        return bool(C.route_contains(self._c, coord.ptr()))
+        return bool(C.route_contains(
+            self._require_open(), c_coord._require_coord(coord, "coord")
+        ))
 
     def find(self, coord: c_coord):
         output = ffi.new("size_t*")
         status = NavsysStatus(
             C.route_find_coord(
-                self._require_open(), coord.ptr(), output
+                self._require_open(),
+                c_coord._require_coord(coord, "coord"),
+                output,
             )
         )
         if status is NavsysStatus.NOT_FOUND:
@@ -597,13 +623,17 @@ class c_route:
         return c_coord(raw_ptr=ptr, own=True) if ptr != ffi.NULL else None
 
     def calc_average_facing(self, history):
-        return RouteDir(C.route_calc_average_facing(self._c, history))
+        return RouteDir(C.route_calc_average_facing(
+            self._require_open(), history
+        ))
 
     def calc_average_dir(self, history):
-        return C.route_calc_average_dir(self._c, history)
+        return C.route_calc_average_dir(self._require_open(), history)
 
     def get_direction_by_index(self, index):
-        return RouteDir(C.route_get_direction_by_index(self._c, index))
+        return RouteDir(C.route_get_direction_by_index(
+            self._require_open(), index
+        ))
 
     def direction_at(self, index):
         output = ffi.new("route_dir_t*")
@@ -636,34 +666,57 @@ class c_route:
         return output[0]
 
     def has_changed(self, from_coord, to_coord, angle_threshold):
-        return bool(C.route_has_changed(self._c, from_coord.ptr(), to_coord.ptr(), angle_threshold))
+        return bool(C.route_has_changed(
+            self._require_open(),
+            c_coord._require_coord(from_coord, "from_coord"),
+            c_coord._require_coord(to_coord, "to_coord"),
+            angle_threshold,
+        ))
 
     def has_changed_with_angle(self, from_coord, to_coord, angle_threshold):
         out = ffi.new("float*")
-        changed = C.route_has_changed_with_angle(self._c, from_coord.ptr(), to_coord.ptr(), angle_threshold, out)
+        changed = C.route_has_changed_with_angle(
+            self._require_open(),
+            c_coord._require_coord(from_coord, "from_coord"),
+            c_coord._require_coord(to_coord, "to_coord"),
+            angle_threshold,
+            out,
+        )
         return bool(changed), out[0]
 
     def has_changed_by_index(self, index_from, index_to, angle_threshold):
-        return bool(C.route_has_changed_by_index(self._c, index_from, index_to, angle_threshold))
+        return bool(C.route_has_changed_by_index(
+            self._require_open(), index_from, index_to, angle_threshold
+        ))
 
     def has_changed_with_angle_by_index(self, index_from, index_to, angle_threshold):
         out = ffi.new("float*")
-        changed = C.route_has_changed_with_angle_by_index(self._c, index_from, index_to, angle_threshold, out)
+        changed = C.route_has_changed_with_angle_by_index(
+            self._require_open(), index_from, index_to, angle_threshold, out
+        )
         return bool(changed), out[0]
 
     def update_average_vector(self, from_coord, to_coord):
-        C.route_update_average_vector(self._c, from_coord.ptr(), to_coord.ptr())
+        C.route_update_average_vector(
+            self._require_open(),
+            c_coord._require_coord(from_coord, "from_coord"),
+            c_coord._require_coord(to_coord, "to_coord"),
+        )
 
     def update_average_vector_by_index(self, index_from, index_to):
-        C.route_update_average_vector_by_index(self._c, index_from, index_to)
+        C.route_update_average_vector_by_index(
+            self._require_open(), index_from, index_to
+        )
 
     def reconstruct_path(self, came_from: c_coord_hash, start: c_coord, goal: c_coord):
+        if not isinstance(came_from, c_coord_hash):
+            raise TypeError("came_from must be c_coord_hash")
         raise_for_status(
             C.route_reconstruct_ex(
                 self._require_open(),
                 came_from.ptr(),
-                start.ptr(),
-                goal.ptr(),
+                c_coord._require_coord(start, "start"),
+                c_coord._require_coord(goal, "goal"),
             ),
             "route_reconstruct_ex",
         )
@@ -673,7 +726,7 @@ class c_route:
         print(self.format(), end="")
 
     def ptr(self):
-        return self._c
+        return self._require_open()
 
     def __repr__(self):
         return (
@@ -682,7 +735,10 @@ class c_route:
         )
 
     def __del__(self):
-        self.close()
+        try:
+            self.close()
+        except Exception:
+            pass
 
     def close(self):
         if getattr(self, "_own", False) and self._finalizer and self._finalizer.alive:
@@ -691,6 +747,7 @@ class c_route:
         self._own = False
 
     def __enter__(self):
+        self._require_open()
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
@@ -733,7 +790,11 @@ class c_route:
     def calc_direction(start: c_coord, goal: c_coord) -> RouteDir:
         output = ffi.new("route_dir_t*")
         raise_for_status(
-            C.route_direction_between(start.ptr(), goal.ptr(), output),
+            C.route_direction_between(
+                c_coord._require_coord(start, "start"),
+                c_coord._require_coord(goal, "goal"),
+                output,
+            ),
             "route_direction_between",
         )
         return RouteDir(output[0])
@@ -742,7 +803,9 @@ class c_route:
     def get_direction_by_dir_coord(dxdy: c_coord):
         output = ffi.new("route_dir_t*")
         raise_for_status(
-            C.route_direction_from_vector(dxdy.ptr(), output),
+            C.route_direction_from_vector(
+                c_coord._require_coord(dxdy, "dxdy"), output
+            ),
             "route_direction_from_vector",
         )
         return RouteDir(output[0])
@@ -759,7 +822,7 @@ class c_route_builder:
             status = C.route_builder_create(output)
         else:
             status = C.route_builder_create_from_route(
-                source._require_open(), output
+                c_route._require_route(source, "source"), output
             )
         raise_for_status(status, "route_builder_create")
         self._c = output[0]
@@ -775,22 +838,28 @@ class c_route_builder:
     def push(self, coord: c_coord):
         raise_for_status(
             C.route_builder_push_coord(
-                self._require_open(), coord.ptr()
+                self._require_open(), c_coord._require_coord(coord, "coord")
             ),
             "route_builder_push_coord",
         )
         return self
 
     def insert(self, index, coord: c_coord):
+        if index < 0:
+            raise ValueError("index must be non-negative")
         raise_for_status(
             C.route_builder_insert_coord(
-                self._require_open(), index, coord.ptr()
+                self._require_open(),
+                index,
+                c_coord._require_coord(coord, "coord"),
             ),
             "route_builder_insert_coord",
         )
         return self
 
     def remove(self, index):
+        if index < 0:
+            raise ValueError("index must be non-negative")
         removed = ffi.new("coord_t*")
         raise_for_status(
             C.route_builder_remove_coord(
@@ -803,7 +872,9 @@ class c_route_builder:
     def append(self, source: c_route, policy=RouteJoinPolicy.KEEP_ALL):
         raise_for_status(
             C.route_builder_append(
-                self._require_open(), source._require_open(), int(policy)
+                self._require_open(),
+                c_route._require_route(source, "source"),
+                int(policy),
             ),
             "route_builder_append",
         )
@@ -812,7 +883,10 @@ class c_route_builder:
     def assign_slice(self, source: c_route, begin, end):
         raise_for_status(
             C.route_builder_assign_slice(
-                self._require_open(), source._require_open(), begin, end
+                self._require_open(),
+                c_route._require_route(source, "source"),
+                begin,
+                end,
             ),
             "route_builder_assign_slice",
         )
@@ -842,7 +916,9 @@ class c_route_builder:
             C.route_builder_finish(self._require_open(), output),
             "route_builder_finish",
         )
-        return c_route(raw_ptr=output[0], own=True)
+        result = c_route(raw_ptr=output[0], own=True)
+        self.close()
+        return result
 
     def close(self):
         if self._finalizer and self._finalizer.alive:
@@ -850,10 +926,17 @@ class c_route_builder:
         self._c = ffi.NULL
 
     def __enter__(self):
+        self._require_open()
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         self.close()
+
+    def __del__(self):
+        try:
+            self.close()
+        except Exception:
+            pass
 
 
 class c_route_heading_tracker:
@@ -897,7 +980,9 @@ class c_route_heading_tracker:
         changed = ffi.new("bool*")
         raise_for_status(
             C.route_heading_tracker_observe_vector(
-                self._require_open(), vector.ptr(), threshold_degrees,
+                self._require_open(),
+                c_coord._require_coord(vector, "vector"),
+                threshold_degrees,
                 angle, changed
             ),
             "route_heading_tracker_observe_vector",
@@ -909,8 +994,12 @@ class c_route_heading_tracker:
         changed = ffi.new("bool*")
         raise_for_status(
             C.route_heading_tracker_observe(
-                self._require_open(), start.ptr(), goal.ptr(),
-                threshold_degrees, angle, changed
+                self._require_open(),
+                c_coord._require_coord(start, "start"),
+                c_coord._require_coord(goal, "goal"),
+                threshold_degrees,
+                angle,
+                changed,
             ),
             "route_heading_tracker_observe",
         )

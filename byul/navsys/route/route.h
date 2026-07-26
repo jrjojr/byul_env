@@ -1,5 +1,20 @@
-#ifndef ROUTE_H
-#define ROUTE_H
+/*
+ * Copyright (c) 2025-2026 ByulPapa (byuldev@outlook.kr)
+ * This file is part of the Byul World project.
+ * Licensed under the Byul World Source-Available Non-Commercial License v1.0 (2025).
+ * See the LICENSE file in the project root for full license terms.
+ */
+
+/**
+ * @file route.h
+ * @brief Route result values, builders, search traces, and heading queries.
+ *
+ * The ABI 1 legacy mutators remain declared for binary compatibility. New code
+ * should use the status-returning query functions and transactional builders.
+ */
+
+#ifndef BYUL_ROUTE_H
+#define BYUL_ROUTE_H
 
 #include <stddef.h>
 #include <stdint.h>
@@ -73,12 +88,33 @@ typedef struct s_route_builder route_builder_t;
 typedef struct s_route_heading_tracker route_heading_tracker_t;
 typedef struct s_navsys_search_trace navsys_search_trace_t;
 
-/** Creation and Destruction **/
+/**
+ * @brief Creates an empty route value.
+ * @return A caller-owned route, or NULL when allocation fails.
+ * @byul.nullable return true
+ * @byul.lifetime return caller-owned
+ * @byul.side_effect allocates
+ */
 BYUL_API route_t* route_create(void);
 
+/**
+ * @brief Destroys a route created by this library.
+ * @param[in] p Route to destroy; NULL is accepted.
+ * @byul.nullable p true
+ * @byul.side_effect destroys:p
+ */
 BYUL_API void  route_destroy(route_t* p);
 
-/** Copy and Comparison **/
+/**
+ * @brief Copies a route using the ABI 1 nullable-return convention.
+ * @param[in] p Route to copy.
+ * @return A caller-owned copy, or NULL for invalid input or allocation failure.
+ * @byul.nullable p false
+ * @byul.nullable return true
+ * @byul.lifetime return caller-owned
+ * @byul.side_effect allocates
+ * @deprecated Use route_clone_ex; removal is planned for ABI 2.
+ */
 BYUL_DEPRECATED("Use route_clone_ex; removal is planned for ABI 2.")
 BYUL_API route_t* route_copy(const route_t* p);
 
@@ -169,17 +205,64 @@ BYUL_API navsys_status_t route_fetch_content_hash(
     const route_t* route,
     uint64_t* out_hash);
 
+/**
+ * @brief Returns the ABI 1 process-local route identity hash.
+ * @param[in] a Route handle or NULL.
+ * @return Process-local identity hash, or zero for NULL.
+ * @byul.nullable a true
+ * @byul.side_effect none
+ * @deprecated Use route_identity_hash or route_fetch_content_hash; removal is planned for ABI 2.
+ */
 BYUL_DEPRECATED("Use route_identity_hash or route_fetch_content_hash; removal is planned for ABI 2.")
 BYUL_API uintptr_t route_hash(const route_t* a);
+/**
+ * @brief Tests ABI 1 route-handle identity.
+ * @param[in] a First route handle or NULL.
+ * @param[in] b Second route handle or NULL.
+ * @return Nonzero when both handles identify the same route.
+ * @byul.nullable a true
+ * @byul.nullable b true
+ * @byul.side_effect none
+ * @deprecated Use route_is_same or route_content_equal; removal is planned for ABI 2.
+ */
 BYUL_DEPRECATED("Use route_is_same or route_content_equal; removal is planned for ABI 2.")
 BYUL_API int route_equal(const route_t* a, const route_t* b);
 
-/** Basic Information **/
+/**
+ * @brief Replaces the ABI 1 route cost field.
+ * @param[in,out] p Route to mutate.
+ * @param[in] cost New cost value.
+ * @byul.nullable p false
+ * @byul.side_effect writes:p
+ * @deprecated Use route_builder_set_total_cost; removal is planned for ABI 2.
+ */
 BYUL_DEPRECATED("Use route_builder_set_total_cost; removal is planned for ABI 2.")
 BYUL_API void  route_set_cost(route_t* p, float cost);
+/**
+ * @brief Returns the ABI 1 route cost field.
+ * @param[in] p Route to inspect.
+ * @return Stored cost, or zero for NULL.
+ * @byul.nullable p true
+ * @byul.side_effect none
+ */
 BYUL_API float route_get_cost(const route_t* p);
+/**
+ * @brief Replaces the ABI 1 success field.
+ * @param[in,out] p Route to mutate.
+ * @param[in] success Nonzero for success, zero otherwise.
+ * @byul.nullable p false
+ * @byul.side_effect writes:p
+ * @deprecated Use route_builder_set_completion; removal is planned for ABI 2.
+ */
 BYUL_DEPRECATED("Use route_builder_set_completion; removal is planned for ABI 2.")
 BYUL_API void  route_set_success(route_t* p, int success);
+/**
+ * @brief Returns the ABI 1 success field.
+ * @param[in] p Route to inspect.
+ * @return Nonzero for success, or zero for NULL or an incomplete route.
+ * @byul.nullable p true
+ * @byul.side_effect none
+ */
 BYUL_API int   route_get_success(const route_t* p);
 
 /** Coordinate List Access **/
@@ -223,21 +306,81 @@ BYUL_API const coord_list_t* route_get_visited_order(const route_t* p);
 BYUL_DEPRECATED("Use navsys_search_trace query APIs; removal is planned for ABI 2.")
 BYUL_API const coord_hash_t*  route_get_visited_count(const route_t* p);
 
+/**
+ * @brief Returns the ABI 1 search retry counter.
+ * @param[in] p Route to inspect or NULL.
+ * @return Stored retry count, or zero for NULL.
+ * @byul.nullable p true
+ * @byul.side_effect none
+ * @deprecated Search retry statistics are no longer part of route values; removal is planned for ABI 2.
+ */
 BYUL_DEPRECATED("Search retry statistics are no longer part of route values; removal is planned for ABI 2.")
 BYUL_API int route_get_total_retry_count(const route_t* p);
 
+/**
+ * @brief Replaces the ABI 1 search retry counter.
+ * @param[in,out] p Route to mutate or NULL for a no-op.
+ * @param[in] retry_count New retry count.
+ * @byul.nullable p true
+ * @byul.side_effect writes:p
+ * @deprecated Search retry statistics are no longer part of route values; removal is planned for ABI 2.
+ */
 BYUL_DEPRECATED("Search retry statistics are no longer part of route values; removal is planned for ABI 2.")
 BYUL_API void route_set_total_retry_count(route_t* p, int retry_count);
 
-/** Coordinate Manipulation **/
+/**
+ * @brief Appends one coordinate through the ABI 1 mutating API.
+ * @param[in,out] p Route to mutate.
+ * @param[in] c Coordinate value to copy.
+ * @return Nonzero on success, zero for invalid input or allocation failure.
+ * @byul.nullable p false
+ * @byul.nullable c false
+ * @byul.side_effect writes:p
+ * @deprecated Use route_builder_push_coord; removal is planned for ABI 2.
+ */
 BYUL_DEPRECATED("Use route_builder_push_coord; removal is planned for ABI 2.")
 BYUL_API int  route_add_coord(route_t* p, const coord_t* c);
+/**
+ * @brief Clears the ABI 1 coordinate sequence.
+ * @param[in,out] p Route to mutate or NULL for a no-op.
+ * @byul.nullable p true
+ * @byul.side_effect writes:p
+ * @deprecated Use a new route_builder_t result; removal is planned for ABI 2.
+ */
 BYUL_DEPRECATED("Use a new route_builder_t result; removal is planned for ABI 2.")
 BYUL_API void route_clear_coords(route_t* p);
+/**
+ * @brief Borrows the last coordinate in an ABI 1 route.
+ * @param[in] p Route to inspect.
+ * @return Borrowed coordinate, or NULL when the route is invalid or empty.
+ * @byul.nullable p true
+ * @byul.nullable return true
+ * @byul.lifetime return borrowed-from:p
+ * @byul.side_effect none
+ * @deprecated Use route_get_coord_count and route_fetch_coord; removal is planned for ABI 2.
+ */
 BYUL_DEPRECATED("Use route_get_coord_count and route_fetch_coord; removal is planned for ABI 2.")
 BYUL_API const coord_t* route_get_last(const route_t* p);
+/**
+ * @brief Borrows a coordinate at an ABI 1 signed index.
+ * @param[in] p Route to inspect.
+ * @param[in] index Zero-based coordinate index.
+ * @return Borrowed coordinate, or NULL when input or index is invalid.
+ * @byul.nullable p true
+ * @byul.nullable return true
+ * @byul.lifetime return borrowed-from:p
+ * @byul.side_effect none
+ * @deprecated Use route_fetch_coord; removal is planned for ABI 2.
+ */
 BYUL_DEPRECATED("Use route_fetch_coord; removal is planned for ABI 2.")
 BYUL_API const coord_t* route_get_coord_at(const route_t* p, int index);
+/**
+ * @brief Returns the ABI 1 saturated signed coordinate count.
+ * @param[in] p Route to inspect or NULL.
+ * @return Coordinate count capped at INT_MAX, or zero for NULL.
+ * @byul.nullable p true
+ * @byul.side_effect none
+ */
 BYUL_API int   route_length(const route_t* p);
 
 /**
@@ -701,27 +844,104 @@ BYUL_API navsys_status_t navsys_search_trace_export_visits(
     size_t capacity,
     size_t* out_required_count);
 
-/** Visit Manipulation **/
+/**
+ * @brief Records one visit in the ABI 1 route-owned trace fields.
+ * @param[in,out] p Route to mutate.
+ * @param[in] c Visited coordinate to copy.
+ * @return Nonzero on success, zero for invalid input or allocation failure.
+ * @byul.nullable p false
+ * @byul.nullable c false
+ * @byul.side_effect writes:p
+ */
 BYUL_API int  route_add_visited(route_t* p, const coord_t* c);
+/**
+ * @brief Clears the ABI 1 route-owned trace fields.
+ * @param[in,out] p Route to mutate or NULL for a no-op.
+ * @byul.nullable p true
+ * @byul.side_effect writes:p
+ */
 BYUL_API void route_clear_visited(route_t* p);
 
-/** Merge and Edit **/
+/**
+ * @brief Appends every source coordinate through the ABI 1 mutator.
+ * @param[in,out] dest Destination route.
+ * @param[in] src Source route.
+ * @byul.nullable dest true
+ * @byul.nullable src true
+ * @byul.side_effect writes:dest
+ * @deprecated Use route_builder_append with ROUTE_JOIN_KEEP_ALL; removal is planned for ABI 2.
+ */
 BYUL_DEPRECATED("Use route_builder_append with ROUTE_JOIN_KEEP_ALL; removal is planned for ABI 2.")
 BYUL_API void route_append(route_t* dest, const route_t* src);
 
 // When merging multiple routes, if there are overlapping start and end points,
 // only merge the start and end into a single coordinate.
 // Intermediate duplicate paths are not merged, only start and end are.
+/**
+ * @brief Appends source coordinates while deduplicating the join boundary.
+ * @param[in,out] dest Destination route.
+ * @param[in] src Source route.
+ * @byul.nullable dest true
+ * @byul.nullable src true
+ * @byul.side_effect writes:dest
+ * @deprecated Use route_builder_append with ROUTE_JOIN_DEDUP_BOUNDARY; removal is planned for ABI 2.
+ */
 BYUL_DEPRECATED("Use route_builder_append with ROUTE_JOIN_DEDUP_BOUNDARY; removal is planned for ABI 2.")
 BYUL_API void route_append_nodup(route_t* dest, const route_t* src);
 
+/**
+ * @brief Inserts a coordinate through the ABI 1 mutator.
+ * @param[in,out] p Route to mutate.
+ * @param[in] index Zero-based insertion index.
+ * @param[in] c Coordinate to copy.
+ * @byul.nullable p true
+ * @byul.nullable c true
+ * @byul.side_effect writes:p
+ * @deprecated Use route_builder_insert_coord; removal is planned for ABI 2.
+ */
 BYUL_DEPRECATED("Use route_builder_insert_coord; removal is planned for ABI 2.")
 BYUL_API void route_insert(route_t* p, int index, const coord_t* c);
+/**
+ * @brief Removes a coordinate by ABI 1 signed index.
+ * @param[in,out] p Route to mutate.
+ * @param[in] index Zero-based removal index.
+ * @byul.nullable p true
+ * @byul.side_effect writes:p
+ * @deprecated Use route_builder_remove_coord; removal is planned for ABI 2.
+ */
 BYUL_DEPRECATED("Use route_builder_remove_coord; removal is planned for ABI 2.")
 BYUL_API void route_remove_at(route_t* p, int index);
+/**
+ * @brief Removes the first matching coordinate through the ABI 1 mutator.
+ * @param[in,out] p Route to mutate.
+ * @param[in] c Coordinate value to remove.
+ * @byul.nullable p true
+ * @byul.nullable c true
+ * @byul.side_effect writes:p
+ * @deprecated Use route_find_coord and route_builder_remove_coord; removal is planned for ABI 2.
+ */
 BYUL_DEPRECATED("Use route_find_coord and route_builder_remove_coord; removal is planned for ABI 2.")
 BYUL_API void route_remove_value(route_t* p, const coord_t* c);
+/**
+ * @brief Tests whether an ABI 1 route contains a coordinate value.
+ * @param[in] p Route to inspect.
+ * @param[in] c Coordinate value to find.
+ * @return Nonzero when found, otherwise zero.
+ * @byul.nullable p true
+ * @byul.nullable c true
+ * @byul.side_effect none
+ */
 BYUL_API int  route_contains(const route_t* p, const coord_t* c);
+/**
+ * @brief Finds a coordinate using the ABI 1 signed-index convention.
+ * @param[in] p Route to inspect.
+ * @param[in] c Coordinate value to find.
+ * @return Zero-based index, or -1 when absent or invalid.
+ * @byul.nullable p true
+ * @byul.nullable c true
+ * @byul.side_effect none
+ * @deprecated Use route_find_coord; removal is planned for ABI 2.
+ */
 BYUL_DEPRECATED("Use route_find_coord; removal is planned for ABI 2.")
 BYUL_API int  route_find(const route_t* p, const coord_t* c);
 
@@ -729,6 +949,18 @@ BYUL_API int  route_find(const route_t* p, const coord_t* c);
 
 // Returns a new route_t* sliced from the original route between start and end indices.
 // The original route remains unchanged.
+/**
+ * @brief Copies an ABI 1 half-open coordinate slice.
+ * @param[in] p Route to slice.
+ * @param[in] start First included signed index.
+ * @param[in] end One-past-the-last signed index.
+ * @return A caller-owned route, or NULL for invalid input or allocation failure.
+ * @byul.nullable p false
+ * @byul.nullable return true
+ * @byul.lifetime return caller-owned
+ * @byul.side_effect allocates
+ * @deprecated Use route_slice_ex; removal is planned for ABI 2.
+ */
 BYUL_DEPRECATED("Use route_slice_ex; removal is planned for ABI 2.")
 BYUL_API route_t* route_slice(const route_t* p, int start, int end);
 
@@ -1015,12 +1247,47 @@ BYUL_API navsys_status_t route_heading_tracker_observe(
  */
 BYUL_DEPRECATED("Use route_fetch_direction_at and route_direction_fetch_vector; removal is planned for ABI 2.")
 BYUL_API coord_t* route_make_direction(route_t* p, int index);
+/**
+ * @brief Converts a direction vector using the ABI 1 enum-return convention.
+ * @param[in] dxdy Direction vector.
+ * @return Matching direction, or ROUTE_DIR_UNKNOWN for invalid input.
+ * @byul.nullable dxdy true
+ * @byul.side_effect none
+ * @deprecated Use route_direction_from_vector; removal is planned for ABI 2.
+ */
 BYUL_DEPRECATED("Use route_direction_from_vector; removal is planned for ABI 2.")
 BYUL_API route_dir_t route_get_direction_by_dir_coord(const coord_t* dxdy);
+/**
+ * @brief Returns an ABI 1 direction at a signed route index.
+ * @param[in] p Route to inspect.
+ * @param[in] index Coordinate index used for the direction.
+ * @return Direction value, or ROUTE_DIR_UNKNOWN for invalid input.
+ * @byul.nullable p true
+ * @byul.side_effect none
+ * @deprecated Use route_fetch_direction_at; removal is planned for ABI 2.
+ */
 BYUL_DEPRECATED("Use route_fetch_direction_at; removal is planned for ABI 2.")
 BYUL_API route_dir_t route_get_direction_by_index(route_t* p, int index);
+/**
+ * @brief Computes recent facing using the ABI 1 history convention.
+ * @param[in] p Route to inspect.
+ * @param[in] history Maximum recent segment count.
+ * @return Direction value, or ROUTE_DIR_UNKNOWN for invalid input.
+ * @byul.nullable p true
+ * @byul.side_effect none
+ * @deprecated Use route_compute_recent_facing; removal is planned for ABI 2.
+ */
 BYUL_DEPRECATED("Use route_compute_recent_facing; removal is planned for ABI 2.")
 BYUL_API route_dir_t route_calc_average_facing(route_t* p, int history);
+/**
+ * @brief Computes recent heading degrees using the ABI 1 float convention.
+ * @param[in] p Route to inspect.
+ * @param[in] history Maximum recent segment count.
+ * @return Recent heading degrees, or zero for invalid input.
+ * @byul.nullable p true
+ * @byul.side_effect none
+ * @deprecated Use route_compute_recent_heading_degrees; removal is planned for ABI 2.
+ */
 BYUL_DEPRECATED("Use route_compute_recent_heading_degrees; removal is planned for ABI 2.")
 BYUL_API float route_calc_average_dir(route_t* p, int history);
 
@@ -1034,48 +1301,134 @@ BYUL_API float route_calc_average_dir(route_t* p, int history);
 BYUL_DEPRECATED("Use route_direction_fetch_vector; removal is planned for ABI 2.")
 BYUL_API coord_t* direction_to_coord(route_dir_t route_dir);
 
-/** Direction Change Detection **/
+/**
+ * @brief Observes a segment through ABI 1 route-owned heading state.
+ * @param[in,out] p Route whose legacy heading state is updated.
+ * @param[in] from Segment start.
+ * @param[in] to Segment end.
+ * @param[in] angle_threshold_deg Change threshold in degrees.
+ * @return Nonzero when the observed heading changed beyond the threshold.
+ * @byul.nullable p false
+ * @byul.nullable from false
+ * @byul.nullable to false
+ * @byul.side_effect writes:p
+ * @deprecated Use route_heading_tracker_observe; removal is planned for ABI 2.
+ */
 BYUL_DEPRECATED("Use route_heading_tracker_observe; removal is planned for ABI 2.")
 BYUL_API int route_has_changed(
     route_t* p, const coord_t* from,
     const coord_t* to, float angle_threshold_deg);
 
+/**
+ * @brief Observes a segment and returns its ABI 1 heading delta.
+ * @param[in,out] p Route whose legacy heading state is updated.
+ * @param[in] from Segment start.
+ * @param[in] to Segment end.
+ * @param[in] angle_threshold_deg Change threshold in degrees.
+ * @param[out] out_angle_deg Storage for the observed heading delta.
+ * @return Nonzero when the observed heading changed beyond the threshold.
+ * @byul.nullable p false
+ * @byul.nullable from false
+ * @byul.nullable to false
+ * @byul.nullable out_angle_deg false
+ * @byul.side_effect writes:p,out_angle_deg
+ * @deprecated Use route_heading_tracker_observe; removal is planned for ABI 2.
+ */
 BYUL_DEPRECATED("Use route_heading_tracker_observe; removal is planned for ABI 2.")
 BYUL_API int route_has_changed_with_angle(
     route_t* p, const coord_t* from,
     const coord_t* to, float angle_threshold_deg,
     float* out_angle_deg);
 
+/**
+ * @brief Observes an indexed segment through ABI 1 route-owned heading state.
+ * @param[in,out] p Route whose legacy heading state is updated.
+ * @param[in] index_from Segment start index.
+ * @param[in] index_to Segment end index.
+ * @param[in] angle_threshold_deg Change threshold in degrees.
+ * @return Nonzero when the observed heading changed beyond the threshold.
+ * @byul.nullable p false
+ * @byul.side_effect writes:p
+ * @deprecated Use route_fetch_coord and route_heading_tracker_observe; removal is planned for ABI 2.
+ */
 BYUL_DEPRECATED("Use route_fetch_coord and route_heading_tracker_observe; removal is planned for ABI 2.")
 BYUL_API int route_has_changed_by_index(
     route_t* p, int index_from,
     int index_to, float angle_threshold_deg);
 
+/**
+ * @brief Observes an indexed segment and returns its ABI 1 heading delta.
+ * @param[in,out] p Route whose legacy heading state is updated.
+ * @param[in] index_from Segment start index.
+ * @param[in] index_to Segment end index.
+ * @param[in] angle_threshold_deg Change threshold in degrees.
+ * @param[out] out_angle_deg Storage for the observed heading delta.
+ * @return Nonzero when the observed heading changed beyond the threshold.
+ * @byul.nullable p false
+ * @byul.nullable out_angle_deg false
+ * @byul.side_effect writes:p,out_angle_deg
+ * @deprecated Use route_fetch_coord and route_heading_tracker_observe; removal is planned for ABI 2.
+ */
 BYUL_DEPRECATED("Use route_fetch_coord and route_heading_tracker_observe; removal is planned for ABI 2.")
 BYUL_API int route_has_changed_with_angle_by_index(
     route_t* p, int index_from, int index_to,
     float angle_threshold_deg, float* out_angle_deg);
 
-/** Average Vector Update **/
+/**
+ * @brief Updates ABI 1 route-owned average-vector state from a segment.
+ * @param[in,out] p Route whose legacy heading state is updated.
+ * @param[in] from Segment start.
+ * @param[in] to Segment end.
+ * @byul.nullable p false
+ * @byul.nullable from false
+ * @byul.nullable to false
+ * @byul.side_effect writes:p
+ * @deprecated Use route_heading_tracker_observe; removal is planned for ABI 2.
+ */
 BYUL_DEPRECATED("Use route_heading_tracker_observe; removal is planned for ABI 2.")
 BYUL_API void route_update_average_vector(
     route_t* p, const coord_t* from, const coord_t* to);
 
+/**
+ * @brief Updates ABI 1 route-owned average-vector state from indexed coordinates.
+ * @param[in,out] p Route whose legacy heading state is updated.
+ * @param[in] index_from Segment start index.
+ * @param[in] index_to Segment end index.
+ * @byul.nullable p false
+ * @byul.side_effect writes:p
+ * @deprecated Use route_fetch_coord and route_heading_tracker_observe; removal is planned for ABI 2.
+ */
 BYUL_DEPRECATED("Use route_fetch_coord and route_heading_tracker_observe; removal is planned for ABI 2.")
 BYUL_API void route_update_average_vector_by_index(
     route_t* p, int index_from, int index_to);
 
+/**
+ * @brief Computes a direction using the ABI 1 enum-return convention.
+ * @param[in] start Segment start.
+ * @param[in] goal Segment goal.
+ * @return Direction value, or ROUTE_DIR_UNKNOWN for invalid input.
+ * @byul.nullable start true
+ * @byul.nullable goal true
+ * @byul.side_effect none
+ * @deprecated Use route_direction_between; removal is planned for ABI 2.
+ */
 BYUL_DEPRECATED("Use route_direction_between; removal is planned for ABI 2.")
 BYUL_API route_dir_t calc_direction(
     const coord_t* start, const coord_t* goal);
 
-/// @brief Reconstruct the route by following came_from from goal -> start 
-///        and fill it into the route.
-/// @param route Output route structure
-/// @param came_from coord_hash_t* (coord* -> coord*)
-/// @param start Start coordinate
-/// @param goal Goal coordinate
-/// @return Success status (true: reconstruction successful, false: failed)
+/**
+ * @brief Reconstructs an ABI 1 route by following predecessors from goal.
+ * @param[in,out] route Route extended only when reconstruction succeeds.
+ * @param[in] came_from Predecessor mapping.
+ * @param[in] start Path start coordinate.
+ * @param[in] goal Goal coordinate where backtracking starts.
+ * @return True on success; false for invalid input, no path, or allocation failure.
+ * @byul.nullable route false
+ * @byul.nullable came_from false
+ * @byul.nullable start false
+ * @byul.nullable goal false
+ * @byul.side_effect writes:route-on-success
+ */
 BYUL_API bool route_reconstruct(
     route_t* route, const coord_hash_t* came_from,
     const coord_t* start, const coord_t* goal);
@@ -1113,4 +1466,4 @@ BYUL_API navsys_status_t route_reconstruct_ex(
 }
 #endif
 
-#endif // ROUTE_H
+#endif // BYUL_ROUTE_H
