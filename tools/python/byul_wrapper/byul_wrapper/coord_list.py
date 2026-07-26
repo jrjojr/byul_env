@@ -108,10 +108,13 @@ typedef struct s_coord_list coord_list_t;
 """)
 
 class c_coord_list:
-    def __init__(self, raw_ptr=None, own=False):
+    def __init__(self, raw_ptr=None, own=False, *, parent=None):
         self._c = ffi.NULL
         self._own = False
         self._finalizer = None
+        self._parent = parent
+        if raw_ptr is not None and not own and parent is None:
+            raise ValueError("borrowed coord list requires parent")
         if raw_ptr is not None:
             if raw_ptr == ffi.NULL:
                 raise ValueError("raw_ptr must not be NULL")
@@ -132,6 +135,8 @@ class c_coord_list:
     def _require_open(self):
         if self._c == ffi.NULL:
             raise ReferenceError("c_coord_list is closed")
+        if self._parent is not None:
+            self._parent._require_open()
         return self._c
 
     @staticmethod
@@ -341,6 +346,7 @@ class c_coord_list:
             finalizer()
         self._c = ffi.NULL
         self._own = False
+        self._parent = None
 
     def __enter__(self):
         self._require_open()

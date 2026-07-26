@@ -55,11 +55,14 @@ STRUCT_FIELDS = [
     ("int", "vec_count"),
 ]
 CANONICAL_SYMBOLS = {
+    "route_clone_ex",
     "route_get_coord_count",
     "route_fetch_coord",
     "route_fetch_total_cost",
     "route_fetch_completion",
     "route_export_coords",
+    "route_slice_ex",
+    "route_reconstruct_ex",
 }
 
 
@@ -354,12 +357,12 @@ def build_inventory(install_root: Path, build_snapshot: Path) -> dict[str, Any]:
 def validate(payload: dict[str, Any]) -> list[str]:
     errors: list[str] = []
     header = payload["header"]
-    if header["function_count"] != 49:
-        errors.append("route.h function inventory is not exactly 49")
+    if header["function_count"] != 52:
+        errors.append("route.h function inventory is not exactly 52")
     if header["legacy_function_count"] != 44:
         errors.append("legacy Route function inventory is not exactly 44")
-    if header["canonical_function_count"] != 5:
-        errors.append("canonical Route function inventory is not exactly five")
+    if header["canonical_function_count"] != 8:
+        errors.append("canonical Route function inventory is not exactly eight")
     if header["enums"]["route_dir_t"] != ROUTE_DIR_VALUES:
         errors.append("route_dir_t numeric values changed")
     if header["enums"]["route_completion_t"] != ROUTE_COMPLETION_VALUES:
@@ -430,12 +433,12 @@ def main(argv: list[str] | None = None) -> int:
         return 1
     if args.apply:
         write_json_atomic(output, payload)
-        print(f"[WRITTEN] {output} functions=49 legacy=44 canonical=5")
+        print(f"[WRITTEN] {output} functions=52 legacy=44 canonical=8")
         return 0
     if not output.is_file() or load_json(output) != payload:
         print(f"[ERROR] stale inventory: {output}", file=sys.stderr)
         return 1
-    print(f"[OK] {output} functions=49 legacy=44 canonical=5")
+    print(f"[OK] {output} functions=52 legacy=44 canonical=8")
     return 0
 
 

@@ -359,7 +359,7 @@ coordinate axis와 cost unit은 public contract test로 고정한다.
   live export/CFFI audit와 clean SDK consumer를 포함한 전체 gate가 2m22s에 성공했다.
   이로써 1단계만 닫으며 2단계는 =TODO= 상태로 유지한다.
 
-* TODO 2단계: P0 안전성, ownership와 반환 계약 수정
+* DOING 2단계: P0 안전성, ownership와 반환 계약 수정
 
 ** 실행
 

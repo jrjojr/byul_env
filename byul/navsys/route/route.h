@@ -57,12 +57,34 @@ struct s_route {
 typedef struct s_route route_t;
 
 /** Creation and Destruction **/
-BYUL_API route_t* route_create();
+BYUL_API route_t* route_create(void);
 
 BYUL_API void  route_destroy(route_t* p);
 
 /** Copy and Comparison **/
 BYUL_API route_t* route_copy(const route_t* p);
+
+/**
+ * @brief route를 독립적으로 deep-copy한다.
+ *
+ * 실패하면 out_route를 변경하지 않는다. 성공한 결과는 caller가 route_destroy()로
+ * 해제한다.
+ *
+ * @param[in] source 복사할 route.
+ * @param[out] out_route 새 route를 받을 caller storage.
+ * @return Common Navsys status value.
+ * @retval NAVSYS_STATUS_OK 복사했다.
+ * @retval NAVSYS_STATUS_INVALID_ARGUMENT source 또는 out_route가 NULL이다.
+ * @retval NAVSYS_STATUS_OUT_OF_MEMORY allocation에 실패했다.
+ * @retval NAVSYS_STATUS_CORRUPT_STATE source의 owning child가 유효하지 않다.
+ * @byul.nullable source false
+ * @byul.nullable out_route false
+ * @byul.lifetime out_route caller-owned
+ * @byul.side_effect writes:out_route-on-success
+ */
+BYUL_API navsys_status_t route_clone_ex(
+    const route_t* source,
+    route_t** out_route);
 BYUL_API uintptr_t route_hash(const route_t* a);
 BYUL_API int route_equal(const route_t* a, const route_t* b);
 
@@ -73,10 +95,21 @@ BYUL_API void  route_set_success(route_t* p, int success);
 BYUL_API int   route_get_success(const route_t* p);
 
 /** Coordinate List Access **/
+/**
+ * @brief route가 소유한 coordinate list의 borrowed view를 반환한다.
+ *
+ * 반환 pointer는 route보다 먼저 파괴할 수 없고, route coordinate mutation 또는
+ * route_destroy() 뒤에는 사용할 수 없다.
+ *
+ * @byul.lifetime return borrowed-from:p
+ * @byul.invalidates route-coordinate-mutation,route_destroy
+ */
 BYUL_API const coord_list_t* route_get_coords(const route_t* p);
 
 /** Visit Logs **/
+/** @byul.lifetime return borrowed-from:p @byul.invalidates route_clear_visited,route_destroy */
 BYUL_API const coord_list_t* route_get_visited_order(const route_t* p);
+/** @byul.lifetime return borrowed-from:p @byul.invalidates route_clear_visited,route_destroy */
 BYUL_API const coord_hash_t*  route_get_visited_count(const route_t* p);
 
 BYUL_API int route_get_total_retry_count(const route_t* p);
@@ -224,16 +257,60 @@ BYUL_API int  route_find(const route_t* p, const coord_t* c);
 // The original route remains unchanged.
 BYUL_API route_t* route_slice(const route_t* p, int start, int end);
 
+/**
+ * @brief source의 [begin,end) coordinate 범위를 새 route로 복사한다.
+ *
+ * 좌표만 복사하며 legacy slice와 동일하게 cost, completion, retry와 trace metadata는
+ * 기본값이다. 빈 범위는 유효한 빈 route를 만든다. 실패하면 out_route를 변경하지 않는다.
+ *
+ * @retval NAVSYS_STATUS_OK slice를 생성했다.
+ * @retval NAVSYS_STATUS_INVALID_ARGUMENT NULL 또는 잘못된 범위다.
+ * @retval NAVSYS_STATUS_OUT_OF_MEMORY allocation에 실패했다.
+ * @retval NAVSYS_STATUS_CORRUPT_STATE source coordinate storage가 유효하지 않다.
+ * @byul.lifetime out_route caller-owned
+ * @byul.side_effect writes:out_route-on-success
+ */
+/**
+ * @param[in] source route to slice.
+ * @param[in] begin First included coordinate index.
+ * @param[in] end One-past-the-last coordinate index.
+ * @param[out] out_route Caller storage for the new route.
+ * @return Common Navsys status value.
+ * @byul.nullable source false
+ * @byul.nullable out_route false
+ */
+BYUL_API navsys_status_t route_slice_ex(
+    const route_t* source,
+    size_t begin,
+    size_t end,
+    route_t** out_route);
+
 /** Output and Debugging **/
 BYUL_API void route_print(const route_t* p);
 
 /** Direction Calculation **/
+/**
+ * @brief Create the direction vector at index.
+ * @param[in] p Source route.
+ * @param[in] index Coordinate index used for the direction.
+ * @return A caller-owned coordinate destroyed with coord_destroy(), or NULL.
+ * @byul.nullable p false
+ * @byul.nullable return true
+ * @byul.lifetime return caller-owned
+ */
 BYUL_API coord_t* route_make_direction(route_t* p, int index);
 BYUL_API route_dir_t route_get_direction_by_dir_coord(const coord_t* dxdy);
 BYUL_API route_dir_t route_get_direction_by_index(route_t* p, int index);
 BYUL_API route_dir_t route_calc_average_facing(route_t* p, int history);
 BYUL_API float route_calc_average_dir(route_t* p, int history);
 
+/**
+ * @brief Convert a route direction to a coordinate vector.
+ * @param[in] route_dir Direction value to convert.
+ * @return A caller-owned coordinate destroyed with coord_destroy(), or NULL.
+ * @byul.nullable return true
+ * @byul.lifetime return caller-owned
+ */
 BYUL_API coord_t* direction_to_coord(route_dir_t route_dir);
 
 /** Direction Change Detection **/
@@ -274,6 +351,35 @@ BYUL_API route_dir_t calc_direction(
 BYUL_API bool route_reconstruct(
     route_t* route, const coord_hash_t* came_from,
     const coord_t* start, const coord_t* goal);
+
+/**
+ * @brief predecessor chain을 따라 route 끝에 경로를 원자적으로 추가한다.
+ *
+ * missing predecessor, cycle 또는 allocation 실패 시 route를 변경하지 않는다.
+ *
+ * @retval NAVSYS_STATUS_OK 경로를 추가했다.
+ * @retval NAVSYS_STATUS_INVALID_ARGUMENT required pointer가 NULL이다.
+ * @retval NAVSYS_STATUS_NO_PATH predecessor가 start 전에 끊겼다.
+ * @retval NAVSYS_STATUS_CORRUPT_STATE predecessor cycle 또는 내부 storage 손상이다.
+ * @retval NAVSYS_STATUS_OUT_OF_MEMORY temporary/candidate storage allocation에 실패했다.
+ * @byul.side_effect mutates:route-on-success
+ */
+/**
+ * @param[in,out] route Route extended only when reconstruction succeeds.
+ * @param[in] came_from Predecessor mapping.
+ * @param[in] start Path start coordinate.
+ * @param[in] goal Goal coordinate where backtracking starts.
+ * @return Common Navsys status value.
+ * @byul.nullable route false
+ * @byul.nullable came_from false
+ * @byul.nullable start false
+ * @byul.nullable goal false
+ */
+BYUL_API navsys_status_t route_reconstruct_ex(
+    route_t* route,
+    const coord_hash_t* came_from,
+    const coord_t* start,
+    const coord_t* goal);
 
 #ifdef __cplusplus
 }

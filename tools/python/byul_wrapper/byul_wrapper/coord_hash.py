@@ -237,6 +237,8 @@ class c_coord_hash:
     def _require_open(self):
         if self._c == ffi.NULL:
             raise ReferenceError("c_coord_hash is closed")
+        if self._parent is not None:
+            self._parent._require_open()
         return self._c
 
     @staticmethod

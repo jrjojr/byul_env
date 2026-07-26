@@ -4,7 +4,7 @@
   "source_vocabulary": "docs/ko/todo/navsys/navsys-abi-vocabulary.json",
   "summary": {
     "headers": 46,
-    "symbols": 525,
+    "symbols": 528,
     "return_forms": {
       "nullable_pointer": 151,
       "bool_predicate": 22,
@@ -13,22 +13,22 @@
       "int_count": 22,
       "int_index_minus_one": 4,
       "void_fallible_operation": 141,
-      "enum_result": 106,
+      "enum_result": 109,
       "floating_result": 19,
       "callback_return": 0
     },
     "unclassified": 0,
     "duplicate_declarations": 1,
-    "audit_issues": 893,
-    "audit_errors": 893,
+    "audit_issues": 887,
+    "audit_errors": 887,
     "audit_codes": {
-      "missing-brief": 16,
-      "missing-doxygen": 266,
+      "missing-brief": 15,
+      "missing-doxygen": 264,
       "missing-nullable": 159,
-      "missing-param": 86,
+      "missing-param": 85,
       "missing-param-direction": 199,
       "missing-return": 21,
-      "missing-return-lifetime": 52,
+      "missing-return-lifetime": 50,
       "missing-return-nullable": 52,
       "unknown-param": 12,
       "unnamed-parameter": 30
@@ -5091,15 +5091,6 @@
         "header": "byul/navsys/route/route.h",
         "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-route.org",
         "severity": "error",
-        "code": "missing-brief",
-        "symbol": "route_get_coords",
-        "message": "public function has no @brief",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/route/route.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-route.org",
-        "severity": "error",
         "code": "missing-param",
         "symbol": "route_get_coords",
         "message": "parameter 'p' has no @param",
@@ -5130,15 +5121,6 @@
         "code": "missing-return-nullable",
         "symbol": "route_get_coords",
         "message": "pointer return has no @byul.nullable return",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/route/route.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-route.org",
-        "severity": "error",
-        "code": "missing-return-lifetime",
-        "symbol": "route_get_coords",
-        "message": "pointer return has no @byul.lifetime return",
         "disposition": "route-to-owner-child"
       },
       {
@@ -5199,9 +5181,45 @@
         "header": "byul/navsys/route/route.h",
         "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-route.org",
         "severity": "error",
-        "code": "missing-doxygen",
+        "code": "missing-brief",
         "symbol": "route_get_visited_count",
-        "message": "public function has no adjacent Doxygen block",
+        "message": "public function has no @brief",
+        "disposition": "route-to-owner-child"
+      },
+      {
+        "header": "byul/navsys/route/route.h",
+        "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-route.org",
+        "severity": "error",
+        "code": "missing-param",
+        "symbol": "route_get_visited_count",
+        "message": "parameter 'p' has no @param",
+        "disposition": "route-to-owner-child"
+      },
+      {
+        "header": "byul/navsys/route/route.h",
+        "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-route.org",
+        "severity": "error",
+        "code": "missing-nullable",
+        "symbol": "route_get_visited_count",
+        "message": "pointer parameter 'p' has no @byul.nullable",
+        "disposition": "route-to-owner-child"
+      },
+      {
+        "header": "byul/navsys/route/route.h",
+        "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-route.org",
+        "severity": "error",
+        "code": "missing-return",
+        "symbol": "route_get_visited_count",
+        "message": "non-void function has no @return",
+        "disposition": "route-to-owner-child"
+      },
+      {
+        "header": "byul/navsys/route/route.h",
+        "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-route.org",
+        "severity": "error",
+        "code": "missing-return-nullable",
+        "symbol": "route_get_visited_count",
+        "message": "pointer return has no @byul.nullable return",
         "disposition": "route-to-owner-child"
       },
       {
@@ -5514,69 +5532,6 @@
         "header": "byul/navsys/route/route.h",
         "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-route.org",
         "severity": "error",
-        "code": "missing-brief",
-        "symbol": "route_make_direction",
-        "message": "public function has no @brief",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/route/route.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-route.org",
-        "severity": "error",
-        "code": "missing-param",
-        "symbol": "route_make_direction",
-        "message": "parameter 'p' has no @param",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/route/route.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-route.org",
-        "severity": "error",
-        "code": "missing-nullable",
-        "symbol": "route_make_direction",
-        "message": "pointer parameter 'p' has no @byul.nullable",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/route/route.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-route.org",
-        "severity": "error",
-        "code": "missing-param",
-        "symbol": "route_make_direction",
-        "message": "parameter 'index' has no @param",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/route/route.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-route.org",
-        "severity": "error",
-        "code": "missing-return",
-        "symbol": "route_make_direction",
-        "message": "non-void function has no @return",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/route/route.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-route.org",
-        "severity": "error",
-        "code": "missing-return-nullable",
-        "symbol": "route_make_direction",
-        "message": "pointer return has no @byul.nullable return",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/route/route.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-route.org",
-        "severity": "error",
-        "code": "missing-return-lifetime",
-        "symbol": "route_make_direction",
-        "message": "pointer return has no @byul.lifetime return",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/route/route.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-route.org",
-        "severity": "error",
         "code": "missing-doxygen",
         "symbol": "route_get_direction_by_dir_coord",
         "message": "public function has no adjacent Doxygen block",
@@ -5606,15 +5561,6 @@
         "severity": "error",
         "code": "missing-doxygen",
         "symbol": "route_calc_average_dir",
-        "message": "public function has no adjacent Doxygen block",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/route/route.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-route.org",
-        "severity": "error",
-        "code": "missing-doxygen",
-        "symbol": "direction_to_coord",
         "message": "public function has no adjacent Doxygen block",
         "disposition": "route-to-owner-child"
       },
@@ -8794,12 +8740,13 @@
       "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-route.org",
       "primary_role": "public-component",
       "wrapper_mode": "generated",
-      "symbol_count": 49,
-      "audit_issue_count": 100,
+      "symbol_count": 52,
+      "audit_issue_count": 94,
       "symbols": [
         "route_create",
         "route_destroy",
         "route_copy",
+        "route_clone_ex",
         "route_hash",
         "route_equal",
         "route_set_cost",
@@ -8831,6 +8778,7 @@
         "route_contains",
         "route_find",
         "route_slice",
+        "route_slice_ex",
         "route_print",
         "route_make_direction",
         "route_get_direction_by_dir_coord",
@@ -8845,7 +8793,8 @@
         "route_update_average_vector",
         "route_update_average_vector_by_index",
         "calc_direction",
-        "route_reconstruct"
+        "route_reconstruct",
+        "route_reconstruct_ex"
       ]
     },
     {
@@ -12249,7 +12198,7 @@
       "header": "byul/navsys/route/route.h",
       "name": "route_create",
       "return_type": "route_t*",
-      "signature": "route_t* route_create();",
+      "signature": "route_t* route_create(void);",
       "return_form": "nullable_pointer",
       "canonical": "status return plus typed out pointer"
     },
@@ -12268,6 +12217,14 @@
       "signature": "route_t* route_copy(const route_t* p);",
       "return_form": "nullable_pointer",
       "canonical": "status return plus typed out pointer"
+    },
+    {
+      "header": "byul/navsys/route/route.h",
+      "name": "route_clone_ex",
+      "return_type": "navsys_status_t",
+      "signature": "navsys_status_t route_clone_ex( const route_t* source, route_t** out_route);",
+      "return_form": "enum_result",
+      "canonical": "navsys_status_t plus typed out enum"
     },
     {
       "header": "byul/navsys/route/route.h",
@@ -12519,6 +12476,14 @@
     },
     {
       "header": "byul/navsys/route/route.h",
+      "name": "route_slice_ex",
+      "return_type": "navsys_status_t",
+      "signature": "navsys_status_t route_slice_ex( const route_t* source, size_t begin, size_t end, route_t** out_route);",
+      "return_form": "enum_result",
+      "canonical": "navsys_status_t plus typed out enum"
+    },
+    {
+      "header": "byul/navsys/route/route.h",
       "name": "route_print",
       "return_type": "void",
       "signature": "void route_print(const route_t* p);",
@@ -12636,6 +12601,14 @@
       "signature": "bool route_reconstruct( route_t* route, const coord_hash_t* came_from, const coord_t* start, const coord_t* goal);",
       "return_form": "bool_operation",
       "canonical": "navsys_status_t"
+    },
+    {
+      "header": "byul/navsys/route/route.h",
+      "name": "route_reconstruct_ex",
+      "return_type": "navsys_status_t",
+      "signature": "navsys_status_t route_reconstruct_ex( route_t* route, const coord_hash_t* came_from, const coord_t* start, const coord_t* goal);",
+      "return_form": "enum_result",
+      "canonical": "navsys_status_t plus typed out enum"
     },
     {
       "header": "byul/navsys/route_carver/route_carver.h",

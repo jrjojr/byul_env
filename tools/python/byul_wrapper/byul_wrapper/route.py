@@ -4,7 +4,7 @@ import weakref
 from .coord import c_coord
 from .coord_list import c_coord_list
 from .coord_hash import c_coord_hash
-from .navsys_status import NavsysStatus
+from .navsys_status import NavsysStatus, raise_for_status
 
 from enum import IntEnum
 
@@ -64,11 +64,15 @@ struct s_route {
 
 typedef struct s_route route_t;
 
- route_t* route_create();
+ route_t* route_create(void);
 
  void  route_destroy(route_t* p);
 
  route_t* route_copy(const route_t* p);
+
+ navsys_status_t route_clone_ex(
+    const route_t* source,
+    route_t** out_route);
  uintptr_t route_hash(const route_t* a);
  int route_equal(const route_t* a, const route_t* b);
 
@@ -80,6 +84,7 @@ typedef struct s_route route_t;
  const coord_list_t* route_get_coords(const route_t* p);
 
  const coord_list_t* route_get_visited_order(const route_t* p);
+
  const coord_hash_t*  route_get_visited_count(const route_t* p);
 
  int route_get_total_retry_count(const route_t* p);
@@ -128,6 +133,12 @@ typedef struct s_route route_t;
 
  route_t* route_slice(const route_t* p, int start, int end);
 
+ navsys_status_t route_slice_ex(
+    const route_t* source,
+    size_t begin,
+    size_t end,
+    route_t** out_route);
+
  void route_print(const route_t* p);
 
  coord_t* route_make_direction(route_t* p, int index);
@@ -167,6 +178,12 @@ typedef struct s_route route_t;
  bool route_reconstruct(
     route_t* route, const coord_hash_t* came_from,
     const coord_t* start, const coord_t* goal);
+
+ navsys_status_t route_reconstruct_ex(
+    route_t* route,
+    const coord_hash_t* came_from,
+    const coord_t* start,
+    const coord_t* goal);
 """)
 
 class c_route:
@@ -189,6 +206,11 @@ class c_route:
         if cost is not None:
             C.route_set_cost(self._c, cost)
 
+    def _require_open(self):
+        if self._c == ffi.NULL:
+            raise ReferenceError("c_route is closed")
+        return self._c
+
     def cost(self):
         return C.route_get_cost(self._c)
 
@@ -208,7 +230,11 @@ class c_route:
         C.route_set_total_retry_count(self._c, count)
 
     def coords(self):
-        return c_coord_list(raw_ptr=C.route_get_coords(self._c), own=False)
+        return c_coord_list(
+            raw_ptr=C.route_get_coords(self._require_open()),
+            own=False,
+            parent=self,
+        )
 
     def add_coord(self, coord: c_coord):
         return C.route_add_coord(self._c, coord.ptr())
@@ -217,12 +243,17 @@ class c_route:
         C.route_clear_coords(self._c)
 
     def last(self):
-        ptr = C.route_get_last(self._c)
-        return c_coord(raw_ptr=ptr) if ptr != ffi.NULL else None
+        count = self.coord_count()
+        if count == 0:
+            return None
+        x, y = self.fetch_coord(count - 1)
+        return c_coord(x, y)
 
     def coord_at(self, index):
-        ptr = C.route_get_coord_at(self._c, index)
-        return c_coord(raw_ptr=ptr) if ptr != ffi.NULL else None
+        if index < 0 or index >= self.coord_count():
+            return None
+        x, y = self.fetch_coord(index)
+        return c_coord(x, y)
 
     def length(self):
         return C.route_length(self._c)
@@ -284,11 +315,15 @@ class c_route:
         return [(output[i].x, output[i].y) for i in range(required[0])]
 
     def visited_order(self):
-        return c_coord_list(raw_ptr=C.route_get_visited_order(self._c), own=False)
+        return c_coord_list(
+            raw_ptr=C.route_get_visited_order(self._require_open()),
+            own=False,
+            parent=self,
+        )
 
     def visited_count(self):
         return c_coord_hash(
-            raw_ptr=C.route_get_visited_count(self._c),
+            raw_ptr=C.route_get_visited_count(self._require_open()),
             own=False,
             value_type="int",
             parent=self,
@@ -325,8 +360,8 @@ class c_route:
         return c_route(raw_ptr=C.route_slice(self._c, start, end), own=True)
 
     def look_at(self, index):
-        ptr = C.route_make_direction(self._c, index)
-        return c_coord(raw_ptr=ptr) if ptr != ffi.NULL else None
+        ptr = C.route_make_direction(self._require_open(), index)
+        return c_coord(raw_ptr=ptr, own=True) if ptr != ffi.NULL else None
 
     def calc_average_facing(self, history):
         return RouteDir(C.route_calc_average_facing(self._c, history))
@@ -360,7 +395,16 @@ class c_route:
         C.route_update_average_vector_by_index(self._c, index_from, index_to)
 
     def reconstruct_path(self, came_from: c_coord_hash, start: c_coord, goal: c_coord):
-        return bool(C.route_reconstruct_path(self._c, came_from.ptr(), start.ptr(), goal.ptr()))
+        raise_for_status(
+            C.route_reconstruct_ex(
+                self._require_open(),
+                came_from.ptr(),
+                start.ptr(),
+                goal.ptr(),
+            ),
+            "route_reconstruct_ex",
+        )
+        return True
 
     def print(self):
         C.route_print(self._c)
@@ -377,6 +421,8 @@ class c_route:
     def close(self):
         if getattr(self, "_own", False) and self._finalizer and self._finalizer.alive:
             self._finalizer()
+        self._c = ffi.NULL
+        self._own = False
 
     def __enter__(self):
         return self
@@ -397,7 +443,7 @@ class c_route:
     @staticmethod
     def direction_to_coord(direction: RouteDir) -> c_coord:
         ptr = C.direction_to_coord(direction)
-        return c_coord(raw_ptr=ptr) if ptr != ffi.NULL else None
+        return c_coord(raw_ptr=ptr, own=True) if ptr != ffi.NULL else None
 
     @staticmethod
     def calc_direction(start: c_coord, goal: c_coord) -> RouteDir:

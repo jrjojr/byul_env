@@ -73,6 +73,14 @@ void destroy_dstar_lite(dstar_lite_t* dsl) {
     dstar_lite_destroy(dsl);
 }
 
+route_t* create_route() {
+    return route_create();
+}
+
+void destroy_route(route_t* route) {
+    route_destroy(route);
+}
+
 coord_t* create_checked_coord() {
     coord_t* coord = nullptr;
     return coord_create_checked(7, 9, &coord) == NAVSYS_STATUS_OK
@@ -194,6 +202,147 @@ bool verify_dstar_lite_key_allocation_failure() {
     }
 
     return true;
+}
+
+bool verify_route_checked_allocation_failure() {
+    constexpr std::ptrdiff_t max_allocations = 128;
+    const coord_t first = {1, 2};
+    const coord_t second = {3, 4};
+    route_t* source = route_create();
+    if (!source
+        || !route_add_coord(source, &first)
+        || !route_add_coord(source, &second)) {
+        route_destroy(source);
+        return false;
+    }
+
+    const auto verify_route_output = [source](bool slice) {
+        constexpr std::ptrdiff_t limit = 128;
+        for (std::ptrdiff_t index = 0; index < limit; ++index) {
+            const std::size_t baseline = tracked_live_allocations;
+            route_t* const sentinel = reinterpret_cast<route_t*>(1);
+            route_t* output = sentinel;
+            track_allocations = true;
+            fail_after = index;
+            const navsys_status_t status = slice
+                ? route_slice_ex(source, 0, 2, &output)
+                : route_clone_ex(source, &output);
+            fail_after = -1;
+
+            if (status == NAVSYS_STATUS_OK) {
+                if (!output || output == sentinel || route_length(output) != 2) {
+                    track_allocations = false;
+                    return false;
+                }
+                route_destroy(output);
+                track_allocations = false;
+                return tracked_live_allocations == baseline;
+            }
+            track_allocations = false;
+            if (status != NAVSYS_STATUS_OUT_OF_MEMORY
+                || output != sentinel
+                || tracked_live_allocations != baseline) {
+                std::fprintf(
+                    stderr,
+                    "route_%s_ex was not failure-atomic at allocation %td\n",
+                    slice ? "slice" : "clone",
+                    index);
+                return false;
+            }
+        }
+        return false;
+    };
+
+    if (!verify_route_output(false) || !verify_route_output(true)) {
+        route_destroy(source);
+        return false;
+    }
+
+    coord_hash_t* predecessors = coord_hash_create_full(
+        reinterpret_cast<coord_hash_copy_func>(coord_copy),
+        reinterpret_cast<coord_hash_destroy_func>(coord_destroy));
+    if (!predecessors
+        || !coord_hash_replace(
+            predecessors, &second, const_cast<coord_t*>(&first))) {
+        coord_hash_destroy(predecessors);
+        route_destroy(source);
+        return false;
+    }
+
+    bool reconstruct_succeeded = false;
+    for (std::ptrdiff_t index = 0; index < max_allocations; ++index) {
+        route_t* destination = route_create();
+        const coord_t marker = {-1, -1};
+        if (!destination || !route_add_coord(destination, &marker)) {
+            route_destroy(destination);
+            break;
+        }
+
+        const std::size_t baseline = tracked_live_allocations;
+        track_allocations = true;
+        fail_after = index;
+        const navsys_status_t status = route_reconstruct_ex(
+            destination, predecessors, &first, &second);
+        fail_after = -1;
+
+        bool valid = false;
+        if (status == NAVSYS_STATUS_OK) {
+            valid = route_length(destination) == 3;
+            reconstruct_succeeded = valid;
+        } else {
+            const coord_t* preserved = route_get_coord_at(destination, 0);
+            valid = status == NAVSYS_STATUS_OUT_OF_MEMORY
+                && route_length(destination) == 1
+                && preserved
+                && preserved->x == marker.x
+                && preserved->y == marker.y;
+        }
+        route_destroy(destination);
+        track_allocations = false;
+        if (!valid || tracked_live_allocations != baseline) {
+            std::fprintf(
+                stderr,
+                "route_reconstruct_ex was not failure-atomic at allocation %td\n",
+                index);
+            coord_hash_destroy(predecessors);
+            route_destroy(source);
+            return false;
+        }
+        if (reconstruct_succeeded) break;
+    }
+
+    bool visited_succeeded = false;
+    for (std::ptrdiff_t index = 0; index < max_allocations; ++index) {
+        route_t* destination = route_create();
+        if (!destination) break;
+        const std::size_t baseline = tracked_live_allocations;
+        track_allocations = true;
+        fail_after = index;
+        const int added = route_add_visited(destination, &first);
+        fail_after = -1;
+        const bool valid = added
+            ? coord_list_size(route_get_visited_order(destination)) == 1
+                && coord_hash_size(route_get_visited_count(destination)) == 1
+            : coord_list_size(route_get_visited_order(destination)) == 0
+                && coord_hash_size(route_get_visited_count(destination)) == 0;
+        visited_succeeded = added != 0;
+        route_destroy(destination);
+        track_allocations = false;
+        if (!valid || tracked_live_allocations != baseline) {
+            std::fprintf(
+                stderr,
+                "route_add_visited was not failure-atomic at allocation %td\n",
+                index);
+            coord_hash_destroy(predecessors);
+            route_destroy(source);
+            return false;
+        }
+        if (visited_succeeded) break;
+    }
+
+    coord_hash_destroy(predecessors);
+    route_destroy(source);
+    return reconstruct_succeeded && visited_succeeded;
 }
 
 #if !defined(_MSC_VER)
@@ -493,6 +642,9 @@ int main(int argc, char** argv) {
     if (!verify_dstar_lite_key_allocation_failure()) {
         return 9;
     }
+    if (!verify_route_checked_allocation_failure()) {
+        return 10;
+    }
 #if !defined(_MSC_VER)
     // MSVC's STL uses iterator-proxy allocation that cannot be safely
     // failure-injected through the executable's global operator new.
@@ -507,6 +659,11 @@ int main(int argc, char** argv) {
     if (!verify_failure_atomic_create(
             "coord", create_checked_coord, coord_destroy)) {
         return 2;
+    }
+
+    if (!verify_failure_atomic_create(
+            "route", create_route, destroy_route)) {
+        return 11;
     }
 
     if (!verify_failure_atomic_create(
