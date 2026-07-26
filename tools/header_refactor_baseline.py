@@ -651,9 +651,9 @@ def main() -> int:
         f"decision-required={manifest['summary']['decision_required']}"
     )
 
-    if manifest["summary"]["headers"] != 138:
+    if manifest["summary"]["headers"] != 139:
         print(
-            f"[ERROR] expected 138 tracked headers, found {manifest['summary']['headers']}",
+            f"[ERROR] expected 139 tracked headers, found {manifest['summary']['headers']}",
             file=sys.stderr,
         )
         return 1

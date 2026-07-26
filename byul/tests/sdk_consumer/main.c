@@ -713,6 +713,35 @@ int main(void) {
     route_destroy(route);
     route = NULL;
 
+    route_builder_t* route_builder = NULL;
+    navsys_search_trace_t* search_trace = NULL;
+    navsys_search_trace_t* search_trace_copy = NULL;
+    if (route_builder_create(&route_builder) != NAVSYS_STATUS_OK
+        || route_builder == NULL
+        || route_builder_push_coord(route_builder, &fetched_coord)
+            != NAVSYS_STATUS_OK
+        || route_builder_set_total_cost(route_builder, 2.5)
+            != NAVSYS_STATUS_OK
+        || route_builder_set_completion(
+            route_builder, ROUTE_COMPLETION_COMPLETE) != NAVSYS_STATUS_OK
+        || route_builder_finish(route_builder, &route) != NAVSYS_STATUS_OK
+        || route == NULL
+        || route_get_coord_count(route) != 1
+        || navsys_search_trace_create(&search_trace) != NAVSYS_STATUS_OK
+        || search_trace == NULL
+        || navsys_search_trace_clone_ex(
+            search_trace, &search_trace_copy) != NAVSYS_STATUS_OK
+        || search_trace_copy == NULL
+        || navsys_search_trace_get_visit_count(search_trace_copy) != 0) {
+        fprintf(stderr, "unexpected route builder/trace ABI\n");
+        return 6;
+    }
+    navsys_search_trace_destroy(search_trace_copy);
+    navsys_search_trace_destroy(search_trace);
+    route_builder_destroy(route_builder);
+    route_destroy(route);
+    route = NULL;
+
     int cancel_calls = 0;
     route_finder_run_options_t run_options = {
         (uint32_t)sizeof(route_finder_run_options_t),
@@ -726,7 +755,7 @@ int main(void) {
         || route == NULL
         || run_stats.complete) {
         fprintf(stderr, "unexpected route finder cancellation ABI\n");
-        return 6;
+        return 7;
     }
     route_destroy(route);
 

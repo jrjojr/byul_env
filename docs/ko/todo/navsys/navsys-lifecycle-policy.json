@@ -22,6 +22,9 @@
       "owners": [
         "coord",
         "navgrid",
+        "route",
+        "route_builder",
+        "navsys_search_trace",
         "route_finder",
         "dstar_lite"
       ],
@@ -121,7 +124,7 @@
       "fetch_invalid": "invalid-argument-and-preserve-output",
       "query": "null-output-and-zero-capacity-returns-ok-and-required-element-count",
       "complete": "copies-all-coordinates-and-returns-ok",
-      "undersized": "copies-prefix-returns-incomplete-and-full-required-element-count",
+      "undersized": "preserves-output-returns-incomplete-and-full-required-element-count",
       "invalid": "preserves-required-count",
       "output_storage": "caller-owned",
       "internal_container_pointer": "not-exposed",
@@ -186,6 +189,10 @@
   "resource_models": [
     {"resource": "coord", "storage": "mixed-heap-and-trivial-caller-storage", "termination": "destroy-created-only"},
     {"resource": "coord_hash", "storage": "heap-owned", "termination": "destroy"},
+    {"resource": "coord_hash_buffer", "storage": "callback-owned-copy", "termination": "destroy"},
+    {"resource": "coord_hash_double", "storage": "callback-owned-copy", "termination": "destroy"},
+    {"resource": "coord_hash_float", "storage": "callback-owned-copy", "termination": "destroy"},
+    {"resource": "coord_hash_int", "storage": "callback-owned-copy", "termination": "destroy"},
     {"resource": "coord_hash_iter", "storage": "heap-owned", "termination": "destroy"},
     {"resource": "coord_list", "storage": "heap-owned", "termination": "destroy"},
     {"resource": "cost_coord_pq", "storage": "heap-owned", "termination": "destroy"},
@@ -200,8 +207,10 @@
     {"resource": "maze", "storage": "heap-owned", "termination": "destroy"},
     {"resource": "navcell", "storage": "mixed-heap-and-trivial-caller-storage", "termination": "destroy-created-only"},
     {"resource": "navgrid", "storage": "heap-owned", "termination": "destroy"},
+    {"resource": "navsys_search_trace", "storage": "heap-owned", "termination": "destroy"},
     {"resource": "obstacle", "storage": "heap-owned", "termination": "destroy"},
     {"resource": "route", "storage": "heap-owned", "termination": "destroy"},
+    {"resource": "route_builder", "storage": "heap-owned", "termination": "destroy"},
     {"resource": "route_finder", "storage": "mixed-heap-and-caller-storage", "termination": "destroy-created-free-initialized"},
     {"resource": "rta_star_config", "storage": "heap-owned", "termination": "destroy"},
     {"resource": "scalar", "storage": "callback-owned-copy", "termination": "destroy"}

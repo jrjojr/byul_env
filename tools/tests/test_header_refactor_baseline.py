@@ -32,8 +32,8 @@ class HeaderRefactorBaselineTest(unittest.TestCase):
 
     def test_tracked_inventory_has_expected_unique_assets(self):
         rows = self.manifest["headers"]
-        self.assertEqual(138, len(rows))
-        self.assertEqual(107, self.manifest["summary"]["byul_headers"])
+        self.assertEqual(139, len(rows))
+        self.assertEqual(108, self.manifest["summary"]["byul_headers"])
         self.assertEqual(31, self.manifest["summary"]["tool_headers"])
         self.assertEqual(len(rows), len({row["asset_id"] for row in rows}))
         self.assertEqual(
@@ -51,6 +51,9 @@ class HeaderRefactorBaselineTest(unittest.TestCase):
         )
         self.assertIn(
             "byul/navsys/dstar_lite/internal/dstar_lite_callback.hpp", paths
+        )
+        self.assertIn(
+            "byul/navsys/route/internal/route_internal.h", paths
         )
         self.assertNotIn("byul/navsys/coord/coord.hpp", paths)
         self.assertTrue(all(path.is_file() for path in headers))

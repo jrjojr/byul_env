@@ -56,7 +56,7 @@ class NavsysConformancePolicyTest(unittest.TestCase):
             self.policy,
             self.inventory,
         ))
-        self.assertEqual(46, self.policy["coverage"]["headers"])
+        self.assertEqual(47, self.policy["coverage"]["headers"])
         self.assertEqual(43, self.policy["coverage"]["child_owner_todos"])
 
     def test_committed_evidence_tree_is_valid(self):

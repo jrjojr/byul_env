@@ -184,10 +184,25 @@ class NavsysLifecyclePolicyTest(unittest.TestCase):
             injection["fixture"],
         )
         self.assertEqual(
-            {"coord", "navgrid", "route_finder", "dstar_lite"},
+            {
+                "coord",
+                "navgrid",
+                "route",
+                "route_builder",
+                "navsys_search_trace",
+                "route_finder",
+                "dstar_lite",
+            },
             set(injection["owners"]),
         )
-        self.assertEqual({"msvc", "mingw"}, set(injection["toolchains"]))
+        self.assertEqual(
+            {
+                "msvc-release",
+                "mingw-release",
+                "linux-gcc-or-clang-debug-sanitized",
+            },
+            set(injection["toolchains"]),
+        )
         self.assertEqual(
             "no-exception-escape-and-no-owned-allocation-leak",
             injection["result"],

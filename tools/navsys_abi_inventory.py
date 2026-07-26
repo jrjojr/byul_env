@@ -41,6 +41,8 @@ OWNER_TODO_OVERRIDES = {
         "docs/ko/todo/navsys/todo-navsys-dstar-lite-dstar-lite-key-cpp.org",
     "byul/navsys/navgrid/internal/navgrid_callback.hpp":
         "docs/ko/todo/navsys/todo-navsys-navgrid-navgrid.org",
+    "byul/navsys/route/internal/route_internal.h":
+        "docs/ko/todo/navsys/todo-navsys-route-route.org",
 }
 
 
@@ -140,13 +142,26 @@ def classify_return(name: str, return_type: str) -> str:
     return "enum_result"
 
 
-def classify_lifecycle(name: str) -> tuple[str, str] | None:
+def classify_lifecycle(
+    name: str,
+    return_type: str,
+    parameters: list[str],
+) -> tuple[str, str] | None:
     """Return ``(resource, operation)`` for ownership vocabulary symbols."""
     create_or_init = re.match(r"^(.+)_(create|init)(?:_.+)?$", name)
     if create_or_init:
         return create_or_init.group(1), create_or_init.group(2)
     terminal = re.match(r"^(.+)_(copy|reset|free|destroy)$", name)
     if terminal:
+        # A lifecycle copy is the allocation callback form
+        # ``void* copy(const void*)``.  Container operations such as
+        # coord_hash_upsert_copy are value mutations, not resources named
+        # ``coord_hash_upsert``.
+        if terminal.group(2) == "copy" and not (
+            return_type.replace(" ", "").endswith("*")
+            and len(parameters) == 1
+        ):
+            return None
         return terminal.group(1), terminal.group(2)
     return None
 
@@ -217,7 +232,14 @@ def build_inventory(role_manifest: dict, vocabulary: dict) -> dict:
             }
             symbols.append(symbol)
             header_symbols.append(declaration.name)
-            lifecycle = classify_lifecycle(declaration.name)
+            lifecycle = classify_lifecycle(
+                declaration.name,
+                declaration.return_type,
+                [
+                    parameter.declaration
+                    for parameter in declaration.parameters
+                ],
+            )
             if lifecycle:
                 resource, operation = lifecycle
                 lifecycle_operations.append(

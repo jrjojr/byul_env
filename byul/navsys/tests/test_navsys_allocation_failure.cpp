@@ -81,6 +81,28 @@ void destroy_route(route_t* route) {
     route_destroy(route);
 }
 
+route_builder_t* create_route_builder() {
+    route_builder_t* builder = nullptr;
+    return route_builder_create(&builder) == NAVSYS_STATUS_OK
+        ? builder
+        : nullptr;
+}
+
+void destroy_route_builder(route_builder_t* builder) {
+    route_builder_destroy(builder);
+}
+
+navsys_search_trace_t* create_navsys_search_trace() {
+    navsys_search_trace_t* trace = nullptr;
+    return navsys_search_trace_create(&trace) == NAVSYS_STATUS_OK
+        ? trace
+        : nullptr;
+}
+
+void destroy_navsys_search_trace(navsys_search_trace_t* trace) {
+    navsys_search_trace_destroy(trace);
+}
+
 void* copy_coord_for_hash(const void* value) {
     return coord_copy(static_cast<const coord_t*>(value));
 }
@@ -262,6 +284,51 @@ bool verify_route_checked_allocation_failure() {
     };
 
     if (!verify_route_output(false) || !verify_route_output(true)) {
+        route_destroy(source);
+        return false;
+    }
+
+    bool builder_append_succeeded = false;
+    for (std::ptrdiff_t index = 0; index < max_allocations; ++index) {
+        route_builder_t* builder = nullptr;
+        if (route_builder_create_from_route(source, &builder)
+            != NAVSYS_STATUS_OK) {
+            route_destroy(source);
+            return false;
+        }
+
+        const std::size_t baseline = tracked_live_allocations;
+        track_allocations = true;
+        fail_after = index;
+        const navsys_status_t status = route_builder_append(
+            builder, source, ROUTE_JOIN_KEEP_ALL);
+        fail_after = -1;
+
+        route_t* result = nullptr;
+        const navsys_status_t finish_status =
+            route_builder_finish(builder, &result);
+        route_builder_destroy(builder);
+        const bool valid = finish_status == NAVSYS_STATUS_OK
+            && result
+            && route_get_coord_count(result)
+                == (status == NAVSYS_STATUS_OK ? 4u : 2u)
+            && (status == NAVSYS_STATUS_OK
+                || status == NAVSYS_STATUS_OUT_OF_MEMORY)
+            && route_get_coord_count(source) == 2u;
+        builder_append_succeeded = status == NAVSYS_STATUS_OK;
+        route_destroy(result);
+        track_allocations = false;
+        if (!valid || tracked_live_allocations != baseline) {
+            std::fprintf(
+                stderr,
+                "route_builder_append was not failure-atomic at allocation %td\n",
+                index);
+            route_destroy(source);
+            return false;
+        }
+        if (builder_append_succeeded) break;
+    }
+    if (!builder_append_succeeded) {
         route_destroy(source);
         return false;
     }
@@ -672,6 +739,18 @@ int main(int argc, char** argv) {
     if (!verify_failure_atomic_create(
             "route", create_route, destroy_route)) {
         return 11;
+    }
+
+    if (!verify_failure_atomic_create(
+            "route_builder", create_route_builder, destroy_route_builder)) {
+        return 12;
+    }
+
+    if (!verify_failure_atomic_create(
+            "navsys_search_trace",
+            create_navsys_search_trace,
+            destroy_navsys_search_trace)) {
+        return 13;
     }
 
     if (!verify_failure_atomic_create(

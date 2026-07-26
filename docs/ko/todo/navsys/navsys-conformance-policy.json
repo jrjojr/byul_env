@@ -2,7 +2,7 @@
   "schema_version": 1,
   "source_inventory": "docs/ko/todo/navsys/navsys-current-abi-inventory.json",
   "coverage": {
-    "headers": 46,
+    "headers": 47,
     "owner_todos": 44,
     "child_owner_todos": 43,
     "baseline_owner": "docs/ko/todo/navsys/todo-navsys-industry-api-baseline.org"

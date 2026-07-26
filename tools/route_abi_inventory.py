@@ -43,6 +43,10 @@ ROUTE_COMPLETION_VALUES = {
     "ROUTE_COMPLETION_COMPLETE": 1,
     "ROUTE_COMPLETION_PARTIAL": 2,
 }
+ROUTE_JOIN_POLICY_VALUES = {
+    "ROUTE_JOIN_KEEP_ALL": 0,
+    "ROUTE_JOIN_DEDUP_BOUNDARY": 1,
+}
 STRUCT_FIELDS = [
     ("coord_list_t*", "coords"),
     ("coord_list_t*", "visited_order"),
@@ -63,6 +67,24 @@ CANONICAL_SYMBOLS = {
     "route_export_coords",
     "route_slice_ex",
     "route_reconstruct_ex",
+    "route_builder_create",
+    "route_builder_create_from_route",
+    "route_builder_destroy",
+    "route_builder_push_coord",
+    "route_builder_insert_coord",
+    "route_builder_remove_coord",
+    "route_builder_append",
+    "route_builder_assign_slice",
+    "route_builder_set_total_cost",
+    "route_builder_set_completion",
+    "route_builder_finish",
+    "navsys_search_trace_create",
+    "navsys_search_trace_destroy",
+    "navsys_search_trace_clone_ex",
+    "navsys_search_trace_get_visit_count",
+    "navsys_search_trace_fetch_visit",
+    "navsys_search_trace_fetch_coord_visit_count",
+    "navsys_search_trace_export_visits",
 }
 
 
@@ -156,6 +178,16 @@ def parse_enum(text: str, tag: str) -> dict[str, int]:
     return result
 
 
+def code_without_comments(text: str) -> str:
+    text = re.sub(
+        r"/\*.*?\*/",
+        lambda match: "\n" * match.group(0).count("\n"),
+        text,
+        flags=re.DOTALL,
+    )
+    return re.sub(r"//[^\n]*", "", text)
+
+
 def parse_struct_fields(text: str) -> list[tuple[str, str]]:
     match = re.search(r"struct\s+s_route\s*\{(?P<body>.*?)\};", text, re.DOTALL)
     if not match:
@@ -189,7 +221,10 @@ def build_consumer_matrix(symbols: list[str]) -> tuple[list[dict], list[dict]]:
         for symbol in symbols
     }
     field_patterns = {
-        field: re.compile(rf"(?:->|\.)\s*{re.escape(field)}\b")
+        field: re.compile(
+            rf"(?P<receiver>[A-Za-z_]\w*)\s*(?:->|\.)\s*"
+            rf"{re.escape(field)}\b(?!\s*\()"
+        )
         for _, field in STRUCT_FIELDS
     }
     for path in source_files():
@@ -210,7 +245,26 @@ def build_consumer_matrix(symbols: list[str]) -> tuple[list[dict], list[dict]]:
         if not route_aware:
             continue
         for field, pattern in field_patterns.items():
-            lines = matching_lines(text, pattern)
+            if (
+                path_name.startswith("byul/navsys/route/")
+                and category == "internal-production"
+            ):
+                continue
+            code = code_without_comments(text)
+            lines = []
+            for line_number, line in enumerate(code.splitlines(), start=1):
+                matches = list(pattern.finditer(line))
+                if any(
+                    match.group("receiver") not in {
+                        "grid",
+                        "stats",
+                        "out_stats",
+                        "unchanged",
+                        "nested_ex_stats",
+                    }
+                    for match in matches
+                ):
+                    lines.append(line_number)
             if lines:
                 field_rows[field][category].append(
                     {"path": path_name, "lines": lines}
@@ -287,6 +341,9 @@ def build_inventory(install_root: Path, build_snapshot: Path) -> dict[str, Any]:
                 "route_completion_t": parse_enum(
                     header_text, "e_route_completion"
                 ),
+                "route_join_policy_t": parse_enum(
+                    header_text, "e_route_join_policy"
+                ),
             },
             "struct": {
                 "name": "route_t",
@@ -357,16 +414,18 @@ def build_inventory(install_root: Path, build_snapshot: Path) -> dict[str, Any]:
 def validate(payload: dict[str, Any]) -> list[str]:
     errors: list[str] = []
     header = payload["header"]
-    if header["function_count"] != 52:
-        errors.append("route.h function inventory is not exactly 52")
+    if header["function_count"] != 70:
+        errors.append("route.h function inventory is not exactly 70")
     if header["legacy_function_count"] != 44:
         errors.append("legacy Route function inventory is not exactly 44")
-    if header["canonical_function_count"] != 8:
-        errors.append("canonical Route function inventory is not exactly eight")
+    if header["canonical_function_count"] != 26:
+        errors.append("canonical Route function inventory is not exactly 26")
     if header["enums"]["route_dir_t"] != ROUTE_DIR_VALUES:
         errors.append("route_dir_t numeric values changed")
     if header["enums"]["route_completion_t"] != ROUTE_COMPLETION_VALUES:
         errors.append("route_completion_t numeric values changed")
+    if header["enums"]["route_join_policy_t"] != ROUTE_JOIN_POLICY_VALUES:
+        errors.append("route_join_policy_t numeric values changed")
     observed_fields = [
         (row["type"], row["name"]) for row in header["struct"]["fields"]
     ]
@@ -433,12 +492,12 @@ def main(argv: list[str] | None = None) -> int:
         return 1
     if args.apply:
         write_json_atomic(output, payload)
-        print(f"[WRITTEN] {output} functions=52 legacy=44 canonical=8")
+        print(f"[WRITTEN] {output} functions=70 legacy=44 canonical=26")
         return 0
     if not output.is_file() or load_json(output) != payload:
         print(f"[ERROR] stale inventory: {output}", file=sys.stderr)
         return 1
-    print(f"[OK] {output} functions=52 legacy=44 canonical=8")
+    print(f"[OK] {output} functions=70 legacy=44 canonical=26")
     return 0
 
 

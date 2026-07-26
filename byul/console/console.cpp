@@ -155,7 +155,7 @@ void navgrid_print_ascii_with_route(
     }
 
     printf("MAP %d,%d to %d,%d with Route - total_retry: %d\n", 
-        min_x, min_y, max_x, max_y, p->total_retry_count);
+        min_x, min_y, max_x, max_y, route_get_total_retry_count(p));
 
     for (int y = min_y; y <= max_y; ++y) {
         for (int x = min_x; x <= max_x; ++x) {
@@ -220,7 +220,7 @@ void navgrid_print_ascii_with_visited_count(
     }
 
     printf("MAP %d,%d to %d,%d with Route and Visit Counts - total_retry: %d\n", 
-        min_x, min_y, max_x, max_y, p->total_retry_count);
+        min_x, min_y, max_x, max_y, route_get_total_retry_count(p));
 
     for (int y = min_y; y <= max_y; ++y) {
         for (int x = min_x; x <= max_x; ++x) {

@@ -38,7 +38,6 @@
     "byul/navsys/coord/cost_coord_pq.h",
     "byul/navsys/dstar_lite/dstar_lite.h",
     "byul/navsys/dstar_lite/dstar_lite_key.h",
-    "byul/navsys/dstar_lite/dstar_lite_key.hpp",
     "byul/navsys/dstar_lite/dstar_lite_pqueue.h",
     "byul/navsys/dstar_lite/dstar_lite_tick.h",
     "byul/navsys/maze/maze.h",
@@ -155,7 +154,6 @@
     "byul/navsys/coord/cost_coord_pq.h",
     "byul/navsys/dstar_lite/dstar_lite.h",
     "byul/navsys/dstar_lite/dstar_lite_key.h",
-    "byul/navsys/dstar_lite/dstar_lite_key.hpp",
     "byul/navsys/dstar_lite/dstar_lite_pqueue.h",
     "byul/navsys/dstar_lite/dstar_lite_tick.h",
     "byul/navsys/maze/maze.h",
@@ -322,7 +320,6 @@
     "byul/navsys/coord/cost_coord_pq.h",
     "byul/navsys/dstar_lite/dstar_lite.h",
     "byul/navsys/dstar_lite/dstar_lite_key.h",
-    "byul/navsys/dstar_lite/dstar_lite_key.hpp",
     "byul/navsys/dstar_lite/dstar_lite_pqueue.h",
     "byul/navsys/dstar_lite/dstar_lite_tick.h",
     "byul/navsys/maze/maze.h",
@@ -382,10 +379,10 @@
   ],
   "removals": [],
   "counts": {
-    "current": 93,
-    "approved_intent": 139,
+    "current": 92,
+    "approved_intent": 138,
     "additions": 46,
-    "retained": 93,
+    "retained": 92,
     "removals": 0
   }
 }

@@ -41,6 +41,19 @@ typedef enum e_route_completion {
     ROUTE_COMPLETION_PARTIAL = 2 /**< 좌표가 있지만 목표에 도달하지 못했다. */
 } route_completion_t;
 
+/**
+ * @brief builder append 시 경계 좌표를 처리하는 정책이다.
+ *
+ * @byul.storage basic-value
+ * @byul.zero_valid true
+ * @byul.copy_semantics trivial-copy
+ * @byul.thread_safety thread-compatible
+ */
+typedef enum e_route_join_policy {
+    ROUTE_JOIN_KEEP_ALL = 0, /**< source의 모든 좌표를 유지한다. */
+    ROUTE_JOIN_DEDUP_BOUNDARY = 1 /**< 양쪽 경계가 같으면 source의 첫 좌표를 생략한다. */
+} route_join_policy_t;
+
 struct s_route {
     coord_list_t* coords;
     coord_list_t* visited_order;
@@ -55,6 +68,8 @@ struct s_route {
 };
 
 typedef struct s_route route_t;
+typedef struct s_route_builder route_builder_t;
+typedef struct s_navsys_search_trace navsys_search_trace_t;
 
 /** Creation and Destruction **/
 BYUL_API route_t* route_create(void);
@@ -227,8 +242,8 @@ BYUL_API navsys_status_t route_fetch_completion(
  * @brief Copies route coordinates into caller-provided storage.
  *
  * Pass NULL output with zero capacity to query the required element count.
- * When capacity is smaller than the route length, the function copies the
- * prefix that fits, reports the full required count, and returns
+ * When capacity is smaller than the route length, the function preserves the
+ * output buffer, reports the full required count, and returns
  * NAVSYS_STATUS_INCOMPLETE.
  *
  * @param[in] route Route to export.
@@ -237,18 +252,350 @@ BYUL_API navsys_status_t route_fetch_completion(
  * @param[out] out_required_count Full number of route coordinates.
  * @return Common Navsys status value.
  * @retval NAVSYS_STATUS_OK The query or complete copy succeeded.
- * @retval NAVSYS_STATUS_INCOMPLETE A prefix was copied into a short buffer.
+ * @retval NAVSYS_STATUS_INCOMPLETE The short output buffer was preserved.
  * @retval NAVSYS_STATUS_INVALID_ARGUMENT An argument combination is invalid.
  * @byul.nullable route false
  * @byul.nullable output query-only
  * @byul.nullable out_required_count false
- * @byul.side_effect writes:output,out_required_count
+ * @byul.side_effect writes:output-on-success,out_required_count-on-nonargument-status
  * @byul.thread_safety thread-compatible
  * @byul.blocking false
  * @byul.reentrant true
  */
 BYUL_API navsys_status_t route_export_coords(
     const route_t* route,
+    coord_t* output,
+    size_t capacity,
+    size_t* out_required_count);
+
+/**
+ * @brief 빈 transactional route builder를 생성한다.
+ *
+ * 생성된 builder는 caller가 route_builder_destroy()로 해제한다. 이 API는
+ * production allocator 주입을 노출하지 않으며 프로젝트의 공통 allocation 경계를
+ * 사용한다. 실패하면 out_builder를 보존한다.
+ *
+ * @param[out] out_builder 생성한 builder를 받을 caller storage.
+ * @return Common Navsys status value.
+ * @retval NAVSYS_STATUS_OK builder를 생성했다.
+ * @retval NAVSYS_STATUS_INVALID_ARGUMENT out_builder가 NULL이다.
+ * @retval NAVSYS_STATUS_OUT_OF_MEMORY allocation에 실패했다.
+ * @byul.nullable out_builder false
+ * @byul.lifetime out_builder caller-owned
+ * @byul.side_effect writes:out_builder-on-success
+ */
+BYUL_API navsys_status_t route_builder_create(route_builder_t** out_builder);
+
+/**
+ * @brief immutable route의 좌표와 결과 metadata로 builder를 생성한다.
+ *
+ * search trace, retry count와 heading observation history는 편집 결과에 포함하지 않는다.
+ * source와 새 builder는 독립 owner다. 실패하면 out_builder를 보존한다.
+ *
+ * @param[in] source 복제할 route.
+ * @param[out] out_builder 생성한 builder를 받을 caller storage.
+ * @return Common Navsys status value.
+ * @retval NAVSYS_STATUS_OK builder를 생성했다.
+ * @retval NAVSYS_STATUS_INVALID_ARGUMENT pointer가 NULL이다.
+ * @retval NAVSYS_STATUS_OUT_OF_MEMORY allocation에 실패했다.
+ * @retval NAVSYS_STATUS_CORRUPT_STATE source의 owning child가 유효하지 않다.
+ * @byul.nullable source false
+ * @byul.nullable out_builder false
+ * @byul.lifetime out_builder caller-owned
+ * @byul.side_effect writes:out_builder-on-success
+ */
+BYUL_API navsys_status_t route_builder_create_from_route(
+    const route_t* source,
+    route_builder_t** out_builder);
+
+/**
+ * @brief builder를 해제한다. NULL은 no-op이다.
+ * @param[in,out] builder 해제할 builder.
+ * @byul.nullable builder true
+ * @byul.invalidates builder
+ */
+BYUL_API void route_builder_destroy(route_builder_t* builder);
+
+/**
+ * @brief builder 끝에 좌표를 추가한다.
+ *
+ * 실패 시 builder는 변경되지 않는다.
+ *
+ * @param[in,out] builder 편집할 builder.
+ * @param[in] coord 복사할 좌표.
+ * @return Common Navsys status value.
+ * @retval NAVSYS_STATUS_OK 좌표를 추가했다.
+ * @retval NAVSYS_STATUS_INVALID_ARGUMENT pointer가 NULL이다.
+ * @retval NAVSYS_STATUS_INVALIDATED builder가 이미 finish됐다.
+ * @retval NAVSYS_STATUS_OUT_OF_MEMORY allocation에 실패했다.
+ * @byul.nullable builder false
+ * @byul.nullable coord false
+ * @byul.side_effect mutates:builder-on-success
+ */
+BYUL_API navsys_status_t route_builder_push_coord(
+    route_builder_t* builder,
+    const coord_t* coord);
+
+/**
+ * @brief builder의 index 위치에 좌표를 삽입한다.
+ *
+ * index는 현재 count까지 허용한다. 실패 시 builder는 변경되지 않는다.
+ *
+ * @param[in,out] builder 편집할 builder.
+ * @param[in] index 삽입할 zero-based index.
+ * @param[in] coord 복사할 좌표.
+ * @return Common Navsys status value.
+ * @retval NAVSYS_STATUS_OK 좌표를 삽입했다.
+ * @retval NAVSYS_STATUS_INVALID_ARGUMENT pointer 또는 index가 유효하지 않다.
+ * @retval NAVSYS_STATUS_INVALIDATED builder가 이미 finish됐다.
+ * @retval NAVSYS_STATUS_OUT_OF_MEMORY allocation에 실패했다.
+ * @byul.nullable builder false
+ * @byul.nullable coord false
+ * @byul.side_effect mutates:builder-on-success
+ */
+BYUL_API navsys_status_t route_builder_insert_coord(
+    route_builder_t* builder,
+    size_t index,
+    const coord_t* coord);
+
+/**
+ * @brief builder에서 index 좌표를 제거한다.
+ *
+ * 실패 시 builder와 out_removed를 보존한다.
+ *
+ * @param[in,out] builder 편집할 builder.
+ * @param[in] index 제거할 zero-based index.
+ * @param[out] out_removed 제거한 좌표를 받을 optional storage.
+ * @return Common Navsys status value.
+ * @retval NAVSYS_STATUS_OK 좌표를 제거했다.
+ * @retval NAVSYS_STATUS_NOT_FOUND index가 범위를 벗어났다.
+ * @retval NAVSYS_STATUS_INVALID_ARGUMENT builder가 NULL이다.
+ * @retval NAVSYS_STATUS_INVALIDATED builder가 이미 finish됐다.
+ * @retval NAVSYS_STATUS_OUT_OF_MEMORY allocation에 실패했다.
+ * @byul.nullable builder false
+ * @byul.nullable out_removed true
+ * @byul.side_effect mutates:builder-on-success,writes:out_removed-on-success
+ */
+BYUL_API navsys_status_t route_builder_remove_coord(
+    route_builder_t* builder,
+    size_t index,
+    coord_t* out_removed);
+
+/**
+ * @brief source route를 builder에 transactional하게 append한다.
+ *
+ * create_from_route(source) 뒤 같은 source를 append하는 self-append 패턴도 안전하다.
+ * 좌표가 변경되면 cost는 0, completion은 좌표 유무에 따른 PARTIAL/NONE으로
+ * 재계산되며 trace와 retry metadata는 포함하지 않는다.
+ *
+ * @param[in,out] builder 편집할 builder.
+ * @param[in] source append할 immutable route.
+ * @param[in] join_policy 경계 중복 처리 정책.
+ * @return Common Navsys status value.
+ * @retval NAVSYS_STATUS_OK append했거나 추가할 좌표가 없었다.
+ * @retval NAVSYS_STATUS_INVALID_ARGUMENT pointer 또는 정책이 유효하지 않다.
+ * @retval NAVSYS_STATUS_INVALIDATED builder가 이미 finish됐다.
+ * @retval NAVSYS_STATUS_OUT_OF_MEMORY allocation에 실패했다.
+ * @retval NAVSYS_STATUS_CORRUPT_STATE route storage가 유효하지 않다.
+ * @byul.nullable builder false
+ * @byul.nullable source false
+ * @byul.side_effect mutates:builder-on-success
+ */
+BYUL_API navsys_status_t route_builder_append(
+    route_builder_t* builder,
+    const route_t* source,
+    route_join_policy_t join_policy);
+
+/**
+ * @brief source의 [begin,end) 좌표로 builder 내용을 교체한다.
+ *
+ * 빈 범위를 허용한다. 성공 시 cost와 completion은 기본값으로 재계산되고 search
+ * trace, retry count와 heading history는 포함하지 않는다. 실패 시 builder는 보존된다.
+ *
+ * @param[in,out] builder 편집할 builder.
+ * @param[in] source slice 원본 immutable route.
+ * @param[in] begin 첫 포함 index.
+ * @param[in] end 마지막 다음 index.
+ * @return Common Navsys status value.
+ * @retval NAVSYS_STATUS_OK slice로 교체했다.
+ * @retval NAVSYS_STATUS_INVALID_ARGUMENT pointer 또는 범위가 유효하지 않다.
+ * @retval NAVSYS_STATUS_INVALIDATED builder가 이미 finish됐다.
+ * @retval NAVSYS_STATUS_OUT_OF_MEMORY allocation에 실패했다.
+ * @retval NAVSYS_STATUS_CORRUPT_STATE source storage가 유효하지 않다.
+ * @byul.nullable builder false
+ * @byul.nullable source false
+ * @byul.side_effect mutates:builder-on-success
+ */
+BYUL_API navsys_status_t route_builder_assign_slice(
+    route_builder_t* builder,
+    const route_t* source,
+    size_t begin,
+    size_t end);
+
+/**
+ * @brief builder 결과 cost를 설정한다.
+ * @param[in,out] builder 편집할 builder.
+ * @param[in] total_cost finite float 범위의 결과 cost.
+ * @return Common Navsys status value.
+ * @retval NAVSYS_STATUS_OK cost를 설정했다.
+ * @retval NAVSYS_STATUS_INVALID_ARGUMENT builder 또는 cost가 유효하지 않다.
+ * @retval NAVSYS_STATUS_INVALIDATED builder가 이미 finish됐다.
+ * @byul.nullable builder false
+ * @byul.side_effect mutates:builder-on-success
+ */
+BYUL_API navsys_status_t route_builder_set_total_cost(
+    route_builder_t* builder,
+    double total_cost);
+
+/**
+ * @brief builder 결과 completion을 설정한다.
+ *
+ * NONE은 빈 route, PARTIAL/COMPLETE는 non-empty route에만 유효하다.
+ *
+ * @param[in,out] builder 편집할 builder.
+ * @param[in] completion 설정할 완료 상태.
+ * @return Common Navsys status value.
+ * @retval NAVSYS_STATUS_OK completion을 설정했다.
+ * @retval NAVSYS_STATUS_INVALID_ARGUMENT builder, enum 또는 좌표 조합이 유효하지 않다.
+ * @retval NAVSYS_STATUS_INVALIDATED builder가 이미 finish됐다.
+ * @byul.nullable builder false
+ * @byul.side_effect mutates:builder-on-success
+ */
+BYUL_API navsys_status_t route_builder_set_completion(
+    route_builder_t* builder,
+    route_completion_t completion);
+
+/**
+ * @brief builder 결과를 immutable canonical route로 넘긴다.
+ *
+ * 성공 시 ownership이 out_route로 이동하고 builder는 invalidated된다. 실패하면
+ * out_route와 builder를 보존한다.
+ *
+ * @param[in,out] builder 완료할 builder.
+ * @param[out] out_route 결과 route를 받을 caller storage.
+ * @return Common Navsys status value.
+ * @retval NAVSYS_STATUS_OK route ownership을 넘겼다.
+ * @retval NAVSYS_STATUS_INVALID_ARGUMENT pointer가 NULL이다.
+ * @retval NAVSYS_STATUS_INVALIDATED builder가 이미 finish됐다.
+ * @byul.nullable builder false
+ * @byul.nullable out_route false
+ * @byul.lifetime out_route caller-owned
+ * @byul.side_effect invalidates:builder,writes:out_route-on-success
+ */
+BYUL_API navsys_status_t route_builder_finish(
+    route_builder_t* builder,
+    route_t** out_route);
+
+/**
+ * @brief route value와 독립된 빈 search trace를 생성한다.
+ * @param[out] out_trace 생성한 trace를 받을 caller storage.
+ * @return Common Navsys status value.
+ * @retval NAVSYS_STATUS_OK trace를 생성했다.
+ * @retval NAVSYS_STATUS_INVALID_ARGUMENT out_trace가 NULL이다.
+ * @retval NAVSYS_STATUS_OUT_OF_MEMORY allocation에 실패했다.
+ * @byul.nullable out_trace false
+ * @byul.lifetime out_trace caller-owned
+ * @byul.side_effect writes:out_trace-on-success
+ */
+BYUL_API navsys_status_t navsys_search_trace_create(
+    navsys_search_trace_t** out_trace);
+
+/**
+ * @brief search trace를 해제한다. NULL은 no-op이다.
+ * @param[in,out] trace 해제할 trace.
+ * @byul.nullable trace true
+ * @byul.invalidates trace
+ */
+BYUL_API void navsys_search_trace_destroy(navsys_search_trace_t* trace);
+
+/**
+ * @brief search trace를 독립 owner로 deep-copy한다.
+ * @param[in] source 복제할 trace.
+ * @param[out] out_trace 복제본을 받을 caller storage.
+ * @return Common Navsys status value.
+ * @retval NAVSYS_STATUS_OK trace를 복제했다.
+ * @retval NAVSYS_STATUS_INVALID_ARGUMENT pointer가 NULL이다.
+ * @retval NAVSYS_STATUS_OUT_OF_MEMORY allocation에 실패했다.
+ * @retval NAVSYS_STATUS_CORRUPT_STATE source storage가 유효하지 않다.
+ * @byul.nullable source false
+ * @byul.nullable out_trace false
+ * @byul.lifetime out_trace caller-owned
+ * @byul.side_effect writes:out_trace-on-success
+ */
+BYUL_API navsys_status_t navsys_search_trace_clone_ex(
+    const navsys_search_trace_t* source,
+    navsys_search_trace_t** out_trace);
+
+/**
+ * @brief trace의 ordered visit event 수를 반환한다.
+ * @param[in] trace 조회할 trace.
+ * @return event 수. trace가 NULL이면 0이다.
+ * @byul.nullable trace true
+ * @byul.side_effect none
+ */
+BYUL_API size_t navsys_search_trace_get_visit_count(
+    const navsys_search_trace_t* trace);
+
+/**
+ * @brief ordered visit event 하나를 caller storage로 복사한다.
+ * @param[in] trace 조회할 trace.
+ * @param[in] index zero-based event index.
+ * @param[out] out_coord 좌표를 받을 caller storage.
+ * @return Common Navsys status value.
+ * @retval NAVSYS_STATUS_OK 좌표를 복사했다.
+ * @retval NAVSYS_STATUS_INVALID_ARGUMENT pointer가 NULL이다.
+ * @retval NAVSYS_STATUS_NOT_FOUND index가 범위를 벗어났다.
+ * @retval NAVSYS_STATUS_CORRUPT_STATE trace storage가 유효하지 않다.
+ * @byul.nullable trace false
+ * @byul.nullable out_coord false
+ * @byul.side_effect writes:out_coord-on-success
+ */
+BYUL_API navsys_status_t navsys_search_trace_fetch_visit(
+    const navsys_search_trace_t* trace,
+    size_t index,
+    coord_t* out_coord);
+
+/**
+ * @brief 한 좌표의 누적 visit count를 조회한다.
+ * @param[in] trace 조회할 trace.
+ * @param[in] coord 조회할 좌표.
+ * @param[out] out_count 누적 count를 받을 caller storage.
+ * @return Common Navsys status value.
+ * @retval NAVSYS_STATUS_OK count를 복사했다.
+ * @retval NAVSYS_STATUS_NOT_FOUND 좌표가 trace에 없다.
+ * @retval NAVSYS_STATUS_INVALID_ARGUMENT pointer가 NULL이다.
+ * @retval NAVSYS_STATUS_CORRUPT_STATE trace storage가 유효하지 않다.
+ * @byul.nullable trace false
+ * @byul.nullable coord false
+ * @byul.nullable out_count false
+ * @byul.side_effect writes:out_count-on-success
+ */
+BYUL_API navsys_status_t navsys_search_trace_fetch_coord_visit_count(
+    const navsys_search_trace_t* trace,
+    const coord_t* coord,
+    size_t* out_count);
+
+/**
+ * @brief ordered visit events를 caller buffer로 export한다.
+ *
+ * NULL/0 query를 지원한다. 부족한 buffer에는 기록하지 않고 required count만 쓴다.
+ *
+ * @param[in] trace 조회할 trace.
+ * @param[out] output caller 제공 좌표 배열 또는 query용 NULL.
+ * @param[in] capacity output의 coord_t element 수.
+ * @param[out] out_required_count 전체 event 수를 받을 storage.
+ * @return Common Navsys status value.
+ * @retval NAVSYS_STATUS_OK query 또는 전체 복사에 성공했다.
+ * @retval NAVSYS_STATUS_INCOMPLETE buffer가 부족해 output을 보존했다.
+ * @retval NAVSYS_STATUS_INVALID_ARGUMENT argument 조합이 유효하지 않다.
+ * @retval NAVSYS_STATUS_CORRUPT_STATE trace storage가 유효하지 않다.
+ * @byul.nullable trace false
+ * @byul.nullable output query-only
+ * @byul.nullable out_required_count false
+ * @byul.side_effect writes:output-on-success,out_required_count-on-nonargument-status
+ */
+BYUL_API navsys_status_t navsys_search_trace_export_visits(
+    const navsys_search_trace_t* trace,
     coord_t* output,
     size_t capacity,
     size_t* out_required_count);

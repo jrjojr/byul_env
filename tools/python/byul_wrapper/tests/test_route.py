@@ -3,7 +3,12 @@ import unittest
 import weakref
 
 from byul_wrapper.coord import c_coord
-from byul_wrapper.route import RouteCompletion, c_route
+from byul_wrapper.route import (
+    RouteCompletion,
+    RouteJoinPolicy,
+    c_route,
+    c_route_builder,
+)
 
 
 class RouteTest(unittest.TestCase):
@@ -84,6 +89,47 @@ class RouteTest(unittest.TestCase):
             last.close()
             indexed.close()
             direction.close()
+
+    def test_builder_is_transactional_and_returns_owned_route(self):
+        with c_route() as source, c_coord(0, 0) as first, c_coord(1, 0) as second:
+            source.add_coord(first)
+            source.add_coord(second)
+            with source.to_builder() as builder:
+                builder.append(source, RouteJoinPolicy.DEDUP_BOUNDARY)
+                builder.set_total_cost(4.5)
+                builder.set_completion(RouteCompletion.COMPLETE)
+                result = builder.finish()
+
+            try:
+                self.assertEqual(
+                    result.export_coords(),
+                    [(0, 0), (1, 0), (0, 0), (1, 0)],
+                )
+                self.assertAlmostEqual(result.total_cost(), 4.5)
+                self.assertEqual(result.completion(), RouteCompletion.COMPLETE)
+                self.assertEqual(result.retry_count(), 0)
+            finally:
+                result.close()
+
+    def test_builder_slice_and_remove(self):
+        with c_route_builder() as builder:
+            for value in range(4):
+                with c_coord(value, -value) as coord:
+                    builder.push(coord)
+            source = builder.finish()
+
+        try:
+            with c_route_builder() as sliced:
+                sliced.assign_slice(source, 1, 4)
+                self.assertEqual(sliced.remove(1), (2, -2))
+                result = sliced.finish()
+            try:
+                self.assertEqual(result.export_coords(), [(1, -1), (3, -3)])
+                self.assertEqual(result.completion(), RouteCompletion.PARTIAL)
+            finally:
+                result.close()
+        finally:
+            source.close()
 
 
 if __name__ == "__main__":

@@ -53,8 +53,10 @@ bool dstar_lite_fetch_next(const dstar_lite_t* dsl,
         total = g_s + cost;
 
         int visit = 0;
-        if (coord_hash_contains(dsl->proto_route->visited_count, &s)) {
-            visit = *(int*)coord_hash_get(dsl->proto_route->visited_count, &s);
+        const coord_hash_t* visited_count =
+            route_get_visited_count(dsl->proto_route);
+        if (coord_hash_contains(visited_count, &s)) {
+            visit = *(int*)coord_hash_get(visited_count, &s);
         }
 
         if (total < min_cost) {
@@ -910,8 +912,8 @@ bool dstar_lite_reconstruct_route(dstar_lite_t* dsl) {
     float* g_start_ptr = (float*) coord_hash_get(dsl->g_table, &dsl->start);
     if (!g_start_ptr || legacy_scalar_equal(*g_start_ptr, FLT_MAX)) {
         if (dsl->debug_mode_enabled) {
-            // p->visited_count = coord_hash_copy(dsl->update_count_table);
-            p->total_retry_count = dstar_lite_proto_compute_retry_count(dsl);
+            route_set_total_retry_count(
+                p, dstar_lite_proto_compute_retry_count(dsl));
         }
         return false;
     }
@@ -957,8 +959,8 @@ bool dstar_lite_reconstruct_route(dstar_lite_t* dsl) {
             // route_destroy(p);
             route_set_success(p, false);
             if (dsl->debug_mode_enabled){
-                // p->visited_count = coord_hash_copy(dsl->update_count_table);
-    p->total_retry_count = dstar_lite_proto_compute_retry_count(dsl);                
+                route_set_total_retry_count(
+                    p, dstar_lite_proto_compute_retry_count(dsl));
             }
             return false;
         }
@@ -970,8 +972,8 @@ bool dstar_lite_reconstruct_route(dstar_lite_t* dsl) {
             // route_destroy(p);
             route_set_success(p, false);
             if (dsl->debug_mode_enabled){
-                // p->visited_count = coord_hash_copy(dsl->update_count_table);  
-p->total_retry_count = dstar_lite_proto_compute_retry_count(dsl);                
+                route_set_total_retry_count(
+                    p, dstar_lite_proto_compute_retry_count(dsl));
             }          
             return false;
         }
@@ -986,8 +988,8 @@ p->total_retry_count = dstar_lite_proto_compute_retry_count(dsl);
     // coord_destroy(current);
     route_set_success(p, true);    
     if (dsl->debug_mode_enabled){
-        // p->visited_count = coord_hash_copy(dsl->update_count_table);    
-p->total_retry_count = dstar_lite_proto_compute_retry_count(dsl);        
+        route_set_total_retry_count(
+            p, dstar_lite_proto_compute_retry_count(dsl));
     }
     return true;
 }

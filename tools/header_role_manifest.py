@@ -663,7 +663,9 @@ def naming_decision(row: dict[str, Any]) -> dict[str, Any]:
     elif path in {
         "byul/navsys/coord/internal/coord_ops.hpp",
         "byul/navsys/dstar_lite/internal/dstar_lite_callback.hpp",
+        "byul/navsys/dstar_lite/internal/dstar_lite_key_ops.hpp",
         "byul/navsys/navgrid/internal/navgrid_callback.hpp",
+        "byul/navsys/route/internal/route_internal.h",
     }:
         result = {
             "disposition": "keep",
@@ -931,8 +933,8 @@ def build_outputs(source: dict[str, Any]) -> tuple[dict[str, Any], dict[str, Any
         )
 
     paths = [row["current_path"] for row in approved_rows]
-    if len(paths) != len(set(paths)) or len(paths) != 138:
-        raise ValueError("approved manifest must contain exactly 138 unique current paths")
+    if len(paths) != len(set(paths)) or len(paths) != 139:
+        raise ValueError("approved manifest must contain exactly 139 unique current paths")
 
     intended_paths: list[str] = []
     for row in approved_rows:

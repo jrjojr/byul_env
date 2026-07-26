@@ -3,17 +3,17 @@
   "source_role_manifest": "docs/ko/todo/header-refactor-current/header-role-manifest.json",
   "source_vocabulary": "docs/ko/todo/navsys/navsys-abi-vocabulary.json",
   "summary": {
-    "headers": 46,
-    "symbols": 528,
+    "headers": 47,
+    "symbols": 546,
     "return_forms": {
       "nullable_pointer": 151,
       "bool_predicate": 22,
       "bool_operation": 20,
       "int_zero_nonzero_status": 40,
-      "int_count": 22,
+      "int_count": 23,
       "int_index_minus_one": 4,
-      "void_fallible_operation": 141,
-      "enum_result": 109,
+      "void_fallible_operation": 143,
+      "enum_result": 124,
       "floating_result": 19,
       "callback_return": 0
     },
@@ -33,8 +33,8 @@
       "unknown-param": 12,
       "unnamed-parameter": 30
     },
-    "lifecycle_resources": 28,
-    "lifecycle_operations": 94,
+    "lifecycle_resources": 27,
+    "lifecycle_operations": 96,
     "callback_bindings": 7
   },
   "known_debt": {
@@ -8601,11 +8601,20 @@
       ]
     },
     {
+      "path": "byul/navsys/route/internal/route_internal.h",
+      "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-route.org",
+      "primary_role": "internal",
+      "wrapper_mode": "excluded",
+      "symbol_count": 0,
+      "audit_issue_count": 0,
+      "symbols": []
+    },
+    {
       "path": "byul/navsys/route/route.h",
       "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-route.org",
       "primary_role": "public-component",
       "wrapper_mode": "generated",
-      "symbol_count": 52,
+      "symbol_count": 70,
       "audit_issue_count": 79,
       "symbols": [
         "route_create",
@@ -8633,6 +8642,24 @@
         "route_fetch_total_cost",
         "route_fetch_completion",
         "route_export_coords",
+        "route_builder_create",
+        "route_builder_create_from_route",
+        "route_builder_destroy",
+        "route_builder_push_coord",
+        "route_builder_insert_coord",
+        "route_builder_remove_coord",
+        "route_builder_append",
+        "route_builder_assign_slice",
+        "route_builder_set_total_cost",
+        "route_builder_set_completion",
+        "route_builder_finish",
+        "navsys_search_trace_create",
+        "navsys_search_trace_destroy",
+        "navsys_search_trace_clone_ex",
+        "navsys_search_trace_get_visit_count",
+        "navsys_search_trace_fetch_visit",
+        "navsys_search_trace_fetch_coord_visit_count",
+        "navsys_search_trace_export_visits",
         "route_add_visited",
         "route_clear_visited",
         "route_append",
@@ -12261,6 +12288,150 @@
     },
     {
       "header": "byul/navsys/route/route.h",
+      "name": "route_builder_create",
+      "return_type": "navsys_status_t",
+      "signature": "navsys_status_t route_builder_create(route_builder_t** out_builder);",
+      "return_form": "enum_result",
+      "canonical": "navsys_status_t plus typed out enum"
+    },
+    {
+      "header": "byul/navsys/route/route.h",
+      "name": "route_builder_create_from_route",
+      "return_type": "navsys_status_t",
+      "signature": "navsys_status_t route_builder_create_from_route( const route_t* source, route_builder_t** out_builder);",
+      "return_form": "enum_result",
+      "canonical": "navsys_status_t plus typed out enum"
+    },
+    {
+      "header": "byul/navsys/route/route.h",
+      "name": "route_builder_destroy",
+      "return_type": "void",
+      "signature": "void route_builder_destroy(route_builder_t* builder);",
+      "return_form": "void_fallible_operation",
+      "canonical": "navsys_status_t"
+    },
+    {
+      "header": "byul/navsys/route/route.h",
+      "name": "route_builder_push_coord",
+      "return_type": "navsys_status_t",
+      "signature": "navsys_status_t route_builder_push_coord( route_builder_t* builder, const coord_t* coord);",
+      "return_form": "enum_result",
+      "canonical": "navsys_status_t plus typed out enum"
+    },
+    {
+      "header": "byul/navsys/route/route.h",
+      "name": "route_builder_insert_coord",
+      "return_type": "navsys_status_t",
+      "signature": "navsys_status_t route_builder_insert_coord( route_builder_t* builder, size_t index, const coord_t* coord);",
+      "return_form": "enum_result",
+      "canonical": "navsys_status_t plus typed out enum"
+    },
+    {
+      "header": "byul/navsys/route/route.h",
+      "name": "route_builder_remove_coord",
+      "return_type": "navsys_status_t",
+      "signature": "navsys_status_t route_builder_remove_coord( route_builder_t* builder, size_t index, coord_t* out_removed);",
+      "return_form": "enum_result",
+      "canonical": "navsys_status_t plus typed out enum"
+    },
+    {
+      "header": "byul/navsys/route/route.h",
+      "name": "route_builder_append",
+      "return_type": "navsys_status_t",
+      "signature": "navsys_status_t route_builder_append( route_builder_t* builder, const route_t* source, route_join_policy_t join_policy);",
+      "return_form": "enum_result",
+      "canonical": "navsys_status_t plus typed out enum"
+    },
+    {
+      "header": "byul/navsys/route/route.h",
+      "name": "route_builder_assign_slice",
+      "return_type": "navsys_status_t",
+      "signature": "navsys_status_t route_builder_assign_slice( route_builder_t* builder, const route_t* source, size_t begin, size_t end);",
+      "return_form": "enum_result",
+      "canonical": "navsys_status_t plus typed out enum"
+    },
+    {
+      "header": "byul/navsys/route/route.h",
+      "name": "route_builder_set_total_cost",
+      "return_type": "navsys_status_t",
+      "signature": "navsys_status_t route_builder_set_total_cost( route_builder_t* builder, double total_cost);",
+      "return_form": "enum_result",
+      "canonical": "navsys_status_t plus typed out enum"
+    },
+    {
+      "header": "byul/navsys/route/route.h",
+      "name": "route_builder_set_completion",
+      "return_type": "navsys_status_t",
+      "signature": "navsys_status_t route_builder_set_completion( route_builder_t* builder, route_completion_t completion);",
+      "return_form": "enum_result",
+      "canonical": "navsys_status_t plus typed out enum"
+    },
+    {
+      "header": "byul/navsys/route/route.h",
+      "name": "route_builder_finish",
+      "return_type": "navsys_status_t",
+      "signature": "navsys_status_t route_builder_finish( route_builder_t* builder, route_t** out_route);",
+      "return_form": "enum_result",
+      "canonical": "navsys_status_t plus typed out enum"
+    },
+    {
+      "header": "byul/navsys/route/route.h",
+      "name": "navsys_search_trace_create",
+      "return_type": "navsys_status_t",
+      "signature": "navsys_status_t navsys_search_trace_create( navsys_search_trace_t** out_trace);",
+      "return_form": "enum_result",
+      "canonical": "navsys_status_t plus typed out enum"
+    },
+    {
+      "header": "byul/navsys/route/route.h",
+      "name": "navsys_search_trace_destroy",
+      "return_type": "void",
+      "signature": "void navsys_search_trace_destroy(navsys_search_trace_t* trace);",
+      "return_form": "void_fallible_operation",
+      "canonical": "navsys_status_t"
+    },
+    {
+      "header": "byul/navsys/route/route.h",
+      "name": "navsys_search_trace_clone_ex",
+      "return_type": "navsys_status_t",
+      "signature": "navsys_status_t navsys_search_trace_clone_ex( const navsys_search_trace_t* source, navsys_search_trace_t** out_trace);",
+      "return_form": "enum_result",
+      "canonical": "navsys_status_t plus typed out enum"
+    },
+    {
+      "header": "byul/navsys/route/route.h",
+      "name": "navsys_search_trace_get_visit_count",
+      "return_type": "size_t",
+      "signature": "size_t navsys_search_trace_get_visit_count( const navsys_search_trace_t* trace);",
+      "return_form": "int_count",
+      "canonical": "navsys_status_t plus out_count"
+    },
+    {
+      "header": "byul/navsys/route/route.h",
+      "name": "navsys_search_trace_fetch_visit",
+      "return_type": "navsys_status_t",
+      "signature": "navsys_status_t navsys_search_trace_fetch_visit( const navsys_search_trace_t* trace, size_t index, coord_t* out_coord);",
+      "return_form": "enum_result",
+      "canonical": "navsys_status_t plus typed out enum"
+    },
+    {
+      "header": "byul/navsys/route/route.h",
+      "name": "navsys_search_trace_fetch_coord_visit_count",
+      "return_type": "navsys_status_t",
+      "signature": "navsys_status_t navsys_search_trace_fetch_coord_visit_count( const navsys_search_trace_t* trace, const coord_t* coord, size_t* out_count);",
+      "return_form": "enum_result",
+      "canonical": "navsys_status_t plus typed out enum"
+    },
+    {
+      "header": "byul/navsys/route/route.h",
+      "name": "navsys_search_trace_export_visits",
+      "return_type": "navsys_status_t",
+      "signature": "navsys_status_t navsys_search_trace_export_visits( const navsys_search_trace_t* trace, coord_t* output, size_t capacity, size_t* out_required_count);",
+      "return_form": "enum_result",
+      "canonical": "navsys_status_t plus typed out enum"
+    },
+    {
+      "header": "byul/navsys/route/route.h",
       "name": "route_add_visited",
       "return_type": "int",
       "signature": "int route_add_visited(route_t* p, const coord_t* c);",
@@ -13343,26 +13514,6 @@
         ]
       },
       {
-        "resource": "coord_hash_insert",
-        "operations": [
-          {
-            "header": "byul/navsys/coord/coord_hash.h",
-            "resource": "coord_hash_insert",
-            "operation": "copy",
-            "symbol": "coord_hash_insert_copy",
-            "return_type": "navsys_status_t",
-            "parameters": [
-              "coord_hash_t* hash",
-              "const coord_t* key",
-              "const void* value"
-            ]
-          }
-        ],
-        "operation_kinds": [
-          "copy"
-        ]
-      },
-      {
         "resource": "coord_hash_int",
         "operations": [
           {
@@ -13418,47 +13569,6 @@
         "operation_kinds": [
           "create",
           "destroy"
-        ]
-      },
-      {
-        "resource": "coord_hash_replace",
-        "operations": [
-          {
-            "header": "byul/navsys/coord/coord_hash.h",
-            "resource": "coord_hash_replace",
-            "operation": "copy",
-            "symbol": "coord_hash_replace_copy",
-            "return_type": "navsys_status_t",
-            "parameters": [
-              "coord_hash_t* hash",
-              "const coord_t* key",
-              "const void* value"
-            ]
-          }
-        ],
-        "operation_kinds": [
-          "copy"
-        ]
-      },
-      {
-        "resource": "coord_hash_upsert",
-        "operations": [
-          {
-            "header": "byul/navsys/coord/coord_hash.h",
-            "resource": "coord_hash_upsert",
-            "operation": "copy",
-            "symbol": "coord_hash_upsert_copy",
-            "return_type": "navsys_status_t",
-            "parameters": [
-              "coord_hash_t* hash",
-              "const coord_t* key",
-              "const void* value",
-              "bool* out_inserted"
-            ]
-          }
-        ],
-        "operation_kinds": [
-          "copy"
         ]
       },
       {
@@ -14107,6 +14217,35 @@
         ]
       },
       {
+        "resource": "navsys_search_trace",
+        "operations": [
+          {
+            "header": "byul/navsys/route/route.h",
+            "resource": "navsys_search_trace",
+            "operation": "create",
+            "symbol": "navsys_search_trace_create",
+            "return_type": "navsys_status_t",
+            "parameters": [
+              "navsys_search_trace_t** out_trace"
+            ]
+          },
+          {
+            "header": "byul/navsys/route/route.h",
+            "resource": "navsys_search_trace",
+            "operation": "destroy",
+            "symbol": "navsys_search_trace_destroy",
+            "return_type": "void",
+            "parameters": [
+              "navsys_search_trace_t* trace"
+            ]
+          }
+        ],
+        "operation_kinds": [
+          "create",
+          "destroy"
+        ]
+      },
+      {
         "resource": "obstacle",
         "operations": [
           {
@@ -14191,6 +14330,46 @@
         ],
         "operation_kinds": [
           "copy",
+          "create",
+          "destroy"
+        ]
+      },
+      {
+        "resource": "route_builder",
+        "operations": [
+          {
+            "header": "byul/navsys/route/route.h",
+            "resource": "route_builder",
+            "operation": "create",
+            "symbol": "route_builder_create",
+            "return_type": "navsys_status_t",
+            "parameters": [
+              "route_builder_t** out_builder"
+            ]
+          },
+          {
+            "header": "byul/navsys/route/route.h",
+            "resource": "route_builder",
+            "operation": "create",
+            "symbol": "route_builder_create_from_route",
+            "return_type": "navsys_status_t",
+            "parameters": [
+              "const route_t* source",
+              "route_builder_t** out_builder"
+            ]
+          },
+          {
+            "header": "byul/navsys/route/route.h",
+            "resource": "route_builder",
+            "operation": "destroy",
+            "symbol": "route_builder_destroy",
+            "return_type": "void",
+            "parameters": [
+              "route_builder_t* builder"
+            ]
+          }
+        ],
+        "operation_kinds": [
           "create",
           "destroy"
         ]
@@ -14461,43 +14640,6 @@
         "parameters": [
           "const coord_hash_create_info_t* info",
           "coord_hash_t** out_hash"
-        ]
-      },
-      {
-        "header": "byul/navsys/coord/coord_hash.h",
-        "resource": "coord_hash_insert",
-        "operation": "copy",
-        "symbol": "coord_hash_insert_copy",
-        "return_type": "navsys_status_t",
-        "parameters": [
-          "coord_hash_t* hash",
-          "const coord_t* key",
-          "const void* value"
-        ]
-      },
-      {
-        "header": "byul/navsys/coord/coord_hash.h",
-        "resource": "coord_hash_replace",
-        "operation": "copy",
-        "symbol": "coord_hash_replace_copy",
-        "return_type": "navsys_status_t",
-        "parameters": [
-          "coord_hash_t* hash",
-          "const coord_t* key",
-          "const void* value"
-        ]
-      },
-      {
-        "header": "byul/navsys/coord/coord_hash.h",
-        "resource": "coord_hash_upsert",
-        "operation": "copy",
-        "symbol": "coord_hash_upsert_copy",
-        "return_type": "navsys_status_t",
-        "parameters": [
-          "coord_hash_t* hash",
-          "const coord_t* key",
-          "const void* value",
-          "bool* out_inserted"
         ]
       },
       {
@@ -15186,6 +15328,57 @@
         "return_type": "route_t*",
         "parameters": [
           "const route_t* p"
+        ]
+      },
+      {
+        "header": "byul/navsys/route/route.h",
+        "resource": "route_builder",
+        "operation": "create",
+        "symbol": "route_builder_create",
+        "return_type": "navsys_status_t",
+        "parameters": [
+          "route_builder_t** out_builder"
+        ]
+      },
+      {
+        "header": "byul/navsys/route/route.h",
+        "resource": "route_builder",
+        "operation": "create",
+        "symbol": "route_builder_create_from_route",
+        "return_type": "navsys_status_t",
+        "parameters": [
+          "const route_t* source",
+          "route_builder_t** out_builder"
+        ]
+      },
+      {
+        "header": "byul/navsys/route/route.h",
+        "resource": "route_builder",
+        "operation": "destroy",
+        "symbol": "route_builder_destroy",
+        "return_type": "void",
+        "parameters": [
+          "route_builder_t* builder"
+        ]
+      },
+      {
+        "header": "byul/navsys/route/route.h",
+        "resource": "navsys_search_trace",
+        "operation": "create",
+        "symbol": "navsys_search_trace_create",
+        "return_type": "navsys_status_t",
+        "parameters": [
+          "navsys_search_trace_t** out_trace"
+        ]
+      },
+      {
+        "header": "byul/navsys/route/route.h",
+        "resource": "navsys_search_trace",
+        "operation": "destroy",
+        "symbol": "navsys_search_trace_destroy",
+        "return_type": "void",
+        "parameters": [
+          "navsys_search_trace_t* trace"
         ]
       },
       {

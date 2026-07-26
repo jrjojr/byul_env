@@ -1,4 +1,5 @@
 #include "route.h"
+#include "internal/route_internal.h"
 #include "coord.h"
 #include "scalar.h"
 #include "coord_list.h"
@@ -196,14 +197,13 @@ navsys_status_t route_export_coords(
         return NAVSYS_STATUS_OK;
     }
 
-    const size_t copy_count = std::min(capacity, required);
-    for (size_t i = 0; i < copy_count; ++i) {
+    *out_required_count = required;
+    if (capacity < required)
+        return NAVSYS_STATUS_INCOMPLETE;
+    for (size_t i = 0; i < required; ++i) {
         output[i] = *route_get_coord_at(route, static_cast<int>(i));
     }
-    *out_required_count = required;
-    return capacity < required
-        ? NAVSYS_STATUS_INCOMPLETE
-        : NAVSYS_STATUS_OK;
+    return NAVSYS_STATUS_OK;
 }
 
 const coord_t* route_get_last(const route_t* p) {
@@ -225,6 +225,21 @@ const coord_list_t* route_get_visited_order(const route_t* p) {
 
 const coord_hash_t* route_get_visited_count(const route_t* p) {
     return p ? p->visited_count : nullptr;
+}
+
+coord_hash_t* route_internal_get_visited_count_mutable(route_t* route) {
+    return route ? route->visited_count : nullptr;
+}
+
+navsys_status_t route_internal_replace_visited_count(
+    route_t* route,
+    coord_hash_t* replacement) {
+    if (!route || !replacement)
+        return NAVSYS_STATUS_INVALID_ARGUMENT;
+    coord_hash_t* previous = route->visited_count;
+    route->visited_count = replacement;
+    coord_hash_destroy(previous);
+    return NAVSYS_STATUS_OK;
 }
 
 int route_get_total_retry_count(const route_t* p) {

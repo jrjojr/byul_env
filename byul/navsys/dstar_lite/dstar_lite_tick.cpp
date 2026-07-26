@@ -1,4 +1,5 @@
 #include "dstar_lite_tick.h"
+#include "../route/internal/route_internal.h"
 #include "internal/dstar_lite_callback.hpp"
 
 #include <float.h>
@@ -96,13 +97,14 @@ void dstar_lite_tick_prepare(dstar_lite_tick_t* dst, tick_t* tk) {
 
     tick_attach(tk, dstar_lite_tick_proxy, (void*)dst);
 
-    if (dst->base->real_route->visited_count) {
-        coord_hash_destroy(dst->base->real_route->visited_count);
-    }
-    dst->base->real_route->visited_count = coord_hash_create_full(
+    coord_hash_t* visited_count = coord_hash_create_full(
         (coord_hash_copy_func) int_copy,
         (coord_hash_destroy_func) int_destroy
     );
+    if (visited_count) {
+        (void)route_internal_replace_visited_count(
+            dst->base->real_route, visited_count);
+    }
     // dst->base->cost_fn = dstar_lite_dynamic_cost;
     dst->base->cost_fn = dstar_lite_cost;
 }
@@ -133,13 +135,14 @@ void dstar_lite_tick_prepare_full(
 
     route_add_coord(dst->base->real_route, &dst->base->start);
 
-    if (dst->base->real_route->visited_count)
-        coord_hash_destroy(dst->base->real_route->visited_count);
-
-    dst->base->real_route->visited_count = coord_hash_create_full(
+    coord_hash_t* visited_count = coord_hash_create_full(
         (coord_hash_copy_func)int_copy,
         (coord_hash_destroy_func)int_destroy
     );
+    if (visited_count) {
+        (void)route_internal_replace_visited_count(
+            dst->base->real_route, visited_count);
+    }
 
     tick_attach(tk, dstar_lite_tick_proxy, (void*)dst);
 }
@@ -188,12 +191,14 @@ void dstar_lite_tick_update(dstar_lite_tick_t* dst, float dt) {
         route_add_coord(dst->base->real_route, &next);
 
         int visit_count = 0;
-        if (coord_hash_contains(dst->base->real_route->visited_count, &next)) {
-            visit_count = *(int*)coord_hash_get(dst->base->real_route->visited_count, &next);
+        coord_hash_t* visited_count =
+            route_internal_get_visited_count_mutable(dst->base->real_route);
+        if (coord_hash_contains(visited_count, &next)) {
+            visit_count = *(int*)coord_hash_get(visited_count, &next);
             visit_count++;
         }
         int* visit_ptr = new int(visit_count);
-        coord_hash_insert(dst->base->real_route->visited_count, &next, visit_ptr);
+        coord_hash_insert(visited_count, &next, visit_ptr);
         delete visit_ptr;
 
         byul::navsys::internal::dstar_lite_invoke_move(

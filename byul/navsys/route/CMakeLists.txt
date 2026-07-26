@@ -9,6 +9,8 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 set(${PROJECT_NAME}_SOURCES
 
     ${CMAKE_CURRENT_SOURCE_DIR}/route.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/route_builder.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/route_trace.cpp
 
 CACHE INTERNAL "${PROJECT_NAME} source files"  FORCE
 )

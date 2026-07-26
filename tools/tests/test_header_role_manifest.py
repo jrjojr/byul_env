@@ -24,14 +24,15 @@ class HeaderRoleManifestTest(unittest.TestCase):
         }
 
     def test_all_existing_assets_are_approved_once(self):
-        self.assertEqual(138, self.manifest["summary"]["headers"])
-        self.assertEqual(138, self.manifest["summary"]["approved"])
-        self.assertEqual(138, len(self.by_path))
+        self.assertEqual(139, self.manifest["summary"]["headers"])
+        self.assertEqual(139, self.manifest["summary"]["approved"])
+        self.assertEqual(139, len(self.by_path))
 
     def test_callback_guards_remain_internal(self):
         for path in (
             "byul/navsys/dstar_lite/internal/dstar_lite_callback.hpp",
             "byul/navsys/navgrid/internal/navgrid_callback.hpp",
+            "byul/navsys/route/internal/route_internal.h",
         ):
             row = self.by_path[path]
             self.assertEqual("internal", row["primary_role"])
@@ -52,9 +53,9 @@ class HeaderRoleManifestTest(unittest.TestCase):
             self.by_path["byul/aerial/aerial.h"]["primary_role"],
         )
         self.assertEqual(
-            "compatibility-forwarder",
+            "internal",
             self.by_path[
-                "byul/navsys/dstar_lite/dstar_lite_key.hpp"
+                "byul/navsys/dstar_lite/internal/dstar_lite_key_ops.hpp"
             ]["primary_role"],
         )
 
@@ -92,7 +93,7 @@ class HeaderRoleManifestTest(unittest.TestCase):
             "byul/navsys/dstar_lite/internal/dstar_lite_key_ops.hpp",
             self.report["approved_intent_paths"],
         )
-        self.assertIn(
+        self.assertNotIn(
             "byul/navsys/dstar_lite/dstar_lite_key.hpp",
             self.report["approved_intent_paths"],
         )

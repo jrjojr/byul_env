@@ -2,6 +2,9 @@
 #include "route.h"
 #include "coord.h"
 #include "coord_hash.h"
+#if defined(BYUL_ROUTE_INTERNAL_TESTING)
+#include "../internal/route_internal.h"
+#endif
 
 #include <cstddef>
 
@@ -261,10 +264,10 @@ TEST_CASE("route exports coordinates with two-call buffer semantics") {
     CHECK(route_export_coords(route, short_output, 2, &required)
         == NAVSYS_STATUS_INCOMPLETE);
     CHECK(required == 3);
-    CHECK(short_output[0].x == 1);
-    CHECK(short_output[0].y == 2);
-    CHECK(short_output[1].x == 3);
-    CHECK(short_output[1].y == 4);
+    CHECK(short_output[0].x == -1);
+    CHECK(short_output[0].y == -1);
+    CHECK(short_output[1].x == -1);
+    CHECK(short_output[1].y == -1);
 
     coord_t exact_output[3] = {};
     required = 99;
@@ -286,6 +289,152 @@ TEST_CASE("route exports coordinates with two-call buffer semantics") {
 
     route_destroy(route);
 }
+
+TEST_CASE("route builder edits transactionally and transfers one immutable result") {
+    route_t* source = route_create();
+    REQUIRE(source != nullptr);
+    const coord_t first = {0, 0};
+    const coord_t second = {1, 0};
+    REQUIRE(route_add_coord(source, &first) == 1);
+    REQUIRE(route_add_coord(source, &second) == 1);
+    route_set_cost(source, 7.5f);
+    route_set_success(source, 1);
+    route_set_total_retry_count(source, 19);
+
+    route_builder_t* builder = nullptr;
+    REQUIRE(route_builder_create_from_route(source, &builder)
+        == NAVSYS_STATUS_OK);
+    REQUIRE(builder != nullptr);
+
+    CHECK(route_builder_append(
+        builder, source, ROUTE_JOIN_DEDUP_BOUNDARY) == NAVSYS_STATUS_OK);
+    const coord_t inserted = {9, 9};
+    CHECK(route_builder_insert_coord(builder, 1, &inserted)
+        == NAVSYS_STATUS_OK);
+    coord_t removed = {-1, -1};
+    CHECK(route_builder_remove_coord(builder, 1, &removed)
+        == NAVSYS_STATUS_OK);
+    CHECK(removed.x == 9);
+    CHECK(removed.y == 9);
+    CHECK(route_builder_set_total_cost(builder, 12.25)
+        == NAVSYS_STATUS_OK);
+    CHECK(route_builder_set_completion(builder, ROUTE_COMPLETION_COMPLETE)
+        == NAVSYS_STATUS_OK);
+
+    route_t* result = nullptr;
+    CHECK(route_builder_finish(builder, &result) == NAVSYS_STATUS_OK);
+    REQUIRE(result != nullptr);
+    CHECK(route_get_coord_count(result) == 4);
+    coord_t output[4] = {};
+    size_t required = 0;
+    CHECK(route_export_coords(result, output, 4, &required)
+        == NAVSYS_STATUS_OK);
+    CHECK(required == 4);
+    CHECK(output[0].x == 0);
+    CHECK(output[1].x == 1);
+    CHECK(output[2].x == 0);
+    CHECK(output[3].x == 1);
+    double cost = 0.0;
+    route_completion_t completion = ROUTE_COMPLETION_NONE;
+    CHECK(route_fetch_total_cost(result, &cost) == NAVSYS_STATUS_OK);
+    CHECK(cost == doctest::Approx(12.25));
+    CHECK(route_fetch_completion(result, &completion) == NAVSYS_STATUS_OK);
+    CHECK(completion == ROUTE_COMPLETION_COMPLETE);
+    CHECK(route_get_total_retry_count(result) == 0);
+
+    route_t* const sentinel = reinterpret_cast<route_t*>(1);
+    route_t* invalid_output = sentinel;
+    CHECK(route_builder_finish(builder, &invalid_output)
+        == NAVSYS_STATUS_INVALIDATED);
+    CHECK(invalid_output == sentinel);
+
+    route_builder_destroy(builder);
+    route_destroy(result);
+    route_destroy(source);
+}
+
+TEST_CASE("route builder handles empty slices invalid ranges and large counts") {
+    route_builder_t* builder = nullptr;
+    REQUIRE(route_builder_create(&builder) == NAVSYS_STATUS_OK);
+    for (int index = 0; index < 1024; ++index) {
+        const coord_t coordinate = {index, -index};
+        REQUIRE(route_builder_push_coord(builder, &coordinate)
+            == NAVSYS_STATUS_OK);
+    }
+    route_t* large = nullptr;
+    REQUIRE(route_builder_finish(builder, &large) == NAVSYS_STATUS_OK);
+    CHECK(route_get_coord_count(large) == 1024);
+    route_builder_destroy(builder);
+
+    REQUIRE(route_builder_create(&builder) == NAVSYS_STATUS_OK);
+    CHECK(route_builder_assign_slice(builder, large, 9, 8)
+        == NAVSYS_STATUS_INVALID_ARGUMENT);
+    CHECK(route_builder_assign_slice(builder, large, 7, 7)
+        == NAVSYS_STATUS_OK);
+    CHECK(route_builder_set_completion(builder, ROUTE_COMPLETION_COMPLETE)
+        == NAVSYS_STATUS_INVALID_ARGUMENT);
+    route_t* empty = nullptr;
+    REQUIRE(route_builder_finish(builder, &empty) == NAVSYS_STATUS_OK);
+    CHECK(route_get_coord_count(empty) == 0);
+    route_completion_t completion = ROUTE_COMPLETION_COMPLETE;
+    CHECK(route_fetch_completion(empty, &completion) == NAVSYS_STATUS_OK);
+    CHECK(completion == ROUTE_COMPLETION_NONE);
+
+    route_builder_destroy(builder);
+    route_destroy(empty);
+    route_destroy(large);
+}
+
+#if defined(BYUL_ROUTE_INTERNAL_TESTING)
+TEST_CASE("search trace is an opaque owner with atomic ordered counts") {
+    navsys_search_trace_t* trace = nullptr;
+    REQUIRE(navsys_search_trace_create(&trace) == NAVSYS_STATUS_OK);
+    REQUIRE(trace != nullptr);
+    const coord_t first = {2, 3};
+    const coord_t second = {4, 5};
+    CHECK(navsys_search_trace_internal_record(trace, &first)
+        == NAVSYS_STATUS_OK);
+    CHECK(navsys_search_trace_internal_record(trace, &second)
+        == NAVSYS_STATUS_OK);
+    CHECK(navsys_search_trace_internal_record(trace, &first)
+        == NAVSYS_STATUS_OK);
+    CHECK(navsys_search_trace_get_visit_count(trace) == 3);
+
+    size_t count = 99;
+    CHECK(navsys_search_trace_fetch_coord_visit_count(
+        trace, &first, &count) == NAVSYS_STATUS_OK);
+    CHECK(count == 2);
+    const coord_t missing = {8, 9};
+    count = 77;
+    CHECK(navsys_search_trace_fetch_coord_visit_count(
+        trace, &missing, &count) == NAVSYS_STATUS_NOT_FOUND);
+    CHECK(count == 77);
+
+    coord_t short_output[2] = {{-1, -1}, {-1, -1}};
+    size_t required = 0;
+    CHECK(navsys_search_trace_export_visits(
+        trace, short_output, 2, &required) == NAVSYS_STATUS_INCOMPLETE);
+    CHECK(required == 3);
+    CHECK(short_output[0].x == -1);
+    coord_t output[3] = {};
+    CHECK(navsys_search_trace_export_visits(
+        trace, output, 3, &required) == NAVSYS_STATUS_OK);
+    CHECK(output[0].x == 2);
+    CHECK(output[1].x == 4);
+    CHECK(output[2].x == 2);
+
+    navsys_search_trace_t* clone = nullptr;
+    REQUIRE(navsys_search_trace_clone_ex(trace, &clone)
+        == NAVSYS_STATUS_OK);
+    CHECK(navsys_search_trace_get_visit_count(clone) == 3);
+    CHECK(navsys_search_trace_internal_clear(trace) == NAVSYS_STATUS_OK);
+    CHECK(navsys_search_trace_get_visit_count(trace) == 0);
+    CHECK(navsys_search_trace_get_visit_count(clone) == 3);
+
+    navsys_search_trace_destroy(clone);
+    navsys_search_trace_destroy(trace);
+}
+#endif
 
 TEST_CASE("route fetches coordinate values without exposing storage") {
     route_t* route = route_create();
