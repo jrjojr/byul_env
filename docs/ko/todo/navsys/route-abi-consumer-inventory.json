@@ -926,9 +926,9 @@
             {
               "path": "byul/tests/sdk_consumer/main.c",
               "lines": [
-                713,
-                742,
-                760
+                735,
+                764,
+                782
               ]
             }
           ],
@@ -2137,8 +2137,8 @@
             {
               "path": "byul/tests/sdk_consumer/main.c",
               "lines": [
-                690,
-                729
+                712,
+                751
               ]
             }
           ],
@@ -2197,7 +2197,7 @@
             {
               "path": "byul/tests/sdk_consumer/main.c",
               "lines": [
-                691
+                713
               ]
             }
           ],
@@ -2263,7 +2263,7 @@
             {
               "path": "byul/tests/sdk_consumer/main.c",
               "lines": [
-                695
+                717
               ]
             }
           ],
@@ -2306,7 +2306,7 @@
             {
               "path": "byul/tests/sdk_consumer/main.c",
               "lines": [
-                698
+                720
               ]
             }
           ],
@@ -2342,8 +2342,8 @@
             {
               "path": "byul/tests/sdk_consumer/main.c",
               "lines": [
-                701,
-                704
+                723,
+                726
               ]
             }
           ],
@@ -2388,7 +2388,7 @@
             {
               "path": "byul/tests/sdk_consumer/main.c",
               "lines": [
-                719
+                741
               ]
             }
           ],
@@ -2471,7 +2471,7 @@
             {
               "path": "byul/tests/sdk_consumer/main.c",
               "lines": [
-                741
+                763
               ]
             }
           ],
@@ -2507,7 +2507,7 @@
             {
               "path": "byul/tests/sdk_consumer/main.c",
               "lines": [
-                721
+                743
               ]
             }
           ],
@@ -2675,7 +2675,7 @@
             {
               "path": "byul/tests/sdk_consumer/main.c",
               "lines": [
-                723
+                745
               ]
             }
           ],
@@ -2713,7 +2713,7 @@
             {
               "path": "byul/tests/sdk_consumer/main.c",
               "lines": [
-                725
+                747
               ]
             }
           ],
@@ -2759,7 +2759,7 @@
             {
               "path": "byul/tests/sdk_consumer/main.c",
               "lines": [
-                727
+                749
               ]
             }
           ],
@@ -2802,7 +2802,7 @@
             {
               "path": "byul/tests/sdk_consumer/main.c",
               "lines": [
-                730
+                752
               ]
             }
           ],
@@ -2847,8 +2847,8 @@
             {
               "path": "byul/tests/sdk_consumer/main.c",
               "lines": [
-                739,
-                740
+                761,
+                762
               ]
             }
           ],
@@ -2884,7 +2884,7 @@
             {
               "path": "byul/tests/sdk_consumer/main.c",
               "lines": [
-                732
+                754
               ]
             }
           ],
@@ -2923,7 +2923,7 @@
             {
               "path": "byul/tests/sdk_consumer/main.c",
               "lines": [
-                735
+                757
               ]
             }
           ],

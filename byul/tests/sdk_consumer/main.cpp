@@ -7,6 +7,7 @@
 #include "coord.h"
 #include "coord_hash.h"
 #include "cost_coord_pq.h"
+#include "navcell.h"
 #include "route.h"
 
 struct coord_hash_callback_counts {
@@ -70,6 +71,19 @@ int main() {
             decltype(&equal_coord_hash_int),
             coord_hash_value_equal_func_ex>);
     static_assert(sizeof(void*) == 8);
+    static_assert(TERRAIN_TYPE_NORMAL == 0);
+    static_assert(TERRAIN_TYPE_WATER == 1);
+    static_assert(TERRAIN_TYPE_FOREST == 2);
+    static_assert(TERRAIN_TYPE_MOUNTAIN == 3);
+    static_assert(TERRAIN_TYPE_FORBIDDEN == 100);
+    static_assert(sizeof(terrain_type_t) == 4);
+    static_assert(alignof(terrain_type_t) == 4);
+    static_assert(std::is_standard_layout_v<navcell_t>);
+    static_assert(std::is_trivially_copyable_v<navcell_t>);
+    static_assert(sizeof(navcell_t) == 8);
+    static_assert(alignof(navcell_t) == 4);
+    static_assert(offsetof(navcell_t, terrain) == 0);
+    static_assert(offsetof(navcell_t, height) == 4);
     static_assert(ROUTE_DIR_UNKNOWN == 0);
     static_assert(ROUTE_DIR_DOWN_RIGHT == 8);
     static_assert(ROUTE_DIR_COUNT == 9);
@@ -105,6 +119,13 @@ int main() {
     static_assert(offsetof(cost_coord_pq_create_info_t, struct_size) == 0);
     static_assert(offsetof(cost_coord_pq_create_info_t, abi_version) == 4);
     static_assert(offsetof(cost_coord_pq_create_info_t, flags) == 8);
+
+    navcell_t zero_cell{};
+    const navcell_t value_cell{TERRAIN_TYPE_MOUNTAIN, -1};
+    assert(zero_cell.terrain == TERRAIN_TYPE_NORMAL);
+    assert(zero_cell.height == 0);
+    assert(value_cell.terrain == TERRAIN_TYPE_MOUNTAIN);
+    assert(value_cell.height == -1);
 
     assert(sizeof(coord_t) == coord_sizeof());
     assert(alignof(coord_t) == coord_alignof());

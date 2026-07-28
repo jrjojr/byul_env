@@ -2,6 +2,55 @@
 #include "navgrid.h"
 #include "coord.h"
 
+#include <cstddef>
+#include <limits>
+#include <type_traits>
+
+static_assert(TERRAIN_TYPE_NORMAL == 0);
+static_assert(TERRAIN_TYPE_WATER == 1);
+static_assert(TERRAIN_TYPE_FOREST == 2);
+static_assert(TERRAIN_TYPE_MOUNTAIN == 3);
+static_assert(TERRAIN_TYPE_FORBIDDEN == 100);
+static_assert(sizeof(terrain_type_t) == 4);
+static_assert(std::is_standard_layout_v<navcell_t>);
+static_assert(std::is_trivially_copyable_v<navcell_t>);
+static_assert(sizeof(navcell_t) == 8);
+static_assert(alignof(navcell_t) == 4);
+static_assert(offsetof(navcell_t, terrain) == 0);
+static_assert(offsetof(navcell_t, height) == 4);
+
+TEST_CASE("navcell legacy value ABI baseline") {
+    navcell_t zero{};
+    CHECK(zero.terrain == TERRAIN_TYPE_NORMAL);
+    CHECK(zero.height == 0);
+
+    navcell_t boundaries{};
+    CHECK(navcell_init_full(
+        &boundaries,
+        TERRAIN_TYPE_WATER,
+        std::numeric_limits<int>::min()) == 0);
+    CHECK(boundaries.terrain == TERRAIN_TYPE_WATER);
+    CHECK(boundaries.height == std::numeric_limits<int>::min());
+
+    navcell_t copied{};
+    CHECK(navcell_assign(&copied, &boundaries) == 0);
+    CHECK(copied.terrain == TERRAIN_TYPE_WATER);
+    CHECK(copied.height == std::numeric_limits<int>::min());
+    CHECK(navcell_init_full(
+        &boundaries,
+        static_cast<terrain_type_t>(101),
+        std::numeric_limits<int>::max()) == 0);
+    CHECK(static_cast<int>(boundaries.terrain) == 101);
+    CHECK(boundaries.height == std::numeric_limits<int>::max());
+
+    CHECK(navcell_init(nullptr) == -1);
+    CHECK(navcell_init_full(nullptr, TERRAIN_TYPE_NORMAL, 0) == -1);
+    CHECK(navcell_assign(nullptr, &boundaries) == -1);
+    CHECK(navcell_assign(&boundaries, nullptr) == -1);
+    CHECK(navcell_copy(nullptr) == nullptr);
+    navcell_destroy(nullptr);
+}
+
 TEST_CASE("navgrid blocking and checking") {
     navgrid_t* m = navgrid_create();
     CHECK(navgrid_block_coord(m, 6, 6));

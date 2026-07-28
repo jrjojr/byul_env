@@ -28,12 +28,12 @@
 - 아래 =byul_navcell_properties=는 owner header, namespace와 include DAG가 정해지지 않은
   target draft type이다. 이름이 적혀 있다는 이유로 =navcell.h=나 다른 foundation
   header에 먼저 선언하지 않는다.
-- Value ABI와 현행 동작 characterization은 준비할 수 있지만 기존 네 단계의 =TODO=
-  상태는 유지한다.
-- Navcell 전용 test source는 현재 없다. 실제 shared native test 원본
-  =byul/navsys/navgrid/tests/test_module_navgrid.cpp=에 =navcell_t= layout,
-  create/init/copy/invalid/allocator case를 추가한다. 별도 파일로 분리하면
-  =byul/navsys/navgrid/tests/CMakeLists.txt=에 등록한다.
+- Value ABI와 현행 동작 characterization은 1단계에서 수행하되 checked API와
+  production allocation 동작 변경은 2단계 전까지 시작하지 않는다.
+- Navcell 전용 검증은 shared native test 원본
+  =byul/navsys/navgrid/tests/test_module_navgrid.cpp=와 설치 SDK C/C++ 소비자에 둔다.
+  allocator failure는 1단계에서 현행 결함을 기록하고, 주입 fixture와 exception
+  barrier 구현은 2단계에서 함께 다룬다.
 
 * Public symbol·field inventory와 처분
 
@@ -68,7 +68,7 @@
 | callback | built-in blocked query는 =terrain==FORBIDDEN=만 검사 | enum 확장/unknown behavior 없음 |
 | equality/hash | navgrid의 coord_hash callback에 의존 | navcell value equality/hash policy가 header에 없음 |
 | wrapper | =navgrid.py= CFFI에 struct layout 그대로 생성 | field/type 변경은 Python ABI/parser에도 즉시 영향 |
-| test | navcell 전용 semantic test 없음 | create/init/copy/invalid/layout/allocator 미검증 |
+| test | shared native와 설치 SDK 소비자에 ABI baseline 고정 | allocation failure 주입과 checked lifecycle은 2단계 범위 |
 
 * 업계 관행 비교와 목표 의미
 
@@ -102,7 +102,7 @@ typedef struct byul_navcell_properties {
 } byul_navcell_properties_t;
 #+end_src
 
-* TODO 1단계: value ABI와 semantic baseline
+* DOING 1단계: value ABI와 semantic baseline
 
 ** 실행
 
@@ -120,6 +120,31 @@ typedef struct byul_navcell_properties {
 
 - layout/enum manifest와 wrapper generated declaration을 exact 비교한다.
 - C17 compound literal/zero-init과 C++17 value-init consumer를 build한다.
+
+** 결정과 증거
+
+- 기준 revision =8931cdea47443125732adeb3cc8c4dff488ca2f4=의 현행 ABI를
+  =navcell-abi-policy.json=에 고정했다. x86_64 Windows의
+  =terrain_type_t=는 size/alignment =4/4=, =navcell_t=는 =8/4=,
+  field offset은 =0/4=다. struct tag는 아직 anonymous이며 named tag 추가는
+  4단계 범위로 남긴다.
+- =height=는 현행 native navsys에서 해석하지 않는 unitless metadata이고 C =int=
+  전체 범위를 검증 없이 저장한다. 좌표축 의미도 부여하지 않는다. 새로운 elevation
+  단위는 기존 field를 재해석하지 않고 향후 versioned properties descriptor에서 정한다.
+- built-in navgrid passability는 =FORBIDDEN=만 blocked로 취급한다.
+  =NORMAL/WATER/FOREST/MOUNTAIN=과 unknown enum은 별도 cost 의미가 없으며 route cost
+  callback과 custom blocked callback이 정책 확장 경계다.
+- =navcell_t=는 ABI 1.x에서 stack-friendly trivial value type으로 유지한다.
+  checked create/validation과 versioned properties는 additive companion으로만 계획한다.
+- 현행 =navcell_create_full/navcell_copy=의 throwing =new=에는 exception barrier가 없어
+  =std::bad_alloc=이 C ABI를 탈출할 수 있다. 이는 1단계에서 고정한 알려진 결함이며
+  production 수정과 fault injection은 2단계에서 수행한다.
+- MSVC Release: =test_navgrid= 8/8, =test_byul= 476/476 통과.
+  MinGW Release도 동일하게 8/8, 476/476 통과했다.
+- =BUILD_TESTING=OFF= Release에서 모든 production target의 test-only source/definition/link
+  감사가 MSVC와 MinGW 모두 통과했다. 설치본만 사용한 C17 compound/zero initialization과
+  C++17 value initialization SDK 소비자도 두 컴파일러에서 build/run 성공했다.
+- Python 정책 test와 generated CFFI =--check=는 로컬 Python 부재로 원격 CI 확인 전이다.
 
 * TODO 2단계: checked value/lifecycle API
 

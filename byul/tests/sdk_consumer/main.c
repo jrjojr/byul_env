@@ -1,4 +1,5 @@
 #include <assert.h>
+#include <limits.h>
 #include <math.h>
 #include <stddef.h>
 #include <stdint.h>
@@ -10,6 +11,7 @@
 #include "coord_hash.h"
 #include "cost_coord_pq.h"
 #include "dstar_lite_key.h"
+#include "navcell.h"
 #include "navsys_status.h"
 
 static bool cancel_immediately(void* userdata) {
@@ -90,6 +92,11 @@ static_assert(ROUTE_DIR_DOWN_LEFT == 6, "ROUTE_DIR_DOWN_LEFT ABI");
 static_assert(ROUTE_DIR_DOWN == 7, "ROUTE_DIR_DOWN ABI");
 static_assert(ROUTE_DIR_DOWN_RIGHT == 8, "ROUTE_DIR_DOWN_RIGHT ABI");
 static_assert(ROUTE_DIR_COUNT == 9, "ROUTE_DIR_COUNT ABI");
+static_assert(TERRAIN_TYPE_NORMAL == 0, "TERRAIN_TYPE_NORMAL ABI");
+static_assert(TERRAIN_TYPE_WATER == 1, "TERRAIN_TYPE_WATER ABI");
+static_assert(TERRAIN_TYPE_FOREST == 2, "TERRAIN_TYPE_FOREST ABI");
+static_assert(TERRAIN_TYPE_MOUNTAIN == 3, "TERRAIN_TYPE_MOUNTAIN ABI");
+static_assert(TERRAIN_TYPE_FORBIDDEN == 100, "TERRAIN_TYPE_FORBIDDEN ABI");
 
 #define ABI1_TYPE_LAYOUT(type, expected_size, expected_align) \
     static_assert(sizeof(type) == expected_size, #type " ABI 1 size"); \
@@ -168,6 +175,11 @@ ABI1_FIELD_OFFSET(navgrid_t, cell_map, 16);
 ABI1_FIELD_OFFSET(navgrid_t, is_coord_blocked_fn, 24);
 ABI1_FIELD_OFFSET(navgrid_t, is_coord_blocked_fn_userdata, 32);
 
+ABI1_TYPE_LAYOUT(terrain_type_t, 4, 4);
+ABI1_TYPE_LAYOUT(navcell_t, 8, 4);
+ABI1_FIELD_OFFSET(navcell_t, terrain, 0);
+ABI1_FIELD_OFFSET(navcell_t, height, 4);
+
 ABI1_TYPE_LAYOUT(route_finder_t, 80, 8);
 ABI1_FIELD_OFFSET(route_finder_t, navgrid, 0);
 ABI1_FIELD_OFFSET(route_finder_t, start, 8);
@@ -237,6 +249,16 @@ static bool sdk_is_blocked(
 }
 
 int main(void) {
+    navcell_t zero_cell = {0};
+    navcell_t compound_cell = {TERRAIN_TYPE_FOREST, INT_MAX};
+    if (zero_cell.terrain != TERRAIN_TYPE_NORMAL
+        || zero_cell.height != 0
+        || compound_cell.terrain != TERRAIN_TYPE_FOREST
+        || compound_cell.height != INT_MAX) {
+        fprintf(stderr, "unexpected navcell C value ABI\n");
+        return 15;
+    }
+
     const char* version = byul_version_string();
     if (version == NULL || strcmp(version, BYUL_VERSION_STRING) != 0) {
         fprintf(stderr, "unexpected BYUL version\n");

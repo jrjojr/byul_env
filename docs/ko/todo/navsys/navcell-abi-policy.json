@@ -1,0 +1,117 @@
+{
+  "schema_version": 1,
+  "baseline_revision": "8931cdea47443125732adeb3cc8c4dff488ca2f4",
+  "header": "byul/navsys/navgrid/navcell.h",
+  "abi_line": "1.x",
+  "platform_profile": "x86_64 Windows MSVC and MinGW",
+  "current_enums": {
+    "terrain_type_t": {
+      "tag": "e_terrain_type",
+      "disposition": "keep",
+      "size": 4,
+      "values": {
+        "TERRAIN_TYPE_NORMAL": 0,
+        "TERRAIN_TYPE_WATER": 1,
+        "TERRAIN_TYPE_FOREST": 2,
+        "TERRAIN_TYPE_MOUNTAIN": 3,
+        "TERRAIN_TYPE_FORBIDDEN": 100
+      }
+    }
+  },
+  "current_types": {
+    "navcell_t": {
+      "disposition": "keep",
+      "tag": null,
+      "storage": "basic-value",
+      "zero_valid": true,
+      "copy_semantics": "trivial-copy",
+      "fields": [
+        {
+          "declaration": "terrain_type_t terrain",
+          "offset": 0
+        },
+        {
+          "declaration": "int height",
+          "offset": 4
+        }
+      ],
+      "size": 8,
+      "alignment": 4
+    }
+  },
+  "current_functions": {
+    "navcell_create_full": "deprecate-forward",
+    "navcell_create": "deprecate-forward",
+    "navcell_destroy": "keep",
+    "navcell_copy": "deprecate-forward",
+    "navcell_init_full": "deprecate-forward",
+    "navcell_init": "deprecate-forward",
+    "navcell_assign": "deprecate-forward"
+  },
+  "legacy_semantics": {
+    "default": {
+      "terrain": "TERRAIN_TYPE_NORMAL",
+      "height": 0
+    },
+    "validation": {
+      "terrain": "none",
+      "height": "none"
+    },
+    "null_status": -1,
+    "allocation_failure": "navcell_create_full and navcell_copy use throwing C++ new without an exception barrier; std::bad_alloc may escape the C ABI",
+    "height_unit": "unitless legacy metadata; no native navsys consumer interprets it as elevation or traversal cost",
+    "height_range": "the full C int range is stored without validation",
+    "terrain_support": {
+      "TERRAIN_TYPE_NORMAL": "stored; default passable",
+      "TERRAIN_TYPE_WATER": "stored; no distinct built-in passability or cost behavior",
+      "TERRAIN_TYPE_FOREST": "stored; no distinct built-in passability or cost behavior",
+      "TERRAIN_TYPE_MOUNTAIN": "stored; no distinct built-in passability or cost behavior",
+      "TERRAIN_TYPE_FORBIDDEN": "stored; the built-in navgrid callback treats it as blocked",
+      "unknown": "stored without validation; the built-in navgrid callback treats it as passable"
+    },
+    "navgrid_policy": {
+      "built_in_blocked": [
+        "TERRAIN_TYPE_FORBIDDEN"
+      ],
+      "built_in_cost": "none; route cost callbacks own traversal cost",
+      "height_interpretation": "none",
+      "customization": "navgrid blocked callback and route cost callback"
+    }
+  },
+  "consumer_inventory": {
+    "native_storage_and_field_access": [
+      "byul/navsys/navgrid/navgrid.cpp"
+    ],
+    "generated_declaration": [
+      "tools/python/byul_wrapper/byul_wrapper/navgrid.py"
+    ],
+    "installed_sdk_consumers": [
+      "byul/tests/sdk_consumer/main.c",
+      "byul/tests/sdk_consumer/main.cpp"
+    ],
+    "serialization": "No navcell_t serializer exists. tools/python/byul_grid/byul_grid/grid/grid_cell.py serializes a separate Python GridCell model and is not a navcell_t ABI consumer."
+  },
+  "planned_contracts": {
+    "terrain_validation": {
+      "supported_values": [0, 1, 2, 3, 100],
+      "unknown_query": "OK with false output",
+      "unknown_validation": "UNSUPPORTED"
+    },
+    "checked_create": {
+      "success": "OK with caller-owned output released by navcell_destroy",
+      "invalid_output": "INVALID_ARGUMENT with no output mutation",
+      "unsupported_terrain": "UNSUPPORTED with no output mutation",
+      "allocation_failure": "OUT_OF_MEMORY with no output mutation"
+    },
+    "extension_boundary": "Keep navcell_t layout unchanged in ABI 1.x; add a versioned properties descriptor only after ownership and height-unit decisions."
+  },
+  "forbidden_stage_one_symbols": [
+    "navcell_sizeof",
+    "navcell_alignof",
+    "navcell_offsetof_terrain",
+    "navcell_offsetof_height",
+    "navcell_is_terrain_supported",
+    "navcell_validate",
+    "navcell_create_checked"
+  ]
+}
