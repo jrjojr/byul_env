@@ -102,7 +102,7 @@ typedef struct byul_navcell_properties {
 } byul_navcell_properties_t;
 #+end_src
 
-* DOING 1단계: value ABI와 semantic baseline
+* DONE 1단계: value ABI와 semantic baseline
 
 ** 실행
 
@@ -144,7 +144,11 @@ typedef struct byul_navcell_properties {
 - =BUILD_TESTING=OFF= Release에서 모든 production target의 test-only source/definition/link
   감사가 MSVC와 MinGW 모두 통과했다. 설치본만 사용한 C17 compound/zero initialization과
   C++17 value initialization SDK 소비자도 두 컴파일러에서 build/run 성공했다.
-- Python 정책 test와 generated CFFI =--check=는 로컬 Python 부재로 원격 CI 확인 전이다.
+- 로컬 내장 Python으로 Navcell 정책 test 6/6, test runner 회귀 test 4/4와
+  generated CFFI =--check=를 통과했다.
+- GitHub Actions =30364199218=에서 Linux UBSan static/root, ABI inventory,
+  C17/C++17 SDK consumer가 통과했다. =30364195207=에서 Windows MSVC/MinGW와
+  Ubuntu GCC/Clang 메모리 fixture 및 tests-off production 감사가 모두 통과했다.
 
 * TODO 2단계: checked value/lifecycle API
 
