@@ -11,6 +11,7 @@ set(${PROJECT_NAME}_SOURCES
     ${CMAKE_CURRENT_SOURCE_DIR}/navgrid.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/navcell.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/internal/navgrid_callback.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/internal/navgrid_private.hpp
 
 CACHE INTERNAL "${PROJECT_NAME} source files"  FORCE
 )

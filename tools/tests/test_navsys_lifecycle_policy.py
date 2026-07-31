@@ -186,6 +186,7 @@ class NavsysLifecyclePolicyTest(unittest.TestCase):
         self.assertEqual(
             {
                 "coord",
+                "navcell",
                 "navgrid",
                 "route",
                 "route_builder",
@@ -232,7 +233,7 @@ class NavsysLifecyclePolicyTest(unittest.TestCase):
             release_gates["stage-2-contract-approval"],
         )
         self.assertEqual(
-            "after-runtime-foundation-before-abi-2-release",
+            "navgrid-complete-other-candidates-pending",
             release_gates["abi-2-runtime-gate-phase"],
         )
 
@@ -252,25 +253,26 @@ class NavsysLifecyclePolicyTest(unittest.TestCase):
             complete_types,
         )
         self.assertEqual(
-            "reject-before-first-object-operation",
+            "navgrid-checks-version-and-fingerprint-before-first-object-operation",
             transition["cross_major_loading"],
         )
         self.assertEqual(
-            "implemented-installed-sdk-x64-public-field-consumer",
+            "separate-compatibility-component-x64-public-field-consumer",
             transition["abi_1_fixture"],
         )
         self.assertEqual(
-            "verified-in-abi-1-msvc-and-mingw",
+            "navgrid-verified-msvc-separate-component-mingw-pending",
             abi_2["release_gates"]["old-layout-consumer"],
         )
         self.assertEqual(
-            "required-before-abi-2-release",
+            "navgrid-verified-msvc-c17-cpp17",
             abi_2["release_gates"]["new-handle-consumer"],
         )
         self.assertEqual(
-            "contract-approved-runtime-implementation-pending",
+            "navgrid-opaque-implemented-dstar-lite-and-route-finder-pending",
             abi_2["release_gates"]["current_state"],
         )
+        self.assertEqual(abi_2["implemented_opaque_structs"], ["navgrid_t"])
 
     def test_abi_one_consumer_pins_every_candidate_field(self):
         candidates = set(

@@ -167,14 +167,6 @@ ABI1_FIELD_OFFSET(dstar_lite_t, max_range, 168);
 ABI1_FIELD_OFFSET(dstar_lite_t, interval_sec, 172);
 ABI1_FIELD_OFFSET(dstar_lite_t, force_quit, 176);
 
-ABI1_TYPE_LAYOUT(navgrid_t, 40, 8);
-ABI1_FIELD_OFFSET(navgrid_t, width, 0);
-ABI1_FIELD_OFFSET(navgrid_t, height, 4);
-ABI1_FIELD_OFFSET(navgrid_t, mode, 8);
-ABI1_FIELD_OFFSET(navgrid_t, cell_map, 16);
-ABI1_FIELD_OFFSET(navgrid_t, is_coord_blocked_fn, 24);
-ABI1_FIELD_OFFSET(navgrid_t, is_coord_blocked_fn_userdata, 32);
-
 ABI1_TYPE_LAYOUT(terrain_type_t, 4, 4);
 ABI1_TYPE_LAYOUT(navcell_t, 8, 4);
 ABI1_FIELD_OFFSET(navcell_t, terrain, 0);
@@ -248,6 +240,10 @@ static bool sdk_is_blocked(
     return userdata != NULL;
 }
 
+static_assert(
+    _Generic(&sdk_is_blocked, is_coord_blocked_func: 1, default: 0),
+    "navgrid blocked callback calling convention");
+
 int main(void) {
     navcell_t zero_cell = {0};
     navcell_t compound_cell = {TERRAIN_TYPE_FOREST, INT_MAX};
@@ -258,6 +254,34 @@ int main(void) {
         fprintf(stderr, "unexpected navcell C value ABI\n");
         return 15;
     }
+    bool terrain_supported = false;
+    navcell_t checked_cell = {TERRAIN_TYPE_WATER, 7};
+    navcell_t assigned_cell = {0};
+    navcell_t* allocated_cell = NULL;
+    navcell_t* copied_cell = NULL;
+    if (navcell_is_terrain_supported(
+            TERRAIN_TYPE_MOUNTAIN, &terrain_supported) != NAVSYS_STATUS_OK
+        || !terrain_supported
+        || navcell_init_checked(
+            &checked_cell, TERRAIN_TYPE_MOUNTAIN, INT32_MIN) != NAVSYS_STATUS_OK
+        || navcell_validate(&checked_cell) != NAVSYS_STATUS_OK
+        || navcell_assign_checked(
+            &assigned_cell, &checked_cell) != NAVSYS_STATUS_OK
+        || navcell_create_checked(
+            assigned_cell.terrain, assigned_cell.height,
+            &allocated_cell) != NAVSYS_STATUS_OK
+        || navcell_copy_checked(
+            allocated_cell, &copied_cell) != NAVSYS_STATUS_OK
+        || copied_cell == NULL
+        || copied_cell->terrain != TERRAIN_TYPE_MOUNTAIN
+        || copied_cell->height != INT32_MIN) {
+        navcell_destroy(copied_cell);
+        navcell_destroy(allocated_cell);
+        fprintf(stderr, "unexpected navcell checked C ABI\n");
+        return 16;
+    }
+    navcell_destroy(copied_cell);
+    navcell_destroy(allocated_cell);
 
     const char* version = byul_version_string();
     if (version == NULL || strcmp(version, BYUL_VERSION_STRING) != 0) {
@@ -691,7 +715,70 @@ int main(void) {
     dstar_lite_t* dsl = dstar_lite_create(navgrid);
     route_t* route = NULL;
     route_finder_run_stats_t run_stats = {0};
+    navcell_t sdk_cell = {TERRAIN_TYPE_FOREST, 17};
+    navcell_t sdk_prior = {TERRAIN_TYPE_MOUNTAIN, -1};
+    bool sdk_had_prior = true;
+    bool sdk_changed = false;
+    coord_t sdk_overlay_coords[2] = {{2, 3}, {2, 3}};
+    navgrid_overlay_id_t sdk_overlay = 0;
+    size_t sdk_changed_count = 0;
+    coord_t sdk_neighbors[8] = {{0, 0}};
+    size_t sdk_neighbor_count = 0;
+    navgrid_cell_entry_t sdk_entries[1] = {{{0, 0}, {TERRAIN_TYPE_NORMAL, 0}, false, false}};
+    size_t sdk_entry_count = 0;
+    is_coord_blocked_func sdk_blocked_fn = NULL;
+    void* sdk_blocked_userdata = (void*)1;
+    navgrid_abi_mismatch_t sdk_abi_mismatch = NAVGRID_ABI_VERSION_MISMATCH;
     if (navgrid == NULL || finder == NULL || dsl == NULL
+        || navgrid_get_width(navgrid) != 0
+        || navgrid_get_height(navgrid) != 0
+        || navgrid_get_mode(navgrid) != NAVGRID_DIR_8
+        || navgrid_get_abi_version() != BYUL_NAVGRID_ABI_VERSION
+        || navgrid_get_abi_fingerprint() != BYUL_NAVGRID_ABI_FINGERPRINT
+        || navgrid_check_abi(
+            BYUL_NAVGRID_ABI_VERSION,
+            BYUL_NAVGRID_ABI_FINGERPRINT,
+            &sdk_abi_mismatch) != NAVSYS_STATUS_OK
+        || sdk_abi_mismatch != NAVGRID_ABI_MATCH
+        || navgrid_fetch_is_coord_blocked_binding(
+            navgrid, &sdk_blocked_fn, &sdk_blocked_userdata)
+            != NAVSYS_STATUS_OK
+        || sdk_blocked_fn != is_coord_blocked_navgrid
+        || sdk_blocked_userdata != NULL
+        || navgrid_set_cell_ex(
+            navgrid, 2, 3, &sdk_cell, &sdk_prior,
+            &sdk_had_prior, &sdk_changed) != NAVSYS_STATUS_OK
+        || sdk_had_prior
+        || !sdk_changed
+        || sdk_prior.terrain != TERRAIN_TYPE_NORMAL
+        || navgrid_apply_blocked_overlay(
+            navgrid, sdk_overlay_coords, 2, &sdk_overlay,
+            &sdk_changed_count) != NAVSYS_STATUS_OK
+        || sdk_overlay == 0
+        || sdk_changed_count != 1
+        || navgrid_remove_blocked_overlay(
+            navgrid, sdk_overlay, &sdk_changed_count) != NAVSYS_STATUS_OK
+        || sdk_changed_count != 1
+        || sizeof(navgrid_cell_entry_t) != 20
+        || navgrid_export_neighbors(
+            navgrid, 2, 3, false, NULL, 0, &sdk_neighbor_count)
+            != NAVSYS_STATUS_OK
+        || sdk_neighbor_count != 8
+        || navgrid_export_neighbors(
+            navgrid, 2, 3, false, sdk_neighbors, 8, &sdk_neighbor_count)
+            != NAVSYS_STATUS_OK
+        || sdk_neighbors[0].x != 3
+        || sdk_neighbors[0].y != 3
+        || navgrid_export_cells(
+            navgrid, NULL, 0, &sdk_entry_count) != NAVSYS_STATUS_OK
+        || sdk_entry_count != 1
+        || navgrid_export_cells(
+            navgrid, sdk_entries, 1, &sdk_entry_count) != NAVSYS_STATUS_OK
+        || sdk_entries[0].coord.x != 2
+        || sdk_entries[0].coord.y != 3
+        || !sdk_entries[0].present
+        || sdk_entries[0].blocked
+        || sdk_entries[0].cell.terrain != TERRAIN_TYPE_FOREST
         || route_finder_set_type_checked(
             finder, ROUTE_FINDER_ASTAR) != NAVSYS_STATUS_OK
         || route_finder_set_max_retry_checked(

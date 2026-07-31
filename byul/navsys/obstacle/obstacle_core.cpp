@@ -2,6 +2,8 @@
 #include <stdlib.h>
 #include <string.h>
 #include <cmath>
+#include <vector>
+#include "../navgrid/internal/navgrid_overlay.hpp"
 
 obstacle_t* obstacle_create() {
     return obstacle_create_full(0, 0, 0, 0);
@@ -79,26 +81,38 @@ void obstacle_fetch_origin(
 
 void obstacle_apply_to_navgrid(const obstacle_t* obstacle, navgrid_t* navgrid) {
     if (!obstacle || !navgrid) return;
-
-    coord_hash_iter_t* iter = coord_hash_iter_create(
-        (coord_hash_t*)obstacle->blocked);
-    coord_t key;
-    while (coord_hash_iter_next(iter, &key, NULL)) {
-        navgrid_block_coord(navgrid, key.x, key.y);
+    try {
+        const size_t count = coord_hash_size(obstacle->blocked);
+        std::vector<coord_t> coords(count);
+        size_t exported = 0;
+        if (coord_hash_export_keys(
+                obstacle->blocked,
+                coords.empty() ? nullptr : coords.data(),
+                coords.size(),
+                &exported) != NAVSYS_STATUS_OK) {
+            return;
+        }
+        size_t changed = 0;
+        (void)byul::navsys::internal::navgrid_replace_blocked_overlay_source(
+            navgrid,
+            byul::navsys::internal::navgrid_overlay_source_kind::obstacle,
+            obstacle,
+            coords.empty() ? nullptr : coords.data(),
+            exported,
+            &changed);
+    } catch (...) {
+        return;
     }
-    coord_hash_iter_destroy(iter);
 }
 
 void obstacle_remove_from_navgrid(const obstacle_t* obstacle, navgrid_t* navgrid) {
     if (!obstacle || !navgrid) return;
-
-    coord_hash_iter_t* iter = coord_hash_iter_create(
-        (coord_hash_t*)obstacle->blocked);
-    coord_t key;
-    while (coord_hash_iter_next(iter, &key, NULL)) {
-        navgrid_unblock_coord(navgrid, key.x, key.y);
-    }
-    coord_hash_iter_destroy(iter);
+    size_t changed = 0;
+    (void)byul::navsys::internal::navgrid_remove_blocked_overlay_source(
+        navgrid,
+        byul::navsys::internal::navgrid_overlay_source_kind::obstacle,
+        obstacle,
+        &changed);
 }
 
 int obstacle_get_width(const obstacle_t* obs) {

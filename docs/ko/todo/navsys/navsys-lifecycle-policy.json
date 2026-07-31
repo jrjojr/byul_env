@@ -21,6 +21,7 @@
       "scope": "current-create-paths-static-module",
       "owners": [
         "coord",
+        "navcell",
         "navgrid",
         "route",
         "route_builder",
@@ -145,8 +146,10 @@
   "abi_2_policy": {
     "opaque_struct_candidates": [
       "dstar_lite_t",
-      "navgrid_t",
       "route_finder_t"
+    ],
+    "implemented_opaque_structs": [
+      "navgrid_t"
     ],
     "breaking_changes": [
       "remove-public-struct-fields",
@@ -171,19 +174,19 @@
     "handle_transition": {
       "abi_1_layout_snapshot": "docs/ko/todo/header-refactor-current/msvc-release-abi.json",
       "abi_2_public_form": "incomplete-struct-declaration-only",
-      "abi_1_fixture": "implemented-installed-sdk-x64-public-field-consumer",
-      "abi_2_fixture": "compile-and-run-with-abi-2-sdk-and-runtime-only",
-      "cross_major_loading": "reject-before-first-object-operation",
-      "diagnostic": "abi-major-and-header-fingerprint"
+      "abi_1_fixture": "separate-compatibility-component-x64-public-field-consumer",
+      "abi_2_fixture": "implemented-installed-sdk-opaque-c17-cpp17-consumers",
+      "cross_major_loading": "navgrid-checks-version-and-fingerprint-before-first-object-operation",
+      "diagnostic": "navgrid-abi-version-and-header-fingerprint"
     },
     "release_gates": {
       "stage-2-contract-approval": "approved",
       "legacy-create-allocation-failure": "verified-in-abi-1-msvc-and-mingw-static-module",
       "abi-2-bound-allocator-failure": "required-before-abi-2-release",
-      "old-layout-consumer": "verified-in-abi-1-msvc-and-mingw",
-      "new-handle-consumer": "required-before-abi-2-release",
-      "abi-2-runtime-gate-phase": "after-runtime-foundation-before-abi-2-release",
-      "current_state": "contract-approved-runtime-implementation-pending"
+      "old-layout-consumer": "navgrid-verified-msvc-separate-component-mingw-pending",
+      "new-handle-consumer": "navgrid-verified-msvc-c17-cpp17",
+      "abi-2-runtime-gate-phase": "navgrid-complete-other-candidates-pending",
+      "current_state": "navgrid-opaque-implemented-dstar-lite-and-route-finder-pending"
     }
   },
   "resource_models": [
@@ -211,6 +214,7 @@
     {"resource": "obstacle", "storage": "heap-owned", "termination": "destroy"},
     {"resource": "route", "storage": "heap-owned", "termination": "destroy"},
     {"resource": "route_builder", "storage": "heap-owned", "termination": "destroy"},
+    {"resource": "route_heading_tracker", "storage": "heap-owned", "termination": "destroy"},
     {"resource": "route_finder", "storage": "mixed-heap-and-caller-storage", "termination": "destroy-created-free-initialized"},
     {"resource": "rta_star_config", "storage": "heap-owned", "termination": "destroy"},
     {"resource": "scalar", "storage": "callback-owned-copy", "termination": "destroy"}

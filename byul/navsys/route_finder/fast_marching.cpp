@@ -58,8 +58,8 @@ fmm_grid_t* fmm_grid_create_full(const navgrid_t* m, const coord_t* start,
         radius_limit = MAX_RADIUS;
 
     fmm_grid_t* grid = new fmm_grid_t();
-    grid->width = m->width;
-    grid->height = m->height;
+    grid->width = navgrid_get_width(m);
+    grid->height = navgrid_get_height(m);
     grid->cells = coord_hash_create_full(
         (coord_hash_copy_func) fmm_cell_copy,
         (coord_hash_destroy_func) fmm_cell_destroy

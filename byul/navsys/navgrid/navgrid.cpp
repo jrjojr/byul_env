@@ -1,26 +1,439 @@
 #include "navgrid.h"
+#include "internal/navgrid_private.hpp"
+#include <algorithm>
 #include <unordered_set>
 #include <unordered_map>
 #include <vector>
 #include <cmath>
 #include <cstdint>
+#include <limits>
+#include <new>
 #include "coord.h"
 #include "coord_list.h"
 #include "coord_hash.h"
 #include "internal/navgrid_callback.hpp"
+#include "internal/navgrid_overlay.hpp"
+
+namespace {
+
+using overlay_coord_key_t = uint64_t;
+
+constexpr uint32_t navgrid_abi1_version = 1;
+constexpr uint64_t navgrid_abi1_fingerprint = UINT64_C(0x4e47524944010028);
+
+overlay_coord_key_t overlay_coord_key(int x, int y) {
+    return (static_cast<uint64_t>(static_cast<uint32_t>(x)) << 32)
+        | static_cast<uint32_t>(y);
+}
+
+struct overlay_source_key_t {
+    byul::navsys::internal::navgrid_overlay_source_kind kind;
+    const void* source;
+
+    bool operator==(const overlay_source_key_t& other) const {
+        return kind == other.kind && source == other.source;
+    }
+};
+
+struct overlay_source_hash_t {
+    size_t operator()(const overlay_source_key_t& value) const {
+        const auto kind = static_cast<size_t>(value.kind);
+        const auto pointer = reinterpret_cast<uintptr_t>(value.source);
+        return (pointer >> 4) ^ (kind * 0x9e3779b9u);
+    }
+};
+
+using overlay_coord_set_t = std::unordered_set<overlay_coord_key_t>;
+
+struct navgrid_overlay_state_t {
+    navgrid_overlay_id_t next_id = 1;
+    std::unordered_map<navgrid_overlay_id_t, overlay_coord_set_t> layers;
+    std::unordered_map<
+        overlay_source_key_t,
+        navgrid_overlay_id_t,
+        overlay_source_hash_t> sources;
+};
+
+std::unordered_map<const navgrid_t*, navgrid_overlay_state_t> overlay_states;
+
+const navgrid_overlay_state_t* find_overlay_state(const navgrid_t* navgrid) {
+    const auto iter = overlay_states.find(navgrid);
+    return iter == overlay_states.end() ? nullptr : &iter->second;
+}
+
+bool overlay_state_contains(
+    const navgrid_overlay_state_t* state, overlay_coord_key_t key) {
+    if (!state) return false;
+    for (const auto& [_, coords] : state->layers) {
+        if (coords.find(key) != coords.end()) return true;
+    }
+    return false;
+}
+
+bool navgrid_base_is_blocked(const navgrid_t* navgrid, int x, int y) {
+    if (!navgrid || !navgrid->cell_map) return false;
+    const coord_t key{x, y};
+    const auto* cell = static_cast<const navcell_t*>(
+        coord_hash_get(navgrid->cell_map, &key));
+    if (!cell) return false;
+    if (navcell_validate(cell) != NAVSYS_STATUS_OK) return true;
+    return cell->terrain == TERRAIN_TYPE_FORBIDDEN;
+}
+
+bool navgrid_effectively_blocked(
+    const navgrid_t* navgrid,
+    const navgrid_overlay_state_t* state,
+    overlay_coord_key_t key,
+    int x,
+    int y) {
+    return navgrid_base_is_blocked(navgrid, x, y)
+        || overlay_state_contains(state, key);
+}
+
+navsys_status_t commit_overlay_state(
+    navgrid_t* navgrid, navgrid_overlay_state_t&& prepared) {
+    auto current = overlay_states.find(navgrid);
+    if (prepared.layers.empty() && prepared.sources.empty()) {
+        if (current != overlay_states.end()) overlay_states.erase(current);
+        return NAVSYS_STATUS_OK;
+    }
+    if (current != overlay_states.end()) {
+        current->second.layers.swap(prepared.layers);
+        current->second.sources.swap(prepared.sources);
+        current->second.next_id = prepared.next_id;
+        return NAVSYS_STATUS_OK;
+    }
+    try {
+        overlay_states.emplace(navgrid, std::move(prepared));
+        return NAVSYS_STATUS_OK;
+    } catch (const std::bad_alloc&) {
+        return NAVSYS_STATUS_OUT_OF_MEMORY;
+    } catch (...) {
+        return NAVSYS_STATUS_CORRUPT_STATE;
+    }
+}
+
+navsys_status_t copy_overlay_state(
+    const navgrid_t* source, navgrid_t* destination) {
+    const auto* state = find_overlay_state(source);
+    if (!state) return NAVSYS_STATUS_OK;
+    try {
+        navgrid_overlay_state_t copied = *state;
+        return commit_overlay_state(destination, std::move(copied));
+    } catch (const std::bad_alloc&) {
+        return NAVSYS_STATUS_OUT_OF_MEMORY;
+    } catch (...) {
+        return NAVSYS_STATUS_CORRUPT_STATE;
+    }
+}
+
+navgrid_overlay_id_t next_overlay_id(navgrid_overlay_state_t& state) {
+    while (state.next_id == 0
+        || state.layers.find(state.next_id) != state.layers.end()) {
+        if (state.next_id == std::numeric_limits<navgrid_overlay_id_t>::max())
+            return 0;
+        ++state.next_id;
+    }
+    const navgrid_overlay_id_t result = state.next_id;
+    ++state.next_id;
+    if (state.next_id == 0) state.next_id = 1;
+    return result;
+}
+
+navsys_status_t set_default_overlay_coord(
+    navgrid_t* navgrid, int x, int y, bool blocked, bool* out_changed) {
+    if (!navgrid || !out_changed) return NAVSYS_STATUS_INVALID_ARGUMENT;
+    if (byul::navsys::internal::navgrid_callback_is_active(navgrid))
+        return NAVSYS_STATUS_IN_PROGRESS;
+    if (!navgrid_is_inside(navgrid, x, y)) return NAVSYS_STATUS_NOT_FOUND;
+
+    const overlay_coord_key_t key = overlay_coord_key(x, y);
+    const auto* current = find_overlay_state(navgrid);
+    const bool before = navgrid_effectively_blocked(
+        navgrid, current, key, x, y);
+    if (!blocked) {
+        if (!current) {
+            *out_changed = false;
+            return NAVSYS_STATUS_OK;
+        }
+        const auto layer = current->layers.find(0);
+        if (layer == current->layers.end()
+            || layer->second.find(key) == layer->second.end()) {
+            *out_changed = false;
+            return NAVSYS_STATUS_OK;
+        }
+    }
+
+    try {
+        navgrid_overlay_state_t prepared = current
+            ? *current
+            : navgrid_overlay_state_t{};
+        if (blocked) {
+            prepared.layers[0].insert(key);
+        } else {
+            auto layer = prepared.layers.find(0);
+            layer->second.erase(key);
+            if (layer->second.empty()) prepared.layers.erase(layer);
+        }
+        const bool after = navgrid_effectively_blocked(
+            navgrid, &prepared, key, x, y);
+        const navsys_status_t status = commit_overlay_state(
+            navgrid, std::move(prepared));
+        if (status != NAVSYS_STATUS_OK) return status;
+        *out_changed = before != after;
+        return NAVSYS_STATUS_OK;
+    } catch (const std::bad_alloc&) {
+        return NAVSYS_STATUS_OUT_OF_MEMORY;
+    } catch (...) {
+        return NAVSYS_STATUS_CORRUPT_STATE;
+    }
+}
+
+navsys_status_t replace_source_overlay(
+    navgrid_t* navgrid,
+    const overlay_source_key_t& source_key,
+    const coord_t* coords,
+    size_t count,
+    size_t* out_changed_count) {
+    if (!navgrid || !source_key.source || (!coords && count != 0)
+        || !out_changed_count) {
+        return NAVSYS_STATUS_INVALID_ARGUMENT;
+    }
+    if (byul::navsys::internal::navgrid_callback_is_active(navgrid))
+        return NAVSYS_STATUS_IN_PROGRESS;
+
+    const auto* current = find_overlay_state(navgrid);
+    try {
+        navgrid_overlay_state_t prepared = current
+            ? *current
+            : navgrid_overlay_state_t{};
+        navgrid_overlay_id_t id = 0;
+        const auto source = prepared.sources.find(source_key);
+        if (source != prepared.sources.end()) {
+            id = source->second;
+        } else {
+            id = next_overlay_id(prepared);
+            if (id == 0) return NAVSYS_STATUS_LIMIT_REACHED;
+            prepared.sources.emplace(source_key, id);
+        }
+
+        overlay_coord_set_t replacement;
+        replacement.reserve(count);
+        for (size_t index = 0; index < count; ++index) {
+            replacement.insert(overlay_coord_key(coords[index].x, coords[index].y));
+        }
+
+        overlay_coord_set_t candidates = replacement;
+        const auto old_layer = prepared.layers.find(id);
+        if (old_layer != prepared.layers.end()) {
+            candidates.insert(old_layer->second.begin(), old_layer->second.end());
+        }
+        prepared.layers[id] = std::move(replacement);
+
+        size_t changed = 0;
+        for (const overlay_coord_key_t key : candidates) {
+            const int x = static_cast<int32_t>(key >> 32);
+            const int y = static_cast<int32_t>(key & 0xffffffffu);
+            if (navgrid_effectively_blocked(navgrid, current, key, x, y)
+                != navgrid_effectively_blocked(navgrid, &prepared, key, x, y)) {
+                ++changed;
+            }
+        }
+        const navsys_status_t status = commit_overlay_state(
+            navgrid, std::move(prepared));
+        if (status != NAVSYS_STATUS_OK) return status;
+        *out_changed_count = changed;
+        return NAVSYS_STATUS_OK;
+    } catch (const std::bad_alloc&) {
+        return NAVSYS_STATUS_OUT_OF_MEMORY;
+    } catch (...) {
+        return NAVSYS_STATUS_CORRUPT_STATE;
+    }
+}
+
+constexpr int canonical_dx4[] = {1, 0, -1, 0};
+constexpr int canonical_dy4[] = {0, 1, 0, -1};
+constexpr int canonical_dx8[] = {1, 1, 0, -1, -1, -1, 0, 1};
+constexpr int canonical_dy8[] = {0, 1, 1, 1, 0, -1, -1, -1};
+constexpr int legacy_dx4[] = {0, -1, 1, 0};
+constexpr int legacy_dy4[] = {-1, 0, 0, 1};
+constexpr int legacy_dx8[] = {0, -1, 1, 0, -1, -1, 1, 1};
+constexpr int legacy_dy8[] = {-1, 0, 0, 1, -1, 1, -1, 1};
+
+bool valid_export_buffer(
+    const void* out_buffer, size_t capacity, const size_t* out_count) {
+    return out_count
+        && ((!out_buffer && capacity == 0) || (out_buffer && capacity != 0));
+}
+
+navsys_status_t collect_immediate_neighbors(
+    const navgrid_t* navgrid,
+    int x,
+    int y,
+    bool traversable_only,
+    bool legacy_order,
+    coord_t (&result)[8],
+    size_t& result_count) {
+    if (!navgrid) return NAVSYS_STATUS_INVALID_ARGUMENT;
+    const int* dx = nullptr;
+    const int* dy = nullptr;
+    int candidate_count = 0;
+    if (navgrid->mode == NAVGRID_DIR_4) {
+        dx = legacy_order ? legacy_dx4 : canonical_dx4;
+        dy = legacy_order ? legacy_dy4 : canonical_dy4;
+        candidate_count = 4;
+    } else if (navgrid->mode == NAVGRID_DIR_8) {
+        dx = legacy_order ? legacy_dx8 : canonical_dx8;
+        dy = legacy_order ? legacy_dy8 : canonical_dy8;
+        candidate_count = 8;
+    } else {
+        return NAVSYS_STATUS_CORRUPT_STATE;
+    }
+
+    result_count = 0;
+    for (int index = 0; index < candidate_count; ++index) {
+        const int64_t nx64 = static_cast<int64_t>(x) + dx[index];
+        const int64_t ny64 = static_cast<int64_t>(y) + dy[index];
+        if (nx64 < std::numeric_limits<int>::min()
+            || nx64 > std::numeric_limits<int>::max()
+            || ny64 < std::numeric_limits<int>::min()
+            || ny64 > std::numeric_limits<int>::max()) {
+            continue;
+        }
+        const int nx = static_cast<int>(nx64);
+        const int ny = static_cast<int>(ny64);
+        if (!navgrid_is_inside(navgrid, nx, ny)) continue;
+        if (traversable_only) {
+            bool blocked = false;
+            const navsys_status_t status =
+                byul::navsys::internal::navgrid_invoke_is_coord_blocked_checked(
+                    navgrid, nx, ny, &blocked);
+            if (status != NAVSYS_STATUS_OK) return status;
+            if (blocked) continue;
+        }
+        result[result_count++] = coord_t{nx, ny};
+    }
+    return NAVSYS_STATUS_OK;
+}
+
+bool range_candidate(navgrid_dir_mode_t mode, int range, int64_t dx, int64_t dy) {
+    const int64_t absolute_x = dx < 0 ? -dx : dx;
+    const int64_t absolute_y = dy < 0 ? -dy : dy;
+    if (mode == NAVGRID_DIR_8) {
+        return absolute_x <= static_cast<int64_t>(range) + 1
+            && absolute_y <= static_cast<int64_t>(range) + 1
+            && !(range == 0 && dx == 0 && dy == 0);
+    }
+    if (mode != NAVGRID_DIR_4) return false;
+    if (range != 0 && absolute_x <= range && absolute_y <= range) return true;
+    return (absolute_x == static_cast<int64_t>(range) + 1 && absolute_y <= range)
+        || (absolute_y == static_cast<int64_t>(range) + 1 && absolute_x <= range);
+}
+
+bool overlay_key_has_canonical_owner(
+    const navgrid_overlay_state_t* state,
+    navgrid_overlay_id_t owner,
+    overlay_coord_key_t key) {
+    if (!state) return false;
+    for (const auto& [id, coords] : state->layers) {
+        if (id < owner && coords.find(key) != coords.end()) return false;
+    }
+    return true;
+}
+
+struct cell_validation_context_t {
+    bool valid = true;
+};
+
+void validate_materialized_cell(
+    const coord_t*, void* value, void* userdata) {
+    auto* context = static_cast<cell_validation_context_t*>(userdata);
+    if (!value
+        || navcell_validate(static_cast<const navcell_t*>(value))
+            != NAVSYS_STATUS_OK) {
+        context->valid = false;
+    }
+}
+
+struct cell_fill_context_t {
+    const navgrid_t* navgrid;
+    const navgrid_overlay_state_t* overlays;
+    navgrid_cell_entry_t* entries;
+    size_t index = 0;
+};
+
+void fill_materialized_cell(
+    const coord_t* key, void* value, void* userdata) {
+    auto* context = static_cast<cell_fill_context_t*>(userdata);
+    navgrid_cell_entry_t& entry = context->entries[context->index++];
+    entry.coord = *key;
+    entry.cell = *static_cast<const navcell_t*>(value);
+    entry.present = true;
+    entry.blocked = navgrid_effectively_blocked(
+        context->navgrid,
+        context->overlays,
+        overlay_coord_key(key->x, key->y),
+        key->x,
+        key->y);
+}
+
+bool cell_entry_less(
+    const navgrid_cell_entry_t& left, const navgrid_cell_entry_t& right) {
+    return left.coord.x < right.coord.x
+        || (left.coord.x == right.coord.x && left.coord.y < right.coord.y);
+}
+
+} // namespace
+
+uint32_t navgrid_get_abi_version(void) {
+    return BYUL_NAVGRID_ABI_VERSION;
+}
+
+uint64_t navgrid_get_abi_fingerprint(void) {
+    return BYUL_NAVGRID_ABI_FINGERPRINT;
+}
+
+navsys_status_t navgrid_check_abi(
+    uint32_t expected_version,
+    uint64_t expected_fingerprint,
+    navgrid_abi_mismatch_t* out_mismatch) {
+    if (!out_mismatch) return NAVSYS_STATUS_INVALID_ARGUMENT;
+
+    uint64_t supported_fingerprint = 0;
+    if (expected_version == BYUL_NAVGRID_ABI_VERSION) {
+        supported_fingerprint = BYUL_NAVGRID_ABI_FINGERPRINT;
+    } else if (expected_version == navgrid_abi1_version) {
+        supported_fingerprint = navgrid_abi1_fingerprint;
+    } else {
+        *out_mismatch = NAVGRID_ABI_VERSION_MISMATCH;
+        return NAVSYS_STATUS_UNSUPPORTED;
+    }
+
+    if (expected_fingerprint != supported_fingerprint) {
+        *out_mismatch = NAVGRID_ABI_FINGERPRINT_MISMATCH;
+        return NAVSYS_STATUS_UNSUPPORTED;
+    }
+    *out_mismatch = NAVGRID_ABI_MATCH;
+    return NAVSYS_STATUS_OK;
+}
 
 bool is_coord_blocked_navgrid(const void* context, 
     int x, int y, void* userdata) {
 
    const navgrid_t* navgrid = (const navgrid_t*)context;
     if (!navgrid) return false;
+    if (overlay_state_contains(
+            find_overlay_state(navgrid), overlay_coord_key(x, y))) {
+        return true;
+    }
     coord_t key = {x, y};
     if (!coord_hash_contains(navgrid->cell_map, &key)) {
         return false;
     }
 
     navcell_t out = {};
-    navgrid_fetch_cell(navgrid, x, y, &out);
+    if (navgrid_fetch_cell(navgrid, x, y, &out) != 0) return true;
+    if (navcell_validate(&out) != NAVSYS_STATUS_OK) return true;
     return out.terrain == TERRAIN_TYPE_FORBIDDEN;
 }
 
@@ -64,19 +477,34 @@ void navgrid_destroy(navgrid_t* navgrid) {
     if (!navgrid) return;
     if (byul::navsys::internal::navgrid_callback_is_active(navgrid))
         return;
+    overlay_states.erase(navgrid);
     coord_hash_destroy(navgrid->cell_map);
     delete navgrid;
 }
 
 navgrid_t* navgrid_copy(const navgrid_t* navgrid) {
     if (!navgrid) return nullptr;
+    if (byul::navsys::internal::navgrid_callback_is_active(navgrid))
+        return nullptr;
     navgrid_t* c = navgrid_create_full(
         navgrid->width, navgrid->height, navgrid->mode, 
         navgrid->is_coord_blocked_fn);
+    if (!c) return nullptr;
 
-    c->cell_map = coord_hash_copy(navgrid->cell_map);
+    coord_hash_t* copied_map = nullptr;
+    if (coord_hash_copy_ex(navgrid->cell_map, &copied_map)
+        != NAVSYS_STATUS_OK) {
+        navgrid_destroy(c);
+        return nullptr;
+    }
+    coord_hash_destroy(c->cell_map);
+    c->cell_map = copied_map;
     c->is_coord_blocked_fn_userdata =
         navgrid->is_coord_blocked_fn_userdata;
+    if (copy_overlay_state(navgrid, c) != NAVSYS_STATUS_OK) {
+        navgrid_destroy(c);
+        return nullptr;
+    }
     return c;
 }
 
@@ -126,6 +554,17 @@ is_coord_blocked_func navgrid_get_is_coord_blocked_fn(
     return navgrid->is_coord_blocked_fn;
 }
 
+navsys_status_t navgrid_fetch_is_coord_blocked_binding(
+    const navgrid_t* navgrid,
+    is_coord_blocked_func* out_fn,
+    void** out_userdata) {
+    if (!navgrid || !out_fn || !out_userdata)
+        return NAVSYS_STATUS_INVALID_ARGUMENT;
+    *out_fn = navgrid->is_coord_blocked_fn;
+    *out_userdata = navgrid->is_coord_blocked_fn_userdata;
+    return NAVSYS_STATUS_OK;
+}
+
 navsys_status_t navgrid_bind_is_coord_blocked_func(
     navgrid_t* navgrid, is_coord_blocked_func fn, void* userdata) {
     if (!navgrid || !fn) return NAVSYS_STATUS_INVALID_ARGUMENT;
@@ -155,20 +594,29 @@ void navgrid_set_mode(navgrid_t* navgrid, navgrid_dir_mode_t mode) {
 
 bool navgrid_block_coord(navgrid_t* navgrid, int x, int y) {
     if (!navgrid) return false;
-    coord_t c;
-    coord_init_full(&c, x, y);
-    navcell_t nc;
-    navcell_init_full(&nc, TERRAIN_TYPE_FORBIDDEN, 0);
-    return coord_hash_replace(navgrid->cell_map, &c, &nc);
+    const coord_t c = {x, y};
+    if (coord_hash_contains(navgrid->cell_map, &c)) {
+        const auto* current = static_cast<const navcell_t*>(
+            coord_hash_get(navgrid->cell_map, &c));
+        return current && current->terrain == TERRAIN_TYPE_FORBIDDEN;
+    }
+
+    navcell_t nc{};
+    if (navcell_init_checked(&nc, TERRAIN_TYPE_FORBIDDEN, 0)
+        != NAVSYS_STATUS_OK) {
+        return false;
+    }
+    return coord_hash_upsert_copy(navgrid->cell_map, &c, &nc, nullptr)
+        == NAVSYS_STATUS_OK;
 }
 
 bool navgrid_unblock_coord(navgrid_t* navgrid, int x, int y) {
     if (!navgrid) return false;
-    coord_t c;
-    coord_init_full(&c, x, y);
-    navcell_t nc;
-    navcell_init_full(&nc, TERRAIN_TYPE_NORMAL, 0);
-    return coord_hash_replace(navgrid->cell_map, &c, &nc);
+    const coord_t c = {x, y};
+    const auto* current = static_cast<const navcell_t*>(
+        coord_hash_get(navgrid->cell_map, &c));
+    if (!current || current->terrain != TERRAIN_TYPE_FORBIDDEN) return false;
+    return coord_hash_remove(navgrid->cell_map, &c);
 }
 
 bool navgrid_is_inside(const navgrid_t* navgrid, int x, int y) {
@@ -186,26 +634,78 @@ bool navgrid_is_inside(const navgrid_t* navgrid, int x, int y) {
 }
 
 void navgrid_clear(navgrid_t* navgrid) {
-    if (!navgrid) return;
+    bool changed = false;
+    (void)navgrid_clear_ex(navgrid, &changed);
+}
+
+navsys_status_t navgrid_block_coord_ex(
+    navgrid_t* navgrid, int x, int y, bool* out_changed) {
+    return set_default_overlay_coord(navgrid, x, y, true, out_changed);
+}
+
+navsys_status_t navgrid_unblock_coord_ex(
+    navgrid_t* navgrid, int x, int y, bool* out_changed) {
+    return set_default_overlay_coord(navgrid, x, y, false, out_changed);
+}
+
+navsys_status_t navgrid_clear_ex(navgrid_t* navgrid, bool* out_changed) {
+    if (!navgrid || !out_changed) return NAVSYS_STATUS_INVALID_ARGUMENT;
+    if (byul::navsys::internal::navgrid_callback_is_active(navgrid))
+        return NAVSYS_STATUS_IN_PROGRESS;
+    const bool changed = coord_hash_size(navgrid->cell_map) != 0
+        || find_overlay_state(navgrid) != nullptr;
     coord_hash_clear(navgrid->cell_map);
+    overlay_states.erase(navgrid);
+    *out_changed = changed;
+    return NAVSYS_STATUS_OK;
 }
 
 bool navgrid_set_cell(
     navgrid_t* navgrid, int x, int y, const navcell_t* cell) {
+    navcell_t prior{};
+    bool had_prior = false;
+    bool changed = false;
+    return navgrid_set_cell_ex(
+        navgrid, x, y, cell, &prior, &had_prior, &changed)
+        == NAVSYS_STATUS_OK;
+}
 
-    if (!navgrid || !cell) return false;
-    coord_t c;
-    coord_init_full(&c, x, y);
-    navcell_t copy;
-    navcell_assign(&copy, cell);
-    coord_hash_replace(navgrid->cell_map, &c, &copy);
-    return true;
+navsys_status_t navgrid_set_cell_ex(
+    navgrid_t* navgrid, int x, int y, const navcell_t* cell,
+    navcell_t* out_prior, bool* out_had_prior, bool* out_changed) {
+    if (!navgrid || !cell || !out_prior || !out_had_prior || !out_changed)
+        return NAVSYS_STATUS_INVALID_ARGUMENT;
+    if (byul::navsys::internal::navgrid_callback_is_active(navgrid))
+        return NAVSYS_STATUS_IN_PROGRESS;
+    if (!navgrid_is_inside(navgrid, x, y)) return NAVSYS_STATUS_NOT_FOUND;
+    const navsys_status_t validation = navcell_validate(cell);
+    if (validation != NAVSYS_STATUS_OK) return validation;
+
+    const coord_t key{x, y};
+    const auto* current = static_cast<const navcell_t*>(
+        coord_hash_get(navgrid->cell_map, &key));
+    const bool present = current != nullptr;
+    const navcell_t prior = present
+        ? *current
+        : navcell_t{TERRAIN_TYPE_NORMAL, 0};
+    const bool changed = !present
+        || prior.terrain != cell->terrain
+        || prior.height != cell->height;
+    if (changed) {
+        const navsys_status_t status = coord_hash_upsert_copy(
+            navgrid->cell_map, &key, cell, nullptr);
+        if (status != NAVSYS_STATUS_OK) return status;
+    }
+    *out_prior = prior;
+    *out_had_prior = present;
+    *out_changed = changed;
+    return NAVSYS_STATUS_OK;
 }
 
 int navgrid_fetch_cell(
     const navgrid_t* navgrid, int x, int y, navcell_t* out) {
 
-    if (!navgrid) return -1;
+    if (!navgrid || !out) return -1;
 
     coord_t c;
     coord_init_full(&c, x, y);
@@ -218,178 +718,592 @@ int navgrid_fetch_cell(
     return 0;
 }
 
+navsys_status_t navgrid_fetch_cell_ex(
+    const navgrid_t* navgrid, int x, int y,
+    navcell_t* out_cell, bool* out_present) {
+    if (!navgrid || !out_cell || !out_present)
+        return NAVSYS_STATUS_INVALID_ARGUMENT;
+    if (!navgrid_is_inside(navgrid, x, y)) return NAVSYS_STATUS_NOT_FOUND;
+    const coord_t key{x, y};
+    const auto* current = static_cast<const navcell_t*>(
+        coord_hash_get(navgrid->cell_map, &key));
+    if (current && navcell_validate(current) != NAVSYS_STATUS_OK)
+        return NAVSYS_STATUS_CORRUPT_STATE;
+    const navcell_t result = current
+        ? *current
+        : navcell_t{TERRAIN_TYPE_NORMAL, 0};
+    *out_cell = result;
+    *out_present = current != nullptr;
+    return NAVSYS_STATUS_OK;
+}
+
+navsys_status_t navgrid_apply_blocked_overlay(
+    navgrid_t* navgrid, const coord_t* coords, size_t count,
+    navgrid_overlay_id_t* out_overlay, size_t* out_changed_count) {
+    if (!navgrid || (!coords && count != 0)
+        || !out_overlay || !out_changed_count) {
+        return NAVSYS_STATUS_INVALID_ARGUMENT;
+    }
+    if (byul::navsys::internal::navgrid_callback_is_active(navgrid))
+        return NAVSYS_STATUS_IN_PROGRESS;
+    for (size_t index = 0; index < count; ++index) {
+        if (!navgrid_is_inside(navgrid, coords[index].x, coords[index].y))
+            return NAVSYS_STATUS_NOT_FOUND;
+    }
+    const auto* current = find_overlay_state(navgrid);
+    try {
+        navgrid_overlay_state_t prepared = current
+            ? *current
+            : navgrid_overlay_state_t{};
+        const navgrid_overlay_id_t id = next_overlay_id(prepared);
+        if (id == 0) return NAVSYS_STATUS_LIMIT_REACHED;
+        overlay_coord_set_t layer;
+        layer.reserve(count);
+        for (size_t index = 0; index < count; ++index) {
+            layer.insert(overlay_coord_key(coords[index].x, coords[index].y));
+        }
+        size_t changed = 0;
+        for (const overlay_coord_key_t key : layer) {
+            const int x = static_cast<int32_t>(key >> 32);
+            const int y = static_cast<int32_t>(key & 0xffffffffu);
+            if (!navgrid_effectively_blocked(navgrid, current, key, x, y))
+                ++changed;
+        }
+        prepared.layers.emplace(id, std::move(layer));
+        const navsys_status_t status = commit_overlay_state(
+            navgrid, std::move(prepared));
+        if (status != NAVSYS_STATUS_OK) return status;
+        *out_overlay = id;
+        *out_changed_count = changed;
+        return NAVSYS_STATUS_OK;
+    } catch (const std::bad_alloc&) {
+        return NAVSYS_STATUS_OUT_OF_MEMORY;
+    } catch (...) {
+        return NAVSYS_STATUS_CORRUPT_STATE;
+    }
+}
+
+navsys_status_t navgrid_remove_blocked_overlay(
+    navgrid_t* navgrid, navgrid_overlay_id_t overlay,
+    size_t* out_changed_count) {
+    if (!navgrid || overlay == 0 || !out_changed_count)
+        return NAVSYS_STATUS_INVALID_ARGUMENT;
+    if (byul::navsys::internal::navgrid_callback_is_active(navgrid))
+        return NAVSYS_STATUS_IN_PROGRESS;
+    const auto* current = find_overlay_state(navgrid);
+    if (!current) return NAVSYS_STATUS_NOT_FOUND;
+    const auto layer = current->layers.find(overlay);
+    if (layer == current->layers.end()) return NAVSYS_STATUS_NOT_FOUND;
+    try {
+        navgrid_overlay_state_t prepared = *current;
+        prepared.layers.erase(overlay);
+        for (auto source = prepared.sources.begin(); source != prepared.sources.end();) {
+            if (source->second == overlay) source = prepared.sources.erase(source);
+            else ++source;
+        }
+        size_t changed = 0;
+        for (const overlay_coord_key_t key : layer->second) {
+            const int x = static_cast<int32_t>(key >> 32);
+            const int y = static_cast<int32_t>(key & 0xffffffffu);
+            if (navgrid_effectively_blocked(navgrid, current, key, x, y)
+                != navgrid_effectively_blocked(navgrid, &prepared, key, x, y)) {
+                ++changed;
+            }
+        }
+        const navsys_status_t status = commit_overlay_state(
+            navgrid, std::move(prepared));
+        if (status != NAVSYS_STATUS_OK) return status;
+        *out_changed_count = changed;
+        return NAVSYS_STATUS_OK;
+    } catch (const std::bad_alloc&) {
+        return NAVSYS_STATUS_OUT_OF_MEMORY;
+    } catch (...) {
+        return NAVSYS_STATUS_CORRUPT_STATE;
+    }
+}
+
+namespace byul::navsys::internal {
+
+navsys_status_t navgrid_replace_blocked_overlay_source(
+    navgrid_t* navgrid,
+    navgrid_overlay_source_kind kind,
+    const void* source,
+    const coord_t* coords,
+    size_t count,
+    size_t* out_changed_count) {
+    return replace_source_overlay(
+        navgrid, overlay_source_key_t{kind, source},
+        coords, count, out_changed_count);
+}
+
+navsys_status_t navgrid_remove_blocked_overlay_source(
+    navgrid_t* navgrid,
+    navgrid_overlay_source_kind kind,
+    const void* source,
+    size_t* out_changed_count) {
+    if (!navgrid || !source || !out_changed_count)
+        return NAVSYS_STATUS_INVALID_ARGUMENT;
+    const auto* state = find_overlay_state(navgrid);
+    if (!state) return NAVSYS_STATUS_NOT_FOUND;
+    const auto found = state->sources.find(overlay_source_key_t{kind, source});
+    if (found == state->sources.end()) return NAVSYS_STATUS_NOT_FOUND;
+    return navgrid_remove_blocked_overlay(
+        navgrid, found->second, out_changed_count);
+}
+
+navsys_status_t navgrid_clear_blocked_at_coord(
+    navgrid_t* navgrid, int x, int y, bool* out_changed) {
+    if (!navgrid || !out_changed) return NAVSYS_STATUS_INVALID_ARGUMENT;
+    if (navgrid_callback_is_active(navgrid)) return NAVSYS_STATUS_IN_PROGRESS;
+
+    const overlay_coord_key_t key = overlay_coord_key(x, y);
+    const auto* current = find_overlay_state(navgrid);
+    const bool before = navgrid_effectively_blocked(
+        navgrid, current, key, x, y);
+    try {
+        if (current) {
+            navgrid_overlay_state_t prepared = *current;
+            for (auto layer = prepared.layers.begin();
+                 layer != prepared.layers.end();) {
+                layer->second.erase(key);
+                if (layer->second.empty() && layer->first == 0)
+                    layer = prepared.layers.erase(layer);
+                else
+                    ++layer;
+            }
+            const navsys_status_t status = commit_overlay_state(
+                navgrid, std::move(prepared));
+            if (status != NAVSYS_STATUS_OK) return status;
+        }
+
+        const coord_t coord{x, y};
+        const auto* base = static_cast<const navcell_t*>(
+            coord_hash_get(navgrid->cell_map, &coord));
+        if (base && base->terrain == TERRAIN_TYPE_FORBIDDEN)
+            (void)coord_hash_remove(navgrid->cell_map, &coord);
+        const bool after = navgrid_base_is_blocked(navgrid, x, y)
+            || overlay_state_contains(find_overlay_state(navgrid), key);
+        *out_changed = before != after;
+        return NAVSYS_STATUS_OK;
+    } catch (const std::bad_alloc&) {
+        return NAVSYS_STATUS_OUT_OF_MEMORY;
+    } catch (...) {
+        return NAVSYS_STATUS_CORRUPT_STATE;
+    }
+}
+
+} // namespace byul::navsys::internal
+
 const coord_hash_t* navgrid_get_cell_map(const navgrid_t* navgrid) {
     return navgrid ? navgrid->cell_map : nullptr;
 }
 
-coord_list_t* navgrid_copy_neighbors(
-    const navgrid_t* navgrid, int x, int y) {
+navsys_status_t navgrid_export_neighbors(
+    const navgrid_t* navgrid,
+    int x,
+    int y,
+    bool traversable_only,
+    coord_t* out_coords,
+    size_t capacity,
+    size_t* out_count) {
+    if (!navgrid || !valid_export_buffer(out_coords, capacity, out_count))
+        return NAVSYS_STATUS_INVALID_ARGUMENT;
+    if (!navgrid_is_inside(navgrid, x, y)) return NAVSYS_STATUS_NOT_FOUND;
+    coord_t neighbors[8]{};
+    size_t count = 0;
+    const navsys_status_t status = collect_immediate_neighbors(
+        navgrid, x, y, traversable_only, false, neighbors, count);
+    if (status != NAVSYS_STATUS_OK) return status;
+    if (!out_coords) {
+        *out_count = count;
+        return NAVSYS_STATUS_OK;
+    }
+    if (capacity < count) {
+        *out_count = count;
+        return NAVSYS_STATUS_INCOMPLETE;
+    }
+    std::copy_n(neighbors, count, out_coords);
+    *out_count = count;
+    return NAVSYS_STATUS_OK;
+}
 
-    if (!navgrid) return nullptr;
-    coord_list_t* list = coord_list_create();
-    static const int dx4[] = {0, -1, 1, 0};
-    static const int dy4[] = {-1, 0, 0, 1};
-    static const int dx8[] = {0, -1, 1, 0, -1, -1, 1, 1};
-    static const int dy8[] = {-1, 0, 0, 1, -1, 1, -1, 1};
+navsys_status_t navgrid_export_neighbors_range(
+    const navgrid_t* navgrid,
+    int x,
+    int y,
+    int range,
+    coord_t* out_coords,
+    size_t capacity,
+    size_t* out_count) {
+    if (!navgrid || range < 0
+        || !valid_export_buffer(out_coords, capacity, out_count)) {
+        return NAVSYS_STATUS_INVALID_ARGUMENT;
+    }
+    if (!navgrid_is_inside(navgrid, x, y)) return NAVSYS_STATUS_NOT_FOUND;
+    if (navgrid->mode != NAVGRID_DIR_4 && navgrid->mode != NAVGRID_DIR_8)
+        return NAVSYS_STATUS_CORRUPT_STATE;
 
-    const int* dx = (navgrid->mode == NAVGRID_DIR_8) ? dx8 : dx4;
-    const int* dy = (navgrid->mode == NAVGRID_DIR_8) ? dy8 : dy4;
-    int count = (navgrid->mode == NAVGRID_DIR_8) ? 8 : 4;
+    const int64_t radius = static_cast<int64_t>(range) + 1;
+    size_t required = 0;
+    for (int64_t dx = -radius; dx <= radius; ++dx) {
+        for (int64_t dy = -radius; dy <= radius; ++dy) {
+            if (!range_candidate(navgrid->mode, range, dx, dy)) continue;
+            const int64_t nx = static_cast<int64_t>(x) + dx;
+            const int64_t ny = static_cast<int64_t>(y) + dy;
+            if (nx < std::numeric_limits<int>::min()
+                || nx > std::numeric_limits<int>::max()
+                || ny < std::numeric_limits<int>::min()
+                || ny > std::numeric_limits<int>::max()
+                || !navgrid_is_inside(
+                    navgrid, static_cast<int>(nx), static_cast<int>(ny))) {
+                continue;
+            }
+            if (required == std::numeric_limits<size_t>::max())
+                return NAVSYS_STATUS_LIMIT_REACHED;
+            ++required;
+        }
+    }
+    if (!out_coords) {
+        *out_count = required;
+        return NAVSYS_STATUS_OK;
+    }
+    if (capacity < required) {
+        *out_count = required;
+        return NAVSYS_STATUS_INCOMPLETE;
+    }
+    size_t index = 0;
+    for (int64_t dx = -radius; dx <= radius; ++dx) {
+        for (int64_t dy = -radius; dy <= radius; ++dy) {
+            if (!range_candidate(navgrid->mode, range, dx, dy)) continue;
+            const int64_t nx = static_cast<int64_t>(x) + dx;
+            const int64_t ny = static_cast<int64_t>(y) + dy;
+            if (nx < std::numeric_limits<int>::min()
+                || nx > std::numeric_limits<int>::max()
+                || ny < std::numeric_limits<int>::min()
+                || ny > std::numeric_limits<int>::max()
+                || !navgrid_is_inside(
+                    navgrid, static_cast<int>(nx), static_cast<int>(ny))) {
+                continue;
+            }
+            out_coords[index++] = {
+                static_cast<int>(nx), static_cast<int>(ny)};
+        }
+    }
+    *out_count = required;
+    return NAVSYS_STATUS_OK;
+}
 
-    for (int i = 0; i < count; ++i) {
-        int nx = x + dx[i];
-        int ny = y + dy[i];
-        if (!navgrid_is_inside(navgrid, nx, ny)) continue;
-        if (byul::navsys::internal::navgrid_invoke_is_coord_blocked(
-            navgrid, nx, ny))
-            continue;
+navsys_status_t navgrid_fetch_neighbor_at_degree(
+    const navgrid_t* navgrid,
+    int x,
+    int y,
+    double degree,
+    coord_t* out_coord) {
+    if (!navgrid || !out_coord || !std::isfinite(degree))
+        return NAVSYS_STATUS_INVALID_ARGUMENT;
+    if (!navgrid_is_inside(navgrid, x, y)) return NAVSYS_STATUS_NOT_FOUND;
+    coord_t neighbors[8]{};
+    size_t count = 0;
+    const navsys_status_t status = collect_immediate_neighbors(
+        navgrid, x, y, false, false, neighbors, count);
+    if (status != NAVSYS_STATUS_OK) return status;
+    if (count == 0) return NAVSYS_STATUS_NOT_FOUND;
 
-        coord_t tmp = coord_t{nx, ny};
-        coord_list_push_back(list, &tmp);
+    double normalized = std::fmod(degree, 360.0);
+    if (normalized < 0.0) normalized += 360.0;
+    size_t best = 0;
+    double best_difference = 361.0;
+    double best_angle = 361.0;
+    for (size_t index = 0; index < count; ++index) {
+        double angle = std::atan2(
+            static_cast<double>(neighbors[index].y - y),
+            static_cast<double>(neighbors[index].x - x)) * 180.0 / 3.14159265358979323846;
+        if (angle < 0.0) angle += 360.0;
+        double difference = std::fabs(normalized - angle);
+        if (difference > 180.0) difference = 360.0 - difference;
+        if (difference < best_difference
+            || (difference == best_difference && angle < best_angle)) {
+            best = index;
+            best_difference = difference;
+            best_angle = angle;
+        }
+    }
+    *out_coord = neighbors[best];
+    return NAVSYS_STATUS_OK;
+}
+
+navsys_status_t navgrid_fetch_neighbor_at_goal(
+    const navgrid_t* navgrid,
+    const coord_t* center,
+    const coord_t* goal,
+    coord_t* out_coord) {
+    if (!navgrid || !center || !goal || !out_coord
+        || (center->x == goal->x && center->y == goal->y)) {
+        return NAVSYS_STATUS_INVALID_ARGUMENT;
+    }
+    const double degree = std::atan2(
+        static_cast<double>(goal->y) - center->y,
+        static_cast<double>(goal->x) - center->x) * 180.0 / 3.14159265358979323846;
+    return navgrid_fetch_neighbor_at_degree(
+        navgrid, center->x, center->y, degree, out_coord);
+}
+
+navsys_status_t navgrid_export_neighbors_at_degree_range(
+    const navgrid_t* navgrid,
+    const coord_t* center,
+    const coord_t* goal,
+    double start_deg,
+    double end_deg,
+    int range,
+    coord_t* out_coords,
+    size_t capacity,
+    size_t* out_count) {
+    if (!navgrid || !center || !goal || range < 0
+        || !std::isfinite(start_deg) || !std::isfinite(end_deg)
+        || (center->x == goal->x && center->y == goal->y)
+        || !valid_export_buffer(out_coords, capacity, out_count)) {
+        return NAVSYS_STATUS_INVALID_ARGUMENT;
+    }
+    if (!navgrid_is_inside(navgrid, center->x, center->y))
+        return NAVSYS_STATUS_NOT_FOUND;
+    double center_degree = std::atan2(
+        static_cast<double>(goal->y) - center->y,
+        static_cast<double>(goal->x) - center->x) * 180.0 / 3.14159265358979323846;
+    if (center_degree < 0.0) center_degree += 360.0;
+    auto normalize = [](double value) {
+        value = std::fmod(value, 360.0);
+        return value < 0.0 ? value + 360.0 : value;
+    };
+    const double minimum = normalize(center_degree + start_deg);
+    const double maximum = normalize(center_degree + end_deg);
+    const bool wraps = minimum > maximum;
+
+    auto included = [&](int64_t dx, int64_t dy) {
+        if (dx == 0 && dy == 0) return false;
+        double angle = std::atan2(
+            static_cast<double>(dy), static_cast<double>(dx))
+            * 180.0 / 3.14159265358979323846;
+        if (angle < 0.0) angle += 360.0;
+        return wraps ? (angle >= minimum || angle <= maximum)
+                     : (angle >= minimum && angle <= maximum);
+    };
+
+    size_t required = 0;
+    for (int64_t dx = -static_cast<int64_t>(range); dx <= range; ++dx) {
+        for (int64_t dy = -static_cast<int64_t>(range); dy <= range; ++dy) {
+            if (!included(dx, dy)) continue;
+            const int64_t nx = static_cast<int64_t>(center->x) + dx;
+            const int64_t ny = static_cast<int64_t>(center->y) + dy;
+            if (nx < std::numeric_limits<int>::min()
+                || nx > std::numeric_limits<int>::max()
+                || ny < std::numeric_limits<int>::min()
+                || ny > std::numeric_limits<int>::max()
+                || !navgrid_is_inside(
+                    navgrid, static_cast<int>(nx), static_cast<int>(ny))) {
+                continue;
+            }
+            ++required;
+        }
+    }
+    if (!out_coords) {
+        *out_count = required;
+        return NAVSYS_STATUS_OK;
+    }
+    if (capacity < required) {
+        *out_count = required;
+        return NAVSYS_STATUS_INCOMPLETE;
+    }
+    size_t index = 0;
+    for (int64_t dx = -static_cast<int64_t>(range); dx <= range; ++dx) {
+        for (int64_t dy = -static_cast<int64_t>(range); dy <= range; ++dy) {
+            if (!included(dx, dy)) continue;
+            const int64_t nx = static_cast<int64_t>(center->x) + dx;
+            const int64_t ny = static_cast<int64_t>(center->y) + dy;
+            if (nx < std::numeric_limits<int>::min()
+                || nx > std::numeric_limits<int>::max()
+                || ny < std::numeric_limits<int>::min()
+                || ny > std::numeric_limits<int>::max()
+                || !navgrid_is_inside(
+                    navgrid, static_cast<int>(nx), static_cast<int>(ny))) {
+                continue;
+            }
+            out_coords[index++] = {
+                static_cast<int>(nx), static_cast<int>(ny)};
+        }
+    }
+    *out_count = required;
+    return NAVSYS_STATUS_OK;
+}
+
+navsys_status_t navgrid_export_cells(
+    const navgrid_t* navgrid,
+    navgrid_cell_entry_t* out_entries,
+    size_t capacity,
+    size_t* out_count) {
+    if (!navgrid || !navgrid->cell_map
+        || !valid_export_buffer(out_entries, capacity, out_count)) {
+        return NAVSYS_STATUS_INVALID_ARGUMENT;
+    }
+    const navgrid_overlay_state_t* overlays = find_overlay_state(navgrid);
+    size_t required = coord_hash_size(navgrid->cell_map);
+    if (overlays) {
+        for (const auto& [id, coords] : overlays->layers) {
+            for (const overlay_coord_key_t key : coords) {
+                const coord_t coord{
+                    static_cast<int32_t>(key >> 32),
+                    static_cast<int32_t>(key & 0xffffffffu)};
+                if (!coord_hash_contains(navgrid->cell_map, &coord)
+                    && overlay_key_has_canonical_owner(overlays, id, key)) {
+                    if (required == std::numeric_limits<size_t>::max())
+                        return NAVSYS_STATUS_LIMIT_REACHED;
+                    ++required;
+                }
+            }
+        }
+    }
+    if (!out_entries) {
+        *out_count = required;
+        return NAVSYS_STATUS_OK;
+    }
+    if (capacity < required) {
+        *out_count = required;
+        return NAVSYS_STATUS_INCOMPLETE;
+    }
+
+    cell_validation_context_t validation{};
+    coord_hash_foreach(
+        const_cast<coord_hash_t*>(navgrid->cell_map),
+        validate_materialized_cell,
+        &validation);
+    if (!validation.valid) return NAVSYS_STATUS_CORRUPT_STATE;
+
+    cell_fill_context_t fill{navgrid, overlays, out_entries, 0};
+    coord_hash_foreach(
+        const_cast<coord_hash_t*>(navgrid->cell_map),
+        fill_materialized_cell,
+        &fill);
+    if (overlays) {
+        for (const auto& [id, coords] : overlays->layers) {
+            for (const overlay_coord_key_t key : coords) {
+                const coord_t coord{
+                    static_cast<int32_t>(key >> 32),
+                    static_cast<int32_t>(key & 0xffffffffu)};
+                if (coord_hash_contains(navgrid->cell_map, &coord)
+                    || !overlay_key_has_canonical_owner(overlays, id, key)) {
+                    continue;
+                }
+                out_entries[fill.index++] = {
+                    coord,
+                    navcell_t{TERRAIN_TYPE_NORMAL, 0},
+                    false,
+                    true};
+            }
+        }
+    }
+    std::sort(out_entries, out_entries + required, cell_entry_less);
+    *out_count = required;
+    return NAVSYS_STATUS_OK;
+}
+
+namespace {
+
+coord_list_t* create_coord_list(const coord_t* coords, size_t count) {
+    coord_list_t* list = nullptr;
+    if (coord_list_create_ex(&list) != NAVSYS_STATUS_OK) return nullptr;
+    if (coord_list_reserve(list, count) != NAVSYS_STATUS_OK) {
+        coord_list_destroy(list);
+        return nullptr;
+    }
+    for (size_t index = 0; index < count; ++index) {
+        if (coord_list_push_back_ex(list, &coords[index]) != NAVSYS_STATUS_OK) {
+            coord_list_destroy(list);
+            return nullptr;
+        }
     }
     return list;
+}
+
+template <typename Exporter>
+coord_list_t* copy_exported_coords(Exporter exporter) {
+    size_t count = 0;
+    if (exporter(nullptr, 0, &count) != NAVSYS_STATUS_OK) return nullptr;
+    try {
+        std::vector<coord_t> coords(count);
+        if (count != 0
+            && exporter(coords.data(), coords.size(), &count)
+                != NAVSYS_STATUS_OK) {
+            return nullptr;
+        }
+        return create_coord_list(coords.data(), count);
+    } catch (...) {
+        return nullptr;
+    }
+}
+
+} // namespace
+
+coord_list_t* navgrid_copy_neighbors(
+    const navgrid_t* navgrid, int x, int y) {
+    coord_t neighbors[8]{};
+    size_t count = 0;
+    if (collect_immediate_neighbors(
+            navgrid, x, y, true, true, neighbors, count)
+        != NAVSYS_STATUS_OK) {
+        return nullptr;
+    }
+    return create_coord_list(neighbors, count);
 }
 
 coord_list_t* navgrid_copy_neighbors_all(
     const navgrid_t* navgrid, int x, int y) {
-
-    if (!navgrid) return nullptr;
-    coord_list_t* list = coord_list_create();
-    static const int dx4[] = {0, -1, 1, 0};
-    static const int dy4[] = {-1, 0, 0, 1};
-    static const int dx8[] = {0, -1, 1, 0, -1, -1, 1, 1};
-    static const int dy8[] = {-1, 0, 0, 1, -1, 1, -1, 1};
-
-    const int* dx = (navgrid->mode == NAVGRID_DIR_8) ? dx8 : dx4;
-    const int* dy = (navgrid->mode == NAVGRID_DIR_8) ? dy8 : dy4;
-    int count = (navgrid->mode == NAVGRID_DIR_8) ? 8 : 4;
-
-    for (int i = 0; i < count; ++i) {
-        int nx = x + dx[i];
-        int ny = y + dy[i];
-        if (!navgrid_is_inside(navgrid, nx, ny)) continue;
-
-        coord_t tmp = coord_t{nx, ny};
-        coord_list_push_back(list, &tmp);
+    coord_t neighbors[8]{};
+    size_t count = 0;
+    if (collect_immediate_neighbors(
+            navgrid, x, y, false, true, neighbors, count)
+        != NAVSYS_STATUS_OK) {
+        return nullptr;
     }
-    return list;
+    return create_coord_list(neighbors, count);
 }
 
 coord_list_t* navgrid_copy_neighbors_all_range(
     navgrid_t* navgrid, int x, int y, int range) {
-
-    if (!navgrid || range < 0) return nullptr;
-    coord_hash_t* seen = coord_hash_create();
-    for (int dx = -range; dx <= range; ++dx) {
-        for (int dy = -range; dy <= range; ++dy) {
-            int cx = x + dx;
-            int cy = y + dy;
-            if (!navgrid_is_inside(navgrid, cx, cy)) continue;
-            coord_list_t* part = navgrid_copy_neighbors_all(navgrid, cx, cy);
-            int len = coord_list_length(part);
-            for (int i = 0; i < len; ++i) {
-                const coord_t* c = coord_list_get(part, i);
-                if (!coord_hash_contains(seen, c))
-                    coord_hash_replace(seen, c, nullptr);
-            }
-            coord_list_destroy(part);
-        }
-    }
-    coord_list_t* result = coord_hash_to_list(seen);
-    coord_hash_destroy(seen);
-    return result;
+    return copy_exported_coords(
+        [&](coord_t* output, size_t capacity, size_t* count) {
+            return navgrid_export_neighbors_range(
+                navgrid, x, y, range, output, capacity, count);
+        });
 }
 
 coord_t* navgrid_copy_neighbor_at_degree(
     const navgrid_t* navgrid, int x, int y, double degree) {
-    if (!navgrid) return nullptr;
-    static const int dx8[] = {1,  1, 0, -1, -1, -1,  0, 1};
-    static const int dy8[] = {0, -1, -1, -1,  0,  1,  1, 1};
-    int count = (navgrid->mode == NAVGRID_DIR_8) ? 8 : 4;
-    int best_index = -1;
-    double min_diff = 360.0;
-
-    coord_t origin;
-    coord_init_full(&origin, x, y);
-    for (int i = 0; i < count; ++i) {
-        int nx = x + dx8[i];
-        int ny = y + dy8[i];
-        if (!navgrid_is_inside(navgrid, nx, ny)) continue;
-        coord_t* target = coord_create_full(nx, ny);
-        double deg = coord_degree(&origin, target);
-        double diff = fabs(degree - deg);
-        if (diff > 180.0) diff = 360.0 - diff;
-        if (diff < min_diff) {
-            min_diff = diff;
-            best_index = i;
-        }
-        coord_destroy(target);
+    coord_t result{};
+    if (navgrid_fetch_neighbor_at_degree(navgrid, x, y, degree, &result)
+        != NAVSYS_STATUS_OK) {
+        return nullptr;
     }
-
-    if (best_index == -1) return nullptr;
-    return coord_create_full(x + dx8[best_index], y + dy8[best_index]);
+    return coord_create_full(result.x, result.y);
 }
 
 coord_t* navgrid_copy_neighbor_at_goal(
     const navgrid_t* navgrid, const coord_t* center, const coord_t* goal) {
-    if (!navgrid || !center || !goal) return nullptr;
-    int x = coord_get_x(center);
-    int y = coord_get_y(center);
-    coord_list_t* neighbors = navgrid_copy_neighbors_all(navgrid, x, y);
-    if (!neighbors) return nullptr;
-    double target_deg = coord_degree(center, goal);
-    coord_t* best = nullptr;
-    double min_diff = 360.0;
-
-    int len = coord_list_length(neighbors);
-    for (int i = 0; i < len; ++i) {
-        const coord_t* c = coord_list_get(neighbors, i);
-        double deg = coord_degree(center, c);
-        double diff = fabs(target_deg - deg);
-        if (diff > 180.0) diff = 360.0 - diff;
-        if (diff < min_diff) {
-            min_diff = diff;
-            if (best) coord_destroy(best);
-            best = coord_copy(c);
-        }
+    coord_t result{};
+    if (navgrid_fetch_neighbor_at_goal(navgrid, center, goal, &result)
+        != NAVSYS_STATUS_OK) {
+        return nullptr;
     }
-    coord_list_destroy(neighbors);
-    return best;
+    return coord_create_full(result.x, result.y);
 }
 
 coord_list_t* navgrid_copy_neighbors_at_degree_range(
     const navgrid_t* navgrid,
     const coord_t* center, const coord_t* goal,
     double start_deg, double end_deg,
-    int range
-) {
-    if (!navgrid || !center || !goal || range < 0) return nullptr;
-    double center_deg = coord_degree(center, goal);
-    double deg_min = fmod(center_deg + start_deg + 360.0, 360.0);
-    double deg_max = fmod(center_deg + end_deg + 360.0, 360.0);
-    bool wraps = deg_min > deg_max;
-
-    coord_hash_t* seen = coord_hash_create();
-    int cx = coord_get_x(center);
-    int cy = coord_get_y(center);
-
-    for (int dx = -range; dx <= range; ++dx) {
-        for (int dy = -range; dy <= range; ++dy) {
-            if (dx == 0 && dy == 0) continue;
-            int nx = cx + dx;
-            int ny = cy + dy;
-            if (!navgrid_is_inside(navgrid, nx, ny)) continue;
-            coord_t target;
-            coord_init_full(&target, nx, ny);
-            double deg = coord_degree(center, &target);
-            bool in_range = (!wraps) ? (deg >= deg_min && deg <= deg_max)
-                                     : (deg >= deg_min || deg <= deg_max);
-            if (in_range && !coord_hash_contains(seen, &target)) {
-                coord_hash_replace(seen, &target, nullptr);
-            }
-        }
-    }
-    coord_list_t* result = coord_hash_to_list(seen);
-    coord_hash_destroy(seen);
-    return result;
+    int range) {
+    return copy_exported_coords(
+        [&](coord_t* output, size_t capacity, size_t* count) {
+            return navgrid_export_neighbors_at_degree_range(
+                navgrid, center, goal, start_deg, end_deg, range,
+                output, capacity, count);
+        });
 }

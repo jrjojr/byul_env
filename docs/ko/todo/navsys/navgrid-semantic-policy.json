@@ -1,0 +1,146 @@
+{
+  "schema_version": 1,
+  "owner": "byul/navsys/navgrid/navgrid.h",
+  "abi_policy": "docs/ko/todo/navsys/navgrid-abi-policy.json",
+  "terrain_policy": "docs/ko/todo/navsys/navgrid-terrain-policy.json",
+  "coordinate_system": {
+    "unit": "grid-cell",
+    "x_positive": "right",
+    "y_positive": "down-in-screen-oriented-consumers-and-positive-in-coordinate-space",
+    "angle_zero": "+x",
+    "angle_positive": "atan2(+y,+x) normalized to [0,360)",
+    "screen_rotation": "clockwise",
+    "cartesian_rotation": "counter-clockwise",
+    "tie_break": "smallest-normalized-candidate-angle"
+  },
+  "canonical_extent": {
+    "bounded": {
+      "origin_types": "int32",
+      "extent_types": "uint32",
+      "width_min": 1,
+      "height_min": 1,
+      "membership": "origin_x <= x < origin_x + width and origin_y <= y < origin_y + height",
+      "arithmetic": "validate endpoints in signed-64-bit before commit",
+      "maximum_exclusive_endpoint": 2147483648
+    },
+    "unbounded": {
+      "flag": true,
+      "canonical_origin": [0, 0],
+      "canonical_extent": [0, 0],
+      "membership": "every int32 coordinate is inside"
+    },
+    "invalid": [
+      "negative legacy dimensions cannot enter canonical create or resize",
+      "bounded zero width or height",
+      "unbounded with nonzero origin width or height",
+      "endpoint outside the int32 coordinate domain plus one exclusive endpoint"
+    ]
+  },
+  "legacy_extent_characterization": {
+    "zero_axis": "that axis is independently unbounded",
+    "positive_axis": "half-open [0,dimension)",
+    "negative_axis": "half-open [dimension,0)",
+    "setters": "field-only update that preserves cells outside the new bounds",
+    "migration": "only nonnegative finite extents and the canonical 0x0 unbounded form migrate directly; mixed-unbounded and negative forms remain legacy-only"
+  },
+  "canonical_neighbor_order": {
+    "NAVGRID_DIR_4": [
+      {"name": "E", "dx": 1, "dy": 0, "angle": 0},
+      {"name": "S", "dx": 0, "dy": 1, "angle": 90},
+      {"name": "W", "dx": -1, "dy": 0, "angle": 180},
+      {"name": "N", "dx": 0, "dy": -1, "angle": 270}
+    ],
+    "NAVGRID_DIR_8": [
+      {"name": "E", "dx": 1, "dy": 0, "angle": 0},
+      {"name": "SE", "dx": 1, "dy": 1, "angle": 45},
+      {"name": "S", "dx": 0, "dy": 1, "angle": 90},
+      {"name": "SW", "dx": -1, "dy": 1, "angle": 135},
+      {"name": "W", "dx": -1, "dy": 0, "angle": 180},
+      {"name": "NW", "dx": -1, "dy": -1, "angle": 225},
+      {"name": "N", "dx": 0, "dy": -1, "angle": 270},
+      {"name": "NE", "dx": 1, "dy": -1, "angle": 315}
+    ],
+    "filtering": "preserve relative order after bounds blocked and corner-policy filtering",
+    "center_included": false
+  },
+  "legacy_neighbor_order": {
+    "NAVGRID_DIR_4": [[0, -1], [-1, 0], [1, 0], [0, 1]],
+    "NAVGRID_DIR_8": [[0, -1], [-1, 0], [1, 0], [0, 1], [-1, -1], [-1, 1], [1, -1], [1, 1]],
+    "compatibility": "legacy owned-list functions retain this order in ABI 1.x"
+  },
+  "diagonal_policies": {
+    "NAVGRID_DIAGONAL_NEVER": {
+      "diagonal_enabled": false,
+      "minimum_open_orthogonals": null
+    },
+    "NAVGRID_DIAGONAL_ALWAYS": {
+      "diagonal_enabled": true,
+      "minimum_open_orthogonals": 0
+    },
+    "NAVGRID_DIAGONAL_IF_ONE_ORTHOGONAL_OPEN": {
+      "diagonal_enabled": true,
+      "minimum_open_orthogonals": 1
+    },
+    "NAVGRID_DIAGONAL_IF_BOTH_ORTHOGONALS_OPEN": {
+      "diagonal_enabled": true,
+      "minimum_open_orthogonals": 2
+    },
+    "orthogonal_evaluation": "use the same effective blocked query as destination evaluation",
+    "failure": "any destination or orthogonal callback failure aborts the whole query and preserves outputs"
+  },
+  "degree_and_goal_selection": {
+    "candidate_set": "canonical neighbor order for the configured topology after bounds filtering",
+    "blocked_filter": "degree and goal selection are topology-only unless the operation explicitly requests traversable-only",
+    "distance": "minimum circular absolute angular distance",
+    "tie": "smallest normalized candidate angle",
+    "equal_center_goal": "INVALID_ARGUMENT and preserve output",
+    "NAVGRID_DIR_4": "only E S W N are candidates; never index the first four entries of an 8-direction table"
+  },
+  "cell_model": {
+    "absent": "no sparse-map entry; implicit NORMAL height 0 base cell",
+    "explicit_default": "present NORMAL height 0 entry; traversal-equivalent to absent but observably present to cell queries",
+    "base_forbidden": "present FORBIDDEN terrain and blocked by the built-in policy",
+    "block_overlay": "separate provenance-bearing blocked layer that does not overwrite the base cell",
+    "unblock": "remove only the selected overlay source and reveal the remaining overlays or base cell",
+    "traversal_cost": "navgrid assigns no cost; a route-finder default callback may return 1.0 independently of terrain",
+    "custom_callback": "when bound it replaces the built-in blocked interpretation and is authoritative for every inside coordinate",
+    "unknown_terrain": "reject normal mutation; raw corrupt entries are blocked conservatively"
+  },
+  "coordinate_query_result": {
+    "success_fields": ["presence", "blocked", "cell"],
+    "presence_values": ["absent", "present"],
+    "status_matrix": {
+      "invalid_grid_or_output": "NAVSYS_STATUS_INVALID_ARGUMENT",
+      "outside_bounded_extent": "NAVSYS_STATUS_NOT_FOUND",
+      "inside_absent": "NAVSYS_STATUS_OK with presence=absent and implicit default cell",
+      "inside_present_passable": "NAVSYS_STATUS_OK with presence=present and blocked=false",
+      "inside_present_blocked": "NAVSYS_STATUS_OK with presence=present and blocked=true",
+      "callback_non_ok_or_exception": "NAVSYS_STATUS_CALLBACK_FAILED",
+      "invalid_stored_cell": "NAVSYS_STATUS_CORRUPT_STATE"
+    },
+    "failure_output": "preserve the complete caller output on every non-OK status"
+  },
+  "caller_buffer_queries": {
+    "query": "out buffer NULL with capacity 0 returns required count",
+    "short_buffer": "INCOMPLETE writes required count and preserves the payload buffer",
+    "success": "writes the complete deterministic result and actual count",
+    "invalid_combination": "NULL with nonzero capacity or non-NULL with zero capacity is INVALID_ARGUMENT",
+    "neighbor_order": "canonical E S W N or E SE S SW W NW N NE with filtering preserving relative order",
+    "range_and_cone_order": "ascending x then ascending y",
+    "cell_order": "ascending coord.x then coord.y over the base-cell and overlay-coordinate union",
+    "cell_blocked_field": "built-in base FORBIDDEN or overlay state; custom callbacks cannot enumerate arbitrary coordinates",
+    "allocation": "native caller-buffer query paths perform no library allocation",
+    "legacy_adapter": "owned-return functions retain caller destroy ownership and forward through the checked query core"
+  },
+  "canonical_resize": {
+    "policy": "clip",
+    "coordinate_identity": "stored coordinates remain absolute when origin changes",
+    "shrink_or_origin_shift": "atomically remove base cells and overlays outside the new half-open extent",
+    "expand": "preserve all existing inside cells and expose no previously clipped cells",
+    "to_unbounded": "preserve every current cell and overlay",
+    "from_unbounded": "clip to the new bounded extent",
+    "binding_and_topology": "preserve callback binding direction mode and diagonal policy",
+    "changed": "false only when extent and retained storage are unchanged",
+    "failure": "validate and prepare before commit; invalid input OOM or callback failure preserves extent cells overlays and outputs"
+  }
+}

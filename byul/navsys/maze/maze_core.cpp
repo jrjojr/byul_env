@@ -2,6 +2,8 @@
 #include "maze_core.h"
 #include <stdlib.h>
 #include <string.h>
+#include <vector>
+#include "../navgrid/internal/navgrid_overlay.hpp"
 
 maze_t* maze_create() {
     return maze_create_full(0, 0, 0, 0);
@@ -90,30 +92,45 @@ const coord_hash_t* maze_get_blocked_coords(const maze_t* maze) {
 
 void maze_apply_to_navgrid(const maze_t* maze, navgrid_t* navgrid) {
     if (!maze || !navgrid) return;
+    try {
+        const size_t count = coord_hash_size(maze->blocked);
+        std::vector<coord_t> coords(count);
+        size_t exported = 0;
+        if (coord_hash_export_keys(
+                maze->blocked,
+                coords.empty() ? nullptr : coords.data(),
+                coords.size(),
+                &exported) != NAVSYS_STATUS_OK) {
+            return;
+        }
+        size_t changed = 0;
+        if (byul::navsys::internal::navgrid_replace_blocked_overlay_source(
+                navgrid,
+                byul::navsys::internal::navgrid_overlay_source_kind::maze,
+                maze,
+                coords.empty() ? nullptr : coords.data(),
+                exported,
+                &changed) != NAVSYS_STATUS_OK) {
+            return;
+        }
 
-    int maze_width = maze_get_width(maze);
-    int maze_height = maze_get_height(maze);
-    if(navgrid_get_width(navgrid) < maze_width) {
-        navgrid_set_width(navgrid, maze_width);
+        const int maze_width = maze_get_width(maze);
+        const int maze_height = maze_get_height(maze);
+        if (navgrid_get_width(navgrid) < maze_width)
+            navgrid_set_width(navgrid, maze_width);
+        if (navgrid_get_height(navgrid) < maze_height)
+            navgrid_set_height(navgrid, maze_height);
+    } catch (...) {
+        return;
     }
-    if(navgrid_get_height(navgrid) < maze_height){
-        navgrid_set_height(navgrid, maze_height);
-    }
-    coord_hash_iter_t* iter = coord_hash_iter_create((coord_hash_t*)maze->blocked);
-    coord_t key;
-    while (coord_hash_iter_next(iter, &key, NULL)) {
-        navgrid_block_coord(navgrid, key.x, key.y);
-    }
-    coord_hash_iter_destroy(iter);
 }
 
 void maze_remove_from_navgrid(const maze_t* maze, navgrid_t* navgrid) {
     if (!maze || !navgrid) return;
-
-    coord_hash_iter_t* iter = coord_hash_iter_create((coord_hash_t*)maze->blocked);
-    coord_t key;
-    while (coord_hash_iter_next(iter, &key, NULL)) {
-        navgrid_unblock_coord(navgrid, key.x, key.y);
-    }
-    coord_hash_iter_destroy(iter);
+    size_t changed = 0;
+    (void)byul::navsys::internal::navgrid_remove_blocked_overlay_source(
+        navgrid,
+        byul::navsys::internal::navgrid_overlay_source_kind::maze,
+        maze,
+        &changed);
 }

@@ -29,8 +29,35 @@ find_library(BYUL_IMPORT_LIBRARY
 
 add_executable(byul_sdk_consumer main.c)
 add_executable(byul_sdk_consumer_cpp main.cpp)
+add_executable(byul_navgrid_header_consumer navgrid_header_main.c)
+add_executable(byul_navgrid_header_consumer_cpp navgrid_header_main.cpp)
+set(BYUL_CONSUMER_TARGETS
+    byul_sdk_consumer
+    byul_sdk_consumer_cpp
+    byul_navgrid_header_consumer
+    byul_navgrid_header_consumer_cpp
+)
 
-foreach(consumer IN ITEMS byul_sdk_consumer byul_sdk_consumer_cpp)
+if(BYUL_ABI1_COMPAT_ROOT)
+    find_path(BYUL_ABI1_COMPAT_INCLUDE_DIR
+        NAMES navgrid_abi1.h
+        PATHS "${BYUL_ABI1_COMPAT_ROOT}/include/byul/compat/abi1"
+        NO_DEFAULT_PATH
+        REQUIRED
+    )
+    add_executable(byul_sdk_abi1_consumer abi1_main.c)
+    add_executable(byul_sdk_abi1_consumer_cpp abi1_main.cpp)
+    list(APPEND BYUL_CONSUMER_TARGETS
+        byul_sdk_abi1_consumer
+        byul_sdk_abi1_consumer_cpp
+    )
+    target_include_directories(byul_sdk_abi1_consumer
+        PRIVATE "${BYUL_ABI1_COMPAT_INCLUDE_DIR}")
+    target_include_directories(byul_sdk_abi1_consumer_cpp
+        PRIVATE "${BYUL_ABI1_COMPAT_INCLUDE_DIR}")
+endif()
+
+foreach(consumer IN LISTS BYUL_CONSUMER_TARGETS)
     target_include_directories(${consumer} PRIVATE "${BYUL_INCLUDE_DIR}")
     target_link_libraries(${consumer} PRIVATE "${BYUL_IMPORT_LIBRARY}")
     target_compile_options(${consumer} PRIVATE
@@ -51,7 +78,7 @@ if(WIN32)
         NO_DEFAULT_PATH
         REQUIRED
     )
-    foreach(consumer IN ITEMS byul_sdk_consumer byul_sdk_consumer_cpp)
+    foreach(consumer IN LISTS BYUL_CONSUMER_TARGETS)
         add_custom_command(TARGET ${consumer} POST_BUILD
             COMMAND "${CMAKE_COMMAND}" -E copy_if_different
                 "${BYUL_RUNTIME_LIBRARY}"

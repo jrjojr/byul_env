@@ -129,6 +129,77 @@ coord_t* create_checked_coord() {
         : nullptr;
 }
 
+navcell_t* create_checked_navcell() {
+    navcell_t* cell = nullptr;
+    return navcell_create_checked(TERRAIN_TYPE_FOREST, 17, &cell)
+            == NAVSYS_STATUS_OK
+        ? cell
+        : nullptr;
+}
+
+bool verify_navcell_checked_allocation_failure() {
+    const std::size_t baseline = tracked_live_allocations;
+    const navcell_t source = {TERRAIN_TYPE_WATER, 19};
+    navcell_t* const sentinel = reinterpret_cast<navcell_t*>(1);
+
+    navcell_t* created = sentinel;
+    track_allocations = true;
+    fail_after = 0;
+    const navsys_status_t create_status = navcell_create_checked(
+        source.terrain, source.height, &created);
+    fail_after = -1;
+    track_allocations = false;
+    if (create_status != NAVSYS_STATUS_OUT_OF_MEMORY
+        || created != sentinel
+        || tracked_live_allocations != baseline) {
+        std::fprintf(
+            stderr,
+            "navcell_create_checked did not preserve output on allocation failure\n");
+        return false;
+    }
+
+    navcell_t* copied = sentinel;
+    track_allocations = true;
+    fail_after = 0;
+    const navsys_status_t copy_status =
+        navcell_copy_checked(&source, &copied);
+    fail_after = -1;
+    track_allocations = false;
+    if (copy_status != NAVSYS_STATUS_OUT_OF_MEMORY
+        || copied != sentinel
+        || tracked_live_allocations != baseline) {
+        std::fprintf(
+            stderr,
+            "navcell_copy_checked did not preserve output on allocation failure\n");
+        return false;
+    }
+
+    track_allocations = true;
+    fail_after = 0;
+    navcell_t* legacy_created =
+        navcell_create_full(source.terrain, source.height);
+    fail_after = -1;
+    track_allocations = false;
+    if (legacy_created != nullptr || tracked_live_allocations != baseline) {
+        std::fprintf(stderr, "navcell_create_full leaked an allocation failure\n");
+        navcell_destroy(legacy_created);
+        return false;
+    }
+
+    track_allocations = true;
+    fail_after = 0;
+    navcell_t* legacy_copied = navcell_copy(&source);
+    fail_after = -1;
+    track_allocations = false;
+    if (legacy_copied != nullptr || tracked_live_allocations != baseline) {
+        std::fprintf(stderr, "navcell_copy leaked an allocation failure\n");
+        navcell_destroy(legacy_copied);
+        return false;
+    }
+
+    return true;
+}
+
 bool verify_coord_checked_allocation_failure() {
     const std::size_t baseline = tracked_live_allocations;
     coord_t source = {7, 9};
@@ -686,6 +757,161 @@ bool verify_failure_atomic_create(
     return false;
 }
 
+bool verify_navgrid_copy_allocation_failure() {
+    navgrid_t* source = navgrid_create();
+    if (!source || !navgrid_block_coord(source, 7, 9)) {
+        navgrid_destroy(source);
+        return false;
+    }
+
+    constexpr std::ptrdiff_t max_allocations = 256;
+    for (std::ptrdiff_t index = 0; index < max_allocations; ++index) {
+        const std::size_t baseline = tracked_live_allocations;
+        track_allocations = true;
+        fail_after = index;
+
+        navgrid_t* copy = nullptr;
+        bool exception_escaped = false;
+        try {
+            copy = navgrid_copy(source);
+        } catch (...) {
+            exception_escaped = true;
+        }
+        fail_after = -1;
+        if (copy) navgrid_destroy(copy);
+        track_allocations = false;
+
+        if (exception_escaped) {
+            std::fprintf(
+                stderr,
+                "navgrid copy leaked a C++ exception at allocation %td\n",
+                index);
+            navgrid_destroy(source);
+            return false;
+        }
+        if (tracked_live_allocations != baseline) {
+            std::fprintf(
+                stderr,
+                "navgrid copy leaked allocations at allocation %td: %zu -> %zu\n",
+                index,
+                baseline,
+                tracked_live_allocations);
+            navgrid_destroy(source);
+            return false;
+        }
+        if (copy) {
+            navgrid_destroy(source);
+            return true;
+        }
+    }
+
+    std::fprintf(stderr, "navgrid copy exceeded the allocation fixture limit\n");
+    navgrid_destroy(source);
+    return false;
+}
+
+bool verify_navgrid_checked_mutation_allocation_failure() {
+    navgrid_t* grid = navgrid_create_full(8, 8, NAVGRID_DIR_4, nullptr);
+    if (!grid) return false;
+
+    const navcell_t cell{TERRAIN_TYPE_FOREST, 37};
+    navcell_t prior{TERRAIN_TYPE_MOUNTAIN, 91};
+    bool had_prior = true;
+    bool changed = true;
+    const std::size_t baseline = tracked_live_allocations;
+    track_allocations = true;
+    fail_after = 0;
+    const navsys_status_t set_status = navgrid_set_cell_ex(
+        grid, 2, 3, &cell, &prior, &had_prior, &changed);
+    fail_after = -1;
+    track_allocations = false;
+    if (set_status != NAVSYS_STATUS_OUT_OF_MEMORY
+        || prior.terrain != TERRAIN_TYPE_MOUNTAIN
+        || prior.height != 91
+        || !had_prior
+        || !changed
+        || tracked_live_allocations != baseline) {
+        std::fprintf(stderr, "navgrid_set_cell_ex was not failure atomic\n");
+        navgrid_destroy(grid);
+        return false;
+    }
+
+    navcell_t fetched{};
+    bool present = true;
+    if (navgrid_fetch_cell_ex(grid, 2, 3, &fetched, &present)
+            != NAVSYS_STATUS_OK
+        || present) {
+        std::fprintf(stderr, "navgrid_set_cell_ex mutated the grid on OOM\n");
+        navgrid_destroy(grid);
+        return false;
+    }
+
+    const coord_t coords[] = {{2, 3}, {4, 5}};
+    navgrid_overlay_id_t overlay = 77;
+    std::size_t changed_count = 88;
+    track_allocations = true;
+    fail_after = 0;
+    const navsys_status_t overlay_status = navgrid_apply_blocked_overlay(
+        grid, coords, 2, &overlay, &changed_count);
+    fail_after = -1;
+    track_allocations = false;
+    if (overlay_status != NAVSYS_STATUS_OUT_OF_MEMORY
+        || overlay != 77
+        || changed_count != 88
+        || tracked_live_allocations != baseline
+        || is_coord_blocked_navgrid(grid, 2, 3, nullptr)) {
+        std::fprintf(stderr, "navgrid overlay apply was not failure atomic\n");
+        navgrid_destroy(grid);
+        return false;
+    }
+
+    navgrid_destroy(grid);
+    return true;
+}
+
+bool verify_navgrid_caller_buffer_queries_do_not_allocate() {
+    navgrid_t* grid = navgrid_create_full(8, 8, NAVGRID_DIR_4, nullptr);
+    if (!grid) return false;
+    const navcell_t forest{TERRAIN_TYPE_FOREST, 37};
+    if (!navgrid_set_cell(grid, 2, 3, &forest)) {
+        navgrid_destroy(grid);
+        return false;
+    }
+    const coord_t overlay_coords[] = {{2, 3}, {4, 5}};
+    navgrid_overlay_id_t overlay = 0;
+    std::size_t changed_count = 0;
+    if (navgrid_apply_blocked_overlay(
+            grid, overlay_coords, 2, &overlay, &changed_count)
+        != NAVSYS_STATUS_OK) {
+        navgrid_destroy(grid);
+        return false;
+    }
+
+    coord_t neighbors[4]{};
+    navgrid_cell_entry_t entries[2]{};
+    std::size_t count = 0;
+    const std::size_t baseline = tracked_live_allocations;
+    track_allocations = true;
+    fail_after = 0;
+    const navsys_status_t neighbor_status = navgrid_export_neighbors(
+        grid, 3, 3, false, neighbors, 4, &count);
+    const navsys_status_t cell_status = navgrid_export_cells(
+        grid, entries, 2, &count);
+    const bool no_allocation_attempt = fail_after == 0;
+    fail_after = -1;
+    track_allocations = false;
+
+    const bool valid = neighbor_status == NAVSYS_STATUS_OK
+        && cell_status == NAVSYS_STATUS_OK
+        && no_allocation_attempt
+        && tracked_live_allocations == baseline;
+    if (!valid) {
+        std::fprintf(stderr, "navgrid caller-buffer query allocated memory\n");
+    }
+    navgrid_destroy(grid);
+    return valid;
+}
+
 } // namespace
 
 void* operator new(std::size_t size) {
@@ -725,6 +951,9 @@ int main(int argc, char** argv) {
     if (!verify_coord_checked_allocation_failure()) {
         return 1;
     }
+    if (!verify_navcell_checked_allocation_failure()) {
+        return 15;
+    }
     if (!verify_dstar_lite_key_allocation_failure()) {
         return 9;
     }
@@ -745,6 +974,11 @@ int main(int argc, char** argv) {
     if (!verify_failure_atomic_create(
             "coord", create_checked_coord, coord_destroy)) {
         return 2;
+    }
+
+    if (!verify_failure_atomic_create(
+            "navcell", create_checked_navcell, navcell_destroy)) {
+        return 16;
     }
 
     if (!verify_failure_atomic_create(
@@ -774,6 +1008,15 @@ int main(int argc, char** argv) {
     if (!verify_failure_atomic_create(
             "navgrid", create_navgrid, destroy_navgrid)) {
         return 3;
+    }
+    if (!verify_navgrid_copy_allocation_failure()) {
+        return 17;
+    }
+    if (!verify_navgrid_checked_mutation_allocation_failure()) {
+        return 18;
+    }
+    if (!verify_navgrid_caller_buffer_queries_do_not_allocate()) {
+        return 19;
     }
 
     dependency_navgrid = navgrid_create();

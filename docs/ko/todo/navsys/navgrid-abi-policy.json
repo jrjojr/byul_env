@@ -1,0 +1,206 @@
+{
+  "schema_version": 1,
+  "baseline_revision": "083ca3ac2ea73317b8a23102a444339c3e0d7885",
+  "header": "byul/navsys/navgrid/navgrid.h",
+  "semantic_policy": "docs/ko/todo/navsys/navgrid-semantic-policy.json",
+  "abi_line": "2.x-with-abi1-binary-compatibility",
+  "platform_profile": "x86_64 Windows MSVC and MinGW",
+  "current_enum": {
+    "name": "navgrid_dir_mode_t",
+    "size": 4,
+    "values": {
+      "NAVGRID_DIR_4": 0,
+      "NAVGRID_DIR_8": 1
+    }
+  },
+  "callback": {
+    "name": "is_coord_blocked_func",
+    "signature": "bool (*)(const void*, int, int, void*)",
+    "calling_convention": "platform-default-C",
+    "thread": "synchronous-calling-thread",
+    "userdata_ownership": "caller-owned-borrowed-by-BYUL",
+    "userdata_lifetime": "bind-until-rebind-unbind-or-grid-destroy",
+    "reentrancy": "same-grid-bind-unbind-copy-destroy-and-nested-query-rejected-while-callback-active",
+    "exception_policy": "C++-callback-exceptions-map-to-callback-failed-at-the-internal-checked-boundary-and-owned-return-queries-return-null",
+    "copy_policy": "ABI-1-native-copy-retains-the-raw-function-and-userdata-pair-without-owning-userdata",
+    "copy_userdata_lifetime": "caller-keeps-userdata-alive-until-both-source-and-copy-are-rebound-unbound-or-destroyed",
+    "python_copy_policy": "copied-wrapper-must-retain-the-source-CFFI-callback-owner-or-install-an-independent-binding-before-use",
+    "destroy_policy": "destroy-never-frees-callback-userdata",
+    "unbind_policy": "function-and-userdata-become-null-together"
+  },
+  "current_type": {
+    "name": "navgrid_t",
+    "tag": "s_navgrid",
+    "storage": "heap-owned-opaque-resource",
+    "declaration": "typedef struct s_navgrid navgrid_t",
+    "public_fields": []
+  },
+  "abi1_compatibility_layout": {
+    "package_header": "byul/navsys/navgrid/compat/abi1/navgrid_abi1.h",
+    "install_component": "byul_sdk_abi1_compat",
+    "version": 1,
+    "fingerprint": "0x4e47524944010028",
+    "size": 40,
+    "alignment": 8,
+    "fields": [
+      {"declaration": "int width", "offset": 0},
+      {"declaration": "int height", "offset": 4},
+      {"declaration": "navgrid_dir_mode_t mode", "offset": 8},
+      {"declaration": "coord_hash_t* cell_map", "offset": 16},
+      {"declaration": "is_coord_blocked_func is_coord_blocked_fn", "offset": 24},
+      {"declaration": "void* is_coord_blocked_fn_userdata", "offset": 32}
+    ]
+  },
+  "current_abi_fingerprint": {
+    "version": 2,
+    "fingerprint": "0x4e4752494402002f",
+    "mismatch_enum": {
+      "NAVGRID_ABI_MATCH": 0,
+      "NAVGRID_ABI_VERSION_MISMATCH": 1,
+      "NAVGRID_ABI_FINGERPRINT_MISMATCH": 2
+    },
+    "runtime_support": [1, 2]
+  },
+  "current_cell_entry": {
+    "name": "navgrid_cell_entry_t",
+    "tag": "s_navgrid_cell_entry",
+    "storage": "basic-value-snapshot",
+    "size": 20,
+    "alignment": 4,
+    "fields": [
+      {"declaration": "coord_t coord", "offset": 0},
+      {"declaration": "navcell_t cell", "offset": 8},
+      {"declaration": "bool present", "offset": 16},
+      {"declaration": "bool blocked", "offset": 17}
+    ]
+  },
+  "current_functions": {
+    "navgrid_get_abi_version": "add",
+    "navgrid_get_abi_fingerprint": "add",
+    "navgrid_check_abi": "add",
+    "is_coord_blocked_navgrid": "deprecate-forward",
+    "navgrid_create": "deprecate-forward",
+    "navgrid_create_full": "deprecate-forward",
+    "navgrid_destroy": "keep",
+    "navgrid_copy": "deprecate-forward",
+    "navgrid_hash": "keep",
+    "navgrid_equal": "keep",
+    "navgrid_get_width": "deprecate-forward",
+    "navgrid_set_width": "deprecate-forward",
+    "navgrid_get_height": "deprecate-forward",
+    "navgrid_set_height": "deprecate-forward",
+    "navgrid_set_is_coord_blocked_func": "deprecate-forward",
+    "navgrid_get_is_coord_blocked_fn": "keep",
+    "navgrid_fetch_is_coord_blocked_binding": "add",
+    "navgrid_bind_is_coord_blocked_func": "add",
+    "navgrid_unbind_is_coord_blocked_func": "add",
+    "navgrid_get_mode": "deprecate-forward",
+    "navgrid_set_mode": "deprecate-forward",
+    "navgrid_block_coord": "deprecate-forward",
+    "navgrid_unblock_coord": "deprecate-forward",
+    "navgrid_block_coord_ex": "add",
+    "navgrid_unblock_coord_ex": "add",
+    "navgrid_is_inside": "deprecate-forward",
+    "navgrid_clear": "keep",
+    "navgrid_clear_ex": "add",
+    "navgrid_set_cell": "deprecate-forward",
+    "navgrid_fetch_cell": "deprecate-forward",
+    "navgrid_set_cell_ex": "add",
+    "navgrid_fetch_cell_ex": "add",
+    "navgrid_apply_blocked_overlay": "add",
+    "navgrid_remove_blocked_overlay": "add",
+    "navgrid_get_cell_map": "keep",
+    "navgrid_export_neighbors": "add",
+    "navgrid_export_neighbors_range": "add",
+    "navgrid_fetch_neighbor_at_degree": "add",
+    "navgrid_fetch_neighbor_at_goal": "add",
+    "navgrid_export_neighbors_at_degree_range": "add",
+    "navgrid_export_cells": "add",
+    "navgrid_copy_neighbors": "deprecate-forward",
+    "navgrid_copy_neighbors_all": "deprecate-forward",
+    "navgrid_copy_neighbors_all_range": "deprecate-forward",
+    "navgrid_copy_neighbor_at_degree": "deprecate-forward",
+    "navgrid_copy_neighbor_at_goal": "deprecate-forward",
+    "navgrid_copy_neighbors_at_degree_range": "deprecate-forward"
+  },
+  "consumer_inventory": {
+    "native_layout_owners": [
+      "byul/navsys/navgrid/navgrid.cpp",
+      "byul/navsys/navgrid/internal/navgrid_callback.hpp",
+      "byul/navsys/navgrid/internal/navgrid_private.hpp"
+    ],
+    "migrated_native_consumers": [
+      "byul/console/console.cpp",
+      "byul/navsys/route_finder/fast_marching.cpp"
+    ],
+    "native_compatibility_fixtures": [
+      "byul/navsys/navgrid/tests/test_module_navgrid.cpp",
+      "byul/navsys/tests/test_module_navsys.cpp",
+      "byul/tests/sdk_consumer/main.c",
+      "byul/tests/sdk_consumer/main.cpp",
+      "byul/tests/sdk_consumer/abi1_main.c",
+      "byul/tests/sdk_consumer/abi1_main.cpp"
+    ],
+    "generated_and_manual_wrapper": [
+      "tools/python/byul_wrapper/byul_wrapper/navgrid.py"
+    ],
+    "algorithm_consumers": [
+      "byul/navsys/dstar_lite",
+      "byul/navsys/route_finder"
+    ],
+    "map_producers_and_views": [
+      "byul/navsys/maze",
+      "byul/navsys/obstacle",
+      "byul/console"
+    ]
+  },
+  "abi_major_migration": {
+    "target": "opaque-navgrid-handle",
+    "status": "implemented",
+    "activation": "Navgrid ABI 2 public header; ABI 1 binary layout remains supported only through the opt-in compatibility component",
+    "replace_public_extent_fields": "validated extent accessors and create-info",
+    "replace_public_mode_field": "validated topology accessors",
+    "replace_public_cell_map": "cell count/export/visitor API",
+    "replace_public_callback_fields": "atomic binding query/bind/unbind API",
+    "consumer_order": [
+      "navgrid implementation and internal callback helper",
+      "route finder and D-star Lite",
+      "maze obstacle and console",
+      "root native tests and installed SDK consumers",
+      "generated CFFI and handwritten Python wrapper"
+    ],
+    "default_sdk": "opaque navgrid_t declaration with no owning fields",
+    "abi1_source_package": "install --component byul_sdk_abi1_compat",
+    "binary_compatibility": "private layout retains ABI 1 x64 size/alignment/offsets"
+  },
+  "current_characterization": {
+    "create_userdata": "initialized-to-null",
+    "legacy_null_setter": "sets-function-null-and-preserves-existing-userdata",
+    "copy_cell_map": "leak-free-failure-atomic-deep-copy-via-coord-hash-copy-ex",
+    "copy_binding": "copies-raw-function-and-userdata-without-owning-or-retaining-language-runtime-state",
+    "python_copy_binding": "copied-wrapper-retains-both-the-Python-callable-and-CFFI-callback-owner-until-rebind-unbind-or-destroy",
+    "callback_failure": "legacy-owned-return-query-returns-null-without-leaking-a-C++-exception",
+    "reentrant_binding": "same-grid-bind-unbind-and-copy-preserve-the-existing-binding-while-callback-is-active",
+    "checked_mutation": "status-and-prior-presence-changed-outputs-commit-only-on-success",
+    "overlay_storage": "sidecar-state-preserves-private-ABI1-binary-layout-and-base-cell-terrain-height",
+    "overlay_provenance": "independent-token-and-maze-obstacle-source-layers-removal-reveals-remaining-layers-or-base",
+    "route_carver_compatibility": "legacy-carving-clears-effective-blocked-layers-at-each-carved-coordinate-without-overwriting-custom-base-cells",
+    "caller_buffer_queries": "canonical-deterministic-order-query-and-short-buffer-preserve-payload-with-incomplete-count",
+    "cell_snapshot": "materialized-base-and-overlay-union-sorted-by-x-then-y-with-presence-and-built-in-blocked-state",
+    "legacy_query_adapters": "owned-return-functions-forward-through-the-new-query-core-and-retain-existing-destroy-ownership",
+    "python_blocked_coords": "materialized-cell-export-filter-with-no-missing-native-symbol",
+    "fix_owner_stages": {
+      "copy-and-binding": "completed-in-stage-3",
+      "checked-mutation-and-overlay": "completed-in-stage-4",
+      "caller-buffer-and-blocked-coords-wrapper": "completed-in-stage-5",
+      "opaque-layout": "completed-in-stage-6"
+    }
+  },
+  "layout_verification": {
+    "module_static": "test_navgrid opaque API and runtime fingerprint characterization",
+    "root_shared": "test_byul callback binding fixture",
+    "installed_sdk": "C17 and C++17 opaque consumers plus separate ABI 1 layout compatibility consumers",
+    "generated_wrapper": "CFFI declaration exact inventory",
+    "export_count": 47
+  }
+}

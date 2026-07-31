@@ -4,7 +4,7 @@
   "source_vocabulary": "docs/ko/todo/navsys/navsys-abi-vocabulary.json",
   "summary": {
     "headers": 47,
-    "symbols": 565,
+    "symbols": 588,
     "return_forms": {
       "nullable_pointer": 151,
       "bool_predicate": 22,
@@ -13,28 +13,28 @@
       "int_count": 24,
       "int_index_minus_one": 4,
       "void_fallible_operation": 144,
-      "enum_result": 140,
+      "enum_result": 163,
       "floating_result": 19,
       "callback_return": 0
     },
     "unclassified": 0,
     "duplicate_declarations": 1,
-    "audit_issues": 793,
-    "audit_errors": 793,
+    "audit_issues": 748,
+    "audit_errors": 748,
     "audit_codes": {
       "missing-brief": 5,
-      "missing-doxygen": 234,
-      "missing-nullable": 141,
+      "missing-doxygen": 203,
+      "missing-nullable": 139,
       "missing-param": 65,
-      "missing-param-direction": 199,
+      "missing-param-direction": 191,
       "missing-return": 13,
-      "missing-return-lifetime": 47,
-      "missing-return-nullable": 47,
+      "missing-return-lifetime": 45,
+      "missing-return-nullable": 45,
       "unknown-param": 12,
       "unnamed-parameter": 30
     },
     "lifecycle_resources": 28,
-    "lifecycle_operations": 99,
+    "lifecycle_operations": 101,
     "callback_bindings": 7
   },
   "known_debt": {
@@ -3249,411 +3249,6 @@
         "code": "missing-return-lifetime",
         "symbol": "maze_make_wilson",
         "message": "pointer return has no @byul.lifetime return",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/navgrid/navcell.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-navgrid-navcell.org",
-        "severity": "error",
-        "code": "missing-doxygen",
-        "symbol": "navcell_create_full",
-        "message": "public function has no adjacent Doxygen block",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/navgrid/navcell.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-navgrid-navcell.org",
-        "severity": "error",
-        "code": "missing-doxygen",
-        "symbol": "navcell_create",
-        "message": "public function has no adjacent Doxygen block",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/navgrid/navcell.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-navgrid-navcell.org",
-        "severity": "error",
-        "code": "missing-doxygen",
-        "symbol": "navcell_destroy",
-        "message": "public function has no adjacent Doxygen block",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/navgrid/navcell.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-navgrid-navcell.org",
-        "severity": "error",
-        "code": "missing-doxygen",
-        "symbol": "navcell_copy",
-        "message": "public function has no adjacent Doxygen block",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/navgrid/navcell.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-navgrid-navcell.org",
-        "severity": "error",
-        "code": "missing-doxygen",
-        "symbol": "navcell_init_full",
-        "message": "public function has no adjacent Doxygen block",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/navgrid/navcell.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-navgrid-navcell.org",
-        "severity": "error",
-        "code": "missing-doxygen",
-        "symbol": "navcell_init",
-        "message": "public function has no adjacent Doxygen block",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/navgrid/navcell.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-navgrid-navcell.org",
-        "severity": "error",
-        "code": "missing-doxygen",
-        "symbol": "navcell_assign",
-        "message": "public function has no adjacent Doxygen block",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/navgrid/navgrid.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-navgrid-navgrid.org",
-        "severity": "error",
-        "code": "missing-param-direction",
-        "symbol": "is_coord_blocked_navgrid",
-        "message": "parameter 'context' has no direction",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/navgrid/navgrid.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-navgrid-navgrid.org",
-        "severity": "error",
-        "code": "missing-nullable",
-        "symbol": "is_coord_blocked_navgrid",
-        "message": "pointer parameter 'context' has no @byul.nullable",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/navgrid/navgrid.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-navgrid-navgrid.org",
-        "severity": "error",
-        "code": "missing-param-direction",
-        "symbol": "is_coord_blocked_navgrid",
-        "message": "parameter 'x' has no direction",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/navgrid/navgrid.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-navgrid-navgrid.org",
-        "severity": "error",
-        "code": "missing-param-direction",
-        "symbol": "is_coord_blocked_navgrid",
-        "message": "parameter 'y' has no direction",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/navgrid/navgrid.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-navgrid-navgrid.org",
-        "severity": "error",
-        "code": "missing-param-direction",
-        "symbol": "is_coord_blocked_navgrid",
-        "message": "parameter 'userdata' has no direction",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/navgrid/navgrid.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-navgrid-navgrid.org",
-        "severity": "error",
-        "code": "missing-nullable",
-        "symbol": "is_coord_blocked_navgrid",
-        "message": "pointer parameter 'userdata' has no @byul.nullable",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/navgrid/navgrid.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-navgrid-navgrid.org",
-        "severity": "error",
-        "code": "missing-return-nullable",
-        "symbol": "navgrid_create",
-        "message": "pointer return has no @byul.nullable return",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/navgrid/navgrid.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-navgrid-navgrid.org",
-        "severity": "error",
-        "code": "missing-return-lifetime",
-        "symbol": "navgrid_create",
-        "message": "pointer return has no @byul.lifetime return",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/navgrid/navgrid.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-navgrid-navgrid.org",
-        "severity": "error",
-        "code": "missing-param-direction",
-        "symbol": "navgrid_create_full",
-        "message": "parameter 'width' has no direction",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/navgrid/navgrid.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-navgrid-navgrid.org",
-        "severity": "error",
-        "code": "missing-param-direction",
-        "symbol": "navgrid_create_full",
-        "message": "parameter 'height' has no direction",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/navgrid/navgrid.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-navgrid-navgrid.org",
-        "severity": "error",
-        "code": "missing-param-direction",
-        "symbol": "navgrid_create_full",
-        "message": "parameter 'mode' has no direction",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/navgrid/navgrid.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-navgrid-navgrid.org",
-        "severity": "error",
-        "code": "missing-param-direction",
-        "symbol": "navgrid_create_full",
-        "message": "parameter 'is_coord_blocked_fn' has no direction",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/navgrid/navgrid.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-navgrid-navgrid.org",
-        "severity": "error",
-        "code": "missing-return-nullable",
-        "symbol": "navgrid_create_full",
-        "message": "pointer return has no @byul.nullable return",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/navgrid/navgrid.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-navgrid-navgrid.org",
-        "severity": "error",
-        "code": "missing-return-lifetime",
-        "symbol": "navgrid_create_full",
-        "message": "pointer return has no @byul.lifetime return",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/navgrid/navgrid.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-navgrid-navgrid.org",
-        "severity": "error",
-        "code": "missing-doxygen",
-        "symbol": "navgrid_copy",
-        "message": "public function has no adjacent Doxygen block",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/navgrid/navgrid.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-navgrid-navgrid.org",
-        "severity": "error",
-        "code": "missing-doxygen",
-        "symbol": "navgrid_hash",
-        "message": "public function has no adjacent Doxygen block",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/navgrid/navgrid.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-navgrid-navgrid.org",
-        "severity": "error",
-        "code": "missing-doxygen",
-        "symbol": "navgrid_equal",
-        "message": "public function has no adjacent Doxygen block",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/navgrid/navgrid.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-navgrid-navgrid.org",
-        "severity": "error",
-        "code": "missing-doxygen",
-        "symbol": "navgrid_get_width",
-        "message": "public function has no adjacent Doxygen block",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/navgrid/navgrid.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-navgrid-navgrid.org",
-        "severity": "error",
-        "code": "missing-doxygen",
-        "symbol": "navgrid_set_width",
-        "message": "public function has no adjacent Doxygen block",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/navgrid/navgrid.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-navgrid-navgrid.org",
-        "severity": "error",
-        "code": "missing-doxygen",
-        "symbol": "navgrid_get_height",
-        "message": "public function has no adjacent Doxygen block",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/navgrid/navgrid.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-navgrid-navgrid.org",
-        "severity": "error",
-        "code": "missing-doxygen",
-        "symbol": "navgrid_set_height",
-        "message": "public function has no adjacent Doxygen block",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/navgrid/navgrid.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-navgrid-navgrid.org",
-        "severity": "error",
-        "code": "missing-doxygen",
-        "symbol": "navgrid_set_is_coord_blocked_func",
-        "message": "public function has no adjacent Doxygen block",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/navgrid/navgrid.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-navgrid-navgrid.org",
-        "severity": "error",
-        "code": "missing-doxygen",
-        "symbol": "navgrid_get_is_coord_blocked_fn",
-        "message": "public function has no adjacent Doxygen block",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/navgrid/navgrid.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-navgrid-navgrid.org",
-        "severity": "error",
-        "code": "missing-doxygen",
-        "symbol": "navgrid_get_mode",
-        "message": "public function has no adjacent Doxygen block",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/navgrid/navgrid.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-navgrid-navgrid.org",
-        "severity": "error",
-        "code": "missing-doxygen",
-        "symbol": "navgrid_set_mode",
-        "message": "public function has no adjacent Doxygen block",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/navgrid/navgrid.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-navgrid-navgrid.org",
-        "severity": "error",
-        "code": "missing-doxygen",
-        "symbol": "navgrid_block_coord",
-        "message": "public function has no adjacent Doxygen block",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/navgrid/navgrid.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-navgrid-navgrid.org",
-        "severity": "error",
-        "code": "missing-doxygen",
-        "symbol": "navgrid_unblock_coord",
-        "message": "public function has no adjacent Doxygen block",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/navgrid/navgrid.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-navgrid-navgrid.org",
-        "severity": "error",
-        "code": "missing-doxygen",
-        "symbol": "navgrid_is_inside",
-        "message": "public function has no adjacent Doxygen block",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/navgrid/navgrid.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-navgrid-navgrid.org",
-        "severity": "error",
-        "code": "missing-doxygen",
-        "symbol": "navgrid_clear",
-        "message": "public function has no adjacent Doxygen block",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/navgrid/navgrid.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-navgrid-navgrid.org",
-        "severity": "error",
-        "code": "missing-doxygen",
-        "symbol": "navgrid_set_cell",
-        "message": "public function has no adjacent Doxygen block",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/navgrid/navgrid.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-navgrid-navgrid.org",
-        "severity": "error",
-        "code": "missing-doxygen",
-        "symbol": "navgrid_fetch_cell",
-        "message": "public function has no adjacent Doxygen block",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/navgrid/navgrid.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-navgrid-navgrid.org",
-        "severity": "error",
-        "code": "missing-doxygen",
-        "symbol": "navgrid_get_cell_map",
-        "message": "public function has no adjacent Doxygen block",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/navgrid/navgrid.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-navgrid-navgrid.org",
-        "severity": "error",
-        "code": "missing-doxygen",
-        "symbol": "navgrid_copy_neighbors",
-        "message": "public function has no adjacent Doxygen block",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/navgrid/navgrid.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-navgrid-navgrid.org",
-        "severity": "error",
-        "code": "missing-doxygen",
-        "symbol": "navgrid_copy_neighbors_all",
-        "message": "public function has no adjacent Doxygen block",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/navgrid/navgrid.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-navgrid-navgrid.org",
-        "severity": "error",
-        "code": "missing-doxygen",
-        "symbol": "navgrid_copy_neighbors_all_range",
-        "message": "public function has no adjacent Doxygen block",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/navgrid/navgrid.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-navgrid-navgrid.org",
-        "severity": "error",
-        "code": "missing-doxygen",
-        "symbol": "navgrid_copy_neighbor_at_degree",
-        "message": "public function has no adjacent Doxygen block",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/navgrid/navgrid.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-navgrid-navgrid.org",
-        "severity": "error",
-        "code": "missing-doxygen",
-        "symbol": "navgrid_copy_neighbor_at_goal",
-        "message": "public function has no adjacent Doxygen block",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/navgrid/navgrid.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-navgrid-navgrid.org",
-        "severity": "error",
-        "code": "missing-doxygen",
-        "symbol": "navgrid_copy_neighbors_at_degree_range",
-        "message": "public function has no adjacent Doxygen block",
         "disposition": "route-to-owner-child"
       },
       {
@@ -7747,9 +7342,15 @@
       "owner_todo": "docs/ko/todo/navsys/todo-navsys-navgrid-navcell.org",
       "primary_role": "public-component",
       "wrapper_mode": "generated",
-      "symbol_count": 7,
-      "audit_issue_count": 7,
+      "symbol_count": 13,
+      "audit_issue_count": 0,
       "symbols": [
+        "navcell_is_terrain_supported",
+        "navcell_validate",
+        "navcell_init_checked",
+        "navcell_create_checked",
+        "navcell_copy_checked",
+        "navcell_assign_checked",
         "navcell_create_full",
         "navcell_create",
         "navcell_destroy",
@@ -7764,10 +7365,13 @@
       "owner_todo": "docs/ko/todo/navsys/todo-navsys-navgrid-navgrid.org",
       "primary_role": "public-component",
       "wrapper_mode": "generated",
-      "symbol_count": 30,
-      "audit_issue_count": 38,
+      "symbol_count": 47,
+      "audit_issue_count": 0,
       "symbols": [
         "is_coord_blocked_navgrid",
+        "navgrid_get_abi_version",
+        "navgrid_get_abi_fingerprint",
+        "navgrid_check_abi",
         "navgrid_create",
         "navgrid_create_full",
         "navgrid_destroy",
@@ -7780,6 +7384,7 @@
         "navgrid_set_height",
         "navgrid_set_is_coord_blocked_func",
         "navgrid_get_is_coord_blocked_fn",
+        "navgrid_fetch_is_coord_blocked_binding",
         "navgrid_bind_is_coord_blocked_func",
         "navgrid_unbind_is_coord_blocked_func",
         "navgrid_get_mode",
@@ -7788,9 +7393,22 @@
         "navgrid_unblock_coord",
         "navgrid_is_inside",
         "navgrid_clear",
+        "navgrid_block_coord_ex",
+        "navgrid_unblock_coord_ex",
+        "navgrid_clear_ex",
         "navgrid_set_cell",
         "navgrid_fetch_cell",
+        "navgrid_set_cell_ex",
+        "navgrid_fetch_cell_ex",
+        "navgrid_apply_blocked_overlay",
+        "navgrid_remove_blocked_overlay",
         "navgrid_get_cell_map",
+        "navgrid_export_neighbors",
+        "navgrid_export_neighbors_range",
+        "navgrid_fetch_neighbor_at_degree",
+        "navgrid_fetch_neighbor_at_goal",
+        "navgrid_export_neighbors_at_degree_range",
+        "navgrid_export_cells",
         "navgrid_copy_neighbors",
         "navgrid_copy_neighbors_all",
         "navgrid_copy_neighbors_all_range",
@@ -10692,6 +10310,54 @@
     },
     {
       "header": "byul/navsys/navgrid/navcell.h",
+      "name": "navcell_is_terrain_supported",
+      "return_type": "navsys_status_t",
+      "signature": "navsys_status_t navcell_is_terrain_supported( terrain_type_t terrain, bool* out_supported);",
+      "return_form": "enum_result",
+      "canonical": "navsys_status_t plus typed out enum"
+    },
+    {
+      "header": "byul/navsys/navgrid/navcell.h",
+      "name": "navcell_validate",
+      "return_type": "navsys_status_t",
+      "signature": "navsys_status_t navcell_validate(const navcell_t* cell);",
+      "return_form": "enum_result",
+      "canonical": "navsys_status_t plus typed out enum"
+    },
+    {
+      "header": "byul/navsys/navgrid/navcell.h",
+      "name": "navcell_init_checked",
+      "return_type": "navsys_status_t",
+      "signature": "navsys_status_t navcell_init_checked( navcell_t* out_cell, terrain_type_t terrain, int32_t height);",
+      "return_form": "enum_result",
+      "canonical": "navsys_status_t plus typed out enum"
+    },
+    {
+      "header": "byul/navsys/navgrid/navcell.h",
+      "name": "navcell_create_checked",
+      "return_type": "navsys_status_t",
+      "signature": "navsys_status_t navcell_create_checked( terrain_type_t terrain, int32_t height, navcell_t** out_cell);",
+      "return_form": "enum_result",
+      "canonical": "navsys_status_t plus typed out enum"
+    },
+    {
+      "header": "byul/navsys/navgrid/navcell.h",
+      "name": "navcell_copy_checked",
+      "return_type": "navsys_status_t",
+      "signature": "navsys_status_t navcell_copy_checked( const navcell_t* source, navcell_t** out_cell);",
+      "return_form": "enum_result",
+      "canonical": "navsys_status_t plus typed out enum"
+    },
+    {
+      "header": "byul/navsys/navgrid/navcell.h",
+      "name": "navcell_assign_checked",
+      "return_type": "navsys_status_t",
+      "signature": "navsys_status_t navcell_assign_checked( navcell_t* out_cell, const navcell_t* source);",
+      "return_form": "enum_result",
+      "canonical": "navsys_status_t plus typed out enum"
+    },
+    {
+      "header": "byul/navsys/navgrid/navcell.h",
       "name": "navcell_create_full",
       "return_type": "navcell_t*",
       "signature": "navcell_t* navcell_create_full(terrain_type_t terrain, int height);",
@@ -10753,6 +10419,30 @@
       "signature": "bool is_coord_blocked_navgrid( const void* context, int x, int y, void* userdata);",
       "return_form": "bool_predicate",
       "canonical": "keep bool when evaluation itself cannot fail"
+    },
+    {
+      "header": "byul/navsys/navgrid/navgrid.h",
+      "name": "navgrid_get_abi_version",
+      "return_type": "uint32_t",
+      "signature": "uint32_t navgrid_get_abi_version(void);",
+      "return_form": "enum_result",
+      "canonical": "navsys_status_t plus typed out enum"
+    },
+    {
+      "header": "byul/navsys/navgrid/navgrid.h",
+      "name": "navgrid_get_abi_fingerprint",
+      "return_type": "uint64_t",
+      "signature": "uint64_t navgrid_get_abi_fingerprint(void);",
+      "return_form": "enum_result",
+      "canonical": "navsys_status_t plus typed out enum"
+    },
+    {
+      "header": "byul/navsys/navgrid/navgrid.h",
+      "name": "navgrid_check_abi",
+      "return_type": "navsys_status_t",
+      "signature": "navsys_status_t navgrid_check_abi( uint32_t expected_version, uint64_t expected_fingerprint, navgrid_abi_mismatch_t* out_mismatch);",
+      "return_form": "enum_result",
+      "canonical": "navsys_status_t plus typed out enum"
     },
     {
       "header": "byul/navsys/navgrid/navgrid.h",
@@ -10852,6 +10542,14 @@
     },
     {
       "header": "byul/navsys/navgrid/navgrid.h",
+      "name": "navgrid_fetch_is_coord_blocked_binding",
+      "return_type": "navsys_status_t",
+      "signature": "navsys_status_t navgrid_fetch_is_coord_blocked_binding( const navgrid_t* navgrid, is_coord_blocked_func* out_fn, void** out_userdata);",
+      "return_form": "enum_result",
+      "canonical": "navsys_status_t plus typed out enum"
+    },
+    {
+      "header": "byul/navsys/navgrid/navgrid.h",
       "name": "navgrid_bind_is_coord_blocked_func",
       "return_type": "navsys_status_t",
       "signature": "navsys_status_t navgrid_bind_is_coord_blocked_func( navgrid_t* navgrid, is_coord_blocked_func fn, void* userdata);",
@@ -10916,6 +10614,30 @@
     },
     {
       "header": "byul/navsys/navgrid/navgrid.h",
+      "name": "navgrid_block_coord_ex",
+      "return_type": "navsys_status_t",
+      "signature": "navsys_status_t navgrid_block_coord_ex( navgrid_t* navgrid, int x, int y, bool* out_changed);",
+      "return_form": "enum_result",
+      "canonical": "navsys_status_t plus typed out enum"
+    },
+    {
+      "header": "byul/navsys/navgrid/navgrid.h",
+      "name": "navgrid_unblock_coord_ex",
+      "return_type": "navsys_status_t",
+      "signature": "navsys_status_t navgrid_unblock_coord_ex( navgrid_t* navgrid, int x, int y, bool* out_changed);",
+      "return_form": "enum_result",
+      "canonical": "navsys_status_t plus typed out enum"
+    },
+    {
+      "header": "byul/navsys/navgrid/navgrid.h",
+      "name": "navgrid_clear_ex",
+      "return_type": "navsys_status_t",
+      "signature": "navsys_status_t navgrid_clear_ex( navgrid_t* navgrid, bool* out_changed);",
+      "return_form": "enum_result",
+      "canonical": "navsys_status_t plus typed out enum"
+    },
+    {
+      "header": "byul/navsys/navgrid/navgrid.h",
       "name": "navgrid_set_cell",
       "return_type": "bool",
       "signature": "bool navgrid_set_cell( navgrid_t* navgrid, int x, int y, const navcell_t* cell);",
@@ -10932,11 +10654,91 @@
     },
     {
       "header": "byul/navsys/navgrid/navgrid.h",
+      "name": "navgrid_set_cell_ex",
+      "return_type": "navsys_status_t",
+      "signature": "navsys_status_t navgrid_set_cell_ex( navgrid_t* navgrid, int x, int y, const navcell_t* cell, navcell_t* out_prior, bool* out_had_prior, bool* out_changed);",
+      "return_form": "enum_result",
+      "canonical": "navsys_status_t plus typed out enum"
+    },
+    {
+      "header": "byul/navsys/navgrid/navgrid.h",
+      "name": "navgrid_fetch_cell_ex",
+      "return_type": "navsys_status_t",
+      "signature": "navsys_status_t navgrid_fetch_cell_ex( const navgrid_t* navgrid, int x, int y, navcell_t* out_cell, bool* out_present);",
+      "return_form": "enum_result",
+      "canonical": "navsys_status_t plus typed out enum"
+    },
+    {
+      "header": "byul/navsys/navgrid/navgrid.h",
+      "name": "navgrid_apply_blocked_overlay",
+      "return_type": "navsys_status_t",
+      "signature": "navsys_status_t navgrid_apply_blocked_overlay( navgrid_t* navgrid, const coord_t* coords, size_t count, navgrid_overlay_id_t* out_overlay, size_t* out_changed_count);",
+      "return_form": "enum_result",
+      "canonical": "navsys_status_t plus typed out enum"
+    },
+    {
+      "header": "byul/navsys/navgrid/navgrid.h",
+      "name": "navgrid_remove_blocked_overlay",
+      "return_type": "navsys_status_t",
+      "signature": "navsys_status_t navgrid_remove_blocked_overlay( navgrid_t* navgrid, navgrid_overlay_id_t overlay, size_t* out_changed_count);",
+      "return_form": "enum_result",
+      "canonical": "navsys_status_t plus typed out enum"
+    },
+    {
+      "header": "byul/navsys/navgrid/navgrid.h",
       "name": "navgrid_get_cell_map",
       "return_type": "const coord_hash_t*",
       "signature": "const coord_hash_t* navgrid_get_cell_map(const navgrid_t* navgrid);",
       "return_form": "nullable_pointer",
       "canonical": "status return plus typed out pointer"
+    },
+    {
+      "header": "byul/navsys/navgrid/navgrid.h",
+      "name": "navgrid_export_neighbors",
+      "return_type": "navsys_status_t",
+      "signature": "navsys_status_t navgrid_export_neighbors( const navgrid_t* navgrid, int x, int y, bool traversable_only, coord_t* out_coords, size_t capacity, size_t* out_count);",
+      "return_form": "enum_result",
+      "canonical": "navsys_status_t plus typed out enum"
+    },
+    {
+      "header": "byul/navsys/navgrid/navgrid.h",
+      "name": "navgrid_export_neighbors_range",
+      "return_type": "navsys_status_t",
+      "signature": "navsys_status_t navgrid_export_neighbors_range( const navgrid_t* navgrid, int x, int y, int range, coord_t* out_coords, size_t capacity, size_t* out_count);",
+      "return_form": "enum_result",
+      "canonical": "navsys_status_t plus typed out enum"
+    },
+    {
+      "header": "byul/navsys/navgrid/navgrid.h",
+      "name": "navgrid_fetch_neighbor_at_degree",
+      "return_type": "navsys_status_t",
+      "signature": "navsys_status_t navgrid_fetch_neighbor_at_degree( const navgrid_t* navgrid, int x, int y, double degree, coord_t* out_coord);",
+      "return_form": "enum_result",
+      "canonical": "navsys_status_t plus typed out enum"
+    },
+    {
+      "header": "byul/navsys/navgrid/navgrid.h",
+      "name": "navgrid_fetch_neighbor_at_goal",
+      "return_type": "navsys_status_t",
+      "signature": "navsys_status_t navgrid_fetch_neighbor_at_goal( const navgrid_t* navgrid, const coord_t* center, const coord_t* goal, coord_t* out_coord);",
+      "return_form": "enum_result",
+      "canonical": "navsys_status_t plus typed out enum"
+    },
+    {
+      "header": "byul/navsys/navgrid/navgrid.h",
+      "name": "navgrid_export_neighbors_at_degree_range",
+      "return_type": "navsys_status_t",
+      "signature": "navsys_status_t navgrid_export_neighbors_at_degree_range( const navgrid_t* navgrid, const coord_t* center, const coord_t* goal, double start_deg, double end_deg, int range, coord_t* out_coords, size_t capacity, size_t* out_count);",
+      "return_form": "enum_result",
+      "canonical": "navsys_status_t plus typed out enum"
+    },
+    {
+      "header": "byul/navsys/navgrid/navgrid.h",
+      "name": "navgrid_export_cells",
+      "return_type": "navsys_status_t",
+      "signature": "navsys_status_t navgrid_export_cells( const navgrid_t* navgrid, navgrid_cell_entry_t* out_entries, size_t capacity, size_t* out_count);",
+      "return_form": "enum_result",
+      "canonical": "navsys_status_t plus typed out enum"
     },
     {
       "header": "byul/navsys/navgrid/navgrid.h",
@@ -13559,6 +13361,30 @@
           {
             "header": "byul/navsys/navgrid/navcell.h",
             "resource": "navcell",
+            "operation": "init",
+            "symbol": "navcell_init_checked",
+            "return_type": "navsys_status_t",
+            "parameters": [
+              "navcell_t* out_cell",
+              "terrain_type_t terrain",
+              "int32_t height"
+            ]
+          },
+          {
+            "header": "byul/navsys/navgrid/navcell.h",
+            "resource": "navcell",
+            "operation": "create",
+            "symbol": "navcell_create_checked",
+            "return_type": "navsys_status_t",
+            "parameters": [
+              "terrain_type_t terrain",
+              "int32_t height",
+              "navcell_t** out_cell"
+            ]
+          },
+          {
+            "header": "byul/navsys/navgrid/navcell.h",
+            "resource": "navcell",
             "operation": "create",
             "symbol": "navcell_create_full",
             "return_type": "navcell_t*",
@@ -14657,6 +14483,30 @@
         "return_type": "maze_t*",
         "parameters": [
           "const maze_t* maze"
+        ]
+      },
+      {
+        "header": "byul/navsys/navgrid/navcell.h",
+        "resource": "navcell",
+        "operation": "init",
+        "symbol": "navcell_init_checked",
+        "return_type": "navsys_status_t",
+        "parameters": [
+          "navcell_t* out_cell",
+          "terrain_type_t terrain",
+          "int32_t height"
+        ]
+      },
+      {
+        "header": "byul/navsys/navgrid/navcell.h",
+        "resource": "navcell",
+        "operation": "create",
+        "symbol": "navcell_create_checked",
+        "return_type": "navsys_status_t",
+        "parameters": [
+          "terrain_type_t terrain",
+          "int32_t height",
+          "navcell_t** out_cell"
         ]
       },
       {

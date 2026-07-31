@@ -146,6 +146,15 @@ install(FILES ${${PROJECT_NAME}_HEADERS}
     COMPONENT byul_sdk
 )
 
+# ABI 1 direct-field source compatibility is intentionally opt-in and is not
+# part of the default opaque-handle SDK installation.
+install(FILES
+    ${CMAKE_CURRENT_SOURCE_DIR}/navsys/navgrid/compat/abi1/navgrid_abi1.h
+    DESTINATION include/${CMAKE_PROJECT_NAME}/compat/abi1
+    COMPONENT byul_sdk_abi1_compat
+    EXCLUDE_FROM_ALL
+)
+
 # -----------------------------------------------------------------------------
 # Uninstall, distribution ZIPs, and command help
 # -----------------------------------------------------------------------------

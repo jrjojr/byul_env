@@ -11,6 +11,37 @@ extern "C" {
 #include "navgrid.h"
 }
 
+TEST_CASE("obstacle overlays preserve overlapping sources and base terrain") {
+    obstacle_t* first = obstacle_create_full(0, 0, 8, 8);
+    obstacle_t* second = obstacle_create_full(0, 0, 8, 8);
+    navgrid_t* grid = navgrid_create_full(8, 8, NAVGRID_DIR_4, nullptr);
+    REQUIRE(first != nullptr);
+    REQUIRE(second != nullptr);
+    REQUIRE(grid != nullptr);
+
+    REQUIRE(obstacle_block_coord(first, 3, 4));
+    REQUIRE(obstacle_block_coord(second, 3, 4));
+    const navcell_t base{TERRAIN_TYPE_MOUNTAIN, 81};
+    REQUIRE(navgrid_set_cell(grid, 3, 4, &base));
+
+    obstacle_apply_to_navgrid(first, grid);
+    obstacle_apply_to_navgrid(second, grid);
+    CHECK(is_coord_blocked_navgrid(grid, 3, 4, nullptr));
+    obstacle_remove_from_navgrid(first, grid);
+    CHECK(is_coord_blocked_navgrid(grid, 3, 4, nullptr));
+    obstacle_remove_from_navgrid(second, grid);
+    CHECK_FALSE(is_coord_blocked_navgrid(grid, 3, 4, nullptr));
+
+    navcell_t fetched{};
+    REQUIRE(navgrid_fetch_cell(grid, 3, 4, &fetched) == 0);
+    CHECK(fetched.terrain == TERRAIN_TYPE_MOUNTAIN);
+    CHECK(fetched.height == 81);
+
+    navgrid_destroy(grid);
+    obstacle_destroy(second);
+    obstacle_destroy(first);
+}
+
 TEST_CASE("obstacle_make_rect_all_blocked - full blocking") {
     obstacle_t* obs = obstacle_make_rect_all_blocked(10, 20, 5, 5);
     REQUIRE(obs != nullptr);

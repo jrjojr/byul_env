@@ -8,6 +8,7 @@
 #include "coord_hash.h"
 #include "cost_coord_pq.h"
 #include "navcell.h"
+#include "navgrid.h"
 #include "route.h"
 
 struct coord_hash_callback_counts {
@@ -84,6 +85,12 @@ int main() {
     static_assert(alignof(navcell_t) == 4);
     static_assert(offsetof(navcell_t, terrain) == 0);
     static_assert(offsetof(navcell_t, height) == 4);
+    static_assert(NAVGRID_DIR_4 == 0);
+    static_assert(NAVGRID_DIR_8 == 1);
+    static_assert(sizeof(navgrid_dir_mode_t) == 4);
+    static_assert(std::is_same_v<
+        is_coord_blocked_func,
+        bool (*)(const void*, int, int, void*)>);
     static_assert(ROUTE_DIR_UNKNOWN == 0);
     static_assert(ROUTE_DIR_DOWN_RIGHT == 8);
     static_assert(ROUTE_DIR_COUNT == 9);
@@ -126,6 +133,105 @@ int main() {
     assert(zero_cell.height == 0);
     assert(value_cell.terrain == TERRAIN_TYPE_MOUNTAIN);
     assert(value_cell.height == -1);
+
+    bool terrain_supported = false;
+    navcell_t checked_cell{};
+    navcell_t assigned_cell{};
+    navcell_t* allocated_cell = nullptr;
+    navcell_t* copied_cell = nullptr;
+    assert(navcell_is_terrain_supported(
+        TERRAIN_TYPE_MOUNTAIN, &terrain_supported) == NAVSYS_STATUS_OK);
+    assert(terrain_supported);
+    assert(navcell_init_checked(
+        &checked_cell, TERRAIN_TYPE_MOUNTAIN, INT32_MIN) == NAVSYS_STATUS_OK);
+    assert(navcell_validate(&checked_cell) == NAVSYS_STATUS_OK);
+    assert(navcell_assign_checked(
+        &assigned_cell, &checked_cell) == NAVSYS_STATUS_OK);
+    assert(navcell_create_checked(
+        assigned_cell.terrain, assigned_cell.height,
+        &allocated_cell) == NAVSYS_STATUS_OK);
+    assert(navcell_copy_checked(
+        allocated_cell, &copied_cell) == NAVSYS_STATUS_OK);
+    assert(copied_cell != nullptr);
+    assert(copied_cell->terrain == TERRAIN_TYPE_MOUNTAIN);
+    assert(copied_cell->height == INT32_MIN);
+    navcell_destroy(copied_cell);
+    navcell_destroy(allocated_cell);
+
+    navgrid_t* public_grid = navgrid_create_full(
+        7, 9, NAVGRID_DIR_4, nullptr);
+    assert(public_grid != nullptr);
+    assert(navgrid_get_width(public_grid) == 7);
+    assert(navgrid_get_height(public_grid) == 9);
+    assert(navgrid_get_mode(public_grid) == NAVGRID_DIR_4);
+    assert(navgrid_get_abi_version() == BYUL_NAVGRID_ABI_VERSION);
+    assert(navgrid_get_abi_fingerprint() == BYUL_NAVGRID_ABI_FINGERPRINT);
+    navgrid_abi_mismatch_t public_mismatch = NAVGRID_ABI_VERSION_MISMATCH;
+    assert(navgrid_check_abi(
+        BYUL_NAVGRID_ABI_VERSION,
+        BYUL_NAVGRID_ABI_FINGERPRINT,
+        &public_mismatch) == NAVSYS_STATUS_OK);
+    assert(public_mismatch == NAVGRID_ABI_MATCH);
+    is_coord_blocked_func public_blocked_fn = nullptr;
+    void* public_blocked_userdata = reinterpret_cast<void*>(1);
+    assert(navgrid_fetch_is_coord_blocked_binding(
+        public_grid, &public_blocked_fn, &public_blocked_userdata)
+        == NAVSYS_STATUS_OK);
+    assert(public_blocked_fn == is_coord_blocked_navgrid);
+    assert(public_blocked_userdata == nullptr);
+    navcell_t public_cell{TERRAIN_TYPE_FOREST, 23};
+    navcell_t public_prior{TERRAIN_TYPE_MOUNTAIN, -1};
+    bool public_had_prior = true;
+    bool public_changed = false;
+    assert(navgrid_set_cell_ex(
+        public_grid, 2, 3, &public_cell, &public_prior,
+        &public_had_prior, &public_changed) == NAVSYS_STATUS_OK);
+    assert(!public_had_prior);
+    assert(public_changed);
+    navcell_t public_fetched{};
+    bool public_present = false;
+    assert(navgrid_fetch_cell_ex(
+        public_grid, 2, 3, &public_fetched, &public_present)
+        == NAVSYS_STATUS_OK);
+    assert(public_present);
+    assert(public_fetched.terrain == TERRAIN_TYPE_FOREST);
+    const coord_t public_overlay_coords[]{{2, 3}, {2, 3}};
+    navgrid_overlay_id_t public_overlay = 0;
+    std::size_t public_changed_count = 0;
+    assert(navgrid_apply_blocked_overlay(
+        public_grid, public_overlay_coords, 2, &public_overlay,
+        &public_changed_count) == NAVSYS_STATUS_OK);
+    assert(public_overlay != 0);
+    assert(public_changed_count == 1);
+    assert(navgrid_remove_blocked_overlay(
+        public_grid, public_overlay, &public_changed_count)
+        == NAVSYS_STATUS_OK);
+    assert(public_changed_count == 1);
+    static_assert(sizeof(navgrid_cell_entry_t) == 20);
+    static_assert(alignof(navgrid_cell_entry_t) == 4);
+    std::size_t public_neighbor_count = 0;
+    assert(navgrid_export_neighbors(
+        public_grid, 2, 3, false, nullptr, 0, &public_neighbor_count)
+        == NAVSYS_STATUS_OK);
+    assert(public_neighbor_count == 4);
+    coord_t public_neighbors[4]{};
+    assert(navgrid_export_neighbors(
+        public_grid, 2, 3, false, public_neighbors, 4,
+        &public_neighbor_count) == NAVSYS_STATUS_OK);
+    assert(public_neighbors[0].x == 3);
+    assert(public_neighbors[0].y == 3);
+    std::size_t public_entry_count = 0;
+    assert(navgrid_export_cells(
+        public_grid, nullptr, 0, &public_entry_count) == NAVSYS_STATUS_OK);
+    assert(public_entry_count == 1);
+    navgrid_cell_entry_t public_entry{};
+    assert(navgrid_export_cells(
+        public_grid, &public_entry, 1, &public_entry_count)
+        == NAVSYS_STATUS_OK);
+    assert(public_entry.present);
+    assert(!public_entry.blocked);
+    assert(public_entry.cell.terrain == TERRAIN_TYPE_FOREST);
+    navgrid_destroy(public_grid);
 
     assert(sizeof(coord_t) == coord_sizeof());
     assert(alignof(coord_t) == coord_alignof());

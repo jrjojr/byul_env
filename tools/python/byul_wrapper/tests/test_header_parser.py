@@ -81,6 +81,29 @@ BYUL_API void sample_update(int value);
         ])
         self.assertEqual(report.issues, ())
 
+    def test_enum_support_is_a_known_structured_tag(self):
+        source = r"""
+/**
+ * @brief Applies a supported mode.
+ * @param[in] mode Mode identifier.
+ * @return 0 on success.
+ * @byul.enum_support mode query:sample_is_mode_supported
+ * @byul.error negative-status
+ */
+BYUL_API int sample_set_mode(sample_mode_t mode);
+"""
+        directory, path = self._write_header(source)
+        try:
+            report = audit_header(path)
+        finally:
+            directory.cleanup()
+
+        self.assertEqual(report.issues, ())
+        self.assertEqual(
+            report.declarations[0].byul_tags["enum_support"],
+            ("mode query:sample_is_mode_supported",),
+        )
+
     def test_reports_missing_pointer_contract_and_unknown_tag(self):
         source = r"""
 /**

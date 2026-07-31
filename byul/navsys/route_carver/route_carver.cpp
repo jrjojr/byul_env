@@ -1,6 +1,7 @@
 #include "route_carver.h"
 #include <cmath>
 #include <algorithm>
+#include "../navgrid/internal/navgrid_overlay.hpp"
 
 int route_carve_beam(navgrid_t* navgrid, 
     const coord_t* start, const coord_t* goal, int range){
@@ -16,8 +17,12 @@ int route_carve_beam(navgrid_t* navgrid,
             coord_t* next = coord_clone_next_to_goal(cur, goal);
 
             if (is_coord_blocked_navgrid(navgrid, next->x, next->y, nullptr)){
-                navgrid_unblock_coord(navgrid, next->x, next->y);
-                removed++;
+                bool changed = false;
+                if (byul::navsys::internal::navgrid_clear_blocked_at_coord(
+                        navgrid, next->x, next->y, &changed)
+                        == NAVSYS_STATUS_OK && changed) {
+                    removed++;
+                }
             }
             coord_set(cur, next->x, next->y);
 
@@ -35,8 +40,12 @@ int route_carve_beam(navgrid_t* navgrid,
         for(int i=0; i < coord_list_length(neighbors); i++){
             const coord_t* c = coord_list_get(neighbors, i);
             if (is_coord_blocked_navgrid(navgrid, c->x, c->y, nullptr)){
-                navgrid_unblock_coord(navgrid, c->x, c->y);
-                removed++;
+                bool changed = false;
+                if (byul::navsys::internal::navgrid_clear_blocked_at_coord(
+                        navgrid, c->x, c->y, &changed)
+                        == NAVSYS_STATUS_OK && changed) {
+                    removed++;
+                }
             }
         }
         coord_set(cur, next->x, next->y);
@@ -55,15 +64,23 @@ int route_carve_bomb(navgrid_t* navgrid, const coord_t* center, int range){
     if (range <= 0){
 
         if (is_coord_blocked_navgrid(navgrid, center->x, center->y, nullptr)){
-            navgrid_unblock_coord(navgrid, center->x, center->y);
-            removed++;
+            bool changed = false;
+            if (byul::navsys::internal::navgrid_clear_blocked_at_coord(
+                    navgrid, center->x, center->y, &changed)
+                    == NAVSYS_STATUS_OK && changed) {
+                removed++;
+            }
         }
         return removed;
     }
 
     if (is_coord_blocked_navgrid(navgrid, center->x, center->y, nullptr)){
-        navgrid_unblock_coord(navgrid, center->x, center->y);
-        removed++;
+        bool changed = false;
+        if (byul::navsys::internal::navgrid_clear_blocked_at_coord(
+                navgrid, center->x, center->y, &changed)
+                == NAVSYS_STATUS_OK && changed) {
+            removed++;
+        }
     }    
 
     coord_list_t* neighbors = navgrid_copy_neighbors_all_range(
@@ -72,8 +89,12 @@ int route_carve_bomb(navgrid_t* navgrid, const coord_t* center, int range){
     for(int i=0; i < coord_list_length(neighbors); i++){
         const coord_t* c = coord_list_get(neighbors, i);
         if (is_coord_blocked_navgrid(navgrid, c->x, c->y, nullptr)){
-            navgrid_unblock_coord(navgrid, c->x, c->y);
-            removed++;
+            bool changed = false;
+            if (byul::navsys::internal::navgrid_clear_blocked_at_coord(
+                    navgrid, c->x, c->y, &changed)
+                    == NAVSYS_STATUS_OK && changed) {
+                removed++;
+            }
         }
     }
     coord_list_destroy(neighbors);

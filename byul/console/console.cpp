@@ -142,16 +142,18 @@ void navgrid_print_ascii_with_route(
     }
 
     // const int margin = 2;
-    if (navgrid->width == 0) {
+    const int width = navgrid_get_width(navgrid);
+    const int height = navgrid_get_height(navgrid);
+    if (width == 0) {
         min_x -= margin; max_x += margin;
     } else {
-        min_x = 0; max_x = navgrid->width - 1;
+        min_x = 0; max_x = width - 1;
     }
 
-    if (navgrid->height == 0) {
+    if (height == 0) {
         min_y -= margin; max_y += margin;
     } else {
-        min_y = 0; max_y = navgrid->height - 1;
+        min_y = 0; max_y = height - 1;
     }
 
     printf("MAP %d,%d to %d,%d with Route - total_retry: %d\n", 
@@ -207,16 +209,18 @@ void navgrid_print_ascii_with_visited_count(
         if (y > max_y) max_y = y;
     }
 
-    if (navgrid->width == 0) {
+    const int width = navgrid_get_width(navgrid);
+    const int height = navgrid_get_height(navgrid);
+    if (width == 0) {
         min_x -= margin; max_x += margin;
     } else {
-        min_x = 0; max_x = navgrid->width - 1;
+        min_x = 0; max_x = width - 1;
     }
 
-    if (navgrid->height == 0) {
+    if (height == 0) {
         min_y -= margin; max_y += margin;
     } else {
-        min_y = 0; max_y = navgrid->height - 1;
+        min_y = 0; max_y = height - 1;
     }
 
     printf("MAP %d,%d to %d,%d with Route and Visit Counts - total_retry: %d\n", 
