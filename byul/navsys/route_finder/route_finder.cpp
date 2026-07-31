@@ -10,6 +10,7 @@
 #include <vector>
 #include <limits>
 #include <cstring>
+#include <type_traits>
 
 #include "astar.h"
 #include "bfs.h"
@@ -619,8 +620,10 @@ static route_t* route_finder_run_fast_marching(route_finder_t* a){
 using route_finder_run_func = route_t* (*)(route_finder_t*);
 
 static route_finder_run_func route_finder_get_run_func(
-    route_finder_type_t type) {
-    switch (type) {
+    const route_finder_type_t* type) {
+    std::underlying_type_t<route_finder_type_t> type_value{};
+    std::memcpy(&type_value, type, sizeof(type_value));
+    switch (type_value) {
         case ROUTE_FINDER_ASTAR:
             return route_finder_run_astar;
         case ROUTE_FINDER_BFS:
@@ -649,7 +652,7 @@ static route_finder_run_func route_finder_get_run_func(
 }
 
 bool route_finder_is_supported(route_finder_type_t type) {
-    return route_finder_get_run_func(type) != nullptr;
+    return route_finder_get_run_func(&type) != nullptr;
 }
 
 navsys_status_t route_finder_run_with_options(
@@ -665,7 +668,7 @@ navsys_status_t route_finder_run_with_options(
     if (active_callback_finder == finder)
         return NAVSYS_STATUS_IN_PROGRESS;
 
-    route_finder_run_func run = route_finder_get_run_func(finder->type);
+    route_finder_run_func run = route_finder_get_run_func(&finder->type);
     if (!run) return NAVSYS_STATUS_UNSUPPORTED;
 
     route_finder_cancel_context cancel_context = {

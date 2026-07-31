@@ -1,14 +1,76 @@
 //test_coord.cpp
 
 #include "doctest.h"
+#include <cstddef>
+#include <cstdint>
 #include <locale.h>
 #include <iostream>
+#include <type_traits>
 
 extern "C" {
 #include "obstacle.h"
 
 #include "console.h"
 #include "navgrid.h"
+}
+
+static_assert(std::is_standard_layout_v<obstacle_t>);
+static_assert(offsetof(obstacle_t, x0) == 0);
+static_assert(offsetof(obstacle_t, y0) == 4);
+static_assert(offsetof(obstacle_t, width) == 8);
+static_assert(offsetof(obstacle_t, height) == 12);
+static_assert(offsetof(obstacle_t, blocked) == 16);
+static_assert(sizeof(obstacle_t) == (sizeof(void*) == 8 ? 24 : 20));
+static_assert(alignof(obstacle_t) == alignof(void*));
+
+TEST_CASE("obstacle core ABI layout and legacy neighbor export baseline") {
+    obstacle_t* obstacle = obstacle_create_full(10, 20, 3, 3);
+    REQUIRE(obstacle != nullptr);
+    REQUIRE(obstacle_block_coord(obstacle, 10, 20));
+
+    coord_list_t* neighbors = obstacle_clone_neighbors(obstacle, 11, 21);
+    REQUIRE(neighbors != nullptr);
+    CHECK(coord_list_size(neighbors) == 7);
+    CHECK(obstacle_is_coord_blocked(obstacle, 10, 20));
+
+    coord_list_destroy(neighbors);
+    obstacle_destroy(obstacle);
+}
+
+TEST_CASE("obstacle core origin and resize inconsistency baseline") {
+    obstacle_t* obstacle = obstacle_create_full(10, 20, 5, 5);
+    REQUIRE(obstacle != nullptr);
+    REQUIRE(obstacle_block_coord(obstacle, 11, 21));
+
+    obstacle_set_origin(obstacle, 100, 200);
+    CHECK(obstacle_is_coord_blocked(obstacle, 11, 21));
+    CHECK_FALSE(obstacle_is_coord_blocked(obstacle, 101, 201));
+    CHECK_FALSE(obstacle_is_inside(obstacle, 11, 21));
+
+    REQUIRE(obstacle_block_coord(obstacle, 104, 204));
+    obstacle_set_width(obstacle, 1);
+    obstacle_set_height(obstacle, 1);
+    CHECK(obstacle_is_coord_blocked(obstacle, 104, 204));
+    CHECK_FALSE(obstacle_is_inside(obstacle, 104, 204));
+
+    obstacle_destroy(obstacle);
+}
+
+TEST_CASE("obstacle core copy is independent on successful allocation") {
+    obstacle_t* source = obstacle_create_full(-2, -3, 7, 9);
+    REQUIRE(source != nullptr);
+    REQUIRE(obstacle_block_coord(source, 1, 2));
+    obstacle_t* copied = obstacle_copy(source);
+    REQUIRE(copied != nullptr);
+    CHECK(obstacle_equal(source, copied));
+    CHECK(obstacle_hash(source) == obstacle_hash(copied));
+
+    REQUIRE(obstacle_block_coord(source, 2, 3));
+    CHECK_FALSE(obstacle_equal(source, copied));
+    CHECK_FALSE(obstacle_is_coord_blocked(copied, 2, 3));
+
+    obstacle_destroy(copied);
+    obstacle_destroy(source);
 }
 
 TEST_CASE("obstacle overlays preserve overlapping sources and base terrain") {

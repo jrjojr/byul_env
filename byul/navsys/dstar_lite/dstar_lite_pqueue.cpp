@@ -9,6 +9,15 @@
 
 namespace {
 
+void* dstar_lite_key_copy_for_hash(const void* value) {
+    return dstar_lite_key_copy(
+        static_cast<const dstar_lite_key_t*>(value));
+}
+
+void dstar_lite_key_destroy_for_hash(void* value) {
+    dstar_lite_key_destroy(static_cast<dstar_lite_key_t*>(value));
+}
+
 struct legacy_key_pointer_less final {
     bool operator()(
         const dstar_lite_key_t* lhs,
@@ -31,8 +40,8 @@ dstar_lite_pqueue_t* dstar_lite_pqueue_create() {
     try {
         q = new dstar_lite_pqueue_t{};
         q->coord_to_key = coord_hash_create_full(
-            (coord_hash_copy_func)dstar_lite_key_copy,
-            (coord_hash_destroy_func)dstar_lite_key_destroy
+            dstar_lite_key_copy_for_hash,
+            dstar_lite_key_destroy_for_hash
         );
         if (!q->coord_to_key) {
             dstar_lite_pqueue_destroy(q);

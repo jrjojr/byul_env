@@ -9,6 +9,7 @@
 #include "cost_coord_pq.h"
 #include "navcell.h"
 #include "navgrid.h"
+#include "obstacle_core.h"
 #include "route.h"
 
 struct coord_hash_callback_counts {
@@ -321,5 +322,16 @@ int main() {
     assert(removed_count == 2);
     cost_coord_pq_clear(queue);
     cost_coord_pq_destroy(queue);
+
+    obstacle_t* obstacle = obstacle_create_full(0, 0, 3, 3);
+    assert(obstacle != nullptr);
+    assert(obstacle_block_coord(obstacle, 0, 0));
+    assert(obstacle_is_coord_blocked(obstacle, 0, 0));
+    coord_list_t* obstacle_neighbors =
+        obstacle_clone_neighbors(obstacle, 1, 1);
+    assert(obstacle_neighbors != nullptr);
+    assert(coord_list_size(obstacle_neighbors) == 7);
+    coord_list_destroy(obstacle_neighbors);
+    obstacle_destroy(obstacle);
     return 0;
 }

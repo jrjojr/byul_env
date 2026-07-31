@@ -163,6 +163,32 @@ const coord_hash_t* obstacle_get_blocked_coords(const obstacle_t* obs) {
     return obs ? obs->blocked : nullptr;
 }
 
+coord_list_t* obstacle_clone_neighbors(
+    const obstacle_t* obs, int x, int y) {
+    coord_list_t* all = obstacle_clone_neighbors_all(obs, x, y);
+    if (!all) return nullptr;
+
+    coord_list_t* available = nullptr;
+    if (coord_list_create_ex(&available) != NAVSYS_STATUS_OK) {
+        coord_list_destroy(all);
+        return nullptr;
+    }
+    const size_t count = coord_list_size(all);
+    for (size_t index = 0; index < count; ++index) {
+        coord_t coord{};
+        if (coord_list_fetch(all, index, &coord) != NAVSYS_STATUS_OK
+            || (!obstacle_is_coord_blocked(obs, coord.x, coord.y)
+                && coord_list_push_back_ex(available, &coord)
+                    != NAVSYS_STATUS_OK)) {
+            coord_list_destroy(available);
+            coord_list_destroy(all);
+            return nullptr;
+        }
+    }
+    coord_list_destroy(all);
+    return available;
+}
+
 coord_list_t* obstacle_clone_neighbors_all(
     const obstacle_t* obs, int x, int y) {
 

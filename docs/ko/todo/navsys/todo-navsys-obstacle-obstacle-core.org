@@ -70,21 +70,21 @@
 | =obstacle_unblock_coord= | legacy: ABI 1.x: deprecate-forward -> ABI-major: internalize; mutation companion: ABI 1.x: add | status+changed |
 | =obstacle_is_inside= | legacy: ABI 1.x: deprecate-forward -> ABI-major: internalize; query companion: ABI 1.x: add | status query, half-open extent |
 | =obstacle_is_blocked= | comment-only: internalize; canonical query companion: ABI 1.x: add | 현재 comment-out 이름이며 definition/export 없음 |
-| =obstacle_clone_neighbors= | legacy: ABI 1.x: keep -> ABI-major: internalize; ABI 1.x support path: conformance-block; buffer companion: ABI 1.x: add | missing definition/export를 고치기 전 facade 승격 금지 |
+| =obstacle_clone_neighbors= | legacy: ABI 1.x: keep -> ABI-major: internalize; buffer companion: ABI 1.x: add | 누락 definition/export 복구, 실패 시 NULL인 legacy 계약 유지 |
 | =obstacle_clone_neighbors_all= | legacy: ABI 1.x: deprecate-forward -> ABI-major: internalize; buffer companion: ABI 1.x: add | grid-neighborhood 공통 component로 이동 검토 |
 | =obstacle_clone_neighbors_all_range= | legacy: ABI 1.x: deprecate-forward -> ABI-major: internalize; buffer companion: ABI 1.x: add | const, metric/range 명시 |
 | =obstacle_clone_neighbor_at_degree= | legacy: ABI 1.x: deprecate-forward -> ABI-major: internalize; query companion: ABI 1.x: add | copy naming/status caller output |
 | =obstacle_clone_neighbor_at_goal= | legacy: ABI 1.x: deprecate-forward -> ABI-major: internalize; query companion: ABI 1.x: add | status caller output |
 | =obstacle_clone_neighbors_at_degree_range= | legacy: ABI 1.x: deprecate-forward -> ABI-major: internalize; buffer companion: ABI 1.x: add | two-call buffer |
-| =obstacle_is_coord_blocked= | legacy declaration: ABI 1.x: keep -> ABI-major: internalize; status query companion: ABI 1.x: add | =BYUL_API= 부재의 Windows SDK link trap은 legacy 승격으로 해결하지 않음 |
+| =obstacle_is_coord_blocked= | legacy declaration: ABI 1.x: keep -> ABI-major: internalize; status query companion: ABI 1.x: add | 기존 symbol에 =BYUL_API=를 복구하고 checked status companion은 후속 단계에서 추가 |
 | =obstacle_apply_to_navgrid= | legacy: ABI 1.x: deprecate-forward -> ABI-major: internalize; overlay companion: ABI 1.x: add | overlay/merge/status/change count |
 | =obstacle_remove_from_navgrid= | legacy: ABI 1.x: deprecate-forward -> ABI-major: internalize; overlay companion: ABI 1.x: add | provenance token으로 제거 |
 | =obstacle_block_range= | legacy: ABI 1.x: deprecate-forward -> ABI-major: internalize; raster companion: ABI 1.x: add | square/Chebyshev radius 명시, status |
 | =obstacle_block_straight= | legacy: ABI 1.x: deprecate-forward -> ABI-major: internalize; raster companion: ABI 1.x: add | line raster policy/status |
 
 =obstacle_clone_neighbors=은 header 선언과 source definition/export intersection을 실제로 검사한다.
-현재 =obstacle_core.cpp=에는 =clone_neighbors_all=부터 보이며 정확한 missing definition이면 P0
-export defect로 분류한다.
+baseline에서 =obstacle_core.cpp=에 definition이 없는 P0 export defect로 확인되어 ABI 1 symbol을
+복구했다.
 
 * 현행 구현 결함
 
@@ -102,7 +102,7 @@ export defect로 분류한다.
 | raw hash | borrowed internal pointer | lifetime/invalidation/thread 누출 |
 | apply/remove | void, every cell block/normal | partial/OOM 숨김; 다른 source terrain/obstacle를 remove가 지움 |
 | iterator | create failure 미검사 | NULL iterator use 가능 |
-| export | =obstacle_is_coord_blocked= no =BYUL_API= | installed header가 외부 사용을 유도하나 Windows root export 불가 가능 |
+| export | baseline에서 =obstacle_is_coord_blocked= no =BYUL_API= | 기존 ABI 1 symbol에 export macro를 복구함 |
 | test | shape 중심, core copy/origin/resize/apply overlap 부족 | resource invariants 미보호 |
 
 * 업계 비교와 target API
@@ -132,7 +132,7 @@ BYUL_API navsys_status_t obstacle_apply_ex(
     size_t* out_changed_count);
 #+end_src
 
-* TODO 1단계: symbol/layout/definition baseline
+* DONE 1단계: symbol/layout/definition baseline
 
 ** 실행
 
@@ -149,6 +149,25 @@ BYUL_API navsys_status_t obstacle_apply_ex(
 
 - declaration-definition-root-export intersection, ABI layout과 old SDK link consumer를 실행한다.
 - ASan/LSan fault baseline을 실행한다.
+
+** 진행 근거
+
+- x86_64 공개 layout을 size 24, align 8, =x0/y0/width/height/blocked=
+  offset =0/4/8/12/16=으로 고정하는 compile-time fixture와 성공 copy의
+  equality/hash/independence fixture를 추가했다.
+- origin 변경은 blocked world coordinate를 이동하지 않고 resize는 새 extent 밖의 blocked
+  coordinate를 남기는 현행 불일치를 회귀 fixture로 고정했다. invariant와 정책 수정은
+  2단계에서 수행한다.
+- 선언만 있고 definition/export가 없던 =obstacle_clone_neighbors=를 복구하고 list 생성 및
+  append 실패를 NULL로 전파했다. =obstacle_is_coord_blocked=에는 누락된 =BYUL_API=를
+  복구했으며 Clang root shared export에서 두 symbol을 확인했다.
+- 깨끗한 Clang 18.1.3 sanitizer 설치 tree의 C17/C++17 SDK 소비자가 두 symbol을 직접
+  compile/link/run했다. Clang ASan+LSan+UBSan과 GCC 13.3 ASan+LSan+UBSan에서
+  =test_obstacle= 및 root aggregate =test_byul=이 통과했다.
+- executable-wide allocator fault fixture에 create의 half-initialized resource, copy의 NULL
+  blocked hash, block의 C++ exception escape 및 false-success, apply의 silent no-op을 고정했다.
+  이 fixture는 Clang/GCC sanitizer에서 통과하며 결함 수정은 3단계에서 계약과 함께 수행한다.
+- macOS는 사용자 요청에 따라 검증 matrix에서 제외한다.
 
 * TODO 2단계: extent·coordinate-set invariant
 

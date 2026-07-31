@@ -4,6 +4,7 @@
 #include "coord.h"
 #include "coord_list.h"
 #include "coord_hash.h"
+#include "internal/coord_hash_adapters.hpp"
 #include "route.h"
 
 extern bool route_finder_poll_cancel_internal(void);
@@ -24,8 +25,8 @@ route_t* find_dijkstra(const navgrid_t* m,
     );
 
     coord_hash_t* came_from = coord_hash_create_full(
-        (coord_hash_copy_func) coord_copy,
-        (coord_hash_destroy_func) coord_destroy
+        route_finder_coord_copy_for_hash,
+        route_finder_coord_destroy_for_hash
     );
 
     route_t* result = route_create();

@@ -3,8 +3,12 @@
 #include "coord.h"
 
 #include <cstddef>
+#include <cstring>
 #include <initializer_list>
 #include <limits>
+
+extern "C" int navcell_c_abi_reports_terrain_supported(
+    int terrain_value, int* out_supported);
 #include <stdexcept>
 #include <type_traits>
 
@@ -170,13 +174,14 @@ TEST_CASE("navcell checked terrain query and validation") {
     }
 
     for (const int terrain_value : {-1, 4, 99, 101, INT32_MAX}) {
-        const auto terrain = static_cast<terrain_type_t>(terrain_value);
-        bool supported = true;
-        CHECK(navcell_is_terrain_supported(terrain, &supported)
-            == NAVSYS_STATUS_OK);
-        CHECK_FALSE(supported);
+        int supported = 1;
+        CHECK(navcell_c_abi_reports_terrain_supported(
+            terrain_value, &supported) == NAVSYS_STATUS_OK);
+        CHECK(supported == 0);
 
-        const navcell_t cell{terrain, 0};
+        navcell_t cell{};
+        static_assert(sizeof(cell.terrain) == sizeof(terrain_value));
+        std::memcpy(&cell.terrain, &terrain_value, sizeof(terrain_value));
         CHECK(navcell_validate(&cell) == NAVSYS_STATUS_UNSUPPORTED);
     }
 

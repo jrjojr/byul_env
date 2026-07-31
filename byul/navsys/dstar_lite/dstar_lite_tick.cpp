@@ -98,8 +98,8 @@ void dstar_lite_tick_prepare(dstar_lite_tick_t* dst, tick_t* tk) {
     tick_attach(tk, dstar_lite_tick_proxy, (void*)dst);
 
     coord_hash_t* visited_count = coord_hash_create_full(
-        (coord_hash_copy_func) int_copy,
-        (coord_hash_destroy_func) int_destroy
+        coord_hash_int_copy,
+        coord_hash_int_destroy
     );
     if (visited_count) {
         (void)route_internal_replace_visited_count(
@@ -136,8 +136,8 @@ void dstar_lite_tick_prepare_full(
     route_add_coord(dst->base->real_route, &dst->base->start);
 
     coord_hash_t* visited_count = coord_hash_create_full(
-        (coord_hash_copy_func)int_copy,
-        (coord_hash_destroy_func)int_destroy
+        coord_hash_int_copy,
+        coord_hash_int_destroy
     );
     if (visited_count) {
         (void)route_internal_replace_visited_count(

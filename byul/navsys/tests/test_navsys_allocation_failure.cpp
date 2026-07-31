@@ -912,6 +912,99 @@ bool verify_navgrid_caller_buffer_queries_do_not_allocate() {
     return valid;
 }
 
+bool verify_obstacle_allocation_failure_baseline() {
+    const std::size_t baseline = tracked_live_allocations;
+
+    track_allocations = true;
+    fail_after = 0;
+    obstacle_t* created = obstacle_create_full(0, 0, 4, 4);
+    fail_after = -1;
+    track_allocations = false;
+    if (!created || created->blocked != nullptr) {
+        std::fprintf(
+            stderr,
+            "obstacle create allocation-failure baseline changed\n");
+        obstacle_destroy(created);
+        return false;
+    }
+    obstacle_destroy(created);
+
+    obstacle_t* source = obstacle_create_full(0, 0, 4, 4);
+    if (!source || !obstacle_block_coord(source, 1, 1)) {
+        obstacle_destroy(source);
+        return false;
+    }
+
+    track_allocations = true;
+    fail_after = 2;
+    obstacle_t* copied = obstacle_copy(source);
+    fail_after = -1;
+    track_allocations = false;
+    if (!copied || copied->blocked != nullptr) {
+        std::fprintf(
+            stderr,
+            "obstacle copy allocation-failure baseline changed\n");
+        obstacle_destroy(copied);
+        obstacle_destroy(source);
+        return false;
+    }
+    obstacle_destroy(copied);
+
+    bool block_exception_escaped = false;
+    track_allocations = true;
+    fail_after = 0;
+    try {
+        (void)obstacle_block_coord(source, 2, 2);
+    } catch (const std::bad_alloc&) {
+        block_exception_escaped = true;
+    }
+    fail_after = -1;
+    track_allocations = false;
+    if (!block_exception_escaped
+        || obstacle_is_coord_blocked(source, 2, 2)) {
+        std::fprintf(
+            stderr,
+            "obstacle block exception baseline changed\n");
+        obstacle_destroy(source);
+        return false;
+    }
+
+    track_allocations = true;
+    fail_after = 1;
+    const bool block_reported_success = obstacle_block_coord(source, 3, 3);
+    fail_after = -1;
+    track_allocations = false;
+    if (!block_reported_success
+        || obstacle_is_coord_blocked(source, 3, 3)) {
+        std::fprintf(
+            stderr,
+            "obstacle block status baseline changed\n");
+        obstacle_destroy(source);
+        return false;
+    }
+
+    navgrid_t* grid = navgrid_create_full(4, 4, NAVGRID_DIR_8, nullptr);
+    if (!grid) {
+        obstacle_destroy(source);
+        return false;
+    }
+    track_allocations = true;
+    fail_after = 0;
+    obstacle_apply_to_navgrid(source, grid);
+    fail_after = -1;
+    track_allocations = false;
+    const bool valid = !is_coord_blocked_navgrid(grid, 1, 1, nullptr)
+        && tracked_live_allocations == baseline;
+    if (!valid) {
+        std::fprintf(
+            stderr,
+            "obstacle apply allocation-failure baseline changed\n");
+    }
+    navgrid_destroy(grid);
+    obstacle_destroy(source);
+    return valid;
+}
+
 } // namespace
 
 void* operator new(std::size_t size) {
@@ -1017,6 +1110,9 @@ int main(int argc, char** argv) {
     }
     if (!verify_navgrid_caller_buffer_queries_do_not_allocate()) {
         return 19;
+    }
+    if (!verify_obstacle_allocation_failure_baseline()) {
+        return 20;
     }
 
     dependency_navgrid = navgrid_create();

@@ -77,7 +77,8 @@ BYUL_API coord_list_t* obstacle_clone_neighbors_at_degree_range(
     double start_deg, double end_deg,
     int range);
 
-bool obstacle_is_coord_blocked(const obstacle_t* obstacle, int x, int y);
+BYUL_API bool obstacle_is_coord_blocked(
+    const obstacle_t* obstacle, int x, int y);
 
 BYUL_API void obstacle_apply_to_navgrid(const obstacle_t* obstacle, navgrid_t* navgrid);
 

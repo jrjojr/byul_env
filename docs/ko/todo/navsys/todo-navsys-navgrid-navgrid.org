@@ -435,7 +435,7 @@ forward한다. Python wrapper는 bind 성공 뒤에만 callable/CFFI owner를 �
 - 이 host에서는 MSVC만 실행했다. MinGW 및 Linux/macOS ABI 1 compatibility consumer와
   sanitizer matrix는 7단계 전체 통합 gate에 남긴다.
 
-* DOING 7단계: Header·전체 통합 gate
+* DONE 7단계: Header·전체 통합 gate
 
 ** 실행
 
@@ -469,6 +469,31 @@ forward한다. Python wrapper는 bind 성공 뒤에만 callable/CFFI owner를 �
   포함하지 않고 설치된 =navgrid.h=도 opaque handle을 유지한다.
 - 중앙 Org 규칙 60개는 0 error/0 warning이고 generated inventory =--check=와
   =git diff --check=가 통과했다.
-- 현재 Windows host는 프로젝트 CMake가 ASan을 unsupported로 제외하고 WSL도 설치되어
-  있지 않다. Linux/macOS sanitizer matrix를 실행할 수 있을 때까지 이 단계는 =DOING=으로
-  유지한다.
+- Ubuntu 24.04 x86_64/GCC 13.3 Linux Debug에서 기본 ASan+LSan profile에
+  =-fsanitize=undefined=를 verification flag로 합류했다. Sandbox의 ptrace 밖에서
+  =detect_leaks=1=, =halt_on_error=1=로 전체 CTest 23/23이 통과했으며 Navgrid module
+  static, root shared, allocation failure/leak gate를 모두 포함한다.
+- UBSan은 손상된 =terrain_type_t=가 들어 있는 외부 =navcell_t=를 검증·복사할 때 C++
+  enum 값을 먼저 읽던 UB를 발견했다. =navcell_validate=는 underlying storage를
+  =memcpy=로 읽어 지원 범위를 판정하고 =navcell_copy_checked=/=assign_checked=는 안전한
+  검증 뒤에만 값을 복사하도록 수정했다. 같은 invalid-enum fixture가 module/root
+  ASan+LSan+UBSan에서 통과한다.
+- 깨끗한 Linux install tree에서 일반 SDK, =navgrid.h= 단독, ABI 1 compatibility의
+  C17/C++17 consumer 6종이 compile/link/run했다. ABI 1 C fixture에는 C17
+  =static_assert= macro를 제공하는 표준 =assert.h= include를 추가했다. 실제 sanitizer
+  =libbyul.so=를 사용한 Python wrapper 전체 suite도 139/139 통과했고 generated CFFI
+  =--check=가 통과했다.
+- 사용자가 macOS를 이번 완료 matrix에서 제외하고 Ubuntu Clang 검증을 완료 조건으로
+  확정했다. 로컬 추출한 Ubuntu Clang 18.1.3으로 ASan+LSan+UBSan Debug 전체 CTest
+  23/23이 통과했고 GCC 13.3에서도 같은 profile의 회귀 CTest 23/23이 통과했다.
+- Clang의 function-type sanitizer가 Navgrid와 downstream Route Finder/D* Lite에서
+  =coord_hash= callback을 서로 다른 typed function pointer로 cast하던 UB를 검출했다.
+  Navcell, Coord와 D* key에 정확한 =void* (const void*)=/=void (void*)= adapter를 두고
+  이미 정확한 FMM/int callback의 불필요한 cast를 제거했다.
+- C++에서 유효 범위 밖 enum을 직접 값으로 만드는 fixture는 그 자체가 UB이므로 unknown
+  terrain/route-finder type round-trip을 C17 ABI fixture로 이동했다. 구현은 enum object
+  representation을 underlying storage로 읽어 C ABI의 unknown-value 계약을 유지한다.
+- 깨끗한 Clang 설치 tree에서 일반 SDK, =navgrid.h= 단독, ABI 1 compatibility C17/C++17
+  consumer 6종이 compile/link/run했다. 실제 Clang sanitizer =libbyul.so=를 주입한 Python
+  wrapper 전체 suite는 139/139이고 generated CFFI/inventory =--check=, 중앙 Org 규칙
+  60개 0 error/0 warning과 =git diff --check=가 통과했다.

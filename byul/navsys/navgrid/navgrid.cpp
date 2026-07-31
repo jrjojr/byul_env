@@ -442,6 +442,18 @@ navgrid_t* navgrid_create() {
         (is_coord_blocked_func) is_coord_blocked_navgrid);
 }
 
+namespace {
+
+void* navcell_copy_for_coord_hash(const void* value) {
+    return navcell_copy(static_cast<const navcell_t*>(value));
+}
+
+void navcell_destroy_for_coord_hash(void* value) {
+    navcell_destroy(static_cast<navcell_t*>(value));
+}
+
+} // namespace
+
 navgrid_t* navgrid_create_full(int width, int height, navgrid_dir_mode_t mode, 
     is_coord_blocked_func is_coord_blocked_fn) {
 
@@ -456,8 +468,8 @@ navgrid_t* navgrid_create_full(int width, int height, navgrid_dir_mode_t mode,
         navgrid->height = height;
         navgrid->mode = mode;
         navgrid->cell_map = coord_hash_create_full(
-            (coord_hash_copy_func) navcell_copy,
-            (coord_hash_destroy_func) navcell_destroy
+            navcell_copy_for_coord_hash,
+            navcell_destroy_for_coord_hash
         );
         if (!navgrid->cell_map) {
             navgrid_destroy(navgrid);

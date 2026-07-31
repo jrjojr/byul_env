@@ -3,6 +3,7 @@
 #include "coord.h"
 #include "coord_list.h"
 #include "coord_hash.h"
+#include "internal/coord_hash_adapters.hpp"
 #include "cost_coord_pq.h"
 #include "route.h"
 // #include "console.h"
@@ -21,8 +22,8 @@ route_t* find_greedy_best_first(const navgrid_t* m,
     if(!heuristic_fn) heuristic_fn = default_heuristic;
 
     coord_hash_t* came_from = coord_hash_create_full(
-        (coord_hash_copy_func) coord_copy,
-        (coord_hash_destroy_func) coord_destroy
+        route_finder_coord_copy_for_hash,
+        route_finder_coord_destroy_for_hash
     );
 
     coord_hash_t* visited = coord_hash_create();

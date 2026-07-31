@@ -4,10 +4,10 @@
   "source_vocabulary": "docs/ko/todo/navsys/navsys-abi-vocabulary.json",
   "summary": {
     "headers": 47,
-    "symbols": 588,
+    "symbols": 589,
     "return_forms": {
       "nullable_pointer": 151,
-      "bool_predicate": 22,
+      "bool_predicate": 23,
       "bool_operation": 20,
       "int_zero_nonzero_status": 41,
       "int_count": 24,
@@ -19,11 +19,11 @@
     },
     "unclassified": 0,
     "duplicate_declarations": 1,
-    "audit_issues": 748,
-    "audit_errors": 748,
+    "audit_issues": 749,
+    "audit_errors": 749,
     "audit_codes": {
       "missing-brief": 5,
-      "missing-doxygen": 203,
+      "missing-doxygen": 204,
       "missing-nullable": 139,
       "missing-param": 65,
       "missing-param-direction": 191,
@@ -4444,6 +4444,15 @@
         "owner_todo": "docs/ko/todo/navsys/todo-navsys-obstacle-obstacle-core.org",
         "severity": "error",
         "code": "missing-doxygen",
+        "symbol": "obstacle_is_coord_blocked",
+        "message": "public function has no adjacent Doxygen block",
+        "disposition": "route-to-owner-child"
+      },
+      {
+        "header": "byul/navsys/obstacle/obstacle_core.h",
+        "owner_todo": "docs/ko/todo/navsys/todo-navsys-obstacle-obstacle-core.org",
+        "severity": "error",
+        "code": "missing-doxygen",
         "symbol": "obstacle_apply_to_navgrid",
         "message": "public function has no adjacent Doxygen block",
         "disposition": "route-to-owner-child"
@@ -7474,8 +7483,8 @@
       "owner_todo": "docs/ko/todo/navsys/todo-navsys-obstacle-obstacle-core.org",
       "primary_role": "public-component",
       "wrapper_mode": "manual",
-      "symbol_count": 28,
-      "audit_issue_count": 32,
+      "symbol_count": 29,
+      "audit_issue_count": 33,
       "symbols": [
         "obstacle_create",
         "obstacle_create_full",
@@ -7501,6 +7510,7 @@
         "obstacle_clone_neighbor_at_degree",
         "obstacle_clone_neighbor_at_goal",
         "obstacle_clone_neighbors_at_degree_range",
+        "obstacle_is_coord_blocked",
         "obstacle_apply_to_navgrid",
         "obstacle_remove_from_navgrid",
         "obstacle_block_range",
@@ -11163,6 +11173,14 @@
       "signature": "coord_list_t* obstacle_clone_neighbors_at_degree_range( const obstacle_t* m, const coord_t* center, const coord_t* goal, double start_deg, double end_deg, int range);",
       "return_form": "nullable_pointer",
       "canonical": "status return plus typed out pointer"
+    },
+    {
+      "header": "byul/navsys/obstacle/obstacle_core.h",
+      "name": "obstacle_is_coord_blocked",
+      "return_type": "bool",
+      "signature": "bool obstacle_is_coord_blocked( const obstacle_t* obstacle, int x, int y);",
+      "return_form": "bool_predicate",
+      "canonical": "keep bool when evaluation itself cannot fail"
     },
     {
       "header": "byul/navsys/obstacle/obstacle_core.h",

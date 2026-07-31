@@ -908,6 +908,26 @@ int main(void) {
     route_finder_destroy(finder);
     navgrid_destroy(navgrid);
 
+    obstacle_t* obstacle = obstacle_create_full(0, 0, 3, 3);
+    if (obstacle == NULL
+        || !obstacle_block_coord(obstacle, 0, 0)
+        || !obstacle_is_coord_blocked(obstacle, 0, 0)) {
+        fprintf(stderr, "unexpected obstacle core ABI\n");
+        obstacle_destroy(obstacle);
+        return 8;
+    }
+    coord_list_t* obstacle_neighbors =
+        obstacle_clone_neighbors(obstacle, 1, 1);
+    if (obstacle_neighbors == NULL
+        || coord_list_size(obstacle_neighbors) != 7) {
+        fprintf(stderr, "unexpected obstacle neighbor ABI\n");
+        coord_list_destroy(obstacle_neighbors);
+        obstacle_destroy(obstacle);
+        return 8;
+    }
+    coord_list_destroy(obstacle_neighbors);
+    obstacle_destroy(obstacle);
+
     byul_print_version();
     return 0;
 }

@@ -13,6 +13,8 @@
 #include <limits>
 #include <stdexcept>
 
+extern "C" int route_finder_c_abi_reports_type_supported(int type_value);
+
 struct cancel_fixture {
     int calls;
     int cancel_after;
@@ -110,8 +112,7 @@ TEST_CASE("route finder capability query matches the dispatcher") {
         CHECK(route_finder_is_supported(type) == expected);
     }
 
-    CHECK_FALSE(route_finder_is_supported(
-        static_cast<route_finder_type_t>(-1)));
+    CHECK(route_finder_c_abi_reports_type_supported(-1) == 0);
     CHECK_FALSE(route_finder_is_supported(
         static_cast<route_finder_type_t>(ROUTE_FINDER_MCTS + 1)));
 }
