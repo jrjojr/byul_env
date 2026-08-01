@@ -31,16 +31,44 @@ add_executable(byul_sdk_consumer main.c)
 add_executable(byul_sdk_consumer_cpp main.cpp)
 add_executable(byul_navgrid_header_consumer navgrid_header_main.c)
 add_executable(byul_navgrid_header_consumer_cpp navgrid_header_main.cpp)
+add_executable(byul_obstacle_header_consumer obstacle_header_main.c)
+add_executable(byul_obstacle_header_consumer_cpp obstacle_header_main.cpp)
+add_executable(byul_route_carver_header_consumer route_carver_header_main.c)
+add_executable(byul_route_carver_header_consumer_cpp route_carver_header_main.cpp)
+add_executable(byul_route_carver_aggregate_consumer route_carver_aggregate_main.c)
+add_executable(byul_route_carver_aggregate_consumer_cpp route_carver_aggregate_main.cpp)
 set(BYUL_CONSUMER_TARGETS
     byul_sdk_consumer
     byul_sdk_consumer_cpp
     byul_navgrid_header_consumer
     byul_navgrid_header_consumer_cpp
+    byul_obstacle_header_consumer
+    byul_obstacle_header_consumer_cpp
+    byul_route_carver_header_consumer
+    byul_route_carver_header_consumer_cpp
+    byul_route_carver_aggregate_consumer
+    byul_route_carver_aggregate_consumer_cpp
 )
+
+set(BYUL_ROUTE_CARVER_STRICT_CONSUMER_TARGETS
+    byul_route_carver_header_consumer
+    byul_route_carver_header_consumer_cpp
+    byul_route_carver_aggregate_consumer
+    byul_route_carver_aggregate_consumer_cpp
+)
+
+foreach(consumer IN LISTS BYUL_ROUTE_CARVER_STRICT_CONSUMER_TARGETS)
+    target_compile_options(${consumer} PRIVATE
+        $<$<COMPILE_LANG_AND_ID:C,MSVC>:/WX>
+        $<$<COMPILE_LANG_AND_ID:CXX,MSVC>:/WX>
+        $<$<COMPILE_LANG_AND_ID:C,GNU,Clang>:-Werror>
+        $<$<COMPILE_LANG_AND_ID:CXX,GNU,Clang>:-Werror>
+    )
+endforeach()
 
 if(BYUL_ABI1_COMPAT_ROOT)
     find_path(BYUL_ABI1_COMPAT_INCLUDE_DIR
-        NAMES navgrid_abi1.h
+        NAMES navgrid_abi1.h obstacle_abi1.h
         PATHS "${BYUL_ABI1_COMPAT_ROOT}/include/byul/compat/abi1"
         NO_DEFAULT_PATH
         REQUIRED

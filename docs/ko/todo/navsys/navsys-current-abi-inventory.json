@@ -3,49 +3,42 @@
   "source_role_manifest": "docs/ko/todo/header-refactor-current/header-role-manifest.json",
   "source_vocabulary": "docs/ko/todo/navsys/navsys-abi-vocabulary.json",
   "summary": {
-    "headers": 47,
-    "symbols": 589,
+    "headers": 55,
+    "symbols": 629,
     "return_forms": {
-      "nullable_pointer": 151,
+      "nullable_pointer": 157,
       "bool_predicate": 23,
       "bool_operation": 20,
       "int_zero_nonzero_status": 41,
-      "int_count": 24,
+      "int_count": 26,
       "int_index_minus_one": 4,
-      "void_fallible_operation": 144,
-      "enum_result": 163,
+      "void_fallible_operation": 143,
+      "enum_result": 196,
       "floating_result": 19,
       "callback_return": 0
     },
     "unclassified": 0,
-    "duplicate_declarations": 1,
-    "audit_issues": 749,
-    "audit_errors": 749,
+    "duplicate_declarations": 0,
+    "audit_issues": 645,
+    "audit_errors": 645,
     "audit_codes": {
       "missing-brief": 5,
-      "missing-doxygen": 204,
-      "missing-nullable": 139,
+      "missing-doxygen": 173,
+      "missing-nullable": 119,
       "missing-param": 65,
-      "missing-param-direction": 191,
+      "missing-param-direction": 154,
       "missing-return": 13,
-      "missing-return-lifetime": 45,
-      "missing-return-nullable": 45,
+      "missing-return-lifetime": 37,
+      "missing-return-nullable": 37,
       "unknown-param": 12,
       "unnamed-parameter": 30
     },
-    "lifecycle_resources": 28,
-    "lifecycle_operations": 101,
+    "lifecycle_resources": 32,
+    "lifecycle_operations": 112,
     "callback_bindings": 7
   },
   "known_debt": {
-    "duplicate_declarations": [
-      {
-        "header": "byul/navsys/obstacle/obstacle_core.h",
-        "symbol": "obstacle_clear",
-        "count": 2,
-        "disposition": "route-to-owner-child"
-      }
-    ],
+    "duplicate_declarations": [],
     "header_audit": [
       {
         "header": "byul/navsys/coord/coord.h",
@@ -3693,942 +3686,6 @@
         "disposition": "route-to-owner-child"
       },
       {
-        "header": "byul/navsys/obstacle/obstacle.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-obstacle-obstacle.org",
-        "severity": "error",
-        "code": "missing-doxygen",
-        "symbol": "obstacle_make_rect_all_blocked",
-        "message": "public function has no adjacent Doxygen block",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/obstacle/obstacle.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-obstacle-obstacle.org",
-        "severity": "error",
-        "code": "missing-doxygen",
-        "symbol": "obstacle_make_rect_random_blocked",
-        "message": "public function has no adjacent Doxygen block",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/obstacle/obstacle.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-obstacle-obstacle.org",
-        "severity": "error",
-        "code": "missing-doxygen",
-        "symbol": "obstacle_make_beam",
-        "message": "public function has no adjacent Doxygen block",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/obstacle/obstacle.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-obstacle-obstacle.org",
-        "severity": "error",
-        "code": "missing-param-direction",
-        "symbol": "obstacle_make_torus",
-        "message": "parameter 'start' has no direction",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/obstacle/obstacle.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-obstacle-obstacle.org",
-        "severity": "error",
-        "code": "missing-nullable",
-        "symbol": "obstacle_make_torus",
-        "message": "pointer parameter 'start' has no @byul.nullable",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/obstacle/obstacle.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-obstacle-obstacle.org",
-        "severity": "error",
-        "code": "missing-param-direction",
-        "symbol": "obstacle_make_torus",
-        "message": "parameter 'goal' has no direction",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/obstacle/obstacle.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-obstacle-obstacle.org",
-        "severity": "error",
-        "code": "missing-nullable",
-        "symbol": "obstacle_make_torus",
-        "message": "pointer parameter 'goal' has no @byul.nullable",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/obstacle/obstacle.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-obstacle-obstacle.org",
-        "severity": "error",
-        "code": "missing-param-direction",
-        "symbol": "obstacle_make_torus",
-        "message": "parameter 'thickness' has no direction",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/obstacle/obstacle.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-obstacle-obstacle.org",
-        "severity": "error",
-        "code": "missing-return-nullable",
-        "symbol": "obstacle_make_torus",
-        "message": "pointer return has no @byul.nullable return",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/obstacle/obstacle.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-obstacle-obstacle.org",
-        "severity": "error",
-        "code": "missing-return-lifetime",
-        "symbol": "obstacle_make_torus",
-        "message": "pointer return has no @byul.lifetime return",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/obstacle/obstacle.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-obstacle-obstacle.org",
-        "severity": "error",
-        "code": "missing-param-direction",
-        "symbol": "obstacle_make_enclosure",
-        "message": "parameter 'start' has no direction",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/obstacle/obstacle.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-obstacle-obstacle.org",
-        "severity": "error",
-        "code": "missing-nullable",
-        "symbol": "obstacle_make_enclosure",
-        "message": "pointer parameter 'start' has no @byul.nullable",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/obstacle/obstacle.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-obstacle-obstacle.org",
-        "severity": "error",
-        "code": "missing-param-direction",
-        "symbol": "obstacle_make_enclosure",
-        "message": "parameter 'goal' has no direction",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/obstacle/obstacle.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-obstacle-obstacle.org",
-        "severity": "error",
-        "code": "missing-nullable",
-        "symbol": "obstacle_make_enclosure",
-        "message": "pointer parameter 'goal' has no @byul.nullable",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/obstacle/obstacle.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-obstacle-obstacle.org",
-        "severity": "error",
-        "code": "missing-param-direction",
-        "symbol": "obstacle_make_enclosure",
-        "message": "parameter 'thickness' has no direction",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/obstacle/obstacle.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-obstacle-obstacle.org",
-        "severity": "error",
-        "code": "missing-param-direction",
-        "symbol": "obstacle_make_enclosure",
-        "message": "parameter 'open' has no direction",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/obstacle/obstacle.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-obstacle-obstacle.org",
-        "severity": "error",
-        "code": "missing-return-nullable",
-        "symbol": "obstacle_make_enclosure",
-        "message": "pointer return has no @byul.nullable return",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/obstacle/obstacle.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-obstacle-obstacle.org",
-        "severity": "error",
-        "code": "missing-return-lifetime",
-        "symbol": "obstacle_make_enclosure",
-        "message": "pointer return has no @byul.lifetime return",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/obstacle/obstacle.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-obstacle-obstacle.org",
-        "severity": "error",
-        "code": "missing-param-direction",
-        "symbol": "obstacle_make_cross",
-        "message": "parameter 'center' has no direction",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/obstacle/obstacle.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-obstacle-obstacle.org",
-        "severity": "error",
-        "code": "missing-nullable",
-        "symbol": "obstacle_make_cross",
-        "message": "pointer parameter 'center' has no @byul.nullable",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/obstacle/obstacle.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-obstacle-obstacle.org",
-        "severity": "error",
-        "code": "missing-param-direction",
-        "symbol": "obstacle_make_cross",
-        "message": "parameter 'length' has no direction",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/obstacle/obstacle.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-obstacle-obstacle.org",
-        "severity": "error",
-        "code": "missing-param-direction",
-        "symbol": "obstacle_make_cross",
-        "message": "parameter 'range' has no direction",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/obstacle/obstacle.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-obstacle-obstacle.org",
-        "severity": "error",
-        "code": "missing-return-nullable",
-        "symbol": "obstacle_make_cross",
-        "message": "pointer return has no @byul.nullable return",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/obstacle/obstacle.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-obstacle-obstacle.org",
-        "severity": "error",
-        "code": "missing-return-lifetime",
-        "symbol": "obstacle_make_cross",
-        "message": "pointer return has no @byul.lifetime return",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/obstacle/obstacle.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-obstacle-obstacle.org",
-        "severity": "error",
-        "code": "missing-param-direction",
-        "symbol": "obstacle_make_spiral",
-        "message": "parameter 'center' has no direction",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/obstacle/obstacle.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-obstacle-obstacle.org",
-        "severity": "error",
-        "code": "missing-nullable",
-        "symbol": "obstacle_make_spiral",
-        "message": "pointer parameter 'center' has no @byul.nullable",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/obstacle/obstacle.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-obstacle-obstacle.org",
-        "severity": "error",
-        "code": "missing-param-direction",
-        "symbol": "obstacle_make_spiral",
-        "message": "parameter 'radius' has no direction",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/obstacle/obstacle.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-obstacle-obstacle.org",
-        "severity": "error",
-        "code": "missing-param-direction",
-        "symbol": "obstacle_make_spiral",
-        "message": "parameter 'turns' has no direction",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/obstacle/obstacle.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-obstacle-obstacle.org",
-        "severity": "error",
-        "code": "missing-param-direction",
-        "symbol": "obstacle_make_spiral",
-        "message": "parameter 'range' has no direction",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/obstacle/obstacle.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-obstacle-obstacle.org",
-        "severity": "error",
-        "code": "missing-param-direction",
-        "symbol": "obstacle_make_spiral",
-        "message": "parameter 'gap' has no direction",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/obstacle/obstacle.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-obstacle-obstacle.org",
-        "severity": "error",
-        "code": "missing-param-direction",
-        "symbol": "obstacle_make_spiral",
-        "message": "parameter 'direction' has no direction",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/obstacle/obstacle.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-obstacle-obstacle.org",
-        "severity": "error",
-        "code": "missing-return-nullable",
-        "symbol": "obstacle_make_spiral",
-        "message": "pointer return has no @byul.nullable return",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/obstacle/obstacle.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-obstacle-obstacle.org",
-        "severity": "error",
-        "code": "missing-return-lifetime",
-        "symbol": "obstacle_make_spiral",
-        "message": "pointer return has no @byul.lifetime return",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/obstacle/obstacle.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-obstacle-obstacle.org",
-        "severity": "error",
-        "code": "missing-param-direction",
-        "symbol": "obstacle_make_triangle",
-        "message": "parameter 'a' has no direction",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/obstacle/obstacle.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-obstacle-obstacle.org",
-        "severity": "error",
-        "code": "missing-nullable",
-        "symbol": "obstacle_make_triangle",
-        "message": "pointer parameter 'a' has no @byul.nullable",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/obstacle/obstacle.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-obstacle-obstacle.org",
-        "severity": "error",
-        "code": "missing-param-direction",
-        "symbol": "obstacle_make_triangle",
-        "message": "parameter 'b' has no direction",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/obstacle/obstacle.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-obstacle-obstacle.org",
-        "severity": "error",
-        "code": "missing-nullable",
-        "symbol": "obstacle_make_triangle",
-        "message": "pointer parameter 'b' has no @byul.nullable",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/obstacle/obstacle.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-obstacle-obstacle.org",
-        "severity": "error",
-        "code": "missing-param-direction",
-        "symbol": "obstacle_make_triangle",
-        "message": "parameter 'c' has no direction",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/obstacle/obstacle.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-obstacle-obstacle.org",
-        "severity": "error",
-        "code": "missing-nullable",
-        "symbol": "obstacle_make_triangle",
-        "message": "pointer parameter 'c' has no @byul.nullable",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/obstacle/obstacle.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-obstacle-obstacle.org",
-        "severity": "error",
-        "code": "missing-return-nullable",
-        "symbol": "obstacle_make_triangle",
-        "message": "pointer return has no @byul.nullable return",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/obstacle/obstacle.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-obstacle-obstacle.org",
-        "severity": "error",
-        "code": "missing-return-lifetime",
-        "symbol": "obstacle_make_triangle",
-        "message": "pointer return has no @byul.lifetime return",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/obstacle/obstacle.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-obstacle-obstacle.org",
-        "severity": "error",
-        "code": "missing-param-direction",
-        "symbol": "obstacle_make_triangle_torus",
-        "message": "parameter 'a' has no direction",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/obstacle/obstacle.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-obstacle-obstacle.org",
-        "severity": "error",
-        "code": "missing-nullable",
-        "symbol": "obstacle_make_triangle_torus",
-        "message": "pointer parameter 'a' has no @byul.nullable",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/obstacle/obstacle.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-obstacle-obstacle.org",
-        "severity": "error",
-        "code": "missing-param-direction",
-        "symbol": "obstacle_make_triangle_torus",
-        "message": "parameter 'b' has no direction",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/obstacle/obstacle.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-obstacle-obstacle.org",
-        "severity": "error",
-        "code": "missing-nullable",
-        "symbol": "obstacle_make_triangle_torus",
-        "message": "pointer parameter 'b' has no @byul.nullable",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/obstacle/obstacle.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-obstacle-obstacle.org",
-        "severity": "error",
-        "code": "missing-param-direction",
-        "symbol": "obstacle_make_triangle_torus",
-        "message": "parameter 'c' has no direction",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/obstacle/obstacle.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-obstacle-obstacle.org",
-        "severity": "error",
-        "code": "missing-nullable",
-        "symbol": "obstacle_make_triangle_torus",
-        "message": "pointer parameter 'c' has no @byul.nullable",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/obstacle/obstacle.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-obstacle-obstacle.org",
-        "severity": "error",
-        "code": "missing-param-direction",
-        "symbol": "obstacle_make_triangle_torus",
-        "message": "parameter 'thickness' has no direction",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/obstacle/obstacle.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-obstacle-obstacle.org",
-        "severity": "error",
-        "code": "missing-return-nullable",
-        "symbol": "obstacle_make_triangle_torus",
-        "message": "pointer return has no @byul.nullable return",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/obstacle/obstacle.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-obstacle-obstacle.org",
-        "severity": "error",
-        "code": "missing-return-lifetime",
-        "symbol": "obstacle_make_triangle_torus",
-        "message": "pointer return has no @byul.lifetime return",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/obstacle/obstacle.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-obstacle-obstacle.org",
-        "severity": "error",
-        "code": "missing-param-direction",
-        "symbol": "obstacle_make_polygon",
-        "message": "parameter 'list' has no direction",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/obstacle/obstacle.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-obstacle-obstacle.org",
-        "severity": "error",
-        "code": "missing-nullable",
-        "symbol": "obstacle_make_polygon",
-        "message": "pointer parameter 'list' has no @byul.nullable",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/obstacle/obstacle.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-obstacle-obstacle.org",
-        "severity": "error",
-        "code": "missing-return-nullable",
-        "symbol": "obstacle_make_polygon",
-        "message": "pointer return has no @byul.nullable return",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/obstacle/obstacle.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-obstacle-obstacle.org",
-        "severity": "error",
-        "code": "missing-return-lifetime",
-        "symbol": "obstacle_make_polygon",
-        "message": "pointer return has no @byul.lifetime return",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/obstacle/obstacle.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-obstacle-obstacle.org",
-        "severity": "error",
-        "code": "missing-param-direction",
-        "symbol": "obstacle_make_polygon_torus",
-        "message": "parameter 'list' has no direction",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/obstacle/obstacle.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-obstacle-obstacle.org",
-        "severity": "error",
-        "code": "missing-nullable",
-        "symbol": "obstacle_make_polygon_torus",
-        "message": "pointer parameter 'list' has no @byul.nullable",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/obstacle/obstacle.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-obstacle-obstacle.org",
-        "severity": "error",
-        "code": "missing-param-direction",
-        "symbol": "obstacle_make_polygon_torus",
-        "message": "parameter 'thickness' has no direction",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/obstacle/obstacle.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-obstacle-obstacle.org",
-        "severity": "error",
-        "code": "missing-return-nullable",
-        "symbol": "obstacle_make_polygon_torus",
-        "message": "pointer return has no @byul.nullable return",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/obstacle/obstacle.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-obstacle-obstacle.org",
-        "severity": "error",
-        "code": "missing-return-lifetime",
-        "symbol": "obstacle_make_polygon_torus",
-        "message": "pointer return has no @byul.lifetime return",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/obstacle/obstacle_core.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-obstacle-obstacle-core.org",
-        "severity": "error",
-        "code": "missing-doxygen",
-        "symbol": "obstacle_create",
-        "message": "public function has no adjacent Doxygen block",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/obstacle/obstacle_core.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-obstacle-obstacle-core.org",
-        "severity": "error",
-        "code": "missing-doxygen",
-        "symbol": "obstacle_create_full",
-        "message": "public function has no adjacent Doxygen block",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/obstacle/obstacle_core.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-obstacle-obstacle-core.org",
-        "severity": "error",
-        "code": "missing-doxygen",
-        "symbol": "obstacle_destroy",
-        "message": "public function has no adjacent Doxygen block",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/obstacle/obstacle_core.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-obstacle-obstacle-core.org",
-        "severity": "error",
-        "code": "missing-doxygen",
-        "symbol": "obstacle_clear",
-        "message": "public function has no adjacent Doxygen block",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/obstacle/obstacle_core.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-obstacle-obstacle-core.org",
-        "severity": "error",
-        "code": "missing-doxygen",
-        "symbol": "obstacle_copy",
-        "message": "public function has no adjacent Doxygen block",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/obstacle/obstacle_core.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-obstacle-obstacle-core.org",
-        "severity": "error",
-        "code": "missing-doxygen",
-        "symbol": "obstacle_equal",
-        "message": "public function has no adjacent Doxygen block",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/obstacle/obstacle_core.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-obstacle-obstacle-core.org",
-        "severity": "error",
-        "code": "missing-doxygen",
-        "symbol": "obstacle_hash",
-        "message": "public function has no adjacent Doxygen block",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/obstacle/obstacle_core.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-obstacle-obstacle-core.org",
-        "severity": "error",
-        "code": "missing-doxygen",
-        "symbol": "obstacle_set_origin",
-        "message": "public function has no adjacent Doxygen block",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/obstacle/obstacle_core.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-obstacle-obstacle-core.org",
-        "severity": "error",
-        "code": "missing-doxygen",
-        "symbol": "obstacle_fetch_origin",
-        "message": "public function has no adjacent Doxygen block",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/obstacle/obstacle_core.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-obstacle-obstacle-core.org",
-        "severity": "error",
-        "code": "missing-doxygen",
-        "symbol": "obstacle_get_width",
-        "message": "public function has no adjacent Doxygen block",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/obstacle/obstacle_core.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-obstacle-obstacle-core.org",
-        "severity": "error",
-        "code": "missing-doxygen",
-        "symbol": "obstacle_set_width",
-        "message": "public function has no adjacent Doxygen block",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/obstacle/obstacle_core.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-obstacle-obstacle-core.org",
-        "severity": "error",
-        "code": "missing-doxygen",
-        "symbol": "obstacle_get_height",
-        "message": "public function has no adjacent Doxygen block",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/obstacle/obstacle_core.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-obstacle-obstacle-core.org",
-        "severity": "error",
-        "code": "missing-doxygen",
-        "symbol": "obstacle_set_height",
-        "message": "public function has no adjacent Doxygen block",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/obstacle/obstacle_core.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-obstacle-obstacle-core.org",
-        "severity": "error",
-        "code": "missing-doxygen",
-        "symbol": "obstacle_get_blocked_coords",
-        "message": "public function has no adjacent Doxygen block",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/obstacle/obstacle_core.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-obstacle-obstacle-core.org",
-        "severity": "error",
-        "code": "missing-doxygen",
-        "symbol": "obstacle_block_coord",
-        "message": "public function has no adjacent Doxygen block",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/obstacle/obstacle_core.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-obstacle-obstacle-core.org",
-        "severity": "error",
-        "code": "missing-doxygen",
-        "symbol": "obstacle_unblock_coord",
-        "message": "public function has no adjacent Doxygen block",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/obstacle/obstacle_core.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-obstacle-obstacle-core.org",
-        "severity": "error",
-        "code": "missing-doxygen",
-        "symbol": "obstacle_is_inside",
-        "message": "public function has no adjacent Doxygen block",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/obstacle/obstacle_core.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-obstacle-obstacle-core.org",
-        "severity": "error",
-        "code": "missing-doxygen",
-        "symbol": "obstacle_clear",
-        "message": "public function has no adjacent Doxygen block",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/obstacle/obstacle_core.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-obstacle-obstacle-core.org",
-        "severity": "error",
-        "code": "missing-doxygen",
-        "symbol": "obstacle_clone_neighbors",
-        "message": "public function has no adjacent Doxygen block",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/obstacle/obstacle_core.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-obstacle-obstacle-core.org",
-        "severity": "error",
-        "code": "missing-doxygen",
-        "symbol": "obstacle_clone_neighbors_all",
-        "message": "public function has no adjacent Doxygen block",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/obstacle/obstacle_core.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-obstacle-obstacle-core.org",
-        "severity": "error",
-        "code": "missing-doxygen",
-        "symbol": "obstacle_clone_neighbors_all_range",
-        "message": "public function has no adjacent Doxygen block",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/obstacle/obstacle_core.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-obstacle-obstacle-core.org",
-        "severity": "error",
-        "code": "missing-doxygen",
-        "symbol": "obstacle_clone_neighbor_at_degree",
-        "message": "public function has no adjacent Doxygen block",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/obstacle/obstacle_core.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-obstacle-obstacle-core.org",
-        "severity": "error",
-        "code": "missing-doxygen",
-        "symbol": "obstacle_clone_neighbor_at_goal",
-        "message": "public function has no adjacent Doxygen block",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/obstacle/obstacle_core.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-obstacle-obstacle-core.org",
-        "severity": "error",
-        "code": "missing-doxygen",
-        "symbol": "obstacle_clone_neighbors_at_degree_range",
-        "message": "public function has no adjacent Doxygen block",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/obstacle/obstacle_core.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-obstacle-obstacle-core.org",
-        "severity": "error",
-        "code": "missing-doxygen",
-        "symbol": "obstacle_is_coord_blocked",
-        "message": "public function has no adjacent Doxygen block",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/obstacle/obstacle_core.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-obstacle-obstacle-core.org",
-        "severity": "error",
-        "code": "missing-doxygen",
-        "symbol": "obstacle_apply_to_navgrid",
-        "message": "public function has no adjacent Doxygen block",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/obstacle/obstacle_core.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-obstacle-obstacle-core.org",
-        "severity": "error",
-        "code": "missing-doxygen",
-        "symbol": "obstacle_remove_from_navgrid",
-        "message": "public function has no adjacent Doxygen block",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/obstacle/obstacle_core.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-obstacle-obstacle-core.org",
-        "severity": "error",
-        "code": "missing-param-direction",
-        "symbol": "obstacle_block_range",
-        "message": "parameter 'obs' has no direction",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/obstacle/obstacle_core.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-obstacle-obstacle-core.org",
-        "severity": "error",
-        "code": "missing-nullable",
-        "symbol": "obstacle_block_range",
-        "message": "pointer parameter 'obs' has no @byul.nullable",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/obstacle/obstacle_core.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-obstacle-obstacle-core.org",
-        "severity": "error",
-        "code": "missing-param-direction",
-        "symbol": "obstacle_block_range",
-        "message": "parameter 'x' has no direction",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/obstacle/obstacle_core.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-obstacle-obstacle-core.org",
-        "severity": "error",
-        "code": "missing-param-direction",
-        "symbol": "obstacle_block_range",
-        "message": "parameter 'y' has no direction",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/obstacle/obstacle_core.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-obstacle-obstacle-core.org",
-        "severity": "error",
-        "code": "missing-param-direction",
-        "symbol": "obstacle_block_range",
-        "message": "parameter 'range' has no direction",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/obstacle/obstacle_core.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-obstacle-obstacle-core.org",
-        "severity": "error",
-        "code": "missing-doxygen",
-        "symbol": "obstacle_block_straight",
-        "message": "public function has no adjacent Doxygen block",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/route_carver/route_carver.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-carver-route-carver.org",
-        "severity": "error",
-        "code": "missing-param-direction",
-        "symbol": "route_carve_beam",
-        "message": "parameter 'navgrid' has no direction",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/route_carver/route_carver.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-carver-route-carver.org",
-        "severity": "error",
-        "code": "missing-nullable",
-        "symbol": "route_carve_beam",
-        "message": "pointer parameter 'navgrid' has no @byul.nullable",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/route_carver/route_carver.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-carver-route-carver.org",
-        "severity": "error",
-        "code": "missing-param-direction",
-        "symbol": "route_carve_beam",
-        "message": "parameter 'start' has no direction",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/route_carver/route_carver.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-carver-route-carver.org",
-        "severity": "error",
-        "code": "missing-nullable",
-        "symbol": "route_carve_beam",
-        "message": "pointer parameter 'start' has no @byul.nullable",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/route_carver/route_carver.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-carver-route-carver.org",
-        "severity": "error",
-        "code": "missing-param-direction",
-        "symbol": "route_carve_beam",
-        "message": "parameter 'goal' has no direction",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/route_carver/route_carver.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-carver-route-carver.org",
-        "severity": "error",
-        "code": "missing-nullable",
-        "symbol": "route_carve_beam",
-        "message": "pointer parameter 'goal' has no @byul.nullable",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/route_carver/route_carver.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-carver-route-carver.org",
-        "severity": "error",
-        "code": "missing-param-direction",
-        "symbol": "route_carve_beam",
-        "message": "parameter 'range' has no direction",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/route_carver/route_carver.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-carver-route-carver.org",
-        "severity": "error",
-        "code": "missing-param-direction",
-        "symbol": "route_carve_bomb",
-        "message": "parameter 'navgrid' has no direction",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/route_carver/route_carver.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-carver-route-carver.org",
-        "severity": "error",
-        "code": "missing-nullable",
-        "symbol": "route_carve_bomb",
-        "message": "pointer parameter 'navgrid' has no @byul.nullable",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/route_carver/route_carver.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-carver-route-carver.org",
-        "severity": "error",
-        "code": "missing-param-direction",
-        "symbol": "route_carve_bomb",
-        "message": "parameter 'center' has no direction",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/route_carver/route_carver.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-carver-route-carver.org",
-        "severity": "error",
-        "code": "missing-nullable",
-        "symbol": "route_carve_bomb",
-        "message": "pointer parameter 'center' has no @byul.nullable",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/route_carver/route_carver.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-carver-route-carver.org",
-        "severity": "error",
-        "code": "missing-param-direction",
-        "symbol": "route_carve_bomb",
-        "message": "parameter 'range' has no direction",
-        "disposition": "route-to-owner-child"
-      },
-      {
         "header": "byul/navsys/route_finder/astar.h",
         "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-finder-astar.org",
         "severity": "error",
@@ -7338,7 +6395,34 @@
       ]
     },
     {
+      "path": "byul/navsys/navgrid/compat/abi1/navgrid_abi1.h",
+      "owner_todo": "docs/ko/todo/navsys/todo-navsys-navgrid-navgrid.org",
+      "primary_role": "internal",
+      "wrapper_mode": "excluded",
+      "symbol_count": 0,
+      "audit_issue_count": 0,
+      "symbols": []
+    },
+    {
       "path": "byul/navsys/navgrid/internal/navgrid_callback.hpp",
+      "owner_todo": "docs/ko/todo/navsys/todo-navsys-navgrid-navgrid.org",
+      "primary_role": "internal",
+      "wrapper_mode": "excluded",
+      "symbol_count": 0,
+      "audit_issue_count": 0,
+      "symbols": []
+    },
+    {
+      "path": "byul/navsys/navgrid/internal/navgrid_overlay.hpp",
+      "owner_todo": "docs/ko/todo/navsys/todo-navsys-navgrid-navgrid.org",
+      "primary_role": "internal",
+      "wrapper_mode": "excluded",
+      "symbol_count": 0,
+      "audit_issue_count": 0,
+      "symbols": []
+    },
+    {
+      "path": "byul/navsys/navgrid/internal/navgrid_private.hpp",
       "owner_todo": "docs/ko/todo/navsys/todo-navsys-navgrid-navgrid.org",
       "primary_role": "internal",
       "wrapper_mode": "excluded",
@@ -7458,13 +6542,59 @@
       "symbols": []
     },
     {
+      "path": "byul/navsys/obstacle/compat/abi1/obstacle_abi1.h",
+      "owner_todo": "docs/ko/todo/navsys/todo-navsys-obstacle-obstacle-core.org",
+      "primary_role": "internal",
+      "wrapper_mode": "excluded",
+      "symbol_count": 0,
+      "audit_issue_count": 0,
+      "symbols": []
+    },
+    {
+      "path": "byul/navsys/obstacle/internal/obstacle_private.hpp",
+      "owner_todo": "docs/ko/todo/navsys/todo-navsys-obstacle-obstacle-core.org",
+      "primary_role": "internal",
+      "wrapper_mode": "excluded",
+      "symbol_count": 0,
+      "audit_issue_count": 0,
+      "symbols": []
+    },
+    {
       "path": "byul/navsys/obstacle/obstacle.h",
       "owner_todo": "docs/ko/todo/navsys/todo-navsys-obstacle-obstacle.org",
       "primary_role": "public-component",
-      "wrapper_mode": "manual",
-      "symbol_count": 11,
-      "audit_issue_count": 59,
+      "wrapper_mode": "generated",
+      "symbol_count": 39,
+      "audit_issue_count": 0,
       "symbols": [
+        "obstacle_export_neighbors",
+        "obstacle_export_neighbors_range",
+        "obstacle_fetch_neighbor_at_degree",
+        "obstacle_fetch_neighbor_at_goal",
+        "obstacle_export_neighbors_at_degree_range",
+        "obstacle_create_neighbors",
+        "obstacle_create_neighbors_all",
+        "obstacle_create_neighbors_all_range",
+        "obstacle_create_neighbor_at_degree",
+        "obstacle_create_neighbor_at_goal",
+        "obstacle_create_neighbors_at_degree_range",
+        "obstacle_block_square",
+        "obstacle_block_line",
+        "obstacle_generate_options_init",
+        "obstacle_generate_filled_rect",
+        "obstacle_generate_rect_outline",
+        "obstacle_generate_random_rect",
+        "obstacle_generate_line",
+        "obstacle_generate_polygon",
+        "obstacle_generate_polygon_outline",
+        "obstacle_generate_triangle",
+        "obstacle_generate_triangle_outline",
+        "obstacle_enclosure_desc_init",
+        "obstacle_cross_desc_init",
+        "obstacle_spiral_desc_init",
+        "obstacle_generate_enclosure",
+        "obstacle_generate_cross",
+        "obstacle_generate_spiral",
         "obstacle_make_rect_all_blocked",
         "obstacle_make_rect_random_blocked",
         "obstacle_make_beam",
@@ -7482,14 +6612,20 @@
       "path": "byul/navsys/obstacle/obstacle_core.h",
       "owner_todo": "docs/ko/todo/navsys/todo-navsys-obstacle-obstacle-core.org",
       "primary_role": "public-component",
-      "wrapper_mode": "manual",
-      "symbol_count": 29,
-      "audit_issue_count": 33,
+      "wrapper_mode": "generated",
+      "symbol_count": 39,
+      "audit_issue_count": 0,
       "symbols": [
+        "obstacle_get_abi_version",
+        "obstacle_get_abi_fingerprint",
+        "obstacle_check_abi",
+        "obstacle_sizeof",
+        "obstacle_alignof",
+        "obstacle_create_checked",
         "obstacle_create",
         "obstacle_create_full",
         "obstacle_destroy",
-        "obstacle_clear",
+        "obstacle_copy_checked",
         "obstacle_copy",
         "obstacle_equal",
         "obstacle_hash",
@@ -7500,6 +6636,8 @@
         "obstacle_get_height",
         "obstacle_set_height",
         "obstacle_get_blocked_coords",
+        "obstacle_set_blocked",
+        "obstacle_export_blocked",
         "obstacle_block_coord",
         "obstacle_unblock_coord",
         "obstacle_is_inside",
@@ -7511,6 +6649,8 @@
         "obstacle_clone_neighbor_at_goal",
         "obstacle_clone_neighbors_at_degree_range",
         "obstacle_is_coord_blocked",
+        "obstacle_apply_to_navgrid_checked",
+        "obstacle_remove_from_navgrid_checked",
         "obstacle_apply_to_navgrid",
         "obstacle_remove_from_navgrid",
         "obstacle_block_range",
@@ -7626,13 +6766,42 @@
       ]
     },
     {
+      "path": "byul/navsys/route_carver/compat/route_carver_legacy.hpp",
+      "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-carver-route-carver.org",
+      "primary_role": "internal",
+      "wrapper_mode": "excluded",
+      "symbol_count": 0,
+      "audit_issue_count": 0,
+      "symbols": []
+    },
+    {
+      "path": "byul/navsys/route_carver/internal/route_carver_geometry.hpp",
+      "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-carver-route-carver.org",
+      "primary_role": "internal",
+      "wrapper_mode": "excluded",
+      "symbol_count": 0,
+      "audit_issue_count": 0,
+      "symbols": []
+    },
+    {
+      "path": "byul/navsys/route_carver/internal/route_carver_mutation.hpp",
+      "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-carver-route-carver.org",
+      "primary_role": "internal",
+      "wrapper_mode": "excluded",
+      "symbol_count": 0,
+      "audit_issue_count": 0,
+      "symbols": []
+    },
+    {
       "path": "byul/navsys/route_carver/route_carver.h",
       "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-carver-route-carver.org",
       "primary_role": "public-module-entry",
-      "wrapper_mode": "manual",
-      "symbol_count": 2,
-      "audit_issue_count": 12,
+      "wrapper_mode": "generated",
+      "symbol_count": 4,
+      "audit_issue_count": 0,
       "symbols": [
+        "navgrid_carve_line",
+        "navgrid_carve_area",
         "route_carve_beam",
         "route_carve_bomb"
       ]
@@ -10896,6 +10065,230 @@
     },
     {
       "header": "byul/navsys/obstacle/obstacle.h",
+      "name": "obstacle_export_neighbors",
+      "return_type": "navsys_status_t",
+      "signature": "navsys_status_t obstacle_export_neighbors( const obstacle_t* obstacle, int32_t x, int32_t y, bool traversable_only, coord_t* out_coords, size_t capacity, size_t* out_count);",
+      "return_form": "enum_result",
+      "canonical": "navsys_status_t plus typed out enum"
+    },
+    {
+      "header": "byul/navsys/obstacle/obstacle.h",
+      "name": "obstacle_export_neighbors_range",
+      "return_type": "navsys_status_t",
+      "signature": "navsys_status_t obstacle_export_neighbors_range( const obstacle_t* obstacle, int32_t x, int32_t y, int32_t range, coord_t* out_coords, size_t capacity, size_t* out_count);",
+      "return_form": "enum_result",
+      "canonical": "navsys_status_t plus typed out enum"
+    },
+    {
+      "header": "byul/navsys/obstacle/obstacle.h",
+      "name": "obstacle_fetch_neighbor_at_degree",
+      "return_type": "navsys_status_t",
+      "signature": "navsys_status_t obstacle_fetch_neighbor_at_degree( const obstacle_t* obstacle, int32_t x, int32_t y, double degree, coord_t* out_coord);",
+      "return_form": "enum_result",
+      "canonical": "navsys_status_t plus typed out enum"
+    },
+    {
+      "header": "byul/navsys/obstacle/obstacle.h",
+      "name": "obstacle_fetch_neighbor_at_goal",
+      "return_type": "navsys_status_t",
+      "signature": "navsys_status_t obstacle_fetch_neighbor_at_goal( const obstacle_t* obstacle, const coord_t* center, const coord_t* goal, coord_t* out_coord);",
+      "return_form": "enum_result",
+      "canonical": "navsys_status_t plus typed out enum"
+    },
+    {
+      "header": "byul/navsys/obstacle/obstacle.h",
+      "name": "obstacle_export_neighbors_at_degree_range",
+      "return_type": "navsys_status_t",
+      "signature": "navsys_status_t obstacle_export_neighbors_at_degree_range( const obstacle_t* obstacle, const coord_t* center, const coord_t* goal, double start_deg, double end_deg, int32_t range, coord_t* out_coords, size_t capacity, size_t* out_count);",
+      "return_form": "enum_result",
+      "canonical": "navsys_status_t plus typed out enum"
+    },
+    {
+      "header": "byul/navsys/obstacle/obstacle.h",
+      "name": "obstacle_create_neighbors",
+      "return_type": "coord_list_t*",
+      "signature": "coord_list_t* obstacle_create_neighbors( const obstacle_t* obstacle, int32_t x, int32_t y);",
+      "return_form": "nullable_pointer",
+      "canonical": "status return plus typed out pointer"
+    },
+    {
+      "header": "byul/navsys/obstacle/obstacle.h",
+      "name": "obstacle_create_neighbors_all",
+      "return_type": "coord_list_t*",
+      "signature": "coord_list_t* obstacle_create_neighbors_all( const obstacle_t* obstacle, int32_t x, int32_t y);",
+      "return_form": "nullable_pointer",
+      "canonical": "status return plus typed out pointer"
+    },
+    {
+      "header": "byul/navsys/obstacle/obstacle.h",
+      "name": "obstacle_create_neighbors_all_range",
+      "return_type": "coord_list_t*",
+      "signature": "coord_list_t* obstacle_create_neighbors_all_range( const obstacle_t* obstacle, int32_t x, int32_t y, int32_t range);",
+      "return_form": "nullable_pointer",
+      "canonical": "status return plus typed out pointer"
+    },
+    {
+      "header": "byul/navsys/obstacle/obstacle.h",
+      "name": "obstacle_create_neighbor_at_degree",
+      "return_type": "coord_t*",
+      "signature": "coord_t* obstacle_create_neighbor_at_degree( const obstacle_t* obstacle, int32_t x, int32_t y, double degree);",
+      "return_form": "nullable_pointer",
+      "canonical": "status return plus typed out pointer"
+    },
+    {
+      "header": "byul/navsys/obstacle/obstacle.h",
+      "name": "obstacle_create_neighbor_at_goal",
+      "return_type": "coord_t*",
+      "signature": "coord_t* obstacle_create_neighbor_at_goal( const obstacle_t* obstacle, const coord_t* center, const coord_t* goal);",
+      "return_form": "nullable_pointer",
+      "canonical": "status return plus typed out pointer"
+    },
+    {
+      "header": "byul/navsys/obstacle/obstacle.h",
+      "name": "obstacle_create_neighbors_at_degree_range",
+      "return_type": "coord_list_t*",
+      "signature": "coord_list_t* obstacle_create_neighbors_at_degree_range( const obstacle_t* obstacle, const coord_t* center, const coord_t* goal, double start_deg, double end_deg, int32_t range);",
+      "return_form": "nullable_pointer",
+      "canonical": "status return plus typed out pointer"
+    },
+    {
+      "header": "byul/navsys/obstacle/obstacle.h",
+      "name": "obstacle_block_square",
+      "return_type": "navsys_status_t",
+      "signature": "navsys_status_t obstacle_block_square( obstacle_t* obstacle, int32_t x, int32_t y, int32_t radius, size_t* out_changed_count);",
+      "return_form": "enum_result",
+      "canonical": "navsys_status_t plus typed out enum"
+    },
+    {
+      "header": "byul/navsys/obstacle/obstacle.h",
+      "name": "obstacle_block_line",
+      "return_type": "navsys_status_t",
+      "signature": "navsys_status_t obstacle_block_line( obstacle_t* obstacle, int32_t x0, int32_t y0, int32_t x1, int32_t y1, int32_t radius, size_t* out_changed_count);",
+      "return_form": "enum_result",
+      "canonical": "navsys_status_t plus typed out enum"
+    },
+    {
+      "header": "byul/navsys/obstacle/obstacle.h",
+      "name": "obstacle_generate_options_init",
+      "return_type": "navsys_status_t",
+      "signature": "navsys_status_t obstacle_generate_options_init( obstacle_generate_options_t* options);",
+      "return_form": "enum_result",
+      "canonical": "navsys_status_t plus typed out enum"
+    },
+    {
+      "header": "byul/navsys/obstacle/obstacle.h",
+      "name": "obstacle_generate_filled_rect",
+      "return_type": "navsys_status_t",
+      "signature": "navsys_status_t obstacle_generate_filled_rect( int32_t x0, int32_t y0, int32_t width, int32_t height, const obstacle_generate_options_t* options, obstacle_t** out_obstacle);",
+      "return_form": "enum_result",
+      "canonical": "navsys_status_t plus typed out enum"
+    },
+    {
+      "header": "byul/navsys/obstacle/obstacle.h",
+      "name": "obstacle_generate_rect_outline",
+      "return_type": "navsys_status_t",
+      "signature": "navsys_status_t obstacle_generate_rect_outline( int32_t x0, int32_t y0, int32_t width, int32_t height, uint32_t wall_thickness_cells, const obstacle_generate_options_t* options, obstacle_t** out_obstacle);",
+      "return_form": "enum_result",
+      "canonical": "navsys_status_t plus typed out enum"
+    },
+    {
+      "header": "byul/navsys/obstacle/obstacle.h",
+      "name": "obstacle_generate_random_rect",
+      "return_type": "navsys_status_t",
+      "signature": "navsys_status_t obstacle_generate_random_rect( int32_t x0, int32_t y0, int32_t width, int32_t height, double blocked_probability, const obstacle_generate_options_t* options, obstacle_t** out_obstacle);",
+      "return_form": "enum_result",
+      "canonical": "navsys_status_t plus typed out enum"
+    },
+    {
+      "header": "byul/navsys/obstacle/obstacle.h",
+      "name": "obstacle_generate_line",
+      "return_type": "navsys_status_t",
+      "signature": "navsys_status_t obstacle_generate_line( const coord_t* start, const coord_t* end, uint32_t radius_cells, const obstacle_generate_options_t* options, obstacle_t** out_obstacle);",
+      "return_form": "enum_result",
+      "canonical": "navsys_status_t plus typed out enum"
+    },
+    {
+      "header": "byul/navsys/obstacle/obstacle.h",
+      "name": "obstacle_generate_polygon",
+      "return_type": "navsys_status_t",
+      "signature": "navsys_status_t obstacle_generate_polygon( const coord_t* vertices, size_t vertex_count, obstacle_polygon_fill_rule_t fill_rule, const obstacle_generate_options_t* options, obstacle_t** out_obstacle);",
+      "return_form": "enum_result",
+      "canonical": "navsys_status_t plus typed out enum"
+    },
+    {
+      "header": "byul/navsys/obstacle/obstacle.h",
+      "name": "obstacle_generate_polygon_outline",
+      "return_type": "navsys_status_t",
+      "signature": "navsys_status_t obstacle_generate_polygon_outline( const coord_t* vertices, size_t vertex_count, uint32_t radius_cells, const obstacle_generate_options_t* options, obstacle_t** out_obstacle);",
+      "return_form": "enum_result",
+      "canonical": "navsys_status_t plus typed out enum"
+    },
+    {
+      "header": "byul/navsys/obstacle/obstacle.h",
+      "name": "obstacle_generate_triangle",
+      "return_type": "navsys_status_t",
+      "signature": "navsys_status_t obstacle_generate_triangle( const coord_t* a, const coord_t* b, const coord_t* c, obstacle_polygon_fill_rule_t fill_rule, const obstacle_generate_options_t* options, obstacle_t** out_obstacle);",
+      "return_form": "enum_result",
+      "canonical": "navsys_status_t plus typed out enum"
+    },
+    {
+      "header": "byul/navsys/obstacle/obstacle.h",
+      "name": "obstacle_generate_triangle_outline",
+      "return_type": "navsys_status_t",
+      "signature": "navsys_status_t obstacle_generate_triangle_outline( const coord_t* a, const coord_t* b, const coord_t* c, uint32_t radius_cells, const obstacle_generate_options_t* options, obstacle_t** out_obstacle);",
+      "return_form": "enum_result",
+      "canonical": "navsys_status_t plus typed out enum"
+    },
+    {
+      "header": "byul/navsys/obstacle/obstacle.h",
+      "name": "obstacle_enclosure_desc_init",
+      "return_type": "navsys_status_t",
+      "signature": "navsys_status_t obstacle_enclosure_desc_init( obstacle_enclosure_desc_t* desc);",
+      "return_form": "enum_result",
+      "canonical": "navsys_status_t plus typed out enum"
+    },
+    {
+      "header": "byul/navsys/obstacle/obstacle.h",
+      "name": "obstacle_cross_desc_init",
+      "return_type": "navsys_status_t",
+      "signature": "navsys_status_t obstacle_cross_desc_init( obstacle_cross_desc_t* desc);",
+      "return_form": "enum_result",
+      "canonical": "navsys_status_t plus typed out enum"
+    },
+    {
+      "header": "byul/navsys/obstacle/obstacle.h",
+      "name": "obstacle_spiral_desc_init",
+      "return_type": "navsys_status_t",
+      "signature": "navsys_status_t obstacle_spiral_desc_init( obstacle_spiral_desc_t* desc);",
+      "return_form": "enum_result",
+      "canonical": "navsys_status_t plus typed out enum"
+    },
+    {
+      "header": "byul/navsys/obstacle/obstacle.h",
+      "name": "obstacle_generate_enclosure",
+      "return_type": "navsys_status_t",
+      "signature": "navsys_status_t obstacle_generate_enclosure( const obstacle_enclosure_desc_t* desc, const obstacle_generate_options_t* options, obstacle_t** out_obstacle);",
+      "return_form": "enum_result",
+      "canonical": "navsys_status_t plus typed out enum"
+    },
+    {
+      "header": "byul/navsys/obstacle/obstacle.h",
+      "name": "obstacle_generate_cross",
+      "return_type": "navsys_status_t",
+      "signature": "navsys_status_t obstacle_generate_cross( const obstacle_cross_desc_t* desc, const obstacle_generate_options_t* options, obstacle_t** out_obstacle);",
+      "return_form": "enum_result",
+      "canonical": "navsys_status_t plus typed out enum"
+    },
+    {
+      "header": "byul/navsys/obstacle/obstacle.h",
+      "name": "obstacle_generate_spiral",
+      "return_type": "navsys_status_t",
+      "signature": "navsys_status_t obstacle_generate_spiral( const obstacle_spiral_desc_t* desc, const obstacle_generate_options_t* options, obstacle_t** out_obstacle);",
+      "return_form": "enum_result",
+      "canonical": "navsys_status_t plus typed out enum"
+    },
+    {
+      "header": "byul/navsys/obstacle/obstacle.h",
       "name": "obstacle_make_rect_all_blocked",
       "return_type": "obstacle_t*",
       "signature": "obstacle_t* obstacle_make_rect_all_blocked( int x0, int y0, int width, int height);",
@@ -10984,6 +10377,54 @@
     },
     {
       "header": "byul/navsys/obstacle/obstacle_core.h",
+      "name": "obstacle_get_abi_version",
+      "return_type": "uint32_t",
+      "signature": "uint32_t obstacle_get_abi_version(void);",
+      "return_form": "enum_result",
+      "canonical": "navsys_status_t plus typed out enum"
+    },
+    {
+      "header": "byul/navsys/obstacle/obstacle_core.h",
+      "name": "obstacle_get_abi_fingerprint",
+      "return_type": "uint64_t",
+      "signature": "uint64_t obstacle_get_abi_fingerprint(void);",
+      "return_form": "enum_result",
+      "canonical": "navsys_status_t plus typed out enum"
+    },
+    {
+      "header": "byul/navsys/obstacle/obstacle_core.h",
+      "name": "obstacle_check_abi",
+      "return_type": "navsys_status_t",
+      "signature": "navsys_status_t obstacle_check_abi( uint32_t expected_version, uint64_t expected_fingerprint, obstacle_abi_mismatch_t* out_mismatch);",
+      "return_form": "enum_result",
+      "canonical": "navsys_status_t plus typed out enum"
+    },
+    {
+      "header": "byul/navsys/obstacle/obstacle_core.h",
+      "name": "obstacle_sizeof",
+      "return_type": "size_t",
+      "signature": "size_t obstacle_sizeof(void);",
+      "return_form": "int_count",
+      "canonical": "navsys_status_t plus out_count"
+    },
+    {
+      "header": "byul/navsys/obstacle/obstacle_core.h",
+      "name": "obstacle_alignof",
+      "return_type": "size_t",
+      "signature": "size_t obstacle_alignof(void);",
+      "return_form": "int_count",
+      "canonical": "navsys_status_t plus out_count"
+    },
+    {
+      "header": "byul/navsys/obstacle/obstacle_core.h",
+      "name": "obstacle_create_checked",
+      "return_type": "navsys_status_t",
+      "signature": "navsys_status_t obstacle_create_checked( int32_t x0, int32_t y0, int32_t width, int32_t height, obstacle_t** out_obstacle);",
+      "return_form": "enum_result",
+      "canonical": "navsys_status_t plus typed out enum"
+    },
+    {
+      "header": "byul/navsys/obstacle/obstacle_core.h",
       "name": "obstacle_create",
       "return_type": "obstacle_t*",
       "signature": "obstacle_t* obstacle_create();",
@@ -11008,11 +10449,11 @@
     },
     {
       "header": "byul/navsys/obstacle/obstacle_core.h",
-      "name": "obstacle_clear",
-      "return_type": "void",
-      "signature": "void obstacle_clear(obstacle_t* obstacle);",
-      "return_form": "void_fallible_operation",
-      "canonical": "navsys_status_t"
+      "name": "obstacle_copy_checked",
+      "return_type": "navsys_status_t",
+      "signature": "navsys_status_t obstacle_copy_checked( const obstacle_t* source, obstacle_t** out_obstacle);",
+      "return_form": "enum_result",
+      "canonical": "navsys_status_t plus typed out enum"
     },
     {
       "header": "byul/navsys/obstacle/obstacle_core.h",
@@ -11093,6 +10534,22 @@
       "signature": "const coord_hash_t* obstacle_get_blocked_coords( const obstacle_t* obstacle);",
       "return_form": "nullable_pointer",
       "canonical": "status return plus typed out pointer"
+    },
+    {
+      "header": "byul/navsys/obstacle/obstacle_core.h",
+      "name": "obstacle_set_blocked",
+      "return_type": "navsys_status_t",
+      "signature": "navsys_status_t obstacle_set_blocked( obstacle_t* obstacle, int32_t x, int32_t y, bool blocked, bool* out_changed);",
+      "return_form": "enum_result",
+      "canonical": "navsys_status_t plus typed out enum"
+    },
+    {
+      "header": "byul/navsys/obstacle/obstacle_core.h",
+      "name": "obstacle_export_blocked",
+      "return_type": "navsys_status_t",
+      "signature": "navsys_status_t obstacle_export_blocked( const obstacle_t* obstacle, coord_t* out_coords, size_t capacity, size_t* out_count);",
+      "return_form": "enum_result",
+      "canonical": "navsys_status_t plus typed out enum"
     },
     {
       "header": "byul/navsys/obstacle/obstacle_core.h",
@@ -11181,6 +10638,22 @@
       "signature": "bool obstacle_is_coord_blocked( const obstacle_t* obstacle, int x, int y);",
       "return_form": "bool_predicate",
       "canonical": "keep bool when evaluation itself cannot fail"
+    },
+    {
+      "header": "byul/navsys/obstacle/obstacle_core.h",
+      "name": "obstacle_apply_to_navgrid_checked",
+      "return_type": "navsys_status_t",
+      "signature": "navsys_status_t obstacle_apply_to_navgrid_checked( const obstacle_t* obstacle, navgrid_t* navgrid, const obstacle_navgrid_apply_options_t* options, obstacle_navgrid_overlay_token_t* out_overlay, size_t* out_changed_count);",
+      "return_form": "enum_result",
+      "canonical": "navsys_status_t plus typed out enum"
+    },
+    {
+      "header": "byul/navsys/obstacle/obstacle_core.h",
+      "name": "obstacle_remove_from_navgrid_checked",
+      "return_type": "navsys_status_t",
+      "signature": "navsys_status_t obstacle_remove_from_navgrid_checked( navgrid_t* navgrid, obstacle_navgrid_overlay_token_t* overlay, size_t* out_changed_count);",
+      "return_form": "enum_result",
+      "canonical": "navsys_status_t plus typed out enum"
     },
     {
       "header": "byul/navsys/obstacle/obstacle_core.h",
@@ -11928,9 +11401,25 @@
     },
     {
       "header": "byul/navsys/route_carver/route_carver.h",
+      "name": "navgrid_carve_line",
+      "return_type": "navsys_status_t",
+      "signature": "navsys_status_t navgrid_carve_line( navgrid_t* navgrid, const coord_t* start, const coord_t* goal, const navgrid_carve_options_t* options, size_t* out_changed_count);",
+      "return_form": "enum_result",
+      "canonical": "navsys_status_t plus typed out enum"
+    },
+    {
+      "header": "byul/navsys/route_carver/route_carver.h",
+      "name": "navgrid_carve_area",
+      "return_type": "navsys_status_t",
+      "signature": "navsys_status_t navgrid_carve_area( navgrid_t* navgrid, const coord_t* center, const navgrid_carve_options_t* options, size_t* out_changed_count);",
+      "return_form": "enum_result",
+      "canonical": "navsys_status_t plus typed out enum"
+    },
+    {
+      "header": "byul/navsys/route_carver/route_carver.h",
       "name": "route_carve_beam",
       "return_type": "int",
-      "signature": "int route_carve_beam(navgrid_t* navgrid, const coord_t* start, const coord_t* goal, int range);",
+      "signature": "int route_carve_beam( navgrid_t* navgrid, const coord_t* start, const coord_t* goal, int range);",
       "return_form": "int_zero_nonzero_status",
       "canonical": "navsys_status_t"
     },
@@ -13553,6 +13042,97 @@
         "resource": "obstacle",
         "operations": [
           {
+            "header": "byul/navsys/obstacle/obstacle.h",
+            "resource": "obstacle",
+            "operation": "create",
+            "symbol": "obstacle_create_neighbors",
+            "return_type": "coord_list_t*",
+            "parameters": [
+              "const obstacle_t* obstacle",
+              "int32_t x",
+              "int32_t y"
+            ]
+          },
+          {
+            "header": "byul/navsys/obstacle/obstacle.h",
+            "resource": "obstacle",
+            "operation": "create",
+            "symbol": "obstacle_create_neighbors_all",
+            "return_type": "coord_list_t*",
+            "parameters": [
+              "const obstacle_t* obstacle",
+              "int32_t x",
+              "int32_t y"
+            ]
+          },
+          {
+            "header": "byul/navsys/obstacle/obstacle.h",
+            "resource": "obstacle",
+            "operation": "create",
+            "symbol": "obstacle_create_neighbors_all_range",
+            "return_type": "coord_list_t*",
+            "parameters": [
+              "const obstacle_t* obstacle",
+              "int32_t x",
+              "int32_t y",
+              "int32_t range"
+            ]
+          },
+          {
+            "header": "byul/navsys/obstacle/obstacle.h",
+            "resource": "obstacle",
+            "operation": "create",
+            "symbol": "obstacle_create_neighbor_at_degree",
+            "return_type": "coord_t*",
+            "parameters": [
+              "const obstacle_t* obstacle",
+              "int32_t x",
+              "int32_t y",
+              "double degree"
+            ]
+          },
+          {
+            "header": "byul/navsys/obstacle/obstacle.h",
+            "resource": "obstacle",
+            "operation": "create",
+            "symbol": "obstacle_create_neighbor_at_goal",
+            "return_type": "coord_t*",
+            "parameters": [
+              "const obstacle_t* obstacle",
+              "const coord_t* center",
+              "const coord_t* goal"
+            ]
+          },
+          {
+            "header": "byul/navsys/obstacle/obstacle.h",
+            "resource": "obstacle",
+            "operation": "create",
+            "symbol": "obstacle_create_neighbors_at_degree_range",
+            "return_type": "coord_list_t*",
+            "parameters": [
+              "const obstacle_t* obstacle",
+              "const coord_t* center",
+              "const coord_t* goal",
+              "double start_deg",
+              "double end_deg",
+              "int32_t range"
+            ]
+          },
+          {
+            "header": "byul/navsys/obstacle/obstacle_core.h",
+            "resource": "obstacle",
+            "operation": "create",
+            "symbol": "obstacle_create_checked",
+            "return_type": "navsys_status_t",
+            "parameters": [
+              "int32_t x0",
+              "int32_t y0",
+              "int32_t width",
+              "int32_t height",
+              "obstacle_t** out_obstacle"
+            ]
+          },
+          {
             "header": "byul/navsys/obstacle/obstacle_core.h",
             "resource": "obstacle",
             "operation": "create",
@@ -13598,6 +13178,78 @@
           "copy",
           "create",
           "destroy"
+        ]
+      },
+      {
+        "resource": "obstacle_cross_desc",
+        "operations": [
+          {
+            "header": "byul/navsys/obstacle/obstacle.h",
+            "resource": "obstacle_cross_desc",
+            "operation": "init",
+            "symbol": "obstacle_cross_desc_init",
+            "return_type": "navsys_status_t",
+            "parameters": [
+              "obstacle_cross_desc_t* desc"
+            ]
+          }
+        ],
+        "operation_kinds": [
+          "init"
+        ]
+      },
+      {
+        "resource": "obstacle_enclosure_desc",
+        "operations": [
+          {
+            "header": "byul/navsys/obstacle/obstacle.h",
+            "resource": "obstacle_enclosure_desc",
+            "operation": "init",
+            "symbol": "obstacle_enclosure_desc_init",
+            "return_type": "navsys_status_t",
+            "parameters": [
+              "obstacle_enclosure_desc_t* desc"
+            ]
+          }
+        ],
+        "operation_kinds": [
+          "init"
+        ]
+      },
+      {
+        "resource": "obstacle_generate_options",
+        "operations": [
+          {
+            "header": "byul/navsys/obstacle/obstacle.h",
+            "resource": "obstacle_generate_options",
+            "operation": "init",
+            "symbol": "obstacle_generate_options_init",
+            "return_type": "navsys_status_t",
+            "parameters": [
+              "obstacle_generate_options_t* options"
+            ]
+          }
+        ],
+        "operation_kinds": [
+          "init"
+        ]
+      },
+      {
+        "resource": "obstacle_spiral_desc",
+        "operations": [
+          {
+            "header": "byul/navsys/obstacle/obstacle.h",
+            "resource": "obstacle_spiral_desc",
+            "operation": "init",
+            "symbol": "obstacle_spiral_desc_init",
+            "return_type": "navsys_status_t",
+            "parameters": [
+              "obstacle_spiral_desc_t* desc"
+            ]
+          }
+        ],
+        "operation_kinds": [
+          "init"
         ]
       },
       {
@@ -14627,6 +14279,137 @@
         "return_type": "navgrid_t*",
         "parameters": [
           "const navgrid_t* navgrid"
+        ]
+      },
+      {
+        "header": "byul/navsys/obstacle/obstacle.h",
+        "resource": "obstacle",
+        "operation": "create",
+        "symbol": "obstacle_create_neighbors",
+        "return_type": "coord_list_t*",
+        "parameters": [
+          "const obstacle_t* obstacle",
+          "int32_t x",
+          "int32_t y"
+        ]
+      },
+      {
+        "header": "byul/navsys/obstacle/obstacle.h",
+        "resource": "obstacle",
+        "operation": "create",
+        "symbol": "obstacle_create_neighbors_all",
+        "return_type": "coord_list_t*",
+        "parameters": [
+          "const obstacle_t* obstacle",
+          "int32_t x",
+          "int32_t y"
+        ]
+      },
+      {
+        "header": "byul/navsys/obstacle/obstacle.h",
+        "resource": "obstacle",
+        "operation": "create",
+        "symbol": "obstacle_create_neighbors_all_range",
+        "return_type": "coord_list_t*",
+        "parameters": [
+          "const obstacle_t* obstacle",
+          "int32_t x",
+          "int32_t y",
+          "int32_t range"
+        ]
+      },
+      {
+        "header": "byul/navsys/obstacle/obstacle.h",
+        "resource": "obstacle",
+        "operation": "create",
+        "symbol": "obstacle_create_neighbor_at_degree",
+        "return_type": "coord_t*",
+        "parameters": [
+          "const obstacle_t* obstacle",
+          "int32_t x",
+          "int32_t y",
+          "double degree"
+        ]
+      },
+      {
+        "header": "byul/navsys/obstacle/obstacle.h",
+        "resource": "obstacle",
+        "operation": "create",
+        "symbol": "obstacle_create_neighbor_at_goal",
+        "return_type": "coord_t*",
+        "parameters": [
+          "const obstacle_t* obstacle",
+          "const coord_t* center",
+          "const coord_t* goal"
+        ]
+      },
+      {
+        "header": "byul/navsys/obstacle/obstacle.h",
+        "resource": "obstacle",
+        "operation": "create",
+        "symbol": "obstacle_create_neighbors_at_degree_range",
+        "return_type": "coord_list_t*",
+        "parameters": [
+          "const obstacle_t* obstacle",
+          "const coord_t* center",
+          "const coord_t* goal",
+          "double start_deg",
+          "double end_deg",
+          "int32_t range"
+        ]
+      },
+      {
+        "header": "byul/navsys/obstacle/obstacle.h",
+        "resource": "obstacle_generate_options",
+        "operation": "init",
+        "symbol": "obstacle_generate_options_init",
+        "return_type": "navsys_status_t",
+        "parameters": [
+          "obstacle_generate_options_t* options"
+        ]
+      },
+      {
+        "header": "byul/navsys/obstacle/obstacle.h",
+        "resource": "obstacle_enclosure_desc",
+        "operation": "init",
+        "symbol": "obstacle_enclosure_desc_init",
+        "return_type": "navsys_status_t",
+        "parameters": [
+          "obstacle_enclosure_desc_t* desc"
+        ]
+      },
+      {
+        "header": "byul/navsys/obstacle/obstacle.h",
+        "resource": "obstacle_cross_desc",
+        "operation": "init",
+        "symbol": "obstacle_cross_desc_init",
+        "return_type": "navsys_status_t",
+        "parameters": [
+          "obstacle_cross_desc_t* desc"
+        ]
+      },
+      {
+        "header": "byul/navsys/obstacle/obstacle.h",
+        "resource": "obstacle_spiral_desc",
+        "operation": "init",
+        "symbol": "obstacle_spiral_desc_init",
+        "return_type": "navsys_status_t",
+        "parameters": [
+          "obstacle_spiral_desc_t* desc"
+        ]
+      },
+      {
+        "header": "byul/navsys/obstacle/obstacle_core.h",
+        "resource": "obstacle",
+        "operation": "create",
+        "symbol": "obstacle_create_checked",
+        "return_type": "navsys_status_t",
+        "parameters": [
+          "int32_t x0",
+          "int32_t y0",
+          "int32_t width",
+          "int32_t height",
+          "obstacle_t** out_obstacle"
         ]
       },
       {

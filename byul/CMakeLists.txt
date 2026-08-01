@@ -82,6 +82,12 @@ byul_assert_module_inventory(
     byul_SOURCES
     byul_HEADERS
 )
+byul_assert_module_inventory(
+    obstacle
+    "${CMAKE_CURRENT_SOURCE_DIR}/navsys/obstacle"
+    byul_SOURCES
+    byul_HEADERS
+)
 
 # -----------------------------------------------------------------------------
 # Shared library
@@ -150,6 +156,7 @@ install(FILES ${${PROJECT_NAME}_HEADERS}
 # part of the default opaque-handle SDK installation.
 install(FILES
     ${CMAKE_CURRENT_SOURCE_DIR}/navsys/navgrid/compat/abi1/navgrid_abi1.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/navsys/obstacle/compat/abi1/obstacle_abi1.h
     DESTINATION include/${CMAKE_PROJECT_NAME}/compat/abi1
     COMPONENT byul_sdk_abi1_compat
     EXCLUDE_FROM_ALL

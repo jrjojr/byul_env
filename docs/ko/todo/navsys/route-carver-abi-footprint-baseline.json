@@ -1,0 +1,74 @@
+{
+  "schema_version": 1,
+  "captured_revision": "d1a1b0dfb2f9a6e0b0a0bdd091225fe05347f964",
+  "component": "byul/navsys/route_carver",
+  "header": "byul/navsys/route_carver/route_carver.h",
+  "source": "byul/navsys/route_carver/route_carver.cpp",
+  "public_symbols": [
+    {
+      "symbol": "route_carve_beam",
+      "signature": "int(navgrid_t*, const coord_t*, const coord_t*, int)",
+      "declaration_count": 1,
+      "definition_count": 1,
+      "static_archive_expected": true,
+      "root_shared_export_expected": true,
+      "static_archive_observed": true,
+      "root_shared_export_observed": true,
+      "root_shared_ordinal": 889,
+      "abi_1_disposition": "deprecate-forward",
+      "abi_major_disposition": "internalize",
+      "canonical_companion_disposition": "ABI 1.x: add"
+    },
+    {
+      "symbol": "route_carve_bomb",
+      "signature": "int(navgrid_t*, const coord_t*, int)",
+      "declaration_count": 1,
+      "definition_count": 1,
+      "static_archive_expected": true,
+      "root_shared_export_expected": true,
+      "static_archive_observed": true,
+      "root_shared_export_observed": true,
+      "root_shared_ordinal": 890,
+      "abi_1_disposition": "deprecate-forward",
+      "abi_major_disposition": "internalize",
+      "canonical_companion_disposition": "ABI 1.x: add"
+    }
+  ],
+  "surface_registration": {
+    "module_source_list": "byul/navsys/CMakeLists.txt: navsys_SOURCES",
+    "module_header_list": "byul/navsys/CMakeLists.txt: navsys_HEADERS",
+    "aggregate": "byul/navsys/navsys.h",
+    "install": "navsys_HEADERS public install inventory",
+    "native_consumer": "byul/navsys/tests/test_module_route_carver.cpp",
+    "sdk_c_consumer": "byul/tests/sdk_consumer/main.c",
+    "sdk_cpp_consumer": "byul/tests/sdk_consumer/main.cpp"
+  },
+  "wrapper": {
+    "generated_cdef": "not registered as a supported wrapper header",
+    "high_level_surface": "excluded",
+    "reason": "legacy int return collapses invalid, allocation, and no-change outcomes; wrapper support is deferred to the canonical checked companions"
+  },
+  "frozen_fixture": {
+    "owner": "byul/navsys/tests/test_module_route_carver.cpp",
+    "grid_encoding": "rows separated by '/', '#' remains blocked, '.' was cleared",
+    "beam_centerline": "sign-step staircase; start excluded and goal included",
+    "ranges": [-1, 0, 1, 2],
+    "direction_modes": ["NAVGRID_DIR_4", "NAVGRID_DIR_8"],
+    "boundary_cases": [
+      "beam start outside then entering bounded grid",
+      "beam goal outside after leaving bounded grid",
+      "wide beam clipping at bounded edge",
+      "bomb center on bounded corner",
+      "bomb center outside bounded grid"
+    ],
+    "observed_contract": [
+      "negative range aliases zero",
+      "beam centerline cell is omitted for positive range",
+      "positive range footprint depends on NAVGRID_DIR_4 versus NAVGRID_DIR_8",
+      "beam excludes start and includes goal in thin mode",
+      "neighbor candidates are clipped to extent",
+      "current provenance-aware clear does not materialize an outside-grid cell",
+      "invalid arguments and normal zero-change both return zero"
+    ]
+  }
+}

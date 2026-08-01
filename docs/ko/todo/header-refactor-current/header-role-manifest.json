@@ -13,12 +13,12 @@
     ]
   },
   "summary": {
-    "headers": 139,
-    "approved": 139,
+    "headers": 147,
+    "approved": 147,
     "approved_install": 98,
-    "wrapper_generated": 27,
-    "wrapper_manual": 64,
-    "wrapper_excluded": 48,
+    "wrapper_generated": 29,
+    "wrapper_manual": 62,
+    "wrapper_excluded": 56,
     "compatibility_forwarders": 20,
     "successor_headers": 20,
     "successor_links": 39,
@@ -4097,7 +4097,7 @@
     {
       "asset_id": "initial:byul/navsys/navgrid/navgrid.h",
       "current_path": "byul/navsys/navgrid/navgrid.h",
-      "sha256": "8fc7a683311248b126722e6b77907e48cd2c9181e60c24704dc4ae2833bdfd6d",
+      "sha256": "8a3463969f040ca2906f6364d7bbc3a70160c1bd71d0cc008fc21dca4beef743",
       "primary_role": "public-component",
       "role_reason": "Stage-1 evidence supports the current public or internal boundary.",
       "owner_module": "navsys",
@@ -4290,7 +4290,7 @@
     {
       "asset_id": "initial:byul/navsys/obstacle/obstacle.h",
       "current_path": "byul/navsys/obstacle/obstacle.h",
-      "sha256": "8a99171b6d12513add5c2fb19f79b7537e200015d0ebaa869d590102341323ba",
+      "sha256": "09a49088b54a7de49bdd5c64fca779706b949dc3b46d19f47e127775df564848",
       "primary_role": "public-component",
       "role_reason": "Stage-1 evidence supports the current public or internal boundary.",
       "owner_module": "navsys",
@@ -4298,8 +4298,8 @@
       "approved_install": true,
       "install_reason": "Public or compatibility SDK surface.",
       "wrapper": {
-        "mode": "manual",
-        "reason": "Public legacy declarations require explicit ownership/error metadata before automatic generation."
+        "mode": "generated",
+        "reason": "Registered in the canonical wrapper generator manifest."
       },
       "naming": {
         "disposition": "keep",
@@ -4319,8 +4319,20 @@
         ],
         "root_header_inventory": true,
         "install_inventory": true,
-        "wrapper_modules_registered": false,
+        "wrapper_modules_registered": true,
         "exported_symbols": [
+          "obstacle_generate_options_init",
+          "obstacle_generate_filled_rect",
+          "obstacle_generate_random_rect",
+          "obstacle_generate_line",
+          "obstacle_generate_polygon",
+          "obstacle_generate_polygon_outline",
+          "obstacle_enclosure_desc_init",
+          "obstacle_cross_desc_init",
+          "obstacle_spiral_desc_init",
+          "obstacle_generate_enclosure",
+          "obstacle_generate_cross",
+          "obstacle_generate_spiral",
           "obstacle_make_rect_all_blocked",
           "obstacle_make_rect_random_blocked",
           "obstacle_make_beam",
@@ -4344,7 +4356,7 @@
     {
       "asset_id": "initial:byul/navsys/obstacle/obstacle_core.h",
       "current_path": "byul/navsys/obstacle/obstacle_core.h",
-      "sha256": "e85aed8db0495f96143460899f24836ba54173206bd5efc52dd7123e10973770",
+      "sha256": "9c62ca507c7cb70d604763208316c93f8dfaf69084d3a235c27df9da26d1044e",
       "primary_role": "public-component",
       "role_reason": "Stage-1 evidence supports the current public or internal boundary.",
       "owner_module": "navsys",
@@ -4352,8 +4364,8 @@
       "approved_install": true,
       "install_reason": "Public or compatibility SDK surface.",
       "wrapper": {
-        "mode": "manual",
-        "reason": "Public legacy declarations require explicit ownership/error metadata before automatic generation."
+        "mode": "generated",
+        "reason": "Registered in the canonical wrapper generator manifest."
       },
       "naming": {
         "disposition": "keep",
@@ -4373,7 +4385,7 @@
         ],
         "root_header_inventory": true,
         "install_inventory": true,
-        "wrapper_modules_registered": false,
+        "wrapper_modules_registered": true,
         "exported_symbols": [
           "obstacle_create",
           "obstacle_create_full",
@@ -4586,9 +4598,299 @@
       "decision_status": "approved"
     },
     {
+      "asset_id": "created:byul/navsys/navgrid/compat/abi1/navgrid_abi1.h",
+      "current_path": "byul/navsys/navgrid/compat/abi1/navgrid_abi1.h",
+      "sha256": "5c17972a30c6664698ae88fccd6af51723ffa3af9424481cb55fbb95eed2947c",
+      "primary_role": "internal",
+      "role_reason": "Private ABI-1 layout declaration reserved for compatibility fixtures and packages.",
+      "owner_module": "navsys",
+      "public_module": "navgrid",
+      "approved_install": false,
+      "install_reason": "The default SDK installs only the opaque canonical navgrid API.",
+      "wrapper": {
+        "mode": "excluded",
+        "reason": "ABI-layout compatibility headers are outside the canonical wrapper input."
+      },
+      "naming": {
+        "disposition": "keep",
+        "canonical_path": "byul/navsys/navgrid/compat/abi1/navgrid_abi1.h",
+        "canonical_install": false,
+        "deprecated_since": null,
+        "remove_in": null,
+        "reason": "Versioned private compatibility path.",
+        "compatibility_path": null
+      },
+      "successor_headers": [],
+      "source_evidence": {
+        "module_header_groups": [],
+        "root_header_inventory": false,
+        "install_inventory": false,
+        "wrapper_modules_registered": false,
+        "exported_symbols": [],
+        "source_definition_candidates": []
+      },
+      "decision_status": "approved"
+    },
+    {
+      "asset_id": "created:byul/navsys/navgrid/internal/navgrid_overlay.hpp",
+      "current_path": "byul/navsys/navgrid/internal/navgrid_overlay.hpp",
+      "sha256": "e30063f746ba62b2251a1bc0ddfb09c58a54c5ef1d7e6d48eab59814e282c9c4",
+      "primary_role": "internal",
+      "role_reason": "Private provenance-aware overlay transaction contract.",
+      "owner_module": "navsys",
+      "public_module": "navgrid",
+      "approved_install": false,
+      "install_reason": "Internal implementation headers are excluded from the SDK.",
+      "wrapper": {
+        "mode": "excluded",
+        "reason": "Internal headers are outside the installed C ABI wrapper input."
+      },
+      "naming": {
+        "disposition": "keep",
+        "canonical_path": "byul/navsys/navgrid/internal/navgrid_overlay.hpp",
+        "canonical_install": false,
+        "deprecated_since": null,
+        "remove_in": null,
+        "reason": "Canonical internal implementation path.",
+        "compatibility_path": null
+      },
+      "successor_headers": [],
+      "source_evidence": {
+        "module_header_groups": [],
+        "root_header_inventory": false,
+        "install_inventory": false,
+        "wrapper_modules_registered": false,
+        "exported_symbols": [],
+        "source_definition_candidates": [
+          "byul/navsys/navgrid/navgrid.cpp",
+          "byul/navsys/maze/maze_core.cpp",
+          "byul/navsys/obstacle/obstacle_core.cpp",
+          "byul/navsys/route_carver/compat/route_carver_legacy.cpp",
+          "byul/navsys/route_carver/route_carver_mutation.cpp"
+        ]
+      },
+      "decision_status": "approved"
+    },
+    {
+      "asset_id": "created:byul/navsys/navgrid/internal/navgrid_private.hpp",
+      "current_path": "byul/navsys/navgrid/internal/navgrid_private.hpp",
+      "sha256": "27c340b3cdec145436bc34ba93274923cc0a750bb20977a792671e8ca43826b5",
+      "primary_role": "internal",
+      "role_reason": "Private navgrid storage layout used by the implementation and callback guard.",
+      "owner_module": "navsys",
+      "public_module": "navgrid",
+      "approved_install": false,
+      "install_reason": "Internal implementation headers are excluded from the SDK.",
+      "wrapper": {
+        "mode": "excluded",
+        "reason": "Internal headers are outside the installed C ABI wrapper input."
+      },
+      "naming": {
+        "disposition": "keep",
+        "canonical_path": "byul/navsys/navgrid/internal/navgrid_private.hpp",
+        "canonical_install": false,
+        "deprecated_since": null,
+        "remove_in": null,
+        "reason": "Canonical internal implementation path.",
+        "compatibility_path": null
+      },
+      "successor_headers": [],
+      "source_evidence": {
+        "module_header_groups": [],
+        "root_header_inventory": false,
+        "install_inventory": false,
+        "wrapper_modules_registered": false,
+        "exported_symbols": [],
+        "source_definition_candidates": [
+          "byul/navsys/navgrid/navgrid.cpp"
+        ]
+      },
+      "decision_status": "approved"
+    },
+    {
+      "asset_id": "created:byul/navsys/obstacle/compat/abi1/obstacle_abi1.h",
+      "current_path": "byul/navsys/obstacle/compat/abi1/obstacle_abi1.h",
+      "sha256": "dc6ce3b3f9b3c66dafed60cc702b93d079f5b8db069defce7e92dba51f8b5705",
+      "primary_role": "internal",
+      "role_reason": "Private ABI-1 layout declaration reserved for compatibility fixtures and packages.",
+      "owner_module": "navsys",
+      "public_module": "obstacle",
+      "approved_install": false,
+      "install_reason": "The default SDK installs only the opaque canonical obstacle API.",
+      "wrapper": {
+        "mode": "excluded",
+        "reason": "ABI-layout compatibility headers are outside the canonical wrapper input."
+      },
+      "naming": {
+        "disposition": "keep",
+        "canonical_path": "byul/navsys/obstacle/compat/abi1/obstacle_abi1.h",
+        "canonical_install": false,
+        "deprecated_since": null,
+        "remove_in": null,
+        "reason": "Versioned private compatibility path.",
+        "compatibility_path": null
+      },
+      "successor_headers": [],
+      "source_evidence": {
+        "module_header_groups": [],
+        "root_header_inventory": false,
+        "install_inventory": false,
+        "wrapper_modules_registered": false,
+        "exported_symbols": [],
+        "source_definition_candidates": []
+      },
+      "decision_status": "approved"
+    },
+    {
+      "asset_id": "created:byul/navsys/obstacle/internal/obstacle_private.hpp",
+      "current_path": "byul/navsys/obstacle/internal/obstacle_private.hpp",
+      "sha256": "be266fffa3c7d2aa2526836d0b4df0f0d922c4a0d1838d49ecb7cb41963bb93b",
+      "primary_role": "internal",
+      "role_reason": "Private obstacle storage layout shared by core and geometry implementation units.",
+      "owner_module": "navsys",
+      "public_module": "obstacle",
+      "approved_install": false,
+      "install_reason": "Internal implementation headers are excluded from the SDK.",
+      "wrapper": {
+        "mode": "excluded",
+        "reason": "Internal headers are outside the installed C ABI wrapper input."
+      },
+      "naming": {
+        "disposition": "keep",
+        "canonical_path": "byul/navsys/obstacle/internal/obstacle_private.hpp",
+        "canonical_install": false,
+        "deprecated_since": null,
+        "remove_in": null,
+        "reason": "Canonical internal implementation path.",
+        "compatibility_path": null
+      },
+      "successor_headers": [],
+      "source_evidence": {
+        "module_header_groups": [],
+        "root_header_inventory": false,
+        "install_inventory": false,
+        "wrapper_modules_registered": false,
+        "exported_symbols": [],
+        "source_definition_candidates": [
+          "byul/navsys/obstacle/obstacle.cpp",
+          "byul/navsys/obstacle/obstacle_core.cpp",
+          "byul/navsys/obstacle/obstacle_geometry.cpp"
+        ]
+      },
+      "decision_status": "approved"
+    },
+    {
+      "asset_id": "created:byul/navsys/route_carver/compat/route_carver_legacy.hpp",
+      "current_path": "byul/navsys/route_carver/compat/route_carver_legacy.hpp",
+      "sha256": "3bbc1d144635975319a37f7f1fd626f1e27e268519060292dfdc656e09144d1f",
+      "primary_role": "internal",
+      "role_reason": "Private ABI-1 behavior implementation behind the public deprecated adapters.",
+      "owner_module": "navsys",
+      "public_module": "route_carver",
+      "approved_install": false,
+      "install_reason": "Private compatibility implementation is excluded from the SDK.",
+      "wrapper": {
+        "mode": "excluded",
+        "reason": "Private implementation headers are outside the installed C ABI wrapper input."
+      },
+      "naming": {
+        "disposition": "keep",
+        "canonical_path": "byul/navsys/route_carver/compat/route_carver_legacy.hpp",
+        "canonical_install": false,
+        "deprecated_since": null,
+        "remove_in": null,
+        "reason": "Private compatibility implementation path.",
+        "compatibility_path": null
+      },
+      "successor_headers": [],
+      "source_evidence": {
+        "module_header_groups": [],
+        "root_header_inventory": false,
+        "install_inventory": false,
+        "wrapper_modules_registered": false,
+        "exported_symbols": [],
+        "source_definition_candidates": [
+          "byul/navsys/route_carver/compat/route_carver_legacy.cpp"
+        ]
+      },
+      "decision_status": "approved"
+    },
+    {
+      "asset_id": "created:byul/navsys/route_carver/internal/route_carver_geometry.hpp",
+      "current_path": "byul/navsys/route_carver/internal/route_carver_geometry.hpp",
+      "sha256": "9465ccf3f71d444c9be7f268e13e58b72db47427c2d686e2090baad779a21ec7",
+      "primary_role": "internal",
+      "role_reason": "Private candidate enumeration contract for the route-carver implementation.",
+      "owner_module": "navsys",
+      "public_module": "route_carver",
+      "approved_install": false,
+      "install_reason": "Internal implementation headers are excluded from the SDK.",
+      "wrapper": {
+        "mode": "excluded",
+        "reason": "Internal headers are outside the installed C ABI wrapper input."
+      },
+      "naming": {
+        "disposition": "keep",
+        "canonical_path": "byul/navsys/route_carver/internal/route_carver_geometry.hpp",
+        "canonical_install": false,
+        "deprecated_since": null,
+        "remove_in": null,
+        "reason": "Canonical internal implementation path.",
+        "compatibility_path": null
+      },
+      "successor_headers": [],
+      "source_evidence": {
+        "module_header_groups": [],
+        "root_header_inventory": false,
+        "install_inventory": false,
+        "wrapper_modules_registered": false,
+        "exported_symbols": [],
+        "source_definition_candidates": [
+          "byul/navsys/route_carver/route_carver_geometry.cpp"
+        ]
+      },
+      "decision_status": "approved"
+    },
+    {
+      "asset_id": "created:byul/navsys/route_carver/internal/route_carver_mutation.hpp",
+      "current_path": "byul/navsys/route_carver/internal/route_carver_mutation.hpp",
+      "sha256": "e7706b08a25c00ec062eb31e59e9f5d32ca12cf28dcb05d17606726362e706e6",
+      "primary_role": "internal",
+      "role_reason": "Private atomic mutation contract for the route-carver implementation.",
+      "owner_module": "navsys",
+      "public_module": "route_carver",
+      "approved_install": false,
+      "install_reason": "Internal implementation headers are excluded from the SDK.",
+      "wrapper": {
+        "mode": "excluded",
+        "reason": "Internal headers are outside the installed C ABI wrapper input."
+      },
+      "naming": {
+        "disposition": "keep",
+        "canonical_path": "byul/navsys/route_carver/internal/route_carver_mutation.hpp",
+        "canonical_install": false,
+        "deprecated_since": null,
+        "remove_in": null,
+        "reason": "Canonical internal implementation path.",
+        "compatibility_path": null
+      },
+      "successor_headers": [],
+      "source_evidence": {
+        "module_header_groups": [],
+        "root_header_inventory": false,
+        "install_inventory": false,
+        "wrapper_modules_registered": false,
+        "exported_symbols": [],
+        "source_definition_candidates": [
+          "byul/navsys/route_carver/route_carver_mutation.cpp"
+        ]
+      },
+      "decision_status": "approved"
+    },
+    {
       "asset_id": "initial:byul/navsys/route_carver/route_carver.h",
       "current_path": "byul/navsys/route_carver/route_carver.h",
-      "sha256": "3637c154467ca0aae5cdf0977ecd4a161802f21c0fba0881514e09949f68c71b",
+      "sha256": "5d464550c6a163958544e402bdf0e84a1ff8de31b9cf0d996231a32ff4a078ce",
       "primary_role": "public-module-entry",
       "role_reason": "Canonical entry for the route-carver public module.",
       "owner_module": "navsys",
@@ -4596,8 +4898,8 @@
       "approved_install": true,
       "install_reason": "Public or compatibility SDK surface.",
       "wrapper": {
-        "mode": "manual",
-        "reason": "Public legacy declarations require explicit ownership/error metadata before automatic generation."
+        "mode": "generated",
+        "reason": "Registered in the canonical wrapper generator manifest."
       },
       "naming": {
         "disposition": "keep",
@@ -4616,13 +4918,16 @@
         ],
         "root_header_inventory": true,
         "install_inventory": true,
-        "wrapper_modules_registered": false,
+        "wrapper_modules_registered": true,
         "exported_symbols": [
+          "navgrid_carve_line",
+          "navgrid_carve_area",
           "route_carve_beam",
           "route_carve_bomb"
         ],
         "source_definition_candidates": [
           "byul/navsys/route_carver/route_carver.cpp",
+          "byul/navsys/route_carver/route_carver_checked.cpp",
           "byul/navsys/tests/test_module_route_carver.cpp"
         ]
       },

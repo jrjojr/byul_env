@@ -1,6 +1,7 @@
 #include "navgrid.h"
 #include "internal/navgrid_private.hpp"
 #include <algorithm>
+#include <atomic>
 #include <unordered_set>
 #include <unordered_map>
 #include <vector>
@@ -20,6 +21,7 @@ using overlay_coord_key_t = uint64_t;
 
 constexpr uint32_t navgrid_abi1_version = 1;
 constexpr uint64_t navgrid_abi1_fingerprint = UINT64_C(0x4e47524944010028);
+constexpr size_t overlay_cancel_poll_interval = 64;
 
 overlay_coord_key_t overlay_coord_key(int x, int y) {
     return (static_cast<uint64_t>(static_cast<uint32_t>(x)) << 32)
@@ -46,8 +48,10 @@ struct overlay_source_hash_t {
 using overlay_coord_set_t = std::unordered_set<overlay_coord_key_t>;
 
 struct navgrid_overlay_state_t {
+    uint64_t owner_cookie = 0;
     navgrid_overlay_id_t next_id = 1;
     std::unordered_map<navgrid_overlay_id_t, overlay_coord_set_t> layers;
+    std::unordered_map<navgrid_overlay_id_t, overlay_coord_set_t> open_layers;
     std::unordered_map<
         overlay_source_key_t,
         navgrid_overlay_id_t,
@@ -55,19 +59,54 @@ struct navgrid_overlay_state_t {
 };
 
 std::unordered_map<const navgrid_t*, navgrid_overlay_state_t> overlay_states;
+std::atomic<uint64_t> next_overlay_owner_cookie{1};
+
+navsys_status_t ensure_overlay_owner(navgrid_overlay_state_t& state) {
+    if (state.owner_cookie != 0) return NAVSYS_STATUS_OK;
+    const uint64_t candidate = next_overlay_owner_cookie.fetch_add(
+        1, std::memory_order_relaxed);
+    if (candidate == 0) return NAVSYS_STATUS_LIMIT_REACHED;
+    state.owner_cookie = candidate;
+    return NAVSYS_STATUS_OK;
+}
+
+navsys_status_t poll_overlay_cancel(
+    byul::navsys::internal::navgrid_overlay_cancel_func cancel_func,
+    void* cancel_userdata) {
+    if (!cancel_func) return NAVSYS_STATUS_OK;
+    try {
+        return cancel_func(cancel_userdata)
+            ? NAVSYS_STATUS_CANCELLED
+            : NAVSYS_STATUS_OK;
+    } catch (...) {
+        return NAVSYS_STATUS_CALLBACK_FAILED;
+    }
+}
 
 const navgrid_overlay_state_t* find_overlay_state(const navgrid_t* navgrid) {
     const auto iter = overlay_states.find(navgrid);
     return iter == overlay_states.end() ? nullptr : &iter->second;
 }
 
+bool overlay_layers_contain(
+    const std::unordered_map<navgrid_overlay_id_t, overlay_coord_set_t>& layers,
+    overlay_coord_key_t key,
+    navgrid_overlay_id_t* out_latest) {
+    bool found = false;
+    navgrid_overlay_id_t latest = 0;
+    for (const auto& [id, coords] : layers) {
+        if (coords.find(key) == coords.end()) continue;
+        if (!found || id > latest) latest = id;
+        found = true;
+    }
+    if (out_latest) *out_latest = latest;
+    return found;
+}
+
 bool overlay_state_contains(
     const navgrid_overlay_state_t* state, overlay_coord_key_t key) {
     if (!state) return false;
-    for (const auto& [_, coords] : state->layers) {
-        if (coords.find(key) != coords.end()) return true;
-    }
-    return false;
+    return overlay_layers_contain(state->layers, key, nullptr);
 }
 
 bool navgrid_base_is_blocked(const navgrid_t* navgrid, int x, int y) {
@@ -86,20 +125,30 @@ bool navgrid_effectively_blocked(
     overlay_coord_key_t key,
     int x,
     int y) {
-    return navgrid_base_is_blocked(navgrid, x, y)
-        || overlay_state_contains(state, key);
+    navgrid_overlay_id_t latest_block = 0;
+    const bool blocked = navgrid_base_is_blocked(navgrid, x, y)
+        || (state && overlay_layers_contain(
+            state->layers, key, &latest_block));
+    if (!blocked || !state) return blocked;
+    navgrid_overlay_id_t latest_open = 0;
+    const bool opened = overlay_layers_contain(
+        state->open_layers, key, &latest_open);
+    return !opened || latest_block >= latest_open;
 }
 
 navsys_status_t commit_overlay_state(
     navgrid_t* navgrid, navgrid_overlay_state_t&& prepared) {
     auto current = overlay_states.find(navgrid);
-    if (prepared.layers.empty() && prepared.sources.empty()) {
+    if (prepared.layers.empty() && prepared.open_layers.empty()
+        && prepared.sources.empty()) {
         if (current != overlay_states.end()) overlay_states.erase(current);
         return NAVSYS_STATUS_OK;
     }
     if (current != overlay_states.end()) {
         current->second.layers.swap(prepared.layers);
+        current->second.open_layers.swap(prepared.open_layers);
         current->second.sources.swap(prepared.sources);
+        current->second.owner_cookie = prepared.owner_cookie;
         current->second.next_id = prepared.next_id;
         return NAVSYS_STATUS_OK;
     }
@@ -119,6 +168,9 @@ navsys_status_t copy_overlay_state(
     if (!state) return NAVSYS_STATUS_OK;
     try {
         navgrid_overlay_state_t copied = *state;
+        copied.owner_cookie = 0;
+        const navsys_status_t status = ensure_overlay_owner(copied);
+        if (status != NAVSYS_STATUS_OK) return status;
         return commit_overlay_state(destination, std::move(copied));
     } catch (const std::bad_alloc&) {
         return NAVSYS_STATUS_OUT_OF_MEMORY;
@@ -129,7 +181,8 @@ navsys_status_t copy_overlay_state(
 
 navgrid_overlay_id_t next_overlay_id(navgrid_overlay_state_t& state) {
     while (state.next_id == 0
-        || state.layers.find(state.next_id) != state.layers.end()) {
+        || state.layers.find(state.next_id) != state.layers.end()
+        || state.open_layers.find(state.next_id) != state.open_layers.end()) {
         if (state.next_id == std::numeric_limits<navgrid_overlay_id_t>::max())
             return 0;
         ++state.next_id;
@@ -169,6 +222,10 @@ navsys_status_t set_default_overlay_coord(
             ? *current
             : navgrid_overlay_state_t{};
         if (blocked) {
+            const navsys_status_t status = ensure_overlay_owner(prepared);
+            if (status != NAVSYS_STATUS_OK) return status;
+        }
+        if (blocked) {
             prepared.layers[0].insert(key);
         } else {
             auto layer = prepared.layers.find(0);
@@ -207,6 +264,8 @@ navsys_status_t replace_source_overlay(
         navgrid_overlay_state_t prepared = current
             ? *current
             : navgrid_overlay_state_t{};
+        const navsys_status_t owner_status = ensure_overlay_owner(prepared);
+        if (owner_status != NAVSYS_STATUS_OK) return owner_status;
         navgrid_overlay_id_t id = 0;
         const auto source = prepared.sources.find(source_key);
         if (source != prepared.sources.end()) {
@@ -236,6 +295,126 @@ navsys_status_t replace_source_overlay(
             const int y = static_cast<int32_t>(key & 0xffffffffu);
             if (navgrid_effectively_blocked(navgrid, current, key, x, y)
                 != navgrid_effectively_blocked(navgrid, &prepared, key, x, y)) {
+                ++changed;
+            }
+        }
+        const navsys_status_t status = commit_overlay_state(
+            navgrid, std::move(prepared));
+        if (status != NAVSYS_STATUS_OK) return status;
+        *out_changed_count = changed;
+        return NAVSYS_STATUS_OK;
+    } catch (const std::bad_alloc&) {
+        return NAVSYS_STATUS_OUT_OF_MEMORY;
+    } catch (...) {
+        return NAVSYS_STATUS_CORRUPT_STATE;
+    }
+}
+
+navsys_status_t apply_blocked_overlay_impl(
+    navgrid_t* navgrid,
+    const coord_t* coords,
+    size_t count,
+    byul::navsys::internal::navgrid_overlay_cancel_func cancel_func,
+    void* cancel_userdata,
+    byul::navsys::internal::navgrid_tracked_overlay_t* out_overlay,
+    size_t* out_changed_count) {
+    if (!navgrid || (!coords && count != 0)
+        || !out_overlay || !out_changed_count) {
+        return NAVSYS_STATUS_INVALID_ARGUMENT;
+    }
+    if (byul::navsys::internal::navgrid_callback_is_active(navgrid))
+        return NAVSYS_STATUS_IN_PROGRESS;
+    navsys_status_t status = poll_overlay_cancel(
+        cancel_func, cancel_userdata);
+    if (status != NAVSYS_STATUS_OK) return status;
+    for (size_t index = 0; index < count; ++index) {
+        status = poll_overlay_cancel(cancel_func, cancel_userdata);
+        if (status != NAVSYS_STATUS_OK) return status;
+        if (!navgrid_is_inside(navgrid, coords[index].x, coords[index].y))
+            return NAVSYS_STATUS_NOT_FOUND;
+    }
+
+    const auto* current = find_overlay_state(navgrid);
+    try {
+        navgrid_overlay_state_t prepared = current
+            ? *current
+            : navgrid_overlay_state_t{};
+        status = ensure_overlay_owner(prepared);
+        if (status != NAVSYS_STATUS_OK) return status;
+        const navgrid_overlay_id_t id = next_overlay_id(prepared);
+        if (id == 0) return NAVSYS_STATUS_LIMIT_REACHED;
+        overlay_coord_set_t layer;
+        layer.reserve(count);
+        for (size_t index = 0; index < count; ++index) {
+            status = poll_overlay_cancel(cancel_func, cancel_userdata);
+            if (status != NAVSYS_STATUS_OK) return status;
+            layer.insert(overlay_coord_key(coords[index].x, coords[index].y));
+        }
+        size_t changed = 0;
+        for (const overlay_coord_key_t key : layer) {
+            status = poll_overlay_cancel(cancel_func, cancel_userdata);
+            if (status != NAVSYS_STATUS_OK) return status;
+            const int x = static_cast<int32_t>(key >> 32);
+            const int y = static_cast<int32_t>(key & 0xffffffffu);
+            if (!navgrid_effectively_blocked(navgrid, current, key, x, y))
+                ++changed;
+        }
+        prepared.layers.emplace(id, std::move(layer));
+        status = commit_overlay_state(navgrid, std::move(prepared));
+        if (status != NAVSYS_STATUS_OK) return status;
+        out_overlay->owner_cookie = find_overlay_state(navgrid)->owner_cookie;
+        out_overlay->overlay = id;
+        *out_changed_count = changed;
+        return NAVSYS_STATUS_OK;
+    } catch (const std::bad_alloc&) {
+        return NAVSYS_STATUS_OUT_OF_MEMORY;
+    } catch (...) {
+        return NAVSYS_STATUS_CORRUPT_STATE;
+    }
+}
+
+navsys_status_t remove_blocked_overlay_impl(
+    navgrid_t* navgrid,
+    navgrid_overlay_id_t overlay,
+    uint64_t expected_owner_cookie,
+    size_t* out_changed_count) {
+    if (!navgrid || overlay == 0 || !out_changed_count)
+        return NAVSYS_STATUS_INVALID_ARGUMENT;
+    if (byul::navsys::internal::navgrid_callback_is_active(navgrid))
+        return NAVSYS_STATUS_IN_PROGRESS;
+    const auto* current = find_overlay_state(navgrid);
+    if (!current) {
+        return expected_owner_cookie == 0
+            ? NAVSYS_STATUS_NOT_FOUND
+            : NAVSYS_STATUS_INVALIDATED;
+    }
+    if (expected_owner_cookie != 0
+        && current->owner_cookie != expected_owner_cookie) {
+        return NAVSYS_STATUS_INVALIDATED;
+    }
+    const auto layer = current->layers.find(overlay);
+    if (layer == current->layers.end()) {
+        return expected_owner_cookie == 0
+            ? NAVSYS_STATUS_NOT_FOUND
+            : NAVSYS_STATUS_INVALIDATED;
+    }
+    try {
+        navgrid_overlay_state_t prepared = *current;
+        prepared.layers.erase(overlay);
+        for (auto source = prepared.sources.begin();
+             source != prepared.sources.end();) {
+            if (source->second == overlay)
+                source = prepared.sources.erase(source);
+            else
+                ++source;
+        }
+        size_t changed = 0;
+        for (const overlay_coord_key_t key : layer->second) {
+            const int x = static_cast<int32_t>(key >> 32);
+            const int y = static_cast<int32_t>(key & 0xffffffffu);
+            if (navgrid_effectively_blocked(navgrid, current, key, x, y)
+                != navgrid_effectively_blocked(
+                    navgrid, &prepared, key, x, y)) {
                 ++changed;
             }
         }
@@ -338,6 +517,9 @@ bool overlay_key_has_canonical_owner(
     for (const auto& [id, coords] : state->layers) {
         if (id < owner && coords.find(key) != coords.end()) return false;
     }
+    for (const auto& [id, coords] : state->open_layers) {
+        if (id < owner && coords.find(key) != coords.end()) return false;
+    }
     return true;
 }
 
@@ -422,19 +604,9 @@ bool is_coord_blocked_navgrid(const void* context,
 
    const navgrid_t* navgrid = (const navgrid_t*)context;
     if (!navgrid) return false;
-    if (overlay_state_contains(
-            find_overlay_state(navgrid), overlay_coord_key(x, y))) {
-        return true;
-    }
-    coord_t key = {x, y};
-    if (!coord_hash_contains(navgrid->cell_map, &key)) {
-        return false;
-    }
-
-    navcell_t out = {};
-    if (navgrid_fetch_cell(navgrid, x, y, &out) != 0) return true;
-    if (navcell_validate(&out) != NAVSYS_STATUS_OK) return true;
-    return out.terrain == TERRAIN_TYPE_FORBIDDEN;
+    const overlay_coord_key_t key = overlay_coord_key(x, y);
+    return navgrid_effectively_blocked(
+        navgrid, find_overlay_state(navgrid), key, x, y);
 }
 
 navgrid_t* navgrid_create() {
@@ -752,89 +924,50 @@ navsys_status_t navgrid_fetch_cell_ex(
 navsys_status_t navgrid_apply_blocked_overlay(
     navgrid_t* navgrid, const coord_t* coords, size_t count,
     navgrid_overlay_id_t* out_overlay, size_t* out_changed_count) {
-    if (!navgrid || (!coords && count != 0)
-        || !out_overlay || !out_changed_count) {
+    if (!out_overlay || !out_changed_count)
         return NAVSYS_STATUS_INVALID_ARGUMENT;
-    }
-    if (byul::navsys::internal::navgrid_callback_is_active(navgrid))
-        return NAVSYS_STATUS_IN_PROGRESS;
-    for (size_t index = 0; index < count; ++index) {
-        if (!navgrid_is_inside(navgrid, coords[index].x, coords[index].y))
-            return NAVSYS_STATUS_NOT_FOUND;
-    }
-    const auto* current = find_overlay_state(navgrid);
-    try {
-        navgrid_overlay_state_t prepared = current
-            ? *current
-            : navgrid_overlay_state_t{};
-        const navgrid_overlay_id_t id = next_overlay_id(prepared);
-        if (id == 0) return NAVSYS_STATUS_LIMIT_REACHED;
-        overlay_coord_set_t layer;
-        layer.reserve(count);
-        for (size_t index = 0; index < count; ++index) {
-            layer.insert(overlay_coord_key(coords[index].x, coords[index].y));
-        }
-        size_t changed = 0;
-        for (const overlay_coord_key_t key : layer) {
-            const int x = static_cast<int32_t>(key >> 32);
-            const int y = static_cast<int32_t>(key & 0xffffffffu);
-            if (!navgrid_effectively_blocked(navgrid, current, key, x, y))
-                ++changed;
-        }
-        prepared.layers.emplace(id, std::move(layer));
-        const navsys_status_t status = commit_overlay_state(
-            navgrid, std::move(prepared));
-        if (status != NAVSYS_STATUS_OK) return status;
-        *out_overlay = id;
-        *out_changed_count = changed;
-        return NAVSYS_STATUS_OK;
-    } catch (const std::bad_alloc&) {
-        return NAVSYS_STATUS_OUT_OF_MEMORY;
-    } catch (...) {
-        return NAVSYS_STATUS_CORRUPT_STATE;
-    }
+    byul::navsys::internal::navgrid_tracked_overlay_t tracked{};
+    size_t changed = 0;
+    const navsys_status_t status = apply_blocked_overlay_impl(
+        navgrid, coords, count, nullptr, nullptr, &tracked, &changed);
+    if (status != NAVSYS_STATUS_OK) return status;
+    *out_overlay = tracked.overlay;
+    *out_changed_count = changed;
+    return NAVSYS_STATUS_OK;
 }
 
 navsys_status_t navgrid_remove_blocked_overlay(
     navgrid_t* navgrid, navgrid_overlay_id_t overlay,
     size_t* out_changed_count) {
-    if (!navgrid || overlay == 0 || !out_changed_count)
-        return NAVSYS_STATUS_INVALID_ARGUMENT;
-    if (byul::navsys::internal::navgrid_callback_is_active(navgrid))
-        return NAVSYS_STATUS_IN_PROGRESS;
-    const auto* current = find_overlay_state(navgrid);
-    if (!current) return NAVSYS_STATUS_NOT_FOUND;
-    const auto layer = current->layers.find(overlay);
-    if (layer == current->layers.end()) return NAVSYS_STATUS_NOT_FOUND;
-    try {
-        navgrid_overlay_state_t prepared = *current;
-        prepared.layers.erase(overlay);
-        for (auto source = prepared.sources.begin(); source != prepared.sources.end();) {
-            if (source->second == overlay) source = prepared.sources.erase(source);
-            else ++source;
-        }
-        size_t changed = 0;
-        for (const overlay_coord_key_t key : layer->second) {
-            const int x = static_cast<int32_t>(key >> 32);
-            const int y = static_cast<int32_t>(key & 0xffffffffu);
-            if (navgrid_effectively_blocked(navgrid, current, key, x, y)
-                != navgrid_effectively_blocked(navgrid, &prepared, key, x, y)) {
-                ++changed;
-            }
-        }
-        const navsys_status_t status = commit_overlay_state(
-            navgrid, std::move(prepared));
-        if (status != NAVSYS_STATUS_OK) return status;
-        *out_changed_count = changed;
-        return NAVSYS_STATUS_OK;
-    } catch (const std::bad_alloc&) {
-        return NAVSYS_STATUS_OUT_OF_MEMORY;
-    } catch (...) {
-        return NAVSYS_STATUS_CORRUPT_STATE;
-    }
+    return remove_blocked_overlay_impl(
+        navgrid, overlay, 0, out_changed_count);
 }
 
 namespace byul::navsys::internal {
+
+navsys_status_t navgrid_apply_blocked_overlay_tracked(
+    navgrid_t* navgrid,
+    const coord_t* coords,
+    size_t count,
+    navgrid_overlay_cancel_func cancel_func,
+    void* cancel_userdata,
+    navgrid_tracked_overlay_t* out_overlay,
+    size_t* out_changed_count) {
+    return apply_blocked_overlay_impl(
+        navgrid, coords, count, cancel_func, cancel_userdata,
+        out_overlay, out_changed_count);
+}
+
+navsys_status_t navgrid_remove_blocked_overlay_tracked(
+    navgrid_t* navgrid,
+    const navgrid_tracked_overlay_t* overlay,
+    size_t* out_changed_count) {
+    if (!overlay || overlay->owner_cookie == 0 || overlay->overlay == 0)
+        return NAVSYS_STATUS_INVALID_ARGUMENT;
+    return remove_blocked_overlay_impl(
+        navgrid, overlay->overlay, overlay->owner_cookie,
+        out_changed_count);
+}
 
 navsys_status_t navgrid_replace_blocked_overlay_source(
     navgrid_t* navgrid,
@@ -896,6 +1029,85 @@ navsys_status_t navgrid_clear_blocked_at_coord(
         const bool after = navgrid_base_is_blocked(navgrid, x, y)
             || overlay_state_contains(find_overlay_state(navgrid), key);
         *out_changed = before != after;
+        return NAVSYS_STATUS_OK;
+    } catch (const std::bad_alloc&) {
+        return NAVSYS_STATUS_OUT_OF_MEMORY;
+    } catch (...) {
+        return NAVSYS_STATUS_CORRUPT_STATE;
+    }
+}
+
+navsys_status_t navgrid_apply_open_overlay_atomic(
+    navgrid_t* navgrid,
+    const coord_t* coords,
+    size_t count,
+    bool dry_run,
+    navgrid_overlay_cancel_func cancel_func,
+    void* cancel_userdata,
+    size_t* out_changed_count) {
+    if (!navgrid || (!coords && count != 0) || !out_changed_count)
+        return NAVSYS_STATUS_INVALID_ARGUMENT;
+    if (navgrid_callback_is_active(navgrid)) return NAVSYS_STATUS_IN_PROGRESS;
+    navsys_status_t cancel_status = poll_overlay_cancel(
+        cancel_func, cancel_userdata);
+    if (cancel_status != NAVSYS_STATUS_OK) return cancel_status;
+    for (size_t index = 0; index < count; ++index) {
+        if (index != 0
+            && index % overlay_cancel_poll_interval == 0) {
+            cancel_status = poll_overlay_cancel(cancel_func, cancel_userdata);
+            if (cancel_status != NAVSYS_STATUS_OK) return cancel_status;
+        }
+        if (!navgrid_is_inside(navgrid, coords[index].x, coords[index].y))
+            return NAVSYS_STATUS_NOT_FOUND;
+    }
+    if (count == 0) {
+        *out_changed_count = 0;
+        return NAVSYS_STATUS_OK;
+    }
+
+    const auto* current = find_overlay_state(navgrid);
+    try {
+        navgrid_overlay_state_t prepared = current
+            ? *current
+            : navgrid_overlay_state_t{};
+        const navsys_status_t owner_status = ensure_overlay_owner(prepared);
+        if (owner_status != NAVSYS_STATUS_OK) return owner_status;
+        const navgrid_overlay_id_t id = next_overlay_id(prepared);
+        if (id == 0) return NAVSYS_STATUS_LIMIT_REACHED;
+
+        overlay_coord_set_t opened;
+        opened.reserve(count);
+        for (size_t index = 0; index < count; ++index)
+            opened.insert(overlay_coord_key(coords[index].x, coords[index].y));
+        prepared.open_layers.emplace(id, std::move(opened));
+
+        size_t changed = 0;
+        const auto& layer = prepared.open_layers.find(id)->second;
+        size_t examined = 0;
+        for (const overlay_coord_key_t key : layer) {
+            if (examined++ != 0
+                && examined
+                    % overlay_cancel_poll_interval == 0) {
+                cancel_status = poll_overlay_cancel(
+                    cancel_func, cancel_userdata);
+                if (cancel_status != NAVSYS_STATUS_OK) return cancel_status;
+            }
+            const int x = static_cast<int32_t>(key >> 32);
+            const int y = static_cast<int32_t>(key & 0xffffffffu);
+            if (navgrid_effectively_blocked(navgrid, current, key, x, y)
+                != navgrid_effectively_blocked(
+                    navgrid, &prepared, key, x, y)) {
+                ++changed;
+            }
+        }
+        if (!dry_run) {
+            cancel_status = poll_overlay_cancel(cancel_func, cancel_userdata);
+            if (cancel_status != NAVSYS_STATUS_OK) return cancel_status;
+            const navsys_status_t status = commit_overlay_state(
+                navgrid, std::move(prepared));
+            if (status != NAVSYS_STATUS_OK) return status;
+        }
+        *out_changed_count = changed;
         return NAVSYS_STATUS_OK;
     } catch (const std::bad_alloc&) {
         return NAVSYS_STATUS_OUT_OF_MEMORY;
@@ -1172,6 +1384,19 @@ navsys_status_t navgrid_export_cells(
                 }
             }
         }
+        for (const auto& [id, coords] : overlays->open_layers) {
+            for (const overlay_coord_key_t key : coords) {
+                const coord_t coord{
+                    static_cast<int32_t>(key >> 32),
+                    static_cast<int32_t>(key & 0xffffffffu)};
+                if (!coord_hash_contains(navgrid->cell_map, &coord)
+                    && overlay_key_has_canonical_owner(overlays, id, key)) {
+                    if (required == std::numeric_limits<size_t>::max())
+                        return NAVSYS_STATUS_LIMIT_REACHED;
+                    ++required;
+                }
+            }
+        }
     }
     if (!out_entries) {
         *out_count = required;
@@ -1208,7 +1433,25 @@ navsys_status_t navgrid_export_cells(
                     coord,
                     navcell_t{TERRAIN_TYPE_NORMAL, 0},
                     false,
-                    true};
+                    navgrid_effectively_blocked(
+                        navgrid, overlays, key, coord.x, coord.y)};
+            }
+        }
+        for (const auto& [id, coords] : overlays->open_layers) {
+            for (const overlay_coord_key_t key : coords) {
+                const coord_t coord{
+                    static_cast<int32_t>(key >> 32),
+                    static_cast<int32_t>(key & 0xffffffffu)};
+                if (coord_hash_contains(navgrid->cell_map, &coord)
+                    || !overlay_key_has_canonical_owner(overlays, id, key)) {
+                    continue;
+                }
+                out_entries[fill.index++] = {
+                    coord,
+                    navcell_t{TERRAIN_TYPE_NORMAL, 0},
+                    false,
+                    navgrid_effectively_blocked(
+                        navgrid, overlays, key, coord.x, coord.y)};
             }
         }
     }

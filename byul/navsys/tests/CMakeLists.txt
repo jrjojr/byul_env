@@ -6,6 +6,8 @@ project(test_navsys)
 set(${PROJECT_NAME}_SOURCES
     ${CMAKE_CURRENT_SOURCE_DIR}/main.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/test_module_route_carver.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/test_module_route_carver_geometry.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/test_module_route_carver_mutation.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/test_module_navsys.cpp
 
 CACHE INTERNAL "${PROJECT_NAME} source files"  FORCE
@@ -117,6 +119,51 @@ target_link_libraries(test_navsys_allocation_failure PRIVATE
     numal
 )
 target_compile_definitions(test_navsys_allocation_failure PRIVATE BYUL_STATIC)
+
+add_executable(test_route_carver_performance_gate
+    ${CMAKE_CURRENT_SOURCE_DIR}/test_route_carver_performance_gate.cpp
+)
+target_include_directories(test_route_carver_performance_gate PRIVATE
+    ${CMAKE_SOURCE_DIR}
+    ${CMAKE_SOURCE_DIR}/core
+    ${CMAKE_SOURCE_DIR}/numal
+    ${CMAKE_SOURCE_DIR}/navsys
+    ${CMAKE_SOURCE_DIR}/navsys/coord
+    ${CMAKE_SOURCE_DIR}/navsys/navgrid
+    ${CMAKE_SOURCE_DIR}/navsys/route_carver
+    ${EXTERNAL_DIR}
+)
+target_link_directories(test_route_carver_performance_gate PRIVATE
+    ${CMAKE_BINARY_DIR}/navsys
+)
+target_link_libraries(test_route_carver_performance_gate PRIVATE
+    navsys
+    numal
+)
+target_compile_definitions(test_route_carver_performance_gate PRIVATE BYUL_STATIC)
+if(CMAKE_SYSTEM_NAME STREQUAL "Windows")
+    set_target_properties(test_route_carver_performance_gate PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin
+        LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin
+        ARCHIVE_OUTPUT_DIRECTORY
+            ${CMAKE_BINARY_DIR}/lib/test_route_carver_performance_gate
+    )
+elseif(CMAKE_SYSTEM_NAME STREQUAL "Linux")
+    target_compile_options(test_route_carver_performance_gate PRIVATE
+        -fsanitize=address -fsanitize=leak -g -O1
+    )
+    target_link_options(test_route_carver_performance_gate PRIVATE
+        -fsanitize=address -fsanitize=leak
+    )
+    set_target_properties(test_route_carver_performance_gate PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin
+        LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib
+        ARCHIVE_OUTPUT_DIRECTORY
+            ${CMAKE_BINARY_DIR}/lib/test_route_carver_performance_gate
+        BUILD_RPATH "\$ORIGIN/../lib"
+        INSTALL_RPATH "\$ORIGIN/../lib"
+    )
+endif()
 if(CMAKE_SYSTEM_NAME STREQUAL "Windows")
     set_target_properties(test_navsys_allocation_failure PROPERTIES
         RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin
@@ -155,6 +202,11 @@ add_test(
     ${BYUL_ALLOCATION_TEST_CONFIGURATIONS}
 )
 add_test(
+    NAME test_route_carver_allocation_failure
+    COMMAND test_navsys_allocation_failure --route-carver-only
+    ${BYUL_ALLOCATION_TEST_CONFIGURATIONS}
+)
+add_test(
     NAME test_navsys_allocation_leak_gate
     COMMAND "${CMAKE_COMMAND}"
         "-DTEST_EXECUTABLE=$<TARGET_FILE:test_navsys_allocation_failure>"
@@ -163,6 +215,10 @@ add_test(
         "-DEXPECTED_PATTERN=route_finder create leaked allocations"
         -P "${CMAKE_CURRENT_SOURCE_DIR}/expect_process_failure.cmake"
     ${BYUL_ALLOCATION_TEST_CONFIGURATIONS}
+)
+add_test(
+    NAME test_route_carver_performance_gate
+    COMMAND test_route_carver_performance_gate
 )
 
 # ─────────────────────────────────────────────

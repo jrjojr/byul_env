@@ -1,0 +1,29 @@
+{
+  "schema_version": 1,
+  "public_headers": {
+    "navsys/obstacle/obstacle.h": "registered-generated-cdef"
+  },
+  "canonical_checked_generators": {
+    "obstacle_generate_filled_rect": "manual-c_obstacle-factory",
+    "obstacle_generate_rect_outline": "manual-c_obstacle-factory",
+    "obstacle_generate_random_rect": "manual-c_obstacle-factory",
+    "obstacle_generate_line": "manual-c_obstacle-factory",
+    "obstacle_generate_polygon": "manual-c_obstacle-factory",
+    "obstacle_generate_polygon_outline": "manual-c_obstacle-factory",
+    "obstacle_generate_triangle": "manual-c_obstacle-factory",
+    "obstacle_generate_triangle_outline": "manual-c_obstacle-factory",
+    "obstacle_generate_enclosure": "manual-c_obstacle-factory",
+    "obstacle_generate_cross": "manual-c_obstacle-factory",
+    "obstacle_generate_spiral": "manual-c_obstacle-factory"
+  },
+  "mapping": {
+    "ownership": "successful obstacle_t** results are caller-owned and adopted by c_obstacle",
+    "status": "every non-OK navsys_status_t is raised through raise_for_status",
+    "seed": "generate_random_rect requires an explicit keyword-only uint64 seed",
+    "options": "max_cells and applicable raster/fill/clip policies are exposed"
+  },
+  "excluded_high_level_surface": {
+    "cancel_func": "C callback lifetime and exception translation require a separate callback bridge",
+    "legacy_obstacle_make_symbols": "kept in generated cdef for compatibility, but excluded from the high-level wrapper because NULL erases status and several legacy semantics differ from canonical generators"
+  }
+}

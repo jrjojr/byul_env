@@ -1,0 +1,98 @@
+{
+  "schema_version": 1,
+  "stage": "navsys-header-refactor-stage-2",
+  "baseline_revision": "d1a1b0dfb2f9a6e0b0a0bdd091225fe05347f964",
+  "scope": [
+    "route",
+    "navcell",
+    "navgrid",
+    "obstacle-core",
+    "obstacle",
+    "route-carver"
+  ],
+  "child_todos": {
+    "terminal_done": 6,
+    "active_or_blocked": 0
+  },
+  "header_role_manifest": {
+    "headers": 147,
+    "approved": 147,
+    "approved_install": 98,
+    "wrapper_generated": 29,
+    "wrapper_manual": 62,
+    "wrapper_excluded": 56,
+    "stage2_scope_errors": 0
+  },
+  "navsys_abi_inventory": {
+    "headers": 55,
+    "symbols": 629,
+    "check_passed": true
+  },
+  "msvc_release_build_snapshot": {
+    "root_exports": 1184,
+    "installed_files": 113,
+    "installed_headers": 92,
+    "installed_test_executables": 19
+  },
+  "msvc_x64_abi_snapshot": {
+    "complete_types": 76,
+    "fields": 376,
+    "skipped_field_declarations": 0,
+    "enums": 27,
+    "enumerators": 156,
+    "forward_or_opaque_declarations": 17
+  },
+  "tests": {
+    "msvc_debug_ctest": {
+      "selected": 2,
+      "passed": 2,
+      "tests": [
+        "test_navsys",
+        "test_route_carver_performance_gate"
+      ]
+    },
+    "msvc_release_ctest": {
+      "selected": 3,
+      "passed": 3,
+      "tests": [
+        "test_navsys",
+        "test_route_carver_allocation_failure",
+        "test_route_carver_performance_gate"
+      ]
+    },
+    "gcc_debug_asan_lsan_ubsan": {
+      "test_cases": 38,
+      "assertions": 45815,
+      "passed": true
+    },
+    "clang_debug_asan_lsan_ubsan": {
+      "test_cases": 38,
+      "assertions": 45815,
+      "passed": true
+    },
+    "stage2_wrapper_pytest": {
+      "tests": 50,
+      "passed": true
+    },
+    "wrapper_generator_check": true
+  },
+  "remaining_out_of_stage_invariants": [
+    {
+      "code": "unmanifested-header",
+      "subject": "byul/navsys/route_finder/internal/coord_hash_adapters.hpp",
+      "owner_stage": 4
+    }
+  ],
+  "repository_wide_wrapper_metadata_debt": {
+    "registered_header_errors": 522,
+    "all_header_errors": 2473,
+    "scope_note": "Existing repository-wide metadata debt is not interpreted as Stage 2 failure."
+  },
+  "next_stage": {
+    "number": 3,
+    "name": "Maze generator별 계약 구현",
+    "first_child": "docs/ko/todo/navsys/todo-navsys-maze-core.org",
+    "allowed": true
+  },
+  "passed": true
+}

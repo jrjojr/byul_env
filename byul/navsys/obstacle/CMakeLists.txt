@@ -10,6 +10,7 @@ set(${PROJECT_NAME}_SOURCES
 
     ${CMAKE_CURRENT_SOURCE_DIR}/obstacle.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/obstacle_core.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/obstacle_geometry.cpp
 
 CACHE INTERNAL "${PROJECT_NAME} source files"  FORCE
 )

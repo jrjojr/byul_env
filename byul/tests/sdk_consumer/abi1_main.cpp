@@ -3,6 +3,7 @@
 #include <type_traits>
 
 #include "navgrid_abi1.h"
+#include "obstacle_abi1.h"
 
 int main() {
     static_assert(sizeof(void*) == 8);
@@ -15,6 +16,14 @@ int main() {
     static_assert(offsetof(navgrid_t, cell_map) == 16);
     static_assert(offsetof(navgrid_t, is_coord_blocked_fn) == 24);
     static_assert(offsetof(navgrid_t, is_coord_blocked_fn_userdata) == 32);
+    static_assert(std::is_standard_layout_v<obstacle_t>);
+    static_assert(sizeof(obstacle_t) == 24);
+    static_assert(alignof(obstacle_t) == 8);
+    static_assert(offsetof(obstacle_t, x0) == 0);
+    static_assert(offsetof(obstacle_t, y0) == 4);
+    static_assert(offsetof(obstacle_t, width) == 8);
+    static_assert(offsetof(obstacle_t, height) == 12);
+    static_assert(offsetof(obstacle_t, blocked) == 16);
 
     navgrid_abi_mismatch_t mismatch = NAVGRID_ABI_VERSION_MISMATCH;
     assert(navgrid_check_abi(
@@ -30,6 +39,20 @@ int main() {
     assert(grid->cell_map != nullptr);
     assert(grid->is_coord_blocked_fn == is_coord_blocked_navgrid);
     assert(grid->is_coord_blocked_fn_userdata == nullptr);
+    obstacle_abi_mismatch_t obstacle_mismatch = OBSTACLE_ABI_VERSION_MISMATCH;
+    assert(obstacle_check_abi(
+        BYUL_OBSTACLE_ABI1_VERSION,
+        BYUL_OBSTACLE_ABI1_FINGERPRINT,
+        &obstacle_mismatch) == NAVSYS_STATUS_OK);
+    assert(obstacle_mismatch == OBSTACLE_ABI_MATCH);
+    obstacle_t* obstacle = obstacle_create_full(1, 2, 7, 9);
+    assert(obstacle != nullptr);
+    assert(obstacle->x0 == 1);
+    assert(obstacle->y0 == 2);
+    assert(obstacle->width == 7);
+    assert(obstacle->height == 9);
+    assert(obstacle->blocked != nullptr);
+    obstacle_destroy(obstacle);
     navgrid_destroy(grid);
     return 0;
 }

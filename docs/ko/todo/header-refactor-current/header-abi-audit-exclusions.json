@@ -60,13 +60,6 @@
     },
     {
       "code": "missing-root-export",
-      "subject": "obstacle_clone_neighbors",
-      "reason": "Declared Navsys allocation API has no definition.",
-      "owner": "navsys",
-      "target_stage": "4-navsys"
-    },
-    {
-      "code": "missing-root-export",
       "subject": "pid_vec3_auto",
       "reason": "Declared vector PID API has no definition.",
       "owner": "math_engine",

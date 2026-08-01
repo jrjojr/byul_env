@@ -22,6 +22,10 @@ set(${PROJECT_NAME}_SOURCES
     ${dstar_lite_SOURCES}
     
     ${CMAKE_CURRENT_SOURCE_DIR}/route_carver/route_carver.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/route_carver/compat/route_carver_legacy.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/route_carver/route_carver_geometry.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/route_carver/route_carver_mutation.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/route_carver/route_carver_checked.cpp
 
 CACHE INTERNAL "${PROJECT_NAME} source files"  FORCE
 )

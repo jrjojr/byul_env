@@ -458,7 +458,7 @@ Navsys ABI inventory는 headers=46, symbols=525이고 header/ABI standalone comp
 성공해 Linux static/root UBSan, live export/wrapper audit와 clean C17/C++17 SDK consumer를
 통과했다. 이로써 1단계 gate만 닫으며 2단계는 =TODO= 상태로 유지한다.
 
-** DOING 2단계: Route, navgrid, obstacle와 mutation 경계 확정
+** DONE 2단계: Route, navgrid, obstacle와 mutation 경계 확정
 
 *** 실행
 
@@ -479,7 +479,26 @@ Navsys ABI inventory는 headers=46, symbols=525이고 header/ABI standalone comp
 - layout/enum ABI, clone/deep-copy, rollback/fault injection, direct-header/include-order와
   installed consumer를 검증한다.
 
-** TODO 3단계: Maze generator별 계약 구현
+*** 마감 근거
+
+Route, navcell, navgrid, obstacle core, obstacle와 route-carver 여섯 child의 모든 순차
+단계가 terminal =DONE=이다. Private compat/internal header 8개는 각 child가 소유하는
+internal/non-install/wrapper-excluded role로 등록했고 obstacle 두 public header의 실제
+generator 등록 상태를 manifest와 일치시켰다.
+
+현재 Navsys ABI inventory는 55 header/629 symbol이며 =--check=가 통과한다. MSVC Release
+root snapshot은 1,184 export와 clean install 92 header를 기록하고 x64 ABI probe는 76 type,
+376 field, 27 enum/156 enumerator를 고정했다. 과거 =obstacle_clone_neighbors= missing-export
+예외는 실제 export가 존재하므로 삭제했다. Stage 2 범위 header/ABI invariant error는 0이고,
+남은 1개는 4단계 Route-finder internal header 소유다.
+
+MSVC Debug/Release root와 =test_navsys=, route-carver performance/OOM CTest가 통과했다.
+같은 source patch의 Virtual Yard GCC/Clang Debug ASan/LSan/UBSan =test_navsys=는 각각
+38 case/45,815 assertion을 통과했고 obstacle/route-carver wrapper 50개와 generator
+=--check=도 통과했다. 정확한 matrix와 다음 단계 허용 근거는
+[[file:navsys-stage2-closure-evidence.json][Stage 2 마감 evidence]]에 보존한다.
+
+** DOING 3단계: Maze generator별 계약 구현
 
 *** 실행
 

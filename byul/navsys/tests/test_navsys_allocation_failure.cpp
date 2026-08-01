@@ -912,22 +912,57 @@ bool verify_navgrid_caller_buffer_queries_do_not_allocate() {
     return valid;
 }
 
-bool verify_obstacle_allocation_failure_baseline() {
+bool verify_obstacle_checked_allocation_failure() {
     const std::size_t baseline = tracked_live_allocations;
+
+    constexpr std::ptrdiff_t max_allocations = 64;
+    bool create_succeeded = false;
+    for (std::ptrdiff_t index = 0; index < max_allocations; ++index) {
+        obstacle_t* output = reinterpret_cast<obstacle_t*>(uintptr_t{1});
+        track_allocations = true;
+        fail_after = index;
+        const navsys_status_t status = obstacle_create_checked(
+            0, 0, 4, 4, &output);
+        fail_after = -1;
+        track_allocations = false;
+
+        if (status == NAVSYS_STATUS_OK) {
+            const bool output_valid = output
+                && output != reinterpret_cast<obstacle_t*>(uintptr_t{1})
+                && obstacle_get_blocked_coords(output);
+            obstacle_destroy(output);
+            if (!output_valid || tracked_live_allocations != baseline) {
+                std::fprintf(stderr, "obstacle checked create committed invalid output\n");
+                return false;
+            }
+            create_succeeded = true;
+            break;
+        }
+        if (status != NAVSYS_STATUS_OUT_OF_MEMORY
+            || output != reinterpret_cast<obstacle_t*>(uintptr_t{1})
+            || tracked_live_allocations != baseline) {
+            std::fprintf(
+                stderr,
+                "obstacle checked create was not failure-atomic at allocation %td\n",
+                index);
+            return false;
+        }
+    }
+    if (!create_succeeded) {
+        std::fprintf(stderr, "obstacle checked create exceeded fault fixture limit\n");
+        return false;
+    }
 
     track_allocations = true;
     fail_after = 0;
-    obstacle_t* created = obstacle_create_full(0, 0, 4, 4);
+    obstacle_t* legacy_created = obstacle_create_full(0, 0, 4, 4);
     fail_after = -1;
     track_allocations = false;
-    if (!created || created->blocked != nullptr) {
-        std::fprintf(
-            stderr,
-            "obstacle create allocation-failure baseline changed\n");
-        obstacle_destroy(created);
+    if (legacy_created || tracked_live_allocations != baseline) {
+        std::fprintf(stderr, "legacy obstacle create did not forward checked failure\n");
+        obstacle_destroy(legacy_created);
         return false;
     }
-    obstacle_destroy(created);
 
     obstacle_t* source = obstacle_create_full(0, 0, 4, 4);
     if (!source || !obstacle_block_coord(source, 1, 1)) {
@@ -935,50 +970,129 @@ bool verify_obstacle_allocation_failure_baseline() {
         return false;
     }
 
-    track_allocations = true;
-    fail_after = 2;
-    obstacle_t* copied = obstacle_copy(source);
-    fail_after = -1;
-    track_allocations = false;
-    if (!copied || copied->blocked != nullptr) {
-        std::fprintf(
-            stderr,
-            "obstacle copy allocation-failure baseline changed\n");
-        obstacle_destroy(copied);
+    bool copy_succeeded = false;
+    for (std::ptrdiff_t index = 0; index < max_allocations; ++index) {
+        obstacle_t* output = reinterpret_cast<obstacle_t*>(uintptr_t{1});
+        track_allocations = true;
+        fail_after = index;
+        const navsys_status_t status = obstacle_copy_checked(source, &output);
+        fail_after = -1;
+        track_allocations = false;
+
+        if (status == NAVSYS_STATUS_OK) {
+            const bool output_valid = output
+                && output != reinterpret_cast<obstacle_t*>(uintptr_t{1})
+                && obstacle_equal(source, output)
+                && obstacle_get_blocked_coords(output)
+                    != obstacle_get_blocked_coords(source);
+            obstacle_destroy(output);
+            if (!output_valid || tracked_live_allocations != baseline) {
+                std::fprintf(stderr, "obstacle checked copy committed invalid output\n");
+                obstacle_destroy(source);
+                return false;
+            }
+            copy_succeeded = true;
+            break;
+        }
+        if (status != NAVSYS_STATUS_OUT_OF_MEMORY
+            || output != reinterpret_cast<obstacle_t*>(uintptr_t{1})
+            || !obstacle_is_coord_blocked(source, 1, 1)
+            || tracked_live_allocations != baseline) {
+            std::fprintf(
+                stderr,
+                "obstacle checked copy was not failure-atomic at allocation %td\n",
+                index);
+            obstacle_destroy(source);
+            return false;
+        }
+    }
+    if (!copy_succeeded) {
+        std::fprintf(stderr, "obstacle checked copy exceeded fault fixture limit\n");
         obstacle_destroy(source);
         return false;
     }
-    obstacle_destroy(copied);
 
-    bool block_exception_escaped = false;
+    bool changed = true;
     track_allocations = true;
     fail_after = 0;
-    try {
-        (void)obstacle_block_coord(source, 2, 2);
-    } catch (const std::bad_alloc&) {
-        block_exception_escaped = true;
-    }
+    const navsys_status_t block_status = obstacle_set_blocked(
+        source, 2, 2, true, &changed);
     fail_after = -1;
     track_allocations = false;
-    if (!block_exception_escaped
-        || obstacle_is_coord_blocked(source, 2, 2)) {
+    if (block_status != NAVSYS_STATUS_OUT_OF_MEMORY
+        || !changed
+        || obstacle_is_coord_blocked(source, 2, 2)
+        || tracked_live_allocations != baseline) {
         std::fprintf(
             stderr,
-            "obstacle block exception baseline changed\n");
+            "obstacle checked mutation did not preserve failure outputs\n");
         obstacle_destroy(source);
         return false;
     }
 
     track_allocations = true;
-    fail_after = 1;
-    const bool block_reported_success = obstacle_block_coord(source, 3, 3);
+    fail_after = 0;
+    const bool legacy_blocked = obstacle_block_coord(source, 3, 3);
     fail_after = -1;
     track_allocations = false;
-    if (!block_reported_success
-        || obstacle_is_coord_blocked(source, 3, 3)) {
+    if (legacy_blocked
+        || obstacle_is_coord_blocked(source, 3, 3)
+        || tracked_live_allocations != baseline) {
         std::fprintf(
             stderr,
-            "obstacle block status baseline changed\n");
+            "legacy obstacle mutation did not forward checked failure\n");
+        obstacle_destroy(source);
+        return false;
+    }
+
+    changed = false;
+    if (obstacle_set_blocked(source, 2, 2, true, &changed)
+            != NAVSYS_STATUS_OK
+        || !changed) {
+        obstacle_destroy(source);
+        return false;
+    }
+    track_allocations = true;
+    fail_after = 0;
+    changed = true;
+    const navsys_status_t unchanged_status = obstacle_set_blocked(
+        source, 2, 2, true, &changed);
+    fail_after = -1;
+    track_allocations = false;
+    if (unchanged_status != NAVSYS_STATUS_OK
+        || changed
+        || tracked_live_allocations != baseline) {
+        std::fprintf(stderr, "unchanged obstacle mutation allocated memory\n");
+        obstacle_destroy(source);
+        return false;
+    }
+
+    size_t required = 999;
+    track_allocations = true;
+    fail_after = 0;
+    const navsys_status_t query_status = obstacle_export_blocked(
+        source, nullptr, 0, &required);
+    fail_after = -1;
+    track_allocations = false;
+    if (query_status != NAVSYS_STATUS_OK
+        || required != 2
+        || tracked_live_allocations != baseline) {
+        std::fprintf(stderr, "obstacle count query allocated or returned wrong count\n");
+        obstacle_destroy(source);
+        return false;
+    }
+
+    coord_t exported[2] = {};
+    track_allocations = true;
+    fail_after = 0;
+    const navsys_status_t export_status = obstacle_export_blocked(
+        source, exported, 2, &required);
+    fail_after = -1;
+    track_allocations = false;
+    if (export_status != NAVSYS_STATUS_OK
+        || required != 2
+        || tracked_live_allocations != baseline) {
+        std::fprintf(stderr, "obstacle exact export allocated memory\n");
         obstacle_destroy(source);
         return false;
     }
@@ -1003,6 +1117,495 @@ bool verify_obstacle_allocation_failure_baseline() {
     navgrid_destroy(grid);
     obstacle_destroy(source);
     return valid;
+}
+
+bool verify_obstacle_extent_mutation_failure_atomic() {
+    const std::size_t baseline = tracked_live_allocations;
+    obstacle_t* obstacle = obstacle_create_full(0, 0, 4, 4);
+    if (!obstacle || !obstacle_block_coord(obstacle, 1, 1)) {
+        obstacle_destroy(obstacle);
+        return false;
+    }
+    obstacle_t* snapshot = obstacle_copy(obstacle);
+    if (!snapshot) {
+        obstacle_destroy(obstacle);
+        return false;
+    }
+
+    track_allocations = true;
+    fail_after = 0;
+    obstacle_set_origin(obstacle, 10, 20);
+    fail_after = -1;
+    track_allocations = false;
+    if (!obstacle_equal(obstacle, snapshot)
+        || tracked_live_allocations != baseline) {
+        std::fprintf(
+            stderr,
+            "obstacle origin translation did not preserve state on allocation failure\n");
+        obstacle_destroy(snapshot);
+        obstacle_destroy(obstacle);
+        return false;
+    }
+
+    track_allocations = true;
+    fail_after = 0;
+    obstacle_set_width(obstacle, 1);
+    fail_after = -1;
+    track_allocations = false;
+    const bool valid = obstacle_equal(obstacle, snapshot)
+        && tracked_live_allocations == baseline;
+    if (!valid) {
+        std::fprintf(
+            stderr,
+            "obstacle resize did not preserve state on allocation failure\n");
+    }
+
+    obstacle_destroy(snapshot);
+    obstacle_destroy(obstacle);
+    return valid;
+}
+
+bool verify_obstacle_geometry_allocation_failure() {
+    const std::size_t baseline = tracked_live_allocations;
+    constexpr std::ptrdiff_t max_allocations = 128;
+
+    auto verify_operation = [&](bool line) {
+        obstacle_t* obstacle = obstacle_create_full(0, 0, 7, 7);
+        obstacle_t* snapshot = obstacle_copy(obstacle);
+        if (!obstacle || !snapshot) {
+            obstacle_destroy(snapshot);
+            obstacle_destroy(obstacle);
+            return false;
+        }
+
+        bool succeeded = false;
+        for (std::ptrdiff_t index = 0; index < max_allocations; ++index) {
+            std::size_t changed = 999;
+            track_allocations = true;
+            fail_after = index;
+            const navsys_status_t status = line
+                ? obstacle_block_line(
+                    obstacle, 1, 1, 5, 3, 1, &changed)
+                : obstacle_block_square(
+                    obstacle, 3, 3, 1, &changed);
+            fail_after = -1;
+            track_allocations = false;
+
+            if (status == NAVSYS_STATUS_OK) {
+                const bool result_valid = changed > 0
+                    && !obstacle_equal(obstacle, snapshot);
+                succeeded = result_valid;
+                break;
+            }
+            if (status != NAVSYS_STATUS_OUT_OF_MEMORY
+                || changed != 999
+                || !obstacle_equal(obstacle, snapshot)
+                || tracked_live_allocations != baseline) {
+                std::fprintf(
+                    stderr,
+                    "obstacle checked geometry was not failure-atomic at allocation %td\n",
+                    index);
+                obstacle_destroy(snapshot);
+                obstacle_destroy(obstacle);
+                return false;
+            }
+        }
+
+        obstacle_destroy(snapshot);
+        obstacle_destroy(obstacle);
+        if (!succeeded || tracked_live_allocations != baseline) {
+            std::fprintf(
+                stderr,
+                "obstacle checked geometry exceeded fault fixture limit\n");
+            return false;
+        }
+        return true;
+    };
+
+    return verify_operation(false) && verify_operation(true);
+}
+
+bool verify_obstacle_generator_initial_allocation_failure() {
+    const std::size_t baseline = tracked_live_allocations;
+    const coord_t a = {0, 0};
+    const coord_t b = {2, 0};
+    const coord_t c = {0, 2};
+    const coord_t d = {2, 2};
+    coord_list_t* polygon = coord_list_create();
+    if (!polygon
+        || !coord_list_push_back(polygon, &a)
+        || !coord_list_push_back(polygon, &b)
+        || !coord_list_push_back(polygon, &c)) {
+        coord_list_destroy(polygon);
+        return false;
+    }
+
+    const auto verify = [&](const char* name, const auto& generator) {
+        track_allocations = true;
+        fail_after = 0;
+        obstacle_t* obstacle = generator();
+        fail_after = -1;
+        track_allocations = false;
+        const bool valid = obstacle == nullptr
+            && tracked_live_allocations == baseline;
+        if (!valid) {
+            std::fprintf(
+                stderr,
+                "%s did not preserve the initial allocation baseline\n",
+                name);
+        }
+        obstacle_destroy(obstacle);
+        return valid;
+    };
+
+    const bool valid =
+        verify("obstacle_make_rect_all_blocked", [&] {
+            return obstacle_make_rect_all_blocked(0, 0, 3, 3);
+        })
+        && verify("obstacle_make_rect_random_blocked", [&] {
+            return obstacle_make_rect_random_blocked(0, 0, 3, 3, 1.0f);
+        })
+        && verify("obstacle_make_beam", [&] {
+            return obstacle_make_beam(&a, &c, 0);
+        })
+        && verify("obstacle_make_torus", [&] {
+            return obstacle_make_torus(&a, &d, 1);
+        })
+        && verify("obstacle_make_enclosure", [&] {
+            return obstacle_make_enclosure(
+                &a, &c, 1, ENCLOSURE_OPEN_UNKNOWN);
+        })
+        && verify("obstacle_make_cross", [&] {
+            return obstacle_make_cross(&a, 1, 0);
+        })
+        && verify("obstacle_make_spiral", [&] {
+            return obstacle_make_spiral(
+                &a, 1, 1, 0, 0, SPIRAL_CLOCKWISE);
+        })
+        && verify("obstacle_make_triangle", [&] {
+            return obstacle_make_triangle(&a, &b, &c);
+        })
+        && verify("obstacle_make_triangle_torus", [&] {
+            return obstacle_make_triangle_torus(&a, &b, &c, 0);
+        })
+        && verify("obstacle_make_polygon", [&] {
+            return obstacle_make_polygon(polygon);
+        })
+        && verify("obstacle_make_polygon_torus", [&] {
+            return obstacle_make_polygon_torus(polygon, 0);
+        });
+
+    coord_list_destroy(polygon);
+    return valid;
+}
+
+bool verify_obstacle_checked_generator_allocation_failure() {
+    const std::size_t baseline = tracked_live_allocations;
+    constexpr std::ptrdiff_t max_allocations = 256;
+    const coord_t a = {0, 0};
+    const coord_t b = {3, 1};
+    const coord_t polygon[] = {{0, 0}, {3, 0}, {0, 3}};
+
+    const auto verify = [&](const char* name, const auto& generator) {
+        bool succeeded = false;
+        for (std::ptrdiff_t index = 0; index < max_allocations; ++index) {
+            obstacle_t* output = reinterpret_cast<obstacle_t*>(uintptr_t{1});
+            track_allocations = true;
+            fail_after = index;
+            const navsys_status_t status = generator(&output);
+            fail_after = -1;
+            track_allocations = false;
+
+            if (status == NAVSYS_STATUS_OK) {
+                const bool valid = output != nullptr;
+                obstacle_destroy(output);
+                succeeded = valid && tracked_live_allocations == baseline;
+                break;
+            }
+            if (status != NAVSYS_STATUS_OUT_OF_MEMORY
+                || output != nullptr
+                || tracked_live_allocations != baseline) {
+                std::fprintf(
+                    stderr,
+                    "%s was not failure-atomic at allocation %td\n",
+                    name, index);
+                obstacle_destroy(output);
+                return false;
+            }
+        }
+        if (!succeeded) {
+            std::fprintf(
+                stderr,
+                "%s exceeded the checked generator fault limit\n",
+                name);
+        }
+        return succeeded;
+    };
+
+    obstacle_generate_options_t options{};
+    if (obstacle_generate_options_init(&options) != NAVSYS_STATUS_OK)
+        return false;
+    options.seed = 17;
+    obstacle_enclosure_desc_t enclosure{};
+    obstacle_cross_desc_t cross{};
+    obstacle_spiral_desc_t spiral{};
+    if (obstacle_enclosure_desc_init(&enclosure) != NAVSYS_STATUS_OK
+        || obstacle_cross_desc_init(&cross) != NAVSYS_STATUS_OK
+        || obstacle_spiral_desc_init(&spiral) != NAVSYS_STATUS_OK) {
+        return false;
+    }
+    enclosure.width = 5;
+    enclosure.height = 5;
+    enclosure.open_side = OBSTACLE_ENCLOSURE_OPEN_LEFT;
+    enclosure.aperture_offset_cells = 1;
+    enclosure.aperture_length_cells = 3;
+    cross.arm_length_cells = 2;
+    cross.radius_cells = 1;
+    spiral.max_radius_cells = 2;
+    spiral.pitch_cells = 2;
+    spiral.path_radius_cells = 1;
+    const bool center_valid = verify(
+        "obstacle_generate_filled_rect", [&](obstacle_t** output) {
+        return obstacle_generate_filled_rect(
+            0, 0, 3, 3, &options, output);
+    }) && verify("obstacle_generate_rect_outline", [&](obstacle_t** output) {
+        return obstacle_generate_rect_outline(
+            0, 0, 5, 5, 1, &options, output);
+    }) && verify("obstacle_generate_random_rect", [&](obstacle_t** output) {
+        return obstacle_generate_random_rect(
+            0, 0, 3, 3, 0.5, &options, output);
+    }) && verify("obstacle_generate_line", [&](obstacle_t** output) {
+        return obstacle_generate_line(&a, &b, 1, &options, output);
+    }) && verify("obstacle_generate_polygon", [&](obstacle_t** output) {
+        return obstacle_generate_polygon(
+            polygon, 3, OBSTACLE_POLYGON_EVEN_ODD, &options, output);
+    }) && verify("obstacle_generate_polygon_outline", [&](obstacle_t** output) {
+        return obstacle_generate_polygon_outline(
+            polygon, 3, 1, &options, output);
+    }) && verify("obstacle_generate_triangle", [&](obstacle_t** output) {
+        return obstacle_generate_triangle(
+            &polygon[0], &polygon[1], &polygon[2],
+            OBSTACLE_POLYGON_EVEN_ODD, &options, output);
+    }) && verify("obstacle_generate_triangle_outline", [&](obstacle_t** output) {
+        return obstacle_generate_triangle_outline(
+            &polygon[0], &polygon[1], &polygon[2], 1, &options, output);
+    }) && verify("obstacle_generate_enclosure", [&](obstacle_t** output) {
+        return obstacle_generate_enclosure(&enclosure, &options, output);
+    }) && verify("obstacle_generate_cross", [&](obstacle_t** output) {
+        return obstacle_generate_cross(&cross, &options, output);
+    }) && verify("obstacle_generate_spiral", [&](obstacle_t** output) {
+        return obstacle_generate_spiral(&spiral, &options, output);
+    });
+    if (!center_valid) return false;
+
+    options.raster_rule = OBSTACLE_RASTER_ALL_TOUCHED;
+    return verify("obstacle_generate_line/all_touched", [&](obstacle_t** output) {
+        return obstacle_generate_line(&a, &b, 1, &options, output);
+    }) && verify(
+        "obstacle_generate_polygon/all_touched", [&](obstacle_t** output) {
+        return obstacle_generate_polygon(
+            polygon, 3, OBSTACLE_POLYGON_EVEN_ODD, &options, output);
+    }) && verify(
+        "obstacle_generate_polygon_outline/all_touched",
+        [&](obstacle_t** output) {
+        return obstacle_generate_polygon_outline(
+            polygon, 3, 1, &options, output);
+    });
+}
+
+bool verify_obstacle_overlay_allocation_failure() {
+    const std::size_t baseline = tracked_live_allocations;
+    constexpr std::ptrdiff_t max_allocations = 128;
+    obstacle_t* obstacle = obstacle_create_full(0, 0, 8, 8);
+    navgrid_t* grid = navgrid_create_full(8, 8, NAVGRID_DIR_8, nullptr);
+    if (!obstacle || !grid
+        || !obstacle_block_coord(obstacle, 1, 1)
+        || !obstacle_block_coord(obstacle, 2, 2)
+        || !obstacle_block_coord(obstacle, 3, 3)) {
+        navgrid_destroy(grid);
+        obstacle_destroy(obstacle);
+        return false;
+    }
+
+    obstacle_navgrid_overlay_token_t token{};
+    bool apply_succeeded = false;
+    for (std::ptrdiff_t index = 0; index < max_allocations; ++index) {
+        token = obstacle_navgrid_overlay_token_t{31, 32, 33, 34};
+        std::size_t changed = 77;
+        track_allocations = true;
+        fail_after = index;
+        const navsys_status_t status = obstacle_apply_to_navgrid_checked(
+            obstacle, grid, nullptr, &token, &changed);
+        fail_after = -1;
+        track_allocations = false;
+        if (status == NAVSYS_STATUS_OK) {
+            apply_succeeded = changed == 3
+                && token.owner_cookie != 0
+                && token.overlay != 0;
+            break;
+        }
+        if (status != NAVSYS_STATUS_OUT_OF_MEMORY
+            || token.struct_size != 31
+            || token.abi_version != 32
+            || token.owner_cookie != 33
+            || token.overlay != 34
+            || changed != 77
+            || is_coord_blocked_navgrid(grid, 1, 1, nullptr)
+            || is_coord_blocked_navgrid(grid, 2, 2, nullptr)
+            || is_coord_blocked_navgrid(grid, 3, 3, nullptr)
+            || tracked_live_allocations != baseline) {
+            std::fprintf(
+                stderr,
+                "obstacle overlay apply was not failure-atomic at allocation %td\n",
+                index);
+            navgrid_destroy(grid);
+            obstacle_destroy(obstacle);
+            return false;
+        }
+    }
+    if (!apply_succeeded) {
+        std::fprintf(stderr, "obstacle overlay apply exceeded fault fixture limit\n");
+        navgrid_destroy(grid);
+        obstacle_destroy(obstacle);
+        return false;
+    }
+
+    const std::size_t applied_live = tracked_live_allocations;
+    bool remove_succeeded = false;
+    for (std::ptrdiff_t index = 0; index < max_allocations; ++index) {
+        const obstacle_navgrid_overlay_token_t before = token;
+        std::size_t changed = 88;
+        track_allocations = true;
+        fail_after = index;
+        const navsys_status_t status = obstacle_remove_from_navgrid_checked(
+            grid, &token, &changed);
+        fail_after = -1;
+        track_allocations = false;
+        if (status == NAVSYS_STATUS_OK) {
+            remove_succeeded = changed == 3
+                && token.owner_cookie == 0
+                && token.overlay == 0;
+            break;
+        }
+        if (status != NAVSYS_STATUS_OUT_OF_MEMORY
+            || token.owner_cookie != before.owner_cookie
+            || token.overlay != before.overlay
+            || changed != 88
+            || !is_coord_blocked_navgrid(grid, 1, 1, nullptr)
+            || !is_coord_blocked_navgrid(grid, 2, 2, nullptr)
+            || !is_coord_blocked_navgrid(grid, 3, 3, nullptr)
+            || tracked_live_allocations != applied_live) {
+            std::fprintf(
+                stderr,
+                "obstacle overlay remove was not failure-atomic at allocation %td\n",
+                index);
+            navgrid_destroy(grid);
+            obstacle_destroy(obstacle);
+            return false;
+        }
+    }
+
+    const bool valid = remove_succeeded
+        && !is_coord_blocked_navgrid(grid, 1, 1, nullptr)
+        && tracked_live_allocations == baseline;
+    if (!valid) {
+        std::fprintf(stderr, "obstacle overlay remove exceeded fault fixture limit\n");
+    }
+    navgrid_destroy(grid);
+    obstacle_destroy(obstacle);
+    return valid;
+}
+
+bool verify_route_carver_mutation_allocation_failure() {
+    constexpr std::ptrdiff_t max_allocations = 128;
+    const coord_t candidate{1, 1};
+    const navgrid_carve_options_t options{
+        sizeof(navgrid_carve_options_t),
+        NAVGRID_CARVE_OPTIONS_ABI_VERSION,
+        0,
+        NAVGRID_CARVE_CHEBYSHEV_SQUARE,
+        NAVGRID_LINE_CENTER_CELLS,
+        NAVGRID_CARVE_EFFECTIVE_BLOCKED,
+        NAVGRID_CARVE_ATOMIC,
+        0,
+        16,
+        nullptr,
+        nullptr
+    };
+
+    // Prime implementation/runtime caches before allocation tracking.  This
+    // fixture can run in isolation, where a first library call may otherwise
+    // attribute process-lifetime runtime allocations to the carve operation.
+    navgrid_t* warm_grid = navgrid_create_full(
+        4, 4, NAVGRID_DIR_4, nullptr);
+    std::size_t warm_changed = 0;
+    if (!warm_grid
+        || !navgrid_block_coord(warm_grid, candidate.x, candidate.y)
+        || navgrid_carve_area(
+            warm_grid, &candidate, &options, &warm_changed)
+            != NAVSYS_STATUS_OK
+        || warm_changed != 1) {
+        navgrid_destroy(warm_grid);
+        return false;
+    }
+    navgrid_destroy(warm_grid);
+
+    navgrid_t* grid = navgrid_create_full(4, 4, NAVGRID_DIR_4, nullptr);
+    if (!grid || !navgrid_block_coord(grid, candidate.x, candidate.y)) {
+        navgrid_destroy(grid);
+        return false;
+    }
+
+    const std::size_t baseline = tracked_live_allocations;
+    bool succeeded = false;
+    for (std::ptrdiff_t index = 0; index < max_allocations; ++index) {
+        std::size_t changed = 77;
+        track_allocations = true;
+        fail_after = index;
+        const navsys_status_t status = navgrid_carve_area(
+            grid, &candidate, &options, &changed);
+        fail_after = -1;
+        track_allocations = false;
+
+        if (status == NAVSYS_STATUS_OK) {
+            succeeded = changed == 1
+                && !is_coord_blocked_navgrid(
+                    grid, candidate.x, candidate.y, nullptr);
+            break;
+        }
+        const bool still_blocked = is_coord_blocked_navgrid(
+            grid, candidate.x, candidate.y, nullptr);
+        if (status != NAVSYS_STATUS_OUT_OF_MEMORY
+            || changed != 77
+            || !still_blocked
+            || tracked_live_allocations != baseline) {
+            std::fprintf(
+                stderr,
+                "route carver mutation was not failure-atomic at allocation "
+                "%td (status=%d, changed=%zu, blocked=%d, live=%zu, "
+                "baseline=%zu)\n",
+                index,
+                static_cast<int>(status),
+                changed,
+                still_blocked ? 1 : 0,
+                tracked_live_allocations,
+                baseline);
+            navgrid_destroy(grid);
+            return false;
+        }
+    }
+
+    if (!succeeded) {
+        std::fprintf(
+            stderr,
+            "route carver mutation exceeded fault fixture limit\n");
+    }
+    navgrid_destroy(grid);
+    if (tracked_live_allocations != baseline) {
+        std::fprintf(stderr, "route carver mutation leaked allocations\n");
+        return false;
+    }
+    return succeeded;
 }
 
 } // namespace
@@ -1033,6 +1636,16 @@ void operator delete[](void* pointer, std::size_t) noexcept {
 
 int main(int argc, char** argv) {
     bool inject_route_finder_leak = false;
+    if (argc == 2
+        && std::strcmp(argv[1], "--route-carver-only") == 0) {
+        return verify_route_carver_mutation_allocation_failure() ? 0 : 26;
+    }
+    if (argc == 2
+        && std::strcmp(argv[1], "--obstacle-generator-only") == 0) {
+        return verify_obstacle_generator_initial_allocation_failure()
+            && verify_obstacle_checked_generator_allocation_failure()
+            ? 0 : 25;
+    }
     if (argc == 2
         && std::strcmp(argv[1], "--inject-route-finder-leak") == 0) {
         inject_route_finder_leak = true;
@@ -1111,8 +1724,26 @@ int main(int argc, char** argv) {
     if (!verify_navgrid_caller_buffer_queries_do_not_allocate()) {
         return 19;
     }
-    if (!verify_obstacle_allocation_failure_baseline()) {
+    if (!verify_obstacle_checked_allocation_failure()) {
         return 20;
+    }
+    if (!verify_obstacle_extent_mutation_failure_atomic()) {
+        return 21;
+    }
+    if (!verify_obstacle_geometry_allocation_failure()) {
+        return 22;
+    }
+    if (!verify_obstacle_generator_initial_allocation_failure()) {
+        return 23;
+    }
+    if (!verify_obstacle_checked_generator_allocation_failure()) {
+        return 25;
+    }
+    if (!verify_obstacle_overlay_allocation_failure()) {
+        return 24;
+    }
+    if (!verify_route_carver_mutation_allocation_failure()) {
+        return 26;
     }
 
     dependency_navgrid = navgrid_create();

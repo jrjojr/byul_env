@@ -26,10 +26,11 @@
 - [[file:todo-navsys-industry-api-baseline.org][공통 기준]] =TODO 1단계=의 status owner와 C symbol
   namespace가 승인되어 =DONE=이 되기 전에는 아래 checked generator, enum, options와
   callback target을 public header/source/export/wrapper에 구현하지 않는다.
-- =obstacle_raster_rule_t=, =obstacle_polygon_fill_rule_t=,
-  =obstacle_generate_options_t=와 그 안의 cancellation type은 owner header/include DAG가
-  미확정인 target draft type이다. RNG owner/version과 cancellation/result 계약은 공통
-  decision에 합류한 뒤 실제 소유 파일을 정한다.
+- =obstacle_raster_rule_t=, =obstacle_polygon_fill_rule_t=와
+  =obstacle_generate_options_t=는 공통 baseline 1단계 완료 뒤 =obstacle.h=가 generator-local
+  policy로 소유한다. 공통 cancellation typedef owner는 아직 없으므로
+  =obstacle_generate_cancel_func=를 call-scoped local callback으로 사용하며 향후 공통 alias가
+  생겨도 기존 signature를 바꾸지 않는다.
 - Raster golden characterization은 준비할 수 있지만 기존 여섯 단계의 =TODO= 상태는
   유지한다.
 - 실제 native test 원본은
@@ -86,17 +87,21 @@ typedef enum obstacle_polygon_fill_rule {
 
 typedef struct obstacle_generate_options {
     uint32_t struct_size;
+    uint32_t abi_version;
     obstacle_raster_rule_t raster_rule;
+    uint32_t reserved0;
     uint64_t seed;
     uint64_t max_cells;
-    navsys_cancel_func cancel_func;
+    obstacle_generate_cancel_func cancel_func;
     void* cancel_userdata;
 } obstacle_generate_options_t;
 
 BYUL_API navsys_status_t obstacle_generate_filled_rect(
-    const byul_grid_rect_t* rect, obstacle_t** out_obstacle);
+    int32_t x0, int32_t y0, int32_t width, int32_t height,
+    const obstacle_generate_options_t* options, obstacle_t** out_obstacle);
 BYUL_API navsys_status_t obstacle_generate_random_rect(
-    const byul_grid_rect_t* rect, double blocked_probability,
+    int32_t x0, int32_t y0, int32_t width, int32_t height,
+    double blocked_probability,
     const obstacle_generate_options_t* options, obstacle_t** out_obstacle);
 BYUL_API navsys_status_t obstacle_generate_line(
     const coord_t* start, const coord_t* end, uint32_t radius_cells,
@@ -113,6 +118,27 @@ BYUL_API navsys_status_t obstacle_generate_polygon_outline(
 Triangle는 vertex_count=3 convenience adapter로 둔다. Rectangle outline/enclosure/cross/spiral은
 typed descriptor를 받고 공통 polygon/line raster core를 사용한다. 모든 실패에서
 =*out_obstacle=NULL=이며 cancel callback+userdata retention은 call 동안만이다.
+
+Descriptor 계약은 다음과 같다.
+
+- =obstacle_enclosure_desc_t=는 half-open =x0/y0/width/height=, 양수 inward
+  =wall_thickness_cells=, =open_side=, =aperture_offset_cells=와
+  =aperture_length_cells=를 갖는다. CLOSED는 aperture 두 값이 0이어야 하고, 열린 side는
+  side 진행축(UP/DOWN은 +X, LEFT/RIGHT는 +Y)에서 offset부터 length만큼 wall-depth 전체를
+  제거한다. Aperture가 corner wall과 겹치면 aperture가 우선한다. Interior 한 칸 이상을
+  위해 width와 height는 각각 =2*wall_thickness+1= 이상이어야 한다.
+- =obstacle_cross_desc_t=는 center, 네 방향 각각의 =arm_length_cells=와 line에 적용할
+  Chebyshev =radius_cells=를 갖는다. 두 inclusive axis line의 합집합이며 arm length 0,
+  radius 0은 center 한 칸이다.
+- =obstacle_spiral_desc_t=는 center, authoritative =max_radius_cells=, 양수
+  =pitch_cells=, Chebyshev =path_radius_cells=, direction과 clip rule을 갖는다. Center에서
+  시작해 CW는 +X,+Y,-X,-Y, CCW는 +Y,+X,-Y,-X 순서이고 leg length는
+  =pitch,pitch,2*pitch,2*pitch,...=다. 다음 path center의 Chebyshev 거리가 max radius를
+  넘기 직전에 종료한다. =PATH_ONLY= clip은 centerline만 radius로 제한해 dilation이 밖으로
+  나갈 수 있고, =OUTPUT= clip은 최종 cell도 center 기준 max-radius square에 자른다.
+  따라서 legacy =turns=는 종료 기준이 아니며 =gap+1=만 pitch 후보로 대응한다.
+- 각 descriptor는 =struct_size/abi_version=과 전용 initializer를 갖는다. 필수 pointer와
+  descriptor 전체를 options/cancellation보다 먼저 검증한다.
 
 * 함수별 구현 결함과 목표 계약
 
@@ -160,7 +186,7 @@ typed descriptor를 받고 공통 polygon/line raster core를 사용한다. 모�
 - Target은 checked 64-bit/wider orientation, validity status, explicit fill/raster rule과 contiguous
   =vertices+count= input을 사용한다. self-intersection support 여부는 capability로 보고한다.
 
-* TODO 1단계: 함수별 raster golden baseline
+* DONE 1단계: 함수별 raster golden baseline
 
 ** 실행
 
@@ -179,7 +205,56 @@ typed descriptor를 받고 공통 polygon/line raster core를 사용한다. 모�
 - UBSan/ASan에서 modulo/overflow/OOB와 allocation failure baseline을 실행한다.
 - symbol/enum/layout manifest와 SDK compile fixture를 생성한다.
 
-* TODO 2단계: 공통 geometry/raster 계약 확정
+** 1단계 decision record
+
+좌표 표기는 정렬된 =(x,y)= 집합이다. 실행 가능한 current golden의 단일 원본은
+=test_module_obstacle.cpp=의 =legacy obstacle generators preserve exact raster golden
+baseline= case이며 아래 표는 target과의 의미 차이를 고정한다.
+
+| 함수 | current fixture/좌표 | target 후보와 판정 |
+|------+----------------------+--------------------|
+| =rect_all_blocked= | origin =(1,2)=, =2x2= -> ={(1,2),(1,3),(2,2),(2,3)}= | half-open extent와 동일, legacy 유지 |
+| =rect_random_blocked= | =p=0=은 NULL, =p=1=은 4칸, NaN은 성공/empty | =p=0=도 성공/empty, NaN invalid, explicit seed와 =u<p=; global =srand/time=은 P0 |
+| =beam= | =(0,0)->(3,0)=, reverse, vertical, zero-length는 모두 empty; diagonal은 ={(1,1),(2,2)}= | normalized inclusive bounds와 양 endpoint를 포함해 diagonal ={(0,0),(1,1),(2,2),(3,3)}=; axis/reverse/zero extent는 P0 |
+| =torus= | =3x3/thickness=1= -> center를 뺀 8칸 | rectangular outline 명칭과 radius/thickness 단위를 명시, 좌표 유지 |
+| =enclosure= | minimum =3x3/open-left= -> ={(0,0),(0,2),(1,0),(1,2),(2,0),(2,1),(2,2)}= | aperture side 전체가 열리고 corner ownership을 명시, 좌표 유지 |
+| =cross= | center 0, length 1, range 0 -> 5칸 십자 | =range=를 square raster radius로 명명, 좌표 유지 |
+| =spiral= | radius 1/turns 1에서 CW와 CCW 각각 7칸, radius는 extent clipping만 수행 | radius를 path 종료 조건으로 사용하고 checked =turns*4= 및 =gap+1=; overflow/무시된 radius는 P0 |
+| =triangle= | right triangle -> 6칸, collinear triangle은 성공/empty | explicit center/boundary rule, degenerate invalid; int dot-product/float precision은 P0 |
+| =triangle_torus= | thickness 0 right triangle outline이 fill과 같은 6칸 | outline 명칭, square raster radius와 inclusive boundary 명시 |
+| =polygon= | =3x3= square fill은 좌/하단 4칸, bow-tie는 ={(0,0),(1,0)}=, =10^9= translated square는 empty | even-odd center fill과 boundary option을 분리; float precision·overflow 및 self-intersection validity는 P0 |
+| =polygon_torus= | =3x3= square/thickness 0은 perimeter 8칸 | outline 명칭, const contiguous vertices, checked thickness expansion |
+
+** 1단계 surface/consumer 기록
+
+- public generator symbol은 위 11개이며 enum manifest는
+  =ENCLOSURE_OPEN_UNKNOWN/RIGHT/UP/LEFT/DOWN = 0/1/2/3/4=,
+  =SPIRAL_CLOCKWISE/COUNTER_CLOCKWISE = 0/1=이다. =obstacle_t= layout은 public에서는
+  opaque이고 ABI1 layout은 opt-in compat header만 소유한다.
+- root/static/install export는 =navsys-current-abi-inventory.json=과 header ABI audit가 11개
+  symbol을 기록한다. C/C++ SDK fixture는 두 enum 값과 11개 함수 declaration을 직접 참조한다.
+- Python wrapper CFFI에는 11개 symbol과 두 enum이 모두 등록되어 있다. 고수준 =c_obstacle=
+  class는 core lifecycle/mutation/buffer만 제공하고 generator factory는 아직 노출하지 않는다.
+- production generator consumer는 route-carver test의 =rect_all_blocked= 3곳이다. maze 구현은
+  generator symbol을 직접 호출하지 않는다. 따라서 다음 단계의 legacy forwarding은 이 세
+  route-carver fixture와 wrapper CFFI symbol lookup을 compatibility gate로 삼는다.
+
+** 1단계 검증 기록
+
+- MSVC Debug =test_obstacle= golden slice: 1 case, 176 assertions 통과.
+- wrapper policy: 5 tests 통과. declaration/definition/runtime export 교집합과 11개
+  generator/enum manifest를 확인했다.
+- allocation fault fixture의 =--obstacle-generator-only=가 11개 generator의 최초 allocation
+  실패에서 NULL 반환과 tracked leak 0을 확인했다. deeper fault rollback은 checked generator가
+  생기는 3단계의 failure-atomic gate로 남긴다.
+- MSVC Release 전체 allocation fixture와 C/C++ install SDK consumer가 통과했다. module 전체
+  =test_obstacle=은 31 cases/480 assertions를 통과했다.
+- Virtual Yard Ubuntu 24.04의 base revision =d1a1b0d= checkout에 동일 patch를 동기화하고
+  =git diff --check=를 통과했다. GCC 13.3과 Clang 18.1.3 분리 tree에서 ASan/LSan/UBSan으로
+  =test_obstacle= 31 cases/480 assertions와 전체 allocation fixture를 실행했으며 sanitizer 오류와
+  leak은 없었다. 양 compiler의 C17/C++17 install SDK consumer도 compile/link/run을 통과했다.
+
+* DONE 2단계: 공통 geometry/raster 계약 확정
 
 ** 실행
 
@@ -197,7 +272,110 @@ typed descriptor를 받고 공통 polygon/line raster core를 사용한다. 모�
 - GDAL-style center/all-touched와 Boost boundary predicate에 대응하는 reference raster oracle를 작성한다.
 - rotation/reflection/reverse-order metamorphic cases를 설계한다.
 
-* TODO 3단계: additive checked generators
+** 확정 계약
+
+*** 좌표, extent와 raster
+
+- 좌표는 정수 cell-center 좌표이며 =+x=는 오른쪽, =+y=는 아래쪽이다. Cell =(x,y)=의
+  닫힌 footprint는 =[x-1/2,x+1/2] x [y-1/2,y+1/2]=이다. 거리와 dilation의 기본 metric은
+  Chebyshev이고 =radius_cells=0은 원래 centerline/boundary만 뜻한다. 다른 metric을 지원할
+  때는 descriptor enum으로 분리하며 암묵적으로 바꾸지 않는다.
+- =byul_grid_rect_t{x0,y0,width,height}=는 center 집합
+  ={(x,y) | x0 <= x < x0+width, y0 <= y < y0+height}=인 half-open rectangle이다.
+  width 또는 height 0은 valid empty이고 성공한 empty obstacle을 반환한다. 끝 좌표 계산은
+  wider checked arithmetic로 먼저 검증하며 =coord_t=로 표현할 수 없으면
+  =NAVSYS_STATUS_LIMIT_REACHED=다.
+- Line은 start와 end를 모두 포함한다. =CELL_CENTER= line은 major-axis step마다 ideal
+  line에 가장 가까운 minor-axis center를 선택하는 symmetric Bresenham centerline이다.
+  정확히 반-cell인 error tie는 양쪽 center를 모두 포함해 reversal/회전/반사를 보존한다.
+  =ALL_TOUCHED= line은 닫힌 cell footprint와 segment가 한 점이라도 만나면 선택하는
+  supercover다. Polygon =CELL_CENTER=는 cell center가 fill 내부 또는 boundary에
+  있으면 선택하고, =ALL_TOUCHED=는 닫힌 footprint가 fill 또는 boundary와 만나면 선택한다.
+  따라서 exact boundary는 Boost.Geometry =covered_by= 비교축처럼 포함한다. 이는 pixel
+  center만 기본 선택하고 touched pixel을 별도 선택하는 GDAL 구분을 BYUL 정수 grid에
+  옮긴 계약이다.
+- Polygon ring은 마지막 vertex를 반복하지 않는 contiguous input이다. 닫는 edge는
+  마지막에서 첫 vertex로 암묵적으로 생긴다. =EVEN_ODD=는 crossing parity,
+  =NON_ZERO=는 signed winding number를 사용하고 둘 다 boundary를 우선 포함한다.
+  Self-intersection은 이 명시적 fill rule로 지원한다. vertex 3개 미만, 연속 중복
+  (마지막/첫 vertex 포함), 모든 edge가 한 직선 위인 ring은 =INVALID_ARGUMENT=다.
+  Vertex 순서 반전은 두 fill rule의 cell 집합을 바꾸지 않는다.
+- Shape의 logical extent 밖 좌표를 조용히 생성한 뒤 metadata만 자르지 않는다. Rect와
+  descriptor에 명시된 clip extent는 half-open center extent에서 raster 단계에 clip하고,
+  polygon/line처럼 별도 extent가 없는 shape는 선택된 cell의 최소 half-open bounding rect를
+  결과 extent로 삼는다. Empty result의 canonical extent는 descriptor origin의 0x0 rect다.
+
+*** status, limit와 cancellation
+
+| condition | status/result |
+|-----------+---------------|
+| required NULL, invalid enum/descriptor, NaN 또는 =[0,1]= 밖 probability | =INVALID_ARGUMENT=, =*out_obstacle=NULL= |
+| 유효하지만 선택 cell 0개 | =OK=, destroy 가능한 non-NULL empty obstacle |
+| 지원하지 않는 metric/shape capability | =UNSUPPORTED=; 다른 rule로 fallback하지 않음 |
+| coordinate/count 산술이 public type 또는 =size_t=로 표현 불가 | =LIMIT_REACHED= |
+| unique selected cell이 양수 =max_cells= 초과 | =LIMIT_REACHED= |
+| allocation 실패 | =OUT_OF_MEMORY= |
+| callback이 true / C++ 예외 발생 | =CANCELLED= / =CALLBACK_FAILED= |
+
+- =options=NULL=은 =CELL_CENTER=, seed 0, =max_cells=0=, cancellation 없음이다.
+  =max_cells=0=은 user budget을 두지 않는다는 뜻일 뿐 checked representability와 allocation
+  한계를 없애지 않는다. 양수 값은 unique output cell의 hard ceiling이며 초과 cell을
+  commit하기 전에 실패한다.
+- Required pointer, enum, probability와 descriptor validation을 cancellation보다 먼저 한다.
+  그 뒤 최초 allocation 전, raster candidate 1024개마다, dedup/materialize의 각 1024개
+  chunk 전에 callback을 poll한다. Callback/userdata는 call 동안만 borrow하며 보관하지 않는다.
+- 모든 non-OK 종료는 failure-atomic이다. Partial obstacle을 반환하지 않고
+  =*out_obstacle=NULL=을 유지한다. 같은 input에서 limit/cancel polling 순서도 deterministic이다.
+
+*** random rectangle replay
+
+- RNG는 per-call =SplitMix64-v1=이다. 64-bit state를 exact seed로 초기화하고 각 half-open
+  rectangle cell을 =y= 증가, 같은 row에서 =x= 증가 순서로 한 번씩 draw한다. Global RNG와
+  시간 seed를 읽지 않는다.
+- Draw =r=에 대해 =u=r/2^64=인 exact rational로 정의하고 blocked iff =u < p=다. 구현은
+  IEEE-754 binary64 =p.as_integer_ratio()=와 동등한 integer cross multiplication을 사용해
+  floating multiplication/rounding 차이를 피한다. 따라서 =p=0은 empty, =p=1은 전부이며
+  같은 seed/descriptor/options는 platform과 thread에 무관하게 같은 set을 만든다.
+
+*** legacy mapping과 incompatibility
+
+| legacy | target mapping | implementation decision |
+|--------+----------------+-------------------------|
+| rect all blocked | half-open filled rect | positive extent는 lossless라 canonical forwarding; legacy non-positive NULL guard 유지 |
+| rect random | random rect + explicit seed | global time/rand, p=0 NULL, >1 clamp와 replay 불가 때문에 legacy 구현 보존 |
+| beam | inclusive line + Chebyshev radius | reverse extent, range 0 endpoint 누락과 range 1 hollow 동작 때문에 legacy 구현 보존 |
+| torus | rect outline + one-sided inward wall width | positive valid extent는 lossless라 canonical forwarding; 이름만 deprecated |
+| enclosure | rect outline + side/aperture span descriptor | corner 재차단과 minimum interior 미검증 때문에 legacy 구현 보존 |
+| cross | two inclusive orthogonal lines + Chebyshev radius | nonnegative safe input은 lossless라 descriptor forwarding |
+| spiral | max radius/pitch/turns/direction descriptor | legacy gap의 entire-leg skip과 metadata-only radius 때문에 legacy 구현 보존 |
+| triangle | 3-vertex polygon fill | legacy float/barycentric boundary, degenerate empty와 overflow 동작 때문에 legacy 구현 보존 |
+| triangle torus | 3-vertex polygon outline + Chebyshev radius | tie에서 한 경로만 고르는 legacy Bresenham과 symmetric canonical raster가 달라 legacy 구현 보존 |
+| polygon | contiguous vertices + even-odd center fill | mutable list, float boundary와 invalid ring 동작 때문에 legacy 구현 보존 |
+| polygon torus | polygon outline + Chebyshev radius | legacy Bresenham tie와 invalid ring 동작 때문에 legacy 구현 보존 |
+
+Reference oracle와 golden/metamorphic test는
+=tools/python/byul_wrapper/tests/obstacle_raster_reference.py=와
+=test_obstacle_raster_reference.py=가 소유한다. Oracle은 production code를 import하지 않고
+Python arbitrary-precision integer geometry를 사용해 구현과 독립된 판정 기준을 제공한다.
+
+** 검증 기록 (2026-08-01)
+
+- Windows repository venv에서 reference oracle 17 cases와 obstacle ABI policy 5 cases,
+  합계 22 cases가 통과했다. Exact center/all-touched triangle, boundary inclusion,
+  even-odd/non-zero self-intersection 차이, polygon 회전/반사/vertex 역순, 7x7 endpoint
+  전수 line reversal, line 회전/반사와 SplitMix64 seed golden을 논리 assert한다.
+- Wrapper =run_tests.py --unit-only=의 generator/parser/ABI vocabulary 46 cases도 통과했다.
+  이 runner의 unit-only selection에는 별도 obstacle reference suite가 포함되지 않으므로 위
+  22-case 직접 pytest 결과를 oracle gate로 사용했다.
+- Virtual Yard Ubuntu 24.04 checkout에 같은 세 파일을 LF로 동기화하고 =git diff --check=를
+  통과했다. System Python 3에는 pytest가 없어 suite 통과를 주장하지 않으며, dependency-free
+  import self-check로 exact triangle center/all-touched, 7x7 endpoint 전수 line reversal,
+  90-degree rotation과 seed golden을 실행해 통과했다.
+- Exhaustive reversal test는 일반 Bresenham의 half-error tie가 진행 방향별로 달라지는 것을
+  실제로 검출했다. Tie에서 양쪽 center를 포함하는 symmetric policy로 계약/oracle을 함께
+  고친 뒤 reversal/rotation/reflection gate가 통과했다.
+
+* DONE 3단계: additive checked generators
 
 ** 실행
 
@@ -215,7 +393,52 @@ typed descriptor를 받고 공통 polygon/line raster core를 사용한다. 모�
 - allocation fault index, cancel at geometry/raster/materialize와 seed replay를 test한다.
 - old/new function coordinate-set diff를 승인 matrix와 비교한다.
 
-* TODO 4단계: shape correctness/property gate
+** 진행 기록 (2026-08-01, first generator gate)
+
+- owner가 없는 =byul_grid_rect_t=를 만들지 않고 scalar half-open extent로
+  =obstacle_generate_filled_rect/random_rect=를 구현했다. Versioned local options initializer,
+  SplitMix64-v1 exact =u<p= replay, =max_cells=와 cancellation을 연결했다.
+- Inclusive symmetric line, exact integer center polygon even-odd/non-zero fill과 polygon outline을
+  additive status API로 구현했다. =ALL_TOUCHED= line은 닫힌 cell footprint의 corner tie를
+  모두 보존하는 O(|dx|+|dy|) supercover이고, polygon fill/outline은 반정수 cell 경계를 2배
+  integer 좌표로 바꾼 exact intersection/covered-by 판정으로 구현했다. Portable 128-bit
+  magnitude 비교를 사용하므로 =int32= 극한 좌표에서도 compiler extension이나 signed
+  overflow에 의존하지 않는다.
+- 모든 generator는 output을 entry에서 NULL로 만들고 vector/raster/materialize 중 OOM,
+  cancel, callback exception과 limit에서 partial obstacle을 파괴한다. =ALL_TOUCHED=를 포함한
+  MSVC Release module 35 cases/4357 assertions와 checked generator every-allocation fixture가
+  통과했다. Tiny line 625쌍은 독립 brute-force segment/square oracle, reversal과 대조했고
+  polygon triangle golden과 rotation/reversal metamorphic도 통과했다. 이전 root DLL export와
+  wrapper declaration/export intersection 22 cases도 유지된다.
+- Versioned enclosure/cross/spiral descriptor와 initializer, checked generator를 추가했다.
+  Enclosure는 fixed descriptor extent와 aperture-corner 우선순위를 보존하고, cross는 두
+  inclusive line primitive의 합집합이며, spiral은 max-radius 종료, pitch leg 증가와 path/output
+  clip을 분리한다. MSVC Release 전체 38 cases/4426 assertions, descriptor를 포함한 every-allocation
+  fixture, root DLL, C17/C++17 install SDK consumer, wrapper 22 cases와 ABI inventory 624 symbols가
+  통과했다. Header audit의 새 여섯 함수 issue는 0이며 전체 audit의 기존 debt는 별도다.
+- 당시 남은 실행은 rect outline/triangle convenience와 legacy forwarding 승인 matrix,
+  Virtual Yard sanitizer 검증이었으며 아래 최종 gate에서 모두 닫았다.
+- Canonical =obstacle_generate_rect_outline=과 triangle fill/outline convenience를 추가했다.
+  Rect outline은 half-open fixed extent 안쪽 wall과 최소 interior 1칸 계약을 enclosure primitive로
+  공유하고, triangle convenience는 exact polygon fill/outline policy를 그대로 위임한다.
+  Legacy 11개를 다시 분류해 rect-all-blocked, valid torus, safe cross 세 함수만 lossless
+  canonical forwarding으로 전환했다. Random/beam/enclosure/spiral과 triangle/polygon 계열은
+  global RNG, corner, gap, float boundary, degenerate ring, Bresenham tie 의미가 달라 기존 구현을
+  보존한다. Exact golden과 old/new coordinate-set diff, invalid/cancel/OOM gate를 추가했으며
+  최종 build/export/wrapper/SDK와 Virtual Yard sanitizer 결과는 이어서 기록한다.
+- MSVC Release에서 obstacle module 40 cases/4465 assertions와 checked-generator
+  every-allocation fixture가 통과했다. Root =byul.dll=, generated wrapper check, ABI inventory
+  627 symbols, 설치 SDK의 C17/C++17 obstacle consumer, 실제 DLL을 load한 wrapper 전체 161
+  cases가 통과했다. 전체 header audit에는 기존 2485건 debt가 남지만 이번 세 canonical
+  함수의 issue는 0이다.
+- 같은 Git HEAD =d1a1b0dfb2f9a6e0b0a0bdd091225fe05347f964=와 동일 working-tree
+  source를 Virtual Yard Ubuntu 24.04 Linux filesystem checkout에 동기화했다. GCC 13.3과
+  Clang의 Debug =-fsanitize=address,undefined,leak -fno-omit-frame-pointer= build에서 root
+  =libbyul.so=와 obstacle test link command의 sanitizer 적용을 확인했고, 두 toolchain 모두
+  40 cases/4465 assertions와 =--obstacle-generator-only= allocation fixture가 leak/UB 보고 없이
+  통과했다. 따라서 3단계 완료 조건과 platform gate를 닫는다.
+
+* DONE 4단계: shape correctness/property gate
 
 ** 실행
 
@@ -233,7 +456,30 @@ typed descriptor를 받고 공통 polygon/line raster core를 사용한다. 모�
 
 - exhaustive tiny shapes, property/statistical corpus, ASan/LSan/UBSan과 performance budget을 실행한다.
 
-* TODO 5단계: Naming·compatibility·wrapper gate
+** 진행 기록 (2026-08-01)
+
+- Rect outline은 =w*h-(w-2t)*(h-2t)= exact count와 interior, enclosure는 aperture가
+  제거하는 =thickness*length= cell, cross는 두 thick arm 합집합의 exact count와 90도
+  회전/축 반사, spiral은 output clip의 Chebyshev bound를 논리 assert했다. 모든 생성 결과의
+  blocked coordinate가 declared obstacle extent 안에 있는지도 직접 검사한다.
+- Rect/enclosure의 90도 회전, cross 회전·반사, clockwise spiral과 diagonal reflection된
+  counter-clockwise spiral, filled/random rectangle의 translation을 coordinate-set equality로
+  검증했다. Line 625쌍의 endpoint/reversal/rotation/reflection과 polygon fill/boundary 및
+  rotation/reflection/vertex reversal은 기존 독립 exact oracle gate와 합쳐 적용한다.
+- Polygon fill/outline이 =INT32_MIN..INT32_MAX= bounding domain을 raster loop 전에 거부하지
+  않던 결함을 수정했다. Expanded outline extent도 wide arithmetic으로 preflight하며 filled
+  rect, line, polygon, triangle, cross, spiral의 overflow는 output NULL을 보존한
+  =LIMIT_REACHED=로 확인했다.
+- SplitMix64 exact seed golden과 별도로 64x64, 8 seeds, =p=0.25 corpus를 실행했다. 각 sample은
+  850..1200 blocked cells이고 aggregate ratio는 0.24..0.26이며 같은 seed의 translated extent는
+  exact translated set이다.
+- MSVC Release와 Virtual Yard Ubuntu의 GCC/Clang Debug ASan/LSan/UBSan에서 obstacle module
+  43 cases/13398 assertions가 통과했다. 독립 Python geometry oracle 17 cases도 통과했다.
+  전체 module performance gate는 MSVC Release 0.056초(5초 budget), GCC sanitizer 0.12초와
+  Clang sanitizer 0.09초(각 10초 budget)로 통과했다. ASCII/non-NULL 출력은 이 단계의 판정
+  근거로 사용하지 않았다.
+
+* DONE 5단계: Naming·compatibility·wrapper gate
 
 ** 실행
 
@@ -250,7 +496,28 @@ typed descriptor를 받고 공통 polygon/line raster core를 사용한다. 모�
 
 - old/new SDK C consumers, wrapper audit/check/load와 root export diff를 실행한다.
 
-* TODO 6단계: Header·static/shared 통합 gate
+** 진행 기록 (2026-08-01)
+
+- =obstacle_generate_*= 11개 checked 생성자와 =OBSTACLE_ENCLOSURE_*=,
+  =OBSTACLE_SPIRAL_*= canonical enum을 유지하고, legacy =obstacle_make_*= 11개에는
+  future ABI-major 전에는 제거하지 않는 deprecation 진단을 추가했다. 의미가 완전히 같은
+  filled rect, rect outline, cross만 forwarding하고 나머지는 기존 의미를 보존해 naming
+  correction이 silent semantic change를 만들지 않게 했다.
+- Python wrapper header는 generated CFFI에 registered 상태로 유지했다. canonical checked
+  생성자 11개는 manual caller-owned factory로 제공하며 모든 status를 typed exception으로
+  변환한다. Random rectangle seed는 keyword-only 필수값으로 매핑했다. Callback bridge와
+  NULL-only legacy factory는 제외 이유를
+  =obstacle-generator-wrapper-policy.json=에 기록했다.
+- Wrapper generator =--check=와 전체 wrapper 164 tests가 통과했다. Registered header 전체
+  audit에는 기존 타 모듈 debt 522건이 남지만 obstacle header audit issue는 0건이다.
+- MSVC Release obstacle test 43 cases/13398 assertions가 통과했다. Clean install SDK의 C17,
+  C++17 canonical/legacy obstacle consumer, ABI1 layout consumer와 root consumer 8개가 모두
+  같은 =byul.dll=에서 통과했다. Legacy torus와 canonical rect outline은 runtime
+  =obstacle_equal=로 동일 결과를 확인했다.
+- Root DLL export에서 canonical/legacy generator 26/26을 확인했고 Navsys ABI inventory는
+  47 headers/627 symbols로 변동 없이 =--check=를 통과했다.
+
+* DONE 6단계: Header·static/shared 통합 gate
 
 ** 실행
 
@@ -265,3 +532,24 @@ typed descriptor를 받고 공통 polygon/line raster core를 사용한다. 모�
 
 - C17/C++17 standalone include, obstacle/navsys/root tests, sanitizer와 clean SDK consumer를 실행한다.
 - module static =BYUL_STATIC=과 root shared =BYUL_EXPORTS=에서 shape legacy/canonical export를 각각 검증한다.
+
+** 진행 기록 (2026-08-01)
+
+- Root CMake에 =byul_assert_module_inventory(obstacle ...)=를 추가했다. Configure 시
+  =obstacle.cpp=, =obstacle_core.cpp=, =obstacle_geometry.cpp=와 public header 2개의
+  module static/root shared exact-set 차이를 fail-closed로 검사한다. Production target의
+  test-only source/definition audit와 함께 MSVC, Virtual Yard GCC/Clang configure를 통과했다.
+- Header ABI standalone compiler gate는 MSVC C17/C++17 전체 190/190, obstacle
+  =obstacle.h=와 =obstacle_core.h= 4/4를 통과했다. Standard license, =@file=, guard,
+  direct include와 structured function metadata에 대한 obstacle wrapper audit issue는 0건이다.
+  저장소 전체 historical role/export snapshot의 183 invariant와 metadata debt는 이 TODO의
+  obstacle scoped 결과와 분리된 기존 header-refactor backlog다.
+- Generated wrapper test가 public obstacle declaration=definition=root runtime export와 install
+  header/CFFI 등록을 확인했다. MSVC =dumpbin=으로 module static과 root DLL의 obstacle C
+  symbol 집합이 78/78로 정확히 같음을 추가 확인했다. Legacy/canonical generator export
+  26/26과 Navsys ABI inventory 47 headers/627 symbols도 유지된다.
+- MSVC Release CTest의 =test_obstacle=, =test_navsys=, =test_byul= 3/3이 통과했다.
+  같은 revision/working-tree patch를 사용한 Virtual Yard GCC와 Clang sanitizer build에서도
+  각 3/3이 통과했다. Obstacle module은 43 cases/13398 assertions를 유지했다.
+- 최신 root DLL/header를 설치한 clean SDK의 C17/C++17, legacy ABI1과 root consumer 8/8,
+  wrapper generator =--check=와 실제 native load를 포함한 wrapper 164 tests가 통과했다.

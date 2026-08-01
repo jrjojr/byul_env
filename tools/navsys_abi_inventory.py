@@ -41,8 +41,24 @@ OWNER_TODO_OVERRIDES = {
         "docs/ko/todo/navsys/todo-navsys-dstar-lite-dstar-lite-key-cpp.org",
     "byul/navsys/navgrid/internal/navgrid_callback.hpp":
         "docs/ko/todo/navsys/todo-navsys-navgrid-navgrid.org",
+    "byul/navsys/navgrid/compat/abi1/navgrid_abi1.h":
+        "docs/ko/todo/navsys/todo-navsys-navgrid-navgrid.org",
+    "byul/navsys/navgrid/internal/navgrid_overlay.hpp":
+        "docs/ko/todo/navsys/todo-navsys-navgrid-navgrid.org",
+    "byul/navsys/navgrid/internal/navgrid_private.hpp":
+        "docs/ko/todo/navsys/todo-navsys-navgrid-navgrid.org",
+    "byul/navsys/obstacle/compat/abi1/obstacle_abi1.h":
+        "docs/ko/todo/navsys/todo-navsys-obstacle-obstacle-core.org",
+    "byul/navsys/obstacle/internal/obstacle_private.hpp":
+        "docs/ko/todo/navsys/todo-navsys-obstacle-obstacle-core.org",
     "byul/navsys/route/internal/route_internal.h":
         "docs/ko/todo/navsys/todo-navsys-route-route.org",
+    "byul/navsys/route_carver/compat/route_carver_legacy.hpp":
+        "docs/ko/todo/navsys/todo-navsys-route-carver-route-carver.org",
+    "byul/navsys/route_carver/internal/route_carver_geometry.hpp":
+        "docs/ko/todo/navsys/todo-navsys-route-carver-route-carver.org",
+    "byul/navsys/route_carver/internal/route_carver_mutation.hpp":
+        "docs/ko/todo/navsys/todo-navsys-route-carver-route-carver.org",
 }
 
 

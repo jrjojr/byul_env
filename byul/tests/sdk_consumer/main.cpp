@@ -9,8 +9,10 @@
 #include "cost_coord_pq.h"
 #include "navcell.h"
 #include "navgrid.h"
+#include "obstacle.h"
 #include "obstacle_core.h"
 #include "route.h"
+#include "route_carver.h"
 
 struct coord_hash_callback_counts {
     int copies{};
@@ -333,5 +335,130 @@ int main() {
     assert(coord_list_size(obstacle_neighbors) == 7);
     coord_list_destroy(obstacle_neighbors);
     obstacle_destroy(obstacle);
+
+    obstacle_t* checked_obstacle = nullptr;
+    obstacle_t* checked_copy = nullptr;
+    bool obstacle_changed = false;
+    std::size_t obstacle_count = 0;
+    coord_t obstacle_coords[1]{};
+    assert(obstacle_create_checked(0, 0, 3, 3, &checked_obstacle)
+        == NAVSYS_STATUS_OK);
+    assert(obstacle_set_blocked(
+        checked_obstacle, 1, 2, true, &obstacle_changed)
+        == NAVSYS_STATUS_OK);
+    assert(obstacle_changed);
+    assert(obstacle_export_blocked(
+        checked_obstacle, nullptr, 0, &obstacle_count)
+        == NAVSYS_STATUS_OK);
+    assert(obstacle_count == 1);
+    assert(obstacle_export_blocked(
+        checked_obstacle, obstacle_coords, 1, &obstacle_count)
+        == NAVSYS_STATUS_OK);
+    assert(obstacle_coords[0].x == 1);
+    assert(obstacle_coords[0].y == 2);
+    assert(obstacle_copy_checked(checked_obstacle, &checked_copy)
+        == NAVSYS_STATUS_OK);
+    assert(obstacle_equal(checked_obstacle, checked_copy));
+
+    coord_t neighbor_coords[8]{};
+    coord_t selected_neighbor{};
+    std::size_t raster_changed = 0;
+    coord_list_t* canonical_neighbors = obstacle_create_neighbors(
+        checked_obstacle, 1, 1);
+    assert(canonical_neighbors != nullptr);
+    assert(coord_list_size(canonical_neighbors) == 7);
+    assert(obstacle_export_neighbors(
+        checked_obstacle, 1, 1, false,
+        neighbor_coords, 8, &obstacle_count) == NAVSYS_STATUS_OK);
+    assert(obstacle_count == 8);
+    assert(obstacle_fetch_neighbor_at_degree(
+        checked_obstacle, 1, 1, 0.0, &selected_neighbor)
+        == NAVSYS_STATUS_OK);
+    assert(selected_neighbor.x == 2);
+    assert(selected_neighbor.y == 1);
+    assert(obstacle_block_square(
+        checked_obstacle, 1, 1, 0, &raster_changed)
+        == NAVSYS_STATUS_OK);
+    assert(raster_changed == 1);
+    assert(obstacle_block_line(
+        checked_obstacle, 0, 0, 2, 0, 0, &raster_changed)
+        == NAVSYS_STATUS_OK);
+    assert(raster_changed == 3);
+    navgrid_t* obstacle_grid = navgrid_create_full(
+        3, 3, NAVGRID_DIR_8, nullptr);
+    assert(obstacle_grid != nullptr);
+    obstacle_navgrid_apply_options_t overlay_options{
+        sizeof(obstacle_navgrid_apply_options_t),
+        OBSTACLE_NAVGRID_APPLY_OPTIONS_ABI_VERSION,
+        OBSTACLE_NAVGRID_MERGE_PRESERVE_BASE,
+        nullptr,
+        nullptr
+    };
+    obstacle_navgrid_overlay_token_t obstacle_overlay{};
+    std::size_t overlay_changed = 0;
+    assert(obstacle_apply_to_navgrid_checked(
+        checked_obstacle,
+        obstacle_grid,
+        &overlay_options,
+        &obstacle_overlay,
+        &overlay_changed) == NAVSYS_STATUS_OK);
+    assert(overlay_changed == 5);
+    assert(obstacle_remove_from_navgrid_checked(
+        obstacle_grid, &obstacle_overlay, &overlay_changed)
+        == NAVSYS_STATUS_OK);
+    assert(overlay_changed == 5);
+    assert(obstacle_overlay.owner_cookie == 0);
+    assert(obstacle_overlay.overlay == 0);
+    navgrid_destroy(obstacle_grid);
+    coord_list_destroy(canonical_neighbors);
+    obstacle_destroy(checked_copy);
+    obstacle_destroy(checked_obstacle);
+
+    navgrid_t* legacy_carver_grid = navgrid_create_full(
+        3, 3, NAVGRID_DIR_8, nullptr);
+    assert(legacy_carver_grid != nullptr);
+    const coord_t legacy_carver_start{0, 1};
+    const coord_t legacy_carver_goal{2, 1};
+    assert(navgrid_block_coord(legacy_carver_grid, 0, 1));
+    assert(navgrid_block_coord(legacy_carver_grid, 1, 1));
+    assert(navgrid_block_coord(legacy_carver_grid, 2, 1));
+    assert(route_carve_beam(
+        legacy_carver_grid,
+        &legacy_carver_start,
+        &legacy_carver_goal,
+        0) == 2);
+    assert(route_carve_bomb(
+        legacy_carver_grid, &legacy_carver_start, 0) == 1);
+    navgrid_destroy(legacy_carver_grid);
+
+    navgrid_t* checked_carver_grid = navgrid_create_full(
+        3, 3, NAVGRID_DIR_8, nullptr);
+    assert(checked_carver_grid != nullptr);
+    const navgrid_carve_options_t carve_options{
+        sizeof(navgrid_carve_options_t),
+        NAVGRID_CARVE_OPTIONS_ABI_VERSION,
+        0,
+        NAVGRID_CARVE_CHEBYSHEV_SQUARE,
+        NAVGRID_LINE_CENTER_CELLS,
+        NAVGRID_CARVE_EFFECTIVE_BLOCKED,
+        NAVGRID_CARVE_INCLUDE_START | NAVGRID_CARVE_INCLUDE_END
+            | NAVGRID_CARVE_ATOMIC,
+        0,
+        16,
+        nullptr,
+        nullptr
+    };
+    assert(navgrid_block_coord(checked_carver_grid, 0, 1));
+    assert(navgrid_block_coord(checked_carver_grid, 1, 1));
+    assert(navgrid_block_coord(checked_carver_grid, 2, 1));
+    std::size_t carved_count = 99;
+    assert(navgrid_carve_line(
+        checked_carver_grid,
+        &legacy_carver_start,
+        &legacy_carver_goal,
+        &carve_options,
+        &carved_count) == NAVSYS_STATUS_OK);
+    assert(carved_count == 3);
+    navgrid_destroy(checked_carver_grid);
     return 0;
 }
