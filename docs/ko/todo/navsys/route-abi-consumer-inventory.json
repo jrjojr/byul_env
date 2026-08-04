@@ -590,25 +590,25 @@
             {
               "path": "byul/navsys/route_finder/astar.cpp",
               "lines": [
-                33
+                34
               ]
             },
             {
               "path": "byul/navsys/route_finder/bfs.cpp",
               "lines": [
-                21
+                22
               ]
             },
             {
               "path": "byul/navsys/route_finder/dfs.cpp",
               "lines": [
-                22
+                23
               ]
             },
             {
               "path": "byul/navsys/route_finder/dijkstra.cpp",
               "lines": [
-                31
+                32
               ]
             },
             {
@@ -620,19 +620,19 @@
             {
               "path": "byul/navsys/route_finder/fringe_search.cpp",
               "lines": [
-                23
+                24
               ]
             },
             {
               "path": "byul/navsys/route_finder/greedy_best_first.cpp",
               "lines": [
-                30
+                31
               ]
             },
             {
               "path": "byul/navsys/route_finder/ida_star.cpp",
               "lines": [
-                24
+                25
               ]
             },
             {
@@ -644,13 +644,13 @@
             {
               "path": "byul/navsys/route_finder/sma_star.cpp",
               "lines": [
-                25
+                26
               ]
             },
             {
               "path": "byul/navsys/route_finder/weighted_astar.cpp",
               "lines": [
-                27
+                28
               ]
             }
           ],
@@ -686,9 +686,9 @@
               "path": "byul/navsys/tests/test_navsys_allocation_failure.cpp",
               "lines": [
                 77,
-                252,
-                360,
-                402
+                323,
+                431,
+                473
               ]
             }
           ],
@@ -734,7 +734,7 @@
             {
               "path": "byul/navsys/route_finder/route_finder.cpp",
               "lines": [
-                681
+                684
               ]
             },
             {
@@ -818,24 +818,24 @@
             {
               "path": "byul/navsys/route_finder/tests/test_module_route_finder.cpp",
               "lines": [
-                83,
-                239,
-                259,
-                275,
-                321,
-                370,
-                398,
-                425,
-                435,
-                445,
-                455,
-                465,
-                475,
-                485,
-                495,
-                505,
-                515,
-                525
+                85,
+                240,
+                260,
+                276,
+                322,
+                371,
+                399,
+                426,
+                436,
+                446,
+                456,
+                466,
+                476,
+                486,
+                496,
+                506,
+                516,
+                526
               ]
             },
             {
@@ -886,49 +886,49 @@
             {
               "path": "byul/navsys/tests/test_module_navsys.cpp",
               "lines": [
-                239,
-                331,
-                419,
-                446,
-                474,
-                502,
-                530,
-                558,
-                586,
-                614,
-                642,
-                670,
-                698,
-                726,
-                753
+                249,
+                340,
+                428,
+                455,
+                483,
+                511,
+                539,
+                567,
+                595,
+                623,
+                651,
+                679,
+                707,
+                735,
+                762
               ]
             },
             {
               "path": "byul/navsys/tests/test_navsys_allocation_failure.cpp",
               "lines": [
                 81,
-                256,
-                278,
-                298,
-                307,
-                330,
-                337,
-                343,
-                354,
-                363,
-                386,
-                394,
-                415,
-                423,
-                430
+                327,
+                349,
+                369,
+                378,
+                401,
+                408,
+                414,
+                425,
+                434,
+                457,
+                465,
+                486,
+                494,
+                501
               ]
             },
             {
               "path": "byul/tests/sdk_consumer/main.c",
               "lines": [
-                735,
-                764,
-                782
+                880,
+                909,
+                927
               ]
             }
           ],
@@ -1000,7 +1000,7 @@
             {
               "path": "byul/navsys/tests/test_navsys_allocation_failure.cpp",
               "lines": [
-                270
+                341
               ]
             }
           ],
@@ -1209,7 +1209,7 @@
             {
               "path": "byul/navsys/route_finder/route_finder.cpp",
               "lines": [
-                689
+                692
               ]
             }
           ],
@@ -1268,33 +1268,33 @@
             {
               "path": "byul/navsys/route_finder/astar.cpp",
               "lines": [
-                97,
-                99,
-                104
+                98,
+                100,
+                105
               ]
             },
             {
               "path": "byul/navsys/route_finder/bfs.cpp",
               "lines": [
-                72,
-                74,
-                78
+                73,
+                75,
+                79
               ]
             },
             {
               "path": "byul/navsys/route_finder/dfs.cpp",
               "lines": [
-                75,
-                77,
-                81
+                76,
+                78,
+                82
               ]
             },
             {
               "path": "byul/navsys/route_finder/dijkstra.cpp",
               "lines": [
-                94,
-                96,
-                100
+                95,
+                97,
+                101
               ]
             },
             {
@@ -1309,22 +1309,22 @@
             {
               "path": "byul/navsys/route_finder/fringe_search.cpp",
               "lines": [
-                145,
-                148
+                146,
+                149
               ]
             },
             {
               "path": "byul/navsys/route_finder/greedy_best_first.cpp",
               "lines": [
-                89,
-                91
+                90,
+                92
               ]
             },
             {
               "path": "byul/navsys/route_finder/ida_star.cpp",
               "lines": [
-                136,
-                156
+                137,
+                157
               ]
             },
             {
@@ -1337,16 +1337,16 @@
             {
               "path": "byul/navsys/route_finder/sma_star.cpp",
               "lines": [
-                112,
-                114,
-                118
+                113,
+                115,
+                119
               ]
             },
             {
               "path": "byul/navsys/route_finder/weighted_astar.cpp",
               "lines": [
-                107,
-                110
+                108,
+                111
               ]
             }
           ],
@@ -1413,7 +1413,7 @@
             {
               "path": "byul/navsys/route_finder/route_finder.cpp",
               "lines": [
-                690
+                693
               ]
             },
             {
@@ -1481,19 +1481,19 @@
             {
               "path": "byul/navsys/route_finder/tests/test_module_route_finder.cpp",
               "lines": [
-                365,
-                395,
-                422,
-                432,
-                442,
-                452,
-                462,
-                472,
-                482,
-                492,
-                502,
-                512,
-                522
+                366,
+                396,
+                423,
+                433,
+                443,
+                453,
+                463,
+                473,
+                483,
+                493,
+                503,
+                513,
+                523
               ]
             },
             {
@@ -1537,19 +1537,19 @@
             {
               "path": "byul/navsys/tests/test_module_navsys.cpp",
               "lines": [
-                414,
-                441,
-                469,
-                497,
-                525,
-                553,
-                581,
-                609,
-                637,
-                665,
-                693,
-                721,
-                747
+                423,
+                450,
+                478,
+                506,
+                534,
+                562,
+                590,
+                618,
+                646,
+                674,
+                702,
+                730,
+                756
               ]
             }
           ],
@@ -1573,7 +1573,7 @@
               "path": "byul/console/console.cpp",
               "lines": [
                 121,
-                178
+                180
               ]
             },
             {
@@ -1617,8 +1617,8 @@
             {
               "path": "byul/navsys/tests/test_navsys_allocation_failure.cpp",
               "lines": [
-                410,
-                412
+                481,
+                483
               ]
             }
           ],
@@ -1641,8 +1641,8 @@
             {
               "path": "byul/console/console.cpp",
               "lines": [
-                174,
-                176
+                176,
+                178
               ]
             },
             {
@@ -1668,8 +1668,8 @@
             {
               "path": "byul/navsys/tests/test_navsys_allocation_failure.cpp",
               "lines": [
-                411,
-                413
+                482,
+                484
               ]
             }
           ],
@@ -1692,14 +1692,14 @@
             {
               "path": "byul/console/console.cpp",
               "lines": [
-                158,
-                223
+                160,
+                227
               ]
             },
             {
               "path": "byul/navsys/route_finder/route_finder.cpp",
               "lines": [
-                687
+                690
               ]
             }
           ],
@@ -1718,7 +1718,7 @@
             {
               "path": "byul/navsys/route_finder/tests/test_module_route_finder.cpp",
               "lines": [
-                237
+                238
               ]
             }
           ],
@@ -1756,25 +1756,25 @@
             {
               "path": "byul/navsys/route_finder/astar.cpp",
               "lines": [
-                121
+                122
               ]
             },
             {
               "path": "byul/navsys/route_finder/bfs.cpp",
               "lines": [
-                85
+                86
               ]
             },
             {
               "path": "byul/navsys/route_finder/dfs.cpp",
               "lines": [
-                88
+                89
               ]
             },
             {
               "path": "byul/navsys/route_finder/dijkstra.cpp",
               "lines": [
-                116
+                117
               ]
             },
             {
@@ -1786,20 +1786,20 @@
             {
               "path": "byul/navsys/route_finder/fringe_search.cpp",
               "lines": [
-                157
+                158
               ]
             },
             {
               "path": "byul/navsys/route_finder/greedy_best_first.cpp",
               "lines": [
-                98
+                99
               ]
             },
             {
               "path": "byul/navsys/route_finder/ida_star.cpp",
               "lines": [
-                139,
-                157
+                140,
+                158
               ]
             },
             {
@@ -1811,13 +1811,13 @@
             {
               "path": "byul/navsys/route_finder/sma_star.cpp",
               "lines": [
-                121
+                122
               ]
             },
             {
               "path": "byul/navsys/route_finder/weighted_astar.cpp",
               "lines": [
-                119
+                120
               ]
             }
           ],
@@ -1913,9 +1913,9 @@
             {
               "path": "byul/navsys/tests/test_navsys_allocation_failure.cpp",
               "lines": [
-                254,
-                255,
-                362
+                325,
+                326,
+                433
               ]
             }
           ],
@@ -1996,7 +1996,7 @@
             {
               "path": "byul/navsys/tests/test_navsys_allocation_failure.cpp",
               "lines": [
-                379
+                450
               ]
             }
           ],
@@ -2018,7 +2018,7 @@
             {
               "path": "byul/navsys/route_finder/route_finder.cpp",
               "lines": [
-                688
+                691
               ]
             }
           ],
@@ -2052,16 +2052,16 @@
             {
               "path": "byul/navsys/route_finder/tests/test_module_route_finder.cpp",
               "lines": [
-                236,
-                319
+                237,
+                320
               ]
             },
             {
               "path": "byul/navsys/tests/test_navsys_allocation_failure.cpp",
               "lines": [
-                274,
-                376,
-                381
+                345,
+                447,
+                452
               ]
             }
           ],
@@ -2123,22 +2123,22 @@
             {
               "path": "byul/navsys/route_finder/tests/test_module_route_finder.cpp",
               "lines": [
-                41,
-                71
+                43,
+                73
               ]
             },
             {
               "path": "byul/navsys/tests/test_navsys_allocation_failure.cpp",
               "lines": [
-                324,
-                328
+                395,
+                399
               ]
             },
             {
               "path": "byul/tests/sdk_consumer/main.c",
               "lines": [
-                712,
-                751
+                857,
+                896
               ]
             }
           ],
@@ -2191,13 +2191,13 @@
             {
               "path": "byul/navsys/route_finder/tests/test_module_route_finder.cpp",
               "lines": [
-                73
+                75
               ]
             },
             {
               "path": "byul/tests/sdk_consumer/main.c",
               "lines": [
-                713
+                858
               ]
             }
           ],
@@ -2256,14 +2256,14 @@
             {
               "path": "byul/navsys/route_finder/tests/test_module_route_finder.cpp",
               "lines": [
-                38,
-                78
+                40,
+                80
               ]
             },
             {
               "path": "byul/tests/sdk_consumer/main.c",
               "lines": [
-                717
+                862
               ]
             }
           ],
@@ -2299,14 +2299,14 @@
             {
               "path": "byul/navsys/route_finder/tests/test_module_route_finder.cpp",
               "lines": [
-                39,
-                80
+                41,
+                82
               ]
             },
             {
               "path": "byul/tests/sdk_consumer/main.c",
               "lines": [
-                720
+                865
               ]
             }
           ],
@@ -2342,8 +2342,8 @@
             {
               "path": "byul/tests/sdk_consumer/main.c",
               "lines": [
-                723,
-                726
+                868,
+                871
               ]
             }
           ],
@@ -2388,7 +2388,7 @@
             {
               "path": "byul/tests/sdk_consumer/main.c",
               "lines": [
-                741
+                886
               ]
             }
           ],
@@ -2425,7 +2425,7 @@
             {
               "path": "byul/navsys/tests/test_navsys_allocation_failure.cpp",
               "lines": [
-                305
+                376
               ]
             }
           ],
@@ -2465,13 +2465,13 @@
               "path": "byul/navsys/tests/test_navsys_allocation_failure.cpp",
               "lines": [
                 92,
-                321
+                392
               ]
             },
             {
               "path": "byul/tests/sdk_consumer/main.c",
               "lines": [
-                763
+                908
               ]
             }
           ],
@@ -2507,7 +2507,7 @@
             {
               "path": "byul/tests/sdk_consumer/main.c",
               "lines": [
-                743
+                888
               ]
             }
           ],
@@ -2606,7 +2606,7 @@
             {
               "path": "byul/navsys/tests/test_navsys_allocation_failure.cpp",
               "lines": [
-                314
+                385
               ]
             }
           ],
@@ -2675,7 +2675,7 @@
             {
               "path": "byul/tests/sdk_consumer/main.c",
               "lines": [
-                745
+                890
               ]
             }
           ],
@@ -2713,7 +2713,7 @@
             {
               "path": "byul/tests/sdk_consumer/main.c",
               "lines": [
-                747
+                892
               ]
             }
           ],
@@ -2753,13 +2753,13 @@
             {
               "path": "byul/navsys/tests/test_navsys_allocation_failure.cpp",
               "lines": [
-                320
+                391
               ]
             },
             {
               "path": "byul/tests/sdk_consumer/main.c",
               "lines": [
-                749
+                894
               ]
             }
           ],
@@ -2802,7 +2802,7 @@
             {
               "path": "byul/tests/sdk_consumer/main.c",
               "lines": [
-                752
+                897
               ]
             }
           ],
@@ -2847,8 +2847,8 @@
             {
               "path": "byul/tests/sdk_consumer/main.c",
               "lines": [
-                761,
-                762
+                906,
+                907
               ]
             }
           ],
@@ -2884,7 +2884,7 @@
             {
               "path": "byul/tests/sdk_consumer/main.c",
               "lines": [
-                754
+                899
               ]
             }
           ],
@@ -2923,7 +2923,7 @@
             {
               "path": "byul/tests/sdk_consumer/main.c",
               "lines": [
-                757
+                902
               ]
             }
           ],
@@ -3036,29 +3036,29 @@
             {
               "path": "byul/navsys/route_finder/astar.cpp",
               "lines": [
-                43,
-                84
+                44,
+                85
               ]
             },
             {
               "path": "byul/navsys/route_finder/bfs.cpp",
               "lines": [
-                29,
-                60
+                30,
+                61
               ]
             },
             {
               "path": "byul/navsys/route_finder/dfs.cpp",
               "lines": [
-                30,
-                62
+                31,
+                63
               ]
             },
             {
               "path": "byul/navsys/route_finder/dijkstra.cpp",
               "lines": [
-                34,
-                81
+                35,
+                82
               ]
             },
             {
@@ -3070,22 +3070,22 @@
             {
               "path": "byul/navsys/route_finder/fringe_search.cpp",
               "lines": [
-                53,
-                122
+                54,
+                123
               ]
             },
             {
               "path": "byul/navsys/route_finder/greedy_best_first.cpp",
               "lines": [
-                41,
-                77
+                42,
+                78
               ]
             },
             {
               "path": "byul/navsys/route_finder/ida_star.cpp",
               "lines": [
-                57,
-                121
+                58,
+                122
               ]
             },
             {
@@ -3100,15 +3100,15 @@
             {
               "path": "byul/navsys/route_finder/sma_star.cpp",
               "lines": [
-                46,
-                91
+                47,
+                92
               ]
             },
             {
               "path": "byul/navsys/route_finder/weighted_astar.cpp",
               "lines": [
-                50,
-                93
+                51,
+                94
               ]
             }
           ],
@@ -3124,7 +3124,7 @@
             {
               "path": "byul/navsys/tests/test_navsys_allocation_failure.cpp",
               "lines": [
-                407
+                478
               ]
             }
           ],
@@ -3388,7 +3388,7 @@
             {
               "path": "byul/navsys/tests/test_navsys_allocation_failure.cpp",
               "lines": [
-                269
+                340
               ]
             }
           ],
@@ -3497,19 +3497,19 @@
             {
               "path": "byul/navsys/route_finder/tests/test_module_route_finder.cpp",
               "lines": [
-                367,
-                396,
-                423,
-                433,
-                443,
-                453,
-                463,
-                473,
-                483,
-                493,
-                503,
-                513,
-                523
+                368,
+                397,
+                424,
+                434,
+                444,
+                454,
+                464,
+                474,
+                484,
+                494,
+                504,
+                514,
+                524
               ]
             },
             {
@@ -3553,19 +3553,19 @@
             {
               "path": "byul/navsys/tests/test_module_navsys.cpp",
               "lines": [
-                416,
-                443,
-                471,
-                499,
-                527,
-                555,
-                583,
-                611,
-                639,
-                667,
-                695,
-                723,
-                750
+                425,
+                452,
+                480,
+                508,
+                536,
+                564,
+                592,
+                620,
+                648,
+                676,
+                704,
+                732,
+                759
               ]
             }
           ],
@@ -4305,57 +4305,57 @@
             {
               "path": "byul/navsys/route_finder/astar.cpp",
               "lines": [
-                96,
-                103
+                97,
+                104
               ]
             },
             {
               "path": "byul/navsys/route_finder/bfs.cpp",
               "lines": [
-                71
+                72
               ]
             },
             {
               "path": "byul/navsys/route_finder/dfs.cpp",
               "lines": [
-                74
+                75
               ]
             },
             {
               "path": "byul/navsys/route_finder/dijkstra.cpp",
               "lines": [
-                93
+                94
               ]
             },
             {
               "path": "byul/navsys/route_finder/fringe_search.cpp",
               "lines": [
-                144
+                145
               ]
             },
             {
               "path": "byul/navsys/route_finder/greedy_best_first.cpp",
               "lines": [
-                88
+                89
               ]
             },
             {
               "path": "byul/navsys/route_finder/ida_star.cpp",
               "lines": [
-                135,
-                144
+                136,
+                145
               ]
             },
             {
               "path": "byul/navsys/route_finder/sma_star.cpp",
               "lines": [
-                111
+                112
               ]
             },
             {
               "path": "byul/navsys/route_finder/weighted_astar.cpp",
               "lines": [
-                106
+                107
               ]
             }
           ],
@@ -4387,7 +4387,7 @@
             {
               "path": "byul/navsys/tests/test_navsys_allocation_failure.cpp",
               "lines": [
-                370
+                441
               ]
             }
           ],
