@@ -57,6 +57,8 @@ OWNER_TODO_OVERRIDES = {
         "docs/ko/todo/navsys/todo-navsys-maze-core.org",
     "byul/navsys/route/internal/route_internal.h":
         "docs/ko/todo/navsys/todo-navsys-route-route.org",
+    "byul/navsys/route_finder/internal/coord_hash_adapters.hpp":
+        "docs/ko/todo/navsys/todo-navsys-route-finder-route-finder.org",
     "byul/navsys/route_carver/compat/route_carver_legacy.hpp":
         "docs/ko/todo/navsys/todo-navsys-route-carver-route-carver.org",
     "byul/navsys/route_carver/internal/route_carver_geometry.hpp":

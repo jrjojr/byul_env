@@ -3,7 +3,7 @@
   "source_role_manifest": "docs/ko/todo/header-refactor-current/header-role-manifest.json",
   "source_vocabulary": "docs/ko/todo/navsys/navsys-abi-vocabulary.json",
   "summary": {
-    "headers": 57,
+    "headers": 58,
     "symbols": 646,
     "return_forms": {
       "nullable_pointer": 157,
@@ -6196,6 +6196,15 @@
       "symbols": [
         "find_ida_star"
       ]
+    },
+    {
+      "path": "byul/navsys/route_finder/internal/coord_hash_adapters.hpp",
+      "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-finder-route-finder.org",
+      "primary_role": "internal",
+      "wrapper_mode": "excluded",
+      "symbol_count": 0,
+      "audit_issue_count": 0,
+      "symbols": []
     },
     {
       "path": "byul/navsys/route_finder/route_finder.h",
