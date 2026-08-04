@@ -1,0 +1,139 @@
+{
+  "schema_version": 2,
+  "baseline_revision": "8931cdea47443125732adeb3cc8c4dff488ca2f4",
+  "header": "byul/navsys/navgrid/navcell.h",
+  "abi_line": "1.x",
+  "platform_profile": "x86_64 Windows MSVC and MinGW",
+  "header_contract": {
+    "include_guard": "BYUL_NAVCELL_H",
+    "language": "C17 and C++17",
+    "linkage": "extern-C under C++",
+    "export_macro": "BYUL_API"
+  },
+  "current_enums": {
+    "terrain_type_t": {
+      "tag": "e_terrain_type",
+      "disposition": "keep",
+      "size": 4,
+      "values": {
+        "TERRAIN_TYPE_NORMAL": 0,
+        "TERRAIN_TYPE_WATER": 1,
+        "TERRAIN_TYPE_FOREST": 2,
+        "TERRAIN_TYPE_MOUNTAIN": 3,
+        "TERRAIN_TYPE_FORBIDDEN": 100
+      }
+    }
+  },
+  "current_types": {
+    "navcell_t": {
+      "disposition": "keep",
+      "tag": "s_navcell",
+      "storage": "basic-value",
+      "zero_valid": true,
+      "copy_semantics": "trivial-copy",
+      "fields": [
+        {
+          "declaration": "terrain_type_t terrain",
+          "offset": 0
+        },
+        {
+          "declaration": "int height",
+          "offset": 4
+        }
+      ],
+      "size": 8,
+      "alignment": 4
+    }
+  },
+  "current_functions": {
+    "navcell_is_terrain_supported": "add",
+    "navcell_validate": "add",
+    "navcell_init_checked": "add",
+    "navcell_create_checked": "add",
+    "navcell_copy_checked": "add",
+    "navcell_assign_checked": "add",
+    "navcell_create_full": "deprecate-forward",
+    "navcell_create": "deprecate-forward",
+    "navcell_destroy": "keep",
+    "navcell_copy": "deprecate-forward",
+    "navcell_init_full": "deprecate-forward",
+    "navcell_init": "deprecate-forward",
+    "navcell_assign": "deprecate-forward"
+  },
+  "legacy_semantics": {
+    "default": {
+      "terrain": "TERRAIN_TYPE_NORMAL",
+      "height": 0
+    },
+    "validation": {
+      "terrain": "canonical supported values only",
+      "height": "none"
+    },
+    "null_status": -1,
+    "allocation_failure": "navcell_create_full and navcell_copy forward through checked allocation and return NULL without allowing C++ exceptions to escape the C ABI",
+    "height_unit": "unitless legacy metadata; no native navsys consumer interprets it as elevation or traversal cost",
+    "height_range": "the full C int range is stored without validation",
+    "terrain_support": {
+      "TERRAIN_TYPE_NORMAL": "valid value",
+      "TERRAIN_TYPE_WATER": "valid value",
+      "TERRAIN_TYPE_FOREST": "valid value",
+      "TERRAIN_TYPE_MOUNTAIN": "valid value",
+      "TERRAIN_TYPE_FORBIDDEN": "valid value",
+      "unknown": "unsupported"
+    },
+    "interpretation_policy": "owned by docs/ko/todo/navsys/navgrid-terrain-policy.json"
+  },
+  "consumer_inventory": {
+    "native_storage_and_field_access": [
+      "byul/navsys/navgrid/navgrid.cpp"
+    ],
+    "generated_declaration": [
+      "tools/python/byul_wrapper/byul_wrapper/navgrid.py"
+    ],
+    "installed_sdk_consumers": [
+      "byul/tests/sdk_consumer/main.c",
+      "byul/tests/sdk_consumer/main.cpp"
+    ],
+    "serialization": "No navcell_t serializer exists. tools/python/byul_grid/byul_grid/grid/grid_cell.py serializes a separate Python GridCell model and is not a navcell_t ABI consumer."
+  },
+  "current_checked_contracts": {
+    "terrain_validation": {
+      "supported_values": [0, 1, 2, 3, 100],
+      "unknown_query": "OK with false output",
+      "unknown_validation": "UNSUPPORTED"
+    },
+    "checked_create": {
+      "success": "OK with caller-owned output released by navcell_destroy",
+      "invalid_output": "INVALID_ARGUMENT with no output mutation",
+      "unsupported_terrain": "UNSUPPORTED with no output mutation",
+      "allocation_failure": "OUT_OF_MEMORY with no output mutation"
+    },
+    "checked_init_assign": {
+      "success": "OK with caller storage mutation",
+      "invalid_pointer": "INVALID_ARGUMENT with destination preservation",
+      "unsupported_terrain": "UNSUPPORTED with destination preservation",
+      "height": "full int32 range stored as unitless metadata"
+    },
+    "checked_copy": {
+      "success": "OK with independent caller-owned output released by navcell_destroy",
+      "invalid_pointer": "INVALID_ARGUMENT with output preservation",
+      "unsupported_terrain": "UNSUPPORTED with output preservation",
+      "allocation_failure": "OUT_OF_MEMORY with output preservation"
+    },
+    "extension_boundary": "Keep navcell_t layout unchanged in ABI 1.x; add a versioned properties descriptor only after ownership and height-unit decisions.",
+    "implementation_state": "implemented-and-covered-by-native-wrapper-policy-and-allocation-failure-tests"
+  },
+  "layout_verification": {
+    "enum_values": "native static assertions and installed C/C++ consumers",
+    "module_static": "test_navgrid",
+    "root_shared": "test_byul and Python CFFI round-trip",
+    "installed_sdk": "C17 _Alignof/offsetof and C++17 type-trait/static assertions",
+    "layout_diagnostic_symbols": "not added to ABI 1.x; compile-time consumer assertions are authoritative"
+  },
+  "deferred_layout_diagnostic_symbols": [
+    "navcell_sizeof",
+    "navcell_alignof",
+    "navcell_offsetof_terrain",
+    "navcell_offsetof_height"
+  ]
+}

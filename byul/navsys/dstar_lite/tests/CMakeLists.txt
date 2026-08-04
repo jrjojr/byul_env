@@ -2,12 +2,18 @@ cmake_minimum_required(VERSION 3.20)
 
 project(test_dstar_lite)
 
+set(DSTAR_LITE_KEY_OPS_ODR_SOURCES
+    ${CMAKE_CURRENT_SOURCE_DIR}/test_module_dstar_lite_key_ops_odr_a.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/test_module_dstar_lite_key_ops_odr_b.cpp
+)
+
 set(${PROJECT_NAME}_SOURCES
 
     ${CMAKE_CURRENT_SOURCE_DIR}/main.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/test_module_dstar_lite.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/test_module_dstar_lite_pqueue.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/test_module_dstar_lite_tick.cpp
+    ${DSTAR_LITE_KEY_OPS_ODR_SOURCES}
 
 CACHE INTERNAL "${PROJECT_NAME} source files"  FORCE
 )
@@ -15,6 +21,11 @@ CACHE INTERNAL "${PROJECT_NAME} source files"  FORCE
 # ------------------- 테스트 실행 파일 -------------------
 add_executable(${PROJECT_NAME}
     ${${PROJECT_NAME}_SOURCES}
+)
+
+set_source_files_properties(${DSTAR_LITE_KEY_OPS_ODR_SOURCES} PROPERTIES
+    COMPILE_OPTIONS
+        "$<$<CXX_COMPILER_ID:MSVC>:/W4>;$<$<CXX_COMPILER_ID:MSVC>:/WX>;$<$<NOT:$<CXX_COMPILER_ID:MSVC>>:-Wall>;$<$<NOT:$<CXX_COMPILER_ID:MSVC>>:-Wextra>;$<$<NOT:$<CXX_COMPILER_ID:MSVC>>:-Werror>"
 )
 
 # ─────────────────────────────────────────────
@@ -76,7 +87,6 @@ target_link_directories(${PROJECT_NAME} PRIVATE
 
 target_link_libraries(${PROJECT_NAME} PRIVATE
     core
-    numal
     console
     byul_tick
     

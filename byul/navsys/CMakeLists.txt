@@ -22,6 +22,10 @@ set(${PROJECT_NAME}_SOURCES
     ${dstar_lite_SOURCES}
     
     ${CMAKE_CURRENT_SOURCE_DIR}/route_carver/route_carver.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/route_carver/compat/route_carver_legacy.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/route_carver/route_carver_geometry.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/route_carver/route_carver_mutation.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/route_carver/route_carver_checked.cpp
 
 CACHE INTERNAL "${PROJECT_NAME} source files"  FORCE
 )
@@ -46,12 +50,15 @@ CACHE INTERNAL "${PROJECT_NAME} header files"  FORCE
 add_library(${PROJECT_NAME} STATIC 
     ${${PROJECT_NAME}_SOURCES} 
 )
+byul_register_production_target(${PROJECT_NAME})
 
 # ─────────────────────────────────────────────
 # include 경로
 # ─────────────────────────────────────────────
-target_include_directories(${PROJECT_NAME} PRIVATE
-    ${CMAKE_CURRENT_SOURCE_DIR}    
+target_include_directories(${PROJECT_NAME}
+PUBLIC
+    ${CMAKE_CURRENT_SOURCE_DIR}
+PRIVATE
     ${CMAKE_SOURCE_DIR}
 
     ${CMAKE_SOURCE_DIR}/byul_tick
@@ -75,7 +82,9 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
     numal
 )
 
-add_subdirectory(tests)
+if(BUILD_TESTING)
+    add_subdirectory(tests)
+endif()
 
 # win11 에서는 무조건 설정해야 한다 dll과 static 간에 문제때문에 링크가 안된다.
 target_compile_definitions(${PROJECT_NAME} PRIVATE BYUL_STATIC)

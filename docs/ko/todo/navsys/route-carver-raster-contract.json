@@ -1,0 +1,115 @@
+{
+  "schema_version": 1,
+  "component": "route_carver",
+  "coordinate_model": "integer coordinates identify cell centers; every cell is the closed square [x-1/2,x+1/2] x [y-1/2,y+1/2]",
+  "line_coverage": {
+    "center_cells": {
+      "rule": "sample every integer coordinate on the major axis and select the nearest minor-axis cell center",
+      "tie": "include both equally near cell centers at an exact half-cell tie",
+      "endpoint_order": "normalize the increasing major axis before evaluation",
+      "reason": "the set remains invariant under endpoint reversal, integer translation, reflection, and 90-degree rotation"
+    },
+    "supercover_cells": {
+      "rule": "include every closed cell square having a non-empty intersection with the closed center-to-center segment",
+      "boundary": "edge-only and corner-only contact are included",
+      "arithmetic": "test oracle scales coordinates by two and uses exact rational slab intersection"
+    }
+  },
+  "metrics": {
+    "chebyshev_square": "max(abs(dx),abs(dy)) <= radius",
+    "manhattan_diamond": "abs(dx)+abs(dy) <= radius",
+    "euclidean_disk": "dx*dx+dy*dy <= radius*radius"
+  },
+  "line_radius": "take the unique union of the selected metric offsets around every line seed cell",
+  "endpoint_policy": {
+    "distinct": "remove excluded start/end seeds before dilation and remove the exact excluded endpoint coordinate again after dilation",
+    "start_equals_end": "the point is a seed when include_start OR include_end is true; both false produces an empty candidate set",
+    "canonical_default": "include both start and end"
+  },
+  "bounds_policy": {
+    "reject": "if any theoretical candidate is outside a positive bounded extent, reject the whole operation before mutation",
+    "clip": "intersect the complete candidate set with the extent",
+    "unbounded": "no clipping is applied; checked finite line/radius limits remain mandatory"
+  },
+  "topology": "NAVGRID_DIR_4 and NAVGRID_DIR_8 do not affect geometry",
+  "determinism": "candidate membership is a pure function of inputs and options; no RNG or seed exists",
+  "unsupported": "unknown coverage, metric, direction mode, or invalid extent is rejected without fallback",
+  "resource_limits": {
+    "max_cells_zero": "invalid; unlimited enumeration is not accepted",
+    "maximum_candidate_cells": 262144,
+    "maximum_raster_steps": 1048576,
+    "limit_failure": "NAVSYS_STATUS_LIMIT_REACHED before caller output replacement or mutation",
+    "workspace": "seed vector and open-addressed unique-coordinate table are capacity-planned before the hot loop"
+  },
+  "reference": {
+    "implementation": "tools/python/byul_wrapper/tests/route_carver_reference.py",
+    "tests": "tools/python/byul_wrapper/tests/test_route_carver_reference.py",
+    "production_imports": 0,
+    "line_domain": "all ordered endpoint pairs in [-3,3] x [-3,3]",
+    "radius_domain": "0 through 4 for all three metrics"
+  },
+  "production_stage_3": {
+    "implementation": "byul/navsys/route_carver/route_carver_geometry.cpp",
+    "internal_contract": "byul/navsys/route_carver/internal/route_carver_geometry.hpp",
+    "public_abi_added": false,
+    "reason": "mutation, provenance, cancellation, and final status mapping are owned by stages 4 and 5"
+  },
+  "production_stage_4": {
+    "implementation": "byul/navsys/route_carver/route_carver_mutation.cpp",
+    "internal_contract": "byul/navsys/route_carver/internal/route_carver_mutation.hpp",
+    "navgrid_integration": "a successful carve appends an open overlay generation instead of overwriting the stored navcell",
+    "precedence": "the newest matching open or named blocked overlay generation wins; stored terrain and the default blocked layer have generation zero",
+    "provenance": "existing blocked overlay layers and their removal tokens remain intact after carving",
+    "stored_forbidden_only": "select only candidates whose stored base navcell terrain is TERRAIN_TYPE_FORBIDDEN",
+    "effective_blocked": "invoke the bound canonical query with its actual userdata; only the built-in navgrid query is mutable by the open overlay",
+    "query_only_callback": "a custom callback result is observed but never reported as removed because the callback-owned state cannot be mutated",
+    "dry_run": "compute the same effective changed count without committing an open overlay",
+    "atomicity": "validate and prepare a copied overlay state, then commit by swap; OOM, callback failure, unsupported input, and geometry limit failure preserve grid state and caller outputs",
+    "public_abi_added": false,
+    "reason": "final options, cancellation, partial-result, and public status surfaces are owned by stage 5"
+  },
+  "production_stage_5": {
+    "implementation": "byul/navsys/route_carver/route_carver_checked.cpp",
+    "public_contract": "byul/navsys/route_carver/route_carver.h",
+    "functions": [
+      "navgrid_carve_line",
+      "navgrid_carve_area"
+    ],
+    "options_abi": {
+      "version": 1,
+      "versioning": "struct_size and abi_version are mandatory; reserved0 must be zero",
+      "unknown_enum_or_flag": "NAVSYS_STATUS_UNSUPPORTED without mutation or caller-output replacement",
+      "maximum_candidate_cells": 262144
+    },
+    "status_mapping": {
+      "no_change": "NAVSYS_STATUS_OK with out_changed_count equal to zero",
+      "invalid": "NAVSYS_STATUS_INVALID_ARGUMENT",
+      "unsupported": "NAVSYS_STATUS_UNSUPPORTED",
+      "allocation_failure": "NAVSYS_STATUS_OUT_OF_MEMORY; no C++ exception crosses the C ABI",
+      "callback_exception": "NAVSYS_STATUS_CALLBACK_FAILED; no C++ exception crosses the C ABI",
+      "cancel": "NAVSYS_STATUS_CANCELLED",
+      "limit": "NAVSYS_STATUS_LIMIT_REACHED"
+    },
+    "cancellation": {
+      "poll_interval_cells": 64,
+      "checkpoints": [
+        "before geometry enumeration",
+        "each 64 collected seeds or expansion candidates",
+        "each expansion row",
+        "before mutation commit",
+        "each non-atomic commit chunk",
+        "immediately before atomic overlay swap"
+      ],
+      "callback": "called synchronously on the calling thread; callback and userdata are borrowed for the call; reentry or mutation of the same navgrid is forbidden"
+    },
+    "atomic": "NAVGRID_CARVE_ATOMIC and NAVGRID_CARVE_DRY_RUN preserve grid state and the caller output on every failure; successful atomic mutation commits by one overlay-state swap",
+    "non_atomic": {
+      "commit_order": "selected candidates in deterministic y,x row-major order",
+      "chunk_cells": 64,
+      "partial_output": "after commit processing begins, failure reports the exact number of cells changed by completed chunks, including zero; failures before commit processing preserve the caller output",
+      "retry": "retrying the same call is deterministic and idempotent because already-open cells are not counted again"
+    },
+    "dry_run": "returns the same changed count without committing an overlay",
+    "public_abi_added": true
+  }
+}

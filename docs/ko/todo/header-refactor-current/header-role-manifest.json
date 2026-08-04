@@ -13,19 +13,19 @@
     ]
   },
   "summary": {
-    "headers": 138,
-    "approved": 138,
-    "approved_install": 99,
-    "wrapper_generated": 27,
-    "wrapper_manual": 64,
-    "wrapper_excluded": 47,
-    "compatibility_forwarders": 21,
+    "headers": 149,
+    "approved": 149,
+    "approved_install": 98,
+    "wrapper_generated": 31,
+    "wrapper_manual": 60,
+    "wrapper_excluded": 58,
+    "compatibility_forwarders": 20,
     "successor_headers": 20,
     "successor_links": 39,
     "public_resource_migrations": 10,
     "sdk_basename_collisions": 0,
     "abi_2_sdk_basename_collisions": 0,
-    "current_include_edges": 311,
+    "current_include_edges": 315,
     "current_include_cycles": 0
   },
   "remaining_stage_2_design_gate": [],
@@ -1894,7 +1894,7 @@
     {
       "asset_id": "initial:byul/byul_config.h",
       "current_path": "byul/byul_config.h",
-      "sha256": "f735417c56d88b6fbada1f5aad2a3ae7db52f98ca82d9cb1dd82071a8935474d",
+      "sha256": "20664ae21c23124738cb0587b4721fd2bd76c49ab7d03827ca8c4b1be016ce07",
       "primary_role": "public-foundation",
       "role_reason": "Root export, platform and version foundation shared by installed headers.",
       "owner_module": "byul",
@@ -1924,9 +1924,17 @@
         "wrapper_modules_registered": false,
         "exported_symbols": [
           "__declspec",
-          "BYUL_VERSION"
+          "defined"
         ],
-        "source_definition_candidates": []
+        "source_definition_candidates": [
+          "byul/navsys/tests/test_navsys_allocation_failure.cpp",
+          "byul/number_theory/tools/gen.base_primes_65535.c",
+          "byul/rng/rng_core.cpp",
+          "byul/rng/rng_fill.cpp",
+          "tools/gpu_comp_tester/gpu.cpp",
+          "tools/gpu_comp_tester/gpu_compute.cpp",
+          "tools/gpu_comp_tester/main.cpp"
+        ]
       },
       "decision_status": "approved"
     },
@@ -2552,7 +2560,7 @@
     {
       "asset_id": "initial:byul/navsys/coord/coord.h",
       "current_path": "byul/navsys/coord/coord.h",
-      "sha256": "3325914efe812aaa1dd3f7a6dccde6c77ff97f6e45ca01e797315e46a2d931c2",
+      "sha256": "78488c9096f5c687b6fead5632c0de6f135b7da63cb038d6a6d750118852bdd6",
       "primary_role": "public-component",
       "role_reason": "Stage-1 evidence supports the current public or internal boundary.",
       "owner_module": "navsys",
@@ -2587,6 +2595,20 @@
           "coord_alignof",
           "coord_offsetof_x",
           "coord_offsetof_y",
+          "coord_init_checked",
+          "coord_create_checked",
+          "coord_copy_checked",
+          "coord_add_checked",
+          "coord_sub_checked",
+          "coord_mul_checked",
+          "coord_div_checked",
+          "coord_compare_canonical",
+          "coord_distance_f64",
+          "coord_manhattan_distance_i64",
+          "coord_angle_rad",
+          "coord_angle_deg",
+          "coord_step_toward",
+          "coord_format",
           "coord_create_full",
           "coord_create",
           "coord_destroy",
@@ -2642,6 +2664,7 @@
           "byul/navsys/obstacle/obstacle.cpp",
           "byul/navsys/obstacle/obstacle_core.cpp",
           "byul/navsys/route/route.cpp",
+          "byul/navsys/route/route_builder.cpp",
           "byul/navsys/route/tests/test_module_route.cpp",
           "byul/navsys/route_carver/route_carver.cpp",
           "byul/navsys/route_finder/astar.cpp",
@@ -2659,7 +2682,9 @@
           "byul/navsys/route_finder/tests/test_module_route_finder_discrete.cpp",
           "byul/navsys/route_finder/weighted_astar.cpp",
           "byul/navsys/tests/test_module_navsys.cpp",
-          "byul/tests/sdk_consumer/main.c"
+          "byul/navsys/tests/test_navsys_allocation_failure.cpp",
+          "byul/tests/sdk_consumer/main.c",
+          "byul/tests/sdk_consumer/main.cpp"
         ]
       },
       "decision_status": "approved"
@@ -2667,7 +2692,7 @@
     {
       "asset_id": "initial:byul/navsys/coord/coord_hash.h",
       "current_path": "byul/navsys/coord/coord_hash.h",
-      "sha256": "9f816694cd8e9ea7c7be3fedca92c87f57c0599bdbcb553402065c9499a90091",
+      "sha256": "950707cc513b4d4bba24c1c730c702fb3a7cd841c936eb9b8ce6982f2a837c1f",
       "primary_role": "public-component",
       "role_reason": "Stage-1 evidence supports the current public or internal boundary.",
       "owner_module": "navsys",
@@ -2698,6 +2723,25 @@
         "install_inventory": true,
         "wrapper_modules_registered": true,
         "exported_symbols": [
+          "coord_hash_create_ex",
+          "coord_hash_copy_ex",
+          "coord_hash_insert_copy",
+          "coord_hash_replace_copy",
+          "coord_hash_upsert_copy",
+          "coord_hash_int_copy",
+          "coord_hash_int_destroy",
+          "coord_hash_float_copy",
+          "coord_hash_float_destroy",
+          "coord_hash_double_copy",
+          "coord_hash_double_destroy",
+          "coord_hash_size",
+          "coord_hash_find",
+          "coord_hash_equal_keys",
+          "coord_hash_equal_full",
+          "coord_hash_export_keys",
+          "coord_hash_export_entries",
+          "coord_hash_iter_next_ex",
+          "coord_hash_format",
           "int_copy",
           "int_destroy",
           "scalar_copy",
@@ -2732,7 +2776,8 @@
           "coord_hash_iter_next",
           "coord_hash_iter_destroy",
           "coord_hash_to_string",
-          "coord_hash_print"
+          "coord_hash_print",
+          "coord_hash_buffer_destroy"
         ],
         "source_definition_candidates": [
           "byul/console/console.cpp",
@@ -2764,6 +2809,7 @@
           "byul/navsys/obstacle/obstacle_core.cpp",
           "byul/navsys/obstacle/tests/test_module_obstacle.cpp",
           "byul/navsys/route/route.cpp",
+          "byul/navsys/route/route_trace.cpp",
           "byul/navsys/route/tests/test_module_route.cpp",
           "byul/navsys/route_finder/astar.cpp",
           "byul/navsys/route_finder/bfs.cpp",
@@ -2775,7 +2821,10 @@
           "byul/navsys/route_finder/ida_star.cpp",
           "byul/navsys/route_finder/rta_star.cpp",
           "byul/navsys/route_finder/sma_star.cpp",
-          "byul/navsys/route_finder/weighted_astar.cpp"
+          "byul/navsys/route_finder/weighted_astar.cpp",
+          "byul/navsys/tests/test_navsys_allocation_failure.cpp",
+          "byul/tests/sdk_consumer/main.c",
+          "byul/tests/sdk_consumer/main.cpp"
         ]
       },
       "decision_status": "approved"
@@ -2783,7 +2832,7 @@
     {
       "asset_id": "initial:byul/navsys/coord/coord_list.h",
       "current_path": "byul/navsys/coord/coord_list.h",
-      "sha256": "3ab8bd78011c8a210f80977bb9fbd9430eea14258ad0daea0edc3058ef3a6a63",
+      "sha256": "5e56f554fea98c0757b8e8c356d13437e9fd921747f01b348b6874af9f2072d9",
       "primary_role": "public-component",
       "role_reason": "Stage-1 evidence supports the current public or internal boundary.",
       "owner_module": "navsys",
@@ -2814,6 +2863,23 @@
         "install_inventory": true,
         "wrapper_modules_registered": true,
         "exported_symbols": [
+          "coord_list_create_ex",
+          "coord_list_copy_ex",
+          "coord_list_size",
+          "coord_list_fetch",
+          "coord_list_fetch_front",
+          "coord_list_fetch_back",
+          "coord_list_push_back_ex",
+          "coord_list_try_pop_back",
+          "coord_list_try_pop_front",
+          "coord_list_insert_ex",
+          "coord_list_remove_at_ex",
+          "coord_list_remove_value_ex",
+          "coord_list_find_ex",
+          "coord_list_reserve",
+          "coord_list_create_slice",
+          "coord_list_equal",
+          "coord_list_export",
           "coord_list_create",
           "coord_list_destroy",
           "coord_list_copy",
@@ -2850,6 +2916,8 @@
           "byul/navsys/obstacle/obstacle_core.cpp",
           "byul/navsys/obstacle/tests/test_module_obstacle.cpp",
           "byul/navsys/route/route.cpp",
+          "byul/navsys/route/route_builder.cpp",
+          "byul/navsys/route/route_trace.cpp",
           "byul/navsys/route/tests/test_module_route.cpp",
           "byul/navsys/route_carver/route_carver.cpp",
           "byul/navsys/route_finder/astar.cpp",
@@ -2863,7 +2931,9 @@
           "byul/navsys/route_finder/rta_star.cpp",
           "byul/navsys/route_finder/sma_star.cpp",
           "byul/navsys/route_finder/weighted_astar.cpp",
-          "byul/navsys/tests/test_module_navsys.cpp"
+          "byul/navsys/tests/test_module_navsys.cpp",
+          "byul/navsys/tests/test_navsys_allocation_failure.cpp",
+          "byul/tests/sdk_consumer/main.c"
         ]
       },
       "decision_status": "approved"
@@ -2871,7 +2941,7 @@
     {
       "asset_id": "initial:byul/navsys/coord/cost_coord_pq.h",
       "current_path": "byul/navsys/coord/cost_coord_pq.h",
-      "sha256": "c17bcd22532aaa9a3e6efc8f177f4abe26caf5da60f21e073896e26b3109b928",
+      "sha256": "969cb98797d8546f09a4403d872d0cb9dadc076d4171aa471f202a4926139010",
       "primary_role": "public-component",
       "role_reason": "Stage-1 evidence supports the current public or internal boundary.",
       "owner_module": "navsys",
@@ -2902,6 +2972,16 @@
         "install_inventory": true,
         "wrapper_modules_registered": true,
         "exported_symbols": [
+          "cost_coord_pq_create_ex",
+          "cost_coord_pq_push_ex",
+          "cost_coord_pq_peek_min",
+          "cost_coord_pq_pop_min",
+          "cost_coord_pq_size",
+          "cost_coord_pq_empty",
+          "cost_coord_pq_remove_one",
+          "cost_coord_pq_remove_all",
+          "cost_coord_pq_clear",
+          "cost_coord_pq_trim_to_size",
           "cost_coord_pq_create",
           "cost_coord_pq_destroy",
           "cost_coord_pq_push",
@@ -2924,7 +3004,10 @@
           "byul/navsys/route_finder/greedy_best_first.cpp",
           "byul/navsys/route_finder/ida_star.cpp",
           "byul/navsys/route_finder/sma_star.cpp",
-          "byul/navsys/route_finder/weighted_astar.cpp"
+          "byul/navsys/route_finder/weighted_astar.cpp",
+          "byul/navsys/tests/test_navsys_allocation_failure.cpp",
+          "byul/tests/sdk_consumer/main.c",
+          "byul/tests/sdk_consumer/main.cpp"
         ]
       },
       "decision_status": "approved"
@@ -2966,7 +3049,7 @@
     {
       "asset_id": "initial:byul/navsys/dstar_lite/dstar_lite.h",
       "current_path": "byul/navsys/dstar_lite/dstar_lite.h",
-      "sha256": "8f52659e0e18fe3778ead40e57f16f0f2228b7071557016715a796a5cda138e6",
+      "sha256": "4a3c7f5579fd76de0ab0508e05d5666868923ab3a4d4adefc19795e962049801",
       "primary_role": "public-component",
       "role_reason": "Stage-1 evidence supports the current public or internal boundary.",
       "owner_module": "navsys",
@@ -3087,6 +3170,7 @@
           "byul/navsys/dstar_lite/tests/test_module_dstar_lite_tick.cpp",
           "byul/navsys/navsys.cpp",
           "byul/navsys/tests/test_module_navsys.cpp",
+          "byul/navsys/tests/test_navsys_allocation_failure.cpp",
           "byul/tests/sdk_consumer/main.c"
         ]
       },
@@ -3095,7 +3179,7 @@
     {
       "asset_id": "initial:byul/navsys/dstar_lite/dstar_lite_key.h",
       "current_path": "byul/navsys/dstar_lite/dstar_lite_key.h",
-      "sha256": "8cc0b819570b4c98c7d5283d24df6d8057d4e4b2786d51d148e08ac6f20ff315",
+      "sha256": "15350eff9dc57d416077d9ca3a28692f53a114120c7b862a423459fe10150cb8",
       "primary_role": "public-component",
       "role_reason": "Stage-1 evidence supports the current public or internal boundary.",
       "owner_module": "navsys",
@@ -3126,6 +3210,17 @@
         "install_inventory": true,
         "wrapper_modules_registered": true,
         "exported_symbols": [
+          "dstar_lite_key_sizeof",
+          "dstar_lite_key_alignof",
+          "dstar_lite_key_offsetof_k1",
+          "dstar_lite_key_offsetof_k2",
+          "dstar_lite_key_init",
+          "dstar_lite_key_create_ex",
+          "dstar_lite_key_copy_ex",
+          "dstar_lite_key_equal_exact",
+          "dstar_lite_key_compare_exact",
+          "dstar_lite_key_hash_exact",
+          "dstar_lite_key_is_close",
           "dstar_lite_key_create",
           "dstar_lite_key_create_full",
           "dstar_lite_key_copy",
@@ -3139,46 +3234,10 @@
           "byul/navsys/dstar_lite/dstar_lite_key.cpp",
           "byul/navsys/dstar_lite/dstar_lite_pqueue.cpp",
           "byul/navsys/dstar_lite/tests/test_module_dstar_lite_pqueue.cpp",
-          "byul/navsys/tests/test_module_navsys.cpp"
+          "byul/navsys/tests/test_module_navsys.cpp",
+          "byul/navsys/tests/test_navsys_allocation_failure.cpp",
+          "byul/tests/sdk_consumer/main.c"
         ]
-      },
-      "decision_status": "approved"
-    },
-    {
-      "asset_id": "initial:byul/navsys/dstar_lite/dstar_lite_key.hpp",
-      "current_path": "byul/navsys/dstar_lite/dstar_lite_key.hpp",
-      "sha256": "f9a01da3637d3436967e710e8e18ade033f74db01bbe38fe459f6df9979a00cb",
-      "primary_role": "compatibility-forwarder",
-      "role_reason": "Installed C++ implementation helpers move behind the D* Lite internal boundary; the old include path remains through ABI 1.x.",
-      "owner_module": "navsys",
-      "public_module": "dstar_lite",
-      "approved_install": true,
-      "install_reason": "Public or compatibility SDK surface.",
-      "wrapper": {
-        "mode": "excluded",
-        "reason": "C++ compatibility include has no independent C wrapper surface."
-      },
-      "naming": {
-        "disposition": "forward",
-        "canonical_path": "byul/navsys/dstar_lite/internal/dstar_lite_key_ops.hpp",
-        "canonical_install": false,
-        "deprecated_since": "1.1.0",
-        "remove_in": "2.0.0",
-        "reason": "C++ ordering/hash helpers are implementation-only; retain the installed legacy include through ABI 1.x.",
-        "compatibility_path": "byul/navsys/dstar_lite/dstar_lite_key.hpp"
-      },
-      "successor_headers": [],
-      "source_evidence": {
-        "module_header_groups": [
-          "byul",
-          "dstar_lite",
-          "navsys"
-        ],
-        "root_header_inventory": true,
-        "install_inventory": true,
-        "wrapper_modules_registered": false,
-        "exported_symbols": [],
-        "source_definition_candidates": []
       },
       "decision_status": "approved"
     },
@@ -3291,7 +3350,7 @@
     {
       "asset_id": "initial:byul/navsys/dstar_lite/internal/dstar_lite_callback.hpp",
       "current_path": "byul/navsys/dstar_lite/internal/dstar_lite_callback.hpp",
-      "sha256": "d8e60a942ef9fbe14aa3f36dbd54f486f90ca05ab35f5c4cd41e81b937b2626d",
+      "sha256": "e75332bdf9b498c9f753306d8d69c1d90ee6c0fea4192bb6055007db6ce31434",
       "primary_role": "internal",
       "role_reason": "Stage-1 evidence supports the current public or internal boundary.",
       "owner_module": "navsys",
@@ -3323,9 +3382,43 @@
       "decision_status": "approved"
     },
     {
+      "asset_id": "initial:byul/navsys/dstar_lite/internal/dstar_lite_key_ops.hpp",
+      "current_path": "byul/navsys/dstar_lite/internal/dstar_lite_key_ops.hpp",
+      "sha256": "374797c06c09ace745a2089411c5bef45349bdaaa938a18799c6c84976b8b7cd",
+      "primary_role": "internal",
+      "role_reason": "Stage-1 evidence supports the current public or internal boundary.",
+      "owner_module": "navsys",
+      "public_module": "dstar_lite",
+      "approved_install": false,
+      "install_reason": "internal is excluded from the SDK install inventory.",
+      "wrapper": {
+        "mode": "excluded",
+        "reason": "internal headers are outside the installed C ABI wrapper input."
+      },
+      "naming": {
+        "disposition": "keep",
+        "canonical_path": "byul/navsys/dstar_lite/internal/dstar_lite_key_ops.hpp",
+        "canonical_install": false,
+        "deprecated_since": null,
+        "remove_in": null,
+        "reason": "Already migrated to the canonical internal implementation path.",
+        "compatibility_path": null
+      },
+      "successor_headers": [],
+      "source_evidence": {
+        "module_header_groups": [],
+        "root_header_inventory": false,
+        "install_inventory": false,
+        "wrapper_modules_registered": false,
+        "exported_symbols": [],
+        "source_definition_candidates": []
+      },
+      "decision_status": "approved"
+    },
+    {
       "asset_id": "initial:byul/navsys/maze/maze.h",
       "current_path": "byul/navsys/maze/maze.h",
-      "sha256": "481f139350ae6027aa9031b0e143bd1d41085f2219dbe5c88f476ef11367a9da",
+      "sha256": "e2e0fd04a97afb134dcbe24e6899c68379ec8ba45dc537b13dbfdb021c230664",
       "primary_role": "public-aggregate",
       "role_reason": "Canonical maze aggregate above maze_core and algorithm components.",
       "owner_module": "navsys",
@@ -3333,8 +3426,8 @@
       "approved_install": true,
       "install_reason": "Public or compatibility SDK surface.",
       "wrapper": {
-        "mode": "manual",
-        "reason": "Public legacy declarations require explicit ownership/error metadata before automatic generation."
+        "mode": "generated",
+        "reason": "Registered in the canonical wrapper generator manifest."
       },
       "naming": {
         "disposition": "keep",
@@ -3354,8 +3447,10 @@
         ],
         "root_header_inventory": true,
         "install_inventory": true,
-        "wrapper_modules_registered": false,
+        "wrapper_modules_registered": true,
         "exported_symbols": [
+          "byul_maze_algorithm_is_supported",
+          "byul_maze_generate",
           "maze_make"
         ],
         "source_definition_candidates": [
@@ -3368,7 +3463,7 @@
     {
       "asset_id": "initial:byul/navsys/maze/maze_aldous_broder.h",
       "current_path": "byul/navsys/maze/maze_aldous_broder.h",
-      "sha256": "64b7b6ae3bbf9d8a5f72cec394e871ef606db9724a59b229cea9a0c1cbd537e1",
+      "sha256": "37d055683e3b297c0fe66ce243084569f40a43050dc94e5a978274e32618a962",
       "primary_role": "public-component",
       "role_reason": "Handwritten public maze algorithm component; generator wording is not file provenance.",
       "owner_module": "navsys",
@@ -3412,7 +3507,7 @@
     {
       "asset_id": "initial:byul/navsys/maze/maze_binary.h",
       "current_path": "byul/navsys/maze/maze_binary.h",
-      "sha256": "9df2eca7a373a4a690597043fb2d020d0aec3062a19cbe941bef89ca834c2fb9",
+      "sha256": "651abd4c5ec3ead487d02f2d4f0c9755c1c360ec368616c212199f51458d5123",
       "primary_role": "public-component",
       "role_reason": "Handwritten public maze algorithm component; generator wording is not file provenance.",
       "owner_module": "navsys",
@@ -3456,7 +3551,7 @@
     {
       "asset_id": "initial:byul/navsys/maze/maze_core.h",
       "current_path": "byul/navsys/maze/maze_core.h",
-      "sha256": "42c20464e145b68200fdea21e447ee3118eaecdc612d4721544a35f8dc333262",
+      "sha256": "4b1488bf99eb64b96a9de6a6ed93e64096b97c3c9a010a1644d242f4102edbab",
       "primary_role": "public-component",
       "role_reason": "Stage-1 evidence supports the current public or internal boundary.",
       "owner_module": "navsys",
@@ -3464,8 +3559,8 @@
       "approved_install": true,
       "install_reason": "Public or compatibility SDK surface.",
       "wrapper": {
-        "mode": "manual",
-        "reason": "Public legacy declarations require explicit ownership/error metadata before automatic generation."
+        "mode": "generated",
+        "reason": "Registered in the canonical wrapper generator manifest."
       },
       "naming": {
         "disposition": "keep",
@@ -3525,7 +3620,7 @@
     {
       "asset_id": "initial:byul/navsys/maze/maze_eller.h",
       "current_path": "byul/navsys/maze/maze_eller.h",
-      "sha256": "5d1c208aabad4464f7d57e9638629bd2c4e5967154fd876e372068d6ddcf0fdb",
+      "sha256": "1eb7d5554da700cec24037b4804945cf886318630033e867751007fce8649ca8",
       "primary_role": "public-component",
       "role_reason": "Handwritten public maze algorithm component; generator wording is not file provenance.",
       "owner_module": "navsys",
@@ -3569,7 +3664,7 @@
     {
       "asset_id": "initial:byul/navsys/maze/maze_hunt_and_kill.h",
       "current_path": "byul/navsys/maze/maze_hunt_and_kill.h",
-      "sha256": "6e7d84085bdbe5a0ee0147494452d3bf3d58e06992a6ac06d299d94e4013bfb2",
+      "sha256": "90ac941a17da8ea8ce03e9184036e95ec7230ec9d8d3c7a16ac2b3a56f0deb58",
       "primary_role": "public-component",
       "role_reason": "Handwritten public maze algorithm component; generator wording is not file provenance.",
       "owner_module": "navsys",
@@ -3613,7 +3708,7 @@
     {
       "asset_id": "initial:byul/navsys/maze/maze_kruskal.h",
       "current_path": "byul/navsys/maze/maze_kruskal.h",
-      "sha256": "844786a20c02e2635df5a44c10a5f0e997f36516ec51b6b767fdc322596f253c",
+      "sha256": "3b5165950a4294510e567ce0acd606faa2fb328d6fead4ff2516a1ddc0f8f4e3",
       "primary_role": "public-component",
       "role_reason": "Handwritten public maze algorithm component; generator wording is not file provenance.",
       "owner_module": "navsys",
@@ -3657,7 +3752,7 @@
     {
       "asset_id": "initial:byul/navsys/maze/maze_prim.h",
       "current_path": "byul/navsys/maze/maze_prim.h",
-      "sha256": "757119884810e1e0c2af17163ed87e3bfd82a343a252875aa49ac3eb75459764",
+      "sha256": "af8b8b8d21f37f68dd2409f877729c88da96ce87e871b7eda26bce1226429df5",
       "primary_role": "public-component",
       "role_reason": "Handwritten public maze algorithm component; generator wording is not file provenance.",
       "owner_module": "navsys",
@@ -3701,7 +3796,7 @@
     {
       "asset_id": "initial:byul/navsys/maze/maze_recursive.h",
       "current_path": "byul/navsys/maze/maze_recursive.h",
-      "sha256": "9362679b459e8e74d2799702b13fe7ad30f29787e8f89c8ebb7ae67ff5ffc4bc",
+      "sha256": "2999441378ebf278bf9775fba064f4389257fe3dc4363b8ad3f46dad53f4af31",
       "primary_role": "public-component",
       "role_reason": "Handwritten public maze algorithm component; generator wording is not file provenance.",
       "owner_module": "navsys",
@@ -3745,7 +3840,7 @@
     {
       "asset_id": "initial:byul/navsys/maze/maze_recursive_division.h",
       "current_path": "byul/navsys/maze/maze_recursive_division.h",
-      "sha256": "cd05343c8e79689a63aba98bc8862d34d96b52d19cd463a194585aaa552591ef",
+      "sha256": "9557c39dab75af25e492fa3cd7681060049664061b5d217aad52e6d038a1d03c",
       "primary_role": "public-component",
       "role_reason": "Handwritten public maze algorithm component; generator wording is not file provenance.",
       "owner_module": "navsys",
@@ -3789,7 +3884,7 @@
     {
       "asset_id": "initial:byul/navsys/maze/maze_room_blend.h",
       "current_path": "byul/navsys/maze/maze_room_blend.h",
-      "sha256": "61ce845a26232c55a218554e696222d47f110a0db5e8135b8d234a9cfc2133a3",
+      "sha256": "a05244767f163c91aeb27f1e2e766bc0b84f800d86d0785bbcccce0e3ce13979",
       "primary_role": "public-component",
       "role_reason": "Handwritten public maze algorithm component; generator wording is not file provenance.",
       "owner_module": "navsys",
@@ -3833,7 +3928,7 @@
     {
       "asset_id": "initial:byul/navsys/maze/maze_sidewinder.h",
       "current_path": "byul/navsys/maze/maze_sidewinder.h",
-      "sha256": "d8e9be6a6a05166d6f9a4240726b7d4f039f1c0f97ebfd010f35cb3357562632",
+      "sha256": "ec477592a017b2345060702efc084356533a0fcb719e3f8043c275605592630b",
       "primary_role": "public-component",
       "role_reason": "Handwritten public maze algorithm component; generator wording is not file provenance.",
       "owner_module": "navsys",
@@ -3877,7 +3972,7 @@
     {
       "asset_id": "initial:byul/navsys/maze/maze_wilson.h",
       "current_path": "byul/navsys/maze/maze_wilson.h",
-      "sha256": "81cbd19fdb4cd048a29a96b988e0bb348e04ada8d77dee92df8b37a053a00993",
+      "sha256": "9fdb81d98db616d478a0b302ba6cafb4079246f94eb053e9b515dbbe95d86327",
       "primary_role": "public-component",
       "role_reason": "Handwritten public maze algorithm component; generator wording is not file provenance.",
       "owner_module": "navsys",
@@ -3921,7 +4016,7 @@
     {
       "asset_id": "initial:byul/navsys/navgrid/internal/navgrid_callback.hpp",
       "current_path": "byul/navsys/navgrid/internal/navgrid_callback.hpp",
-      "sha256": "1682e79d1ab27b86626c4c3ad4accd6fb7cd4e3434ed7ba1199108cac48c3897",
+      "sha256": "c3a30a1231840e08f9a874470f89ef6db6d4cd2481eb8a699106b28f78acf018",
       "primary_role": "internal",
       "role_reason": "Stage-1 evidence supports the current public or internal boundary.",
       "owner_module": "navsys",
@@ -4004,7 +4099,7 @@
     {
       "asset_id": "initial:byul/navsys/navgrid/navgrid.h",
       "current_path": "byul/navsys/navgrid/navgrid.h",
-      "sha256": "33578672ebedd7d51484bd43c711dc4897a672b25cb3ab91be622cc271d070f9",
+      "sha256": "8a3463969f040ca2906f6364d7bbc3a70160c1bd71d0cc008fc21dca4beef743",
       "primary_role": "public-component",
       "role_reason": "Stage-1 evidence supports the current public or internal boundary.",
       "owner_module": "navsys",
@@ -4094,9 +4189,11 @@
           "byul/navsys/route_finder/sma_star.cpp",
           "byul/navsys/route_finder/tests/test_module_route_finder.cpp",
           "byul/navsys/route_finder/tests/test_module_route_finder_discrete.cpp",
+          "byul/navsys/route_finder/tests/test_route_finder_performance_gate.cpp",
           "byul/navsys/route_finder/weighted_astar.cpp",
           "byul/navsys/tests/test_module_navsys.cpp",
           "byul/navsys/tests/test_module_route_carver.cpp",
+          "byul/navsys/tests/test_navsys_allocation_failure.cpp",
           "byul/tests/sdk_consumer/main.c"
         ]
       },
@@ -4105,7 +4202,7 @@
     {
       "asset_id": "initial:byul/navsys/navsys.h",
       "current_path": "byul/navsys/navsys.h",
-      "sha256": "89552638839d7e35d2b589e84fb4f954e24d9600b25e7749a5069f4e8be51eeb",
+      "sha256": "b558b749ce4eec39755f7befe204e26605c26768fb25ac7f4e4705d38dcd29f8",
       "primary_role": "public-module-entry",
       "role_reason": "Stage-1 evidence supports the current public or internal boundary.",
       "owner_module": "navsys",
@@ -4158,7 +4255,7 @@
     {
       "asset_id": "initial:byul/navsys/navsys_status.h",
       "current_path": "byul/navsys/navsys_status.h",
-      "sha256": "70fcd9d0d728faccaacefb37128750fd7d7748d0346d50cdf415cdf0c77e94a9",
+      "sha256": "478d49ff912534da7a322c877b4a94b1a8abefdd5c16e8e5a9cc06a1b6fedaa2",
       "primary_role": "public-foundation",
       "role_reason": "Generated-by-refactor status foundation shared by every Navsys public component.",
       "owner_module": "navsys",
@@ -4195,7 +4292,7 @@
     {
       "asset_id": "initial:byul/navsys/obstacle/obstacle.h",
       "current_path": "byul/navsys/obstacle/obstacle.h",
-      "sha256": "8a99171b6d12513add5c2fb19f79b7537e200015d0ebaa869d590102341323ba",
+      "sha256": "09a49088b54a7de49bdd5c64fca779706b949dc3b46d19f47e127775df564848",
       "primary_role": "public-component",
       "role_reason": "Stage-1 evidence supports the current public or internal boundary.",
       "owner_module": "navsys",
@@ -4203,8 +4300,8 @@
       "approved_install": true,
       "install_reason": "Public or compatibility SDK surface.",
       "wrapper": {
-        "mode": "manual",
-        "reason": "Public legacy declarations require explicit ownership/error metadata before automatic generation."
+        "mode": "generated",
+        "reason": "Registered in the canonical wrapper generator manifest."
       },
       "naming": {
         "disposition": "keep",
@@ -4224,8 +4321,20 @@
         ],
         "root_header_inventory": true,
         "install_inventory": true,
-        "wrapper_modules_registered": false,
+        "wrapper_modules_registered": true,
         "exported_symbols": [
+          "obstacle_generate_options_init",
+          "obstacle_generate_filled_rect",
+          "obstacle_generate_random_rect",
+          "obstacle_generate_line",
+          "obstacle_generate_polygon",
+          "obstacle_generate_polygon_outline",
+          "obstacle_enclosure_desc_init",
+          "obstacle_cross_desc_init",
+          "obstacle_spiral_desc_init",
+          "obstacle_generate_enclosure",
+          "obstacle_generate_cross",
+          "obstacle_generate_spiral",
           "obstacle_make_rect_all_blocked",
           "obstacle_make_rect_random_blocked",
           "obstacle_make_beam",
@@ -4249,7 +4358,7 @@
     {
       "asset_id": "initial:byul/navsys/obstacle/obstacle_core.h",
       "current_path": "byul/navsys/obstacle/obstacle_core.h",
-      "sha256": "e85aed8db0495f96143460899f24836ba54173206bd5efc52dd7123e10973770",
+      "sha256": "9c62ca507c7cb70d604763208316c93f8dfaf69084d3a235c27df9da26d1044e",
       "primary_role": "public-component",
       "role_reason": "Stage-1 evidence supports the current public or internal boundary.",
       "owner_module": "navsys",
@@ -4257,8 +4366,8 @@
       "approved_install": true,
       "install_reason": "Public or compatibility SDK surface.",
       "wrapper": {
-        "mode": "manual",
-        "reason": "Public legacy declarations require explicit ownership/error metadata before automatic generation."
+        "mode": "generated",
+        "reason": "Registered in the canonical wrapper generator manifest."
       },
       "naming": {
         "disposition": "keep",
@@ -4278,7 +4387,7 @@
         ],
         "root_header_inventory": true,
         "install_inventory": true,
-        "wrapper_modules_registered": false,
+        "wrapper_modules_registered": true,
         "exported_symbols": [
           "obstacle_create",
           "obstacle_create_full",
@@ -4319,9 +4428,43 @@
       "decision_status": "approved"
     },
     {
+      "asset_id": "initial:byul/navsys/route/internal/route_internal.h",
+      "current_path": "byul/navsys/route/internal/route_internal.h",
+      "sha256": "473596cc8b5a9a6ad2230194e5b275ab4020be38cf70b6fc8baf4a329937c670",
+      "primary_role": "internal",
+      "role_reason": "Stage-1 evidence supports the current public or internal boundary.",
+      "owner_module": "navsys",
+      "public_module": "route",
+      "approved_install": false,
+      "install_reason": "internal is excluded from the SDK install inventory.",
+      "wrapper": {
+        "mode": "excluded",
+        "reason": "internal headers are outside the installed C ABI wrapper input."
+      },
+      "naming": {
+        "disposition": "keep",
+        "canonical_path": "byul/navsys/route/internal/route_internal.h",
+        "canonical_install": false,
+        "deprecated_since": null,
+        "remove_in": null,
+        "reason": "Already migrated to the canonical internal implementation path.",
+        "compatibility_path": null
+      },
+      "successor_headers": [],
+      "source_evidence": {
+        "module_header_groups": [],
+        "root_header_inventory": false,
+        "install_inventory": false,
+        "wrapper_modules_registered": false,
+        "exported_symbols": [],
+        "source_definition_candidates": []
+      },
+      "decision_status": "approved"
+    },
+    {
       "asset_id": "initial:byul/navsys/route/route.h",
       "current_path": "byul/navsys/route/route.h",
-      "sha256": "33335e3ad6a7e12a02dfebb626e3b224bec1b87eaf5649b52f90ddb382db7eb6",
+      "sha256": "0214b5ee66beb8108479e00e9c9d139ab8b00db59974e55d30a8aba424bd3583",
       "primary_role": "public-component",
       "role_reason": "Stage-1 evidence supports the current public or internal boundary.",
       "owner_module": "navsys",
@@ -4355,6 +4498,7 @@
           "route_create",
           "route_destroy",
           "route_copy",
+          "route_clone_ex",
           "route_hash",
           "route_equal",
           "route_set_cost",
@@ -4371,6 +4515,29 @@
           "route_get_last",
           "route_get_coord_at",
           "route_length",
+          "route_get_coord_count",
+          "route_fetch_coord",
+          "route_fetch_total_cost",
+          "route_fetch_completion",
+          "route_export_coords",
+          "route_builder_create",
+          "route_builder_create_from_route",
+          "route_builder_destroy",
+          "route_builder_push_coord",
+          "route_builder_insert_coord",
+          "route_builder_remove_coord",
+          "route_builder_append",
+          "route_builder_assign_slice",
+          "route_builder_set_total_cost",
+          "route_builder_set_completion",
+          "route_builder_finish",
+          "navsys_search_trace_create",
+          "navsys_search_trace_destroy",
+          "navsys_search_trace_clone_ex",
+          "navsys_search_trace_get_visit_count",
+          "navsys_search_trace_fetch_visit",
+          "navsys_search_trace_fetch_coord_visit_count",
+          "navsys_search_trace_export_visits",
           "route_add_visited",
           "route_clear_visited",
           "route_append",
@@ -4381,6 +4548,7 @@
           "route_contains",
           "route_find",
           "route_slice",
+          "route_slice_ex",
           "route_print",
           "route_make_direction",
           "route_get_direction_by_dir_coord",
@@ -4395,7 +4563,8 @@
           "route_update_average_vector",
           "route_update_average_vector_by_index",
           "calc_direction",
-          "route_reconstruct"
+          "route_reconstruct",
+          "route_reconstruct_ex"
         ],
         "source_definition_candidates": [
           "byul/console/console.cpp",
@@ -4405,6 +4574,8 @@
           "byul/navsys/dstar_lite/tests/test_module_dstar_lite.cpp",
           "byul/navsys/dstar_lite/tests/test_module_dstar_lite_tick.cpp",
           "byul/navsys/route/route.cpp",
+          "byul/navsys/route/route_builder.cpp",
+          "byul/navsys/route/route_trace.cpp",
           "byul/navsys/route/tests/test_module_route.cpp",
           "byul/navsys/route_finder/astar.cpp",
           "byul/navsys/route_finder/bfs.cpp",
@@ -4414,12 +4585,390 @@
           "byul/navsys/route_finder/fringe_search.cpp",
           "byul/navsys/route_finder/greedy_best_first.cpp",
           "byul/navsys/route_finder/ida_star.cpp",
+          "byul/navsys/route_finder/route_finder.cpp",
           "byul/navsys/route_finder/rta_star.cpp",
           "byul/navsys/route_finder/sma_star.cpp",
           "byul/navsys/route_finder/tests/test_module_route_finder.cpp",
           "byul/navsys/route_finder/tests/test_module_route_finder_discrete.cpp",
+          "byul/navsys/route_finder/tests/test_route_finder_performance_gate.cpp",
           "byul/navsys/route_finder/weighted_astar.cpp",
-          "byul/navsys/tests/test_module_navsys.cpp"
+          "byul/navsys/tests/test_module_navsys.cpp",
+          "byul/navsys/tests/test_navsys_allocation_failure.cpp",
+          "byul/tests/sdk_consumer/main.c"
+        ]
+      },
+      "decision_status": "approved"
+    },
+    {
+      "asset_id": "created:byul/navsys/navgrid/compat/abi1/navgrid_abi1.h",
+      "current_path": "byul/navsys/navgrid/compat/abi1/navgrid_abi1.h",
+      "sha256": "5c17972a30c6664698ae88fccd6af51723ffa3af9424481cb55fbb95eed2947c",
+      "primary_role": "internal",
+      "role_reason": "Private ABI-1 layout declaration reserved for compatibility fixtures and packages.",
+      "owner_module": "navsys",
+      "public_module": "navgrid",
+      "approved_install": false,
+      "install_reason": "The default SDK installs only the opaque canonical navgrid API.",
+      "wrapper": {
+        "mode": "excluded",
+        "reason": "ABI-layout compatibility headers are outside the canonical wrapper input."
+      },
+      "naming": {
+        "disposition": "keep",
+        "canonical_path": "byul/navsys/navgrid/compat/abi1/navgrid_abi1.h",
+        "canonical_install": false,
+        "deprecated_since": null,
+        "remove_in": null,
+        "reason": "Versioned private compatibility path.",
+        "compatibility_path": null
+      },
+      "successor_headers": [],
+      "source_evidence": {
+        "module_header_groups": [],
+        "root_header_inventory": false,
+        "install_inventory": false,
+        "wrapper_modules_registered": false,
+        "exported_symbols": [],
+        "source_definition_candidates": []
+      },
+      "decision_status": "approved"
+    },
+    {
+      "asset_id": "created:byul/navsys/navgrid/internal/navgrid_overlay.hpp",
+      "current_path": "byul/navsys/navgrid/internal/navgrid_overlay.hpp",
+      "sha256": "e30063f746ba62b2251a1bc0ddfb09c58a54c5ef1d7e6d48eab59814e282c9c4",
+      "primary_role": "internal",
+      "role_reason": "Private provenance-aware overlay transaction contract.",
+      "owner_module": "navsys",
+      "public_module": "navgrid",
+      "approved_install": false,
+      "install_reason": "Internal implementation headers are excluded from the SDK.",
+      "wrapper": {
+        "mode": "excluded",
+        "reason": "Internal headers are outside the installed C ABI wrapper input."
+      },
+      "naming": {
+        "disposition": "keep",
+        "canonical_path": "byul/navsys/navgrid/internal/navgrid_overlay.hpp",
+        "canonical_install": false,
+        "deprecated_since": null,
+        "remove_in": null,
+        "reason": "Canonical internal implementation path.",
+        "compatibility_path": null
+      },
+      "successor_headers": [],
+      "source_evidence": {
+        "module_header_groups": [],
+        "root_header_inventory": false,
+        "install_inventory": false,
+        "wrapper_modules_registered": false,
+        "exported_symbols": [],
+        "source_definition_candidates": [
+          "byul/navsys/navgrid/navgrid.cpp",
+          "byul/navsys/maze/maze_core.cpp",
+          "byul/navsys/obstacle/obstacle_core.cpp",
+          "byul/navsys/route_carver/compat/route_carver_legacy.cpp",
+          "byul/navsys/route_carver/route_carver_mutation.cpp"
+        ]
+      },
+      "decision_status": "approved"
+    },
+    {
+      "asset_id": "created:byul/navsys/navgrid/internal/navgrid_private.hpp",
+      "current_path": "byul/navsys/navgrid/internal/navgrid_private.hpp",
+      "sha256": "27c340b3cdec145436bc34ba93274923cc0a750bb20977a792671e8ca43826b5",
+      "primary_role": "internal",
+      "role_reason": "Private navgrid storage layout used by the implementation and callback guard.",
+      "owner_module": "navsys",
+      "public_module": "navgrid",
+      "approved_install": false,
+      "install_reason": "Internal implementation headers are excluded from the SDK.",
+      "wrapper": {
+        "mode": "excluded",
+        "reason": "Internal headers are outside the installed C ABI wrapper input."
+      },
+      "naming": {
+        "disposition": "keep",
+        "canonical_path": "byul/navsys/navgrid/internal/navgrid_private.hpp",
+        "canonical_install": false,
+        "deprecated_since": null,
+        "remove_in": null,
+        "reason": "Canonical internal implementation path.",
+        "compatibility_path": null
+      },
+      "successor_headers": [],
+      "source_evidence": {
+        "module_header_groups": [],
+        "root_header_inventory": false,
+        "install_inventory": false,
+        "wrapper_modules_registered": false,
+        "exported_symbols": [],
+        "source_definition_candidates": [
+          "byul/navsys/navgrid/navgrid.cpp"
+        ]
+      },
+      "decision_status": "approved"
+    },
+    {
+      "asset_id": "created:byul/navsys/obstacle/compat/abi1/obstacle_abi1.h",
+      "current_path": "byul/navsys/obstacle/compat/abi1/obstacle_abi1.h",
+      "sha256": "dc6ce3b3f9b3c66dafed60cc702b93d079f5b8db069defce7e92dba51f8b5705",
+      "primary_role": "internal",
+      "role_reason": "Private ABI-1 layout declaration reserved for compatibility fixtures and packages.",
+      "owner_module": "navsys",
+      "public_module": "obstacle",
+      "approved_install": false,
+      "install_reason": "The default SDK installs only the opaque canonical obstacle API.",
+      "wrapper": {
+        "mode": "excluded",
+        "reason": "ABI-layout compatibility headers are outside the canonical wrapper input."
+      },
+      "naming": {
+        "disposition": "keep",
+        "canonical_path": "byul/navsys/obstacle/compat/abi1/obstacle_abi1.h",
+        "canonical_install": false,
+        "deprecated_since": null,
+        "remove_in": null,
+        "reason": "Versioned private compatibility path.",
+        "compatibility_path": null
+      },
+      "successor_headers": [],
+      "source_evidence": {
+        "module_header_groups": [],
+        "root_header_inventory": false,
+        "install_inventory": false,
+        "wrapper_modules_registered": false,
+        "exported_symbols": [],
+        "source_definition_candidates": []
+      },
+      "decision_status": "approved"
+    },
+    {
+      "asset_id": "created:byul/navsys/obstacle/internal/obstacle_private.hpp",
+      "current_path": "byul/navsys/obstacle/internal/obstacle_private.hpp",
+      "sha256": "be266fffa3c7d2aa2526836d0b4df0f0d922c4a0d1838d49ecb7cb41963bb93b",
+      "primary_role": "internal",
+      "role_reason": "Private obstacle storage layout shared by core and geometry implementation units.",
+      "owner_module": "navsys",
+      "public_module": "obstacle",
+      "approved_install": false,
+      "install_reason": "Internal implementation headers are excluded from the SDK.",
+      "wrapper": {
+        "mode": "excluded",
+        "reason": "Internal headers are outside the installed C ABI wrapper input."
+      },
+      "naming": {
+        "disposition": "keep",
+        "canonical_path": "byul/navsys/obstacle/internal/obstacle_private.hpp",
+        "canonical_install": false,
+        "deprecated_since": null,
+        "remove_in": null,
+        "reason": "Canonical internal implementation path.",
+        "compatibility_path": null
+      },
+      "successor_headers": [],
+      "source_evidence": {
+        "module_header_groups": [],
+        "root_header_inventory": false,
+        "install_inventory": false,
+        "wrapper_modules_registered": false,
+        "exported_symbols": [],
+        "source_definition_candidates": [
+          "byul/navsys/obstacle/obstacle.cpp",
+          "byul/navsys/obstacle/obstacle_core.cpp",
+          "byul/navsys/obstacle/obstacle_geometry.cpp"
+        ]
+      },
+      "decision_status": "approved"
+    },
+    {
+      "asset_id": "created:byul/navsys/maze/compat/abi1/maze_abi1.h",
+      "current_path": "byul/navsys/maze/compat/abi1/maze_abi1.h",
+      "sha256": "80c0aff371856bef03eb9f857a1bf1b891c839dfd02639c835b83e364889379c",
+      "primary_role": "internal",
+      "role_reason": "Private ABI-1 layout declaration reserved for compatibility fixtures and packages.",
+      "owner_module": "navsys",
+      "public_module": "maze",
+      "approved_install": false,
+      "install_reason": "The default SDK installs only the opaque canonical Maze API.",
+      "wrapper": {
+        "mode": "excluded",
+        "reason": "ABI-layout compatibility headers are outside the canonical wrapper input."
+      },
+      "naming": {
+        "disposition": "keep",
+        "canonical_path": "byul/navsys/maze/compat/abi1/maze_abi1.h",
+        "canonical_install": false,
+        "deprecated_since": null,
+        "remove_in": null,
+        "reason": "Versioned private compatibility path.",
+        "compatibility_path": null
+      },
+      "successor_headers": [],
+      "source_evidence": {
+        "module_header_groups": [],
+        "root_header_inventory": false,
+        "install_inventory": false,
+        "wrapper_modules_registered": true,
+        "exported_symbols": [],
+        "source_definition_candidates": []
+      },
+      "decision_status": "approved"
+    },
+    {
+      "asset_id": "created:byul/navsys/maze/internal/maze_private.hpp",
+      "current_path": "byul/navsys/maze/internal/maze_private.hpp",
+      "sha256": "484588dbe564ddd4c7f9942889a6f6e12bcad71eba13226fe36c3b3092b9e055",
+      "primary_role": "internal",
+      "role_reason": "Private Maze storage layout and generation context shared by native implementation units.",
+      "owner_module": "navsys",
+      "public_module": "maze",
+      "approved_install": false,
+      "install_reason": "Internal implementation headers are excluded from the SDK.",
+      "wrapper": {
+        "mode": "excluded",
+        "reason": "Internal headers are outside the installed C ABI wrapper input."
+      },
+      "naming": {
+        "disposition": "keep",
+        "canonical_path": "byul/navsys/maze/internal/maze_private.hpp",
+        "canonical_install": false,
+        "deprecated_since": null,
+        "remove_in": null,
+        "reason": "Canonical internal implementation path.",
+        "compatibility_path": null
+      },
+      "successor_headers": [],
+      "source_evidence": {
+        "module_header_groups": [],
+        "root_header_inventory": false,
+        "install_inventory": false,
+        "wrapper_modules_registered": false,
+        "exported_symbols": [],
+        "source_definition_candidates": [
+          "byul/navsys/maze/maze.cpp",
+          "byul/navsys/maze/maze_aldous_broder.cpp",
+          "byul/navsys/maze/maze_binary.cpp",
+          "byul/navsys/maze/maze_core.cpp",
+          "byul/navsys/maze/maze_eller.cpp",
+          "byul/navsys/maze/maze_generation_context.cpp",
+          "byul/navsys/maze/maze_hunt_and_kill.cpp",
+          "byul/navsys/maze/maze_kruskal.cpp",
+          "byul/navsys/maze/maze_prim.cpp",
+          "byul/navsys/maze/maze_recursive.cpp",
+          "byul/navsys/maze/maze_recursive_division.cpp",
+          "byul/navsys/maze/maze_room_blend.cpp",
+          "byul/navsys/maze/maze_sidewinder.cpp",
+          "byul/navsys/maze/maze_wilson.cpp",
+          "byul/navsys/maze/tests/test_module_maze.cpp"
+        ]
+      },
+      "decision_status": "approved"
+    },
+    {
+      "asset_id": "created:byul/navsys/route_carver/compat/route_carver_legacy.hpp",
+      "current_path": "byul/navsys/route_carver/compat/route_carver_legacy.hpp",
+      "sha256": "3bbc1d144635975319a37f7f1fd626f1e27e268519060292dfdc656e09144d1f",
+      "primary_role": "internal",
+      "role_reason": "Private ABI-1 behavior implementation behind the public deprecated adapters.",
+      "owner_module": "navsys",
+      "public_module": "route_carver",
+      "approved_install": false,
+      "install_reason": "Private compatibility implementation is excluded from the SDK.",
+      "wrapper": {
+        "mode": "excluded",
+        "reason": "Private implementation headers are outside the installed C ABI wrapper input."
+      },
+      "naming": {
+        "disposition": "keep",
+        "canonical_path": "byul/navsys/route_carver/compat/route_carver_legacy.hpp",
+        "canonical_install": false,
+        "deprecated_since": null,
+        "remove_in": null,
+        "reason": "Private compatibility implementation path.",
+        "compatibility_path": null
+      },
+      "successor_headers": [],
+      "source_evidence": {
+        "module_header_groups": [],
+        "root_header_inventory": false,
+        "install_inventory": false,
+        "wrapper_modules_registered": false,
+        "exported_symbols": [],
+        "source_definition_candidates": [
+          "byul/navsys/route_carver/compat/route_carver_legacy.cpp"
+        ]
+      },
+      "decision_status": "approved"
+    },
+    {
+      "asset_id": "created:byul/navsys/route_carver/internal/route_carver_geometry.hpp",
+      "current_path": "byul/navsys/route_carver/internal/route_carver_geometry.hpp",
+      "sha256": "9465ccf3f71d444c9be7f268e13e58b72db47427c2d686e2090baad779a21ec7",
+      "primary_role": "internal",
+      "role_reason": "Private candidate enumeration contract for the route-carver implementation.",
+      "owner_module": "navsys",
+      "public_module": "route_carver",
+      "approved_install": false,
+      "install_reason": "Internal implementation headers are excluded from the SDK.",
+      "wrapper": {
+        "mode": "excluded",
+        "reason": "Internal headers are outside the installed C ABI wrapper input."
+      },
+      "naming": {
+        "disposition": "keep",
+        "canonical_path": "byul/navsys/route_carver/internal/route_carver_geometry.hpp",
+        "canonical_install": false,
+        "deprecated_since": null,
+        "remove_in": null,
+        "reason": "Canonical internal implementation path.",
+        "compatibility_path": null
+      },
+      "successor_headers": [],
+      "source_evidence": {
+        "module_header_groups": [],
+        "root_header_inventory": false,
+        "install_inventory": false,
+        "wrapper_modules_registered": false,
+        "exported_symbols": [],
+        "source_definition_candidates": [
+          "byul/navsys/route_carver/route_carver_geometry.cpp"
+        ]
+      },
+      "decision_status": "approved"
+    },
+    {
+      "asset_id": "created:byul/navsys/route_carver/internal/route_carver_mutation.hpp",
+      "current_path": "byul/navsys/route_carver/internal/route_carver_mutation.hpp",
+      "sha256": "e7706b08a25c00ec062eb31e59e9f5d32ca12cf28dcb05d17606726362e706e6",
+      "primary_role": "internal",
+      "role_reason": "Private atomic mutation contract for the route-carver implementation.",
+      "owner_module": "navsys",
+      "public_module": "route_carver",
+      "approved_install": false,
+      "install_reason": "Internal implementation headers are excluded from the SDK.",
+      "wrapper": {
+        "mode": "excluded",
+        "reason": "Internal headers are outside the installed C ABI wrapper input."
+      },
+      "naming": {
+        "disposition": "keep",
+        "canonical_path": "byul/navsys/route_carver/internal/route_carver_mutation.hpp",
+        "canonical_install": false,
+        "deprecated_since": null,
+        "remove_in": null,
+        "reason": "Canonical internal implementation path.",
+        "compatibility_path": null
+      },
+      "successor_headers": [],
+      "source_evidence": {
+        "module_header_groups": [],
+        "root_header_inventory": false,
+        "install_inventory": false,
+        "wrapper_modules_registered": false,
+        "exported_symbols": [],
+        "source_definition_candidates": [
+          "byul/navsys/route_carver/route_carver_mutation.cpp"
         ]
       },
       "decision_status": "approved"
@@ -4427,7 +4976,7 @@
     {
       "asset_id": "initial:byul/navsys/route_carver/route_carver.h",
       "current_path": "byul/navsys/route_carver/route_carver.h",
-      "sha256": "3637c154467ca0aae5cdf0977ecd4a161802f21c0fba0881514e09949f68c71b",
+      "sha256": "5d464550c6a163958544e402bdf0e84a1ff8de31b9cf0d996231a32ff4a078ce",
       "primary_role": "public-module-entry",
       "role_reason": "Canonical entry for the route-carver public module.",
       "owner_module": "navsys",
@@ -4435,8 +4984,8 @@
       "approved_install": true,
       "install_reason": "Public or compatibility SDK surface.",
       "wrapper": {
-        "mode": "manual",
-        "reason": "Public legacy declarations require explicit ownership/error metadata before automatic generation."
+        "mode": "generated",
+        "reason": "Registered in the canonical wrapper generator manifest."
       },
       "naming": {
         "disposition": "keep",
@@ -4455,13 +5004,16 @@
         ],
         "root_header_inventory": true,
         "install_inventory": true,
-        "wrapper_modules_registered": false,
+        "wrapper_modules_registered": true,
         "exported_symbols": [
+          "navgrid_carve_line",
+          "navgrid_carve_area",
           "route_carve_beam",
           "route_carve_bomb"
         ],
         "source_definition_candidates": [
           "byul/navsys/route_carver/route_carver.cpp",
+          "byul/navsys/route_carver/route_carver_checked.cpp",
           "byul/navsys/tests/test_module_route_carver.cpp"
         ]
       },
@@ -4826,9 +5378,53 @@
       "decision_status": "approved"
     },
     {
+      "asset_id": "created:byul/navsys/route_finder/internal/coord_hash_adapters.hpp",
+      "current_path": "byul/navsys/route_finder/internal/coord_hash_adapters.hpp",
+      "sha256": "e681c4cd876416715cedeb9d7819b6d77a5cde3011cf00cd6a2b21cd89213320",
+      "primary_role": "internal",
+      "role_reason": "Private ownership adapters shared by route-finder implementations using coord_hash values.",
+      "owner_module": "navsys",
+      "public_module": "route_finder",
+      "approved_install": false,
+      "install_reason": "Internal implementation headers are excluded from the SDK.",
+      "wrapper": {
+        "mode": "excluded",
+        "reason": "Internal headers are outside the installed C ABI wrapper input."
+      },
+      "naming": {
+        "disposition": "keep",
+        "canonical_path": "byul/navsys/route_finder/internal/coord_hash_adapters.hpp",
+        "canonical_install": false,
+        "deprecated_since": null,
+        "remove_in": null,
+        "reason": "Canonical internal implementation path.",
+        "compatibility_path": null
+      },
+      "successor_headers": [],
+      "source_evidence": {
+        "module_header_groups": [],
+        "root_header_inventory": false,
+        "install_inventory": false,
+        "wrapper_modules_registered": false,
+        "exported_symbols": [],
+        "source_definition_candidates": [
+          "byul/navsys/route_finder/astar.cpp",
+          "byul/navsys/route_finder/bfs.cpp",
+          "byul/navsys/route_finder/dfs.cpp",
+          "byul/navsys/route_finder/dijkstra.cpp",
+          "byul/navsys/route_finder/fringe_search.cpp",
+          "byul/navsys/route_finder/greedy_best_first.cpp",
+          "byul/navsys/route_finder/ida_star.cpp",
+          "byul/navsys/route_finder/sma_star.cpp",
+          "byul/navsys/route_finder/weighted_astar.cpp"
+        ]
+      },
+      "decision_status": "approved"
+    },
+    {
       "asset_id": "initial:byul/navsys/route_finder/route_finder.h",
       "current_path": "byul/navsys/route_finder/route_finder.h",
-      "sha256": "7db6f3a9b85876bdfeed1a7dffda18dd71521c454f4690aba68112b0a95df97d",
+      "sha256": "6a08807a60297f2ca5c2937a1c4b00c458f200c9c0037126d143265f026198aa",
       "primary_role": "public-module-entry",
       "role_reason": "Canonical entry for route-finder dispatch and configuration.",
       "owner_module": "navsys",
@@ -4860,6 +5456,7 @@
         "wrapper_modules_registered": true,
         "exported_symbols": [
           "get_route_finder_name",
+          "route_finder_is_supported",
           "route_finder_create",
           "route_finder_create_full",
           "route_finder_init",
@@ -4875,10 +5472,17 @@
           "route_finder_fetch_goal",
           "route_finder_set_type",
           "route_finder_get_type",
+          "route_finder_set_type_checked",
           "route_finder_set_typedata",
           "route_finder_get_typedata",
+          "route_finder_bind_fringe_search_config",
+          "route_finder_bind_rta_star_config",
+          "route_finder_bind_sma_star_config",
+          "route_finder_bind_weighted_astar_config",
+          "route_finder_unbind_algorithm_config",
           "route_finder_set_max_retry",
           "route_finder_get_max_retry",
+          "route_finder_set_max_retry_checked",
           "route_finder_enable_debug_mode",
           "route_finder_is_debug_mode_enabled",
           "route_finder_set_cost_func",
@@ -4897,13 +5501,17 @@
           "route_finder_set_defaults",
           "route_finder_is_valid",
           "route_finder_print",
-          "route_finder_run"
+          "route_finder_run",
+          "route_finder_run_ex",
+          "route_finder_run_with_options"
         ],
         "source_definition_candidates": [
           "byul/navsys/navsys.cpp",
           "byul/navsys/route_finder/route_finder.cpp",
           "byul/navsys/route_finder/tests/test_module_route_finder.cpp",
+          "byul/navsys/route_finder/tests/test_route_finder_performance_gate.cpp",
           "byul/navsys/tests/test_module_navsys.cpp",
+          "byul/navsys/tests/test_navsys_allocation_failure.cpp",
           "byul/tests/sdk_consumer/main.c"
         ]
       },
@@ -5097,7 +5705,7 @@
     {
       "asset_id": "initial:byul/numal/dualnumber.h",
       "current_path": "byul/numal/dualnumber.h",
-      "sha256": "c745a2cff5547a1d2611a3e82a60aecc0ee8ea5febf27a1f76ac659b352bc9a2",
+      "sha256": "f30a43433088949e5d57018ef6b96e1caef949146616ce3b383f1a8f4a231dbd",
       "primary_role": "public-component",
       "role_reason": "Stage-1 evidence supports the current public or internal boundary.",
       "owner_module": "numal",
@@ -5614,9 +6222,6 @@
           "byul/balix/numeq/numeq_solver.cpp",
           "byul/balix/tests/test_module_xform.cpp",
           "byul/entity/entity_interaction.cpp",
-          "byul/navsys/dstar_lite/dstar_lite.cpp",
-          "byul/navsys/dstar_lite/dstar_lite_key.cpp",
-          "byul/navsys/dstar_lite/dstar_lite_tick.cpp",
           "byul/numal/quat.cpp",
           "byul/numal/scalar.cpp",
           "byul/numal/tests/test_module_scalar.cpp",
@@ -5628,7 +6233,7 @@
     {
       "asset_id": "initial:byul/numal/vec3.h",
       "current_path": "byul/numal/vec3.h",
-      "sha256": "35834dd837a91955602e0bbfda0f7f6766337fc17423c88261797b75c0eb7cbf",
+      "sha256": "25960009b944e3105e2d5e6d3d0d1ac4fe1e986f91e962a91c3c2df9fcd826e8",
       "primary_role": "public-component",
       "role_reason": "Stage-1 evidence supports the current public or internal boundary.",
       "owner_module": "numal",

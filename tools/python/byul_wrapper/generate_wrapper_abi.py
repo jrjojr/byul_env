@@ -37,6 +37,15 @@ MODULE_HEADERS: dict[str, tuple[str, ...]] = {
         "navsys/navgrid/navcell.h",
         "navsys/navgrid/navgrid.h",
     ),
+    "obstacle.py": (
+        "navsys/obstacle/obstacle_core.h",
+        "navsys/obstacle/obstacle.h",
+    ),
+    "maze.py": (
+        "navsys/maze/maze_core.h",
+        "navsys/maze/maze.h",
+    ),
+    "route_carver.py": ("navsys/route_carver/route_carver.h",),
     "route.py": ("navsys/route/route.h",),
     "route_finder_common.py": ("navsys/route_finder/route_finder_core.h",),
     "route_finder.py": (
@@ -68,6 +77,11 @@ def strip_comments(source: str) -> str:
 def header_to_cdef(path: Path) -> str:
     """Convert one C-compatible public header to CFFI parser input."""
     source = strip_comments(path.read_text(encoding="utf-8"))
+    source = re.sub(
+        r'BYUL_DEPRECATED\(\s*"(?:\\.|[^"\\])*"\s*\)',
+        "",
+        source,
+    )
     lines: list[str] = []
     skipping_directive = False
 
@@ -87,11 +101,6 @@ def header_to_cdef(path: Path) -> str:
             continue
 
         line = raw_line.replace("BYUL_API", "")
-        line = re.sub(
-            r'BYUL_DEPRECATED\(\s*"(?:\\.|[^"\\])*"\s*\)',
-            "",
-            line,
-        )
         line = re.sub(r"\s+$", "", line)
         lines.append(line)
 

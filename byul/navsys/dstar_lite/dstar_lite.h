@@ -37,8 +37,6 @@
 #include "byul_config.h"
 #include "navsys_status.h"
 
-// #include "scalar.h"
-
 #include "navgrid.h"
 #include "coord.h"
 #include "coord_list.h"

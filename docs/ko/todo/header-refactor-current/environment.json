@@ -1,27 +1,40 @@
 {
   "schema_version": 1,
-  "captured_at_utc": "2026-07-18T14:31:10.359676+00:00",
-  "git_head": "940aeba18c90e05bea9bb9317311d214c00ad9d6",
-  "git_branch": "test/navsys-coord-numeric-baseline",
+  "captured_at_utc": "2026-07-26T00:53:53.058585+00:00",
+  "git_head": "1127528dd8e02729a600f85fc94d0b1d518d49bc",
+  "git_branch": "refactor/navsys",
   "git_status_porcelain": [
-    "M byul/navsys/route/route.cpp",
+    "M byul/console/console.cpp",
+    " M byul/navsys/dstar_lite/dstar_lite.cpp",
+    " M byul/navsys/dstar_lite/dstar_lite_tick.cpp",
+    " M byul/navsys/dstar_lite/tests/test_module_dstar_lite.cpp",
+    " M byul/navsys/dstar_lite/tests/test_module_dstar_lite_tick.cpp",
+    " M byul/navsys/route/CMakeLists.txt",
+    " M byul/navsys/route/route.cpp",
     " M byul/navsys/route/route.h",
     " M byul/navsys/route/tests/test_module_route.cpp",
+    " M byul/navsys/tests/test_navsys_allocation_failure.cpp",
     " M byul/tests/sdk_consumer/main.c",
-    " M docs/ko/todo/header-refactor-baseline/msvc-release-build.json",
-    " M docs/ko/todo/header-refactor-current/mingw-release-build.json",
-    " M docs/ko/todo/header-refactor-current/msvc-release-build.json",
     " M docs/ko/todo/navsys/navsys-current-abi-inventory.json",
     " M docs/ko/todo/navsys/navsys-lifecycle-policy.json",
-    " M docs/ko/todo/navsys/todo-navsys-industry-api-baseline.org",
+    " M docs/ko/todo/navsys/route-abi-consumer-inventory.json",
     " M docs/ko/todo/navsys/todo-navsys-route-route.org",
+    " M tools/header_refactor_baseline.py",
+    " M tools/header_role_manifest.py",
+    " M tools/navsys_abi_inventory.py",
     " M tools/python/byul_wrapper/byul_wrapper/route.py",
-    " M tools/python/byul_wrapper/tests/test_route.py"
+    " M tools/python/byul_wrapper/tests/test_route.py",
+    " M tools/route_abi_inventory.py",
+    " M tools/tests/test_header_refactor_baseline.py",
+    " M tools/tests/test_navsys_lifecycle_policy.py",
+    "?? byul/navsys/route/internal/",
+    "?? byul/navsys/route/route_builder.cpp",
+    "?? byul/navsys/route/route_trace.cpp"
   ],
-  "rules_submodule_sha": "642275431efe0d87f4fc3856ef326d6fdfbb0aba",
+  "rules_submodule_sha": "b1ff82f7b2c5144f50cd4c5a37207a1bd2423453",
   "platform": {
     "system": "Windows",
-    "release": "11",
+    "release": "10",
     "machine": "AMD64"
   },
   "tools": {
@@ -35,7 +48,7 @@
     },
     "python": {
       "available": true,
-      "version": "Python 3.13.3"
+      "version": "Python 3.11.8"
     },
     "cl": {
       "available": false,

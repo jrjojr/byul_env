@@ -1,5 +1,17 @@
-#ifndef MAZE_HUNT_AND_KILL_H
-#define MAZE_HUNT_AND_KILL_H
+/*
+ * Copyright (c) 2025-2026 ByulPapa (byuldev@outlook.kr)
+ * This file is part of the Byul World project.
+ * Licensed under the Byul World Source-Available Non-Commercial License v1.0 (2025).
+ * See the LICENSE file in the project root for full license terms.
+ */
+
+/**
+ * @file maze_hunt_and_kill.h
+ * @brief Hunt-and-Kill Maze 생성기의 레거시 public C ABI를 선언한다.
+ */
+
+#ifndef BYUL_MAZE_HUNT_AND_KILL_H
+#define BYUL_MAZE_HUNT_AND_KILL_H
 
 #include "maze_core.h"
 
@@ -8,46 +20,18 @@ extern "C" {
 #endif
 
 /**
- * @brief Generate a maze using the Hunt-and-Kill algorithm.
- *
- * Hunt-and-Kill algorithm alternates between random walks (Kill phase) and
- * scanning for new starting points (Hunt phase). It creates mazes with a mix
- * of long corridors and sparse branching, 
- * often resulting in natural-looking paths.
- *
- * ---
- *
- * ### Features
- * - Generates a **perfect maze** (fully connected, no cycles)
- * - Tends to produce **long straight corridors**
- * - Alternates between two phases:
- *   - **Kill phase**: Random walk from current cell, carving passages
- *   - **Hunt phase**: Scan for unvisited cells adjacent to visited ones
- *
- * ---
- *
- * ### Constraints
- * - Both `width` and `height` must be **odd integers ≥ 3**
- *
- * ---
- *
- * ### Usage Example
- * @code
- * maze_t* maze = maze_make_hunt_and_kill(0, 0, 21, 21);
- * if (maze) {
- *     maze_apply_to_navgrid(maze, navgrid);
- *     navgrid_print_ascii(navgrid);
- *     maze_destroy(maze);
- * }
- * @endcode
- *
- * ---
- *
- * @param x0 Starting X coordinate of the maze
- * @param y0 Starting Y coordinate of the maze
- * @param width Width of the maze (must be odd and ≥ 3)
- * @param height Height of the maze (must be odd and ≥ 3)
- * @return Pointer to the generated `maze_t` structure, or `nullptr` on failure
+ * @brief 비결정적 Hunt-and-Kill 방식으로 perfect Maze를 생성한다.
+ * @param[in] x0 Maze 원점의 X 좌표다.
+ * @param[in] y0 Maze 원점의 Y 좌표다.
+ * @param[in] width 3 이상인 홀수 너비다.
+ * @param[in] height 3 이상인 홀수 높이다.
+ * @return caller-owned Maze이며 입력 또는 allocation 실패 시 NULL이다.
+ * @byul.nullable return true
+ * @byul.lifetime return caller-owned
+ * @byul.error sentinel:null
+ * @byul.side_effect allocates
+ * @byul.thread_safety thread-compatible
+ * @byul.blocking true
  */
 BYUL_API maze_t* maze_make_hunt_and_kill(int x0, int y0, int width, int height);
 
@@ -55,4 +39,4 @@ BYUL_API maze_t* maze_make_hunt_and_kill(int x0, int y0, int width, int height);
 }
 #endif
 
-#endif // MAZE_HUNT_AND_KILL_H
+#endif /* BYUL_MAZE_HUNT_AND_KILL_H */

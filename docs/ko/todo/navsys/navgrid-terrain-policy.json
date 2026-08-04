@@ -1,0 +1,61 @@
+{
+  "schema_version": 1,
+  "owner": "byul/navsys/navgrid/navgrid.h",
+  "value_type_owner": "byul/navsys/navgrid/navcell.h",
+  "terrain_policy": {
+    "TERRAIN_TYPE_NORMAL": {
+      "supported": true,
+      "built_in_blocked": false,
+      "built_in_cost": null
+    },
+    "TERRAIN_TYPE_WATER": {
+      "supported": true,
+      "built_in_blocked": false,
+      "built_in_cost": null
+    },
+    "TERRAIN_TYPE_FOREST": {
+      "supported": true,
+      "built_in_blocked": false,
+      "built_in_cost": null
+    },
+    "TERRAIN_TYPE_MOUNTAIN": {
+      "supported": true,
+      "built_in_blocked": false,
+      "built_in_cost": null
+    },
+    "TERRAIN_TYPE_FORBIDDEN": {
+      "supported": true,
+      "built_in_blocked": true,
+      "built_in_cost": null
+    },
+    "unknown": {
+      "supported": false,
+      "set_cell": "reject-without-mutation",
+      "raw_map_fallback": "blocked-conservatively"
+    }
+  },
+  "interpretation_owners": {
+    "terrain_value_validation": "navcell",
+    "built_in_blocked": "navgrid built-in blocked callback",
+    "custom_blocked": "navgrid callback binding",
+    "traversal_cost": "route-finder cost callback; navgrid assigns no built-in terrain cost",
+    "height": "application-defined unitless metadata; navgrid and route-finder do not interpret it",
+    "solid": "no distinct navcell state; callers express it through blocked policy"
+  },
+  "legacy_mutation_policy": {
+    "block_absent": "insert FORBIDDEN with height 0",
+    "block_forbidden": "idempotent success",
+    "block_non_forbidden": "refuse and preserve terrain and height",
+    "unblock_forbidden": "remove cell and restore sparse default",
+    "unblock_absent": "no-op failure",
+    "unblock_non_forbidden": "refuse and preserve terrain and height",
+    "overlay_provenance": "checked block uses a separate default overlay; token and maze/obstacle source overlays preserve base terrain and each other"
+  },
+  "checked_mutation_policy": {
+    "set_cell": "validated failure-atomic base replacement with prior presence value and changed outputs",
+    "fetch_cell": "inside absent returns NORMAL height 0 with present false; outside returns NOT_FOUND and preserves outputs",
+    "block_unblock": "mutate only the default blocked overlay and preserve the base cell",
+    "clear": "removes base cells and all overlays while preserving extent topology and callback binding",
+    "overlay_remove": "removes only the selected token or source and reveals remaining overlays or base terrain"
+  }
+}

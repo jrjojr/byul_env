@@ -13,6 +13,7 @@ set(${PROJECT_NAME}_SOURCES
     ${CMAKE_CURRENT_SOURCE_DIR}/dstar_lite.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/dstar_lite_tick.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/internal/dstar_lite_callback.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/internal/dstar_lite_key_ops.hpp
 
 CACHE INTERNAL "${PROJECT_NAME} source files"  FORCE
 )
@@ -20,7 +21,6 @@ CACHE INTERNAL "${PROJECT_NAME} source files"  FORCE
 set(${PROJECT_NAME}_HEADERS
 
     ${CMAKE_CURRENT_SOURCE_DIR}/dstar_lite_key.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/dstar_lite_key.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/dstar_lite_pqueue.h
     ${CMAKE_CURRENT_SOURCE_DIR}/dstar_lite.h
     ${CMAKE_CURRENT_SOURCE_DIR}/dstar_lite_tick.h
@@ -29,12 +29,12 @@ CACHE INTERNAL "${PROJECT_NAME} header files"  FORCE
 )
 
 add_library(${PROJECT_NAME} STATIC ${${PROJECT_NAME}_SOURCES})
+byul_register_production_target(${PROJECT_NAME})
 
 target_include_directories(${PROJECT_NAME} PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}    
     ${CMAKE_SOURCE_DIR}
     
-    ${CMAKE_SOURCE_DIR}/numal
     ${CMAKE_SOURCE_DIR}/byul_tick
 
     ${CMAKE_SOURCE_DIR}/navsys/coord
@@ -44,7 +44,6 @@ target_include_directories(${PROJECT_NAME} PRIVATE
 )
 
 target_link_libraries(${PROJECT_NAME} PRIVATE 
-    numal
     coord
     route
     navgrid
@@ -52,7 +51,9 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
 
 )
 
-add_subdirectory(tests)
+if(BUILD_TESTING)
+    add_subdirectory(tests)
+endif()
 
 # win11 에서는 무조건 설정해야 한다 dll과 static 간에 문제때문에 링크가 안된다.
 target_compile_definitions(${PROJECT_NAME} PRIVATE BYUL_STATIC)

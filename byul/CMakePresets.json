@@ -27,6 +27,16 @@
             }
         },
         {
+            "name": "linux-release-package",
+            "inherits": "linux-release",
+            "displayName": "Ubuntu Release Package (tests off)",
+            "description": "Ubuntu production package without test targets",
+            "binaryDir": "${sourceDir}/../build_release_package",
+            "cacheVariables": {
+                "BUILD_TESTING": "OFF"
+            }
+        },
+        {
             "name": "win-release",
             "displayName": "Windows 11 (MinGW64 Cross)",
             "description": "Windows DLL 빌드용 크로스 컴파일 Preset",
@@ -35,6 +45,16 @@
             "cacheVariables": {
                 "CMAKE_BUILD_TYPE": "Release",
                 "CMAKE_TOOLCHAIN_FILE": "${sourceDir}/cmake/toolchain-mingw64.cmake"
+            }
+        },
+        {
+            "name": "win-release-package",
+            "inherits": "win-release",
+            "displayName": "Windows MinGW Release Package (tests off)",
+            "description": "Windows cross production package without test targets",
+            "binaryDir": "${sourceDir}/../build_win_release_package",
+            "cacheVariables": {
+                "BUILD_TESTING": "OFF"
             }
         },
         {
@@ -58,6 +78,16 @@
             }
         },
         {
+            "name": "win-native-package",
+            "inherits": "win-native",
+            "displayName": "Windows Native Release Package (tests off)",
+            "description": "Windows native production package without test targets",
+            "binaryDir": "${sourceDir}/../build_win_native_package",
+            "cacheVariables": {
+                "BUILD_TESTING": "OFF"
+            }
+        },
+        {
             "name": "win-native-debug",
             "displayName": "Windows 11 (MSYS2 MinGW Native - Debug)",
             "description": "Windows 11에서 MinGW Native Debug 빌드",
@@ -77,6 +107,16 @@
             "cacheVariables": {
                 "CMAKE_CONFIGURATION_TYPES": "Debug;Release"
             }
+        },
+        {
+            "name": "win-msvc-package",
+            "inherits": "win-msvc",
+            "displayName": "Windows MSVC Release Package (tests off)",
+            "description": "MSVC production package without test targets",
+            "binaryDir": "${sourceDir}/../build_win_msvc_package",
+            "cacheVariables": {
+                "BUILD_TESTING": "OFF"
+            }
         }
     ],
     "buildPresets": [
@@ -93,9 +133,21 @@
             "jobs": 8
         },
         {
+            "name": "build-linux-release-package",
+            "configurePreset": "linux-release-package",
+            "description": "Ubuntu tests-off production package build",
+            "jobs": 8
+        },
+        {
             "name": "build-win-release",
             "configurePreset": "win-release",
             "description": "Windows용 전체 빌드 preset",
+            "jobs": 8
+        },
+        {
+            "name": "build-win-release-package",
+            "configurePreset": "win-release-package",
+            "description": "Windows MinGW tests-off production package build",
             "jobs": 8
         },
         {
@@ -108,6 +160,12 @@
             "name": "build-win-native",
             "configurePreset": "win-native",
             "description": "Windows native 전체 빌드 preset",
+            "jobs": 8
+        },
+        {
+            "name": "build-win-native-package",
+            "configurePreset": "win-native-package",
+            "description": "Windows native tests-off production package build",
             "jobs": 8
         },
         {
@@ -129,6 +187,13 @@
             "description": "Windows MSVC Debug 전체 빌드",
             "configuration": "Debug",
             "jobs": 8
+        },
+        {
+            "name": "build-win-msvc-package",
+            "configurePreset": "win-msvc-package",
+            "description": "Windows MSVC tests-off production package build",
+            "configuration": "Release",
+            "jobs": 8
         }
     ],
     "testPresets": [
@@ -144,6 +209,31 @@
             "name": "test-win-msvc-debug",
             "configurePreset": "win-msvc",
             "configuration": "Debug",
+            "output": {
+                "outputOnFailure": true
+            }
+        },
+        {
+            "name": "test-win-msvc-release-memory",
+            "configurePreset": "win-msvc",
+            "configuration": "Release",
+            "filter": {
+                "include": {
+                    "name": "^test_navsys_allocation_(failure|leak_gate)$"
+                }
+            },
+            "output": {
+                "outputOnFailure": true
+            }
+        },
+        {
+            "name": "test-linux-debug-memory",
+            "configurePreset": "linux-debug",
+            "filter": {
+                "include": {
+                    "name": "^test_navsys_allocation_(failure|leak_gate)$"
+                }
+            },
             "output": {
                 "outputOnFailure": true
             }

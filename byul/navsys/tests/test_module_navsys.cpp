@@ -2,7 +2,9 @@
 #include "navsys.h"
 #include "console.h"
 
+#include <cstddef>
 #include <iostream>
+#include <limits>
 
 static float bound_cost(
     const navgrid_t*, const coord_t*, const coord_t*, void* userdata) {
@@ -26,6 +28,18 @@ static bool bound_is_blocked(
     const void*, int x, int y, void* userdata) {
     const coord_t* blocked = static_cast<const coord_t*>(userdata);
     return blocked && blocked->x == x && blocked->y == y;
+}
+
+static void check_navgrid_binding(
+    const navgrid_t* navgrid,
+    is_coord_blocked_func expected_fn,
+    void* expected_userdata) {
+    is_coord_blocked_func actual_fn = nullptr;
+    void* actual_userdata = nullptr;
+    REQUIRE(navgrid_fetch_is_coord_blocked_binding(
+        navgrid, &actual_fn, &actual_userdata) == NAVSYS_STATUS_OK);
+    CHECK(actual_fn == expected_fn);
+    CHECK(actual_userdata == expected_userdata);
 }
 
 struct reentrant_route_finder_context {
@@ -153,6 +167,47 @@ TEST_CASE("navsys: public status numeric ABI") {
     CHECK(static_cast<int>(NAVSYS_STATUS_IN_PROGRESS) == -12);
 }
 
+TEST_CASE("navsys: D* Lite key exact ABI is available from root") {
+    CHECK(dstar_lite_key_sizeof() == sizeof(dstar_lite_key_t));
+    CHECK(dstar_lite_key_alignof() == alignof(dstar_lite_key_t));
+    CHECK(dstar_lite_key_offsetof_k1() == offsetof(dstar_lite_key_t, k1));
+    CHECK(dstar_lite_key_offsetof_k2() == offsetof(dstar_lite_key_t, k2));
+
+    dstar_lite_key_t exact = {};
+    dstar_lite_key_t close = {};
+    REQUIRE(dstar_lite_key_init(&exact, -0.0f, 2.0f)
+        == NAVSYS_STATUS_OK);
+    REQUIRE(dstar_lite_key_init(&close, 0.000001f, 2.0f)
+        == NAVSYS_STATUS_OK);
+    CHECK_FALSE(dstar_lite_key_equal_exact(&exact, &close));
+
+    int order = 7;
+    REQUIRE(dstar_lite_key_compare_exact(&exact, &close, &order)
+        == NAVSYS_STATUS_OK);
+    CHECK(order < 0);
+
+    bool is_close = false;
+    REQUIRE(dstar_lite_key_is_close(
+        &exact, &close, 0.000001f, 0.0f, &is_close)
+        == NAVSYS_STATUS_OK);
+    CHECK(is_close);
+
+    const dstar_lite_key_t positive_zero = {0.0f, 2.0f};
+    const dstar_lite_key_t negative_zero = {-0.0f, 2.0f};
+    CHECK(dstar_lite_key_equal_exact(&positive_zero, &negative_zero));
+    CHECK(dstar_lite_key_hash_exact(&positive_zero)
+        == dstar_lite_key_hash_exact(&negative_zero));
+
+    const dstar_lite_key_t invalid = {
+        std::numeric_limits<float>::quiet_NaN(), 0.0f
+    };
+    is_close = true;
+    CHECK(dstar_lite_key_is_close(
+        &invalid, &exact, 0.0f, 0.0f, &is_close)
+        == NAVSYS_STATUS_INVALID_ARGUMENT);
+    CHECK(is_close);
+}
+
 TEST_CASE("navsys: callback bindings commit and unbind as pairs") {
     navgrid_t* navgrid = navgrid_create();
     REQUIRE(navgrid != nullptr);
@@ -160,8 +215,7 @@ TEST_CASE("navsys: callback bindings commit and unbind as pairs") {
     coord_t blocked = {1, 0};
     CHECK(navgrid_bind_is_coord_blocked_func(
         navgrid, bound_is_blocked, &blocked) == NAVSYS_STATUS_OK);
-    CHECK(navgrid->is_coord_blocked_fn == bound_is_blocked);
-    CHECK(navgrid->is_coord_blocked_fn_userdata == &blocked);
+    check_navgrid_binding(navgrid, bound_is_blocked, &blocked);
 
     coord_t origin = {0, 0};
     coord_list_t* neighbors =
@@ -172,8 +226,7 @@ TEST_CASE("navsys: callback bindings commit and unbind as pairs") {
 
     CHECK(navgrid_bind_is_coord_blocked_func(
         navgrid, nullptr, nullptr) == NAVSYS_STATUS_INVALID_ARGUMENT);
-    CHECK(navgrid->is_coord_blocked_fn == bound_is_blocked);
-    CHECK(navgrid->is_coord_blocked_fn_userdata == &blocked);
+    check_navgrid_binding(navgrid, bound_is_blocked, &blocked);
 
     route_finder_t* finder = route_finder_create(navgrid);
     REQUIRE(finder != nullptr);
@@ -233,8 +286,7 @@ TEST_CASE("navsys: callback bindings commit and unbind as pairs") {
     CHECK(route_finder_get_cost_fn_userdata(finder) == nullptr);
 
     CHECK(navgrid_unbind_is_coord_blocked_func(navgrid) == NAVSYS_STATUS_OK);
-    CHECK(navgrid->is_coord_blocked_fn == nullptr);
-    CHECK(navgrid->is_coord_blocked_fn_userdata == nullptr);
+    check_navgrid_binding(navgrid, nullptr, nullptr);
 
     dstar_lite_destroy(dsl);
     route_finder_destroy(finder);
@@ -312,7 +364,7 @@ TEST_CASE("navsys: navgrid rejects same-owner callback reentrancy") {
     CHECK(context.destroy_attempted);
     CHECK(navgrid_get_is_coord_blocked_fn(navgrid)
         == reentrant_navgrid_is_blocked);
-    CHECK(navgrid->is_coord_blocked_fn_userdata == &context);
+    check_navgrid_binding(navgrid, reentrant_navgrid_is_blocked, &context);
     CHECK(navgrid_get_width(navgrid) == 0);
 
     coord_list_destroy(neighbors);

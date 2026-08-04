@@ -135,7 +135,7 @@ partial-result flag 중 하나를 택한다. overlay token은 navgrid 생존 기
 | hash | 동일 process/version 내 equality와 일치; 저장·network ABI fingerprint로 사용 금지 |
 | layout | ABI-major 전 size/align/offset fixture 보존; 이후 opaque size query 불필요 |
 
-* TODO 1단계: layout·ownership·consumer 기준선
+* DONE 1단계: layout·ownership·consumer 기준선
 
 ** 실행
 
@@ -153,7 +153,20 @@ partial-result flag 중 하나를 택한다. overlay token은 navgrid 생존 기
 - ABI fixture, symbol/signature diff, ASan/LSan failure path test를 실행한다.
 - C17/C++17 legacy field consumer를 build한다.
 
-* TODO 2단계: extent와 좌표 invariant 확정
+** 마감 근거
+
+- =maze-core-stage1-baseline.json= 에 layout, direct field consumer, allocation graph,
+  root export 14개와 platform 측정 결과를 고정했다.
+- Windows MSVC Release와 Linux GCC 13/Clang 18 Debug에서 =test_maze= 및
+  =test_navsys_allocation_failure= 가 통과했다. Linux Debug 검증에는 ASan/LSan을 적용했다.
+- clean install SDK를 소비하는 C17/C++17 fixture가 Windows와 Linux GCC에서 build/run
+  통과했고, =maze_t= size/align/offset ABI gate를 포함한다.
+- 현재 =maze_create_full=/=maze_copy= 의 내부 hash OOM이 =blocked == NULL= 인 non-null
+  객체를 반환하는 결함을 failure injection으로 재현했으며, 3단계 strong guarantee 수정의
+  기준선으로 보존한다.
+- macOS Clang은 현재 실행 환경이 없어 미검증 상태로 snapshot에 명시했다.
+
+* DONE 2단계: extent와 좌표 invariant 확정
 
 ** 실행
 
@@ -171,7 +184,19 @@ partial-result flag 중 하나를 택한다. overlay token은 navgrid 생존 기
 - nonzero/negative origin, =INT32_MIN/MAX= 인접, empty extent와 translate round-trip을 test한다.
 - equality/hash가 translate 및 deep copy 계약과 일치하는지 검사한다.
 
-* TODO 3단계: checked lifecycle와 enumeration API
+** 마감 근거
+
+- =maze-core-stage2-contract.json= 에 world coordinate, signed normalized half-open
+  extent, zero/even/negative extent와 generator 제약 분리 결정을 기록했다.
+- additive =byul_maze_translate=는 overflow/OOM/corrupt state를 구분하고 실패 시
+  origin, extent, blocked set, equality/hash를 보존한다.
+- ABI 1.x =maze_set_origin=은 metadata-only reset 대신 checked translate 구현으로
+  forwarding하며 deprecated 처리했다. ABI 1.x에는 resize API가 없고 direct field
+  mutation은 stage 5/6 이행 전까지 남는 legacy 한계로 기록했다.
+- Windows MSVC Release, Linux GCC 13/Clang 18 Debug ASan/LSan에서 경계·round-trip·
+  allocation failure test가 통과했고 Windows/Linux C17/C++17 SDK consumer를 확인했다.
+
+* DONE 3단계: checked lifecycle와 enumeration API
 
 ** 실행
 
@@ -189,7 +214,20 @@ partial-result flag 중 하나를 택한다. overlay token은 navgrid 생존 기
 - allocator fault index별 create/copy/fetch test와 sanitizer를 실행한다.
 - count-only, exact, undersized, zero-capacity fetch를 검사한다.
 
-* TODO 4단계: navgrid apply/remove provenance
+** 마감 근거
+
+- =maze-core-stage3-contract.json= 에 checked create/copy, normalized extent query,
+  count/fetch buffer 계약과 ABI fixture를 기록했다.
+- =maze_create_full=/=maze_copy=의 hash allocation 실패는 이제 =NULL=을 반환하며
+  half-initialized object가 외부로 나오지 않는다. Checked API는 OOM/NULL에서 output을
+  보존하고 allocation을 전부 rollback한다.
+- undersized fetch는 destination을 보존하고 required count와
+  =NAVSYS_STATUS_INCOMPLETE=를 반환한다.
+- Windows MSVC Release와 Linux GCC 13/Clang 18 Debug ASan/LSan에서
+  =test_maze=/=test_navsys_allocation_failure=가 통과했고 C17/C++17 clean-install
+  consumer와 MSVC ABI/export snapshot을 갱신했다.
+
+* DONE 4단계: navgrid apply/remove provenance
 
 ** 실행
 
@@ -208,7 +246,20 @@ partial-result flag 중 하나를 택한다. overlay token은 navgrid 생존 기
 - overlapping overlay, custom terrain, nonzero origin, bounded/unbounded grid test를 실행한다.
 - mid-apply allocation/cancel failure와 rollback을 fault injection으로 검사한다.
 
-* TODO 5단계: additive accessor 이행
+** 마감 근거
+
+- =maze-core-stage4-contract.json= 에 versioned options/token, grid owner binding,
+  preserve-base policy, changed count와 failure-atomic 계약을 기록했다.
+- =byul_maze_apply=는 grid를 resize하지 않고 범위 밖 좌표를 =NOT_FOUND=로 거부한다.
+  ABI 1에서는 provenance를 보존하는 preserve-base만 지원하며 다른 policy 값은
+  mutation 없이 =UNSUPPORTED=를 반환한다.
+- Maze 두 개와 Obstacle 하나의 overlapping layer를 서로 다른 순서로 제거해도 남은
+  source와 custom terrain/height가 보존되고 effective delta count가 일치한다.
+- owner mismatch, token 재사용, nonzero origin, mid-prepare cancellation/callback exception,
+  apply/remove allocation-index rollback이 Windows와 Linux GCC/Clang ASan/LSan에서 통과했다.
+- Windows/Linux C17/C++17 clean-install consumer 및 MSVC ABI/export snapshot을 갱신했다.
+
+* DONE 5단계: additive accessor 이행
 
 ** 실행
 
@@ -228,7 +279,25 @@ partial-result flag 중 하나를 택한다. overlay token은 navgrid 생존 기
 - legacy layout/source consumer와 new opaque-ready consumer를 같이 build/run한다.
 - wrapper audit/check/load와 root export inventory를 검사한다.
 
-* TODO 6단계: ABI-major opaque 전환과 header gate
+** 마감 근거
+
+- =byul_maze_is_blocked=와 failure-atomic =byul_maze_set_blocked=를 추가하고 normalized
+  half-open world extent 밖 좌표를 =NAVSYS_STATUS_NOT_FOUND=로 고정했다.
+- 11개 generator와 Maze/module allocation test의 direct field access를 accessor 기반으로
+  전환했다. repository public consumer의 direct access는 0이며 C/C++ SDK의 ABI 1 layout
+  fixture만 의도적으로 남겼다.
+- legacy constructor와 checked constructor가 같은 extent/blocked set에 대해
+  =maze_equal=/=maze_hash=가 동일함을 검사했다. public layout은 24-byte/8-byte alignment로
+  보존하고 ABI 2 opaque 전환 예정임을 field deprecation 문서에 게시했다.
+- =maze_core.h=를 Python wrapper manifest에 등록하고 opaque-ready =c_maze= wrapper와 native
+  load test를 추가했다. Maze header audit error 0, generated =--check=, native load 2 tests가
+  통과했다.
+- Windows MSVC Release =test_maze= 35/35, allocation failure, clean-install C17/C++17 SDK와
+  Linux GCC 13/Clang 18 Debug ASan/LSan의 두 test target이 통과했다.
+- =maze-core-stage5-contract.json=과 Navsys ABI 639 symbols, root 1194 exports snapshot을
+  갱신했다.
+
+* DONE 6단계: ABI-major opaque 전환과 header gate
 
 ** 실행
 
@@ -246,3 +315,17 @@ partial-result flag 중 하나를 택한다. overlay token은 navgrid 생존 기
 - C/C++ standalone compile, ABI/export checker, clean SDK consumer와 sanitizer를 실행한다.
 - Windows/Linux/macOS layout fixture와 ABI-major rejection diagnostic을 검사한다.
 - module static =BYUL_STATIC=과 root shared =BYUL_EXPORTS=에서 lifecycle/overlay symbol을 각각 검증한다.
+
+** 마감 근거
+
+- public =maze_core.h=에는 =maze_t= forward declaration만 남기고 실제 저장 layout은
+  =internal/maze_private.hpp=로 이동했다. 기본 SDK에는 private/ABI1 layout header가 설치되지 않는다.
+- ABI 2 version/fingerprint/size/alignment query와 mismatch diagnostic을 추가하고, 명시적으로 선택하는
+  =byul_sdk_abi1_compat= component에만 24-byte ABI 1 layout header를 제공한다.
+- 기본 C17/C++17 SDK에서 =sizeof(maze_t)= compile rejection을 확인했고, ABI1 C/C++ fixture는
+  Windows와 Linux에서 layout 및 runtime gate를 통과했다.
+- Windows MSVC Release =test_maze= 36/36(238 assertions), allocation failure, 기본/ABI1 SDK
+  consumer가 통과했다. Linux GCC 13 및 Clang 18 Debug ASan/LSan module test와 GCC SDK
+  consumer도 통과했다. 로컬 환경에는 macOS runner가 없어 해당 실행 결과는 기록하지 않았다.
+- wrapper generated check와 Maze policy 3 tests가 통과했고 Maze 전용 header audit error는 0이다.
+  =maze-core-stage6-contract.json=과 Navsys ABI 644 symbols, root 1199 exports snapshot을 갱신했다.

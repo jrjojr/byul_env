@@ -5,6 +5,7 @@ project(test_navgrid)
 set(${PROJECT_NAME}_SOURCES
 
     ${CMAKE_CURRENT_SOURCE_DIR}/main.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/test_module_navcell_c_abi.c
     ${CMAKE_CURRENT_SOURCE_DIR}/test_module_navgrid.cpp
 
 CACHE INTERNAL "${PROJECT_NAME} source files"  FORCE

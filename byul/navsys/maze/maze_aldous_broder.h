@@ -1,5 +1,17 @@
-#ifndef MAZE_ALDOUS_BRODER_H
-#define MAZE_ALDOUS_BRODER_H
+/*
+ * Copyright (c) 2025-2026 ByulPapa (byuldev@outlook.kr)
+ * This file is part of the Byul World project.
+ * Licensed under the Byul World Source-Available Non-Commercial License v1.0 (2025).
+ * See the LICENSE file in the project root for full license terms.
+ */
+
+/**
+ * @file maze_aldous_broder.h
+ * @brief Aldous-Broder Maze 생성기의 레거시 public C ABI를 선언한다.
+ */
+
+#ifndef BYUL_MAZE_ALDOUS_BRODER_H
+#define BYUL_MAZE_ALDOUS_BRODER_H
 
 #include "maze_core.h"
 
@@ -8,43 +20,18 @@ extern "C" {
 #endif
 
 /**
- * @brief Generate a maze using the Aldous-Broder algorithm (random walk).
- *
- * This function creates a maze using the Aldous-Broder algorithm, which performs
- * a random walk over the grid, carving out passages only when visiting unvisited cells.
- * Though simple and unbiased, it can be slow due to frequent revisits to already visited cells.
- *
- * ---
- *
- * ### Features
- * - Produces a **perfect maze** (no loops, full connectivity)
- * - **Uniform randomness**: all mazes are equally probable
- * - Can be inefficient for large grids due to random walk nature
- *
- * ---
- *
- * ### Input Constraints
- * - Both `width` and `height` must be **odd numbers** and at least **3**
- *
- * ---
- *
- * ### Usage Example
- * @code
- * maze_t* maze = maze_make_aldous_broder(0, 0, 21, 21);
- * if (maze) {
- *     maze_apply_to_navgrid(maze, navgrid);
- *     navgrid_print_ascii(navgrid);
- *     maze_destroy(maze);
- * }
- * @endcode
- *
- * ---
- *
- * @param x0 Starting X coordinate of the maze
- * @param y0 Starting Y coordinate of the maze
- * @param width Maze width (must be odd and ≥ 3)
- * @param height Maze height (must be odd and ≥ 3)
- * @return Pointer to the generated `maze_t` structure, or `nullptr` on failure
+ * @brief 비결정적 Aldous-Broder random walk로 uniform spanning-tree Maze를 생성한다.
+ * @param[in] x0 Maze 원점의 X 좌표다.
+ * @param[in] y0 Maze 원점의 Y 좌표다.
+ * @param[in] width 3 이상인 홀수 너비다.
+ * @param[in] height 3 이상인 홀수 높이다.
+ * @return caller-owned Maze이며 입력 또는 allocation 실패 시 NULL이다.
+ * @byul.nullable return true
+ * @byul.lifetime return caller-owned
+ * @byul.error sentinel:null
+ * @byul.side_effect allocates
+ * @byul.thread_safety thread-compatible
+ * @byul.blocking true
  */
 BYUL_API maze_t* maze_make_aldous_broder(int x0, int y0, int width, int height);
 
@@ -52,4 +39,4 @@ BYUL_API maze_t* maze_make_aldous_broder(int x0, int y0, int width, int height);
 }
 #endif
 
-#endif // MAZE_ALDOUS_BRODER_H
+#endif /* BYUL_MAZE_ALDOUS_BRODER_H */

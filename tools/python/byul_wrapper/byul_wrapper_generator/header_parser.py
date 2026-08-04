@@ -22,6 +22,7 @@ KNOWN_BYUL_TAGS = frozenset(
         "copy_semantics",
         "count",
         "encoding",
+        "enum_support",
         "error",
         "invalidates",
         "lifetime",

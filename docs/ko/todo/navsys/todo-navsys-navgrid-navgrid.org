@@ -93,15 +93,15 @@
 |------+------+-----------------+------|
 | dead commented declaration | =navgrid_is_blocked= | ABI 없음; comment-only: internalize; canonical query companion: ABI 1.x: add | =// BYUL_API bool navgrid_is_blocked(...)= 줄을 제거하고 canonical query 명명은 =navgrid_query_blocked= 결정과 합친다 |
 
-이 행은 전처리 후 declaration이나 link symbol이 아니므로 28개 =BYUL_API= function 및 101개
-담당 export 총계에 포함하지 않는다.
+이 행은 전처리 후 declaration이나 link symbol이 아니므로 공통 callback 단계에서 추가된
+=bind/unbind=를 포함한 현재 30개 =BYUL_API= function에 포함하지 않는다.
 
 * 현행 구현 P0/P1 결함
 
 | 영역 | 구체 사실 | 영향 |
 |------+-----------+------|
-| create | userdata field를 초기화하지 않음 | public layout에 indeterminate pointer 노출 |
-| callback call | =navgrid_copy_neighbors=가 항상 userdata =nullptr= 전달 | 저장 field와 Python userdata contract가 작동하지 않음 |
+| create | 공통 callback 단계에서 userdata를 =nullptr=로 초기화하도록 수정됨 | 1단계 ABI fixture로 회귀 방지 |
+| callback call | 공통 callback 단계에서 저장 userdata를 전달하도록 수정됨 | binding fixture와 reentrancy guard로 회귀 방지 |
 | callback setter | fn만 설정, NULL 허용 | 다음 neighbor query에서 NULL function call 가능 |
 | copy | create가 만든 =cell_map=을 destroy하지 않고 copied map으로 overwrite | 확정 memory leak; userdata도 copy하지 않음 |
 | copy binding | Python callback pointer만 native copy | Python closure lifetime/owner와 copied grid가 분리될 수 있음 |
@@ -175,7 +175,16 @@ BYUL_API navsys_status_t navgrid_export_cells(
 Callback/userdata는 bind부터 unbind/destroy 전까지 caller가 유효하게 유지하며 native가 해제하지
 않는다. callback thread/reentrancy 및 callback 중 mutation/destroy 금지를 명시한다.
 
-* TODO 1단계: ABI·binding·consumer 동결
+* Navcell 3단계에서 확정한 ABI 1.x terrain mutation 경계
+
+- legacy =navgrid_block_coord=은 absent cell에만 =FORBIDDEN/0=을 저장한다. 기존
+  non-forbidden cell은 덮어쓰지 않고 false를 반환하여 terrain/height를 보존한다.
+- legacy =navgrid_unblock_coord=은 =FORBIDDEN= cell만 제거하여 sparse default로 복원한다.
+  absent 또는 non-forbidden cell은 변경하지 않고 false를 반환한다.
+- 이 경계는 provenance 없는 ABI 1.x 함수의 비손실 fallback이다. prior cell 복원과
+  multi-source overlay는 이 문서의 checked cell mutation·overlay 4단계에서 구현한다.
+
+* DONE 1단계: ABI·binding·consumer 동결
 
 ** 실행
 
@@ -193,7 +202,38 @@ Callback/userdata는 bind부터 unbind/destroy 전까지 caller가 유효하게 
 - layout/export/wrapper-symbol intersection과 ASan copy leak test를 실행한다.
 - old C/C++ public field consumer를 build한다.
 
-* TODO 2단계: extent·topology·cell semantic 확정
+** 결정과 증거
+
+- 기준 revision =083ca3ac2ea73317b8a23102a444339c3e0d7885=의 =navgrid.h= ABI를
+  =navgrid-abi-policy.json=에 고정했다. 현재 public function은 공통 callback 단계에서
+  추가된 bind/unbind를 포함해 30개이며, declaration/definition/root export/generated CFFI
+  intersection이 일치한다.
+- x86_64 Windows에서 =navgrid_dir_mode_t= 값은 =0/1=, size =4=다. =navgrid_t=는
+  size/alignment =40/8=이고 field offset은 =0/4/8/16/24/32=다. callback type은
+  =bool (*)(const void*, int, int, void*)=의 platform-default C calling convention으로 고정했다.
+- callback과 userdata는 atomic bind/unbind pair이며 userdata는 caller 소유다. Native copy는
+  ABI 1.x에서 raw pair를 유지하므로 caller가 source와 copy 양쪽이 rebind/unbind/destroy될
+  때까지 userdata를 유지한다. Python copy는 source CFFI callback owner를 retain하거나 새
+  binding을 설치해야 하며, 현재 wrapper가 이를 하지 않는 결함은 3단계 수정 대상으로 고정했다.
+- direct public-field 소비자는 Navgrid 구현/internal callback, route finder fast marching,
+  console, native/root test, SDK 소비자와 generated CFFI로 분류했다. ABI-major opaque 전환은
+  extent/topology accessor, cell export, atomic callback binding 순으로 이행한다.
+- create userdata 초기화와 callback userdata 전달은 공통 callback 단계에서 이미 수정된
+  상태임을 fixture로 확인했다. Legacy NULL setter의 stale userdata, =navgrid_copy=가 새
+  destination의 빈 map을 덮어써 leak하는 결함, Python =blocked_coords()=의 존재하지 않는
+  =navgrid_get_blocked_coords= 호출은 각각 3/5단계 소유로 characterization했다.
+- 로컬 MSVC 2022 Release에서 module static =test_navgrid=과 root shared =test_byul=이
+  2/2 통과했다. 실제 =byul.dll=을 사용한 wrapper 전체 테스트는 130/130 통과했고,
+  Navgrid 소유 export 30/30을 =dumpbin=으로 확인했다.
+- =byul_sdk= 설치본만 사용한 C17/C++17 소비자가 public field layout, enum 값과 callback
+  calling convention을 compile하고 실행했다. 정책/lifecycle 집중 테스트는 24/24 통과했고,
+  generated CFFI와 current ABI inventory =--check=도 통과했다.
+- Windows MSVC 환경에는 ASan/LSan gate가 없어 copy leak sanitizer 실행은 수행하지 않았다.
+  대신 native copy characterization이 leak 경로를 실행하고 source-level policy test가
+  destination map overwrite를 고정한다. Linux ASan/LSan에서 이 fixture를 통과시키는 것은
+  leak을 실제 수정하는 3단계 완료 gate로 남긴다.
+
+* DONE 2단계: extent·topology·cell semantic 확정
 
 ** 실행
 
@@ -212,7 +252,42 @@ Callback/userdata는 bind부터 unbind/destroy 전까지 caller가 유효하게 
 - tiny exhaustive grids에서 all topology/corner policies와 deterministic order를 검사한다.
 - nonzero origin, boundary, unbounded와 resize property tests를 설계한다.
 
-* TODO 3단계: callback bind와 lifecycle 수정
+** 결정과 증거
+
+- =navgrid-semantic-policy.json=에 canonical extent, topology, query, cell과 resize 계약을
+  고정했다. Bounded grid는 int32 origin과 양의 uint32 extent의 half-open
+  =[origin, origin + extent)=를 사용하며 endpoint는 signed 64-bit로 검증한다. Unbounded는
+  origin/extent =0/0/0/0=인 별도 flag 상태다. 신규 create/resize는 negative dimension,
+  bounded zero extent, overflow와 noncanonical unbounded descriptor를 거부한다.
+- Legacy ABI 1.x의 =0= axis별 unbounded, negative =[dimension,0)=와 setter의 field-only
+  resize는 그대로 characterization했다. 이 형태는 canonical semantic으로 승격하지 않으며,
+  mixed-unbounded와 negative extent는 legacy-only다.
+- Canonical 4방향 순서는 각도 기준 =E/S/W/N=, 8방향은
+  =E/SE/S/SW/W/NW/N/NE=다. 0도는 =+x=, positive angle은 =atan2(+y,+x)=이고
+  tie는 normalized angle이 작은 후보를 선택한다. 4방향 degree/goal은 8방향 table의 앞
+  4개를 재사용하지 않는다. Legacy owned-list 순서 =N/W/E/S= 및 기존 8방향 확장 순서는
+  ABI 1.x에서 유지한다.
+- Diagonal policy는 =NEVER/ALWAYS/IF_ONE_ORTHOGONAL_OPEN/
+  IF_BOTH_ORTHOGONALS_OPEN= 네 종류로 확정했다. Destination과 두 orthogonal은 동일한
+  effective blocked query로 평가하고 한 callback이라도 실패하면 전체 query가
+  =CALLBACK_FAILED=로 실패하며 output을 보존한다.
+- Coordinate query 결과는 inside absent, inside present passable/blocked, bounded outside,
+  callback failure와 corrupt stored cell을 각각 presence/blocked와
+  =OK/NOT_FOUND/CALLBACK_FAILED/CORRUPT_STATE=로 구분한다. Absent는 sparse entry가 없는
+  implicit =NORMAL/0=이며 explicit =NORMAL/0=과 traversal은 같지만 presence는 다르다.
+- Canonical resize는 atomic =clip=을 선택했다. Origin shift 또는 shrink는 밖의 base cell과
+  overlay를 제거하고, expand가 잘린 cell을 부활시키지 않는다. Invalid/OOM/callback failure는
+  extent, cell, overlay와 output 전체를 보존한다. Callback binding과 topology는 유지한다.
+- 정책 test는 nonzero origin의 작은 extent 전체 좌표, 4개 diagonal policy와 두 orthogonal의
+  모든 open/blocked 조합, deterministic order/tie, resize clip property를 19/19로 검증했다.
+  Native fixture는 legacy negative/mixed-unbounded bounds, outside cell 보존 resize,
+  4/8 exact order와 현행 4-dir degree 결함을 characterization했다.
+- 로컬 MSVC 2022 Release에서 module static =test_navgrid=과 root shared =test_byul=이
+  2/2 통과했다. 실제 root =byul.dll= wrapper 전체 테스트는 137/137 통과했고 generated
+  CFFI와 current ABI inventory =--check=도 통과했다. 이 단계는 public declaration/export와
+  ABI layout을 변경하지 않았다.
+
+* DONE 3단계: callback bind와 lifecycle 수정
 
 ** 실행
 
@@ -230,7 +305,24 @@ Callback/userdata는 bind부터 unbind/destroy 전까지 caller가 유효하게 
 - userdata identity, NULL/unbind, callback failure/reentrancy, copy then source destroy를 test한다.
 - ASan/LSan과 wrapper GC/finalizer tests를 실행한다.
 
-* TODO 4단계: checked cell mutation과 overlay
+2026-07-30 완료. =navgrid_copy=는 =coord_hash_copy_ex=로 cell map을 failure-atomic
+deep-copy하고 임시 destination map을 교체 전에 해제한다. 동일 grid callback 실행 중
+bind/unbind/copy와 nested query를 거부하며, C++ callback 예외는 internal checked 경계의
+=NAVSYS_STATUS_CALLBACK_FAILED=로 변환한 뒤 legacy owned-return query에서 =NULL=로
+forward한다. Python wrapper는 bind 성공 뒤에만 callable/CFFI owner를 교체하고 copy가
+두 owner를 보존하므로 source close/GC 뒤에도 callback이 유효하다.
+
+- MSVC 2022 Release module static =test_navgrid=, allocation-failure executable,
+  root shared =test_byul=이 3/3 통과했다. 복사 allocation 고장주입은 각 실패 지점과
+  성공 경로에서 C++ exception 유출 및 tracked allocation 잔존이 없음을 확인했다.
+- 실제 root =byul.dll=을 주입한 wrapper 전체 suite는 133/133 통과했으며 source
+  finalization 뒤 copy callback 호출과 unbind 뒤 owner GC fixture를 포함한다.
+- generated CFFI와 current ABI inventory =--check=가 통과했고 중앙 Org 규칙 60개는
+  0 error/0 warning이다. Windows MSVC 환경에는 ASan/LSan runtime gate가 없어 실행하지
+  못했으며, 이 단계의 leak 회귀는 executable-local allocation fault/count fixture로
+  대체했다. public declaration/export와 ABI layout은 변경하지 않았다.
+
+* DONE 4단계: checked cell mutation과 overlay
 
 ** 실행
 
@@ -247,7 +339,25 @@ Callback/userdata는 bind부터 unbind/destroy 전까지 caller가 유효하게 
 
 - multi-overlay, custom terrain/elevation, allocation fault와 rollback tests를 실행한다.
 
-* TODO 5단계: caller-buffer query와 legacy adapters
+** 완료 증거
+
+- 기존 =navgrid_t= 공개 layout을 유지한 private sidecar에 default/token/source overlay를
+  구현하고, checked set/fetch/block/unblock/clear 5개와 overlay apply/remove 2개를
+  ABI 1.x additive export로 추가했다. bounded grid의 범위 밖 좌표, invalid cell,
+  callback-active와 OOM 경로는 grid와 output을 보존한다.
+- maze/obstacle source별 replace/remove와 route-carver의 좌표별 overlay 해제를 통합했다.
+  중첩 source 제거 순서, custom terrain/height 복원, duplicate 좌표 changed count,
+  deep-copy 독립성과 clear 의미를 module/root tests에서 고정했다.
+- Windows MSVC Release에서 =test_navgrid=, =test_obstacle=, =test_maze=,
+  =test_navsys_allocation_failure=, =test_byul= 5/5가 통과했다. 설치 SDK의 C17/C++17
+  소비자는 신규 API를 compile/link/run했고 실제 root DLL에는 Navgrid 선언 37개가
+  모두 export된다.
+- generated CFFI와 current ABI inventory =--check=가 통과했고 실제 root DLL을 사용한
+  Python wrapper test는 139/139, 중앙 Org 규칙은 60개 0 error/0 warning이다.
+  Windows MSVC 환경에는 ASan/LSan runtime gate가 없어 실행하지 못했으며 allocation
+  fault/count executable fixture로 strong guarantee와 leak 회귀를 검증했다.
+
+* DONE 5단계: caller-buffer query와 legacy adapters
 
 ** 실행
 
@@ -265,7 +375,27 @@ Callback/userdata는 bind부터 unbind/destroy 전까지 caller가 유효하게 
 - zero/exact/small capacity, callback filter failure와 deterministic output tests를 실행한다.
 - wrapper audit/check/native load 및 symbol intersection을 검사한다.
 
-* TODO 6단계: opaque ABI migration
+** 완료 근거
+
+- =navgrid_export_neighbors=, range/degree/goal/cone export와
+  =navgrid_export_cells=를 추가했다. query는 =NULL/0=, 부족한 buffer는 payload를
+  보존한 =NAVSYS_STATUS_INCOMPLETE=와 필요 count를 반환하며 neighbor는 canonical
+  방향 순서, range/cone/cell은 deterministic 좌표 순서를 사용한다.
+- 신규 caller-buffer query는 allocation fault를 0으로 둔 executable fixture에서도
+  성공하고 allocation count가 증가하지 않았다. callback 예외는
+  =NAVSYS_STATUS_CALLBACK_FAILED=로 닫히며 caller output은 보존된다.
+- legacy owned-return neighbor 함수는 공통 query core를 경유하면서 기존
+  =coord_list_destroy= ownership을 유지한다. Python wrapper의 =blocked_coords=는 존재하지
+  않는 native symbol 대신 materialized cell snapshot을 사용한다.
+- Windows MSVC Release의 =test_navgrid=, =test_obstacle=, =test_maze=,
+  =test_navsys_allocation_failure=, =test_byul= 5/5와 실제 root DLL을 사용한 Python
+  wrapper test 139/139가 통과했다.
+- generated CFFI =--check=, semantic/ABI/symbol policy tests, 설치 SDK C17/C++17
+  compile/link/run가 통과했다. ABI inventory는 47 headers/584 symbols이고 실제 root
+  DLL의 Navgrid 선언/export 교차점은 43/43이다. 중앙 Org 규칙 validator는 60개
+  0 error/0 warning이다.
+
+* DONE 6단계: opaque ABI migration
 
 ** 실행
 
@@ -281,7 +411,31 @@ Callback/userdata는 bind부터 unbind/destroy 전까지 caller가 유효하게 
 
 - old-layout/new-handle SDK consumers, ABI fingerprint/layout checker를 실행한다.
 
-* TODO 7단계: Header·전체 통합 gate
+** 완료 근거
+
+- 기본 =navgrid.h=는 =typedef struct s_navgrid navgrid_t=만 공개하고 owning hash와
+  callback/userdata field를 제거했다. 동일한 40/8, offset =0/4/8/16/24/32= binary
+  layout은 =internal/navgrid_private.hpp=에서 유지한다.
+- ABI 1 direct-field source는 기본 SDK에서 제외하고 =byul_sdk_abi1_compat= install
+  component의 =compat/abi1/navgrid_abi1.h=로 분리했다. 기본 install tree에는 이 header가
+  없음을 검사했다.
+- console과 Fast Marching, module/root test, 기본 SDK C/C++ consumer는 accessor,
+  caller-buffer cell export와 atomic callback binding snapshot으로 전환했다. ABI 1
+  compatibility consumer만 직접 field를 사용한다.
+- Navgrid ABI 2 version/fingerprint와 ABI 1 layout fingerprint를 runtime에서 검사하는
+  =navgrid_get_abi_version=, =navgrid_get_abi_fingerprint=, =navgrid_check_abi=를 추가했다.
+  version mismatch와 fingerprint mismatch를 별도 enum 값으로 진단하고 Python wrapper도
+  첫 object 생성 전에 같은 검사를 수행한다.
+- Windows MSVC Release에서 Navgrid/Navsys/maze/obstacle/allocation/root native test 6/6,
+  실제 root DLL wrapper test 139/139가 통과했다. 기본 opaque SDK와 별도 ABI 1 component의
+  C17/C++17 consumer 4개가 compile/link/run에 성공했다.
+- generated CFFI =--check=와 ABI/lifecycle policy test가 통과했다. ABI inventory는
+  47 headers/588 symbols이고 실제 root DLL의 Navgrid 선언/export 교차점은 47/47이다.
+  중앙 Org 규칙 validator는 60개 0 error/0 warning이며 =git diff --check=도 통과했다.
+- 이 host에서는 MSVC만 실행했다. MinGW 및 Linux/macOS ABI 1 compatibility consumer와
+  sanitizer matrix는 7단계 전체 통합 gate에 남긴다.
+
+* DONE 7단계: Header·전체 통합 gate
 
 ** 실행
 
@@ -296,3 +450,50 @@ Callback/userdata는 bind부터 unbind/destroy 전까지 caller가 유효하게 
 
 - C17/C++17 include, navgrid/navsys/D*/route tests, root CTest, sanitizer와 clean SDK consumer를 실행한다.
 - module static =BYUL_STATIC=과 root shared =BYUL_EXPORTS=에서 legacy/canonical 및 callback export를 각각 검증한다.
+
+** 진행 근거
+
+- =navgrid.h=에 표준 라이선스, 파일 Doxygen, =BYUL_NAVGRID_H= guard와 직접
+  =stdbool.h= 의존성을 적용하고 기존 47개 공개 함수의 parameter, nullable, lifetime,
+  side-effect, thread-safety metadata를 보완했다. Navgrid/Navcell 범위의 all-header audit는
+  0 error다. 저장소 전체 all-header audit의 나머지 2,576건은 이 child 범위 밖의 기존
+  header debt이며 후속 Navsys header 작업에서 다룬다.
+- generated CFFI =--check=와 Navgrid declaration/definition/root export/wrapper intersection,
+  ABI/semantic/lifecycle/inventory policy 검증이 통과했다. 현재 ABI inventory는 47 headers,
+  588 symbols이고 실제 root DLL을 사용한 Python wrapper test는 139/139다.
+- Windows MSVC와 MinGW Release에서 module static, root shared와 전체 CTest 23/23이 각각
+  통과했다. 여기에는 Navgrid, Navsys, obstacle, maze, route finder, D* Lite, allocation
+  failure/leak gate와 root aggregate가 포함된다.
+- 깨끗한 MSVC/MinGW 설치 tree에서 일반 SDK C/C++ 소비자와 =navgrid.h= 단독 C17/C++17
+  소비자 4종이 각각 compile/link/run했다. 기본 SDK는 ABI 1 compatibility header를
+  포함하지 않고 설치된 =navgrid.h=도 opaque handle을 유지한다.
+- 중앙 Org 규칙 60개는 0 error/0 warning이고 generated inventory =--check=와
+  =git diff --check=가 통과했다.
+- Ubuntu 24.04 x86_64/GCC 13.3 Linux Debug에서 기본 ASan+LSan profile에
+  =-fsanitize=undefined=를 verification flag로 합류했다. Sandbox의 ptrace 밖에서
+  =detect_leaks=1=, =halt_on_error=1=로 전체 CTest 23/23이 통과했으며 Navgrid module
+  static, root shared, allocation failure/leak gate를 모두 포함한다.
+- UBSan은 손상된 =terrain_type_t=가 들어 있는 외부 =navcell_t=를 검증·복사할 때 C++
+  enum 값을 먼저 읽던 UB를 발견했다. =navcell_validate=는 underlying storage를
+  =memcpy=로 읽어 지원 범위를 판정하고 =navcell_copy_checked=/=assign_checked=는 안전한
+  검증 뒤에만 값을 복사하도록 수정했다. 같은 invalid-enum fixture가 module/root
+  ASan+LSan+UBSan에서 통과한다.
+- 깨끗한 Linux install tree에서 일반 SDK, =navgrid.h= 단독, ABI 1 compatibility의
+  C17/C++17 consumer 6종이 compile/link/run했다. ABI 1 C fixture에는 C17
+  =static_assert= macro를 제공하는 표준 =assert.h= include를 추가했다. 실제 sanitizer
+  =libbyul.so=를 사용한 Python wrapper 전체 suite도 139/139 통과했고 generated CFFI
+  =--check=가 통과했다.
+- 사용자가 macOS를 이번 완료 matrix에서 제외하고 Ubuntu Clang 검증을 완료 조건으로
+  확정했다. 로컬 추출한 Ubuntu Clang 18.1.3으로 ASan+LSan+UBSan Debug 전체 CTest
+  23/23이 통과했고 GCC 13.3에서도 같은 profile의 회귀 CTest 23/23이 통과했다.
+- Clang의 function-type sanitizer가 Navgrid와 downstream Route Finder/D* Lite에서
+  =coord_hash= callback을 서로 다른 typed function pointer로 cast하던 UB를 검출했다.
+  Navcell, Coord와 D* key에 정확한 =void* (const void*)=/=void (void*)= adapter를 두고
+  이미 정확한 FMM/int callback의 불필요한 cast를 제거했다.
+- C++에서 유효 범위 밖 enum을 직접 값으로 만드는 fixture는 그 자체가 UB이므로 unknown
+  terrain/route-finder type round-trip을 C17 ABI fixture로 이동했다. 구현은 enum object
+  representation을 underlying storage로 읽어 C ABI의 unknown-value 계약을 유지한다.
+- 깨끗한 Clang 설치 tree에서 일반 SDK, =navgrid.h= 단독, ABI 1 compatibility C17/C++17
+  consumer 6종이 compile/link/run했다. 실제 Clang sanitizer =libbyul.so=를 주입한 Python
+  wrapper 전체 suite는 139/139이고 generated CFFI/inventory =--check=, 중앙 Org 규칙
+  60개 0 error/0 warning과 =git diff --check=가 통과했다.

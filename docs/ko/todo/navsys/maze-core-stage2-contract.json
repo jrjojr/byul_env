@@ -1,0 +1,54 @@
+{
+  "schema_version": 1,
+  "scope": "navsys-maze-core-stage2",
+  "source_revision": "13624d1",
+  "coordinate_contract": {
+    "blocked_space": "world grid coordinates",
+    "extent_representation": "signed width and height",
+    "normalization": {
+      "min_x": "min(x0, int64(x0) + width)",
+      "max_x": "max(x0, int64(x0) + width)",
+      "min_y": "min(y0, int64(y0) + height)",
+      "max_y": "max(y0, int64(y0) + height)",
+      "interval": "[min_x,max_x) x [min_y,max_y)"
+    },
+    "zero_axis": "empty extent",
+    "even_extent": "allowed by maze core",
+    "negative_extent": "allowed and normalized by maze core",
+    "generator_constraints": "owned by each generator and stricter than the core contract",
+    "canonical_blocked_invariant": "every blocked key lies inside the normalized extent",
+    "legacy_direct_mutation": "can violate the invariant; checked operations report NAVSYS_STATUS_CORRUPT_STATE"
+  },
+  "translation_contract": {
+    "checked_symbol": "byul_maze_translate",
+    "legacy_wrapper": "maze_set_origin",
+    "legacy_wrapper_semantics": "translates blocked world keys; no longer performs a metadata-only reset",
+    "success": "origin and every blocked key move by the same delta; width and height are preserved",
+    "failure": "origin, extent metadata, blocked keys, equality, and hash remain unchanged",
+    "overflow_status": "NAVSYS_STATUS_INVALID_ARGUMENT",
+    "allocation_status": "NAVSYS_STATUS_OUT_OF_MEMORY",
+    "invalid_internal_state_status": "NAVSYS_STATUS_CORRUPT_STATE",
+    "resize_api": "not present in ABI 1.x; direct public field mutation remains a legacy ABI limitation"
+  },
+  "verification": {
+    "unit_cases": [
+      "negative and nonzero origin translation round trip",
+      "zero-axis and even extent characterization",
+      "INT32 boundary overflow preservation",
+      "out-of-extent legacy key rejection",
+      "equality and hash translation round trip"
+    ],
+    "fault_fixture": "byul/navsys/tests/test_navsys_allocation_failure.cpp",
+    "external_consumers": [
+      "byul/tests/sdk_consumer/main.c",
+      "byul/tests/sdk_consumer/main.cpp"
+    ],
+    "platforms": {
+      "windows_msvc_x64_release": "passed",
+      "linux_gcc_13_x64_debug_asan_lsan": "passed",
+      "linux_clang_18_x64_debug_asan_lsan": "passed",
+      "macos_clang": "not currently verified"
+    },
+    "root_export": "byul_maze_translate"
+  }
+}

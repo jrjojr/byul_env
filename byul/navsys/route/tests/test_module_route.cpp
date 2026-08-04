@@ -1,6 +1,226 @@
 #include "doctest.h"
 #include "route.h"
 #include "coord.h"
+#include "coord_hash.h"
+#if defined(BYUL_ROUTE_INTERNAL_TESTING)
+#include "../internal/route_internal.h"
+#endif
+
+#include <cstddef>
+#include <limits>
+#include <string>
+
+namespace {
+
+void* copy_coord_for_hash(const void* value) {
+    return coord_copy(static_cast<const coord_t*>(value));
+}
+
+void destroy_coord_for_hash(void* value) {
+    coord_destroy(static_cast<coord_t*>(value));
+}
+
+}  // namespace
+
+TEST_CASE("[ROUTE-ABI-001] route ABI 1 enum and public layout baseline") {
+    CHECK(ROUTE_DIR_UNKNOWN == 0);
+    CHECK(ROUTE_DIR_RIGHT == 1);
+    CHECK(ROUTE_DIR_UP_RIGHT == 2);
+    CHECK(ROUTE_DIR_UP == 3);
+    CHECK(ROUTE_DIR_UP_LEFT == 4);
+    CHECK(ROUTE_DIR_LEFT == 5);
+    CHECK(ROUTE_DIR_DOWN_LEFT == 6);
+    CHECK(ROUTE_DIR_DOWN == 7);
+    CHECK(ROUTE_DIR_DOWN_RIGHT == 8);
+    CHECK(ROUTE_DIR_COUNT == 9);
+    CHECK(ROUTE_COMPLETION_NONE == 0);
+    CHECK(ROUTE_COMPLETION_COMPLETE == 1);
+    CHECK(ROUTE_COMPLETION_PARTIAL == 2);
+
+    CHECK(sizeof(route_dir_t) == 4);
+    CHECK(sizeof(route_completion_t) == 4);
+    CHECK(sizeof(route_t) == (sizeof(void*) == 8 ? 48u : 36u));
+    CHECK(alignof(route_t) == (sizeof(void*) == 8 ? 8u : 4u));
+    CHECK(offsetof(route_t, coords) == 0);
+    CHECK(offsetof(route_t, visited_order) == sizeof(void*));
+    CHECK(offsetof(route_t, visited_count) == 2 * sizeof(void*));
+    CHECK(offsetof(route_t, cost) == 3 * sizeof(void*));
+    CHECK(offsetof(route_t, success) == 3 * sizeof(void*) + 4);
+    CHECK(offsetof(route_t, total_retry_count) == 3 * sizeof(void*) + 8);
+    CHECK(offsetof(route_t, avg_vec_x) == 3 * sizeof(void*) + 12);
+    CHECK(offsetof(route_t, avg_vec_y) == 3 * sizeof(void*) + 16);
+    CHECK(offsetof(route_t, vec_count) == 3 * sizeof(void*) + 20);
+}
+
+TEST_CASE("[ROUTE-LEGACY-001] route identity and NULL sentinel baseline") {
+    route_t* route = route_create();
+    REQUIRE(route != nullptr);
+    route_t* copy = route_copy(route);
+    REQUIRE(copy != nullptr);
+
+    CHECK(route_equal(route, route) == 1);
+    CHECK(route_equal(route, copy) == 0);
+    CHECK(route_hash(route) == reinterpret_cast<uintptr_t>(route));
+    CHECK(route_get_cost(nullptr) == doctest::Approx(0.0f));
+    CHECK(route_get_success(nullptr) == 0);
+    CHECK(route_length(nullptr) == 0);
+
+    route_destroy(copy);
+    route_destroy(route);
+}
+
+TEST_CASE("[ROUTE-LEGACY-002] slice and append copy coordinates only") {
+    route_t* source = route_create();
+    route_t* destination = route_create();
+    REQUIRE(source != nullptr);
+    REQUIRE(destination != nullptr);
+    const coord_t first = {1, 2};
+    const coord_t second = {3, 4};
+    REQUIRE(route_add_coord(source, &first) == 1);
+    REQUIRE(route_add_coord(source, &second) == 1);
+    route_set_cost(source, 7.5f);
+    route_set_success(source, 1);
+    route_set_total_retry_count(source, 3);
+
+    route_t* slice = route_slice(source, 0, 1);
+    REQUIRE(slice != nullptr);
+    CHECK(route_length(slice) == 1);
+    CHECK(route_get_cost(slice) == doctest::Approx(0.0f));
+    CHECK(route_get_success(slice) == 0);
+    CHECK(route_get_total_retry_count(slice) == 0);
+
+    route_set_cost(destination, 2.0f);
+    route_set_total_retry_count(destination, 5);
+    route_append(destination, source);
+    CHECK(route_length(destination) == 2);
+    CHECK(route_get_cost(destination) == doctest::Approx(2.0f));
+    CHECK(route_get_success(destination) == 0);
+    CHECK(route_get_total_retry_count(destination) == 5);
+
+    route_destroy(slice);
+    route_destroy(destination);
+    route_destroy(source);
+}
+
+TEST_CASE("[ROUTE-P0-001] NULL legacy accessors and direction helpers do not crash") {
+    CHECK(route_get_total_retry_count(nullptr) == 0);
+    CHECK_NOTHROW(route_set_total_retry_count(nullptr, 7));
+    CHECK(route_get_direction_by_dir_coord(nullptr) == ROUTE_DIR_UNKNOWN);
+    CHECK(calc_direction(nullptr, nullptr) == ROUTE_DIR_UNKNOWN);
+
+    route_t* route = route_create();
+    REQUIRE(route != nullptr);
+    const coord_t point = {1, 2};
+    float angle = 17.0f;
+    CHECK(route_has_changed(route, nullptr, &point, 10.0f) == 0);
+    CHECK(route_has_changed_with_angle(
+        route, &point, nullptr, 10.0f, &angle) == 0);
+    CHECK(angle == doctest::Approx(17.0f));
+    CHECK_NOTHROW(route_update_average_vector(route, nullptr, &point));
+
+    route_destroy(route);
+}
+
+TEST_CASE("[ROUTE-P0-002] clone and slice companions preserve outputs") {
+    route_t* source = route_create();
+    REQUIRE(source != nullptr);
+    const coord_t first = {3, 5};
+    const coord_t second = {7, 11};
+    REQUIRE(route_add_coord(source, &first) == 1);
+    REQUIRE(route_add_coord(source, &second) == 1);
+    route_set_cost(source, 13.0f);
+    route_set_success(source, 1);
+    route_set_total_retry_count(source, 17);
+
+    route_t* clone = nullptr;
+    CHECK(route_clone_ex(source, &clone) == NAVSYS_STATUS_OK);
+    REQUIRE(clone != nullptr);
+    CHECK(route_length(clone) == 2);
+    CHECK(route_get_cost(clone) == doctest::Approx(13.0f));
+    CHECK(route_get_success(clone) == 1);
+    CHECK(route_get_total_retry_count(clone) == 17);
+
+    route_t* const sentinel = reinterpret_cast<route_t*>(1);
+    route_t* output = sentinel;
+    CHECK(route_clone_ex(nullptr, &output) == NAVSYS_STATUS_INVALID_ARGUMENT);
+    CHECK(output == sentinel);
+    CHECK(route_clone_ex(source, nullptr) == NAVSYS_STATUS_INVALID_ARGUMENT);
+
+    output = sentinel;
+    CHECK(route_slice_ex(source, 2, 1, &output)
+        == NAVSYS_STATUS_INVALID_ARGUMENT);
+    CHECK(output == sentinel);
+
+    route_t* empty = nullptr;
+    CHECK(route_slice_ex(source, 1, 1, &empty) == NAVSYS_STATUS_OK);
+    REQUIRE(empty != nullptr);
+    CHECK(route_length(empty) == 0);
+
+    route_t* slice = nullptr;
+    CHECK(route_slice_ex(source, 0, 1, &slice) == NAVSYS_STATUS_OK);
+    REQUIRE(slice != nullptr);
+    CHECK(route_length(slice) == 1);
+    CHECK(route_get_cost(slice) == doctest::Approx(0.0f));
+    CHECK(route_get_success(slice) == 0);
+    CHECK(route_get_total_retry_count(slice) == 0);
+
+    route_destroy(slice);
+    route_destroy(empty);
+    route_destroy(clone);
+    route_destroy(source);
+}
+
+TEST_CASE("[ROUTE-P0-003] reconstruction rejects missing and cyclic predecessors atomically") {
+    const coord_t marker = {-1, -1};
+    const coord_t start = {0, 0};
+    const coord_t middle = {1, 0};
+    const coord_t goal = {2, 0};
+
+    route_t* route = route_create();
+    REQUIRE(route != nullptr);
+    REQUIRE(route_add_coord(route, &marker) == 1);
+
+    coord_hash_t* complete = coord_hash_create_full(
+        copy_coord_for_hash,
+        destroy_coord_for_hash);
+    REQUIRE(complete != nullptr);
+    REQUIRE(coord_hash_replace(complete, &goal, const_cast<coord_t*>(&middle)));
+    REQUIRE(coord_hash_replace(complete, &middle, const_cast<coord_t*>(&start)));
+    CHECK(route_reconstruct_ex(route, complete, &start, &goal)
+        == NAVSYS_STATUS_OK);
+    CHECK(route_length(route) == 4);
+    CHECK(coord_equal(route_get_coord_at(route, 0), &marker));
+    CHECK(coord_equal(route_get_coord_at(route, 1), &start));
+    CHECK(coord_equal(route_get_coord_at(route, 2), &middle));
+    CHECK(coord_equal(route_get_coord_at(route, 3), &goal));
+
+    route_clear_coords(route);
+    REQUIRE(route_add_coord(route, &marker) == 1);
+    coord_hash_t* missing = coord_hash_create_full(
+        copy_coord_for_hash,
+        destroy_coord_for_hash);
+    REQUIRE(missing != nullptr);
+    CHECK(route_reconstruct_ex(route, missing, &start, &goal)
+        == NAVSYS_STATUS_NO_PATH);
+    CHECK(route_length(route) == 1);
+    CHECK(coord_equal(route_get_coord_at(route, 0), &marker));
+
+    coord_hash_t* cyclic = coord_hash_create_full(
+        copy_coord_for_hash,
+        destroy_coord_for_hash);
+    REQUIRE(cyclic != nullptr);
+    REQUIRE(coord_hash_replace(cyclic, &goal, const_cast<coord_t*>(&middle)));
+    REQUIRE(coord_hash_replace(cyclic, &middle, const_cast<coord_t*>(&goal)));
+    CHECK(route_reconstruct_ex(route, cyclic, &start, &goal)
+        == NAVSYS_STATUS_CORRUPT_STATE);
+    CHECK(route_length(route) == 1);
+    CHECK(coord_equal(route_get_coord_at(route, 0), &marker));
+
+    coord_hash_destroy(cyclic);
+    coord_hash_destroy(missing);
+    coord_hash_destroy(complete);
+    route_destroy(route);
+}
 
 TEST_CASE("route creation and basic ops") {
     route_t* p = route_create();
@@ -46,10 +266,10 @@ TEST_CASE("route exports coordinates with two-call buffer semantics") {
     CHECK(route_export_coords(route, short_output, 2, &required)
         == NAVSYS_STATUS_INCOMPLETE);
     CHECK(required == 3);
-    CHECK(short_output[0].x == 1);
-    CHECK(short_output[0].y == 2);
-    CHECK(short_output[1].x == 3);
-    CHECK(short_output[1].y == 4);
+    CHECK(short_output[0].x == -1);
+    CHECK(short_output[0].y == -1);
+    CHECK(short_output[1].x == -1);
+    CHECK(short_output[1].y == -1);
 
     coord_t exact_output[3] = {};
     required = 99;
@@ -71,6 +291,152 @@ TEST_CASE("route exports coordinates with two-call buffer semantics") {
 
     route_destroy(route);
 }
+
+TEST_CASE("route builder edits transactionally and transfers one immutable result") {
+    route_t* source = route_create();
+    REQUIRE(source != nullptr);
+    const coord_t first = {0, 0};
+    const coord_t second = {1, 0};
+    REQUIRE(route_add_coord(source, &first) == 1);
+    REQUIRE(route_add_coord(source, &second) == 1);
+    route_set_cost(source, 7.5f);
+    route_set_success(source, 1);
+    route_set_total_retry_count(source, 19);
+
+    route_builder_t* builder = nullptr;
+    REQUIRE(route_builder_create_from_route(source, &builder)
+        == NAVSYS_STATUS_OK);
+    REQUIRE(builder != nullptr);
+
+    CHECK(route_builder_append(
+        builder, source, ROUTE_JOIN_DEDUP_BOUNDARY) == NAVSYS_STATUS_OK);
+    const coord_t inserted = {9, 9};
+    CHECK(route_builder_insert_coord(builder, 1, &inserted)
+        == NAVSYS_STATUS_OK);
+    coord_t removed = {-1, -1};
+    CHECK(route_builder_remove_coord(builder, 1, &removed)
+        == NAVSYS_STATUS_OK);
+    CHECK(removed.x == 9);
+    CHECK(removed.y == 9);
+    CHECK(route_builder_set_total_cost(builder, 12.25)
+        == NAVSYS_STATUS_OK);
+    CHECK(route_builder_set_completion(builder, ROUTE_COMPLETION_COMPLETE)
+        == NAVSYS_STATUS_OK);
+
+    route_t* result = nullptr;
+    CHECK(route_builder_finish(builder, &result) == NAVSYS_STATUS_OK);
+    REQUIRE(result != nullptr);
+    CHECK(route_get_coord_count(result) == 4);
+    coord_t output[4] = {};
+    size_t required = 0;
+    CHECK(route_export_coords(result, output, 4, &required)
+        == NAVSYS_STATUS_OK);
+    CHECK(required == 4);
+    CHECK(output[0].x == 0);
+    CHECK(output[1].x == 1);
+    CHECK(output[2].x == 0);
+    CHECK(output[3].x == 1);
+    double cost = 0.0;
+    route_completion_t completion = ROUTE_COMPLETION_NONE;
+    CHECK(route_fetch_total_cost(result, &cost) == NAVSYS_STATUS_OK);
+    CHECK(cost == doctest::Approx(12.25));
+    CHECK(route_fetch_completion(result, &completion) == NAVSYS_STATUS_OK);
+    CHECK(completion == ROUTE_COMPLETION_COMPLETE);
+    CHECK(route_get_total_retry_count(result) == 0);
+
+    route_t* const sentinel = reinterpret_cast<route_t*>(1);
+    route_t* invalid_output = sentinel;
+    CHECK(route_builder_finish(builder, &invalid_output)
+        == NAVSYS_STATUS_INVALIDATED);
+    CHECK(invalid_output == sentinel);
+
+    route_builder_destroy(builder);
+    route_destroy(result);
+    route_destroy(source);
+}
+
+TEST_CASE("route builder handles empty slices invalid ranges and large counts") {
+    route_builder_t* builder = nullptr;
+    REQUIRE(route_builder_create(&builder) == NAVSYS_STATUS_OK);
+    for (int index = 0; index < 1024; ++index) {
+        const coord_t coordinate = {index, -index};
+        REQUIRE(route_builder_push_coord(builder, &coordinate)
+            == NAVSYS_STATUS_OK);
+    }
+    route_t* large = nullptr;
+    REQUIRE(route_builder_finish(builder, &large) == NAVSYS_STATUS_OK);
+    CHECK(route_get_coord_count(large) == 1024);
+    route_builder_destroy(builder);
+
+    REQUIRE(route_builder_create(&builder) == NAVSYS_STATUS_OK);
+    CHECK(route_builder_assign_slice(builder, large, 9, 8)
+        == NAVSYS_STATUS_INVALID_ARGUMENT);
+    CHECK(route_builder_assign_slice(builder, large, 7, 7)
+        == NAVSYS_STATUS_OK);
+    CHECK(route_builder_set_completion(builder, ROUTE_COMPLETION_COMPLETE)
+        == NAVSYS_STATUS_INVALID_ARGUMENT);
+    route_t* empty = nullptr;
+    REQUIRE(route_builder_finish(builder, &empty) == NAVSYS_STATUS_OK);
+    CHECK(route_get_coord_count(empty) == 0);
+    route_completion_t completion = ROUTE_COMPLETION_COMPLETE;
+    CHECK(route_fetch_completion(empty, &completion) == NAVSYS_STATUS_OK);
+    CHECK(completion == ROUTE_COMPLETION_NONE);
+
+    route_builder_destroy(builder);
+    route_destroy(empty);
+    route_destroy(large);
+}
+
+#if defined(BYUL_ROUTE_INTERNAL_TESTING)
+TEST_CASE("search trace is an opaque owner with atomic ordered counts") {
+    navsys_search_trace_t* trace = nullptr;
+    REQUIRE(navsys_search_trace_create(&trace) == NAVSYS_STATUS_OK);
+    REQUIRE(trace != nullptr);
+    const coord_t first = {2, 3};
+    const coord_t second = {4, 5};
+    CHECK(navsys_search_trace_internal_record(trace, &first)
+        == NAVSYS_STATUS_OK);
+    CHECK(navsys_search_trace_internal_record(trace, &second)
+        == NAVSYS_STATUS_OK);
+    CHECK(navsys_search_trace_internal_record(trace, &first)
+        == NAVSYS_STATUS_OK);
+    CHECK(navsys_search_trace_get_visit_count(trace) == 3);
+
+    size_t count = 99;
+    CHECK(navsys_search_trace_fetch_coord_visit_count(
+        trace, &first, &count) == NAVSYS_STATUS_OK);
+    CHECK(count == 2);
+    const coord_t missing = {8, 9};
+    count = 77;
+    CHECK(navsys_search_trace_fetch_coord_visit_count(
+        trace, &missing, &count) == NAVSYS_STATUS_NOT_FOUND);
+    CHECK(count == 77);
+
+    coord_t short_output[2] = {{-1, -1}, {-1, -1}};
+    size_t required = 0;
+    CHECK(navsys_search_trace_export_visits(
+        trace, short_output, 2, &required) == NAVSYS_STATUS_INCOMPLETE);
+    CHECK(required == 3);
+    CHECK(short_output[0].x == -1);
+    coord_t output[3] = {};
+    CHECK(navsys_search_trace_export_visits(
+        trace, output, 3, &required) == NAVSYS_STATUS_OK);
+    CHECK(output[0].x == 2);
+    CHECK(output[1].x == 4);
+    CHECK(output[2].x == 2);
+
+    navsys_search_trace_t* clone = nullptr;
+    REQUIRE(navsys_search_trace_clone_ex(trace, &clone)
+        == NAVSYS_STATUS_OK);
+    CHECK(navsys_search_trace_get_visit_count(clone) == 3);
+    CHECK(navsys_search_trace_internal_clear(trace) == NAVSYS_STATUS_OK);
+    CHECK(navsys_search_trace_get_visit_count(trace) == 0);
+    CHECK(navsys_search_trace_get_visit_count(clone) == 3);
+
+    navsys_search_trace_destroy(clone);
+    navsys_search_trace_destroy(trace);
+}
+#endif
 
 TEST_CASE("route fetches coordinate values without exposing storage") {
     route_t* route = route_create();
@@ -199,6 +565,255 @@ TEST_CASE("route direction and angle") {
     coord_destroy(to2);
     route_destroy(p);
     coord_destroy(dir);    
+}
+
+TEST_CASE("[ROUTE-DIRECTION-001] canonical directions are allocation-free values") {
+    const coord_t origin = {0, 0};
+    const coord_t targets[8] = {
+        {99, 0}, {99, -77}, {0, -77}, {-99, -77},
+        {-99, 0}, {-99, 77}, {0, 77}, {99, 77}};
+    const route_dir_t expected[8] = {
+        ROUTE_DIR_RIGHT, ROUTE_DIR_UP_RIGHT, ROUTE_DIR_UP,
+        ROUTE_DIR_UP_LEFT, ROUTE_DIR_LEFT, ROUTE_DIR_DOWN_LEFT,
+        ROUTE_DIR_DOWN, ROUTE_DIR_DOWN_RIGHT};
+
+    for (size_t index = 0; index < 8; ++index) {
+        route_dir_t direction = ROUTE_DIR_UNKNOWN;
+        REQUIRE(route_direction_between(
+            &origin, &targets[index], &direction) == NAVSYS_STATUS_OK);
+        CHECK(direction == expected[index]);
+        coord_t vector = {17, 19};
+        REQUIRE(route_direction_fetch_vector(direction, &vector)
+            == NAVSYS_STATUS_OK);
+        CHECK((coord_get_x(&vector) >= -1 && coord_get_x(&vector) <= 1));
+        CHECK((coord_get_y(&vector) >= -1 && coord_get_y(&vector) <= 1));
+    }
+
+    route_dir_t preserved = ROUTE_DIR_LEFT;
+    CHECK(route_direction_between(&origin, &origin, &preserved)
+        == NAVSYS_STATUS_NOT_FOUND);
+    CHECK(preserved == ROUTE_DIR_LEFT);
+    coord_t preserved_vector = {17, 19};
+    CHECK(route_direction_fetch_vector(ROUTE_DIR_UNKNOWN, &preserved_vector)
+        == NAVSYS_STATUS_INVALID_ARGUMENT);
+    CHECK(coord_get_x(&preserved_vector) == 17);
+    CHECK(coord_get_y(&preserved_vector) == 19);
+
+    const coord_t minimum = {
+        std::numeric_limits<int>::min(), std::numeric_limits<int>::min()};
+    const coord_t maximum = {
+        std::numeric_limits<int>::max(), std::numeric_limits<int>::max()};
+    REQUIRE(route_direction_between(&minimum, &maximum, &preserved)
+        == NAVSYS_STATUS_OK);
+    CHECK(preserved == ROUTE_DIR_DOWN_RIGHT);
+}
+
+TEST_CASE("[ROUTE-DIRECTION-002] const route queries preserve route value") {
+    route_t* route = route_create();
+    REQUIRE(route != nullptr);
+    const coord_t points[] = {{0, 0}, {5, 0}, {5, -8}};
+    for (const coord_t& point : points)
+        REQUIRE(route_add_coord(route, &point) == 1);
+    route_set_cost(route, 12.5f);
+    route_set_success(route, 1);
+    route_t* clone = route_copy(route);
+    REQUIRE(clone != nullptr);
+
+    route_dir_t direction = ROUTE_DIR_UNKNOWN;
+    CHECK(route_fetch_direction_at(route, 0, &direction) == NAVSYS_STATUS_OK);
+    CHECK(direction == ROUTE_DIR_RIGHT);
+    CHECK(route_fetch_direction_at(route, 2, &direction) == NAVSYS_STATUS_OK);
+    CHECK(direction == ROUTE_DIR_UP);
+    CHECK(route_compute_recent_facing(route, 2, &direction)
+        == NAVSYS_STATUS_OK);
+    CHECK(direction == ROUTE_DIR_UP_RIGHT);
+    double heading = 999.0;
+    CHECK(route_compute_recent_heading_degrees(route, 1, &heading)
+        == NAVSYS_STATUS_OK);
+    CHECK(heading == doctest::Approx(-90.0));
+    CHECK(route_get_cost(route) == route_get_cost(clone));
+    CHECK(route_get_success(route) == route_get_success(clone));
+    CHECK(route_get_coord_count(route) == route_get_coord_count(clone));
+
+    route_destroy(clone);
+    route_destroy(route);
+}
+
+TEST_CASE("[ROUTE-HEADING-001] tracker threshold and opposite direction are deterministic") {
+    route_heading_tracker_t* tracker = nullptr;
+    REQUIRE(route_heading_tracker_create(&tracker) == NAVSYS_STATUS_OK);
+    const coord_t right = {1, 0};
+    const coord_t almost_ten = {984807753, 173648178};
+    const coord_t ten = {984807753, 173648178};
+    const coord_t above_ten = {984503180, 175366726};
+    const coord_t left = {-1, 0};
+    double angle = -1.0;
+    bool changed = true;
+
+    REQUIRE(route_heading_tracker_observe_vector(
+        tracker, &right, 10.0, &angle, &changed) == NAVSYS_STATUS_OK);
+    CHECK(angle == doctest::Approx(0.0));
+    CHECK_FALSE(changed);
+    REQUIRE(route_heading_tracker_reset(tracker) == NAVSYS_STATUS_OK);
+    REQUIRE(route_heading_tracker_observe_vector(
+        tracker, &right, 10.0, &angle, &changed) == NAVSYS_STATUS_OK);
+    REQUIRE(route_heading_tracker_observe_vector(
+        tracker, &almost_ten, 10.01, &angle, &changed) == NAVSYS_STATUS_OK);
+    CHECK_FALSE(changed);
+    REQUIRE(route_heading_tracker_reset(tracker) == NAVSYS_STATUS_OK);
+    REQUIRE(route_heading_tracker_observe_vector(
+        tracker, &right, 10.0, &angle, &changed) == NAVSYS_STATUS_OK);
+    REQUIRE(route_heading_tracker_observe_vector(
+        tracker, &ten, 10.0, &angle, &changed) == NAVSYS_STATUS_OK);
+    CHECK(changed);
+    REQUIRE(route_heading_tracker_reset(tracker) == NAVSYS_STATUS_OK);
+    REQUIRE(route_heading_tracker_observe_vector(
+        tracker, &right, 10.0, &angle, &changed) == NAVSYS_STATUS_OK);
+    REQUIRE(route_heading_tracker_observe_vector(
+        tracker, &above_ten, 10.0, &angle, &changed) == NAVSYS_STATUS_OK);
+    CHECK(changed);
+    REQUIRE(route_heading_tracker_observe_vector(
+        tracker, &left, 180.0, &angle, &changed) == NAVSYS_STATUS_OK);
+    CHECK(angle > 170.0);
+    CHECK_FALSE(changed);
+    CHECK(route_heading_tracker_get_sample_count(tracker) == 3);
+
+    route_heading_tracker_destroy(tracker);
+}
+
+TEST_CASE("[ROUTE-HEADING-002] tracker wraparound, reset and large count") {
+    route_heading_tracker_t* tracker = nullptr;
+    REQUIRE(route_heading_tracker_create(&tracker) == NAVSYS_STATUS_OK);
+    const coord_t near_positive_180 = {-1000, 17};
+    const coord_t near_negative_180 = {-1000, -17};
+    double angle = -1.0;
+    bool changed = true;
+    REQUIRE(route_heading_tracker_observe_vector(
+        tracker, &near_positive_180, 2.0, &angle, &changed)
+        == NAVSYS_STATUS_OK);
+    REQUIRE(route_heading_tracker_observe_vector(
+        tracker, &near_negative_180, 2.0, &angle, &changed)
+        == NAVSYS_STATUS_OK);
+    CHECK(angle < 2.0);
+    CHECK_FALSE(changed);
+
+    const coord_t down = {0, 1};
+    for (size_t index = 0; index < 100000; ++index) {
+        REQUIRE(route_heading_tracker_observe_vector(
+            tracker, &down, 180.0, &angle, &changed) == NAVSYS_STATUS_OK);
+    }
+    CHECK(route_heading_tracker_get_sample_count(tracker) == 100002);
+    double heading = 0.0;
+    CHECK(route_heading_tracker_fetch_heading_degrees(tracker, &heading)
+        == NAVSYS_STATUS_OK);
+    CHECK(heading == doctest::Approx(90.0).epsilon(0.001));
+    REQUIRE(route_heading_tracker_reset(tracker) == NAVSYS_STATUS_OK);
+    CHECK(route_heading_tracker_get_sample_count(tracker) == 0);
+    CHECK(route_heading_tracker_fetch_heading_degrees(tracker, &heading)
+        == NAVSYS_STATUS_NOT_FOUND);
+
+    route_heading_tracker_destroy(tracker);
+}
+
+TEST_CASE("[ROUTE-VALUE-001] identity and result content are distinct") {
+    route_t* route = route_create();
+    REQUIRE(route != nullptr);
+    const coord_t point = {4, -7};
+    REQUIRE(route_add_coord(route, &point) == 1);
+    route_set_cost(route, 3.5f);
+    route_set_success(route, 1);
+    route_t* copy = route_copy(route);
+    REQUIRE(copy != nullptr);
+
+    CHECK(route_is_same(route, route) == 1);
+    CHECK(route_is_same(route, copy) == 0);
+    CHECK(route_identity_hash(route) == route_hash(route));
+    CHECK(route_equal(route, copy) == 0);
+
+    bool equal = false;
+    REQUIRE(route_content_equal(route, copy, &equal) == NAVSYS_STATUS_OK);
+    CHECK(equal);
+    uint64_t route_hash_value = 0;
+    uint64_t copy_hash_value = 1;
+    REQUIRE(route_fetch_content_hash(route, &route_hash_value)
+        == NAVSYS_STATUS_OK);
+    REQUIRE(route_fetch_content_hash(copy, &copy_hash_value)
+        == NAVSYS_STATUS_OK);
+    CHECK(route_hash_value == copy_hash_value);
+
+    route_set_total_retry_count(copy, 99);
+    copy->avg_vec_x = 1.0f;
+    copy->vec_count = 1;
+    REQUIRE(route_content_equal(route, copy, &equal) == NAVSYS_STATUS_OK);
+    CHECK(equal);
+
+    route_set_cost(copy, -0.0f);
+    route_set_cost(route, 0.0f);
+    REQUIRE(route_content_equal(route, copy, &equal) == NAVSYS_STATUS_OK);
+    CHECK(equal);
+    REQUIRE(route_fetch_content_hash(route, &route_hash_value)
+        == NAVSYS_STATUS_OK);
+    REQUIRE(route_fetch_content_hash(copy, &copy_hash_value)
+        == NAVSYS_STATUS_OK);
+    CHECK(route_hash_value == copy_hash_value);
+
+    route_set_cost(copy, 2.0f);
+    REQUIRE(route_content_equal(route, copy, &equal) == NAVSYS_STATUS_OK);
+    CHECK_FALSE(equal);
+    equal = true;
+    CHECK(route_content_equal(nullptr, copy, &equal)
+        == NAVSYS_STATUS_INVALID_ARGUMENT);
+    CHECK(equal);
+
+    route_destroy(copy);
+    route_destroy(route);
+}
+
+TEST_CASE("[ROUTE-VALUE-002] find and format preserve outputs on failure") {
+    route_t* route = route_create();
+    REQUIRE(route != nullptr);
+    const coord_t first = {1, 2};
+    const coord_t second = {-3, 4};
+    const coord_t missing = {9, 9};
+    REQUIRE(route_add_coord(route, &first) == 1);
+    REQUIRE(route_add_coord(route, &second) == 1);
+
+    size_t index = 99;
+    REQUIRE(route_find_coord(route, &second, &index) == NAVSYS_STATUS_OK);
+    CHECK(index == 1);
+    index = 99;
+    CHECK(route_find_coord(route, &missing, &index)
+        == NAVSYS_STATUS_NOT_FOUND);
+    CHECK(index == 99);
+
+    size_t required = 0;
+    REQUIRE(route_format(route, nullptr, 0, &required) == NAVSYS_STATUS_OK);
+    CHECK(required > 1);
+    char output[128] = "preserved";
+    size_t observed = 0;
+    CHECK(route_format(route, output, required - 1, &observed)
+        == NAVSYS_STATUS_INCOMPLETE);
+    CHECK(std::string(output) == "preserved");
+    CHECK(observed == required);
+    REQUIRE(required <= sizeof(output));
+    REQUIRE(route_format(route, output, required, &observed)
+        == NAVSYS_STATUS_OK);
+    CHECK(std::string(output) == "Route(len : 2): (1, 2) -> (-3, 4)\n");
+
+    route_destroy(route);
+}
+
+TEST_CASE("[ROUTE-DIRECTION-003] vector conversion is status checked") {
+    const coord_t vector = {-50, 90};
+    route_dir_t direction = ROUTE_DIR_UNKNOWN;
+    REQUIRE(route_direction_from_vector(&vector, &direction)
+        == NAVSYS_STATUS_OK);
+    CHECK(direction == ROUTE_DIR_DOWN_LEFT);
+    const coord_t zero = {0, 0};
+    direction = ROUTE_DIR_RIGHT;
+    CHECK(route_direction_from_vector(&zero, &direction)
+        == NAVSYS_STATUS_NOT_FOUND);
+    CHECK(direction == ROUTE_DIR_RIGHT);
 }
 
 TEST_CASE("route insert, remove, find") {

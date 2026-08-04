@@ -1,117 +1,199 @@
 #include "maze_hunt_and_kill.h"
-#include "obstacle.h"
+#include "internal/maze_private.hpp"
+
+#include <cstdint>
+#include <new>
 #include <vector>
-#include <random>
-#include <ctime>
-#include <algorithm>
 
-static const int WALL = 1;
-static const int PASSAGE = 0;
+namespace {
 
-static bool is_inside(int x, int y, int w, int h) {
-    return x > 0 && y > 0 && x < w - 1 && y < h - 1 && x % 2 == 1 && y % 2 == 1;
+bool is_logical_cell(int x, int y, int width, int height) {
+    return x > 0 && y > 0 && x < width - 1 && y < height - 1;
 }
 
-maze_t* maze_make_hunt_and_kill(int x0, int y0, int width, int height) {
-    if (width < 3 || height < 3) return nullptr;
-    if (width % 2 == 0 || height % 2 == 0) return nullptr;
+navsys_status_t open_cell(
+    maze_t* maze,
+    int32_t origin_x,
+    int32_t origin_y,
+    int x,
+    int y) {
+    bool changed = false;
+    return byul_maze_set_blocked(
+        maze, origin_x + x, origin_y + y, false, &changed);
+}
 
-    maze_t* maze = maze_create_full(x0, y0, width, height);
+} // namespace
 
-    int w = maze->width;
-    int h = maze->height;
+navsys_status_t byul_maze_generate_hunt_and_kill_internal(
+    int32_t origin_x,
+    int32_t origin_y,
+    uint32_t width,
+    uint32_t height,
+    byul_maze_generation_context& context,
+    maze_t** out_maze) noexcept {
+    if (!out_maze) return NAVSYS_STATUS_INVALID_ARGUMENT;
+    *out_maze = nullptr;
+    const navsys_status_t initial_poll = context.poll();
+    if (initial_poll != NAVSYS_STATUS_OK) return initial_poll;
 
-    std::vector<std::vector<int>> grid(h, std::vector<int>(w, WALL));
-    std::vector<std::vector<bool>> visited(h, std::vector<bool>(w, false));
+    maze_t* maze = maze_create_full(
+        origin_x, origin_y, static_cast<int>(width), static_cast<int>(height));
+    if (!maze) return NAVSYS_STATUS_OUT_OF_MEMORY;
 
-    std::mt19937 rng(static_cast<unsigned int>(time(nullptr)));
-    if ((w - 1) / 2 <= 0 || (h - 1) / 2 <= 0) return nullptr;
-    std::uniform_int_distribution<int> dist_x(0, (w - 1) / 2 - 1);
-    std::uniform_int_distribution<int> dist_y(0, (h - 1) / 2 - 1);
+    try {
+        const int w = static_cast<int>(width);
+        const int h = static_cast<int>(height);
+        for (int y = 0; y < h; ++y) {
+            for (int x = 0; x < w; ++x) {
+                const navsys_status_t poll_status = context.poll();
+                if (poll_status != NAVSYS_STATUS_OK) {
+                    maze_destroy(maze);
+                    return poll_status;
+                }
+                bool changed = false;
+                const navsys_status_t block_status = byul_maze_set_blocked(
+                    maze, origin_x + x, origin_y + y, true, &changed);
+                if (block_status != NAVSYS_STATUS_OK) {
+                    maze_destroy(maze);
+                    return block_status;
+                }
+            }
+        }
+        std::vector<uint8_t> visited(
+            static_cast<size_t>(width) * height, uint8_t{0});
+        const uint32_t logical_width = (width - 1u) / 2u;
+        const uint32_t logical_height = (height - 1u) / 2u;
+        int current_x = 1 + static_cast<int>(context.bounded(logical_width)) * 2;
+        int current_y = 1 + static_cast<int>(context.bounded(logical_height)) * 2;
+        visited[static_cast<size_t>(current_y) * w + current_x] = 1;
+        navsys_status_t status = open_cell(
+            maze, origin_x, origin_y, current_x, current_y);
+        if (status != NAVSYS_STATUS_OK) {
+            maze_destroy(maze);
+            return status;
+        }
 
-    int cx = dist_x(rng) * 2 + 1;
-    int cy = dist_y(rng) * 2 + 1;
-    grid[cy][cx] = PASSAGE;
-    visited[cy][cx] = true;
+        static constexpr int delta_x[4] = {0, 0, -2, 2};
+        static constexpr int delta_y[4] = {-2, 2, 0, 0};
+        while (true) {
+            const navsys_status_t step_status = context.begin_step();
+            if (step_status != NAVSYS_STATUS_OK) {
+                maze_destroy(maze);
+                return step_status;
+            }
 
-    const int dx[4] = { 0, 0, -2, 2 };
-    const int dy[4] = { -2, 2, 0, 0 };
+            int directions[4] = {0, 1, 2, 3};
+            for (uint32_t count = 4; count > 1; --count) {
+                const uint32_t selected = context.bounded(count);
+                const int temporary = directions[count - 1];
+                directions[count - 1] = directions[selected];
+                directions[selected] = temporary;
+            }
 
-    while (true) {
-        // --- Kill Phase ---
-        bool moved = false;
-        std::vector<int> dirs = { 0, 1, 2, 3 };
-        std::shuffle(dirs.begin(), dirs.end(), rng);
-
-        for (int d : dirs) {
-            int nx = cx + dx[d];
-            int ny = cy + dy[d];
-
-            if (is_inside(nx, ny, w, h) && !visited[ny][nx]) {
-                int mx = (cx + nx) / 2;
-                int my = (cy + ny) / 2;
-
-                grid[my][mx] = PASSAGE;
-                grid[ny][nx] = PASSAGE;
-                visited[ny][nx] = true;
-
-                cx = nx;
-                cy = ny;
+            bool moved = false;
+            for (const int direction : directions) {
+                const int next_x = current_x + delta_x[direction];
+                const int next_y = current_y + delta_y[direction];
+                if (!is_logical_cell(next_x, next_y, w, h)
+                    || visited[static_cast<size_t>(next_y) * w + next_x] != 0) {
+                    continue;
+                }
+                status = open_cell(
+                    maze,
+                    origin_x,
+                    origin_y,
+                    (current_x + next_x) / 2,
+                    (current_y + next_y) / 2);
+                if (status == NAVSYS_STATUS_OK) {
+                    status = open_cell(
+                        maze, origin_x, origin_y, next_x, next_y);
+                }
+                if (status != NAVSYS_STATUS_OK) {
+                    maze_destroy(maze);
+                    return status;
+                }
+                visited[static_cast<size_t>(next_y) * w + next_x] = 1;
+                current_x = next_x;
+                current_y = next_y;
                 moved = true;
                 break;
             }
-        }
+            if (moved) continue;
 
-        if (moved) continue;
-
-        // --- Hunt Phase ---
-        bool found = false;
-
-        for (int y = 1; y < h; y += 2) {
-            for (int x = 1; x < w; x += 2) {
-                if (visited[y][x]) continue;
-
-                std::vector<int> adj;
-                for (int d = 0; d < 4; ++d) {
-                    int nx = x + dx[d];
-                    int ny = y + dy[d];
-                    if (is_inside(nx, ny, w, h) && visited[ny][nx]) {
-                        adj.push_back(d);
+            bool found = false;
+            for (int y = 1; y < h && !found; y += 2) {
+                for (int x = 1; x < w; x += 2) {
+                    const navsys_status_t poll_status = context.poll();
+                    if (poll_status != NAVSYS_STATUS_OK) {
+                        maze_destroy(maze);
+                        return poll_status;
                     }
-                }
+                    if (visited[static_cast<size_t>(y) * w + x] != 0) continue;
 
-                if (!adj.empty()) {
-                    int d = adj[rng() % adj.size()];
-                    int mx = x + dx[d] / 2;
-                    int my = y + dy[d] / 2;
+                    int adjacent[4];
+                    uint32_t adjacent_count = 0;
+                    for (int direction = 0; direction < 4; ++direction) {
+                        const int next_x = x + delta_x[direction];
+                        const int next_y = y + delta_y[direction];
+                        if (is_logical_cell(next_x, next_y, w, h)
+                            && visited[static_cast<size_t>(next_y) * w + next_x]
+                                != 0) {
+                            adjacent[adjacent_count++] = direction;
+                        }
+                    }
+                    if (adjacent_count == 0) continue;
 
-                    grid[my][mx] = PASSAGE;
-                    grid[y][x] = PASSAGE;
-                    visited[y][x] = true;
-
-                    cx = x;
-                    cy = y;
+                    const int direction = adjacent[context.bounded(adjacent_count)];
+                    status = open_cell(
+                        maze,
+                        origin_x,
+                        origin_y,
+                        x + delta_x[direction] / 2,
+                        y + delta_y[direction] / 2);
+                    if (status == NAVSYS_STATUS_OK) {
+                        status = open_cell(maze, origin_x, origin_y, x, y);
+                    }
+                    if (status != NAVSYS_STATUS_OK) {
+                        maze_destroy(maze);
+                        return status;
+                    }
+                    visited[static_cast<size_t>(y) * w + x] = 1;
+                    current_x = x;
+                    current_y = y;
                     found = true;
                     break;
                 }
             }
-            if (found) break;
+            if (!found) break;
         }
 
-        if (!found) break;
+    } catch (const std::bad_alloc&) {
+        maze_destroy(maze);
+        return NAVSYS_STATUS_OUT_OF_MEMORY;
+    } catch (...) {
+        maze_destroy(maze);
+        return NAVSYS_STATUS_CORRUPT_STATE;
     }
 
-    for (int y = 0; y < h; ++y) {
-        for (int x = 0; x < w; ++x) {
-            if (grid[y][x] != PASSAGE) {
-                coord_t tmp = {x + x0, y + y0};
-                coord_hash_insert(
-                    maze->blocked,
-                    &tmp,
-                    nullptr
-                );
-            }
-        }
+    *out_maze = maze;
+    return NAVSYS_STATUS_OK;
+}
+
+maze_t* maze_make_hunt_and_kill(int x0, int y0, int width, int height) {
+    if (width < 3 || height < 3 || width % 2 == 0 || height % 2 == 0) {
+        return nullptr;
     }
-    return maze;
+    byul_maze_generation_context context(
+        byul_maze_generation_legacy_seed(), 0, nullptr, nullptr);
+    maze_t* maze = nullptr;
+    return byul_maze_generate_hunt_and_kill_internal(
+               x0,
+               y0,
+               static_cast<uint32_t>(width),
+               static_cast<uint32_t>(height),
+               context,
+               &maze)
+            == NAVSYS_STATUS_OK
+        ? maze
+        : nullptr;
 }

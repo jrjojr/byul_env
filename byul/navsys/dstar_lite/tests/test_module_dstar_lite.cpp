@@ -688,7 +688,7 @@ printf("%.3fms passed : checking for dynamic changes\n", i * interval_sec);
             route_print(dsl->real_route);
             dsl_print_ascii_update_count(dsl, dsl->real_route, 5);
         }
-        if (dsl->real_route && dsl->real_route->success) {
+        if (dsl->real_route && route_get_success(dsl->real_route)) {
             printf("Pathfinding successful\n");
             break;
         }
@@ -951,4 +951,3 @@ TEST_CASE("test_dstar_lite_find_proto_minus_start_plus_goal") {
     dstar_lite_destroy(dsl);
     navgrid_destroy(m);
 }
- 

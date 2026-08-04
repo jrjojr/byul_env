@@ -93,6 +93,72 @@ function(byul_assert_module_inventory
     endforeach()
 endfunction()
 
+# Register a production target for a deferred source/definition/link audit.
+# Test-only instrumentation belongs to test executables and must never be
+# compiled or linked into a production library or executable on any platform.
+function(byul_register_production_target target_name)
+    if(NOT TARGET ${target_name})
+        message(FATAL_ERROR
+            "Cannot register missing production target: ${target_name}")
+    endif()
+    set_property(TARGET ${target_name} PROPERTY BYUL_PRODUCTION_TARGET TRUE)
+    set_property(GLOBAL APPEND PROPERTY
+        BYUL_REGISTERED_PRODUCTION_TARGETS "${target_name}")
+endfunction()
+
+function(byul_assert_all_production_targets_clean)
+    get_property(production_targets GLOBAL PROPERTY
+        BYUL_REGISTERED_PRODUCTION_TARGETS)
+    list(REMOVE_DUPLICATES production_targets)
+    foreach(target_name IN LISTS production_targets)
+        byul_assert_production_target_clean("${target_name}")
+    endforeach()
+endfunction()
+
+function(byul_assert_production_target_clean target_name)
+    if(NOT TARGET ${target_name})
+        message(FATAL_ERROR
+            "Production target disappeared before audit: ${target_name}")
+    endif()
+
+    get_target_property(target_sources ${target_name} SOURCES)
+    foreach(source IN LISTS target_sources)
+        file(TO_CMAKE_PATH "${source}" normalized_source)
+        string(TOLOWER "${normalized_source}" source_lower)
+        if(source_lower MATCHES "(^|/)(tests?|test_support)(/|$)"
+            OR source_lower MATCHES "(^|/)test_[^/]*\\.(c|cc|cpp|cxx|m|mm)$")
+            message(FATAL_ERROR
+                "Production target ${target_name} contains test-only source: "
+                "${source}")
+        endif()
+    endforeach()
+
+    get_target_property(target_definitions
+        ${target_name} COMPILE_DEFINITIONS)
+    foreach(definition IN LISTS target_definitions)
+        string(TOUPPER "${definition}" definition_upper)
+        if(definition_upper MATCHES
+            "(^|[^A-Z0-9])(BYUL_TESTING|BYUL_TEST_ONLY|FAULT_INJECT)($|[^A-Z0-9])")
+            message(FATAL_ERROR
+                "Production target ${target_name} contains test-only "
+                "definition: ${definition}")
+        endif()
+    endforeach()
+
+    get_target_property(target_links ${target_name} LINK_LIBRARIES)
+    foreach(link IN LISTS target_links)
+        string(TOLOWER "${link}" link_lower)
+        if(link_lower MATCHES "(^|;)(byul_test|test_support|test_)")
+            message(FATAL_ERROR
+                "Production target ${target_name} links test-only target: "
+                "${link}")
+        endif()
+    endforeach()
+
+    message(STATUS
+        "[PRODUCTION] ${target_name}: test-only source/definition/link audit passed")
+endfunction()
+
 # ---------------------------------------------------------
 # 플랫폼별 출력 디렉토리
 # ---------------------------------------------------------
@@ -135,8 +201,10 @@ function(byul_apply_library_platform_settings target_name)
         message(STATUS "${target_name} No ASan for Windows (unsupported).")
 
         if(NOT MSVC)
-            set(MINGW_DLL_PATH "C:/msys64/mingw64/bin" PARENT_SCOPE)
-            set(MINGW_PTHREAD_DLL "C:/msys64/mingw64/bin/libwinpthread-1.dll" PARENT_SCOPE)
+            get_filename_component(_byul_mingw_bin "${CMAKE_CXX_COMPILER}" DIRECTORY)
+            set(MINGW_DLL_PATH "${_byul_mingw_bin}" PARENT_SCOPE)
+            set(MINGW_PTHREAD_DLL
+                "${_byul_mingw_bin}/libwinpthread-1.dll" PARENT_SCOPE)
         endif()
 
         byul_set_target_output_dirs(${target_name})

@@ -5,6 +5,7 @@ project(test_route_finder)
 set(${PROJECT_NAME}_SOURCES
 
     ${CMAKE_CURRENT_SOURCE_DIR}/main.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/test_module_route_finder_c_abi.c
     ${CMAKE_CURRENT_SOURCE_DIR}/test_module_route_finder_discrete.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/test_module_route_finder.cpp
 

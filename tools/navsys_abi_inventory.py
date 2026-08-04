@@ -37,8 +37,34 @@ OWNER_TODO_OVERRIDES = {
         "docs/ko/todo/navsys/todo-navsys-coord-coord-cpp.org",
     "byul/navsys/dstar_lite/internal/dstar_lite_callback.hpp":
         "docs/ko/todo/navsys/todo-navsys-dstar-lite-dstar-lite.org",
+    "byul/navsys/dstar_lite/internal/dstar_lite_key_ops.hpp":
+        "docs/ko/todo/navsys/todo-navsys-dstar-lite-dstar-lite-key-cpp.org",
     "byul/navsys/navgrid/internal/navgrid_callback.hpp":
         "docs/ko/todo/navsys/todo-navsys-navgrid-navgrid.org",
+    "byul/navsys/navgrid/compat/abi1/navgrid_abi1.h":
+        "docs/ko/todo/navsys/todo-navsys-navgrid-navgrid.org",
+    "byul/navsys/navgrid/internal/navgrid_overlay.hpp":
+        "docs/ko/todo/navsys/todo-navsys-navgrid-navgrid.org",
+    "byul/navsys/navgrid/internal/navgrid_private.hpp":
+        "docs/ko/todo/navsys/todo-navsys-navgrid-navgrid.org",
+    "byul/navsys/obstacle/compat/abi1/obstacle_abi1.h":
+        "docs/ko/todo/navsys/todo-navsys-obstacle-obstacle-core.org",
+    "byul/navsys/obstacle/internal/obstacle_private.hpp":
+        "docs/ko/todo/navsys/todo-navsys-obstacle-obstacle-core.org",
+    "byul/navsys/maze/compat/abi1/maze_abi1.h":
+        "docs/ko/todo/navsys/todo-navsys-maze-core.org",
+    "byul/navsys/maze/internal/maze_private.hpp":
+        "docs/ko/todo/navsys/todo-navsys-maze-core.org",
+    "byul/navsys/route/internal/route_internal.h":
+        "docs/ko/todo/navsys/todo-navsys-route-route.org",
+    "byul/navsys/route_finder/internal/coord_hash_adapters.hpp":
+        "docs/ko/todo/navsys/todo-navsys-route-finder-route-finder.org",
+    "byul/navsys/route_carver/compat/route_carver_legacy.hpp":
+        "docs/ko/todo/navsys/todo-navsys-route-carver-route-carver.org",
+    "byul/navsys/route_carver/internal/route_carver_geometry.hpp":
+        "docs/ko/todo/navsys/todo-navsys-route-carver-route-carver.org",
+    "byul/navsys/route_carver/internal/route_carver_mutation.hpp":
+        "docs/ko/todo/navsys/todo-navsys-route-carver-route-carver.org",
 }
 
 
@@ -138,13 +164,26 @@ def classify_return(name: str, return_type: str) -> str:
     return "enum_result"
 
 
-def classify_lifecycle(name: str) -> tuple[str, str] | None:
+def classify_lifecycle(
+    name: str,
+    return_type: str,
+    parameters: list[str],
+) -> tuple[str, str] | None:
     """Return ``(resource, operation)`` for ownership vocabulary symbols."""
     create_or_init = re.match(r"^(.+)_(create|init)(?:_.+)?$", name)
     if create_or_init:
         return create_or_init.group(1), create_or_init.group(2)
     terminal = re.match(r"^(.+)_(copy|reset|free|destroy)$", name)
     if terminal:
+        # A lifecycle copy is the allocation callback form
+        # ``void* copy(const void*)``.  Container operations such as
+        # coord_hash_upsert_copy are value mutations, not resources named
+        # ``coord_hash_upsert``.
+        if terminal.group(2) == "copy" and not (
+            return_type.replace(" ", "").endswith("*")
+            and len(parameters) == 1
+        ):
+            return None
         return terminal.group(1), terminal.group(2)
     return None
 
@@ -215,7 +254,14 @@ def build_inventory(role_manifest: dict, vocabulary: dict) -> dict:
             }
             symbols.append(symbol)
             header_symbols.append(declaration.name)
-            lifecycle = classify_lifecycle(declaration.name)
+            lifecycle = classify_lifecycle(
+                declaration.name,
+                declaration.return_type,
+                [
+                    parameter.declaration
+                    for parameter in declaration.parameters
+                ],
+            )
             if lifecycle:
                 resource, operation = lifecycle
                 lifecycle_operations.append(

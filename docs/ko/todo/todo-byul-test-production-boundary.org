@@ -1,0 +1,128 @@
+#+TITLE: BYUL Test와 Production Artifact 경계 TODO
+#+TODO: TODO DOING BLOCKED | DONE CANCELLED FAILED
+#+TODO_RULES: ../../../external/rules/projects/byul/todo-rules.org
+#+BUILD_RULES: ../../../external/rules/projects/byul/build-rules.org
+#+TEST_RULES: ../../../external/rules/projects/byul/test-rules.org
+#+TODO_PARENT: todo-리팩토링.org
+#+AUTHOR: ByulPapa / Codex
+#+LANGUAGE: ko
+#+OPTIONS: toc:t num:nil
+
+* 목적
+
+BYUL 전체 module static test, root shared library, Windows DLL, Ubuntu shared library와
+production executable의 source/link 경계를 통일한다. Allocation override, fail-at-N,
+intentional leak와 mutation instrumentation은 =test*.exe=만 소유하고 =byul.dll=,
+=libbyul.so=와 production executable에는 들어가지 않게 machine gate로 고정한다.
+
+* 비목표와 보존 조건
+
+- Production C/C++ 구현에 Debug/test 전용 분기를 추가하지 않는다.
+- Public header, C ABI, export symbol과 runtime 동작을 바꾸지 않는다.
+- SDK verification profile이 제공하는 기존 test executable을 일괄 삭제하지 않는다.
+- MSVC Debug STL fixture를 통과시키기 위해 =_ITERATOR_DEBUG_LEVEL=을 production에 강제하지
+  않는다.
+
+* 확인된 기준선
+
+- Root =byul= shared target은 module production source inventory를 직접 다시 compile하며
+  현재 =tests/= source를 포함하지 않는다.
+- 최상위는 =include(CTest)=로 =BUILD_TESTING=을 제공하지만 root와 19개 module test subtree를
+  조건 없이 추가한다.
+- SDK build는 =ALL_BUILD/all=을 사용하고 full install에는 test executable 19개가 포함된다.
+  이는 현재 SDK verification 정책이며 production DLL/SO source 혼입과는 별개다.
+- Navsys allocation fixture의 MSVC Release normal/leak-negative gate는 각각 기대 exit code로
+  통과한다. MSVC Debug는 STL iterator-proxy 때문에 navgrid create 단계에서 실패한다.
+
+* DONE 1단계: 공통 규칙과 source/link 경계 고정
+
+** 실행
+
+- 중앙 BYUL init/build/test 규칙에 test-only instrumentation 소유권을 추가한다.
+- 모든 production target에 재사용할 configure-time source/definition/link audit를 만든다.
+- root shared와 production executable에서 test source와 test-only definition을 금지한다.
+
+** 완료 조건
+
+- Windows DLL, Linux SO와 production executable이 같은 production-only 계약을 가진다.
+- Test support는 test executable에만 link되고 public export를 만들지 않는다.
+
+** 완료 기록
+
+- 중앙 규칙 =rules_env@b1ff82f7b2c5144f50cd4c5a37207a1bd2423453=에 경계 계약을
+  반영하고 먼저 원격 =main=에 고정했다.
+- 모든 production target의 source, compile definition과 link dependency를 configure-time에
+  검사하는 공통 audit가 Windows MSVC configure에서 통과했다.
+
+* DONE 2단계: BUILD_TESTING과 test install graph 분리
+
+** 실행
+
+- root와 module의 =add_subdirectory(tests)=를 =BUILD_TESTING=으로 제어한다.
+- Tests-on verification과 tests-off package를 서로 다른 build tree/preset으로 만든다.
+- 기존 tests-on SDK test executable 제공은 유지하고 tests-off full install에는 포함하지 않는다.
+
+** 완료 조건
+
+- Tests-off configure에는 test target과 test install rule이 없다.
+- Tests-on/off root production target의 source/definition/export가 동일하다.
+
+** 완료 기록
+
+- Root와 19개 module test subtree를 =BUILD_TESTING=으로 제어하고 tests-off package preset을
+  별도 build tree로 추가했다.
+- MSVC Release에서 tests-off CTest entry와 설치된 test executable은 0개였고 tests-on/off
+  =byul.dll= export 집합은 1,078개로 완전히 동일했다.
+- Tests-off install을 사용하는 C17/C++17 SDK consumer가 각각 build와 실행에 성공했다.
+
+* DONE 3단계: Platform별 memory와 sanitizer gate 정렬
+
+** 실행
+
+- MSVC allocation/leak fixture를 Release configuration 전용으로 등록한다.
+- MinGW Release와 Ubuntu GCC/Clang Debug에서 allocation failure/leak fixture를 실행하고 Linux는
+  ASan/LSan/UBSan을 함께 적용한다.
+- macOS Clang과 기타 새 지원 platform은 release 승인 전에 동일한 memory fixture와 가용한
+  sanitizer gate를 추가한다.
+- 제외와 대체 gate를 lifecycle policy와 CI에 기록한다.
+
+** 완료 조건
+
+- 모든 지원 platform에서 normal fixture와 intentional leak detector가 통과한다.
+- Fault injection과 test source는 각 platform의 test executable에만 있다. Sanitizer가 적용된
+  verification shared/executable과 sanitizer가 없는 tests-off package를 별도로 검증한다.
+
+** 완료 기록
+
+- GitHub Actions =BYUL Memory Boundary= run =30180043015=에서 Ubuntu GCC/Clang,
+  Windows MSVC/MinGW allocation normal/leak gate가 모두 통과했다.
+- Ubuntu GCC/Clang Debug fixture에는 ASan/LSan/UBSan을 적용했고 MSVC는 STL Debug 제약을
+  production 변경 없이 Release fixture로 대체했다.
+- 새 지원 platform은 =byul-memory-test-matrix.json=에 memory fixture와 sanitizer gate를
+  추가하기 전까지 지원 완료로 판정하지 않는 계약을 중앙 규칙에 기록했다.
+
+* DONE 4단계: Clean package와 공통 audit 종료
+
+** 실행
+
+- Tests-off Windows/Linux package를 만들고 test executable 부재를 검사한다.
+- Root export, SDK consumer와 production target audit를 tests-on 결과와 비교한다.
+- rules validator, CMake configure, CTest discovery와 package inventory를 최종 실행한다.
+
+** 완료 조건
+
+- Production artifact에 test-only source, definition, dependency와 export가 0개다.
+- Test executable은 필요 시 SDK verification artifact로 남지만 production artifact의 내용과
+  동작을 바꾸지 않는다.
+
+** 완료 기록
+
+- 같은 run의 MSVC tests-off tree는 CTest 0개였고 Ubuntu GCC/Clang tests-off Release는
+  =libbyul.so=와 =gpu_comp_tester=를 실제 build한 뒤 test 실행파일 0개를 확인했다.
+- Ubuntu Release 생산 SO와 실행파일의 dynamic dependency에 =libasan=, =liblsan=,
+  =libubsan=이 없음을 검사했다. =gpu_comp_tester= sanitizer는 Debug verification에서만
+  적용되며 Release에는 적용되지 않는다.
+- 로컬 MSVC tests-on/off =byul.dll= export 1,078개가 동일했고 tests-off install 기반
+  C17/C++17 SDK consumer가 build와 실행에 성공했다.
+- 중앙 rules validator, production target configure audit, 기존 Navsys UBSan run
+  =30180043010=과 공통 memory/package run =30180043015=가 모두 통과했다.

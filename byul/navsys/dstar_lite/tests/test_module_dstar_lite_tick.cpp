@@ -29,7 +29,7 @@ TEST_CASE("D* Lite Tick Prepare attaches correctly") {
     CHECK(dst->ticked == true);
     CHECK(dst->base->force_quit == false);
     CHECK(dst->base->real_route != nullptr);
-    CHECK(coord_list_length(dst->base->real_route->coords) == 1);
+    CHECK(route_get_coord_count(dst->base->real_route) == 1);
 
     tick_entry_t funcs[10] = {};
     int count = tick_list_attached(tk, funcs, 10);
@@ -63,7 +63,7 @@ TEST_CASE("D* Lite Tick Update progresses time and halts on goal") {
 
     dstar_lite_tick_update(dst, 0.1f);
     CHECK(dst->ticked == false);
-    CHECK(dst->base->real_route->success);
+    CHECK(route_get_success(dst->base->real_route));
 
     dstar_lite_tick_complete(dst, tk);
     tick_destroy(tk);
@@ -85,7 +85,7 @@ TEST_CASE("D* Lite Tick halts after max_time") {
     dst->max_time = 0.01f;
     dstar_lite_tick_update(dst, 0.1f);
     CHECK(dst->ticked == false);
-    CHECK(!dst->base->real_route->success);
+    CHECK(!route_get_success(dst->base->real_route));
 
     dstar_lite_tick_complete(dst, tk);
     tick_destroy(tk);
@@ -147,7 +147,7 @@ TEST_CASE("D* Lite Tick max_time") {
     //     std::cout << "value : " << i << ", " << val << std::endl;
     // }
 
-    CHECK(dst->base->real_route->success);
+    CHECK(route_get_success(dst->base->real_route));
     
     dstar_lite_tick_complete(dst, tk);
     tick_destroy(tk);
@@ -191,7 +191,7 @@ TEST_CASE("D* Lite Tick Prepare Full sets all parameters correctly and executes 
     CHECK(dst->max_time == doctest::Approx(max_time));
     CHECK(dst->cur_elapsed_time == doctest::Approx(0.0f));
     CHECK(dst->base->real_route != nullptr);
-    CHECK(coord_list_length(dst->base->real_route->coords) == 1);
+    CHECK(route_get_coord_count(dst->base->real_route) == 1);
 
     // 1초간 tick → 1m 이동되어야 함
     tick_update(tk, 0.3f);
@@ -206,7 +206,7 @@ TEST_CASE("D* Lite Tick Prepare Full sets all parameters correctly and executes 
     route_print(dst->base->real_route);
     tick_update(tk, 0.3f);
     route_print(dst->base->real_route);
-    CHECK(coord_list_length(dst->base->real_route->coords) >= 2);
+    CHECK(route_get_coord_count(dst->base->real_route) >= 2);
 
     dstar_lite_tick_complete(dst, tk);
     tick_destroy(tk);

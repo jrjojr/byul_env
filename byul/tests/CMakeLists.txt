@@ -26,7 +26,11 @@ function(add_module MODULE_NAME)
     set(MODULE_DIR "${CMAKE_SOURCE_DIR}/${MODULE_NAME}")
 
     if(TEST_${UPPER_NAME} AND EXISTS "${MODULE_DIR}")
-        file(GLOB_RECURSE MODULE_TESTS CONFIGURE_DEPENDS "${MODULE_DIR}/**/test_module_*.cpp")
+        file(GLOB_RECURSE MODULE_TESTS CONFIGURE_DEPENDS
+            "${MODULE_DIR}/**/test_module_*.cpp"
+            "${MODULE_DIR}/**/test_module_*.c")
+        list(FILTER MODULE_TESTS EXCLUDE REGEX
+            "test_module_route_carver_(geometry|mutation)\\.cpp$")
         if(MODULE_TESTS)
             message(STATUS "[TEST] ${MODULE_NAME}:")
             foreach(TEST_SRC ${MODULE_TESTS})
@@ -100,6 +104,8 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
     # core
     # console
 )
+
+target_compile_definitions(${PROJECT_NAME} PRIVATE BYUL_AGGREGATE_TEST)
 
 # ─────────────────────────────────────────────
 # 플랫폼별 설정

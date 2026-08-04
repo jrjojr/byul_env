@@ -8,7 +8,7 @@
 #ifndef BYUL_NAVGRID_CALLBACK_INTERNAL_HPP
 #define BYUL_NAVGRID_CALLBACK_INTERNAL_HPP
 
-#include "../navgrid.h"
+#include "navgrid_private.hpp"
 
 namespace byul::navsys::internal {
 
@@ -33,12 +33,34 @@ inline bool navgrid_callback_is_active(const navgrid_t* navgrid) {
     return active_callback_navgrid == navgrid;
 }
 
+inline navsys_status_t navgrid_invoke_is_coord_blocked_checked(
+    const navgrid_t* navgrid, int x, int y, bool* out_blocked) {
+    if (!navgrid || !out_blocked) return NAVSYS_STATUS_INVALID_ARGUMENT;
+    if (!navgrid->is_coord_blocked_fn) {
+        *out_blocked = false;
+        return NAVSYS_STATUS_OK;
+    }
+    if (navgrid_callback_is_active(navgrid)) {
+        return NAVSYS_STATUS_IN_PROGRESS;
+    }
+
+    try {
+        navgrid_callback_scope scope(navgrid);
+        *out_blocked = navgrid->is_coord_blocked_fn(
+            navgrid, x, y, navgrid->is_coord_blocked_fn_userdata);
+        return NAVSYS_STATUS_OK;
+    } catch (...) {
+        return NAVSYS_STATUS_CALLBACK_FAILED;
+    }
+}
+
 inline bool navgrid_invoke_is_coord_blocked(
     const navgrid_t* navgrid, int x, int y) {
-    if (!navgrid || !navgrid->is_coord_blocked_fn) return false;
-    navgrid_callback_scope scope(navgrid);
-    return navgrid->is_coord_blocked_fn(
-        navgrid, x, y, navgrid->is_coord_blocked_fn_userdata);
+    bool blocked = false;
+    return navgrid_invoke_is_coord_blocked_checked(
+        navgrid, x, y, &blocked) == NAVSYS_STATUS_OK
+        ? blocked
+        : true;
 }
 
 } // namespace byul::navsys::internal

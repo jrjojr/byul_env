@@ -320,7 +320,7 @@ coordinate axis와 cost unit은 public contract test로 고정한다.
   =route_reconstruct_path= 호출은 제거한다. replacement는 C header에서 생성된 declaration을
   단일 source of truth로 등록한다.
 
-* TODO 1단계: ABI와 불변식 기준선 고정
+* DONE 1단계: ABI와 불변식 기준선 고정
 
 ** 실행
 
@@ -342,7 +342,24 @@ coordinate axis와 cost unit은 public contract test로 고정한다.
   상호 비교한다.
 - =rg= 기반 public-field consumer lint와 44-symbol manifest completeness check를 실행한다.
 
-* TODO 2단계: P0 안전성, ownership와 반환 계약 수정
+** 완료 기록 (2026-07-26)
+
+- =route-abi-consumer-inventory.json=과 =tools/route_abi_inventory.py=로 enum 10개,
+  공개 struct field 9개, 함수 49개(legacy ABI 1 44개 + canonical additive 5개),
+  clean install과 root shared export 누락 0개를 고정했다.
+- 함수 consumer는 internal-production 23개, test-only 8개, wrapper 1개,
+  external 0개 경로이고 direct-field candidate는 각각 6개, 5개, 2개, 0개
+  경로로 추적한다. public result는 =coords+completion+cost=, builder와
+  search trace/stats 및 heading tracker는 별도 owner로 결정했다.
+- =[ROUTE-ABI-001]=은 enum/size/align/offset을, =[ROUTE-LEGACY-001]=은 pointer
+  identity와 NULL sentinel을, =[ROUTE-LEGACY-002]=는 slice/append의 좌표 전용
+  복사를 보존 기준선으로 고정했다. module은 12 cases/134 assertions, root shared는
+  기준선 3 cases/47 assertions, clean installed C17/C++17 consumer는 모두 통과했다.
+- GitHub Actions =Navsys Integration UBSan= run =30178353958=에서 Linux static/root,
+  live export/CFFI audit와 clean SDK consumer를 포함한 전체 gate가 2m22s에 성공했다.
+  이로써 1단계만 닫으며 2단계는 =TODO= 상태로 유지한다.
+
+* DONE 2단계: P0 안전성, ownership와 반환 계약 수정
 
 ** 실행
 
@@ -367,7 +384,24 @@ coordinate axis와 cost unit은 public contract test로 고정한다.
 - valgrind 또는 Windows sanitizer에서 두 allocation-return direction helper를 반복 호출해
   leak 0을 확인한다.
 
-* TODO 3단계: Opaque route, immutable result와 builder 도입
+** 완료 기록 (2026-07-26)
+
+- retry/direction NULL 경로를 crash 없는 sentinel/no-op 계약으로 고정하고,
+  =route_clone_ex=, =route_slice_ex=, =route_reconstruct_ex=에 status와 output strong
+  guarantee를 추가했다. predecessor missing/cycle과 allocation 실패 시 기존 route는
+  변경되지 않는다.
+- route의 borrowed coordinate/list/hash 계약을 문서화하고 Python child wrapper가 parent를
+  유지하도록 수정했다. 반환 coordinate는 독립 owned value로 복사하며 direction allocation도
+  =coord_destroy= 책임을 갖는다. forced GC와 parent-before-child close를 포함한 Python 전체
+  97개 테스트가 통과했다.
+- MSVC Debug =test_route=와 root =test_byul=, Release allocation fail-at-N/leak gate,
+  clean SDK C17/C++17 consumer, CFFI 동기화, root DLL export 52/52를 확인했다.
+- GitHub Actions =Navsys Coord UBSan= run =30181074948=과 =BYUL Memory Boundary=
+  run =30181074951=에서 Linux static/root UBSan, Ubuntu GCC/Clang memory fixture,
+  Windows MSVC/MinGW Release memory fixture가 모두 통과했다. 테스트 주입은 fixture
+  실행파일에만 있고 tests-off Ubuntu/Windows 생산 artifact 검증도 통과했다.
+
+* DONE 3단계: Opaque route, immutable result와 builder 도입
 
 ** 실행
 
@@ -390,7 +424,28 @@ coordinate axis와 cost unit은 public contract test로 고정한다.
 - tiny search 결과를 reference vector/cost/status와 비교하고 direct field access lint 0건을
   확인한다.
 
-* TODO 4단계: Direction과 heading API를 pure/value 중심으로 교체
+** 완료 기록 (2026-07-26)
+
+- opaque =route_builder_t=와 =navsys_search_trace_t=를 additive C ABI로 도입했다.
+  builder의 push/insert/remove/append/slice/cost/completion/finish는 실패 시 기존
+  candidate와 output을 보존하며, finish 후 builder는 invalidated 상태가 된다.
+  trace는 ordered visit/count를 별도 owner로 보관하고 internal writer와 public
+  count/fetch/export/clone 계약을 분리했다.
+- Route ABI inventory는 70 functions(legacy 44 + canonical additive 26), root export 누락
+  0개, direct-field candidate 0경로를 고정했다. private
+  =route/internal/route_internal.h=는 role manifest에서 internal/install 제외/wrapper
+  제외로 분류했고 clean SDK C17/C++17 consumer와 CFFI declaration이 통과했다.
+- MSVC Release =test_route=는 18 cases/1273 assertions, root =test_byul=은
+  467 cases/12178 assertions, Python wrapper는 99 tests, policy/generator는 66 tests가
+  통과했다. =BUILD_TESTING=OFF= clean Release =byul.dll=에서 test executable,
+  fail-injection symbol과 test-only target 유입이 없음을 확인했다.
+- GitHub Actions =Navsys Integration UBSan= run =30182423894=와
+  =BYUL Memory Boundary= run =30182423895=에서 Linux static/root UBSan, Ubuntu
+  GCC/Clang memory fixture, Windows MSVC/MinGW Release memory fixture가 모두 통과했다.
+  할당 실패 주입은 test executable에만 있고 Ubuntu/Windows 생산 artifact에는
+  포함되지 않는다. 이로써 3단계만 닫고 4단계는 =TODO=로 유지한다.
+
+* DONE 4단계: Direction과 heading API를 pure/value 중심으로 교체
 
 ** 실행
 
@@ -415,7 +470,31 @@ coordinate axis와 cost unit은 public contract test로 고정한다.
   count test를 실행한다.
 - wrapper에서 모든 direction 변환을 대량 반복하고 allocation/GC/lifetime leak 0을 검사한다.
 
-* TODO 5단계: Legacy forwarding과 ABI-major 정리
+** 완료 기록 (2026-07-26)
+
+- allocation 없는 =route_direction_between=, =route_direction_fetch_vector=,
+  =route_fetch_direction_at=과 recent facing/heading pure query를 추가했다. 8방향 enum 숫자와
+  화면 좌표계 =+X= right, =+Y= down을 유지하고 zero/invalid/long delta, angle
+  =[-180,180)=와 threshold inclusive 계약을 고정했다.
+- 누적 heading 상태는 opaque =route_heading_tracker_t= owner로 분리했다. 정규화된 online
+  mean과 포화 sample count를 사용해 큰 입력에서도 합계 overflow를 피하고,
+  create/destroy/reset/query/observe의 상태·소유권 경계를 명시했다. Route value의
+  clone/equality 상태에는 tracker history가 유입되지 않는다.
+- Route 구현과 target link graph에서 =scalar.h=, =M_PI=, Numal/Math Engine 의존을
+  제거했다. Route ABI inventory는 82 functions(legacy 44 + canonical additive 38),
+  root export 누락 0개로 갱신했고 clean installed C17/C++17 consumer와 CFFI 생성
+  =--check=가 통과했다.
+- MSVC Release =test_route=는 22 cases/101367 assertions, Python wrapper는 101 tests가
+  통과했다. allocation fixture는 정상 경로 exit 0과 의도적 leak 경로 exit 5를 확인했다.
+  fail injection은 test executable에만 있고 =BUILD_TESTING=OFF= =byul.dll/libbyul.so=와
+  Ubuntu 생산 실행파일에는 포함되지 않는다.
+- GitHub Actions =Navsys Integration UBSan= run =30183379804=와
+  =BYUL Memory Boundary= run =30183379809=에서 Linux static/root UBSan, live
+  header/export/wrapper audit, clean SDK consumer, Ubuntu GCC/Clang 및 Windows
+  MSVC/MinGW allocation/leak gate가 모두 통과했다. 이로써 4단계만 닫고 5단계는
+  =TODO= 상태로 유지한다.
+
+* DONE 5단계: Legacy forwarding과 ABI-major 정리
 
 ** 실행
 
@@ -439,7 +518,36 @@ coordinate axis와 cost unit은 public contract test로 고정한다.
 - static module/root shared 양쪽에서 canonical behavior를 실행하고 duplicate/missing symbol을
   검사한다.
 
-* TODO 6단계: Route correctness, Wrapper와 배포 Gate
+** ABI migration 기록
+
+- =route-abi-policy.json=을 44개 ABI 1 legacy symbol의 단일 disposition manifest로
+  사용한다. 이 중 35개는 canonical replacement 또는 명시적인 no-replacement 경계와
+  함께 deprecated 처리하고, ABI 1의 필수 lifetime/query 9개는 호환 API로 유지한다.
+- identity는 =route_identity_hash/route_is_same=, 결과 value는
+  =route_content_equal/route_fetch_content_hash=로 분리한다. 결과 value에는 좌표, 완료
+  상태와 cost만 포함하며 trace/retry/heading observation은 포함하지 않는다. float는
+  =+0/-0=을 같은 값으로 정규화하고 NaN은 어떤 값과도 같지 않다.
+- ABI 1에서는 =route_t= layout, enum 숫자와 기존 symbol을 숨기거나 제거하지 않는다.
+  Opaque =route_t=와 내부 predecessor/hash representation은 별도 ABI-major 계약과 release
+  gate가 승인된 ABI 2 SDK에서만 적용하며, 이 ABI 1 refactor가 선행 실행하지 않는다.
+
+** 완료 기록 (2026-07-26)
+
+- 44개 legacy symbol의 disposition을 =route-abi-policy.json=으로 고정했다. ABI 1에서
+  35개는 replacement/no-replacement 사유가 있는 deprecation adapter로 표시하고 9개는
+  호환 API로 유지했으며, 기존 symbol, =route_t= layout과 enum 숫자는 변경하지 않았다.
+- identity/value 의미를 분리한 hash/equality, checked find, caller-buffer format과
+  allocation 없는 vector/direction API를 추가했다. Python wrapper는 canonical API를
+  사용하며 generated CFFI와 policy regression 106 tests가 통과했다.
+- Route inventory는 89 functions(legacy 44 + canonical additive 45)이고 root DLL export
+  누락은 0개다. MSVC Release =test_route= 25 cases/101409 assertions, clean installed
+  C17/C++17 consumer와 Stage 4 old consumer binary/new DLL 조합이 모두 통과했다.
+- GitHub Actions =Navsys Integration UBSan= run =30184274507=과
+  =BYUL Memory Boundary= run =30184274487=에서 Linux static/root UBSan, Ubuntu GCC/Clang,
+  Windows MSVC/MinGW memory fixture가 모두 통과했다. 이로써 5단계만 닫고 6단계는
+  =TODO= 상태로 유지한다.
+
+* DONE 6단계: Route correctness, Wrapper와 배포 Gate
 
 ** 실행
 
@@ -465,3 +573,23 @@ coordinate axis와 cost unit은 public contract test로 고정한다.
   check를 release gate로 묶는다.
 - =module static BYUL_STATIC=와 =root shared BYUL_EXPORTS=를 각각 compile/run하고
   symbol/export/behavior parity를 비교한다.
+
+** 완료 기록 (2026-07-26)
+
+- start==goal, partial, no-path, cancelled, limit/OOM 결과를 native fixture로 고정했다.
+  start==goal은 좌표 1개, cost 0, =ROUTE_COMPLETION_COMPLETE=를 canonical query로
+  관찰하며, builder/result, root dispatcher와 allocation-failure fixture가 같은 상태 계약을
+  사용한다.
+- Python =c_route=와 =c_route_builder=는 NULL/closed handle, 잘못된 argument type과
+  closed child를 호출 전에 차단한다. context manager 예외 종료, idempotent close, GC
+  finalizer와 finish 후 builder invalidation을 검증했으며 wrapper 전체 111 tests가 통과했다.
+- =route.h=는 표준 license를 첫 바이트에 두고 =BYUL_ROUTE_H= guard, file Doxygen와 ABI 1
+  legacy 44개 선언의 nullable/lifetime/deprecation 계약을 완성했다. strict header audit는
+  오류 0, MSVC C/C++ standalone compile은 190/190을 통과했고 generated CFFI와 Route/Navsys
+  ABI inventory를 동기화했다. ABI 1 symbol, enum 숫자와 =route_t= layout은 변경하지 않았다.
+- tests-off MSVC Release clean SDK는 export 1118개, 설치 헤더 92개, test artifact 0개였고
+  installed C17/C++17 consumer가 빌드·실행됐다. module Route/finder/Navsys, root shared와
+  allocation CTest 5개도 모두 통과했다.
+- GitHub Actions =Navsys Coord UBSan= run =30185193815=와 =BYUL Memory Boundary= run
+  =30185193817=에서 Linux static/root UBSan, Ubuntu GCC/Clang과 Windows MSVC/MinGW memory
+  fixture가 모두 통과했다. 이로써 Route TODO의 6단계를 닫고 다음 작업은 시작하지 않는다.

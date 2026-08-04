@@ -75,6 +75,9 @@ add_library(byul_glad STATIC
     "${GLAD_GENERATED_HEADER}"
     "${GLAD_KHR_HEADER}"
 )
+if(COMMAND byul_register_production_target)
+    byul_register_production_target(byul_glad)
+endif()
 target_include_directories(byul_glad PUBLIC
     "${GLAD_GENERATED_DIR}/include"
 )
@@ -84,6 +87,9 @@ target_link_libraries(byul_glad PUBLIC ${CMAKE_DL_LIBS})
 # 🔧 바이너리 생성
 # ----------------------------------------
 add_executable(${PROJECT_NAME} ${${PROJECT_NAME}_SOURCES})
+if(COMMAND byul_register_production_target)
+    byul_register_production_target(${PROJECT_NAME})
+endif()
 
 if(WIN32)
     target_sources(${PROJECT_NAME} PRIVATE
@@ -95,9 +101,15 @@ endif()
 # 플랫폼별 설정
 # ─────────────────────────────────────────────
 if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
-    message(STATUS "${PROJECT_NAME}: Applying ASan + LSan for Linux")
-    target_compile_options(${PROJECT_NAME} PRIVATE -fsanitize=address -fsanitize=leak -g -O1)
-    target_link_options(${PROJECT_NAME} PRIVATE -fsanitize=address -fsanitize=leak)
+    if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+        message(STATUS "${PROJECT_NAME}: Applying ASan + LSan for Linux Debug verification")
+        target_compile_options(${PROJECT_NAME} PRIVATE -fsanitize=address -fsanitize=leak -g -O1)
+        target_link_options(${PROJECT_NAME} PRIVATE -fsanitize=address -fsanitize=leak)
+    else()
+        message(STATUS "${PROJECT_NAME}: Linux Release production build without sanitizer")
+        target_compile_options(${PROJECT_NAME} PRIVATE -O3 -DNDEBUG -g0)
+        target_link_options(${PROJECT_NAME} PRIVATE -s)
+    endif()
     set_target_properties(${PROJECT_NAME} PROPERTIES
         BUILD_RPATH "\$ORIGIN/../lib"
         INSTALL_RPATH "\$ORIGIN/../lib"

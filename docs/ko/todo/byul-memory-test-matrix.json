@@ -1,0 +1,47 @@
+{
+  "schema_version": 1,
+  "instrumentation_owner": "test-executable-only",
+  "production_artifact_test_code_or_fault_injection": "forbidden",
+  "sanitizer_verification_build": "allowed-but-never-the-tests-off-package",
+  "profiles": [
+    {
+      "host": "windows",
+      "toolchain": "msvc",
+      "configuration": "Release",
+      "fixture": "test_navsys_allocation_failure",
+      "sanitizers": [],
+      "reason": "MSVC Debug STL iterator proxies are incompatible with executable-wide allocation failure injection"
+    },
+    {
+      "host": "windows",
+      "toolchain": "mingw64-gcc",
+      "configuration": "Release",
+      "fixture": "test_navsys_allocation_failure",
+      "sanitizers": []
+    },
+    {
+      "host": "ubuntu",
+      "toolchain": "gcc",
+      "configuration": "Debug",
+      "fixture": "test_navsys_allocation_failure",
+      "sanitizers": ["address", "leak", "undefined"]
+    },
+    {
+      "host": "ubuntu",
+      "toolchain": "clang",
+      "configuration": "Debug",
+      "fixture": "test_navsys_allocation_failure",
+      "sanitizers": ["address", "leak", "undefined"]
+    }
+  ],
+  "future_platform_gate": {
+    "policy": "required-before-platform-support",
+    "requirements": [
+      "allocation-failure-fixture",
+      "intentional-leak-negative-control",
+      "available-address-leak-undefined-sanitizers",
+      "production-target-test-instrumentation-audit"
+    ],
+    "currently_unverified": ["macos-clang"]
+  }
+}

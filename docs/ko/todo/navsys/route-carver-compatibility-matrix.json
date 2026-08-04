@@ -1,0 +1,62 @@
+{
+  "schema_version": 1,
+  "component": "route_carver",
+  "baseline_revision": "d1a1b0dfb2f9a6e0b0a0bdd091225fe05347f964",
+  "legacy_abi": {
+    "symbols": [
+      "route_carve_beam",
+      "route_carve_bomb"
+    ],
+    "signatures_unchanged": true,
+    "linkage": "C name imports; no ordinal-only consumer contract",
+    "implementation": "byul/navsys/route_carver/compat/route_carver_legacy.cpp",
+    "public_adapter": "byul/navsys/route_carver/route_carver.cpp",
+    "deprecation": "ABI 1.x keeps both symbols; use navgrid_carve_line/navgrid_carve_area; removal requires ABI 2 or later"
+  },
+  "forwarding_decision": {
+    "whole_family_forwarded_to_canonical": false,
+    "reason": "no canonical options profile reproduces every legacy input: beam uses sign-step, positive beam omits its centerline and depends on navgrid direction mode, negative range aliases zero, and DIR_4 positive bomb uses a topology expansion not equal to one canonical metric",
+    "proven_equivalent_examples": [
+      "horizontal range-zero beam equals radius-zero center coverage with start excluded and end included",
+      "DIR_8 positive bomb equals a clipped Chebyshev square for the frozen range fixtures"
+    ],
+    "non_equivalent_examples": [
+      "diagonal range-zero sign-step beam differs from exact-half-tie center coverage",
+      "DIR_4 range-two bomb has 21 cells while Manhattan and Euclidean radius two have 13 and Chebyshev has 25"
+    ]
+  },
+  "matrix": [
+    {
+      "consumer": "Stage 1 pre-canonical C binary",
+      "library": "Stage 1 baseline DLL",
+      "result": "PASS",
+      "evidence": "legacy-only import table and executable run before DLL replacement",
+      "library_sha256": "7467B7D1B6FA71EC572018A92A219416260765E43E2D952DEB9C9FB13F7C1B5A"
+    },
+    {
+      "consumer": "same Stage 1 pre-canonical C binary without recompilation",
+      "library": "Stage 6 Release DLL",
+      "result": "PASS",
+      "evidence": "the binary imports route_carve_beam and route_carve_bomb by name and ran after only byul.dll was replaced",
+      "library_sha256": "9616DB647CCF3F9759D99CB4939DFEDF2391D317A8A98EA67EB20F390EBA55F8"
+    },
+    {
+      "consumer": "Stage 6 clean installed SDK C17 and C++17 sources",
+      "library": "Stage 6 Release DLL",
+      "result": "PASS",
+      "evidence": "both consumers compiled, linked, and ran legacy and canonical calls"
+    },
+    {
+      "consumer": "canonical checked API source",
+      "library": "pre-canonical ABI baseline DLL",
+      "result": "EXPECTED_INCOMPATIBLE",
+      "evidence": "navgrid_carve_line and navgrid_carve_area are additive ABI 1.x symbols absent from the captured baseline export inventory"
+    }
+  ],
+  "native_fixture": {
+    "file": "byul/navsys/tests/test_module_route_carver.cpp",
+    "legacy_cases": 4,
+    "migration_comparison_cases": 1,
+    "msvc_assertions": 91
+  }
+}

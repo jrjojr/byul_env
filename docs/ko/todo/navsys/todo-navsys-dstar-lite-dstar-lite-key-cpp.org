@@ -1,5 +1,14 @@
 #+TITLE: BYUL Navsys dstar_lite_key.hpp 정밀 리팩토링 TODO
 #+TODO: TODO DOING BLOCKED | DONE CANCELLED FAILED
+#+TODO_STATUS: DONE
+#+RELEASE_NOTE_REQUIRED: yes
+#+RELEASE_CHANGE_KIND: compatibility
+#+RELEASE_LEVEL: major
+#+RELEASE_TARGET: developer
+#+RELEASE_TITLE: D* Lite legacy C++ key helper 제거
+#+RELEASE_GOAL: 설치 및 소스 트리의 key ordering helper를 private 경계로 통일한다.
+#+RELEASE_BREAKING: yes
+#+HELP_UPDATE_REQUIRED: no
 #+TODO_RULES: ../../../../external/rules/projects/byul/todo-rules.org
 #+PUBLIC_API_RULES: ../../../../external/rules/projects/byul/public-api-rules.org
 #+HEADER_DECLARATION_RULES: ../../../../external/rules/projects/byul/header-declaration-rules.org
@@ -8,6 +17,7 @@
 #+BUILD_RULES: ../../../../external/rules/projects/byul/build-rules.org
 #+TEST_RULES: ../../../../external/rules/projects/byul/test-rules.org
 #+TODO_PARENT: todo-리팩토링-navsys-headers.org
+#+CONSUMER_INVENTORY: dstar-lite-key-cpp-consumer-inventory.json
 #+AUTHOR: ByulPapa / Codex
 #+LANGUAGE: ko
 #+OPTIONS: toc:t num:nil
@@ -133,7 +143,7 @@ struct key_hash final {
 
 * 구현 순서
 
-** TODO 1단계: consumer와 install 사실 확정
+** DONE 1단계: consumer와 install 사실 확정
 
 *** 실행
 
@@ -150,7 +160,24 @@ struct key_hash final {
 - clean install file list와 five-symbol source report를 자동 생성한다.
 - old SDK source fixture가 실제로 존재하면 별도 build한다.
 
-** TODO 2단계: exact by-value detail comparator 도입
+*** 완료 기록
+
+- 2026-07-25 =tools/dstar_lite_key_cpp_inventory.py=와
+  =dstar-lite-key-cpp-consumer-inventory.json=으로 repository, external source, CMake,
+  clean install과 header-role manifest의 판정을 하나의 재생성 가능한 report로 고정했다.
+- 다섯 선언 중 production에서 소비되는 것은
+  =dstar_lite_pqueue.cpp=의 =DstarLiteKeyLess= 하나뿐이다. =DstarLiteKeyHash=,
+  =DstarLiteKeyEqual=, =std::hash<dstar_lite_key_t>=와
+  =dstar_lite_key_ptr_less=는 선언 외 consumer가 없고 test-only/external consumer도 0개다.
+- MSVC Release stage-4 clean install의 =include/byul/dstar_lite_key.hpp=는 source와 같은
+  SHA-256이며 CMake ABI 1.x public header inventory에 포함된다. C++ helper export는 없고
+  wrapper manifest는 독립 C surface가 없다는 이유로 =excluded=다.
+- 별도 old-SDK external source fixture는 발견되지 않아 fixture build는 적용 대상이 아니다.
+  그러나 이 경로가 기존 SDK에 실제 배포됐으므로 forwarding은 생략하지 않는다. 승인된
+  header-role manifest대로 1.1에서 deprecated compatibility include로 유지하고 2.0에서
+  비설치 =internal/dstar_lite_key_ops.hpp=로 종료한다.
+
+** DONE 2단계: exact by-value detail comparator 도입
 
 *** 실행
 
@@ -167,7 +194,28 @@ struct key_hash final {
 - ordering/hash property test와 C++17 two-TU ODR test를 실행한다.
 - clang/gcc/msvc warning-as-error include audit를 실행한다.
 
-** TODO 3단계: private helper와 build inventory 전환
+*** 완료 기록
+
+- 2026-07-25 =internal/dstar_lite_key_ops.hpp=에 license, =@file/@brief=,
+  BYUL guard와 =byul::navsys::dstar_lite_detail= namespace를 갖춘 =key_less=만
+  도입했다. ordered container가 요구하지 않는 =key_equal/key_hash=는 만들지 않았다.
+- =key_less=는 두 canonical C key 값을 const reference로 받고 =noexcept=이며
+  =dstar_lite_key_compare_exact=만 호출한다. 새 helper surface에는 pointer, NULL,
+  approximate equality와 global namespace 선언이 없다.
+- MSVC Release module/root build에서 two-TU ODR source를 =/W4 /WX=로 컴파일했다.
+  exact relation 집중 test는 module/root 각각 1 case, 1410 assertions를 통과했고,
+  D* Lite module 전체는 32 cases, 1581 assertions를 통과했다.
+- GitHub Actions run =30156835676=은 2분에 성공했다. Ubuntu에서 GCC/Clang C++17
+  =-Wall -Wextra -Werror= two-TU compile, private-helper inventory, clean SDK consumer,
+  static/root UBSan gate와 139-header ABI role audit를 모두 통과했다.
+- C++ helper inventory는 helpers=5, production consumers=1, external=0이며 Navsys ABI
+  inventory는 headers=46, symbols=525다. inventory SHA는 CRLF/LF에 무관하도록
+  정규화해 Windows와 Linux checkout에서 동일하게 검사한다.
+- 현행 =dstar_lite_pqueue.cpp=의 legacy pointer comparator/storage는 이 단계에서
+  전환하지 않았다. 새 canonical production surface만 exact by-value로 동결했고 실제
+  pqueue 소비 전환은 이 문서 3단계와 pqueue 문서 TODO 2단계의 소유 경계를 따른다.
+
+** DONE 3단계: private helper와 build inventory 전환
 
 *** 실행
 
@@ -185,7 +233,33 @@ struct key_hash final {
 - static D* Lite/root shared build와 clean install inventory를 실행한다.
 - forbidden symbol/path scan을 CI gate로 실행한다.
 
-** TODO 4단계: compatibility path 종료
+*** 완료 기록
+
+- 2026-07-25 =dstar_lite_key.hpp=를 =dstar_lite_HEADERS=에서 제거하고
+  =internal/dstar_lite_key_ops.hpp=를 =dstar_lite_SOURCES=에 연결했다. 생성된 MSVC
+  project에서 private helper가 =dstar_lite= static, =navsys= static과 root =byul= shared
+  세 target에 모두 포함되고 legacy header는 포함되지 않음을 확인했다.
+- =dstar_lite_pqueue.cpp=는 현행 pointer-key storage를 유지하는 local transitional adapter
+  안에서 by-value =dstar_lite_detail::key_less=를 호출한다. 따라서 이 문서가 소유하지 않는
+  queue storage 전환 없이도 다섯 legacy helper 이름의 production 참조를 0으로 만들었다.
+- 새 MSVC Release clean install은 headers=92이며 legacy =dstar_lite_key.hpp=와 private
+  =dstar_lite_key_ops.hpp=를 모두 설치하지 않는다. C17/C++17 SDK consumer를 이 install로
+  새로 configure/build/run했다.
+- MSVC Release에서 module static, root shared, =test_dstar_lite=와 =test_byul=을
+  재빌드했다. exact relation 집중 test는 module/root 각각 1 case, 1410 assertions,
+  D* Lite module 전체는 32 cases, 1581 assertions를 통과했다.
+- header-role manifest는 legacy path의 =approved_install=false=와 private helper의
+  internal/wrapper-excluded 경계를 기록한다. Navsys ABI inventory는 private header를
+  symbols=0으로 포함해 headers=47, symbols=525이며 CFFI 생성 결과는 변하지 않았다.
+- GitHub Actions run =30157358793=은 2분 24초에 성공했다. Linux clean install은
+  install-files=93, headers=92였고 forbidden inventory는 helpers=5, consumers=0,
+  external=0이었다. GCC/Clang C++17 =-Werror=, header ABI compile=190/190,
+  clean SDK consumer와 static/root UBSan gate도 모두 통과했다.
+- Legacy source file과 그 안의 다섯 선언은 Stage 4의 compatibility-path 종료 전까지
+  repository에만 남는다. 실제 pqueue by-value storage 전환은 pqueue 문서 TODO 2단계가
+  계속 소유한다.
+
+** DONE 4단계: compatibility path 종료
 
 *** 실행
 
@@ -200,3 +274,34 @@ struct key_hash final {
 *** 검증
 
 - old fixture(필요 시), 새 pqueue, installed SDK consumer와 =git diff --check=를 통과한다.
+
+*** 완료 기록
+
+- 2026-07-25 external source consumer와 legacy include consumer가 모두 0임을 다시 확인했다.
+  따라서 migration fixture나 추가 forwarding 기간은 적용 대상이 아니며, major-version
+  종료 gate에 따라 repository의 =dstar_lite_key.hpp=와 그 안의 다섯 C++ helper 선언을
+  삭제했다.
+- header-role manifest에서 legacy compatibility-forwarder row를 제거했다. 현재 canonical
+  =internal/dstar_lite_key_ops.hpp=만 internal, =approved_install=false=,
+  wrapper-excluded로 남는다. CMake public 목록에는 legacy path가 없고 private source
+  목록에는 canonical helper가 있다.
+- Stage 4 inventory schema는 repository path, manifest role, include, production/test/external
+  symbol reference와 clean install을 모두 forbidden surface로 검사한다. 결과는
+  legacy-helpers=0, consumers=0, external=0이며 approximate comparator/hash 조합과
+  =std::hash<dstar_lite_key_t>= specialization은 어떤 compatibility path에도 남지 않는다.
+- 새 MSVC Debug clean install은 headers=92이고 legacy =dstar_lite_key.hpp=와 private
+  =dstar_lite_key_ops.hpp=를 모두 설치하지 않는다. 이 install만 사용하는 독립 C17/C++17
+  SDK consumer를 새 build tree에서 configure/build/run했다.
+- MSVC Debug에서 =dstar_lite= static, =navsys= static과 root =byul= shared를 재빌드했다.
+  D* Lite module 전체는 32 cases, 1581 assertions, navsys module은 22 cases,
+  142 assertions를 통과했다. header/ABI audit은 headers=138, public-c=95,
+  declarations=1040, standalone compile=190/190, errors=0이었다.
+- Navsys ABI inventory는 제거된 symbol-free compatibility header만 제외해 headers=46,
+  symbols=525가 되었다. 설치된 C header와 C ABI symbol은 바뀌지 않았고, source-level
+  legacy C++ include 제거만 developer 대상 major/breaking release-note 후보로 기록했다.
+- 구현 commit =b875ae5=의 GitHub Actions run =30157882284=은 2분 10초에 성공했다.
+  GCC/Clang C++17 =-Werror= private-helper compile, forbidden inventory, live header/export/
+  wrapper audit, clean C17/C++17 SDK consumer와 static/root UBSan gate를 모두 통과했다.
+- old fixture는 확인된 external consumer가 없어 실행 대상이 아니었다. 마지막으로
+  =git diff --check=를 통과했고 실제 pqueue by-value storage 전환은
+  =todo-navsys-dstar-lite-dstar-lite-pqueue.org= TODO 2단계의 소유권으로 남는다.

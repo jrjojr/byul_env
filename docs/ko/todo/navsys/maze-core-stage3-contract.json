@@ -1,0 +1,45 @@
+{
+  "schema_version": 1,
+  "scope": "navsys-maze-core-stage3",
+  "source_revision": "13624d1",
+  "checked_api": {
+    "extent_type": {
+      "name": "byul_maze_extent_t",
+      "size_x64": 16,
+      "alignment_x64": 4,
+      "fields": ["origin_x:int32_t", "origin_y:int32_t", "width:uint32_t", "height:uint32_t"]
+    },
+    "symbols": [
+      "byul_maze_create",
+      "byul_maze_copy",
+      "byul_maze_get_extent",
+      "byul_maze_get_blocked_count",
+      "byul_maze_fetch_blocked"
+    ],
+    "create_copy_failure": "out_maze is preserved and no partial object escapes",
+    "extent_query": "legacy signed extents are returned in normalized nonnegative form",
+    "count_query": "NULL buffer plus zero capacity returns required count",
+    "undersized_fetch": "returns NAVSYS_STATUS_INCOMPLETE, preserves buffer, and reports required count",
+    "ordering": "blocked coordinate export order is unspecified"
+  },
+  "legacy_fix": {
+    "maze_create_full": "returns NULL when blocked-set allocation fails",
+    "maze_copy": "returns NULL when deep-copy allocation fails",
+    "half_initialized_object": "eliminated"
+  },
+  "verification": {
+    "tests": ["test_maze", "test_navsys_allocation_failure"],
+    "faults": ["create OOM", "copy OOM", "translate OOM"],
+    "platforms": {
+      "windows_msvc_x64_release": "passed",
+      "linux_gcc_13_x64_debug_asan_lsan": "passed",
+      "linux_clang_18_x64_debug_asan_lsan": "passed",
+      "macos_clang": "not currently verified"
+    },
+    "sdk_consumers": "C17 and C++17 build/run passed on Windows MSVC and Linux GCC",
+    "abi_inventory_symbols": 635,
+    "root_dll_exports": 1190,
+    "rules_validator": "60 files, 0 errors, 0 warnings",
+    "known_unrelated_gate": "route_finder/internal/coord_hash_adapters.hpp is not yet in the header role manifest"
+  }
+}

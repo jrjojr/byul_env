@@ -28,18 +28,18 @@
 - 아래 =byul_navcell_properties=는 owner header, namespace와 include DAG가 정해지지 않은
   target draft type이다. 이름이 적혀 있다는 이유로 =navcell.h=나 다른 foundation
   header에 먼저 선언하지 않는다.
-- Value ABI와 현행 동작 characterization은 준비할 수 있지만 기존 네 단계의 =TODO=
-  상태는 유지한다.
-- Navcell 전용 test source는 현재 없다. 실제 shared native test 원본
-  =byul/navsys/navgrid/tests/test_module_navgrid.cpp=에 =navcell_t= layout,
-  create/init/copy/invalid/allocator case를 추가한다. 별도 파일로 분리하면
-  =byul/navsys/navgrid/tests/CMakeLists.txt=에 등록한다.
+- Value ABI와 현행 동작 characterization은 1단계에서 수행하되 checked API와
+  production allocation 동작 변경은 2단계 전까지 시작하지 않는다.
+- Navcell 전용 검증은 shared native test 원본
+  =byul/navsys/navgrid/tests/test_module_navgrid.cpp=와 설치 SDK C/C++ 소비자에 둔다.
+  allocator failure는 1단계에서 현행 결함을 기록하고, 주입 fixture와 exception
+  barrier 구현은 2단계에서 함께 다룬다.
 
 * Public symbol·field inventory와 처분
 
 | kind | symbol | 현재 값/layout | disposition |
 |------+--------+----------------+-------------|
-| guard macro | =NAVCELL_H= | source macro | source macro: ABI 1.x: keep -> ABI-major: internalize; collision-safe guard companion: ABI 1.x: add |
+| guard macro | =BYUL_NAVCELL_H= | collision-safe source macro | source-only contract: ABI 1.x에서 표준 guard로 교체 완료 |
 | enum type/tag | =terrain_type_t= (tag =e_terrain_type=) | compiler enum | legacy type: ABI 1.x: keep -> ABI-major: abi-major; validation companion: ABI 1.x: add |
 | enumerator | =TERRAIN_TYPE_NORMAL= | 0 implicit | ABI 1.x: keep -> ABI-major: keep |
 | enumerator | =TERRAIN_TYPE_WATER= | 1 implicit | ABI 1.x: keep -> ABI-major: keep |
@@ -68,7 +68,7 @@
 | callback | built-in blocked query는 =terrain==FORBIDDEN=만 검사 | enum 확장/unknown behavior 없음 |
 | equality/hash | navgrid의 coord_hash callback에 의존 | navcell value equality/hash policy가 header에 없음 |
 | wrapper | =navgrid.py= CFFI에 struct layout 그대로 생성 | field/type 변경은 Python ABI/parser에도 즉시 영향 |
-| test | navcell 전용 semantic test 없음 | create/init/copy/invalid/layout/allocator 미검증 |
+| test | shared native와 설치 SDK 소비자에 ABI baseline 고정 | allocation failure 주입과 checked lifecycle은 2단계 범위 |
 
 * 업계 관행 비교와 목표 의미
 
@@ -102,7 +102,7 @@ typedef struct byul_navcell_properties {
 } byul_navcell_properties_t;
 #+end_src
 
-* TODO 1단계: value ABI와 semantic baseline
+* DONE 1단계: value ABI와 semantic baseline
 
 ** 실행
 
@@ -121,7 +121,36 @@ typedef struct byul_navcell_properties {
 - layout/enum manifest와 wrapper generated declaration을 exact 비교한다.
 - C17 compound literal/zero-init과 C++17 value-init consumer를 build한다.
 
-* TODO 2단계: checked value/lifecycle API
+** 결정과 증거
+
+- 기준 revision =8931cdea47443125732adeb3cc8c4dff488ca2f4=의 현행 ABI를
+  =navcell-abi-policy.json=에 고정했다. x86_64 Windows의
+  =terrain_type_t=는 size/alignment =4/4=, =navcell_t=는 =8/4=,
+  field offset은 =0/4=다. struct tag는 아직 anonymous이며 named tag 추가는
+  4단계 범위로 남긴다.
+- =height=는 현행 native navsys에서 해석하지 않는 unitless metadata이고 C =int=
+  전체 범위를 검증 없이 저장한다. 좌표축 의미도 부여하지 않는다. 새로운 elevation
+  단위는 기존 field를 재해석하지 않고 향후 versioned properties descriptor에서 정한다.
+- built-in navgrid passability는 =FORBIDDEN=만 blocked로 취급한다.
+  =NORMAL/WATER/FOREST/MOUNTAIN=과 unknown enum은 별도 cost 의미가 없으며 route cost
+  callback과 custom blocked callback이 정책 확장 경계다.
+- =navcell_t=는 ABI 1.x에서 stack-friendly trivial value type으로 유지한다.
+  checked create/validation과 versioned properties는 additive companion으로만 계획한다.
+- 현행 =navcell_create_full/navcell_copy=의 throwing =new=에는 exception barrier가 없어
+  =std::bad_alloc=이 C ABI를 탈출할 수 있다. 이는 1단계에서 고정한 알려진 결함이며
+  production 수정과 fault injection은 2단계에서 수행한다.
+- MSVC Release: =test_navgrid= 8/8, =test_byul= 476/476 통과.
+  MinGW Release도 동일하게 8/8, 476/476 통과했다.
+- =BUILD_TESTING=OFF= Release에서 모든 production target의 test-only source/definition/link
+  감사가 MSVC와 MinGW 모두 통과했다. 설치본만 사용한 C17 compound/zero initialization과
+  C++17 value initialization SDK 소비자도 두 컴파일러에서 build/run 성공했다.
+- 로컬 내장 Python으로 Navcell 정책 test 6/6, test runner 회귀 test 4/4와
+  generated CFFI =--check=를 통과했다.
+- GitHub Actions =30364199218=에서 Linux UBSan static/root, ABI inventory,
+  C17/C++17 SDK consumer가 통과했다. =30364195207=에서 Windows MSVC/MinGW와
+  Ubuntu GCC/Clang 메모리 fixture 및 tests-off production 감사가 모두 통과했다.
+
+* DONE 2단계: checked value/lifecycle API
 
 ** 실행
 
@@ -139,7 +168,23 @@ typedef struct byul_navcell_properties {
 - all enum values, unknown negative/101/MAX, height boundaries와 allocation fault를 test한다.
 - old/new native와 wrapper round-trip을 실행한다.
 
-* TODO 3단계: terrain/navgrid policy 분리
+** 결정과 증거
+
+- 지원 terrain은 =NORMAL/WATER/FOREST/MOUNTAIN/FORBIDDEN=으로 고정하고 unknown enum은
+  query에서 =OK/false=, validate와 mutation에서 =NAVSYS_STATUS_UNSUPPORTED=로 처리한다.
+- =height=는 unitless metadata인 기존 ABI 의미를 유지하며 =int32_t= 전체 범위를 허용한다.
+- checked init/assign/copy/create는 실패 시 destination과 out-parameter를 보존한다.
+  legacy create/init/copy/assign은 같은 validation과 exception barrier를 공유한다.
+- 로컬 MSVC 2022 Release에서 =test_navgrid=, =test_navsys_allocation_failure=,
+  root shared =test_byul=이 3/3 통과했다. allocation fault fixture는 navcell checked/legacy
+  create와 copy의 status, output 보존, leak 부재를 검증한다.
+- 빌드한 root =byul.dll=을 사용한 Python wrapper 전체 테스트가 119/119 통과했고,
+  unit-only wrapper/policy 테스트는 45/45 통과했다. generated CFFI =--check=와
+  current ABI inventory =--check=도 통과했다.
+- 새 checked symbol 6개는 public-header audit 오류가 0개다. 기존 legacy function 7개의
+  Doxygen/헤더 정리는 저장소 전체 audit 부채와 함께 4단계 Header·ABI gate에 남긴다.
+
+* DONE 3단계: terrain/navgrid policy 분리
 
 ** 실행
 
@@ -156,7 +201,25 @@ typedef struct byul_navcell_properties {
 
 - terrain별 blocked/cost callback, block→unblock round-trip과 custom policy test를 실행한다.
 
-* TODO 4단계: Header·ABI gate
+** 결정과 증거
+
+- terrain 값의 유효성만 Navcell이 소유한다. 기본 blocked 해석은 Navgrid callback,
+  custom blocked는 Navgrid callback binding, traversal cost는 route-finder cost callback,
+  =height=와 elevation 의미는 application이 소유한다. 이 matrix는
+  =navgrid-terrain-policy.json=에서 기계적으로 검증한다.
+- 기본 정책은 =FORBIDDEN=만 blocked로 해석한다. =NORMAL/WATER/FOREST/MOUNTAIN=에는
+  내장 cost나 solid 의미를 부여하지 않으며, unknown terrain은 set에서 거부하고 raw-map
+  corruption fallback에서는 보수적으로 blocked 처리한다.
+- ABI 1.x legacy =block=은 absent cell에만 =FORBIDDEN/0=을 넣고 기존 non-forbidden
+  terrain/height가 있으면 false로 거부하여 보존한다. =unblock=은 =FORBIDDEN=만 제거하여
+  sparse default를 복원한다. prior cell과 multi-source provenance를 복원하는 overlay는
+  Navgrid checked mutation 4단계 범위로 유지한다.
+- 로컬 MSVC 2022 Release에서 =test_navgrid=과 root shared =test_byul=이 2/2 통과했다.
+  native fixture는 terrain별 기본/custom blocked와 custom cost를 검증한다. 실제 root
+  =byul.dll=을 사용한 Python wrapper 전체 테스트는 121/121 통과했고 block→unblock과
+  사용자 terrain/height 보존을 왕복 검증했다.
+
+* DONE 4단계: Header·ABI gate
 
 ** 실행
 
@@ -171,3 +234,24 @@ typedef struct byul_navcell_properties {
 
 - C/C++ standalone compile, module/root/wrapper/SDK consumer와 ABI checker를 실행한다.
 - module static =BYUL_STATIC=과 root shared =BYUL_EXPORTS=에서 모든 navcell symbol과 enum/layout ABI를 각각 검증한다.
+
+** 결정과 증거
+
+- =navcell.h=에 표준 license/file 문서와 collision-safe =BYUL_NAVCELL_H= guard를 적용하고,
+  =navcell_t=에 =s_navcell= named tag와 storage/zero/copy/thread-safety metadata를 추가했다.
+  legacy function 7개도 ownership, nullability, failure, thread-safety와 enum support 계약을
+  명시했다. 함수 signature, field 순서/형식, enum 값은 변경하지 않았다.
+- =navcell-abi-policy.json=과 generated Python CFFI, current ABI inventory를 동기화했다.
+  enum 값 =0/1/2/3/100=과 =navcell_t= size/alignment =8/4=, field offset =0/4=는
+  기존 ABI와 동일하다. ABI 1.x에는 size/align/offset 진단 export를 새로 추가하지 않고
+  native 및 설치 SDK 소비자의 compile-time assertion을 authoritative layout gate로 사용한다.
+- Navcell 대상 public-header audit 오류는 0개다. 저장소 전체 audit에는 이 단계 범위 밖의
+  다른 header 오류 2614개가 남아 있으며, 이를 Navcell 완료 조건과 혼동하지 않는다.
+- 로컬 MSVC 2022 Release에서 module static =test_navgrid=, allocation fixture
+  =test_navsys_allocation_failure=, root shared =test_byul=이 3/3 통과했다. 실제 root
+  =byul.dll=을 사용한 Python wrapper 전체 테스트도 122/122 통과했다.
+- =byul_sdk= component 설치본만 사용한 C17/C++17 standalone 소비자가 모두 build/run
+  성공했다. 소비자는 enum 값, struct size/alignment/offset과 checked API 6개를 검증한다.
+  설치 DLL export table에는 legacy/checked를 합친 Navcell symbol 13개가 모두 존재했다.
+- header parser/ABI policy/generator 회귀 테스트 17/17, generated CFFI =--check=와
+  current ABI inventory =--check=가 통과했다.

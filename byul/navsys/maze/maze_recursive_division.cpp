@@ -1,98 +1,154 @@
 #include "maze_recursive_division.h"
-#include "obstacle.h"
+#include "internal/maze_private.hpp"
+
+#include <cstdint>
+#include <new>
 #include <vector>
-#include <random>
-#include <ctime>
-#include <algorithm>
 
-static const int WALL = 1;
-static const int PASSAGE = 0;
+namespace {
 
-static int random_even(int min, int max, std::mt19937& rng) {
-    std::vector<int> evens;
-    for (int i = min; i <= max; i += 2) evens.push_back(i);
-    std::shuffle(evens.begin(), evens.end(), rng);
-    return evens.empty() ? min : evens[0];
+constexpr uint8_t wall_cell = 1;
+constexpr uint8_t passage_cell = 0;
+
+int random_even(
+    int minimum, int maximum, byul_maze_generation_context& context) {
+    const uint32_t count = static_cast<uint32_t>((maximum - minimum) / 2 + 1);
+    return minimum + static_cast<int>(context.bounded(count)) * 2;
 }
 
-static int random_odd(int min, int max, std::mt19937& rng) {
-    std::vector<int> odds;
-    for (int i = min; i <= max; i += 2) odds.push_back(i);
-    std::shuffle(odds.begin(), odds.end(), rng);
-    return odds.empty() ? min : odds[0];
+int random_odd(
+    int minimum, int maximum, byul_maze_generation_context& context) {
+    const uint32_t count = static_cast<uint32_t>((maximum - minimum) / 2 + 1);
+    return minimum + static_cast<int>(context.bounded(count)) * 2;
 }
 
-static void divide(std::vector<std::vector<int>>& grid,
-                   int x, int y, int w, int h,
-                   std::mt19937& rng) {
-    if (w < 5 || h < 5) return;
+navsys_status_t divide(
+    std::vector<uint8_t>& grid,
+    int grid_width,
+    int left,
+    int top,
+    int right,
+    int bottom,
+    byul_maze_generation_context& context) {
+    const int span_x = right - left;
+    const int span_y = bottom - top;
+    if (span_x < 4 || span_y < 4) return context.poll();
 
-    bool horizontal = (w < h) ? true : (w > h) ? false : (rng() % 2 == 0);
-
+    const navsys_status_t step_status = context.begin_step();
+    if (step_status != NAVSYS_STATUS_OK) return step_status;
+    const bool horizontal = span_x < span_y
+        || (span_x == span_y && context.bounded(2) == 0);
     if (horizontal) {
-        int wall_y = random_even(y + 2, y + h - 3, rng);
-        int passage_x = random_odd(x + 1, x + w - 2, rng);
-
-        for (int i = x; i < x + w; ++i)
-            grid[wall_y][i] = WALL;
-
-        grid[wall_y][passage_x] = PASSAGE;
-
-        divide(grid, x, y, w, wall_y - y, rng);
-        divide(grid, x, wall_y + 1, w, y + h - wall_y - 1, rng);
-    } else {
-        int wall_x = random_even(x + 2, x + w - 3, rng);
-        int passage_y = random_odd(y + 1, y + h - 2, rng);
-
-        for (int i = y; i < y + h; ++i)
-            grid[i][wall_x] = WALL;
-
-        grid[passage_y][wall_x] = PASSAGE;
-
-        divide(grid, x, y, wall_x - x, h, rng);
-        divide(grid, wall_x + 1, y, x + w - wall_x - 1, h, rng);
+        const int wall_y = random_even(top + 2, bottom - 2, context);
+        const int passage_x = random_odd(left + 1, right - 1, context);
+        for (int x = left; x <= right; ++x) {
+            grid[static_cast<size_t>(wall_y) * grid_width + x] = wall_cell;
+        }
+        grid[static_cast<size_t>(wall_y) * grid_width + passage_x]
+            = passage_cell;
+        navsys_status_t status = divide(
+            grid, grid_width, left, top, right, wall_y, context);
+        if (status != NAVSYS_STATUS_OK) return status;
+        return divide(
+            grid, grid_width, left, wall_y, right, bottom, context);
     }
+
+    const int wall_x = random_even(left + 2, right - 2, context);
+    const int passage_y = random_odd(top + 1, bottom - 1, context);
+    for (int y = top; y <= bottom; ++y) {
+        grid[static_cast<size_t>(y) * grid_width + wall_x] = wall_cell;
+    }
+    grid[static_cast<size_t>(passage_y) * grid_width + wall_x] = passage_cell;
+    navsys_status_t status = divide(
+        grid, grid_width, left, top, wall_x, bottom, context);
+    if (status != NAVSYS_STATUS_OK) return status;
+    return divide(
+        grid, grid_width, wall_x, top, right, bottom, context);
+}
+
+} // namespace
+
+navsys_status_t byul_maze_generate_recursive_division_internal(
+    int32_t origin_x,
+    int32_t origin_y,
+    uint32_t width,
+    uint32_t height,
+    byul_maze_generation_context& context,
+    maze_t** out_maze) noexcept {
+    if (!out_maze) return NAVSYS_STATUS_INVALID_ARGUMENT;
+    *out_maze = nullptr;
+    const navsys_status_t initial_poll = context.poll();
+    if (initial_poll != NAVSYS_STATUS_OK) return initial_poll;
+
+    maze_t* maze = maze_create_full(
+        origin_x, origin_y, static_cast<int>(width), static_cast<int>(height));
+    if (!maze) return NAVSYS_STATUS_OUT_OF_MEMORY;
+
+    try {
+        const int w = static_cast<int>(width);
+        const int h = static_cast<int>(height);
+        std::vector<uint8_t> grid(
+            static_cast<size_t>(width) * height, passage_cell);
+        for (int x = 0; x < w; ++x) {
+            grid[x] = wall_cell;
+            grid[static_cast<size_t>(h - 1) * w + x] = wall_cell;
+        }
+        for (int y = 0; y < h; ++y) {
+            grid[static_cast<size_t>(y) * w] = wall_cell;
+            grid[static_cast<size_t>(y) * w + w - 1] = wall_cell;
+        }
+
+        navsys_status_t status = divide(
+            grid, w, 0, 0, w - 1, h - 1, context);
+        if (status != NAVSYS_STATUS_OK) {
+            maze_destroy(maze);
+            return status;
+        }
+        for (int y = 0; y < h; ++y) {
+            for (int x = 0; x < w; ++x) {
+                if (grid[static_cast<size_t>(y) * w + x] != wall_cell) continue;
+                const navsys_status_t poll_status = context.poll();
+                if (poll_status != NAVSYS_STATUS_OK) {
+                    maze_destroy(maze);
+                    return poll_status;
+                }
+                bool changed = false;
+                status = byul_maze_set_blocked(
+                    maze, origin_x + x, origin_y + y, true, &changed);
+                if (status != NAVSYS_STATUS_OK) {
+                    maze_destroy(maze);
+                    return status;
+                }
+            }
+        }
+    } catch (const std::bad_alloc&) {
+        maze_destroy(maze);
+        return NAVSYS_STATUS_OUT_OF_MEMORY;
+    } catch (...) {
+        maze_destroy(maze);
+        return NAVSYS_STATUS_CORRUPT_STATE;
+    }
+
+    *out_maze = maze;
+    return NAVSYS_STATUS_OK;
 }
 
 maze_t* maze_make_recursive_division(
     int x0, int y0, int width, int height) {
-    if (width < 3 || height < 3) return nullptr;
-    if (width % 2 == 0 || height % 2 == 0) return nullptr;
-
-    maze_t* maze = maze_create_full(x0, y0, width, height);
-
-    int w = maze->width;
-    int h = maze->height;
-
-    std::vector<std::vector<int>> grid(h, std::vector<int>(w, WALL));
-    std::mt19937 rng(static_cast<unsigned int>(time(nullptr)));
-
-    for (int y = 1; y < h; y += 2)
-        for (int x = 1; x < w; x += 2)
-            grid[y][x] = PASSAGE;
-
-    divide(grid, 0, 0, w, h, rng);
-
-    for (int y = 0; y < h; ++y) {
-        grid[y][0] = WALL;
-        grid[y][w - 1] = WALL;
+    if (width < 3 || height < 3 || width % 2 == 0 || height % 2 == 0) {
+        return nullptr;
     }
-    for (int x = 0; x < w; ++x) {
-        grid[0][x] = WALL;
-        grid[h - 1][x] = WALL;
-    }
-
-    for (int y = 0; y < h; ++y) {
-        for (int x = 0; x < w; ++x) {
-            if (grid[y][x] == WALL) {
-                coord_t tmp = {x + x0, y + y0};
-                coord_hash_insert(
-                    maze->blocked,
-                    &tmp,
-                    nullptr
-                );
-            }
-        }
-    }
-    return maze;
+    byul_maze_generation_context context(
+        byul_maze_generation_legacy_seed(), 0, nullptr, nullptr);
+    maze_t* maze = nullptr;
+    return byul_maze_generate_recursive_division_internal(
+               x0,
+               y0,
+               static_cast<uint32_t>(width),
+               static_cast<uint32_t>(height),
+               context,
+               &maze)
+            == NAVSYS_STATUS_OK
+        ? maze
+        : nullptr;
 }

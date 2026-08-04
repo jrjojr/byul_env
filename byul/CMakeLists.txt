@@ -15,6 +15,11 @@ include(CTest)
 set(BYUL_EXTERNAL_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../external")
 include_directories(BEFORE "${BYUL_EXTERNAL_DIR}/doctest-2.4.12/doctest")
 
+# Legacy module and test targets include coord headers directly instead of
+# inheriting the coord/navsys targets' public usage requirements.  Keep the
+# navsys public-header root visible so coord.h can resolve navsys_status.h.
+include_directories("${CMAKE_CURRENT_SOURCE_DIR}/navsys")
+
 # -----------------------------------------------------------------------------
 # Add modules
 # -----------------------------------------------------------------------------
@@ -77,11 +82,18 @@ byul_assert_module_inventory(
     byul_SOURCES
     byul_HEADERS
 )
+byul_assert_module_inventory(
+    obstacle
+    "${CMAKE_CURRENT_SOURCE_DIR}/navsys/obstacle"
+    byul_SOURCES
+    byul_HEADERS
+)
 
 # -----------------------------------------------------------------------------
 # Shared library
 # -----------------------------------------------------------------------------
 add_library(${PROJECT_NAME} SHARED ${${PROJECT_NAME}_SOURCES})
+byul_register_production_target(${PROJECT_NAME})
 target_compile_definitions(${PROJECT_NAME} PRIVATE BYUL_EXPORTS)
 
 set(EXTERNAL_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../external)
@@ -110,7 +122,9 @@ target_include_directories(${PROJECT_NAME} PRIVATE
     ${BYUL_HEADER_DIRS}
 )
 
-add_subdirectory(tests)
+if(BUILD_TESTING)
+    add_subdirectory(tests)
+endif()
 
 # -----------------------------------------------------------------------------
 # Platform-specific settings and DLL handling
@@ -138,6 +152,17 @@ install(FILES ${${PROJECT_NAME}_HEADERS}
     COMPONENT byul_sdk
 )
 
+# ABI 1 direct-field source compatibility is intentionally opt-in and is not
+# part of the default opaque-handle SDK installation.
+install(FILES
+    ${CMAKE_CURRENT_SOURCE_DIR}/navsys/navgrid/compat/abi1/navgrid_abi1.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/navsys/obstacle/compat/abi1/obstacle_abi1.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/navsys/maze/compat/abi1/maze_abi1.h
+    DESTINATION include/${CMAKE_PROJECT_NAME}/compat/abi1
+    COMPONENT byul_sdk_abi1_compat
+    EXCLUDE_FROM_ALL
+)
+
 # -----------------------------------------------------------------------------
 # Uninstall, distribution ZIPs, and command help
 # -----------------------------------------------------------------------------
@@ -160,3 +185,7 @@ byul_add_gpu_zip_target(
     "${CMAKE_CURRENT_SOURCE_DIR}/.."
 )
 byul_add_help_target()
+
+# Run after every production target has received its complete source,
+# definition and link graph.
+byul_assert_all_production_targets_clean()

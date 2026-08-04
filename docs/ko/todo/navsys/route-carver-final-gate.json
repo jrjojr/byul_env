@@ -1,0 +1,139 @@
+{
+  "schema_version": 1,
+  "component": "byul/navsys/route_carver",
+  "baseline_revision": "d1a1b0dfb2f9a6e0b0a0bdd091225fe05347f964",
+  "public_header": {
+    "path": "byul/navsys/route_carver/route_carver.h",
+    "sha256": "5d464550c6a163958544e402bdf0e84a1ff8de31b9cf0d996231a32ff4a078ce",
+    "x64_options_size": 56,
+    "cancel_func_offset": 40
+  },
+  "public_symbols": [
+    "navgrid_carve_line",
+    "navgrid_carve_area",
+    "route_carve_beam",
+    "route_carve_bomb"
+  ],
+  "contract_artifacts": [
+    "docs/ko/todo/navsys/route-carver-raster-contract.json",
+    "docs/ko/todo/navsys/route-carver-compatibility-matrix.json",
+    "docs/ko/todo/navsys/route-carver-abi-footprint-baseline.json"
+  ],
+  "correctness": {
+    "native_route_carver": {
+      "filter": "*carver*",
+      "test_cases": 38,
+      "assertions": 45815,
+      "platforms": [
+        "msvc-debug",
+        "gcc-debug-asan-lsan-ubsan",
+        "clang-debug-asan-lsan-ubsan"
+      ],
+      "passed": true
+    },
+    "reference_and_wrapper": {
+      "reference_tests": 22,
+      "native_load_abi_tests": 3,
+      "total_pytest": 25,
+      "passed": true
+    },
+    "fault_injection": {
+      "command_argument": "--route-carver-only",
+      "maximum_injected_allocation_points": 128,
+      "checks": [
+        "out-of-memory status",
+        "caller output preservation",
+        "effective grid state preservation",
+        "tracked allocation balance",
+        "eventual successful retry"
+      ],
+      "platforms": [
+        "msvc-release",
+        "gcc-debug-asan-lsan-ubsan",
+        "clang-debug-asan-lsan-ubsan"
+      ],
+      "passed": true
+    },
+    "matrix": {
+      "build_modes": ["debug", "release"],
+      "link_surfaces": ["module-static", "root-shared", "installed-sdk"],
+      "bounds": ["bounded", "unbounded"],
+      "topologies": ["DIR_4", "DIR_8"],
+      "compatibility": ["legacy", "canonical"],
+      "passed": true
+    }
+  },
+  "performance_fixture": {
+    "seed": "not-applicable",
+    "canonical_case": {
+      "line_length_cells": 576,
+      "radius": 8,
+      "metric": "chebyshev_square",
+      "callback": "count-only",
+      "unique_candidates": 10064
+    },
+    "thresholds": {
+      "maximum_elapsed_ns": 5000000000,
+      "maximum_allocations_per_candidate": 16,
+      "maximum_peak_bytes": 67108864,
+      "minimum_unique_cells_per_second": 1000,
+      "live_bytes_after": 0,
+      "canonical_allocations_less_than_legacy": true
+    },
+    "measurements": [
+      {
+        "platform": "msvc-debug",
+        "allocations": 92040,
+        "allocated_bytes": 11484336,
+        "peak_bytes": 6834460,
+        "live_bytes_after": 0,
+        "elapsed_ns": 125832000,
+        "unique_cells_per_second": 79979.655
+      },
+      {
+        "platform": "msvc-release",
+        "allocations": 92013,
+        "allocated_bytes": 11483728,
+        "peak_bytes": 6834332,
+        "live_bytes_after": 0,
+        "elapsed_ns": 14438400,
+        "unique_cells_per_second": 697030.142
+      },
+      {
+        "platform": "gcc-debug-asan-lsan-ubsan",
+        "allocations": 51035,
+        "allocated_bytes": 8149952,
+        "peak_bytes": 6834176,
+        "live_bytes_after": 0,
+        "elapsed_ns": 111721459,
+        "unique_cells_per_second": 90081.172
+      },
+      {
+        "platform": "clang-debug-asan-lsan-ubsan",
+        "allocations": 51035,
+        "allocated_bytes": 8149952,
+        "peak_bytes": 6834176,
+        "live_bytes_after": 0,
+        "elapsed_ns": 88628442,
+        "unique_cells_per_second": 113552.713
+      }
+    ],
+    "legacy_comparison_note": "The legacy neighbor-union case has a different footprint and is used only as an allocation baseline, not as a semantic-equivalence claim.",
+    "passed": true
+  },
+  "package_and_wrapper": {
+    "installed_sdk_consumers": [
+      "C17 direct",
+      "C++17 direct",
+      "C17 navsys aggregate",
+      "C++17 navsys aggregate"
+    ],
+    "strict_warning_modes": ["/WX", "-Wall -Wextra -Werror"],
+    "route_carver_header_scope_errors": 0,
+    "repository_wide_out_of_scope_audit_errors": 1,
+    "wrapper_generator_check": true,
+    "root_and_static_export_check": true,
+    "passed": true
+  },
+  "passed": true
+}

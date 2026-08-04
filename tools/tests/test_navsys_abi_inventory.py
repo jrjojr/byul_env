@@ -24,9 +24,9 @@ class NavsysAbiInventoryTest(unittest.TestCase):
         )
 
     def test_all_approved_navsys_headers_are_present(self):
-        self.assertEqual(46, self.inventory["summary"]["headers"])
+        self.assertEqual(58, self.inventory["summary"]["headers"])
         self.assertEqual(
-            46,
+            58,
             len({header["path"] for header in self.inventory["headers"]}),
         )
         for header in self.inventory["headers"]:
@@ -34,6 +34,18 @@ class NavsysAbiInventoryTest(unittest.TestCase):
                 self.assertTrue(
                     (REPOSITORY_ROOT / header["owner_todo"]).is_file()
                 )
+
+    def test_route_finder_adapter_routes_to_dispatcher_owner(self):
+        headers = {
+            header["path"]: header
+            for header in self.inventory["headers"]
+        }
+        self.assertEqual(
+            "docs/ko/todo/navsys/todo-navsys-route-finder-route-finder.org",
+            headers[
+                "byul/navsys/route_finder/internal/coord_hash_adapters.hpp"
+            ]["owner_todo"],
+        )
 
     def test_every_exported_declaration_has_a_mapping(self):
         symbols = self.inventory["symbols"]

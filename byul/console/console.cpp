@@ -142,20 +142,22 @@ void navgrid_print_ascii_with_route(
     }
 
     // const int margin = 2;
-    if (navgrid->width == 0) {
+    const int width = navgrid_get_width(navgrid);
+    const int height = navgrid_get_height(navgrid);
+    if (width == 0) {
         min_x -= margin; max_x += margin;
     } else {
-        min_x = 0; max_x = navgrid->width - 1;
+        min_x = 0; max_x = width - 1;
     }
 
-    if (navgrid->height == 0) {
+    if (height == 0) {
         min_y -= margin; max_y += margin;
     } else {
-        min_y = 0; max_y = navgrid->height - 1;
+        min_y = 0; max_y = height - 1;
     }
 
     printf("MAP %d,%d to %d,%d with Route - total_retry: %d\n", 
-        min_x, min_y, max_x, max_y, p->total_retry_count);
+        min_x, min_y, max_x, max_y, route_get_total_retry_count(p));
 
     for (int y = min_y; y <= max_y; ++y) {
         for (int x = min_x; x <= max_x; ++x) {
@@ -174,52 +176,60 @@ void navgrid_print_ascii_with_visited_count(
     if (!navgrid || !p || !route_get_visited_count(p)) return;
 
     const coord_hash_t* visited = route_get_visited_count(p);
-    const coord_list_t* list = route_get_coords(p);
     coord_hash_t* route_coords = coord_hash_create();
+    const coord_list_t* list = route_get_coords(p);
+    const size_t len = coord_list_size(list);
 
-    if (!list || coord_list_length(list) == 0) {
+    if (!list || len == 0) {
         coord_hash_destroy(route_coords);
         return;
     }
 
-    const coord_t* start = coord_list_get(list, 0);
-    const coord_t* goal = coord_list_get(list, coord_list_length(list) - 1);
+    coord_t start = {};
+    coord_t goal = {};
+    if (coord_list_fetch_front(list, &start) != NAVSYS_STATUS_OK
+        || coord_list_fetch_back(list, &goal) != NAVSYS_STATUS_OK) {
+        coord_hash_destroy(route_coords);
+        return;
+    }
 
-    int min_x = coord_get_x(start), max_x = coord_get_x(start);
-    int min_y = coord_get_y(start), max_y = coord_get_y(start);
+    int min_x = coord_get_x(&start), max_x = coord_get_x(&start);
+    int min_y = coord_get_y(&start), max_y = coord_get_y(&start);
 
-    int len = coord_list_length(list);
-    for (int i = 0; i < len; ++i) {
-        const coord_t* c = coord_list_get(list, i);
-        coord_hash_replace(route_coords, c, NULL);
+    for (size_t i = 0; i < len; ++i) {
+        coord_t coord = {};
+        if (coord_list_fetch(list, i, &coord) != NAVSYS_STATUS_OK) break;
+        coord_hash_replace(route_coords, &coord, NULL);
 
-        int x = coord_get_x(c);
-        int y = coord_get_y(c);
+        int x = coord_get_x(&coord);
+        int y = coord_get_y(&coord);
         if (x < min_x) min_x = x;
         if (x > max_x) max_x = x;
         if (y < min_y) min_y = y;
         if (y > max_y) max_y = y;
     }
 
-    if (navgrid->width == 0) {
+    const int width = navgrid_get_width(navgrid);
+    const int height = navgrid_get_height(navgrid);
+    if (width == 0) {
         min_x -= margin; max_x += margin;
     } else {
-        min_x = 0; max_x = navgrid->width - 1;
+        min_x = 0; max_x = width - 1;
     }
 
-    if (navgrid->height == 0) {
+    if (height == 0) {
         min_y -= margin; max_y += margin;
     } else {
-        min_y = 0; max_y = navgrid->height - 1;
+        min_y = 0; max_y = height - 1;
     }
 
     printf("MAP %d,%d to %d,%d with Route and Visit Counts - total_retry: %d\n", 
-        min_x, min_y, max_x, max_y, p->total_retry_count);
+        min_x, min_y, max_x, max_y, route_get_total_retry_count(p));
 
     for (int y = min_y; y <= max_y; ++y) {
         for (int x = min_x; x <= max_x; ++x) {
             printf("%s", get_navgrid_string(navgrid, x, y, 
-                start, goal, route_coords, visited));
+                &start, &goal, route_coords, visited));
         }
         putchar('\n');
     }

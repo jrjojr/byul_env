@@ -1,6 +1,6 @@
 #include "route.h"
+#include "internal/route_internal.h"
 #include "coord.h"
-#include "scalar.h"
 #include "coord_list.h"
 
 #include <vector>
@@ -8,18 +8,31 @@
 #include <cstdio>
 #include <algorithm>
 #include <cstddef>
+#include <cstdint>
+#include <cstring>
+#include <limits>
 
-static const int ROUTE_DIRECTION_VECTORS[9][2] = {
-    {  0,  0 },  // UNKNOWN
-    {  1,  0 },  // RIGHT
-    {  1, -1 },  // UP_RIGHT
-    {  0, -1 },  // UP
-    { -1, -1 },  // UP_LEFT
-    { -1,  0 },  // LEFT
-    { -1,  1 },  // DOWN_LEFT
-    {  0,  1 },  // DOWN
-    {  1,  1 },  // DOWN_RIGHT
-};
+namespace {
+
+constexpr uint64_t kFnvOffsetBasis = UINT64_C(14695981039346656037);
+constexpr uint64_t kFnvPrime = UINT64_C(1099511628211);
+
+void hash_byte(uint64_t* hash, uint8_t value) {
+    *hash ^= value;
+    *hash *= kFnvPrime;
+}
+
+void hash_u32(uint64_t* hash, uint32_t value) {
+    for (unsigned int shift = 0; shift < 32; shift += 8)
+        hash_byte(hash, static_cast<uint8_t>(value >> shift));
+}
+
+void hash_u64(uint64_t* hash, uint64_t value) {
+    for (unsigned int shift = 0; shift < 64; shift += 8)
+        hash_byte(hash, static_cast<uint8_t>(value >> shift));
+}
+
+}  // namespace
 
 route_t* route_create(void) {
     route_t* r = nullptr;
@@ -48,32 +61,131 @@ void route_destroy(route_t* p) {
 }
 
 route_t* route_copy(const route_t* p) {
-    if (!p) return nullptr;
+    route_t* copied = nullptr;
+    return route_clone_ex(p, &copied) == NAVSYS_STATUS_OK
+        ? copied
+        : nullptr;
+}
 
-    route_t* r = new route_t();
+navsys_status_t route_clone_ex(
+    const route_t* source,
+    route_t** out_route) {
+    if (!source || !out_route)
+        return NAVSYS_STATUS_INVALID_ARGUMENT;
+    if (!source->coords || !source->visited_order || !source->visited_count)
+        return NAVSYS_STATUS_CORRUPT_STATE;
 
-    // Deep copies
-    r->coords = coord_list_copy(p->coords);
-    r->visited_order = coord_list_copy(p->visited_order);
-    r->visited_count = coord_hash_copy(p->visited_count);
+    route_t* copied = nullptr;
+    try {
+        copied = new route_t{};
+    } catch (...) {
+        return NAVSYS_STATUS_OUT_OF_MEMORY;
+    }
 
-    // Primitive values
-    r->cost = p->cost;
-    r->success = p->success;
-    r->total_retry_count = p->total_retry_count;
-    r->avg_vec_x = p->avg_vec_x;
-    r->avg_vec_y = p->avg_vec_y;
-    r->vec_count = p->vec_count;
+    navsys_status_t status =
+        coord_list_copy_ex(source->coords, &copied->coords);
+    if (status == NAVSYS_STATUS_OK) {
+        status = coord_list_copy_ex(
+            source->visited_order, &copied->visited_order);
+    }
+    if (status == NAVSYS_STATUS_OK) {
+        status = coord_hash_copy_ex(
+            source->visited_count, &copied->visited_count);
+    }
+    if (status != NAVSYS_STATUS_OK) {
+        route_destroy(copied);
+        return status;
+    }
 
-    return r;
+    copied->cost = source->cost;
+    copied->success = source->success;
+    copied->total_retry_count = source->total_retry_count;
+    copied->avg_vec_x = source->avg_vec_x;
+    copied->avg_vec_y = source->avg_vec_y;
+    copied->vec_count = source->vec_count;
+    *out_route = copied;
+    return NAVSYS_STATUS_OK;
+}
+
+uintptr_t route_identity_hash(const route_t* route) {
+    return reinterpret_cast<uintptr_t>(route);
+}
+
+int route_is_same(const route_t* left, const route_t* right) {
+    return left == right;
+}
+
+navsys_status_t route_content_equal(
+    const route_t* left,
+    const route_t* right,
+    bool* out_equal) {
+    if (!left || !right || !out_equal)
+        return NAVSYS_STATUS_INVALID_ARGUMENT;
+    if (!left->coords || !right->coords)
+        return NAVSYS_STATUS_CORRUPT_STATE;
+
+    const size_t count = coord_list_size(left->coords);
+    if (count != coord_list_size(right->coords)
+        || left->cost != right->cost
+        || left->success != right->success) {
+        *out_equal = false;
+        return NAVSYS_STATUS_OK;
+    }
+    for (size_t index = 0; index < count; ++index) {
+        coord_t left_coord{};
+        coord_t right_coord{};
+        navsys_status_t status = coord_list_fetch(
+            left->coords, index, &left_coord);
+        if (status == NAVSYS_STATUS_OK) {
+            status = coord_list_fetch(
+                right->coords, index, &right_coord);
+        }
+        if (status != NAVSYS_STATUS_OK)
+            return NAVSYS_STATUS_CORRUPT_STATE;
+        if (!coord_equal(&left_coord, &right_coord)) {
+            *out_equal = false;
+            return NAVSYS_STATUS_OK;
+        }
+    }
+    *out_equal = true;
+    return NAVSYS_STATUS_OK;
+}
+
+navsys_status_t route_fetch_content_hash(
+    const route_t* route,
+    uint64_t* out_hash) {
+    if (!route || !out_hash)
+        return NAVSYS_STATUS_INVALID_ARGUMENT;
+    if (!route->coords)
+        return NAVSYS_STATUS_CORRUPT_STATE;
+
+    uint64_t hash = kFnvOffsetBasis;
+    const size_t count = coord_list_size(route->coords);
+    hash_u64(&hash, static_cast<uint64_t>(count));
+    for (size_t index = 0; index < count; ++index) {
+        coord_t coord{};
+        if (coord_list_fetch(route->coords, index, &coord)
+            != NAVSYS_STATUS_OK) {
+            return NAVSYS_STATUS_CORRUPT_STATE;
+        }
+        hash_u32(&hash, static_cast<uint32_t>(coord_get_x(&coord)));
+        hash_u32(&hash, static_cast<uint32_t>(coord_get_y(&coord)));
+    }
+    hash_byte(&hash, route->success ? UINT8_C(1) : UINT8_C(0));
+    uint32_t cost_bits = 0;
+    if (route->cost != 0.0f)
+        std::memcpy(&cost_bits, &route->cost, sizeof(cost_bits));
+    hash_u32(&hash, cost_bits);
+    *out_hash = hash;
+    return NAVSYS_STATUS_OK;
 }
 
 uintptr_t route_hash(const route_t* p) {
-    return reinterpret_cast<uintptr_t>(p);
+    return route_identity_hash(p);
 }
 
 int route_equal(const route_t* a, const route_t* b) {
-    return a == b;
+    return route_is_same(a, b);
 }
 
 void route_set_cost(route_t* p, float cost) {
@@ -97,8 +209,8 @@ const coord_list_t* route_get_coords(const route_t* p) {
 }
 
 int route_add_coord(route_t* p, const coord_t* c) {
-    if (!p) return 0;
-    return coord_list_push_back(p->coords, c);
+    if (!p || !c || !p->coords) return 0;
+    return coord_list_push_back_ex(p->coords, c) == NAVSYS_STATUS_OK;
 }
 
 void route_clear_coords(route_t* p) {
@@ -107,11 +219,14 @@ void route_clear_coords(route_t* p) {
 }
 
 int route_length(const route_t* p) {
-    return p ? static_cast<int>(coord_list_length(p->coords)) : 0;
+    const size_t count = route_get_coord_count(p);
+    return count > static_cast<size_t>(std::numeric_limits<int>::max())
+        ? std::numeric_limits<int>::max()
+        : static_cast<int>(count);
 }
 
 size_t route_get_coord_count(const route_t* route) {
-    return route ? static_cast<size_t>(route_length(route)) : 0;
+    return route && route->coords ? coord_list_size(route->coords) : 0;
 }
 
 navsys_status_t route_fetch_coord(
@@ -123,11 +238,28 @@ navsys_status_t route_fetch_coord(
     if (index >= route_get_coord_count(route))
         return NAVSYS_STATUS_NOT_FOUND;
 
-    const coord_t* coord =
-        route_get_coord_at(route, static_cast<int>(index));
-    if (!coord)
+    if (!route->coords)
         return NAVSYS_STATUS_CORRUPT_STATE;
-    *out_coord = *coord;
+    return coord_list_fetch(route->coords, index, out_coord);
+}
+
+navsys_status_t route_find_coord(
+    const route_t* route,
+    const coord_t* coord,
+    size_t* out_index) {
+    if (!route || !coord || !out_index)
+        return NAVSYS_STATUS_INVALID_ARGUMENT;
+    if (!route->coords)
+        return NAVSYS_STATUS_CORRUPT_STATE;
+    size_t index = 0;
+    bool found = false;
+    const navsys_status_t status = coord_list_find_ex(
+        route->coords, coord, &index, &found);
+    if (status != NAVSYS_STATUS_OK)
+        return status;
+    if (!found)
+        return NAVSYS_STATUS_NOT_FOUND;
+    *out_index = index;
     return NAVSYS_STATUS_OK;
 }
 
@@ -136,7 +268,7 @@ navsys_status_t route_fetch_total_cost(
     double* out_total_cost) {
     if (!route || !out_total_cost)
         return NAVSYS_STATUS_INVALID_ARGUMENT;
-    *out_total_cost = static_cast<double>(route_get_cost(route));
+    *out_total_cost = static_cast<double>(route->cost);
     return NAVSYS_STATUS_OK;
 }
 
@@ -147,7 +279,7 @@ navsys_status_t route_fetch_completion(
         return NAVSYS_STATUS_INVALID_ARGUMENT;
 
     route_completion_t completion = ROUTE_COMPLETION_NONE;
-    if (route_get_success(route)) {
+    if (route->success) {
         completion = ROUTE_COMPLETION_COMPLETE;
     } else if (route_get_coord_count(route) > 0) {
         completion = ROUTE_COMPLETION_PARTIAL;
@@ -164,20 +296,24 @@ navsys_status_t route_export_coords(
     if (!route || !out_required_count || (!output && capacity != 0))
         return NAVSYS_STATUS_INVALID_ARGUMENT;
 
-    const size_t required = static_cast<size_t>(route_length(route));
+    if (!route->coords)
+        return NAVSYS_STATUS_CORRUPT_STATE;
+    const size_t required = coord_list_size(route->coords);
     if (!output) {
         *out_required_count = required;
         return NAVSYS_STATUS_OK;
     }
 
-    const size_t copy_count = std::min(capacity, required);
-    for (size_t i = 0; i < copy_count; ++i) {
-        output[i] = *route_get_coord_at(route, static_cast<int>(i));
-    }
     *out_required_count = required;
-    return capacity < required
-        ? NAVSYS_STATUS_INCOMPLETE
-        : NAVSYS_STATUS_OK;
+    if (capacity < required)
+        return NAVSYS_STATUS_INCOMPLETE;
+    for (size_t i = 0; i < required; ++i) {
+        const navsys_status_t status =
+            coord_list_fetch(route->coords, i, &output[i]);
+        if (status != NAVSYS_STATUS_OK)
+            return NAVSYS_STATUS_CORRUPT_STATE;
+    }
+    return NAVSYS_STATUS_OK;
 }
 
 const coord_t* route_get_last(const route_t* p) {
@@ -201,23 +337,46 @@ const coord_hash_t* route_get_visited_count(const route_t* p) {
     return p ? p->visited_count : nullptr;
 }
 
+coord_hash_t* route_internal_get_visited_count_mutable(route_t* route) {
+    return route ? route->visited_count : nullptr;
+}
+
+navsys_status_t route_internal_replace_visited_count(
+    route_t* route,
+    coord_hash_t* replacement) {
+    if (!route || !replacement)
+        return NAVSYS_STATUS_INVALID_ARGUMENT;
+    coord_hash_t* previous = route->visited_count;
+    route->visited_count = replacement;
+    coord_hash_destroy(previous);
+    return NAVSYS_STATUS_OK;
+}
+
 int route_get_total_retry_count(const route_t* p) {
-    return p->total_retry_count;
+    return p ? p->total_retry_count : 0;
 }
 
 void route_set_total_retry_count(route_t* p, int retry_count) {
-    p->total_retry_count = retry_count;
+    if (p) p->total_retry_count = retry_count;
 }
 
 int route_add_visited(route_t* p, const coord_t* c) {
-    if (!p) return 0;
-    coord_list_push_back(p->visited_order, c);
+    if (!p || !c || !p->visited_order || !p->visited_count) return 0;
 
     int* old_val = static_cast<int*>(coord_hash_get(p->visited_count, c));
     int count = (old_val ? *old_val : 0) + 1;
-    int* count_ptr = new int(count);
-    coord_hash_replace(p->visited_count, c, count_ptr);
-    delete count_ptr;
+
+    const size_t order_size = coord_list_size(p->visited_order);
+    if (coord_list_push_back_ex(p->visited_order, c) != NAVSYS_STATUS_OK)
+        return 0;
+
+    if (coord_hash_upsert_copy(
+            p->visited_count, c, &count, nullptr) != NAVSYS_STATUS_OK) {
+        coord_t removed{};
+        (void)coord_list_remove_at_ex(
+            p->visited_order, order_size, &removed);
+        return 0;
+    }
 
     return 1;
 }
@@ -229,90 +388,200 @@ void route_clear_visited(route_t* p) {
 }
 
 void route_append(route_t* dest, const route_t* src) {
-    if (!dest || !src) return;
-    int n = coord_list_length(src->coords);
-    for (int i = 0; i < n; ++i) {
-        const coord_t* c = coord_list_get(src->coords, i);
-        if (c) coord_list_push_back(dest->coords, c);
+    if (!dest || !src || !dest->coords || !src->coords) return;
+    const size_t count = route_get_coord_count(src);
+    for (size_t index = 0; index < count; ++index) {
+        coord_t coordinate{};
+        if (route_fetch_coord(src, index, &coordinate) == NAVSYS_STATUS_OK)
+            (void)coord_list_push_back_ex(dest->coords, &coordinate);
     }
 }
 
 void route_append_nodup(route_t* dest, const route_t* src) {
-    if (!dest || !src) return;
-    int src_len = coord_list_length(src->coords);
-    if (src_len == 0) return;
+    if (!dest || !src || !dest->coords || !src->coords) return;
+    const size_t source_count = route_get_coord_count(src);
+    if (source_count == 0) return;
 
-    const coord_t* first = coord_list_get(src->coords, 0);
-    const coord_t* last = coord_list_back(dest->coords);
+    size_t start_index = 0;
+    const size_t destination_count = route_get_coord_count(dest);
+    if (destination_count > 0) {
+        coord_t first{};
+        coord_t last{};
+        if (route_fetch_coord(src, 0, &first) == NAVSYS_STATUS_OK
+            && route_fetch_coord(
+                dest, destination_count - 1, &last) == NAVSYS_STATUS_OK
+            && coord_equal(&last, &first)) {
+            start_index = 1;
+        }
+    }
 
-    int start_index = 0;
-    if (last && first && coord_get_x(last) == coord_get_x(first) && 
-        coord_get_y(last) == coord_get_y(first))
-        start_index = 1;
-
-    for (int i = start_index; i < src_len; ++i) {
-        const coord_t* c = coord_list_get(src->coords, i);
-        if (c) coord_list_push_back(dest->coords, c);
+    for (size_t index = start_index; index < source_count; ++index) {
+        coord_t coordinate{};
+        if (route_fetch_coord(src, index, &coordinate) == NAVSYS_STATUS_OK)
+            (void)coord_list_push_back_ex(dest->coords, &coordinate);
     }
 }
 
 void route_insert(route_t* p, int index, const coord_t* c) {
-    if (!p || !c || index < 0 || index > coord_list_length(p->coords)) return;
-    coord_list_insert(p->coords, index, c);
+    if (!p || !c || index < 0
+        || static_cast<size_t>(index) > route_get_coord_count(p)) return;
+    (void)coord_list_insert_ex(
+        p->coords, static_cast<size_t>(index), c);
 }
 
 void route_remove_at(route_t* p, int index) {
-    if (!p || index < 0 || index >= coord_list_length(p->coords)) return;
-    coord_list_remove_at(p->coords, index);
+    if (!p || index < 0
+        || static_cast<size_t>(index) >= route_get_coord_count(p)) return;
+    coord_t removed{};
+    (void)coord_list_remove_at_ex(
+        p->coords, static_cast<size_t>(index), &removed);
 }
 
 void route_remove_value(route_t* p, const coord_t* c) {
     if (!p || !c) return;
-    coord_list_remove_value(p->coords, c);
+    bool removed = false;
+    (void)coord_list_remove_value_ex(p->coords, c, &removed);
 }
 
 int route_contains(const route_t* p, const coord_t* c) {
-    if (!p || !c) return 0;
-    return coord_list_contains(p->coords, c);
+    if (!p || !c || !p->coords) return 0;
+    size_t index = 0;
+    bool found = false;
+    return coord_list_find_ex(p->coords, c, &index, &found)
+            == NAVSYS_STATUS_OK
+        && found;
 }
 
 int route_find(const route_t* p, const coord_t* c) {
-    if (!p || !c) return -1;
-    return coord_list_find(p->coords, c);
+    size_t index = 0;
+    if (route_find_coord(p, c, &index) != NAVSYS_STATUS_OK
+        || index > static_cast<size_t>(std::numeric_limits<int>::max())) {
+        return -1;
+    }
+    return static_cast<int>(index);
 }
 
 route_t* route_slice(const route_t* p, int start, int end) {
     if (!p || start < 0 || end <= start) return NULL;
+    route_t* sliced = nullptr;
+    return route_slice_ex(
+        p,
+        static_cast<size_t>(start),
+        static_cast<size_t>(end),
+        &sliced) == NAVSYS_STATUS_OK
+        ? sliced
+        : nullptr;
+}
 
-    int length = coord_list_length(p->coords);
-    if (end > length) return NULL;
+navsys_status_t route_slice_ex(
+    const route_t* source,
+    size_t begin,
+    size_t end,
+    route_t** out_route) {
+    if (!source || !out_route || begin > end)
+        return NAVSYS_STATUS_INVALID_ARGUMENT;
+    if (!source->coords)
+        return NAVSYS_STATUS_CORRUPT_STATE;
+    if (end > coord_list_size(source->coords))
+        return NAVSYS_STATUS_INVALID_ARGUMENT;
 
-    coord_list_t* sliced_coords = coord_list_sublist(p->coords, start, end);
-    if (!sliced_coords) return NULL;
+    coord_list_t* sliced_coords = nullptr;
+    navsys_status_t status = coord_list_create_slice(
+        source->coords, begin, end, &sliced_coords);
+    if (status != NAVSYS_STATUS_OK)
+        return status;
 
-    route_t* new_route = route_create();
-    if (!new_route) {
+    route_t* sliced = route_create();
+    if (!sliced) {
         coord_list_destroy(sliced_coords);
-        return NULL;
+        return NAVSYS_STATUS_OUT_OF_MEMORY;
     }
 
-    if (new_route->coords) coord_list_destroy(new_route->coords);
-    new_route->coords = sliced_coords;
-    return new_route;
+    coord_list_destroy(sliced->coords);
+    sliced->coords = sliced_coords;
+    *out_route = sliced;
+    return NAVSYS_STATUS_OK;
+}
+
+navsys_status_t route_format(
+    const route_t* route,
+    char* output,
+    size_t capacity,
+    size_t* out_required_size) {
+    if (!route || !out_required_size || (!output && capacity != 0))
+        return NAVSYS_STATUS_INVALID_ARGUMENT;
+    if (!route->coords)
+        return NAVSYS_STATUS_CORRUPT_STATE;
+
+    const size_t count = coord_list_size(route->coords);
+    const int prefix_size = std::snprintf(
+        nullptr, 0, "Route(len : %zu): ", count);
+    if (prefix_size < 0)
+        return NAVSYS_STATUS_CORRUPT_STATE;
+    size_t required = static_cast<size_t>(prefix_size) + 2;
+    for (size_t index = 0; index < count; ++index) {
+        coord_t coord{};
+        if (coord_list_fetch(route->coords, index, &coord)
+            != NAVSYS_STATUS_OK) {
+            return NAVSYS_STATUS_CORRUPT_STATE;
+        }
+        const int coordinate_size = std::snprintf(
+            nullptr,
+            0,
+            "%s(%d, %d)",
+            index == 0 ? "" : " -> ",
+            coord_get_x(&coord),
+            coord_get_y(&coord));
+        if (coordinate_size < 0
+            || required > std::numeric_limits<size_t>::max()
+                - static_cast<size_t>(coordinate_size)) {
+            return NAVSYS_STATUS_LIMIT_REACHED;
+        }
+        required += static_cast<size_t>(coordinate_size);
+    }
+    *out_required_size = required;
+    if (!output)
+        return NAVSYS_STATUS_OK;
+    if (capacity < required)
+        return NAVSYS_STATUS_INCOMPLETE;
+
+    size_t offset = static_cast<size_t>(std::snprintf(
+        output, capacity, "Route(len : %zu): ", count));
+    for (size_t index = 0; index < count; ++index) {
+        coord_t coord{};
+        if (coord_list_fetch(route->coords, index, &coord)
+            != NAVSYS_STATUS_OK) {
+            return NAVSYS_STATUS_CORRUPT_STATE;
+        }
+        const int written = std::snprintf(
+            output + offset,
+            capacity - offset,
+            "%s(%d, %d)",
+            index == 0 ? "" : " -> ",
+            coord_get_x(&coord),
+            coord_get_y(&coord));
+        if (written < 0)
+            return NAVSYS_STATUS_CORRUPT_STATE;
+        offset += static_cast<size_t>(written);
+    }
+    output[offset] = '\n';
+    output[offset + 1] = '\0';
+    return NAVSYS_STATUS_OK;
 }
 
 void route_print(const route_t* p) {
-    if (!p) return;
-    printf("Route(len : %d): ", coord_list_length(route_get_coords(p)));
-    int len = coord_list_length(p->coords);
-    for (int i = 0; i < len; ++i) {
-        const coord_t* c = coord_list_get(p->coords, i);
-        if (!c) continue;
-        if (i > 0) printf(" -> ");
-        printf("(%d, %d)", coord_get_x(c), 
-            coord_get_y(c));
+    size_t required = 0;
+    if (route_format(p, nullptr, 0, &required) != NAVSYS_STATUS_OK)
+        return;
+    try {
+        std::vector<char> text(required);
+        if (route_format(p, text.data(), text.size(), &required)
+            == NAVSYS_STATUS_OK) {
+            std::fputs(text.data(), stdout);
+        }
+    } catch (...) {
+        return;
     }
-    printf("\n");
 }
 
 coord_t* route_make_direction(route_t* p, int index) {
@@ -322,9 +591,11 @@ coord_t* route_make_direction(route_t* p, int index) {
     if (index < 0 || index >= len) return coord_create_full(0, 0);
 
     const coord_t* curr = coord_list_get(p->coords, index);
+    if (!curr) return coord_create_full(0, 0);
 
     if (index == len - 1) {
         const coord_t* prev = coord_list_get(p->coords, index - 1);
+        if (!prev) return coord_create_full(0, 0);
         return coord_create_full(
             coord_get_x(curr) - coord_get_x(prev),
             coord_get_y(curr) - coord_get_y(prev)
@@ -332,6 +603,7 @@ coord_t* route_make_direction(route_t* p, int index) {
     }
 
     const coord_t* next = coord_list_get(p->coords, index + 1);
+    if (!next) return coord_create_full(0, 0);
     return coord_create_full(
         coord_get_x(next) - coord_get_x(curr),
         coord_get_y(next) - coord_get_y(curr)
@@ -340,111 +612,65 @@ coord_t* route_make_direction(route_t* p, int index) {
 
 
 route_dir_t route_get_direction_by_dir_coord(const coord_t* dxdy) {
-    if (coord_get_x(dxdy) == 0 && coord_get_y(dxdy) == 0)
-        return ROUTE_DIR_UNKNOWN;
-
-    int nx = (coord_get_x(dxdy) > 0) ? 1 : (coord_get_x(dxdy) < 0) ? -1 : 0;
-    int ny = (coord_get_y(dxdy) > 0) ? 1 : (coord_get_y(dxdy) < 0) ? -1 : 0;
-
-    for (int i = 1; i <= 8; ++i) {
-        if (ROUTE_DIRECTION_VECTORS[i][0] == nx &&
-            ROUTE_DIRECTION_VECTORS[i][1] == ny) {
-            return static_cast<route_dir_t>(i);
-        }
-    }
-    return ROUTE_DIR_UNKNOWN;
+    route_dir_t direction = ROUTE_DIR_UNKNOWN;
+    return route_direction_from_vector(dxdy, &direction) == NAVSYS_STATUS_OK
+        ? direction
+        : ROUTE_DIR_UNKNOWN;
 }
 
 route_dir_t route_get_direction_by_index(route_t* p, int index) {
-    route_dir_t dir;
-    coord_t* vec = route_make_direction(p, index);
-    dir = route_get_direction_by_dir_coord(vec);
-    coord_destroy(vec);
-    return dir;
+    if (index < 0)
+        return ROUTE_DIR_UNKNOWN;
+    route_dir_t direction = ROUTE_DIR_UNKNOWN;
+    return route_fetch_direction_at(
+        p, static_cast<size_t>(index), &direction) == NAVSYS_STATUS_OK
+        ? direction
+        : ROUTE_DIR_UNKNOWN;
 }
 
 route_dir_t route_calc_average_facing(route_t* p, int history) {
-    if (!p || history < 1) return ROUTE_DIR_UNKNOWN;
-    int len = static_cast<int>(coord_list_length(p->coords));
-    if (len < 2) return ROUTE_DIR_UNKNOWN;
-
-    int from = len - history - 1;
-    if (from < 0) from = 0;
-
-    const coord_t* c_from = coord_list_get(p->coords, from);
-    const coord_t* c_to = coord_list_get(p->coords, len - 1);
-
-    int dx = coord_get_x(c_to) - coord_get_x(c_from);
-    int dy = coord_get_y(c_to) - coord_get_y(c_from);
-
-    if (dx > 1) dx = 1;
-    if (dx < -1) dx = -1;
-    if (dy > 1) dy = 1;
-    if (dy < -1) dy = -1;
-
-    for (int i = 1; i <= 8; ++i) {
-        if (dx == ROUTE_DIRECTION_VECTORS[i][0] && 
-            dy == ROUTE_DIRECTION_VECTORS[i][1]) {
-            return static_cast<route_dir_t>(i);
-        }
-    }
-    return ROUTE_DIR_UNKNOWN;
+    if (history < 1)
+        return ROUTE_DIR_UNKNOWN;
+    route_dir_t direction = ROUTE_DIR_UNKNOWN;
+    return route_compute_recent_facing(
+        p, static_cast<size_t>(history), &direction) == NAVSYS_STATUS_OK
+        ? direction
+        : ROUTE_DIR_UNKNOWN;
 }
 
 float route_calc_average_dir(route_t* p, int history) {
-    if (!p || history < 1) return 0.0f;
-    int len = static_cast<int>(coord_list_length(p->coords));
-    if (len < 2) return 0.0f;
-
-    int from = len - history - 1;
-    if (from < 0) from = 0;
-
-    const coord_t* c_from = coord_list_get(p->coords, from);
-    const coord_t* c_to = coord_list_get(p->coords, len - 1);
-
-    int dx = coord_get_x(c_to) - coord_get_x(c_from);
-    int dy = coord_get_y(c_to) - coord_get_y(c_from);
-
-    if (dx == 0 && dy == 0) return 0.0f;
-    return std::atan2((float)dy, (float)dx) * (180.0f / M_PI);
+    if (history < 1)
+        return 0.0f;
+    double heading = 0.0;
+    return route_compute_recent_heading_degrees(
+        p, static_cast<size_t>(history), &heading) == NAVSYS_STATUS_OK
+        ? static_cast<float>(heading)
+        : 0.0f;
 }
 
 route_dir_t calc_direction(const coord_t* start, const coord_t* goal) {
-    int dx = coord_get_x(goal) - coord_get_x(start);
-    int dy = coord_get_y(goal) - coord_get_y(start);
-
-    if (dx > 1) dx = 1;
-    if (dx < -1) dx = -1;
-    if (dy > 1) dy = 1;
-    if (dy < -1) dy = -1;
-
-    for (int i = 1; i <= 8; ++i) {
-        if (ROUTE_DIRECTION_VECTORS[i][0] == dx && 
-            ROUTE_DIRECTION_VECTORS[i][1] == dy) {
-            return static_cast<route_dir_t>(i);
-        }
-    }
-    return ROUTE_DIR_UNKNOWN;
+    route_dir_t direction = ROUTE_DIR_UNKNOWN;
+    return route_direction_between(start, goal, &direction) == NAVSYS_STATUS_OK
+        ? direction
+        : ROUTE_DIR_UNKNOWN;
 }
 
 coord_t* direction_to_coord(route_dir_t dir) {
-    if (dir < ROUTE_DIR_UNKNOWN || dir > ROUTE_DIR_DOWN_RIGHT)
+    coord_t vector{};
+    if (route_direction_fetch_vector(dir, &vector) != NAVSYS_STATUS_OK)
         return coord_create_full(0, 0);
-    return coord_create_full(
-        ROUTE_DIRECTION_VECTORS[dir][0],
-        ROUTE_DIRECTION_VECTORS[dir][1]
-    );
+    return coord_create_full(coord_get_x(&vector), coord_get_y(&vector));
 }
 
 int route_has_changed(route_t* p, 
     const coord_t* from, const coord_t* to, float angle_threshold_deg) {
 
-    if (!p) return 0;
+    if (!p || !from || !to) return 0;
 
     float dx = (float)(coord_get_x(to) - coord_get_x(from));
     float dy = (float)(coord_get_y(to) - coord_get_y(from));
     float len = std::sqrt(dx * dx + dy * dy);
-    if (len < SCALAR_EPSILON) return 0;
+    if (len <= 0.0f) return 0;
 
     float curr_x = dx / len;
     float curr_y = dy / len;
@@ -454,7 +680,9 @@ int route_has_changed(route_t* p,
     float dot = curr_x * avg_x + curr_y * avg_y;
 
     dot = std::max(-1.0f, std::min(1.0f, dot));
-    float angle = std::acos(dot) * (180.0f / M_PI);
+    constexpr float kRadiansToDegrees =
+        180.0f / 3.14159265358979323846f;
+    float angle = std::acos(dot) * kRadiansToDegrees;
 
     return angle > angle_threshold_deg;
 }
@@ -463,12 +691,12 @@ int route_has_changed_with_angle(route_t* p,
     const coord_t* from, const coord_t* to, 
     float angle_threshold_deg, float* out_angle_deg) {
 
-    if (!p || !out_angle_deg) return 0;
+    if (!p || !from || !to || !out_angle_deg) return 0;
 
     float dx = (float)(coord_get_x(to) - coord_get_x(from));
     float dy = (float)(coord_get_y(to) - coord_get_y(from));
     float len = std::sqrt(dx * dx + dy * dy);
-    if (len < SCALAR_EPSILON) {
+    if (len <= 0.0f) {
         *out_angle_deg = 0.0f;
         return 0;
     }
@@ -487,7 +715,7 @@ int route_has_changed_with_angle(route_t* p,
     float avg_len = std::sqrt(
         p->avg_vec_x * p->avg_vec_x + p->avg_vec_y * p->avg_vec_y);
         
-    if (avg_len < SCALAR_EPSILON) {
+    if (avg_len <= 0.0f) {
         *out_angle_deg = 0.0f;
         return 0;
     }
@@ -497,7 +725,9 @@ int route_has_changed_with_angle(route_t* p,
     float dot = curr_x * avg_x + curr_y * avg_y;
 
     dot = std::max(-1.0f, std::min(1.0f, dot));
-    float angle = std::acos(dot) * (180.0f / M_PI);
+    constexpr float kRadiansToDegrees =
+        180.0f / 3.14159265358979323846f;
+    float angle = std::acos(dot) * kRadiansToDegrees;
     *out_angle_deg = angle;
 
     p->avg_vec_x += curr_x;
@@ -535,11 +765,11 @@ int route_has_changed_with_angle_by_index(route_t* p,
 void route_update_average_vector(route_t* p, 
     const coord_t* from, const coord_t* to) {
 
-    if (!p) return;
+    if (!p || !from || !to) return;
     float dx = (float)(coord_get_x(to) - coord_get_x(from));
     float dy = (float)(coord_get_y(to) - coord_get_y(from));
     float len = std::sqrt(dx * dx + dy * dy);
-    if (len < SCALAR_EPSILON) return;
+    if (len <= 0.0f) return;
 
     p->avg_vec_x += dx / len;
     p->avg_vec_y += dy / len;
@@ -563,35 +793,80 @@ void route_update_average_vector_by_index(route_t* p,
 
 bool route_reconstruct(route_t* route, const coord_hash_t* came_from,
                             const coord_t* start, const coord_t* goal) {
-    if (!route || !came_from || !start || !goal) return false;
+    return route_reconstruct_ex(route, came_from, start, goal)
+        == NAVSYS_STATUS_OK;
+}
 
-    coord_list_t* reversed = coord_list_create();
-    // coord_t* current = coord_copy(goal);
+navsys_status_t route_reconstruct_ex(
+    route_t* route,
+    const coord_hash_t* came_from,
+    const coord_t* start,
+    const coord_t* goal) {
+    if (!route || !came_from || !start || !goal)
+        return NAVSYS_STATUS_INVALID_ARGUMENT;
+    if (!route->coords)
+        return NAVSYS_STATUS_CORRUPT_STATE;
+
+    coord_list_t* reversed = nullptr;
+    navsys_status_t status = coord_list_create_ex(&reversed);
+    if (status != NAVSYS_STATUS_OK)
+        return status;
+
     const coord_t* current = goal;
+    const size_t predecessor_limit = coord_hash_size(came_from);
+    size_t predecessor_count = 0;
 
     while (!coord_equal(current, start)) {
-        coord_list_insert(reversed, 0, current);
-
-        const coord_t* prev = (const coord_t*)coord_hash_get(came_from, current);
-        // coord_destroy(current);
-
-        if (!prev) {
+        status = coord_list_insert_ex(reversed, 0, current);
+        if (status != NAVSYS_STATUS_OK) {
             coord_list_destroy(reversed);
-            return false;
+            return status;
         }
 
-        // current = coord_copy(prev);
-        current = prev;
+        const coord_t* previous = static_cast<const coord_t*>(
+            coord_hash_get(came_from, current));
+        if (!previous) {
+            coord_list_destroy(reversed);
+            return NAVSYS_STATUS_NO_PATH;
+        }
+        current = previous;
+        ++predecessor_count;
+        if (predecessor_count > predecessor_limit) {
+            coord_list_destroy(reversed);
+            return NAVSYS_STATUS_CORRUPT_STATE;
+        }
     }
 
-    coord_list_insert(reversed, 0, start);
-
-    int len = coord_list_length(reversed);
-    for (int i = 0; i < len; ++i) {
-        route_add_coord(route, (coord_t*)coord_list_get(reversed, i));
+    status = coord_list_insert_ex(reversed, 0, start);
+    if (status != NAVSYS_STATUS_OK) {
+        coord_list_destroy(reversed);
+        return status;
     }
 
+    coord_list_t* candidate = nullptr;
+    status = coord_list_copy_ex(route->coords, &candidate);
+    if (status != NAVSYS_STATUS_OK) {
+        coord_list_destroy(reversed);
+        return status;
+    }
+
+    const size_t path_size = coord_list_size(reversed);
+    for (size_t index = 0; index < path_size; ++index) {
+        coord_t coordinate{};
+        status = coord_list_fetch(reversed, index, &coordinate);
+        if (status == NAVSYS_STATUS_OK) {
+            status = coord_list_push_back_ex(candidate, &coordinate);
+        }
+        if (status != NAVSYS_STATUS_OK) {
+            coord_list_destroy(candidate);
+            coord_list_destroy(reversed);
+            return status;
+        }
+    }
+
+    coord_list_t* previous_coords = route->coords;
+    route->coords = candidate;
+    coord_list_destroy(previous_coords);
     coord_list_destroy(reversed);
-    // coord_destroy(current);
-    return true;
+    return NAVSYS_STATUS_OK;
 }

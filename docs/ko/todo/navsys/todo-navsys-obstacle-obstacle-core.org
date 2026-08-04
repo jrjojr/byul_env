@@ -52,8 +52,8 @@
 
 | function | disposition | target |
 |----------+-------------+--------|
-| =obstacle_create()= | legacy: ABI 1.x: deprecate-forward -> ABI-major: internalize; checked companion: ABI 1.x: add | =(void)=; checked create out API |
-| =obstacle_create_full= | legacy: ABI 1.x: deprecate-forward -> ABI-major: internalize; checked companion: ABI 1.x: add | unsigned extent/overflow validation |
+| =obstacle_create()= | legacy: ABI 1.x: deprecate-forward -> ABI-major: internalize; checked companion: ABI 1.x: add | zero extent로 =obstacle_create_checked= forwarding |
+| =obstacle_create_full= | legacy: ABI 1.x: deprecate-forward -> ABI-major: internalize; checked companion: ABI 1.x: add | signed normalized extent와 allocation failure status |
 | =obstacle_destroy= | ABI 1.x: keep -> ABI-major: keep | NULL no-op, paired allocator |
 | =obstacle_clear= (두 번 선언) | ABI 1.x: keep -> ABI-major: keep | duplicate declaration 한 줄은 source-only internalize |
 | =obstacle_copy= | legacy: ABI 1.x: deprecate-forward -> ABI-major: internalize; checked companion: ABI 1.x: add | deep copy/failure status |
@@ -70,21 +70,21 @@
 | =obstacle_unblock_coord= | legacy: ABI 1.x: deprecate-forward -> ABI-major: internalize; mutation companion: ABI 1.x: add | status+changed |
 | =obstacle_is_inside= | legacy: ABI 1.x: deprecate-forward -> ABI-major: internalize; query companion: ABI 1.x: add | status query, half-open extent |
 | =obstacle_is_blocked= | comment-only: internalize; canonical query companion: ABI 1.x: add | 현재 comment-out 이름이며 definition/export 없음 |
-| =obstacle_clone_neighbors= | legacy: ABI 1.x: keep -> ABI-major: internalize; ABI 1.x support path: conformance-block; buffer companion: ABI 1.x: add | missing definition/export를 고치기 전 facade 승격 금지 |
+| =obstacle_clone_neighbors= | legacy: ABI 1.x: keep -> ABI-major: internalize; buffer companion: ABI 1.x: add | 누락 definition/export 복구, 실패 시 NULL인 legacy 계약 유지 |
 | =obstacle_clone_neighbors_all= | legacy: ABI 1.x: deprecate-forward -> ABI-major: internalize; buffer companion: ABI 1.x: add | grid-neighborhood 공통 component로 이동 검토 |
 | =obstacle_clone_neighbors_all_range= | legacy: ABI 1.x: deprecate-forward -> ABI-major: internalize; buffer companion: ABI 1.x: add | const, metric/range 명시 |
 | =obstacle_clone_neighbor_at_degree= | legacy: ABI 1.x: deprecate-forward -> ABI-major: internalize; query companion: ABI 1.x: add | copy naming/status caller output |
 | =obstacle_clone_neighbor_at_goal= | legacy: ABI 1.x: deprecate-forward -> ABI-major: internalize; query companion: ABI 1.x: add | status caller output |
 | =obstacle_clone_neighbors_at_degree_range= | legacy: ABI 1.x: deprecate-forward -> ABI-major: internalize; buffer companion: ABI 1.x: add | two-call buffer |
-| =obstacle_is_coord_blocked= | legacy declaration: ABI 1.x: keep -> ABI-major: internalize; status query companion: ABI 1.x: add | =BYUL_API= 부재의 Windows SDK link trap은 legacy 승격으로 해결하지 않음 |
+| =obstacle_is_coord_blocked= | legacy declaration: ABI 1.x: keep -> ABI-major: internalize; status query companion: ABI 1.x: add | 기존 symbol에 =BYUL_API=를 복구하고 checked status companion은 후속 단계에서 추가 |
 | =obstacle_apply_to_navgrid= | legacy: ABI 1.x: deprecate-forward -> ABI-major: internalize; overlay companion: ABI 1.x: add | overlay/merge/status/change count |
 | =obstacle_remove_from_navgrid= | legacy: ABI 1.x: deprecate-forward -> ABI-major: internalize; overlay companion: ABI 1.x: add | provenance token으로 제거 |
 | =obstacle_block_range= | legacy: ABI 1.x: deprecate-forward -> ABI-major: internalize; raster companion: ABI 1.x: add | square/Chebyshev radius 명시, status |
 | =obstacle_block_straight= | legacy: ABI 1.x: deprecate-forward -> ABI-major: internalize; raster companion: ABI 1.x: add | line raster policy/status |
 
 =obstacle_clone_neighbors=은 header 선언과 source definition/export intersection을 실제로 검사한다.
-현재 =obstacle_core.cpp=에는 =clone_neighbors_all=부터 보이며 정확한 missing definition이면 P0
-export defect로 분류한다.
+baseline에서 =obstacle_core.cpp=에 definition이 없는 P0 export defect로 확인되어 ABI 1 symbol을
+복구했다.
 
 * 현행 구현 결함
 
@@ -102,7 +102,7 @@ export defect로 분류한다.
 | raw hash | borrowed internal pointer | lifetime/invalidation/thread 누출 |
 | apply/remove | void, every cell block/normal | partial/OOM 숨김; 다른 source terrain/obstacle를 remove가 지움 |
 | iterator | create failure 미검사 | NULL iterator use 가능 |
-| export | =obstacle_is_coord_blocked= no =BYUL_API= | installed header가 외부 사용을 유도하나 Windows root export 불가 가능 |
+| export | baseline에서 =obstacle_is_coord_blocked= no =BYUL_API= | 기존 ABI 1 symbol에 export macro를 복구함 |
 | test | shape 중심, core copy/origin/resize/apply overlap 부족 | resource invariants 미보호 |
 
 * 업계 비교와 target API
@@ -112,19 +112,28 @@ export defect로 분류한다.
 - [[https://gdal.org/en/stable/api/gdal_alg.html][GDAL rasterization]]처럼 line/polygon policy는 generator layer가 소유하고 core는 coordinate
   set lifecycle/mutation만 담당한다. neighbor/degree helpers는 navgrid/shared geometry로 이동 후보이다.
 
+3단계는 owner가 없는 =byul_grid_rect_t=를 먼저 선언하지 않고 이미 승인된 scalar extent와
+checked lifecycle 관례를 사용한다. 아래 네 symbol만 이 단계의 additive target이다.
+
 #+begin_src c
-BYUL_API navsys_status_t obstacle_create_ex(
-    const byul_grid_rect_t* extent, obstacle_t** out_obstacle);
-BYUL_API navsys_status_t obstacle_get_extent(
-    const obstacle_t* obstacle, byul_grid_rect_t* out_extent);
-BYUL_API navsys_status_t obstacle_translate(
-    obstacle_t* obstacle, int32_t delta_x, int32_t delta_y);
+BYUL_API navsys_status_t obstacle_create_checked(
+    int32_t x0, int32_t y0, int32_t width, int32_t height,
+    obstacle_t** out_obstacle);
+BYUL_API navsys_status_t obstacle_copy_checked(
+    const obstacle_t* source, obstacle_t** out_obstacle);
 BYUL_API navsys_status_t obstacle_set_blocked(
     obstacle_t* obstacle, int32_t x, int32_t y,
     bool blocked, bool* out_changed);
 BYUL_API navsys_status_t obstacle_export_blocked(
     const obstacle_t* obstacle, coord_t* out_coords,
     size_t capacity, size_t* out_count);
+#+end_src
+
+=byul_grid_rect_t= owner와 include DAG가 승인된 뒤에는 기존 symbol signature를 바꾸지 않고
+=obstacle_create_from_rect=, checked extent query와 translate/resize companion을 별도 additive
+API로 검토한다. Navgrid overlay type을 사용하는 아래 API도 5단계 전까지 draft다.
+
+#+begin_src c
 BYUL_API navsys_status_t obstacle_apply_ex(
     const obstacle_t* obstacle, navgrid_t* grid,
     byul_navgrid_merge_policy_t policy,
@@ -132,7 +141,7 @@ BYUL_API navsys_status_t obstacle_apply_ex(
     size_t* out_changed_count);
 #+end_src
 
-* TODO 1단계: symbol/layout/definition baseline
+* DONE 1단계: symbol/layout/definition baseline
 
 ** 실행
 
@@ -150,7 +159,26 @@ BYUL_API navsys_status_t obstacle_apply_ex(
 - declaration-definition-root-export intersection, ABI layout과 old SDK link consumer를 실행한다.
 - ASan/LSan fault baseline을 실행한다.
 
-* TODO 2단계: extent·coordinate-set invariant
+** 진행 근거
+
+- x86_64 공개 layout을 size 24, align 8, =x0/y0/width/height/blocked=
+  offset =0/4/8/12/16=으로 고정하는 compile-time fixture와 성공 copy의
+  equality/hash/independence fixture를 추가했다.
+- origin 변경은 blocked world coordinate를 이동하지 않고 resize는 새 extent 밖의 blocked
+  coordinate를 남기는 현행 불일치를 회귀 fixture로 고정했다. invariant와 정책 수정은
+  2단계에서 수행한다.
+- 선언만 있고 definition/export가 없던 =obstacle_clone_neighbors=를 복구하고 list 생성 및
+  append 실패를 NULL로 전파했다. =obstacle_is_coord_blocked=에는 누락된 =BYUL_API=를
+  복구했으며 Clang root shared export에서 두 symbol을 확인했다.
+- 깨끗한 Clang 18.1.3 sanitizer 설치 tree의 C17/C++17 SDK 소비자가 두 symbol을 직접
+  compile/link/run했다. Clang ASan+LSan+UBSan과 GCC 13.3 ASan+LSan+UBSan에서
+  =test_obstacle= 및 root aggregate =test_byul=이 통과했다.
+- executable-wide allocator fault fixture에 create의 half-initialized resource, copy의 NULL
+  blocked hash, block의 C++ exception escape 및 false-success, apply의 silent no-op을 고정했다.
+  이 fixture는 Clang/GCC sanitizer에서 통과하며 결함 수정은 3단계에서 계약과 함께 수행한다.
+- macOS는 사용자 요청에 따라 검증 matrix에서 제외한다.
+
+* DONE 2단계: extent·coordinate-set invariant
 
 ** 실행
 
@@ -168,31 +196,148 @@ BYUL_API navsys_status_t obstacle_apply_ex(
 - nonzero/negative/max origin, resize clip/reject와 translation metamorphic tests를 실행한다.
 - copy independence/equality/hash property를 검사한다.
 
-* TODO 3단계: checked lifecycle·mutation·buffer API
+** 확정한 계약
+
+- extent는 =x0=에서 =x0 + width=, =y0=에서 =y0 + height= 사이를 정규화한
+  half-open 영역이다. 음수 width/height는 기존 ABI처럼 반대 방향 영역을 나타내고 0인 축은
+  빈 영역이다. 경계 계산은 64-bit 중간값을 사용하여 =int= 덧셈 UB를 만들지 않는다.
+- =obstacle_block_coord=는 extent 밖 좌표를 거부하며 blocked set에는 extent 내부 좌표만
+  남긴다.
+- legacy =obstacle_set_origin=은 기존 blocked 좌표의 상대 위치를 보존해 새 origin으로
+  translate한다. 좌표 overflow 또는 allocation 실패 시 void API는 object 전체를 그대로
+  보존한다.
+- legacy width/height setter는 새 extent 밖 blocked 좌표를 clip한다. 임시 hash를 완성한 뒤
+  한 번에 commit하므로 실패하면 extent와 blocked set을 모두 보존한다.
+- Obstacle은 thread-compatible이며 mutation에는 외부 동기화가 필요하다. 성공한 mutation은
+  =obstacle_get_blocked_coords=로 얻은 borrowed hash와 그 내부 view를 무효화할 수 있다.
+- Copy는 독립 blocked set을 소유하고 equality는 extent와 blocked key set을 함께 비교한다.
+  Equal object는 같은 =obstacle_hash= 값을 가져야 한다.
+
+** 진행 근거
+
+- Module fixture에 nonzero origin translation, width/height clip, 음수·0 extent, =INT_MAX=
+  경계, outside block 거부와 translation overflow strong guarantee를 추가했다.
+- Executable-wide allocation fixture에 origin/resize 첫 allocation 실패 시 원본 equality/hash와
+  live-allocation 수가 보존되는 검증을 추가했다.
+- Windows 11 x86_64/MSVC 19.44 Release에서 =test_obstacle=과 root =test_byul=이 통과했다.
+  새 extent failure-atomic fixture도 통과했다. 기존 legacy obstacle allocation baseline은
+  C++ exception이 C ABI 밖으로 탈출하는 의도적 결함 때문에 MSVC process-wide allocator와
+  안전하게 결합할 수 없어 GCC/Clang sanitizer profile에 유지한다.
+- Virtual Yard Ubuntu 24.04.4 x86_64에서 base revision =d1a1b0d=와 이 단계의 4-file
+  working-tree patch를 사용했다. GCC 13.3과 Clang 18.1.3의 분리된 Debug build tree에서
+  ASan+LSan+UBSan compile/link flags를 확인했고 =test_obstacle=, =test_byul=,
+  =test_navsys_allocation_failure=, =test_navsys_allocation_leak_gate=가 모두 통과했다.
+- Virtual Yard의 =git diff --check=가 통과했고 중앙 validator는 Org 규칙 60개를 오류 0,
+  경고 0으로 검증했다.
+
+* DONE 3단계: checked lifecycle·mutation·buffer API
 
 ** 실행
 
-- checked create/copy/set-blocked/export와 count-only/two-call semantics를 구현한다.
+- =obstacle_create_checked=, =obstacle_copy_checked=, =obstacle_set_blocked=와
+  =obstacle_export_blocked=를 additive ABI 1.x symbol로 구현한다.
 - allocation/hash failure와 C++ exception을 status로 변환하고 rollback한다.
-- legacy bool/void/create/copy 함수는 canonical core로 forwarding한다.
+- legacy =obstacle_create=, =obstacle_create_full=, =obstacle_copy=,
+  =obstacle_block_coord=과 =obstacle_unblock_coord=만 이 단계의 canonical checked core로
+  forwarding한다. Range/straight helper와 navgrid apply/remove는 4~5단계에 유지한다.
+- 신규 선언은 직접 include, 한국어 Doxygen, nullable/lifetime/error/side-effect와
+  buffer/capacity/count metadata를 완전하게 기록하되 기존 Header debt의 전면 정리는
+  6단계에 유지한다.
+
+** 확정 계약
+
+- 2단계에서 승인한 signed normalized extent를 유지한다. 음수 width/height는 반대 방향
+  half-open extent이고 0인 축은 빈 영역이다.
+- =INVALID_ARGUMENT=, =OUT_OF_MEMORY=, =CORRUPT_STATE=과 extent 밖 좌표의
+  =NOT_FOUND=를 구분한다. 음수 status에서는 object와 모든 output을 보존한다.
+- 이미 요청한 blocked 상태이면 =OK=와 =out_changed=false=, 실제 mutation이면 =OK=와
+  =out_changed=true=를 반환한다.
+- =out_coords=NULL, capacity=0=은 count query다. 부족한 buffer는 건드리지 않고
+  =INCOMPLETE=와 전체 필요 count를 반환하며 export 순서는 보장하지 않는다.
+- Legacy block은 =status == OK=를 반환해 unchanged 성공 의미를 유지하고 legacy unblock은
+  =status == OK && changed=를 반환해 실제 제거 의미를 유지한다. Checked create/copy 실패는
+  legacy NULL로 mapping한다.
+- 기존 =malloc/free= allocator pair는 유지한다. Fault fixture 통과만을 위해 production
+  allocator를 바꾸거나 =BYUL_TESTING= hook을 추가하지 않는다.
+- 기존 =obstacle_get_blocked_coords=는 ABI 1.x 호환을 위해 유지하지만 신규 API와 consumer는
+  internal hash pointer를 사용하지 않는다.
 
 ** 완료 조건
 
-- OOM/invalid/unchanged를 구분하며 실패 시 output/object 보존 조건을 지킨다.
-- 신규 API는 internal hash pointer를 노출하지 않는다.
+- OOM/invalid/corrupt/not-found/unchanged를 구분하며 실패 시 output/object 보존 조건을
+  지킨다.
+- 신규 declaration, definition과 root shared export가 일치하고 Header audit 신규 오류와
+  CFFI stale generation이 0건이다.
+- 신규 API와 전환한 consumer는 internal hash pointer를 노출하거나 사용하지 않는다.
 
 ** 검증
 
-- zero/exact/undersized buffer, every allocator fault index와 sanitizer를 실행한다.
-- old/new consumer 결과를 비교한다.
+- NULL/empty, zero/exact/undersized buffer와 output sentinel 보존을 검사한다.
+- 현재 test executable이 주입할 수 있는 모든 C++/hash allocation index에서 status,
+  rollback, exception containment와 leak을 검사한다. =malloc= NULL을 직접 주입하지 못한
+  profile은 production hook으로 숨기지 않고 별도 test-only 방법 또는 미검증 제한으로
+  기록한다.
+- MSVC Release allocation fixture의 obstacle 제외를 제거하고 동일 revision/patch의
+  Virtual Yard GCC·Clang ASan/LSan/UBSan을 실행한다.
+- Module static, root =byul= shared, root =test_byul=, export inventory와 clean installed-SDK
+  C/C++ consumer에서 old/new 결과를 비교한다.
+- Wrapper header audit, CFFI =--check=와 실제 root library load에서 신규 status+out symbol을
+  분류·검증하며 generated 영역은 직접 수정하지 않는다.
 
-* TODO 4단계: helper 책임 이동과 naming compatibility
+** 진행 근거
+
+- =obstacle_create_checked=, =obstacle_copy_checked=, =obstacle_set_blocked=와
+  =obstacle_export_blocked=를 additive public symbol로 구현했다. Checked create/copy는 실패 시
+  output sentinel을 보존하고, checked mutation은 extent 밖 =NOT_FOUND=와 unchanged 성공을
+  구분하며, export는 allocation 없이 count query/exact/undersized 계약을 지킨다.
+- Legacy create/copy/block/unblock은 확정한 의미로 checked core에 forwarding한다. Production의
+  =malloc/free= pair와 generated wrapper 영역은 변경하지 않았다. Allocation fixture는 현재
+  주입 가능한 모든 C++/hash allocation index에서 rollback·exception containment·leak을
+  검사한다. 최초 object =malloc= NULL은 직접 주입할 수 없으며 이 제한을 감추기 위한
+  production test hook은 추가하지 않았다.
+- MSVC Release에서 module =test_obstacle= 25 cases/158 assertions, allocation fixture와 root
+  =test_byul= 497 cases/112837 assertions가 통과했다. =byul.dll= export table에 신규 4 symbol을
+  확인했고 clean installed SDK의 C/C++ consumer가 신규 API를 실제 호출해 모두 성공했다.
+- Virtual Yard Ubuntu 24.04의 base revision =d1a1b0d=에서 동일 구현·fixture·ABI 입력을 사용해
+  GCC 13.3과 Clang 18.1.3 분리 build를 검증했다. 두 compiler 모두
+  =-fsanitize=address,undefined,leak -fno-omit-frame-pointer=로 module 25 cases/158 assertions,
+  allocation fixture, root obstacle slice 25 cases/158 assertions를 통과했고 sanitizer 오류와
+  leak은 없었다.
+- GCC/Clang 각각 clean install prefix에서 C/C++ installed-SDK consumer가 성공했고 설치된
+  =libbyul.so=의 dynamic export table에 신규 4 symbol을 확인했다. Clang C consumer 검증
+  tree에는 instrumented C++ library의 vptr UBSan runtime만 명시적으로 link했다.
+- Public role manifest와 generator 소유 =navsys-current-abi-inventory.json=을 갱신했고 ABI
+  inventory =--check=와 CFFI generation =--check=가 통과했다. Repository 전체 header audit의
+  기존 부채는 2577건이고 =obstacle_core.h= 기존 부채는 33건이지만, 신규 4 symbol에 귀속되는
+  audit 오류는 0건이다. 기존 전면 부채 정리는 계획대로 6단계에 유지한다.
+
+* DONE 4단계: helper 책임 이동과 naming compatibility
 
 ** 실행
 
 - clone neighbor/degree/range와 block range/straight를 navgrid/shared raster component로 이동할지 결정한다.
 - canonical copy/fetch naming을 추가하고 legacy clone symbols를 deprecated forwarding한다.
 - unexported query는 internal private declaration으로 옮기거나 =BYUL_API=를 추가한다.
+
+** 확정 계약
+
+- 범용 topology와 cell mutation은 navgrid가 소유하지만 obstacle의 signed extent, blocked set과
+  failure-atomic raster mutation은 obstacle이 소유한다. 임시 navgrid로 위임하면 signed extent를
+  재해석하고 전체 grid를 materialize하므로 이 단계에서는 geometry 구현만
+  =obstacle_geometry.cpp=로 분리한다. =obstacle_core.cpp=에는 lifecycle·단일 좌표 mutation과
+  blocked query만 남긴다.
+- 이웃 열거는 기존 N/W/E/S/NW/SW/NE/SE 순서를 보존한다. Range 결과는 X/Y 오름차순이며
+  =range == 0=은 중심을 제외한 즉시 이웃, 양수 range는 중심을 포함한 Chebyshev
+  =range + 1= 영역이다. Degree는 0도를 +X, 양의 각도를 +Y로 정하고 동률도 결정론적으로
+  해소한다.
+- =export= API는 =NULL/0= count query, 부족한 buffer의 =INCOMPLETE=와 전체 필요 count,
+  실패 시 output 보존을 따른다. =fetch= API는 caller value output, =create= API는
+  caller-owned object/list를 반환한다.
+- Square는 Chebyshev radius, line은 양 끝을 포함하는 Bresenham 중심선과 Chebyshev
+  thickness를 사용한다. 두 mutation은 changed count를 반환하고 invalid/OOM/not-found에서
+  obstacle과 output을 보존한다.
+- ABI 1의 clone 6종과 =obstacle_block_range=, =obstacle_block_straight=는 제거하지 않고
+  canonical API에 forwarding하며 ABI 2 제거 예정 deprecation을 선언한다.
 
 ** 완료 조건
 
@@ -203,7 +348,36 @@ BYUL_API navsys_status_t obstacle_apply_ex(
 
 - direct old/new link/run, export inventory와 SDK include graph를 검사한다.
 
-* TODO 5단계: navgrid overlay/provenance
+** 진행 근거
+
+- Canonical caller-buffer/fetch 5종, caller-owned create 6종, failure-atomic raster 2종의
+  additive public symbol 13개를 =obstacle.h=에 추가했다. 구현은 새
+  =obstacle_geometry.cpp=에 격리했고 module/root CMake와 public role manifest에 등록했다.
+- Legacy clone 6종과 range/straight 2종은 canonical 구현으로 forwarding한다. Production
+  =obstacle.cpp=도 neighbor/raster helper 호출을 canonical 이름으로 전환했다. 구현 없는
+  comment-only query declaration은 제거했고 ABI inventory가 추적하는 기존 public declaration과
+  binary symbol은 유지했다.
+- Module test는 old/new 결과, count query, exact/undersized buffer, range·degree·goal·angular
+  순서와 output 보존을 비교한다. Square/line test는 changed count, duplicate mutation,
+  invalid extent/radius, legacy 동등성과 failure atomicity를 검사한다. Allocation fixture는 현재
+  주입 가능한 모든 allocation failure index에서 object/output rollback과 leak 부재를 검증한다.
+- MSVC Release에서 module =test_obstacle= 27 cases/235 assertions, allocation fixture와 root
+  =test_byul= 499 cases/112914 assertions가 통과했다. =byul.dll= export table에 신규 13 symbol을
+  확인했고 clean installed SDK의 C/C++ consumer가 신규 API를 실제 호출해 성공했다.
+- Virtual Yard Ubuntu 24.04의 base revision =d1a1b0d=와 동일 working-tree patch에서 GCC 13.3,
+  Clang 18.1.3 분리 Debug tree를
+  =-fsanitize=address,undefined,leak -fno-omit-frame-pointer=로 검증했다. 두 compiler 모두
+  module 27 cases/235 assertions, allocation fixture와 root 499 cases/112914 assertions를
+  통과했고 sanitizer 오류와 leak은 없었다.
+- GCC/Clang별 =BUILD_TESTING=OFF Release tree를 전용 prefix에 설치했다. 각 설치본만 참조하는
+  C/C++ consumer가 compile/link/run에 성공했고 설치된 =libbyul.so= dynamic export table에서
+  신규 13 symbol을 모두 확인했다.
+- Public role manifest와 generator 소유 =navsys-current-abi-inventory.json=을 갱신했다. ABI
+  inventory는 headers 47/symbols 606으로 =--check=가 통과했고 CFFI generation =--check=도
+  통과했다. Repository 전체 header audit의 기존 부채는 2636건이지만 신규 13 symbol에
+  귀속되는 오류는 0건이며 전면 부채 정리는 계획대로 6단계에 유지한다.
+
+* DONE 5단계: navgrid overlay/provenance
 
 ** 실행
 
@@ -220,7 +394,42 @@ BYUL_API navsys_status_t obstacle_apply_ex(
 
 - multi-overlay/custom terrain/nonzero origin/fault/cancel tests와 ASan/LSan을 실행한다.
 
-* TODO 6단계: opaque ABI와 Header gate
+** 확정 계약
+
+- =obstacle_apply_to_navgrid_checked=와 =obstacle_remove_from_navgrid_checked=를 additive
+  ABI 1.x symbol로 추가했다. apply options와 overlay token은 =struct_size/abi_version=을
+  가지며 unknown version과 merge policy는 =UNSUPPORTED=로 진단한다. merge policy 저장 필드는
+  future integer 값을 C++ invalid-enum UB 없이 거절하도록 =uint32_t=로 고정했다.
+- 현재 merge policy는 기존 terrain을 보존하는 =PRESERVE_BASE= 하나다. Obstacle blocked 좌표가
+  navgrid bounds 밖에 하나라도 있으면 resize나 partial apply 없이 =NOT_FOUND=를 반환한다.
+  성공 시 changed count는 해당 overlay가 실제로 새로 막은 cell 수다.
+- Token은 navgrid owner generation과 overlay id를 함께 보관한다. 다른 grid, copy로 생성된 grid,
+  이미 제거된 token에는 =INVALIDATED=를 반환하며 실패 시 token, output count와 grid를 보존한다.
+  성공한 remove만 token의 owner/id를 0으로 만들어 재사용을 막는다.
+- 각 overlay layer는 독립적으로 합성된다. 겹치는 obstacle을 임의 순서로 제거해도 다른 overlay와
+  원래의 custom terrain이 유지된다. Legacy void apply/remove는 ABI 1.x source-key layer에
+  forwarding하여 기존 반복 apply/remove 동작과 overlap 보존을 유지하고 ABI 2 제거 대상으로
+  deprecate했다.
+- Cancellation callback은 call-scoped다. true는 =CANCELLED=, callback exception은
+  =CALLBACK_FAILED=이며 validation, allocation, commit 전 구간의 실패는 all-or-nothing이다.
+
+** 진행 근거
+
+- MSVC 19.44 Release에서 module =test_obstacle= 29 cases/291 assertions, executable-wide
+  allocation-failure fixture와 root =test_byul= 501 cases/112970 assertions가 통과했다.
+  =byul.dll= export table에서 checked apply/remove 두 symbol을 확인했고 clean installed SDK의
+  C/C++ consumer가 token apply/remove를 compile/link/run했다.
+- Virtual Yard Ubuntu 24.04의 base revision =d1a1b0d= checkout에서 GCC 13.3과
+  Clang 18.1.3 분리 Debug tree를 ASan+LSan+UBSan으로 검증했다. 양쪽 모두 module
+  29 cases/291 assertions, allocation-failure fixture와 root 501 cases/112970 assertions가
+  sanitizer 오류나 leak 없이 통과했다.
+- GCC/Clang별 =BUILD_TESTING=OFF Release 설치본만 참조하는 C/C++ consumer도 모두
+  compile/link/run했다. Public role manifest check, ABI inventory 47 headers/608 symbols,
+  CFFI generation check와 =git diff --check=가 통과했다. Repository 전체 header audit의 기존
+  부채는 2644건이지만 신규 checked 두 symbol에 귀속되는 오류는 0건이며 전면 정리는
+  계획대로 6단계에 유지한다.
+
+* DONE 6단계: opaque ABI와 Header gate
 
 ** 실행
 
@@ -236,3 +445,39 @@ BYUL_API navsys_status_t obstacle_apply_ex(
 
 - old-layout/new-handle SDK consumers, C/C++ include, native/root/wrapper and sanitizer gates를 실행한다.
 - module static =BYUL_STATIC=과 root shared =BYUL_EXPORTS=에서 core lifecycle/mutation export를 각각 검증한다.
+
+** 확정 계약
+
+- 기본 SDK의 =obstacle_t=는 =typedef struct s_obstacle obstacle_t=인 opaque handle이다.
+  ABI 1의 x64 size/alignment =24/8=과 field offset =0/4/8/12/16=은
+  =internal/obstacle_private.hpp=에서 binary layout으로 유지한다.
+- ABI 1 direct-field source 호환은 기본 SDK에서 제외하고
+  =byul_sdk_abi1_compat= component의 =compat/abi1/obstacle_abi1.h=로 분리했다.
+  Runtime은 ABI 2 opaque fingerprint와 ABI 1 compatibility fingerprint를 모두 검사한다.
+- =obstacle_get_abi_version=, =obstacle_get_abi_fingerprint=,
+  =obstacle_check_abi=, =obstacle_sizeof=, =obstacle_alignof=를 추가했다. 기본
+  C/C++ SDK와 Python wrapper는 accessor, checked mutation, caller-buffer export만 사용한다.
+- =obstacle_core.h=와 =obstacle.h=에 표준 license/file/guard/direct include와
+  ownership, nullable, lifetime, error, thread 계약을 적용했다. 두 header의 63개 public
+  declaration은 audit error 0이며 declaration/definition/export/CFFI 교집합을 고정했다.
+
+** 진행 근거
+
+- MSVC 19.44 Release에서 module =test_obstacle= 30 cases/304 assertions,
+  =test_navsys= 22 cases/147 assertions, root =test_byul= 502 cases/112983 assertions와
+  allocation-failure fixture가 통과했다. =byul.dll=에서 신규 ABI query 5 symbol을 확인했다.
+- MSVC clean install tree의 기본 opaque C/C++ header consumer와 별도 ABI 1 old-layout
+  C/C++ consumer를 포함한 8개 executable이 compile/link/run했다. 기본 install tree에는
+  compatibility header가 없고 opt-in component에만 navgrid/obstacle ABI 1 header가 있다.
+- Python wrapper manifest에 두 obstacle public header를 등록하고 ABI guard, checked create,
+  accessor와 blocked caller-buffer export를 구현했다. Wrapper 전체 test는 143개가 통과했다.
+- Virtual Yard Ubuntu 24.04의 base revision =d1a1b0d= checkout에서 GCC 13.3과
+  Clang 18.1.3 분리 Debug tree를 ASan+LSan+UBSan으로 검증했다. 양쪽 모두 module
+  30 cases/304 assertions, allocation-failure fixture, root 502 cases/112983 assertions가
+  sanitizer 오류나 leak 없이 통과했다.
+- GCC/Clang별 =BUILD_TESTING=OFF Release 설치본에서 기본 opaque C/C++와 ABI 1
+  old-layout C/C++를 포함한 compiler별 8개 consumer가 통과했고 =libbyul.so=의 신규
+  ABI query 5 symbol을 확인했다.
+- ABI inventory는 47 headers/612 symbols, unclassified/duplicate 0으로 동기화됐다.
+  두 obstacle header의 audit error는 0이다. 저장소 전체 raw header audit의 기존 타 모듈
+  부채 2485건은 이 단계 완료 조건과 분리해 남겨 두었다.

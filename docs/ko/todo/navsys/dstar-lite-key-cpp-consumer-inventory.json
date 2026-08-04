@@ -1,0 +1,91 @@
+{
+  "schema_version": 2,
+  "header": {
+    "path": "byul/navsys/dstar_lite/dstar_lite_key.hpp",
+    "present": false,
+    "sha256": null,
+    "declared_helpers": 0
+  },
+  "summary": {
+    "unique_consumers": 0,
+    "internal_production": 0,
+    "test_only": 0,
+    "external": 0,
+    "old_sdk_source_fixture_present": false
+  },
+  "consumers": {
+    "internal-production": [],
+    "test-only": [],
+    "external": []
+  },
+  "header_includes": [],
+  "symbols": [
+    {
+      "name": "DstarLiteKeyHash",
+      "declaration_lines": [],
+      "consumers": []
+    },
+    {
+      "name": "DstarLiteKeyEqual",
+      "declaration_lines": [],
+      "consumers": []
+    },
+    {
+      "name": "DstarLiteKeyLess",
+      "declaration_lines": [],
+      "consumers": []
+    },
+    {
+      "name": "std::hash<dstar_lite_key_t>",
+      "declaration_lines": [],
+      "consumers": []
+    },
+    {
+      "name": "dstar_lite_key_ptr_less",
+      "declaration_lines": [],
+      "consumers": []
+    }
+  ],
+  "build_and_distribution": {
+    "module_public_header_inventory": false,
+    "module_private_header_inventory": true,
+    "private_header_present": true,
+    "install_path": "include/byul/dstar_lite_key.hpp",
+    "clean_install_present": false,
+    "clean_install_sha256": null,
+    "manifest_legacy_role_present": false,
+    "manifest_exported_symbols": [],
+    "wrapper_registered": false,
+    "wrapper_disposition": {
+      "mode": "excluded",
+      "reason": "internal headers are outside the installed C ABI wrapper input."
+    }
+  },
+  "approved_boundary": {
+    "manifest": "docs/ko/todo/header-refactor-current/header-role-manifest.json",
+    "decision_status": "approved",
+    "primary_role": "internal",
+    "approved_install": false,
+    "naming": {
+      "disposition": "keep",
+      "canonical_path": "byul/navsys/dstar_lite/internal/dstar_lite_key_ops.hpp",
+      "canonical_install": false,
+      "deprecated_since": null,
+      "remove_in": null,
+      "reason": "Already migrated to the canonical internal implementation path.",
+      "compatibility_path": null
+    },
+    "legacy_source_path_present": false,
+    "stage_4_removal_complete": true,
+    "stage_4_reason": "No external source consumer was found. The ABI-major Stage-4 gate removes the legacy C++ source and SDK compatibility path."
+  },
+  "forbidden_surface": {
+    "production_legacy_references": 0,
+    "test_legacy_references": 0,
+    "external_legacy_references": 0,
+    "legacy_header_includes": 0,
+    "repository_legacy_path": false,
+    "manifest_legacy_role": false,
+    "installed_legacy_path": false
+  }
+}

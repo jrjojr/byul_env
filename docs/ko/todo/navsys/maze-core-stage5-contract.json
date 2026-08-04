@@ -1,0 +1,61 @@
+{
+  "schema_version": 1,
+  "stage": 5,
+  "title": "additive accessor migration",
+  "status": "complete",
+  "public_checked_accessors": [
+    "byul_maze_is_blocked",
+    "byul_maze_set_blocked"
+  ],
+  "mutation_contract": {
+    "coordinate_space": "normalized half-open world extent",
+    "outside_extent_status": "NAVSYS_STATUS_NOT_FOUND",
+    "output_preserved_on_failure": true,
+    "maze_preserved_on_failure": true,
+    "changed_reports_set_delta": true
+  },
+  "migration": {
+    "generator_sources_migrated": 11,
+    "public_consumer_direct_field_accesses": 0,
+    "intentional_legacy_layout_fixtures": [
+      "byul/tests/sdk_consumer/main.c",
+      "byul/tests/sdk_consumer/main.cpp"
+    ],
+    "abi1_layout_preserved": {
+      "sizeof_maze_t": 24,
+      "alignof_maze_t": 8
+    },
+    "field_deprecation_documented": true,
+    "legacy_checked_semantic_equivalence_tested": true
+  },
+  "wrapper": {
+    "manifest_header": "navsys/maze/maze_core.h",
+    "module": "tools/python/byul_wrapper/byul_wrapper/maze.py",
+    "header_audit_errors": 0,
+    "generated_check": "pass",
+    "native_load_tests": 2,
+    "uses_direct_maze_fields": false
+  },
+  "verification": {
+    "windows_msvc_release": [
+      "test_maze: 35/35",
+      "test_navsys_allocation_failure: pass",
+      "clean install C17 consumer: pass",
+      "clean install C++17 consumer: pass"
+    ],
+    "linux_gcc_13_debug_asan_lsan": [
+      "test_maze: pass",
+      "test_navsys_allocation_failure: pass"
+    ],
+    "linux_clang_18_debug_asan_lsan": [
+      "test_maze: pass",
+      "test_navsys_allocation_failure: pass"
+    ],
+    "abi_inventory": {
+      "navsys_headers": 55,
+      "navsys_symbols": 639,
+      "root_exports": 1194,
+      "installed_headers": 92
+    }
+  }
+}

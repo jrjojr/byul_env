@@ -41,6 +41,62 @@
       "skipped_field_declarations": []
     },
     {
+      "header": "maze_core.h",
+      "name": "byul_maze_extent_t",
+      "size": 16,
+      "align": 4,
+      "fields": {
+        "origin_x": 0,
+        "origin_y": 4,
+        "width": 8,
+        "height": 12
+      },
+      "skipped_field_declarations": []
+    },
+    {
+      "header": "maze.h",
+      "name": "byul_maze_generate_options_t",
+      "size": 48,
+      "align": 8,
+      "fields": {
+        "struct_size": 0,
+        "abi_version": 4,
+        "seed": 8,
+        "max_steps": 16,
+        "max_cells": 24,
+        "cancel_func": 32,
+        "cancel_userdata": 40
+      },
+      "skipped_field_declarations": []
+    },
+    {
+      "header": "maze_core.h",
+      "name": "byul_maze_navgrid_apply_options_t",
+      "size": 32,
+      "align": 8,
+      "fields": {
+        "struct_size": 0,
+        "abi_version": 4,
+        "merge_policy": 8,
+        "cancel_func": 16,
+        "cancel_userdata": 24
+      },
+      "skipped_field_declarations": []
+    },
+    {
+      "header": "maze_core.h",
+      "name": "byul_maze_navgrid_overlay_token_t",
+      "size": 24,
+      "align": 8,
+      "fields": {
+        "struct_size": 0,
+        "abi_version": 4,
+        "owner_cookie": 8,
+        "overlay": 16
+      },
+      "skipped_field_declarations": []
+    },
+    {
       "header": "controller.h",
       "name": "controller_t",
       "size": 40,
@@ -55,6 +111,32 @@
       "skipped_field_declarations": []
     },
     {
+      "header": "coord_hash.h",
+      "name": "coord_hash_create_info_t",
+      "size": 40,
+      "align": 8,
+      "fields": {
+        "struct_size": 0,
+        "abi_version": 4,
+        "copy_value": 8,
+        "destroy_value": 16,
+        "equal_value": 24,
+        "userdata": 32
+      },
+      "skipped_field_declarations": []
+    },
+    {
+      "header": "coord_hash.h",
+      "name": "coord_hash_entry_view_t",
+      "size": 16,
+      "align": 8,
+      "fields": {
+        "key": 0,
+        "value": 8
+      },
+      "skipped_field_declarations": []
+    },
+    {
       "header": "coord.h",
       "name": "coord_t",
       "size": 8,
@@ -62,6 +144,18 @@
       "fields": {
         "x": 0,
         "y": 4
+      },
+      "skipped_field_declarations": []
+    },
+    {
+      "header": "cost_coord_pq.h",
+      "name": "cost_coord_pq_create_info_t",
+      "size": 12,
+      "align": 4,
+      "fields": {
+        "struct_size": 0,
+        "abi_version": 4,
+        "flags": 8
       },
       "skipped_field_declarations": []
     },
@@ -383,20 +477,6 @@
       "skipped_field_declarations": []
     },
     {
-      "header": "maze_core.h",
-      "name": "maze_t",
-      "size": 24,
-      "align": 8,
-      "fields": {
-        "x0": 0,
-        "y0": 4,
-        "width": 8,
-        "height": 12,
-        "blocked": 16
-      },
-      "skipped_field_declarations": []
-    },
-    {
       "header": "projectile.h",
       "name": "missile_t",
       "size": 272,
@@ -508,31 +588,132 @@
       "skipped_field_declarations": []
     },
     {
-      "header": "navgrid.h",
-      "name": "navgrid_t",
-      "size": 40,
+      "header": "route_carver.h",
+      "name": "navgrid_carve_options_t",
+      "size": 56,
       "align": 8,
       "fields": {
-        "width": 0,
-        "height": 4,
-        "mode": 8,
-        "cell_map": 16,
-        "is_coord_blocked_fn": 24,
-        "is_coord_blocked_fn_userdata": 32
+        "struct_size": 0,
+        "abi_version": 4,
+        "radius_cells": 8,
+        "metric": 12,
+        "line_coverage": 16,
+        "match": 20,
+        "flags": 24,
+        "reserved0": 28,
+        "max_cells": 32,
+        "cancel_func": 40,
+        "cancel_userdata": 48
+      },
+      "skipped_field_declarations": []
+    },
+    {
+      "header": "navgrid.h",
+      "name": "navgrid_cell_entry_t",
+      "size": 20,
+      "align": 4,
+      "fields": {
+        "coord": 0,
+        "cell": 8,
+        "present": 16,
+        "blocked": 17
+      },
+      "skipped_field_declarations": []
+    },
+    {
+      "header": "obstacle.h",
+      "name": "obstacle_cross_desc_t",
+      "size": 32,
+      "align": 4,
+      "fields": {
+        "struct_size": 0,
+        "abi_version": 4,
+        "center": 8,
+        "arm_length_cells": 16,
+        "radius_cells": 20,
+        "reserved0": 24,
+        "reserved1": 28
+      },
+      "skipped_field_declarations": []
+    },
+    {
+      "header": "obstacle.h",
+      "name": "obstacle_enclosure_desc_t",
+      "size": 40,
+      "align": 4,
+      "fields": {
+        "struct_size": 0,
+        "abi_version": 4,
+        "x0": 8,
+        "y0": 12,
+        "width": 16,
+        "height": 20,
+        "wall_thickness_cells": 24,
+        "open_side": 28,
+        "aperture_offset_cells": 32,
+        "aperture_length_cells": 36
+      },
+      "skipped_field_declarations": []
+    },
+    {
+      "header": "obstacle.h",
+      "name": "obstacle_generate_options_t",
+      "size": 48,
+      "align": 8,
+      "fields": {
+        "struct_size": 0,
+        "abi_version": 4,
+        "raster_rule": 8,
+        "reserved0": 12,
+        "seed": 16,
+        "max_cells": 24,
+        "cancel_func": 32,
+        "cancel_userdata": 40
       },
       "skipped_field_declarations": []
     },
     {
       "header": "obstacle_core.h",
-      "name": "obstacle_t",
+      "name": "obstacle_navgrid_apply_options_t",
+      "size": 32,
+      "align": 8,
+      "fields": {
+        "struct_size": 0,
+        "abi_version": 4,
+        "merge_policy": 8,
+        "cancel_func": 16,
+        "cancel_userdata": 24
+      },
+      "skipped_field_declarations": []
+    },
+    {
+      "header": "obstacle_core.h",
+      "name": "obstacle_navgrid_overlay_token_t",
       "size": 24,
       "align": 8,
       "fields": {
-        "x0": 0,
-        "y0": 4,
-        "width": 8,
-        "height": 12,
-        "blocked": 16
+        "struct_size": 0,
+        "abi_version": 4,
+        "owner_cookie": 8,
+        "overlay": 16
+      },
+      "skipped_field_declarations": []
+    },
+    {
+      "header": "obstacle.h",
+      "name": "obstacle_spiral_desc_t",
+      "size": 40,
+      "align": 4,
+      "fields": {
+        "struct_size": 0,
+        "abi_version": 4,
+        "center": 8,
+        "max_radius_cells": 16,
+        "pitch_cells": 20,
+        "path_radius_cells": 24,
+        "direction": 28,
+        "clip_rule": 32,
+        "reserved0": 36
       },
       "skipped_field_declarations": []
     },
@@ -707,8 +888,66 @@
       "size": 16,
       "align": 4,
       "fields": {
+        "x": 0,
         "y": 4,
+        "w": 8,
         "h": 12
+      },
+      "skipped_field_declarations": []
+    },
+    {
+      "header": "route_finder.h",
+      "name": "route_finder_fringe_search_config_t",
+      "size": 4,
+      "align": 4,
+      "fields": {
+        "delta_epsilon": 0
+      },
+      "skipped_field_declarations": []
+    },
+    {
+      "header": "route_finder.h",
+      "name": "route_finder_rta_star_config_t",
+      "size": 4,
+      "align": 4,
+      "fields": {
+        "depth_limit": 0
+      },
+      "skipped_field_declarations": []
+    },
+    {
+      "header": "route_finder.h",
+      "name": "route_finder_run_options_t",
+      "size": 24,
+      "align": 8,
+      "fields": {
+        "struct_size": 0,
+        "cancel_func": 8,
+        "cancel_userdata": 16
+      },
+      "skipped_field_declarations": []
+    },
+    {
+      "header": "route_finder.h",
+      "name": "route_finder_run_stats_t",
+      "size": 16,
+      "align": 4,
+      "fields": {
+        "total_retry_count": 0,
+        "route_length": 4,
+        "route_cost": 8,
+        "complete": 12,
+        "partial": 13
+      },
+      "skipped_field_declarations": []
+    },
+    {
+      "header": "route_finder.h",
+      "name": "route_finder_sma_star_config_t",
+      "size": 4,
+      "align": 4,
+      "fields": {
+        "memory_limit": 0
       },
       "skipped_field_declarations": []
     },
@@ -729,6 +968,16 @@
         "cost_fn_userdata": 56,
         "heuristic_fn": 64,
         "heuristic_fn_userdata": 72
+      },
+      "skipped_field_declarations": []
+    },
+    {
+      "header": "route_finder.h",
+      "name": "route_finder_weighted_astar_config_t",
+      "size": 4,
+      "align": 4,
+      "fields": {
+        "weight": 0
       },
       "skipped_field_declarations": []
     },
@@ -860,6 +1109,39 @@
   ],
   "enums": [
     {
+      "header": "maze_core.h",
+      "name": "byul_maze_abi_mismatch_t",
+      "values": {
+        "BYUL_MAZE_ABI_MATCH": 0,
+        "BYUL_MAZE_ABI_VERSION_MISMATCH": 1,
+        "BYUL_MAZE_ABI_FINGERPRINT_MISMATCH": 2
+      }
+    },
+    {
+      "header": "maze.h",
+      "name": "byul_maze_algorithm_t",
+      "values": {
+        "BYUL_MAZE_ALGORITHM_RECURSIVE_BACKTRACKER": 0,
+        "BYUL_MAZE_ALGORITHM_RANDOMIZED_PRIM": 1,
+        "BYUL_MAZE_ALGORITHM_BINARY_TREE": 2,
+        "BYUL_MAZE_ALGORITHM_ELLER": 3,
+        "BYUL_MAZE_ALGORITHM_ALDOUS_BRODER": 4,
+        "BYUL_MAZE_ALGORITHM_WILSON": 5,
+        "BYUL_MAZE_ALGORITHM_HUNT_AND_KILL": 6,
+        "BYUL_MAZE_ALGORITHM_SIDEWINDER": 7,
+        "BYUL_MAZE_ALGORITHM_RECURSIVE_DIVISION": 8,
+        "BYUL_MAZE_ALGORITHM_RANDOMIZED_KRUSKAL": 9,
+        "BYUL_MAZE_ALGORITHM_ROOM_BLEND": 10
+      }
+    },
+    {
+      "header": "maze_core.h",
+      "name": "byul_maze_navgrid_merge_policy_t",
+      "values": {
+        "BYUL_MAZE_NAVGRID_MERGE_PRESERVE_BASE": 0
+      }
+    },
+    {
       "header": "controller.h",
       "name": "controller_type_t",
       "values": {
@@ -949,10 +1231,44 @@
     },
     {
       "header": "navgrid.h",
+      "name": "navgrid_abi_mismatch_t",
+      "values": {
+        "NAVGRID_ABI_MATCH": 0,
+        "NAVGRID_ABI_VERSION_MISMATCH": 1,
+        "NAVGRID_ABI_FINGERPRINT_MISMATCH": 2
+      }
+    },
+    {
+      "header": "route_carver.h",
+      "name": "navgrid_carve_match_t",
+      "values": {
+        "NAVGRID_CARVE_STORED_FORBIDDEN_ONLY": 0,
+        "NAVGRID_CARVE_EFFECTIVE_BLOCKED": 1
+      }
+    },
+    {
+      "header": "route_carver.h",
+      "name": "navgrid_carve_metric_t",
+      "values": {
+        "NAVGRID_CARVE_CHEBYSHEV_SQUARE": 0,
+        "NAVGRID_CARVE_MANHATTAN_DIAMOND": 1,
+        "NAVGRID_CARVE_EUCLIDEAN_DISK": 2
+      }
+    },
+    {
+      "header": "navgrid.h",
       "name": "navgrid_dir_mode_t",
       "values": {
         "NAVGRID_DIR_4": 0,
         "NAVGRID_DIR_8": 1
+      }
+    },
+    {
+      "header": "route_carver.h",
+      "name": "navgrid_line_coverage_t",
+      "values": {
+        "NAVGRID_LINE_CENTER_CELLS": 0,
+        "NAVGRID_LINE_SUPERCOVER_CELLS": 1
       }
     },
     {
@@ -975,6 +1291,65 @@
       }
     },
     {
+      "header": "obstacle_core.h",
+      "name": "obstacle_abi_mismatch_t",
+      "values": {
+        "OBSTACLE_ABI_MATCH": 0,
+        "OBSTACLE_ABI_VERSION_MISMATCH": 1,
+        "OBSTACLE_ABI_FINGERPRINT_MISMATCH": 2
+      }
+    },
+    {
+      "header": "obstacle.h",
+      "name": "obstacle_enclosure_side_t",
+      "values": {
+        "OBSTACLE_ENCLOSURE_CLOSED": 0,
+        "OBSTACLE_ENCLOSURE_OPEN_RIGHT": 1,
+        "OBSTACLE_ENCLOSURE_OPEN_UP": 2,
+        "OBSTACLE_ENCLOSURE_OPEN_LEFT": 3,
+        "OBSTACLE_ENCLOSURE_OPEN_DOWN": 4
+      }
+    },
+    {
+      "header": "obstacle_core.h",
+      "name": "obstacle_navgrid_merge_policy_t",
+      "values": {
+        "OBSTACLE_NAVGRID_MERGE_PRESERVE_BASE": 0
+      }
+    },
+    {
+      "header": "obstacle.h",
+      "name": "obstacle_polygon_fill_rule_t",
+      "values": {
+        "OBSTACLE_POLYGON_EVEN_ODD": 0,
+        "OBSTACLE_POLYGON_NON_ZERO": 1
+      }
+    },
+    {
+      "header": "obstacle.h",
+      "name": "obstacle_raster_rule_t",
+      "values": {
+        "OBSTACLE_RASTER_CELL_CENTER": 0,
+        "OBSTACLE_RASTER_ALL_TOUCHED": 1
+      }
+    },
+    {
+      "header": "obstacle.h",
+      "name": "obstacle_spiral_clip_rule_t",
+      "values": {
+        "OBSTACLE_SPIRAL_CLIP_PATH_ONLY": 0,
+        "OBSTACLE_SPIRAL_CLIP_OUTPUT": 1
+      }
+    },
+    {
+      "header": "obstacle.h",
+      "name": "obstacle_spiral_direction_t",
+      "values": {
+        "OBSTACLE_SPIRAL_CLOCKWISE": 0,
+        "OBSTACLE_SPIRAL_COUNTER_CLOCKWISE": 1
+      }
+    },
+    {
       "header": "projectile_core.h",
       "name": "projectile_attr_t",
       "values": {
@@ -982,6 +1357,15 @@
         "PROJECTILE_ATTR_IMPACT": 1,
         "PROJECTILE_ATTR_PIERCE": 2,
         "PROJECTILE_ATTR_ANCHOR": 4
+      }
+    },
+    {
+      "header": "route.h",
+      "name": "route_completion_t",
+      "values": {
+        "ROUTE_COMPLETION_NONE": 0,
+        "ROUTE_COMPLETION_COMPLETE": 1,
+        "ROUTE_COMPLETION_PARTIAL": 2
       }
     },
     {
@@ -1049,6 +1433,14 @@
       }
     },
     {
+      "header": "route.h",
+      "name": "route_join_policy_t",
+      "values": {
+        "ROUTE_JOIN_KEEP_ALL": 0,
+        "ROUTE_JOIN_DEDUP_BOUNDARY": 1
+      }
+    },
+    {
       "header": "obstacle.h",
       "name": "spiral_dir_t",
       "values": {
@@ -1078,16 +1470,22 @@
     "entity_dynamic.h:motion_state_t",
     "environ.h:bodyprops_t",
     "environ.h:projectile_t",
+    "maze_core.h:maze_t",
+    "navgrid.h:navgrid_t",
+    "obstacle_core.h:obstacle_t",
     "projectile.h:projectile_result_t",
     "projectile.h:projectile_t",
+    "route.h:navsys_search_trace_t",
+    "route.h:route_builder_t",
+    "route.h:route_heading_tracker_t",
     "strset.h:strset_t"
   ],
   "summary": {
-    "complete_types": 61,
-    "fields": 306,
+    "complete_types": 79,
+    "fields": 393,
     "skipped_field_declarations": 0,
-    "enums": 14,
-    "enumerators": 124,
-    "forward_or_opaque_declarations": 12
+    "enums": 30,
+    "enumerators": 171,
+    "forward_or_opaque_declarations": 18
   }
 }

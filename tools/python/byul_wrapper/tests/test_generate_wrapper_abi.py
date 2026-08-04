@@ -20,7 +20,8 @@ class GenerateWrapperAbiTest(unittest.TestCase):
 typedef struct s_sample {
     int value;
 } sample_t;
-BYUL_DEPRECATED("Use sample_set_checked; removal is planned for ABI 2.")
+BYUL_DEPRECATED(
+    "Use sample_set_checked; removal is planned for ABI 2.")
 BYUL_API void sample_set(sample_t* sample, int value);
 #endif
 """

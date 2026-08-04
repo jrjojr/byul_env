@@ -1,10 +1,110 @@
 #include "navcell.h"
 
+#include <cstring>
+#include <new>
+#include <type_traits>
+
+namespace {
+
+using terrain_storage_t = std::underlying_type_t<terrain_type_t>;
+
+terrain_storage_t terrain_storage(const terrain_type_t* terrain) {
+    terrain_storage_t value{};
+    std::memcpy(&value, terrain, sizeof(value));
+    return value;
+}
+
+bool terrain_is_supported(const terrain_type_t* terrain) {
+    switch (terrain_storage(terrain)) {
+    case static_cast<terrain_storage_t>(TERRAIN_TYPE_NORMAL):
+    case static_cast<terrain_storage_t>(TERRAIN_TYPE_WATER):
+    case static_cast<terrain_storage_t>(TERRAIN_TYPE_FOREST):
+    case static_cast<terrain_storage_t>(TERRAIN_TYPE_MOUNTAIN):
+    case static_cast<terrain_storage_t>(TERRAIN_TYPE_FORBIDDEN):
+        return true;
+    default:
+        return false;
+    }
+}
+
+} // namespace
+
+navsys_status_t navcell_is_terrain_supported(
+    terrain_type_t terrain, bool* out_supported) {
+    if (!out_supported) return NAVSYS_STATUS_INVALID_ARGUMENT;
+    *out_supported = terrain_is_supported(&terrain);
+    return NAVSYS_STATUS_OK;
+}
+
+navsys_status_t navcell_validate(const navcell_t* cell) {
+    if (!cell) return NAVSYS_STATUS_INVALID_ARGUMENT;
+    return terrain_is_supported(&cell->terrain)
+        ? NAVSYS_STATUS_OK
+        : NAVSYS_STATUS_UNSUPPORTED;
+}
+
+navsys_status_t navcell_init_checked(
+    navcell_t* out_cell, terrain_type_t terrain, int32_t height) {
+    if (!out_cell) return NAVSYS_STATUS_INVALID_ARGUMENT;
+    const navcell_t candidate = {terrain, static_cast<int>(height)};
+    const navsys_status_t status = navcell_validate(&candidate);
+    if (status != NAVSYS_STATUS_OK) return status;
+    *out_cell = candidate;
+    return NAVSYS_STATUS_OK;
+}
+
+navsys_status_t navcell_create_checked(
+    terrain_type_t terrain, int32_t height, navcell_t** out_cell) {
+    if (!out_cell) return NAVSYS_STATUS_INVALID_ARGUMENT;
+    navcell_t candidate{};
+    const navsys_status_t status =
+        navcell_init_checked(&candidate, terrain, height);
+    if (status != NAVSYS_STATUS_OK) return status;
+
+    try {
+        navcell_t* result = new navcell_t{candidate};
+        *out_cell = result;
+        return NAVSYS_STATUS_OK;
+    } catch (const std::bad_alloc&) {
+        return NAVSYS_STATUS_OUT_OF_MEMORY;
+    } catch (...) {
+        return NAVSYS_STATUS_OUT_OF_MEMORY;
+    }
+}
+
+navsys_status_t navcell_copy_checked(
+    const navcell_t* source, navcell_t** out_cell) {
+    if (!source || !out_cell) return NAVSYS_STATUS_INVALID_ARGUMENT;
+    const navsys_status_t status = navcell_validate(source);
+    if (status != NAVSYS_STATUS_OK) return status;
+
+    try {
+        navcell_t* result = new navcell_t{*source};
+        *out_cell = result;
+        return NAVSYS_STATUS_OK;
+    } catch (const std::bad_alloc&) {
+        return NAVSYS_STATUS_OUT_OF_MEMORY;
+    } catch (...) {
+        return NAVSYS_STATUS_OUT_OF_MEMORY;
+    }
+}
+
+navsys_status_t navcell_assign_checked(
+    navcell_t* out_cell, const navcell_t* source) {
+    if (!out_cell || !source) return NAVSYS_STATUS_INVALID_ARGUMENT;
+    const navsys_status_t status = navcell_validate(source);
+    if (status != NAVSYS_STATUS_OK) return status;
+    const navcell_t snapshot = *source;
+    *out_cell = snapshot;
+    return NAVSYS_STATUS_OK;
+}
+
 navcell_t* navcell_create_full(terrain_type_t terrain, int height){
-    navcell_t* nc = new navcell_t{};
-    nc->terrain = terrain;
-    nc->height = height;
-    return nc;
+    navcell_t* result = nullptr;
+    return navcell_create_checked(terrain, height, &result)
+            == NAVSYS_STATUS_OK
+        ? result
+        : nullptr;
 }
 
 navcell_t* navcell_create(){
@@ -12,36 +112,29 @@ navcell_t* navcell_create(){
 }
 
 void navcell_destroy(navcell_t* nc){
-    if(nc) delete nc;
+    delete nc;
 }
 
 navcell_t* navcell_copy(const navcell_t* nc){
-    if (!nc) return nullptr;
-
-    return navcell_create_full(nc->terrain, nc->height);
+    navcell_t* result = nullptr;
+    return navcell_copy_checked(nc, &result) == NAVSYS_STATUS_OK
+        ? result
+        : nullptr;
 }
 
 int navcell_init_full(
     navcell_t* nc, terrain_type_t terrain, int height)
 {
-    if (!nc) return -1;
-    nc->terrain = terrain;
-    nc->height = height;
-    return 0;
+    return static_cast<int>(navcell_init_checked(nc, terrain, height));
 }
 
 int navcell_init(navcell_t* nc)
 {
-    if (!nc) return -1;
-    nc->terrain = TERRAIN_TYPE_NORMAL;
-    nc->height = 0;
-    return 0;
+    return static_cast<int>(
+        navcell_init_checked(nc, TERRAIN_TYPE_NORMAL, 0));
 }
 
 int navcell_assign(navcell_t* nc, const navcell_t* src)
 {
-    if (!nc || !src) return -1;
-    nc->terrain = src->terrain;
-    nc->height = src->height;
-    return 0;
+    return static_cast<int>(navcell_assign_checked(nc, src));
 }
