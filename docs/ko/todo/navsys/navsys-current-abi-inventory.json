@@ -3,38 +3,38 @@
   "source_role_manifest": "docs/ko/todo/header-refactor-current/header-role-manifest.json",
   "source_vocabulary": "docs/ko/todo/navsys/navsys-abi-vocabulary.json",
   "summary": {
-    "headers": 55,
-    "symbols": 629,
+    "headers": 57,
+    "symbols": 646,
     "return_forms": {
       "nullable_pointer": 157,
       "bool_predicate": 23,
       "bool_operation": 20,
       "int_zero_nonzero_status": 41,
-      "int_count": 26,
+      "int_count": 28,
       "int_index_minus_one": 4,
       "void_fallible_operation": 143,
-      "enum_result": 196,
+      "enum_result": 211,
       "floating_result": 19,
       "callback_return": 0
     },
     "unclassified": 0,
     "duplicate_declarations": 0,
-    "audit_issues": 645,
-    "audit_errors": 645,
+    "audit_issues": 563,
+    "audit_errors": 563,
     "audit_codes": {
       "missing-brief": 5,
-      "missing-doxygen": 173,
+      "missing-doxygen": 158,
       "missing-nullable": 119,
-      "missing-param": 65,
-      "missing-param-direction": 154,
-      "missing-return": 13,
-      "missing-return-lifetime": 37,
-      "missing-return-nullable": 37,
+      "missing-param": 61,
+      "missing-param-direction": 114,
+      "missing-return": 12,
+      "missing-return-lifetime": 26,
+      "missing-return-nullable": 26,
       "unknown-param": 12,
       "unnamed-parameter": 30
     },
-    "lifecycle_resources": 32,
-    "lifecycle_operations": 112,
+    "lifecycle_resources": 33,
+    "lifecycle_operations": 113,
     "callback_bindings": 7
   },
   "known_debt": {
@@ -2504,744 +2504,6 @@
         "code": "missing-nullable",
         "symbol": "dstar_lite_tick_complete",
         "message": "pointer parameter 'tk' has no @byul.nullable",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/maze/maze.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-maze-maze.org",
-        "severity": "error",
-        "code": "missing-doxygen",
-        "symbol": "maze_make",
-        "message": "public function has no adjacent Doxygen block",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/maze/maze_aldous_broder.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-maze-aldous-broder.org",
-        "severity": "error",
-        "code": "missing-param-direction",
-        "symbol": "maze_make_aldous_broder",
-        "message": "parameter 'x0' has no direction",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/maze/maze_aldous_broder.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-maze-aldous-broder.org",
-        "severity": "error",
-        "code": "missing-param-direction",
-        "symbol": "maze_make_aldous_broder",
-        "message": "parameter 'y0' has no direction",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/maze/maze_aldous_broder.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-maze-aldous-broder.org",
-        "severity": "error",
-        "code": "missing-param-direction",
-        "symbol": "maze_make_aldous_broder",
-        "message": "parameter 'width' has no direction",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/maze/maze_aldous_broder.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-maze-aldous-broder.org",
-        "severity": "error",
-        "code": "missing-param-direction",
-        "symbol": "maze_make_aldous_broder",
-        "message": "parameter 'height' has no direction",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/maze/maze_aldous_broder.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-maze-aldous-broder.org",
-        "severity": "error",
-        "code": "missing-return-nullable",
-        "symbol": "maze_make_aldous_broder",
-        "message": "pointer return has no @byul.nullable return",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/maze/maze_aldous_broder.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-maze-aldous-broder.org",
-        "severity": "error",
-        "code": "missing-return-lifetime",
-        "symbol": "maze_make_aldous_broder",
-        "message": "pointer return has no @byul.lifetime return",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/maze/maze_binary.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-maze-binary.org",
-        "severity": "error",
-        "code": "missing-param-direction",
-        "symbol": "maze_make_binary",
-        "message": "parameter 'x0' has no direction",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/maze/maze_binary.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-maze-binary.org",
-        "severity": "error",
-        "code": "missing-param-direction",
-        "symbol": "maze_make_binary",
-        "message": "parameter 'y0' has no direction",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/maze/maze_binary.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-maze-binary.org",
-        "severity": "error",
-        "code": "missing-param-direction",
-        "symbol": "maze_make_binary",
-        "message": "parameter 'width' has no direction",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/maze/maze_binary.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-maze-binary.org",
-        "severity": "error",
-        "code": "missing-param-direction",
-        "symbol": "maze_make_binary",
-        "message": "parameter 'height' has no direction",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/maze/maze_binary.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-maze-binary.org",
-        "severity": "error",
-        "code": "missing-return-nullable",
-        "symbol": "maze_make_binary",
-        "message": "pointer return has no @byul.nullable return",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/maze/maze_binary.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-maze-binary.org",
-        "severity": "error",
-        "code": "missing-return-lifetime",
-        "symbol": "maze_make_binary",
-        "message": "pointer return has no @byul.lifetime return",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/maze/maze_core.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-maze-core.org",
-        "severity": "error",
-        "code": "missing-doxygen",
-        "symbol": "maze_create",
-        "message": "public function has no adjacent Doxygen block",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/maze/maze_core.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-maze-core.org",
-        "severity": "error",
-        "code": "missing-doxygen",
-        "symbol": "maze_create_full",
-        "message": "public function has no adjacent Doxygen block",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/maze/maze_core.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-maze-core.org",
-        "severity": "error",
-        "code": "missing-doxygen",
-        "symbol": "maze_destroy",
-        "message": "public function has no adjacent Doxygen block",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/maze/maze_core.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-maze-core.org",
-        "severity": "error",
-        "code": "missing-doxygen",
-        "symbol": "maze_clear",
-        "message": "public function has no adjacent Doxygen block",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/maze/maze_core.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-maze-core.org",
-        "severity": "error",
-        "code": "missing-doxygen",
-        "symbol": "maze_copy",
-        "message": "public function has no adjacent Doxygen block",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/maze/maze_core.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-maze-core.org",
-        "severity": "error",
-        "code": "missing-doxygen",
-        "symbol": "maze_equal",
-        "message": "public function has no adjacent Doxygen block",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/maze/maze_core.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-maze-core.org",
-        "severity": "error",
-        "code": "missing-doxygen",
-        "symbol": "maze_hash",
-        "message": "public function has no adjacent Doxygen block",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/maze/maze_core.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-maze-core.org",
-        "severity": "error",
-        "code": "missing-doxygen",
-        "symbol": "maze_set_origin",
-        "message": "public function has no adjacent Doxygen block",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/maze/maze_core.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-maze-core.org",
-        "severity": "error",
-        "code": "missing-doxygen",
-        "symbol": "maze_get_origin",
-        "message": "public function has no adjacent Doxygen block",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/maze/maze_core.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-maze-core.org",
-        "severity": "error",
-        "code": "missing-doxygen",
-        "symbol": "maze_get_width",
-        "message": "public function has no adjacent Doxygen block",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/maze/maze_core.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-maze-core.org",
-        "severity": "error",
-        "code": "missing-doxygen",
-        "symbol": "maze_get_height",
-        "message": "public function has no adjacent Doxygen block",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/maze/maze_core.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-maze-core.org",
-        "severity": "error",
-        "code": "missing-doxygen",
-        "symbol": "maze_get_blocked_coords",
-        "message": "public function has no adjacent Doxygen block",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/maze/maze_core.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-maze-core.org",
-        "severity": "error",
-        "code": "missing-doxygen",
-        "symbol": "maze_apply_to_navgrid",
-        "message": "public function has no adjacent Doxygen block",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/maze/maze_core.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-maze-core.org",
-        "severity": "error",
-        "code": "missing-doxygen",
-        "symbol": "maze_remove_from_navgrid",
-        "message": "public function has no adjacent Doxygen block",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/maze/maze_eller.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-maze-eller.org",
-        "severity": "error",
-        "code": "missing-param-direction",
-        "symbol": "maze_make_eller",
-        "message": "parameter 'x0' has no direction",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/maze/maze_eller.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-maze-eller.org",
-        "severity": "error",
-        "code": "missing-param-direction",
-        "symbol": "maze_make_eller",
-        "message": "parameter 'y0' has no direction",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/maze/maze_eller.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-maze-eller.org",
-        "severity": "error",
-        "code": "missing-param-direction",
-        "symbol": "maze_make_eller",
-        "message": "parameter 'width' has no direction",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/maze/maze_eller.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-maze-eller.org",
-        "severity": "error",
-        "code": "missing-param-direction",
-        "symbol": "maze_make_eller",
-        "message": "parameter 'height' has no direction",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/maze/maze_eller.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-maze-eller.org",
-        "severity": "error",
-        "code": "missing-return-nullable",
-        "symbol": "maze_make_eller",
-        "message": "pointer return has no @byul.nullable return",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/maze/maze_eller.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-maze-eller.org",
-        "severity": "error",
-        "code": "missing-return-lifetime",
-        "symbol": "maze_make_eller",
-        "message": "pointer return has no @byul.lifetime return",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/maze/maze_hunt_and_kill.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-maze-hunt-and-kill.org",
-        "severity": "error",
-        "code": "missing-param-direction",
-        "symbol": "maze_make_hunt_and_kill",
-        "message": "parameter 'x0' has no direction",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/maze/maze_hunt_and_kill.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-maze-hunt-and-kill.org",
-        "severity": "error",
-        "code": "missing-param-direction",
-        "symbol": "maze_make_hunt_and_kill",
-        "message": "parameter 'y0' has no direction",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/maze/maze_hunt_and_kill.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-maze-hunt-and-kill.org",
-        "severity": "error",
-        "code": "missing-param-direction",
-        "symbol": "maze_make_hunt_and_kill",
-        "message": "parameter 'width' has no direction",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/maze/maze_hunt_and_kill.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-maze-hunt-and-kill.org",
-        "severity": "error",
-        "code": "missing-param-direction",
-        "symbol": "maze_make_hunt_and_kill",
-        "message": "parameter 'height' has no direction",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/maze/maze_hunt_and_kill.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-maze-hunt-and-kill.org",
-        "severity": "error",
-        "code": "missing-return-nullable",
-        "symbol": "maze_make_hunt_and_kill",
-        "message": "pointer return has no @byul.nullable return",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/maze/maze_hunt_and_kill.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-maze-hunt-and-kill.org",
-        "severity": "error",
-        "code": "missing-return-lifetime",
-        "symbol": "maze_make_hunt_and_kill",
-        "message": "pointer return has no @byul.lifetime return",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/maze/maze_kruskal.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-maze-kruskal.org",
-        "severity": "error",
-        "code": "missing-param-direction",
-        "symbol": "maze_make_kruskal",
-        "message": "parameter 'x0' has no direction",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/maze/maze_kruskal.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-maze-kruskal.org",
-        "severity": "error",
-        "code": "missing-param-direction",
-        "symbol": "maze_make_kruskal",
-        "message": "parameter 'y0' has no direction",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/maze/maze_kruskal.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-maze-kruskal.org",
-        "severity": "error",
-        "code": "missing-param-direction",
-        "symbol": "maze_make_kruskal",
-        "message": "parameter 'width' has no direction",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/maze/maze_kruskal.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-maze-kruskal.org",
-        "severity": "error",
-        "code": "missing-param-direction",
-        "symbol": "maze_make_kruskal",
-        "message": "parameter 'height' has no direction",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/maze/maze_kruskal.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-maze-kruskal.org",
-        "severity": "error",
-        "code": "missing-return-nullable",
-        "symbol": "maze_make_kruskal",
-        "message": "pointer return has no @byul.nullable return",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/maze/maze_kruskal.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-maze-kruskal.org",
-        "severity": "error",
-        "code": "missing-return-lifetime",
-        "symbol": "maze_make_kruskal",
-        "message": "pointer return has no @byul.lifetime return",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/maze/maze_prim.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-maze-prim.org",
-        "severity": "error",
-        "code": "missing-param-direction",
-        "symbol": "maze_maze_prim",
-        "message": "parameter 'x0' has no direction",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/maze/maze_prim.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-maze-prim.org",
-        "severity": "error",
-        "code": "missing-param-direction",
-        "symbol": "maze_maze_prim",
-        "message": "parameter 'y0' has no direction",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/maze/maze_prim.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-maze-prim.org",
-        "severity": "error",
-        "code": "missing-param-direction",
-        "symbol": "maze_maze_prim",
-        "message": "parameter 'width' has no direction",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/maze/maze_prim.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-maze-prim.org",
-        "severity": "error",
-        "code": "missing-param-direction",
-        "symbol": "maze_maze_prim",
-        "message": "parameter 'height' has no direction",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/maze/maze_prim.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-maze-prim.org",
-        "severity": "error",
-        "code": "missing-return-nullable",
-        "symbol": "maze_maze_prim",
-        "message": "pointer return has no @byul.nullable return",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/maze/maze_prim.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-maze-prim.org",
-        "severity": "error",
-        "code": "missing-return-lifetime",
-        "symbol": "maze_maze_prim",
-        "message": "pointer return has no @byul.lifetime return",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/maze/maze_recursive.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-maze-recursive.org",
-        "severity": "error",
-        "code": "missing-param-direction",
-        "symbol": "maze_make_recursive",
-        "message": "parameter 'x0' has no direction",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/maze/maze_recursive.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-maze-recursive.org",
-        "severity": "error",
-        "code": "missing-param-direction",
-        "symbol": "maze_make_recursive",
-        "message": "parameter 'y0' has no direction",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/maze/maze_recursive.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-maze-recursive.org",
-        "severity": "error",
-        "code": "missing-param-direction",
-        "symbol": "maze_make_recursive",
-        "message": "parameter 'width' has no direction",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/maze/maze_recursive.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-maze-recursive.org",
-        "severity": "error",
-        "code": "missing-param-direction",
-        "symbol": "maze_make_recursive",
-        "message": "parameter 'height' has no direction",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/maze/maze_recursive.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-maze-recursive.org",
-        "severity": "error",
-        "code": "missing-return-nullable",
-        "symbol": "maze_make_recursive",
-        "message": "pointer return has no @byul.nullable return",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/maze/maze_recursive.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-maze-recursive.org",
-        "severity": "error",
-        "code": "missing-return-lifetime",
-        "symbol": "maze_make_recursive",
-        "message": "pointer return has no @byul.lifetime return",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/maze/maze_recursive_division.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-maze-recursive-division.org",
-        "severity": "error",
-        "code": "missing-param-direction",
-        "symbol": "maze_make_recursive_division",
-        "message": "parameter 'x0' has no direction",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/maze/maze_recursive_division.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-maze-recursive-division.org",
-        "severity": "error",
-        "code": "missing-param-direction",
-        "symbol": "maze_make_recursive_division",
-        "message": "parameter 'y0' has no direction",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/maze/maze_recursive_division.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-maze-recursive-division.org",
-        "severity": "error",
-        "code": "missing-param-direction",
-        "symbol": "maze_make_recursive_division",
-        "message": "parameter 'width' has no direction",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/maze/maze_recursive_division.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-maze-recursive-division.org",
-        "severity": "error",
-        "code": "missing-param-direction",
-        "symbol": "maze_make_recursive_division",
-        "message": "parameter 'height' has no direction",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/maze/maze_recursive_division.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-maze-recursive-division.org",
-        "severity": "error",
-        "code": "missing-return-nullable",
-        "symbol": "maze_make_recursive_division",
-        "message": "pointer return has no @byul.nullable return",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/maze/maze_recursive_division.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-maze-recursive-division.org",
-        "severity": "error",
-        "code": "missing-return-lifetime",
-        "symbol": "maze_make_recursive_division",
-        "message": "pointer return has no @byul.lifetime return",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/maze/maze_room_blend.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-maze-room-blend.org",
-        "severity": "error",
-        "code": "missing-param",
-        "symbol": "maze_make_room_blend",
-        "message": "parameter 'x0' has no @param",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/maze/maze_room_blend.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-maze-room-blend.org",
-        "severity": "error",
-        "code": "missing-param",
-        "symbol": "maze_make_room_blend",
-        "message": "parameter 'y0' has no @param",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/maze/maze_room_blend.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-maze-room-blend.org",
-        "severity": "error",
-        "code": "missing-param",
-        "symbol": "maze_make_room_blend",
-        "message": "parameter 'width' has no @param",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/maze/maze_room_blend.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-maze-room-blend.org",
-        "severity": "error",
-        "code": "missing-param",
-        "symbol": "maze_make_room_blend",
-        "message": "parameter 'height' has no @param",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/maze/maze_room_blend.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-maze-room-blend.org",
-        "severity": "error",
-        "code": "missing-return",
-        "symbol": "maze_make_room_blend",
-        "message": "non-void function has no @return",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/maze/maze_room_blend.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-maze-room-blend.org",
-        "severity": "error",
-        "code": "missing-return-nullable",
-        "symbol": "maze_make_room_blend",
-        "message": "pointer return has no @byul.nullable return",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/maze/maze_room_blend.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-maze-room-blend.org",
-        "severity": "error",
-        "code": "missing-return-lifetime",
-        "symbol": "maze_make_room_blend",
-        "message": "pointer return has no @byul.lifetime return",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/maze/maze_sidewinder.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-maze-sidewinder.org",
-        "severity": "error",
-        "code": "missing-param-direction",
-        "symbol": "maze_make_sidewinder",
-        "message": "parameter 'x0' has no direction",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/maze/maze_sidewinder.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-maze-sidewinder.org",
-        "severity": "error",
-        "code": "missing-param-direction",
-        "symbol": "maze_make_sidewinder",
-        "message": "parameter 'y0' has no direction",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/maze/maze_sidewinder.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-maze-sidewinder.org",
-        "severity": "error",
-        "code": "missing-param-direction",
-        "symbol": "maze_make_sidewinder",
-        "message": "parameter 'width' has no direction",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/maze/maze_sidewinder.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-maze-sidewinder.org",
-        "severity": "error",
-        "code": "missing-param-direction",
-        "symbol": "maze_make_sidewinder",
-        "message": "parameter 'height' has no direction",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/maze/maze_sidewinder.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-maze-sidewinder.org",
-        "severity": "error",
-        "code": "missing-return-nullable",
-        "symbol": "maze_make_sidewinder",
-        "message": "pointer return has no @byul.nullable return",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/maze/maze_sidewinder.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-maze-sidewinder.org",
-        "severity": "error",
-        "code": "missing-return-lifetime",
-        "symbol": "maze_make_sidewinder",
-        "message": "pointer return has no @byul.lifetime return",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/maze/maze_wilson.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-maze-wilson.org",
-        "severity": "error",
-        "code": "missing-param-direction",
-        "symbol": "maze_make_wilson",
-        "message": "parameter 'x0' has no direction",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/maze/maze_wilson.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-maze-wilson.org",
-        "severity": "error",
-        "code": "missing-param-direction",
-        "symbol": "maze_make_wilson",
-        "message": "parameter 'y0' has no direction",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/maze/maze_wilson.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-maze-wilson.org",
-        "severity": "error",
-        "code": "missing-param-direction",
-        "symbol": "maze_make_wilson",
-        "message": "parameter 'width' has no direction",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/maze/maze_wilson.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-maze-wilson.org",
-        "severity": "error",
-        "code": "missing-param-direction",
-        "symbol": "maze_make_wilson",
-        "message": "parameter 'height' has no direction",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/maze/maze_wilson.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-maze-wilson.org",
-        "severity": "error",
-        "code": "missing-return-nullable",
-        "symbol": "maze_make_wilson",
-        "message": "pointer return has no @byul.nullable return",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/maze/maze_wilson.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-maze-wilson.org",
-        "severity": "error",
-        "code": "missing-return-lifetime",
-        "symbol": "maze_make_wilson",
-        "message": "pointer return has no @byul.lifetime return",
         "disposition": "route-to-owner-child"
       },
       {
@@ -6239,13 +5501,33 @@
       "symbols": []
     },
     {
+      "path": "byul/navsys/maze/compat/abi1/maze_abi1.h",
+      "owner_todo": "docs/ko/todo/navsys/todo-navsys-maze-core.org",
+      "primary_role": "internal",
+      "wrapper_mode": "excluded",
+      "symbol_count": 0,
+      "audit_issue_count": 0,
+      "symbols": []
+    },
+    {
+      "path": "byul/navsys/maze/internal/maze_private.hpp",
+      "owner_todo": "docs/ko/todo/navsys/todo-navsys-maze-core.org",
+      "primary_role": "internal",
+      "wrapper_mode": "excluded",
+      "symbol_count": 0,
+      "audit_issue_count": 0,
+      "symbols": []
+    },
+    {
       "path": "byul/navsys/maze/maze.h",
       "owner_todo": "docs/ko/todo/navsys/todo-navsys-maze-maze.org",
       "primary_role": "public-aggregate",
-      "wrapper_mode": "manual",
-      "symbol_count": 1,
-      "audit_issue_count": 1,
+      "wrapper_mode": "generated",
+      "symbol_count": 3,
+      "audit_issue_count": 0,
       "symbols": [
+        "byul_maze_algorithm_is_supported",
+        "byul_maze_generate",
         "maze_make"
       ]
     },
@@ -6255,7 +5537,7 @@
       "primary_role": "public-component",
       "wrapper_mode": "manual",
       "symbol_count": 1,
-      "audit_issue_count": 6,
+      "audit_issue_count": 0,
       "symbols": [
         "maze_make_aldous_broder"
       ]
@@ -6266,7 +5548,7 @@
       "primary_role": "public-component",
       "wrapper_mode": "manual",
       "symbol_count": 1,
-      "audit_issue_count": 6,
+      "audit_issue_count": 0,
       "symbols": [
         "maze_make_binary"
       ]
@@ -6275,22 +5557,37 @@
       "path": "byul/navsys/maze/maze_core.h",
       "owner_todo": "docs/ko/todo/navsys/todo-navsys-maze-core.org",
       "primary_role": "public-component",
-      "wrapper_mode": "manual",
-      "symbol_count": 14,
-      "audit_issue_count": 14,
+      "wrapper_mode": "generated",
+      "symbol_count": 29,
+      "audit_issue_count": 0,
       "symbols": [
+        "byul_maze_get_abi_version",
+        "byul_maze_get_abi_fingerprint",
+        "byul_maze_check_abi",
+        "byul_maze_sizeof",
+        "byul_maze_alignof",
+        "byul_maze_create",
         "maze_create",
         "maze_create_full",
         "maze_destroy",
         "maze_clear",
         "maze_copy",
+        "byul_maze_copy",
         "maze_equal",
         "maze_hash",
+        "byul_maze_translate",
         "maze_set_origin",
         "maze_get_origin",
+        "byul_maze_get_extent",
         "maze_get_width",
         "maze_get_height",
         "maze_get_blocked_coords",
+        "byul_maze_get_blocked_count",
+        "byul_maze_fetch_blocked",
+        "byul_maze_is_blocked",
+        "byul_maze_set_blocked",
+        "byul_maze_apply",
+        "byul_maze_remove_overlay",
         "maze_apply_to_navgrid",
         "maze_remove_from_navgrid"
       ]
@@ -6301,7 +5598,7 @@
       "primary_role": "public-component",
       "wrapper_mode": "manual",
       "symbol_count": 1,
-      "audit_issue_count": 6,
+      "audit_issue_count": 0,
       "symbols": [
         "maze_make_eller"
       ]
@@ -6312,7 +5609,7 @@
       "primary_role": "public-component",
       "wrapper_mode": "manual",
       "symbol_count": 1,
-      "audit_issue_count": 6,
+      "audit_issue_count": 0,
       "symbols": [
         "maze_make_hunt_and_kill"
       ]
@@ -6323,7 +5620,7 @@
       "primary_role": "public-component",
       "wrapper_mode": "manual",
       "symbol_count": 1,
-      "audit_issue_count": 6,
+      "audit_issue_count": 0,
       "symbols": [
         "maze_make_kruskal"
       ]
@@ -6334,7 +5631,7 @@
       "primary_role": "public-component",
       "wrapper_mode": "manual",
       "symbol_count": 1,
-      "audit_issue_count": 6,
+      "audit_issue_count": 0,
       "symbols": [
         "maze_maze_prim"
       ]
@@ -6345,7 +5642,7 @@
       "primary_role": "public-component",
       "wrapper_mode": "manual",
       "symbol_count": 1,
-      "audit_issue_count": 6,
+      "audit_issue_count": 0,
       "symbols": [
         "maze_make_recursive"
       ]
@@ -6356,7 +5653,7 @@
       "primary_role": "public-component",
       "wrapper_mode": "manual",
       "symbol_count": 1,
-      "audit_issue_count": 6,
+      "audit_issue_count": 0,
       "symbols": [
         "maze_make_recursive_division"
       ]
@@ -6367,7 +5664,7 @@
       "primary_role": "public-component",
       "wrapper_mode": "manual",
       "symbol_count": 1,
-      "audit_issue_count": 7,
+      "audit_issue_count": 0,
       "symbols": [
         "maze_make_room_blend"
       ]
@@ -6378,7 +5675,7 @@
       "primary_role": "public-component",
       "wrapper_mode": "manual",
       "symbol_count": 1,
-      "audit_issue_count": 6,
+      "audit_issue_count": 0,
       "symbols": [
         "maze_make_sidewinder"
       ]
@@ -6389,7 +5686,7 @@
       "primary_role": "public-component",
       "wrapper_mode": "manual",
       "symbol_count": 1,
-      "audit_issue_count": 6,
+      "audit_issue_count": 0,
       "symbols": [
         "maze_make_wilson"
       ]
@@ -9281,6 +8578,22 @@
     },
     {
       "header": "byul/navsys/maze/maze.h",
+      "name": "byul_maze_algorithm_is_supported",
+      "return_type": "navsys_status_t",
+      "signature": "navsys_status_t byul_maze_algorithm_is_supported( byul_maze_algorithm_t algorithm, bool* out_supported);",
+      "return_form": "enum_result",
+      "canonical": "navsys_status_t plus typed out enum"
+    },
+    {
+      "header": "byul/navsys/maze/maze.h",
+      "name": "byul_maze_generate",
+      "return_type": "navsys_status_t",
+      "signature": "navsys_status_t byul_maze_generate( byul_maze_algorithm_t algorithm, int32_t origin_x, int32_t origin_y, uint32_t width, uint32_t height, const byul_maze_generate_options_t* options, maze_t** out_maze);",
+      "return_form": "enum_result",
+      "canonical": "navsys_status_t plus typed out enum"
+    },
+    {
+      "header": "byul/navsys/maze/maze.h",
       "name": "maze_make",
       "return_type": "maze_t*",
       "signature": "maze_t* maze_make( int x0, int y0, int width, int height, maze_type_t type);",
@@ -9305,9 +8618,57 @@
     },
     {
       "header": "byul/navsys/maze/maze_core.h",
+      "name": "byul_maze_get_abi_version",
+      "return_type": "uint32_t",
+      "signature": "uint32_t byul_maze_get_abi_version(void);",
+      "return_form": "enum_result",
+      "canonical": "navsys_status_t plus typed out enum"
+    },
+    {
+      "header": "byul/navsys/maze/maze_core.h",
+      "name": "byul_maze_get_abi_fingerprint",
+      "return_type": "uint64_t",
+      "signature": "uint64_t byul_maze_get_abi_fingerprint(void);",
+      "return_form": "enum_result",
+      "canonical": "navsys_status_t plus typed out enum"
+    },
+    {
+      "header": "byul/navsys/maze/maze_core.h",
+      "name": "byul_maze_check_abi",
+      "return_type": "navsys_status_t",
+      "signature": "navsys_status_t byul_maze_check_abi( uint32_t expected_version, uint64_t expected_fingerprint, byul_maze_abi_mismatch_t* out_mismatch);",
+      "return_form": "enum_result",
+      "canonical": "navsys_status_t plus typed out enum"
+    },
+    {
+      "header": "byul/navsys/maze/maze_core.h",
+      "name": "byul_maze_sizeof",
+      "return_type": "size_t",
+      "signature": "size_t byul_maze_sizeof(void);",
+      "return_form": "int_count",
+      "canonical": "navsys_status_t plus out_count"
+    },
+    {
+      "header": "byul/navsys/maze/maze_core.h",
+      "name": "byul_maze_alignof",
+      "return_type": "size_t",
+      "signature": "size_t byul_maze_alignof(void);",
+      "return_form": "int_count",
+      "canonical": "navsys_status_t plus out_count"
+    },
+    {
+      "header": "byul/navsys/maze/maze_core.h",
+      "name": "byul_maze_create",
+      "return_type": "navsys_status_t",
+      "signature": "navsys_status_t byul_maze_create( const byul_maze_extent_t* extent, maze_t** out_maze);",
+      "return_form": "enum_result",
+      "canonical": "navsys_status_t plus typed out enum"
+    },
+    {
+      "header": "byul/navsys/maze/maze_core.h",
       "name": "maze_create",
       "return_type": "maze_t*",
-      "signature": "maze_t* maze_create();",
+      "signature": "maze_t* maze_create(void);",
       "return_form": "nullable_pointer",
       "canonical": "status return plus typed out pointer"
     },
@@ -9345,6 +8706,14 @@
     },
     {
       "header": "byul/navsys/maze/maze_core.h",
+      "name": "byul_maze_copy",
+      "return_type": "navsys_status_t",
+      "signature": "navsys_status_t byul_maze_copy( const maze_t* source, maze_t** out_maze);",
+      "return_form": "enum_result",
+      "canonical": "navsys_status_t plus typed out enum"
+    },
+    {
+      "header": "byul/navsys/maze/maze_core.h",
       "name": "maze_equal",
       "return_type": "bool",
       "signature": "bool maze_equal(const maze_t* a, const maze_t* b);",
@@ -9356,6 +8725,14 @@
       "name": "maze_hash",
       "return_type": "uint32_t",
       "signature": "uint32_t maze_hash(const maze_t* maze);",
+      "return_form": "enum_result",
+      "canonical": "navsys_status_t plus typed out enum"
+    },
+    {
+      "header": "byul/navsys/maze/maze_core.h",
+      "name": "byul_maze_translate",
+      "return_type": "navsys_status_t",
+      "signature": "navsys_status_t byul_maze_translate( maze_t* maze, int32_t delta_x, int32_t delta_y);",
       "return_form": "enum_result",
       "canonical": "navsys_status_t plus typed out enum"
     },
@@ -9374,6 +8751,14 @@
       "signature": "void maze_get_origin( const maze_t* maze, int* out_x0, int* out_y0);",
       "return_form": "void_fallible_operation",
       "canonical": "navsys_status_t"
+    },
+    {
+      "header": "byul/navsys/maze/maze_core.h",
+      "name": "byul_maze_get_extent",
+      "return_type": "navsys_status_t",
+      "signature": "navsys_status_t byul_maze_get_extent( const maze_t* maze, byul_maze_extent_t* out_extent);",
+      "return_form": "enum_result",
+      "canonical": "navsys_status_t plus typed out enum"
     },
     {
       "header": "byul/navsys/maze/maze_core.h",
@@ -9398,6 +8783,54 @@
       "signature": "const coord_hash_t* maze_get_blocked_coords( const maze_t* maze);",
       "return_form": "nullable_pointer",
       "canonical": "status return plus typed out pointer"
+    },
+    {
+      "header": "byul/navsys/maze/maze_core.h",
+      "name": "byul_maze_get_blocked_count",
+      "return_type": "navsys_status_t",
+      "signature": "navsys_status_t byul_maze_get_blocked_count( const maze_t* maze, size_t* out_count);",
+      "return_form": "enum_result",
+      "canonical": "navsys_status_t plus typed out enum"
+    },
+    {
+      "header": "byul/navsys/maze/maze_core.h",
+      "name": "byul_maze_fetch_blocked",
+      "return_type": "navsys_status_t",
+      "signature": "navsys_status_t byul_maze_fetch_blocked( const maze_t* maze, coord_t* buffer, size_t capacity, size_t* out_count);",
+      "return_form": "enum_result",
+      "canonical": "navsys_status_t plus typed out enum"
+    },
+    {
+      "header": "byul/navsys/maze/maze_core.h",
+      "name": "byul_maze_is_blocked",
+      "return_type": "navsys_status_t",
+      "signature": "navsys_status_t byul_maze_is_blocked( const maze_t* maze, int32_t x, int32_t y, bool* out_blocked);",
+      "return_form": "enum_result",
+      "canonical": "navsys_status_t plus typed out enum"
+    },
+    {
+      "header": "byul/navsys/maze/maze_core.h",
+      "name": "byul_maze_set_blocked",
+      "return_type": "navsys_status_t",
+      "signature": "navsys_status_t byul_maze_set_blocked( maze_t* maze, int32_t x, int32_t y, bool blocked, bool* out_changed);",
+      "return_form": "enum_result",
+      "canonical": "navsys_status_t plus typed out enum"
+    },
+    {
+      "header": "byul/navsys/maze/maze_core.h",
+      "name": "byul_maze_apply",
+      "return_type": "navsys_status_t",
+      "signature": "navsys_status_t byul_maze_apply( const maze_t* maze, navgrid_t* navgrid, const byul_maze_navgrid_apply_options_t* options, byul_maze_navgrid_overlay_token_t* out_overlay, size_t* out_changed_count);",
+      "return_form": "enum_result",
+      "canonical": "navsys_status_t plus typed out enum"
+    },
+    {
+      "header": "byul/navsys/maze/maze_core.h",
+      "name": "byul_maze_remove_overlay",
+      "return_type": "navsys_status_t",
+      "signature": "navsys_status_t byul_maze_remove_overlay( navgrid_t* navgrid, byul_maze_navgrid_overlay_token_t* overlay, size_t* out_changed_count);",
+      "return_form": "enum_result",
+      "canonical": "navsys_status_t plus typed out enum"
     },
     {
       "header": "byul/navsys/maze/maze_core.h",
@@ -12051,6 +11484,25 @@
   "lifecycle": {
     "resources": [
       {
+        "resource": "byul_maze",
+        "operations": [
+          {
+            "header": "byul/navsys/maze/maze_core.h",
+            "resource": "byul_maze",
+            "operation": "create",
+            "symbol": "byul_maze_create",
+            "return_type": "navsys_status_t",
+            "parameters": [
+              "const byul_maze_extent_t* extent",
+              "maze_t** out_maze"
+            ]
+          }
+        ],
+        "operation_kinds": [
+          "create"
+        ]
+      },
+      {
         "resource": "coord",
         "operations": [
           {
@@ -14112,6 +13564,17 @@
         "return_type": "void",
         "parameters": [
           "dstar_lite_tick_t* dst"
+        ]
+      },
+      {
+        "header": "byul/navsys/maze/maze_core.h",
+        "resource": "byul_maze",
+        "operation": "create",
+        "symbol": "byul_maze_create",
+        "return_type": "navsys_status_t",
+        "parameters": [
+          "const byul_maze_extent_t* extent",
+          "maze_t** out_maze"
         ]
       },
       {

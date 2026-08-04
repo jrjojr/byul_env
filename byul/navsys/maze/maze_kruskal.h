@@ -1,5 +1,17 @@
-#ifndef MAZE_KRUSKAL_H
-#define MAZE_KRUSKAL_H
+/*
+ * Copyright (c) 2025-2026 ByulPapa (byuldev@outlook.kr)
+ * This file is part of the Byul World project.
+ * Licensed under the Byul World Source-Available Non-Commercial License v1.0 (2025).
+ * See the LICENSE file in the project root for full license terms.
+ */
+
+/**
+ * @file maze_kruskal.h
+ * @brief randomized Kruskal Maze 생성기의 레거시 public C ABI를 선언한다.
+ */
+
+#ifndef BYUL_MAZE_KRUSKAL_H
+#define BYUL_MAZE_KRUSKAL_H
 
 #include "maze_core.h"
 
@@ -8,49 +20,18 @@ extern "C" {
 #endif
 
 /**
- * @brief Generate a maze using Kruskal’s algorithm (Minimum Spanning Tree).
- *
- * This function generates a fully connected, 
- * acyclic maze using Kruskal’s algorithm.
- * Each open cell is treated as a node, and walls 
- * between adjacent cells are considered edges.
- * All edges are randomly shuffled and processed one by one. 
- * If a wall connects two cells
- * from different sets, it is removed and the sets are merged.
- *
- * ---
- *
- * ### Features
- * - Fully connected: all passage cells are reachable from any other.
- * - No cycles: the resulting maze is a perfect tree.
- * - Many dead ends: typical of MST-based generation.
- *
- * ---
- *
- * ### Input Constraints
- * - Both `width` and `height` must be **odd numbers** 
- *  and **greater than or equal to 3**.
- *   This ensures a valid alternating layout of walls and paths.
- *
- * ---
- *
- * ### Usage Example
- * @code
- * maze_t* maze = maze_make_kruskal(0, 0, 15, 15);
- * if (maze) {
- *     // Automatically resizes navgrid if smaller than the maze
- *     maze_apply_to_navgrid(maze, navgrid);
- *     navgrid_print_ascii(navgrid);
- * }
- * @endcode
- *
- * ---
- *
- * @param x0 Starting X coordinate of the maze
- * @param y0 Starting Y coordinate of the maze
- * @param width Maze width (must be an odd number ≥ 3)
- * @param height Maze height (must be an odd number ≥ 3)
- * @return Pointer to the generated `maze_t` structure, or `nullptr` on failure
+ * @brief 비결정적 randomized Kruskal 방식으로 perfect Maze를 생성한다.
+ * @param[in] x0 Maze 원점의 X 좌표다.
+ * @param[in] y0 Maze 원점의 Y 좌표다.
+ * @param[in] width 3 이상인 홀수 너비다.
+ * @param[in] height 3 이상인 홀수 높이다.
+ * @return caller-owned Maze이며 입력 또는 allocation 실패 시 NULL이다.
+ * @byul.nullable return true
+ * @byul.lifetime return caller-owned
+ * @byul.error sentinel:null
+ * @byul.side_effect allocates
+ * @byul.thread_safety thread-compatible
+ * @byul.blocking true
  */
 BYUL_API maze_t* maze_make_kruskal(int x0, int y0, int width, int height);
 
@@ -58,4 +39,4 @@ BYUL_API maze_t* maze_make_kruskal(int x0, int y0, int width, int height);
 }
 #endif
 
-#endif // MAZE_KRUSKAL_H
+#endif /* BYUL_MAZE_KRUSKAL_H */

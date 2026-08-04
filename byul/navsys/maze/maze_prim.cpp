@@ -1,115 +1,152 @@
 #include "maze_prim.h"
+#include "internal/maze_private.hpp"
 
+#include <cstdint>
+#include <new>
 #include <vector>
-#include <random>
-#include <ctime>
 
-static const int WALL = 1;
-static const int PASSAGE = 0;
+namespace {
 
-struct Cell {
-    int x, y;
-    Cell(int _x, int _y) : x(_x), y(_y) {}
+constexpr int wall_cell = 1;
+constexpr int passage_cell = 0;
+
+struct frontier_t {
+    int wall_x;
+    int wall_y;
+    int target_x;
+    int target_y;
 };
 
-static bool is_inside(int x, int y, int w, int h) {
-    return x > 0 && y > 0 && x < w - 1 && y < h - 1;
+bool is_logical_cell(int x, int y, int width, int height) {
+    return x > 0 && y > 0 && x < width - 1 && y < height - 1;
 }
 
-maze_t* maze_maze_prim(int x0, int y0, int width, int height){    
-    maze_t* maze = maze_create_full(x0, y0, width, height);
-    if (!maze) return nullptr;
-
-    int w = maze->width;
-    int h = maze->height;
-
-    std::vector<std::vector<int>> grid(h, std::vector<int>(w, WALL));
-    std::vector<Cell> wall_list;
-
-    std::mt19937 rng(static_cast<unsigned int>(time(nullptr)));
-
-    std::vector<int> odd_x, odd_y;
-    for (int i = 1; i < w - 1; i += 2) odd_x.push_back(i);
-    for (int i = 1; i < h - 1; i += 2) odd_y.push_back(i);
-
-    if (odd_x.empty() || odd_y.empty()) return nullptr;
-
-    std::uniform_int_distribution<size_t> pick_x(0, odd_x.size() - 1);
-    std::uniform_int_distribution<size_t> pick_y(0, odd_y.size() - 1);
-    int sx = odd_x[pick_x(rng)];
-    int sy = odd_y[pick_y(rng)];
-    grid[sy][sx] = PASSAGE;
-
-    const int dx[4] = { 0, 0, -1, 1 };
-    const int dy[4] = { -1, 1, 0, 0 };
-
-    for (int d = 0; d < 4; ++d) {
-        int wx = sx + dx[d];
-        int wy = sy + dy[d];
-        if (is_inside(wx, wy, w, h) && grid[wy][wx] == WALL) {
-            wall_list.emplace_back(wx, wy);
+void add_frontiers(
+    int cell_x,
+    int cell_y,
+    int width,
+    int height,
+    const std::vector<int>& grid,
+    std::vector<frontier_t>& frontiers) {
+    static constexpr int delta_x[4] = {0, 0, -1, 1};
+    static constexpr int delta_y[4] = {-1, 1, 0, 0};
+    for (int direction = 0; direction < 4; ++direction) {
+        const int target_x = cell_x + delta_x[direction] * 2;
+        const int target_y = cell_y + delta_y[direction] * 2;
+        if (is_logical_cell(target_x, target_y, width, height)
+            && grid[static_cast<size_t>(target_y) * width + target_x]
+                == wall_cell) {
+            frontiers.push_back({
+                cell_x + delta_x[direction],
+                cell_y + delta_y[direction],
+                target_x,
+                target_y
+            });
         }
     }
+}
 
-    while (!wall_list.empty()) {
-        std::uniform_int_distribution<size_t> pick(0, wall_list.size() - 1);
-        size_t idx = pick(rng);
-        Cell wall = wall_list[idx];
-        wall_list.erase(wall_list.begin() + idx);
+} // namespace
 
-        for (int d = 0; d < 4; ++d) {
-            int fx = wall.x + dx[d];
-            int fy = wall.y + dy[d];
-            int bx = wall.x - dx[d];
-            int by = wall.y - dy[d];
+navsys_status_t byul_maze_generate_prim_internal(
+    int32_t origin_x,
+    int32_t origin_y,
+    uint32_t width,
+    uint32_t height,
+    byul_maze_generation_context& context,
+    maze_t** out_maze) noexcept {
+    if (!out_maze) return NAVSYS_STATUS_INVALID_ARGUMENT;
+    *out_maze = nullptr;
+    const navsys_status_t initial_poll = context.poll();
+    if (initial_poll != NAVSYS_STATUS_OK) return initial_poll;
 
-            if (!is_inside(fx, fy, w, h)) continue;
-            if (!is_inside(bx, by, w, h)) continue;
+    maze_t* maze = maze_create_full(
+        origin_x, origin_y, static_cast<int>(width), static_cast<int>(height));
+    if (!maze) return NAVSYS_STATUS_OUT_OF_MEMORY;
 
-            if (grid[fy][fx] == PASSAGE && grid[by][bx] == WALL) {
-                grid[wall.y][wall.x] = PASSAGE;
-                grid[by][bx] = PASSAGE;
+    try {
+        const int w = static_cast<int>(width);
+        const int h = static_cast<int>(height);
+        std::vector<int> grid(
+            static_cast<size_t>(width) * height, wall_cell);
+        std::vector<frontier_t> frontiers;
 
-                for (int nd = 0; nd < 4; ++nd) {
-                    int nx = by + dy[nd];
-                    int ny = bx + dx[nd];
-                    if (is_inside(ny, nx, w, h) && grid[nx][ny] == WALL) {
-                        wall_list.emplace_back(ny, nx);
-                    }
+        const uint32_t logical_width = (width - 1u) / 2u;
+        const uint32_t logical_height = (height - 1u) / 2u;
+        const int start_x = 1 + static_cast<int>(context.bounded(logical_width)) * 2;
+        const int start_y = 1 + static_cast<int>(context.bounded(logical_height)) * 2;
+        grid[static_cast<size_t>(start_y) * w + start_x] = passage_cell;
+        add_frontiers(start_x, start_y, w, h, grid, frontiers);
+
+        while (!frontiers.empty()) {
+            const navsys_status_t step_status = context.begin_step();
+            if (step_status != NAVSYS_STATUS_OK) {
+                maze_destroy(maze);
+                return step_status;
+            }
+            const size_t selected = context.bounded(
+                static_cast<uint32_t>(frontiers.size()));
+            const frontier_t frontier = frontiers[selected];
+            frontiers[selected] = frontiers.back();
+            frontiers.pop_back();
+
+            const size_t target_index =
+                static_cast<size_t>(frontier.target_y) * w + frontier.target_x;
+            if (grid[target_index] == passage_cell) continue;
+            grid[static_cast<size_t>(frontier.wall_y) * w + frontier.wall_x]
+                = passage_cell;
+            grid[target_index] = passage_cell;
+            add_frontiers(
+                frontier.target_x,
+                frontier.target_y,
+                w,
+                h,
+                grid,
+                frontiers);
+        }
+
+        for (int y = 0; y < h; ++y) {
+            for (int x = 0; x < w; ++x) {
+                if (grid[static_cast<size_t>(y) * w + x] != wall_cell) continue;
+                const navsys_status_t poll_status = context.poll();
+                if (poll_status != NAVSYS_STATUS_OK) {
+                    maze_destroy(maze);
+                    return poll_status;
                 }
-
-                break;
-            }
-
-            if (grid[by][bx] == PASSAGE && grid[fy][fx] == WALL) {
-                grid[wall.y][wall.x] = PASSAGE;
-                grid[fy][fx] = PASSAGE;
-
-                for (int nd = 0; nd < 4; ++nd) {
-                    int nx = fy + dy[nd];
-                    int ny = fx + dx[nd];
-                    if (is_inside(ny, nx, w, h) && grid[nx][ny] == WALL) {
-                        wall_list.emplace_back(ny, nx);
-                    }
+                bool changed = false;
+                const navsys_status_t status = byul_maze_set_blocked(
+                    maze, origin_x + x, origin_y + y, true, &changed);
+                if (status != NAVSYS_STATUS_OK) {
+                    maze_destroy(maze);
+                    return status;
                 }
-
-                break;
             }
         }
+    } catch (const std::bad_alloc&) {
+        maze_destroy(maze);
+        return NAVSYS_STATUS_OUT_OF_MEMORY;
+    } catch (...) {
+        maze_destroy(maze);
+        return NAVSYS_STATUS_CORRUPT_STATE;
     }
 
-    for (int y = 0; y < h; ++y) {
-        for (int x = 0; x < w; ++x) {
-            if (grid[y][x] == WALL) {
-                coord_t tmp = {x + x0, y + y0};
-                coord_hash_insert(
-                    maze->blocked,
-                    &tmp,
-                    nullptr
-                );
-            }
-        }
-    }
+    *out_maze = maze;
+    return NAVSYS_STATUS_OK;
+}
 
-    return maze;
+maze_t* maze_maze_prim(int x0, int y0, int width, int height) {
+    if (width < 3 || height < 3) return nullptr;
+    byul_maze_generation_context context(
+        byul_maze_generation_legacy_seed(), 0, nullptr, nullptr);
+    maze_t* maze = nullptr;
+    return byul_maze_generate_prim_internal(
+               x0,
+               y0,
+               static_cast<uint32_t>(width),
+               static_cast<uint32_t>(height),
+               context,
+               &maze)
+            == NAVSYS_STATUS_OK
+        ? maze
+        : nullptr;
 }

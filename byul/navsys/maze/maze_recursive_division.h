@@ -1,5 +1,17 @@
-#ifndef MAZE_RECURSIVE_DIVISION_H
-#define MAZE_RECURSIVE_DIVISION_H
+/*
+ * Copyright (c) 2025-2026 ByulPapa (byuldev@outlook.kr)
+ * This file is part of the Byul World project.
+ * Licensed under the Byul World Source-Available Non-Commercial License v1.0 (2025).
+ * See the LICENSE file in the project root for full license terms.
+ */
+
+/**
+ * @file maze_recursive_division.h
+ * @brief Recursive Division Maze 생성기의 레거시 public C ABI를 선언한다.
+ */
+
+#ifndef BYUL_MAZE_RECURSIVE_DIVISION_H
+#define BYUL_MAZE_RECURSIVE_DIVISION_H
 
 #include "maze_core.h"
 
@@ -8,35 +20,18 @@ extern "C" {
 #endif
 
 /**
- * @brief Create a maze using the Recursive Division algorithm.
- *
- * This function generates a maze by recursively dividing rectangular
- * regions with horizontal or vertical walls, leaving a single passage
- * through each wall to maintain partial connectivity.
- *
- * ### Algorithm Overview
- * - Starting from the full area, insert a wall either horizontally or vertically.
- * - Carve a single random passage through that wall.
- * - Recursively repeat the process for the resulting subregions.
- * - Stop dividing when the region is too small to continue.
- *
- * ### Characteristics
- * - **Not tree-based**: the resulting maze may have disconnected regions.
- * - Produces **long corridors**, **symmetrical layouts**, and **few dead-ends**.
- * - It is visually clean and architectural in style.
- *
- * ### When to Use
- * - If full connectivity is required, prefer tree-based algorithms such as
- *   `MAZE_TYPE_PRIM` or `MAZE_TYPE_KRUSKAL`.
- *
- * @param x0 Starting x-coordinate in world space.
- * @param y0 Starting y-coordinate in world space.
- * @param width Width of the maze (must be odd and ≥ 3).
- * @param height Height of the maze (must be odd and ≥ 3).
- * @return Pointer to a `maze_t` object representing the generated maze.
- *         Returns `nullptr` if the input dimensions are invalid.
- *
- * @see maze_t
+ * @brief 비결정적 Recursive Division 방식으로 perfect Maze를 생성한다.
+ * @param[in] x0 Maze 원점의 X 좌표다.
+ * @param[in] y0 Maze 원점의 Y 좌표다.
+ * @param[in] width 3 이상인 홀수 너비다.
+ * @param[in] height 3 이상인 홀수 높이다.
+ * @return caller-owned Maze이며 입력 또는 allocation 실패 시 NULL이다.
+ * @byul.nullable return true
+ * @byul.lifetime return caller-owned
+ * @byul.error sentinel:null
+ * @byul.side_effect allocates
+ * @byul.thread_safety thread-compatible
+ * @byul.blocking true
  */
 BYUL_API maze_t* maze_make_recursive_division(
     int x0, int y0, int width, int height);
@@ -45,4 +40,4 @@ BYUL_API maze_t* maze_make_recursive_division(
 }
 #endif
 
-#endif // MAZE_RECURSIVE_DIVISION_H
+#endif /* BYUL_MAZE_RECURSIVE_DIVISION_H */

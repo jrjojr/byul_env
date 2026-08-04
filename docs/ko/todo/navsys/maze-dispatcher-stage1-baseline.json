@@ -1,0 +1,86 @@
+{
+  "schema_version": 1,
+  "stage": 1,
+  "title": "maze dispatcher ABI and behavior baseline",
+  "status": "complete",
+  "source_revision": "13624d1aadaa4f3d0508c2ef6a9f42896e05ae83",
+  "public_header": "byul/navsys/maze/maze.h",
+  "implementation": "byul/navsys/maze/maze.cpp",
+  "enum_abi": {
+    "type": "maze_type_t",
+    "sizeof": 4,
+    "values": {
+      "MAZE_TYPE_RECURSIVE": 0,
+      "MAZE_TYPE_PRIM": 1,
+      "MAZE_TYPE_BINARY": 2,
+      "MAZE_TYPE_ELLER": 3,
+      "MAZE_TYPE_ALDOUS_BRODER": 4,
+      "MAZE_TYPE_WILSON": 5,
+      "MAZE_TYPE_HUNT_AND_KILL": 6,
+      "MAZE_TYPE_SIDEWINDER": 7,
+      "MAZE_TYPE_RECURSIVE_DIVISION": 8,
+      "MAZE_TYPE_KRUSKAL": 9,
+      "MAZE_TYPE_ROOM_BLEND": 10
+    }
+  },
+  "function_abi": {
+    "symbol": "maze_make",
+    "signature": "maze_t* (*)(int, int, int, int, maze_type_t)",
+    "msvc_root_export": true,
+    "root_export_count": 1199
+  },
+  "dispatcher_mapping": {
+    "0": "maze_make_recursive",
+    "1": "maze_maze_prim",
+    "2": "maze_make_binary",
+    "3": "maze_make_eller",
+    "4": "maze_make_aldous_broder",
+    "5": "maze_make_wilson",
+    "6": "maze_make_hunt_and_kill",
+    "7": "maze_make_sidewinder",
+    "8": "maze_make_recursive_division",
+    "9": "maze_make_kruskal",
+    "10": "maze_make_room_blend",
+    "default": "maze_make_kruskal"
+  },
+  "invalid_enum_baseline": {
+    "inputs": [-1, 11, 2147483647],
+    "observed_result": "owned non-null Kruskal maze for valid 3x3 extent",
+    "fixture": "semantic equality and hash equality against explicit 3x3 Kruskal"
+  },
+  "consumer_inventory": {
+    "module_test": "byul/navsys/maze/tests/test_module_maze.cpp",
+    "standalone_c17": "byul/tests/sdk_consumer/maze_dispatcher_header_main.c",
+    "standalone_cxx17": "byul/tests/sdk_consumer/maze_dispatcher_header_main.cpp",
+    "static_target": "maze",
+    "root_shared_target": "byul",
+    "installed_header": "include/byul/maze.h",
+    "wrapper_registered": false,
+    "wrapper_core_header_registered": true
+  },
+  "verification": {
+    "windows_msvc_release": [
+      "test_maze: 37/37, 248 assertions",
+      "root byul.dll build: pass",
+      "maze_make export: pass",
+      "standalone C17/C++17 SDK consumers: pass"
+    ],
+    "virtual_yard_gcc_13_debug_asan_lsan": [
+      "test_maze: 37/37, 248 assertions",
+      "root libbyul.so build: pass",
+      "standalone C17/C++17 SDK consumers: pass"
+    ],
+    "virtual_yard_clang_18_debug_asan_lsan": [
+      "test_maze: 37/37, 248 assertions",
+      "root libbyul.so build: pass"
+    ],
+    "virtual_yard_mingw64": [
+      "MinGW-w64 GCC/G++ 13-win32 toolchain",
+      "root Windows DLL cross-build: pass",
+      "standalone C17/C++17 SDK consumers compile/link: pass",
+      "maze_make PE export: pass",
+      "4-byte enum fixture: pass"
+    ]
+  },
+  "next_step_allowed": true
+}

@@ -13,12 +13,12 @@
     ]
   },
   "summary": {
-    "headers": 147,
-    "approved": 147,
+    "headers": 149,
+    "approved": 149,
     "approved_install": 98,
-    "wrapper_generated": 29,
-    "wrapper_manual": 62,
-    "wrapper_excluded": 56,
+    "wrapper_generated": 31,
+    "wrapper_manual": 60,
+    "wrapper_excluded": 58,
     "compatibility_forwarders": 20,
     "successor_headers": 20,
     "successor_links": 39,
@@ -3418,7 +3418,7 @@
     {
       "asset_id": "initial:byul/navsys/maze/maze.h",
       "current_path": "byul/navsys/maze/maze.h",
-      "sha256": "481f139350ae6027aa9031b0e143bd1d41085f2219dbe5c88f476ef11367a9da",
+      "sha256": "e2e0fd04a97afb134dcbe24e6899c68379ec8ba45dc537b13dbfdb021c230664",
       "primary_role": "public-aggregate",
       "role_reason": "Canonical maze aggregate above maze_core and algorithm components.",
       "owner_module": "navsys",
@@ -3426,8 +3426,8 @@
       "approved_install": true,
       "install_reason": "Public or compatibility SDK surface.",
       "wrapper": {
-        "mode": "manual",
-        "reason": "Public legacy declarations require explicit ownership/error metadata before automatic generation."
+        "mode": "generated",
+        "reason": "Registered in the canonical wrapper generator manifest."
       },
       "naming": {
         "disposition": "keep",
@@ -3447,8 +3447,10 @@
         ],
         "root_header_inventory": true,
         "install_inventory": true,
-        "wrapper_modules_registered": false,
+        "wrapper_modules_registered": true,
         "exported_symbols": [
+          "byul_maze_algorithm_is_supported",
+          "byul_maze_generate",
           "maze_make"
         ],
         "source_definition_candidates": [
@@ -3461,7 +3463,7 @@
     {
       "asset_id": "initial:byul/navsys/maze/maze_aldous_broder.h",
       "current_path": "byul/navsys/maze/maze_aldous_broder.h",
-      "sha256": "64b7b6ae3bbf9d8a5f72cec394e871ef606db9724a59b229cea9a0c1cbd537e1",
+      "sha256": "37d055683e3b297c0fe66ce243084569f40a43050dc94e5a978274e32618a962",
       "primary_role": "public-component",
       "role_reason": "Handwritten public maze algorithm component; generator wording is not file provenance.",
       "owner_module": "navsys",
@@ -3505,7 +3507,7 @@
     {
       "asset_id": "initial:byul/navsys/maze/maze_binary.h",
       "current_path": "byul/navsys/maze/maze_binary.h",
-      "sha256": "9df2eca7a373a4a690597043fb2d020d0aec3062a19cbe941bef89ca834c2fb9",
+      "sha256": "651abd4c5ec3ead487d02f2d4f0c9755c1c360ec368616c212199f51458d5123",
       "primary_role": "public-component",
       "role_reason": "Handwritten public maze algorithm component; generator wording is not file provenance.",
       "owner_module": "navsys",
@@ -3549,7 +3551,7 @@
     {
       "asset_id": "initial:byul/navsys/maze/maze_core.h",
       "current_path": "byul/navsys/maze/maze_core.h",
-      "sha256": "42c20464e145b68200fdea21e447ee3118eaecdc612d4721544a35f8dc333262",
+      "sha256": "4b1488bf99eb64b96a9de6a6ed93e64096b97c3c9a010a1644d242f4102edbab",
       "primary_role": "public-component",
       "role_reason": "Stage-1 evidence supports the current public or internal boundary.",
       "owner_module": "navsys",
@@ -3557,8 +3559,8 @@
       "approved_install": true,
       "install_reason": "Public or compatibility SDK surface.",
       "wrapper": {
-        "mode": "manual",
-        "reason": "Public legacy declarations require explicit ownership/error metadata before automatic generation."
+        "mode": "generated",
+        "reason": "Registered in the canonical wrapper generator manifest."
       },
       "naming": {
         "disposition": "keep",
@@ -3618,7 +3620,7 @@
     {
       "asset_id": "initial:byul/navsys/maze/maze_eller.h",
       "current_path": "byul/navsys/maze/maze_eller.h",
-      "sha256": "5d1c208aabad4464f7d57e9638629bd2c4e5967154fd876e372068d6ddcf0fdb",
+      "sha256": "1eb7d5554da700cec24037b4804945cf886318630033e867751007fce8649ca8",
       "primary_role": "public-component",
       "role_reason": "Handwritten public maze algorithm component; generator wording is not file provenance.",
       "owner_module": "navsys",
@@ -3662,7 +3664,7 @@
     {
       "asset_id": "initial:byul/navsys/maze/maze_hunt_and_kill.h",
       "current_path": "byul/navsys/maze/maze_hunt_and_kill.h",
-      "sha256": "6e7d84085bdbe5a0ee0147494452d3bf3d58e06992a6ac06d299d94e4013bfb2",
+      "sha256": "90ac941a17da8ea8ce03e9184036e95ec7230ec9d8d3c7a16ac2b3a56f0deb58",
       "primary_role": "public-component",
       "role_reason": "Handwritten public maze algorithm component; generator wording is not file provenance.",
       "owner_module": "navsys",
@@ -3706,7 +3708,7 @@
     {
       "asset_id": "initial:byul/navsys/maze/maze_kruskal.h",
       "current_path": "byul/navsys/maze/maze_kruskal.h",
-      "sha256": "844786a20c02e2635df5a44c10a5f0e997f36516ec51b6b767fdc322596f253c",
+      "sha256": "3b5165950a4294510e567ce0acd606faa2fb328d6fead4ff2516a1ddc0f8f4e3",
       "primary_role": "public-component",
       "role_reason": "Handwritten public maze algorithm component; generator wording is not file provenance.",
       "owner_module": "navsys",
@@ -3750,7 +3752,7 @@
     {
       "asset_id": "initial:byul/navsys/maze/maze_prim.h",
       "current_path": "byul/navsys/maze/maze_prim.h",
-      "sha256": "757119884810e1e0c2af17163ed87e3bfd82a343a252875aa49ac3eb75459764",
+      "sha256": "af8b8b8d21f37f68dd2409f877729c88da96ce87e871b7eda26bce1226429df5",
       "primary_role": "public-component",
       "role_reason": "Handwritten public maze algorithm component; generator wording is not file provenance.",
       "owner_module": "navsys",
@@ -3794,7 +3796,7 @@
     {
       "asset_id": "initial:byul/navsys/maze/maze_recursive.h",
       "current_path": "byul/navsys/maze/maze_recursive.h",
-      "sha256": "9362679b459e8e74d2799702b13fe7ad30f29787e8f89c8ebb7ae67ff5ffc4bc",
+      "sha256": "2999441378ebf278bf9775fba064f4389257fe3dc4363b8ad3f46dad53f4af31",
       "primary_role": "public-component",
       "role_reason": "Handwritten public maze algorithm component; generator wording is not file provenance.",
       "owner_module": "navsys",
@@ -3838,7 +3840,7 @@
     {
       "asset_id": "initial:byul/navsys/maze/maze_recursive_division.h",
       "current_path": "byul/navsys/maze/maze_recursive_division.h",
-      "sha256": "cd05343c8e79689a63aba98bc8862d34d96b52d19cd463a194585aaa552591ef",
+      "sha256": "9557c39dab75af25e492fa3cd7681060049664061b5d217aad52e6d038a1d03c",
       "primary_role": "public-component",
       "role_reason": "Handwritten public maze algorithm component; generator wording is not file provenance.",
       "owner_module": "navsys",
@@ -3882,7 +3884,7 @@
     {
       "asset_id": "initial:byul/navsys/maze/maze_room_blend.h",
       "current_path": "byul/navsys/maze/maze_room_blend.h",
-      "sha256": "61ce845a26232c55a218554e696222d47f110a0db5e8135b8d234a9cfc2133a3",
+      "sha256": "a05244767f163c91aeb27f1e2e766bc0b84f800d86d0785bbcccce0e3ce13979",
       "primary_role": "public-component",
       "role_reason": "Handwritten public maze algorithm component; generator wording is not file provenance.",
       "owner_module": "navsys",
@@ -3926,7 +3928,7 @@
     {
       "asset_id": "initial:byul/navsys/maze/maze_sidewinder.h",
       "current_path": "byul/navsys/maze/maze_sidewinder.h",
-      "sha256": "d8e9be6a6a05166d6f9a4240726b7d4f039f1c0f97ebfd010f35cb3357562632",
+      "sha256": "ec477592a017b2345060702efc084356533a0fcb719e3f8043c275605592630b",
       "primary_role": "public-component",
       "role_reason": "Handwritten public maze algorithm component; generator wording is not file provenance.",
       "owner_module": "navsys",
@@ -3970,7 +3972,7 @@
     {
       "asset_id": "initial:byul/navsys/maze/maze_wilson.h",
       "current_path": "byul/navsys/maze/maze_wilson.h",
-      "sha256": "81cbd19fdb4cd048a29a96b988e0bb348e04ada8d77dee92df8b37a053a00993",
+      "sha256": "9fdb81d98db616d478a0b302ba6cafb4079246f94eb053e9b515dbbe95d86327",
       "primary_role": "public-component",
       "role_reason": "Handwritten public maze algorithm component; generator wording is not file provenance.",
       "owner_module": "navsys",
@@ -4775,6 +4777,90 @@
           "byul/navsys/obstacle/obstacle.cpp",
           "byul/navsys/obstacle/obstacle_core.cpp",
           "byul/navsys/obstacle/obstacle_geometry.cpp"
+        ]
+      },
+      "decision_status": "approved"
+    },
+    {
+      "asset_id": "created:byul/navsys/maze/compat/abi1/maze_abi1.h",
+      "current_path": "byul/navsys/maze/compat/abi1/maze_abi1.h",
+      "sha256": "80c0aff371856bef03eb9f857a1bf1b891c839dfd02639c835b83e364889379c",
+      "primary_role": "internal",
+      "role_reason": "Private ABI-1 layout declaration reserved for compatibility fixtures and packages.",
+      "owner_module": "navsys",
+      "public_module": "maze",
+      "approved_install": false,
+      "install_reason": "The default SDK installs only the opaque canonical Maze API.",
+      "wrapper": {
+        "mode": "excluded",
+        "reason": "ABI-layout compatibility headers are outside the canonical wrapper input."
+      },
+      "naming": {
+        "disposition": "keep",
+        "canonical_path": "byul/navsys/maze/compat/abi1/maze_abi1.h",
+        "canonical_install": false,
+        "deprecated_since": null,
+        "remove_in": null,
+        "reason": "Versioned private compatibility path.",
+        "compatibility_path": null
+      },
+      "successor_headers": [],
+      "source_evidence": {
+        "module_header_groups": [],
+        "root_header_inventory": false,
+        "install_inventory": false,
+        "wrapper_modules_registered": true,
+        "exported_symbols": [],
+        "source_definition_candidates": []
+      },
+      "decision_status": "approved"
+    },
+    {
+      "asset_id": "created:byul/navsys/maze/internal/maze_private.hpp",
+      "current_path": "byul/navsys/maze/internal/maze_private.hpp",
+      "sha256": "484588dbe564ddd4c7f9942889a6f6e12bcad71eba13226fe36c3b3092b9e055",
+      "primary_role": "internal",
+      "role_reason": "Private Maze storage layout and generation context shared by native implementation units.",
+      "owner_module": "navsys",
+      "public_module": "maze",
+      "approved_install": false,
+      "install_reason": "Internal implementation headers are excluded from the SDK.",
+      "wrapper": {
+        "mode": "excluded",
+        "reason": "Internal headers are outside the installed C ABI wrapper input."
+      },
+      "naming": {
+        "disposition": "keep",
+        "canonical_path": "byul/navsys/maze/internal/maze_private.hpp",
+        "canonical_install": false,
+        "deprecated_since": null,
+        "remove_in": null,
+        "reason": "Canonical internal implementation path.",
+        "compatibility_path": null
+      },
+      "successor_headers": [],
+      "source_evidence": {
+        "module_header_groups": [],
+        "root_header_inventory": false,
+        "install_inventory": false,
+        "wrapper_modules_registered": false,
+        "exported_symbols": [],
+        "source_definition_candidates": [
+          "byul/navsys/maze/maze.cpp",
+          "byul/navsys/maze/maze_aldous_broder.cpp",
+          "byul/navsys/maze/maze_binary.cpp",
+          "byul/navsys/maze/maze_core.cpp",
+          "byul/navsys/maze/maze_eller.cpp",
+          "byul/navsys/maze/maze_generation_context.cpp",
+          "byul/navsys/maze/maze_hunt_and_kill.cpp",
+          "byul/navsys/maze/maze_kruskal.cpp",
+          "byul/navsys/maze/maze_prim.cpp",
+          "byul/navsys/maze/maze_recursive.cpp",
+          "byul/navsys/maze/maze_recursive_division.cpp",
+          "byul/navsys/maze/maze_room_blend.cpp",
+          "byul/navsys/maze/maze_sidewinder.cpp",
+          "byul/navsys/maze/maze_wilson.cpp",
+          "byul/navsys/maze/tests/test_module_maze.cpp"
         ]
       },
       "decision_status": "approved"

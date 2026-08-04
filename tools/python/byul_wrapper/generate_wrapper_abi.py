@@ -41,6 +41,10 @@ MODULE_HEADERS: dict[str, tuple[str, ...]] = {
         "navsys/obstacle/obstacle_core.h",
         "navsys/obstacle/obstacle.h",
     ),
+    "maze.py": (
+        "navsys/maze/maze_core.h",
+        "navsys/maze/maze.h",
+    ),
     "route_carver.py": ("navsys/route_carver/route_carver.h",),
     "route.py": ("navsys/route/route.h",),
     "route_finder_common.py": ("navsys/route_finder/route_finder_core.h",),

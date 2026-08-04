@@ -41,6 +41,62 @@
       "skipped_field_declarations": []
     },
     {
+      "header": "maze_core.h",
+      "name": "byul_maze_extent_t",
+      "size": 16,
+      "align": 4,
+      "fields": {
+        "origin_x": 0,
+        "origin_y": 4,
+        "width": 8,
+        "height": 12
+      },
+      "skipped_field_declarations": []
+    },
+    {
+      "header": "maze.h",
+      "name": "byul_maze_generate_options_t",
+      "size": 48,
+      "align": 8,
+      "fields": {
+        "struct_size": 0,
+        "abi_version": 4,
+        "seed": 8,
+        "max_steps": 16,
+        "max_cells": 24,
+        "cancel_func": 32,
+        "cancel_userdata": 40
+      },
+      "skipped_field_declarations": []
+    },
+    {
+      "header": "maze_core.h",
+      "name": "byul_maze_navgrid_apply_options_t",
+      "size": 32,
+      "align": 8,
+      "fields": {
+        "struct_size": 0,
+        "abi_version": 4,
+        "merge_policy": 8,
+        "cancel_func": 16,
+        "cancel_userdata": 24
+      },
+      "skipped_field_declarations": []
+    },
+    {
+      "header": "maze_core.h",
+      "name": "byul_maze_navgrid_overlay_token_t",
+      "size": 24,
+      "align": 8,
+      "fields": {
+        "struct_size": 0,
+        "abi_version": 4,
+        "owner_cookie": 8,
+        "overlay": 16
+      },
+      "skipped_field_declarations": []
+    },
+    {
       "header": "controller.h",
       "name": "controller_t",
       "size": 40,
@@ -417,20 +473,6 @@
         "position": 0,
         "velocity": 12,
         "acceleration": 24
-      },
-      "skipped_field_declarations": []
-    },
-    {
-      "header": "maze_core.h",
-      "name": "maze_t",
-      "size": 24,
-      "align": 8,
-      "fields": {
-        "x0": 0,
-        "y0": 4,
-        "width": 8,
-        "height": 12,
-        "blocked": 16
       },
       "skipped_field_declarations": []
     },
@@ -846,7 +888,9 @@
       "size": 16,
       "align": 4,
       "fields": {
+        "x": 0,
         "y": 4,
+        "w": 8,
         "h": 12
       },
       "skipped_field_declarations": []
@@ -1064,6 +1108,39 @@
     }
   ],
   "enums": [
+    {
+      "header": "maze_core.h",
+      "name": "byul_maze_abi_mismatch_t",
+      "values": {
+        "BYUL_MAZE_ABI_MATCH": 0,
+        "BYUL_MAZE_ABI_VERSION_MISMATCH": 1,
+        "BYUL_MAZE_ABI_FINGERPRINT_MISMATCH": 2
+      }
+    },
+    {
+      "header": "maze.h",
+      "name": "byul_maze_algorithm_t",
+      "values": {
+        "BYUL_MAZE_ALGORITHM_RECURSIVE_BACKTRACKER": 0,
+        "BYUL_MAZE_ALGORITHM_RANDOMIZED_PRIM": 1,
+        "BYUL_MAZE_ALGORITHM_BINARY_TREE": 2,
+        "BYUL_MAZE_ALGORITHM_ELLER": 3,
+        "BYUL_MAZE_ALGORITHM_ALDOUS_BRODER": 4,
+        "BYUL_MAZE_ALGORITHM_WILSON": 5,
+        "BYUL_MAZE_ALGORITHM_HUNT_AND_KILL": 6,
+        "BYUL_MAZE_ALGORITHM_SIDEWINDER": 7,
+        "BYUL_MAZE_ALGORITHM_RECURSIVE_DIVISION": 8,
+        "BYUL_MAZE_ALGORITHM_RANDOMIZED_KRUSKAL": 9,
+        "BYUL_MAZE_ALGORITHM_ROOM_BLEND": 10
+      }
+    },
+    {
+      "header": "maze_core.h",
+      "name": "byul_maze_navgrid_merge_policy_t",
+      "values": {
+        "BYUL_MAZE_NAVGRID_MERGE_PRESERVE_BASE": 0
+      }
+    },
     {
       "header": "controller.h",
       "name": "controller_type_t",
@@ -1393,6 +1470,7 @@
     "entity_dynamic.h:motion_state_t",
     "environ.h:bodyprops_t",
     "environ.h:projectile_t",
+    "maze_core.h:maze_t",
     "navgrid.h:navgrid_t",
     "obstacle_core.h:obstacle_t",
     "projectile.h:projectile_result_t",
@@ -1403,11 +1481,11 @@
     "strset.h:strset_t"
   ],
   "summary": {
-    "complete_types": 76,
-    "fields": 376,
+    "complete_types": 79,
+    "fields": 393,
     "skipped_field_declarations": 0,
-    "enums": 27,
-    "enumerators": 156,
-    "forward_or_opaque_declarations": 17
+    "enums": 30,
+    "enumerators": 171,
+    "forward_or_opaque_declarations": 18
   }
 }

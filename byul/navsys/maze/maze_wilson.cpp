@@ -1,117 +1,188 @@
 #include "maze_wilson.h"
-#include "obstacle.h"
+#include "internal/maze_private.hpp"
+
+#include <cstdint>
+#include <new>
 #include <vector>
-#include <unordered_map>
-#include <unordered_set>
-#include <random>
-#include <ctime>
-#include <algorithm>
 
-static const int WALL = 1;
-static const int PASSAGE = 0;
+namespace {
 
-struct Cell {
-    int x, y;
-    Cell() : x(0), y(0) {}
-    Cell(int _x, int _y) : x(_x), y(_y) {}
+constexpr uint8_t wall_cell = 1;
+constexpr uint8_t passage_cell = 0;
 
-    bool operator==(const Cell& other) const {
-        return x == other.x && y == other.y;
+struct logical_graph_t {
+    int columns;
+    int rows;
+
+    int x(int node) const { return 1 + (node % columns) * 2; }
+    int y(int node) const { return 1 + (node / columns) * 2; }
+
+    uint32_t neighbors(int node, int out[4]) const {
+        const int column = node % columns;
+        const int row = node / columns;
+        uint32_t count = 0;
+        if (row > 0) out[count++] = node - columns;
+        if (row + 1 < rows) out[count++] = node + columns;
+        if (column > 0) out[count++] = node - 1;
+        if (column + 1 < columns) out[count++] = node + 1;
+        return count;
     }
 };
 
-namespace std {
-    template<>
-    struct hash<Cell> {
-        size_t operator()(const Cell& c) const {
-            return (std::hash<int>()(c.x) << 1) ^ std::hash<int>()(c.y);
-        }
-    };
+void open_edge(
+    std::vector<uint8_t>& grid,
+    int grid_width,
+    const logical_graph_t& graph,
+    int from,
+    int to) {
+    const int from_x = graph.x(from);
+    const int from_y = graph.y(from);
+    const int to_x = graph.x(to);
+    const int to_y = graph.y(to);
+    grid[static_cast<size_t>(from_y) * grid_width + from_x] = passage_cell;
+    grid[static_cast<size_t>(to_y) * grid_width + to_x] = passage_cell;
+    grid[static_cast<size_t>((from_y + to_y) / 2) * grid_width
+        + (from_x + to_x) / 2] = passage_cell;
 }
 
-static bool is_inside(int x, int y, int w, int h) {
-    return x > 0 && y > 0 && x < w - 1 && y < h - 1 && x % 2 == 1 && y % 2 == 1;
-}
-
-maze_t* maze_make_wilson(int x0, int y0, int width, int height){
-    if (width < 3 || height < 3) return nullptr;
-    if (width % 2 == 0 || height % 2 == 0) return nullptr;
-
-    maze_t* maze = maze_create_full(x0, y0, width, height);
-
-    int w = maze->width;
-    int h = maze->height;
-
-    std::vector<std::vector<int>> grid(h, std::vector<int>(w, WALL));
-    std::unordered_set<Cell> visited;
-
-    std::mt19937 rng(static_cast<unsigned int>(time(nullptr)));
-    std::vector<Cell> all_cells;
-    for (int y = 1; y < h; y += 2) {
-        for (int x = 1; x < w; x += 2) {
-            all_cells.emplace_back(x, y);
-        }
+int choose_unvisited(
+    const std::vector<uint8_t>& in_tree,
+    uint32_t unvisited_count,
+    byul_maze_generation_context& context) {
+    uint32_t selected = context.bounded(unvisited_count);
+    for (size_t node = 0; node < in_tree.size(); ++node) {
+        if (in_tree[node] != 0) continue;
+        if (selected == 0) return static_cast<int>(node);
+        --selected;
     }
+    return -1;
+}
 
-    std::uniform_int_distribution<size_t> pick_cell(0, all_cells.size() - 1);
+} // namespace
 
-    Cell start = all_cells[pick_cell(rng)];
-    grid[start.y][start.x] = PASSAGE;
-    visited.insert(start);
+navsys_status_t byul_maze_generate_wilson_internal(
+    int32_t origin_x,
+    int32_t origin_y,
+    uint32_t width,
+    uint32_t height,
+    byul_maze_generation_context& context,
+    maze_t** out_maze) noexcept {
+    if (!out_maze) return NAVSYS_STATUS_INVALID_ARGUMENT;
+    *out_maze = nullptr;
+    const navsys_status_t initial_poll = context.poll();
+    if (initial_poll != NAVSYS_STATUS_OK) return initial_poll;
 
-    const int dx[4] = { 0, 0, -2, 2 };
-    const int dy[4] = { -2, 2, 0, 0 };
+    maze_t* maze = maze_create_full(
+        origin_x, origin_y, static_cast<int>(width), static_cast<int>(height));
+    if (!maze) return NAVSYS_STATUS_OUT_OF_MEMORY;
 
-    while (visited.size() < all_cells.size()) {
-        Cell current;
-        do {
-            current = all_cells[pick_cell(rng)];
-        } while (visited.count(current) > 0);
+    try {
+        const int w = static_cast<int>(width);
+        const int h = static_cast<int>(height);
+        const logical_graph_t graph{(w - 1) / 2, (h - 1) / 2};
+        const uint32_t total = static_cast<uint32_t>(graph.columns * graph.rows);
+        std::vector<uint8_t> grid(
+            static_cast<size_t>(width) * height, wall_cell);
+        std::vector<uint8_t> in_tree(total, uint8_t{0});
+        std::vector<int> path_position(total, -1);
+        std::vector<int> path;
 
-        std::unordered_map<Cell, Cell> path;
-        Cell walk = current;
+        const int root = static_cast<int>(context.bounded(total));
+        in_tree[root] = 1;
+        uint32_t tree_count = 1;
+        grid[static_cast<size_t>(graph.y(root)) * w + graph.x(root)]
+            = passage_cell;
 
-        while (visited.count(walk) == 0) {
-            std::vector<int> dirs = { 0, 1, 2, 3 };
-            std::shuffle(dirs.begin(), dirs.end(), rng);
+        while (tree_count < total) {
+            const int start = choose_unvisited(
+                in_tree, total - tree_count, context);
+            if (start < 0) {
+                maze_destroy(maze);
+                return NAVSYS_STATUS_CORRUPT_STATE;
+            }
+            path.clear();
+            path.push_back(start);
+            path_position[start] = 0;
+            int walk = start;
 
-            for (int dir : dirs) {
-                int nx = walk.x + dx[dir];
-                int ny = walk.y + dy[dir];
-                if (is_inside(nx, ny, w, h)) {
-                    Cell next(nx, ny);
-                    path[walk] = next;
-                    walk = next;
-                    break;
+            while (in_tree[walk] == 0) {
+                const navsys_status_t step_status = context.begin_step();
+                if (step_status != NAVSYS_STATUS_OK) {
+                    maze_destroy(maze);
+                    return step_status;
+                }
+                int neighbors[4];
+                const uint32_t neighbor_count = graph.neighbors(walk, neighbors);
+                const int next = neighbors[context.bounded(neighbor_count)];
+                const int loop_position = path_position[next];
+                if (loop_position >= 0) {
+                    for (size_t index = static_cast<size_t>(loop_position + 1);
+                         index < path.size(); ++index) {
+                        path_position[path[index]] = -1;
+                    }
+                    path.resize(static_cast<size_t>(loop_position + 1));
+                } else {
+                    path_position[next] = static_cast<int>(path.size());
+                    path.push_back(next);
+                }
+                walk = next;
+            }
+
+            for (size_t index = 0; index + 1 < path.size(); ++index) {
+                const int node = path[index];
+                open_edge(grid, w, graph, node, path[index + 1]);
+                if (in_tree[node] == 0) {
+                    in_tree[node] = 1;
+                    ++tree_count;
+                }
+            }
+            for (const int node : path) path_position[node] = -1;
+        }
+
+        for (int y = 0; y < h; ++y) {
+            for (int x = 0; x < w; ++x) {
+                if (grid[static_cast<size_t>(y) * w + x] != wall_cell) continue;
+                const navsys_status_t poll_status = context.poll();
+                if (poll_status != NAVSYS_STATUS_OK) {
+                    maze_destroy(maze);
+                    return poll_status;
+                }
+                bool changed = false;
+                const navsys_status_t status = byul_maze_set_blocked(
+                    maze, origin_x + x, origin_y + y, true, &changed);
+                if (status != NAVSYS_STATUS_OK) {
+                    maze_destroy(maze);
+                    return status;
                 }
             }
         }
-
-        walk = current;
-        while (visited.count(walk) == 0) {
-            visited.insert(walk);
-            grid[walk.y][walk.x] = PASSAGE;
-
-            Cell next = path[walk];
-            int mx = (walk.x + next.x) / 2;
-            int my = (walk.y + next.y) / 2;
-            grid[my][mx] = PASSAGE;
-
-            walk = next;
-        }
+    } catch (const std::bad_alloc&) {
+        maze_destroy(maze);
+        return NAVSYS_STATUS_OUT_OF_MEMORY;
+    } catch (...) {
+        maze_destroy(maze);
+        return NAVSYS_STATUS_CORRUPT_STATE;
     }
 
-    for (int y = 0; y < h; ++y) {
-        for (int x = 0; x < w; ++x) {
-            if (grid[y][x] != PASSAGE) {
-                coord_t tmp = {x + x0, y + y0};
-                coord_hash_insert(
-                    maze->blocked,
-                    &tmp,
-                    nullptr
-                );
-            }
-        }
+    *out_maze = maze;
+    return NAVSYS_STATUS_OK;
+}
+
+maze_t* maze_make_wilson(int x0, int y0, int width, int height) {
+    if (width < 3 || height < 3 || width % 2 == 0 || height % 2 == 0) {
+        return nullptr;
     }
-    return maze;
+    byul_maze_generation_context context(
+        byul_maze_generation_legacy_seed(), 0, nullptr, nullptr);
+    maze_t* maze = nullptr;
+    return byul_maze_generate_wilson_internal(
+               x0,
+               y0,
+               static_cast<uint32_t>(width),
+               static_cast<uint32_t>(height),
+               context,
+               &maze)
+            == NAVSYS_STATUS_OK
+        ? maze
+        : nullptr;
 }

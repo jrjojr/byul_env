@@ -157,6 +157,7 @@ install(FILES ${${PROJECT_NAME}_HEADERS}
 install(FILES
     ${CMAKE_CURRENT_SOURCE_DIR}/navsys/navgrid/compat/abi1/navgrid_abi1.h
     ${CMAKE_CURRENT_SOURCE_DIR}/navsys/obstacle/compat/abi1/obstacle_abi1.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/navsys/maze/compat/abi1/maze_abi1.h
     DESTINATION include/${CMAKE_PROJECT_NAME}/compat/abi1
     COMPONENT byul_sdk_abi1_compat
     EXCLUDE_FROM_ALL

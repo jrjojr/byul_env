@@ -51,6 +51,10 @@ OWNER_TODO_OVERRIDES = {
         "docs/ko/todo/navsys/todo-navsys-obstacle-obstacle-core.org",
     "byul/navsys/obstacle/internal/obstacle_private.hpp":
         "docs/ko/todo/navsys/todo-navsys-obstacle-obstacle-core.org",
+    "byul/navsys/maze/compat/abi1/maze_abi1.h":
+        "docs/ko/todo/navsys/todo-navsys-maze-core.org",
+    "byul/navsys/maze/internal/maze_private.hpp":
+        "docs/ko/todo/navsys/todo-navsys-maze-core.org",
     "byul/navsys/route/internal/route_internal.h":
         "docs/ko/todo/navsys/todo-navsys-route-route.org",
     "byul/navsys/route_carver/compat/route_carver_legacy.hpp":

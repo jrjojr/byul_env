@@ -1,5 +1,17 @@
-#ifndef MAZE_PRIM_H
-#define MAZE_PRIM_H
+/*
+ * Copyright (c) 2025-2026 ByulPapa (byuldev@outlook.kr)
+ * This file is part of the Byul World project.
+ * Licensed under the Byul World Source-Available Non-Commercial License v1.0 (2025).
+ * See the LICENSE file in the project root for full license terms.
+ */
+
+/**
+ * @file maze_prim.h
+ * @brief randomized Prim Maze 생성기의 레거시 public C ABI를 선언한다.
+ */
+
+#ifndef BYUL_MAZE_PRIM_H
+#define BYUL_MAZE_PRIM_H
 
 #include "maze_core.h"
 
@@ -8,45 +20,18 @@ extern "C" {
 #endif
 
 /**
- * @brief Generate a maze using Prim's algorithm.
- *
- * This function creates a fully connected, acyclic maze using
- * the randomized version of **Prim's algorithm**.
- * It starts from a random passage cell and incrementally
- * adds adjacent walls to a list, carving passages between unvisited regions.
- *
- * ---
- *
- * ### Features
- * - The resulting maze is **a single connected tree** (no loops).
- * - **Dead ends are common**, creating a classic dungeon-like layout.
- * - Randomized growth leads to organic, irregular shapes.
- *
- * ---
- *
- * ### Input Constraints
- * - Both `width` and `height` must be **odd numbers** and at least **3**.
- *   (This ensures alternating walls/passages structure.)
- *
- * ---
- *
- * ### Usage Example
- * @code
- * maze_t* maze = maze_maze_prim(0, 0, 21, 21);
- * if (maze) {
- *     maze_apply_to_navgrid(maze, navgrid);
- *     navgrid_print_ascii(navgrid);
- *     maze_destroy(maze);
- * }
- * @endcode
- *
- * ---
- *
- * @param x0 Starting X coordinate of the maze
- * @param y0 Starting Y coordinate of the maze
- * @param width Maze width (must be odd and ≥ 3)
- * @param height Maze height (must be odd and ≥ 3)
- * @return Pointer to the generated `maze_t` structure, or `nullptr` on failure
+ * @brief 비결정적 randomized Prim 방식으로 perfect Maze를 생성한다.
+ * @param[in] x0 Maze 원점의 X 좌표다.
+ * @param[in] y0 Maze 원점의 Y 좌표다.
+ * @param[in] width 3 이상인 홀수 너비다.
+ * @param[in] height 3 이상인 홀수 높이다.
+ * @return caller-owned Maze이며 입력 또는 allocation 실패 시 NULL이다.
+ * @byul.nullable return true
+ * @byul.lifetime return caller-owned
+ * @byul.error sentinel:null
+ * @byul.side_effect allocates
+ * @byul.thread_safety thread-compatible
+ * @byul.blocking true
  */
 BYUL_API maze_t* maze_maze_prim(int x0, int y0, int width, int height);
 
@@ -54,4 +39,4 @@ BYUL_API maze_t* maze_maze_prim(int x0, int y0, int width, int height);
 }
 #endif
 
-#endif // MAZE_PRIM_H
+#endif /* BYUL_MAZE_PRIM_H */

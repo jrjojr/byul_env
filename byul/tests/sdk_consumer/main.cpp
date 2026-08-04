@@ -7,6 +7,7 @@
 #include "coord.h"
 #include "coord_hash.h"
 #include "cost_coord_pq.h"
+#include "maze_core.h"
 #include "navcell.h"
 #include "navgrid.h"
 #include "obstacle.h"
@@ -58,6 +59,49 @@ static bool equal_coord_hash_int(
 }
 
 int main() {
+    static_assert(std::is_same_v<
+        decltype(&byul_maze_translate),
+        navsys_status_t (*)(maze_t*, int32_t, int32_t)>);
+    static_assert(std::is_same_v<
+        decltype(&byul_maze_create),
+        navsys_status_t (*)(const byul_maze_extent_t*, maze_t**)>);
+    static_assert(std::is_standard_layout_v<byul_maze_extent_t>);
+    static_assert(sizeof(byul_maze_extent_t) == 16);
+    static_assert(alignof(byul_maze_extent_t) == 4);
+    static_assert(offsetof(byul_maze_extent_t, origin_x) == 0);
+    static_assert(offsetof(byul_maze_extent_t, origin_y) == 4);
+    static_assert(offsetof(byul_maze_extent_t, width) == 8);
+    static_assert(offsetof(byul_maze_extent_t, height) == 12);
+    static_assert(std::is_standard_layout_v<byul_maze_navgrid_apply_options_t>);
+    static_assert(sizeof(byul_maze_navgrid_apply_options_t) == 32);
+    static_assert(alignof(byul_maze_navgrid_apply_options_t) == 8);
+    static_assert(offsetof(
+        byul_maze_navgrid_apply_options_t, cancel_func) == 16);
+    static_assert(offsetof(
+        byul_maze_navgrid_apply_options_t, cancel_userdata) == 24);
+    static_assert(std::is_standard_layout_v<byul_maze_navgrid_overlay_token_t>);
+    static_assert(sizeof(byul_maze_navgrid_overlay_token_t) == 24);
+    static_assert(alignof(byul_maze_navgrid_overlay_token_t) == 8);
+    static_assert(offsetof(
+        byul_maze_navgrid_overlay_token_t, owner_cookie) == 8);
+    static_assert(offsetof(
+        byul_maze_navgrid_overlay_token_t, overlay) == 16);
+    static_assert(std::is_same_v<
+        decltype(&byul_maze_apply),
+        navsys_status_t (*)(
+            const maze_t*, navgrid_t*,
+            const byul_maze_navgrid_apply_options_t*,
+            byul_maze_navgrid_overlay_token_t*, size_t*)>);
+    static_assert(std::is_same_v<
+        decltype(&byul_maze_set_blocked),
+        navsys_status_t (*)(maze_t*, int32_t, int32_t, bool, bool*)>);
+    static_assert(std::is_same_v<
+        decltype(&byul_maze_is_blocked),
+        navsys_status_t (*)(const maze_t*, int32_t, int32_t, bool*)>);
+    static_assert(std::is_same_v<
+        decltype(&byul_maze_check_abi),
+        navsys_status_t (*)(
+            uint32_t, uint64_t, byul_maze_abi_mismatch_t*)>);
     static_assert(std::is_standard_layout_v<coord_t>);
     static_assert(std::is_standard_layout_v<coord_hash_create_info_t>);
     static_assert(std::is_standard_layout_v<coord_hash_entry_view_t>);
@@ -413,6 +457,31 @@ int main() {
     coord_list_destroy(canonical_neighbors);
     obstacle_destroy(checked_copy);
     obstacle_destroy(checked_obstacle);
+
+    const byul_maze_extent_t maze_extent{-2, 4, 5, 3};
+    byul_maze_abi_mismatch_t maze_mismatch =
+        BYUL_MAZE_ABI_VERSION_MISMATCH;
+    assert(byul_maze_check_abi(
+        BYUL_MAZE_ABI_VERSION,
+        BYUL_MAZE_ABI_FINGERPRINT,
+        &maze_mismatch) == NAVSYS_STATUS_OK);
+    assert(maze_mismatch == BYUL_MAZE_ABI_MATCH);
+    maze_t* checked_maze = nullptr;
+    assert(byul_maze_create(&maze_extent, &checked_maze)
+        == NAVSYS_STATUS_OK);
+    bool maze_changed = false;
+    assert(byul_maze_set_blocked(
+        checked_maze, -1, 5, true, &maze_changed) == NAVSYS_STATUS_OK);
+    assert(maze_changed);
+    bool maze_blocked = false;
+    assert(byul_maze_is_blocked(
+        checked_maze, -1, 5, &maze_blocked) == NAVSYS_STATUS_OK);
+    assert(maze_blocked);
+    std::size_t maze_blocked_count = 0;
+    assert(byul_maze_get_blocked_count(
+        checked_maze, &maze_blocked_count) == NAVSYS_STATUS_OK);
+    assert(maze_blocked_count == 1);
+    maze_destroy(checked_maze);
 
     navgrid_t* legacy_carver_grid = navgrid_create_full(
         3, 3, NAVGRID_DIR_8, nullptr);

@@ -1,62 +1,51 @@
-#ifndef MAZE_ROOM_H
-#define MAZE_ROOM_H
+/*
+ * Copyright (c) 2025-2026 ByulPapa (byuldev@outlook.kr)
+ * This file is part of the Byul World project.
+ * Licensed under the Byul World Source-Available Non-Commercial License v1.0 (2025).
+ * See the LICENSE file in the project root for full license terms.
+ */
 
-#include "coord_hash.h"
-#include "maze.h"
+/**
+ * @file maze_room_blend.h
+ * @brief Room Blend Maze 생성기의 레거시 public C ABI를 선언한다.
+ */
+
+#ifndef BYUL_MAZE_ROOM_BLEND_H
+#define BYUL_MAZE_ROOM_BLEND_H
+
+#include "maze_core.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
 /**
- * @brief Room structure definition
- *
- * Represents a rectangular room on the map.
+ * @brief ABI 1 호환용 직사각형 방 값이다.
+ * @byul.storage basic-value
+ * @byul.zero_valid true
+ * @byul.copy_semantics trivial-copy
+ * @byul.thread_safety thread-compatible
  */
-typedef struct {
-    int x, y;   ///< Top-left coordinate of the room
-    int w, h;   ///< Width and height of the room
+typedef struct s_room {
+    int x; /**< 왼쪽 위 X 좌표다. */
+    int y; /**< 왼쪽 위 Y 좌표다. */
+    int w; /**< 방 너비다. */
+    int h; /**< 방 높이다. */
 } room_t;
 
 /**
- * @brief Generate a maze using Room + Maze blending algorithm.
- *
- * This function first creates **rooms**,
- * connects them with **corridors**,  
- * and then fills the remaining space using a **backtracking maze algorithm**.
- * 
- * The result is a hybrid **RPG-style map** composed of rooms, corridors, 
- * and maze paths.
- *
- * ---
- *
- * ### Algorithm Overview
- * 1. **Room Placement**  
- *    - Randomly attempts to place rooms within the specified size range.  
- *    - Overlap checks are performed to prevent rooms from overlapping.  
- * 
- * 2. **Corridor Digging**  
- *    - Corridors are generated between the centers of consecutive rooms.  
- *    - The corridors are shaped like an "L" 
- * (horizontal-first or vertical-first, chosen randomly).
- * 
- * 3. **Maze Filling**  
- *    - Any remaining wall area not covered by rooms or corridors is filled
- *      using a backtracking-based maze generation algorithm.
- *    - This ensures connectivity and creates a varied, interesting structure.
- *
- * ---
- *
- * ### Features
- * - **Rooms are open areas**, **corridors are long and narrow**,  
- *   **mazes fill the remaining space with tight paths.**
- * - As maze generation is a later step, 
- * **the result is not strictly tree-like**.
- * - Dead-ends may exist but are limited,  
- *   making this ideal for **centralized level layouts**.
- *
- * ---
- *
+ * @brief 비결정적 Room Blend 방식으로 연결된 순환 허용 Maze를 생성한다.
+ * @param[in] x0 Maze 원점의 X 좌표다.
+ * @param[in] y0 Maze 원점의 Y 좌표다.
+ * @param[in] width 3 이상인 홀수 너비다.
+ * @param[in] height 3 이상인 홀수 높이다.
+ * @return caller-owned Maze이며 입력 또는 allocation 실패 시 NULL이다.
+ * @byul.nullable return true
+ * @byul.lifetime return caller-owned
+ * @byul.error sentinel:null
+ * @byul.side_effect allocates
+ * @byul.thread_safety thread-compatible
+ * @byul.blocking true
  */
 BYUL_API maze_t* maze_make_room_blend(int x0, int y0, int width, int height);
 
@@ -64,4 +53,4 @@ BYUL_API maze_t* maze_make_room_blend(int x0, int y0, int width, int height);
 }
 #endif
 
-#endif // MAZE_ROOM_H
+#endif /* BYUL_MAZE_ROOM_BLEND_H */

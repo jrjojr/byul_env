@@ -1,0 +1,102 @@
+{
+  "schema_version": 1,
+  "scope": "navsys-maze-core-stage1",
+  "source_revision": "13624d1",
+  "working_tree_patch": [
+    "byul/navsys/tests/test_navsys_allocation_failure.cpp",
+    "byul/tests/sdk_consumer/main.c",
+    "byul/tests/sdk_consumer/main.cpp"
+  ],
+  "rules_revision": "b1ff82f7b2c5144f50cd4c5a37207a1bd2423453",
+  "layout": {
+    "type": "maze_t",
+    "public_header": "byul/navsys/maze/maze_core.h",
+    "abi": "ABI 1.x",
+    "measured_profile": "windows-msvc-release-x64",
+    "sizeof": 24,
+    "alignof": 8,
+    "standard_layout_cpp17": true,
+    "fields": {
+      "x0": { "offset": 0, "type": "int" },
+      "y0": { "offset": 4, "type": "int" },
+      "width": { "offset": 8, "type": "int" },
+      "height": { "offset": 12, "type": "int" },
+      "blocked": { "offset": 16, "type": "coord_hash_t*", "ownership": "maze-owned" }
+    },
+    "packing": "natural compiler layout; no packing pragma",
+    "abi_major_gate": [
+      "byul/tests/sdk_consumer/main.c",
+      "byul/tests/sdk_consumer/main.cpp",
+      "docs/ko/todo/header-refactor-current/msvc-release-abi.json"
+    ]
+  },
+  "direct_field_consumers": {
+    "repository_internal": {
+      "core_owner": ["byul/navsys/maze/maze_core.cpp"],
+      "generator_owners": [
+        "byul/navsys/maze/maze_aldous_broder.cpp",
+        "byul/navsys/maze/maze_binary.cpp",
+        "byul/navsys/maze/maze_eller.cpp",
+        "byul/navsys/maze/maze_hunt_and_kill.cpp",
+        "byul/navsys/maze/maze_kruskal.cpp",
+        "byul/navsys/maze/maze_prim.cpp",
+        "byul/navsys/maze/maze_recursive.cpp",
+        "byul/navsys/maze/maze_recursive_division.cpp",
+        "byul/navsys/maze/maze_room_blend.cpp",
+        "byul/navsys/maze/maze_sidewinder.cpp",
+        "byul/navsys/maze/maze_wilson.cpp"
+      ]
+    },
+    "repository_tests": ["byul/navsys/maze/tests/test_module_maze.cpp"],
+    "external_fixtures": [
+      "byul/tests/sdk_consumer/main.c",
+      "byul/tests/sdk_consumer/main.cpp"
+    ]
+  },
+  "allocation_graph": {
+    "maze_create_full": ["malloc(maze_t)", "coord_hash_create"],
+    "maze_copy": [
+      "maze_create_full",
+      "coord_hash_destroy(new empty hash)",
+      "coord_hash_copy(source blocked hash)"
+    ],
+    "maze_destroy": ["coord_hash_destroy", "free(maze_t)"],
+    "maze_apply_to_navgrid": [
+      "std::vector<coord_t>",
+      "coord_hash_export_keys",
+      "navgrid internal overlay source"
+    ],
+    "maze_remove_from_navgrid": ["navgrid internal overlay source removal"],
+    "known_failures_reproduced": [
+      "coord_hash_create allocation failure returns a non-null maze_t with blocked == NULL",
+      "coord_hash_copy allocation failure returns a non-null maze_t copy with blocked == NULL"
+    ],
+    "fault_fixture": "byul/navsys/tests/test_navsys_allocation_failure.cpp"
+  },
+  "root_exports": {
+    "profile": "windows-msvc-release-maze-stage1",
+    "snapshot": "docs/ko/todo/header-refactor-current/msvc-release-build.json",
+    "symbols": [
+      "maze_apply_to_navgrid",
+      "maze_clear",
+      "maze_copy",
+      "maze_create",
+      "maze_create_full",
+      "maze_destroy",
+      "maze_equal",
+      "maze_get_blocked_coords",
+      "maze_get_height",
+      "maze_get_origin",
+      "maze_get_width",
+      "maze_hash",
+      "maze_remove_from_navgrid",
+      "maze_set_origin"
+    ]
+  },
+  "platform_status": {
+    "windows_msvc_x64": "measured",
+    "linux_gcc_13_x64": "measured; Debug ASan+LSan tests and C17/C++17 installed-SDK consumers passed",
+    "linux_clang_18_x64": "measured; Debug ASan+LSan tests passed",
+    "macos_clang": "not currently verified"
+  }
+}

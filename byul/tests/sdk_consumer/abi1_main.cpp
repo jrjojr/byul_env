@@ -4,6 +4,7 @@
 
 #include "navgrid_abi1.h"
 #include "obstacle_abi1.h"
+#include "maze_abi1.h"
 
 int main() {
     static_assert(sizeof(void*) == 8);
@@ -24,6 +25,14 @@ int main() {
     static_assert(offsetof(obstacle_t, width) == 8);
     static_assert(offsetof(obstacle_t, height) == 12);
     static_assert(offsetof(obstacle_t, blocked) == 16);
+    static_assert(std::is_standard_layout_v<maze_t>);
+    static_assert(sizeof(maze_t) == 24);
+    static_assert(alignof(maze_t) == 8);
+    static_assert(offsetof(maze_t, x0) == 0);
+    static_assert(offsetof(maze_t, y0) == 4);
+    static_assert(offsetof(maze_t, width) == 8);
+    static_assert(offsetof(maze_t, height) == 12);
+    static_assert(offsetof(maze_t, blocked) == 16);
 
     navgrid_abi_mismatch_t mismatch = NAVGRID_ABI_VERSION_MISMATCH;
     assert(navgrid_check_abi(
@@ -52,6 +61,20 @@ int main() {
     assert(obstacle->width == 7);
     assert(obstacle->height == 9);
     assert(obstacle->blocked != nullptr);
+    byul_maze_abi_mismatch_t maze_mismatch = BYUL_MAZE_ABI_VERSION_MISMATCH;
+    assert(byul_maze_check_abi(
+        BYUL_MAZE_ABI1_VERSION,
+        BYUL_MAZE_ABI1_FINGERPRINT,
+        &maze_mismatch) == NAVSYS_STATUS_OK);
+    assert(maze_mismatch == BYUL_MAZE_ABI_MATCH);
+    maze_t* maze = maze_create_full(3, 4, 5, 7);
+    assert(maze != nullptr);
+    assert(maze->x0 == 3);
+    assert(maze->y0 == 4);
+    assert(maze->width == 5);
+    assert(maze->height == 7);
+    assert(maze->blocked != nullptr);
+    maze_destroy(maze);
     obstacle_destroy(obstacle);
     navgrid_destroy(grid);
     return 0;

@@ -1608,6 +1608,305 @@ bool verify_route_carver_mutation_allocation_failure() {
     return succeeded;
 }
 
+bool verify_maze_lifecycle_allocation_failure_atomic() {
+    const std::size_t baseline = tracked_live_allocations;
+
+    track_allocations = true;
+    fail_after = 0;
+    maze_t* failed_create = maze_create_full(1, 2, 7, 9);
+    fail_after = -1;
+    track_allocations = false;
+    if (failed_create != nullptr || tracked_live_allocations != baseline) {
+        std::fprintf(
+            stderr,
+            "maze create allocation failure was not atomic "
+            "(maze=%p, live=%zu, baseline=%zu)\n",
+            static_cast<void*>(failed_create),
+            tracked_live_allocations,
+            baseline);
+        maze_destroy(failed_create);
+        return false;
+    }
+
+    const byul_maze_extent_t extent{1, 2, 7, 9};
+    maze_t* checked_create = reinterpret_cast<maze_t*>(uintptr_t{1});
+    track_allocations = true;
+    fail_after = 0;
+    const navsys_status_t create_status =
+        byul_maze_create(&extent, &checked_create);
+    fail_after = -1;
+    track_allocations = false;
+    if (create_status != NAVSYS_STATUS_OUT_OF_MEMORY
+        || checked_create != reinterpret_cast<maze_t*>(uintptr_t{1})
+        || tracked_live_allocations != baseline) {
+        std::fprintf(
+            stderr,
+            "maze checked create changed output on allocation failure "
+            "(status=%d, output=%p, live=%zu, baseline=%zu)\n",
+            static_cast<int>(create_status),
+            static_cast<void*>(checked_create),
+            tracked_live_allocations,
+            baseline);
+        return false;
+    }
+
+    maze_t* source = maze_create_full(-3, 5, 11, 13);
+    if (!source) {
+        maze_destroy(source);
+        std::fprintf(stderr, "maze legacy copy baseline source failed\n");
+        return false;
+    }
+
+    maze_t* checked_copy = reinterpret_cast<maze_t*>(uintptr_t{1});
+    track_allocations = true;
+    fail_after = 0;
+    const navsys_status_t copy_status = byul_maze_copy(source, &checked_copy);
+    fail_after = -1;
+    track_allocations = false;
+    if (copy_status != NAVSYS_STATUS_OUT_OF_MEMORY
+        || checked_copy != reinterpret_cast<maze_t*>(uintptr_t{1})
+        || tracked_live_allocations != baseline) {
+        std::fprintf(
+            stderr,
+            "maze checked copy changed output on allocation failure "
+            "(status=%d, output=%p, live=%zu, baseline=%zu)\n",
+            static_cast<int>(copy_status),
+            static_cast<void*>(checked_copy),
+            tracked_live_allocations,
+            baseline);
+        maze_destroy(source);
+        return false;
+    }
+
+    bool reproduced_copy_failure = false;
+    for (std::ptrdiff_t index = 0; index < 64; ++index) {
+        track_allocations = true;
+        fail_after = index;
+        maze_t* failed_copy = maze_copy(source);
+        fail_after = -1;
+        track_allocations = false;
+
+        if (!failed_copy) {
+            reproduced_copy_failure = true;
+        }
+        maze_destroy(failed_copy);
+        if (tracked_live_allocations != baseline) {
+            std::fprintf(
+                stderr,
+                "maze legacy copy baseline leaked at allocation %td "
+                "(live=%zu, baseline=%zu)\n",
+                index,
+                tracked_live_allocations,
+                baseline);
+            maze_destroy(source);
+            return false;
+        }
+        if (reproduced_copy_failure) break;
+    }
+
+    maze_destroy(source);
+    if (!reproduced_copy_failure) {
+        std::fprintf(
+            stderr,
+            "maze copy allocation failure was not reproduced\n");
+        return false;
+    }
+    return tracked_live_allocations == baseline;
+}
+
+bool verify_maze_translate_allocation_failure_atomic() {
+    const std::size_t baseline = tracked_live_allocations;
+    maze_t* maze = maze_create_full(-5, 7, 9, 11);
+    if (!maze) {
+        maze_destroy(maze);
+        std::fprintf(stderr, "maze translate source creation failed\n");
+        return false;
+    }
+    const coord_t blocked{-3, 9};
+    bool maze_changed = false;
+    if (byul_maze_set_blocked(
+            maze, blocked.x, blocked.y, true, &maze_changed)
+        != NAVSYS_STATUS_OK) {
+        maze_destroy(maze);
+        std::fprintf(stderr, "maze translate source population failed\n");
+        return false;
+    }
+    maze_t* snapshot = maze_copy(maze);
+    if (!snapshot) {
+        maze_destroy(maze);
+        std::fprintf(stderr, "maze translate snapshot creation failed\n");
+        return false;
+    }
+
+    track_allocations = true;
+    fail_after = 0;
+    const navsys_status_t status = byul_maze_translate(maze, 13, -17);
+    fail_after = -1;
+    track_allocations = false;
+
+    const bool preserved = status == NAVSYS_STATUS_OUT_OF_MEMORY
+        && maze_equal(maze, snapshot)
+        && maze_hash(maze) == maze_hash(snapshot)
+        && tracked_live_allocations == baseline;
+    if (!preserved) {
+        std::fprintf(
+            stderr,
+            "maze translate allocation failure was not atomic "
+            "(status=%d, live=%zu, baseline=%zu)\n",
+            static_cast<int>(status),
+            tracked_live_allocations,
+            baseline);
+    }
+    maze_destroy(snapshot);
+    maze_destroy(maze);
+    return preserved && tracked_live_allocations == baseline;
+}
+
+bool verify_maze_blocked_mutation_allocation_failure_atomic() {
+    const std::size_t baseline = tracked_live_allocations;
+    maze_t* maze = maze_create_full(0, 0, 8, 8);
+    maze_t* snapshot = maze_copy(maze);
+    if (!maze || !snapshot) {
+        maze_destroy(snapshot);
+        maze_destroy(maze);
+        return false;
+    }
+
+    bool changed = true;
+    track_allocations = true;
+    fail_after = 0;
+    const navsys_status_t status =
+        byul_maze_set_blocked(maze, 2, 3, true, &changed);
+    fail_after = -1;
+    track_allocations = false;
+
+    const bool preserved = status == NAVSYS_STATUS_OUT_OF_MEMORY
+        && changed
+        && maze_equal(maze, snapshot)
+        && maze_hash(maze) == maze_hash(snapshot);
+    if (!preserved) {
+        std::fprintf(
+            stderr,
+            "maze blocked mutation allocation failure was not atomic "
+            "(status=%d, changed=%d)\n",
+            static_cast<int>(status),
+            changed ? 1 : 0);
+    }
+    maze_destroy(snapshot);
+    maze_destroy(maze);
+    return preserved && tracked_live_allocations == baseline;
+}
+
+bool verify_maze_overlay_allocation_failure_atomic() {
+    const std::size_t baseline = tracked_live_allocations;
+    constexpr std::ptrdiff_t max_allocations = 128;
+    maze_t* maze = maze_create_full(0, 0, 8, 8);
+    navgrid_t* grid = navgrid_create_full(8, 8, NAVGRID_DIR_8, nullptr);
+    const coord_t a{1, 1};
+    const coord_t b{2, 2};
+    const coord_t c{3, 3};
+    bool maze_changed = false;
+    if (!maze || !grid
+        || byul_maze_set_blocked(maze, a.x, a.y, true, &maze_changed)
+            != NAVSYS_STATUS_OK
+        || byul_maze_set_blocked(maze, b.x, b.y, true, &maze_changed)
+            != NAVSYS_STATUS_OK
+        || byul_maze_set_blocked(maze, c.x, c.y, true, &maze_changed)
+            != NAVSYS_STATUS_OK) {
+        navgrid_destroy(grid);
+        maze_destroy(maze);
+        return false;
+    }
+
+    byul_maze_navgrid_overlay_token_t token{};
+    bool apply_succeeded = false;
+    for (std::ptrdiff_t index = 0; index < max_allocations; ++index) {
+        token = byul_maze_navgrid_overlay_token_t{31, 32, 33, 34};
+        std::size_t changed = 77;
+        track_allocations = true;
+        fail_after = index;
+        const navsys_status_t status =
+            byul_maze_apply(maze, grid, nullptr, &token, &changed);
+        fail_after = -1;
+        track_allocations = false;
+        if (status == NAVSYS_STATUS_OK) {
+            apply_succeeded = changed == 3
+                && token.owner_cookie != 0
+                && token.overlay != 0;
+            break;
+        }
+        if (status != NAVSYS_STATUS_OUT_OF_MEMORY
+            || token.struct_size != 31
+            || token.abi_version != 32
+            || token.owner_cookie != 33
+            || token.overlay != 34
+            || changed != 77
+            || is_coord_blocked_navgrid(grid, 1, 1, nullptr)
+            || is_coord_blocked_navgrid(grid, 2, 2, nullptr)
+            || is_coord_blocked_navgrid(grid, 3, 3, nullptr)
+            || tracked_live_allocations != baseline) {
+            std::fprintf(
+                stderr,
+                "maze overlay apply was not failure-atomic at allocation %td\n",
+                index);
+            navgrid_destroy(grid);
+            maze_destroy(maze);
+            return false;
+        }
+    }
+    if (!apply_succeeded) {
+        std::fprintf(stderr, "maze overlay apply exceeded fault fixture limit\n");
+        navgrid_destroy(grid);
+        maze_destroy(maze);
+        return false;
+    }
+
+    const std::size_t applied_live = tracked_live_allocations;
+    bool remove_succeeded = false;
+    for (std::ptrdiff_t index = 0; index < max_allocations; ++index) {
+        const byul_maze_navgrid_overlay_token_t before = token;
+        std::size_t changed = 88;
+        track_allocations = true;
+        fail_after = index;
+        const navsys_status_t status =
+            byul_maze_remove_overlay(grid, &token, &changed);
+        fail_after = -1;
+        track_allocations = false;
+        if (status == NAVSYS_STATUS_OK) {
+            remove_succeeded = changed == 3
+                && token.owner_cookie == 0
+                && token.overlay == 0;
+            break;
+        }
+        if (status != NAVSYS_STATUS_OUT_OF_MEMORY
+            || token.owner_cookie != before.owner_cookie
+            || token.overlay != before.overlay
+            || changed != 88
+            || !is_coord_blocked_navgrid(grid, 1, 1, nullptr)
+            || !is_coord_blocked_navgrid(grid, 2, 2, nullptr)
+            || !is_coord_blocked_navgrid(grid, 3, 3, nullptr)
+            || tracked_live_allocations != applied_live) {
+            std::fprintf(
+                stderr,
+                "maze overlay remove was not failure-atomic at allocation %td\n",
+                index);
+            navgrid_destroy(grid);
+            maze_destroy(maze);
+            return false;
+        }
+    }
+
+    const bool valid = remove_succeeded
+        && !is_coord_blocked_navgrid(grid, 1, 1, nullptr)
+        && tracked_live_allocations == baseline;
+    if (!valid) {
+        std::fprintf(stderr, "maze overlay remove exceeded fault fixture limit\n");
+    }
+    navgrid_destroy(grid);
+    maze_destroy(maze);
+    return valid;
+}
+
 } // namespace
 
 void* operator new(std::size_t size) {
@@ -1744,6 +2043,18 @@ int main(int argc, char** argv) {
     }
     if (!verify_route_carver_mutation_allocation_failure()) {
         return 26;
+    }
+    if (!verify_maze_lifecycle_allocation_failure_atomic()) {
+        return 27;
+    }
+    if (!verify_maze_translate_allocation_failure_atomic()) {
+        return 28;
+    }
+    if (!verify_maze_blocked_mutation_allocation_failure_atomic()) {
+        return 30;
+    }
+    if (!verify_maze_overlay_allocation_failure_atomic()) {
+        return 29;
     }
 
     dependency_navgrid = navgrid_create();

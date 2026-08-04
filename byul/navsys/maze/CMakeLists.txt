@@ -9,6 +9,7 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 set(${PROJECT_NAME}_SOURCES
 
     ${CMAKE_CURRENT_SOURCE_DIR}/maze.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/maze_generation_context.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/maze_core.cpp
 
     ${CMAKE_CURRENT_SOURCE_DIR}/maze_aldous_broder.cpp

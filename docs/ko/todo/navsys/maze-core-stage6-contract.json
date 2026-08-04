@@ -1,0 +1,74 @@
+{
+  "schema_version": 1,
+  "stage": 6,
+  "title": "ABI-major opaque transition and header gate",
+  "status": "complete",
+  "public_boundary": {
+    "canonical_header": "byul/navsys/maze/maze_core.h",
+    "maze_t": "opaque forward declaration",
+    "private_layout_header": "byul/navsys/maze/internal/maze_private.hpp",
+    "default_sdk_exposes_layout": false,
+    "canonical_license_file_doxygen_guard_and_direct_includes": true
+  },
+  "abi_gate": {
+    "canonical_version": 2,
+    "canonical_fingerprint": "0x4d415a4502000000",
+    "diagnostics": [
+      "BYUL_MAZE_ABI_MISMATCH_VERSION",
+      "BYUL_MAZE_ABI_MISMATCH_FINGERPRINT"
+    ],
+    "runtime_sizeof": 24,
+    "runtime_alignof": 8
+  },
+  "abi1_compatibility": {
+    "opt_in_header": "byul/navsys/maze/compat/abi1/maze_abi1.h",
+    "install_component": "byul_sdk_abi1_compat",
+    "fingerprint": "0x4d415a4501000018",
+    "layout_size": 24,
+    "layout_align": 8,
+    "default_install_contains_compat_header": false,
+    "c_and_cxx_consumers": "pass"
+  },
+  "rejection_gates": {
+    "default_c_sizeof_maze_t": "compile rejected",
+    "default_cxx_sizeof_maze_t": "compile rejected",
+    "bad_version": "rejected with version diagnostic",
+    "bad_fingerprint": "rejected with fingerprint diagnostic"
+  },
+  "wrapper": {
+    "generated_check": "pass",
+    "policy_tests": "3 passed",
+    "uses_direct_maze_fields": false,
+    "maze_header_audit_errors": 0
+  },
+  "verification": {
+    "windows_msvc_release": [
+      "test_maze: 36/36, 238 assertions",
+      "test_navsys_allocation_failure: pass",
+      "default C17/C++17 SDK consumers: pass",
+      "ABI1 C17/C++17 SDK consumers: pass"
+    ],
+    "linux_gcc_13_debug_asan_lsan": [
+      "test_maze: pass",
+      "test_navsys_allocation_failure: pass",
+      "default and ABI1 C/C++ SDK consumers: pass"
+    ],
+    "linux_clang_18_debug_asan_lsan": [
+      "test_maze: pass",
+      "test_navsys_allocation_failure: pass"
+    ],
+    "macos_runner": "not available in the local validation environment",
+    "abi_inventory": {
+      "navsys_headers": 57,
+      "navsys_symbols": 644,
+      "root_exports": 1199,
+      "installed_headers": 92,
+      "complete_types": 78,
+      "fields": 384,
+      "enums": 29,
+      "enumerators": 160,
+      "forward_or_opaque_declarations": 18
+    },
+    "global_header_audit": "Maze errors 0; one pre-existing unmanifested Route Finder internal header remains"
+  }
+}

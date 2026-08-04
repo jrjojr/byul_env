@@ -1,0 +1,46 @@
+{
+  "schema_version": 1,
+  "scope": "navsys-maze-core-stage4",
+  "source_revision": "13624d1",
+  "overlay_api": {
+    "symbols": ["byul_maze_apply", "byul_maze_remove_overlay"],
+    "options_type": "byul_maze_navgrid_apply_options_t",
+    "token_type": "byul_maze_navgrid_overlay_token_t",
+    "supported_policy": "BYUL_MAZE_NAVGRID_MERGE_PRESERVE_BASE",
+    "unsupported_policy_behavior": "returns NAVSYS_STATUS_UNSUPPORTED without mutation",
+    "grid_extent": "never resized by checked apply",
+    "out_of_bounds": "NAVSYS_STATUS_NOT_FOUND with grid and outputs preserved",
+    "provenance": "token is bound to one navgrid owner cookie and one overlay id",
+    "remove": "removes only the token-owned layer and invalidates the token on success",
+    "base_cell": "terrain and height are preserved",
+    "other_sources": "maze and obstacle layers remain effective until their own token is removed",
+    "changed_count": "number of coordinates whose effective blocked state changed",
+    "cancellation": "cooperative and failure-atomic; callback exceptions map to NAVSYS_STATUS_CALLBACK_FAILED"
+  },
+  "abi_layout_x64": {
+    "byul_maze_navgrid_apply_options_t": {"size": 32, "alignment": 8},
+    "byul_maze_navgrid_overlay_token_t": {"size": 24, "alignment": 8}
+  },
+  "verification": {
+    "cases": [
+      "two maze overlays plus one obstacle on the same cell",
+      "arbitrary source removal preserves remaining layers",
+      "custom base terrain and height restoration",
+      "nonzero maze origin",
+      "owner mismatch and token reuse rejection",
+      "mid-prepare cancellation and callback exception",
+      "out-of-bounds rejection without grid resize",
+      "apply and remove allocation-index rollback"
+    ],
+    "platforms": {
+      "windows_msvc_x64_release": "passed",
+      "linux_gcc_13_x64_debug_asan_lsan": "passed",
+      "linux_clang_18_x64_debug_asan_lsan": "passed",
+      "macos_clang": "not currently verified"
+    },
+    "sdk_consumers": "C17 and C++17 build/run passed on Windows MSVC and Linux GCC",
+    "abi_inventory_symbols": 637,
+    "root_dll_exports": 1192,
+    "known_unrelated_gate": "route_finder/internal/coord_hash_adapters.hpp is not yet in the header role manifest"
+  }
+}

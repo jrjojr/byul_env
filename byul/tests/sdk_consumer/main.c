@@ -11,6 +11,7 @@
 #include "coord_hash.h"
 #include "cost_coord_pq.h"
 #include "dstar_lite_key.h"
+#include "maze_core.h"
 #include "navcell.h"
 #include "navsys_status.h"
 
@@ -196,6 +197,23 @@ ABI1_FIELD_OFFSET(route_t, avg_vec_x, 36);
 ABI1_FIELD_OFFSET(route_t, avg_vec_y, 40);
 ABI1_FIELD_OFFSET(route_t, vec_count, 44);
 
+ABI1_TYPE_LAYOUT(byul_maze_extent_t, 16, 4);
+ABI1_FIELD_OFFSET(byul_maze_extent_t, origin_x, 0);
+ABI1_FIELD_OFFSET(byul_maze_extent_t, origin_y, 4);
+ABI1_FIELD_OFFSET(byul_maze_extent_t, width, 8);
+ABI1_FIELD_OFFSET(byul_maze_extent_t, height, 12);
+ABI1_TYPE_LAYOUT(byul_maze_navgrid_apply_options_t, 32, 8);
+ABI1_FIELD_OFFSET(byul_maze_navgrid_apply_options_t, struct_size, 0);
+ABI1_FIELD_OFFSET(byul_maze_navgrid_apply_options_t, abi_version, 4);
+ABI1_FIELD_OFFSET(byul_maze_navgrid_apply_options_t, merge_policy, 8);
+ABI1_FIELD_OFFSET(byul_maze_navgrid_apply_options_t, cancel_func, 16);
+ABI1_FIELD_OFFSET(byul_maze_navgrid_apply_options_t, cancel_userdata, 24);
+ABI1_TYPE_LAYOUT(byul_maze_navgrid_overlay_token_t, 24, 8);
+ABI1_FIELD_OFFSET(byul_maze_navgrid_overlay_token_t, struct_size, 0);
+ABI1_FIELD_OFFSET(byul_maze_navgrid_overlay_token_t, abi_version, 4);
+ABI1_FIELD_OFFSET(byul_maze_navgrid_overlay_token_t, owner_cookie, 8);
+ABI1_FIELD_OFFSET(byul_maze_navgrid_overlay_token_t, overlay, 16);
+
 #undef ABI1_FIELD_OFFSET
 #undef ABI1_TYPE_LAYOUT
 
@@ -243,6 +261,46 @@ static bool sdk_is_blocked(
 static_assert(
     _Generic(&sdk_is_blocked, is_coord_blocked_func: 1, default: 0),
     "navgrid blocked callback calling convention");
+static_assert(
+    _Generic(
+        &byul_maze_translate,
+        navsys_status_t (*)(maze_t*, int32_t, int32_t): 1,
+        default: 0),
+    "maze translate C calling convention");
+static_assert(
+    _Generic(
+        &byul_maze_create,
+        navsys_status_t (*)(const byul_maze_extent_t*, maze_t**): 1,
+        default: 0),
+    "maze checked create C calling convention");
+static_assert(
+    _Generic(
+        &byul_maze_apply,
+        navsys_status_t (*)(
+            const maze_t*, navgrid_t*,
+            const byul_maze_navgrid_apply_options_t*,
+            byul_maze_navgrid_overlay_token_t*, size_t*): 1,
+        default: 0),
+    "maze checked apply C calling convention");
+static_assert(
+    _Generic(
+        &byul_maze_set_blocked,
+        navsys_status_t (*)(maze_t*, int32_t, int32_t, bool, bool*): 1,
+        default: 0),
+    "maze checked mutation C calling convention");
+static_assert(
+    _Generic(
+        &byul_maze_is_blocked,
+        navsys_status_t (*)(const maze_t*, int32_t, int32_t, bool*): 1,
+        default: 0),
+    "maze checked query C calling convention");
+static_assert(
+    _Generic(
+        &byul_maze_check_abi,
+        navsys_status_t (*)(
+            uint32_t, uint64_t, byul_maze_abi_mismatch_t*): 1,
+        default: 0),
+    "maze ABI check C calling convention");
 
 int main(void) {
     navcell_t zero_cell = {0};
@@ -1023,6 +1081,38 @@ int main(void) {
     coord_list_destroy(canonical_neighbors);
     obstacle_destroy(checked_obstacle_copy);
     obstacle_destroy(checked_obstacle);
+
+    {
+        const byul_maze_extent_t maze_extent = {-2, 4, 5, 3};
+        maze_t* checked_maze = NULL;
+        bool maze_changed = false;
+        bool maze_blocked = false;
+        size_t maze_blocked_count = 0;
+        byul_maze_abi_mismatch_t maze_mismatch =
+            BYUL_MAZE_ABI_VERSION_MISMATCH;
+        if (byul_maze_check_abi(
+                BYUL_MAZE_ABI_VERSION,
+                BYUL_MAZE_ABI_FINGERPRINT,
+                &maze_mismatch) != NAVSYS_STATUS_OK
+            || maze_mismatch != BYUL_MAZE_ABI_MATCH
+            || byul_maze_create(&maze_extent, &checked_maze)
+                != NAVSYS_STATUS_OK
+            || byul_maze_set_blocked(
+                checked_maze, -1, 5, true, &maze_changed)
+                != NAVSYS_STATUS_OK
+            || !maze_changed
+            || byul_maze_is_blocked(
+                checked_maze, -1, 5, &maze_blocked) != NAVSYS_STATUS_OK
+            || !maze_blocked
+            || byul_maze_get_blocked_count(
+                checked_maze, &maze_blocked_count) != NAVSYS_STATUS_OK
+            || maze_blocked_count != 1) {
+            fprintf(stderr, "unexpected checked maze accessor ABI\n");
+            maze_destroy(checked_maze);
+            return 8;
+        }
+        maze_destroy(checked_maze);
+    }
 
     navgrid_t* legacy_carver_grid = navgrid_create_full(
         3, 3, NAVGRID_DIR_8, NULL);

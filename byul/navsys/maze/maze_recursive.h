@@ -1,5 +1,17 @@
-#ifndef MAZE_RECURSIVE_H
-#define MAZE_RECURSIVE_H
+/*
+ * Copyright (c) 2025-2026 ByulPapa (byuldev@outlook.kr)
+ * This file is part of the Byul World project.
+ * Licensed under the Byul World Source-Available Non-Commercial License v1.0 (2025).
+ * See the LICENSE file in the project root for full license terms.
+ */
+
+/**
+ * @file maze_recursive.h
+ * @brief 재귀 백트래커 Maze 생성기의 레거시 public C ABI를 선언한다.
+ */
+
+#ifndef BYUL_MAZE_RECURSIVE_H
+#define BYUL_MAZE_RECURSIVE_H
 
 #include "maze_core.h"
 
@@ -8,45 +20,18 @@ extern "C" {
 #endif
 
 /**
- * @brief Generate a maze using recursive backtracking (depth-first search).
- *
- * This function builds a perfect maze 
- * (no loops, single path between any two cells)
- * using recursive backtracking. It starts 
- * from an initial cell (1,1) and carves
- * random passages by visiting unvisited neighbors and removing walls.
- *
- * ---
- *
- * ### Features
- * - Creates a maze with no cycles (tree-like structure)
- * - Randomness provides unique layout on each execution
- * - Works only with odd-width and odd-height grids
- *
- * ---
- *
- * ### Input Constraints
- * - Both `width` and `height` must be **odd numbers**
- * - Minimum size: 3x3
- *
- * ---
- *
- * ### Usage Example
- * @code
- * maze_t* maze = maze_make_recursive(0, 0, 11, 11);
- * if (maze) {
- *     maze_apply_to_navgrid(maze, navgrid);
- *     navgrid_print_ascii(navgrid);
- * }
- * @endcode
- *
- * ---
- *
- * @param x0 Starting X coordinate of the maze
- * @param y0 Starting Y coordinate of the maze
- * @param width Maze width (must be odd and ≥ 3)
- * @param height Maze height (must be odd and ≥ 3)
- * @return Pointer to the generated maze (`maze_t*`), or `nullptr` on failure
+ * @brief 비결정적 재귀 백트래커로 perfect Maze를 생성한다.
+ * @param[in] x0 Maze 원점의 X 좌표다.
+ * @param[in] y0 Maze 원점의 Y 좌표다.
+ * @param[in] width 3 이상인 홀수 너비다.
+ * @param[in] height 3 이상인 홀수 높이다.
+ * @return caller-owned Maze이며 입력 또는 allocation 실패 시 NULL이다.
+ * @byul.nullable return true
+ * @byul.lifetime return caller-owned
+ * @byul.error sentinel:null
+ * @byul.side_effect allocates
+ * @byul.thread_safety thread-compatible
+ * @byul.blocking true
  */
 BYUL_API maze_t* maze_make_recursive(int x0, int y0, int width, int height);
 
@@ -54,4 +39,4 @@ BYUL_API maze_t* maze_make_recursive(int x0, int y0, int width, int height);
 }
 #endif
 
-#endif // MAZE_RECURSIVE_H
+#endif /* BYUL_MAZE_RECURSIVE_H */
