@@ -5378,6 +5378,50 @@
       "decision_status": "approved"
     },
     {
+      "asset_id": "created:byul/navsys/route_finder/internal/coord_hash_adapters.hpp",
+      "current_path": "byul/navsys/route_finder/internal/coord_hash_adapters.hpp",
+      "sha256": "e681c4cd876416715cedeb9d7819b6d77a5cde3011cf00cd6a2b21cd89213320",
+      "primary_role": "internal",
+      "role_reason": "Private ownership adapters shared by route-finder implementations using coord_hash values.",
+      "owner_module": "navsys",
+      "public_module": "route_finder",
+      "approved_install": false,
+      "install_reason": "Internal implementation headers are excluded from the SDK.",
+      "wrapper": {
+        "mode": "excluded",
+        "reason": "Internal headers are outside the installed C ABI wrapper input."
+      },
+      "naming": {
+        "disposition": "keep",
+        "canonical_path": "byul/navsys/route_finder/internal/coord_hash_adapters.hpp",
+        "canonical_install": false,
+        "deprecated_since": null,
+        "remove_in": null,
+        "reason": "Canonical internal implementation path.",
+        "compatibility_path": null
+      },
+      "successor_headers": [],
+      "source_evidence": {
+        "module_header_groups": [],
+        "root_header_inventory": false,
+        "install_inventory": false,
+        "wrapper_modules_registered": false,
+        "exported_symbols": [],
+        "source_definition_candidates": [
+          "byul/navsys/route_finder/astar.cpp",
+          "byul/navsys/route_finder/bfs.cpp",
+          "byul/navsys/route_finder/dfs.cpp",
+          "byul/navsys/route_finder/dijkstra.cpp",
+          "byul/navsys/route_finder/fringe_search.cpp",
+          "byul/navsys/route_finder/greedy_best_first.cpp",
+          "byul/navsys/route_finder/ida_star.cpp",
+          "byul/navsys/route_finder/sma_star.cpp",
+          "byul/navsys/route_finder/weighted_astar.cpp"
+        ]
+      },
+      "decision_status": "approved"
+    },
+    {
       "asset_id": "initial:byul/navsys/route_finder/route_finder.h",
       "current_path": "byul/navsys/route_finder/route_finder.h",
       "sha256": "6a08807a60297f2ca5c2937a1c4b00c458f200c9c0037126d143265f026198aa",
