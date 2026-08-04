@@ -3507,7 +3507,7 @@
     {
       "asset_id": "initial:byul/navsys/maze/maze_binary.h",
       "current_path": "byul/navsys/maze/maze_binary.h",
-      "sha256": "651abd4c5ec3ead487d02f2d4f0c9755c1c360ec368616c212199f51458d5123",
+      "sha256": "d11ebb15949598ef9a5009f01530d2fc54f8ad437b0167fca8e80921f53e4b0e",
       "primary_role": "public-component",
       "role_reason": "Handwritten public maze algorithm component; generator wording is not file provenance.",
       "owner_module": "navsys",
@@ -3515,8 +3515,8 @@
       "approved_install": true,
       "install_reason": "Public or compatibility SDK surface.",
       "wrapper": {
-        "mode": "manual",
-        "reason": "Public legacy declarations require explicit ownership/error metadata before automatic generation."
+        "mode": "generated",
+        "reason": "Registered in the canonical wrapper generator manifest."
       },
       "naming": {
         "disposition": "keep",
@@ -3536,8 +3536,10 @@
         ],
         "root_header_inventory": true,
         "install_inventory": true,
-        "wrapper_modules_registered": false,
+        "wrapper_modules_registered": true,
         "exported_symbols": [
+          "byul_maze_binary_bias_is_supported",
+          "byul_maze_generate_binary_tree",
           "maze_make_binary"
         ],
         "source_definition_candidates": [

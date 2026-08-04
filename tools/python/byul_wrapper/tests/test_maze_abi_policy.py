@@ -1,6 +1,10 @@
 from pathlib import Path
 
-from byul_wrapper.maze import c_maze, maze_algorithm_is_supported
+from byul_wrapper.maze import (
+    c_maze,
+    maze_algorithm_is_supported,
+    maze_binary_bias_is_supported,
+)
 
 
 REPOSITORY_ROOT = Path(__file__).resolve().parents[4]
@@ -30,6 +34,8 @@ def test_maze_wrapper_uses_opaque_ready_accessors():
     assert "C.byul_maze_check_abi" in source
     assert "C.byul_maze_generate" in source
     assert "C.byul_maze_algorithm_is_supported" in source
+    assert "C.byul_maze_generate_binary_tree" in source
+    assert "C.byul_maze_binary_bias_is_supported" in source
     assert "._c.x0" not in source
     assert "._c.blocked" not in source
 
@@ -53,3 +59,15 @@ def test_maze_wrapper_loads_all_checked_dispatcher_algorithms():
             algorithm, -3, 6, 9, 9, seed=20260804
         ) as maze:
             assert maze.extent == (-3, 6, 9, 9)
+
+
+def test_maze_wrapper_loads_all_binary_tree_biases():
+    hashes = []
+    for bias in range(4):
+        assert maze_binary_bias_is_supported(bias)
+        with c_maze.generate_binary_tree(
+            -2, 7, 5, 5, bias, seed=1
+        ) as maze:
+            assert maze.extent == (-2, 7, 5, 5)
+            hashes.append(maze.hash)
+    assert hashes == [470646451, 499477593, 470646451, 499477593]

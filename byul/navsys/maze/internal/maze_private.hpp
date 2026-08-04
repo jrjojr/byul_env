@@ -16,6 +16,7 @@
 #include <cstdint>
 
 #include "../maze.h"
+#include "../maze_binary.h"
 #include "../../coord/coord_hash.h"
 
 struct s_maze {
@@ -80,6 +81,15 @@ navsys_status_t byul_maze_generate_binary_internal(
     int32_t origin_y,
     uint32_t width,
     uint32_t height,
+    byul_maze_generation_context& context,
+    maze_t** out_maze) noexcept;
+
+navsys_status_t byul_maze_generate_binary_with_bias_internal(
+    int32_t origin_x,
+    int32_t origin_y,
+    uint32_t width,
+    uint32_t height,
+    byul_maze_binary_bias_t bias,
     byul_maze_generation_context& context,
     maze_t** out_maze) noexcept;
 

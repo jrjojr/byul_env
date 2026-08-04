@@ -1,0 +1,59 @@
+{
+  "schema_version": 1,
+  "scope": "navsys-maze-binary-stage2",
+  "status": "complete",
+  "source_revision": "1a1d4e77ca6cee8ac1d927be865c04167c9847a5",
+  "canonical_api": {
+    "bias_type": "byul_maze_binary_bias_t",
+    "support_query": "byul_maze_binary_bias_is_supported",
+    "generator": "byul_maze_generate_binary_tree",
+    "options": "byul_maze_generate_options_t ABI version 1",
+    "output_contract": "out_maze is reset to NULL before validation and receives caller ownership only on success",
+    "status_contract": [
+      "NAVSYS_STATUS_OK",
+      "NAVSYS_STATUS_INVALID_ARGUMENT",
+      "NAVSYS_STATUS_UNSUPPORTED",
+      "NAVSYS_STATUS_OUT_OF_MEMORY",
+      "NAVSYS_STATUS_CALLBACK_FAILED",
+      "NAVSYS_STATUS_CANCELLED",
+      "NAVSYS_STATUS_LIMIT_REACHED"
+    ]
+  },
+  "compatibility": {
+    "legacy_symbol": "maze_make_binary",
+    "legacy_policy": "deprecated ABI 1.x adapter",
+    "legacy_bias": "BYUL_MAZE_BINARY_BIAS_SOUTH_EAST",
+    "legacy_seed": "non-replayable process-local generation seed",
+    "generic_dispatcher_bias": "BYUL_MAZE_BINARY_BIAS_SOUTH_EAST"
+  },
+  "failure_atomicity": {
+    "fixture": "byul/navsys/tests/test_navsys_allocation_failure.cpp",
+    "profile": "windows-msvc-release-x64",
+    "result": "allocation failures return OUT_OF_MEMORY, publish no partial output, and leave zero tracked allocations"
+  },
+  "wrapper": {
+    "generator_manifest": "tools/python/byul_wrapper/generate_wrapper_abi.py",
+    "module": "tools/python/byul_wrapper/byul_wrapper/maze.py",
+    "high_level_entry": "c_maze.generate_binary_tree",
+    "support_query": "maze_binary_bias_is_supported",
+    "native_load_test": "5/5 direct wrapper policy tests passed against the current MSVC Release DLL",
+    "generator_tests": "4/4 generator tests and 7/7 parser tests passed"
+  },
+  "root_shared": {
+    "profile": "msvc-x64-release",
+    "export_count": 1203,
+    "exports": [
+      "byul_maze_binary_bias_is_supported",
+      "byul_maze_generate_binary_tree",
+      "maze_make_binary"
+    ],
+    "installed_header": "include/byul/maze_binary.h"
+  },
+  "verification": {
+    "test_maze": "48/48 test cases, 59855/59855 assertions",
+    "test_navsys_allocation_failure": "exit 0",
+    "header_abi_audit": "150 headers, 95 public C headers, 1164 declarations, 0 invariant errors",
+    "navsys_abi_inventory": "58 headers, 648 symbols",
+    "central_rules": "60 Org files, 0 errors, 0 warnings"
+  }
+}

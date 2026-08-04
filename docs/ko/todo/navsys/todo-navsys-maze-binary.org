@@ -77,7 +77,7 @@ BYUL_API navsys_status_t byul_maze_generate_binary_tree(
 - RNG는 caller seed를 사용하고 각 two-choice가 unbiased여야 한다. 경계 forced choice는 RNG를
   소비할지 여부까지 golden contract에 포함한다.
 
-* TODO 1단계: bias와 lattice 기준선
+* DONE 1단계: bias와 lattice 기준선
 
 ** 실행
 
@@ -95,7 +95,14 @@ BYUL_API navsys_status_t byul_maze_generate_binary_tree(
 - 네 bias 각각 작은 hand-authored grid의 root/border corridor를 검사한다.
 - invalid/even/overflow dimension을 test한다.
 
-* TODO 2단계: 옵션·status API 구현
+** 결과
+
+- [[file:maze-binary-stage1-baseline.json][maze-binary-stage1-baseline.json]]에 좌표계, RNG draw 순서,
+  3x3/5x5 blocked hash, 네 bias의 hand-authored graph edge와 consumer inventory를 기록했다.
+- =test_module_maze.cpp=가 seed 1의 네 bias raster와 hash, border, connectivity,
+  =N-1= edge oracle, invalid/even/overflow extent를 검증한다.
+
+* DONE 2단계: 옵션·status API 구현
 
 ** 실행
 
@@ -112,7 +119,16 @@ BYUL_API navsys_status_t byul_maze_generate_binary_tree(
 
 - old/new consumer, all bias/seed golden과 allocator fault test를 실행한다.
 
-* TODO 3단계: 위상·편향 test
+** 결과
+
+- =byul_maze_generate_binary_tree=와 bias support query를 추가하고 legacy entry는
+  =SOUTH_EAST= 비결정 adapter로 유지했다.
+- [[file:maze-binary-stage2-contract.json][maze-binary-stage2-contract.json]]에 status/options, export, wrapper와
+  allocation-failure 검증을 기록했다.
+- MSVC Release module/root build, native old/new consumer, Python wrapper와 전용 allocation
+  failure fixture를 통과했다.
+
+* DOING 3단계: 위상·편향 test
 
 ** 실행
 

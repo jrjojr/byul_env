@@ -9,6 +9,7 @@
 
 extern "C" {
 #include "maze.h"
+#include "maze_binary.h"
 #include "maze_kruskal.h"
 #include "console.h"
 #include "obstacle_core.h"
@@ -176,6 +177,129 @@ TEST_CASE("maze dispatcher preserves its ABI-1 enum and Kruskal fallback") {
         maze_destroy(actual);
     }
     maze_destroy(expected);
+}
+
+TEST_CASE("Binary Tree checked API preserves explicit bias lattices") {
+    static_assert(BYUL_MAZE_BINARY_BIAS_NORTH_WEST == 0);
+    static_assert(BYUL_MAZE_BINARY_BIAS_NORTH_EAST == 1);
+    static_assert(BYUL_MAZE_BINARY_BIAS_SOUTH_WEST == 2);
+    static_assert(BYUL_MAZE_BINARY_BIAS_SOUTH_EAST == 3);
+    static_assert(sizeof(byul_maze_binary_bias_t) == 4);
+
+    struct bias_case_t {
+        byul_maze_binary_bias_t bias;
+        int open_midpoints[3][2];
+        uint32_t expected_hash;
+    };
+    const bias_case_t cases[] = {
+        {BYUL_MAZE_BINARY_BIAS_NORTH_WEST,
+            {{2, 1}, {1, 2}, {2, 3}}, UINT32_C(470646451)},
+        {BYUL_MAZE_BINARY_BIAS_NORTH_EAST,
+            {{2, 1}, {2, 3}, {3, 2}}, UINT32_C(499477593)},
+        {BYUL_MAZE_BINARY_BIAS_SOUTH_WEST,
+            {{2, 1}, {1, 2}, {2, 3}}, UINT32_C(470646451)},
+        {BYUL_MAZE_BINARY_BIAS_SOUTH_EAST,
+            {{2, 1}, {2, 3}, {3, 2}}, UINT32_C(499477593)}
+    };
+    const byul_maze_generate_options_t options{
+        sizeof(byul_maze_generate_options_t),
+        BYUL_MAZE_GENERATE_OPTIONS_ABI_VERSION,
+        UINT64_C(1),
+        UINT64_C(1000),
+        UINT64_C(25),
+        nullptr,
+        nullptr
+    };
+
+    for (const bias_case_t& fixture : cases) {
+        CAPTURE(static_cast<int>(fixture.bias));
+        bool supported = false;
+        REQUIRE(byul_maze_binary_bias_is_supported(
+            fixture.bias, &supported) == NAVSYS_STATUS_OK);
+        CHECK(supported);
+
+        maze_t* maze = nullptr;
+        REQUIRE(byul_maze_generate_binary_tree(
+            -2, 7, 5, 5, fixture.bias, &options, &maze)
+            == NAVSYS_STATUS_OK);
+        REQUIRE(maze != nullptr);
+        CHECK(maze_hash(maze) == fixture.expected_hash);
+        const maze_topology_t topology =
+            analyze_logical_topology(maze, -2, 7, 5, 5);
+        CHECK(topology.queries_ok);
+        CHECK(topology.border_blocked);
+        CHECK(topology.logical_cells_open);
+        CHECK(topology.connected);
+        CHECK(topology.node_count == 4);
+        CHECK(topology.edge_count == 3);
+
+        for (int y = 1; y < 4; ++y) {
+            for (int x = 1; x < 4; ++x) {
+                if ((x & 1) == (y & 1)) continue;
+                bool expected_open = false;
+                for (const auto& midpoint : fixture.open_midpoints) {
+                    expected_open = expected_open
+                        || (x == midpoint[0] && y == midpoint[1]);
+                }
+                bool blocked = true;
+                REQUIRE(byul_maze_is_blocked(
+                    maze, -2 + x, 7 + y, &blocked) == NAVSYS_STATUS_OK);
+                CHECK(blocked == !expected_open);
+            }
+        }
+        maze_destroy(maze);
+
+        maze = nullptr;
+        REQUIRE(byul_maze_generate_binary_tree(
+            0, 0, 3, 3, fixture.bias, &options, &maze)
+            == NAVSYS_STATUS_OK);
+        REQUIRE(maze != nullptr);
+        CHECK(maze_hash(maze) == UINT32_C(663082931));
+        maze_destroy(maze);
+    }
+}
+
+TEST_CASE("Binary Tree checked API rejects invalid dimensions and bias") {
+    byul_maze_generate_options_t options{
+        sizeof(byul_maze_generate_options_t),
+        BYUL_MAZE_GENERATE_OPTIONS_ABI_VERSION,
+        UINT64_C(0),
+        UINT64_C(1000),
+        UINT64_C(0),
+        nullptr,
+        nullptr
+    };
+    maze_t* output = reinterpret_cast<maze_t*>(uintptr_t{1});
+    CHECK(byul_maze_generate_binary_tree(
+        0, 0, 2, 3, BYUL_MAZE_BINARY_BIAS_SOUTH_EAST, &options, &output)
+        == NAVSYS_STATUS_UNSUPPORTED);
+    CHECK(output == nullptr);
+
+    output = reinterpret_cast<maze_t*>(uintptr_t{1});
+    CHECK(byul_maze_generate_binary_tree(
+        0, 0, 4, 5, BYUL_MAZE_BINARY_BIAS_SOUTH_EAST, &options, &output)
+        == NAVSYS_STATUS_UNSUPPORTED);
+    CHECK(output == nullptr);
+
+    output = reinterpret_cast<maze_t*>(uintptr_t{1});
+    CHECK(byul_maze_generate_binary_tree(
+        std::numeric_limits<int32_t>::max(), 0, 3, 3,
+        BYUL_MAZE_BINARY_BIAS_SOUTH_EAST, &options, &output)
+        == NAVSYS_STATUS_INVALID_ARGUMENT);
+    CHECK(output == nullptr);
+
+    output = reinterpret_cast<maze_t*>(uintptr_t{1});
+    CHECK(byul_maze_generate_binary_tree(
+        0, 0, 3, 3, static_cast<byul_maze_binary_bias_t>(4),
+        &options, &output) == NAVSYS_STATUS_UNSUPPORTED);
+    CHECK(output == nullptr);
+    bool supported = true;
+    CHECK(byul_maze_binary_bias_is_supported(
+        static_cast<byul_maze_binary_bias_t>(-1), &supported)
+        == NAVSYS_STATUS_UNSUPPORTED);
+
+    CHECK(maze_make_binary(0, 0, 2, 3) == nullptr);
+    CHECK(maze_make_binary(0, 0, 4, 5) == nullptr);
 }
 
 TEST_CASE("maze checked dispatcher validates options and routes algorithms") {

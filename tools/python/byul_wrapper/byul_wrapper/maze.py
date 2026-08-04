@@ -223,6 +223,28 @@ typedef struct s_byul_maze_generate_options {
 
  maze_t* maze_make(
     int x0, int y0, int width, int height, maze_type_t type);
+
+/* Source: byul/navsys/maze/maze_binary.h */
+typedef enum e_byul_maze_binary_bias {
+    BYUL_MAZE_BINARY_BIAS_NORTH_WEST = 0,
+    BYUL_MAZE_BINARY_BIAS_NORTH_EAST = 1,
+    BYUL_MAZE_BINARY_BIAS_SOUTH_WEST = 2,
+    BYUL_MAZE_BINARY_BIAS_SOUTH_EAST = 3
+} byul_maze_binary_bias_t;
+
+ navsys_status_t byul_maze_binary_bias_is_supported(
+    byul_maze_binary_bias_t bias, bool* out_supported);
+
+ navsys_status_t byul_maze_generate_binary_tree(
+    int32_t origin_x,
+    int32_t origin_y,
+    uint32_t width,
+    uint32_t height,
+    byul_maze_binary_bias_t bias,
+    const byul_maze_generate_options_t* options,
+    maze_t** out_maze);
+
+ maze_t* maze_make_binary(int x0, int y0, int width, int height);
 """)
 
 
@@ -233,6 +255,17 @@ def maze_algorithm_is_supported(algorithm):
     raise_for_status(
         C.byul_maze_algorithm_is_supported(algorithm, output),
         "byul_maze_algorithm_is_supported",
+    )
+    return bool(output[0])
+
+
+def maze_binary_bias_is_supported(bias):
+    """Return whether the Binary Tree generator supports a bias."""
+    _check_maze_abi()
+    output = ffi.new("bool*")
+    raise_for_status(
+        C.byul_maze_binary_bias_is_supported(bias, output),
+        "byul_maze_binary_bias_is_supported",
     )
     return bool(output[0])
 
@@ -298,6 +331,48 @@ class c_maze:
         )
         return cls(raw_ptr=output[0], own=True)
 
+    @classmethod
+    def generate_binary_tree(
+        cls,
+        x0,
+        y0,
+        width,
+        height,
+        bias,
+        *,
+        seed,
+        max_steps=0,
+        max_cells=0,
+    ):
+        """Generate a deterministic perfect Binary Tree Maze."""
+        _check_maze_abi()
+        options = ffi.new(
+            "byul_maze_generate_options_t*",
+            dict(
+                struct_size=ffi.sizeof("byul_maze_generate_options_t"),
+                abi_version=MAZE_GENERATE_OPTIONS_ABI_VERSION,
+                seed=seed,
+                max_steps=max_steps,
+                max_cells=max_cells,
+                cancel_func=ffi.NULL,
+                cancel_userdata=ffi.NULL,
+            ),
+        )
+        output = ffi.new("maze_t**")
+        raise_for_status(
+            C.byul_maze_generate_binary_tree(
+                x0,
+                y0,
+                width,
+                height,
+                bias,
+                options,
+                output,
+            ),
+            "byul_maze_generate_binary_tree",
+        )
+        return cls(raw_ptr=output[0], own=True)
+
     @property
     def extent(self):
         output = ffi.new("byul_maze_extent_t*")
@@ -311,6 +386,11 @@ class c_maze:
             int(output.width),
             int(output.height),
         )
+
+    @property
+    def hash(self):
+        """Return the deterministic blocked-coordinate hash."""
+        return int(C.maze_hash(self._c))
 
     def translate(self, delta_x, delta_y):
         raise_for_status(
