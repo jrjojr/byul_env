@@ -118,7 +118,7 @@ BYUL_API navsys_status_t byul_maze_generate_hunt_and_kill(
 
 - deterministic/property corpus, worst-case benchmark와 sanitizer를 실행한다.
 
-* DOING 4단계: Header·통합 gate
+* DONE 4단계: Header·통합 gate
 
 ** 실행
 
