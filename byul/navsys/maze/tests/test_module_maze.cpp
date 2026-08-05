@@ -875,11 +875,18 @@ TEST_CASE("Eller corrected lattice has stable tiny goldens") {
 TEST_CASE("Eller corrected lattice remains perfect across 100 seeds") {
     for (uint64_t seed = 0; seed < 100; ++seed) {
         CAPTURE(seed);
-        byul_maze_generation_context context(
-            seed, UINT64_C(1000000), nullptr, nullptr);
+        const byul_maze_generate_options_t options{
+            sizeof(byul_maze_generate_options_t),
+            BYUL_MAZE_GENERATE_OPTIONS_ABI_VERSION,
+            seed,
+            UINT64_C(16),
+            UINT64_C(81),
+            nullptr,
+            nullptr
+        };
         maze_t* maze = nullptr;
-        REQUIRE(byul_maze_generate_eller_internal(
-            13, -21, 9, 9, context, &maze) == NAVSYS_STATUS_OK);
+        REQUIRE(byul_maze_generate_eller(
+            13, -21, 9, 9, &options, &maze) == NAVSYS_STATUS_OK);
         REQUIRE(maze != nullptr);
 
         const maze_topology_t topology =
@@ -891,6 +898,47 @@ TEST_CASE("Eller corrected lattice remains perfect across 100 seeds") {
         CHECK(topology.edge_count + 1 == topology.node_count);
         maze_destroy(maze);
     }
+}
+
+TEST_CASE("Eller direct dispatcher and legacy paths share topology") {
+    const uint64_t seeds[] = {
+        UINT64_C(0), UINT64_C(1), UINT64_C(17), UINT64_MAX
+    };
+    for (const uint64_t seed : seeds) {
+        CAPTURE(seed);
+        const byul_maze_generate_options_t options{
+            sizeof(byul_maze_generate_options_t),
+            BYUL_MAZE_GENERATE_OPTIONS_ABI_VERSION,
+            seed,
+            UINT64_C(16),
+            UINT64_C(81),
+            nullptr,
+            nullptr
+        };
+        maze_t* direct = nullptr;
+        maze_t* dispatched = nullptr;
+        REQUIRE(byul_maze_generate_eller(
+            -5, 8, 9, 9, &options, &direct) == NAVSYS_STATUS_OK);
+        REQUIRE(byul_maze_generate(
+            BYUL_MAZE_ALGORITHM_ELLER,
+            -5, 8, 9, 9, &options, &dispatched) == NAVSYS_STATUS_OK);
+        REQUIRE(direct != nullptr);
+        REQUIRE(dispatched != nullptr);
+        CHECK(maze_hash(direct) == maze_hash(dispatched));
+        maze_destroy(dispatched);
+        maze_destroy(direct);
+    }
+
+    maze_t* legacy = maze_make_eller(-5, 8, 9, 9);
+    REQUIRE(legacy != nullptr);
+    const maze_topology_t topology =
+        analyze_logical_topology(legacy, -5, 8, 9, 9);
+    CHECK(topology.queries_ok);
+    CHECK(topology.border_blocked);
+    CHECK(topology.logical_cells_open);
+    CHECK(topology.connected);
+    CHECK(topology.edge_count + 1 == topology.node_count);
+    maze_destroy(legacy);
 }
 
 TEST_CASE("all internal generators cancel without publishing partial output") {
