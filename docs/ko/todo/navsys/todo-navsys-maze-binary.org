@@ -1,5 +1,14 @@
 #+TITLE: BYUL maze_binary.h 정밀 리팩터링 TODO
 #+TODO: TODO DOING BLOCKED | DONE CANCELLED FAILED
+#+TODO_STATUS: DONE
+#+RELEASE_NOTE_REQUIRED: yes
+#+RELEASE_CHANGE_KIND: feature
+#+RELEASE_LEVEL: minor
+#+RELEASE_TARGET: both
+#+RELEASE_TITLE: 결정적 bias 지정 Binary Tree Maze 생성 API
+#+RELEASE_GOAL: caller가 seed, 방향 bias, resource budget과 취소 정책을 명시해 perfect Maze를 replay할 수 있게 한다.
+#+RELEASE_BREAKING: no
+#+HELP_UPDATE_REQUIRED: no
 #+TODO_RULES: ../../../../external/rules/projects/byul/todo-rules.org
 #+PUBLIC_API_RULES: ../../../../external/rules/projects/byul/public-api-rules.org
 #+HEADER_DECLARATION_RULES: ../../../../external/rules/projects/byul/header-declaration-rules.org
@@ -159,7 +168,7 @@ BYUL_API navsys_status_t byul_maze_generate_binary_tree(
 - [[file:maze-binary-stage3-contract.json][maze-binary-stage3-contract.json]]에 bias/seed/hash provenance, 통계 범위와
   O(width*height) 시간·저장공간 budget을 기록했다.
 
-* DOING 4단계: Header·통합 gate
+* DONE 4단계: Header·통합 gate
 
 ** 실행
 
@@ -174,3 +183,24 @@ BYUL_API navsys_status_t byul_maze_generate_binary_tree(
 
 - C17/C++17 standalone compile, static/root tests와 SDK consumer를 실행한다.
 - module static =BYUL_STATIC=과 root shared =BYUL_EXPORTS=에서 legacy/canonical export를 각각 검증한다.
+
+** 결과
+
+- =maze_binary.h=에 bias 좌표 의미, PCG32 draw/replay, perfect-tree와 non-UST 경계,
+  실패 시 NULL output, ownership, thread/reentrancy, O(width*height) 계약을 기록했다.
+  Generation options의 실제 소유 header가 =maze.h=이므로 component는 이 direct dependency를
+  유지하며 =maze_core.h=만 include하는 잘못된 축소는 standalone compile gate로 거부했다.
+- MSVC Release와 Virtual Yard GCC 13.3 Debug에서 =BYUL_STATIC= module archive와
+  =BYUL_EXPORTS= root shared가 support query, canonical generator, legacy adapter 세 symbol을
+  각각 한 번씩 정의/export했다.
+- 새 Windows/Linux clean SDK에서 C17/C++17 direct consumer가 support query, 네이티브 생성,
+  legacy 생성과 destroy를 link/run했다. Linux 소비자는 ASan/LSan root와 같은 계측 profile로
+  실행해 sanitizer 오류와 leak 없이 종료했다.
+- MSVC와 GCC ASan/LSan =test_maze=는 각각 51 cases/119,609 assertions를 통과했다.
+  Strict header audit와 targeted wrapper header audit은 오류 0, generated CFFI =--check=,
+  wrapper native 5 tests와 generator/parser 11 tests도 통과했다.
+- [[file:maze-binary-stage4-contract.json][maze-binary-stage4-contract.json]]에 설치 header, dispatcher/wrapper manifest,
+  static/root symbol, SDK consumer와 release-note 후보 근거를 기록했다. Legacy
+  =maze_make_binary=는 SOUTH_EAST 비결정 adapter로 유지되는 non-breaking minor feature다.
+- 저장소 전체 wrapper audit의 unrelated 기존 문서 부채와 로컬 macOS 미실행은 증적에
+  제한으로 명시했으며, 현재 =maze_binary.h= 자체의 targeted issue는 0이다.
