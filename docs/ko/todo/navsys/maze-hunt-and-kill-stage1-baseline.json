@@ -1,0 +1,83 @@
+{
+  "schema_version": 1,
+  "scope": "navsys-maze-hunt-and-kill-stage1",
+  "status": "complete",
+  "source_revision": "18dac99b554634ba9259ff3de4e2b67330fb1c57",
+  "historical_implementation": {
+    "revision": "13624d1aadaa4f3d0508c2ef6a9f42896e05ae83",
+    "state": "height-by-width grid and visited matrices",
+    "rng": "std::mt19937 seeded from time(nullptr), std::shuffle, and modulo neighbor selection",
+    "known_contract_breaks": [
+      "results were not explicitly seed-replayable",
+      "hunt attachment used modulo reduction",
+      "allocation and blocked-cell insertion failures were not reported"
+    ]
+  },
+  "correction": {
+    "revision": "41070504e08009dd1f08f3263f5f2477db3413d1",
+    "rng": "shared Maze PCG32 generation context using bounded draws",
+    "failure_model": "checked maze creation, checked blocking, cancellation, step limits, and exception barriers",
+    "legacy_compatibility": "Preserve the corrected algorithm and make maze_make_hunt_and_kill an ABI 1.x adapter to the canonical status API."
+  },
+  "phase_contract": {
+    "start": "uniformly select one odd/odd logical cell and mark it visited",
+    "kill": "shuffle four directions and carve to the first valid unvisited neighbor",
+    "hunt": "scan odd/odd logical cells in row-major order, select the first unvisited cell adjacent to the tree, and uniformly select one visited attachment neighbor",
+    "progress_invariant": "Every successful kill or hunt carve adds exactly one previously unvisited logical vertex and one edge to the existing tree.",
+    "termination": "On the connected rectangular logical lattice, no eligible hunt cell exists only after every logical vertex has joined the tree."
+  },
+  "hunt_policy_decision": {
+    "canonical_policy": "ROW_MAJOR_FIRST",
+    "legacy_default": "ROW_MAJOR_FIRST",
+    "public_enum": false,
+    "reason": "ABI 1 exposes one supported policy; add a typed policy only when a second behavior is implemented and tested."
+  },
+  "tiny_goldens": {
+    "origin": [-5, 8],
+    "seed": 0,
+    "step_budget": 1000000,
+    "3x3_blocked_hash": 910439850,
+    "5x5_blocked_hash": 874550531,
+    "9x9_blocked_hash": 26398801
+  },
+  "topology_oracle": {
+    "seed_corpus": "integer seeds 0 through 99",
+    "extent": [13, -21, 9, 9],
+    "narrow_extents": [[-11, 23, 3, 9], [-11, 23, 9, 3]],
+    "requirements": [
+      "outer border is blocked",
+      "all odd/odd logical cells are passages",
+      "all logical cells are connected",
+      "edge count equals logical node count minus one"
+    ]
+  },
+  "consumer_inventory": {
+    "implementation": "byul/navsys/maze/maze_hunt_and_kill.cpp",
+    "public_header": "byul/navsys/maze/maze_hunt_and_kill.h",
+    "public_symbol": "maze_make_hunt_and_kill",
+    "internal_status_generator": "byul_maze_generate_hunt_and_kill_internal",
+    "generic_dispatcher": "BYUL_MAZE_ALGORITHM_HUNT_AND_KILL routes to byul_maze_generate_hunt_and_kill_internal",
+    "module_test": "byul/navsys/maze/tests/test_module_maze.cpp",
+    "static_target": "maze",
+    "root_shared_target": "byul",
+    "installed_header": "include/byul/maze_hunt_and_kill.h",
+    "sdk_header_inventory": "byul/tests/sdk_consumer/CMakeLists.txt",
+    "wrapper_direct_entry": false,
+    "wrapper_generic_enum": "MAZE_TYPE_HUNT_AND_KILL",
+    "repository_exact_raster_consumer_fixture": false
+  },
+  "stage2_decision": {
+    "add_public_status_api": "byul_maze_generate_hunt_and_kill",
+    "preserve_current_rng_draw_order": true,
+    "preserve_row_major_hunt": true,
+    "legacy_symbol": "deprecated forward adapter",
+    "required_followup": "Expose the checked generator, enforce the visited-count postcondition, and document replay, topology, failure, ownership, and cancellation contracts."
+  },
+  "verification": {
+    "windows_msvc_release": "59/59 test cases, 121125/121125 assertions",
+    "native_test": "Hunt-and-Kill tiny-golden, 100-seed property, and one-dimensional logical-grid cases are owned by test_module_maze.cpp",
+    "historical_evidence": "git history and the parent of correction revision 4107050",
+    "inventory_evidence": "CMake source/header lists, dispatcher source, SDK consumer header list, and wrapper generic enum",
+    "rules_validation": "60 Org rule files, 0 errors, 0 warnings"
+  }
+}

@@ -900,6 +900,90 @@ TEST_CASE("Eller corrected lattice remains perfect across 100 seeds") {
     }
 }
 
+TEST_CASE("Hunt-and-Kill phase contract has stable tiny goldens") {
+    struct fixture_t {
+        uint32_t width;
+        uint32_t height;
+        uint32_t expected_hash;
+    };
+    const fixture_t fixtures[] = {
+        {3, 3, UINT32_C(910439850)},
+        {5, 5, UINT32_C(874550531)},
+        {9, 9, UINT32_C(26398801)}
+    };
+
+    for (const fixture_t& fixture : fixtures) {
+        CAPTURE(fixture.width);
+        CAPTURE(fixture.height);
+        byul_maze_generation_context context(
+            UINT64_C(0), UINT64_C(1000000), nullptr, nullptr);
+        maze_t* maze = nullptr;
+        REQUIRE(byul_maze_generate_hunt_and_kill_internal(
+            -5, 8, fixture.width, fixture.height, context, &maze)
+            == NAVSYS_STATUS_OK);
+        REQUIRE(maze != nullptr);
+        CHECK(maze_hash(maze) == fixture.expected_hash);
+
+        const maze_topology_t topology = analyze_logical_topology(
+            maze, -5, 8,
+            static_cast<int>(fixture.width),
+            static_cast<int>(fixture.height));
+        CHECK(topology.queries_ok);
+        CHECK(topology.border_blocked);
+        CHECK(topology.logical_cells_open);
+        CHECK(topology.connected);
+        CHECK(topology.edge_count + 1 == topology.node_count);
+        maze_destroy(maze);
+    }
+}
+
+TEST_CASE("Hunt-and-Kill remains perfect across 100 seeds") {
+    for (uint64_t seed = 0; seed < 100; ++seed) {
+        CAPTURE(seed);
+        byul_maze_generation_context context(
+            seed, UINT64_C(1000000), nullptr, nullptr);
+        maze_t* maze = nullptr;
+        REQUIRE(byul_maze_generate_hunt_and_kill_internal(
+            13, -21, 9, 9, context, &maze) == NAVSYS_STATUS_OK);
+        REQUIRE(maze != nullptr);
+
+        const maze_topology_t topology =
+            analyze_logical_topology(maze, 13, -21, 9, 9);
+        CHECK(topology.queries_ok);
+        CHECK(topology.border_blocked);
+        CHECK(topology.logical_cells_open);
+        CHECK(topology.connected);
+        CHECK(topology.edge_count + 1 == topology.node_count);
+        maze_destroy(maze);
+    }
+}
+
+TEST_CASE("Hunt-and-Kill handles one-dimensional logical grids") {
+    const int extents[][2] = {{3, 9}, {9, 3}};
+    for (const auto& extent : extents) {
+        CAPTURE(extent[0]);
+        CAPTURE(extent[1]);
+        byul_maze_generation_context context(
+            UINT64_C(17), UINT64_C(1000000), nullptr, nullptr);
+        maze_t* maze = nullptr;
+        REQUIRE(byul_maze_generate_hunt_and_kill_internal(
+            -11, 23,
+            static_cast<uint32_t>(extent[0]),
+            static_cast<uint32_t>(extent[1]),
+            context, &maze) == NAVSYS_STATUS_OK);
+        REQUIRE(maze != nullptr);
+
+        const maze_topology_t topology = analyze_logical_topology(
+            maze, -11, 23, extent[0], extent[1]);
+        CHECK(topology.queries_ok);
+        CHECK(topology.border_blocked);
+        CHECK(topology.logical_cells_open);
+        CHECK(topology.connected);
+        CHECK(topology.edge_count + 1 == topology.node_count);
+        maze_destroy(maze);
+    }
+}
+
 TEST_CASE("Eller direct dispatcher and legacy paths share topology") {
     const uint64_t seeds[] = {
         UINT64_C(0), UINT64_C(1), UINT64_C(17), UINT64_MAX

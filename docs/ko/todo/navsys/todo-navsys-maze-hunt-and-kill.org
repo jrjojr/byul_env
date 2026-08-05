@@ -65,7 +65,7 @@ BYUL_API navsys_status_t byul_maze_generate_hunt_and_kill(
 - cancel은 kill step과 hunt scan chunk마다 poll하며 max_steps에는 neighbor probe/hunt scan 중 무엇을
   세는지 명시한다.
 
-* TODO 1단계: phase trace와 bias 기준선
+* DONE 1단계: phase trace와 bias 기준선
 
 ** 실행
 
@@ -83,7 +83,7 @@ BYUL_API navsys_status_t byul_maze_generate_hunt_and_kill(
 - every carve가 unvisited vertex 하나를 기존 tree에 추가하는지 trace에서 검사한다.
 - 1-row/1-column logical grid와 nonzero origin을 검사한다.
 
-* TODO 2단계: status/options 구현
+* DOING 2단계: status/options 구현
 
 ** 실행
 
