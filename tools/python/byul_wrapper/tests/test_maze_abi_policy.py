@@ -36,6 +36,7 @@ def test_maze_wrapper_uses_opaque_ready_accessors():
     assert "C.byul_maze_algorithm_is_supported" in source
     assert "C.byul_maze_generate_binary_tree" in source
     assert "C.byul_maze_binary_bias_is_supported" in source
+    assert "C.byul_maze_generate_eller" in source
     assert "._c.x0" not in source
     assert "._c.blocked" not in source
 
@@ -71,3 +72,9 @@ def test_maze_wrapper_loads_all_binary_tree_biases():
             assert maze.extent == (-2, 7, 5, 5)
             hashes.append(maze.hash)
     assert hashes == [470646451, 499477593, 470646451, 499477593]
+
+
+def test_maze_wrapper_loads_checked_eller_generator():
+    with c_maze.generate_eller(-5, 8, 9, 9, seed=0) as maze:
+        assert maze.extent == (-5, 8, 9, 9)
+        assert maze.hash == 789167229

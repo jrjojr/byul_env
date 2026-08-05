@@ -4,7 +4,7 @@
   "source_vocabulary": "docs/ko/todo/navsys/navsys-abi-vocabulary.json",
   "summary": {
     "headers": 58,
-    "symbols": 648,
+    "symbols": 649,
     "return_forms": {
       "nullable_pointer": 157,
       "bool_predicate": 23,
@@ -13,7 +13,7 @@
       "int_count": 28,
       "int_index_minus_one": 4,
       "void_fallible_operation": 143,
-      "enum_result": 213,
+      "enum_result": 214,
       "floating_result": 19,
       "callback_return": 0
     },
@@ -5598,10 +5598,11 @@
       "path": "byul/navsys/maze/maze_eller.h",
       "owner_todo": "docs/ko/todo/navsys/todo-navsys-maze-eller.org",
       "primary_role": "public-component",
-      "wrapper_mode": "manual",
-      "symbol_count": 1,
+      "wrapper_mode": "generated",
+      "symbol_count": 2,
       "audit_issue_count": 0,
       "symbols": [
+        "byul_maze_generate_eller",
         "maze_make_eller"
       ]
     },
@@ -8874,6 +8875,14 @@
       "signature": "void maze_remove_from_navgrid(const maze_t* maze, navgrid_t* navgrid);",
       "return_form": "void_fallible_operation",
       "canonical": "navsys_status_t"
+    },
+    {
+      "header": "byul/navsys/maze/maze_eller.h",
+      "name": "byul_maze_generate_eller",
+      "return_type": "navsys_status_t",
+      "signature": "navsys_status_t byul_maze_generate_eller( int32_t origin_x, int32_t origin_y, uint32_t width, uint32_t height, const byul_maze_generate_options_t* options, maze_t** out_maze);",
+      "return_form": "enum_result",
+      "canonical": "navsys_status_t plus typed out enum"
     },
     {
       "header": "byul/navsys/maze/maze_eller.h",

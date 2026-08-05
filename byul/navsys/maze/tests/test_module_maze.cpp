@@ -10,6 +10,7 @@
 extern "C" {
 #include "maze.h"
 #include "maze_binary.h"
+#include "maze_eller.h"
 #include "maze_kruskal.h"
 #include "console.h"
 #include "obstacle_core.h"
@@ -743,6 +744,95 @@ TEST_CASE("generator seed corpus satisfies declared logical topology") {
             maze_destroy(maze);
         }
     }
+}
+
+TEST_CASE("Eller checked API validates options and failure atomicity") {
+    byul_maze_generate_options_t options{
+        sizeof(byul_maze_generate_options_t),
+        BYUL_MAZE_GENERATE_OPTIONS_ABI_VERSION,
+        UINT64_C(0),
+        UINT64_C(16),
+        UINT64_C(81),
+        nullptr,
+        nullptr
+    };
+    maze_t* output = reinterpret_cast<maze_t*>(uintptr_t{1});
+    CHECK(byul_maze_generate_eller(0, 0, 2, 3, &options, &output)
+        == NAVSYS_STATUS_UNSUPPORTED);
+    CHECK(output == nullptr);
+
+    output = reinterpret_cast<maze_t*>(uintptr_t{1});
+    CHECK(byul_maze_generate_eller(0, 0, 4, 5, &options, &output)
+        == NAVSYS_STATUS_UNSUPPORTED);
+    CHECK(output == nullptr);
+
+    output = reinterpret_cast<maze_t*>(uintptr_t{1});
+    CHECK(byul_maze_generate_eller(
+        std::numeric_limits<int32_t>::max(), 0, 3, 3, &options, &output)
+        == NAVSYS_STATUS_INVALID_ARGUMENT);
+    CHECK(output == nullptr);
+
+    output = reinterpret_cast<maze_t*>(uintptr_t{1});
+    CHECK(byul_maze_generate_eller(0, 0, 9, 9, nullptr, &output)
+        == NAVSYS_STATUS_INVALID_ARGUMENT);
+    CHECK(output == nullptr);
+
+    options.max_cells = UINT64_C(80);
+    output = reinterpret_cast<maze_t*>(uintptr_t{1});
+    CHECK(byul_maze_generate_eller(0, 0, 9, 9, &options, &output)
+        == NAVSYS_STATUS_LIMIT_REACHED);
+    CHECK(output == nullptr);
+
+    options.max_cells = UINT64_C(81);
+    options.max_steps = UINT64_C(15);
+    output = reinterpret_cast<maze_t*>(uintptr_t{1});
+    CHECK(byul_maze_generate_eller(0, 0, 9, 9, &options, &output)
+        == NAVSYS_STATUS_LIMIT_REACHED);
+    CHECK(output == nullptr);
+
+    maze_cancel_fixture_t cancel_fixture{0, 83};
+    options.max_steps = UINT64_C(16);
+    options.cancel_func = cancel_maze_overlay;
+    options.cancel_userdata = &cancel_fixture;
+    output = reinterpret_cast<maze_t*>(uintptr_t{1});
+    CHECK(byul_maze_generate_eller(0, 0, 9, 9, &options, &output)
+        == NAVSYS_STATUS_CANCELLED);
+    CHECK(output == nullptr);
+    CHECK(cancel_fixture.calls == cancel_fixture.cancel_after);
+
+    CHECK(maze_make_eller(0, 0, 2, 3) == nullptr);
+    CHECK(maze_make_eller(0, 0, 4, 5) == nullptr);
+}
+
+TEST_CASE("Eller checked API replays the corrected lattice") {
+    const byul_maze_generate_options_t options{
+        sizeof(byul_maze_generate_options_t),
+        BYUL_MAZE_GENERATE_OPTIONS_ABI_VERSION,
+        UINT64_C(0),
+        UINT64_C(16),
+        UINT64_C(81),
+        nullptr,
+        nullptr
+    };
+    maze_t* first = nullptr;
+    maze_t* second = nullptr;
+    REQUIRE(byul_maze_generate_eller(
+        -5, 8, 9, 9, &options, &first) == NAVSYS_STATUS_OK);
+    REQUIRE(byul_maze_generate_eller(
+        -5, 8, 9, 9, &options, &second) == NAVSYS_STATUS_OK);
+    REQUIRE(first != nullptr);
+    REQUIRE(second != nullptr);
+    CHECK(maze_hash(first) == UINT32_C(789167229));
+    CHECK(maze_hash(first) == maze_hash(second));
+    const maze_topology_t topology =
+        analyze_logical_topology(first, -5, 8, 9, 9);
+    CHECK(topology.queries_ok);
+    CHECK(topology.border_blocked);
+    CHECK(topology.logical_cells_open);
+    CHECK(topology.connected);
+    CHECK(topology.edge_count + 1 == topology.node_count);
+    maze_destroy(second);
+    maze_destroy(first);
 }
 
 TEST_CASE("Eller corrected lattice has stable tiny goldens") {

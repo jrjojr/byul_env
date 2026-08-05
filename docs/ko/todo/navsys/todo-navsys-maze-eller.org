@@ -89,7 +89,7 @@ family와 동일하게 logical cell을 odd/odd interior에 두고 외곽을 bloc
 - border/connectivity/cycle oracle로 현행 100개 seed를 검사한다.
 - direct/dispatcher export와 CMake inventory를 snapshot한다.
 
-* DOING 2단계: canonical row algorithm 구현
+* DONE 2단계: canonical row algorithm 구현
 
 ** 실행
 
@@ -107,7 +107,7 @@ family와 동일하게 logical cell을 odd/odd interior에 두고 외곽을 bloc
 - injected RNG로 no-horizontal/all-horizontal/downward fallback/final merge를 강제한다.
 - allocator fault, cancel each row와 huge width overflow test를 실행한다.
 
-* TODO 3단계: legacy forwarding과 위상 gate
+* DOING 3단계: legacy forwarding과 위상 gate
 
 ** 실행
 

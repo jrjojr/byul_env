@@ -16,8 +16,8 @@
     "headers": 149,
     "approved": 149,
     "approved_install": 98,
-    "wrapper_generated": 31,
-    "wrapper_manual": 60,
+    "wrapper_generated": 32,
+    "wrapper_manual": 59,
     "wrapper_excluded": 58,
     "compatibility_forwarders": 20,
     "successor_headers": 20,
@@ -3622,7 +3622,7 @@
     {
       "asset_id": "initial:byul/navsys/maze/maze_eller.h",
       "current_path": "byul/navsys/maze/maze_eller.h",
-      "sha256": "1eb7d5554da700cec24037b4804945cf886318630033e867751007fce8649ca8",
+      "sha256": "1c81d78d1e16fdc1bda638a2b36c4bc9f3a68ed1df41d0b60617de1bfd006142",
       "primary_role": "public-component",
       "role_reason": "Handwritten public maze algorithm component; generator wording is not file provenance.",
       "owner_module": "navsys",
@@ -3630,8 +3630,8 @@
       "approved_install": true,
       "install_reason": "Public or compatibility SDK surface.",
       "wrapper": {
-        "mode": "manual",
-        "reason": "Public legacy declarations require explicit ownership/error metadata before automatic generation."
+        "mode": "generated",
+        "reason": "Registered in the canonical wrapper generator manifest."
       },
       "naming": {
         "disposition": "keep",
@@ -3651,8 +3651,9 @@
         ],
         "root_header_inventory": true,
         "install_inventory": true,
-        "wrapper_modules_registered": false,
+        "wrapper_modules_registered": true,
         "exported_symbols": [
+          "byul_maze_generate_eller",
           "maze_make_eller"
         ],
         "source_definition_candidates": [
