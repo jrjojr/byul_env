@@ -13,6 +13,7 @@
 #include "dstar_lite_key.h"
 #include "maze_core.h"
 #include "maze_eller.h"
+#include "maze_hunt_and_kill.h"
 #include "navcell.h"
 #include "navsys_status.h"
 
@@ -1135,6 +1136,28 @@ int main(void) {
             return 8;
         }
         maze_destroy(eller);
+    }
+
+    {
+        const byul_maze_generate_options_t options = {
+            sizeof(byul_maze_generate_options_t),
+            BYUL_MAZE_GENERATE_OPTIONS_ABI_VERSION,
+            UINT64_C(0),
+            UINT64_C(1296),
+            UINT64_C(81),
+            NULL,
+            NULL
+        };
+        maze_t* hunt_and_kill = NULL;
+        if (byul_maze_generate_hunt_and_kill(
+                -5, 8, 9, 9, &options, &hunt_and_kill) != NAVSYS_STATUS_OK
+            || hunt_and_kill == NULL
+            || maze_hash(hunt_and_kill) != UINT32_C(26398801)) {
+            fprintf(stderr, "unexpected checked Hunt-and-Kill SDK ABI\n");
+            maze_destroy(hunt_and_kill);
+            return 8;
+        }
+        maze_destroy(hunt_and_kill);
     }
 
     navgrid_t* legacy_carver_grid = navgrid_create_full(

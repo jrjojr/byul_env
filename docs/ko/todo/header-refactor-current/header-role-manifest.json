@@ -3667,7 +3667,7 @@
     {
       "asset_id": "initial:byul/navsys/maze/maze_hunt_and_kill.h",
       "current_path": "byul/navsys/maze/maze_hunt_and_kill.h",
-      "sha256": "90ac941a17da8ea8ce03e9184036e95ec7230ec9d8d3c7a16ac2b3a56f0deb58",
+      "sha256": "4db251c48f0e6c05b9215003a59f2ce42680f5448a63531943ca59f8f8386ba2",
       "primary_role": "public-component",
       "role_reason": "Handwritten public maze algorithm component; generator wording is not file provenance.",
       "owner_module": "navsys",
@@ -3675,8 +3675,8 @@
       "approved_install": true,
       "install_reason": "Public or compatibility SDK surface.",
       "wrapper": {
-        "mode": "manual",
-        "reason": "Public legacy declarations require explicit ownership/error metadata before automatic generation."
+        "mode": "generated",
+        "reason": "Registered in the canonical wrapper generator manifest."
       },
       "naming": {
         "disposition": "keep",

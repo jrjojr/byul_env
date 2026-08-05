@@ -83,7 +83,7 @@ BYUL_API navsys_status_t byul_maze_generate_hunt_and_kill(
 - every carve가 unvisited vertex 하나를 기존 tree에 추가하는지 trace에서 검사한다.
 - 1-row/1-column logical grid와 nonzero origin을 검사한다.
 
-* DOING 2단계: status/options 구현
+* DONE 2단계: status/options 구현
 
 ** 실행
 
@@ -101,7 +101,7 @@ BYUL_API navsys_status_t byul_maze_generate_hunt_and_kill(
 - allocator fault index와 cancel at kill/hunt/materialize를 실행한다.
 - seed replay 및 old/new adapter equality를 검사한다.
 
-* TODO 3단계: topology·termination test
+* DOING 3단계: topology·termination test
 
 ** 실행
 

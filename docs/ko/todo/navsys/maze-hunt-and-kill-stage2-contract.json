@@ -1,0 +1,68 @@
+{
+  "schema_version": 1,
+  "scope": "navsys-maze-hunt-and-kill-stage2",
+  "status": "complete",
+  "source_revision": "68b98c5",
+  "canonical_api": {
+    "generator": "byul_maze_generate_hunt_and_kill",
+    "options": "byul_maze_generate_options_t ABI version 1",
+    "hunt_policy": "ROW_MAJOR_FIRST",
+    "output_contract": "out_maze is reset to NULL before validation and receives caller ownership only on success",
+    "status_contract": [
+      "NAVSYS_STATUS_OK",
+      "NAVSYS_STATUS_INVALID_ARGUMENT",
+      "NAVSYS_STATUS_UNSUPPORTED",
+      "NAVSYS_STATUS_OUT_OF_MEMORY",
+      "NAVSYS_STATUS_CALLBACK_FAILED",
+      "NAVSYS_STATUS_CANCELLED",
+      "NAVSYS_STATUS_LIMIT_REACHED",
+      "NAVSYS_STATUS_CORRUPT_STATE"
+    ]
+  },
+  "algorithm": {
+    "lattice": "odd/odd logical cells with a blocked one-cell perimeter",
+    "kill": "Fisher-Yates shuffle of four directions followed by the first unvisited valid neighbor",
+    "hunt": "first row-major unvisited logical cell adjacent to the tree, with one uniformly selected visited attachment neighbor",
+    "progress": "each carve adds one unvisited logical vertex and one tree edge",
+    "postcondition": "visited logical cell count equals logical width times logical height",
+    "rng": "shared Maze PCG32 generation context",
+    "replay": "same extent and seed preserve the Stage 1 raster hash"
+  },
+  "validation": {
+    "dimensions": "width and height are odd and at least 3",
+    "bounds": "the inclusive last coordinate must fit int32_t",
+    "max_cells": "checked before allocation",
+    "max_steps": "one step per kill/hunt outer iteration; default is raster cells times 16",
+    "cancellation": "polled before generation, throughout raster materialization, and for each hunt candidate",
+    "exception_barrier": "bad_alloc maps to OUT_OF_MEMORY; other exceptions map to CORRUPT_STATE",
+    "failure_atomicity": "partial Maze output is never published"
+  },
+  "compatibility": {
+    "legacy_symbol": "maze_make_hunt_and_kill",
+    "legacy_policy": "deprecated ABI 1.x adapter using ROW_MAJOR_FIRST",
+    "legacy_seed": "non-replayable process-local generation seed"
+  },
+  "wrapper": {
+    "generator_manifest": "tools/python/byul_wrapper/generate_wrapper_abi.py",
+    "high_level_entry": "c_maze.generate_hunt_and_kill",
+    "native_policy_test": "7/7 maze wrapper policy tests passed against the current MSVC Release DLL",
+    "generation_check": "generated CFFI declarations are up to date"
+  },
+  "root_shared": {
+    "profile": "msvc-x64-release",
+    "export_count": 1205,
+    "exports": [
+      "byul_maze_generate_hunt_and_kill",
+      "maze_make_hunt_and_kill"
+    ],
+    "installed_header": "include/byul/maze_hunt_and_kill.h"
+  },
+  "verification": {
+    "test_maze": "61/61 test cases, 121177/121177 assertions",
+    "test_navsys_allocation_failure": "exit 0",
+    "sdk_consumer": "clean-install C17 and C++17 consumers built and ran successfully",
+    "header_abi_audit": "150 headers, 95 public C headers, 1166 declarations, 0 invariant errors",
+    "navsys_abi_inventory": "58 headers, 650 symbols",
+    "stage1_topology": "100-seed perfect-maze and narrow logical-grid corpus remains active"
+  }
+}
