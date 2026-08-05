@@ -1,0 +1,51 @@
+{
+  "schema_version": 1,
+  "scope": "navsys-maze-binary-stage3",
+  "status": "complete",
+  "source_revision": "ff7d16fd1f721b589fdd9b103c221c9f1c417da0",
+  "algorithm_contract": {
+    "classification": "biased perfect spanning tree",
+    "uniform_spanning_tree_claim": false,
+    "logical_cell_count": "N=((width-1)/2)*((height-1)/2)",
+    "topology_oracle": "all logical cells open, connected, acyclic through exactly N-1 passage edges, with a blocked raster border",
+    "bias_oracle": "the root-facing logical row and column form the forced boundary corridors for each north/south and west/east bias"
+  },
+  "deterministic_corpus": {
+    "extent": "9x9",
+    "origin": [-5, 8],
+    "seeds": [0, 1, 17, "UINT64_MAX"],
+    "raster_hashes": {
+      "NORTH_WEST": [314326785, 333622325, 637696577, 456164093],
+      "NORTH_EAST": [19337297, 481215691, 212513867, 65445043],
+      "SOUTH_WEST": [342668731, 276670393, 714964413, 397381761],
+      "SOUTH_EAST": [49710731, 405786447, 137609167, 7968567]
+    },
+    "provenance_key": "(algorithm=binary-tree, bias, seed, raster-hash)",
+    "hash_note": "The 32-bit raster hash is a replay check, not a globally unique identifier; collisions remain possible. Bias and seed are therefore mandatory provenance fields."
+  },
+  "two_choice_frequency": {
+    "seed_range_per_bias": "0..511",
+    "observations_per_seed": 9,
+    "observations_per_bias": 4608,
+    "horizontal_choices_per_bias": 2326,
+    "horizontal_ratio_per_bias": 0.5047743055555556,
+    "accepted_integer_range_per_bias": [1981, 2626],
+    "accepted_ratio_band": [0.43, 0.57],
+    "total_observations": 18432,
+    "interpretation": "Deterministic non-flaky guard for the internal two-choice coin only; it is not a uniform spanning tree test or claim."
+  },
+  "work_and_cancellation": {
+    "tested_raster_extents": [9, 17, 33],
+    "step_count": "N logical cells",
+    "poll_count_with_callback": "1 + width*height + N",
+    "max_steps_boundary": "N succeeds; N-1 returns NAVSYS_STATUS_LIMIT_REACHED and publishes NULL",
+    "cancel_fixture": "9x9 cancels on poll 83, returns NAVSYS_STATUS_CANCELLED, publishes NULL, and performs exactly 83 callback calls",
+    "complexity_budget": "O(width*height) time and O(width*height) maze storage"
+  },
+  "verification": {
+    "windows_msvc_release": "51/51 test cases, 119609/119609 assertions",
+    "linux_profile": "Virtual Yard Ubuntu x86_64, GCC/G++ 13.3.0, Debug",
+    "linux_instrumentation": "-fsanitize=address -fsanitize=leak; ASAN_OPTIONS=detect_leaks=1:halt_on_error=1; LSAN_OPTIONS=exitcode=23:report_objects=1",
+    "linux_result": "51/51 test cases, 119609/119609 assertions; exit 0; no ASan or LSan report"
+  }
+}

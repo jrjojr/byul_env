@@ -128,7 +128,7 @@ BYUL_API navsys_status_t byul_maze_generate_binary_tree(
 - MSVC Release module/root build, native old/new consumer, Python wrapper와 전용 allocation
   failure fixture를 통과했다.
 
-* DOING 3단계: 위상·편향 test
+* DONE 3단계: 위상·편향 test
 
 ** 실행
 
@@ -145,7 +145,21 @@ BYUL_API navsys_status_t byul_maze_generate_binary_tree(
 
 - deterministic corpus, statistical non-flaky suite와 ASan/LSan을 실행한다.
 
-* TODO 4단계: Header·통합 gate
+** 결과
+
+- 4개 bias와 seed =0,1,17,UINT64_MAX=의 9x9 raster hash, blocked border,
+  connectivity와 정확한 =N-1= edge, root row/column corridor를 고정했다.
+- 각 bias에서 seed 512개와 internal two-choice 4,608개를 검사했고 horizontal
+  2,326개(50.477%)가 비결정성 없는 43~57% gate를 통과했다. 이 결과는 biased
+  perfect tree의 RNG guard이며 UST 표본 주장이 아니다.
+- raster 9/17/33에서 step =N=, cancel poll =1+width*height+N=을 확인하고
+  =max_steps=N-1=과 poll 83 취소가 partial output 없이 종료됨을 검증했다.
+- MSVC Release와 Virtual Yard GCC 13.3 Debug ASan/LSan 전체 Maze suite가 각각
+  51 cases/119,609 assertions로 통과했고 sanitizer 오류와 leak은 없었다.
+- [[file:maze-binary-stage3-contract.json][maze-binary-stage3-contract.json]]에 bias/seed/hash provenance, 통계 범위와
+  O(width*height) 시간·저장공간 budget을 기록했다.
+
+* DOING 4단계: Header·통합 gate
 
 ** 실행
 
