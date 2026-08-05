@@ -71,7 +71,7 @@ family와 동일하게 logical cell을 odd/odd interior에 두고 외곽을 bloc
 - exact seed replay와 RNG draw order, row streaming 가능 여부를 capability에 기록한다.
 - dimension, max cells/steps, cancellation과 allocation failure는 =navsys_status_t=로 구분한다.
 
-* TODO 1단계: 현행 좌표계 반증/보존 자료
+* DONE 1단계: 현행 좌표계 반증/보존 자료
 
 ** 실행
 
@@ -89,7 +89,7 @@ family와 동일하게 logical cell을 odd/odd interior에 두고 외곽을 bloc
 - border/connectivity/cycle oracle로 현행 100개 seed를 검사한다.
 - direct/dispatcher export와 CMake inventory를 snapshot한다.
 
-* TODO 2단계: canonical row algorithm 구현
+* DOING 2단계: canonical row algorithm 구현
 
 ** 실행
 

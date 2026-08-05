@@ -745,6 +745,64 @@ TEST_CASE("generator seed corpus satisfies declared logical topology") {
     }
 }
 
+TEST_CASE("Eller corrected lattice has stable tiny goldens") {
+    struct fixture_t {
+        uint32_t width;
+        uint32_t height;
+        uint32_t expected_hash;
+    };
+    const fixture_t fixtures[] = {
+        {3, 3, UINT32_C(910439850)},
+        {5, 5, UINT32_C(778966597)},
+        {9, 9, UINT32_C(789167229)}
+    };
+
+    for (const fixture_t& fixture : fixtures) {
+        CAPTURE(fixture.width);
+        CAPTURE(fixture.height);
+        byul_maze_generation_context context(
+            UINT64_C(0), UINT64_C(1000000), nullptr, nullptr);
+        maze_t* maze = nullptr;
+        REQUIRE(byul_maze_generate_eller_internal(
+            -5, 8, fixture.width, fixture.height, context, &maze)
+            == NAVSYS_STATUS_OK);
+        REQUIRE(maze != nullptr);
+        CHECK(maze_hash(maze) == fixture.expected_hash);
+
+        const maze_topology_t topology = analyze_logical_topology(
+            maze, -5, 8,
+            static_cast<int>(fixture.width),
+            static_cast<int>(fixture.height));
+        CHECK(topology.queries_ok);
+        CHECK(topology.border_blocked);
+        CHECK(topology.logical_cells_open);
+        CHECK(topology.connected);
+        CHECK(topology.edge_count + 1 == topology.node_count);
+        maze_destroy(maze);
+    }
+}
+
+TEST_CASE("Eller corrected lattice remains perfect across 100 seeds") {
+    for (uint64_t seed = 0; seed < 100; ++seed) {
+        CAPTURE(seed);
+        byul_maze_generation_context context(
+            seed, UINT64_C(1000000), nullptr, nullptr);
+        maze_t* maze = nullptr;
+        REQUIRE(byul_maze_generate_eller_internal(
+            13, -21, 9, 9, context, &maze) == NAVSYS_STATUS_OK);
+        REQUIRE(maze != nullptr);
+
+        const maze_topology_t topology =
+            analyze_logical_topology(maze, 13, -21, 9, 9);
+        CHECK(topology.queries_ok);
+        CHECK(topology.border_blocked);
+        CHECK(topology.logical_cells_open);
+        CHECK(topology.connected);
+        CHECK(topology.edge_count + 1 == topology.node_count);
+        maze_destroy(maze);
+    }
+}
+
 TEST_CASE("all internal generators cancel without publishing partial output") {
     const maze_generator_t generators[] = {
         byul_maze_generate_recursive_internal,

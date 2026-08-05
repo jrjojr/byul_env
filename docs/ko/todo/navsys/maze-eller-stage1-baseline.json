@@ -1,0 +1,71 @@
+{
+  "schema_version": 1,
+  "scope": "navsys-maze-eller-stage1",
+  "status": "complete",
+  "source_revision": "138e31cca4ca254a69cc8488844e06870a2403b8",
+  "historical_implementation": {
+    "revision": "41070504e08009dd1f08f3263f5f2477db3413d1^",
+    "lattice": "logical cells were placed on even rows including the outer border",
+    "state": "full height-by-width set_id and grid matrices",
+    "rng": "std::mt19937 seeded from time(nullptr), with modulo member selection",
+    "known_contract_breaks": [
+      "top and bottom border cells could be passages",
+      "results were not seed-replayable",
+      "the implementation did not use the common checked generation context"
+    ]
+  },
+  "correction": {
+    "revision": "41070504e08009dd1f08f3263f5f2477db3413d1",
+    "policy": "The legacy ABI symbol adopted the corrected lattice in this already-landed hardening change.",
+    "canonical_lattice": "odd local x and odd local y logical cells with a blocked one-cell perimeter",
+    "state": "row-local sets and next-row sets proportional to logical width",
+    "rng": "shared Maze PCG32 generation context using bounded draws",
+    "legacy_compatibility": "Do not restore the historical border-opening raster. Keep maze_make_eller as an ABI 1.x adapter to the corrected algorithm."
+  },
+  "tiny_goldens": {
+    "origin": [-5, 8],
+    "seed": 0,
+    "step_budget": 1000000,
+    "3x3_blocked_hash": 910439850,
+    "5x5_blocked_hash": 778966597,
+    "9x9_blocked_hash": 789167229
+  },
+  "topology_oracle": {
+    "seed_corpus": "integer seeds 0 through 99",
+    "extent": [13, -21, 9, 9],
+    "requirements": [
+      "outer border is blocked",
+      "all odd/odd logical cells are passages",
+      "all logical cells are connected",
+      "edge count equals logical node count minus one"
+    ]
+  },
+  "consumer_inventory": {
+    "implementation": "byul/navsys/maze/maze_eller.cpp",
+    "public_header": "byul/navsys/maze/maze_eller.h",
+    "public_symbol": "maze_make_eller",
+    "internal_status_generator": "byul_maze_generate_eller_internal",
+    "generic_dispatcher": "BYUL_MAZE_ALGORITHM_ELLER routes to byul_maze_generate_eller_internal",
+    "module_test": "byul/navsys/maze/tests/test_module_maze.cpp",
+    "static_target": "maze",
+    "root_shared_target": "byul",
+    "installed_header": "include/byul/maze_eller.h",
+    "sdk_header_inventory": "byul/tests/sdk_consumer/CMakeLists.txt",
+    "wrapper_direct_entry": false,
+    "wrapper_generic_enum": "MAZE_TYPE_ELLER",
+    "repository_exact_raster_consumer_fixture": false
+  },
+  "stage2_decision": {
+    "add_public_status_api": "byul_maze_generate_eller",
+    "preserve_current_rng_draw_order": true,
+    "preserve_corrected_lattice": true,
+    "legacy_symbol": "deprecated forward adapter",
+    "required_followup": "Expose the checked generator and document replay, row memory, topology, failure, and ownership contracts."
+  },
+  "verification": {
+    "windows_msvc_release": "53/53 test cases, 120333/120333 assertions",
+    "native_test": "Eller tiny-golden and 100-seed property cases are owned by test_module_maze.cpp",
+    "historical_evidence": "git history and the parent of correction revision 4107050",
+    "inventory_evidence": "CMake source/header lists, dispatcher source, SDK consumer header list, and wrapper generic enum"
+  }
+}
