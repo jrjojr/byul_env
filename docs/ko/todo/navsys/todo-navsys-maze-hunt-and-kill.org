@@ -101,7 +101,7 @@ BYUL_API navsys_status_t byul_maze_generate_hunt_and_kill(
 - allocator fault index와 cancel at kill/hunt/materialize를 실행한다.
 - seed replay 및 old/new adapter equality를 검사한다.
 
-* DOING 3단계: topology·termination test
+* DONE 3단계: topology·termination test
 
 ** 실행
 
@@ -118,7 +118,7 @@ BYUL_API navsys_status_t byul_maze_generate_hunt_and_kill(
 
 - deterministic/property corpus, worst-case benchmark와 sanitizer를 실행한다.
 
-* TODO 4단계: Header·통합 gate
+* DOING 4단계: Header·통합 gate
 
 ** 실행
 
