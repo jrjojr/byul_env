@@ -107,7 +107,7 @@ family와 동일하게 logical cell을 odd/odd interior에 두고 외곽을 bloc
 - injected RNG로 no-horizontal/all-horizontal/downward fallback/final merge를 강제한다.
 - allocator fault, cancel each row와 huge width overflow test를 실행한다.
 
-* DOING 3단계: legacy forwarding과 위상 gate
+* DONE 3단계: legacy forwarding과 위상 gate
 
 ** 실행
 
@@ -123,7 +123,7 @@ family와 동일하게 logical cell을 odd/odd interior에 두고 외곽을 bloc
 
 - old/new golden corpus, property seed corpus, ASan/LSan과 static/root tests를 실행한다.
 
-* TODO 4단계: Header·SDK gate
+* DOING 4단계: Header·SDK gate
 
 ** 실행
 
