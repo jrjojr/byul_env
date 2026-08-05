@@ -302,6 +302,195 @@ TEST_CASE("Binary Tree checked API rejects invalid dimensions and bias") {
     CHECK(maze_make_binary(0, 0, 4, 5) == nullptr);
 }
 
+TEST_CASE("Binary Tree bias corpus preserves topology and root corridors") {
+    struct hash_case_t {
+        byul_maze_binary_bias_t bias;
+        uint64_t seed;
+        uint32_t expected_hash;
+    };
+    const hash_case_t hashes[] = {
+        {BYUL_MAZE_BINARY_BIAS_NORTH_WEST, UINT64_C(0), UINT32_C(314326785)},
+        {BYUL_MAZE_BINARY_BIAS_NORTH_WEST, UINT64_C(1), UINT32_C(333622325)},
+        {BYUL_MAZE_BINARY_BIAS_NORTH_WEST, UINT64_C(17), UINT32_C(637696577)},
+        {BYUL_MAZE_BINARY_BIAS_NORTH_WEST, UINT64_MAX, UINT32_C(456164093)},
+        {BYUL_MAZE_BINARY_BIAS_NORTH_EAST, UINT64_C(0), UINT32_C(19337297)},
+        {BYUL_MAZE_BINARY_BIAS_NORTH_EAST, UINT64_C(1), UINT32_C(481215691)},
+        {BYUL_MAZE_BINARY_BIAS_NORTH_EAST, UINT64_C(17), UINT32_C(212513867)},
+        {BYUL_MAZE_BINARY_BIAS_NORTH_EAST, UINT64_MAX, UINT32_C(65445043)},
+        {BYUL_MAZE_BINARY_BIAS_SOUTH_WEST, UINT64_C(0), UINT32_C(342668731)},
+        {BYUL_MAZE_BINARY_BIAS_SOUTH_WEST, UINT64_C(1), UINT32_C(276670393)},
+        {BYUL_MAZE_BINARY_BIAS_SOUTH_WEST, UINT64_C(17), UINT32_C(714964413)},
+        {BYUL_MAZE_BINARY_BIAS_SOUTH_WEST, UINT64_MAX, UINT32_C(397381761)},
+        {BYUL_MAZE_BINARY_BIAS_SOUTH_EAST, UINT64_C(0), UINT32_C(49710731)},
+        {BYUL_MAZE_BINARY_BIAS_SOUTH_EAST, UINT64_C(1), UINT32_C(405786447)},
+        {BYUL_MAZE_BINARY_BIAS_SOUTH_EAST, UINT64_C(17), UINT32_C(137609167)},
+        {BYUL_MAZE_BINARY_BIAS_SOUTH_EAST, UINT64_MAX, UINT32_C(7968567)}
+    };
+
+    for (const hash_case_t& fixture : hashes) {
+        CAPTURE(static_cast<int>(fixture.bias));
+        CAPTURE(fixture.seed);
+        const byul_maze_generate_options_t options{
+            sizeof(byul_maze_generate_options_t),
+            BYUL_MAZE_GENERATE_OPTIONS_ABI_VERSION,
+            fixture.seed,
+            UINT64_C(16),
+            UINT64_C(81),
+            nullptr,
+            nullptr
+        };
+        maze_t* maze = nullptr;
+        REQUIRE(byul_maze_generate_binary_tree(
+            -5, 8, 9, 9, fixture.bias, &options, &maze)
+            == NAVSYS_STATUS_OK);
+        REQUIRE(maze != nullptr);
+        CHECK(maze_hash(maze) == fixture.expected_hash);
+        const maze_topology_t topology =
+            analyze_logical_topology(maze, -5, 8, 9, 9);
+        CHECK(topology.queries_ok);
+        CHECK(topology.border_blocked);
+        CHECK(topology.logical_cells_open);
+        CHECK(topology.connected);
+        CHECK(topology.node_count == 16);
+        CHECK(topology.edge_count == 15);
+
+        const bool north = fixture.bias == BYUL_MAZE_BINARY_BIAS_NORTH_WEST
+            || fixture.bias == BYUL_MAZE_BINARY_BIAS_NORTH_EAST;
+        const bool west = fixture.bias == BYUL_MAZE_BINARY_BIAS_NORTH_WEST
+            || fixture.bias == BYUL_MAZE_BINARY_BIAS_SOUTH_WEST;
+        const int corridor_y = north ? 1 : 7;
+        const int corridor_x = west ? 1 : 7;
+        for (int x = 2; x < 8; x += 2) {
+            bool blocked = true;
+            REQUIRE(byul_maze_is_blocked(
+                maze, -5 + x, 8 + corridor_y, &blocked)
+                == NAVSYS_STATUS_OK);
+            CHECK_FALSE(blocked);
+        }
+        for (int y = 2; y < 8; y += 2) {
+            bool blocked = true;
+            REQUIRE(byul_maze_is_blocked(
+                maze, -5 + corridor_x, 8 + y, &blocked)
+                == NAVSYS_STATUS_OK);
+            CHECK_FALSE(blocked);
+        }
+        maze_destroy(maze);
+    }
+}
+
+TEST_CASE("Binary Tree two-choice draws remain deterministically unbiased") {
+    constexpr uint64_t sample_count = UINT64_C(512);
+    constexpr uint64_t choices_per_sample = UINT64_C(9);
+    constexpr uint64_t minimum_horizontal =
+        sample_count * choices_per_sample * UINT64_C(43) / UINT64_C(100);
+    constexpr uint64_t maximum_horizontal =
+        sample_count * choices_per_sample * UINT64_C(57) / UINT64_C(100);
+
+    for (int bias_value = BYUL_MAZE_BINARY_BIAS_NORTH_WEST;
+         bias_value <= BYUL_MAZE_BINARY_BIAS_SOUTH_EAST;
+         ++bias_value) {
+        const auto bias = static_cast<byul_maze_binary_bias_t>(bias_value);
+        const bool east = bias == BYUL_MAZE_BINARY_BIAS_NORTH_EAST
+            || bias == BYUL_MAZE_BINARY_BIAS_SOUTH_EAST;
+        const bool south = bias == BYUL_MAZE_BINARY_BIAS_SOUTH_WEST
+            || bias == BYUL_MAZE_BINARY_BIAS_SOUTH_EAST;
+        const int horizontal_delta = east ? 1 : -1;
+        const int vertical_delta = south ? 1 : -1;
+        uint64_t horizontal_count = 0;
+
+        for (uint64_t seed = 0; seed < sample_count; ++seed) {
+            const byul_maze_generate_options_t options{
+                sizeof(byul_maze_generate_options_t),
+                BYUL_MAZE_GENERATE_OPTIONS_ABI_VERSION,
+                seed,
+                UINT64_C(16),
+                UINT64_C(81),
+                nullptr,
+                nullptr
+            };
+            maze_t* maze = nullptr;
+            REQUIRE(byul_maze_generate_binary_tree(
+                0, 0, 9, 9, bias, &options, &maze) == NAVSYS_STATUS_OK);
+            REQUIRE(maze != nullptr);
+            for (int y = 1; y < 8; y += 2) {
+                for (int x = 1; x < 8; x += 2) {
+                    const bool both_choices = x + horizontal_delta * 2 > 0
+                        && x + horizontal_delta * 2 < 9
+                        && y + vertical_delta * 2 > 0
+                        && y + vertical_delta * 2 < 9;
+                    if (!both_choices) continue;
+                    bool horizontal_blocked = true;
+                    bool vertical_blocked = true;
+                    REQUIRE(byul_maze_is_blocked(
+                        maze, x + horizontal_delta, y, &horizontal_blocked)
+                        == NAVSYS_STATUS_OK);
+                    REQUIRE(byul_maze_is_blocked(
+                        maze, x, y + vertical_delta, &vertical_blocked)
+                        == NAVSYS_STATUS_OK);
+                    REQUIRE(horizontal_blocked != vertical_blocked);
+                    horizontal_count += horizontal_blocked ? 0u : 1u;
+                }
+            }
+            maze_destroy(maze);
+        }
+        CAPTURE(bias_value);
+        CAPTURE(horizontal_count);
+        CHECK(horizontal_count >= minimum_horizontal);
+        CHECK(horizontal_count <= maximum_horizontal);
+    }
+}
+
+TEST_CASE("Binary Tree step and cancellation work scale with raster cells") {
+    for (const uint32_t extent : {UINT32_C(9), UINT32_C(17), UINT32_C(33)}) {
+        const uint64_t logical_axis = (extent - 1) / 2;
+        const uint64_t logical_cells = logical_axis * logical_axis;
+        maze_cancel_fixture_t poll_fixture{0, std::numeric_limits<int>::max()};
+        byul_maze_generate_options_t options{
+            sizeof(byul_maze_generate_options_t),
+            BYUL_MAZE_GENERATE_OPTIONS_ABI_VERSION,
+            UINT64_C(23),
+            logical_cells,
+            static_cast<uint64_t>(extent) * extent,
+            cancel_maze_overlay,
+            &poll_fixture
+        };
+        maze_t* maze = nullptr;
+        REQUIRE(byul_maze_generate_binary_tree(
+            0, 0, extent, extent, BYUL_MAZE_BINARY_BIAS_SOUTH_EAST,
+            &options, &maze) == NAVSYS_STATUS_OK);
+        REQUIRE(maze != nullptr);
+        CHECK(poll_fixture.calls
+            == 1 + static_cast<int>(extent * extent + logical_cells));
+        maze_destroy(maze);
+
+        options.max_steps = logical_cells - 1;
+        options.cancel_func = nullptr;
+        options.cancel_userdata = nullptr;
+        maze = reinterpret_cast<maze_t*>(uintptr_t{1});
+        CHECK(byul_maze_generate_binary_tree(
+            0, 0, extent, extent, BYUL_MAZE_BINARY_BIAS_SOUTH_EAST,
+            &options, &maze) == NAVSYS_STATUS_LIMIT_REACHED);
+        CHECK(maze == nullptr);
+    }
+
+    maze_cancel_fixture_t cancel_fixture{0, 83};
+    const byul_maze_generate_options_t cancel_options{
+        sizeof(byul_maze_generate_options_t),
+        BYUL_MAZE_GENERATE_OPTIONS_ABI_VERSION,
+        UINT64_C(23),
+        UINT64_C(16),
+        UINT64_C(81),
+        cancel_maze_overlay,
+        &cancel_fixture
+    };
+    maze_t* output = reinterpret_cast<maze_t*>(uintptr_t{1});
+    CHECK(byul_maze_generate_binary_tree(
+        0, 0, 9, 9, BYUL_MAZE_BINARY_BIAS_SOUTH_EAST,
+        &cancel_options, &output) == NAVSYS_STATUS_CANCELLED);
+    CHECK(output == nullptr);
+    CHECK(cancel_fixture.calls == cancel_fixture.cancel_after);
+}
+
 TEST_CASE("maze checked dispatcher validates options and routes algorithms") {
     static_assert(BYUL_MAZE_ALGORITHM_RECURSIVE_BACKTRACKER == 0);
     static_assert(BYUL_MAZE_ALGORITHM_ROOM_BLEND == 10);
