@@ -12,6 +12,7 @@
 #include "cost_coord_pq.h"
 #include "dstar_lite_key.h"
 #include "maze_core.h"
+#include "maze_eller.h"
 #include "navcell.h"
 #include "navsys_status.h"
 
@@ -1112,6 +1113,28 @@ int main(void) {
             return 8;
         }
         maze_destroy(checked_maze);
+    }
+
+    {
+        const byul_maze_generate_options_t options = {
+            sizeof(byul_maze_generate_options_t),
+            BYUL_MAZE_GENERATE_OPTIONS_ABI_VERSION,
+            UINT64_C(0),
+            UINT64_C(16),
+            UINT64_C(81),
+            NULL,
+            NULL
+        };
+        maze_t* eller = NULL;
+        if (byul_maze_generate_eller(
+                -5, 8, 9, 9, &options, &eller) != NAVSYS_STATUS_OK
+            || eller == NULL
+            || maze_hash(eller) != UINT32_C(789167229)) {
+            fprintf(stderr, "unexpected checked Eller SDK ABI\n");
+            maze_destroy(eller);
+            return 8;
+        }
+        maze_destroy(eller);
     }
 
     navgrid_t* legacy_carver_grid = navgrid_create_full(

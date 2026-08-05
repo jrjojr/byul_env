@@ -8,6 +8,7 @@
 #include "coord_hash.h"
 #include "cost_coord_pq.h"
 #include "maze_core.h"
+#include "maze_eller.h"
 #include "navcell.h"
 #include "navgrid.h"
 #include "obstacle.h"
@@ -482,6 +483,22 @@ int main() {
         checked_maze, &maze_blocked_count) == NAVSYS_STATUS_OK);
     assert(maze_blocked_count == 1);
     maze_destroy(checked_maze);
+
+    const byul_maze_generate_options_t eller_options{
+        sizeof(byul_maze_generate_options_t),
+        BYUL_MAZE_GENERATE_OPTIONS_ABI_VERSION,
+        UINT64_C(0),
+        UINT64_C(16),
+        UINT64_C(81),
+        nullptr,
+        nullptr
+    };
+    maze_t* eller = nullptr;
+    assert(byul_maze_generate_eller(
+        -5, 8, 9, 9, &eller_options, &eller) == NAVSYS_STATUS_OK);
+    assert(eller != nullptr);
+    assert(maze_hash(eller) == UINT32_C(789167229));
+    maze_destroy(eller);
 
     navgrid_t* legacy_carver_grid = navgrid_create_full(
         3, 3, NAVGRID_DIR_8, nullptr);

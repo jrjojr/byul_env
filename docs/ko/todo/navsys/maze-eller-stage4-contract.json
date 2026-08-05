@@ -1,0 +1,63 @@
+{
+  "schema_version": 1,
+  "scope": "navsys-maze-eller-stage4",
+  "status": "complete",
+  "source_revision": "b01a18d",
+  "public_header": {
+    "path": "byul/navsys/maze/maze_eller.h",
+    "include_dependency": "maze.h",
+    "canonical_symbol": "byul_maze_generate_eller",
+    "legacy_symbol": "maze_make_eller",
+    "legacy_annotation": "deprecated; removal requires ABI 2 or later",
+    "contracts": [
+      "seed replay and PCG32 generation context",
+      "blocked-border connected acyclic topology",
+      "O(width) temporary row state in addition to output storage",
+      "caller-owned success output and NULL failure output",
+      "status, thread compatibility, blocking, and reentrancy metadata"
+    ]
+  },
+  "symbols": {
+    "windows_dll": [
+      "byul_maze_generate_eller",
+      "maze_make_eller"
+    ],
+    "linux_so": [
+      "byul_maze_generate_eller",
+      "maze_make_eller"
+    ],
+    "definition_export_cardinality": "one definition and one public C export per symbol"
+  },
+  "sdk": {
+    "windows": "MSVC 19.44 clean install; C17 and C++17 standalone headers and runtime consumers passed",
+    "linux": "GCC 13.3 clean tests-off Release install; C17 and C++17 standalone headers and runtime consumers passed",
+    "consumer_fixture": [
+      "byul/tests/sdk_consumer/main.c",
+      "byul/tests/sdk_consumer/main.cpp"
+    ],
+    "runtime_fixture": "byul_maze_generate_eller seed 0 at (-5,8), 9x9 hashes to 789167229"
+  },
+  "wrapper": {
+    "manifest": "tools/python/byul_wrapper/generate_wrapper_abi.py",
+    "generated_module": "tools/python/byul_wrapper/byul_wrapper/maze.py",
+    "high_level_entry": "c_maze.generate_eller",
+    "generated_check": "passed",
+    "eller_policy_tests": "6/6 passed against the MSVC Release DLL",
+    "generator_parser_tests": "11/11 passed",
+    "global_suite": "196/197 passed; unrelated existing navcell source-text policy failure remains"
+  },
+  "verification": {
+    "windows_test_maze": "56/56 test cases, 120387/120387 assertions",
+    "linux_asan_lsan_test_maze": "56/56 test cases, 120387/120387 assertions, no sanitizer finding",
+    "allocation_failure": "exit 0 with no published partial output or tracked leak",
+    "header_abi_audit": "150 headers, 95 public C headers, 1165 declarations, 0 invariant errors",
+    "navsys_inventory": "58 headers, 649 symbols",
+    "central_rules": "60 Org files, 0 errors, 0 warnings"
+  },
+  "release": {
+    "change_kind": "feature",
+    "level": "minor",
+    "breaking": false,
+    "migration": "Use byul_maze_generate_eller for replay and checked failures; maze_make_eller remains an ABI 1.x adapter."
+  }
+}

@@ -1,5 +1,14 @@
 #+TITLE: BYUL maze_eller.h 정밀 리팩터링 TODO
 #+TODO: TODO DOING BLOCKED | DONE CANCELLED FAILED
+#+TODO_STATUS: DONE
+#+RELEASE_NOTE_REQUIRED: yes
+#+RELEASE_CHANGE_KIND: feature
+#+RELEASE_LEVEL: minor
+#+RELEASE_TARGET: both
+#+RELEASE_TITLE: Deterministic checked Eller Maze generation API
+#+RELEASE_GOAL: Callers can replay a perfect Eller Maze with explicit seed, resource budgets, cancellation, and failure status.
+#+RELEASE_BREAKING: no
+#+HELP_UPDATE_REQUIRED: no
 #+TODO_RULES: ../../../../external/rules/projects/byul/todo-rules.org
 #+PUBLIC_API_RULES: ../../../../external/rules/projects/byul/public-api-rules.org
 #+HEADER_DECLARATION_RULES: ../../../../external/rules/projects/byul/header-declaration-rules.org
@@ -123,7 +132,7 @@ family와 동일하게 logical cell을 odd/odd interior에 두고 외곽을 bloc
 
 - old/new golden corpus, property seed corpus, ASan/LSan과 static/root tests를 실행한다.
 
-* DOING 4단계: Header·SDK gate
+* DONE 4단계: Header·SDK gate
 
 ** 실행
 
@@ -138,3 +147,16 @@ family와 동일하게 logical cell을 odd/odd interior에 두고 외곽을 bloc
 
 - C17/C++17 include, wrapper audit/check, clean SDK consumer를 실행한다.
 - module static =BYUL_STATIC=과 root shared =BYUL_EXPORTS=에서 legacy/canonical export를 각각 검증한다.
+
+** 결과
+
+- =maze_eller.h=는 checked generator의 seed replay, blocked-border perfect topology,
+  row-width temporary memory, ownership, failure status와 legacy migration 계약을 공개한다.
+- Windows MSVC와 Linux GCC clean SDK에서 C17/C++17 standalone include와 direct
+  consumer link/run이 통과했다. 두 consumer는 seed 0의 9x9 golden을 검증한다.
+- Windows DLL과 Linux SO는 =byul_maze_generate_eller=와 =maze_make_eller=를
+  export하며, GCC ASan/LSan =test_maze=는 56 cases/120,387 assertions를 통과했다.
+- strict header audit 0 error, Navsys inventory 58 headers/649 symbols, generated CFFI
+  check와 Eller wrapper 6 tests, generator/parser 11 tests가 통과했다.
+- 전체 wrapper suite의 1건 실패는 unrelated 기존 =navcell= source-text 정책 검사로
+  분리 기록했으며 Eller 전용 wrapper와 native load gate에는 실패가 없다.
