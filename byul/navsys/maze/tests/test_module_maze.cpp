@@ -941,11 +941,18 @@ TEST_CASE("Hunt-and-Kill phase contract has stable tiny goldens") {
 TEST_CASE("Hunt-and-Kill remains perfect across 100 seeds") {
     for (uint64_t seed = 0; seed < 100; ++seed) {
         CAPTURE(seed);
-        byul_maze_generation_context context(
-            seed, UINT64_C(1000000), nullptr, nullptr);
+        const byul_maze_generate_options_t options{
+            sizeof(byul_maze_generate_options_t),
+            BYUL_MAZE_GENERATE_OPTIONS_ABI_VERSION,
+            seed,
+            UINT64_C(1296),
+            UINT64_C(81),
+            nullptr,
+            nullptr
+        };
         maze_t* maze = nullptr;
-        REQUIRE(byul_maze_generate_hunt_and_kill_internal(
-            13, -21, 9, 9, context, &maze) == NAVSYS_STATUS_OK);
+        REQUIRE(byul_maze_generate_hunt_and_kill(
+            13, -21, 9, 9, &options, &maze) == NAVSYS_STATUS_OK);
         REQUIRE(maze != nullptr);
 
         const maze_topology_t topology =
@@ -956,6 +963,31 @@ TEST_CASE("Hunt-and-Kill remains perfect across 100 seeds") {
         CHECK(topology.connected);
         CHECK(topology.edge_count + 1 == topology.node_count);
         maze_destroy(maze);
+    }
+}
+
+TEST_CASE("Hunt-and-Kill step count equals the logical cell count") {
+    const uint32_t extents[][2] = {
+        {3, 3}, {3, 31}, {31, 3}, {31, 31}
+    };
+    for (const auto& extent : extents) {
+        CAPTURE(extent[0]);
+        CAPTURE(extent[1]);
+        const uint64_t logical_cells =
+            static_cast<uint64_t>((extent[0] - 1) / 2)
+            * ((extent[1] - 1) / 2);
+        for (uint64_t seed = 0; seed < 32; ++seed) {
+            CAPTURE(seed);
+            byul_maze_generation_context context(
+                seed, logical_cells, nullptr, nullptr);
+            maze_t* maze = nullptr;
+            REQUIRE(byul_maze_generate_hunt_and_kill_internal(
+                7, -13, extent[0], extent[1], context, &maze)
+                == NAVSYS_STATUS_OK);
+            REQUIRE(maze != nullptr);
+            CHECK(context.steps() == logical_cells);
+            maze_destroy(maze);
+        }
     }
 }
 
@@ -1085,6 +1117,17 @@ TEST_CASE("Hunt-and-Kill checked API replays and matches dispatcher") {
         maze_destroy(replay);
         maze_destroy(direct);
     }
+
+    maze_t* legacy = maze_make_hunt_and_kill(-5, 8, 9, 9);
+    REQUIRE(legacy != nullptr);
+    const maze_topology_t topology =
+        analyze_logical_topology(legacy, -5, 8, 9, 9);
+    CHECK(topology.queries_ok);
+    CHECK(topology.border_blocked);
+    CHECK(topology.logical_cells_open);
+    CHECK(topology.connected);
+    CHECK(topology.edge_count + 1 == topology.node_count);
+    maze_destroy(legacy);
 }
 
 TEST_CASE("Eller direct dispatcher and legacy paths share topology") {
