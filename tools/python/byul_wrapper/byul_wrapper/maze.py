@@ -12,6 +12,7 @@ from .navgrid import c_navgrid  # Registers navgrid_t and overlay identifiers.
 MAZE_ABI_VERSION = 2
 MAZE_ABI_FINGERPRINT = 0x4D415A4502000000
 MAZE_GENERATE_OPTIONS_ABI_VERSION = 1
+ROOM_BLEND_OPTIONS_ABI_VERSION = 1
 
 
 def _check_maze_abi():
@@ -312,6 +313,40 @@ navsys_status_t byul_maze_generate_recursive_division(
 
  maze_t* maze_make_recursive_division(
     int x0, int y0, int width, int height);
+
+/* Source: byul/navsys/maze/maze_room_blend.h */
+typedef struct s_room {
+    int x;
+    int y;
+    int w;
+    int h;
+} room_t;
+
+typedef struct s_byul_room_blend_options {
+    uint32_t struct_size;
+    uint32_t abi_version;
+    uint64_t seed;
+    uint64_t max_steps;
+    uint64_t max_cells;
+    uint32_t room_attempts;
+    uint32_t min_room_width;
+    uint32_t min_room_height;
+    uint32_t max_room_width;
+    uint32_t max_room_height;
+    uint32_t room_padding;
+    byul_maze_generate_cancel_func cancel_func;
+    void* cancel_userdata;
+} byul_room_blend_options_t;
+
+ navsys_status_t byul_maze_generate_room_blend(
+    int32_t origin_x,
+    int32_t origin_y,
+    uint32_t width,
+    uint32_t height,
+    const byul_room_blend_options_t* options,
+    maze_t** out_maze);
+
+ maze_t* maze_make_room_blend(int x0, int y0, int width, int height);
 
 /* Source: byul/navsys/maze/maze_sidewinder.h */
 typedef enum e_byul_maze_sidewinder_sweep {
@@ -752,6 +787,58 @@ class c_maze:
                 output,
             ),
             "byul_maze_generate_recursive_backtracker",
+        )
+        return cls(raw_ptr=output[0], own=True)
+
+    @classmethod
+    def generate_room_blend(
+        cls,
+        x0,
+        y0,
+        width,
+        height,
+        *,
+        seed,
+        room_attempts=30,
+        min_room_width=3,
+        min_room_height=3,
+        max_room_width=7,
+        max_room_height=7,
+        room_padding=0,
+        max_steps=0,
+        max_cells=0,
+    ):
+        """Generate a deterministic room-and-corridor blended Maze."""
+        _check_maze_abi()
+        options = ffi.new(
+            "byul_room_blend_options_t*",
+            dict(
+                struct_size=ffi.sizeof("byul_room_blend_options_t"),
+                abi_version=ROOM_BLEND_OPTIONS_ABI_VERSION,
+                seed=seed,
+                max_steps=max_steps,
+                max_cells=max_cells,
+                room_attempts=room_attempts,
+                min_room_width=min_room_width,
+                min_room_height=min_room_height,
+                max_room_width=max_room_width,
+                max_room_height=max_room_height,
+                room_padding=room_padding,
+                cancel_func=ffi.NULL,
+                cancel_userdata=ffi.NULL,
+            ),
+        )
+        output = ffi.new("maze_t**")
+        raise_for_status(
+            C.byul_maze_generate_room_blend(
+                x0,
+                y0,
+                width,
+                height,
+                options,
+                output,
+            ),
+            "byul_maze_generate_room_blend",
         )
         return cls(raw_ptr=output[0], own=True)
 

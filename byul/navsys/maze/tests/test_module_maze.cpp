@@ -1,6 +1,8 @@
 #include "doctest.h"
 #include <algorithm>
 #include <array>
+#include <cstdlib>
+#include <future>
 #include <locale.h>
 #include <iostream>
 #include <limits>
@@ -18,6 +20,7 @@ extern "C" {
 #include "maze_prim.h"
 #include "maze_recursive.h"
 #include "maze_recursive_division.h"
+#include "maze_room_blend.h"
 #include "maze_sidewinder.h"
 #include "console.h"
 #include "obstacle_core.h"
@@ -3210,7 +3213,241 @@ TEST_CASE("Room Blend Stage 1 raster is translation invariant") {
         maze_destroy(origin);
     }
 }
+
+TEST_CASE("Room Blend checked legacy policy preserves the Stage 1 raster") {
+    const byul_room_blend_options_t options{
+        sizeof(byul_room_blend_options_t),
+        BYUL_ROOM_BLEND_OPTIONS_ABI_VERSION,
+        UINT64_C(0),
+        UINT64_C(1000000),
+        UINT64_C(81),
+        30, 3, 3, 7, 7, 0,
+        nullptr,
+        nullptr
+    };
+    byul_maze_generation_context internal_context(
+        0, UINT64_C(1000000), nullptr, nullptr);
+    maze_t* checked = nullptr;
+    maze_t* internal = nullptr;
+    REQUIRE(byul_maze_generate_room_blend(
+        -5, 8, 9, 9, &options, &checked) == NAVSYS_STATUS_OK);
+    REQUIRE(byul_maze_generate_room_blend_internal(
+        -5, 8, 9, 9, internal_context, &internal) == NAVSYS_STATUS_OK);
+    REQUIRE(checked != nullptr);
+    REQUIRE(internal != nullptr);
+    CHECK(maze_equal(checked, internal));
+    CHECK(maze_hash(checked) == UINT32_C(453713525));
+    maze_destroy(internal);
+    maze_destroy(checked);
+}
 #endif
+
+TEST_CASE("Room Blend checked API validates options and failure atomicity") {
+    byul_room_blend_options_t options{
+        sizeof(byul_room_blend_options_t),
+        BYUL_ROOM_BLEND_OPTIONS_ABI_VERSION,
+        UINT64_C(17),
+        UINT64_C(1000000),
+        UINT64_C(221),
+        12, 3, 3, 7, 5, 1,
+        nullptr,
+        nullptr
+    };
+    maze_t* output = reinterpret_cast<maze_t*>(uintptr_t{1});
+    CHECK(byul_maze_generate_room_blend(
+        0, 0, 9, 9, &options, nullptr) == NAVSYS_STATUS_INVALID_ARGUMENT);
+    CHECK(byul_maze_generate_room_blend(
+        0, 0, 9, 9, nullptr, &output) == NAVSYS_STATUS_INVALID_ARGUMENT);
+    CHECK(output == nullptr);
+
+    options.struct_size = sizeof(byul_room_blend_options_t) - 1;
+    output = reinterpret_cast<maze_t*>(uintptr_t{1});
+    CHECK(byul_maze_generate_room_blend(
+        0, 0, 9, 9, &options, &output) == NAVSYS_STATUS_INVALID_ARGUMENT);
+    CHECK(output == nullptr);
+
+    options.struct_size = sizeof(byul_room_blend_options_t);
+    ++options.abi_version;
+    output = reinterpret_cast<maze_t*>(uintptr_t{1});
+    CHECK(byul_maze_generate_room_blend(
+        0, 0, 9, 9, &options, &output) == NAVSYS_STATUS_UNSUPPORTED);
+    CHECK(output == nullptr);
+
+    options.abi_version = BYUL_ROOM_BLEND_OPTIONS_ABI_VERSION;
+    output = reinterpret_cast<maze_t*>(uintptr_t{1});
+    CHECK(byul_maze_generate_room_blend(
+        0, 0, 8, 9, &options, &output) == NAVSYS_STATUS_UNSUPPORTED);
+    CHECK(output == nullptr);
+
+    output = reinterpret_cast<maze_t*>(uintptr_t{1});
+    CHECK(byul_maze_generate_room_blend(
+        std::numeric_limits<int32_t>::max(), 0, 9, 9, &options, &output)
+        == NAVSYS_STATUS_INVALID_ARGUMENT);
+    CHECK(output == nullptr);
+
+    options.max_cells = UINT64_C(80);
+    output = reinterpret_cast<maze_t*>(uintptr_t{1});
+    CHECK(byul_maze_generate_room_blend(
+        0, 0, 9, 9, &options, &output) == NAVSYS_STATUS_LIMIT_REACHED);
+    CHECK(output == nullptr);
+    options.max_cells = UINT64_C(221);
+
+    options.min_room_width = 4;
+    output = reinterpret_cast<maze_t*>(uintptr_t{1});
+    CHECK(byul_maze_generate_room_blend(
+        0, 0, 9, 9, &options, &output) == NAVSYS_STATUS_INVALID_ARGUMENT);
+    CHECK(output == nullptr);
+    options.min_room_width = 3;
+
+    options.max_room_height = 4;
+    output = reinterpret_cast<maze_t*>(uintptr_t{1});
+    CHECK(byul_maze_generate_room_blend(
+        0, 0, 9, 9, &options, &output) == NAVSYS_STATUS_INVALID_ARGUMENT);
+    CHECK(output == nullptr);
+    options.max_room_height = 5;
+
+    options.min_room_width = 9;
+    output = reinterpret_cast<maze_t*>(uintptr_t{1});
+    CHECK(byul_maze_generate_room_blend(
+        0, 0, 9, 9, &options, &output) == NAVSYS_STATUS_INVALID_ARGUMENT);
+    CHECK(output == nullptr);
+    options.min_room_width = 3;
+
+    options.room_attempts = UINT32_MAX;
+    output = reinterpret_cast<maze_t*>(uintptr_t{1});
+    CHECK(byul_maze_generate_room_blend(
+        0, 0, 9, 9, &options, &output) == NAVSYS_STATUS_INVALID_ARGUMENT);
+    CHECK(output == nullptr);
+    options.room_attempts = 12;
+
+    options.max_steps = UINT64_C(1);
+    output = reinterpret_cast<maze_t*>(uintptr_t{1});
+    CHECK(byul_maze_generate_room_blend(
+        0, 0, 9, 9, &options, &output) == NAVSYS_STATUS_LIMIT_REACHED);
+    CHECK(output == nullptr);
+
+    maze_cancel_fixture_t fixture{0, 1};
+    options.max_steps = UINT64_C(1000000);
+    options.cancel_func = cancel_maze_overlay;
+    options.cancel_userdata = &fixture;
+    output = reinterpret_cast<maze_t*>(uintptr_t{1});
+    CHECK(byul_maze_generate_room_blend(
+        0, 0, 9, 9, &options, &output) == NAVSYS_STATUS_CANCELLED);
+    CHECK(output == nullptr);
+    CHECK(fixture.calls == 1);
+
+    options.cancel_func = throw_maze_overlay_cancel;
+    options.cancel_userdata = nullptr;
+    output = reinterpret_cast<maze_t*>(uintptr_t{1});
+    CHECK(byul_maze_generate_room_blend(
+        0, 0, 9, 9, &options, &output) == NAVSYS_STATUS_CALLBACK_FAILED);
+    CHECK(output == nullptr);
+}
+
+TEST_CASE("Room Blend checked API replays explicit placement policy") {
+    const byul_room_blend_options_t options{
+        sizeof(byul_room_blend_options_t),
+        BYUL_ROOM_BLEND_OPTIONS_ABI_VERSION,
+        UINT64_C(17),
+        UINT64_C(0),
+        UINT64_C(315),
+        12, 3, 3, 7, 5, 2,
+        nullptr,
+        nullptr
+    };
+    maze_t* first = nullptr;
+    maze_t* second = nullptr;
+    REQUIRE(byul_maze_generate_room_blend(
+        -11, 6, 21, 15, &options, &first) == NAVSYS_STATUS_OK);
+    REQUIRE(byul_maze_generate_room_blend(
+        -11, 6, 21, 15, &options, &second) == NAVSYS_STATUS_OK);
+    REQUIRE(first != nullptr);
+    REQUIRE(second != nullptr);
+    CHECK(maze_equal(first, second));
+    CHECK(maze_hash(first) == UINT32_C(559861491));
+    const maze_topology_t topology =
+        analyze_logical_topology(first, -11, 6, 21, 15);
+    CHECK(topology.queries_ok);
+    CHECK(topology.border_blocked);
+    CHECK(topology.logical_cells_open);
+    CHECK(topology.connected);
+    CHECK(topology.edge_count + 1 >= topology.node_count);
+    maze_destroy(second);
+    maze_destroy(first);
+}
+
+TEST_CASE("Room Blend zero-room policy is a deterministic perfect fill") {
+    const byul_room_blend_options_t options{
+        sizeof(byul_room_blend_options_t),
+        BYUL_ROOM_BLEND_OPTIONS_ABI_VERSION,
+        UINT64_C(99),
+        UINT64_C(0),
+        UINT64_C(221),
+        0, 3, 3, 7, 7, 0,
+        nullptr,
+        nullptr
+    };
+    maze_t* maze = nullptr;
+    REQUIRE(byul_maze_generate_room_blend(
+        4, -8, 13, 17, &options, &maze) == NAVSYS_STATUS_OK);
+    REQUIRE(maze != nullptr);
+    const maze_topology_t topology =
+        analyze_logical_topology(maze, 4, -8, 13, 17);
+    CHECK(topology.queries_ok);
+    CHECK(topology.border_blocked);
+    CHECK(topology.logical_cells_open);
+    CHECK(topology.connected);
+    CHECK(topology.edge_count + 1 == topology.node_count);
+    maze_destroy(maze);
+
+    maze = nullptr;
+    REQUIRE(byul_maze_generate_room_blend(
+        4, -8, 10, 12, &options, &maze) == NAVSYS_STATUS_OK);
+    REQUIRE(maze != nullptr);
+    maze_destroy(maze);
+}
+
+TEST_CASE("Room Blend checked calls are parallel and global-rand independent") {
+    const byul_room_blend_options_t options{
+        sizeof(byul_room_blend_options_t),
+        BYUL_ROOM_BLEND_OPTIONS_ABI_VERSION,
+        UINT64_C(1234),
+        UINT64_C(0),
+        UINT64_C(221),
+        18, 3, 3, 7, 7, 1,
+        nullptr,
+        nullptr
+    };
+    auto generate_hash = [options]() {
+        maze_t* maze = nullptr;
+        const navsys_status_t status = byul_maze_generate_room_blend(
+            0, 0, 13, 17, &options, &maze);
+        const uint32_t hash = maze ? maze_hash(maze) : 0;
+        maze_destroy(maze);
+        return std::make_pair(status, hash);
+    };
+    std::array<std::future<std::pair<navsys_status_t, uint32_t>>, 8> calls;
+    for (auto& call : calls) {
+        call = std::async(std::launch::async, generate_hash);
+    }
+    uint32_t expected_hash = 0;
+    for (size_t index = 0; index < calls.size(); ++index) {
+        const auto result = calls[index].get();
+        REQUIRE(result.first == NAVSYS_STATUS_OK);
+        if (index == 0) expected_hash = result.second;
+        CHECK(result.second == expected_hash);
+    }
+
+    std::srand(9182);
+    const int first_random = std::rand();
+    const auto generated = generate_hash();
+    const int second_random = std::rand();
+    std::srand(9182);
+    CHECK(std::rand() == first_random);
+    CHECK(std::rand() == second_random);
+    CHECK(generated.first == NAVSYS_STATUS_OK);
+    CHECK(generated.second == expected_hash);
+}
 
 TEST_CASE("maze ABI gate accepts canonical and compatibility fingerprints") {
     CHECK(byul_maze_get_abi_version() == BYUL_MAZE_ABI_VERSION);

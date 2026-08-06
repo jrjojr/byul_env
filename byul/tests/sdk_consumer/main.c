@@ -18,6 +18,7 @@
 #include "maze_prim.h"
 #include "maze_recursive.h"
 #include "maze_recursive_division.h"
+#include "maze_room_blend.h"
 #include "maze_sidewinder.h"
 #include "navcell.h"
 #include "navsys_status.h"
@@ -1261,6 +1262,30 @@ int main(void) {
             return 10;
         }
         maze_destroy(recursive_backtracker);
+
+        {
+            const byul_room_blend_options_t room_options = {
+                sizeof(byul_room_blend_options_t),
+                BYUL_ROOM_BLEND_OPTIONS_ABI_VERSION,
+                UINT64_C(0),
+                UINT64_C(1000),
+                UINT64_C(81),
+                30, 3, 3, 7, 7, 0,
+                NULL,
+                NULL
+            };
+            maze_t* room_blend = NULL;
+            if (byul_maze_generate_room_blend(
+                    -5, 8, 9, 9, &room_options, &room_blend)
+                    != NAVSYS_STATUS_OK
+                || room_blend == NULL
+                || maze_hash(room_blend) != UINT32_C(453713525)) {
+                fprintf(stderr, "unexpected checked Room Blend SDK ABI\n");
+                maze_destroy(room_blend);
+                return 11;
+            }
+            maze_destroy(room_blend);
+        }
     }
 
     navgrid_t* legacy_carver_grid = navgrid_create_full(

@@ -48,15 +48,17 @@
 #+begin_src c
 typedef struct byul_room_blend_options {
     uint32_t struct_size;
+    uint32_t abi_version;
+    uint64_t seed;
+    uint64_t max_steps;
+    uint64_t max_cells;
     uint32_t room_attempts;
     uint32_t min_room_width;
     uint32_t min_room_height;
     uint32_t max_room_width;
     uint32_t max_room_height;
     uint32_t room_padding;
-    uint64_t seed;
-    uint64_t max_steps;
-    navsys_cancel_func cancel_func;
+    byul_maze_generate_cancel_func cancel_func;
     void* cancel_userdata;
 } byul_room_blend_options_t;
 
@@ -114,7 +116,7 @@ BYUL_API navsys_status_t byul_maze_generate_room_blend(
 - size 9..20, even/odd/rectangular dimensions와 all room-size RNG branches를 sanitizer로 실행한다.
 - header/install/export/wrapper consumer inventory를 비교한다.
 
-* DOING 2단계: versioned options와 deterministic placement
+* DONE 2단계: versioned options와 deterministic placement
 
 ** 실행
 
@@ -131,7 +133,7 @@ BYUL_API navsys_status_t byul_maze_generate_room_blend(
 
 - option boundary matrix, allocator fault, parallel calls/global RNG non-interference를 검사한다.
 
-* TODO 3단계: corridor·fill topology 정규화
+* DOING 3단계: corridor·fill topology 정규화
 
 ** 실행
 

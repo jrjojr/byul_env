@@ -1,0 +1,71 @@
+{
+  "schema_version": 1,
+  "scope": "navsys-maze-room-blend-stage2",
+  "status": "complete",
+  "source_revision": "613d8d5",
+  "canonical_api": {
+    "generator": "byul_maze_generate_room_blend",
+    "options": "byul_room_blend_options_t ABI version 1",
+    "output_contract": "out_maze is reset to NULL before validation and receives caller ownership only on success"
+  },
+  "placement_policy": {
+    "room_attempts": "explicit uint32 count; zero selects pure depth-first fill and the maximum is 32 times the raster cell count",
+    "room_extent": "inclusive odd min/max width and height, clipped to the available interior",
+    "room_origin": "uniform odd local X and Y positions that preserve the outer boundary",
+    "padding": "minimum blocked-cell separation between accepted rooms; it does not enlarge the outer boundary",
+    "randomization": "one per-call PCG32 stream drives size, position, corridor bend, and fill direction selection",
+    "legacy_equivalence": "30 attempts, 3..7 odd room extents, and padding 0 preserve every Stage 1 golden"
+  },
+  "validation": {
+    "dimensions": "width and height are at least 9; even and odd rectangular rasters are supported",
+    "bounds": "the inclusive last coordinate and each dimension must fit int32_t",
+    "room_options": "min/max ordering, odd parity, interior eligibility, and bounded attempts are checked before allocation",
+    "max_cells": "checked before allocation",
+    "max_steps": "explicit limit or a saturated bound covering placement, worst-case L corridors, DFS fill, and materialization",
+    "cancellation": "polled before allocation, at each placement/DFS/corridor step, and for each blocked output cell",
+    "exception_barrier": "bad_alloc maps to OUT_OF_MEMORY; callback exceptions map to CALLBACK_FAILED; other exceptions map to CORRUPT_STATE",
+    "failure_atomicity": "fail-at-N allocation sweep never publishes partial output and returns to the baseline live allocation count"
+  },
+  "golden": {
+    "origin": [-11, 6],
+    "extent": [21, 15],
+    "seed": 17,
+    "options": {
+      "room_attempts": 12,
+      "room_width": [3, 7],
+      "room_height": [3, 5],
+      "room_padding": 2
+    },
+    "hash": 559861491
+  },
+  "concurrency": {
+    "parallel_calls": "8 concurrent calls with equal options produced one identical hash",
+    "global_rand": "a checked generation call did not consume or reseed the C process-global rand stream"
+  },
+  "wrapper": {
+    "generator_manifest": "tools/python/byul_wrapper/generate_wrapper_abi.py",
+    "high_level_entry": "c_maze.generate_room_blend",
+    "room_policy": "all room placement fields are exposed as explicit Python keyword arguments",
+    "scope_tests": "26/26 generator, parser, Maze ABI policy, and dispatcher tests passed",
+    "full_suite_note": "203/204 passed; one unrelated pre-existing navcell source-string policy assertion failed",
+    "generation_check": "generated CFFI declarations are up to date"
+  },
+  "distribution": {
+    "root_shared_exports": 1212,
+    "required_symbols": [
+      "byul_maze_generate_room_blend",
+      "maze_make_room_blend"
+    ],
+    "clean_install_headers": 92,
+    "installed_header": "include/byul/maze_room_blend.h",
+    "navsys_inventory": "58 headers, 657 symbols"
+  },
+  "verification": {
+    "windows_msvc_release": "108/108 Maze cases, 843056/843056 assertions; allocation-failure executable exit 0",
+    "windows_aggregate_root": "542/542 cases, 186370/186370 assertions",
+    "linux_gcc13_asan_lsan_ubsan": "108/108 Maze cases, 843056/843056 assertions; allocation-failure executable exit 0; no sanitizer report",
+    "clean_sdk": "standalone C17/C++17 header probes and executable consumers passed",
+    "header_audit": "150 headers, 95 public C headers, 1173 declarations, 0 invariant errors",
+    "rules": "60 Org rule files, 0 errors, 0 warnings"
+  }
+}
