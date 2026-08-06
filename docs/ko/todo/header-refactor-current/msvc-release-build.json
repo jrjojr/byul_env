@@ -4,81 +4,81 @@
   "dumpbin_version": "Microsoft (R) COFF/PE Dumper Version 14.44.35214.0",
   "dll": {
     "name": "byul.dll",
-    "size": 542208,
-    "sha256": "435d69d49be9359aadac723172da51d6bcae3dc065b3e1513318aa3096e8c4e2",
+    "size": 542720,
+    "sha256": "badf8f36ca5801c4b931bcb5da9936fdde4b0e55a6930e565e1cb618ec78f0db",
     "export_count": 1211
   },
   "exports": [
     {
       "ordinal": 1,
       "hint": "0",
-      "rva": "00054180",
+      "rva": "00054240",
       "name": "attitude_state_assign"
     },
     {
       "ordinal": 2,
       "hint": "1",
-      "rva": "00056F50",
+      "rva": "00057010",
       "name": "attitude_state_init"
     },
     {
       "ordinal": 3,
       "hint": "2",
-      "rva": "00056F80",
+      "rva": "00057040",
       "name": "attitude_state_init_full"
     },
     {
       "ordinal": 4,
       "hint": "3",
-      "rva": "00057320",
+      "rva": "000573E0",
       "name": "bangbang_impl_assign"
     },
     {
       "ordinal": 5,
       "hint": "4",
-      "rva": "00057330",
+      "rva": "000573F0",
       "name": "bangbang_impl_init"
     },
     {
       "ordinal": 6,
       "hint": "5",
-      "rva": "00057340",
+      "rva": "00057400",
       "name": "bangbang_impl_init_full"
     },
     {
       "ordinal": 7,
       "hint": "6",
-      "rva": "00045F40",
+      "rva": "00046000",
       "name": "bodyprops_apply_friction"
     },
     {
       "ordinal": 8,
       "hint": "7",
-      "rva": "00046000",
+      "rva": "000460C0",
       "name": "bodyprops_apply_friction_heat"
     },
     {
       "ordinal": 9,
       "hint": "8",
-      "rva": "000460B0",
+      "rva": "00046170",
       "name": "bodyprops_assign"
     },
     {
       "ordinal": 10,
       "hint": "9",
-      "rva": "000460E0",
+      "rva": "000461A0",
       "name": "bodyprops_estimate_stop_time"
     },
     {
       "ordinal": 11,
       "hint": "A",
-      "rva": "00046140",
+      "rva": "00046200",
       "name": "bodyprops_init"
     },
     {
       "ordinal": 12,
       "hint": "B",
-      "rva": "00046180",
+      "rva": "00046240",
       "name": "bodyprops_init_full"
     },
     {
@@ -186,7 +186,7 @@
     {
       "ordinal": 30,
       "hint": "1D",
-      "rva": "00036320",
+      "rva": "000363C0",
       "name": "byul_maze_generate_recursive_backtracker"
     },
     {
@@ -198,7 +198,7 @@
     {
       "ordinal": 32,
       "hint": "1F",
-      "rva": "00037C90",
+      "rva": "00037D50",
       "name": "byul_maze_generate_sidewinder"
     },
     {
@@ -246,7 +246,7 @@
     {
       "ordinal": 40,
       "hint": "27",
-      "rva": "00037E10",
+      "rva": "00037ED0",
       "name": "byul_maze_sidewinder_sweep_is_supported"
     },
     {
@@ -294,49 +294,49 @@
     {
       "ordinal": 48,
       "hint": "2F",
-      "rva": "00050290",
+      "rva": "00050350",
       "name": "calc_spin_accel"
     },
     {
       "ordinal": 49,
       "hint": "30",
-      "rva": "0005DC00",
+      "rva": "0005DCC0",
       "name": "calc_suitable_dt"
     },
     {
       "ordinal": 50,
       "hint": "31",
-      "rva": "0005DC80",
+      "rva": "0005DD40",
       "name": "calc_suitable_max_time"
     },
     {
       "ordinal": 51,
       "hint": "32",
-      "rva": "0003BAA0",
+      "rva": "0003BB60",
       "name": "chebyshev_heuristic"
     },
     {
       "ordinal": 52,
       "hint": "33",
-      "rva": "00057350",
+      "rva": "00057410",
       "name": "controller_create_bangbang"
     },
     {
       "ordinal": 53,
       "hint": "34",
-      "rva": "000573C0",
+      "rva": "00057480",
       "name": "controller_create_mpc"
     },
     {
       "ordinal": 54,
       "hint": "35",
-      "rva": "000574C0",
+      "rva": "00057580",
       "name": "controller_create_pid"
     },
     {
       "ordinal": 55,
       "hint": "36",
-      "rva": "00057540",
+      "rva": "00057600",
       "name": "controller_destroy"
     },
     {
@@ -1284,67 +1284,67 @@
     {
       "ordinal": 213,
       "hint": "D4",
-      "rva": "0003BAE0",
+      "rva": "0003BBA0",
       "name": "default_cost"
     },
     {
       "ordinal": 214,
       "hint": "D5",
-      "rva": "0003BAF0",
+      "rva": "0003BBB0",
       "name": "default_heuristic"
     },
     {
       "ordinal": 215,
       "hint": "D6",
-      "rva": "000478D0",
+      "rva": "00047990",
       "name": "detect_plane_collision"
     },
     {
       "ordinal": 216,
       "hint": "D7",
-      "rva": "00047D50",
+      "rva": "00047E10",
       "name": "detect_sphere_collision"
     },
     {
       "ordinal": 217,
       "hint": "D8",
-      "rva": "00048090",
+      "rva": "00048150",
       "name": "detect_sphere_collision_moving"
     },
     {
       "ordinal": 218,
       "hint": "D9",
-      "rva": "000484D0",
+      "rva": "00048590",
       "name": "detect_sphere_collision_moving_precise"
     },
     {
       "ordinal": 219,
       "hint": "DA",
-      "rva": "00048E70",
+      "rva": "00048F30",
       "name": "detect_sphere_collision_precise"
     },
     {
       "ordinal": 220,
       "hint": "DB",
-      "rva": "00049520",
+      "rva": "000495E0",
       "name": "detect_triangle_collision_moving"
     },
     {
       "ordinal": 221,
       "hint": "DC",
-      "rva": "000498A0",
+      "rva": "00049960",
       "name": "detect_triangle_collision_rotating"
     },
     {
       "ordinal": 222,
       "hint": "DD",
-      "rva": "00049EF0",
+      "rva": "00049FB0",
       "name": "detect_triangle_collision_rotating_alpha"
     },
     {
       "ordinal": 223,
       "hint": "DE",
-      "rva": "0003BB40",
+      "rva": "0003BC00",
       "name": "diagonal_cost"
     },
     {
@@ -1404,265 +1404,265 @@
     {
       "ordinal": 233,
       "hint": "E8",
-      "rva": "0003FBF0",
+      "rva": "0003FCB0",
       "name": "dstar_lite_bind_changed_coords_func"
     },
     {
       "ordinal": 234,
       "hint": "E9",
-      "rva": "0003FC40",
+      "rva": "0003FD00",
       "name": "dstar_lite_bind_cost_func"
     },
     {
       "ordinal": 235,
       "hint": "EA",
-      "rva": "0003FC90",
+      "rva": "0003FD50",
       "name": "dstar_lite_bind_heuristic_func"
     },
     {
       "ordinal": 236,
       "hint": "EB",
-      "rva": "0003FCE0",
+      "rva": "0003FDA0",
       "name": "dstar_lite_bind_move_func"
     },
     {
       "ordinal": 237,
       "hint": "EC",
-      "rva": "0003FD30",
+      "rva": "0003FDF0",
       "name": "dstar_lite_calc_key"
     },
     {
       "ordinal": 238,
       "hint": "ED",
-      "rva": "0003FE30",
+      "rva": "0003FEF0",
       "name": "dstar_lite_compute_shortest_route"
     },
     {
       "ordinal": 239,
       "hint": "EE",
-      "rva": "000403D0",
+      "rva": "00040490",
       "name": "dstar_lite_copy"
     },
     {
       "ordinal": 240,
       "hint": "EF",
-      "rva": "00040550",
+      "rva": "00040610",
       "name": "dstar_lite_cost"
     },
     {
       "ordinal": 241,
       "hint": "F0",
-      "rva": "000405E0",
+      "rva": "000406A0",
       "name": "dstar_lite_create"
     },
     {
       "ordinal": 242,
       "hint": "F1",
-      "rva": "00040630",
+      "rva": "000406F0",
       "name": "dstar_lite_create_full"
     },
     {
       "ordinal": 243,
       "hint": "F2",
-      "rva": "000407E0",
+      "rva": "000408A0",
       "name": "dstar_lite_destroy"
     },
     {
       "ordinal": 244,
       "hint": "F3",
-      "rva": "00040860",
+      "rva": "00040920",
       "name": "dstar_lite_dynamic_cost"
     },
     {
       "ordinal": 245,
       "hint": "F4",
-      "rva": "00040940",
+      "rva": "00040A00",
       "name": "dstar_lite_enable_debug_mode"
     },
     {
       "ordinal": 246,
       "hint": "F5",
-      "rva": "00040950",
+      "rva": "00040A10",
       "name": "dstar_lite_fetch_goal"
     },
     {
       "ordinal": 247,
       "hint": "F6",
-      "rva": "00040970",
+      "rva": "00040A30",
       "name": "dstar_lite_fetch_next"
     },
     {
       "ordinal": 248,
       "hint": "F7",
-      "rva": "00040B70",
+      "rva": "00040C30",
       "name": "dstar_lite_fetch_start"
     },
     {
       "ordinal": 249,
       "hint": "F8",
-      "rva": "00040B90",
+      "rva": "00040C50",
       "name": "dstar_lite_find"
     },
     {
       "ordinal": 250,
       "hint": "F9",
-      "rva": "00040BD0",
+      "rva": "00040C90",
       "name": "dstar_lite_find_full"
     },
     {
       "ordinal": 251,
       "hint": "FA",
-      "rva": "00040C00",
+      "rva": "00040CC0",
       "name": "dstar_lite_find_loop"
     },
     {
       "ordinal": 252,
       "hint": "FB",
-      "rva": "00041100",
+      "rva": "000411C0",
       "name": "dstar_lite_find_proto"
     },
     {
       "ordinal": 253,
       "hint": "FC",
-      "rva": "00041130",
+      "rva": "000411F0",
       "name": "dstar_lite_force_quit"
     },
     {
       "ordinal": 254,
       "hint": "FD",
-      "rva": "00041140",
+      "rva": "00041200",
       "name": "dstar_lite_get_changed_coords_func"
     },
     {
       "ordinal": 255,
       "hint": "FE",
-      "rva": "00041150",
+      "rva": "00041210",
       "name": "dstar_lite_get_changed_coords_func_userdata"
     },
     {
       "ordinal": 256,
       "hint": "FF",
-      "rva": "00041160",
+      "rva": "00041220",
       "name": "dstar_lite_get_cost_func"
     },
     {
       "ordinal": 257,
       "hint": "100",
-      "rva": "0003C8C0",
+      "rva": "0003C980",
       "name": "dstar_lite_get_cost_func_userdata"
     },
     {
       "ordinal": 258,
       "hint": "101",
-      "rva": "00041170",
+      "rva": "00041230",
       "name": "dstar_lite_get_frontier"
     },
     {
       "ordinal": 259,
       "hint": "102",
-      "rva": "0003C870",
+      "rva": "0003C930",
       "name": "dstar_lite_get_g_table"
     },
     {
       "ordinal": 260,
       "hint": "103",
-      "rva": "00041180",
+      "rva": "00041240",
       "name": "dstar_lite_get_heuristic_func"
     },
     {
       "ordinal": 261,
       "hint": "104",
-      "rva": "0003C860",
+      "rva": "0003C920",
       "name": "dstar_lite_get_heuristic_func_userdata"
     },
     {
       "ordinal": 262,
       "hint": "105",
-      "rva": "00041190",
+      "rva": "00041250",
       "name": "dstar_lite_get_km"
     },
     {
       "ordinal": 263,
       "hint": "106",
-      "rva": "000411A0",
+      "rva": "00041260",
       "name": "dstar_lite_get_max_range"
     },
     {
       "ordinal": 264,
       "hint": "107",
-      "rva": "000411B0",
+      "rva": "00041270",
       "name": "dstar_lite_get_max_retry"
     },
     {
       "ordinal": 265,
       "hint": "108",
-      "rva": "000411C0",
+      "rva": "00041280",
       "name": "dstar_lite_get_move_func"
     },
     {
       "ordinal": 266,
       "hint": "109",
-      "rva": "000411D0",
+      "rva": "00041290",
       "name": "dstar_lite_get_move_func_userdata"
     },
     {
       "ordinal": 267,
       "hint": "10A",
-      "rva": "0003C8A0",
+      "rva": "0003C960",
       "name": "dstar_lite_get_navgrid"
     },
     {
       "ordinal": 268,
       "hint": "10B",
-      "rva": "000411E0",
+      "rva": "000412A0",
       "name": "dstar_lite_get_proto_route"
     },
     {
       "ordinal": 269,
       "hint": "10C",
-      "rva": "000411F0",
+      "rva": "000412B0",
       "name": "dstar_lite_get_real_loop_max_retry"
     },
     {
       "ordinal": 270,
       "hint": "10D",
-      "rva": "00041200",
+      "rva": "000412C0",
       "name": "dstar_lite_get_real_route"
     },
     {
       "ordinal": 271,
       "hint": "10E",
-      "rva": "00041210",
+      "rva": "000412D0",
       "name": "dstar_lite_get_reconstruct_max_retry"
     },
     {
       "ordinal": 272,
       "hint": "10F",
-      "rva": "00041220",
+      "rva": "000412E0",
       "name": "dstar_lite_get_rhs_table"
     },
     {
       "ordinal": 273,
       "hint": "110",
-      "rva": "00041230",
+      "rva": "000412F0",
       "name": "dstar_lite_heuristic"
     },
     {
       "ordinal": 274,
       "hint": "111",
-      "rva": "00041260",
+      "rva": "00041320",
       "name": "dstar_lite_init"
     },
     {
       "ordinal": 275,
       "hint": "112",
-      "rva": "000412E0",
+      "rva": "000413A0",
       "name": "dstar_lite_is_debug_mode_enabled"
     },
     {
       "ordinal": 276,
       "hint": "113",
-      "rva": "000412F0",
+      "rva": "000413B0",
       "name": "dstar_lite_is_quit_forced"
     },
     {
@@ -1674,43 +1674,43 @@
     {
       "ordinal": 278,
       "hint": "115",
-      "rva": "0003DEB0",
+      "rva": "0003DF70",
       "name": "dstar_lite_key_compare"
     },
     {
       "ordinal": 279,
       "hint": "116",
-      "rva": "0003DF70",
+      "rva": "0003E030",
       "name": "dstar_lite_key_compare_exact"
     },
     {
       "ordinal": 280,
       "hint": "117",
-      "rva": "0003E080",
+      "rva": "0003E140",
       "name": "dstar_lite_key_copy"
     },
     {
       "ordinal": 281,
       "hint": "118",
-      "rva": "0003E130",
+      "rva": "0003E1F0",
       "name": "dstar_lite_key_copy_ex"
     },
     {
       "ordinal": 282,
       "hint": "119",
-      "rva": "0003E1D0",
+      "rva": "0003E290",
       "name": "dstar_lite_key_create"
     },
     {
       "ordinal": 283,
       "hint": "11A",
-      "rva": "0003E200",
+      "rva": "0003E2C0",
       "name": "dstar_lite_key_create_ex"
     },
     {
       "ordinal": 284,
       "hint": "11B",
-      "rva": "0003E2D0",
+      "rva": "0003E390",
       "name": "dstar_lite_key_create_full"
     },
     {
@@ -1722,37 +1722,37 @@
     {
       "ordinal": 286,
       "hint": "11D",
-      "rva": "0003E300",
+      "rva": "0003E3C0",
       "name": "dstar_lite_key_equal"
     },
     {
       "ordinal": 287,
       "hint": "11E",
-      "rva": "0003E300",
+      "rva": "0003E3C0",
       "name": "dstar_lite_key_equal_exact"
     },
     {
       "ordinal": 288,
       "hint": "11F",
-      "rva": "0003E3A0",
+      "rva": "0003E460",
       "name": "dstar_lite_key_hash"
     },
     {
       "ordinal": 289,
       "hint": "120",
-      "rva": "0003E3A0",
+      "rva": "0003E460",
       "name": "dstar_lite_key_hash_exact"
     },
     {
       "ordinal": 290,
       "hint": "121",
-      "rva": "0003E400",
+      "rva": "0003E4C0",
       "name": "dstar_lite_key_init"
     },
     {
       "ordinal": 291,
       "hint": "122",
-      "rva": "0003E4C0",
+      "rva": "0003E580",
       "name": "dstar_lite_key_is_close"
     },
     {
@@ -1776,121 +1776,121 @@
     {
       "ordinal": 295,
       "hint": "126",
-      "rva": "0003EEB0",
+      "rva": "0003EF70",
       "name": "dstar_lite_pqueue_contains"
     },
     {
       "ordinal": 296,
       "hint": "127",
-      "rva": "0003EED0",
+      "rva": "0003EF90",
       "name": "dstar_lite_pqueue_copy"
     },
     {
       "ordinal": 297,
       "hint": "128",
-      "rva": "0003F240",
+      "rva": "0003F300",
       "name": "dstar_lite_pqueue_create"
     },
     {
       "ordinal": 298,
       "hint": "129",
-      "rva": "0003F2E0",
+      "rva": "0003F3A0",
       "name": "dstar_lite_pqueue_destroy"
     },
     {
       "ordinal": 299,
       "hint": "12A",
-      "rva": "0003F400",
+      "rva": "0003F4C0",
       "name": "dstar_lite_pqueue_get_key_by_coord"
     },
     {
       "ordinal": 300,
       "hint": "12B",
-      "rva": "0003F420",
+      "rva": "0003F4E0",
       "name": "dstar_lite_pqueue_is_empty"
     },
     {
       "ordinal": 301,
       "hint": "12C",
-      "rva": "0003F440",
+      "rva": "0003F500",
       "name": "dstar_lite_pqueue_peek"
     },
     {
       "ordinal": 302,
       "hint": "12D",
-      "rva": "0003F470",
+      "rva": "0003F530",
       "name": "dstar_lite_pqueue_pop"
     },
     {
       "ordinal": 303,
       "hint": "12E",
-      "rva": "0003F530",
+      "rva": "0003F5F0",
       "name": "dstar_lite_pqueue_push"
     },
     {
       "ordinal": 304,
       "hint": "12F",
-      "rva": "0003F820",
+      "rva": "0003F8E0",
       "name": "dstar_lite_pqueue_remove"
     },
     {
       "ordinal": 305,
       "hint": "130",
-      "rva": "0003F990",
+      "rva": "0003FA50",
       "name": "dstar_lite_pqueue_remove_full"
     },
     {
       "ordinal": 306,
       "hint": "131",
-      "rva": "0003FAF0",
+      "rva": "0003FBB0",
       "name": "dstar_lite_pqueue_top_key"
     },
     {
       "ordinal": 307,
       "hint": "132",
-      "rva": "00041300",
+      "rva": "000413C0",
       "name": "dstar_lite_proto_compute_retry_count"
     },
     {
       "ordinal": 308,
       "hint": "133",
-      "rva": "00041310",
+      "rva": "000413D0",
       "name": "dstar_lite_real_compute_retry_count"
     },
     {
       "ordinal": 309,
       "hint": "134",
-      "rva": "00041320",
+      "rva": "000413E0",
       "name": "dstar_lite_real_loop_retry_count"
     },
     {
       "ordinal": 310,
       "hint": "135",
-      "rva": "00041330",
+      "rva": "000413F0",
       "name": "dstar_lite_reconstruct_retry_count"
     },
     {
       "ordinal": 311,
       "hint": "136",
-      "rva": "00041340",
+      "rva": "00041400",
       "name": "dstar_lite_reconstruct_route"
     },
     {
       "ordinal": 312,
       "hint": "137",
-      "rva": "00041690",
+      "rva": "00041750",
       "name": "dstar_lite_reset"
     },
     {
       "ordinal": 313,
       "hint": "138",
-      "rva": "00041750",
+      "rva": "00041810",
       "name": "dstar_lite_set_changed_coords_func"
     },
     {
       "ordinal": 314,
       "hint": "139",
-      "rva": "00041760",
+      "rva": "00041820",
       "name": "dstar_lite_set_changed_coords_func_userdata"
     },
     {
@@ -1902,193 +1902,193 @@
     {
       "ordinal": 316,
       "hint": "13B",
-      "rva": "00041770",
+      "rva": "00041830",
       "name": "dstar_lite_set_cost_func_userdata"
     },
     {
       "ordinal": 317,
       "hint": "13C",
-      "rva": "00041780",
+      "rva": "00041840",
       "name": "dstar_lite_set_force_quit"
     },
     {
       "ordinal": 318,
       "hint": "13D",
-      "rva": "00041790",
+      "rva": "00041850",
       "name": "dstar_lite_set_frontier"
     },
     {
       "ordinal": 319,
       "hint": "13E",
-      "rva": "0003CDA0",
+      "rva": "0003CE60",
       "name": "dstar_lite_set_goal"
     },
     {
       "ordinal": 320,
       "hint": "13F",
-      "rva": "000417C0",
+      "rva": "00041880",
       "name": "dstar_lite_set_heuristic_func"
     },
     {
       "ordinal": 321,
       "hint": "140",
-      "rva": "0003CD60",
+      "rva": "0003CE20",
       "name": "dstar_lite_set_heuristic_func_userdata"
     },
     {
       "ordinal": 322,
       "hint": "141",
-      "rva": "000417D0",
+      "rva": "00041890",
       "name": "dstar_lite_set_interval_sec"
     },
     {
       "ordinal": 323,
       "hint": "142",
-      "rva": "000417E0",
+      "rva": "000418A0",
       "name": "dstar_lite_set_km"
     },
     {
       "ordinal": 324,
       "hint": "143",
-      "rva": "000417F0",
+      "rva": "000418B0",
       "name": "dstar_lite_set_max_range"
     },
     {
       "ordinal": 325,
       "hint": "144",
-      "rva": "00041800",
+      "rva": "000418C0",
       "name": "dstar_lite_set_max_retry"
     },
     {
       "ordinal": 326,
       "hint": "145",
-      "rva": "00041810",
+      "rva": "000418D0",
       "name": "dstar_lite_set_move_func"
     },
     {
       "ordinal": 327,
       "hint": "146",
-      "rva": "00041820",
+      "rva": "000418E0",
       "name": "dstar_lite_set_move_func_userdata"
     },
     {
       "ordinal": 328,
       "hint": "147",
-      "rva": "0003CE40",
+      "rva": "0003CF00",
       "name": "dstar_lite_set_navgrid"
     },
     {
       "ordinal": 329,
       "hint": "148",
-      "rva": "00041830",
+      "rva": "000418F0",
       "name": "dstar_lite_set_real_loop_max_retry"
     },
     {
       "ordinal": 330,
       "hint": "149",
-      "rva": "00041840",
+      "rva": "00041900",
       "name": "dstar_lite_set_reconstruct_max_retry"
     },
     {
       "ordinal": 331,
       "hint": "14A",
-      "rva": "0003CE50",
+      "rva": "0003CF10",
       "name": "dstar_lite_set_start"
     },
     {
       "ordinal": 332,
       "hint": "14B",
-      "rva": "00042020",
+      "rva": "000420E0",
       "name": "dstar_lite_tick_complete"
     },
     {
       "ordinal": 333,
       "hint": "14C",
-      "rva": "00042060",
+      "rva": "00042120",
       "name": "dstar_lite_tick_copy"
     },
     {
       "ordinal": 334,
       "hint": "14D",
-      "rva": "000420A0",
+      "rva": "00042160",
       "name": "dstar_lite_tick_create"
     },
     {
       "ordinal": 335,
       "hint": "14E",
-      "rva": "00042110",
+      "rva": "000421D0",
       "name": "dstar_lite_tick_create_full"
     },
     {
       "ordinal": 336,
       "hint": "14F",
-      "rva": "00042170",
+      "rva": "00042230",
       "name": "dstar_lite_tick_destroy"
     },
     {
       "ordinal": 337,
       "hint": "150",
-      "rva": "00042180",
+      "rva": "00042240",
       "name": "dstar_lite_tick_prepare"
     },
     {
       "ordinal": 338,
       "hint": "151",
-      "rva": "00042230",
+      "rva": "000422F0",
       "name": "dstar_lite_tick_prepare_full"
     },
     {
       "ordinal": 339,
       "hint": "152",
-      "rva": "00042300",
+      "rva": "000423C0",
       "name": "dstar_lite_tick_reset"
     },
     {
       "ordinal": 340,
       "hint": "153",
-      "rva": "00042320",
+      "rva": "000423E0",
       "name": "dstar_lite_tick_update"
     },
     {
       "ordinal": 341,
       "hint": "154",
-      "rva": "00041850",
+      "rva": "00041910",
       "name": "dstar_lite_unbind_changed_coords_func"
     },
     {
       "ordinal": 342,
       "hint": "155",
-      "rva": "00041890",
+      "rva": "00041950",
       "name": "dstar_lite_unbind_cost_func"
     },
     {
       "ordinal": 343,
       "hint": "156",
-      "rva": "000418E0",
+      "rva": "000419A0",
       "name": "dstar_lite_unbind_heuristic_func"
     },
     {
       "ordinal": 344,
       "hint": "157",
-      "rva": "00041930",
+      "rva": "000419F0",
       "name": "dstar_lite_unbind_move_func"
     },
     {
       "ordinal": 345,
       "hint": "158",
-      "rva": "00041970",
+      "rva": "00041A30",
       "name": "dstar_lite_update_vertex"
     },
     {
       "ordinal": 346,
       "hint": "159",
-      "rva": "00041BF0",
+      "rva": "00041CB0",
       "name": "dstar_lite_update_vertex_auto_range"
     },
     {
       "ordinal": 347,
       "hint": "15A",
-      "rva": "00041C00",
+      "rva": "00041CC0",
       "name": "dstar_lite_update_vertex_range"
     },
     {
@@ -2340,385 +2340,385 @@
     {
       "ordinal": 389,
       "hint": "184",
-      "rva": "0004EE90",
+      "rva": "0004EF50",
       "name": "entity_assign"
     },
     {
       "ordinal": 390,
       "hint": "185",
-      "rva": "000579B0",
+      "rva": "00057A70",
       "name": "entity_dynamic_assign"
     },
     {
       "ordinal": 391,
       "hint": "186",
-      "rva": "00057A10",
+      "rva": "00057AD0",
       "name": "entity_dynamic_bounce"
     },
     {
       "ordinal": 392,
       "hint": "187",
-      "rva": "00057AE0",
+      "rva": "00057BA0",
       "name": "entity_dynamic_calc_accel"
     },
     {
       "ordinal": 393,
       "hint": "188",
-      "rva": "00057B50",
+      "rva": "00057C10",
       "name": "entity_dynamic_calc_accel_env"
     },
     {
       "ordinal": 394,
       "hint": "189",
-      "rva": "00057C70",
+      "rva": "00057D30",
       "name": "entity_dynamic_calc_drag_accel"
     },
     {
       "ordinal": 395,
       "hint": "18A",
-      "rva": "00057D30",
+      "rva": "00057DF0",
       "name": "entity_dynamic_calc_position"
     },
     {
       "ordinal": 396,
       "hint": "18B",
-      "rva": "00057DF0",
+      "rva": "00057EB0",
       "name": "entity_dynamic_calc_position_env"
     },
     {
       "ordinal": 397,
       "hint": "18C",
-      "rva": "00057F90",
+      "rva": "00058050",
       "name": "entity_dynamic_calc_state_env"
     },
     {
       "ordinal": 398,
       "hint": "18D",
-      "rva": "000580B0",
+      "rva": "00058170",
       "name": "entity_dynamic_calc_velocity"
     },
     {
       "ordinal": 399,
       "hint": "18E",
-      "rva": "00058120",
+      "rva": "000581E0",
       "name": "entity_dynamic_calc_velocity_env"
     },
     {
       "ordinal": 400,
       "hint": "18F",
-      "rva": "00059F80",
+      "rva": "0005A040",
       "name": "entity_dynamic_collision_point"
     },
     {
       "ordinal": 401,
       "hint": "190",
-      "rva": "0005A060",
+      "rva": "0005A120",
       "name": "entity_dynamic_collision_point_env"
     },
     {
       "ordinal": 402,
       "hint": "191",
-      "rva": "000586F0",
+      "rva": "000587B0",
       "name": "entity_dynamic_commit_coord"
     },
     {
       "ordinal": 403,
       "hint": "192",
-      "rva": "000587D0",
+      "rva": "00058890",
       "name": "entity_dynamic_coord_distance"
     },
     {
       "ordinal": 404,
       "hint": "193",
-      "rva": "000587F0",
+      "rva": "000588B0",
       "name": "entity_dynamic_coord_in_range"
     },
     {
       "ordinal": 405,
       "hint": "194",
-      "rva": "0005A120",
+      "rva": "0005A1E0",
       "name": "entity_dynamic_distance"
     },
     {
       "ordinal": 406,
       "hint": "195",
-      "rva": "00058220",
+      "rva": "000582E0",
       "name": "entity_dynamic_from_motion_state"
     },
     {
       "ordinal": 407,
       "hint": "196",
-      "rva": "00058830",
+      "rva": "000588F0",
       "name": "entity_dynamic_get_world_coord"
     },
     {
       "ordinal": 408,
       "hint": "197",
-      "rva": "0005A130",
+      "rva": "0005A1F0",
       "name": "entity_dynamic_in_contact"
     },
     {
       "ordinal": 409,
       "hint": "198",
-      "rva": "00058280",
+      "rva": "00058340",
       "name": "entity_dynamic_init"
     },
     {
       "ordinal": 410,
       "hint": "199",
-      "rva": "000582C0",
+      "rva": "00058380",
       "name": "entity_dynamic_init_full"
     },
     {
       "ordinal": 411,
       "hint": "19A",
-      "rva": "0005A1A0",
+      "rva": "0005A260",
       "name": "entity_dynamic_predict_collision_time"
     },
     {
       "ordinal": 412,
       "hint": "19B",
-      "rva": "0005A260",
+      "rva": "0005A320",
       "name": "entity_dynamic_predict_collision_time_env"
     },
     {
       "ordinal": 413,
       "hint": "19C",
-      "rva": "00058410",
+      "rva": "000584D0",
       "name": "entity_dynamic_to_motion_state"
     },
     {
       "ordinal": 414,
       "hint": "19D",
-      "rva": "000584D0",
+      "rva": "00058590",
       "name": "entity_dynamic_update"
     },
     {
       "ordinal": 415,
       "hint": "19E",
-      "rva": "000585C0",
+      "rva": "00058680",
       "name": "entity_dynamic_update_env"
     },
     {
       "ordinal": 416,
       "hint": "19F",
-      "rva": "000577C0",
+      "rva": "00057880",
       "name": "entity_influence_radius"
     },
     {
       "ordinal": 417,
       "hint": "1A0",
-      "rva": "00057830",
+      "rva": "000578F0",
       "name": "entity_init"
     },
     {
       "ordinal": 418,
       "hint": "1A1",
-      "rva": "00057860",
+      "rva": "00057920",
       "name": "entity_init_full"
     },
     {
       "ordinal": 419,
       "hint": "1A2",
-      "rva": "0005A380",
+      "rva": "0005A440",
       "name": "entity_interact_apply_force"
     },
     {
       "ordinal": 420,
       "hint": "1A3",
-      "rva": "0005A420",
+      "rva": "0005A4E0",
       "name": "entity_interact_check_collision"
     },
     {
       "ordinal": 421,
       "hint": "1A4",
-      "rva": "0005A470",
+      "rva": "0005A530",
       "name": "entity_interact_check_fov"
     },
     {
       "ordinal": 422,
       "hint": "1A5",
-      "rva": "0005A510",
+      "rva": "0005A5D0",
       "name": "entity_interact_resolve_bounce"
     },
     {
       "ordinal": 423,
       "hint": "1A6",
-      "rva": "0005A6B0",
+      "rva": "0005A770",
       "name": "entity_interact_update"
     },
     {
       "ordinal": 424,
       "hint": "1A7",
-      "rva": "0005A760",
+      "rva": "0005A820",
       "name": "entity_interact_within_aoe"
     },
     {
       "ordinal": 425,
       "hint": "1A8",
-      "rva": "00057900",
+      "rva": "000579C0",
       "name": "entity_is_expired"
     },
     {
       "ordinal": 426,
       "hint": "1A9",
-      "rva": "00057930",
+      "rva": "000579F0",
       "name": "entity_size"
     },
     {
       "ordinal": 427,
       "hint": "1AA",
-      "rva": "00057980",
+      "rva": "00057A40",
       "name": "entity_tick"
     },
     {
       "ordinal": 428,
       "hint": "1AB",
-      "rva": "000461C0",
+      "rva": "00046280",
       "name": "environ_apply_wind"
     },
     {
       "ordinal": 429,
       "hint": "1AC",
-      "rva": "000461F0",
+      "rva": "000462B0",
       "name": "environ_assign"
     },
     {
       "ordinal": 430,
       "hint": "1AD",
-      "rva": "00046220",
+      "rva": "000462E0",
       "name": "environ_calc_gravity"
     },
     {
       "ordinal": 431,
       "hint": "1AE",
-      "rva": "000462B0",
+      "rva": "00046370",
       "name": "environ_calc_gravity_wind"
     },
     {
       "ordinal": 432,
       "hint": "1AF",
-      "rva": "00046360",
+      "rva": "00046420",
       "name": "environ_calc_none"
     },
     {
       "ordinal": 433,
       "hint": "1B0",
-      "rva": "00046390",
+      "rva": "00046450",
       "name": "environ_calc_periodic"
     },
     {
       "ordinal": 434,
       "hint": "1B1",
-      "rva": "00046480",
+      "rva": "00046540",
       "name": "environ_distort_accel"
     },
     {
       "ordinal": 435,
       "hint": "1B2",
-      "rva": "000464A0",
+      "rva": "00046560",
       "name": "environ_distort_accel_except_gravity"
     },
     {
       "ordinal": 436,
       "hint": "1B3",
-      "rva": "000466D0",
+      "rva": "00046790",
       "name": "environ_init"
     },
     {
       "ordinal": 437,
       "hint": "1B4",
-      "rva": "00046730",
+      "rva": "000467F0",
       "name": "environ_init_full"
     },
     {
       "ordinal": 438,
       "hint": "1B5",
-      "rva": "00046810",
+      "rva": "000468D0",
       "name": "environ_periodic_assign"
     },
     {
       "ordinal": 439,
       "hint": "1B6",
-      "rva": "00046840",
+      "rva": "00046900",
       "name": "environ_periodic_init"
     },
     {
       "ordinal": 440,
       "hint": "1B7",
-      "rva": "00046880",
+      "rva": "00046940",
       "name": "environ_periodic_init_full"
     },
     {
       "ordinal": 441,
       "hint": "1B8",
-      "rva": "0003BAF0",
+      "rva": "0003BBB0",
       "name": "euclidean_heuristic"
     },
     {
       "ordinal": 442,
       "hint": "1B9",
-      "rva": "00039140",
+      "rva": "00039200",
       "name": "find_astar"
     },
     {
       "ordinal": 443,
       "hint": "1BA",
-      "rva": "00039560",
+      "rva": "00039620",
       "name": "find_bfs"
     },
     {
       "ordinal": 444,
       "hint": "1BB",
-      "rva": "00039920",
+      "rva": "000399E0",
       "name": "find_dfs"
     },
     {
       "ordinal": 445,
       "hint": "1BC",
-      "rva": "00039CE0",
+      "rva": "00039DA0",
       "name": "find_dijkstra"
     },
     {
       "ordinal": 446,
       "hint": "1BD",
-      "rva": "0003A0B0",
+      "rva": "0003A170",
       "name": "find_fast_marching"
     },
     {
       "ordinal": 447,
       "hint": "1BE",
-      "rva": "0003A980",
+      "rva": "0003AA40",
       "name": "find_fringe_search"
     },
     {
       "ordinal": 448,
       "hint": "1BF",
-      "rva": "0003AFB0",
+      "rva": "0003B070",
       "name": "find_greedy_best_first"
     },
     {
       "ordinal": 449,
       "hint": "1C0",
-      "rva": "0003B3B0",
+      "rva": "0003B470",
       "name": "find_ida_star"
     },
     {
       "ordinal": 450,
       "hint": "1C1",
-      "rva": "0003CFD0",
+      "rva": "0003D090",
       "name": "find_rta_star"
     },
     {
       "ordinal": 451,
       "hint": "1C2",
-      "rva": "0003D4D0",
+      "rva": "0003D590",
       "name": "find_sma_star"
     },
     {
       "ordinal": 452,
       "hint": "1C3",
-      "rva": "0003D900",
+      "rva": "0003D9C0",
       "name": "find_weighted_astar"
     },
     {
@@ -2736,139 +2736,139 @@
     {
       "ordinal": 455,
       "hint": "1C6",
-      "rva": "0003A3D0",
+      "rva": "0003A490",
       "name": "fmm_cell_init_full"
     },
     {
       "ordinal": 456,
       "hint": "1C7",
-      "rva": "0003A3E0",
+      "rva": "0003A4A0",
       "name": "fmm_dump_ascii"
     },
     {
       "ordinal": 457,
       "hint": "1C8",
-      "rva": "0003A480",
+      "rva": "0003A540",
       "name": "fmm_grid_create_full"
     },
     {
       "ordinal": 458,
       "hint": "1C9",
-      "rva": "0003A940",
+      "rva": "0003AA00",
       "name": "fmm_grid_destroy"
     },
     {
       "ordinal": 459,
       "hint": "1CA",
-      "rva": "00041F40",
+      "rva": "00042000",
       "name": "get_changed_coord"
     },
     {
       "ordinal": 460,
       "hint": "1CB",
-      "rva": "00041FA0",
+      "rva": "00042060",
       "name": "get_changed_coords"
     },
     {
       "ordinal": 461,
       "hint": "1CC",
-      "rva": "0003C1C0",
+      "rva": "0003C280",
       "name": "get_route_finder_name"
     },
     {
       "ordinal": 462,
       "hint": "1CD",
-      "rva": "0005F110",
+      "rva": "0005F1D0",
       "name": "ground_assign"
     },
     {
       "ordinal": 463,
       "hint": "1CE",
-      "rva": "0005F2C0",
+      "rva": "0005F380",
       "name": "ground_free"
     },
     {
       "ordinal": 464,
       "hint": "1CF",
-      "rva": "0005F310",
+      "rva": "0005F3D0",
       "name": "ground_init"
     },
     {
       "ordinal": 465,
       "hint": "1D0",
-      "rva": "0005F3A0",
+      "rva": "0005F460",
       "name": "ground_init_heightfield"
     },
     {
       "ordinal": 466,
       "hint": "1D1",
-      "rva": "0005F400",
+      "rva": "0005F4C0",
       "name": "ground_init_tiles"
     },
     {
       "ordinal": 467,
       "hint": "1D2",
-      "rva": "0005F440",
+      "rva": "0005F500",
       "name": "ground_init_uniform"
     },
     {
       "ordinal": 468,
       "hint": "1D3",
-      "rva": "0005F490",
+      "rva": "0005F550",
       "name": "ground_material_at"
     },
     {
       "ordinal": 469,
       "hint": "1D4",
-      "rva": "0005F550",
+      "rva": "0005F610",
       "name": "ground_raycast"
     },
     {
       "ordinal": 470,
       "hint": "1D5",
-      "rva": "0005F760",
+      "rva": "0005F820",
       "name": "ground_reset"
     },
     {
       "ordinal": 471,
       "hint": "1D6",
-      "rva": "0005F780",
+      "rva": "0005F840",
       "name": "ground_sample_at"
     },
     {
       "ordinal": 472,
       "hint": "1D7",
-      "rva": "0005C6B0",
+      "rva": "0005C770",
       "name": "guidance_lead"
     },
     {
       "ordinal": 473,
       "hint": "1D8",
-      "rva": "0005C7F0",
+      "rva": "0005C8B0",
       "name": "guidance_none"
     },
     {
       "ordinal": 474,
       "hint": "1D9",
-      "rva": "0005C820",
+      "rva": "0005C8E0",
       "name": "guidance_point"
     },
     {
       "ordinal": 475,
       "hint": "1DA",
-      "rva": "0005C8B0",
+      "rva": "0005C970",
       "name": "guidance_predict"
     },
     {
       "ordinal": 476,
       "hint": "1DB",
-      "rva": "0005CAE0",
+      "rva": "0005CBA0",
       "name": "guidance_predict_accel"
     },
     {
       "ordinal": 477,
       "hint": "1DC",
-      "rva": "0005CCF0",
+      "rva": "0005CDB0",
       "name": "guidance_predict_accel_env"
     },
     {
@@ -2892,163 +2892,163 @@
     {
       "ordinal": 481,
       "hint": "1E0",
-      "rva": "0004A720",
+      "rva": "0004A7E0",
       "name": "integrator_assign"
     },
     {
       "ordinal": 482,
       "hint": "1E1",
-      "rva": "0004A7C0",
+      "rva": "0004A880",
       "name": "integrator_clear"
     },
     {
       "ordinal": 483,
       "hint": "1E2",
-      "rva": "0004A880",
+      "rva": "0004A940",
       "name": "integrator_free"
     },
     {
       "ordinal": 484,
       "hint": "1E3",
-      "rva": "0004A890",
+      "rva": "0004A950",
       "name": "integrator_init"
     },
     {
       "ordinal": 485,
       "hint": "1E4",
-      "rva": "0004A990",
+      "rva": "0004AA50",
       "name": "integrator_init_full"
     },
     {
       "ordinal": 486,
       "hint": "1E5",
-      "rva": "0004AA10",
+      "rva": "0004AAD0",
       "name": "integrator_step"
     },
     {
       "ordinal": 487,
       "hint": "1E6",
-      "rva": "0004AB60",
+      "rva": "0004AC20",
       "name": "integrator_step_attitude_euler"
     },
     {
       "ordinal": 488,
       "hint": "1E7",
-      "rva": "0004AC00",
+      "rva": "0004ACC0",
       "name": "integrator_step_attitude_euler_env"
     },
     {
       "ordinal": 489,
       "hint": "1E8",
-      "rva": "0004AD80",
+      "rva": "0004AE40",
       "name": "integrator_step_attitude_rk4"
     },
     {
       "ordinal": 490,
       "hint": "1E9",
-      "rva": "0004AEB0",
+      "rva": "0004AF70",
       "name": "integrator_step_attitude_rk4_env"
     },
     {
       "ordinal": 491,
       "hint": "1EA",
-      "rva": "0004AB60",
+      "rva": "0004AC20",
       "name": "integrator_step_attitude_semi_implicit"
     },
     {
       "ordinal": 492,
       "hint": "1EB",
-      "rva": "0004AC00",
+      "rva": "0004ACC0",
       "name": "integrator_step_attitude_semi_implicit_env"
     },
     {
       "ordinal": 493,
       "hint": "1EC",
-      "rva": "0004B4E0",
+      "rva": "0004B5A0",
       "name": "integrator_step_attitude_velocity_verlet"
     },
     {
       "ordinal": 494,
       "hint": "1ED",
-      "rva": "0004B660",
+      "rva": "0004B720",
       "name": "integrator_step_attitude_velocity_verlet_env"
     },
     {
       "ordinal": 495,
       "hint": "1EE",
-      "rva": "0004B8E0",
+      "rva": "0004B9A0",
       "name": "integrator_step_euler"
     },
     {
       "ordinal": 496,
       "hint": "1EF",
-      "rva": "0004BA70",
+      "rva": "0004BB30",
       "name": "integrator_step_euler_env"
     },
     {
       "ordinal": 497,
       "hint": "1F0",
-      "rva": "0004BC30",
+      "rva": "0004BCF0",
       "name": "integrator_step_motion_euler"
     },
     {
       "ordinal": 498,
       "hint": "1F1",
-      "rva": "0004BEC0",
+      "rva": "0004BF80",
       "name": "integrator_step_motion_rk4"
     },
     {
       "ordinal": 499,
       "hint": "1F2",
-      "rva": "0004C780",
+      "rva": "0004C840",
       "name": "integrator_step_motion_rk4_env"
     },
     {
       "ordinal": 500,
       "hint": "1F3",
-      "rva": "0004D340",
+      "rva": "0004D400",
       "name": "integrator_step_motion_semi_implicit"
     },
     {
       "ordinal": 501,
       "hint": "1F4",
-      "rva": "0004D430",
+      "rva": "0004D4F0",
       "name": "integrator_step_rk4"
     },
     {
       "ordinal": 502,
       "hint": "1F5",
-      "rva": "0004DA40",
+      "rva": "0004DB00",
       "name": "integrator_step_rk4_env"
     },
     {
       "ordinal": 503,
       "hint": "1F6",
-      "rva": "0004E290",
+      "rva": "0004E350",
       "name": "integrator_step_semi_implicit"
     },
     {
       "ordinal": 504,
       "hint": "1F7",
-      "rva": "0004E420",
+      "rva": "0004E4E0",
       "name": "integrator_step_semi_implicit_env"
     },
     {
       "ordinal": 505,
       "hint": "1F8",
-      "rva": "0004E5D0",
+      "rva": "0004E690",
       "name": "integrator_step_velocity_verlet_env"
     },
     {
       "ordinal": 506,
       "hint": "1F9",
-      "rva": "0004E920",
+      "rva": "0004E9E0",
       "name": "integrator_step_verlet"
     },
     {
       "ordinal": 507,
       "hint": "1FA",
-      "rva": "0004EB10",
+      "rva": "0004EBD0",
       "name": "integrator_step_verlet_env"
     },
     {
@@ -3060,91 +3060,91 @@
     {
       "ordinal": 509,
       "hint": "1FC",
-      "rva": "0004EDB0",
+      "rva": "0004EE70",
       "name": "kalman_assign"
     },
     {
       "ordinal": 510,
       "hint": "1FD",
-      "rva": "0004EDD0",
+      "rva": "0004EE90",
       "name": "kalman_init"
     },
     {
       "ordinal": 511,
       "hint": "1FE",
-      "rva": "0004EDF0",
+      "rva": "0004EEB0",
       "name": "kalman_init_full"
     },
     {
       "ordinal": 512,
       "hint": "1FF",
-      "rva": "0004EE20",
+      "rva": "0004EEE0",
       "name": "kalman_measurement_update"
     },
     {
       "ordinal": 513,
       "hint": "200",
-      "rva": "0004EE70",
+      "rva": "0004EF30",
       "name": "kalman_time_update"
     },
     {
       "ordinal": 514,
       "hint": "201",
-      "rva": "0004EE90",
+      "rva": "0004EF50",
       "name": "kalman_vec3_assign"
     },
     {
       "ordinal": 515,
       "hint": "202",
-      "rva": "0004EEC0",
+      "rva": "0004EF80",
       "name": "kalman_vec3_init"
     },
     {
       "ordinal": 516,
       "hint": "203",
-      "rva": "0004EF00",
+      "rva": "0004EFC0",
       "name": "kalman_vec3_init_full"
     },
     {
       "ordinal": 517,
       "hint": "204",
-      "rva": "0004EFD0",
+      "rva": "0004F090",
       "name": "kalman_vec3_measurement_update"
     },
     {
       "ordinal": 518,
       "hint": "205",
-      "rva": "0004F110",
+      "rva": "0004F1D0",
       "name": "kalman_vec3_project"
     },
     {
       "ordinal": 519,
       "hint": "206",
-      "rva": "0004F150",
+      "rva": "0004F210",
       "name": "kalman_vec3_time_update"
     },
     {
       "ordinal": 520,
       "hint": "207",
-      "rva": "00056FB0",
+      "rva": "00057070",
       "name": "linear_state_assign"
     },
     {
       "ordinal": 521,
       "hint": "208",
-      "rva": "00056FD0",
+      "rva": "00057090",
       "name": "linear_state_init"
     },
     {
       "ordinal": 522,
       "hint": "209",
-      "rva": "00057000",
+      "rva": "000570C0",
       "name": "linear_state_init_full"
     },
     {
       "ordinal": 523,
       "hint": "20A",
-      "rva": "0004ED80",
+      "rva": "0004EE40",
       "name": "make_kalman_vec3_interface"
     },
     {
@@ -3156,7 +3156,7 @@
     {
       "ordinal": 525,
       "hint": "20C",
-      "rva": "0003BB90",
+      "rva": "0003BC50",
       "name": "manhattan_heuristic"
     },
     {
@@ -3270,7 +3270,7 @@
     {
       "ordinal": 544,
       "hint": "21F",
-      "rva": "00036490",
+      "rva": "00036540",
       "name": "maze_make_recursive"
     },
     {
@@ -3282,19 +3282,19 @@
     {
       "ordinal": 546,
       "hint": "221",
-      "rva": "000376C0",
+      "rva": "00037780",
       "name": "maze_make_room_blend"
     },
     {
       "ordinal": 547,
       "hint": "222",
-      "rva": "00037E30",
+      "rva": "00037EF0",
       "name": "maze_make_sidewinder"
     },
     {
       "ordinal": 548,
       "hint": "223",
-      "rva": "00039080",
+      "rva": "00039140",
       "name": "maze_make_wilson"
     },
     {
@@ -3318,91 +3318,91 @@
     {
       "ordinal": 552,
       "hint": "227",
-      "rva": "0005A7B0",
+      "rva": "0005A870",
       "name": "missile_assign"
     },
     {
       "ordinal": 553,
       "hint": "228",
-      "rva": "0005A820",
+      "rva": "0005A8E0",
       "name": "missile_init"
     },
     {
       "ordinal": 554,
       "hint": "229",
-      "rva": "0005A8D0",
+      "rva": "0005A990",
       "name": "missile_init_full"
     },
     {
       "ordinal": 555,
       "hint": "22A",
-      "rva": "0005A920",
+      "rva": "0005A9E0",
       "name": "missile_launch"
     },
     {
       "ordinal": 556,
       "hint": "22B",
-      "rva": "00057040",
+      "rva": "00057100",
       "name": "motion_state_assign"
     },
     {
       "ordinal": 557,
       "hint": "22C",
-      "rva": "00057080",
+      "rva": "00057140",
       "name": "motion_state_init"
     },
     {
       "ordinal": 558,
       "hint": "22D",
-      "rva": "000570D0",
+      "rva": "00057190",
       "name": "motion_state_init_full"
     },
     {
       "ordinal": 559,
       "hint": "22E",
-      "rva": "00041FF0",
+      "rva": "000420B0",
       "name": "move_to"
     },
     {
       "ordinal": 560,
       "hint": "22F",
-      "rva": "000509D0",
+      "rva": "00050A90",
       "name": "mpc_config_assign"
     },
     {
       "ordinal": 561,
       "hint": "230",
-      "rva": "00050A10",
+      "rva": "00050AD0",
       "name": "mpc_config_init"
     },
     {
       "ordinal": 562,
       "hint": "231",
-      "rva": "00050A80",
+      "rva": "00050B40",
       "name": "mpc_config_init_full"
     },
     {
       "ordinal": 563,
       "hint": "232",
-      "rva": "00050B20",
+      "rva": "00050BE0",
       "name": "mpc_direction_target_init"
     },
     {
       "ordinal": 564,
       "hint": "233",
-      "rva": "00057580",
+      "rva": "00057640",
       "name": "mpc_impl_assign"
     },
     {
       "ordinal": 565,
       "hint": "234",
-      "rva": "00057670",
+      "rva": "00057730",
       "name": "mpc_impl_init"
     },
     {
       "ordinal": 566,
       "hint": "235",
-      "rva": "000576C0",
+      "rva": "00057780",
       "name": "mpc_impl_init_full"
     },
     {
@@ -3414,13 +3414,13 @@
     {
       "ordinal": 568,
       "hint": "237",
-      "rva": "00050B60",
+      "rva": "00050C20",
       "name": "mpc_target_route_init"
     },
     {
       "ordinal": 569,
       "hint": "238",
-      "rva": "00050B80",
+      "rva": "00050C40",
       "name": "mpc_target_route_init_full"
     },
     {
@@ -3528,13 +3528,13 @@
     {
       "ordinal": 587,
       "hint": "24A",
-      "rva": "00045780",
+      "rva": "00045840",
       "name": "navgrid_carve_area"
     },
     {
       "ordinal": 588,
       "hint": "24B",
-      "rva": "000459E0",
+      "rva": "00045AA0",
       "name": "navgrid_carve_line"
     },
     {
@@ -3924,169 +3924,169 @@
     {
       "ordinal": 653,
       "hint": "28C",
-      "rva": "0004F340",
+      "rva": "0004F400",
       "name": "numeq_model_accel"
     },
     {
       "ordinal": 654,
       "hint": "28D",
-      "rva": "0004F380",
+      "rva": "0004F440",
       "name": "numeq_model_accel_except_gravity"
     },
     {
       "ordinal": 655,
       "hint": "28E",
-      "rva": "0004F4C0",
+      "rva": "0004F580",
       "name": "numeq_model_accel_predict"
     },
     {
       "ordinal": 656,
       "hint": "28F",
-      "rva": "0004F560",
+      "rva": "0004F620",
       "name": "numeq_model_bounce"
     },
     {
       "ordinal": 657,
       "hint": "290",
-      "rva": "0004F7B0",
+      "rva": "0004F870",
       "name": "numeq_model_drag_accel"
     },
     {
       "ordinal": 658,
       "hint": "291",
-      "rva": "00050360",
+      "rva": "00050420",
       "name": "numeq_model_motion_accel"
     },
     {
       "ordinal": 659,
       "hint": "292",
-      "rva": "00050430",
+      "rva": "000504F0",
       "name": "numeq_model_motion_drag_scale"
     },
     {
       "ordinal": 660,
       "hint": "293",
-      "rva": "000505A0",
+      "rva": "00050660",
       "name": "numeq_model_motion_predict"
     },
     {
       "ordinal": 661,
       "hint": "294",
-      "rva": "000506A0",
+      "rva": "00050760",
       "name": "numeq_model_motion_predict_rk4"
     },
     {
       "ordinal": 662,
       "hint": "295",
-      "rva": "0004F940",
+      "rva": "0004FA00",
       "name": "numeq_model_pos_predict"
     },
     {
       "ordinal": 663,
       "hint": "296",
-      "rva": "0004FB00",
+      "rva": "0004FBC0",
       "name": "numeq_model_predict"
     },
     {
       "ordinal": 664,
       "hint": "297",
-      "rva": "0004FBE0",
+      "rva": "0004FCA0",
       "name": "numeq_model_predict_collision"
     },
     {
       "ordinal": 665,
       "hint": "298",
-      "rva": "0004FE00",
+      "rva": "0004FEC0",
       "name": "numeq_model_predict_collision_plane"
     },
     {
       "ordinal": 666,
       "hint": "299",
-      "rva": "0004FFB0",
+      "rva": "00050070",
       "name": "numeq_model_predict_rk4"
     },
     {
       "ordinal": 667,
       "hint": "29A",
-      "rva": "00050140",
+      "rva": "00050200",
       "name": "numeq_model_vel_predict"
     },
     {
       "ordinal": 668,
       "hint": "29B",
-      "rva": "00050BA0",
+      "rva": "00050C60",
       "name": "numeq_mpc_cost_default"
     },
     {
       "ordinal": 669,
       "hint": "29C",
-      "rva": "00050D00",
+      "rva": "00050DC0",
       "name": "numeq_mpc_cost_hybrid"
     },
     {
       "ordinal": 670,
       "hint": "29D",
-      "rva": "00050E90",
+      "rva": "00050F50",
       "name": "numeq_mpc_cost_speed"
     },
     {
       "ordinal": 671,
       "hint": "29E",
-      "rva": "00050F30",
+      "rva": "00050FF0",
       "name": "numeq_mpc_solve"
     },
     {
       "ordinal": 672,
       "hint": "29F",
-      "rva": "00051630",
+      "rva": "000516F0",
       "name": "numeq_mpc_solve_coarse2fine"
     },
     {
       "ordinal": 673,
       "hint": "2A0",
-      "rva": "00051FE0",
+      "rva": "000520A0",
       "name": "numeq_mpc_solve_directional"
     },
     {
       "ordinal": 674,
       "hint": "2A1",
-      "rva": "00052120",
+      "rva": "000521E0",
       "name": "numeq_mpc_solve_fast"
     },
     {
       "ordinal": 675,
       "hint": "2A2",
-      "rva": "000528F0",
+      "rva": "000529B0",
       "name": "numeq_mpc_solve_route"
     },
     {
       "ordinal": 676,
       "hint": "2A3",
-      "rva": "000536A0",
+      "rva": "00053760",
       "name": "numeq_solve_bisection"
     },
     {
       "ordinal": 677,
       "hint": "2A4",
-      "rva": "00053820",
+      "rva": "000538E0",
       "name": "numeq_solve_cubic"
     },
     {
       "ordinal": 678,
       "hint": "2A5",
-      "rva": "00053BE0",
+      "rva": "00053CA0",
       "name": "numeq_solve_linear"
     },
     {
       "ordinal": 679,
       "hint": "2A6",
-      "rva": "00053C20",
+      "rva": "00053CE0",
       "name": "numeq_solve_quadratic"
     },
     {
       "ordinal": 680,
       "hint": "2A7",
-      "rva": "00053D00",
+      "rva": "00053DC0",
       "name": "numeq_solve_quadratic_stable"
     },
     {
@@ -4560,139 +4560,139 @@
     {
       "ordinal": 759,
       "hint": "2F6",
-      "rva": "0003BBD0",
+      "rva": "0003BC90",
       "name": "octile_heuristic"
     },
     {
       "ordinal": 760,
       "hint": "2F7",
-      "rva": "0005AA80",
+      "rva": "0005AB40",
       "name": "patriot_assign"
     },
     {
       "ordinal": 761,
       "hint": "2F8",
-      "rva": "0005AB00",
+      "rva": "0005ABC0",
       "name": "patriot_init"
     },
     {
       "ordinal": 762,
       "hint": "2F9",
-      "rva": "0005AB50",
+      "rva": "0005AC10",
       "name": "patriot_init_full"
     },
     {
       "ordinal": 763,
       "hint": "2FA",
-      "rva": "0005ABC0",
+      "rva": "0005AC80",
       "name": "patriot_launch"
     },
     {
       "ordinal": 764,
       "hint": "2FB",
-      "rva": "00052D50",
+      "rva": "00052E10",
       "name": "pid_assign"
     },
     {
       "ordinal": 765,
       "hint": "2FC",
-      "rva": "00056FB0",
+      "rva": "00057070",
       "name": "pid_impl_assign"
     },
     {
       "ordinal": 766,
       "hint": "2FD",
-      "rva": "00057770",
+      "rva": "00057830",
       "name": "pid_impl_init"
     },
     {
       "ordinal": 767,
       "hint": "2FE",
-      "rva": "00057790",
+      "rva": "00057850",
       "name": "pid_impl_init_full"
     },
     {
       "ordinal": 768,
       "hint": "2FF",
-      "rva": "00052D60",
+      "rva": "00052E20",
       "name": "pid_init"
     },
     {
       "ordinal": 769,
       "hint": "300",
-      "rva": "00052D90",
+      "rva": "00052E50",
       "name": "pid_init_auto"
     },
     {
       "ordinal": 770,
       "hint": "301",
-      "rva": "00052DF0",
+      "rva": "00052EB0",
       "name": "pid_init_full"
     },
     {
       "ordinal": 771,
       "hint": "302",
-      "rva": "00052E20",
+      "rva": "00052EE0",
       "name": "pid_preview"
     },
     {
       "ordinal": 772,
       "hint": "303",
-      "rva": "00052E80",
+      "rva": "00052F40",
       "name": "pid_reset"
     },
     {
       "ordinal": 773,
       "hint": "304",
-      "rva": "00052E90",
+      "rva": "00052F50",
       "name": "pid_set_state"
     },
     {
       "ordinal": 774,
       "hint": "305",
-      "rva": "00052EA0",
+      "rva": "00052F60",
       "name": "pid_update"
     },
     {
       "ordinal": 775,
       "hint": "306",
-      "rva": "00052AC0",
+      "rva": "00052B80",
       "name": "pid_vec3_assign"
     },
     {
       "ordinal": 776,
       "hint": "307",
-      "rva": "00052B00",
+      "rva": "00052BC0",
       "name": "pid_vec3_init"
     },
     {
       "ordinal": 777,
       "hint": "308",
-      "rva": "00052B30",
+      "rva": "00052BF0",
       "name": "pid_vec3_init_full"
     },
     {
       "ordinal": 778,
       "hint": "309",
-      "rva": "00052BC0",
+      "rva": "00052C80",
       "name": "pid_vec3_preview"
     },
     {
       "ordinal": 779,
       "hint": "30A",
-      "rva": "00052C40",
+      "rva": "00052D00",
       "name": "pid_vec3_reset"
     },
     {
       "ordinal": 780,
       "hint": "30B",
-      "rva": "00052C70",
+      "rva": "00052D30",
       "name": "pid_vec3_set_state"
     },
     {
       "ordinal": 781,
       "hint": "30C",
-      "rva": "00052CD0",
+      "rva": "00052D90",
       "name": "pid_vec3_update"
     },
     {
@@ -4812,325 +4812,325 @@
     {
       "ordinal": 801,
       "hint": "320",
-      "rva": "0005B420",
+      "rva": "0005B4E0",
       "name": "projectile_assign"
     },
     {
       "ordinal": 802,
       "hint": "321",
-      "rva": "0005B4A0",
+      "rva": "0005B560",
       "name": "projectile_calc_launch_param"
     },
     {
       "ordinal": 803,
       "hint": "322",
-      "rva": "0005B6F0",
+      "rva": "0005B7B0",
       "name": "projectile_calc_launch_param_env"
     },
     {
       "ordinal": 804,
       "hint": "323",
-      "rva": "0005B9C0",
+      "rva": "0005BA80",
       "name": "projectile_calc_launch_param_inverse"
     },
     {
       "ordinal": 805,
       "hint": "324",
-      "rva": "0005BB00",
+      "rva": "0005BBC0",
       "name": "projectile_calc_launch_param_inverse_env"
     },
     {
       "ordinal": 806,
       "hint": "325",
-      "rva": "0005BC90",
+      "rva": "0005BD50",
       "name": "projectile_default_expire_cb"
     },
     {
       "ordinal": 807,
       "hint": "326",
-      "rva": "0005BCC0",
+      "rva": "0005BD80",
       "name": "projectile_default_hit_cb"
     },
     {
       "ordinal": 808,
       "hint": "327",
-      "rva": "0005BCF0",
+      "rva": "0005BDB0",
       "name": "projectile_init"
     },
     {
       "ordinal": 809,
       "hint": "328",
-      "rva": "0005BD40",
+      "rva": "0005BE00",
       "name": "projectile_init_full"
     },
     {
       "ordinal": 810,
       "hint": "329",
-      "rva": "0005AD10",
+      "rva": "0005ADD0",
       "name": "projectile_launch"
     },
     {
       "ordinal": 811,
       "hint": "32A",
-      "rva": "0005D100",
+      "rva": "0005D1C0",
       "name": "projectile_predict"
     },
     {
       "ordinal": 812,
       "hint": "32B",
-      "rva": "0005D700",
+      "rva": "0005D7C0",
       "name": "projectile_result_calc_initial_force_scalar"
     },
     {
       "ordinal": 813,
       "hint": "32C",
-      "rva": "0005D7B0",
+      "rva": "0005D870",
       "name": "projectile_result_copy"
     },
     {
       "ordinal": 814,
       "hint": "32D",
-      "rva": "0005D860",
+      "rva": "0005D920",
       "name": "projectile_result_create"
     },
     {
       "ordinal": 815,
       "hint": "32E",
-      "rva": "0005D8E0",
+      "rva": "0005D9A0",
       "name": "projectile_result_create_full"
     },
     {
       "ordinal": 816,
       "hint": "32F",
-      "rva": "0005D970",
+      "rva": "0005DA30",
       "name": "projectile_result_destroy"
     },
     {
       "ordinal": 817,
       "hint": "330",
-      "rva": "0005D9B0",
+      "rva": "0005DA70",
       "name": "projectile_result_free"
     },
     {
       "ordinal": 818,
       "hint": "331",
-      "rva": "0005DA20",
+      "rva": "0005DAE0",
       "name": "projectile_result_print"
     },
     {
       "ordinal": 819,
       "hint": "332",
-      "rva": "0005DA80",
+      "rva": "0005DB40",
       "name": "projectile_result_print_detailed"
     },
     {
       "ordinal": 820,
       "hint": "333",
-      "rva": "0005DB10",
+      "rva": "0005DBD0",
       "name": "projectile_result_reset"
     },
     {
       "ordinal": 821,
       "hint": "334",
-      "rva": "0005DB60",
+      "rva": "0005DC20",
       "name": "projectile_result_resize"
     },
     {
       "ordinal": 822,
       "hint": "335",
-      "rva": "0005DCD0",
+      "rva": "0005DD90",
       "name": "projectile_tick"
     },
     {
       "ordinal": 823,
       "hint": "336",
-      "rva": "0005E220",
+      "rva": "0005E2E0",
       "name": "projectile_tick_assign"
     },
     {
       "ordinal": 824,
       "hint": "337",
-      "rva": "0005E440",
+      "rva": "0005E500",
       "name": "projectile_tick_complete"
     },
     {
       "ordinal": 825,
       "hint": "338",
-      "rva": "0005E480",
+      "rva": "0005E540",
       "name": "projectile_tick_free"
     },
     {
       "ordinal": 826,
       "hint": "339",
-      "rva": "0005E540",
+      "rva": "0005E600",
       "name": "projectile_tick_init"
     },
     {
       "ordinal": 827,
       "hint": "33A",
-      "rva": "0005E5D0",
+      "rva": "0005E690",
       "name": "projectile_tick_init_full"
     },
     {
       "ordinal": 828,
       "hint": "33B",
-      "rva": "0005E750",
+      "rva": "0005E810",
       "name": "projectile_tick_prepare"
     },
     {
       "ordinal": 829,
       "hint": "33C",
-      "rva": "0005E820",
+      "rva": "0005E8E0",
       "name": "projectile_tick_prepare_full"
     },
     {
       "ordinal": 830,
       "hint": "33D",
-      "rva": "0005BDB0",
+      "rva": "0005BE70",
       "name": "projectile_update"
     },
     {
       "ordinal": 831,
       "hint": "33E",
-      "rva": "0005BE10",
+      "rva": "0005BED0",
       "name": "propulsion_assign"
     },
     {
       "ordinal": 832,
       "hint": "33F",
-      "rva": "0005BE50",
+      "rva": "0005BF10",
       "name": "propulsion_attach_controller"
     },
     {
       "ordinal": 833,
       "hint": "340",
-      "rva": "0005BE60",
+      "rva": "0005BF20",
       "name": "propulsion_consume"
     },
     {
       "ordinal": 834,
       "hint": "341",
-      "rva": "0005BE90",
+      "rva": "0005BF50",
       "name": "propulsion_detach_controller"
     },
     {
       "ordinal": 835,
       "hint": "342",
-      "rva": "0005BEA0",
+      "rva": "0005BF60",
       "name": "propulsion_get_fuel_ratio"
     },
     {
       "ordinal": 836,
       "hint": "343",
-      "rva": "0005BEC0",
+      "rva": "0005BF80",
       "name": "propulsion_get_max_runtime"
     },
     {
       "ordinal": 837,
       "hint": "344",
-      "rva": "0005BEF0",
+      "rva": "0005BFB0",
       "name": "propulsion_get_remaining_impulse"
     },
     {
       "ordinal": 838,
       "hint": "345",
-      "rva": "0005BF10",
+      "rva": "0005BFD0",
       "name": "propulsion_get_target"
     },
     {
       "ordinal": 839,
       "hint": "346",
-      "rva": "0005BF20",
+      "rva": "0005BFE0",
       "name": "propulsion_get_thrust"
     },
     {
       "ordinal": 840,
       "hint": "347",
-      "rva": "0005BF40",
+      "rva": "0005C000",
       "name": "propulsion_init"
     },
     {
       "ordinal": 841,
       "hint": "348",
-      "rva": "0005BFB0",
+      "rva": "0005C070",
       "name": "propulsion_init_full"
     },
     {
       "ordinal": 842,
       "hint": "349",
-      "rva": "0005C060",
+      "rva": "0005C120",
       "name": "propulsion_is_empty"
     },
     {
       "ordinal": 843,
       "hint": "34A",
-      "rva": "0005C080",
+      "rva": "0005C140",
       "name": "propulsion_predict_empty_time"
     },
     {
       "ordinal": 844,
       "hint": "34B",
-      "rva": "0005C0C0",
+      "rva": "0005C180",
       "name": "propulsion_predict_max_thrust"
     },
     {
       "ordinal": 845,
       "hint": "34C",
-      "rva": "0005C100",
+      "rva": "0005C1C0",
       "name": "propulsion_predict_runtime"
     },
     {
       "ordinal": 846,
       "hint": "34D",
-      "rva": "0005C130",
+      "rva": "0005C1F0",
       "name": "propulsion_print"
     },
     {
       "ordinal": 847,
       "hint": "34E",
-      "rva": "0005C190",
+      "rva": "0005C250",
       "name": "propulsion_refuel"
     },
     {
       "ordinal": 848,
       "hint": "34F",
-      "rva": "0005C1C0",
+      "rva": "0005C280",
       "name": "propulsion_reset"
     },
     {
       "ordinal": 849,
       "hint": "350",
-      "rva": "0005C1E0",
+      "rva": "0005C2A0",
       "name": "propulsion_set_active"
     },
     {
       "ordinal": 850,
       "hint": "351",
-      "rva": "0005C1F0",
+      "rva": "0005C2B0",
       "name": "propulsion_set_target"
     },
     {
       "ordinal": 851,
       "hint": "352",
-      "rva": "0005C200",
+      "rva": "0005C2C0",
       "name": "propulsion_to_json"
     },
     {
       "ordinal": 852,
       "hint": "353",
-      "rva": "0005C270",
+      "rva": "0005C330",
       "name": "propulsion_to_string"
     },
     {
       "ordinal": 853,
       "hint": "354",
-      "rva": "0005C2E0",
+      "rva": "0005C3A0",
       "name": "propulsion_update"
     },
     {
       "ordinal": 854,
       "hint": "355",
-      "rva": "00058C00",
+      "rva": "00058CC0",
       "name": "push_simulate_network"
     },
     {
@@ -5382,31 +5382,31 @@
     {
       "ordinal": 896,
       "hint": "37F",
-      "rva": "00058E70",
+      "rva": "00058F30",
       "name": "repulsion_simulate_network"
     },
     {
       "ordinal": 897,
       "hint": "380",
-      "rva": "0005AE20",
+      "rva": "0005AEE0",
       "name": "rocket_assign"
     },
     {
       "ordinal": 898,
       "hint": "381",
-      "rva": "0005AE90",
+      "rva": "0005AF50",
       "name": "rocket_init"
     },
     {
       "ordinal": 899,
       "hint": "382",
-      "rva": "0005AF10",
+      "rva": "0005AFD0",
       "name": "rocket_init_full"
     },
     {
       "ordinal": 900,
       "hint": "383",
-      "rva": "0005AFC0",
+      "rva": "0005B080",
       "name": "rocket_launch"
     },
     {
@@ -5514,13 +5514,13 @@
     {
       "ordinal": 918,
       "hint": "395",
-      "rva": "000427D0",
+      "rva": "00042890",
       "name": "route_carve_beam"
     },
     {
       "ordinal": 919,
       "hint": "396",
-      "rva": "000427E0",
+      "rva": "000428A0",
       "name": "route_carve_bomb"
     },
     {
@@ -5658,289 +5658,289 @@
     {
       "ordinal": 942,
       "hint": "3AD",
-      "rva": "0003C330",
+      "rva": "0003C3F0",
       "name": "route_finder_bind_cost_func"
     },
     {
       "ordinal": 943,
       "hint": "3AE",
-      "rva": "0003C380",
+      "rva": "0003C440",
       "name": "route_finder_bind_fringe_search_config"
     },
     {
       "ordinal": 944,
       "hint": "3AF",
-      "rva": "0003C430",
+      "rva": "0003C4F0",
       "name": "route_finder_bind_heuristic_func"
     },
     {
       "ordinal": 945,
       "hint": "3B0",
-      "rva": "0003C480",
+      "rva": "0003C540",
       "name": "route_finder_bind_rta_star_config"
     },
     {
       "ordinal": 946,
       "hint": "3B1",
-      "rva": "0003C4D0",
+      "rva": "0003C590",
       "name": "route_finder_bind_sma_star_config"
     },
     {
       "ordinal": 947,
       "hint": "3B2",
-      "rva": "0003C520",
+      "rva": "0003C5E0",
       "name": "route_finder_bind_weighted_astar_config"
     },
     {
       "ordinal": 948,
       "hint": "3B3",
-      "rva": "0003C5D0",
+      "rva": "0003C690",
       "name": "route_finder_clear"
     },
     {
       "ordinal": 949,
       "hint": "3B4",
-      "rva": "0003C5F0",
+      "rva": "0003C6B0",
       "name": "route_finder_copy"
     },
     {
       "ordinal": 950,
       "hint": "3B5",
-      "rva": "0003C660",
+      "rva": "0003C720",
       "name": "route_finder_create"
     },
     {
       "ordinal": 951,
       "hint": "3B6",
-      "rva": "0003C6C0",
+      "rva": "0003C780",
       "name": "route_finder_create_full"
     },
     {
       "ordinal": 952,
       "hint": "3B7",
-      "rva": "0003C7A0",
+      "rva": "0003C860",
       "name": "route_finder_destroy"
     },
     {
       "ordinal": 953,
       "hint": "3B8",
-      "rva": "0003C7F0",
+      "rva": "0003C8B0",
       "name": "route_finder_enable_debug_mode"
     },
     {
       "ordinal": 954,
       "hint": "3B9",
-      "rva": "0003C800",
+      "rva": "0003C8C0",
       "name": "route_finder_fetch_goal"
     },
     {
       "ordinal": 955,
       "hint": "3BA",
-      "rva": "0003C810",
+      "rva": "0003C8D0",
       "name": "route_finder_fetch_start"
     },
     {
       "ordinal": 956,
       "hint": "3BB",
-      "rva": "0003C820",
+      "rva": "0003C8E0",
       "name": "route_finder_free"
     },
     {
       "ordinal": 957,
       "hint": "3BC",
-      "rva": "0003C850",
+      "rva": "0003C910",
       "name": "route_finder_get_cost_fn_userdata"
     },
     {
       "ordinal": 958,
       "hint": "3BD",
-      "rva": "0003C860",
+      "rva": "0003C920",
       "name": "route_finder_get_cost_func"
     },
     {
       "ordinal": 959,
       "hint": "3BE",
-      "rva": "0003C870",
+      "rva": "0003C930",
       "name": "route_finder_get_heuristic_fn_userdata"
     },
     {
       "ordinal": 960,
       "hint": "3BF",
-      "rva": "0003C880",
+      "rva": "0003C940",
       "name": "route_finder_get_heuristic_func"
     },
     {
       "ordinal": 961,
       "hint": "3C0",
-      "rva": "0003C890",
+      "rva": "0003C950",
       "name": "route_finder_get_max_retry"
     },
     {
       "ordinal": 962,
       "hint": "3C1",
-      "rva": "0003C8A0",
+      "rva": "0003C960",
       "name": "route_finder_get_navgrid"
     },
     {
       "ordinal": 963,
       "hint": "3C2",
-      "rva": "0003C8B0",
+      "rva": "0003C970",
       "name": "route_finder_get_type"
     },
     {
       "ordinal": 964,
       "hint": "3C3",
-      "rva": "0003C8C0",
+      "rva": "0003C980",
       "name": "route_finder_get_typedata"
     },
     {
       "ordinal": 965,
       "hint": "3C4",
-      "rva": "0003C8D0",
+      "rva": "0003C990",
       "name": "route_finder_init"
     },
     {
       "ordinal": 966,
       "hint": "3C5",
-      "rva": "0003C910",
+      "rva": "0003C9D0",
       "name": "route_finder_init_full"
     },
     {
       "ordinal": 967,
       "hint": "3C6",
-      "rva": "0003C970",
+      "rva": "0003CA30",
       "name": "route_finder_is_debug_mode_enabled"
     },
     {
       "ordinal": 968,
       "hint": "3C7",
-      "rva": "0003C980",
+      "rva": "0003CA40",
       "name": "route_finder_is_supported"
     },
     {
       "ordinal": 969,
       "hint": "3C8",
-      "rva": "0003C9A0",
+      "rva": "0003CA60",
       "name": "route_finder_is_valid"
     },
     {
       "ordinal": 970,
       "hint": "3C9",
-      "rva": "0003C9C0",
+      "rva": "0003CA80",
       "name": "route_finder_print"
     },
     {
       "ordinal": 971,
       "hint": "3CA",
-      "rva": "0003CAB0",
+      "rva": "0003CB70",
       "name": "route_finder_run"
     },
     {
       "ordinal": 972,
       "hint": "3CB",
-      "rva": "0003CB00",
+      "rva": "0003CBC0",
       "name": "route_finder_run_ex"
     },
     {
       "ordinal": 973,
       "hint": "3CC",
-      "rva": "0003CB10",
+      "rva": "0003CBD0",
       "name": "route_finder_run_with_options"
     },
     {
       "ordinal": 974,
       "hint": "3CD",
-      "rva": "0003CD50",
+      "rva": "0003CE10",
       "name": "route_finder_set_cost_fn_userdata"
     },
     {
       "ordinal": 975,
       "hint": "3CE",
-      "rva": "0003CD60",
+      "rva": "0003CE20",
       "name": "route_finder_set_cost_func"
     },
     {
       "ordinal": 976,
       "hint": "3CF",
-      "rva": "0003CD70",
+      "rva": "0003CE30",
       "name": "route_finder_set_defaults"
     },
     {
       "ordinal": 977,
       "hint": "3D0",
-      "rva": "0003CDA0",
+      "rva": "0003CE60",
       "name": "route_finder_set_goal"
     },
     {
       "ordinal": 978,
       "hint": "3D1",
-      "rva": "0003CDB0",
+      "rva": "0003CE70",
       "name": "route_finder_set_heuristic_fn_userdata"
     },
     {
       "ordinal": 979,
       "hint": "3D2",
-      "rva": "0003CDC0",
+      "rva": "0003CE80",
       "name": "route_finder_set_heuristic_func"
     },
     {
       "ordinal": 980,
       "hint": "3D3",
-      "rva": "0003CDD0",
+      "rva": "0003CE90",
       "name": "route_finder_set_max_retry"
     },
     {
       "ordinal": 981,
       "hint": "3D4",
-      "rva": "0003CE00",
+      "rva": "0003CEC0",
       "name": "route_finder_set_max_retry_checked"
     },
     {
       "ordinal": 982,
       "hint": "3D5",
-      "rva": "0003CE40",
+      "rva": "0003CF00",
       "name": "route_finder_set_navgrid"
     },
     {
       "ordinal": 983,
       "hint": "3D6",
-      "rva": "0003CE50",
+      "rva": "0003CF10",
       "name": "route_finder_set_start"
     },
     {
       "ordinal": 984,
       "hint": "3D7",
-      "rva": "0003CE60",
+      "rva": "0003CF20",
       "name": "route_finder_set_type"
     },
     {
       "ordinal": 985,
       "hint": "3D8",
-      "rva": "0003CE70",
+      "rva": "0003CF30",
       "name": "route_finder_set_type_checked"
     },
     {
       "ordinal": 986,
       "hint": "3D9",
-      "rva": "0003CEE0",
+      "rva": "0003CFA0",
       "name": "route_finder_set_typedata"
     },
     {
       "ordinal": 987,
       "hint": "3DA",
-      "rva": "0003CEF0",
+      "rva": "0003CFB0",
       "name": "route_finder_unbind_algorithm_config"
     },
     {
       "ordinal": 988,
       "hint": "3DB",
-      "rva": "0003CF30",
+      "rva": "0003CFF0",
       "name": "route_finder_unbind_cost_func"
     },
     {
       "ordinal": 989,
       "hint": "3DC",
-      "rva": "0003CF80",
+      "rva": "0003D040",
       "name": "route_finder_unbind_heuristic_func"
     },
     {
@@ -6300,61 +6300,61 @@
     {
       "ordinal": 1049,
       "hint": "418",
-      "rva": "0005B120",
+      "rva": "0005B1E0",
       "name": "shell_projectile_assign"
     },
     {
       "ordinal": 1050,
       "hint": "419",
-      "rva": "0005B1A0",
+      "rva": "0005B260",
       "name": "shell_projectile_hit_cb"
     },
     {
       "ordinal": 1051,
       "hint": "41A",
-      "rva": "0005B1E0",
+      "rva": "0005B2A0",
       "name": "shell_projectile_init"
     },
     {
       "ordinal": 1052,
       "hint": "41B",
-      "rva": "0005B230",
+      "rva": "0005B2F0",
       "name": "shell_projectile_init_full"
     },
     {
       "ordinal": 1053,
       "hint": "41C",
-      "rva": "0005B2A0",
+      "rva": "0005B360",
       "name": "shell_projectile_launch"
     },
     {
       "ordinal": 1054,
       "hint": "41D",
-      "rva": "00059340",
+      "rva": "00059400",
       "name": "spring_force"
     },
     {
       "ordinal": 1055,
       "hint": "41E",
-      "rva": "00059460",
+      "rva": "00059520",
       "name": "spring_force_total"
     },
     {
       "ordinal": 1056,
       "hint": "41F",
-      "rva": "00059550",
+      "rva": "00059610",
       "name": "spring_simulate"
     },
     {
       "ordinal": 1057,
       "hint": "420",
-      "rva": "00059840",
+      "rva": "00059900",
       "name": "spring_simulate_network"
     },
     {
       "ordinal": 1058,
       "hint": "421",
-      "rva": "00059B30",
+      "rva": "00059BF0",
       "name": "spring_simulate_pairwise"
     },
     {
@@ -6492,13 +6492,13 @@
     {
       "ordinal": 1081,
       "hint": "438",
-      "rva": "000554D0",
+      "rva": "00055590",
       "name": "trajectory_add_sample"
     },
     {
       "ordinal": 1082,
       "hint": "439",
-      "rva": "00055540",
+      "rva": "00055600",
       "name": "trajectory_assign"
     },
     {
@@ -6510,103 +6510,103 @@
     {
       "ordinal": 1084,
       "hint": "43B",
-      "rva": "000555E0",
+      "rva": "000556A0",
       "name": "trajectory_clear"
     },
     {
       "ordinal": 1085,
       "hint": "43C",
-      "rva": "00055630",
+      "rva": "000556F0",
       "name": "trajectory_copy"
     },
     {
       "ordinal": 1086,
       "hint": "43D",
-      "rva": "000556A0",
+      "rva": "00055760",
       "name": "trajectory_create"
     },
     {
       "ordinal": 1087,
       "hint": "43E",
-      "rva": "000556F0",
+      "rva": "000557B0",
       "name": "trajectory_create_full"
     },
     {
       "ordinal": 1088,
       "hint": "43F",
-      "rva": "00055770",
+      "rva": "00055830",
       "name": "trajectory_destroy"
     },
     {
       "ordinal": 1089,
       "hint": "440",
-      "rva": "000557C0",
+      "rva": "00055880",
       "name": "trajectory_estimate_acceleration"
     },
     {
       "ordinal": 1090,
       "hint": "441",
-      "rva": "00055990",
+      "rva": "00055A50",
       "name": "trajectory_estimate_velocity"
     },
     {
       "ordinal": 1091,
       "hint": "442",
-      "rva": "00055AC0",
+      "rva": "00055B80",
       "name": "trajectory_export_pos"
     },
     {
       "ordinal": 1092,
       "hint": "443",
-      "rva": "00055B90",
+      "rva": "00055C50",
       "name": "trajectory_export_resample_distance"
     },
     {
       "ordinal": 1093,
       "hint": "444",
-      "rva": "000560A0",
+      "rva": "00056160",
       "name": "trajectory_export_resample_time"
     },
     {
       "ordinal": 1094,
       "hint": "445",
-      "rva": "000564E0",
+      "rva": "000565A0",
       "name": "trajectory_export_until_impact"
     },
     {
       "ordinal": 1095,
       "hint": "446",
-      "rva": "000566A0",
+      "rva": "00056760",
       "name": "trajectory_free"
     },
     {
       "ordinal": 1096,
       "hint": "447",
-      "rva": "000566E0",
+      "rva": "000567A0",
       "name": "trajectory_get_positions"
     },
     {
       "ordinal": 1097,
       "hint": "448",
-      "rva": "00056740",
+      "rva": "00056800",
       "name": "trajectory_get_speeds"
     },
     {
       "ordinal": 1098,
       "hint": "449",
-      "rva": "000569A0",
+      "rva": "00056A60",
       "name": "trajectory_init"
     },
     {
       "ordinal": 1099,
       "hint": "44A",
-      "rva": "00056A00",
+      "rva": "00056AC0",
       "name": "trajectory_init_full"
     },
     {
       "ordinal": 1100,
       "hint": "44B",
-      "rva": "00056A70",
+      "rva": "00056B30",
       "name": "trajectory_interpolate_position"
     },
     {
@@ -6618,19 +6618,19 @@
     {
       "ordinal": 1102,
       "hint": "44D",
-      "rva": "00056B60",
+      "rva": "00056C20",
       "name": "trajectory_print"
     },
     {
       "ordinal": 1103,
       "hint": "44E",
-      "rva": "00056CD0",
+      "rva": "00056D90",
       "name": "trajectory_resize"
     },
     {
       "ordinal": 1104,
       "hint": "44F",
-      "rva": "00056DA0",
+      "rva": "00056E60",
       "name": "trajectory_to_string"
     },
     {
@@ -6978,301 +6978,301 @@
     {
       "ordinal": 1162,
       "hint": "489",
-      "rva": "00053EB0",
+      "rva": "00053F70",
       "name": "xform_align_axis"
     },
     {
       "ordinal": 1163,
       "hint": "48A",
-      "rva": "00053F60",
+      "rva": "00054020",
       "name": "xform_align_vectors"
     },
     {
       "ordinal": 1164,
       "hint": "48B",
-      "rva": "00053F90",
+      "rva": "00054050",
       "name": "xform_apply"
     },
     {
       "ordinal": 1165,
       "hint": "48C",
-      "rva": "00053FA0",
+      "rva": "00054060",
       "name": "xform_apply_inverse"
     },
     {
       "ordinal": 1166,
       "hint": "48D",
-      "rva": "00054000",
+      "rva": "000540C0",
       "name": "xform_apply_to_direction"
     },
     {
       "ordinal": 1167,
       "hint": "48E",
-      "rva": "00054040",
+      "rva": "00054100",
       "name": "xform_apply_to_direction_inverse"
     },
     {
       "ordinal": 1168,
       "hint": "48F",
-      "rva": "000540B0",
+      "rva": "00054170",
       "name": "xform_apply_to_point"
     },
     {
       "ordinal": 1169,
       "hint": "490",
-      "rva": "00054100",
+      "rva": "000541C0",
       "name": "xform_apply_to_point_inverse"
     },
     {
       "ordinal": 1170,
       "hint": "491",
-      "rva": "00054180",
+      "rva": "00054240",
       "name": "xform_assign"
     },
     {
       "ordinal": 1171,
       "hint": "492",
-      "rva": "000541B0",
+      "rva": "00054270",
       "name": "xform_equal"
     },
     {
       "ordinal": 1172,
       "hint": "493",
-      "rva": "00054210",
+      "rva": "000542D0",
       "name": "xform_from_forward"
     },
     {
       "ordinal": 1173,
       "hint": "494",
-      "rva": "000542D0",
+      "rva": "00054390",
       "name": "xform_get_axis_angle"
     },
     {
       "ordinal": 1174,
       "hint": "495",
-      "rva": "000542E0",
+      "rva": "000543A0",
       "name": "xform_get_axis_deg"
     },
     {
       "ordinal": 1175,
       "hint": "496",
-      "rva": "00054330",
+      "rva": "000543F0",
       "name": "xform_get_euler"
     },
     {
       "ordinal": 1176,
       "hint": "497",
-      "rva": "00054340",
+      "rva": "00054400",
       "name": "xform_get_euler_deg"
     },
     {
       "ordinal": 1177,
       "hint": "498",
-      "rva": "000543D0",
+      "rva": "00054490",
       "name": "xform_get_position"
     },
     {
       "ordinal": 1178,
       "hint": "499",
-      "rva": "000543F0",
+      "rva": "000544B0",
       "name": "xform_get_scale"
     },
     {
       "ordinal": 1179,
       "hint": "49A",
-      "rva": "00054410",
+      "rva": "000544D0",
       "name": "xform_init"
     },
     {
       "ordinal": 1180,
       "hint": "49B",
-      "rva": "00054450",
+      "rva": "00054510",
       "name": "xform_init_axis_angle"
     },
     {
       "ordinal": 1181,
       "hint": "49C",
-      "rva": "000544F0",
+      "rva": "000545B0",
       "name": "xform_init_axis_deg"
     },
     {
       "ordinal": 1182,
       "hint": "49D",
-      "rva": "000545A0",
+      "rva": "00054660",
       "name": "xform_init_euler"
     },
     {
       "ordinal": 1183,
       "hint": "49E",
-      "rva": "00054650",
+      "rva": "00054710",
       "name": "xform_init_euler_deg"
     },
     {
       "ordinal": 1184,
       "hint": "49F",
-      "rva": "00054730",
+      "rva": "000547F0",
       "name": "xform_inverse"
     },
     {
       "ordinal": 1185,
       "hint": "4A0",
-      "rva": "000547E0",
+      "rva": "000548A0",
       "name": "xform_lerp"
     },
     {
       "ordinal": 1186,
       "hint": "4A1",
-      "rva": "00054860",
+      "rva": "00054920",
       "name": "xform_look_at"
     },
     {
       "ordinal": 1187,
       "hint": "4A2",
-      "rva": "00054940",
+      "rva": "00054A00",
       "name": "xform_look_at_pivot"
     },
     {
       "ordinal": 1188,
       "hint": "4A3",
-      "rva": "000549B0",
+      "rva": "00054A70",
       "name": "xform_look_to"
     },
     {
       "ordinal": 1189,
       "hint": "4A4",
-      "rva": "00054A10",
+      "rva": "00054AD0",
       "name": "xform_mul"
     },
     {
       "ordinal": 1190,
       "hint": "4A5",
-      "rva": "00054AC0",
+      "rva": "00054B80",
       "name": "xform_nlerp"
     },
     {
       "ordinal": 1191,
       "hint": "4A6",
-      "rva": "00054BB0",
+      "rva": "00054C70",
       "name": "xform_print"
     },
     {
       "ordinal": 1192,
       "hint": "4A7",
-      "rva": "00054D10",
+      "rva": "00054DD0",
       "name": "xform_reflect"
     },
     {
       "ordinal": 1193,
       "hint": "4A8",
-      "rva": "00054E10",
+      "rva": "00054ED0",
       "name": "xform_rotate_around_pivot"
     },
     {
       "ordinal": 1194,
       "hint": "4A9",
-      "rva": "00054E90",
+      "rva": "00054F50",
       "name": "xform_rotate_axis_angle"
     },
     {
       "ordinal": 1195,
       "hint": "4AA",
-      "rva": "00054EE0",
+      "rva": "00054FA0",
       "name": "xform_rotate_axis_deg"
     },
     {
       "ordinal": 1196,
       "hint": "4AB",
-      "rva": "00054F40",
+      "rva": "00055000",
       "name": "xform_rotate_local_around_pivot"
     },
     {
       "ordinal": 1197,
       "hint": "4AC",
-      "rva": "00054FD0",
+      "rva": "00055090",
       "name": "xform_rotate_local_axis_angle"
     },
     {
       "ordinal": 1198,
       "hint": "4AD",
-      "rva": "00055020",
+      "rva": "000550E0",
       "name": "xform_rotate_local_axis_deg"
     },
     {
       "ordinal": 1199,
       "hint": "4AE",
-      "rva": "00055080",
+      "rva": "00055140",
       "name": "xform_set_axis_angle"
     },
     {
       "ordinal": 1200,
       "hint": "4AF",
-      "rva": "00055090",
+      "rva": "00055150",
       "name": "xform_set_axis_deg"
     },
     {
       "ordinal": 1201,
       "hint": "4B0",
-      "rva": "000550C0",
+      "rva": "00055180",
       "name": "xform_set_euler"
     },
     {
       "ordinal": 1202,
       "hint": "4B1",
-      "rva": "000550D0",
+      "rva": "00055190",
       "name": "xform_set_euler_deg"
     },
     {
       "ordinal": 1203,
       "hint": "4B2",
-      "rva": "00055120",
+      "rva": "000551E0",
       "name": "xform_set_position"
     },
     {
       "ordinal": 1204,
       "hint": "4B3",
-      "rva": "00055140",
+      "rva": "00055200",
       "name": "xform_set_scale"
     },
     {
       "ordinal": 1205,
       "hint": "4B4",
-      "rva": "00055160",
+      "rva": "00055220",
       "name": "xform_slerp"
     },
     {
       "ordinal": 1206,
       "hint": "4B5",
-      "rva": "00055250",
+      "rva": "00055310",
       "name": "xform_slerp_pivot"
     },
     {
       "ordinal": 1207,
       "hint": "4B6",
-      "rva": "00055300",
+      "rva": "000553C0",
       "name": "xform_to_mat4"
     },
     {
       "ordinal": 1208,
       "hint": "4B7",
-      "rva": "00055410",
+      "rva": "000554D0",
       "name": "xform_translate"
     },
     {
       "ordinal": 1209,
       "hint": "4B8",
-      "rva": "00055450",
+      "rva": "00055510",
       "name": "xform_translate_local"
     },
     {
       "ordinal": 1210,
       "hint": "4B9",
-      "rva": "0003BC70",
+      "rva": "0003BD30",
       "name": "zero_cost"
     },
     {
       "ordinal": 1211,
       "hint": "4BA",
-      "rva": "0003BC70",
+      "rva": "0003BD30",
       "name": "zero_heuristic"
     }
   ],
@@ -7283,8 +7283,8 @@
     "files": [
       {
         "path": "bin/byul.dll",
-        "size": 542208,
-        "sha256": "435d69d49be9359aadac723172da51d6bcae3dc065b3e1513318aa3096e8c4e2"
+        "size": 542720,
+        "sha256": "badf8f36ca5801c4b931bcb5da9936fdde4b0e55a6930e565e1cb618ec78f0db"
       },
       {
         "path": "bin/test_balix.exe",
@@ -7294,7 +7294,7 @@
       {
         "path": "bin/test_byul.exe",
         "size": 1918464,
-        "sha256": "ba9e4d52cb2a1398d53e3749773bc19a49f55e1c8b0e4a0bf052ed5aa810aa2e"
+        "sha256": "d79370448a51ae4328b98f7436209f18e4c57fe67287835df6acc4993fe0a50e"
       },
       {
         "path": "bin/test_byul_tick.exe",
@@ -7333,8 +7333,8 @@
       },
       {
         "path": "bin/test_maze.exe",
-        "size": 750592,
-        "sha256": "aa75a575554067cb2953b36132ba665911471662e6a2dde4798d30f9643e5368"
+        "size": 764416,
+        "sha256": "64f5649e305178f4b08106c585d1ac997db1666e9c5f377284cd92c316a5c384"
       },
       {
         "path": "bin/test_navgrid.exe",

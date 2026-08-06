@@ -119,7 +119,7 @@ BYUL_API navsys_status_t byul_maze_generate_recursive_backtracker(
 
 - property seed corpus, translation metamorphic test, ASan/LSan/UBSan과 benchmark를 실행한다.
 
-* DOING 4단계: Header·migration gate
+* DONE 4단계: Header·migration gate
 
 ** 실행
 
