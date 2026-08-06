@@ -43,6 +43,7 @@ def test_maze_wrapper_uses_opaque_ready_accessors():
     assert "C.byul_maze_generate_recursive_division" in source
     assert "C.byul_maze_generate_randomized_kruskal" in source
     assert "C.byul_maze_generate_randomized_prim" in source
+    assert "C.byul_maze_generate_recursive_backtracker" in source
     assert "C.byul_maze_sidewinder_sweep_is_supported" in source
     assert "._c.x0" not in source
     assert "._c.blocked" not in source
@@ -121,3 +122,9 @@ def test_maze_wrapper_loads_checked_randomized_prim_generator():
     with c_maze.generate_randomized_prim(-5, 8, 9, 9, seed=0) as maze:
         assert maze.extent == (-5, 8, 9, 9)
         assert maze.hash == 857387639
+
+
+def test_maze_wrapper_loads_checked_recursive_backtracker_generator():
+    with c_maze.generate_recursive_backtracker(-5, 8, 9, 9, seed=0) as maze:
+        assert maze.extent == (-5, 8, 9, 9)
+        assert maze.hash == 303425655

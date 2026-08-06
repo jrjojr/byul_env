@@ -84,7 +84,7 @@ BYUL_API navsys_status_t byul_maze_generate_recursive_backtracker(
 - negative/nonzero/max origin, 1/2/even dimensions와 rectangular grid를 sanitizer로 실행한다.
 - CMake/export/test consumer 기준선을 비교한다.
 
-* DOING 2단계: iterative DFS와 checked workspace
+* DONE 2단계: iterative DFS와 checked workspace
 
 ** 실행
 
@@ -102,7 +102,7 @@ BYUL_API navsys_status_t byul_maze_generate_recursive_backtracker(
 - allocator fault at each visited/stack/hash stage, cancellation at push/pop/materialize를 검사한다.
 - stub RNG로 exact DFS/backtrack trace를 검증한다.
 
-* TODO 3단계: 좌표·위상·종료 gate
+* DOING 3단계: 좌표·위상·종료 gate
 
 ** 실행
 

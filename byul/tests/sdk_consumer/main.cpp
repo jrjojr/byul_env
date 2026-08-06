@@ -12,6 +12,7 @@
 #include "maze_hunt_and_kill.h"
 #include "maze_kruskal.h"
 #include "maze_prim.h"
+#include "maze_recursive.h"
 #include "maze_recursive_division.h"
 #include "maze_sidewinder.h"
 #include "navcell.h"
@@ -576,6 +577,14 @@ int main() {
     assert(randomized_prim != nullptr);
     assert(maze_hash(randomized_prim) == UINT32_C(857387639));
     maze_destroy(randomized_prim);
+
+    maze_t* recursive_backtracker = nullptr;
+    assert(byul_maze_generate_recursive_backtracker(
+        -5, 8, 9, 9, &recursive_division_options, &recursive_backtracker)
+        == NAVSYS_STATUS_OK);
+    assert(recursive_backtracker != nullptr);
+    assert(maze_hash(recursive_backtracker) == UINT32_C(303425655));
+    maze_destroy(recursive_backtracker);
 
     navgrid_t* legacy_carver_grid = navgrid_create_full(
         3, 3, NAVGRID_DIR_8, nullptr);

@@ -16,6 +16,7 @@
 #include "maze_hunt_and_kill.h"
 #include "maze_kruskal.h"
 #include "maze_prim.h"
+#include "maze_recursive.h"
 #include "maze_recursive_division.h"
 #include "maze_sidewinder.h"
 #include "navcell.h"
@@ -1248,6 +1249,18 @@ int main(void) {
             return 9;
         }
         maze_destroy(randomized_prim);
+
+        maze_t* recursive_backtracker = NULL;
+        if (byul_maze_generate_recursive_backtracker(
+                -5, 8, 9, 9, &options, &recursive_backtracker)
+                != NAVSYS_STATUS_OK
+            || recursive_backtracker == NULL
+            || maze_hash(recursive_backtracker) != UINT32_C(303425655)) {
+            fprintf(stderr, "unexpected checked recursive backtracker SDK ABI\n");
+            maze_destroy(recursive_backtracker);
+            return 10;
+        }
+        maze_destroy(recursive_backtracker);
     }
 
     navgrid_t* legacy_carver_grid = navgrid_create_full(

@@ -2,6 +2,7 @@
 #include "internal/maze_private.hpp"
 
 #include <cstdint>
+#include <limits>
 #include <new>
 #include <vector>
 
@@ -11,66 +12,43 @@ bool is_valid_cell(int x, int y, int width, int height) {
     return x > 0 && y > 0 && x < width - 1 && y < height - 1;
 }
 
-navsys_status_t carve_passage(
-    maze_t* maze,
-    int32_t origin_x,
-    int32_t origin_y,
-    int width,
-    int height,
+struct dfs_frame_t {
+    int cell_x;
+    int cell_y;
+    int directions[4];
+    uint8_t next_direction;
+};
+
+navsys_status_t push_frame(
     int cell_x,
     int cell_y,
+    int width,
     std::vector<uint8_t>& visited,
+    std::vector<dfs_frame_t>& frames,
     byul_maze_generation_context& context) {
     const navsys_status_t step_status = context.begin_step();
     if (step_status != NAVSYS_STATUS_OK) return step_status;
 
-    static constexpr int delta_x[4] = {0, 0, -1, 1};
-    static constexpr int delta_y[4] = {-1, 1, 0, 0};
-    int directions[4] = {0, 1, 2, 3};
+    dfs_frame_t frame{cell_x, cell_y, {0, 1, 2, 3}, uint8_t{0}};
     for (uint32_t i = 4; i > 1; --i) {
         const uint32_t selected = context.bounded(i);
-        const int temporary = directions[i - 1];
-        directions[i - 1] = directions[selected];
-        directions[selected] = temporary;
+        const int temporary = frame.directions[i - 1];
+        frame.directions[i - 1] = frame.directions[selected];
+        frame.directions[selected] = temporary;
     }
-
     visited[static_cast<size_t>(cell_y) * width + cell_x] = 1;
-    for (const int direction : directions) {
-        const int next_x = cell_x + delta_x[direction] * 2;
-        const int next_y = cell_y + delta_y[direction] * 2;
-        if (!is_valid_cell(next_x, next_y, width, height)
-            || visited[static_cast<size_t>(next_y) * width + next_x] != 0) {
-            continue;
-        }
-
-        bool changed = false;
-        navsys_status_t status = byul_maze_set_blocked(
-            maze,
-            origin_x + cell_x + delta_x[direction],
-            origin_y + cell_y + delta_y[direction],
-            false,
-            &changed);
-        if (status != NAVSYS_STATUS_OK) return status;
-        status = byul_maze_set_blocked(
-            maze,
-            origin_x + next_x,
-            origin_y + next_y,
-            false,
-            &changed);
-        if (status != NAVSYS_STATUS_OK) return status;
-        status = carve_passage(
-            maze,
-            origin_x,
-            origin_y,
-            width,
-            height,
-            next_x,
-            next_y,
-            visited,
-            context);
-        if (status != NAVSYS_STATUS_OK) return status;
-    }
+    frames.push_back(frame);
     return NAVSYS_STATUS_OK;
+}
+
+bool has_representable_bound(int32_t origin, uint32_t length) {
+    if (length == 0) return true;
+    if (length > static_cast<uint32_t>(std::numeric_limits<int32_t>::max())) {
+        return false;
+    }
+    const int64_t last = static_cast<int64_t>(origin)
+        + static_cast<int64_t>(length) - 1;
+    return last <= std::numeric_limits<int32_t>::max();
 }
 
 } // namespace
@@ -84,6 +62,22 @@ navsys_status_t byul_maze_generate_recursive_internal(
     maze_t** out_maze) noexcept {
     if (!out_maze) return NAVSYS_STATUS_INVALID_ARGUMENT;
     *out_maze = nullptr;
+    if (width < 3 || height < 3
+        || (width & UINT32_C(1)) == 0
+        || (height & UINT32_C(1)) == 0) {
+        return NAVSYS_STATUS_UNSUPPORTED;
+    }
+    if (!has_representable_bound(origin_x, width)
+        || !has_representable_bound(origin_y, height)) {
+        return NAVSYS_STATUS_INVALID_ARGUMENT;
+    }
+    const uint64_t cells = static_cast<uint64_t>(width) * height;
+    const uint64_t vertices =
+        static_cast<uint64_t>(width / 2) * (height / 2);
+    if (cells > std::numeric_limits<size_t>::max()
+        || vertices > std::numeric_limits<size_t>::max()) {
+        return NAVSYS_STATUS_LIMIT_REACHED;
+    }
     const navsys_status_t initial_poll = context.poll();
     if (initial_poll != NAVSYS_STATUS_OK) return initial_poll;
 
@@ -113,20 +107,46 @@ navsys_status_t byul_maze_generate_recursive_internal(
 
         std::vector<uint8_t> visited(
             static_cast<size_t>(width) * height, uint8_t{0});
+        std::vector<dfs_frame_t> frames;
+        frames.reserve(static_cast<size_t>(vertices));
         bool changed = false;
         navsys_status_t status = byul_maze_set_blocked(
             maze, origin_x + 1, origin_y + 1, false, &changed);
         if (status == NAVSYS_STATUS_OK) {
-            status = carve_passage(
+            status = push_frame(1, 1, w, visited, frames, context);
+        }
+        static constexpr int delta_x[4] = {0, 0, -1, 1};
+        static constexpr int delta_y[4] = {-1, 1, 0, 0};
+        while (status == NAVSYS_STATUS_OK && !frames.empty()) {
+            dfs_frame_t& frame = frames.back();
+            if (frame.next_direction == 4) {
+                frames.pop_back();
+                continue;
+            }
+            const int direction = frame.directions[frame.next_direction++];
+            const int cell_x = frame.cell_x;
+            const int cell_y = frame.cell_y;
+            const int next_x = cell_x + delta_x[direction] * 2;
+            const int next_y = cell_y + delta_y[direction] * 2;
+            if (!is_valid_cell(next_x, next_y, w, h)
+                || visited[static_cast<size_t>(next_y) * w + next_x] != 0) {
+                continue;
+            }
+            status = byul_maze_set_blocked(
                 maze,
-                origin_x,
-                origin_y,
-                static_cast<int>(width),
-                static_cast<int>(height),
-                1,
-                1,
-                visited,
-                context);
+                origin_x + cell_x + delta_x[direction],
+                origin_y + cell_y + delta_y[direction],
+                false,
+                &changed);
+            if (status == NAVSYS_STATUS_OK) {
+                status = byul_maze_set_blocked(
+                    maze, origin_x + next_x, origin_y + next_y,
+                    false, &changed);
+            }
+            if (status == NAVSYS_STATUS_OK) {
+                status = push_frame(
+                    next_x, next_y, w, visited, frames, context);
+            }
         }
         if (status != NAVSYS_STATUS_OK) {
             maze_destroy(maze);
@@ -144,17 +164,69 @@ navsys_status_t byul_maze_generate_recursive_internal(
     return NAVSYS_STATUS_OK;
 }
 
-maze_t* maze_make_recursive(int x0, int y0, int width, int height) {
-    if (width < 3 || height < 3) return nullptr;
+navsys_status_t byul_maze_generate_recursive_backtracker(
+    int32_t origin_x,
+    int32_t origin_y,
+    uint32_t width,
+    uint32_t height,
+    const byul_maze_generate_options_t* options,
+    maze_t** out_maze) {
+    if (!out_maze) return NAVSYS_STATUS_INVALID_ARGUMENT;
+    *out_maze = nullptr;
+    if (!options
+        || options->struct_size < sizeof(byul_maze_generate_options_t)) {
+        return NAVSYS_STATUS_INVALID_ARGUMENT;
+    }
+    if (options->abi_version != BYUL_MAZE_GENERATE_OPTIONS_ABI_VERSION
+        || width < 3 || height < 3
+        || (width & UINT32_C(1)) == 0
+        || (height & UINT32_C(1)) == 0) {
+        return NAVSYS_STATUS_UNSUPPORTED;
+    }
+    if (!has_representable_bound(origin_x, width)
+        || !has_representable_bound(origin_y, height)) {
+        return NAVSYS_STATUS_INVALID_ARGUMENT;
+    }
+    const uint64_t cells = static_cast<uint64_t>(width) * height;
+    if (options->max_cells != 0 && cells > options->max_cells) {
+        return NAVSYS_STATUS_LIMIT_REACHED;
+    }
+    if (cells > std::numeric_limits<size_t>::max()) {
+        return NAVSYS_STATUS_LIMIT_REACHED;
+    }
+    const uint64_t default_steps =
+        cells > std::numeric_limits<uint64_t>::max() / 8
+        ? std::numeric_limits<uint64_t>::max()
+        : cells * 8;
     byul_maze_generation_context context(
-        byul_maze_generation_legacy_seed(), 0, nullptr, nullptr);
-    maze_t* maze = nullptr;
+        options->seed,
+        options->max_steps != 0 ? options->max_steps : default_steps,
+        options->cancel_func,
+        options->cancel_userdata);
     return byul_maze_generate_recursive_internal(
+        origin_x, origin_y, width, height, context, out_maze);
+}
+
+maze_t* maze_make_recursive(int x0, int y0, int width, int height) {
+    if (width < 3 || height < 3 || width % 2 == 0 || height % 2 == 0) {
+        return nullptr;
+    }
+    const byul_maze_generate_options_t options{
+        sizeof(byul_maze_generate_options_t),
+        BYUL_MAZE_GENERATE_OPTIONS_ABI_VERSION,
+        byul_maze_generation_legacy_seed(),
+        UINT64_C(0),
+        UINT64_C(0),
+        nullptr,
+        nullptr
+    };
+    maze_t* maze = nullptr;
+    return byul_maze_generate_recursive_backtracker(
                x0,
                y0,
                static_cast<uint32_t>(width),
                static_cast<uint32_t>(height),
-               context,
+               &options,
                &maze)
             == NAVSYS_STATUS_OK
         ? maze
