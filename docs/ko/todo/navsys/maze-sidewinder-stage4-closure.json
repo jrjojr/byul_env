@@ -1,0 +1,59 @@
+{
+  "schema_version": 1,
+  "scope": "navsys-maze-sidewinder-stage4",
+  "status": "complete",
+  "source_revision": "d043337",
+  "public_contract": {
+    "header": "byul/navsys/maze/maze_sidewinder.h",
+    "canonical_symbol": "byul_maze_generate_sidewinder",
+    "support_symbol": "byul_maze_sidewinder_sweep_is_supported",
+    "legacy_symbol": "maze_make_sidewinder",
+    "legacy_disposition": "deprecated ABI 1.x EAST_NORTH forwarding adapter",
+    "ownership": "successful output is caller-owned and destroyed with maze_destroy",
+    "failure_atomicity": "out_maze is NULL on every failure"
+  },
+  "header_gate": {
+    "standalone_c": "MSVC C17 passed from the clean installed header",
+    "standalone_cpp": "MSVC C++17 passed from the clean installed header",
+    "strict_audit": "150 headers, 95 public C headers, 1168 declarations, 0 invariant errors",
+    "role": "public-component",
+    "wrapper_mode": "generated"
+  },
+  "export_gate": {
+    "windows_profile": "MSVC x64 Release",
+    "windows_export_count": 1207,
+    "windows_symbols": [
+      "byul_maze_generate_sidewinder",
+      "byul_maze_sidewinder_sweep_is_supported",
+      "maze_make_sidewinder"
+    ],
+    "linux_profile": "Ubuntu WSL GCC 13.3.0 Debug ASan+LSan",
+    "linux_symbols": [
+      "byul_maze_generate_sidewinder",
+      "byul_maze_sidewinder_sweep_is_supported",
+      "maze_make_sidewinder"
+    ]
+  },
+  "consumer_gate": {
+    "static_native": "MSVC Release test_maze 71/71 cases and 155368/155368 assertions",
+    "linux_native": "GCC ASan+LSan test_maze 71/71 cases and 155368/155368 assertions",
+    "allocation_fault": "test_navsys_allocation_failure exit 0",
+    "sdk": "clean-install C17 and C++17 consumers built and ran successfully",
+    "wrapper": "8/8 maze wrapper policy tests passed",
+    "wrapper_generation": "CFFI declaration check is up to date"
+  },
+  "inventory_gate": {
+    "navsys_abi": "58 headers, 652 symbols",
+    "installed_header": "include/byul/maze_sidewinder.h",
+    "generator_manifest": "tools/python/byul_wrapper/generate_wrapper_abi.py",
+    "rules": "60 Org rule files, 0 errors, 0 warnings"
+  },
+  "compatibility": {
+    "east_north_goldens": "seed-zero hashes remain 910439850 for 3x3, 778966597 for 5x5, and 915955447 for 9x9",
+    "direct_dispatcher": "four-seed EAST_NORTH equality gate passed",
+    "reflection": "same-seed horizontal, vertical, and double-reflection gates passed",
+    "topology": "four sweeps times 100 seeds passed the perfect-maze gate",
+    "bias": "four sweeps times 512 seeds passed the 43% through 57% run-carve gate"
+  },
+  "linux_checkout": "/home/byulmama/byul_validation/maze-sidewinder-370f20b"
+}

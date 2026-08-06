@@ -7309,8 +7309,8 @@
       },
       {
         "path": "bin/test_maze.exe",
-        "size": 559616,
-        "sha256": "513e89790fc85599fe8d892b3048b6bb629776ec44eab3ca50130c9ccd59de83"
+        "size": 569856,
+        "sha256": "43961daacaa44b92b6f313434eaab6a9a477bb2302a6f2d0709585ae388a5073"
       },
       {
         "path": "bin/test_navgrid.exe",

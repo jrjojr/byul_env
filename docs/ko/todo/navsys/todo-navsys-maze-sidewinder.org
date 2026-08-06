@@ -126,7 +126,7 @@ BYUL_API navsys_status_t byul_maze_generate_sidewinder(
 
 - deterministic/property/statistical suite와 ASan/LSan을 실행한다.
 
-* DOING 4단계: Header·통합 gate
+* DONE 4단계: Header·통합 gate
 
 ** 실행
 
