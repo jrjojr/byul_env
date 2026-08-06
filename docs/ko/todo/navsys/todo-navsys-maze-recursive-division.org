@@ -68,7 +68,7 @@ BYUL_API navsys_status_t byul_maze_generate_recursive_division(
 - iterative region stack을 검토하여 cancellation과 stack overflow를 제어한다.
 - result가 tree가 아니라면 정확한 cycle/component bounds를 capability에 기록하고 과장하지 않는다.
 
-* TODO 1단계: reference와 현 raster 비교
+* DONE 1단계: reference와 현 raster 비교
 
 ** 실행
 
@@ -86,7 +86,7 @@ BYUL_API navsys_status_t byul_maze_generate_recursive_division(
 - reference hand grids와 component/cycle oracle를 비교한다.
 - invalid/even/overflow dimensions를 sanitizer로 실행한다.
 
-* TODO 2단계: checked region stack와 seeded API
+* DOING 2단계: checked region stack와 seeded API
 
 ** 실행
 

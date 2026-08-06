@@ -13,6 +13,7 @@ extern "C" {
 #include "maze_eller.h"
 #include "maze_hunt_and_kill.h"
 #include "maze_kruskal.h"
+#include "maze_recursive_division.h"
 #include "maze_sidewinder.h"
 #include "console.h"
 #include "obstacle_core.h"
@@ -1548,6 +1549,107 @@ TEST_CASE("Sidewinder checked EAST_NORTH preserves dispatcher output") {
         CHECK(maze_hash(direct) == maze_hash(dispatched));
         maze_destroy(dispatched);
         maze_destroy(direct);
+    }
+}
+
+TEST_CASE("Recursive Division corrected open-area model has stable goldens") {
+    struct fixture_t {
+        uint32_t width;
+        uint32_t height;
+        uint32_t expected_hash;
+    };
+    const fixture_t fixtures[] = {
+        {5, 5, UINT32_C(874550531)},
+        {7, 9, UINT32_C(4279227220)},
+        {9, 7, UINT32_C(603411476)},
+        {9, 9, UINT32_C(669558005)}
+    };
+
+    for (const fixture_t& fixture : fixtures) {
+        CAPTURE(fixture.width);
+        CAPTURE(fixture.height);
+        byul_maze_generation_context context(
+            UINT64_C(0), UINT64_C(1000000), nullptr, nullptr);
+        maze_t* maze = nullptr;
+        REQUIRE(byul_maze_generate_recursive_division_internal(
+            -5, 8, fixture.width, fixture.height, context, &maze)
+            == NAVSYS_STATUS_OK);
+        REQUIRE(maze != nullptr);
+        CHECK(maze_hash(maze) == fixture.expected_hash);
+
+        const maze_topology_t topology = analyze_logical_topology(
+            maze, -5, 8,
+            static_cast<int>(fixture.width),
+            static_cast<int>(fixture.height));
+        CHECK(topology.queries_ok);
+        CHECK(topology.border_blocked);
+        CHECK(topology.logical_cells_open);
+        CHECK(topology.connected);
+        CHECK(topology.edge_count + 1 == topology.node_count);
+        maze_destroy(maze);
+    }
+}
+
+TEST_CASE("Recursive Division tiny rectangular corpus remains perfect") {
+    for (uint32_t width = 3; width <= 11; width += 2) {
+        for (uint32_t height = 3; height <= 11; height += 2) {
+            for (uint64_t seed = 0; seed < 32; ++seed) {
+                CAPTURE(width);
+                CAPTURE(height);
+                CAPTURE(seed);
+                byul_maze_generation_context context(
+                    seed, UINT64_C(1000000), nullptr, nullptr);
+                maze_t* maze = nullptr;
+                REQUIRE(byul_maze_generate_recursive_division_internal(
+                    13, -21, width, height, context, &maze)
+                    == NAVSYS_STATUS_OK);
+                REQUIRE(maze != nullptr);
+                const maze_topology_t topology = analyze_logical_topology(
+                    maze, 13, -21,
+                    static_cast<int>(width),
+                    static_cast<int>(height));
+                CHECK(topology.queries_ok);
+                CHECK(topology.border_blocked);
+                CHECK(topology.logical_cells_open);
+                CHECK(topology.connected);
+                CHECK(topology.edge_count + 1 == topology.node_count);
+                maze_destroy(maze);
+            }
+        }
+    }
+}
+
+TEST_CASE("Recursive Division narrow regions stay unsplit corridors") {
+    const uint32_t extents[][2] = {{3, 9}, {9, 3}};
+    for (const auto& extent : extents) {
+        CAPTURE(extent[0]);
+        CAPTURE(extent[1]);
+        byul_maze_generation_context context(
+            UINT64_C(17), UINT64_C(1000000), nullptr, nullptr);
+        maze_t* maze = nullptr;
+        REQUIRE(byul_maze_generate_recursive_division_internal(
+            -11, 23, extent[0], extent[1], context, &maze)
+            == NAVSYS_STATUS_OK);
+        REQUIRE(maze != nullptr);
+
+        for (uint32_t y = 1; y + 1 < extent[1]; ++y) {
+            for (uint32_t x = 1; x + 1 < extent[0]; ++x) {
+                bool blocked = true;
+                REQUIRE(byul_maze_is_blocked(
+                    maze,
+                    -11 + static_cast<int32_t>(x),
+                    23 + static_cast<int32_t>(y),
+                    &blocked) == NAVSYS_STATUS_OK);
+                CHECK_FALSE(blocked);
+            }
+        }
+        const maze_topology_t topology = analyze_logical_topology(
+            maze, -11, 23,
+            static_cast<int>(extent[0]),
+            static_cast<int>(extent[1]));
+        CHECK(topology.connected);
+        CHECK(topology.edge_count + 1 == topology.node_count);
+        maze_destroy(maze);
     }
 }
 

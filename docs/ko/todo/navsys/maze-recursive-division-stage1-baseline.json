@@ -1,0 +1,81 @@
+{
+  "schema_version": 1,
+  "scope": "navsys-maze-recursive-division-stage1",
+  "status": "complete",
+  "source_revision": "00ac59c",
+  "historical_implementation": {
+    "revision": "13624d1aadaa4f3d0508c2ef6a9f42896e05ae83",
+    "initial_grid": "all walls with only odd/odd logical cells opened",
+    "defect": "no passages were opened between adjacent logical cells, so every multi-cell result was disconnected",
+    "rng": "std::mt19937 seeded from time(nullptr), vector materialization plus shuffle for each wall and gap",
+    "failure_contract": "allocation and blocked-cell insertion failures were not reported"
+  },
+  "correction": {
+    "revision": "41070504e08009dd1f08f3263f5f2477db3413d1",
+    "initial_grid": "open interior with a blocked one-cell perimeter",
+    "division": "insert one complete even-coordinate wall and retain exactly one odd-coordinate passage",
+    "rng": "shared Maze PCG32 generation context using bounded draws",
+    "failure_contract": "status propagation, cancellation polling, step limits, and failure-atomic output"
+  },
+  "region_contract": {
+    "bounds": "inclusive [left,right] by [top,bottom] raster coordinates with even boundary coordinates",
+    "termination": "stop when either span is less than 4 raster units",
+    "orientation": "split the longer span; square ties consume one bounded binary draw",
+    "wall": "uniform interior even coordinate at least 2 units from both parallel boundaries",
+    "gap": "uniform odd coordinate strictly inside the perpendicular boundaries",
+    "recursion_order": "lower-coordinate child before higher-coordinate child",
+    "empty_selection": "unreachable because every active region has both spans at least 4",
+    "maximum_depth_bound": "at most logical_width plus logical_height minus 3 active divisions on one path"
+  },
+  "topology_proof": {
+    "leaf": "a terminal region has one logical row or one logical column and is an open path",
+    "induction": "each split joins two recursively connected acyclic child regions through exactly one passage",
+    "result": "the corrected logical passage graph is connected and acyclic, hence a perfect Maze"
+  },
+  "tiny_goldens": {
+    "origin": [-5, 8],
+    "seed": 0,
+    "hashes": {
+      "5x5": 874550531,
+      "7x9": 4279227220,
+      "9x7": 603411476,
+      "9x9": 669558005
+    }
+  },
+  "topology_oracle": {
+    "extents": "every odd width and height from 3 through 11",
+    "seeds": "0 through 31",
+    "cases": 800,
+    "narrow_extents": [[-11, 23, 3, 9], [-11, 23, 9, 3]],
+    "requirements": [
+      "outer border is blocked",
+      "all odd/odd logical cells are passages",
+      "all logical cells are connected",
+      "edge count equals logical node count minus one"
+    ]
+  },
+  "consumer_inventory": {
+    "implementation": "byul/navsys/maze/maze_recursive_division.cpp",
+    "public_header": "byul/navsys/maze/maze_recursive_division.h",
+    "legacy_symbol": "maze_make_recursive_division",
+    "internal_status_generator": "byul_maze_generate_recursive_division_internal",
+    "generic_dispatcher": "BYUL_MAZE_ALGORITHM_RECURSIVE_DIVISION routes to the internal generator",
+    "static_target": "maze",
+    "root_shared_target": "byul",
+    "installed_header": "include/byul/maze_recursive_division.h",
+    "wrapper_direct_entry": false,
+    "wrapper_generic_enum": "MAZE_TYPE_RECURSIVE_DIVISION"
+  },
+  "stage2_decision": {
+    "canonical_api": "byul_maze_generate_recursive_division",
+    "region_stack": "replace direct recursion with an explicit LIFO region stack while preserving child processing and RNG order",
+    "selection": "retain O(1) candidate-count bounded selection",
+    "legacy_symbol": "deprecated forwarding adapter"
+  },
+  "verification": {
+    "platform": "Windows MSVC Release",
+    "test_cases": "74/74",
+    "assertions": "161036/161036",
+    "rules": "60 Org rule files, 0 errors, 0 warnings"
+  }
+}
