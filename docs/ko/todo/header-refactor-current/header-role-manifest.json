@@ -3755,7 +3755,7 @@
     {
       "asset_id": "initial:byul/navsys/maze/maze_prim.h",
       "current_path": "byul/navsys/maze/maze_prim.h",
-      "sha256": "af8b8b8d21f37f68dd2409f877729c88da96ce87e871b7eda26bce1226429df5",
+      "sha256": "c46dc3e98e5f16b979fdc105bfdb061cb1ee3daa697c0c0bebbece47a846caf3",
       "primary_role": "public-component",
       "role_reason": "Handwritten public maze algorithm component; generator wording is not file provenance.",
       "owner_module": "navsys",
@@ -3763,8 +3763,8 @@
       "approved_install": true,
       "install_reason": "Public or compatibility SDK surface.",
       "wrapper": {
-        "mode": "manual",
-        "reason": "Public legacy declarations require explicit ownership/error metadata before automatic generation."
+        "mode": "generated",
+        "reason": "Registered in the canonical wrapper generator manifest."
       },
       "naming": {
         "disposition": "keep",

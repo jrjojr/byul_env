@@ -84,7 +84,7 @@ BYUL_API navsys_status_t byul_maze_generate_randomized_prim(
 - injected frontier choices로 four-direction expansion을 각각 강제한다.
 - ASan/LSan/UBSan invalid dimensions를 실행한다.
 
-* DOING 2단계: canonical frontier와 status API
+* DONE 2단계: canonical frontier와 status API
 
 ** 실행
 
@@ -102,7 +102,7 @@ BYUL_API navsys_status_t byul_maze_generate_randomized_prim(
 - allocation fault/frontier duplicate/cancel each phase와 seed golden을 검사한다.
 - old/new ABI/export를 비교한다.
 
-* TODO 3단계: topology·성능 gate
+* DOING 3단계: topology·성능 gate
 
 ** 실행
 

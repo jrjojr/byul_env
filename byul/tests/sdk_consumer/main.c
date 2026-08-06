@@ -15,6 +15,7 @@
 #include "maze_eller.h"
 #include "maze_hunt_and_kill.h"
 #include "maze_kruskal.h"
+#include "maze_prim.h"
 #include "maze_recursive_division.h"
 #include "maze_sidewinder.h"
 #include "navcell.h"
@@ -1235,6 +1236,18 @@ int main(void) {
             return 8;
         }
         maze_destroy(randomized_kruskal);
+
+        maze_t* randomized_prim = NULL;
+        if (byul_maze_generate_randomized_prim(
+                -5, 8, 9, 9, &options, &randomized_prim)
+                != NAVSYS_STATUS_OK
+            || randomized_prim == NULL
+            || maze_hash(randomized_prim) != UINT32_C(857387639)) {
+            fprintf(stderr, "unexpected checked randomized Prim SDK ABI\n");
+            maze_destroy(randomized_prim);
+            return 9;
+        }
+        maze_destroy(randomized_prim);
     }
 
     navgrid_t* legacy_carver_grid = navgrid_create_full(

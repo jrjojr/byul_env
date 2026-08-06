@@ -2,6 +2,7 @@
 #include "internal/maze_private.hpp"
 
 #include <cstdint>
+#include <limits>
 #include <new>
 #include <vector>
 
@@ -46,6 +47,16 @@ void add_frontiers(
     }
 }
 
+bool has_representable_bound(int32_t origin, uint32_t length) {
+    if (length == 0) return true;
+    if (length > static_cast<uint32_t>(std::numeric_limits<int32_t>::max())) {
+        return false;
+    }
+    const int64_t last = static_cast<int64_t>(origin)
+        + static_cast<int64_t>(length) - 1;
+    return last <= std::numeric_limits<int32_t>::max();
+}
+
 } // namespace
 
 navsys_status_t byul_maze_generate_prim_internal(
@@ -57,6 +68,24 @@ navsys_status_t byul_maze_generate_prim_internal(
     maze_t** out_maze) noexcept {
     if (!out_maze) return NAVSYS_STATUS_INVALID_ARGUMENT;
     *out_maze = nullptr;
+    if (width < 3 || height < 3
+        || (width & UINT32_C(1)) == 0
+        || (height & UINT32_C(1)) == 0) {
+        return NAVSYS_STATUS_UNSUPPORTED;
+    }
+    if (!has_representable_bound(origin_x, width)
+        || !has_representable_bound(origin_y, height)) {
+        return NAVSYS_STATUS_INVALID_ARGUMENT;
+    }
+    const uint64_t cells = static_cast<uint64_t>(width) * height;
+    const uint64_t columns = width / 2;
+    const uint64_t rows = height / 2;
+    const uint64_t edges =
+        (columns - 1) * rows + (rows - 1) * columns;
+    if (cells > std::numeric_limits<size_t>::max()
+        || edges > std::numeric_limits<uint32_t>::max()) {
+        return NAVSYS_STATUS_LIMIT_REACHED;
+    }
     const navsys_status_t initial_poll = context.poll();
     if (initial_poll != NAVSYS_STATUS_OK) return initial_poll;
 
@@ -70,6 +99,7 @@ navsys_status_t byul_maze_generate_prim_internal(
         std::vector<int> grid(
             static_cast<size_t>(width) * height, wall_cell);
         std::vector<frontier_t> frontiers;
+        frontiers.reserve(static_cast<size_t>(edges));
 
         const uint32_t logical_width = (width - 1u) / 2u;
         const uint32_t logical_height = (height - 1u) / 2u;
@@ -134,17 +164,74 @@ navsys_status_t byul_maze_generate_prim_internal(
     return NAVSYS_STATUS_OK;
 }
 
-maze_t* maze_maze_prim(int x0, int y0, int width, int height) {
-    if (width < 3 || height < 3) return nullptr;
+navsys_status_t byul_maze_generate_randomized_prim(
+    int32_t origin_x,
+    int32_t origin_y,
+    uint32_t width,
+    uint32_t height,
+    const byul_maze_generate_options_t* options,
+    maze_t** out_maze) {
+    if (!out_maze) return NAVSYS_STATUS_INVALID_ARGUMENT;
+    *out_maze = nullptr;
+    if (!options
+        || options->struct_size < sizeof(byul_maze_generate_options_t)) {
+        return NAVSYS_STATUS_INVALID_ARGUMENT;
+    }
+    if (options->abi_version != BYUL_MAZE_GENERATE_OPTIONS_ABI_VERSION
+        || width < 3 || height < 3
+        || (width & UINT32_C(1)) == 0
+        || (height & UINT32_C(1)) == 0) {
+        return NAVSYS_STATUS_UNSUPPORTED;
+    }
+    if (!has_representable_bound(origin_x, width)
+        || !has_representable_bound(origin_y, height)) {
+        return NAVSYS_STATUS_INVALID_ARGUMENT;
+    }
+    const uint64_t cells = static_cast<uint64_t>(width) * height;
+    if (options->max_cells != 0 && cells > options->max_cells) {
+        return NAVSYS_STATUS_LIMIT_REACHED;
+    }
+    const uint64_t columns = width / 2;
+    const uint64_t rows = height / 2;
+    const uint64_t edges =
+        (columns - 1) * rows + (rows - 1) * columns;
+    if (cells > std::numeric_limits<size_t>::max()
+        || edges > std::numeric_limits<uint32_t>::max()) {
+        return NAVSYS_STATUS_LIMIT_REACHED;
+    }
+    const uint64_t default_steps =
+        cells > std::numeric_limits<uint64_t>::max() / 16
+        ? std::numeric_limits<uint64_t>::max()
+        : cells * 16;
     byul_maze_generation_context context(
-        byul_maze_generation_legacy_seed(), 0, nullptr, nullptr);
-    maze_t* maze = nullptr;
+        options->seed,
+        options->max_steps != 0 ? options->max_steps : default_steps,
+        options->cancel_func,
+        options->cancel_userdata);
     return byul_maze_generate_prim_internal(
+        origin_x, origin_y, width, height, context, out_maze);
+}
+
+maze_t* maze_maze_prim(int x0, int y0, int width, int height) {
+    if (width < 3 || height < 3 || width % 2 == 0 || height % 2 == 0) {
+        return nullptr;
+    }
+    const byul_maze_generate_options_t options{
+        sizeof(byul_maze_generate_options_t),
+        BYUL_MAZE_GENERATE_OPTIONS_ABI_VERSION,
+        byul_maze_generation_legacy_seed(),
+        UINT64_C(0),
+        UINT64_C(0),
+        nullptr,
+        nullptr
+    };
+    maze_t* maze = nullptr;
+    return byul_maze_generate_randomized_prim(
                x0,
                y0,
                static_cast<uint32_t>(width),
                static_cast<uint32_t>(height),
-               context,
+               &options,
                &maze)
             == NAVSYS_STATUS_OK
         ? maze
