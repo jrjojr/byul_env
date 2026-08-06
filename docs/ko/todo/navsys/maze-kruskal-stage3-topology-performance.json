@@ -1,0 +1,46 @@
+{
+  "schema_version": 1,
+  "scope": "navsys-maze-randomized-kruskal-stage3",
+  "status": "complete",
+  "source_revision": "68a7f1d",
+  "topology": {
+    "small_rectangular_corpus": "400 odd rectangular cases across seeds 0..15 remain connected, acyclic, border-blocked, and contain exactly V-1 passages",
+    "large_rectangular_corpus": {
+      "extent": [31, 21],
+      "logical_vertices": 150,
+      "logical_edges": 275,
+      "seeds": 128,
+      "result": "every run is connected and acyclic with V-1 accepted edges"
+    }
+  },
+  "distribution": {
+    "logical_graph": "2x3 grid with 6 vertices and 7 edges",
+    "edge_orders": 5040,
+    "spanning_trees_observed": 15,
+    "frequency_classes": [
+      {"orders_per_tree": 300, "tree_count": 6},
+      {"orders_per_tree": 360, "tree_count": 9}
+    ],
+    "conclusion": "randomized Kruskal edge ordering is demonstrably non-uniform over spanning trees and is not documented or tested as a UST sampler"
+  },
+  "early_stop": {
+    "large_corpus_bound": "149 <= considered_edges < 275 for every seed",
+    "meaning": "processing stops after the 149th accepted union and never exhausts the full edge set in this corpus"
+  },
+  "performance": {
+    "profile": "Windows MSVC Release",
+    "workload": "the 31x21, 128-seed topology and early-stop property case",
+    "milliseconds": [53.36, 48.41, 48.216, 48.524, 48.262],
+    "median_milliseconds": 48.41,
+    "contract": "operation-count bounds are normative; wall-clock samples are informational"
+  },
+  "sanitizers": {
+    "profile": "WSL GCC 13 Debug with ASan and LSan",
+    "command_policy": "detect_leaks=1 and halt_on_error=1",
+    "result": "86/86 test cases and 176086/176086 assertions passed with no sanitizer report"
+  },
+  "verification": {
+    "windows_msvc_release": "86/86 test cases, 176086/176086 assertions",
+    "wsl_gcc_asan_lsan": "86/86 test cases, 176086/176086 assertions"
+  }
+}

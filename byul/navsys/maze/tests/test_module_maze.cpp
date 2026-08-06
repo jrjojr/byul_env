@@ -948,6 +948,83 @@ TEST_CASE("Kruskal two-by-two logical graph accepts a tree for every edge order"
     CHECK(permutations == 24);
 }
 
+TEST_CASE("Kruskal two-by-three edge orders demonstrate non-UST frequencies") {
+    constexpr std::array<std::array<int, 2>, 7> edges{{
+        {{0, 1}}, {{0, 2}}, {{1, 3}}, {{2, 3}},
+        {{2, 4}}, {{3, 5}}, {{4, 5}}
+    }};
+    std::array<int, 7> order{{0, 1, 2, 3, 4, 5, 6}};
+    std::array<size_t, 128> tree_frequencies{};
+    size_t permutations = 0;
+    do {
+        std::array<int, 6> parent{{0, 1, 2, 3, 4, 5}};
+        const auto find_root = [&parent](int vertex) {
+            while (parent[vertex] != vertex) vertex = parent[vertex];
+            return vertex;
+        };
+        size_t accepted = 0;
+        size_t tree_mask = 0;
+        for (const int edge_index : order) {
+            const int first = find_root(edges[edge_index][0]);
+            const int second = find_root(edges[edge_index][1]);
+            if (first == second) continue;
+            parent[second] = first;
+            tree_mask |= size_t{1} << edge_index;
+            if (++accepted == 5) break;
+        }
+        REQUIRE(accepted == 5);
+        ++tree_frequencies[tree_mask];
+        ++permutations;
+    } while (std::next_permutation(order.begin(), order.end()));
+
+    size_t observed_trees = 0;
+    size_t frequency_300 = 0;
+    size_t frequency_360 = 0;
+    for (const size_t frequency : tree_frequencies) {
+        if (frequency == 0) continue;
+        ++observed_trees;
+        frequency_300 += frequency == 300 ? 1u : 0u;
+        frequency_360 += frequency == 360 ? 1u : 0u;
+    }
+    CHECK(permutations == 5040);
+    CHECK(observed_trees == 15);
+    CHECK(frequency_300 == 6);
+    CHECK(frequency_360 == 9);
+}
+
+TEST_CASE("Kruskal large rectangular corpus completes before exhausting edges") {
+    constexpr uint32_t width = 31;
+    constexpr uint32_t height = 21;
+    constexpr uint64_t vertices = UINT64_C(15) * UINT64_C(10);
+    constexpr uint64_t edges = UINT64_C(14) * UINT64_C(10)
+        + UINT64_C(9) * UINT64_C(15);
+    uint64_t considered_total = 0;
+    for (uint64_t seed = 0; seed < 128; ++seed) {
+        CAPTURE(seed);
+        byul_maze_generation_context context(
+            seed, UINT64_C(1000000), nullptr, nullptr);
+        maze_t* maze = nullptr;
+        REQUIRE(byul_maze_generate_kruskal_internal(
+            -37, 42, width, height, context, &maze) == NAVSYS_STATUS_OK);
+        REQUIRE(maze != nullptr);
+        CHECK(context.steps() >= vertices - 1);
+        CHECK(context.steps() < edges);
+        considered_total += context.steps();
+
+        const maze_topology_t topology = analyze_logical_topology(
+            maze, -37, 42, static_cast<int>(width), static_cast<int>(height));
+        CHECK(topology.queries_ok);
+        CHECK(topology.border_blocked);
+        CHECK(topology.logical_cells_open);
+        CHECK(topology.connected);
+        CHECK(topology.node_count == vertices);
+        CHECK(topology.edge_count + 1 == topology.node_count);
+        maze_destroy(maze);
+    }
+    CHECK(considered_total >= (vertices - 1) * UINT64_C(128));
+    CHECK(considered_total < edges * UINT64_C(128));
+}
+
 TEST_CASE("internal generators replay and honor step limits") {
     const maze_generator_t generators[] = {
         byul_maze_generate_recursive_internal,
