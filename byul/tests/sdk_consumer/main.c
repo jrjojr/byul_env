@@ -14,6 +14,7 @@
 #include "maze_core.h"
 #include "maze_eller.h"
 #include "maze_hunt_and_kill.h"
+#include "maze_kruskal.h"
 #include "maze_recursive_division.h"
 #include "maze_sidewinder.h"
 #include "navcell.h"
@@ -1211,6 +1212,29 @@ int main(void) {
             return 8;
         }
         maze_destroy(recursive_division);
+    }
+
+    {
+        const byul_maze_generate_options_t options = {
+            sizeof(byul_maze_generate_options_t),
+            BYUL_MAZE_GENERATE_OPTIONS_ABI_VERSION,
+            UINT64_C(0),
+            UINT64_C(64),
+            UINT64_C(81),
+            NULL,
+            NULL
+        };
+        maze_t* randomized_kruskal = NULL;
+        if (byul_maze_generate_randomized_kruskal(
+                -5, 8, 9, 9, &options, &randomized_kruskal)
+                != NAVSYS_STATUS_OK
+            || randomized_kruskal == NULL
+            || maze_hash(randomized_kruskal) != UINT32_C(73237245)) {
+            fprintf(stderr, "unexpected checked randomized Kruskal SDK ABI\n");
+            maze_destroy(randomized_kruskal);
+            return 8;
+        }
+        maze_destroy(randomized_kruskal);
     }
 
     navgrid_t* legacy_carver_grid = navgrid_create_full(

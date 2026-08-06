@@ -10,6 +10,7 @@
 #include "maze_core.h"
 #include "maze_eller.h"
 #include "maze_hunt_and_kill.h"
+#include "maze_kruskal.h"
 #include "maze_recursive_division.h"
 #include "maze_sidewinder.h"
 #include "navcell.h"
@@ -558,6 +559,14 @@ int main() {
     assert(recursive_division != nullptr);
     assert(maze_hash(recursive_division) == UINT32_C(669558005));
     maze_destroy(recursive_division);
+
+    maze_t* randomized_kruskal = nullptr;
+    assert(byul_maze_generate_randomized_kruskal(
+        -5, 8, 9, 9, &recursive_division_options, &randomized_kruskal)
+        == NAVSYS_STATUS_OK);
+    assert(randomized_kruskal != nullptr);
+    assert(maze_hash(randomized_kruskal) == UINT32_C(73237245));
+    maze_destroy(randomized_kruskal);
 
     navgrid_t* legacy_carver_grid = navgrid_create_full(
         3, 3, NAVGRID_DIR_8, nullptr);

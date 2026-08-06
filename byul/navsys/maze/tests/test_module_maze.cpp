@@ -677,7 +677,8 @@ TEST_CASE("Kruskal graph inventory and corrected seed-zero rasters are stable") 
             -5, 8, fixture.width, fixture.height, context, &maze)
             == NAVSYS_STATUS_OK);
         REQUIRE(maze != nullptr);
-        CHECK(context.steps() == edges);
+        CHECK(context.steps() >= vertices - 1);
+        CHECK(context.steps() <= edges);
         CHECK(maze_hash(maze) == fixture.hash);
         const maze_topology_t topology = analyze_logical_topology(
             maze, -5, 8,
@@ -712,7 +713,8 @@ TEST_CASE("Kruskal tiny rectangular graph corpus considers every unique edge") {
                     13, -21, width, height, context, &maze)
                     == NAVSYS_STATUS_OK);
                 REQUIRE(maze != nullptr);
-                CHECK(context.steps() == edges);
+                CHECK(context.steps() >= vertices - 1);
+                CHECK(context.steps() <= edges);
                 const maze_topology_t topology = analyze_logical_topology(
                     maze, 13, -21,
                     static_cast<int>(width),
@@ -726,6 +728,190 @@ TEST_CASE("Kruskal tiny rectangular graph corpus considers every unique edge") {
                 maze_destroy(maze);
             }
         }
+    }
+}
+
+TEST_CASE("Kruskal checked API validates failure atomicity") {
+    byul_maze_generate_options_t options{
+        sizeof(byul_maze_generate_options_t),
+        BYUL_MAZE_GENERATE_OPTIONS_ABI_VERSION,
+        UINT64_C(0),
+        UINT64_C(1000),
+        UINT64_C(81),
+        nullptr,
+        nullptr
+    };
+    maze_t* output = reinterpret_cast<maze_t*>(uintptr_t{1});
+    CHECK(byul_maze_generate_randomized_kruskal(
+        0, 0, 2, 3, &options, &output) == NAVSYS_STATUS_UNSUPPORTED);
+    CHECK(output == nullptr);
+
+    output = reinterpret_cast<maze_t*>(uintptr_t{1});
+    CHECK(byul_maze_generate_randomized_kruskal(
+        0, 0, 4, 5, &options, &output) == NAVSYS_STATUS_UNSUPPORTED);
+    CHECK(output == nullptr);
+
+    output = reinterpret_cast<maze_t*>(uintptr_t{1});
+    CHECK(byul_maze_generate_randomized_kruskal(
+        std::numeric_limits<int32_t>::max(), 0, 3, 3, &options, &output)
+        == NAVSYS_STATUS_INVALID_ARGUMENT);
+    CHECK(output == nullptr);
+
+    output = reinterpret_cast<maze_t*>(uintptr_t{1});
+    CHECK(byul_maze_generate_randomized_kruskal(
+        std::numeric_limits<int32_t>::min(), 0, UINT32_MAX, 3,
+        &options, &output) == NAVSYS_STATUS_INVALID_ARGUMENT);
+    CHECK(output == nullptr);
+
+    output = reinterpret_cast<maze_t*>(uintptr_t{1});
+    CHECK(byul_maze_generate_randomized_kruskal(
+        0, 0, 9, 9, nullptr, &output) == NAVSYS_STATUS_INVALID_ARGUMENT);
+    CHECK(output == nullptr);
+
+    options.struct_size = sizeof(byul_maze_generate_options_t) - 1;
+    output = reinterpret_cast<maze_t*>(uintptr_t{1});
+    CHECK(byul_maze_generate_randomized_kruskal(
+        0, 0, 9, 9, &options, &output) == NAVSYS_STATUS_INVALID_ARGUMENT);
+    CHECK(output == nullptr);
+
+    options.struct_size = sizeof(byul_maze_generate_options_t);
+    ++options.abi_version;
+    output = reinterpret_cast<maze_t*>(uintptr_t{1});
+    CHECK(byul_maze_generate_randomized_kruskal(
+        0, 0, 9, 9, &options, &output) == NAVSYS_STATUS_UNSUPPORTED);
+    CHECK(output == nullptr);
+
+    options.abi_version = BYUL_MAZE_GENERATE_OPTIONS_ABI_VERSION;
+    options.max_cells = UINT64_C(80);
+    output = reinterpret_cast<maze_t*>(uintptr_t{1});
+    CHECK(byul_maze_generate_randomized_kruskal(
+        0, 0, 9, 9, &options, &output) == NAVSYS_STATUS_LIMIT_REACHED);
+    CHECK(output == nullptr);
+
+    options.max_cells = UINT64_C(81);
+    options.max_steps = UINT64_C(1);
+    output = reinterpret_cast<maze_t*>(uintptr_t{1});
+    CHECK(byul_maze_generate_randomized_kruskal(
+        0, 0, 9, 9, &options, &output) == NAVSYS_STATUS_LIMIT_REACHED);
+    CHECK(output == nullptr);
+
+    maze_cancel_fixture_t cancel_fixture{0, 1};
+    options.max_steps = UINT64_C(1000);
+    options.cancel_func = cancel_maze_overlay;
+    options.cancel_userdata = &cancel_fixture;
+    output = reinterpret_cast<maze_t*>(uintptr_t{1});
+    CHECK(byul_maze_generate_randomized_kruskal(
+        0, 0, 9, 9, &options, &output) == NAVSYS_STATUS_CANCELLED);
+    CHECK(output == nullptr);
+    CHECK(cancel_fixture.calls == 1);
+
+    options.cancel_func = throw_maze_overlay_cancel;
+    options.cancel_userdata = nullptr;
+    output = reinterpret_cast<maze_t*>(uintptr_t{1});
+    CHECK(byul_maze_generate_randomized_kruskal(
+        0, 0, 9, 9, &options, &output) == NAVSYS_STATUS_CALLBACK_FAILED);
+    CHECK(output == nullptr);
+
+    CHECK(maze_make_kruskal(0, 0, 2, 3) == nullptr);
+    CHECK(maze_make_kruskal(0, 0, 4, 5) == nullptr);
+}
+
+TEST_CASE("Kruskal checked API replays and matches dispatcher") {
+    for (const uint64_t seed : {
+             UINT64_C(0), UINT64_C(1), UINT64_C(17), UINT64_MAX}) {
+        CAPTURE(seed);
+        const byul_maze_generate_options_t options{
+            sizeof(byul_maze_generate_options_t),
+            BYUL_MAZE_GENERATE_OPTIONS_ABI_VERSION,
+            seed,
+            UINT64_C(1000),
+            UINT64_C(81),
+            nullptr,
+            nullptr
+        };
+        maze_t* direct = nullptr;
+        maze_t* replay = nullptr;
+        maze_t* dispatched = nullptr;
+        REQUIRE(byul_maze_generate_randomized_kruskal(
+            -5, 8, 9, 9, &options, &direct) == NAVSYS_STATUS_OK);
+        REQUIRE(byul_maze_generate_randomized_kruskal(
+            -5, 8, 9, 9, &options, &replay) == NAVSYS_STATUS_OK);
+        REQUIRE(byul_maze_generate(
+            BYUL_MAZE_ALGORITHM_RANDOMIZED_KRUSKAL,
+            -5, 8, 9, 9, &options, &dispatched) == NAVSYS_STATUS_OK);
+        REQUIRE(direct != nullptr);
+        REQUIRE(replay != nullptr);
+        REQUIRE(dispatched != nullptr);
+        if (seed == 0) CHECK(maze_hash(direct) == UINT32_C(73237245));
+        CHECK(maze_hash(direct) == maze_hash(replay));
+        CHECK(maze_hash(direct) == maze_hash(dispatched));
+        maze_destroy(dispatched);
+        maze_destroy(replay);
+        maze_destroy(direct);
+    }
+
+    maze_t* legacy = maze_make_kruskal(-5, 8, 9, 9);
+    REQUIRE(legacy != nullptr);
+    const maze_topology_t topology =
+        analyze_logical_topology(legacy, -5, 8, 9, 9);
+    CHECK(topology.queries_ok);
+    CHECK(topology.border_blocked);
+    CHECK(topology.logical_cells_open);
+    CHECK(topology.connected);
+    CHECK(topology.edge_count + 1 == topology.node_count);
+    maze_destroy(legacy);
+}
+
+TEST_CASE("Kruskal exact edge budgets and cancellation stay atomic") {
+    byul_maze_generation_context measured_context(
+        UINT64_C(17), UINT64_C(1000000), nullptr, nullptr);
+    maze_t* measured = nullptr;
+    REQUIRE(byul_maze_generate_kruskal_internal(
+        19, -31, 31, 21, measured_context, &measured) == NAVSYS_STATUS_OK);
+    REQUIRE(measured != nullptr);
+    const uint64_t considered_edges = measured_context.steps();
+    const uint64_t vertices = UINT64_C(15) * UINT64_C(10);
+    const uint64_t edges = UINT64_C(14) * UINT64_C(10)
+        + UINT64_C(9) * UINT64_C(15);
+    CHECK(considered_edges >= vertices - 1);
+    CHECK(considered_edges < edges);
+
+    byul_maze_generate_options_t options{
+        sizeof(byul_maze_generate_options_t),
+        BYUL_MAZE_GENERATE_OPTIONS_ABI_VERSION,
+        UINT64_C(17),
+        considered_edges,
+        UINT64_C(651),
+        nullptr,
+        nullptr
+    };
+    maze_t* exact = nullptr;
+    REQUIRE(byul_maze_generate_randomized_kruskal(
+        19, -31, 31, 21, &options, &exact) == NAVSYS_STATUS_OK);
+    REQUIRE(exact != nullptr);
+    CHECK(maze_hash(exact) == maze_hash(measured));
+    maze_destroy(exact);
+    maze_destroy(measured);
+
+    options.max_steps = considered_edges - 1;
+    maze_t* limited = reinterpret_cast<maze_t*>(uintptr_t{1});
+    CHECK(byul_maze_generate_randomized_kruskal(
+        19, -31, 31, 21, &options, &limited)
+        == NAVSYS_STATUS_LIMIT_REACHED);
+    CHECK(limited == nullptr);
+
+    for (const int cancel_after : {1, 2, 17, 200}) {
+        CAPTURE(cancel_after);
+        maze_cancel_fixture_t fixture{0, cancel_after};
+        options.max_steps = UINT64_C(1000000);
+        options.cancel_func = cancel_maze_overlay;
+        options.cancel_userdata = &fixture;
+        maze_t* cancelled = reinterpret_cast<maze_t*>(uintptr_t{1});
+        CHECK(byul_maze_generate_randomized_kruskal(
+            19, -31, 31, 21, &options, &cancelled)
+            == NAVSYS_STATUS_CANCELLED);
+        CHECK(cancelled == nullptr);
+        CHECK(fixture.calls == cancel_after);
     }
 }
 

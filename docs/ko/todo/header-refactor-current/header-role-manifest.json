@@ -3711,7 +3711,7 @@
     {
       "asset_id": "initial:byul/navsys/maze/maze_kruskal.h",
       "current_path": "byul/navsys/maze/maze_kruskal.h",
-      "sha256": "3b5165950a4294510e567ce0acd606faa2fb328d6fead4ff2516a1ddc0f8f4e3",
+      "sha256": "7ea0f99771cde72bbb5f7cb1f679c21767c2df665050204221c3f5882d1c647e",
       "primary_role": "public-component",
       "role_reason": "Handwritten public maze algorithm component; generator wording is not file provenance.",
       "owner_module": "navsys",
@@ -3719,8 +3719,8 @@
       "approved_install": true,
       "install_reason": "Public or compatibility SDK surface.",
       "wrapper": {
-        "mode": "manual",
-        "reason": "Public legacy declarations require explicit ownership/error metadata before automatic generation."
+        "mode": "generated",
+        "reason": "Registered in the canonical wrapper generator manifest."
       },
       "naming": {
         "disposition": "keep",

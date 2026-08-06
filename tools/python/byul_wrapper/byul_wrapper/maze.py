@@ -268,6 +268,17 @@ navsys_status_t byul_maze_generate_hunt_and_kill(
 
  maze_t* maze_make_hunt_and_kill(int x0, int y0, int width, int height);
 
+/* Source: byul/navsys/maze/maze_kruskal.h */
+navsys_status_t byul_maze_generate_randomized_kruskal(
+    int32_t origin_x,
+    int32_t origin_y,
+    uint32_t width,
+    uint32_t height,
+    const byul_maze_generate_options_t* options,
+    maze_t** out_maze);
+
+ maze_t* maze_make_kruskal(int x0, int y0, int width, int height);
+
 /* Source: byul/navsys/maze/maze_recursive_division.h */
 navsys_status_t byul_maze_generate_recursive_division(
     int32_t origin_x,
@@ -599,6 +610,46 @@ class c_maze:
                 output,
             ),
             "byul_maze_generate_recursive_division",
+        )
+        return cls(raw_ptr=output[0], own=True)
+
+    @classmethod
+    def generate_randomized_kruskal(
+        cls,
+        x0,
+        y0,
+        width,
+        height,
+        *,
+        seed,
+        max_steps=0,
+        max_cells=0,
+    ):
+        """Generate a deterministic perfect randomized Kruskal Maze."""
+        _check_maze_abi()
+        options = ffi.new(
+            "byul_maze_generate_options_t*",
+            dict(
+                struct_size=ffi.sizeof("byul_maze_generate_options_t"),
+                abi_version=MAZE_GENERATE_OPTIONS_ABI_VERSION,
+                seed=seed,
+                max_steps=max_steps,
+                max_cells=max_cells,
+                cancel_func=ffi.NULL,
+                cancel_userdata=ffi.NULL,
+            ),
+        )
+        output = ffi.new("maze_t**")
+        raise_for_status(
+            C.byul_maze_generate_randomized_kruskal(
+                x0,
+                y0,
+                width,
+                height,
+                options,
+                output,
+            ),
+            "byul_maze_generate_randomized_kruskal",
         )
         return cls(raw_ptr=output[0], own=True)
 
