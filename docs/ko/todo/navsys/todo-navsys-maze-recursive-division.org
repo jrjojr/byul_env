@@ -104,7 +104,7 @@ BYUL_API navsys_status_t byul_maze_generate_recursive_division(
 - stub RNG로 horizontal/vertical/tie/gap edge cases를 강제한다.
 - allocator fault, cancel at split/materialize와 seed replay를 검사한다.
 
-* DOING 3단계: 위상·termination gate
+* DONE 3단계: 위상·termination gate
 
 ** 실행
 
@@ -121,7 +121,7 @@ BYUL_API navsys_status_t byul_maze_generate_recursive_division(
 
 - exhaustive tiny/property corpus, ASan/LSan과 worst-case benchmark를 실행한다.
 
-* TODO 4단계: Header·SDK gate
+* DOING 4단계: Header·SDK gate
 
 ** 실행
 

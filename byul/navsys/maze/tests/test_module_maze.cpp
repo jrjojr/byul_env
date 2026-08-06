@@ -1784,6 +1784,102 @@ TEST_CASE("Recursive Division checked API replays and matches dispatcher") {
     maze_destroy(legacy);
 }
 
+TEST_CASE("Recursive Division public rectangular corpus remains bounded and perfect") {
+    const uint32_t extents[][2] = {
+        {13, 17}, {17, 13}, {21, 31}, {31, 21}
+    };
+    for (const auto& extent : extents) {
+        const uint32_t width = extent[0];
+        const uint32_t height = extent[1];
+        const uint64_t logical_cells =
+            static_cast<uint64_t>(width / 2)
+            * static_cast<uint64_t>(height / 2);
+        for (uint64_t seed = 0; seed < 100; ++seed) {
+            CAPTURE(width);
+            CAPTURE(height);
+            CAPTURE(seed);
+            byul_maze_generation_context context(
+                seed, UINT64_C(1000000), nullptr, nullptr);
+            maze_t* maze = nullptr;
+            REQUIRE(byul_maze_generate_recursive_division_internal(
+                -37, 42, width, height, context, &maze)
+                == NAVSYS_STATUS_OK);
+            REQUIRE(maze != nullptr);
+            CHECK(context.steps() > 0);
+            CHECK(context.steps() < logical_cells);
+
+            const maze_topology_t topology = analyze_logical_topology(
+                maze, -37, 42,
+                static_cast<int>(width),
+                static_cast<int>(height));
+            CHECK(topology.queries_ok);
+            CHECK(topology.border_blocked);
+            CHECK(topology.logical_cells_open);
+            CHECK(topology.connected);
+            CHECK(topology.edge_count + 1 == topology.node_count);
+            maze_destroy(maze);
+        }
+    }
+}
+
+TEST_CASE("Recursive Division exact split budgets and cancellation stay atomic") {
+    for (uint64_t seed = 0; seed < 100; ++seed) {
+        CAPTURE(seed);
+        byul_maze_generation_context measured_context(
+            seed, UINT64_C(1000000), nullptr, nullptr);
+        maze_t* measured = nullptr;
+        REQUIRE(byul_maze_generate_recursive_division_internal(
+            19, -31, 31, 21, measured_context, &measured)
+            == NAVSYS_STATUS_OK);
+        REQUIRE(measured != nullptr);
+        const uint64_t divisions = measured_context.steps();
+        REQUIRE(divisions > 0);
+
+        byul_maze_generate_options_t options{
+            sizeof(byul_maze_generate_options_t),
+            BYUL_MAZE_GENERATE_OPTIONS_ABI_VERSION,
+            seed,
+            divisions,
+            UINT64_C(651),
+            nullptr,
+            nullptr
+        };
+        maze_t* exact = nullptr;
+        REQUIRE(byul_maze_generate_recursive_division(
+            19, -31, 31, 21, &options, &exact) == NAVSYS_STATUS_OK);
+        REQUIRE(exact != nullptr);
+        CHECK(maze_hash(exact) == maze_hash(measured));
+        maze_destroy(exact);
+        maze_destroy(measured);
+
+        options.max_steps = divisions - 1;
+        maze_t* limited = reinterpret_cast<maze_t*>(uintptr_t{1});
+        CHECK(byul_maze_generate_recursive_division(
+            19, -31, 31, 21, &options, &limited)
+            == NAVSYS_STATUS_LIMIT_REACHED);
+        CHECK(limited == nullptr);
+    }
+
+    for (const int cancel_after : {1, 2, 17, 200}) {
+        CAPTURE(cancel_after);
+        maze_cancel_fixture_t cancel_fixture{0, cancel_after};
+        const byul_maze_generate_options_t options{
+            sizeof(byul_maze_generate_options_t),
+            BYUL_MAZE_GENERATE_OPTIONS_ABI_VERSION,
+            UINT64_C(17),
+            UINT64_C(1000000),
+            UINT64_C(651),
+            cancel_maze_overlay,
+            &cancel_fixture
+        };
+        maze_t* output = reinterpret_cast<maze_t*>(uintptr_t{1});
+        CHECK(byul_maze_generate_recursive_division(
+            19, -31, 31, 21, &options, &output) == NAVSYS_STATUS_CANCELLED);
+        CHECK(output == nullptr);
+        CHECK(cancel_fixture.calls == cancel_after);
+    }
+}
+
 TEST_CASE("Eller direct dispatcher and legacy paths share topology") {
     const uint64_t seeds[] = {
         UINT64_C(0), UINT64_C(1), UINT64_C(17), UINT64_MAX

@@ -35,7 +35,11 @@ navsys_status_t divide_iteratively(
     int grid_width,
     int grid_height,
     byul_maze_generation_context& context) {
+    const size_t region_stack_bound =
+        static_cast<size_t>(grid_width / 2)
+        + static_cast<size_t>(grid_height / 2);
     std::vector<region_t> stack;
+    stack.reserve(region_stack_bound);
     stack.push_back(region_t{0, 0, grid_width - 1, grid_height - 1});
     while (!stack.empty()) {
         const region_t region = stack.back();
@@ -52,6 +56,9 @@ navsys_status_t divide_iteratively(
         if (step_status != NAVSYS_STATUS_OK) return step_status;
         const bool horizontal = span_x < span_y
             || (span_x == span_y && context.bounded(2) == 0);
+        if (stack.size() + 2 > region_stack_bound) {
+            return NAVSYS_STATUS_CORRUPT_STATE;
+        }
         if (horizontal) {
             const int wall_y = random_even(
                 region.top + 2, region.bottom - 2, context);
