@@ -7281,8 +7281,8 @@
       },
       {
         "path": "bin/test_byul.exe",
-        "size": 976896,
-        "sha256": "1168ee97c19e90440c26f6199151a429d2f7112adb85d6c32a3a892d144bdb3b"
+        "size": 1918464,
+        "sha256": "7c70ca0ed3098008f6bae6274a85300d8471f8fca64e89633cfc8d6405997324"
       },
       {
         "path": "bin/test_byul_tick.exe",
@@ -7321,8 +7321,8 @@
       },
       {
         "path": "bin/test_maze.exe",
-        "size": 271360,
-        "sha256": "712d483ca27f16b93a8de28b7e67787ac8256652608d3a3150efcf01a815f6a2"
+        "size": 668160,
+        "sha256": "e271d9986eb18038363744563cce1eeccb37b1fcb204ed22b193997ed9aade22"
       },
       {
         "path": "bin/test_navgrid.exe",

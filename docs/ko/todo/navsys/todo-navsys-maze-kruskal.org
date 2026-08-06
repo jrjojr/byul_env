@@ -116,7 +116,7 @@ BYUL_API navsys_status_t byul_maze_generate_randomized_kruskal(
 
 - deterministic/property/statistical suite, ASan/LSan과 performance baseline을 실행한다.
 
-* DOING 4단계: Header·통합 gate
+* DONE 4단계: Header·통합 gate
 
 ** 실행
 

@@ -1,0 +1,36 @@
+{
+  "schema_version": 1,
+  "scope": "navsys-maze-randomized-kruskal-closure",
+  "status": "complete",
+  "stage_revisions": {
+    "stage1_baseline": "9c66918",
+    "stage2_checked_api": "68a7f1d",
+    "stage3_topology_distribution": "e9c742c"
+  },
+  "release_note": {
+    "behavior": "Randomized Kruskal now uses a flat iterative union-by-size disjoint set with path compression and stops immediately after V-1 accepted edges while preserving seeded raster goldens.",
+    "api": "byul_maze_generate_randomized_kruskal adds replayable seed, cancellation, max_steps, max_cells, status, and failure-atomic output controls.",
+    "claim_boundary": "The API promises randomized edge ordering and a perfect Maze, not minimum-weight or uniform-spanning-tree sampling.",
+    "compatibility": "maze_make_kruskal remains exported as a deprecated ABI 1.x forwarder. Equal checked seeds preserve the pre-API raster order."
+  },
+  "distribution": {
+    "root_shared_exports": 1209,
+    "required_symbols": [
+      "byul_maze_generate_randomized_kruskal",
+      "maze_make_kruskal"
+    ],
+    "clean_install_headers": 92,
+    "installed_header": "include/byul/maze_kruskal.h",
+    "navsys_inventory": "58 headers, 654 symbols",
+    "wrapper_entry": "c_maze.generate_randomized_kruskal"
+  },
+  "final_verification": {
+    "windows_msvc_release": "86/86 Maze cases, 176086/176086 assertions; allocation-failure executable exit 0",
+    "windows_aggregate_root": "538/538 cases, 186302/186302 assertions",
+    "linux_gcc_debug_asan_lsan": "86/86 Maze cases, 176086/176086 assertions; exit 0; no sanitizer report",
+    "clean_sdk": "standalone C17/C++17 header probes and executable consumers passed",
+    "wrapper_scope": "15/15 generator, Maze ABI policy, and wrapper coverage tests passed",
+    "header_audit": "150 headers, 95 public C headers, 1170 declarations, 0 invariant errors",
+    "rules": "60 Org rule files, 0 errors, 0 warnings"
+  }
+}
