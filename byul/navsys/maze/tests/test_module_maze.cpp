@@ -1347,6 +1347,98 @@ TEST_CASE("Sidewinder all sweeps remain perfect across 100 seeds") {
     }
 }
 
+TEST_CASE("Sidewinder run-close coin remains deterministically balanced") {
+    constexpr uint64_t sample_count = UINT64_C(512);
+    constexpr uint64_t decisions_per_sample = UINT64_C(9);
+    constexpr uint64_t minimum_sweep_carves =
+        sample_count * decisions_per_sample * UINT64_C(43) / UINT64_C(100);
+    constexpr uint64_t maximum_sweep_carves =
+        sample_count * decisions_per_sample * UINT64_C(57) / UINT64_C(100);
+
+    for (int sweep_value = BYUL_MAZE_SIDEWINDER_EAST_NORTH;
+         sweep_value <= BYUL_MAZE_SIDEWINDER_WEST_SOUTH;
+         ++sweep_value) {
+        const auto sweep =
+            static_cast<byul_maze_sidewinder_sweep_t>(sweep_value);
+        const bool north = sweep == BYUL_MAZE_SIDEWINDER_EAST_NORTH
+            || sweep == BYUL_MAZE_SIDEWINDER_WEST_NORTH;
+        uint64_t sweep_carves = 0;
+        for (uint64_t seed = 0; seed < sample_count; ++seed) {
+            const byul_maze_generate_options_t options{
+                sizeof(byul_maze_generate_options_t),
+                BYUL_MAZE_GENERATE_OPTIONS_ABI_VERSION,
+                seed,
+                UINT64_C(16),
+                UINT64_C(81),
+                nullptr,
+                nullptr
+            };
+            maze_t* maze = nullptr;
+            REQUIRE(byul_maze_generate_sidewinder(
+                0, 0, 9, 9, sweep, &options, &maze)
+                == NAVSYS_STATUS_OK);
+            REQUIRE(maze != nullptr);
+            for (int row = 0; row < 3; ++row) {
+                const int y = north ? 3 + row * 2 : 5 - row * 2;
+                for (int x = 2; x < 8; x += 2) {
+                    bool blocked = true;
+                    REQUIRE(byul_maze_is_blocked(maze, x, y, &blocked)
+                        == NAVSYS_STATUS_OK);
+                    sweep_carves += blocked ? 0u : 1u;
+                }
+            }
+            maze_destroy(maze);
+        }
+        CAPTURE(sweep_value);
+        CAPTURE(sweep_carves);
+        CHECK(sweep_carves >= minimum_sweep_carves);
+        CHECK(sweep_carves <= maximum_sweep_carves);
+    }
+}
+
+TEST_CASE("Sidewinder step work equals the logical cell count") {
+    const uint32_t extents[][2] = {
+        {3, 3}, {3, 31}, {31, 3}, {31, 31}
+    };
+    for (const auto& extent : extents) {
+        const uint64_t logical_cells =
+            static_cast<uint64_t>((extent[0] - 1) / 2)
+            * ((extent[1] - 1) / 2);
+        for (int sweep_value = BYUL_MAZE_SIDEWINDER_EAST_NORTH;
+             sweep_value <= BYUL_MAZE_SIDEWINDER_WEST_SOUTH;
+             ++sweep_value) {
+            CAPTURE(extent[0]);
+            CAPTURE(extent[1]);
+            CAPTURE(sweep_value);
+            byul_maze_generate_options_t options{
+                sizeof(byul_maze_generate_options_t),
+                BYUL_MAZE_GENERATE_OPTIONS_ABI_VERSION,
+                UINT64_C(17),
+                logical_cells,
+                static_cast<uint64_t>(extent[0]) * extent[1],
+                nullptr,
+                nullptr
+            };
+            maze_t* maze = nullptr;
+            REQUIRE(byul_maze_generate_sidewinder(
+                7, -13, extent[0], extent[1],
+                static_cast<byul_maze_sidewinder_sweep_t>(sweep_value),
+                &options, &maze) == NAVSYS_STATUS_OK);
+            REQUIRE(maze != nullptr);
+            maze_destroy(maze);
+
+            if (logical_cells <= 1) continue;
+            options.max_steps = logical_cells - 1;
+            maze = reinterpret_cast<maze_t*>(uintptr_t{1});
+            CHECK(byul_maze_generate_sidewinder(
+                7, -13, extent[0], extent[1],
+                static_cast<byul_maze_sidewinder_sweep_t>(sweep_value),
+                &options, &maze) == NAVSYS_STATUS_LIMIT_REACHED);
+            CHECK(maze == nullptr);
+        }
+    }
+}
+
 TEST_CASE("Sidewinder checked API validates options and failure atomicity") {
     byul_maze_generate_options_t options{
         sizeof(byul_maze_generate_options_t),
