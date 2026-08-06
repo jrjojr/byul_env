@@ -66,7 +66,7 @@ BYUL_API navsys_status_t byul_maze_generate_randomized_prim(
 - result는 perfect maze, =V-1= accepted edges다. UST/minimum-weight claim은 금지한다.
 - seed/RNG/cancel/max-frontier-pops/OOM status와 rectangular width != height test를 필수화한다.
 
-* TODO 1단계: 현행 rectangular trace와 leak 고정
+* DONE 1단계: 현행 rectangular trace와 leak 고정
 
 ** 실행
 
@@ -84,7 +84,7 @@ BYUL_API navsys_status_t byul_maze_generate_randomized_prim(
 - injected frontier choices로 four-direction expansion을 각각 강제한다.
 - ASan/LSan/UBSan invalid dimensions를 실행한다.
 
-* TODO 2단계: canonical frontier와 status API
+* DOING 2단계: canonical frontier와 status API
 
 ** 실행
 

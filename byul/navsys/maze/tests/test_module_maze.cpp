@@ -1025,6 +1025,90 @@ TEST_CASE("Kruskal large rectangular corpus completes before exhausting edges") 
     CHECK(considered_total < edges * UINT64_C(128));
 }
 
+TEST_CASE("Prim rectangular frontier inventory and seed-zero rasters are stable") {
+    struct fixture_t {
+        uint32_t width;
+        uint32_t height;
+        uint32_t expected_hash;
+    };
+    const fixture_t fixtures[] = {
+        {3, 9, UINT32_C(490189354)},
+        {9, 3, UINT32_C(54204446)},
+        {5, 9, UINT32_C(650319809)},
+        {9, 5, UINT32_C(16892751)},
+        {7, 11, UINT32_C(218476356)},
+        {11, 7, UINT32_C(477496482)},
+        {9, 9, UINT32_C(857387639)}
+    };
+    for (const fixture_t& fixture : fixtures) {
+        CAPTURE(fixture.width);
+        CAPTURE(fixture.height);
+        const uint64_t columns = fixture.width / 2;
+        const uint64_t rows = fixture.height / 2;
+        const uint64_t vertices = columns * rows;
+        const uint64_t edges =
+            (columns - 1) * rows + (rows - 1) * columns;
+        byul_maze_generation_context context(
+            UINT64_C(0), UINT64_C(1000000), nullptr, nullptr);
+        maze_t* maze = nullptr;
+        REQUIRE(byul_maze_generate_prim_internal(
+            -5, 8, fixture.width, fixture.height, context, &maze)
+            == NAVSYS_STATUS_OK);
+        REQUIRE(maze != nullptr);
+        CHECK(context.steps() == edges);
+        CHECK(maze_hash(maze) == fixture.expected_hash);
+
+        const maze_topology_t topology = analyze_logical_topology(
+            maze, -5, 8,
+            static_cast<int>(fixture.width),
+            static_cast<int>(fixture.height));
+        CHECK(topology.node_count == vertices);
+        CHECK(topology.edge_count + 1 == topology.node_count);
+        CHECK(topology.queries_ok);
+        CHECK(topology.border_blocked);
+        CHECK(topology.logical_cells_open);
+        CHECK(topology.connected);
+        maze_destroy(maze);
+    }
+}
+
+TEST_CASE("Prim tiny rectangular corpus pops every unique frontier edge") {
+    for (uint32_t width = 3; width <= 11; width += 2) {
+        for (uint32_t height = 3; height <= 11; height += 2) {
+            const uint64_t columns = width / 2;
+            const uint64_t rows = height / 2;
+            const uint64_t vertices = columns * rows;
+            const uint64_t edges =
+                (columns - 1) * rows + (rows - 1) * columns;
+            for (uint64_t seed = 0; seed < 16; ++seed) {
+                CAPTURE(width);
+                CAPTURE(height);
+                CAPTURE(seed);
+                byul_maze_generation_context context(
+                    seed, UINT64_C(1000000), nullptr, nullptr);
+                maze_t* maze = nullptr;
+                REQUIRE(byul_maze_generate_prim_internal(
+                    13, -21, width, height, context, &maze)
+                    == NAVSYS_STATUS_OK);
+                REQUIRE(maze != nullptr);
+                CHECK(context.steps() == edges);
+
+                const maze_topology_t topology = analyze_logical_topology(
+                    maze, 13, -21,
+                    static_cast<int>(width),
+                    static_cast<int>(height));
+                CHECK(topology.node_count == vertices);
+                CHECK(topology.edge_count + 1 == topology.node_count);
+                CHECK(topology.queries_ok);
+                CHECK(topology.border_blocked);
+                CHECK(topology.logical_cells_open);
+                CHECK(topology.connected);
+                maze_destroy(maze);
+            }
+        }
+    }
+}
+
 TEST_CASE("internal generators replay and honor step limits") {
     const maze_generator_t generators[] = {
         byul_maze_generate_recursive_internal,
