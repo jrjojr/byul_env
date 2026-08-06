@@ -66,7 +66,7 @@ BYUL_API navsys_status_t byul_maze_generate_recursive_backtracker(
 - passage graph는 perfect maze이며 DFS 특유 long corridor는 characteristic이지 stable exact guarantee는 아니다.
 - seed/RNG state는 per-call, max cells/steps와 cancel은 loop에서 bounded poll한다.
 
-* TODO 1단계: nonzero-origin 오류 격리
+* DONE 1단계: nonzero-origin 오류 격리
 
 ** 실행
 
@@ -84,7 +84,7 @@ BYUL_API navsys_status_t byul_maze_generate_recursive_backtracker(
 - negative/nonzero/max origin, 1/2/even dimensions와 rectangular grid를 sanitizer로 실행한다.
 - CMake/export/test consumer 기준선을 비교한다.
 
-* TODO 2단계: iterative DFS와 checked workspace
+* DOING 2단계: iterative DFS와 checked workspace
 
 ** 실행
 

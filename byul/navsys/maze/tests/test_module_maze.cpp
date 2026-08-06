@@ -1062,6 +1062,97 @@ TEST_CASE("Kruskal large rectangular corpus completes before exhausting edges") 
     CHECK(considered_total < edges * UINT64_C(128));
 }
 
+TEST_CASE("Recursive backtracker rectangular seed-zero rasters are stable") {
+    struct fixture_t {
+        uint32_t width;
+        uint32_t height;
+        uint32_t expected_hash;
+    };
+    const fixture_t fixtures[] = {
+        {3, 9, UINT32_C(490189354)},
+        {9, 3, UINT32_C(54204446)},
+        {5, 9, UINT32_C(835966655)},
+        {9, 5, UINT32_C(117517689)},
+        {7, 11, UINT32_C(4277753164)},
+        {11, 7, UINT32_C(410517540)},
+        {9, 9, UINT32_C(303425655)}
+    };
+    for (const fixture_t& fixture : fixtures) {
+        CAPTURE(fixture.width);
+        CAPTURE(fixture.height);
+        const uint64_t vertices =
+            static_cast<uint64_t>(fixture.width / 2) * (fixture.height / 2);
+        byul_maze_generation_context context(
+            UINT64_C(0), UINT64_C(1000000), nullptr, nullptr);
+        maze_t* maze = nullptr;
+        REQUIRE(byul_maze_generate_recursive_internal(
+            -5, 8, fixture.width, fixture.height, context, &maze)
+            == NAVSYS_STATUS_OK);
+        REQUIRE(maze != nullptr);
+        CHECK(context.steps() == vertices);
+        CHECK(maze_hash(maze) == fixture.expected_hash);
+        const maze_topology_t topology = analyze_logical_topology(
+            maze, -5, 8,
+            static_cast<int>(fixture.width),
+            static_cast<int>(fixture.height));
+        CHECK(topology.node_count == vertices);
+        CHECK(topology.edge_count + 1 == topology.node_count);
+        CHECK(topology.queries_ok);
+        CHECK(topology.border_blocked);
+        CHECK(topology.logical_cells_open);
+        CHECK(topology.connected);
+        maze_destroy(maze);
+    }
+}
+
+TEST_CASE("Recursive backtracker is translation invariant for equal seeds") {
+    for (const uint64_t seed : {
+             UINT64_C(0), UINT64_C(1), UINT64_C(17), UINT64_MAX}) {
+        CAPTURE(seed);
+        byul_maze_generation_context origin_context(
+            seed, UINT64_C(1000), nullptr, nullptr);
+        byul_maze_generation_context translated_context(
+            seed, UINT64_C(1000), nullptr, nullptr);
+        maze_t* origin = nullptr;
+        maze_t* translated = nullptr;
+        REQUIRE(byul_maze_generate_recursive_internal(
+            0, 0, 9, 13, origin_context, &origin) == NAVSYS_STATUS_OK);
+        REQUIRE(byul_maze_generate_recursive_internal(
+            23, -41, 9, 13, translated_context, &translated)
+            == NAVSYS_STATUS_OK);
+        REQUIRE(origin != nullptr);
+        REQUIRE(translated != nullptr);
+        REQUIRE(byul_maze_translate(origin, 23, -41) == NAVSYS_STATUS_OK);
+        CHECK(maze_equal(origin, translated));
+        CHECK(maze_hash(origin) == maze_hash(translated));
+        CHECK(origin_context.steps() == translated_context.steps());
+        maze_destroy(translated);
+        maze_destroy(origin);
+    }
+}
+
+TEST_CASE("Recursive backtracker baseline depth is linear on a narrow maze") {
+    constexpr uint32_t width = 3;
+    constexpr uint32_t height = 4095;
+    constexpr uint64_t vertices = height / 2;
+    byul_maze_generation_context context(
+        UINT64_C(17), vertices, nullptr, nullptr);
+    maze_t* maze = nullptr;
+    REQUIRE(byul_maze_generate_recursive_internal(
+        -7, 11, width, height, context, &maze) == NAVSYS_STATUS_OK);
+    REQUIRE(maze != nullptr);
+    CHECK(context.steps() == vertices);
+    const maze_topology_t topology =
+        analyze_logical_topology(maze, -7, 11, width, height);
+    CHECK(topology.node_count == vertices);
+    CHECK(topology.edge_count + 1 == topology.node_count);
+    CHECK(topology.queries_ok);
+    CHECK(topology.border_blocked);
+    CHECK(topology.logical_cells_open);
+    CHECK(topology.connected);
+    maze_destroy(maze);
+}
+
 TEST_CASE("Prim rectangular frontier inventory and seed-zero rasters are stable") {
     struct fixture_t {
         uint32_t width;

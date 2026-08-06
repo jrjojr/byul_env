@@ -1,0 +1,49 @@
+{
+  "schema_version": 1,
+  "scope": "navsys-maze-recursive-backtracker-stage1",
+  "status": "complete",
+  "source_revision": "76e3cd2",
+  "algorithm_baseline": {
+    "classification": "randomized recursive depth-first backtracker",
+    "start": "fixed local logical cell (1,1)",
+    "selection": "shared PCG32 Fisher-Yates shuffle of four directions at every visited logical cell",
+    "step_unit": "one recursive call per newly visited logical cell",
+    "topology": "each newly visited cell opens exactly one parent passage, producing a perfect maze",
+    "native_stack": "recursive call depth can grow linearly with V and is not resource-bounded"
+  },
+  "goldens": {
+    "origin": [-5, 8],
+    "seed": 0,
+    "rasters": [
+      {"extent": [3, 9], "hash": 490189354},
+      {"extent": [9, 3], "hash": 54204446},
+      {"extent": [5, 9], "hash": 835966655},
+      {"extent": [9, 5], "hash": 117517689},
+      {"extent": [7, 11], "hash": 4277753164},
+      {"extent": [11, 7], "hash": 410517540},
+      {"extent": [9, 9], "hash": 303425655}
+    ]
+  },
+  "translation": {
+    "extent": [9, 13],
+    "origins": [[0, 0], [23, -41]],
+    "seeds": [0, 1, 17, 18446744073709551615],
+    "result": "equal local rasters after translating the zero-origin result"
+  },
+  "depth_fixture": {
+    "extent": [3, 4095],
+    "logical_vertices": 2047,
+    "observed_steps": 2047,
+    "risk": "one native recursive frame per logical vertex on a single-column maze"
+  },
+  "legacy_findings": {
+    "symbol": "maze_make_recursive",
+    "validation": "rejects dimensions below 3 but currently accepts even extents",
+    "canonical_export": null,
+    "wrapper_registration": false,
+    "root_export_count": 1210
+  },
+  "verification": {
+    "windows_msvc_release": "96/96 test cases, 835369/835369 assertions"
+  }
+}
