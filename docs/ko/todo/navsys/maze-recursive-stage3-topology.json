@@ -1,0 +1,29 @@
+{
+  "schema_version": 1,
+  "scope": "navsys-maze-recursive-backtracker-stage3",
+  "status": "complete",
+  "source_revision": "9e53e73",
+  "profile": {
+    "visited_cells": "exactly V on success",
+    "peak_frames": "positive and bounded above by V",
+    "native_call_depth": "constant with respect to V",
+    "storage": "O(width*height + V)"
+  },
+  "property_corpus": {
+    "extents": "every odd width and height from 3 through 11",
+    "seeds": "0 through 15",
+    "cases": 400,
+    "checks": "visited V, steps V, peak <= V, connected, acyclic, V-1 passages, blocked border, and open logical cells"
+  },
+  "extreme_corridors": {
+    "extents": [[3, 131071], [131071, 3]],
+    "logical_vertices": 65535,
+    "seed": 17,
+    "observed_peak_frames": 65535,
+    "result": "both orientations completed without native stack growth or overflow"
+  },
+  "verification": {
+    "windows_msvc_release": "101/101 test cases, 840265/840265 assertions",
+    "gcc13_sanitizers": "ASan/LSan/UBSan 101/101 test cases, 840265/840265 assertions"
+  }
+}

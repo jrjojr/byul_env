@@ -1313,6 +1313,75 @@ TEST_CASE("Recursive backtracker exact vertex budgets stay atomic") {
     }
 }
 
+TEST_CASE("Recursive backtracker profiled corpus visits every logical cell") {
+    for (uint32_t width = 3; width <= 11; width += 2) {
+        for (uint32_t height = 3; height <= 11; height += 2) {
+            const uint64_t vertices =
+                static_cast<uint64_t>(width / 2) * (height / 2);
+            for (uint64_t seed = 0; seed < 16; ++seed) {
+                CAPTURE(width);
+                CAPTURE(height);
+                CAPTURE(seed);
+                byul_maze_generation_context context(
+                    seed, vertices, nullptr, nullptr);
+                byul_maze_recursive_stats stats{};
+                maze_t* maze = nullptr;
+                REQUIRE(byul_maze_generate_recursive_profiled_internal(
+                    13, -21, width, height, context, &stats, &maze)
+                    == NAVSYS_STATUS_OK);
+                REQUIRE(maze != nullptr);
+                CHECK(context.steps() == vertices);
+                CHECK(stats.visited_cells == vertices);
+                CHECK(stats.peak_frames > 0);
+                CHECK(stats.peak_frames <= vertices);
+                const maze_topology_t topology = analyze_logical_topology(
+                    maze, 13, -21,
+                    static_cast<int>(width),
+                    static_cast<int>(height));
+                CHECK(topology.node_count == vertices);
+                CHECK(topology.edge_count + 1 == topology.node_count);
+                CHECK(topology.queries_ok);
+                CHECK(topology.border_blocked);
+                CHECK(topology.logical_cells_open);
+                CHECK(topology.connected);
+                maze_destroy(maze);
+            }
+        }
+    }
+}
+
+TEST_CASE("Recursive backtracker handles deep narrow and wide corridors iteratively") {
+    struct extent_t { uint32_t width; uint32_t height; };
+    for (const extent_t extent : {
+             extent_t{3, 131071}, extent_t{131071, 3}}) {
+        CAPTURE(extent.width);
+        CAPTURE(extent.height);
+        constexpr uint64_t vertices = UINT64_C(65535);
+        byul_maze_generation_context context(
+            UINT64_C(17), vertices, nullptr, nullptr);
+        byul_maze_recursive_stats stats{};
+        maze_t* maze = nullptr;
+        REQUIRE(byul_maze_generate_recursive_profiled_internal(
+            -17, 29, extent.width, extent.height,
+            context, &stats, &maze) == NAVSYS_STATUS_OK);
+        REQUIRE(maze != nullptr);
+        CHECK(context.steps() == vertices);
+        CHECK(stats.visited_cells == vertices);
+        CHECK(stats.peak_frames == vertices);
+        const maze_topology_t topology = analyze_logical_topology(
+            maze, -17, 29,
+            static_cast<int>(extent.width),
+            static_cast<int>(extent.height));
+        CHECK(topology.node_count == vertices);
+        CHECK(topology.edge_count + 1 == topology.node_count);
+        CHECK(topology.queries_ok);
+        CHECK(topology.border_blocked);
+        CHECK(topology.logical_cells_open);
+        CHECK(topology.connected);
+        maze_destroy(maze);
+    }
+}
+
 TEST_CASE("Prim rectangular frontier inventory and seed-zero rasters are stable") {
     struct fixture_t {
         uint32_t width;

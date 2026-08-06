@@ -53,15 +53,17 @@ bool has_representable_bound(int32_t origin, uint32_t length) {
 
 } // namespace
 
-navsys_status_t byul_maze_generate_recursive_internal(
+navsys_status_t byul_maze_generate_recursive_profiled_internal(
     int32_t origin_x,
     int32_t origin_y,
     uint32_t width,
     uint32_t height,
     byul_maze_generation_context& context,
+    byul_maze_recursive_stats* stats,
     maze_t** out_maze) noexcept {
     if (!out_maze) return NAVSYS_STATUS_INVALID_ARGUMENT;
     *out_maze = nullptr;
+    if (stats) *stats = {};
     if (width < 3 || height < 3
         || (width & UINT32_C(1)) == 0
         || (height & UINT32_C(1)) == 0) {
@@ -114,6 +116,10 @@ navsys_status_t byul_maze_generate_recursive_internal(
             maze, origin_x + 1, origin_y + 1, false, &changed);
         if (status == NAVSYS_STATUS_OK) {
             status = push_frame(1, 1, w, visited, frames, context);
+            if (status == NAVSYS_STATUS_OK && stats) {
+                stats->visited_cells = 1;
+                stats->peak_frames = 1;
+            }
         }
         static constexpr int delta_x[4] = {0, 0, -1, 1};
         static constexpr int delta_y[4] = {-1, 1, 0, 0};
@@ -146,6 +152,12 @@ navsys_status_t byul_maze_generate_recursive_internal(
             if (status == NAVSYS_STATUS_OK) {
                 status = push_frame(
                     next_x, next_y, w, visited, frames, context);
+                if (status == NAVSYS_STATUS_OK && stats) {
+                    ++stats->visited_cells;
+                    if (frames.size() > stats->peak_frames) {
+                        stats->peak_frames = frames.size();
+                    }
+                }
             }
         }
         if (status != NAVSYS_STATUS_OK) {
@@ -162,6 +174,17 @@ navsys_status_t byul_maze_generate_recursive_internal(
 
     *out_maze = maze;
     return NAVSYS_STATUS_OK;
+}
+
+navsys_status_t byul_maze_generate_recursive_internal(
+    int32_t origin_x,
+    int32_t origin_y,
+    uint32_t width,
+    uint32_t height,
+    byul_maze_generation_context& context,
+    maze_t** out_maze) noexcept {
+    return byul_maze_generate_recursive_profiled_internal(
+        origin_x, origin_y, width, height, context, nullptr, out_maze);
 }
 
 navsys_status_t byul_maze_generate_recursive_backtracker(
