@@ -3133,6 +3133,83 @@ TEST_CASE("Room Blend replays at its minimum extent and honors step limits") {
     CHECK(output == nullptr);
     CHECK(limited_context.steps() == 1);
 }
+
+TEST_CASE("Room Blend Stage 1 legacy policy has stable rectangular goldens") {
+    struct golden_case_t {
+        uint32_t width;
+        uint32_t height;
+        uint32_t expected_hash;
+        uint64_t expected_steps;
+        size_t expected_edges;
+    };
+    const golden_case_t fixtures[] = {
+        {9, 9, UINT32_C(453713525), UINT64_C(70), 21},
+        {9, 11, UINT32_C(755833823), UINT64_C(80), 25},
+        {11, 9, UINT32_C(313654483), UINT64_C(80), 25},
+        {13, 17, UINT32_C(4290241006), UINT64_C(151), 60},
+        {17, 13, UINT32_C(509057616), UINT64_C(162), 65}
+    };
+
+    for (const golden_case_t& fixture : fixtures) {
+        CAPTURE(fixture.width);
+        CAPTURE(fixture.height);
+        byul_maze_generation_context context(0, UINT64_C(1000000), nullptr, nullptr);
+        maze_t* maze = nullptr;
+        REQUIRE(byul_maze_generate_room_blend_internal(
+            -5, 8, fixture.width, fixture.height, context, &maze)
+            == NAVSYS_STATUS_OK);
+        REQUIRE(maze != nullptr);
+        CHECK(maze_hash(maze) == fixture.expected_hash);
+        CHECK(context.steps() == fixture.expected_steps);
+        const maze_topology_t topology = analyze_logical_topology(
+            maze, -5, 8, static_cast<int>(fixture.width),
+            static_cast<int>(fixture.height));
+        CHECK(topology.queries_ok);
+        CHECK(topology.border_blocked);
+        CHECK(topology.logical_cells_open);
+        CHECK(topology.connected);
+        CHECK(topology.edge_count == fixture.expected_edges);
+        maze_destroy(maze);
+    }
+}
+
+TEST_CASE("Room Blend Stage 1 raster is translation invariant") {
+    const uint64_t seeds[] = {
+        UINT64_C(0), UINT64_C(1), UINT64_C(17),
+        UINT64_C(0xffffffffffffffff)
+    };
+    for (const uint64_t seed : seeds) {
+        CAPTURE(seed);
+        byul_maze_generation_context origin_context(
+            seed, UINT64_C(1000000), nullptr, nullptr);
+        byul_maze_generation_context translated_context(
+            seed, UINT64_C(1000000), nullptr, nullptr);
+        maze_t* origin = nullptr;
+        maze_t* translated = nullptr;
+        REQUIRE(byul_maze_generate_room_blend_internal(
+            0, 0, 13, 17, origin_context, &origin) == NAVSYS_STATUS_OK);
+        REQUIRE(byul_maze_generate_room_blend_internal(
+            23, -41, 13, 17, translated_context, &translated)
+            == NAVSYS_STATUS_OK);
+        REQUIRE(origin != nullptr);
+        REQUIRE(translated != nullptr);
+        for (int y = 0; y < 17; ++y) {
+            for (int x = 0; x < 13; ++x) {
+                bool origin_blocked = false;
+                bool translated_blocked = false;
+                REQUIRE(byul_maze_is_blocked(
+                    origin, x, y, &origin_blocked) == NAVSYS_STATUS_OK);
+                REQUIRE(byul_maze_is_blocked(
+                    translated, 23 + x, -41 + y, &translated_blocked)
+                    == NAVSYS_STATUS_OK);
+                CHECK(origin_blocked == translated_blocked);
+            }
+        }
+        CHECK(origin_context.steps() == translated_context.steps());
+        maze_destroy(translated);
+        maze_destroy(origin);
+    }
+}
 #endif
 
 TEST_CASE("maze ABI gate accepts canonical and compatibility fingerprints") {

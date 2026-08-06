@@ -1,0 +1,51 @@
+{
+  "schema_version": 1,
+  "scope": "navsys-maze-room-blend-stage1",
+  "status": "complete",
+  "source_revision": "8408220",
+  "algorithm_baseline": {
+    "classification": "room placement followed by placement-order L corridors and depth-first maze fill",
+    "room_attempts": 30,
+    "room_extent": "odd width and height selected from [3,7], clipped by the maze interior",
+    "room_position": "odd local coordinates with a one-cell outer boundary",
+    "overlap": "strict rectangle intersection; touching edges are accepted",
+    "corridors": "consecutive accepted room centers joined by an RNG-selected horizontal-first or vertical-first L bend",
+    "fill": "iterative depth-first carving starts at local (1,1) and preserves previously opened room/corridor cells",
+    "step_unit": "one room attempt, DFS loop iteration, or corridor raster cell",
+    "materialization_poll": "one cancellation poll per blocked output cell"
+  },
+  "goldens": {
+    "origin": [-5, 8],
+    "seed": 0,
+    "rasters": [
+      {"extent": [9, 9], "hash": 453713525, "steps": 70, "logical_edges": 21},
+      {"extent": [9, 11], "hash": 755833823, "steps": 80, "logical_edges": 25},
+      {"extent": [11, 9], "hash": 313654483, "steps": 80, "logical_edges": 25},
+      {"extent": [13, 17], "hash": 4290241006, "steps": 151, "logical_edges": 60},
+      {"extent": [17, 13], "hash": 509057616, "steps": 162, "logical_edges": 65}
+    ]
+  },
+  "translation": {
+    "extent": [13, 17],
+    "origins": [[0, 0], [23, -41]],
+    "seeds": [0, 1, 17, 18446744073709551615],
+    "result": "equal local blocked rasters and equal consumed steps after translating every queried cell",
+    "hash_note": "maze_hash includes origin metadata and therefore is not translation invariant"
+  },
+  "topology": {
+    "outer_border": "blocked for all golden fixtures",
+    "logical_cells": "all odd/odd logical cells are open",
+    "connectivity": "all logical cells are mutually reachable",
+    "cycles": "room interiors add edges; the result is connected but not a perfect maze"
+  },
+  "public_surface": {
+    "legacy_symbol": "maze_make_room_blend",
+    "canonical_export": null,
+    "room_t": "declared only by maze_room_blend.h; no repository consumer found",
+    "wrapper_registration": false,
+    "root_export_count": 1211
+  },
+  "verification": {
+    "windows_msvc_release": "103/103 test cases, 842982/842982 assertions"
+  }
+}

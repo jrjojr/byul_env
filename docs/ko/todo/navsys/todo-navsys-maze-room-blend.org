@@ -95,7 +95,7 @@ BYUL_API navsys_status_t byul_maze_generate_room_blend(
   추가한다. 결과 connectivity/cycle/room reachability claim을 명확히 한다.
 - cancel은 placement attempt, corridor cell, DFS step, materialization마다 bounded poll한다.
 
-* TODO 1단계: crash·dead ABI·topology 기준선
+* DONE 1단계: crash·dead ABI·topology 기준선
 
 ** 실행
 
@@ -114,7 +114,7 @@ BYUL_API navsys_status_t byul_maze_generate_room_blend(
 - size 9..20, even/odd/rectangular dimensions와 all room-size RNG branches를 sanitizer로 실행한다.
 - header/install/export/wrapper consumer inventory를 비교한다.
 
-* TODO 2단계: versioned options와 deterministic placement
+* DOING 2단계: versioned options와 deterministic placement
 
 ** 실행
 
