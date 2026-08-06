@@ -9,6 +9,7 @@
 #include "maze_binary.h"
 #include "maze_eller.h"
 #include "maze_hunt_and_kill.h"
+#include "maze_recursive_division.h"
 #include "maze_sidewinder.h"
 
 #include <cstddef>
@@ -2002,6 +2003,77 @@ bool verify_maze_sidewinder_generation_allocation_failure_atomic() {
     return tracked_live_allocations == baseline;
 }
 
+bool verify_maze_recursive_division_generation_allocation_failure_atomic() {
+    const std::size_t baseline = tracked_live_allocations;
+    const byul_maze_generate_options_t options{
+        sizeof(byul_maze_generate_options_t),
+        BYUL_MAZE_GENERATE_OPTIONS_ABI_VERSION,
+        UINT64_C(17),
+        UINT64_C(10000),
+        UINT64_C(81),
+        nullptr,
+        nullptr
+    };
+    bool reproduced_failure = false;
+    bool completed = false;
+
+    for (std::ptrdiff_t index = 0; index < 128; ++index) {
+        maze_t* output = reinterpret_cast<maze_t*>(uintptr_t{1});
+        track_allocations = true;
+        fail_after = index;
+        const navsys_status_t status = byul_maze_generate_recursive_division(
+            -4, 6, 9, 9, &options, &output);
+        fail_after = -1;
+        track_allocations = false;
+
+        if (status == NAVSYS_STATUS_OUT_OF_MEMORY) {
+            reproduced_failure = true;
+            if (output != nullptr) {
+                std::fprintf(
+                    stderr,
+                    "maze Recursive Division published output at failed allocation %td\n",
+                    index);
+                maze_destroy(output);
+                return false;
+            }
+        } else if (status == NAVSYS_STATUS_OK) {
+            if (!output) {
+                std::fprintf(
+                    stderr, "maze Recursive Division succeeded without output\n");
+                return false;
+            }
+            maze_destroy(output);
+            completed = true;
+        } else {
+            std::fprintf(
+                stderr,
+                "maze Recursive Division returned unexpected allocation status %d at %td\n",
+                static_cast<int>(status),
+                index);
+            maze_destroy(output);
+            return false;
+        }
+        if (tracked_live_allocations != baseline) {
+            std::fprintf(
+                stderr,
+                "maze Recursive Division leaked at failed allocation %td "
+                "(live=%zu, baseline=%zu)\n",
+                index,
+                tracked_live_allocations,
+                baseline);
+            return false;
+        }
+        if (reproduced_failure && completed) break;
+    }
+    if (!reproduced_failure || !completed) {
+        std::fprintf(
+            stderr,
+            "maze Recursive Division allocation sweep did not cover failure and success\n");
+        return false;
+    }
+    return tracked_live_allocations == baseline;
+}
+
 bool verify_maze_translate_allocation_failure_atomic() {
     const std::size_t baseline = tracked_live_allocations;
     maze_t* maze = maze_create_full(-5, 7, 9, 11);
@@ -2346,6 +2418,9 @@ int main(int argc, char** argv) {
     }
     if (!verify_maze_sidewinder_generation_allocation_failure_atomic()) {
         return 34;
+    }
+    if (!verify_maze_recursive_division_generation_allocation_failure_atomic()) {
+        return 35;
     }
     if (!verify_maze_translate_allocation_failure_atomic()) {
         return 28;

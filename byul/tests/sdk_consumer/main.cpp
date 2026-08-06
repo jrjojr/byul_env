@@ -10,6 +10,7 @@
 #include "maze_core.h"
 #include "maze_eller.h"
 #include "maze_hunt_and_kill.h"
+#include "maze_recursive_division.h"
 #include "maze_sidewinder.h"
 #include "navcell.h"
 #include "navgrid.h"
@@ -540,6 +541,23 @@ int main() {
     assert(sidewinder != nullptr);
     assert(maze_hash(sidewinder) == UINT32_C(455990389));
     maze_destroy(sidewinder);
+
+    const byul_maze_generate_options_t recursive_division_options{
+        sizeof(byul_maze_generate_options_t),
+        BYUL_MAZE_GENERATE_OPTIONS_ABI_VERSION,
+        UINT64_C(0),
+        UINT64_C(64),
+        UINT64_C(81),
+        nullptr,
+        nullptr
+    };
+    maze_t* recursive_division = nullptr;
+    assert(byul_maze_generate_recursive_division(
+        -5, 8, 9, 9, &recursive_division_options, &recursive_division)
+        == NAVSYS_STATUS_OK);
+    assert(recursive_division != nullptr);
+    assert(maze_hash(recursive_division) == UINT32_C(669558005));
+    maze_destroy(recursive_division);
 
     navgrid_t* legacy_carver_grid = navgrid_create_full(
         3, 3, NAVGRID_DIR_8, nullptr);

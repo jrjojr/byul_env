@@ -86,7 +86,7 @@ BYUL_API navsys_status_t byul_maze_generate_recursive_division(
 - reference hand grids와 component/cycle oracle를 비교한다.
 - invalid/even/overflow dimensions를 sanitizer로 실행한다.
 
-* DOING 2단계: checked region stack와 seeded API
+* DONE 2단계: checked region stack와 seeded API
 
 ** 실행
 
@@ -104,7 +104,7 @@ BYUL_API navsys_status_t byul_maze_generate_recursive_division(
 - stub RNG로 horizontal/vertical/tie/gap edge cases를 강제한다.
 - allocator fault, cancel at split/materialize와 seed replay를 검사한다.
 
-* TODO 3단계: 위상·termination gate
+* DOING 3단계: 위상·termination gate
 
 ** 실행
 

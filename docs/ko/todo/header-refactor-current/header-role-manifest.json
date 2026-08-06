@@ -3843,7 +3843,7 @@
     {
       "asset_id": "initial:byul/navsys/maze/maze_recursive_division.h",
       "current_path": "byul/navsys/maze/maze_recursive_division.h",
-      "sha256": "9557c39dab75af25e492fa3cd7681060049664061b5d217aad52e6d038a1d03c",
+      "sha256": "3c2860ac91df1f348755e95f6e1f8d73d203f3366b88bfb602cef937ac0e8ded",
       "primary_role": "public-component",
       "role_reason": "Handwritten public maze algorithm component; generator wording is not file provenance.",
       "owner_module": "navsys",
@@ -3851,8 +3851,8 @@
       "approved_install": true,
       "install_reason": "Public or compatibility SDK surface.",
       "wrapper": {
-        "mode": "manual",
-        "reason": "Public legacy declarations require explicit ownership/error metadata before automatic generation."
+        "mode": "generated",
+        "reason": "Registered in the canonical wrapper generator manifest."
       },
       "naming": {
         "disposition": "keep",

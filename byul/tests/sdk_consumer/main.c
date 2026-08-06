@@ -14,6 +14,7 @@
 #include "maze_core.h"
 #include "maze_eller.h"
 #include "maze_hunt_and_kill.h"
+#include "maze_recursive_division.h"
 #include "maze_sidewinder.h"
 #include "navcell.h"
 #include "navsys_status.h"
@@ -1187,6 +1188,29 @@ int main(void) {
             return 8;
         }
         maze_destroy(sidewinder);
+    }
+
+    {
+        const byul_maze_generate_options_t options = {
+            sizeof(byul_maze_generate_options_t),
+            BYUL_MAZE_GENERATE_OPTIONS_ABI_VERSION,
+            UINT64_C(0),
+            UINT64_C(64),
+            UINT64_C(81),
+            NULL,
+            NULL
+        };
+        maze_t* recursive_division = NULL;
+        if (byul_maze_generate_recursive_division(
+                -5, 8, 9, 9, &options, &recursive_division)
+                != NAVSYS_STATUS_OK
+            || recursive_division == NULL
+            || maze_hash(recursive_division) != UINT32_C(669558005)) {
+            fprintf(stderr, "unexpected checked Recursive Division SDK ABI\n");
+            maze_destroy(recursive_division);
+            return 8;
+        }
+        maze_destroy(recursive_division);
     }
 
     navgrid_t* legacy_carver_grid = navgrid_create_full(
