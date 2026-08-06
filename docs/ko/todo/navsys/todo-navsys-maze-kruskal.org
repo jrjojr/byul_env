@@ -64,7 +64,7 @@ BYUL_API navsys_status_t byul_maze_generate_randomized_kruskal(
 - accepted edge가 =V-1=이면 종료하고 component count와 considered/accepted stats를 기록한다.
 - seed/RNG/version, cancellation/edge-consideration limit과 output strong guarantee를 제공한다.
 
-* TODO 1단계: graph·DSU 기준선
+* DONE 1단계: graph·DSU 기준선
 
 ** 실행
 
@@ -82,7 +82,7 @@ BYUL_API navsys_status_t byul_maze_generate_randomized_kruskal(
 - 1xN/Nx1 logical grid, 3x3 logical grid의 exhaustive edge order를 검사한다.
 - UBSan으로 parent index/size overflow를 검사한다.
 
-* TODO 2단계: checked DSU와 seeded API
+* DOING 2단계: checked DSU와 seeded API
 
 ** 실행
 

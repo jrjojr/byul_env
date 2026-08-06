@@ -1,4 +1,6 @@
 #include "doctest.h"
+#include <algorithm>
+#include <array>
 #include <locale.h>
 #include <iostream>
 #include <limits>
@@ -645,6 +647,119 @@ TEST_CASE("maze generation context fixes PCG32 replay and Kruskal limits") {
         0, 0, 7, 7, callback_failure_context, &output)
         == NAVSYS_STATUS_CALLBACK_FAILED);
     CHECK(output == nullptr);
+}
+
+TEST_CASE("Kruskal graph inventory and corrected seed-zero rasters are stable") {
+    struct fixture_t {
+        uint32_t width;
+        uint32_t height;
+        uint32_t hash;
+    };
+    const fixture_t fixtures[] = {
+        {3, 9, UINT32_C(490189354)},
+        {9, 3, UINT32_C(54204446)},
+        {5, 5, UINT32_C(778966597)},
+        {7, 9, UINT32_C(662756626)},
+        {9, 7, UINT32_C(4294952108)},
+        {9, 9, UINT32_C(73237245)}
+    };
+    for (const fixture_t& fixture : fixtures) {
+        CAPTURE(fixture.width);
+        CAPTURE(fixture.height);
+        const uint64_t columns = fixture.width / 2;
+        const uint64_t rows = fixture.height / 2;
+        const uint64_t vertices = columns * rows;
+        const uint64_t edges = (columns - 1) * rows + (rows - 1) * columns;
+        byul_maze_generation_context context(
+            UINT64_C(0), UINT64_C(1000000), nullptr, nullptr);
+        maze_t* maze = nullptr;
+        REQUIRE(byul_maze_generate_kruskal_internal(
+            -5, 8, fixture.width, fixture.height, context, &maze)
+            == NAVSYS_STATUS_OK);
+        REQUIRE(maze != nullptr);
+        CHECK(context.steps() == edges);
+        CHECK(maze_hash(maze) == fixture.hash);
+        const maze_topology_t topology = analyze_logical_topology(
+            maze, -5, 8,
+            static_cast<int>(fixture.width),
+            static_cast<int>(fixture.height));
+        CHECK(topology.node_count == vertices);
+        CHECK(topology.edge_count + 1 == topology.node_count);
+        CHECK(topology.queries_ok);
+        CHECK(topology.border_blocked);
+        CHECK(topology.logical_cells_open);
+        CHECK(topology.connected);
+        maze_destroy(maze);
+    }
+}
+
+TEST_CASE("Kruskal tiny rectangular graph corpus considers every unique edge") {
+    for (uint32_t width = 3; width <= 11; width += 2) {
+        for (uint32_t height = 3; height <= 11; height += 2) {
+            const uint64_t columns = width / 2;
+            const uint64_t rows = height / 2;
+            const uint64_t vertices = columns * rows;
+            const uint64_t edges =
+                (columns - 1) * rows + (rows - 1) * columns;
+            for (uint64_t seed = 0; seed < 16; ++seed) {
+                CAPTURE(width);
+                CAPTURE(height);
+                CAPTURE(seed);
+                byul_maze_generation_context context(
+                    seed, UINT64_C(1000000), nullptr, nullptr);
+                maze_t* maze = nullptr;
+                REQUIRE(byul_maze_generate_kruskal_internal(
+                    13, -21, width, height, context, &maze)
+                    == NAVSYS_STATUS_OK);
+                REQUIRE(maze != nullptr);
+                CHECK(context.steps() == edges);
+                const maze_topology_t topology = analyze_logical_topology(
+                    maze, 13, -21,
+                    static_cast<int>(width),
+                    static_cast<int>(height));
+                CHECK(topology.node_count == vertices);
+                CHECK(topology.edge_count + 1 == topology.node_count);
+                CHECK(topology.queries_ok);
+                CHECK(topology.border_blocked);
+                CHECK(topology.logical_cells_open);
+                CHECK(topology.connected);
+                maze_destroy(maze);
+            }
+        }
+    }
+}
+
+TEST_CASE("Kruskal two-by-two logical graph accepts a tree for every edge order") {
+    constexpr std::array<std::array<int, 2>, 4> edges{{
+        {{0, 1}}, {{0, 2}}, {{1, 3}}, {{2, 3}}
+    }};
+    std::array<int, 4> order{{0, 1, 2, 3}};
+    size_t permutations = 0;
+    do {
+        std::array<int, 4> parent{{0, 1, 2, 3}};
+        const auto find_root = [&parent](int vertex) {
+            while (parent[vertex] != vertex) {
+                parent[vertex] = parent[parent[vertex]];
+                vertex = parent[vertex];
+            }
+            return vertex;
+        };
+        size_t accepted = 0;
+        for (const int edge_index : order) {
+            const int first = find_root(edges[edge_index][0]);
+            const int second = find_root(edges[edge_index][1]);
+            if (first == second) continue;
+            parent[second] = first;
+            ++accepted;
+        }
+        CHECK(accepted == 3);
+        const int root = find_root(0);
+        CHECK(find_root(1) == root);
+        CHECK(find_root(2) == root);
+        CHECK(find_root(3) == root);
+        ++permutations;
+    } while (std::next_permutation(order.begin(), order.end()));
+    CHECK(permutations == 24);
 }
 
 TEST_CASE("internal generators replay and honor step limits") {

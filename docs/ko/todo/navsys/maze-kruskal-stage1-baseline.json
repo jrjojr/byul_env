@@ -1,0 +1,46 @@
+{
+  "schema_version": 1,
+  "scope": "navsys-maze-kruskal-stage1",
+  "status": "complete",
+  "source_revision": "be9c785",
+  "graph_contract": {
+    "logical_columns": "C=(width-1)/2",
+    "logical_rows": "R=(height-1)/2",
+    "vertices": "V=C*R",
+    "edges": "E=(C-1)*R+(R-1)*C",
+    "edge_inventory": "one east and one south adjacency per logical vertex when that neighbor exists; no duplicates or omissions",
+    "accepted_edges": "exactly V-1 passages on success",
+    "topology": "all logical cells open, connected, acyclic, and enclosed by a blocked raster border"
+  },
+  "current_implementation": {
+    "randomization": "Fisher-Yates shuffle of the entire edge vector through the shared PCG32 context",
+    "dsu": "two-dimensional raster-sized parent storage, recursive path-compressed find, unranked union",
+    "termination": "considers all E shuffled edges even after the spanning tree has V-1 accepted edges",
+    "step_unit": "one considered edge",
+    "classification": "randomized Kruskal spanning tree; no minimum-weight or uniform-spanning-tree guarantee"
+  },
+  "goldens": {
+    "origin": [-5, 8],
+    "seed": 0,
+    "hashes": {
+      "3x9": 490189354,
+      "9x3": 54204446,
+      "5x5": 778966597,
+      "7x9": 662756626,
+      "9x7": 4294952108,
+      "9x9": 73237245
+    }
+  },
+  "verification": {
+    "tiny_rectangular_corpus": "all odd width/height pairs from 3 through 11, seeds 0..15, 400 cases",
+    "edge_order_exhaustion": "all 24 permutations of the 2x2 logical graph's four edges accepted exactly three edges and connected all four vertices",
+    "windows_msvc_release": "81/81 test cases, 169269/169269 assertions"
+  },
+  "distribution_baseline": {
+    "installed_header": "include/byul/maze_kruskal.h",
+    "root_export": "maze_make_kruskal",
+    "canonical_export": null,
+    "wrapper_registration": false,
+    "header_role": "public-component with manual wrapper mode"
+  }
+}
