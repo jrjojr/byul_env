@@ -1,0 +1,35 @@
+{
+  "schema_version": 1,
+  "scope": "navsys-maze-recursive-division-closure",
+  "status": "complete",
+  "stage_revisions": {
+    "stage1_baseline": "fd72a1f",
+    "stage2_checked_api": "f50efd9",
+    "stage3_topology_gate": "a2a2f6f"
+  },
+  "release_note": {
+    "behavior": "Recursive Division uses the corrected open-area single-gap model and is now documented and gated as a deterministic perfect Maze generator.",
+    "api": "byul_maze_generate_recursive_division adds replayable seed, cancellation, max_steps, max_cells, status, and failure-atomic output controls.",
+    "compatibility": "maze_make_recursive_division remains exported as a deprecated ABI 1.x forwarder. Equal checked seeds preserve the corrected pre-API raster order."
+  },
+  "distribution": {
+    "root_shared_exports": 1208,
+    "required_symbols": [
+      "byul_maze_generate_recursive_division",
+      "maze_make_recursive_division"
+    ],
+    "clean_install_headers": 92,
+    "installed_header": "include/byul/maze_recursive_division.h",
+    "navsys_inventory": "58 headers, 653 symbols",
+    "wrapper_entry": "c_maze.generate_recursive_division"
+  },
+  "final_verification": {
+    "windows_msvc_release": "78/78 Maze cases, 165512/165512 assertions; allocation-failure executable exit 0",
+    "linux_gcc_debug_asan_lsan": "78/78 Maze cases, 165512/165512 assertions; exit 0; no sanitizer report",
+    "clean_sdk": "standalone C17/C++17 header probes and executable consumers passed",
+    "wrapper_scope": "14/14 generator, Maze ABI policy, and wrapper coverage tests passed",
+    "repository_wrapper_suite_note": "A wider run passed 199 tests and retained one unrelated pre-existing navcell source-regex policy failure.",
+    "header_audit": "150 headers, 95 public C headers, 1169 declarations, 0 invariant errors",
+    "rules": "60 Org rule files, 0 errors, 0 warnings"
+  }
+}

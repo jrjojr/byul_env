@@ -196,11 +196,11 @@
       "dimensions": {"min_width": 3, "min_height": 3, "parity": "odd"},
       "legacy_validation": "odd extents at least 3",
       "topology": {"connected": true, "acyclic": true, "perfect": true, "uniform_spanning_tree": false, "border_blocked": true},
-      "characteristic": "recursive region splits; topology claim intentionally unresolved",
+      "characteristic": "open-area recursive single-gap region splits producing a perfect spanning tree",
       "budget_unit": "region split",
       "default_step_multiplier": 4,
       "advertisable_supported": true,
-      "support_gate": "Recursive Division proof and exhaustive topology gate"
+      "support_gate": "satisfied by maze-recursive-division-stage3-contract.json"
     },
     {
       "enum": "MAZE_TYPE_KRUSKAL",

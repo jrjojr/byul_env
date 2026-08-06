@@ -121,7 +121,7 @@ BYUL_API navsys_status_t byul_maze_generate_recursive_division(
 
 - exhaustive tiny/property corpus, ASan/LSan과 worst-case benchmark를 실행한다.
 
-* DOING 4단계: Header·SDK gate
+* DONE 4단계: Header·SDK gate
 
 ** 실행
 
