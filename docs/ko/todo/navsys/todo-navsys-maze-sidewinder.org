@@ -92,7 +92,7 @@ BYUL_API navsys_status_t byul_maze_generate_sidewinder(
 - first row가 하나의 component가 아니면 test가 반드시 실패하는지 mutation test한다.
 - 네 sweep rotation/reflection metamorphic oracle를 설계한다.
 
-* DOING 2단계: canonical run과 seeded API
+* DONE 2단계: canonical run과 seeded API
 
 ** 실행
 
@@ -110,7 +110,7 @@ BYUL_API navsys_status_t byul_maze_generate_sidewinder(
 - forced all-open/all-close/boundary run traces와 allocation/cancel fault를 검사한다.
 - seed replay 및 legacy corrected result를 검사한다.
 
-* TODO 3단계: topology·bias gate
+* DOING 3단계: topology·bias gate
 
 ** 실행
 

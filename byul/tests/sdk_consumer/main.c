@@ -14,6 +14,7 @@
 #include "maze_core.h"
 #include "maze_eller.h"
 #include "maze_hunt_and_kill.h"
+#include "maze_sidewinder.h"
 #include "navcell.h"
 #include "navsys_status.h"
 
@@ -1158,6 +1159,34 @@ int main(void) {
             return 8;
         }
         maze_destroy(hunt_and_kill);
+    }
+
+    {
+        const byul_maze_generate_options_t options = {
+            sizeof(byul_maze_generate_options_t),
+            BYUL_MAZE_GENERATE_OPTIONS_ABI_VERSION,
+            UINT64_C(0),
+            UINT64_C(64),
+            UINT64_C(81),
+            NULL,
+            NULL
+        };
+        bool supported = false;
+        maze_t* sidewinder = NULL;
+        if (byul_maze_sidewinder_sweep_is_supported(
+                BYUL_MAZE_SIDEWINDER_WEST_SOUTH, &supported)
+                != NAVSYS_STATUS_OK
+            || !supported
+            || byul_maze_generate_sidewinder(
+                -5, 8, 9, 9, BYUL_MAZE_SIDEWINDER_WEST_SOUTH,
+                &options, &sidewinder) != NAVSYS_STATUS_OK
+            || sidewinder == NULL
+            || maze_hash(sidewinder) != UINT32_C(455990389)) {
+            fprintf(stderr, "unexpected checked Sidewinder SDK ABI\n");
+            maze_destroy(sidewinder);
+            return 8;
+        }
+        maze_destroy(sidewinder);
     }
 
     navgrid_t* legacy_carver_grid = navgrid_create_full(

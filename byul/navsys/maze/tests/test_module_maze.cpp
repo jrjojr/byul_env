@@ -1228,6 +1228,237 @@ TEST_CASE("Sidewinder handles one-dimensional logical grids") {
     }
 }
 
+TEST_CASE("Sidewinder checked API exposes four reflection-related sweeps") {
+    static_assert(BYUL_MAZE_SIDEWINDER_EAST_NORTH == 0);
+    static_assert(BYUL_MAZE_SIDEWINDER_EAST_SOUTH == 1);
+    static_assert(BYUL_MAZE_SIDEWINDER_WEST_NORTH == 2);
+    static_assert(BYUL_MAZE_SIDEWINDER_WEST_SOUTH == 3);
+    static_assert(sizeof(byul_maze_sidewinder_sweep_t) == 4);
+
+    struct fixture_t {
+        byul_maze_sidewinder_sweep_t sweep;
+        uint32_t expected_hash;
+    };
+    const fixture_t fixtures[] = {
+        {BYUL_MAZE_SIDEWINDER_EAST_NORTH, UINT32_C(915955447)},
+        {BYUL_MAZE_SIDEWINDER_EAST_SOUTH, UINT32_C(907534649)},
+        {BYUL_MAZE_SIDEWINDER_WEST_NORTH, UINT32_C(464412339)},
+        {BYUL_MAZE_SIDEWINDER_WEST_SOUTH, UINT32_C(455990389)}
+    };
+    const byul_maze_generate_options_t options{
+        sizeof(byul_maze_generate_options_t),
+        BYUL_MAZE_GENERATE_OPTIONS_ABI_VERSION,
+        UINT64_C(0),
+        UINT64_C(1000000),
+        UINT64_C(81),
+        nullptr,
+        nullptr
+    };
+
+    maze_t* mazes[4] = {nullptr, nullptr, nullptr, nullptr};
+    for (size_t index = 0; index < 4; ++index) {
+        CAPTURE(index);
+        bool supported = false;
+        REQUIRE(byul_maze_sidewinder_sweep_is_supported(
+            fixtures[index].sweep, &supported) == NAVSYS_STATUS_OK);
+        CHECK(supported);
+        REQUIRE(byul_maze_generate_sidewinder(
+            -5, 8, 9, 9, fixtures[index].sweep, &options, &mazes[index])
+            == NAVSYS_STATUS_OK);
+        REQUIRE(mazes[index] != nullptr);
+        CHECK(maze_hash(mazes[index]) == fixtures[index].expected_hash);
+
+        const maze_topology_t topology =
+            analyze_logical_topology(mazes[index], -5, 8, 9, 9);
+        CHECK(topology.queries_ok);
+        CHECK(topology.border_blocked);
+        CHECK(topology.logical_cells_open);
+        CHECK(topology.connected);
+        CHECK(topology.edge_count + 1 == topology.node_count);
+    }
+
+    for (int y = 0; y < 9; ++y) {
+        for (int x = 0; x < 9; ++x) {
+            bool east_north = true;
+            bool east_south = true;
+            bool west_north = true;
+            bool west_south = true;
+            REQUIRE(byul_maze_is_blocked(
+                mazes[0], -5 + x, 8 + y, &east_north) == NAVSYS_STATUS_OK);
+            REQUIRE(byul_maze_is_blocked(
+                mazes[1], -5 + x, 8 + (8 - y), &east_south)
+                == NAVSYS_STATUS_OK);
+            REQUIRE(byul_maze_is_blocked(
+                mazes[2], -5 + (8 - x), 8 + y, &west_north)
+                == NAVSYS_STATUS_OK);
+            REQUIRE(byul_maze_is_blocked(
+                mazes[3], -5 + (8 - x), 8 + (8 - y), &west_south)
+                == NAVSYS_STATUS_OK);
+            CHECK(east_north == east_south);
+            CHECK(east_north == west_north);
+            CHECK(east_north == west_south);
+        }
+    }
+    for (maze_t* maze : mazes) maze_destroy(maze);
+}
+
+TEST_CASE("Sidewinder all sweeps remain perfect across 100 seeds") {
+    for (int sweep_value = BYUL_MAZE_SIDEWINDER_EAST_NORTH;
+         sweep_value <= BYUL_MAZE_SIDEWINDER_WEST_SOUTH;
+         ++sweep_value) {
+        const auto sweep =
+            static_cast<byul_maze_sidewinder_sweep_t>(sweep_value);
+        const bool north = sweep == BYUL_MAZE_SIDEWINDER_EAST_NORTH
+            || sweep == BYUL_MAZE_SIDEWINDER_WEST_NORTH;
+        const int corridor_y = north ? 1 : 7;
+        for (uint64_t seed = 0; seed < 100; ++seed) {
+            CAPTURE(sweep_value);
+            CAPTURE(seed);
+            const byul_maze_generate_options_t options{
+                sizeof(byul_maze_generate_options_t),
+                BYUL_MAZE_GENERATE_OPTIONS_ABI_VERSION,
+                seed,
+                UINT64_C(1000000),
+                UINT64_C(81),
+                nullptr,
+                nullptr
+            };
+            maze_t* maze = nullptr;
+            REQUIRE(byul_maze_generate_sidewinder(
+                13, -21, 9, 9, sweep, &options, &maze)
+                == NAVSYS_STATUS_OK);
+            REQUIRE(maze != nullptr);
+            for (int x = 1; x < 8; ++x) {
+                bool blocked = true;
+                REQUIRE(byul_maze_is_blocked(
+                    maze, 13 + x, -21 + corridor_y, &blocked)
+                    == NAVSYS_STATUS_OK);
+                CHECK_FALSE(blocked);
+            }
+            const maze_topology_t topology =
+                analyze_logical_topology(maze, 13, -21, 9, 9);
+            CHECK(topology.queries_ok);
+            CHECK(topology.border_blocked);
+            CHECK(topology.logical_cells_open);
+            CHECK(topology.connected);
+            CHECK(topology.edge_count + 1 == topology.node_count);
+            maze_destroy(maze);
+        }
+    }
+}
+
+TEST_CASE("Sidewinder checked API validates options and failure atomicity") {
+    byul_maze_generate_options_t options{
+        sizeof(byul_maze_generate_options_t),
+        BYUL_MAZE_GENERATE_OPTIONS_ABI_VERSION,
+        UINT64_C(0),
+        UINT64_C(1000000),
+        UINT64_C(81),
+        nullptr,
+        nullptr
+    };
+    maze_t* output = reinterpret_cast<maze_t*>(uintptr_t{1});
+    CHECK(byul_maze_generate_sidewinder(
+        0, 0, 2, 3, BYUL_MAZE_SIDEWINDER_EAST_NORTH, &options, &output)
+        == NAVSYS_STATUS_UNSUPPORTED);
+    CHECK(output == nullptr);
+
+    output = reinterpret_cast<maze_t*>(uintptr_t{1});
+    CHECK(byul_maze_generate_sidewinder(
+        0, 0, 4, 5, BYUL_MAZE_SIDEWINDER_EAST_NORTH, &options, &output)
+        == NAVSYS_STATUS_UNSUPPORTED);
+    CHECK(output == nullptr);
+
+    output = reinterpret_cast<maze_t*>(uintptr_t{1});
+    CHECK(byul_maze_generate_sidewinder(
+        std::numeric_limits<int32_t>::max(), 0, 3, 3,
+        BYUL_MAZE_SIDEWINDER_EAST_NORTH, &options, &output)
+        == NAVSYS_STATUS_INVALID_ARGUMENT);
+    CHECK(output == nullptr);
+
+    output = reinterpret_cast<maze_t*>(uintptr_t{1});
+    CHECK(byul_maze_generate_sidewinder(
+        std::numeric_limits<int32_t>::min(), 0, UINT32_MAX, 3,
+        BYUL_MAZE_SIDEWINDER_EAST_NORTH, &options, &output)
+        == NAVSYS_STATUS_INVALID_ARGUMENT);
+    CHECK(output == nullptr);
+
+    output = reinterpret_cast<maze_t*>(uintptr_t{1});
+    CHECK(byul_maze_generate_sidewinder(
+        0, 0, 9, 9, static_cast<byul_maze_sidewinder_sweep_t>(4),
+        &options, &output) == NAVSYS_STATUS_UNSUPPORTED);
+    CHECK(output == nullptr);
+    bool supported = true;
+    CHECK(byul_maze_sidewinder_sweep_is_supported(
+        static_cast<byul_maze_sidewinder_sweep_t>(-1), &supported)
+        == NAVSYS_STATUS_UNSUPPORTED);
+    CHECK_FALSE(supported);
+    CHECK(byul_maze_sidewinder_sweep_is_supported(
+        BYUL_MAZE_SIDEWINDER_EAST_NORTH, nullptr)
+        == NAVSYS_STATUS_INVALID_ARGUMENT);
+
+    output = reinterpret_cast<maze_t*>(uintptr_t{1});
+    CHECK(byul_maze_generate_sidewinder(
+        0, 0, 9, 9, BYUL_MAZE_SIDEWINDER_EAST_NORTH, nullptr, &output)
+        == NAVSYS_STATUS_INVALID_ARGUMENT);
+    CHECK(output == nullptr);
+
+    options.max_cells = UINT64_C(80);
+    output = reinterpret_cast<maze_t*>(uintptr_t{1});
+    CHECK(byul_maze_generate_sidewinder(
+        0, 0, 9, 9, BYUL_MAZE_SIDEWINDER_EAST_NORTH, &options, &output)
+        == NAVSYS_STATUS_LIMIT_REACHED);
+    CHECK(output == nullptr);
+
+    options.max_cells = UINT64_C(81);
+    options.max_steps = UINT64_C(15);
+    output = reinterpret_cast<maze_t*>(uintptr_t{1});
+    CHECK(byul_maze_generate_sidewinder(
+        0, 0, 9, 9, BYUL_MAZE_SIDEWINDER_EAST_NORTH, &options, &output)
+        == NAVSYS_STATUS_LIMIT_REACHED);
+    CHECK(output == nullptr);
+
+    maze_cancel_fixture_t cancel_fixture{0, 83};
+    options.max_steps = UINT64_C(1000000);
+    options.cancel_func = cancel_maze_overlay;
+    options.cancel_userdata = &cancel_fixture;
+    output = reinterpret_cast<maze_t*>(uintptr_t{1});
+    CHECK(byul_maze_generate_sidewinder(
+        0, 0, 9, 9, BYUL_MAZE_SIDEWINDER_EAST_NORTH, &options, &output)
+        == NAVSYS_STATUS_CANCELLED);
+    CHECK(output == nullptr);
+    CHECK(cancel_fixture.calls == cancel_fixture.cancel_after);
+}
+
+TEST_CASE("Sidewinder checked EAST_NORTH preserves dispatcher output") {
+    for (const uint64_t seed : {
+             UINT64_C(0), UINT64_C(1), UINT64_C(17), UINT64_MAX}) {
+        CAPTURE(seed);
+        const byul_maze_generate_options_t options{
+            sizeof(byul_maze_generate_options_t),
+            BYUL_MAZE_GENERATE_OPTIONS_ABI_VERSION,
+            seed,
+            UINT64_C(1000000),
+            UINT64_C(81),
+            nullptr,
+            nullptr
+        };
+        maze_t* direct = nullptr;
+        maze_t* dispatched = nullptr;
+        REQUIRE(byul_maze_generate_sidewinder(
+            -5, 8, 9, 9, BYUL_MAZE_SIDEWINDER_EAST_NORTH,
+            &options, &direct) == NAVSYS_STATUS_OK);
+        REQUIRE(byul_maze_generate(
+            BYUL_MAZE_ALGORITHM_SIDEWINDER,
+            -5, 8, 9, 9, &options, &dispatched) == NAVSYS_STATUS_OK);
+        REQUIRE(direct != nullptr);
+        REQUIRE(dispatched != nullptr);
+        CHECK(maze_hash(direct) == maze_hash(dispatched));
+        maze_destroy(dispatched);
+        maze_destroy(direct);
+    }
+}
+
 TEST_CASE("Eller direct dispatcher and legacy paths share topology") {
     const uint64_t seeds[] = {
         UINT64_C(0), UINT64_C(1), UINT64_C(17), UINT64_MAX

@@ -10,6 +10,7 @@
 #include "maze_core.h"
 #include "maze_eller.h"
 #include "maze_hunt_and_kill.h"
+#include "maze_sidewinder.h"
 #include "navcell.h"
 #include "navgrid.h"
 #include "obstacle.h"
@@ -517,6 +518,28 @@ int main() {
     assert(hunt_and_kill != nullptr);
     assert(maze_hash(hunt_and_kill) == UINT32_C(26398801));
     maze_destroy(hunt_and_kill);
+
+    const byul_maze_generate_options_t sidewinder_options{
+        sizeof(byul_maze_generate_options_t),
+        BYUL_MAZE_GENERATE_OPTIONS_ABI_VERSION,
+        UINT64_C(0),
+        UINT64_C(64),
+        UINT64_C(81),
+        nullptr,
+        nullptr
+    };
+    bool sidewinder_supported = false;
+    assert(byul_maze_sidewinder_sweep_is_supported(
+        BYUL_MAZE_SIDEWINDER_WEST_SOUTH, &sidewinder_supported)
+        == NAVSYS_STATUS_OK);
+    assert(sidewinder_supported);
+    maze_t* sidewinder = nullptr;
+    assert(byul_maze_generate_sidewinder(
+        -5, 8, 9, 9, BYUL_MAZE_SIDEWINDER_WEST_SOUTH,
+        &sidewinder_options, &sidewinder) == NAVSYS_STATUS_OK);
+    assert(sidewinder != nullptr);
+    assert(maze_hash(sidewinder) == UINT32_C(455990389));
+    maze_destroy(sidewinder);
 
     navgrid_t* legacy_carver_grid = navgrid_create_full(
         3, 3, NAVGRID_DIR_8, nullptr);

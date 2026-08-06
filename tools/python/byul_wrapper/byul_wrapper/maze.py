@@ -267,6 +267,28 @@ navsys_status_t byul_maze_generate_hunt_and_kill(
     maze_t** out_maze);
 
  maze_t* maze_make_hunt_and_kill(int x0, int y0, int width, int height);
+
+/* Source: byul/navsys/maze/maze_sidewinder.h */
+typedef enum e_byul_maze_sidewinder_sweep {
+    BYUL_MAZE_SIDEWINDER_EAST_NORTH = 0,
+    BYUL_MAZE_SIDEWINDER_EAST_SOUTH = 1,
+    BYUL_MAZE_SIDEWINDER_WEST_NORTH = 2,
+    BYUL_MAZE_SIDEWINDER_WEST_SOUTH = 3
+} byul_maze_sidewinder_sweep_t;
+
+ navsys_status_t byul_maze_sidewinder_sweep_is_supported(
+    byul_maze_sidewinder_sweep_t sweep, bool* out_supported);
+
+ navsys_status_t byul_maze_generate_sidewinder(
+    int32_t origin_x,
+    int32_t origin_y,
+    uint32_t width,
+    uint32_t height,
+    byul_maze_sidewinder_sweep_t sweep,
+    const byul_maze_generate_options_t* options,
+    maze_t** out_maze);
+
+ maze_t* maze_make_sidewinder(int x0, int y0, int width, int height);
 """)
 
 
@@ -288,6 +310,17 @@ def maze_binary_bias_is_supported(bias):
     raise_for_status(
         C.byul_maze_binary_bias_is_supported(bias, output),
         "byul_maze_binary_bias_is_supported",
+    )
+    return bool(output[0])
+
+
+def maze_sidewinder_sweep_is_supported(sweep):
+    """Return whether the Sidewinder generator supports a sweep."""
+    _check_maze_abi()
+    output = ffi.new("bool*")
+    raise_for_status(
+        C.byul_maze_sidewinder_sweep_is_supported(sweep, output),
+        "byul_maze_sidewinder_sweep_is_supported",
     )
     return bool(output[0])
 
@@ -472,6 +505,48 @@ class c_maze:
                 output,
             ),
             "byul_maze_generate_hunt_and_kill",
+        )
+        return cls(raw_ptr=output[0], own=True)
+
+    @classmethod
+    def generate_sidewinder(
+        cls,
+        x0,
+        y0,
+        width,
+        height,
+        sweep,
+        *,
+        seed,
+        max_steps=0,
+        max_cells=0,
+    ):
+        """Generate a deterministic perfect Sidewinder Maze."""
+        _check_maze_abi()
+        options = ffi.new(
+            "byul_maze_generate_options_t*",
+            dict(
+                struct_size=ffi.sizeof("byul_maze_generate_options_t"),
+                abi_version=MAZE_GENERATE_OPTIONS_ABI_VERSION,
+                seed=seed,
+                max_steps=max_steps,
+                max_cells=max_cells,
+                cancel_func=ffi.NULL,
+                cancel_userdata=ffi.NULL,
+            ),
+        )
+        output = ffi.new("maze_t**")
+        raise_for_status(
+            C.byul_maze_generate_sidewinder(
+                x0,
+                y0,
+                width,
+                height,
+                sweep,
+                options,
+                output,
+            ),
+            "byul_maze_generate_sidewinder",
         )
         return cls(raw_ptr=output[0], own=True)
 

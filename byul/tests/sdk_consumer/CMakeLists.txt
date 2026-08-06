@@ -42,6 +42,7 @@ set(BYUL_MAZE_PUBLIC_HEADERS
     maze_wilson.h
     maze_hunt_and_kill.h
     maze_sidewinder.h
+    maze_sidewinder.h
     maze_recursive_division.h
     maze_kruskal.h
     maze_room_blend.h

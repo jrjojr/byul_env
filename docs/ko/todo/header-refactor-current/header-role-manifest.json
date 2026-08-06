@@ -3931,7 +3931,7 @@
     {
       "asset_id": "initial:byul/navsys/maze/maze_sidewinder.h",
       "current_path": "byul/navsys/maze/maze_sidewinder.h",
-      "sha256": "ec477592a017b2345060702efc084356533a0fcb719e3f8043c275605592630b",
+      "sha256": "86706c919f05ef546ca0b97c63840b051656d7b6f0bc44da0eb8cd0b00de9ec4",
       "primary_role": "public-component",
       "role_reason": "Handwritten public maze algorithm component; generator wording is not file provenance.",
       "owner_module": "navsys",
@@ -3939,8 +3939,8 @@
       "approved_install": true,
       "install_reason": "Public or compatibility SDK surface.",
       "wrapper": {
-        "mode": "manual",
-        "reason": "Public legacy declarations require explicit ownership/error metadata before automatic generation."
+        "mode": "generated",
+        "reason": "Registered in the canonical wrapper generator manifest."
       },
       "naming": {
         "disposition": "keep",
