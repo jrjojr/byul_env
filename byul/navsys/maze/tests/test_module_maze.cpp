@@ -154,6 +154,42 @@ maze_topology_t analyze_logical_topology(
     return result;
 }
 
+uint64_t logical_tree_mask(
+    const maze_t* maze,
+    int32_t origin_x,
+    int32_t origin_y,
+    int width,
+    int height) {
+    uint64_t mask = 0;
+    unsigned edge = 0;
+    const int columns = (width - 1) / 2;
+    const int rows = (height - 1) / 2;
+    for (int row = 0; row < rows; ++row) {
+        for (int column = 0; column < columns; ++column) {
+            const int x = 1 + column * 2;
+            const int y = 1 + row * 2;
+            if (column + 1 < columns) {
+                bool blocked = true;
+                REQUIRE(byul_maze_is_blocked(
+                    maze, origin_x + x + 1, origin_y + y, &blocked)
+                    == NAVSYS_STATUS_OK);
+                if (!blocked) mask |= UINT64_C(1) << edge;
+                ++edge;
+            }
+            if (row + 1 < rows) {
+                bool blocked = true;
+                REQUIRE(byul_maze_is_blocked(
+                    maze, origin_x + x, origin_y + y + 1, &blocked)
+                    == NAVSYS_STATUS_OK);
+                if (!blocked) mask |= UINT64_C(1) << edge;
+                ++edge;
+            }
+        }
+    }
+    REQUIRE(edge <= 64);
+    return mask;
+}
+
 } // namespace
 
 TEST_CASE("maze dispatcher preserves its ABI-1 enum and Kruskal fallback") {
@@ -1289,6 +1325,75 @@ TEST_CASE("Prim exact edge budgets and cancellation stay atomic") {
         CHECK(cancelled == nullptr);
         CHECK(fixture.calls == cancel_after);
     }
+}
+
+TEST_CASE("Prim profiled frontier accounting is exact on large rectangles") {
+    struct extent_t { uint32_t width; uint32_t height; };
+    for (const extent_t extent : {
+             extent_t{511, 255}, extent_t{255, 511}}) {
+        for (const uint64_t seed : {UINT64_C(0), UINT64_C(17)}) {
+            CAPTURE(extent.width);
+            CAPTURE(extent.height);
+            CAPTURE(seed);
+            const uint64_t columns = extent.width / 2;
+            const uint64_t rows = extent.height / 2;
+            const uint64_t vertices = columns * rows;
+            const uint64_t edges =
+                (columns - 1) * rows + (rows - 1) * columns;
+            byul_maze_generation_context context(
+                seed, edges, nullptr, nullptr);
+            byul_maze_prim_stats stats{};
+            maze_t* maze = nullptr;
+            REQUIRE(byul_maze_generate_prim_profiled_internal(
+                -701, 313, extent.width, extent.height,
+                context, &stats, &maze) == NAVSYS_STATUS_OK);
+            REQUIRE(maze != nullptr);
+            CHECK(context.steps() == edges);
+            CHECK(stats.frontier_pops == edges);
+            CHECK(stats.accepted_edges == vertices - 1);
+            CHECK(stats.stale_edges == edges - (vertices - 1));
+            CHECK(stats.peak_frontier > 0);
+            CHECK(stats.peak_frontier <= edges);
+            const maze_topology_t topology = analyze_logical_topology(
+                maze, -701, 313,
+                static_cast<int>(extent.width),
+                static_cast<int>(extent.height));
+            CHECK(topology.queries_ok);
+            CHECK(topology.border_blocked);
+            CHECK(topology.logical_cells_open);
+            CHECK(topology.connected);
+            CHECK(topology.node_count == vertices);
+            CHECK(topology.edge_count + 1 == topology.node_count);
+            maze_destroy(maze);
+        }
+    }
+}
+
+TEST_CASE("Prim seed corpus demonstrates a non-uniform tree distribution") {
+    std::array<uint32_t, 128> frequencies{};
+    for (uint64_t seed = 0; seed < UINT64_C(65536); ++seed) {
+        byul_maze_generation_context context(
+            seed, UINT64_C(100), nullptr, nullptr);
+        maze_t* maze = nullptr;
+        REQUIRE(byul_maze_generate_prim_internal(
+            0, 0, 5, 7, context, &maze) == NAVSYS_STATUS_OK);
+        REQUIRE(maze != nullptr);
+        ++frequencies[logical_tree_mask(maze, 0, 0, 5, 7)];
+        maze_destroy(maze);
+    }
+
+    size_t observed = 0;
+    uint32_t minimum = UINT32_MAX;
+    uint32_t maximum = 0;
+    for (const uint32_t frequency : frequencies) {
+        if (frequency == 0) continue;
+        ++observed;
+        minimum = std::min(minimum, frequency);
+        maximum = std::max(maximum, frequency);
+    }
+    CHECK(observed == 15);
+    CHECK(static_cast<uint64_t>(maximum) * 2
+        > static_cast<uint64_t>(minimum) * 3);
 }
 
 TEST_CASE("internal generators replay and honor step limits") {

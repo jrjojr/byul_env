@@ -1,0 +1,36 @@
+{
+  "schema_version": 1,
+  "scope": "navsys-maze-randomized-prim-stage3",
+  "status": "complete",
+  "source_revision": "264f6f4",
+  "operation_accounting": {
+    "frontier_pops": "exactly E unique logical-grid edges",
+    "accepted_edges": "exactly V-1",
+    "stale_edges": "exactly E-(V-1)",
+    "peak_frontier": "positive and bounded above by E",
+    "storage_bound": "O(width*height + E)",
+    "time_bound": "O(E) frontier work plus O(width*height) raster materialization"
+  },
+  "large_rectangular_gate": {
+    "extents": [[511, 255], [255, 511]],
+    "seeds": [0, 17],
+    "checks": [
+      "exact operation accounting",
+      "connected logical graph",
+      "V-1 passages",
+      "blocked border",
+      "every logical cell open"
+    ]
+  },
+  "distribution": {
+    "logical_graph": "2 by 3 ladder with 15 spanning trees",
+    "seed_corpus": 65536,
+    "observed_trees": 15,
+    "frequency_gate": "maximum frequency is more than 1.5 times minimum frequency",
+    "claim": "randomized Prim is not a uniform-spanning-tree sampler"
+  },
+  "verification": {
+    "msvc_release": "93/93 test cases, 835258/835258 assertions",
+    "gcc13_sanitizers": "ASan/LSan/UBSan 93/93 test cases, 835258/835258 assertions"
+  }
+}

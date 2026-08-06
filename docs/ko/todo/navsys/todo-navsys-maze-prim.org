@@ -102,7 +102,7 @@ BYUL_API navsys_status_t byul_maze_generate_randomized_prim(
 - allocation fault/frontier duplicate/cancel each phase와 seed golden을 검사한다.
 - old/new ABI/export를 비교한다.
 
-* DOING 3단계: topology·성능 gate
+* DONE 3단계: topology·성능 gate
 
 ** 실행
 
@@ -119,7 +119,7 @@ BYUL_API navsys_status_t byul_maze_generate_randomized_prim(
 
 - deterministic/property corpus, sanitizer, large rectangular benchmark를 실행한다.
 
-* TODO 4단계: Header·SDK gate
+* DOING 4단계: Header·SDK gate
 
 ** 실행
 

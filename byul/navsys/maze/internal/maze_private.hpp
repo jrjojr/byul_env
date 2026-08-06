@@ -84,6 +84,22 @@ navsys_status_t byul_maze_generate_binary_internal(
     byul_maze_generation_context& context,
     maze_t** out_maze) noexcept;
 
+struct byul_maze_prim_stats {
+    uint64_t frontier_pops;
+    uint64_t accepted_edges;
+    uint64_t stale_edges;
+    uint64_t peak_frontier;
+};
+
+navsys_status_t byul_maze_generate_prim_profiled_internal(
+    int32_t origin_x,
+    int32_t origin_y,
+    uint32_t width,
+    uint32_t height,
+    byul_maze_generation_context& context,
+    byul_maze_prim_stats* stats,
+    maze_t** out_maze) noexcept;
+
 navsys_status_t byul_maze_generate_binary_with_bias_internal(
     int32_t origin_x,
     int32_t origin_y,

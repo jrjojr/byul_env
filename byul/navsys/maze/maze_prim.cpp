@@ -59,15 +59,17 @@ bool has_representable_bound(int32_t origin, uint32_t length) {
 
 } // namespace
 
-navsys_status_t byul_maze_generate_prim_internal(
+navsys_status_t byul_maze_generate_prim_profiled_internal(
     int32_t origin_x,
     int32_t origin_y,
     uint32_t width,
     uint32_t height,
     byul_maze_generation_context& context,
+    byul_maze_prim_stats* stats,
     maze_t** out_maze) noexcept {
     if (!out_maze) return NAVSYS_STATUS_INVALID_ARGUMENT;
     *out_maze = nullptr;
+    if (stats) *stats = {};
     if (width < 3 || height < 3
         || (width & UINT32_C(1)) == 0
         || (height & UINT32_C(1)) == 0) {
@@ -107,6 +109,7 @@ navsys_status_t byul_maze_generate_prim_internal(
         const int start_y = 1 + static_cast<int>(context.bounded(logical_height)) * 2;
         grid[static_cast<size_t>(start_y) * w + start_x] = passage_cell;
         add_frontiers(start_x, start_y, w, h, grid, frontiers);
+        if (stats) stats->peak_frontier = frontiers.size();
 
         while (!frontiers.empty()) {
             const navsys_status_t step_status = context.begin_step();
@@ -119,10 +122,14 @@ navsys_status_t byul_maze_generate_prim_internal(
             const frontier_t frontier = frontiers[selected];
             frontiers[selected] = frontiers.back();
             frontiers.pop_back();
+            if (stats) ++stats->frontier_pops;
 
             const size_t target_index =
                 static_cast<size_t>(frontier.target_y) * w + frontier.target_x;
-            if (grid[target_index] == passage_cell) continue;
+            if (grid[target_index] == passage_cell) {
+                if (stats) ++stats->stale_edges;
+                continue;
+            }
             grid[static_cast<size_t>(frontier.wall_y) * w + frontier.wall_x]
                 = passage_cell;
             grid[target_index] = passage_cell;
@@ -133,6 +140,12 @@ navsys_status_t byul_maze_generate_prim_internal(
                 h,
                 grid,
                 frontiers);
+            if (stats) {
+                ++stats->accepted_edges;
+                if (frontiers.size() > stats->peak_frontier) {
+                    stats->peak_frontier = frontiers.size();
+                }
+            }
         }
 
         for (int y = 0; y < h; ++y) {
@@ -162,6 +175,17 @@ navsys_status_t byul_maze_generate_prim_internal(
 
     *out_maze = maze;
     return NAVSYS_STATUS_OK;
+}
+
+navsys_status_t byul_maze_generate_prim_internal(
+    int32_t origin_x,
+    int32_t origin_y,
+    uint32_t width,
+    uint32_t height,
+    byul_maze_generation_context& context,
+    maze_t** out_maze) noexcept {
+    return byul_maze_generate_prim_profiled_internal(
+        origin_x, origin_y, width, height, context, nullptr, out_maze);
 }
 
 navsys_status_t byul_maze_generate_randomized_prim(
