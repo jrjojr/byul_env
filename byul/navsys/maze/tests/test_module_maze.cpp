@@ -13,6 +13,7 @@ extern "C" {
 #include "maze_eller.h"
 #include "maze_hunt_and_kill.h"
 #include "maze_kruskal.h"
+#include "maze_sidewinder.h"
 #include "console.h"
 #include "obstacle_core.h"
 
@@ -1128,6 +1129,103 @@ TEST_CASE("Hunt-and-Kill checked API replays and matches dispatcher") {
     CHECK(topology.connected);
     CHECK(topology.edge_count + 1 == topology.node_count);
     maze_destroy(legacy);
+}
+
+TEST_CASE("Sidewinder corrected first-row contract has stable tiny goldens") {
+    struct fixture_t {
+        uint32_t width;
+        uint32_t height;
+        uint32_t expected_hash;
+    };
+    const fixture_t fixtures[] = {
+        {3, 3, UINT32_C(910439850)},
+        {5, 5, UINT32_C(778966597)},
+        {9, 9, UINT32_C(915955447)}
+    };
+
+    for (const fixture_t& fixture : fixtures) {
+        CAPTURE(fixture.width);
+        CAPTURE(fixture.height);
+        byul_maze_generation_context context(
+            UINT64_C(0), UINT64_C(1000000), nullptr, nullptr);
+        maze_t* maze = nullptr;
+        REQUIRE(byul_maze_generate_sidewinder_internal(
+            -5, 8, fixture.width, fixture.height, context, &maze)
+            == NAVSYS_STATUS_OK);
+        REQUIRE(maze != nullptr);
+        CHECK(maze_hash(maze) == fixture.expected_hash);
+
+        for (uint32_t x = 1; x + 1 < fixture.width; ++x) {
+            bool blocked = true;
+            REQUIRE(byul_maze_is_blocked(
+                maze, -5 + static_cast<int32_t>(x), 9, &blocked)
+                == NAVSYS_STATUS_OK);
+            CHECK_FALSE(blocked);
+        }
+        const maze_topology_t topology = analyze_logical_topology(
+            maze, -5, 8,
+            static_cast<int>(fixture.width),
+            static_cast<int>(fixture.height));
+        CHECK(topology.queries_ok);
+        CHECK(topology.border_blocked);
+        CHECK(topology.logical_cells_open);
+        CHECK(topology.connected);
+        CHECK(topology.edge_count + 1 == topology.node_count);
+        maze_destroy(maze);
+    }
+}
+
+TEST_CASE("Sidewinder corrected lattice remains perfect across 100 seeds") {
+    for (uint64_t seed = 0; seed < 100; ++seed) {
+        CAPTURE(seed);
+        byul_maze_generation_context context(
+            seed, UINT64_C(1000000), nullptr, nullptr);
+        maze_t* maze = nullptr;
+        REQUIRE(byul_maze_generate_sidewinder_internal(
+            13, -21, 9, 9, context, &maze) == NAVSYS_STATUS_OK);
+        REQUIRE(maze != nullptr);
+
+        for (int32_t x = 14; x < 21; ++x) {
+            bool blocked = true;
+            REQUIRE(byul_maze_is_blocked(maze, x, -20, &blocked)
+                == NAVSYS_STATUS_OK);
+            CHECK_FALSE(blocked);
+        }
+        const maze_topology_t topology =
+            analyze_logical_topology(maze, 13, -21, 9, 9);
+        CHECK(topology.queries_ok);
+        CHECK(topology.border_blocked);
+        CHECK(topology.logical_cells_open);
+        CHECK(topology.connected);
+        CHECK(topology.edge_count + 1 == topology.node_count);
+        maze_destroy(maze);
+    }
+}
+
+TEST_CASE("Sidewinder handles one-dimensional logical grids") {
+    const uint32_t extents[][2] = {{3, 9}, {9, 3}};
+    for (const auto& extent : extents) {
+        CAPTURE(extent[0]);
+        CAPTURE(extent[1]);
+        byul_maze_generation_context context(
+            UINT64_C(17), UINT64_C(1000000), nullptr, nullptr);
+        maze_t* maze = nullptr;
+        REQUIRE(byul_maze_generate_sidewinder_internal(
+            -11, 23, extent[0], extent[1], context, &maze)
+            == NAVSYS_STATUS_OK);
+        REQUIRE(maze != nullptr);
+
+        const maze_topology_t topology = analyze_logical_topology(
+            maze, -11, 23,
+            static_cast<int>(extent[0]),
+            static_cast<int>(extent[1]));
+        CHECK(topology.queries_ok);
+        CHECK(topology.border_blocked);
+        CHECK(topology.logical_cells_open);
+        CHECK(topology.connected);
+        CHECK(topology.edge_count + 1 == topology.node_count);
+        maze_destroy(maze);
+    }
 }
 
 TEST_CASE("Eller direct dispatcher and legacy paths share topology") {

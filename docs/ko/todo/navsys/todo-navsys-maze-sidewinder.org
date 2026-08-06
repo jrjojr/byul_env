@@ -74,7 +74,7 @@ BYUL_API navsys_status_t byul_maze_generate_sidewinder(
 - 결과는 perfect maze이나 UST가 아니고 sweep 방향 bias 및 이전-row 방향 dead-end 특성을 가진다.
 - seed/RNG draw order, close probability(기본 1/2), cancel/max cells와 status를 명시한다.
 
-* TODO 1단계: disconnected seed 탐색과 fix 승인
+* DONE 1단계: disconnected seed 탐색과 fix 승인
 
 ** 실행
 
@@ -92,7 +92,7 @@ BYUL_API navsys_status_t byul_maze_generate_sidewinder(
 - first row가 하나의 component가 아니면 test가 반드시 실패하는지 mutation test한다.
 - 네 sweep rotation/reflection metamorphic oracle를 설계한다.
 
-* TODO 2단계: canonical run과 seeded API
+* DOING 2단계: canonical run과 seeded API
 
 ** 실행
 
