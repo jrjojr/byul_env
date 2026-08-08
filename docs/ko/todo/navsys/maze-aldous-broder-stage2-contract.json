@@ -1,0 +1,33 @@
+{
+  "schema_version": 1,
+  "scope": "navsys-maze-aldous-broder-stage2",
+  "status": "complete",
+  "source_revision": "b3adc1f",
+  "canonical_api": {
+    "generator": "byul_maze_generate_aldous_broder",
+    "options": "byul_maze_generate_options_t ABI version 1",
+    "output_contract": "out_maze is reset to NULL before validation and receives caller ownership only on success",
+    "default_step_budget": "saturating raster cell count times 256"
+  },
+  "validation": {
+    "dimensions": "width and height are odd and at least 3",
+    "bounds": "the inclusive last coordinate must fit int32_t",
+    "max_cells": "checked before generation",
+    "one_cell_graph": "3x3 raster succeeds without consuming a walk step",
+    "cancellation": "polled before generation, on every random-walk step, and during raster materialization",
+    "exception_barrier": "bad_alloc maps to OUT_OF_MEMORY; other exceptions map to CORRUPT_STATE",
+    "failure_atomicity": "partial Maze output is destroyed and never published"
+  },
+  "compatibility": {
+    "legacy_symbol": "maze_make_aldous_broder",
+    "legacy_policy": "deprecated ABI 1.x forward adapter",
+    "legacy_seed": "non-replayable process-local generation seed"
+  },
+  "verification": {
+    "windows_msvc_scope": "5/5 Aldous-Broder cases and 57532/57532 assertions",
+    "allocation_fault_sweep": "all allocation failures returned OUT_OF_MEMORY without leaks or partial output, followed by success",
+    "direct_dispatcher_replay": "four seeds, including zero and UINT64_MAX, matched direct replay and generic dispatcher output",
+    "seed_zero_hash": 744322881,
+    "pending_stage4": "root export snapshot, wrapper and installed SDK integration"
+  }
+}

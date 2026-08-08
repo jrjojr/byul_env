@@ -95,7 +95,7 @@ BYUL_API navsys_status_t byul_maze_generate_aldous_broder(
 - fixed injected RNG trace를 수작업 reference tree와 비교한다.
 - enum dispatcher와 direct 함수의 결과 contract가 일치하는지 검사한다.
 
-* DOING 2단계: seed·budget·status API 추가
+* DONE 2단계: seed·budget·status API 추가
 
 ** 실행
 
@@ -113,7 +113,7 @@ BYUL_API navsys_status_t byul_maze_generate_aldous_broder(
 - seed 0/MAX, 1-cell graph, huge dimensions, fault index별 test와 ASan/LSan을 실행한다.
 - legacy/new export와 wrapper audit exclusion 사유를 검사한다.
 
-* TODO 3단계: topology와 확률 품질 검증
+* DOING 3단계: topology와 확률 품질 검증
 
 ** 실행
 

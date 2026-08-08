@@ -380,6 +380,130 @@ TEST_CASE("Aldous-Broder trace carves only first-entry edges") {
     CHECK(std::count(entry_count.begin(), entry_count.end(), uint8_t{1}) == 16);
 }
 
+TEST_CASE("Aldous-Broder checked API validates controls and failure atomicity") {
+    byul_maze_generate_options_t options{
+        sizeof(byul_maze_generate_options_t),
+        BYUL_MAZE_GENERATE_OPTIONS_ABI_VERSION,
+        UINT64_C(17),
+        UINT64_C(20736),
+        UINT64_C(81),
+        nullptr,
+        nullptr
+    };
+    maze_t* output = reinterpret_cast<maze_t*>(uintptr_t{1});
+    CHECK(byul_maze_generate_aldous_broder(0, 0, 2, 3, &options, &output)
+        == NAVSYS_STATUS_UNSUPPORTED);
+    CHECK(output == nullptr);
+
+    output = reinterpret_cast<maze_t*>(uintptr_t{1});
+    CHECK(byul_maze_generate_aldous_broder(0, 0, 4, 5, &options, &output)
+        == NAVSYS_STATUS_UNSUPPORTED);
+    CHECK(output == nullptr);
+
+    output = reinterpret_cast<maze_t*>(uintptr_t{1});
+    CHECK(byul_maze_generate_aldous_broder(
+        std::numeric_limits<int32_t>::max(), 0, 3, 3, &options, &output)
+        == NAVSYS_STATUS_INVALID_ARGUMENT);
+    CHECK(output == nullptr);
+
+    output = reinterpret_cast<maze_t*>(uintptr_t{1});
+    CHECK(byul_maze_generate_aldous_broder(
+        std::numeric_limits<int32_t>::min(), 0, UINT32_MAX, 3,
+        &options, &output) == NAVSYS_STATUS_INVALID_ARGUMENT);
+    CHECK(output == nullptr);
+
+    output = reinterpret_cast<maze_t*>(uintptr_t{1});
+    CHECK(byul_maze_generate_aldous_broder(0, 0, 9, 9, nullptr, &output)
+        == NAVSYS_STATUS_INVALID_ARGUMENT);
+    CHECK(output == nullptr);
+    CHECK(byul_maze_generate_aldous_broder(0, 0, 9, 9, &options, nullptr)
+        == NAVSYS_STATUS_INVALID_ARGUMENT);
+
+    options.max_cells = UINT64_C(80);
+    output = reinterpret_cast<maze_t*>(uintptr_t{1});
+    CHECK(byul_maze_generate_aldous_broder(0, 0, 9, 9, &options, &output)
+        == NAVSYS_STATUS_LIMIT_REACHED);
+    CHECK(output == nullptr);
+
+    options.max_cells = UINT64_C(81);
+    options.max_steps = UINT64_C(1);
+    output = reinterpret_cast<maze_t*>(uintptr_t{1});
+    CHECK(byul_maze_generate_aldous_broder(0, 0, 9, 9, &options, &output)
+        == NAVSYS_STATUS_LIMIT_REACHED);
+    CHECK(output == nullptr);
+
+    output = nullptr;
+    REQUIRE(byul_maze_generate_aldous_broder(
+        -3, 7, 3, 3, &options, &output) == NAVSYS_STATUS_OK);
+    REQUIRE(output != nullptr);
+    const maze_topology_t one_cell =
+        analyze_logical_topology(output, -3, 7, 3, 3);
+    CHECK(one_cell.queries_ok);
+    CHECK(one_cell.border_blocked);
+    CHECK(one_cell.logical_cells_open);
+    CHECK(one_cell.connected);
+    CHECK(one_cell.node_count == 1);
+    CHECK(one_cell.edge_count == 0);
+    maze_destroy(output);
+
+    maze_cancel_fixture_t cancel_fixture{0, 3};
+    options.max_steps = UINT64_C(20736);
+    options.cancel_func = cancel_maze_overlay;
+    options.cancel_userdata = &cancel_fixture;
+    output = reinterpret_cast<maze_t*>(uintptr_t{1});
+    CHECK(byul_maze_generate_aldous_broder(0, 0, 9, 9, &options, &output)
+        == NAVSYS_STATUS_CANCELLED);
+    CHECK(output == nullptr);
+    CHECK(cancel_fixture.calls == cancel_fixture.cancel_after);
+
+    options.cancel_func = throw_maze_generation_cancel;
+    options.cancel_userdata = nullptr;
+    output = reinterpret_cast<maze_t*>(uintptr_t{1});
+    CHECK(byul_maze_generate_aldous_broder(0, 0, 9, 9, &options, &output)
+        == NAVSYS_STATUS_CALLBACK_FAILED);
+    CHECK(output == nullptr);
+
+    CHECK(maze_make_aldous_broder(0, 0, 2, 3) == nullptr);
+    CHECK(maze_make_aldous_broder(0, 0, 4, 5) == nullptr);
+}
+
+TEST_CASE("Aldous-Broder checked API replays and matches the dispatcher") {
+    const uint64_t seeds[] = {
+        UINT64_C(0), UINT64_C(1), UINT64_C(17), UINT64_MAX
+    };
+    for (const uint64_t seed : seeds) {
+        CAPTURE(seed);
+        const byul_maze_generate_options_t options{
+            sizeof(byul_maze_generate_options_t),
+            BYUL_MAZE_GENERATE_OPTIONS_ABI_VERSION,
+            seed,
+            UINT64_C(20736),
+            UINT64_C(81),
+            nullptr,
+            nullptr
+        };
+        maze_t* direct = nullptr;
+        maze_t* replay = nullptr;
+        maze_t* dispatched = nullptr;
+        REQUIRE(byul_maze_generate_aldous_broder(
+            -5, 8, 9, 9, &options, &direct) == NAVSYS_STATUS_OK);
+        REQUIRE(byul_maze_generate_aldous_broder(
+            -5, 8, 9, 9, &options, &replay) == NAVSYS_STATUS_OK);
+        REQUIRE(byul_maze_generate(
+            BYUL_MAZE_ALGORITHM_ALDOUS_BRODER,
+            -5, 8, 9, 9, &options, &dispatched) == NAVSYS_STATUS_OK);
+        REQUIRE(direct != nullptr);
+        REQUIRE(replay != nullptr);
+        REQUIRE(dispatched != nullptr);
+        if (seed == 0) CHECK(maze_hash(direct) == UINT32_C(744322881));
+        CHECK(maze_hash(direct) == maze_hash(replay));
+        CHECK(maze_hash(direct) == maze_hash(dispatched));
+        maze_destroy(dispatched);
+        maze_destroy(replay);
+        maze_destroy(direct);
+    }
+}
+
 TEST_CASE("Wilson checked API validates controls and preserves failure atomicity") {
     byul_maze_generate_options_t options{
         sizeof(byul_maze_generate_options_t),
