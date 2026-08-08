@@ -32,6 +32,7 @@ CACHE INTERNAL "${PROJECT_NAME} source files"  FORCE
 
 set(${PROJECT_NAME}_HEADERS
     ${CMAKE_CURRENT_SOURCE_DIR}/navsys.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/navsys_all.h
     ${CMAKE_CURRENT_SOURCE_DIR}/navsys_status.h
 
     ${coord_HEADERS}
@@ -72,14 +73,12 @@ PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/dstar_lite
 
     ${CMAKE_SOURCE_DIR}/core
-    ${CMAKE_SOURCE_DIR}/numal
 
     ${CMAKE_SOURCE_DIR}/navsys/route_carver
 )
 
 target_link_libraries(${PROJECT_NAME} PRIVATE
     byul_tick
-    numal
 )
 
 if(BUILD_TESTING)

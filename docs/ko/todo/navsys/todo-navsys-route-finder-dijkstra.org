@@ -72,7 +72,7 @@ Cost callback+userdata는 한 call-only view 또는 finder binding이고, cost�
 non-negative 값이어야 한다. Stats에 final cost, expanded/generated/reopened/stale-pop과 peak
 workspace를 기록한다.
 
-* TODO 1단계: Weight/결과 기준선
+* DONE 1단계: Weight/결과 기준선
 
 ** 실행
 
@@ -88,7 +88,7 @@ workspace를 기록한다.
 
 - tiny exhaustive weighted grid를 independent Bellman-Ford/reference Dijkstra와 비교한다.
 
-* TODO 2단계: Canonical status형 Dijkstra
+* DONE 2단계: Canonical status형 Dijkstra
 
 ** 실행
 
@@ -104,7 +104,7 @@ workspace를 기록한다.
 
 - zero/large cost, duplicate relax/reopen, exact limit, cancel/OOM과 userdata identity를 검사한다.
 
-* TODO 3단계: Legacy forwarding과 SDK 경계
+* DONE 3단계: Legacy forwarding과 SDK 경계
 
 ** 실행
 

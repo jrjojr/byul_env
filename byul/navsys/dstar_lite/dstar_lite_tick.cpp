@@ -1,243 +1,421 @@
 #include "dstar_lite_tick.h"
-#include "../route/internal/route_internal.h"
 #include "internal/dstar_lite_callback.hpp"
 
-#include <float.h>
-#include <math.h>
-#include <stdlib.h>
-#include <stdio.h>
 #include <cmath>
-#include <thread>
-#include <climits>
+#include <map>
+#include <memory>
+#include <mutex>
 
 namespace {
 
-bool legacy_scalar_equal(float lhs, float rhs) noexcept {
-    if (lhs == rhs) return true;
-    const float difference = std::fabs(lhs - rhs);
-    const float largest = std::fmax(std::fabs(lhs), std::fabs(rhs));
-    return difference <= 1e-5f * largest;
+struct tick_state final {
+    tick_t* tick = nullptr;
+    dstar_lite_tick_state_t state = DSTAR_LITE_TICK_STATE_DETACHED;
+    float accumulated_seconds = 0.0f;
+    uint32_t max_steps = BYUL_DSTAR_LITE_TICK_DEFAULT_MAX_STEPS;
+    coord_t goal_snapshot{};
+};
+
+std::mutex state_mutex;
+std::map<const dstar_lite_tick_t*, std::shared_ptr<tick_state>> states;
+
+std::shared_ptr<tick_state> find_state(const dstar_lite_tick_t* controller) {
+    std::lock_guard<std::mutex> lock(state_mutex);
+    const auto it = states.find(controller);
+    return it == states.end() ? nullptr : it->second;
+}
+
+void store_state(
+    const dstar_lite_tick_t* controller,
+    const std::shared_ptr<tick_state>& state) {
+    std::lock_guard<std::mutex> lock(state_mutex);
+    states[controller] = state;
+}
+
+void erase_state(const dstar_lite_tick_t* controller) noexcept {
+    try {
+        std::lock_guard<std::mutex> lock(state_mutex);
+        states.erase(controller);
+    } catch (...) {
+    }
+}
+
+void proxy(void* context, float dt);
+
+void detach(dstar_lite_tick_t* controller, tick_state& state) {
+    if (state.tick) (void)tick_detach(state.tick, proxy, controller);
+    state.tick = nullptr;
+    controller->ticked = false;
+}
+
+navsys_status_t append_position(dstar_lite_t* planner, const coord_t& position) {
+    route_builder_t* builder = nullptr;
+    navsys_status_t status = planner->real_route
+        ? route_builder_create_from_route(planner->real_route, &builder)
+        : route_builder_create(&builder);
+    if (status != NAVSYS_STATUS_OK) return status;
+    status = route_builder_push_coord(builder, &position);
+    route_t* replacement = nullptr;
+    if (status == NAVSYS_STATUS_OK)
+        status = route_builder_set_completion(builder, ROUTE_COMPLETION_PARTIAL);
+    if (status == NAVSYS_STATUS_OK)
+        status = route_builder_finish(builder, &replacement);
+    route_builder_destroy(builder);
+    if (status != NAVSYS_STATUS_OK) return status;
+    route_destroy(planner->real_route);
+    planner->real_route = replacement;
+    return NAVSYS_STATUS_OK;
+}
+
+void mark_completion(dstar_lite_t* planner) {
+    if (!planner->real_route) return;
+    route_builder_t* builder = nullptr;
+    if (route_builder_create_from_route(planner->real_route, &builder)
+        != NAVSYS_STATUS_OK) return;
+    if (route_builder_set_completion(builder, ROUTE_COMPLETION_COMPLETE)
+        != NAVSYS_STATUS_OK) {
+        route_builder_destroy(builder);
+        return;
+    }
+    route_t* replacement = nullptr;
+    if (route_builder_finish(builder, &replacement) == NAVSYS_STATUS_OK) {
+        route_destroy(planner->real_route);
+        planner->real_route = replacement;
+    }
+    route_builder_destroy(builder);
+}
+
+void proxy(void* context, float dt) {
+    auto* controller = static_cast<dstar_lite_tick_t*>(context);
+    const navsys_status_t status = dstar_lite_tick_advance(
+        controller, dt, nullptr);
+    if (status != NAVSYS_STATUS_OK
+        || dstar_lite_tick_get_state(controller)
+            == DSTAR_LITE_TICK_STATE_COMPLETED) {
+        (void)dstar_lite_tick_stop(controller);
+    }
+}
+
+bool valid_config(const dstar_lite_tick_create_info_t& info) noexcept {
+    return info.struct_size >= sizeof(info)
+        && info.abi_version == DSTAR_LITE_TICK_CREATE_INFO_VERSION
+        && info.planner
+        && std::isfinite(info.tile_size_m) && info.tile_size_m > 0.0f
+        && std::isfinite(info.speed_m_per_sec) && info.speed_m_per_sec > 0.0f
+        && std::isfinite(info.max_duration_sec)
+        && info.max_duration_sec >= 0.0f
+        && info.max_steps_per_update > 0;
 }
 
 } // namespace
 
-static void dstar_lite_tick_proxy(void* context, float dt) {
-    dstar_lite_tick_update((dstar_lite_tick_t*)context, dt);
+navsys_status_t dstar_lite_tick_create_info_init(
+    dstar_lite_tick_create_info_t* out_info,
+    dstar_lite_t* planner) {
+    if (!out_info || !planner) return NAVSYS_STATUS_INVALID_ARGUMENT;
+    *out_info = dstar_lite_tick_create_info_t{};
+    out_info->struct_size = sizeof(*out_info);
+    out_info->abi_version = DSTAR_LITE_TICK_CREATE_INFO_VERSION;
+    out_info->planner = planner;
+    out_info->tile_size_m = 1.0f;
+    out_info->speed_m_per_sec = 1.0f;
+    out_info->max_duration_sec = 10.0f;
+    out_info->max_steps_per_update = BYUL_DSTAR_LITE_TICK_DEFAULT_MAX_STEPS;
+    return NAVSYS_STATUS_OK;
 }
 
-dstar_lite_tick_t* dstar_lite_tick_create(dstar_lite_t* dsl){
-    if (!dsl) return nullptr;
+navsys_status_t dstar_lite_tick_create_ex(
+    const dstar_lite_tick_create_info_t* info,
+    dstar_lite_tick_t** out_controller) {
+    if (!info || !out_controller || !valid_config(*info))
+        return NAVSYS_STATUS_INVALID_ARGUMENT;
+    try {
+        auto* controller = new dstar_lite_tick_t{};
+        controller->base = info->planner;
+        controller->max_time = info->max_duration_sec;
+        controller->unit_m = info->tile_size_m;
+        controller->speed_sec = info->speed_m_per_sec;
+        controller->max_elapsed_time = info->tile_size_m
+            / info->speed_m_per_sec;
+        controller->s_last = info->planner->start;
+        auto state = std::make_shared<tick_state>();
+        state->max_steps = info->max_steps_per_update;
+        state->goal_snapshot = info->planner->goal;
+        try {
+            store_state(controller, state);
+        } catch (...) {
+            delete controller;
+            throw;
+        }
+        *out_controller = controller;
+        return NAVSYS_STATUS_OK;
+    } catch (const std::bad_alloc&) {
+        return NAVSYS_STATUS_OUT_OF_MEMORY;
+    } catch (...) {
+        return NAVSYS_STATUS_CORRUPT_STATE;
+    }
+}
 
-    dstar_lite_tick_t* dst = new dstar_lite_tick_t{};
+navsys_status_t dstar_lite_tick_start(
+    dstar_lite_tick_t* controller,
+    tick_t* tick) {
+    if (!controller || !tick) return NAVSYS_STATUS_INVALID_ARGUMENT;
+    auto state = find_state(controller);
+    if (!state) return NAVSYS_STATUS_INVALIDATED;
+    if (state->tick || state->state == DSTAR_LITE_TICK_STATE_ATTACHED
+        || state->state == DSTAR_LITE_TICK_STATE_RUNNING)
+        return NAVSYS_STATUS_IN_PROGRESS;
+    if (state->state != DSTAR_LITE_TICK_STATE_DETACHED)
+        return NAVSYS_STATUS_INVALIDATED;
+    if (tick_attach(tick, proxy, controller) != 0)
+        return NAVSYS_STATUS_CORRUPT_STATE;
+    state->tick = tick;
+    state->state = DSTAR_LITE_TICK_STATE_ATTACHED;
+    controller->ticked = true;
+    route_destroy(controller->base->real_route);
+    controller->base->real_route = nullptr;
+    const navsys_status_t route_status = append_position(
+        controller->base, controller->base->start);
+    if (route_status != NAVSYS_STATUS_OK) {
+        detach(controller, *state);
+        state->state = DSTAR_LITE_TICK_STATE_FAILED;
+        return route_status;
+    }
+    return NAVSYS_STATUS_OK;
+}
 
-    dst->base = dsl;
+navsys_status_t dstar_lite_tick_stop(dstar_lite_tick_t* controller) {
+    if (!controller) return NAVSYS_STATUS_INVALID_ARGUMENT;
+    auto state = find_state(controller);
+    if (!state) return NAVSYS_STATUS_INVALIDATED;
+    detach(controller, *state);
+    if (state->state == DSTAR_LITE_TICK_STATE_ATTACHED
+        || state->state == DSTAR_LITE_TICK_STATE_RUNNING)
+        state->state = DSTAR_LITE_TICK_STATE_DETACHED;
+    return NAVSYS_STATUS_OK;
+}
 
-    dst->max_time = 10.0f;
+navsys_status_t dstar_lite_tick_advance(
+    dstar_lite_tick_t* controller,
+    float delta_seconds,
+    uint32_t* out_steps) {
+    if (!controller || !std::isfinite(delta_seconds) || delta_seconds < 0.0f)
+        return NAVSYS_STATUS_INVALID_ARGUMENT;
+    auto state = find_state(controller);
+    if (!state || !controller->base) return NAVSYS_STATUS_INVALIDATED;
+    if (state->state == DSTAR_LITE_TICK_STATE_COMPLETED)
+        return NAVSYS_STATUS_OK;
+    if (state->state == DSTAR_LITE_TICK_STATE_CANCELLED)
+        return NAVSYS_STATUS_CANCELLED;
+    if (state->state == DSTAR_LITE_TICK_STATE_FAILED)
+        return NAVSYS_STATUS_INVALIDATED;
+    const bool deterministic_detached = !state->tick
+        && state->state == DSTAR_LITE_TICK_STATE_DETACHED;
+    state->state = DSTAR_LITE_TICK_STATE_RUNNING;
+    state->accumulated_seconds += delta_seconds;
+    controller->cur_time += delta_seconds;
+    controller->cur_elapsed_time = state->accumulated_seconds;
+    uint32_t steps = 0;
+    navsys_status_t status = NAVSYS_STATUS_OK;
+    const float interval = controller->unit_m / controller->speed_sec;
+    if (!coord_equal(&state->goal_snapshot, &controller->base->goal)) {
+        status = dstar_lite_set_goal_ex(
+            controller->base, &controller->base->goal);
+        if (status != NAVSYS_STATUS_OK) {
+            state->state = DSTAR_LITE_TICK_STATE_FAILED;
+        } else {
+            state->goal_snapshot = controller->base->goal;
+        }
+    }
+    if (status == NAVSYS_STATUS_OK
+        && coord_equal(&controller->base->start, &controller->base->goal)) {
+        mark_completion(controller->base);
+        state->state = DSTAR_LITE_TICK_STATE_COMPLETED;
+    }
+    if (status == NAVSYS_STATUS_OK
+        && controller->cur_time > controller->max_time) {
+        state->state = DSTAR_LITE_TICK_STATE_FAILED;
+        status = NAVSYS_STATUS_LIMIT_REACHED;
+    }
+    while (state->accumulated_seconds >= interval
+        && steps < state->max_steps
+        && state->state == DSTAR_LITE_TICK_STATE_RUNNING) {
+        if (controller->cur_time > controller->max_time) {
+            state->state = DSTAR_LITE_TICK_STATE_FAILED;
+            status = NAVSYS_STATUS_LIMIT_REACHED;
+            break;
+        }
+        route_t* route = nullptr;
+        if (controller->base->changed_coords_fn) {
+            coord_list_t* changed =
+                byul::navsys::internal::dstar_lite_invoke_changed_coords(
+                    controller->base);
+            if (changed) {
+                coord_list_destroy(changed);
+                status = dstar_lite_reset_ex(
+                    controller->base,
+                    &controller->base->start,
+                    &controller->base->goal);
+                if (status != NAVSYS_STATUS_OK) {
+                    state->state = DSTAR_LITE_TICK_STATE_FAILED;
+                    break;
+                }
+            }
+        }
+        status = dstar_lite_replan(controller->base, nullptr, &route, nullptr);
+        if (status != NAVSYS_STATUS_OK) {
+            state->state = status == NAVSYS_STATUS_CANCELLED
+                ? DSTAR_LITE_TICK_STATE_CANCELLED
+                : DSTAR_LITE_TICK_STATE_FAILED;
+            break;
+        }
+        const size_t count = route_get_coord_count(route);
+        if (count <= 1) {
+            route_destroy(route);
+            mark_completion(controller->base);
+            state->state = DSTAR_LITE_TICK_STATE_COMPLETED;
+            break;
+        }
+        coord_t next{};
+        status = route_fetch_coord(route, 1, &next);
+        route_destroy(route);
+        if (status != NAVSYS_STATUS_OK) {
+            state->state = DSTAR_LITE_TICK_STATE_FAILED;
+            break;
+        }
+        status = dstar_lite_set_current_start(controller->base, &next);
+        if (status == NAVSYS_STATUS_OK)
+            status = append_position(controller->base, next);
+        if (status != NAVSYS_STATUS_OK) {
+            state->state = DSTAR_LITE_TICK_STATE_FAILED;
+            break;
+        }
+        controller->s_last = next;
+        state->accumulated_seconds -= interval;
+        controller->cur_elapsed_time = state->accumulated_seconds;
+        ++steps;
+        byul::navsys::internal::dstar_lite_invoke_move(
+            controller->base, &next);
+        if (coord_equal(&next, &controller->base->goal)) {
+            mark_completion(controller->base);
+            state->state = DSTAR_LITE_TICK_STATE_COMPLETED;
+            break;
+        }
+    }
+    if (out_steps) *out_steps = steps;
+    if (state->state == DSTAR_LITE_TICK_STATE_COMPLETED
+        || state->state == DSTAR_LITE_TICK_STATE_CANCELLED
+        || state->state == DSTAR_LITE_TICK_STATE_FAILED)
+        detach(controller, *state);
+    else if (deterministic_detached)
+        state->state = DSTAR_LITE_TICK_STATE_DETACHED;
+    return status;
+}
 
-    // 1m move config
-    dst->unit_m = 1.0f;
-    dst->speed_sec = 1.0f;
+dstar_lite_tick_state_t dstar_lite_tick_get_state(
+    const dstar_lite_tick_t* controller) {
+    auto state = find_state(controller);
+    return state ? state->state : DSTAR_LITE_TICK_STATE_FAILED;
+}
 
-    dst->cur_time = 0.0f;
-    dst->cur_elapsed_time = 0.0f;
+navsys_status_t dstar_lite_tick_fetch_position(
+    const dstar_lite_tick_t* controller,
+    coord_t* out_position) {
+    if (!controller || !out_position || !controller->base)
+        return NAVSYS_STATUS_INVALID_ARGUMENT;
+    if (!find_state(controller)) return NAVSYS_STATUS_INVALIDATED;
+    *out_position = controller->base->start;
+    return NAVSYS_STATUS_OK;
+}
 
-    dst->s_last = {};
-    dst->ticked = false;
+navsys_status_t dstar_lite_tick_get_elapsed_seconds(
+    const dstar_lite_tick_t* controller,
+    float* out_elapsed_seconds) {
+    if (!controller || !out_elapsed_seconds)
+        return NAVSYS_STATUS_INVALID_ARGUMENT;
+    if (!find_state(controller)) return NAVSYS_STATUS_INVALIDATED;
+    *out_elapsed_seconds = controller->cur_time;
+    return NAVSYS_STATUS_OK;
+}
 
-	dst->max_elapsed_time = 0.0f;     // not used in this version
-
-    return dst;
+dstar_lite_tick_t* dstar_lite_tick_create(dstar_lite_t* planner) {
+    dstar_lite_tick_create_info_t info{};
+    dstar_lite_tick_t* result = nullptr;
+    return dstar_lite_tick_create_info_init(&info, planner) == NAVSYS_STATUS_OK
+        && dstar_lite_tick_create_ex(&info, &result) == NAVSYS_STATUS_OK
+        ? result : nullptr;
 }
 
 dstar_lite_tick_t* dstar_lite_tick_create_full(
-    dstar_lite_t* dsl, float max_time){
-
-    if (!dsl) return nullptr;
-    
-    dstar_lite_tick_t* dst = new dstar_lite_tick_t{};
-    dst->max_time = max_time;
-    return dst;
+    dstar_lite_t* planner, float max_time) {
+    dstar_lite_tick_create_info_t info{};
+    dstar_lite_tick_t* result = nullptr;
+    if (dstar_lite_tick_create_info_init(&info, planner) != NAVSYS_STATUS_OK)
+        return nullptr;
+    info.max_duration_sec = max_time;
+    return dstar_lite_tick_create_ex(&info, &result) == NAVSYS_STATUS_OK
+        ? result : nullptr;
 }
 
-void dstar_lite_tick_destroy(dstar_lite_tick_t* dst) {
-    if (!dst) return;
-
-    delete dst;
+void dstar_lite_tick_destroy(dstar_lite_tick_t* controller) {
+    if (!controller) return;
+    (void)dstar_lite_tick_stop(controller);
+    erase_state(controller);
+    delete controller;
 }
 
-dstar_lite_tick_t* dstar_lite_tick_copy(const dstar_lite_tick_t* src) {
-    if (!src) return NULL;
-
-    dstar_lite_tick_t* copy = new dstar_lite_tick_t();
-    
-
-    return copy;
+dstar_lite_tick_t* dstar_lite_tick_copy(const dstar_lite_tick_t* source) {
+    if (!source || !source->base) return nullptr;
+    auto source_state = find_state(source);
+    if (!source_state) return nullptr;
+    dstar_lite_tick_create_info_t info{};
+    dstar_lite_tick_create_info_init(&info, source->base);
+    info.tile_size_m = source->unit_m;
+    info.speed_m_per_sec = source->speed_sec;
+    info.max_duration_sec = source->max_time;
+    info.max_steps_per_update = source_state->max_steps;
+    dstar_lite_tick_t* result = nullptr;
+    return dstar_lite_tick_create_ex(&info, &result) == NAVSYS_STATUS_OK
+        ? result : nullptr;
 }
 
-void dstar_lite_tick_reset(dstar_lite_tick_t* dst) {
-    if (!dst) return;
-
-    dst->cur_time = 0.0f;
-    dst->cur_elapsed_time = 0.0f;
-    dst->s_last = {};
-    dst->ticked = false;
-    dstar_lite_reset(dst->base);
+void dstar_lite_tick_reset(dstar_lite_tick_t* controller) {
+    if (!controller) return;
+    (void)dstar_lite_tick_stop(controller);
+    auto state = find_state(controller);
+    if (!state) return;
+    state->state = DSTAR_LITE_TICK_STATE_DETACHED;
+    state->accumulated_seconds = 0.0f;
+    controller->cur_time = 0.0f;
+    controller->cur_elapsed_time = 0.0f;
+    controller->s_last = controller->base->start;
 }
 
-void dstar_lite_tick_prepare(dstar_lite_tick_t* dst, tick_t* tk) {
-    if (!dst || !tk) return;
-
-    dst->s_last = dst->base->start;
-
-    dst->base->real_route = route_create();
-    route_add_coord(dst->base->real_route, &dst->base->start);
-
-    dst->ticked = true;
-    dst->cur_time = 0.0f;
-
-    tick_attach(tk, dstar_lite_tick_proxy, (void*)dst);
-
-    coord_hash_t* visited_count = coord_hash_create_full(
-        coord_hash_int_copy,
-        coord_hash_int_destroy
-    );
-    if (visited_count) {
-        (void)route_internal_replace_visited_count(
-            dst->base->real_route, visited_count);
-    }
-    // dst->base->cost_fn = dstar_lite_dynamic_cost;
-    dst->base->cost_fn = dstar_lite_cost;
+void dstar_lite_tick_prepare(dstar_lite_tick_t* controller, tick_t* tick) {
+    (void)dstar_lite_tick_start(controller, tick);
 }
 
 void dstar_lite_tick_prepare_full(
-    dstar_lite_tick_t* dst,
+    dstar_lite_tick_t* controller,
     float unit_m,
     float speed_sec,
     float max_time,
-    tick_t* tk)
-{
-    if (!dst || !tk || !dst->base) return;
-
-    dst->s_last = dst->base->start;
-    dst->ticked = true;
-    dst->cur_time = 0.0f;
-    dst->max_time = max_time;
-
-    dst->unit_m = unit_m;
-    dst->speed_sec = speed_sec;
-    dst->max_elapsed_time = unit_m / speed_sec;
-    dst->cur_elapsed_time = 0.0f;
-
-    dst->base->interval_sec = unit_m / speed_sec;
-
-    if (!dst->base->real_route)
-        dst->base->real_route = route_create();
-
-    route_add_coord(dst->base->real_route, &dst->base->start);
-
-    coord_hash_t* visited_count = coord_hash_create_full(
-        coord_hash_int_copy,
-        coord_hash_int_destroy
-    );
-    if (visited_count) {
-        (void)route_internal_replace_visited_count(
-            dst->base->real_route, visited_count);
-    }
-
-    tick_attach(tk, dstar_lite_tick_proxy, (void*)dst);
+    tick_t* tick) {
+    if (!controller || !std::isfinite(unit_m) || unit_m <= 0.0f
+        || !std::isfinite(speed_sec) || speed_sec <= 0.0f
+        || !std::isfinite(max_time) || max_time < 0.0f) return;
+    controller->unit_m = unit_m;
+    controller->speed_sec = speed_sec;
+    controller->max_time = max_time;
+    controller->max_elapsed_time = unit_m / speed_sec;
+    (void)dstar_lite_tick_start(controller, tick);
 }
 
-void dstar_lite_tick_update(dstar_lite_tick_t* dst, float dt) {
-    if (!dst || !dst->base) return;
-
-    dst->cur_time += dt;
-    dst->cur_elapsed_time += dt;
-
-    const coord_t* goal = &dst->base->goal;
-    coord_t start = dst->base->start;
-    coord_t next = start;
-
-    if (coord_equal(&start, goal) || dst->cur_time >= dst->max_time || dst->base->force_quit) {
-        dst->ticked = false;
-        route_set_success(dst->base->real_route, coord_equal(&start, goal));
-        return;
-    }
-
-    float required_time = dst->unit_m / dst->speed_sec;
-
-	int max_step = 64; // move count limit at tick update
-    int step_count = 0;
-
-    while (dst->cur_elapsed_time >= required_time && step_count++ < max_step) {
-        dst->cur_elapsed_time -= required_time;
-
-        float* rhs_start_ptr = (float*)coord_hash_get(dst->base->rhs_table, &start);
-        float rhs_start = rhs_start_ptr ? *rhs_start_ptr : FLT_MAX;
-        if (legacy_scalar_equal(rhs_start, FLT_MAX)) {
-            route_set_success(dst->base->real_route, false);
-            dst->ticked = false;
-            return;
-        }
-
-        bool found = dstar_lite_fetch_next(dst->base, &start, &next);
-        if (!found || coord_equal(&next, &start)) {
-            route_set_success(dst->base->real_route, false);
-            dst->ticked = false;
-            return;
-        }
-
-        dst->base->start = next;
-        dstar_lite_update_vertex(dst->base, &next);
-        route_add_coord(dst->base->real_route, &next);
-
-        int visit_count = 0;
-        coord_hash_t* visited_count =
-            route_internal_get_visited_count_mutable(dst->base->real_route);
-        if (coord_hash_contains(visited_count, &next)) {
-            visit_count = *(int*)coord_hash_get(visited_count, &next);
-            visit_count++;
-        }
-        int* visit_ptr = new int(visit_count);
-        coord_hash_insert(visited_count, &next, visit_ptr);
-        delete visit_ptr;
-
-        byul::navsys::internal::dstar_lite_invoke_move(
-            dst->base, &next);
-
-        if (dst->base->changed_coords_fn) {
-            coord_list_t* changed =
-                byul::navsys::internal::dstar_lite_invoke_changed_coords(
-                    dst->base);
-            if (changed) {
-                dst->base->km +=
-                    byul::navsys::internal::dstar_lite_invoke_heuristic(
-                        dst->base, &dst->s_last, &start);
-                dst->s_last = start;
-                for (int i = 0; i < coord_list_length(changed); ++i) {
-                    const coord_t* c = coord_list_get(changed, i);
-                    dstar_lite_update_vertex(dst->base, c);
-                }
-                coord_list_destroy(changed);
-            }
-        }
-
-        dstar_lite_compute_shortest_route(dst->base);
-
-        if (coord_equal(&next, goal)) {
-            route_set_success(dst->base->real_route, true);
-            dst->ticked = false;
-            return;
-        }
-    }
-
-    if (dst->cur_time >= dst->max_time) {
-        route_set_success(dst->base->real_route, coord_equal(&start, goal));
-        dst->ticked = false;
-    }
+void dstar_lite_tick_update(dstar_lite_tick_t* controller, float dt) {
+    (void)dstar_lite_tick_advance(controller, dt, nullptr);
 }
 
-void dstar_lite_tick_complete(dstar_lite_tick_t* dst, tick_t* tk) {
-    if (!dst || !tk) return;
-    tick_request_detach(tk, dstar_lite_tick_proxy, dst);
-    dst->ticked = false;
+void dstar_lite_tick_complete(
+    dstar_lite_tick_t* controller, tick_t*) {
+    (void)dstar_lite_tick_stop(controller);
 }

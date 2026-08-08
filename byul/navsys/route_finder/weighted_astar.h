@@ -1,9 +1,19 @@
-#ifndef WEIGHTED_ASTAR_H
-#define WEIGHTED_ASTAR_H
+/*
+ * Copyright (c) 2025-2026 ByulPapa (byuldev@outlook.kr)
+ * This file is part of the Byul World project.
+ * Licensed under the Byul World Source-Available Non-Commercial License v1.0 (2025).
+ * See the LICENSE file in the project root for full license terms.
+ */
+
+/**
+ * @file weighted_astar.h
+ * @brief Declares the Weighted A* route search public C ABI.
+ */
+
+#ifndef BYUL_WEIGHTED_ASTAR_H
+#define BYUL_WEIGHTED_ASTAR_H
 
 #include "byul_config.h"
-#include "scalar.h"
-
 #include "route_finder_core.h"
 #include "navgrid.h"
 #include "coord.h"
@@ -39,15 +49,22 @@ extern "C" {
  * - If @c cost_fn or @c heuristic_fn is nullptr, default internal functions are used.
  * - Even if the search fails, the best possible partial path to the last reached node is returned.
  *
- * @param m               Map information
- * @param start           Start coordinate
- * @param goal            Goal coordinate
- * @param cost_fn         Cost function (can be nullptr)
- * @param heuristic_fn    Heuristic function (can be nullptr)
- * @param weight          Weight applied to the heuristic
- * @param max_retry       Maximum number of iterations (0 or less means unlimited)
- * @param debug_mode_enabled Whether to log visited cells
+ * @param[in] m               Map information
+ * @param[in] start           Start coordinate
+ * @param[in] goal            Goal coordinate
+ * @param[in] cost_fn         Cost function (can be nullptr)
+ * @param[in] heuristic_fn    Heuristic function (can be nullptr)
+ * @param[in] weight          Weight applied to the heuristic
+ * @param[in] max_retry       Maximum number of iterations (0 or less means unlimited)
+ * @param[in] debug_mode_enabled Whether to log visited cells
  * @return route_t*       Path object (check the success field for the result)
+ * @byul.nullable m false
+ * @byul.nullable start false
+ * @byul.nullable goal false
+ * @byul.nullable cost_fn true
+ * @byul.nullable heuristic_fn true
+ * @byul.nullable return true
+ * @byul.lifetime return caller-owned
  */
 BYUL_API route_t* find_weighted_astar(const navgrid_t* m,
     const coord_t* start, const coord_t* goal,
@@ -59,4 +76,4 @@ BYUL_API route_t* find_weighted_astar(const navgrid_t* m,
 }
 #endif
 
-#endif // WEIGHTED_ASTAR_H
+#endif /* BYUL_WEIGHTED_ASTAR_H */

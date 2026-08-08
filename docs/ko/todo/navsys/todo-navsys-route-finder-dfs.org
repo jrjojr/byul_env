@@ -73,7 +73,7 @@ Capability descriptor는 “reachable goal 발견 가능, shortest/least-cost �
 Tie/neighbor order, cycle detection, maximum expansion/depth, partial path와 cancel semantics를
 고정한다.
 
-* TODO 1단계: Traversal 계약 동결
+* DONE 1단계: Traversal 계약 동결
 
 ** 실행
 
@@ -89,7 +89,7 @@ Tie/neighbor order, cycle detection, maximum expansion/depth, partial path와 ca
 
 - Boost-style DFS event trace reference와 exhaustive tiny graph reachable set을 비교한다.
 
-* TODO 2단계: Status형 DFS와 observer 구현
+* DONE 2단계: Status형 DFS와 observer 구현
 
 ** 실행
 
@@ -108,7 +108,7 @@ Tie/neighbor order, cycle detection, maximum expansion/depth, partial path와 ca
 
 - event ordering, exact limit, cancel/OOM, deep grid와 deterministic replay test를 실행한다.
 
-* TODO 3단계: Legacy forwarding/Internalize
+* DONE 3단계: Legacy forwarding/Internalize
 
 ** 실행
 

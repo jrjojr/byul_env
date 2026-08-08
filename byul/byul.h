@@ -11,7 +11,7 @@
 #include "byul_config.h"
 #include "numal.h"
 #include "number_theory.h"
-#include "navsys.h"
+#include "navsys_all.h"
 #include "balix.h"
 #include "entity.h"
 #include "projectile.h"

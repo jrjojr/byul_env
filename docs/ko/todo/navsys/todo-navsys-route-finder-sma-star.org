@@ -80,7 +80,7 @@ Node count와 byte workspace 중 normative limit를 하나로 정하거나 둘�
 Stats는 current/peak nodes와 bytes, pruned/regenerated count, incumbent/lower bound와 종료 이유를
 포함한다. Caller workspace/allocator가 bound를 우회하지 않아야 한다.
 
-* TODO 1단계: Algorithm/Memory 기준선
+* DONE 1단계: Algorithm/Memory 기준선
 
 ** 실행
 
@@ -98,7 +98,7 @@ Stats는 current/peak nodes와 bytes, pruned/regenerated count, incumbent/lower 
 - allocation instrumentation으로 모든 owned memory가 limit에 포함되는지 검사한다.
 - reference A*/SMA*와 cost, prune/regenerate trace를 비교한다.
 
-* TODO 2단계: Conformant Memory-Bounded Search
+* DONE 2단계: Canonical conformance block와 legacy memory config
 
 ** 실행
 
@@ -115,7 +115,7 @@ Stats는 current/peak nodes와 bytes, pruned/regenerated count, incumbent/lower 
 
 - Russell/Korf fixture, exact-node/byte boundary, deep tree, callback failure와 sanitizer를 실행한다.
 
-* TODO 3단계: Legacy/Internalize/Performance Gate
+* DONE 3단계: Legacy/Internalize/Performance Gate
 
 ** 실행
 

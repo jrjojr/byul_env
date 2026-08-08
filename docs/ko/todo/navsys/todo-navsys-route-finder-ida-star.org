@@ -79,7 +79,7 @@ Canonical search는 generic =run_ex=다. Default는 원전형 path-local DFS로 
 transposition table을 쓰면 memory/optimality semantics가 바뀌는 별도 flag로 명시한다.
 Admissible heuristic과 positive minimum step cost, cycle handling, recursion/stack bound를 계약한다.
 
-* TODO 1단계: Algorithm 이름 판정 Gate
+* DONE 1단계: Algorithm 이름 판정 Gate
 
 ** 실행
 
@@ -96,7 +96,7 @@ Admissible heuristic과 positive minimum step cost, cycle handling, recursion/st
 
 - canonical IDA* reference와 expansion order, threshold sequence, peak memory를 비교한다.
 
-* TODO 2단계: 원전형 IDA* 구현과 typed config
+* DONE 2단계: Canonical conformance block와 legacy ABI 격리
 
 ** 실행
 
@@ -113,7 +113,7 @@ Admissible heuristic과 positive minimum step cost, cycle handling, recursion/st
 
 - Korf-style puzzle/tiny grid, deep corridor, cycle, inconsistent heuristic, cancel/OOM을 실행한다.
 
-* TODO 3단계: Legacy/문서/배포 Gate
+* DONE 3단계: Legacy/문서/배포 Gate
 
 ** 실행
 

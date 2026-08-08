@@ -11,8 +11,77 @@
 
 extern "C" {
 #include "dstar_lite_pqueue.h"
+
 #include "coord.h"
 #include "dstar_lite_key.h"
+}
+
+TEST_CASE("D* Lite pqueue keeps one exact key per coordinate") {
+    dstar_lite_pqueue_t* queue = dstar_lite_pqueue_create();
+    REQUIRE(queue);
+    const coord_t coordinate{3, 4};
+    const dstar_lite_key_t old_key{9.0f, 1.0f};
+    const dstar_lite_key_t new_key{2.0f, 1.0f};
+    dstar_lite_pqueue_push(queue, &old_key, &coordinate);
+    dstar_lite_pqueue_push(queue, &new_key, &coordinate);
+    dstar_lite_key_t* observed = dstar_lite_pqueue_get_key_by_coord(
+        queue, &coordinate);
+    REQUIRE(observed);
+    CHECK(dstar_lite_key_equal_exact(observed, &new_key));
+    coord_t* popped = dstar_lite_pqueue_pop(queue);
+    REQUIRE(popped);
+    CHECK(coord_equal(popped, &coordinate));
+    coord_destroy(popped);
+    CHECK(dstar_lite_pqueue_is_empty(queue));
+    CHECK(dstar_lite_pqueue_pop(queue) == nullptr);
+    dstar_lite_pqueue_destroy(queue);
+}
+
+TEST_CASE("D* Lite canonical pqueue returns atomic by-value entries") {
+    dstar_lite_pqueue_t* queue = nullptr;
+    REQUIRE(dstar_lite_pqueue_create_ex(&queue) == NAVSYS_STATUS_OK);
+    REQUIRE(queue);
+
+    const coord_t a{2, 0};
+    const coord_t b{1, 0};
+    const coord_t c{3, 0};
+    const dstar_lite_key_t high{4.0f, 1.0f};
+    const dstar_lite_key_t tied{2.0f, 1.0f};
+    const dstar_lite_key_t minimum{1.0f, 9.0f};
+    REQUIRE(dstar_lite_pqueue_upsert(queue, &a, &high) == NAVSYS_STATUS_OK);
+    REQUIRE(dstar_lite_pqueue_upsert(queue, &b, &tied) == NAVSYS_STATUS_OK);
+    REQUIRE(dstar_lite_pqueue_upsert(queue, &a, &tied) == NAVSYS_STATUS_OK);
+    REQUIRE(dstar_lite_pqueue_upsert(queue, &c, &minimum) == NAVSYS_STATUS_OK);
+    CHECK(dstar_lite_pqueue_size(queue) == 3);
+
+    dstar_lite_pqueue_entry_t entry{{99.0f, 99.0f}, {99, 99}};
+    REQUIRE(dstar_lite_pqueue_peek_min(queue, &entry) == NAVSYS_STATUS_OK);
+    CHECK(coord_equal(&entry.coord, &c));
+    CHECK(dstar_lite_key_equal_exact(&entry.key, &minimum));
+    REQUIRE(dstar_lite_pqueue_pop_min(queue, &entry) == NAVSYS_STATUS_OK);
+    CHECK(coord_equal(&entry.coord, &c));
+    REQUIRE(dstar_lite_pqueue_pop_min(queue, &entry) == NAVSYS_STATUS_OK);
+    CHECK(coord_equal(&entry.coord, &b));
+
+    dstar_lite_key_t found_key{77.0f, 77.0f};
+    bool found = true;
+    REQUIRE(dstar_lite_pqueue_find_key(queue, &c, &found_key, &found)
+        == NAVSYS_STATUS_OK);
+    CHECK_FALSE(found);
+    CHECK(found_key.k1 == 77.0f);
+    bool removed = false;
+    REQUIRE(dstar_lite_pqueue_remove_ex(queue, &a, &removed)
+        == NAVSYS_STATUS_OK);
+    CHECK(removed);
+    CHECK(dstar_lite_pqueue_empty(queue));
+
+    const dstar_lite_pqueue_entry_t sentinel{{88.0f, 88.0f}, {88, 88}};
+    entry = sentinel;
+    CHECK(dstar_lite_pqueue_pop_min(queue, &entry) == NAVSYS_STATUS_NOT_FOUND);
+    CHECK(entry.key.k1 == sentinel.key.k1);
+    CHECK(entry.coord.x == sentinel.coord.x);
+
+    dstar_lite_pqueue_destroy(queue);
 }
 
 namespace {

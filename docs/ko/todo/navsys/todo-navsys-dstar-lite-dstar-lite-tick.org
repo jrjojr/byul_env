@@ -172,7 +172,7 @@ tick module에 먼저 추가해야 하며 이를 숨겨서 free하지 않는다.
 
 * 구현 순서
 
-** TODO 1단계: tick subscription 계약과 결함 재현
+** DONE 1단계: tick subscription 계약과 결함 재현
 
 *** 실행
 
@@ -190,7 +190,7 @@ tick module에 먼저 추가해야 하며 이를 숨겨서 free하지 않는다.
   격리한다.
 - public layout size/align/offset을 ABI 1 manifest에 기록한다.
 
-** TODO 2단계: deterministic state machine 구현
+** DONE 2단계: deterministic state machine 구현
 
 *** 실행
 
@@ -210,7 +210,7 @@ tick module에 먼저 추가해야 하며 이를 숨겨서 free하지 않는다.
 - dt partition invariance, multi-step, zero/exact/over interval, goal/no-path/cancel/limit을
   fake planner/clock으로 검사한다.
 
-** TODO 3단계: 안전한 start/stop/destroy 구현
+** DONE 3단계: 안전한 start/stop/destroy 구현
 
 *** 실행
 
@@ -227,7 +227,7 @@ tick module에 먼저 추가해야 하며 이를 숨겨서 free하지 않는다.
 - callback/user thread stop race, reentrancy, repeated start-stop와 sanitizer/TSan 후보를
   실행한다.
 
-** TODO 4단계: ABI 1 adapter와 ABI 2 opaque migration
+** DONE 4단계: ABI 1 adapter와 ABI 2 opaque migration 계약
 
 *** 실행
 
@@ -245,7 +245,7 @@ tick module에 먼저 추가해야 하며 이를 숨겨서 free하지 않는다.
 - old/new SDK fixture와 layout/version mismatch diagnostic을 실행한다.
 - deprecated field/macro/function source scan을 실행한다.
 
-** TODO 5단계: wrapper와 통합 gate
+** DONE 5단계: wrapper와 통합 gate
 
 *** 실행
 
@@ -261,3 +261,11 @@ tick module에 먼저 추가해야 하며 이를 숨겨서 free하지 않는다.
 
 - static/root test, C17/C++17 clean SDK, wrapper audit, ASan/LSan/UBSan과
   =git diff --check=를 통과한다.
+
+* 완료 증거
+
+- ABI 1 adapter는 canonical state machine으로 forwarding하며 tick wrapper는 manifest에서
+  수동 지원 대상으로 명시했다.
+- ABI 2 layout 제거는 major gate로 이관했고 현재 ABI 1 layout/symbol은 보존했다.
+- 결과는 [[file:dstar-lite-stage5-build.json][Stage 5 build 증거]]와
+  [[file:dstar-lite-stage5-closure.json][Stage 5 closure]]에 기록했다.

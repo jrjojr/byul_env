@@ -13,12 +13,12 @@
     ]
   },
   "summary": {
-    "headers": 149,
-    "approved": 149,
-    "approved_install": 98,
-    "wrapper_generated": 32,
-    "wrapper_manual": 59,
-    "wrapper_excluded": 58,
+    "headers": 154,
+    "approved": 154,
+    "approved_install": 101,
+    "wrapper_generated": 46,
+    "wrapper_manual": 47,
+    "wrapper_excluded": 61,
     "compatibility_forwarders": 20,
     "successor_headers": 20,
     "successor_links": 39,
@@ -3049,7 +3049,7 @@
     {
       "asset_id": "initial:byul/navsys/dstar_lite/dstar_lite.h",
       "current_path": "byul/navsys/dstar_lite/dstar_lite.h",
-      "sha256": "4a3c7f5579fd76de0ab0508e05d5666868923ab3a4d4adefc19795e962049801",
+      "sha256": "75a4c4e1cdf22f51e09d3d52999a901c8aa97a8bcbc762cecf63d2ca3697f31e",
       "primary_role": "public-component",
       "role_reason": "Stage-1 evidence supports the current public or internal boundary.",
       "owner_module": "navsys",
@@ -3177,6 +3177,62 @@
       "decision_status": "approved"
     },
     {
+      "asset_id": "stage5:byul/navsys/dstar_lite/dstar_lite_planner.h",
+      "current_path": "byul/navsys/dstar_lite/dstar_lite_planner.h",
+      "sha256": "ed37f5626bebfe19b050242cfff3757015e69df53b7f6ddc62ae2be567f9614b",
+      "primary_role": "public-component",
+      "role_reason": "Canonical status-based incremental D* Lite planner lifecycle.",
+      "owner_module": "navsys",
+      "public_module": "dstar_lite",
+      "approved_install": true,
+      "install_reason": "Public D* Lite planner lifecycle component.",
+      "wrapper": {
+        "mode": "generated",
+        "reason": "Registered in the canonical wrapper generator manifest."
+      },
+      "naming": {
+        "disposition": "keep",
+        "canonical_path": "byul/navsys/dstar_lite/dstar_lite_planner.h",
+        "canonical_install": true,
+        "deprecated_since": null,
+        "remove_in": null,
+        "reason": "Canonical D* Lite lifecycle boundary.",
+        "compatibility_path": null
+      },
+      "successor_headers": [],
+      "source_evidence": {
+        "module_header_groups": [
+          "byul",
+          "dstar_lite",
+          "navsys"
+        ],
+        "root_header_inventory": true,
+        "install_inventory": true,
+        "wrapper_modules_registered": true,
+        "exported_symbols": [
+          "dstar_lite_create_info_init",
+          "dstar_lite_replan_options_init",
+          "dstar_lite_create_ex",
+          "dstar_lite_reset_ex",
+          "dstar_lite_bind_cost_callback",
+          "dstar_lite_bind_heuristic_callback",
+          "dstar_lite_set_current_start",
+          "dstar_lite_set_goal_ex",
+          "dstar_lite_notify_edge_changes",
+          "dstar_lite_replan",
+          "dstar_lite_get_stats",
+          "dstar_lite_request_cancel",
+          "dstar_lite_is_cancel_requested"
+        ],
+        "source_definition_candidates": [
+          "byul/navsys/dstar_lite/dstar_lite_planner.cpp",
+          "byul/navsys/dstar_lite/tests/test_module_dstar_lite.cpp",
+          "byul/tests/sdk_consumer/main.c"
+        ]
+      },
+      "decision_status": "approved"
+    },
+    {
       "asset_id": "initial:byul/navsys/dstar_lite/dstar_lite_key.h",
       "current_path": "byul/navsys/dstar_lite/dstar_lite_key.h",
       "sha256": "15350eff9dc57d416077d9ca3a28692f53a114120c7b862a423459fe10150cb8",
@@ -3244,7 +3300,7 @@
     {
       "asset_id": "initial:byul/navsys/dstar_lite/dstar_lite_pqueue.h",
       "current_path": "byul/navsys/dstar_lite/dstar_lite_pqueue.h",
-      "sha256": "d12da13935c093581a614fcb92b59618d9d30501e9ee931d61f765b6eb1af6fa",
+      "sha256": "741f99e743435e7b509a041674fe521cc14694088ce7fd55831974c14f20a15f",
       "primary_role": "public-component",
       "role_reason": "Stage-1 evidence supports the current public or internal boundary.",
       "owner_module": "navsys",
@@ -3275,6 +3331,16 @@
         "install_inventory": true,
         "wrapper_modules_registered": true,
         "exported_symbols": [
+          "dstar_lite_pqueue_create_ex",
+          "dstar_lite_pqueue_copy_ex",
+          "dstar_lite_pqueue_upsert",
+          "dstar_lite_pqueue_peek_min",
+          "dstar_lite_pqueue_pop_min",
+          "dstar_lite_pqueue_find_key",
+          "dstar_lite_pqueue_remove_ex",
+          "dstar_lite_pqueue_size",
+          "dstar_lite_pqueue_empty",
+          "dstar_lite_pqueue_clear",
           "dstar_lite_pqueue_create",
           "dstar_lite_pqueue_destroy",
           "dstar_lite_pqueue_copy",
@@ -3299,7 +3365,7 @@
     {
       "asset_id": "initial:byul/navsys/dstar_lite/dstar_lite_tick.h",
       "current_path": "byul/navsys/dstar_lite/dstar_lite_tick.h",
-      "sha256": "844bfdd3e10d9d752e07934e262934c44ec4e99caa248dcaf0b411404ec532a6",
+      "sha256": "e4dbb4a002c212dd3e64a8f31188c3c4ff83a800c3622501647c0d44c9c4ea79",
       "primary_role": "public-component",
       "role_reason": "Stage-1 evidence supports the current public or internal boundary.",
       "owner_module": "navsys",
@@ -3330,6 +3396,14 @@
         "install_inventory": true,
         "wrapper_modules_registered": false,
         "exported_symbols": [
+          "dstar_lite_tick_create_info_init",
+          "dstar_lite_tick_create_ex",
+          "dstar_lite_tick_start",
+          "dstar_lite_tick_stop",
+          "dstar_lite_tick_advance",
+          "dstar_lite_tick_get_state",
+          "dstar_lite_tick_fetch_position",
+          "dstar_lite_tick_get_elapsed_seconds",
           "dstar_lite_tick_create",
           "dstar_lite_tick_create_full",
           "dstar_lite_tick_destroy",
@@ -3378,6 +3452,43 @@
         "wrapper_modules_registered": false,
         "exported_symbols": [],
         "source_definition_candidates": []
+      },
+      "decision_status": "approved"
+    },
+    {
+      "asset_id": "stage5:byul/navsys/dstar_lite/internal/dstar_lite_planner.hpp",
+      "current_path": "byul/navsys/dstar_lite/internal/dstar_lite_planner.hpp",
+      "sha256": "062267312395db7cc2df62250fc3d269bd449d30b14ff3c124885c4e1f7ba104",
+      "primary_role": "internal",
+      "role_reason": "Private D* Lite planner state, registry, and algorithm boundary.",
+      "owner_module": "navsys",
+      "public_module": "dstar_lite",
+      "approved_install": false,
+      "install_reason": "internal is excluded from the SDK install inventory.",
+      "wrapper": {
+        "mode": "excluded",
+        "reason": "internal headers are outside the installed C ABI wrapper input."
+      },
+      "naming": {
+        "disposition": "keep",
+        "canonical_path": "byul/navsys/dstar_lite/internal/dstar_lite_planner.hpp",
+        "canonical_install": false,
+        "deprecated_since": null,
+        "remove_in": null,
+        "reason": "Canonical private planner implementation path.",
+        "compatibility_path": null
+      },
+      "successor_headers": [],
+      "source_evidence": {
+        "module_header_groups": [],
+        "root_header_inventory": false,
+        "install_inventory": false,
+        "wrapper_modules_registered": false,
+        "exported_symbols": [],
+        "source_definition_candidates": [
+          "byul/navsys/dstar_lite/dstar_lite.cpp",
+          "byul/navsys/dstar_lite/dstar_lite_planner.cpp"
+        ]
       },
       "decision_status": "approved"
     },
@@ -4205,16 +4316,16 @@
     {
       "asset_id": "initial:byul/navsys/navsys.h",
       "current_path": "byul/navsys/navsys.h",
-      "sha256": "b558b749ce4eec39755f7befe204e26605c26768fb25ac7f4e4705d38dcd29f8",
+      "sha256": "aac746a7d37e1a9d654d712dcc3248b3d35581db96773945e7ca5fad22ccb22a",
       "primary_role": "public-module-entry",
-      "role_reason": "Stage-1 evidence supports the current public or internal boundary.",
+      "role_reason": "Canonical versioned one-shot path-search facade with ABI 1 forwarding helpers.",
       "owner_module": "navsys",
       "public_module": "navsys",
       "approved_install": true,
       "install_reason": "Public or compatibility SDK surface.",
       "wrapper": {
-        "mode": "manual",
-        "reason": "Public legacy declarations require explicit ownership/error metadata before automatic generation."
+        "mode": "generated",
+        "reason": "Registered in the canonical wrapper generator manifest."
       },
       "naming": {
         "disposition": "keep",
@@ -4233,8 +4344,13 @@
         ],
         "root_header_inventory": true,
         "install_inventory": true,
-        "wrapper_modules_registered": false,
+        "wrapper_modules_registered": true,
         "exported_symbols": [
+          "navsys_path_query_init",
+          "navsys_algorithm_config_init",
+          "navsys_is_algorithm_supported",
+          "navsys_get_algorithm_descriptor",
+          "navsys_find_path",
           "navsys_find_astar",
           "navsys_find_bfs",
           "navsys_find_dfs",
@@ -4251,6 +4367,47 @@
         "source_definition_candidates": [
           "byul/navsys/navsys.cpp",
           "byul/navsys/tests/test_module_navsys.cpp"
+        ]
+      },
+      "decision_status": "approved"
+    },
+    {
+      "asset_id": "stage6:byul/navsys/navsys_all.h",
+      "current_path": "byul/navsys/navsys_all.h",
+      "sha256": "41161226e71533471ba04eb678411313d4bfbb8e63c7ce4f59974724c585a57a",
+      "primary_role": "public-aggregate",
+      "role_reason": "Explicit include-only aggregate for consumers that need every Navsys component.",
+      "owner_module": "navsys",
+      "public_module": "navsys",
+      "approved_install": true,
+      "install_reason": "Public Navsys aggregate SDK surface.",
+      "wrapper": {
+        "mode": "excluded",
+        "reason": "Include-only aggregate with no independent exported declarations."
+      },
+      "naming": {
+        "disposition": "keep",
+        "canonical_path": "byul/navsys/navsys_all.h",
+        "canonical_install": true,
+        "deprecated_since": null,
+        "remove_in": null,
+        "reason": "Explicit aggregate naming distinguishes it from the minimal facade.",
+        "compatibility_path": null
+      },
+      "successor_headers": [],
+      "source_evidence": {
+        "module_header_groups": [
+          "byul",
+          "navsys"
+        ],
+        "root_header_inventory": true,
+        "install_inventory": true,
+        "wrapper_modules_registered": false,
+        "exported_symbols": [],
+        "source_definition_candidates": [
+          "byul/navsys/tests/test_module_navsys.cpp",
+          "byul/tests/sdk_consumer/route_carver_aggregate_main.c",
+          "byul/tests/sdk_consumer/route_carver_aggregate_main.cpp"
         ]
       },
       "decision_status": "approved"
@@ -5563,6 +5720,56 @@
           "octile_heuristic",
           "zero_heuristic",
           "default_heuristic"
+        ],
+        "source_definition_candidates": [
+          "byul/navsys/route_finder/route_finder_core.cpp"
+        ]
+      },
+      "decision_status": "approved"
+    },
+    {
+      "asset_id": "stage4:byul/navsys/route_finder/route_finder_evaluation.h",
+      "current_path": "byul/navsys/route_finder/route_finder_evaluation.h",
+      "sha256": "stage4-working-tree",
+      "primary_role": "public-component",
+      "role_reason": "Canonical status-based cost and heuristic evaluation component.",
+      "owner_module": "navsys",
+      "public_module": "route_finder",
+      "approved_install": true,
+      "install_reason": "Public Route Finder evaluation component.",
+      "wrapper": {
+        "mode": "generated",
+        "reason": "Registered in the canonical wrapper generator manifest."
+      },
+      "naming": {
+        "disposition": "keep",
+        "canonical_path": "byul/navsys/route_finder/route_finder_evaluation.h",
+        "canonical_install": true,
+        "deprecated_since": null,
+        "remove_in": null,
+        "reason": "Canonical Route Finder evaluation boundary.",
+        "compatibility_path": null
+      },
+      "successor_headers": [],
+      "source_evidence": {
+        "module_header_groups": [
+          "byul",
+          "navsys",
+          "route_finder"
+        ],
+        "root_header_inventory": true,
+        "install_inventory": true,
+        "wrapper_modules_registered": true,
+        "exported_symbols": [
+          "route_finder_cost_unit",
+          "route_finder_cost_zero",
+          "route_finder_cost_diagonal",
+          "route_finder_heuristic_euclidean",
+          "route_finder_heuristic_manhattan",
+          "route_finder_heuristic_chebyshev",
+          "route_finder_heuristic_octile",
+          "route_finder_heuristic_zero",
+          "route_finder_heuristic_default"
         ],
         "source_definition_candidates": [
           "byul/navsys/route_finder/route_finder_core.cpp"

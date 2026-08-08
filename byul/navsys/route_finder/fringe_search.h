@@ -1,5 +1,17 @@
-#ifndef FRINGE_SEARCH_H
-#define FRINGE_SEARCH_H
+/*
+ * Copyright (c) 2025-2026 ByulPapa (byuldev@outlook.kr)
+ * This file is part of the Byul World project.
+ * Licensed under the Byul World Source-Available Non-Commercial License v1.0 (2025).
+ * See the LICENSE file in the project root for full license terms.
+ */
+
+/**
+ * @file fringe_search.h
+ * @brief Declares the legacy Fringe Search route search C ABI.
+ */
+
+#ifndef BYUL_FRINGE_SEARCH_H
+#define BYUL_FRINGE_SEARCH_H
 
 #include "route_finder_core.h"
 
@@ -30,17 +42,24 @@ extern "C" {
  *   - `delta_epsilon = 1.5f`: balanced setting (recommended)
  *   - `delta_epsilon >= 3.0f`: wide search, potential performance issues
  *
- * @param m               Map information
- * @param start           Start coordinate
- * @param goal            Goal coordinate
- * @param cost_fn         Movement cost function (if NULL, default_cost is used)
- * @param heuristic_fn    Heuristic function (if NULL, default_heuristic is used)
- * @param delta_epsilon   Threshold tolerance (if <= 0, defaults to 0.5f)
- * @param max_retry       Maximum iteration count (if <= 0, unlimited)
- * @param debug_mode_enabled Whether to log visited nodes (true logs visit order into the route)
+ * @param[in] m               Map information
+ * @param[in] start           Start coordinate
+ * @param[in] goal            Goal coordinate
+ * @param[in] cost_fn         Movement cost function (if NULL, default_cost is used)
+ * @param[in] heuristic_fn    Heuristic function (if NULL, default_heuristic is used)
+ * @param[in] delta_epsilon   Threshold tolerance (if <= 0, defaults to 0.5f)
+ * @param[in] max_retry       Maximum iteration count (if <= 0, unlimited)
+ * @param[in] debug_mode_enabled Whether to log visited nodes (true logs visit order into the route)
  *
  * @return route_t* The search result. If success is true, a path was found.
  *         Even on failure, the path to the last explored node is recorded.
+ * @byul.nullable m false
+ * @byul.nullable start false
+ * @byul.nullable goal false
+ * @byul.nullable cost_fn true
+ * @byul.nullable heuristic_fn true
+ * @byul.nullable return true
+ * @byul.lifetime return caller-owned
  */
 BYUL_API route_t* find_fringe_search(const navgrid_t* m, 
     const coord_t* start, const coord_t* goal,
@@ -51,4 +70,4 @@ BYUL_API route_t* find_fringe_search(const navgrid_t* m,
 }
 #endif
 
-#endif // FRINGE_SEARCH_H
+#endif /* BYUL_FRINGE_SEARCH_H */

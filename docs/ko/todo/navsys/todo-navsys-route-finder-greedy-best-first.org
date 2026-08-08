@@ -74,7 +74,7 @@ BYUL_API navsys_status_t route_finder_find_greedy_best_first_ex(
 Canonical 선택은 finder bind + generic run이다. Stats/capability는 “path may be non-shortest”,
 expanded/generated, final endpoint와 heuristic value를 포함하고 cost-optimal flag를 false로 둔다.
 
-* TODO 1단계: Greedy semantics 고정
+* DONE 1단계: Greedy semantics 고정
 
 ** 실행
 
@@ -89,7 +89,7 @@ expanded/generated, final endpoint와 heuristic value를 포함하고 cost-optim
 
 - exhaustive tiny grid에서 route validity와 reachability를 검사하고 cost 차이는 명시적으로 허용한다.
 
-* TODO 2단계: Status/heuristic binding 정비
+* DONE 2단계: Status/heuristic binding 정비
 
 ** 실행
 
@@ -105,7 +105,7 @@ expanded/generated, final endpoint와 heuristic value를 포함하고 cost-optim
 
 - sentinel userdata, NaN/Inf, adversarial heuristic, exact budget, cancel/OOM을 실행한다.
 
-* TODO 3단계: Legacy/Internalize Gate
+* DONE 3단계: Legacy/Internalize Gate
 
 ** 실행
 

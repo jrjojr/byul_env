@@ -1,5 +1,17 @@
-#ifndef DIJKSTRA_H
-#define DIJKSTRA_H
+/*
+ * Copyright (c) 2025-2026 ByulPapa (byuldev@outlook.kr)
+ * This file is part of the Byul World project.
+ * Licensed under the Byul World Source-Available Non-Commercial License v1.0 (2025).
+ * See the LICENSE file in the project root for full license terms.
+ */
+
+/**
+ * @file dijkstra.h
+ * @brief Declares the Dijkstra route search public C ABI.
+ */
+
+#ifndef BYUL_DIJKSTRA_H
+#define BYUL_DIJKSTRA_H
 
 #include "byul_config.h"
 #include "coord.h"
@@ -26,15 +38,21 @@ extern "C" {
  * and path tracing table. The input requires the map, start/goal coordinates,
  * and an optional cost function.
  *
- * @param m              The map to search.
- * @param start          Start coordinate.
- * @param goal           Goal coordinate.
- * @param cost_fn        Function to calculate the movement cost between coordinates.
+ * @param[in] m              The map to search.
+ * @param[in] start          Start coordinate.
+ * @param[in] goal           Goal coordinate.
+ * @param[in] cost_fn        Function to calculate the movement cost between coordinates.
  *                       If NULL, a default cost of 1.0f is used.
- * @param max_retry      Maximum number of iterations (for loop prevention).
- * @param debug_mode_enabled Whether to log visited coordinates.
+ * @param[in] max_retry      Maximum number of iterations (for loop prevention).
+ * @param[in] debug_mode_enabled Whether to log visited coordinates.
  * @return               A pointer to a route_t object.
  *                       If @c route_get_success(route_t*) is TRUE, the search succeeded.
+ * @byul.nullable m false
+ * @byul.nullable start false
+ * @byul.nullable goal false
+ * @byul.nullable cost_fn true
+ * @byul.nullable return true
+ * @byul.lifetime return caller-owned
  */
 BYUL_API route_t* find_dijkstra(const navgrid_t* m, 
     const coord_t* start, const coord_t* goal, cost_func cost_fn,
@@ -44,4 +62,4 @@ BYUL_API route_t* find_dijkstra(const navgrid_t* m,
 }
 #endif
 
-#endif // DIJKSTRA_H
+#endif /* BYUL_DIJKSTRA_H */

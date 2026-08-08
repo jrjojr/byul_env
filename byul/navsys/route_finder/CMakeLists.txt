@@ -57,6 +57,8 @@ set(${PROJECT_NAME}_HEADERS
 
     ${CMAKE_CURRENT_SOURCE_DIR}/route_finder_core.h
 
+    ${CMAKE_CURRENT_SOURCE_DIR}/route_finder_evaluation.h
+
     ${CMAKE_CURRENT_SOURCE_DIR}/route_finder.h
 
     ${CMAKE_CURRENT_SOURCE_DIR}/rta_star.h
@@ -76,7 +78,6 @@ target_include_directories(${PROJECT_NAME} PRIVATE
     ${CMAKE_SOURCE_DIR}
     
     ${CMAKE_SOURCE_DIR}/core
-    ${CMAKE_SOURCE_DIR}/numal
     ${CMAKE_SOURCE_DIR}/navsys
     ${CMAKE_SOURCE_DIR}/navsys/coord
     ${CMAKE_SOURCE_DIR}/navsys/route
@@ -85,7 +86,6 @@ target_include_directories(${PROJECT_NAME} PRIVATE
 
 target_link_libraries(${PROJECT_NAME} PRIVATE 
     core
-    numal
     coord
     route
     navgrid

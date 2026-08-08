@@ -3,38 +3,36 @@
   "source_role_manifest": "docs/ko/todo/header-refactor-current/header-role-manifest.json",
   "source_vocabulary": "docs/ko/todo/navsys/navsys-abi-vocabulary.json",
   "summary": {
-    "headers": 58,
-    "symbols": 659,
+    "headers": 62,
+    "symbols": 708,
     "return_forms": {
-      "nullable_pointer": 157,
-      "bool_predicate": 23,
-      "bool_operation": 20,
+      "nullable_pointer": 158,
+      "bool_predicate": 26,
+      "bool_operation": 21,
       "int_zero_nonzero_status": 41,
-      "int_count": 28,
+      "int_count": 29,
       "int_index_minus_one": 4,
-      "void_fallible_operation": 143,
-      "enum_result": 224,
+      "void_fallible_operation": 144,
+      "enum_result": 266,
       "floating_result": 19,
       "callback_return": 0
     },
     "unclassified": 0,
     "duplicate_declarations": 0,
-    "audit_issues": 563,
-    "audit_errors": 563,
+    "audit_issues": 227,
+    "audit_errors": 227,
     "audit_codes": {
-      "missing-brief": 5,
-      "missing-doxygen": 158,
-      "missing-nullable": 119,
-      "missing-param": 61,
-      "missing-param-direction": 114,
-      "missing-return": 12,
-      "missing-return-lifetime": 26,
-      "missing-return-nullable": 26,
-      "unknown-param": 12,
-      "unnamed-parameter": 30
+      "missing-doxygen": 104,
+      "missing-nullable": 52,
+      "missing-param": 41,
+      "missing-param-direction": 13,
+      "missing-return": 2,
+      "missing-return-lifetime": 5,
+      "missing-return-nullable": 5,
+      "unknown-param": 5
     },
-    "lifecycle_resources": 33,
-    "lifecycle_operations": 113,
+    "lifecycle_resources": 38,
+    "lifecycle_operations": 121,
     "callback_bindings": 7
   },
   "known_debt": {
@@ -2082,3030 +2080,6 @@
         "symbol": "dstar_lite_fetch_next",
         "message": "public function has no adjacent Doxygen block",
         "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/dstar_lite/dstar_lite_pqueue.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-dstar-lite-dstar-lite-pqueue.org",
-        "severity": "error",
-        "code": "missing-doxygen",
-        "symbol": "dstar_lite_pqueue_create",
-        "message": "public function has no adjacent Doxygen block",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/dstar_lite/dstar_lite_pqueue.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-dstar-lite-dstar-lite-pqueue.org",
-        "severity": "error",
-        "code": "missing-doxygen",
-        "symbol": "dstar_lite_pqueue_destroy",
-        "message": "public function has no adjacent Doxygen block",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/dstar_lite/dstar_lite_pqueue.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-dstar-lite-dstar-lite-pqueue.org",
-        "severity": "error",
-        "code": "missing-doxygen",
-        "symbol": "dstar_lite_pqueue_copy",
-        "message": "public function has no adjacent Doxygen block",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/dstar_lite/dstar_lite_pqueue.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-dstar-lite-dstar-lite-pqueue.org",
-        "severity": "error",
-        "code": "missing-doxygen",
-        "symbol": "dstar_lite_pqueue_push",
-        "message": "public function has no adjacent Doxygen block",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/dstar_lite/dstar_lite_pqueue.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-dstar-lite-dstar-lite-pqueue.org",
-        "severity": "error",
-        "code": "missing-doxygen",
-        "symbol": "dstar_lite_pqueue_peek",
-        "message": "public function has no adjacent Doxygen block",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/dstar_lite/dstar_lite_pqueue.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-dstar-lite-dstar-lite-pqueue.org",
-        "severity": "error",
-        "code": "missing-doxygen",
-        "symbol": "dstar_lite_pqueue_pop",
-        "message": "public function has no adjacent Doxygen block",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/dstar_lite/dstar_lite_pqueue.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-dstar-lite-dstar-lite-pqueue.org",
-        "severity": "error",
-        "code": "missing-doxygen",
-        "symbol": "dstar_lite_pqueue_is_empty",
-        "message": "public function has no adjacent Doxygen block",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/dstar_lite/dstar_lite_pqueue.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-dstar-lite-dstar-lite-pqueue.org",
-        "severity": "error",
-        "code": "missing-doxygen",
-        "symbol": "dstar_lite_pqueue_remove",
-        "message": "public function has no adjacent Doxygen block",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/dstar_lite/dstar_lite_pqueue.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-dstar-lite-dstar-lite-pqueue.org",
-        "severity": "error",
-        "code": "missing-doxygen",
-        "symbol": "dstar_lite_pqueue_remove_full",
-        "message": "public function has no adjacent Doxygen block",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/dstar_lite/dstar_lite_pqueue.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-dstar-lite-dstar-lite-pqueue.org",
-        "severity": "error",
-        "code": "missing-doxygen",
-        "symbol": "dstar_lite_pqueue_get_key_by_coord",
-        "message": "public function has no adjacent Doxygen block",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/dstar_lite/dstar_lite_pqueue.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-dstar-lite-dstar-lite-pqueue.org",
-        "severity": "error",
-        "code": "missing-doxygen",
-        "symbol": "dstar_lite_pqueue_top_key",
-        "message": "public function has no adjacent Doxygen block",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/dstar_lite/dstar_lite_pqueue.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-dstar-lite-dstar-lite-pqueue.org",
-        "severity": "error",
-        "code": "missing-doxygen",
-        "symbol": "dstar_lite_pqueue_contains",
-        "message": "public function has no adjacent Doxygen block",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/dstar_lite/dstar_lite_tick.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-dstar-lite-dstar-lite-tick.org",
-        "severity": "error",
-        "code": "missing-param-direction",
-        "symbol": "dstar_lite_tick_create",
-        "message": "parameter 'dsl' has no direction",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/dstar_lite/dstar_lite_tick.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-dstar-lite-dstar-lite-tick.org",
-        "severity": "error",
-        "code": "missing-nullable",
-        "symbol": "dstar_lite_tick_create",
-        "message": "pointer parameter 'dsl' has no @byul.nullable",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/dstar_lite/dstar_lite_tick.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-dstar-lite-dstar-lite-tick.org",
-        "severity": "error",
-        "code": "missing-return-nullable",
-        "symbol": "dstar_lite_tick_create",
-        "message": "pointer return has no @byul.nullable return",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/dstar_lite/dstar_lite_tick.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-dstar-lite-dstar-lite-tick.org",
-        "severity": "error",
-        "code": "missing-return-lifetime",
-        "symbol": "dstar_lite_tick_create",
-        "message": "pointer return has no @byul.lifetime return",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/dstar_lite/dstar_lite_tick.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-dstar-lite-dstar-lite-tick.org",
-        "severity": "error",
-        "code": "missing-param-direction",
-        "symbol": "dstar_lite_tick_create_full",
-        "message": "parameter 'dsl' has no direction",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/dstar_lite/dstar_lite_tick.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-dstar-lite-dstar-lite-tick.org",
-        "severity": "error",
-        "code": "missing-nullable",
-        "symbol": "dstar_lite_tick_create_full",
-        "message": "pointer parameter 'dsl' has no @byul.nullable",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/dstar_lite/dstar_lite_tick.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-dstar-lite-dstar-lite-tick.org",
-        "severity": "error",
-        "code": "missing-param-direction",
-        "symbol": "dstar_lite_tick_create_full",
-        "message": "parameter 'max_time' has no direction",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/dstar_lite/dstar_lite_tick.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-dstar-lite-dstar-lite-tick.org",
-        "severity": "error",
-        "code": "missing-return-nullable",
-        "symbol": "dstar_lite_tick_create_full",
-        "message": "pointer return has no @byul.nullable return",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/dstar_lite/dstar_lite_tick.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-dstar-lite-dstar-lite-tick.org",
-        "severity": "error",
-        "code": "missing-return-lifetime",
-        "symbol": "dstar_lite_tick_create_full",
-        "message": "pointer return has no @byul.lifetime return",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/dstar_lite/dstar_lite_tick.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-dstar-lite-dstar-lite-tick.org",
-        "severity": "error",
-        "code": "missing-param-direction",
-        "symbol": "dstar_lite_tick_destroy",
-        "message": "parameter 'dst' has no direction",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/dstar_lite/dstar_lite_tick.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-dstar-lite-dstar-lite-tick.org",
-        "severity": "error",
-        "code": "missing-nullable",
-        "symbol": "dstar_lite_tick_destroy",
-        "message": "pointer parameter 'dst' has no @byul.nullable",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/dstar_lite/dstar_lite_tick.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-dstar-lite-dstar-lite-tick.org",
-        "severity": "error",
-        "code": "missing-param-direction",
-        "symbol": "dstar_lite_tick_copy",
-        "message": "parameter 'src' has no direction",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/dstar_lite/dstar_lite_tick.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-dstar-lite-dstar-lite-tick.org",
-        "severity": "error",
-        "code": "missing-nullable",
-        "symbol": "dstar_lite_tick_copy",
-        "message": "pointer parameter 'src' has no @byul.nullable",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/dstar_lite/dstar_lite_tick.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-dstar-lite-dstar-lite-tick.org",
-        "severity": "error",
-        "code": "missing-return-nullable",
-        "symbol": "dstar_lite_tick_copy",
-        "message": "pointer return has no @byul.nullable return",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/dstar_lite/dstar_lite_tick.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-dstar-lite-dstar-lite-tick.org",
-        "severity": "error",
-        "code": "missing-return-lifetime",
-        "symbol": "dstar_lite_tick_copy",
-        "message": "pointer return has no @byul.lifetime return",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/dstar_lite/dstar_lite_tick.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-dstar-lite-dstar-lite-tick.org",
-        "severity": "error",
-        "code": "missing-param-direction",
-        "symbol": "dstar_lite_tick_reset",
-        "message": "parameter 'dst' has no direction",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/dstar_lite/dstar_lite_tick.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-dstar-lite-dstar-lite-tick.org",
-        "severity": "error",
-        "code": "missing-nullable",
-        "symbol": "dstar_lite_tick_reset",
-        "message": "pointer parameter 'dst' has no @byul.nullable",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/dstar_lite/dstar_lite_tick.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-dstar-lite-dstar-lite-tick.org",
-        "severity": "error",
-        "code": "missing-param-direction",
-        "symbol": "dstar_lite_tick_prepare",
-        "message": "parameter 'dst' has no direction",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/dstar_lite/dstar_lite_tick.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-dstar-lite-dstar-lite-tick.org",
-        "severity": "error",
-        "code": "missing-nullable",
-        "symbol": "dstar_lite_tick_prepare",
-        "message": "pointer parameter 'dst' has no @byul.nullable",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/dstar_lite/dstar_lite_tick.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-dstar-lite-dstar-lite-tick.org",
-        "severity": "error",
-        "code": "missing-param-direction",
-        "symbol": "dstar_lite_tick_prepare",
-        "message": "parameter 'tk' has no direction",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/dstar_lite/dstar_lite_tick.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-dstar-lite-dstar-lite-tick.org",
-        "severity": "error",
-        "code": "missing-nullable",
-        "symbol": "dstar_lite_tick_prepare",
-        "message": "pointer parameter 'tk' has no @byul.nullable",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/dstar_lite/dstar_lite_tick.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-dstar-lite-dstar-lite-tick.org",
-        "severity": "error",
-        "code": "missing-param-direction",
-        "symbol": "dstar_lite_tick_prepare_full",
-        "message": "parameter 'dst' has no direction",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/dstar_lite/dstar_lite_tick.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-dstar-lite-dstar-lite-tick.org",
-        "severity": "error",
-        "code": "missing-nullable",
-        "symbol": "dstar_lite_tick_prepare_full",
-        "message": "pointer parameter 'dst' has no @byul.nullable",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/dstar_lite/dstar_lite_tick.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-dstar-lite-dstar-lite-tick.org",
-        "severity": "error",
-        "code": "missing-param-direction",
-        "symbol": "dstar_lite_tick_prepare_full",
-        "message": "parameter 'unit_m' has no direction",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/dstar_lite/dstar_lite_tick.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-dstar-lite-dstar-lite-tick.org",
-        "severity": "error",
-        "code": "missing-param-direction",
-        "symbol": "dstar_lite_tick_prepare_full",
-        "message": "parameter 'speed_sec' has no direction",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/dstar_lite/dstar_lite_tick.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-dstar-lite-dstar-lite-tick.org",
-        "severity": "error",
-        "code": "missing-param-direction",
-        "symbol": "dstar_lite_tick_prepare_full",
-        "message": "parameter 'max_time' has no direction",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/dstar_lite/dstar_lite_tick.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-dstar-lite-dstar-lite-tick.org",
-        "severity": "error",
-        "code": "missing-param-direction",
-        "symbol": "dstar_lite_tick_prepare_full",
-        "message": "parameter 'tk' has no direction",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/dstar_lite/dstar_lite_tick.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-dstar-lite-dstar-lite-tick.org",
-        "severity": "error",
-        "code": "missing-nullable",
-        "symbol": "dstar_lite_tick_prepare_full",
-        "message": "pointer parameter 'tk' has no @byul.nullable",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/dstar_lite/dstar_lite_tick.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-dstar-lite-dstar-lite-tick.org",
-        "severity": "error",
-        "code": "missing-param-direction",
-        "symbol": "dstar_lite_tick_update",
-        "message": "parameter 'dst' has no direction",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/dstar_lite/dstar_lite_tick.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-dstar-lite-dstar-lite-tick.org",
-        "severity": "error",
-        "code": "missing-nullable",
-        "symbol": "dstar_lite_tick_update",
-        "message": "pointer parameter 'dst' has no @byul.nullable",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/dstar_lite/dstar_lite_tick.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-dstar-lite-dstar-lite-tick.org",
-        "severity": "error",
-        "code": "missing-param-direction",
-        "symbol": "dstar_lite_tick_update",
-        "message": "parameter 'dt' has no direction",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/dstar_lite/dstar_lite_tick.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-dstar-lite-dstar-lite-tick.org",
-        "severity": "error",
-        "code": "missing-param-direction",
-        "symbol": "dstar_lite_tick_complete",
-        "message": "parameter 'dst' has no direction",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/dstar_lite/dstar_lite_tick.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-dstar-lite-dstar-lite-tick.org",
-        "severity": "error",
-        "code": "missing-nullable",
-        "symbol": "dstar_lite_tick_complete",
-        "message": "pointer parameter 'dst' has no @byul.nullable",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/dstar_lite/dstar_lite_tick.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-dstar-lite-dstar-lite-tick.org",
-        "severity": "error",
-        "code": "missing-param-direction",
-        "symbol": "dstar_lite_tick_complete",
-        "message": "parameter 'tk' has no direction",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/dstar_lite/dstar_lite_tick.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-dstar-lite-dstar-lite-tick.org",
-        "severity": "error",
-        "code": "missing-nullable",
-        "symbol": "dstar_lite_tick_complete",
-        "message": "pointer parameter 'tk' has no @byul.nullable",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/navsys.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-navsys.org",
-        "severity": "error",
-        "code": "missing-doxygen",
-        "symbol": "navsys_find_astar",
-        "message": "public function has no adjacent Doxygen block",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/navsys.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-navsys.org",
-        "severity": "error",
-        "code": "missing-doxygen",
-        "symbol": "navsys_find_bfs",
-        "message": "public function has no adjacent Doxygen block",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/navsys.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-navsys.org",
-        "severity": "error",
-        "code": "missing-doxygen",
-        "symbol": "navsys_find_dfs",
-        "message": "public function has no adjacent Doxygen block",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/navsys.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-navsys.org",
-        "severity": "error",
-        "code": "missing-doxygen",
-        "symbol": "navsys_find_dijkstra",
-        "message": "public function has no adjacent Doxygen block",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/navsys.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-navsys.org",
-        "severity": "error",
-        "code": "missing-doxygen",
-        "symbol": "navsys_find_greedy_best_first",
-        "message": "public function has no adjacent Doxygen block",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/navsys.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-navsys.org",
-        "severity": "error",
-        "code": "missing-doxygen",
-        "symbol": "navsys_find_fast_marching",
-        "message": "public function has no adjacent Doxygen block",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/navsys.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-navsys.org",
-        "severity": "error",
-        "code": "missing-doxygen",
-        "symbol": "navsys_find_ida_star",
-        "message": "public function has no adjacent Doxygen block",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/navsys.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-navsys.org",
-        "severity": "error",
-        "code": "missing-param",
-        "symbol": "navsys_find_fringe_search",
-        "message": "parameter 'ng' has no @param",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/navsys.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-navsys.org",
-        "severity": "error",
-        "code": "missing-nullable",
-        "symbol": "navsys_find_fringe_search",
-        "message": "pointer parameter 'ng' has no @byul.nullable",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/navsys.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-navsys.org",
-        "severity": "error",
-        "code": "missing-param",
-        "symbol": "navsys_find_fringe_search",
-        "message": "parameter 'start' has no @param",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/navsys.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-navsys.org",
-        "severity": "error",
-        "code": "missing-nullable",
-        "symbol": "navsys_find_fringe_search",
-        "message": "pointer parameter 'start' has no @byul.nullable",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/navsys.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-navsys.org",
-        "severity": "error",
-        "code": "missing-param",
-        "symbol": "navsys_find_fringe_search",
-        "message": "parameter 'goal' has no @param",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/navsys.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-navsys.org",
-        "severity": "error",
-        "code": "missing-nullable",
-        "symbol": "navsys_find_fringe_search",
-        "message": "pointer parameter 'goal' has no @byul.nullable",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/navsys.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-navsys.org",
-        "severity": "error",
-        "code": "missing-param",
-        "symbol": "navsys_find_fringe_search",
-        "message": "parameter 'delta_epsilon' has no @param",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/navsys.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-navsys.org",
-        "severity": "error",
-        "code": "unknown-param",
-        "symbol": "navsys_find_fringe_search",
-        "message": "@param references unknown parameter 'a'",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/navsys.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-navsys.org",
-        "severity": "error",
-        "code": "missing-return-nullable",
-        "symbol": "navsys_find_fringe_search",
-        "message": "pointer return has no @byul.nullable return",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/navsys.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-navsys.org",
-        "severity": "error",
-        "code": "missing-return-lifetime",
-        "symbol": "navsys_find_fringe_search",
-        "message": "pointer return has no @byul.lifetime return",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/navsys.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-navsys.org",
-        "severity": "error",
-        "code": "missing-param",
-        "symbol": "navsys_find_rta_star",
-        "message": "parameter 'ng' has no @param",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/navsys.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-navsys.org",
-        "severity": "error",
-        "code": "missing-nullable",
-        "symbol": "navsys_find_rta_star",
-        "message": "pointer parameter 'ng' has no @byul.nullable",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/navsys.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-navsys.org",
-        "severity": "error",
-        "code": "missing-param",
-        "symbol": "navsys_find_rta_star",
-        "message": "parameter 'start' has no @param",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/navsys.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-navsys.org",
-        "severity": "error",
-        "code": "missing-nullable",
-        "symbol": "navsys_find_rta_star",
-        "message": "pointer parameter 'start' has no @byul.nullable",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/navsys.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-navsys.org",
-        "severity": "error",
-        "code": "missing-param",
-        "symbol": "navsys_find_rta_star",
-        "message": "parameter 'goal' has no @param",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/navsys.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-navsys.org",
-        "severity": "error",
-        "code": "missing-nullable",
-        "symbol": "navsys_find_rta_star",
-        "message": "pointer parameter 'goal' has no @byul.nullable",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/navsys.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-navsys.org",
-        "severity": "error",
-        "code": "missing-param",
-        "symbol": "navsys_find_rta_star",
-        "message": "parameter 'depth_limit' has no @param",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/navsys.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-navsys.org",
-        "severity": "error",
-        "code": "unknown-param",
-        "symbol": "navsys_find_rta_star",
-        "message": "@param references unknown parameter 'a'",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/navsys.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-navsys.org",
-        "severity": "error",
-        "code": "missing-return-nullable",
-        "symbol": "navsys_find_rta_star",
-        "message": "pointer return has no @byul.nullable return",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/navsys.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-navsys.org",
-        "severity": "error",
-        "code": "missing-return-lifetime",
-        "symbol": "navsys_find_rta_star",
-        "message": "pointer return has no @byul.lifetime return",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/navsys.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-navsys.org",
-        "severity": "error",
-        "code": "missing-brief",
-        "symbol": "navsys_find_sma_star",
-        "message": "public function has no @brief",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/navsys.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-navsys.org",
-        "severity": "error",
-        "code": "missing-param",
-        "symbol": "navsys_find_sma_star",
-        "message": "parameter 'ng' has no @param",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/navsys.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-navsys.org",
-        "severity": "error",
-        "code": "missing-nullable",
-        "symbol": "navsys_find_sma_star",
-        "message": "pointer parameter 'ng' has no @byul.nullable",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/navsys.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-navsys.org",
-        "severity": "error",
-        "code": "missing-param",
-        "symbol": "navsys_find_sma_star",
-        "message": "parameter 'start' has no @param",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/navsys.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-navsys.org",
-        "severity": "error",
-        "code": "missing-nullable",
-        "symbol": "navsys_find_sma_star",
-        "message": "pointer parameter 'start' has no @byul.nullable",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/navsys.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-navsys.org",
-        "severity": "error",
-        "code": "missing-param",
-        "symbol": "navsys_find_sma_star",
-        "message": "parameter 'goal' has no @param",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/navsys.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-navsys.org",
-        "severity": "error",
-        "code": "missing-nullable",
-        "symbol": "navsys_find_sma_star",
-        "message": "pointer parameter 'goal' has no @byul.nullable",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/navsys.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-navsys.org",
-        "severity": "error",
-        "code": "missing-param",
-        "symbol": "navsys_find_sma_star",
-        "message": "parameter 'memory_limit' has no @param",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/navsys.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-navsys.org",
-        "severity": "error",
-        "code": "missing-return",
-        "symbol": "navsys_find_sma_star",
-        "message": "non-void function has no @return",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/navsys.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-navsys.org",
-        "severity": "error",
-        "code": "missing-return-nullable",
-        "symbol": "navsys_find_sma_star",
-        "message": "pointer return has no @byul.nullable return",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/navsys.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-navsys.org",
-        "severity": "error",
-        "code": "missing-return-lifetime",
-        "symbol": "navsys_find_sma_star",
-        "message": "pointer return has no @byul.lifetime return",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/navsys.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-navsys.org",
-        "severity": "error",
-        "code": "missing-param",
-        "symbol": "navsys_find_weighted_astar",
-        "message": "parameter 'ng' has no @param",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/navsys.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-navsys.org",
-        "severity": "error",
-        "code": "missing-nullable",
-        "symbol": "navsys_find_weighted_astar",
-        "message": "pointer parameter 'ng' has no @byul.nullable",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/navsys.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-navsys.org",
-        "severity": "error",
-        "code": "missing-param",
-        "symbol": "navsys_find_weighted_astar",
-        "message": "parameter 'start' has no @param",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/navsys.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-navsys.org",
-        "severity": "error",
-        "code": "missing-nullable",
-        "symbol": "navsys_find_weighted_astar",
-        "message": "pointer parameter 'start' has no @byul.nullable",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/navsys.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-navsys.org",
-        "severity": "error",
-        "code": "missing-param",
-        "symbol": "navsys_find_weighted_astar",
-        "message": "parameter 'goal' has no @param",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/navsys.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-navsys.org",
-        "severity": "error",
-        "code": "missing-nullable",
-        "symbol": "navsys_find_weighted_astar",
-        "message": "pointer parameter 'goal' has no @byul.nullable",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/navsys.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-navsys.org",
-        "severity": "error",
-        "code": "missing-param",
-        "symbol": "navsys_find_weighted_astar",
-        "message": "parameter 'weight' has no @param",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/navsys.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-navsys.org",
-        "severity": "error",
-        "code": "unknown-param",
-        "symbol": "navsys_find_weighted_astar",
-        "message": "@param references unknown parameter 'a'",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/navsys.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-navsys.org",
-        "severity": "error",
-        "code": "missing-return-nullable",
-        "symbol": "navsys_find_weighted_astar",
-        "message": "pointer return has no @byul.nullable return",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/navsys.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-navsys.org",
-        "severity": "error",
-        "code": "missing-return-lifetime",
-        "symbol": "navsys_find_weighted_astar",
-        "message": "pointer return has no @byul.lifetime return",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/navsys.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-navsys.org",
-        "severity": "error",
-        "code": "missing-doxygen",
-        "symbol": "navsys_find_dstar_lite",
-        "message": "public function has no adjacent Doxygen block",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/route_finder/astar.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-finder-astar.org",
-        "severity": "error",
-        "code": "missing-param-direction",
-        "symbol": "find_astar",
-        "message": "parameter 'm' has no direction",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/route_finder/astar.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-finder-astar.org",
-        "severity": "error",
-        "code": "missing-nullable",
-        "symbol": "find_astar",
-        "message": "pointer parameter 'm' has no @byul.nullable",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/route_finder/astar.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-finder-astar.org",
-        "severity": "error",
-        "code": "missing-param-direction",
-        "symbol": "find_astar",
-        "message": "parameter 'start' has no direction",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/route_finder/astar.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-finder-astar.org",
-        "severity": "error",
-        "code": "missing-nullable",
-        "symbol": "find_astar",
-        "message": "pointer parameter 'start' has no @byul.nullable",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/route_finder/astar.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-finder-astar.org",
-        "severity": "error",
-        "code": "missing-param-direction",
-        "symbol": "find_astar",
-        "message": "parameter 'goal' has no direction",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/route_finder/astar.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-finder-astar.org",
-        "severity": "error",
-        "code": "missing-nullable",
-        "symbol": "find_astar",
-        "message": "pointer parameter 'goal' has no @byul.nullable",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/route_finder/astar.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-finder-astar.org",
-        "severity": "error",
-        "code": "missing-param-direction",
-        "symbol": "find_astar",
-        "message": "parameter 'cost_fn' has no direction",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/route_finder/astar.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-finder-astar.org",
-        "severity": "error",
-        "code": "missing-param-direction",
-        "symbol": "find_astar",
-        "message": "parameter 'heuristic_fn' has no direction",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/route_finder/astar.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-finder-astar.org",
-        "severity": "error",
-        "code": "missing-param-direction",
-        "symbol": "find_astar",
-        "message": "parameter 'max_retry' has no direction",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/route_finder/astar.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-finder-astar.org",
-        "severity": "error",
-        "code": "missing-param-direction",
-        "symbol": "find_astar",
-        "message": "parameter 'debug_mode_enabled' has no direction",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/route_finder/astar.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-finder-astar.org",
-        "severity": "error",
-        "code": "missing-return-nullable",
-        "symbol": "find_astar",
-        "message": "pointer return has no @byul.nullable return",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/route_finder/astar.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-finder-astar.org",
-        "severity": "error",
-        "code": "missing-return-lifetime",
-        "symbol": "find_astar",
-        "message": "pointer return has no @byul.lifetime return",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/route_finder/bfs.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-finder-bfs.org",
-        "severity": "error",
-        "code": "missing-param-direction",
-        "symbol": "find_bfs",
-        "message": "parameter 'm' has no direction",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/route_finder/bfs.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-finder-bfs.org",
-        "severity": "error",
-        "code": "missing-nullable",
-        "symbol": "find_bfs",
-        "message": "pointer parameter 'm' has no @byul.nullable",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/route_finder/bfs.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-finder-bfs.org",
-        "severity": "error",
-        "code": "missing-param-direction",
-        "symbol": "find_bfs",
-        "message": "parameter 'start' has no direction",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/route_finder/bfs.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-finder-bfs.org",
-        "severity": "error",
-        "code": "missing-nullable",
-        "symbol": "find_bfs",
-        "message": "pointer parameter 'start' has no @byul.nullable",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/route_finder/bfs.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-finder-bfs.org",
-        "severity": "error",
-        "code": "missing-param-direction",
-        "symbol": "find_bfs",
-        "message": "parameter 'goal' has no direction",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/route_finder/bfs.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-finder-bfs.org",
-        "severity": "error",
-        "code": "missing-nullable",
-        "symbol": "find_bfs",
-        "message": "pointer parameter 'goal' has no @byul.nullable",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/route_finder/bfs.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-finder-bfs.org",
-        "severity": "error",
-        "code": "missing-param-direction",
-        "symbol": "find_bfs",
-        "message": "parameter 'max_retry' has no direction",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/route_finder/bfs.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-finder-bfs.org",
-        "severity": "error",
-        "code": "missing-param-direction",
-        "symbol": "find_bfs",
-        "message": "parameter 'debug_mode_enabled' has no direction",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/route_finder/bfs.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-finder-bfs.org",
-        "severity": "error",
-        "code": "missing-return-nullable",
-        "symbol": "find_bfs",
-        "message": "pointer return has no @byul.nullable return",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/route_finder/bfs.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-finder-bfs.org",
-        "severity": "error",
-        "code": "missing-return-lifetime",
-        "symbol": "find_bfs",
-        "message": "pointer return has no @byul.lifetime return",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/route_finder/dfs.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-finder-dfs.org",
-        "severity": "error",
-        "code": "missing-param-direction",
-        "symbol": "find_dfs",
-        "message": "parameter 'm' has no direction",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/route_finder/dfs.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-finder-dfs.org",
-        "severity": "error",
-        "code": "missing-nullable",
-        "symbol": "find_dfs",
-        "message": "pointer parameter 'm' has no @byul.nullable",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/route_finder/dfs.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-finder-dfs.org",
-        "severity": "error",
-        "code": "missing-param-direction",
-        "symbol": "find_dfs",
-        "message": "parameter 'start' has no direction",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/route_finder/dfs.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-finder-dfs.org",
-        "severity": "error",
-        "code": "missing-nullable",
-        "symbol": "find_dfs",
-        "message": "pointer parameter 'start' has no @byul.nullable",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/route_finder/dfs.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-finder-dfs.org",
-        "severity": "error",
-        "code": "missing-param-direction",
-        "symbol": "find_dfs",
-        "message": "parameter 'goal' has no direction",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/route_finder/dfs.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-finder-dfs.org",
-        "severity": "error",
-        "code": "missing-nullable",
-        "symbol": "find_dfs",
-        "message": "pointer parameter 'goal' has no @byul.nullable",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/route_finder/dfs.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-finder-dfs.org",
-        "severity": "error",
-        "code": "missing-param-direction",
-        "symbol": "find_dfs",
-        "message": "parameter 'max_retry' has no direction",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/route_finder/dfs.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-finder-dfs.org",
-        "severity": "error",
-        "code": "missing-param-direction",
-        "symbol": "find_dfs",
-        "message": "parameter 'debug_mode_enabled' has no direction",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/route_finder/dfs.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-finder-dfs.org",
-        "severity": "error",
-        "code": "missing-return-nullable",
-        "symbol": "find_dfs",
-        "message": "pointer return has no @byul.nullable return",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/route_finder/dfs.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-finder-dfs.org",
-        "severity": "error",
-        "code": "missing-return-lifetime",
-        "symbol": "find_dfs",
-        "message": "pointer return has no @byul.lifetime return",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/route_finder/dijkstra.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-finder-dijkstra.org",
-        "severity": "error",
-        "code": "missing-param-direction",
-        "symbol": "find_dijkstra",
-        "message": "parameter 'm' has no direction",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/route_finder/dijkstra.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-finder-dijkstra.org",
-        "severity": "error",
-        "code": "missing-nullable",
-        "symbol": "find_dijkstra",
-        "message": "pointer parameter 'm' has no @byul.nullable",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/route_finder/dijkstra.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-finder-dijkstra.org",
-        "severity": "error",
-        "code": "missing-param-direction",
-        "symbol": "find_dijkstra",
-        "message": "parameter 'start' has no direction",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/route_finder/dijkstra.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-finder-dijkstra.org",
-        "severity": "error",
-        "code": "missing-nullable",
-        "symbol": "find_dijkstra",
-        "message": "pointer parameter 'start' has no @byul.nullable",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/route_finder/dijkstra.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-finder-dijkstra.org",
-        "severity": "error",
-        "code": "missing-param-direction",
-        "symbol": "find_dijkstra",
-        "message": "parameter 'goal' has no direction",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/route_finder/dijkstra.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-finder-dijkstra.org",
-        "severity": "error",
-        "code": "missing-nullable",
-        "symbol": "find_dijkstra",
-        "message": "pointer parameter 'goal' has no @byul.nullable",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/route_finder/dijkstra.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-finder-dijkstra.org",
-        "severity": "error",
-        "code": "missing-param-direction",
-        "symbol": "find_dijkstra",
-        "message": "parameter 'cost_fn' has no direction",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/route_finder/dijkstra.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-finder-dijkstra.org",
-        "severity": "error",
-        "code": "missing-param-direction",
-        "symbol": "find_dijkstra",
-        "message": "parameter 'max_retry' has no direction",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/route_finder/dijkstra.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-finder-dijkstra.org",
-        "severity": "error",
-        "code": "missing-param-direction",
-        "symbol": "find_dijkstra",
-        "message": "parameter 'debug_mode_enabled' has no direction",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/route_finder/dijkstra.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-finder-dijkstra.org",
-        "severity": "error",
-        "code": "missing-return-nullable",
-        "symbol": "find_dijkstra",
-        "message": "pointer return has no @byul.nullable return",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/route_finder/dijkstra.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-finder-dijkstra.org",
-        "severity": "error",
-        "code": "missing-return-lifetime",
-        "symbol": "find_dijkstra",
-        "message": "pointer return has no @byul.lifetime return",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/route_finder/fast_marching.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-finder-fast-marching.org",
-        "severity": "error",
-        "code": "missing-doxygen",
-        "symbol": "fmm_cell_init",
-        "message": "public function has no adjacent Doxygen block",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/route_finder/fast_marching.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-finder-fast-marching.org",
-        "severity": "error",
-        "code": "missing-doxygen",
-        "symbol": "fmm_cell_init_full",
-        "message": "public function has no adjacent Doxygen block",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/route_finder/fast_marching.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-finder-fast-marching.org",
-        "severity": "error",
-        "code": "missing-doxygen",
-        "symbol": "fmm_cell_assign",
-        "message": "public function has no adjacent Doxygen block",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/route_finder/fast_marching.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-finder-fast-marching.org",
-        "severity": "error",
-        "code": "missing-brief",
-        "symbol": "fmm_grid_create_full",
-        "message": "public function has no @brief",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/route_finder/fast_marching.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-finder-fast-marching.org",
-        "severity": "error",
-        "code": "missing-param-direction",
-        "symbol": "fmm_grid_create_full",
-        "message": "parameter 'm' has no direction",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/route_finder/fast_marching.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-finder-fast-marching.org",
-        "severity": "error",
-        "code": "missing-nullable",
-        "symbol": "fmm_grid_create_full",
-        "message": "pointer parameter 'm' has no @byul.nullable",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/route_finder/fast_marching.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-finder-fast-marching.org",
-        "severity": "error",
-        "code": "missing-param-direction",
-        "symbol": "fmm_grid_create_full",
-        "message": "parameter 'start' has no direction",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/route_finder/fast_marching.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-finder-fast-marching.org",
-        "severity": "error",
-        "code": "missing-nullable",
-        "symbol": "fmm_grid_create_full",
-        "message": "pointer parameter 'start' has no @byul.nullable",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/route_finder/fast_marching.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-finder-fast-marching.org",
-        "severity": "error",
-        "code": "missing-param-direction",
-        "symbol": "fmm_grid_create_full",
-        "message": "parameter 'cost_fn' has no direction",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/route_finder/fast_marching.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-finder-fast-marching.org",
-        "severity": "error",
-        "code": "missing-param-direction",
-        "symbol": "fmm_grid_create_full",
-        "message": "parameter 'radius_limit' has no direction",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/route_finder/fast_marching.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-finder-fast-marching.org",
-        "severity": "error",
-        "code": "missing-param-direction",
-        "symbol": "fmm_grid_create_full",
-        "message": "parameter 'max_retry' has no direction",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/route_finder/fast_marching.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-finder-fast-marching.org",
-        "severity": "error",
-        "code": "missing-return-nullable",
-        "symbol": "fmm_grid_create_full",
-        "message": "pointer return has no @byul.nullable return",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/route_finder/fast_marching.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-finder-fast-marching.org",
-        "severity": "error",
-        "code": "missing-return-lifetime",
-        "symbol": "fmm_grid_create_full",
-        "message": "pointer return has no @byul.lifetime return",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/route_finder/fast_marching.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-finder-fast-marching.org",
-        "severity": "error",
-        "code": "missing-brief",
-        "symbol": "fmm_grid_destroy",
-        "message": "public function has no @brief",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/route_finder/fast_marching.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-finder-fast-marching.org",
-        "severity": "error",
-        "code": "missing-param-direction",
-        "symbol": "fmm_grid_destroy",
-        "message": "parameter 'grid' has no direction",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/route_finder/fast_marching.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-finder-fast-marching.org",
-        "severity": "error",
-        "code": "missing-nullable",
-        "symbol": "fmm_grid_destroy",
-        "message": "pointer parameter 'grid' has no @byul.nullable",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/route_finder/fast_marching.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-finder-fast-marching.org",
-        "severity": "error",
-        "code": "missing-brief",
-        "symbol": "fmm_dump_ascii",
-        "message": "public function has no @brief",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/route_finder/fast_marching.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-finder-fast-marching.org",
-        "severity": "error",
-        "code": "missing-param-direction",
-        "symbol": "fmm_dump_ascii",
-        "message": "parameter 'grid' has no direction",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/route_finder/fast_marching.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-finder-fast-marching.org",
-        "severity": "error",
-        "code": "missing-nullable",
-        "symbol": "fmm_dump_ascii",
-        "message": "pointer parameter 'grid' has no @byul.nullable",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/route_finder/fast_marching.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-finder-fast-marching.org",
-        "severity": "error",
-        "code": "missing-brief",
-        "symbol": "find_fast_marching",
-        "message": "public function has no @brief",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/route_finder/fast_marching.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-finder-fast-marching.org",
-        "severity": "error",
-        "code": "missing-param-direction",
-        "symbol": "find_fast_marching",
-        "message": "parameter 'm' has no direction",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/route_finder/fast_marching.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-finder-fast-marching.org",
-        "severity": "error",
-        "code": "missing-nullable",
-        "symbol": "find_fast_marching",
-        "message": "pointer parameter 'm' has no @byul.nullable",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/route_finder/fast_marching.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-finder-fast-marching.org",
-        "severity": "error",
-        "code": "missing-param-direction",
-        "symbol": "find_fast_marching",
-        "message": "parameter 'start' has no direction",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/route_finder/fast_marching.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-finder-fast-marching.org",
-        "severity": "error",
-        "code": "missing-nullable",
-        "symbol": "find_fast_marching",
-        "message": "pointer parameter 'start' has no @byul.nullable",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/route_finder/fast_marching.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-finder-fast-marching.org",
-        "severity": "error",
-        "code": "missing-param-direction",
-        "symbol": "find_fast_marching",
-        "message": "parameter 'goal' has no direction",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/route_finder/fast_marching.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-finder-fast-marching.org",
-        "severity": "error",
-        "code": "missing-nullable",
-        "symbol": "find_fast_marching",
-        "message": "pointer parameter 'goal' has no @byul.nullable",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/route_finder/fast_marching.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-finder-fast-marching.org",
-        "severity": "error",
-        "code": "missing-param-direction",
-        "symbol": "find_fast_marching",
-        "message": "parameter 'cost_fn' has no direction",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/route_finder/fast_marching.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-finder-fast-marching.org",
-        "severity": "error",
-        "code": "missing-param-direction",
-        "symbol": "find_fast_marching",
-        "message": "parameter 'max_retry' has no direction",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/route_finder/fast_marching.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-finder-fast-marching.org",
-        "severity": "error",
-        "code": "missing-param-direction",
-        "symbol": "find_fast_marching",
-        "message": "parameter 'debug_mode_enabled' has no direction",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/route_finder/fast_marching.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-finder-fast-marching.org",
-        "severity": "error",
-        "code": "missing-return-nullable",
-        "symbol": "find_fast_marching",
-        "message": "pointer return has no @byul.nullable return",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/route_finder/fast_marching.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-finder-fast-marching.org",
-        "severity": "error",
-        "code": "missing-return-lifetime",
-        "symbol": "find_fast_marching",
-        "message": "pointer return has no @byul.lifetime return",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/route_finder/fringe_search.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-finder-fringe-search.org",
-        "severity": "error",
-        "code": "missing-param-direction",
-        "symbol": "find_fringe_search",
-        "message": "parameter 'm' has no direction",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/route_finder/fringe_search.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-finder-fringe-search.org",
-        "severity": "error",
-        "code": "missing-nullable",
-        "symbol": "find_fringe_search",
-        "message": "pointer parameter 'm' has no @byul.nullable",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/route_finder/fringe_search.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-finder-fringe-search.org",
-        "severity": "error",
-        "code": "missing-param-direction",
-        "symbol": "find_fringe_search",
-        "message": "parameter 'start' has no direction",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/route_finder/fringe_search.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-finder-fringe-search.org",
-        "severity": "error",
-        "code": "missing-nullable",
-        "symbol": "find_fringe_search",
-        "message": "pointer parameter 'start' has no @byul.nullable",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/route_finder/fringe_search.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-finder-fringe-search.org",
-        "severity": "error",
-        "code": "missing-param-direction",
-        "symbol": "find_fringe_search",
-        "message": "parameter 'goal' has no direction",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/route_finder/fringe_search.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-finder-fringe-search.org",
-        "severity": "error",
-        "code": "missing-nullable",
-        "symbol": "find_fringe_search",
-        "message": "pointer parameter 'goal' has no @byul.nullable",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/route_finder/fringe_search.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-finder-fringe-search.org",
-        "severity": "error",
-        "code": "missing-param-direction",
-        "symbol": "find_fringe_search",
-        "message": "parameter 'cost_fn' has no direction",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/route_finder/fringe_search.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-finder-fringe-search.org",
-        "severity": "error",
-        "code": "missing-param-direction",
-        "symbol": "find_fringe_search",
-        "message": "parameter 'heuristic_fn' has no direction",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/route_finder/fringe_search.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-finder-fringe-search.org",
-        "severity": "error",
-        "code": "missing-param-direction",
-        "symbol": "find_fringe_search",
-        "message": "parameter 'delta_epsilon' has no direction",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/route_finder/fringe_search.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-finder-fringe-search.org",
-        "severity": "error",
-        "code": "missing-param-direction",
-        "symbol": "find_fringe_search",
-        "message": "parameter 'max_retry' has no direction",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/route_finder/fringe_search.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-finder-fringe-search.org",
-        "severity": "error",
-        "code": "missing-param-direction",
-        "symbol": "find_fringe_search",
-        "message": "parameter 'debug_mode_enabled' has no direction",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/route_finder/fringe_search.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-finder-fringe-search.org",
-        "severity": "error",
-        "code": "missing-return-nullable",
-        "symbol": "find_fringe_search",
-        "message": "pointer return has no @byul.nullable return",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/route_finder/fringe_search.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-finder-fringe-search.org",
-        "severity": "error",
-        "code": "missing-return-lifetime",
-        "symbol": "find_fringe_search",
-        "message": "pointer return has no @byul.lifetime return",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/route_finder/greedy_best_first.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-finder-greedy-best-first.org",
-        "severity": "error",
-        "code": "missing-param-direction",
-        "symbol": "find_greedy_best_first",
-        "message": "parameter 'm' has no direction",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/route_finder/greedy_best_first.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-finder-greedy-best-first.org",
-        "severity": "error",
-        "code": "missing-nullable",
-        "symbol": "find_greedy_best_first",
-        "message": "pointer parameter 'm' has no @byul.nullable",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/route_finder/greedy_best_first.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-finder-greedy-best-first.org",
-        "severity": "error",
-        "code": "missing-param-direction",
-        "symbol": "find_greedy_best_first",
-        "message": "parameter 'start' has no direction",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/route_finder/greedy_best_first.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-finder-greedy-best-first.org",
-        "severity": "error",
-        "code": "missing-nullable",
-        "symbol": "find_greedy_best_first",
-        "message": "pointer parameter 'start' has no @byul.nullable",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/route_finder/greedy_best_first.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-finder-greedy-best-first.org",
-        "severity": "error",
-        "code": "missing-param-direction",
-        "symbol": "find_greedy_best_first",
-        "message": "parameter 'goal' has no direction",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/route_finder/greedy_best_first.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-finder-greedy-best-first.org",
-        "severity": "error",
-        "code": "missing-nullable",
-        "symbol": "find_greedy_best_first",
-        "message": "pointer parameter 'goal' has no @byul.nullable",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/route_finder/greedy_best_first.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-finder-greedy-best-first.org",
-        "severity": "error",
-        "code": "missing-param-direction",
-        "symbol": "find_greedy_best_first",
-        "message": "parameter 'heuristic_fn' has no direction",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/route_finder/greedy_best_first.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-finder-greedy-best-first.org",
-        "severity": "error",
-        "code": "missing-param-direction",
-        "symbol": "find_greedy_best_first",
-        "message": "parameter 'max_retry' has no direction",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/route_finder/greedy_best_first.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-finder-greedy-best-first.org",
-        "severity": "error",
-        "code": "missing-param-direction",
-        "symbol": "find_greedy_best_first",
-        "message": "parameter 'debug_mode_enabled' has no direction",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/route_finder/greedy_best_first.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-finder-greedy-best-first.org",
-        "severity": "error",
-        "code": "missing-return-nullable",
-        "symbol": "find_greedy_best_first",
-        "message": "pointer return has no @byul.nullable return",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/route_finder/greedy_best_first.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-finder-greedy-best-first.org",
-        "severity": "error",
-        "code": "missing-return-lifetime",
-        "symbol": "find_greedy_best_first",
-        "message": "pointer return has no @byul.lifetime return",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/route_finder/ida_star.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-finder-ida-star.org",
-        "severity": "error",
-        "code": "missing-param-direction",
-        "symbol": "find_ida_star",
-        "message": "parameter 'm' has no direction",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/route_finder/ida_star.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-finder-ida-star.org",
-        "severity": "error",
-        "code": "missing-nullable",
-        "symbol": "find_ida_star",
-        "message": "pointer parameter 'm' has no @byul.nullable",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/route_finder/ida_star.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-finder-ida-star.org",
-        "severity": "error",
-        "code": "missing-param-direction",
-        "symbol": "find_ida_star",
-        "message": "parameter 'start' has no direction",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/route_finder/ida_star.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-finder-ida-star.org",
-        "severity": "error",
-        "code": "missing-nullable",
-        "symbol": "find_ida_star",
-        "message": "pointer parameter 'start' has no @byul.nullable",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/route_finder/ida_star.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-finder-ida-star.org",
-        "severity": "error",
-        "code": "missing-param-direction",
-        "symbol": "find_ida_star",
-        "message": "parameter 'goal' has no direction",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/route_finder/ida_star.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-finder-ida-star.org",
-        "severity": "error",
-        "code": "missing-nullable",
-        "symbol": "find_ida_star",
-        "message": "pointer parameter 'goal' has no @byul.nullable",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/route_finder/ida_star.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-finder-ida-star.org",
-        "severity": "error",
-        "code": "missing-param-direction",
-        "symbol": "find_ida_star",
-        "message": "parameter 'cost_fn' has no direction",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/route_finder/ida_star.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-finder-ida-star.org",
-        "severity": "error",
-        "code": "missing-param-direction",
-        "symbol": "find_ida_star",
-        "message": "parameter 'heuristic_fn' has no direction",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/route_finder/ida_star.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-finder-ida-star.org",
-        "severity": "error",
-        "code": "missing-param-direction",
-        "symbol": "find_ida_star",
-        "message": "parameter 'max_retry' has no direction",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/route_finder/ida_star.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-finder-ida-star.org",
-        "severity": "error",
-        "code": "missing-param-direction",
-        "symbol": "find_ida_star",
-        "message": "parameter 'debug_mode_enabled' has no direction",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/route_finder/ida_star.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-finder-ida-star.org",
-        "severity": "error",
-        "code": "missing-return-nullable",
-        "symbol": "find_ida_star",
-        "message": "pointer return has no @byul.nullable return",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/route_finder/ida_star.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-finder-ida-star.org",
-        "severity": "error",
-        "code": "missing-return-lifetime",
-        "symbol": "find_ida_star",
-        "message": "pointer return has no @byul.lifetime return",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/route_finder/route_finder.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-finder-route-finder.org",
-        "severity": "error",
-        "code": "missing-param-direction",
-        "symbol": "route_finder_create",
-        "message": "parameter 'navgrid' has no direction",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/route_finder/route_finder.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-finder-route-finder.org",
-        "severity": "error",
-        "code": "missing-nullable",
-        "symbol": "route_finder_create",
-        "message": "pointer parameter 'navgrid' has no @byul.nullable",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/route_finder/route_finder.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-finder-route-finder.org",
-        "severity": "error",
-        "code": "missing-return-nullable",
-        "symbol": "route_finder_create",
-        "message": "pointer return has no @byul.nullable return",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/route_finder/route_finder.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-finder-route-finder.org",
-        "severity": "error",
-        "code": "missing-return-lifetime",
-        "symbol": "route_finder_create",
-        "message": "pointer return has no @byul.lifetime return",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/route_finder/route_finder.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-finder-route-finder.org",
-        "severity": "error",
-        "code": "missing-doxygen",
-        "symbol": "route_finder_create_full",
-        "message": "public function has no adjacent Doxygen block",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/route_finder/route_finder.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-finder-route-finder.org",
-        "severity": "error",
-        "code": "missing-doxygen",
-        "symbol": "route_finder_init",
-        "message": "public function has no adjacent Doxygen block",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/route_finder/route_finder.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-finder-route-finder.org",
-        "severity": "error",
-        "code": "missing-doxygen",
-        "symbol": "route_finder_init_full",
-        "message": "public function has no adjacent Doxygen block",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/route_finder/route_finder.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-finder-route-finder.org",
-        "severity": "error",
-        "code": "missing-doxygen",
-        "symbol": "route_finder_free",
-        "message": "public function has no adjacent Doxygen block",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/route_finder/route_finder.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-finder-route-finder.org",
-        "severity": "error",
-        "code": "missing-doxygen",
-        "symbol": "route_finder_destroy",
-        "message": "public function has no adjacent Doxygen block",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/route_finder/route_finder.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-finder-route-finder.org",
-        "severity": "error",
-        "code": "missing-doxygen",
-        "symbol": "route_finder_copy",
-        "message": "public function has no adjacent Doxygen block",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/route_finder/route_finder.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-finder-route-finder.org",
-        "severity": "error",
-        "code": "missing-param",
-        "symbol": "route_finder_set_navgrid",
-        "message": "parameter 'a' has no @param",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/route_finder/route_finder.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-finder-route-finder.org",
-        "severity": "error",
-        "code": "missing-nullable",
-        "symbol": "route_finder_set_navgrid",
-        "message": "pointer parameter 'a' has no @byul.nullable",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/route_finder/route_finder.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-finder-route-finder.org",
-        "severity": "error",
-        "code": "missing-param",
-        "symbol": "route_finder_set_navgrid",
-        "message": "parameter 'navgrid' has no @param",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/route_finder/route_finder.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-finder-route-finder.org",
-        "severity": "error",
-        "code": "missing-nullable",
-        "symbol": "route_finder_set_navgrid",
-        "message": "pointer parameter 'navgrid' has no @byul.nullable",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/route_finder/route_finder.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-finder-route-finder.org",
-        "severity": "error",
-        "code": "missing-doxygen",
-        "symbol": "route_finder_set_start",
-        "message": "public function has no adjacent Doxygen block",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/route_finder/route_finder.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-finder-route-finder.org",
-        "severity": "error",
-        "code": "missing-doxygen",
-        "symbol": "route_finder_set_goal",
-        "message": "public function has no adjacent Doxygen block",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/route_finder/route_finder.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-finder-route-finder.org",
-        "severity": "error",
-        "code": "missing-doxygen",
-        "symbol": "route_finder_get_navgrid",
-        "message": "public function has no adjacent Doxygen block",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/route_finder/route_finder.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-finder-route-finder.org",
-        "severity": "error",
-        "code": "missing-doxygen",
-        "symbol": "route_finder_fetch_start",
-        "message": "public function has no adjacent Doxygen block",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/route_finder/route_finder.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-finder-route-finder.org",
-        "severity": "error",
-        "code": "missing-doxygen",
-        "symbol": "route_finder_fetch_goal",
-        "message": "public function has no adjacent Doxygen block",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/route_finder/route_finder.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-finder-route-finder.org",
-        "severity": "error",
-        "code": "missing-doxygen",
-        "symbol": "route_finder_set_type",
-        "message": "public function has no adjacent Doxygen block",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/route_finder/route_finder.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-finder-route-finder.org",
-        "severity": "error",
-        "code": "missing-doxygen",
-        "symbol": "route_finder_get_type",
-        "message": "public function has no adjacent Doxygen block",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/route_finder/route_finder.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-finder-route-finder.org",
-        "severity": "error",
-        "code": "missing-doxygen",
-        "symbol": "route_finder_set_typedata",
-        "message": "public function has no adjacent Doxygen block",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/route_finder/route_finder.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-finder-route-finder.org",
-        "severity": "error",
-        "code": "missing-doxygen",
-        "symbol": "route_finder_get_typedata",
-        "message": "public function has no adjacent Doxygen block",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/route_finder/route_finder.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-finder-route-finder.org",
-        "severity": "error",
-        "code": "missing-doxygen",
-        "symbol": "route_finder_set_max_retry",
-        "message": "public function has no adjacent Doxygen block",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/route_finder/route_finder.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-finder-route-finder.org",
-        "severity": "error",
-        "code": "missing-doxygen",
-        "symbol": "route_finder_get_max_retry",
-        "message": "public function has no adjacent Doxygen block",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/route_finder/route_finder.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-finder-route-finder.org",
-        "severity": "error",
-        "code": "missing-doxygen",
-        "symbol": "route_finder_enable_debug_mode",
-        "message": "public function has no adjacent Doxygen block",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/route_finder/route_finder.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-finder-route-finder.org",
-        "severity": "error",
-        "code": "missing-doxygen",
-        "symbol": "route_finder_is_debug_mode_enabled",
-        "message": "public function has no adjacent Doxygen block",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/route_finder/route_finder.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-finder-route-finder.org",
-        "severity": "error",
-        "code": "missing-doxygen",
-        "symbol": "route_finder_set_cost_func",
-        "message": "public function has no adjacent Doxygen block",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/route_finder/route_finder.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-finder-route-finder.org",
-        "severity": "error",
-        "code": "missing-doxygen",
-        "symbol": "route_finder_get_cost_func",
-        "message": "public function has no adjacent Doxygen block",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/route_finder/route_finder.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-finder-route-finder.org",
-        "severity": "error",
-        "code": "missing-doxygen",
-        "symbol": "route_finder_set_cost_fn_userdata",
-        "message": "public function has no adjacent Doxygen block",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/route_finder/route_finder.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-finder-route-finder.org",
-        "severity": "error",
-        "code": "missing-doxygen",
-        "symbol": "route_finder_get_cost_fn_userdata",
-        "message": "public function has no adjacent Doxygen block",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/route_finder/route_finder.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-finder-route-finder.org",
-        "severity": "error",
-        "code": "missing-doxygen",
-        "symbol": "route_finder_set_heuristic_func",
-        "message": "public function has no adjacent Doxygen block",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/route_finder/route_finder.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-finder-route-finder.org",
-        "severity": "error",
-        "code": "missing-doxygen",
-        "symbol": "route_finder_get_heuristic_func",
-        "message": "public function has no adjacent Doxygen block",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/route_finder/route_finder.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-finder-route-finder.org",
-        "severity": "error",
-        "code": "missing-doxygen",
-        "symbol": "route_finder_set_heuristic_fn_userdata",
-        "message": "public function has no adjacent Doxygen block",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/route_finder/route_finder.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-finder-route-finder.org",
-        "severity": "error",
-        "code": "missing-doxygen",
-        "symbol": "route_finder_get_heuristic_fn_userdata",
-        "message": "public function has no adjacent Doxygen block",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/route_finder/route_finder.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-finder-route-finder.org",
-        "severity": "error",
-        "code": "missing-param",
-        "symbol": "route_finder_clear",
-        "message": "parameter 'a' has no @param",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/route_finder/route_finder.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-finder-route-finder.org",
-        "severity": "error",
-        "code": "missing-nullable",
-        "symbol": "route_finder_clear",
-        "message": "pointer parameter 'a' has no @byul.nullable",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/route_finder/route_finder.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-finder-route-finder.org",
-        "severity": "error",
-        "code": "missing-param-direction",
-        "symbol": "route_finder_set_defaults",
-        "message": "parameter 'a' has no direction",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/route_finder/route_finder.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-finder-route-finder.org",
-        "severity": "error",
-        "code": "missing-nullable",
-        "symbol": "route_finder_set_defaults",
-        "message": "pointer parameter 'a' has no @byul.nullable",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/route_finder/route_finder.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-finder-route-finder.org",
-        "severity": "error",
-        "code": "missing-doxygen",
-        "symbol": "route_finder_is_valid",
-        "message": "public function has no adjacent Doxygen block",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/route_finder/route_finder.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-finder-route-finder.org",
-        "severity": "error",
-        "code": "missing-doxygen",
-        "symbol": "route_finder_print",
-        "message": "public function has no adjacent Doxygen block",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/route_finder/route_finder.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-finder-route-finder.org",
-        "severity": "error",
-        "code": "missing-param",
-        "symbol": "route_finder_run",
-        "message": "parameter 'a' has no @param",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/route_finder/route_finder.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-finder-route-finder.org",
-        "severity": "error",
-        "code": "missing-nullable",
-        "symbol": "route_finder_run",
-        "message": "pointer parameter 'a' has no @byul.nullable",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/route_finder/route_finder.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-finder-route-finder.org",
-        "severity": "error",
-        "code": "missing-return",
-        "symbol": "route_finder_run",
-        "message": "non-void function has no @return",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/route_finder/route_finder.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-finder-route-finder.org",
-        "severity": "error",
-        "code": "missing-return-nullable",
-        "symbol": "route_finder_run",
-        "message": "pointer return has no @byul.nullable return",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/route_finder/route_finder.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-finder-route-finder.org",
-        "severity": "error",
-        "code": "missing-return-lifetime",
-        "symbol": "route_finder_run",
-        "message": "pointer return has no @byul.lifetime return",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/route_finder/route_finder_core.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-finder-route-finder-core.org",
-        "severity": "error",
-        "code": "unnamed-parameter",
-        "symbol": "default_cost",
-        "message": "public parameter has no name: const navgrid_t*",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/route_finder/route_finder_core.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-finder-route-finder-core.org",
-        "severity": "error",
-        "code": "unnamed-parameter",
-        "symbol": "default_cost",
-        "message": "public parameter has no name: const coord_t*",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/route_finder/route_finder_core.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-finder-route-finder-core.org",
-        "severity": "error",
-        "code": "unnamed-parameter",
-        "symbol": "default_cost",
-        "message": "public parameter has no name: const coord_t*",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/route_finder/route_finder_core.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-finder-route-finder-core.org",
-        "severity": "error",
-        "code": "unnamed-parameter",
-        "symbol": "default_cost",
-        "message": "public parameter has no name: void*",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/route_finder/route_finder_core.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-finder-route-finder-core.org",
-        "severity": "error",
-        "code": "unknown-param",
-        "symbol": "default_cost",
-        "message": "@param references unknown parameter 'm'",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/route_finder/route_finder_core.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-finder-route-finder-core.org",
-        "severity": "error",
-        "code": "unknown-param",
-        "symbol": "default_cost",
-        "message": "@param references unknown parameter 'start'",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/route_finder/route_finder_core.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-finder-route-finder-core.org",
-        "severity": "error",
-        "code": "unknown-param",
-        "symbol": "default_cost",
-        "message": "@param references unknown parameter 'goal'",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/route_finder/route_finder_core.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-finder-route-finder-core.org",
-        "severity": "error",
-        "code": "unknown-param",
-        "symbol": "default_cost",
-        "message": "@param references unknown parameter 'userdata'",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/route_finder/route_finder_core.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-finder-route-finder-core.org",
-        "severity": "error",
-        "code": "unnamed-parameter",
-        "symbol": "zero_cost",
-        "message": "public parameter has no name: const navgrid_t*",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/route_finder/route_finder_core.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-finder-route-finder-core.org",
-        "severity": "error",
-        "code": "unnamed-parameter",
-        "symbol": "zero_cost",
-        "message": "public parameter has no name: const coord_t*",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/route_finder/route_finder_core.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-finder-route-finder-core.org",
-        "severity": "error",
-        "code": "unnamed-parameter",
-        "symbol": "zero_cost",
-        "message": "public parameter has no name: const coord_t*",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/route_finder/route_finder_core.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-finder-route-finder-core.org",
-        "severity": "error",
-        "code": "unnamed-parameter",
-        "symbol": "zero_cost",
-        "message": "public parameter has no name: void*",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/route_finder/route_finder_core.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-finder-route-finder-core.org",
-        "severity": "error",
-        "code": "missing-return",
-        "symbol": "zero_cost",
-        "message": "non-void function has no @return",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/route_finder/route_finder_core.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-finder-route-finder-core.org",
-        "severity": "error",
-        "code": "unnamed-parameter",
-        "symbol": "diagonal_cost",
-        "message": "public parameter has no name: const navgrid_t*",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/route_finder/route_finder_core.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-finder-route-finder-core.org",
-        "severity": "error",
-        "code": "unnamed-parameter",
-        "symbol": "diagonal_cost",
-        "message": "public parameter has no name: const coord_t*",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/route_finder/route_finder_core.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-finder-route-finder-core.org",
-        "severity": "error",
-        "code": "unnamed-parameter",
-        "symbol": "diagonal_cost",
-        "message": "public parameter has no name: const coord_t*",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/route_finder/route_finder_core.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-finder-route-finder-core.org",
-        "severity": "error",
-        "code": "unnamed-parameter",
-        "symbol": "diagonal_cost",
-        "message": "public parameter has no name: void*",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/route_finder/route_finder_core.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-finder-route-finder-core.org",
-        "severity": "error",
-        "code": "missing-return",
-        "symbol": "diagonal_cost",
-        "message": "non-void function has no @return",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/route_finder/route_finder_core.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-finder-route-finder-core.org",
-        "severity": "error",
-        "code": "unnamed-parameter",
-        "symbol": "euclidean_heuristic",
-        "message": "public parameter has no name: const coord_t*",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/route_finder/route_finder_core.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-finder-route-finder-core.org",
-        "severity": "error",
-        "code": "unnamed-parameter",
-        "symbol": "euclidean_heuristic",
-        "message": "public parameter has no name: const coord_t*",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/route_finder/route_finder_core.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-finder-route-finder-core.org",
-        "severity": "error",
-        "code": "unnamed-parameter",
-        "symbol": "euclidean_heuristic",
-        "message": "public parameter has no name: void*",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/route_finder/route_finder_core.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-finder-route-finder-core.org",
-        "severity": "error",
-        "code": "missing-return",
-        "symbol": "euclidean_heuristic",
-        "message": "non-void function has no @return",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/route_finder/route_finder_core.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-finder-route-finder-core.org",
-        "severity": "error",
-        "code": "unnamed-parameter",
-        "symbol": "manhattan_heuristic",
-        "message": "public parameter has no name: const coord_t*",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/route_finder/route_finder_core.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-finder-route-finder-core.org",
-        "severity": "error",
-        "code": "unnamed-parameter",
-        "symbol": "manhattan_heuristic",
-        "message": "public parameter has no name: const coord_t*",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/route_finder/route_finder_core.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-finder-route-finder-core.org",
-        "severity": "error",
-        "code": "unnamed-parameter",
-        "symbol": "manhattan_heuristic",
-        "message": "public parameter has no name: void*",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/route_finder/route_finder_core.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-finder-route-finder-core.org",
-        "severity": "error",
-        "code": "missing-return",
-        "symbol": "manhattan_heuristic",
-        "message": "non-void function has no @return",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/route_finder/route_finder_core.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-finder-route-finder-core.org",
-        "severity": "error",
-        "code": "unnamed-parameter",
-        "symbol": "chebyshev_heuristic",
-        "message": "public parameter has no name: const coord_t*",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/route_finder/route_finder_core.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-finder-route-finder-core.org",
-        "severity": "error",
-        "code": "unnamed-parameter",
-        "symbol": "chebyshev_heuristic",
-        "message": "public parameter has no name: const coord_t*",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/route_finder/route_finder_core.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-finder-route-finder-core.org",
-        "severity": "error",
-        "code": "unnamed-parameter",
-        "symbol": "chebyshev_heuristic",
-        "message": "public parameter has no name: void*",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/route_finder/route_finder_core.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-finder-route-finder-core.org",
-        "severity": "error",
-        "code": "missing-return",
-        "symbol": "chebyshev_heuristic",
-        "message": "non-void function has no @return",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/route_finder/route_finder_core.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-finder-route-finder-core.org",
-        "severity": "error",
-        "code": "unnamed-parameter",
-        "symbol": "octile_heuristic",
-        "message": "public parameter has no name: const coord_t*",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/route_finder/route_finder_core.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-finder-route-finder-core.org",
-        "severity": "error",
-        "code": "unnamed-parameter",
-        "symbol": "octile_heuristic",
-        "message": "public parameter has no name: const coord_t*",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/route_finder/route_finder_core.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-finder-route-finder-core.org",
-        "severity": "error",
-        "code": "unnamed-parameter",
-        "symbol": "octile_heuristic",
-        "message": "public parameter has no name: void*",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/route_finder/route_finder_core.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-finder-route-finder-core.org",
-        "severity": "error",
-        "code": "missing-return",
-        "symbol": "octile_heuristic",
-        "message": "non-void function has no @return",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/route_finder/route_finder_core.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-finder-route-finder-core.org",
-        "severity": "error",
-        "code": "unnamed-parameter",
-        "symbol": "zero_heuristic",
-        "message": "public parameter has no name: const coord_t*",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/route_finder/route_finder_core.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-finder-route-finder-core.org",
-        "severity": "error",
-        "code": "unnamed-parameter",
-        "symbol": "zero_heuristic",
-        "message": "public parameter has no name: const coord_t*",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/route_finder/route_finder_core.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-finder-route-finder-core.org",
-        "severity": "error",
-        "code": "unnamed-parameter",
-        "symbol": "zero_heuristic",
-        "message": "public parameter has no name: void*",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/route_finder/route_finder_core.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-finder-route-finder-core.org",
-        "severity": "error",
-        "code": "missing-return",
-        "symbol": "zero_heuristic",
-        "message": "non-void function has no @return",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/route_finder/route_finder_core.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-finder-route-finder-core.org",
-        "severity": "error",
-        "code": "unnamed-parameter",
-        "symbol": "default_heuristic",
-        "message": "public parameter has no name: const coord_t*",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/route_finder/route_finder_core.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-finder-route-finder-core.org",
-        "severity": "error",
-        "code": "unnamed-parameter",
-        "symbol": "default_heuristic",
-        "message": "public parameter has no name: const coord_t*",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/route_finder/route_finder_core.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-finder-route-finder-core.org",
-        "severity": "error",
-        "code": "unnamed-parameter",
-        "symbol": "default_heuristic",
-        "message": "public parameter has no name: void*",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/route_finder/route_finder_core.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-finder-route-finder-core.org",
-        "severity": "error",
-        "code": "missing-return",
-        "symbol": "default_heuristic",
-        "message": "non-void function has no @return",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/route_finder/rta_star.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-finder-rta-star.org",
-        "severity": "error",
-        "code": "missing-doxygen",
-        "symbol": "rta_star_config_create",
-        "message": "public function has no adjacent Doxygen block",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/route_finder/rta_star.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-finder-rta-star.org",
-        "severity": "error",
-        "code": "missing-param-direction",
-        "symbol": "rta_star_config_create_full",
-        "message": "parameter 'depth_limit' has no direction",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/route_finder/rta_star.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-finder-rta-star.org",
-        "severity": "error",
-        "code": "missing-doxygen",
-        "symbol": "rta_star_config_destroy",
-        "message": "public function has no adjacent Doxygen block",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/route_finder/rta_star.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-finder-rta-star.org",
-        "severity": "error",
-        "code": "missing-param-direction",
-        "symbol": "find_rta_star",
-        "message": "parameter 'm' has no direction",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/route_finder/rta_star.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-finder-rta-star.org",
-        "severity": "error",
-        "code": "missing-nullable",
-        "symbol": "find_rta_star",
-        "message": "pointer parameter 'm' has no @byul.nullable",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/route_finder/rta_star.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-finder-rta-star.org",
-        "severity": "error",
-        "code": "missing-param-direction",
-        "symbol": "find_rta_star",
-        "message": "parameter 'start' has no direction",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/route_finder/rta_star.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-finder-rta-star.org",
-        "severity": "error",
-        "code": "missing-nullable",
-        "symbol": "find_rta_star",
-        "message": "pointer parameter 'start' has no @byul.nullable",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/route_finder/rta_star.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-finder-rta-star.org",
-        "severity": "error",
-        "code": "missing-param-direction",
-        "symbol": "find_rta_star",
-        "message": "parameter 'goal' has no direction",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/route_finder/rta_star.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-finder-rta-star.org",
-        "severity": "error",
-        "code": "missing-nullable",
-        "symbol": "find_rta_star",
-        "message": "pointer parameter 'goal' has no @byul.nullable",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/route_finder/rta_star.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-finder-rta-star.org",
-        "severity": "error",
-        "code": "missing-param-direction",
-        "symbol": "find_rta_star",
-        "message": "parameter 'cost_fn' has no direction",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/route_finder/rta_star.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-finder-rta-star.org",
-        "severity": "error",
-        "code": "missing-param-direction",
-        "symbol": "find_rta_star",
-        "message": "parameter 'heuristic_fn' has no direction",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/route_finder/rta_star.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-finder-rta-star.org",
-        "severity": "error",
-        "code": "missing-param-direction",
-        "symbol": "find_rta_star",
-        "message": "parameter 'depth_limit' has no direction",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/route_finder/rta_star.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-finder-rta-star.org",
-        "severity": "error",
-        "code": "missing-param-direction",
-        "symbol": "find_rta_star",
-        "message": "parameter 'max_retry' has no direction",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/route_finder/rta_star.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-finder-rta-star.org",
-        "severity": "error",
-        "code": "missing-param-direction",
-        "symbol": "find_rta_star",
-        "message": "parameter 'debug_mode_enabled' has no direction",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/route_finder/rta_star.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-finder-rta-star.org",
-        "severity": "error",
-        "code": "missing-return-nullable",
-        "symbol": "find_rta_star",
-        "message": "pointer return has no @byul.nullable return",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/route_finder/rta_star.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-finder-rta-star.org",
-        "severity": "error",
-        "code": "missing-return-lifetime",
-        "symbol": "find_rta_star",
-        "message": "pointer return has no @byul.lifetime return",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/route_finder/sma_star.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-finder-sma-star.org",
-        "severity": "error",
-        "code": "missing-param-direction",
-        "symbol": "find_sma_star",
-        "message": "parameter 'm' has no direction",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/route_finder/sma_star.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-finder-sma-star.org",
-        "severity": "error",
-        "code": "missing-nullable",
-        "symbol": "find_sma_star",
-        "message": "pointer parameter 'm' has no @byul.nullable",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/route_finder/sma_star.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-finder-sma-star.org",
-        "severity": "error",
-        "code": "missing-param-direction",
-        "symbol": "find_sma_star",
-        "message": "parameter 'start' has no direction",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/route_finder/sma_star.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-finder-sma-star.org",
-        "severity": "error",
-        "code": "missing-nullable",
-        "symbol": "find_sma_star",
-        "message": "pointer parameter 'start' has no @byul.nullable",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/route_finder/sma_star.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-finder-sma-star.org",
-        "severity": "error",
-        "code": "missing-param-direction",
-        "symbol": "find_sma_star",
-        "message": "parameter 'goal' has no direction",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/route_finder/sma_star.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-finder-sma-star.org",
-        "severity": "error",
-        "code": "missing-nullable",
-        "symbol": "find_sma_star",
-        "message": "pointer parameter 'goal' has no @byul.nullable",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/route_finder/sma_star.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-finder-sma-star.org",
-        "severity": "error",
-        "code": "missing-param-direction",
-        "symbol": "find_sma_star",
-        "message": "parameter 'cost_fn' has no direction",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/route_finder/sma_star.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-finder-sma-star.org",
-        "severity": "error",
-        "code": "missing-param-direction",
-        "symbol": "find_sma_star",
-        "message": "parameter 'heuristic_fn' has no direction",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/route_finder/sma_star.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-finder-sma-star.org",
-        "severity": "error",
-        "code": "missing-param-direction",
-        "symbol": "find_sma_star",
-        "message": "parameter 'memory_limit' has no direction",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/route_finder/sma_star.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-finder-sma-star.org",
-        "severity": "error",
-        "code": "missing-param-direction",
-        "symbol": "find_sma_star",
-        "message": "parameter 'max_retry' has no direction",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/route_finder/sma_star.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-finder-sma-star.org",
-        "severity": "error",
-        "code": "missing-param-direction",
-        "symbol": "find_sma_star",
-        "message": "parameter 'debug_mode_enabled' has no direction",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/route_finder/sma_star.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-finder-sma-star.org",
-        "severity": "error",
-        "code": "missing-return-nullable",
-        "symbol": "find_sma_star",
-        "message": "pointer return has no @byul.nullable return",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/route_finder/sma_star.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-finder-sma-star.org",
-        "severity": "error",
-        "code": "missing-return-lifetime",
-        "symbol": "find_sma_star",
-        "message": "pointer return has no @byul.lifetime return",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/route_finder/weighted_astar.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-finder-weighted-astar.org",
-        "severity": "error",
-        "code": "missing-param-direction",
-        "symbol": "find_weighted_astar",
-        "message": "parameter 'm' has no direction",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/route_finder/weighted_astar.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-finder-weighted-astar.org",
-        "severity": "error",
-        "code": "missing-nullable",
-        "symbol": "find_weighted_astar",
-        "message": "pointer parameter 'm' has no @byul.nullable",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/route_finder/weighted_astar.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-finder-weighted-astar.org",
-        "severity": "error",
-        "code": "missing-param-direction",
-        "symbol": "find_weighted_astar",
-        "message": "parameter 'start' has no direction",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/route_finder/weighted_astar.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-finder-weighted-astar.org",
-        "severity": "error",
-        "code": "missing-nullable",
-        "symbol": "find_weighted_astar",
-        "message": "pointer parameter 'start' has no @byul.nullable",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/route_finder/weighted_astar.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-finder-weighted-astar.org",
-        "severity": "error",
-        "code": "missing-param-direction",
-        "symbol": "find_weighted_astar",
-        "message": "parameter 'goal' has no direction",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/route_finder/weighted_astar.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-finder-weighted-astar.org",
-        "severity": "error",
-        "code": "missing-nullable",
-        "symbol": "find_weighted_astar",
-        "message": "pointer parameter 'goal' has no @byul.nullable",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/route_finder/weighted_astar.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-finder-weighted-astar.org",
-        "severity": "error",
-        "code": "missing-param-direction",
-        "symbol": "find_weighted_astar",
-        "message": "parameter 'cost_fn' has no direction",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/route_finder/weighted_astar.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-finder-weighted-astar.org",
-        "severity": "error",
-        "code": "missing-param-direction",
-        "symbol": "find_weighted_astar",
-        "message": "parameter 'heuristic_fn' has no direction",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/route_finder/weighted_astar.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-finder-weighted-astar.org",
-        "severity": "error",
-        "code": "missing-param-direction",
-        "symbol": "find_weighted_astar",
-        "message": "parameter 'weight' has no direction",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/route_finder/weighted_astar.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-finder-weighted-astar.org",
-        "severity": "error",
-        "code": "missing-param-direction",
-        "symbol": "find_weighted_astar",
-        "message": "parameter 'max_retry' has no direction",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/route_finder/weighted_astar.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-finder-weighted-astar.org",
-        "severity": "error",
-        "code": "missing-param-direction",
-        "symbol": "find_weighted_astar",
-        "message": "parameter 'debug_mode_enabled' has no direction",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/route_finder/weighted_astar.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-finder-weighted-astar.org",
-        "severity": "error",
-        "code": "missing-return-nullable",
-        "symbol": "find_weighted_astar",
-        "message": "pointer return has no @byul.nullable return",
-        "disposition": "route-to-owner-child"
-      },
-      {
-        "header": "byul/navsys/route_finder/weighted_astar.h",
-        "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-finder-weighted-astar.org",
-        "severity": "error",
-        "code": "missing-return-lifetime",
-        "symbol": "find_weighted_astar",
-        "message": "pointer return has no @byul.lifetime return",
-        "disposition": "route-to-owner-child"
       }
     ]
   },
@@ -5442,13 +2416,46 @@
       ]
     },
     {
+      "path": "byul/navsys/dstar_lite/dstar_lite_planner.h",
+      "owner_todo": "docs/ko/todo/navsys/todo-navsys-dstar-lite-dstar-lite.org",
+      "primary_role": "public-component",
+      "wrapper_mode": "generated",
+      "symbol_count": 13,
+      "audit_issue_count": 0,
+      "symbols": [
+        "dstar_lite_create_info_init",
+        "dstar_lite_replan_options_init",
+        "dstar_lite_create_ex",
+        "dstar_lite_reset_ex",
+        "dstar_lite_bind_cost_callback",
+        "dstar_lite_bind_heuristic_callback",
+        "dstar_lite_set_current_start",
+        "dstar_lite_set_goal_ex",
+        "dstar_lite_notify_edge_changes",
+        "dstar_lite_replan",
+        "dstar_lite_get_stats",
+        "dstar_lite_request_cancel",
+        "dstar_lite_is_cancel_requested"
+      ]
+    },
+    {
       "path": "byul/navsys/dstar_lite/dstar_lite_pqueue.h",
       "owner_todo": "docs/ko/todo/navsys/todo-navsys-dstar-lite-dstar-lite-pqueue.org",
       "primary_role": "public-component",
       "wrapper_mode": "generated",
-      "symbol_count": 12,
-      "audit_issue_count": 12,
+      "symbol_count": 22,
+      "audit_issue_count": 0,
       "symbols": [
+        "dstar_lite_pqueue_create_ex",
+        "dstar_lite_pqueue_copy_ex",
+        "dstar_lite_pqueue_upsert",
+        "dstar_lite_pqueue_peek_min",
+        "dstar_lite_pqueue_pop_min",
+        "dstar_lite_pqueue_find_key",
+        "dstar_lite_pqueue_remove_ex",
+        "dstar_lite_pqueue_size",
+        "dstar_lite_pqueue_empty",
+        "dstar_lite_pqueue_clear",
         "dstar_lite_pqueue_create",
         "dstar_lite_pqueue_destroy",
         "dstar_lite_pqueue_copy",
@@ -5468,9 +2475,17 @@
       "owner_todo": "docs/ko/todo/navsys/todo-navsys-dstar-lite-dstar-lite-tick.org",
       "primary_role": "public-component",
       "wrapper_mode": "manual",
-      "symbol_count": 9,
-      "audit_issue_count": 35,
+      "symbol_count": 17,
+      "audit_issue_count": 0,
       "symbols": [
+        "dstar_lite_tick_create_info_init",
+        "dstar_lite_tick_create_ex",
+        "dstar_lite_tick_start",
+        "dstar_lite_tick_stop",
+        "dstar_lite_tick_advance",
+        "dstar_lite_tick_get_state",
+        "dstar_lite_tick_fetch_position",
+        "dstar_lite_tick_get_elapsed_seconds",
         "dstar_lite_tick_create",
         "dstar_lite_tick_create_full",
         "dstar_lite_tick_destroy",
@@ -5494,6 +2509,15 @@
     {
       "path": "byul/navsys/dstar_lite/internal/dstar_lite_key_ops.hpp",
       "owner_todo": "docs/ko/todo/navsys/todo-navsys-dstar-lite-dstar-lite-key-cpp.org",
+      "primary_role": "internal",
+      "wrapper_mode": "excluded",
+      "symbol_count": 0,
+      "audit_issue_count": 0,
+      "symbols": []
+    },
+    {
+      "path": "byul/navsys/dstar_lite/internal/dstar_lite_planner.hpp",
+      "owner_todo": "docs/ko/todo/navsys/todo-navsys-dstar-lite-dstar-lite.org",
       "primary_role": "internal",
       "wrapper_mode": "excluded",
       "symbol_count": 0,
@@ -5824,10 +2848,15 @@
       "path": "byul/navsys/navsys.h",
       "owner_todo": "docs/ko/todo/navsys/todo-navsys-navsys.org",
       "primary_role": "public-module-entry",
-      "wrapper_mode": "manual",
-      "symbol_count": 12,
-      "audit_issue_count": 49,
+      "wrapper_mode": "generated",
+      "symbol_count": 17,
+      "audit_issue_count": 0,
       "symbols": [
+        "navsys_path_query_init",
+        "navsys_algorithm_config_init",
+        "navsys_is_algorithm_supported",
+        "navsys_get_algorithm_descriptor",
+        "navsys_find_path",
         "navsys_find_astar",
         "navsys_find_bfs",
         "navsys_find_dfs",
@@ -5841,6 +2870,15 @@
         "navsys_find_weighted_astar",
         "navsys_find_dstar_lite"
       ]
+    },
+    {
+      "path": "byul/navsys/navsys_all.h",
+      "owner_todo": "docs/ko/todo/navsys/todo-navsys-navsys.org",
+      "primary_role": "public-aggregate",
+      "wrapper_mode": "excluded",
+      "symbol_count": 0,
+      "audit_issue_count": 0,
+      "symbols": []
     },
     {
       "path": "byul/navsys/navsys_status.h",
@@ -6122,7 +3160,7 @@
       "primary_role": "public-component",
       "wrapper_mode": "generated",
       "symbol_count": 1,
-      "audit_issue_count": 12,
+      "audit_issue_count": 0,
       "symbols": [
         "find_astar"
       ]
@@ -6133,7 +3171,7 @@
       "primary_role": "public-component",
       "wrapper_mode": "generated",
       "symbol_count": 1,
-      "audit_issue_count": 10,
+      "audit_issue_count": 0,
       "symbols": [
         "find_bfs"
       ]
@@ -6144,7 +3182,7 @@
       "primary_role": "public-component",
       "wrapper_mode": "generated",
       "symbol_count": 1,
-      "audit_issue_count": 10,
+      "audit_issue_count": 0,
       "symbols": [
         "find_dfs"
       ]
@@ -6155,7 +3193,7 @@
       "primary_role": "public-component",
       "wrapper_mode": "generated",
       "symbol_count": 1,
-      "audit_issue_count": 11,
+      "audit_issue_count": 0,
       "symbols": [
         "find_dijkstra"
       ]
@@ -6166,7 +3204,7 @@
       "primary_role": "public-component",
       "wrapper_mode": "generated",
       "symbol_count": 7,
-      "audit_issue_count": 31,
+      "audit_issue_count": 0,
       "symbols": [
         "fmm_cell_init",
         "fmm_cell_init_full",
@@ -6183,7 +3221,7 @@
       "primary_role": "public-component",
       "wrapper_mode": "generated",
       "symbol_count": 1,
-      "audit_issue_count": 13,
+      "audit_issue_count": 0,
       "symbols": [
         "find_fringe_search"
       ]
@@ -6194,7 +3232,7 @@
       "primary_role": "public-component",
       "wrapper_mode": "generated",
       "symbol_count": 1,
-      "audit_issue_count": 11,
+      "audit_issue_count": 0,
       "symbols": [
         "find_greedy_best_first"
       ]
@@ -6205,7 +3243,7 @@
       "primary_role": "public-component",
       "wrapper_mode": "generated",
       "symbol_count": 1,
-      "audit_issue_count": 12,
+      "audit_issue_count": 0,
       "symbols": [
         "find_ida_star"
       ]
@@ -6224,9 +3262,11 @@
       "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-finder-route-finder.org",
       "primary_role": "public-module-entry",
       "wrapper_mode": "generated",
-      "symbol_count": 48,
-      "audit_issue_count": 46,
+      "symbol_count": 52,
+      "audit_issue_count": 0,
       "symbols": [
+        "route_finder_type_get_name",
+        "route_finder_is_type_supported",
         "route_finder_is_supported",
         "route_finder_create",
         "route_finder_create_full",
@@ -6265,8 +3305,10 @@
         "route_finder_set_heuristic_fn_userdata",
         "route_finder_get_heuristic_fn_userdata",
         "route_finder_bind_cost_func",
+        "route_finder_bind_cost_func_ex",
         "route_finder_unbind_cost_func",
         "route_finder_bind_heuristic_func",
+        "route_finder_bind_heuristic_func_ex",
         "route_finder_unbind_heuristic_func",
         "route_finder_clear",
         "route_finder_set_defaults",
@@ -6283,7 +3325,7 @@
       "primary_role": "public-component",
       "wrapper_mode": "generated",
       "symbol_count": 9,
-      "audit_issue_count": 42,
+      "audit_issue_count": 0,
       "symbols": [
         "default_cost",
         "zero_cost",
@@ -6297,12 +3339,31 @@
       ]
     },
     {
+      "path": "byul/navsys/route_finder/route_finder_evaluation.h",
+      "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-finder-route-finder-core.org",
+      "primary_role": "public-component",
+      "wrapper_mode": "generated",
+      "symbol_count": 9,
+      "audit_issue_count": 0,
+      "symbols": [
+        "route_finder_cost_unit",
+        "route_finder_cost_zero",
+        "route_finder_cost_diagonal",
+        "route_finder_heuristic_euclidean",
+        "route_finder_heuristic_manhattan",
+        "route_finder_heuristic_chebyshev",
+        "route_finder_heuristic_octile",
+        "route_finder_heuristic_zero",
+        "route_finder_heuristic_default"
+      ]
+    },
+    {
       "path": "byul/navsys/route_finder/rta_star.h",
       "owner_todo": "docs/ko/todo/navsys/todo-navsys-route-finder-rta-star.org",
       "primary_role": "public-component",
       "wrapper_mode": "generated",
       "symbol_count": 4,
-      "audit_issue_count": 16,
+      "audit_issue_count": 0,
       "symbols": [
         "rta_star_config_create",
         "rta_star_config_create_full",
@@ -6316,7 +3377,7 @@
       "primary_role": "public-component",
       "wrapper_mode": "generated",
       "symbol_count": 1,
-      "audit_issue_count": 13,
+      "audit_issue_count": 0,
       "symbols": [
         "find_sma_star"
       ]
@@ -6327,7 +3388,7 @@
       "primary_role": "public-component",
       "wrapper_mode": "generated",
       "symbol_count": 1,
-      "audit_issue_count": 13,
+      "audit_issue_count": 0,
       "symbols": [
         "find_weighted_astar"
       ]
@@ -7954,7 +5015,7 @@
       "header": "byul/navsys/dstar_lite/dstar_lite.h",
       "name": "dstar_lite_get_interval_sec",
       "return_type": "float",
-      "signature": "float dstar_lite_get_interval_sec(dstar_lite_t* dsl);",
+      "signature": "float dstar_lite_get_interval_sec(const dstar_lite_t* dsl);",
       "return_form": "floating_result",
       "canonical": "navsys_status_t plus typed out scalar"
     },
@@ -8250,7 +5311,7 @@
       "header": "byul/navsys/dstar_lite/dstar_lite.h",
       "name": "dstar_lite_update_vertex_by_route",
       "return_type": "void",
-      "signature": "void dstar_lite_update_vertex_by_route( dstar_lite_t* dsl, route_t* p);",
+      "signature": "void dstar_lite_update_vertex_by_route( dstar_lite_t* dsl, const route_t* p);",
       "return_form": "void_fallible_operation",
       "canonical": "navsys_status_t"
     },
@@ -8431,6 +5492,190 @@
       "canonical": "navsys_status_t plus out_count"
     },
     {
+      "header": "byul/navsys/dstar_lite/dstar_lite_planner.h",
+      "name": "dstar_lite_create_info_init",
+      "return_type": "navsys_status_t",
+      "signature": "navsys_status_t dstar_lite_create_info_init( dstar_lite_create_info_t* out_info, navgrid_t* navgrid, const coord_t* start, const coord_t* goal);",
+      "return_form": "enum_result",
+      "canonical": "navsys_status_t plus typed out enum"
+    },
+    {
+      "header": "byul/navsys/dstar_lite/dstar_lite_planner.h",
+      "name": "dstar_lite_replan_options_init",
+      "return_type": "navsys_status_t",
+      "signature": "navsys_status_t dstar_lite_replan_options_init( dstar_lite_replan_options_t* out_options);",
+      "return_form": "enum_result",
+      "canonical": "navsys_status_t plus typed out enum"
+    },
+    {
+      "header": "byul/navsys/dstar_lite/dstar_lite_planner.h",
+      "name": "dstar_lite_create_ex",
+      "return_type": "navsys_status_t",
+      "signature": "navsys_status_t dstar_lite_create_ex( const dstar_lite_create_info_t* info, dstar_lite_t** out_planner);",
+      "return_form": "enum_result",
+      "canonical": "navsys_status_t plus typed out enum"
+    },
+    {
+      "header": "byul/navsys/dstar_lite/dstar_lite_planner.h",
+      "name": "dstar_lite_reset_ex",
+      "return_type": "navsys_status_t",
+      "signature": "navsys_status_t dstar_lite_reset_ex( dstar_lite_t* planner, const coord_t* start, const coord_t* goal);",
+      "return_form": "enum_result",
+      "canonical": "navsys_status_t plus typed out enum"
+    },
+    {
+      "header": "byul/navsys/dstar_lite/dstar_lite_planner.h",
+      "name": "dstar_lite_bind_cost_callback",
+      "return_type": "navsys_status_t",
+      "signature": "navsys_status_t dstar_lite_bind_cost_callback( dstar_lite_t* planner, dstar_lite_cost_callback_t callback, void* userdata);",
+      "return_form": "enum_result",
+      "canonical": "navsys_status_t plus typed out enum"
+    },
+    {
+      "header": "byul/navsys/dstar_lite/dstar_lite_planner.h",
+      "name": "dstar_lite_bind_heuristic_callback",
+      "return_type": "navsys_status_t",
+      "signature": "navsys_status_t dstar_lite_bind_heuristic_callback( dstar_lite_t* planner, dstar_lite_heuristic_callback_t callback, void* userdata);",
+      "return_form": "enum_result",
+      "canonical": "navsys_status_t plus typed out enum"
+    },
+    {
+      "header": "byul/navsys/dstar_lite/dstar_lite_planner.h",
+      "name": "dstar_lite_set_current_start",
+      "return_type": "navsys_status_t",
+      "signature": "navsys_status_t dstar_lite_set_current_start( dstar_lite_t* planner, const coord_t* start);",
+      "return_form": "enum_result",
+      "canonical": "navsys_status_t plus typed out enum"
+    },
+    {
+      "header": "byul/navsys/dstar_lite/dstar_lite_planner.h",
+      "name": "dstar_lite_set_goal_ex",
+      "return_type": "navsys_status_t",
+      "signature": "navsys_status_t dstar_lite_set_goal_ex( dstar_lite_t* planner, const coord_t* goal);",
+      "return_form": "enum_result",
+      "canonical": "navsys_status_t plus typed out enum"
+    },
+    {
+      "header": "byul/navsys/dstar_lite/dstar_lite_planner.h",
+      "name": "dstar_lite_notify_edge_changes",
+      "return_type": "navsys_status_t",
+      "signature": "navsys_status_t dstar_lite_notify_edge_changes( dstar_lite_t* planner, const dstar_lite_edge_update_t* updates, size_t update_count);",
+      "return_form": "enum_result",
+      "canonical": "navsys_status_t plus typed out enum"
+    },
+    {
+      "header": "byul/navsys/dstar_lite/dstar_lite_planner.h",
+      "name": "dstar_lite_replan",
+      "return_type": "navsys_status_t",
+      "signature": "navsys_status_t dstar_lite_replan( dstar_lite_t* planner, const dstar_lite_replan_options_t* options, route_t** out_route, dstar_lite_stats_t* out_stats);",
+      "return_form": "enum_result",
+      "canonical": "navsys_status_t plus typed out enum"
+    },
+    {
+      "header": "byul/navsys/dstar_lite/dstar_lite_planner.h",
+      "name": "dstar_lite_get_stats",
+      "return_type": "navsys_status_t",
+      "signature": "navsys_status_t dstar_lite_get_stats( const dstar_lite_t* planner, dstar_lite_stats_t* out_stats);",
+      "return_form": "enum_result",
+      "canonical": "navsys_status_t plus typed out enum"
+    },
+    {
+      "header": "byul/navsys/dstar_lite/dstar_lite_planner.h",
+      "name": "dstar_lite_request_cancel",
+      "return_type": "navsys_status_t",
+      "signature": "navsys_status_t dstar_lite_request_cancel(dstar_lite_t* planner);",
+      "return_form": "enum_result",
+      "canonical": "navsys_status_t plus typed out enum"
+    },
+    {
+      "header": "byul/navsys/dstar_lite/dstar_lite_planner.h",
+      "name": "dstar_lite_is_cancel_requested",
+      "return_type": "bool",
+      "signature": "bool dstar_lite_is_cancel_requested(const dstar_lite_t* planner);",
+      "return_form": "bool_predicate",
+      "canonical": "keep bool when evaluation itself cannot fail"
+    },
+    {
+      "header": "byul/navsys/dstar_lite/dstar_lite_pqueue.h",
+      "name": "dstar_lite_pqueue_create_ex",
+      "return_type": "navsys_status_t",
+      "signature": "navsys_status_t dstar_lite_pqueue_create_ex( dstar_lite_pqueue_t** out_queue);",
+      "return_form": "enum_result",
+      "canonical": "navsys_status_t plus typed out enum"
+    },
+    {
+      "header": "byul/navsys/dstar_lite/dstar_lite_pqueue.h",
+      "name": "dstar_lite_pqueue_copy_ex",
+      "return_type": "navsys_status_t",
+      "signature": "navsys_status_t dstar_lite_pqueue_copy_ex( const dstar_lite_pqueue_t* source, dstar_lite_pqueue_t** out_queue);",
+      "return_form": "enum_result",
+      "canonical": "navsys_status_t plus typed out enum"
+    },
+    {
+      "header": "byul/navsys/dstar_lite/dstar_lite_pqueue.h",
+      "name": "dstar_lite_pqueue_upsert",
+      "return_type": "navsys_status_t",
+      "signature": "navsys_status_t dstar_lite_pqueue_upsert( dstar_lite_pqueue_t* queue, const coord_t* coord, const dstar_lite_key_t* key);",
+      "return_form": "enum_result",
+      "canonical": "navsys_status_t plus typed out enum"
+    },
+    {
+      "header": "byul/navsys/dstar_lite/dstar_lite_pqueue.h",
+      "name": "dstar_lite_pqueue_peek_min",
+      "return_type": "navsys_status_t",
+      "signature": "navsys_status_t dstar_lite_pqueue_peek_min( const dstar_lite_pqueue_t* queue, dstar_lite_pqueue_entry_t* out_entry);",
+      "return_form": "enum_result",
+      "canonical": "navsys_status_t plus typed out enum"
+    },
+    {
+      "header": "byul/navsys/dstar_lite/dstar_lite_pqueue.h",
+      "name": "dstar_lite_pqueue_pop_min",
+      "return_type": "navsys_status_t",
+      "signature": "navsys_status_t dstar_lite_pqueue_pop_min( dstar_lite_pqueue_t* queue, dstar_lite_pqueue_entry_t* out_entry);",
+      "return_form": "enum_result",
+      "canonical": "navsys_status_t plus typed out enum"
+    },
+    {
+      "header": "byul/navsys/dstar_lite/dstar_lite_pqueue.h",
+      "name": "dstar_lite_pqueue_find_key",
+      "return_type": "navsys_status_t",
+      "signature": "navsys_status_t dstar_lite_pqueue_find_key( const dstar_lite_pqueue_t* queue, const coord_t* coord, dstar_lite_key_t* out_key, bool* out_found);",
+      "return_form": "enum_result",
+      "canonical": "navsys_status_t plus typed out enum"
+    },
+    {
+      "header": "byul/navsys/dstar_lite/dstar_lite_pqueue.h",
+      "name": "dstar_lite_pqueue_remove_ex",
+      "return_type": "navsys_status_t",
+      "signature": "navsys_status_t dstar_lite_pqueue_remove_ex( dstar_lite_pqueue_t* queue, const coord_t* coord, bool* out_removed);",
+      "return_form": "enum_result",
+      "canonical": "navsys_status_t plus typed out enum"
+    },
+    {
+      "header": "byul/navsys/dstar_lite/dstar_lite_pqueue.h",
+      "name": "dstar_lite_pqueue_size",
+      "return_type": "size_t",
+      "signature": "size_t dstar_lite_pqueue_size( const dstar_lite_pqueue_t* queue);",
+      "return_form": "int_count",
+      "canonical": "navsys_status_t plus out_count"
+    },
+    {
+      "header": "byul/navsys/dstar_lite/dstar_lite_pqueue.h",
+      "name": "dstar_lite_pqueue_empty",
+      "return_type": "bool",
+      "signature": "bool dstar_lite_pqueue_empty( const dstar_lite_pqueue_t* queue);",
+      "return_form": "bool_operation",
+      "canonical": "navsys_status_t"
+    },
+    {
+      "header": "byul/navsys/dstar_lite/dstar_lite_pqueue.h",
+      "name": "dstar_lite_pqueue_clear",
+      "return_type": "void",
+      "signature": "void dstar_lite_pqueue_clear(dstar_lite_pqueue_t* queue);",
+      "return_form": "void_fallible_operation",
+      "canonical": "navsys_status_t"
+    },
+    {
       "header": "byul/navsys/dstar_lite/dstar_lite_pqueue.h",
       "name": "dstar_lite_pqueue_create",
       "return_type": "dstar_lite_pqueue_t*",
@@ -8525,6 +5770,70 @@
       "signature": "bool dstar_lite_pqueue_contains( dstar_lite_pqueue_t* q, const coord_t* u);",
       "return_form": "bool_predicate",
       "canonical": "keep bool when evaluation itself cannot fail"
+    },
+    {
+      "header": "byul/navsys/dstar_lite/dstar_lite_tick.h",
+      "name": "dstar_lite_tick_create_info_init",
+      "return_type": "navsys_status_t",
+      "signature": "navsys_status_t dstar_lite_tick_create_info_init( dstar_lite_tick_create_info_t* out_info, dstar_lite_t* planner);",
+      "return_form": "enum_result",
+      "canonical": "navsys_status_t plus typed out enum"
+    },
+    {
+      "header": "byul/navsys/dstar_lite/dstar_lite_tick.h",
+      "name": "dstar_lite_tick_create_ex",
+      "return_type": "navsys_status_t",
+      "signature": "navsys_status_t dstar_lite_tick_create_ex( const dstar_lite_tick_create_info_t* info, dstar_lite_tick_t** out_controller);",
+      "return_form": "enum_result",
+      "canonical": "navsys_status_t plus typed out enum"
+    },
+    {
+      "header": "byul/navsys/dstar_lite/dstar_lite_tick.h",
+      "name": "dstar_lite_tick_start",
+      "return_type": "navsys_status_t",
+      "signature": "navsys_status_t dstar_lite_tick_start( dstar_lite_tick_t* controller, tick_t* tick);",
+      "return_form": "enum_result",
+      "canonical": "navsys_status_t plus typed out enum"
+    },
+    {
+      "header": "byul/navsys/dstar_lite/dstar_lite_tick.h",
+      "name": "dstar_lite_tick_stop",
+      "return_type": "navsys_status_t",
+      "signature": "navsys_status_t dstar_lite_tick_stop( dstar_lite_tick_t* controller);",
+      "return_form": "enum_result",
+      "canonical": "navsys_status_t plus typed out enum"
+    },
+    {
+      "header": "byul/navsys/dstar_lite/dstar_lite_tick.h",
+      "name": "dstar_lite_tick_advance",
+      "return_type": "navsys_status_t",
+      "signature": "navsys_status_t dstar_lite_tick_advance( dstar_lite_tick_t* controller, float delta_seconds, uint32_t* out_steps);",
+      "return_form": "enum_result",
+      "canonical": "navsys_status_t plus typed out enum"
+    },
+    {
+      "header": "byul/navsys/dstar_lite/dstar_lite_tick.h",
+      "name": "dstar_lite_tick_get_state",
+      "return_type": "dstar_lite_tick_state_t",
+      "signature": "dstar_lite_tick_state_t dstar_lite_tick_get_state( const dstar_lite_tick_t* controller);",
+      "return_form": "enum_result",
+      "canonical": "navsys_status_t plus typed out enum"
+    },
+    {
+      "header": "byul/navsys/dstar_lite/dstar_lite_tick.h",
+      "name": "dstar_lite_tick_fetch_position",
+      "return_type": "navsys_status_t",
+      "signature": "navsys_status_t dstar_lite_tick_fetch_position( const dstar_lite_tick_t* controller, coord_t* out_position);",
+      "return_form": "enum_result",
+      "canonical": "navsys_status_t plus typed out enum"
+    },
+    {
+      "header": "byul/navsys/dstar_lite/dstar_lite_tick.h",
+      "name": "dstar_lite_tick_get_elapsed_seconds",
+      "return_type": "navsys_status_t",
+      "signature": "navsys_status_t dstar_lite_tick_get_elapsed_seconds( const dstar_lite_tick_t* controller, float* out_elapsed_seconds);",
+      "return_form": "enum_result",
+      "canonical": "navsys_status_t plus typed out enum"
     },
     {
       "header": "byul/navsys/dstar_lite/dstar_lite_tick.h",
@@ -9528,9 +6837,49 @@
     },
     {
       "header": "byul/navsys/navsys.h",
+      "name": "navsys_path_query_init",
+      "return_type": "navsys_status_t",
+      "signature": "navsys_status_t navsys_path_query_init( navsys_path_query_t* out_query, navgrid_t* grid, const coord_t* start, const coord_t* goal);",
+      "return_form": "enum_result",
+      "canonical": "navsys_status_t plus typed out enum"
+    },
+    {
+      "header": "byul/navsys/navsys.h",
+      "name": "navsys_algorithm_config_init",
+      "return_type": "navsys_status_t",
+      "signature": "navsys_status_t navsys_algorithm_config_init( navsys_algorithm_config_t* out_config, navsys_algorithm_config_kind_t kind);",
+      "return_form": "enum_result",
+      "canonical": "navsys_status_t plus typed out enum"
+    },
+    {
+      "header": "byul/navsys/navsys.h",
+      "name": "navsys_is_algorithm_supported",
+      "return_type": "bool",
+      "signature": "bool navsys_is_algorithm_supported( route_finder_type_t algorithm);",
+      "return_form": "bool_predicate",
+      "canonical": "keep bool when evaluation itself cannot fail"
+    },
+    {
+      "header": "byul/navsys/navsys.h",
+      "name": "navsys_get_algorithm_descriptor",
+      "return_type": "navsys_status_t",
+      "signature": "navsys_status_t navsys_get_algorithm_descriptor( route_finder_type_t algorithm, navsys_algorithm_descriptor_t* out_descriptor);",
+      "return_form": "enum_result",
+      "canonical": "navsys_status_t plus typed out enum"
+    },
+    {
+      "header": "byul/navsys/navsys.h",
+      "name": "navsys_find_path",
+      "return_type": "navsys_status_t",
+      "signature": "navsys_status_t navsys_find_path( const navsys_path_query_t* query, route_t** out_route, navsys_search_stats_t* out_stats);",
+      "return_form": "enum_result",
+      "canonical": "navsys_status_t plus typed out enum"
+    },
+    {
+      "header": "byul/navsys/navsys.h",
       "name": "navsys_find_astar",
       "return_type": "route_t*",
-      "signature": "route_t* navsys_find_astar( navgrid_t* ng, const coord_t* start, const coord_t* goal);",
+      "signature": "route_t* navsys_find_astar(navgrid_t* ng, const coord_t* start, const coord_t* goal);",
       "return_form": "nullable_pointer",
       "canonical": "status return plus typed out pointer"
     },
@@ -9538,7 +6887,7 @@
       "header": "byul/navsys/navsys.h",
       "name": "navsys_find_bfs",
       "return_type": "route_t*",
-      "signature": "route_t* navsys_find_bfs( navgrid_t* ng, const coord_t* start, const coord_t* goal);",
+      "signature": "route_t* navsys_find_bfs(navgrid_t* ng, const coord_t* start, const coord_t* goal);",
       "return_form": "nullable_pointer",
       "canonical": "status return plus typed out pointer"
     },
@@ -9546,7 +6895,7 @@
       "header": "byul/navsys/navsys.h",
       "name": "navsys_find_dfs",
       "return_type": "route_t*",
-      "signature": "route_t* navsys_find_dfs( navgrid_t* ng, const coord_t* start, const coord_t* goal);",
+      "signature": "route_t* navsys_find_dfs(navgrid_t* ng, const coord_t* start, const coord_t* goal);",
       "return_form": "nullable_pointer",
       "canonical": "status return plus typed out pointer"
     },
@@ -9554,7 +6903,7 @@
       "header": "byul/navsys/navsys.h",
       "name": "navsys_find_dijkstra",
       "return_type": "route_t*",
-      "signature": "route_t* navsys_find_dijkstra( navgrid_t* ng, const coord_t* start, const coord_t* goal);",
+      "signature": "route_t* navsys_find_dijkstra(navgrid_t* ng, const coord_t* start, const coord_t* goal);",
       "return_form": "nullable_pointer",
       "canonical": "status return plus typed out pointer"
     },
@@ -9562,7 +6911,7 @@
       "header": "byul/navsys/navsys.h",
       "name": "navsys_find_greedy_best_first",
       "return_type": "route_t*",
-      "signature": "route_t* navsys_find_greedy_best_first( navgrid_t* ng, const coord_t* start, const coord_t* goal);",
+      "signature": "route_t* navsys_find_greedy_best_first(navgrid_t* ng, const coord_t* start, const coord_t* goal);",
       "return_form": "nullable_pointer",
       "canonical": "status return plus typed out pointer"
     },
@@ -9570,7 +6919,7 @@
       "header": "byul/navsys/navsys.h",
       "name": "navsys_find_fast_marching",
       "return_type": "route_t*",
-      "signature": "route_t* navsys_find_fast_marching( navgrid_t* ng, const coord_t* start, const coord_t* goal);",
+      "signature": "route_t* navsys_find_fast_marching(navgrid_t* ng, const coord_t* start, const coord_t* goal);",
       "return_form": "nullable_pointer",
       "canonical": "status return plus typed out pointer"
     },
@@ -9578,7 +6927,7 @@
       "header": "byul/navsys/navsys.h",
       "name": "navsys_find_ida_star",
       "return_type": "route_t*",
-      "signature": "route_t* navsys_find_ida_star( navgrid_t* ng, const coord_t* start, const coord_t* goal);",
+      "signature": "route_t* navsys_find_ida_star(navgrid_t* ng, const coord_t* start, const coord_t* goal);",
       "return_form": "nullable_pointer",
       "canonical": "status return plus typed out pointer"
     },
@@ -11104,6 +8453,22 @@
     },
     {
       "header": "byul/navsys/route_finder/route_finder.h",
+      "name": "route_finder_type_get_name",
+      "return_type": "const char*",
+      "signature": "const char* route_finder_type_get_name(route_finder_type_t type);",
+      "return_form": "nullable_pointer",
+      "canonical": "status return plus typed out pointer"
+    },
+    {
+      "header": "byul/navsys/route_finder/route_finder.h",
+      "name": "route_finder_is_type_supported",
+      "return_type": "bool",
+      "signature": "bool route_finder_is_type_supported(route_finder_type_t type);",
+      "return_form": "bool_predicate",
+      "canonical": "keep bool when evaluation itself cannot fail"
+    },
+    {
+      "header": "byul/navsys/route_finder/route_finder.h",
       "name": "route_finder_is_supported",
       "return_type": "bool",
       "signature": "bool route_finder_is_supported(route_finder_type_t type);",
@@ -11408,6 +8773,14 @@
     },
     {
       "header": "byul/navsys/route_finder/route_finder.h",
+      "name": "route_finder_bind_cost_func_ex",
+      "return_type": "navsys_status_t",
+      "signature": "navsys_status_t route_finder_bind_cost_func_ex( route_finder_t* finder, route_finder_cost_func_ex fn, void* userdata);",
+      "return_form": "enum_result",
+      "canonical": "navsys_status_t plus typed out enum"
+    },
+    {
+      "header": "byul/navsys/route_finder/route_finder.h",
       "name": "route_finder_unbind_cost_func",
       "return_type": "navsys_status_t",
       "signature": "navsys_status_t route_finder_unbind_cost_func( route_finder_t* finder);",
@@ -11419,6 +8792,14 @@
       "name": "route_finder_bind_heuristic_func",
       "return_type": "navsys_status_t",
       "signature": "navsys_status_t route_finder_bind_heuristic_func( route_finder_t* finder, heuristic_func fn, void* userdata);",
+      "return_form": "enum_result",
+      "canonical": "navsys_status_t plus typed out enum"
+    },
+    {
+      "header": "byul/navsys/route_finder/route_finder.h",
+      "name": "route_finder_bind_heuristic_func_ex",
+      "return_type": "navsys_status_t",
+      "signature": "navsys_status_t route_finder_bind_heuristic_func_ex( route_finder_t* finder, route_finder_heuristic_func_ex fn, void* userdata);",
       "return_form": "enum_result",
       "canonical": "navsys_status_t plus typed out enum"
     },
@@ -11490,7 +8871,7 @@
       "header": "byul/navsys/route_finder/route_finder_core.h",
       "name": "default_cost",
       "return_type": "float",
-      "signature": "float default_cost( const navgrid_t*, const coord_t*, const coord_t*, void*);",
+      "signature": "float default_cost( const navgrid_t* m, const coord_t* start, const coord_t* goal, void* userdata);",
       "return_form": "floating_result",
       "canonical": "navsys_status_t plus typed out scalar"
     },
@@ -11498,7 +8879,7 @@
       "header": "byul/navsys/route_finder/route_finder_core.h",
       "name": "zero_cost",
       "return_type": "float",
-      "signature": "float zero_cost(const navgrid_t*, const coord_t*, const coord_t*, void*);",
+      "signature": "float zero_cost( const navgrid_t* m, const coord_t* start, const coord_t* goal, void* userdata);",
       "return_form": "floating_result",
       "canonical": "navsys_status_t plus typed out scalar"
     },
@@ -11506,7 +8887,7 @@
       "header": "byul/navsys/route_finder/route_finder_core.h",
       "name": "diagonal_cost",
       "return_type": "float",
-      "signature": "float diagonal_cost( const navgrid_t*, const coord_t*, const coord_t*, void*);",
+      "signature": "float diagonal_cost( const navgrid_t* m, const coord_t* start, const coord_t* goal, void* userdata);",
       "return_form": "floating_result",
       "canonical": "navsys_status_t plus typed out scalar"
     },
@@ -11514,7 +8895,7 @@
       "header": "byul/navsys/route_finder/route_finder_core.h",
       "name": "euclidean_heuristic",
       "return_type": "float",
-      "signature": "float euclidean_heuristic(const coord_t*, const coord_t*, void*);",
+      "signature": "float euclidean_heuristic( const coord_t* start, const coord_t* goal, void* userdata);",
       "return_form": "floating_result",
       "canonical": "navsys_status_t plus typed out scalar"
     },
@@ -11522,7 +8903,7 @@
       "header": "byul/navsys/route_finder/route_finder_core.h",
       "name": "manhattan_heuristic",
       "return_type": "float",
-      "signature": "float manhattan_heuristic(const coord_t*, const coord_t*, void*);",
+      "signature": "float manhattan_heuristic( const coord_t* start, const coord_t* goal, void* userdata);",
       "return_form": "floating_result",
       "canonical": "navsys_status_t plus typed out scalar"
     },
@@ -11530,7 +8911,7 @@
       "header": "byul/navsys/route_finder/route_finder_core.h",
       "name": "chebyshev_heuristic",
       "return_type": "float",
-      "signature": "float chebyshev_heuristic(const coord_t*, const coord_t*, void*);",
+      "signature": "float chebyshev_heuristic( const coord_t* start, const coord_t* goal, void* userdata);",
       "return_form": "floating_result",
       "canonical": "navsys_status_t plus typed out scalar"
     },
@@ -11538,7 +8919,7 @@
       "header": "byul/navsys/route_finder/route_finder_core.h",
       "name": "octile_heuristic",
       "return_type": "float",
-      "signature": "float octile_heuristic(const coord_t*, const coord_t*, void*);",
+      "signature": "float octile_heuristic( const coord_t* start, const coord_t* goal, void* userdata);",
       "return_form": "floating_result",
       "canonical": "navsys_status_t plus typed out scalar"
     },
@@ -11546,7 +8927,7 @@
       "header": "byul/navsys/route_finder/route_finder_core.h",
       "name": "zero_heuristic",
       "return_type": "float",
-      "signature": "float zero_heuristic(const coord_t*, const coord_t*, void*);",
+      "signature": "float zero_heuristic( const coord_t* start, const coord_t* goal, void* userdata);",
       "return_form": "floating_result",
       "canonical": "navsys_status_t plus typed out scalar"
     },
@@ -11554,15 +8935,87 @@
       "header": "byul/navsys/route_finder/route_finder_core.h",
       "name": "default_heuristic",
       "return_type": "float",
-      "signature": "float default_heuristic(const coord_t*, const coord_t*, void*);",
+      "signature": "float default_heuristic( const coord_t* start, const coord_t* goal, void* userdata);",
       "return_form": "floating_result",
       "canonical": "navsys_status_t plus typed out scalar"
+    },
+    {
+      "header": "byul/navsys/route_finder/route_finder_evaluation.h",
+      "name": "route_finder_cost_unit",
+      "return_type": "navsys_status_t",
+      "signature": "navsys_status_t route_finder_cost_unit( const navgrid_t* navgrid, const coord_t* from, const coord_t* to, float* out_cost, void* userdata);",
+      "return_form": "enum_result",
+      "canonical": "navsys_status_t plus typed out enum"
+    },
+    {
+      "header": "byul/navsys/route_finder/route_finder_evaluation.h",
+      "name": "route_finder_cost_zero",
+      "return_type": "navsys_status_t",
+      "signature": "navsys_status_t route_finder_cost_zero( const navgrid_t* navgrid, const coord_t* from, const coord_t* to, float* out_cost, void* userdata);",
+      "return_form": "enum_result",
+      "canonical": "navsys_status_t plus typed out enum"
+    },
+    {
+      "header": "byul/navsys/route_finder/route_finder_evaluation.h",
+      "name": "route_finder_cost_diagonal",
+      "return_type": "navsys_status_t",
+      "signature": "navsys_status_t route_finder_cost_diagonal( const navgrid_t* navgrid, const coord_t* from, const coord_t* to, float* out_cost, void* userdata);",
+      "return_form": "enum_result",
+      "canonical": "navsys_status_t plus typed out enum"
+    },
+    {
+      "header": "byul/navsys/route_finder/route_finder_evaluation.h",
+      "name": "route_finder_heuristic_euclidean",
+      "return_type": "navsys_status_t",
+      "signature": "navsys_status_t route_finder_heuristic_euclidean( const coord_t* from, const coord_t* goal, float* out_estimate, void* userdata);",
+      "return_form": "enum_result",
+      "canonical": "navsys_status_t plus typed out enum"
+    },
+    {
+      "header": "byul/navsys/route_finder/route_finder_evaluation.h",
+      "name": "route_finder_heuristic_manhattan",
+      "return_type": "navsys_status_t",
+      "signature": "navsys_status_t route_finder_heuristic_manhattan( const coord_t* from, const coord_t* goal, float* out_estimate, void* userdata);",
+      "return_form": "enum_result",
+      "canonical": "navsys_status_t plus typed out enum"
+    },
+    {
+      "header": "byul/navsys/route_finder/route_finder_evaluation.h",
+      "name": "route_finder_heuristic_chebyshev",
+      "return_type": "navsys_status_t",
+      "signature": "navsys_status_t route_finder_heuristic_chebyshev( const coord_t* from, const coord_t* goal, float* out_estimate, void* userdata);",
+      "return_form": "enum_result",
+      "canonical": "navsys_status_t plus typed out enum"
+    },
+    {
+      "header": "byul/navsys/route_finder/route_finder_evaluation.h",
+      "name": "route_finder_heuristic_octile",
+      "return_type": "navsys_status_t",
+      "signature": "navsys_status_t route_finder_heuristic_octile( const coord_t* from, const coord_t* goal, float* out_estimate, void* userdata);",
+      "return_form": "enum_result",
+      "canonical": "navsys_status_t plus typed out enum"
+    },
+    {
+      "header": "byul/navsys/route_finder/route_finder_evaluation.h",
+      "name": "route_finder_heuristic_zero",
+      "return_type": "navsys_status_t",
+      "signature": "navsys_status_t route_finder_heuristic_zero( const coord_t* from, const coord_t* goal, float* out_estimate, void* userdata);",
+      "return_form": "enum_result",
+      "canonical": "navsys_status_t plus typed out enum"
+    },
+    {
+      "header": "byul/navsys/route_finder/route_finder_evaluation.h",
+      "name": "route_finder_heuristic_default",
+      "return_type": "navsys_status_t",
+      "signature": "navsys_status_t route_finder_heuristic_default( const coord_t* from, const coord_t* goal, float* out_estimate, void* userdata);",
+      "return_form": "enum_result",
+      "canonical": "navsys_status_t plus typed out enum"
     },
     {
       "header": "byul/navsys/route_finder/rta_star.h",
       "name": "rta_star_config_create",
       "return_type": "rta_star_config",
-      "signature": "rta_star_config rta_star_config_create();",
+      "signature": "rta_star_config rta_star_config_create(void);",
       "return_form": "enum_result",
       "canonical": "navsys_status_t plus typed out enum"
     },
@@ -12113,6 +9566,17 @@
             "parameters": [
               "dstar_lite_t* dsl"
             ]
+          },
+          {
+            "header": "byul/navsys/dstar_lite/dstar_lite_planner.h",
+            "resource": "dstar_lite",
+            "operation": "create",
+            "symbol": "dstar_lite_create_ex",
+            "return_type": "navsys_status_t",
+            "parameters": [
+              "const dstar_lite_create_info_t* info",
+              "dstar_lite_t** out_planner"
+            ]
           }
         ],
         "operation_kinds": [
@@ -12121,6 +9585,27 @@
           "destroy",
           "init",
           "reset"
+        ]
+      },
+      {
+        "resource": "dstar_lite_create_info",
+        "operations": [
+          {
+            "header": "byul/navsys/dstar_lite/dstar_lite_planner.h",
+            "resource": "dstar_lite_create_info",
+            "operation": "init",
+            "symbol": "dstar_lite_create_info_init",
+            "return_type": "navsys_status_t",
+            "parameters": [
+              "dstar_lite_create_info_t* out_info",
+              "navgrid_t* navgrid",
+              "const coord_t* start",
+              "const coord_t* goal"
+            ]
+          }
+        ],
+        "operation_kinds": [
+          "init"
         ]
       },
       {
@@ -12204,6 +9689,16 @@
             "header": "byul/navsys/dstar_lite/dstar_lite_pqueue.h",
             "resource": "dstar_lite_pqueue",
             "operation": "create",
+            "symbol": "dstar_lite_pqueue_create_ex",
+            "return_type": "navsys_status_t",
+            "parameters": [
+              "dstar_lite_pqueue_t** out_queue"
+            ]
+          },
+          {
+            "header": "byul/navsys/dstar_lite/dstar_lite_pqueue.h",
+            "resource": "dstar_lite_pqueue",
+            "operation": "create",
             "symbol": "dstar_lite_pqueue_create",
             "return_type": "dstar_lite_pqueue_t*",
             "parameters": []
@@ -12236,8 +9731,37 @@
         ]
       },
       {
+        "resource": "dstar_lite_replan_options",
+        "operations": [
+          {
+            "header": "byul/navsys/dstar_lite/dstar_lite_planner.h",
+            "resource": "dstar_lite_replan_options",
+            "operation": "init",
+            "symbol": "dstar_lite_replan_options_init",
+            "return_type": "navsys_status_t",
+            "parameters": [
+              "dstar_lite_replan_options_t* out_options"
+            ]
+          }
+        ],
+        "operation_kinds": [
+          "init"
+        ]
+      },
+      {
         "resource": "dstar_lite_tick",
         "operations": [
+          {
+            "header": "byul/navsys/dstar_lite/dstar_lite_tick.h",
+            "resource": "dstar_lite_tick",
+            "operation": "create",
+            "symbol": "dstar_lite_tick_create_ex",
+            "return_type": "navsys_status_t",
+            "parameters": [
+              "const dstar_lite_tick_create_info_t* info",
+              "dstar_lite_tick_t** out_controller"
+            ]
+          },
           {
             "header": "byul/navsys/dstar_lite/dstar_lite_tick.h",
             "resource": "dstar_lite_tick",
@@ -12295,6 +9819,25 @@
           "create",
           "destroy",
           "reset"
+        ]
+      },
+      {
+        "resource": "dstar_lite_tick_create_info",
+        "operations": [
+          {
+            "header": "byul/navsys/dstar_lite/dstar_lite_tick.h",
+            "resource": "dstar_lite_tick_create_info",
+            "operation": "init",
+            "symbol": "dstar_lite_tick_create_info_init",
+            "return_type": "navsys_status_t",
+            "parameters": [
+              "dstar_lite_tick_create_info_t* out_info",
+              "dstar_lite_t* planner"
+            ]
+          }
+        ],
+        "operation_kinds": [
+          "init"
         ]
       },
       {
@@ -12585,6 +10128,46 @@
           "copy",
           "create",
           "destroy"
+        ]
+      },
+      {
+        "resource": "navsys_algorithm_config",
+        "operations": [
+          {
+            "header": "byul/navsys/navsys.h",
+            "resource": "navsys_algorithm_config",
+            "operation": "init",
+            "symbol": "navsys_algorithm_config_init",
+            "return_type": "navsys_status_t",
+            "parameters": [
+              "navsys_algorithm_config_t* out_config",
+              "navsys_algorithm_config_kind_t kind"
+            ]
+          }
+        ],
+        "operation_kinds": [
+          "init"
+        ]
+      },
+      {
+        "resource": "navsys_path_query",
+        "operations": [
+          {
+            "header": "byul/navsys/navsys.h",
+            "resource": "navsys_path_query",
+            "operation": "init",
+            "symbol": "navsys_path_query_init",
+            "return_type": "navsys_status_t",
+            "parameters": [
+              "navsys_path_query_t* out_query",
+              "navgrid_t* grid",
+              "const coord_t* start",
+              "const coord_t* goal"
+            ]
+          }
+        ],
+        "operation_kinds": [
+          "init"
         ]
       },
       {
@@ -13614,6 +11197,50 @@
         ]
       },
       {
+        "header": "byul/navsys/dstar_lite/dstar_lite_planner.h",
+        "resource": "dstar_lite_create_info",
+        "operation": "init",
+        "symbol": "dstar_lite_create_info_init",
+        "return_type": "navsys_status_t",
+        "parameters": [
+          "dstar_lite_create_info_t* out_info",
+          "navgrid_t* navgrid",
+          "const coord_t* start",
+          "const coord_t* goal"
+        ]
+      },
+      {
+        "header": "byul/navsys/dstar_lite/dstar_lite_planner.h",
+        "resource": "dstar_lite_replan_options",
+        "operation": "init",
+        "symbol": "dstar_lite_replan_options_init",
+        "return_type": "navsys_status_t",
+        "parameters": [
+          "dstar_lite_replan_options_t* out_options"
+        ]
+      },
+      {
+        "header": "byul/navsys/dstar_lite/dstar_lite_planner.h",
+        "resource": "dstar_lite",
+        "operation": "create",
+        "symbol": "dstar_lite_create_ex",
+        "return_type": "navsys_status_t",
+        "parameters": [
+          "const dstar_lite_create_info_t* info",
+          "dstar_lite_t** out_planner"
+        ]
+      },
+      {
+        "header": "byul/navsys/dstar_lite/dstar_lite_pqueue.h",
+        "resource": "dstar_lite_pqueue",
+        "operation": "create",
+        "symbol": "dstar_lite_pqueue_create_ex",
+        "return_type": "navsys_status_t",
+        "parameters": [
+          "dstar_lite_pqueue_t** out_queue"
+        ]
+      },
+      {
         "header": "byul/navsys/dstar_lite/dstar_lite_pqueue.h",
         "resource": "dstar_lite_pqueue",
         "operation": "create",
@@ -13639,6 +11266,28 @@
         "return_type": "dstar_lite_pqueue_t*",
         "parameters": [
           "const dstar_lite_pqueue_t* src"
+        ]
+      },
+      {
+        "header": "byul/navsys/dstar_lite/dstar_lite_tick.h",
+        "resource": "dstar_lite_tick_create_info",
+        "operation": "init",
+        "symbol": "dstar_lite_tick_create_info_init",
+        "return_type": "navsys_status_t",
+        "parameters": [
+          "dstar_lite_tick_create_info_t* out_info",
+          "dstar_lite_t* planner"
+        ]
+      },
+      {
+        "header": "byul/navsys/dstar_lite/dstar_lite_tick.h",
+        "resource": "dstar_lite_tick",
+        "operation": "create",
+        "symbol": "dstar_lite_tick_create_ex",
+        "return_type": "navsys_status_t",
+        "parameters": [
+          "const dstar_lite_tick_create_info_t* info",
+          "dstar_lite_tick_t** out_controller"
         ]
       },
       {
@@ -13868,6 +11517,30 @@
         "return_type": "navgrid_t*",
         "parameters": [
           "const navgrid_t* navgrid"
+        ]
+      },
+      {
+        "header": "byul/navsys/navsys.h",
+        "resource": "navsys_path_query",
+        "operation": "init",
+        "symbol": "navsys_path_query_init",
+        "return_type": "navsys_status_t",
+        "parameters": [
+          "navsys_path_query_t* out_query",
+          "navgrid_t* grid",
+          "const coord_t* start",
+          "const coord_t* goal"
+        ]
+      },
+      {
+        "header": "byul/navsys/navsys.h",
+        "resource": "navsys_algorithm_config",
+        "operation": "init",
+        "symbol": "navsys_algorithm_config_init",
+        "return_type": "navsys_status_t",
+        "parameters": [
+          "navsys_algorithm_config_t* out_config",
+          "navsys_algorithm_config_kind_t kind"
         ]
       },
       {

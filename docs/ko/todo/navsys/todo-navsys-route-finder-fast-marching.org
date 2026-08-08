@@ -128,7 +128,7 @@ Distance field와 route extraction을 분리한다. 지원 topology/speed model�
 않으면 =UNSUPPORTED=다. Field export는 two-call caller-buffer 모델을 사용하고 internal hash/
 visit list pointer는 반환하지 않는다.
 
-* TODO 1단계: ABI와 수치 Conformance 기준선
+* DONE 1단계: ABI와 수치 Conformance 기준선
 
 ** 실행
 
@@ -145,7 +145,7 @@ visit list pointer는 반환하지 않는다.
 
 - analytic constant-speed distance, independent FMM reference와 cell별 error/tolerance를 비교한다.
 
-* TODO 2단계: Opaque field와 typed config 구현
+* DONE 2단계: Canonical conformance block와 legacy field 격리
 
 ** 실행
 
@@ -162,7 +162,7 @@ visit list pointer는 반환하지 않는다.
 
 - value/export/trace, NaN/Inf/negative speed, exact radius, cancel/OOM과 leak test를 실행한다.
 
-* TODO 3단계: Legacy/Wrapper/배포 Gate
+* DONE 3단계: Legacy/Wrapper/배포 Gate
 
 ** 실행
 

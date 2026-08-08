@@ -45,6 +45,7 @@
 #include "dstar_lite_key.h"
 #include "dstar_lite_pqueue.h"
 #include "route_finder.h"
+#include "dstar_lite_planner.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -262,7 +263,7 @@ BYUL_API const route_t* dstar_lite_get_real_route(const dstar_lite_t* dsl);
 // as well as hash tables and the priority queue.
 BYUL_API void dstar_lite_reset(dstar_lite_t* dsl);
 
-BYUL_API float dstar_lite_get_interval_sec(dstar_lite_t* dsl);
+BYUL_API float dstar_lite_get_interval_sec(const dstar_lite_t* dsl);
 
 BYUL_API void dstar_lite_set_interval_sec(
     dstar_lite_t* dsl, float interval_sec);
@@ -523,7 +524,7 @@ BYUL_API void dstar_lite_find_loop(dstar_lite_t* dsl);
  * @param p  Route to update
  */
 BYUL_API void dstar_lite_update_vertex_by_route(
-    dstar_lite_t* dsl, route_t* p);
+    dstar_lite_t* dsl, const route_t* p);
 
 // Forcefully terminates the loop.
 BYUL_API void dstar_lite_force_quit(dstar_lite_t* dsl);

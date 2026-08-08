@@ -1,0 +1,63 @@
+{
+  "schema_version": 1,
+  "stage": "navsys-dstar-lite-stage5",
+  "status": "complete-for-abi1",
+  "deliverables": {
+    "exact_open_list": {
+      "implementation": "byul/navsys/dstar_lite/dstar_lite_pqueue.cpp",
+      "public_contract": "byul/navsys/dstar_lite/dstar_lite_pqueue.h",
+      "result": "complete"
+    },
+    "incremental_planner": {
+      "implementation": "byul/navsys/dstar_lite/dstar_lite_planner.cpp",
+      "public_contract": "byul/navsys/dstar_lite/dstar_lite_planner.h",
+      "private_state": "byul/navsys/dstar_lite/internal/dstar_lite_planner.hpp",
+      "result": "complete"
+    },
+    "deterministic_tick": {
+      "implementation": "byul/navsys/dstar_lite/dstar_lite_tick.cpp",
+      "public_contract": "byul/navsys/dstar_lite/dstar_lite_tick.h",
+      "wrapper_disposition": "manual-excluded-from-generated-wrapper",
+      "result": "complete"
+    },
+    "python": {
+      "planner": "tools/python/byul_wrapper/byul_wrapper/dstar_lite.py",
+      "pqueue": "tools/python/byul_wrapper/byul_wrapper/dstar_lite_pqueue.py",
+      "result": "complete"
+    }
+  },
+  "correctness": {
+    "paper_algorithm": [
+      "goal rhs initialization and goal key insertion",
+      "exact key ordering and stale-key reinsertion",
+      "canonical loop guard and g/rhs update",
+      "directed edge notification and km start movement",
+      "goal-terminated route reconstruction"
+    ],
+    "status_separation": [
+      "OK",
+      "NO_PATH",
+      "CANCELLED",
+      "LIMIT_REACHED",
+      "CALLBACK_FAILED",
+      "OUT_OF_MEMORY"
+    ],
+    "failure_guarantees": [
+      "route output preservation",
+      "transactional edge update rollback",
+      "C++ exception barrier",
+      "concurrent sticky cancellation"
+    ]
+  },
+  "compatibility": {
+    "current_abi": "ABI 1 additive",
+    "legacy_symbols": "retained and forwarded where safe",
+    "public_struct_layout": "retained for ABI 1 binary compatibility",
+    "abi2_transition": "breaking opacity/internalization is explicitly deferred to the ABI-major 2.0 gate"
+  },
+  "evidence": [
+    "docs/ko/todo/navsys/dstar-lite-stage5-build.json",
+    "docs/ko/todo/navsys/dstar-lite-stage5-header-audit.json",
+    "docs/ko/todo/navsys/navsys-current-abi-inventory.json"
+  ]
+}

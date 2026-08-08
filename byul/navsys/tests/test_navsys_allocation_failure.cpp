@@ -5,7 +5,7 @@
  * See the LICENSE file in the project root for full license terms.
  */
 
-#include "navsys.h"
+#include "navsys_all.h"
 #include "maze_aldous_broder.h"
 #include "maze_binary.h"
 #include "maze_eller.h"
@@ -2699,6 +2699,43 @@ bool verify_maze_overlay_allocation_failure_atomic() {
     return valid;
 }
 
+bool verify_navsys_find_path_allocation_failure() {
+    navgrid_t* grid = navgrid_create();
+    if (!grid) return false;
+    const coord_t start{0, 0};
+    const coord_t goal{9, 9};
+    navsys_path_query_t query{};
+    if (navsys_path_query_init(&query, grid, &start, &goal)
+        != NAVSYS_STATUS_OK) {
+        navgrid_destroy(grid);
+        return false;
+    }
+
+    const std::size_t baseline = tracked_live_allocations;
+    route_t* const route_sentinel = reinterpret_cast<route_t*>(1);
+    route_t* route = route_sentinel;
+    navsys_search_stats_t stats{};
+    stats.status = NAVSYS_STATUS_IN_PROGRESS;
+
+    track_allocations = true;
+    fail_after = 0;
+    const navsys_status_t status = navsys_find_path(&query, &route, &stats);
+    fail_after = -1;
+    track_allocations = false;
+
+    const bool valid = status == NAVSYS_STATUS_OUT_OF_MEMORY
+        && route == route_sentinel
+        && stats.status == NAVSYS_STATUS_IN_PROGRESS
+        && tracked_live_allocations == baseline;
+    if (!valid) {
+        std::fprintf(
+            stderr,
+            "navsys_find_path did not preserve outputs on allocation failure\n");
+    }
+    navgrid_destroy(grid);
+    return valid;
+}
+
 } // namespace
 
 void* operator new(std::size_t size) {
@@ -2880,6 +2917,9 @@ int main(int argc, char** argv) {
     }
     if (!verify_maze_overlay_allocation_failure_atomic()) {
         return 29;
+    }
+    if (!verify_navsys_find_path_allocation_failure()) {
+        return 30;
     }
 
     dependency_navgrid = navgrid_create();

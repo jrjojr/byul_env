@@ -271,7 +271,7 @@ userdata는 native가 역참조/해제하지 않고 unbind/destroy까지 caller�
 - Algorithm enum과 Python =IntEnum=은 생성 원본 하나에서 나오며 42개 numeric fixture와
   capability matrix를 비교한다.
 
-* TODO 1단계: ABI/동작 기준선과 P0 회귀 test 고정
+* DONE 1단계: ABI/동작 기준선과 P0 회귀 test 고정
 
 ** 실행
 
@@ -291,7 +291,7 @@ userdata는 native가 역참조/해제하지 않고 unbind/destroy까지 caller�
 - C/C++ ABI fixture, root export dump와 generated CFFI enum/signature 비교를 실행한다.
 - ASan/LSan과 Python GC 강제 수집으로 dangling =ffi.new_handle=을 재현한다.
 
-* TODO 2단계: Capability, typed config와 evaluation binding 합류
+* DONE 2단계: Capability, typed config와 evaluation binding 합류
 
 ** 실행
 
@@ -315,7 +315,7 @@ userdata는 native가 역참조/해제하지 않고 unbind/destroy까지 caller�
   실행한다.
 - Python callback GC, exception, reentrancy와 close ordering test를 실행한다.
 
-* TODO 3단계: Status/result/cancel/workspace 실행 모델
+* DONE 3단계: Status/result/cancel/workspace 실행 모델
 
 ** 실행
 
@@ -336,7 +336,7 @@ userdata는 native가 역참조/해제하지 않고 unbind/destroy까지 caller�
   실행한다.
 - one-shot과 sliced 결과 cost/path가 같은 deterministic fixture에서 일치하는지 검사한다.
 
-* TODO 4단계: Opaque ABI와 legacy forwarding
+* DONE 4단계: Opaque ABI와 legacy forwarding
 
 ** 실행
 
@@ -357,7 +357,7 @@ userdata는 native가 역참조/해제하지 않고 unbind/destroy까지 caller�
 - old/new SDK consumer, size/align/offset/fingerprint와 deprecation compile test를 실행한다.
 - module static와 root shared에서 legacy/canonical symbol을 각각 정확히 한 번 확인한다.
 
-* TODO 5단계: Correctness와 배포 Gate
+* DONE 5단계: Correctness와 배포 Gate
 
 ** 실행
 

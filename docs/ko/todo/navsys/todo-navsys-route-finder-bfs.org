@@ -74,7 +74,7 @@ BYUL_API navsys_status_t route_finder_find_bfs_ex(
 분리하고 stats는 level, expanded/generated, peak frontier와 endpoint를 기록한다. Weighted
 grid에서는 step-optimal만 보장하거나 =UNSUPPORTED=를 반환한다.
 
-* TODO 1단계: BFS 계약/반례 동결
+* DONE 1단계: BFS 계약/반례 동결
 
 ** 실행
 
@@ -90,7 +90,7 @@ grid에서는 step-optimal만 보장하거나 =UNSUPPORTED=를 반환한다.
 
 - exhaustive unweighted grid를 reference BFS와, weighted 반례를 Dijkstra와 비교한다.
 
-* TODO 2단계: Canonical status/stats/cancel 구현
+* DONE 2단계: Canonical status/stats/cancel 구현
 
 ** 실행
 
@@ -106,7 +106,7 @@ grid에서는 step-optimal만 보장하거나 =UNSUPPORTED=를 반환한다.
 
 - exact budget boundary, cancel every level, OOM, tie/determinism과 large frontier test를 실행한다.
 
-* TODO 3단계: Legacy/Internal 경계와 배포
+* DONE 3단계: Legacy/Internal 경계와 배포
 
 ** 실행
 

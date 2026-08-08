@@ -518,7 +518,14 @@ MSVC Debug/Release root와 =test_navsys=, route-carver performance/OOM CTest가 
 - 작은 grid exhaustive oracle, property test, deterministic replay, termination/resource limit,
   OOM과 wrapper enum round-trip을 algorithm별로 실행한다.
 
-** DOING 4단계: Route-finder algorithm별 계약 구현
+** DONE 4단계: Route-finder algorithm별 계약 구현
+
+- 완료 근거: [[file:route-finder-stage4-closure.json][route-finder-stage4-closure.json]],
+  [[file:route-finder-stage4-build.json][route-finder-stage4-build.json]],
+  [[file:route-finder-stage4-header-abi-audit.json][route-finder-stage4-header-abi-audit.json]]
+- Canonical dispatcher는 conformance gate를 통과한 6개 algorithm만 지원한다. 기존
+  Fast Marching, Fringe Search, IDA*, RTA*, SMA* direct symbol은 ABI 1.x 호환으로
+  보존하되 checked/canonical 실행에서는 =NAVSYS_STATUS_UNSUPPORTED=를 반환한다.
 
 *** 실행
 
@@ -540,7 +547,7 @@ MSVC Debug/Release root와 =test_navsys=, route-carver performance/OOM CTest가 
 - Dijkstra/A* reference oracle, exhaustive tiny graph, adversarial heuristic/cost, exact budget,
   cancel/OOM와 capability/dispatcher matrix를 static/shared/wrapper에서 실행한다.
 
-** TODO 5단계: D* Lite incremental lifecycle 구현
+** DONE 5단계: D* Lite incremental lifecycle 구현
 
 *** 실행
 
@@ -562,7 +569,14 @@ MSVC Debug/Release root와 =test_navsys=, route-carver performance/OOM CTest가 
 - D* Lite canonical 사례, repeated obstacle updates, reference replan 비교, queue property,
   cancellation/race/lifetime와 long-run resource test를 실행한다.
 
-** TODO 6단계: navsys.h public aggregate 정리
+*** 완료 증거
+
+- [[file:dstar-lite-stage5-build.json][빌드·테스트 matrix]]와
+  [[file:dstar-lite-stage5-closure.json][Stage 5 closure]]를 승인 증거로 사용한다.
+- ABI 1 additive compatibility를 유지했고 실제 opaque layout 제거는 ABI 2.0 major gate로
+  이관했다.
+
+** DONE 6단계: navsys.h public aggregate 정리
 
 *** 실행
 
@@ -580,7 +594,15 @@ MSVC Debug/Release root와 =test_navsys=, route-carver performance/OOM CTest가 
 - include-what-you-use 성격의 direct-header compile, all-header permutation smoke,
   C/C++ consumer와 wrapper parser/generation test를 실행한다.
 
-** TODO 7단계: Root shared, install, wrapper와 ABI 최종 반복 gate
+*** 완료 증거
+
+- [[file:navsys-stage6-build.json][빌드·테스트 matrix]],
+  [[file:navsys-stage6-header-audit.json][헤더 audit]],
+  [[file:navsys-stage6-closure.json][Stage 6 closure]]를 승인 증거로 사용한다.
+- minimal =navsys.h=와 explicit =navsys_all.h=를 분리하고 ABI 1 helper 12개 및
+  canonical facade export 5개를 root shared/install/wrapper에 일치시켰다.
+
+** DONE 7단계: Root shared, install, wrapper와 ABI 최종 반복 gate
 
 *** 실행
 
@@ -612,6 +634,17 @@ MSVC Debug/Release root와 =test_navsys=, route-carver performance/OOM CTest가 
   coverage가 아니라 실제 public method invocation coverage와 대조한다.
 - =rg= include/call scan, CMake target graph와 실제 link line에서
   =scalar.h/scalar_equal/numal/math_engine= dependency가 0인지 검사한다.
+
+*** 완료 증거
+
+- [[file:navsys-stage7-build.json][빌드·테스트 matrix]],
+  [[file:navsys-stage7-dependency-audit.json][dependency audit]],
+  [[file:navsys-stage7-closure.json][Stage 7 closure]]를 승인 증거로 사용한다.
+- Navsys/console source·header·CMake, generated MSVC project, installed public header의
+  Numal/Math Engine match는 모두 0이다.
+- Stage 6 대비 DLL export 제거는 0이고, 선언만 존재하던 debug API와 C++로 숨었던
+  D* Lite API 4개를 C ABI export로 복구했다.
+- 설치 DLL 기준 concrete wrapper 19개 module과 =C.*= 참조 360개가 모두 해석된다.
 
 * 완료 판정
 

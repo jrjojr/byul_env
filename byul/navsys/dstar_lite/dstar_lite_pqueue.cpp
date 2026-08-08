@@ -1,202 +1,265 @@
 #include "dstar_lite_pqueue.h"
-#include "coord.h"
-#include "coord_hash.h"
 #include "internal/dstar_lite_key_ops.hpp"
 
-#include <algorithm>
 #include <map>
-#include <vector>
+#include <set>
 
 namespace {
 
-void* dstar_lite_key_copy_for_hash(const void* value) {
-    return dstar_lite_key_copy(
-        static_cast<const dstar_lite_key_t*>(value));
-}
-
-void dstar_lite_key_destroy_for_hash(void* value) {
-    dstar_lite_key_destroy(static_cast<dstar_lite_key_t*>(value));
-}
-
-struct legacy_key_pointer_less final {
-    bool operator()(
-        const dstar_lite_key_t* lhs,
-        const dstar_lite_key_t* rhs) const noexcept {
-        return byul::navsys::dstar_lite_detail::key_less{}(*lhs, *rhs);
+struct coord_less final {
+    bool operator()(const coord_t& lhs, const coord_t& rhs) const noexcept {
+        return lhs.x < rhs.x || (lhs.x == rhs.x && lhs.y < rhs.y);
     }
 };
+
+using key_less = byul::navsys::dstar_lite_detail::key_less;
 
 } // namespace
 
 struct s_dstar_lite_pqueue {
-    std::map<dstar_lite_key_t*, std::vector<coord_t*>, 
-        legacy_key_pointer_less> key_to_coords;
-        
-    coord_hash_t* coord_to_key;
+    std::map<dstar_lite_key_t, std::set<coord_t, coord_less>, key_less> entries;
+    std::map<coord_t, dstar_lite_key_t, coord_less> keys_by_coord;
 };
 
-dstar_lite_pqueue_t* dstar_lite_pqueue_create() {
-    dstar_lite_pqueue_t* q = nullptr;
+namespace {
+
+void erase_coord(dstar_lite_pqueue_t& queue, const coord_t& coord) {
+    const auto reverse = queue.keys_by_coord.find(coord);
+    if (reverse == queue.keys_by_coord.end()) return;
+    const auto entry = queue.entries.find(reverse->second);
+    if (entry != queue.entries.end()) {
+        entry->second.erase(coord);
+        if (entry->second.empty()) queue.entries.erase(entry);
+    }
+    queue.keys_by_coord.erase(reverse);
+}
+
+void insert_coord(
+    dstar_lite_pqueue_t& queue,
+    const coord_t& coord,
+    const dstar_lite_key_t& key) {
+    erase_coord(queue, coord);
+    queue.entries[key].insert(coord);
+    queue.keys_by_coord.emplace(coord, key);
+}
+
+} // namespace
+
+navsys_status_t dstar_lite_pqueue_create_ex(
+    dstar_lite_pqueue_t** out_queue) {
+    if (!out_queue) return NAVSYS_STATUS_INVALID_ARGUMENT;
     try {
-        q = new dstar_lite_pqueue_t{};
-        q->coord_to_key = coord_hash_create_full(
-            dstar_lite_key_copy_for_hash,
-            dstar_lite_key_destroy_for_hash
-        );
-        if (!q->coord_to_key) {
-            dstar_lite_pqueue_destroy(q);
-            return nullptr;
-        }
-        return q;
+        dstar_lite_pqueue_t* result = new dstar_lite_pqueue_t{};
+        *out_queue = result;
+        return NAVSYS_STATUS_OK;
     } catch (...) {
-        dstar_lite_pqueue_destroy(q);
-        return nullptr;
+        return NAVSYS_STATUS_OUT_OF_MEMORY;
     }
 }
 
-void dstar_lite_pqueue_destroy(dstar_lite_pqueue_t* q) {
-    if (!q) return;
-    for (auto& [key, vec] : q->key_to_coords) {
-        for (coord_t* c : vec) coord_destroy(c);
-        dstar_lite_key_destroy(key);
+navsys_status_t dstar_lite_pqueue_copy_ex(
+    const dstar_lite_pqueue_t* source,
+    dstar_lite_pqueue_t** out_queue) {
+    if (!source || !out_queue) return NAVSYS_STATUS_INVALID_ARGUMENT;
+    try {
+        dstar_lite_pqueue_t* result = new dstar_lite_pqueue_t(*source);
+        *out_queue = result;
+        return NAVSYS_STATUS_OK;
+    } catch (...) {
+        return NAVSYS_STATUS_OUT_OF_MEMORY;
     }
-    coord_hash_destroy(q->coord_to_key);
+}
+
+navsys_status_t dstar_lite_pqueue_upsert(
+    dstar_lite_pqueue_t* queue,
+    const coord_t* coord,
+    const dstar_lite_key_t* key) {
+    if (!queue || !coord || !key) return NAVSYS_STATUS_INVALID_ARGUMENT;
+    try {
+        dstar_lite_pqueue_t replacement(*queue);
+        insert_coord(replacement, *coord, *key);
+        queue->entries.swap(replacement.entries);
+        queue->keys_by_coord.swap(replacement.keys_by_coord);
+        return NAVSYS_STATUS_OK;
+    } catch (...) {
+        return NAVSYS_STATUS_OUT_OF_MEMORY;
+    }
+}
+
+navsys_status_t dstar_lite_pqueue_peek_min(
+    const dstar_lite_pqueue_t* queue,
+    dstar_lite_pqueue_entry_t* out_entry) {
+    if (!queue || !out_entry) return NAVSYS_STATUS_INVALID_ARGUMENT;
+    if (queue->entries.empty() || queue->entries.begin()->second.empty())
+        return NAVSYS_STATUS_NOT_FOUND;
+    const dstar_lite_pqueue_entry_t result{
+        queue->entries.begin()->first,
+        *queue->entries.begin()->second.begin()};
+    *out_entry = result;
+    return NAVSYS_STATUS_OK;
+}
+
+navsys_status_t dstar_lite_pqueue_pop_min(
+    dstar_lite_pqueue_t* queue,
+    dstar_lite_pqueue_entry_t* out_entry) {
+    if (!queue || !out_entry) return NAVSYS_STATUS_INVALID_ARGUMENT;
+    dstar_lite_pqueue_entry_t result{};
+    const navsys_status_t status = dstar_lite_pqueue_peek_min(queue, &result);
+    if (status != NAVSYS_STATUS_OK) return status;
+    erase_coord(*queue, result.coord);
+    *out_entry = result;
+    return NAVSYS_STATUS_OK;
+}
+
+navsys_status_t dstar_lite_pqueue_find_key(
+    const dstar_lite_pqueue_t* queue,
+    const coord_t* coord,
+    dstar_lite_key_t* out_key,
+    bool* out_found) {
+    if (!queue || !coord || !out_key || !out_found)
+        return NAVSYS_STATUS_INVALID_ARGUMENT;
+    const auto found = queue->keys_by_coord.find(*coord);
+    if (found == queue->keys_by_coord.end()) {
+        *out_found = false;
+        return NAVSYS_STATUS_OK;
+    }
+    *out_key = found->second;
+    *out_found = true;
+    return NAVSYS_STATUS_OK;
+}
+
+navsys_status_t dstar_lite_pqueue_remove_ex(
+    dstar_lite_pqueue_t* queue,
+    const coord_t* coord,
+    bool* out_removed) {
+    if (!queue || !coord || !out_removed)
+        return NAVSYS_STATUS_INVALID_ARGUMENT;
+    const bool removed = queue->keys_by_coord.find(*coord)
+        != queue->keys_by_coord.end();
+    erase_coord(*queue, *coord);
+    *out_removed = removed;
+    return NAVSYS_STATUS_OK;
+}
+
+size_t dstar_lite_pqueue_size(const dstar_lite_pqueue_t* queue) {
+    return queue ? queue->keys_by_coord.size() : 0u;
+}
+
+bool dstar_lite_pqueue_empty(const dstar_lite_pqueue_t* queue) {
+    return !queue || queue->keys_by_coord.empty();
+}
+
+void dstar_lite_pqueue_clear(dstar_lite_pqueue_t* queue) {
+    if (!queue) return;
+    queue->entries.clear();
+    queue->keys_by_coord.clear();
+}
+
+dstar_lite_pqueue_t* dstar_lite_pqueue_create(void) {
+    dstar_lite_pqueue_t* result = nullptr;
+    return dstar_lite_pqueue_create_ex(&result) == NAVSYS_STATUS_OK
+        ? result : nullptr;
+}
+
+void dstar_lite_pqueue_destroy(dstar_lite_pqueue_t* q) {
     delete q;
 }
 
 dstar_lite_pqueue_t* dstar_lite_pqueue_copy(const dstar_lite_pqueue_t* src) {
-    if (!src) return nullptr;
-
-    auto* copy = new dstar_lite_pqueue_t{};
-    copy->coord_to_key = coord_hash_copy(src->coord_to_key);
-
-    for (const auto& [key, coords] : src->key_to_coords) {
-        std::vector<coord_t*> copied_coords;
-        for (coord_t* c : coords)
-            copied_coords.push_back(coord_copy(c));
-        dstar_lite_key_t* copied_key = dstar_lite_key_copy(key);
-        copy->key_to_coords[copied_key] = std::move(copied_coords);
-    }
-
-    return copy;
+    dstar_lite_pqueue_t* result = nullptr;
+    return dstar_lite_pqueue_copy_ex(src, &result) == NAVSYS_STATUS_OK
+        ? result : nullptr;
 }
 
-void dstar_lite_pqueue_push(dstar_lite_pqueue_t* q,
-    const dstar_lite_key_t* key, const coord_t* c) {
-    if (!q || !key || !c) return;
-
-    for (auto& [k, vec] : q->key_to_coords) {
-        if (dstar_lite_key_equal_exact(k, key)) {
-            vec.push_back(coord_copy(c));
-            //coord_hash_replace(q->coord_to_key, c, k);
-			coord_hash_replace_xy(q->coord_to_key, c->x, c->y, k);
-            return;
-        }
-    }
-
-    dstar_lite_key_t* new_key = dstar_lite_key_copy(key);
-    std::vector<coord_t*> vec;
-    vec.push_back(coord_copy(c));
-    q->key_to_coords[new_key] = vec;
-    coord_hash_replace(q->coord_to_key, c, new_key);
+void dstar_lite_pqueue_push(
+    dstar_lite_pqueue_t* q,
+    const dstar_lite_key_t* key,
+    const coord_t* c) {
+    (void)dstar_lite_pqueue_upsert(q, c, key);
 }
 
 const coord_t* dstar_lite_pqueue_peek(dstar_lite_pqueue_t* q) {
-    if (!q || q->key_to_coords.empty()) return nullptr;
-    const auto& entry = *q->key_to_coords.begin();
-    return entry.second.empty() ? nullptr : entry.second.front();
+    if (!q || q->entries.empty() || q->entries.begin()->second.empty())
+        return nullptr;
+    return &*q->entries.begin()->second.begin();
 }
 
 coord_t* dstar_lite_pqueue_pop(dstar_lite_pqueue_t* q) {
-    if (!q || q->key_to_coords.empty()) return nullptr;
-
-    auto it = q->key_to_coords.begin();
-    auto& vec = it->second;
-
-    if (vec.empty()) {
-        dstar_lite_key_destroy(it->first);
-        q->key_to_coords.erase(it);
+    if (!q || q->entries.empty()) return nullptr;
+    try {
+        auto key_it = q->entries.begin();
+        if (key_it->second.empty()) {
+            q->entries.erase(key_it);
+            return nullptr;
+        }
+        const coord_t value = *key_it->second.begin();
+        coord_t* result = coord_create_full(value.x, value.y);
+        if (!result) return nullptr;
+        key_it->second.erase(key_it->second.begin());
+        q->keys_by_coord.erase(value);
+        if (key_it->second.empty()) q->entries.erase(key_it);
+        return result;
+    } catch (...) {
         return nullptr;
     }
-
-    coord_t* popped = vec.front();
-    vec.erase(vec.begin());
-    coord_hash_remove(q->coord_to_key, popped);
-
-    if (vec.empty()) {
-        dstar_lite_key_destroy(it->first);
-        q->key_to_coords.erase(it);
-    }
-
-    return popped;
 }
 
 bool dstar_lite_pqueue_is_empty(dstar_lite_pqueue_t* q) {
-    return !q || q->key_to_coords.empty();
+    return !q || q->keys_by_coord.empty();
 }
 
 bool dstar_lite_pqueue_remove(dstar_lite_pqueue_t* q, const coord_t* u) {
-    if (!q || !u) return false;
-    auto* key_ptr = static_cast<dstar_lite_key_t*>(coord_hash_get(q->coord_to_key, u));
-    if (!key_ptr) return false;
-
-    for (auto it = q->key_to_coords.begin(); it != q->key_to_coords.end(); ++it) {
-        if (dstar_lite_key_equal_exact(it->first, key_ptr)) {
-            auto& vec = it->second;
-            auto found = std::find_if(vec.begin(), vec.end(), [&](coord_t* c) {
-                return coord_equal(c, u);
-            });
-            if (found != vec.end()) {
-                coord_destroy(*found);
-                vec.erase(found);
-                coord_hash_remove(q->coord_to_key, u);
-                if (vec.empty()) {
-                    dstar_lite_key_destroy(it->first);
-                    q->key_to_coords.erase(it);
-                }
-                return true;
-            }
-        }
-    }
-    return false;
+    bool removed = false;
+    return dstar_lite_pqueue_remove_ex(q, u, &removed) == NAVSYS_STATUS_OK
+        && removed;
 }
 
-bool dstar_lite_pqueue_remove_full(dstar_lite_pqueue_t* q,
-    const dstar_lite_key_t* key, const coord_t* c) {
+bool dstar_lite_pqueue_remove_full(
+    dstar_lite_pqueue_t* q,
+    const dstar_lite_key_t* key,
+    const coord_t* c) {
     if (!q || !key || !c) return false;
-
-    for (auto it = q->key_to_coords.begin(); it != q->key_to_coords.end(); ++it) {
-        if (dstar_lite_key_equal_exact(it->first, key)) {
-            auto& vec = it->second;
-            auto found = std::find_if(vec.begin(), vec.end(), [&](coord_t* item) {
-                return coord_equal(item, c);
-            });
-            if (found != vec.end()) {
-                coord_destroy(*found);
-                vec.erase(found);
-                coord_hash_remove(q->coord_to_key, c);
-                if (vec.empty()) {
-                    dstar_lite_key_destroy(it->first);
-                    q->key_to_coords.erase(it);
-                }
-                return true;
-            }
+    try {
+        const auto reverse_it = q->keys_by_coord.find(*c);
+        if (reverse_it == q->keys_by_coord.end()
+            || !dstar_lite_key_equal_exact(&reverse_it->second, key)) {
+            return false;
         }
+        return dstar_lite_pqueue_remove(q, c);
+    } catch (...) {
+        return false;
     }
-    return false;
 }
 
-dstar_lite_key_t* dstar_lite_pqueue_get_key_by_coord(dstar_lite_pqueue_t* q, const coord_t* c) {
+dstar_lite_key_t* dstar_lite_pqueue_get_key_by_coord(
+    dstar_lite_pqueue_t* q,
+    const coord_t* c) {
     if (!q || !c) return nullptr;
-    return static_cast<dstar_lite_key_t*>(coord_hash_get(q->coord_to_key, c));
+    try {
+        const auto it = q->keys_by_coord.find(*c);
+        return it == q->keys_by_coord.end()
+            ? nullptr
+            : const_cast<dstar_lite_key_t*>(&it->second);
+    } catch (...) {
+        return nullptr;
+    }
 }
 
 dstar_lite_key_t* dstar_lite_pqueue_top_key(dstar_lite_pqueue_t* q) {
-    if (!q || q->key_to_coords.empty()) return nullptr;
-    return dstar_lite_key_copy(q->key_to_coords.begin()->first);
+    if (!q || q->entries.empty()) return nullptr;
+    dstar_lite_key_t* result = nullptr;
+    return dstar_lite_key_create_ex(
+        q->entries.begin()->first.k1,
+        q->entries.begin()->first.k2,
+        &result) == NAVSYS_STATUS_OK
+        ? result : nullptr;
 }
 
 bool dstar_lite_pqueue_contains(dstar_lite_pqueue_t* q, const coord_t* u) {
     if (!q || !u) return false;
-    return coord_hash_contains(q->coord_to_key, u);
+    try {
+        return q->keys_by_coord.find(*u) != q->keys_by_coord.end();
+    } catch (...) {
+        return false;
+    }
 }

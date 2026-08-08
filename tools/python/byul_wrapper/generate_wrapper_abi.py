@@ -58,7 +58,10 @@ MODULE_HEADERS: dict[str, tuple[str, ...]] = {
     ),
     "route_carver.py": ("navsys/route_carver/route_carver.h",),
     "route.py": ("navsys/route/route.h",),
-    "route_finder_common.py": ("navsys/route_finder/route_finder_core.h",),
+    "route_finder_common.py": (
+        "navsys/route_finder/route_finder_evaluation.h",
+        "navsys/route_finder/route_finder_core.h",
+    ),
     "route_finder.py": (
         "navsys/route_finder/route_finder.h",
         *tuple(
@@ -66,10 +69,19 @@ MODULE_HEADERS: dict[str, tuple[str, ...]] = {
             for path in sorted(
                 (BYUL_ROOT / "navsys" / "route_finder").glob("*.h")
             )
-            if path.name not in {"route_finder.h", "route_finder_core.h"}
+            if path.name
+            not in {
+                "route_finder.h",
+                "route_finder_core.h",
+                "route_finder_evaluation.h",
+            }
         ),
     ),
-    "dstar_lite.py": ("navsys/dstar_lite/dstar_lite.h",),
+    "navsys.py": ("navsys/navsys.h",),
+    "dstar_lite.py": (
+        "navsys/dstar_lite/dstar_lite_planner.h",
+        "navsys/dstar_lite/dstar_lite.h",
+    ),
     "console.py": (
         "console/console.h",
         "console/dstar_lite_console.h",

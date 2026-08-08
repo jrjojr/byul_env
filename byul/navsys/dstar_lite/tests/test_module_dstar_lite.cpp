@@ -14,6 +14,266 @@
 
 #include <thread>
 #include <iostream>
+#include <array>
+#include <atomic>
+#include <cstdint>
+#include <limits>
+#include <queue>
+
+namespace {
+
+navsys_status_t block_outgoing_cost(
+    const navgrid_t*, const coord_t* from, const coord_t*,
+    float* out_cost, void*) {
+    if (!from || !out_cost) return NAVSYS_STATUS_INVALID_ARGUMENT;
+    *out_cost = from->x == 0 && from->y == 0
+        ? std::numeric_limits<float>::infinity() : 1.0f;
+    return NAVSYS_STATUS_OK;
+}
+
+navsys_status_t failing_checked_cost(
+    const navgrid_t*, const coord_t*, const coord_t*, float*, void*) {
+    return NAVSYS_STATUS_CORRUPT_STATE;
+}
+
+struct blocking_cost_fixture final {
+    std::atomic<bool> entered{false};
+    std::atomic<bool> release{false};
+};
+
+navsys_status_t blocking_checked_cost(
+    const navgrid_t*, const coord_t*, const coord_t*, float* out_cost,
+    void* userdata) {
+    if (!out_cost || !userdata) return NAVSYS_STATUS_INVALID_ARGUMENT;
+    auto& fixture = *static_cast<blocking_cost_fixture*>(userdata);
+    fixture.entered.store(true, std::memory_order_release);
+    while (!fixture.release.load(std::memory_order_acquire))
+        std::this_thread::yield();
+    *out_cost = 1.0f;
+    return NAVSYS_STATUS_OK;
+}
+
+struct blocked_fixture final {
+    unsigned mask = 0;
+};
+
+constexpr std::array<coord_t, 6> reference_cells{{
+    {1, 0}, {0, 1}, {1, 1}, {2, 1}, {1, 2}, {2, 2}}};
+
+bool fixture_blocked(const blocked_fixture& fixture, const coord_t& coord) {
+    for (size_t index = 0; index < reference_cells.size(); ++index) {
+        if (coord_equal(&reference_cells[index], &coord))
+            return (fixture.mask & (1u << index)) != 0;
+    }
+    return false;
+}
+
+navsys_status_t fixture_cost(
+    const navgrid_t*, const coord_t* from, const coord_t* to,
+    float* out_cost, void* userdata) {
+    if (!from || !to || !out_cost || !userdata)
+        return NAVSYS_STATUS_INVALID_ARGUMENT;
+    const auto& fixture = *static_cast<const blocked_fixture*>(userdata);
+    *out_cost = fixture_blocked(fixture, *from)
+            || fixture_blocked(fixture, *to)
+        ? std::numeric_limits<float>::infinity() : 1.0f;
+    return NAVSYS_STATUS_OK;
+}
+
+int reference_distance(const blocked_fixture& fixture) {
+    std::array<int, 16> distance{};
+    distance.fill(-1);
+    std::queue<coord_t> pending;
+    pending.push(coord_t{0, 0});
+    distance[0] = 0;
+    constexpr int dx[4]{1, -1, 0, 0};
+    constexpr int dy[4]{0, 0, 1, -1};
+    while (!pending.empty()) {
+        const coord_t current = pending.front();
+        pending.pop();
+        if (current.x == 3 && current.y == 3)
+            return distance[static_cast<size_t>(current.y * 4 + current.x)];
+        for (int direction = 0; direction < 4; ++direction) {
+            const coord_t next{current.x + dx[direction], current.y + dy[direction]};
+            if (next.x < 0 || next.y < 0 || next.x >= 4 || next.y >= 4
+                || fixture_blocked(fixture, next)) continue;
+            const size_t offset = static_cast<size_t>(next.y * 4 + next.x);
+            if (distance[offset] >= 0) continue;
+            distance[offset] = distance[static_cast<size_t>(
+                current.y * 4 + current.x)] + 1;
+            pending.push(next);
+        }
+    }
+    return -1;
+}
+
+} // namespace
+
+TEST_CASE("D* Lite canonical planner matches exhaustive reference grids") {
+    navgrid_t* grid = navgrid_create_full(
+        4, 4, NAVGRID_DIR_4, is_coord_blocked_navgrid);
+    REQUIRE(grid);
+    const coord_t start{0, 0};
+    const coord_t goal{3, 3};
+    for (unsigned mask = 0; mask < (1u << reference_cells.size()); ++mask) {
+        blocked_fixture fixture{mask};
+        dstar_lite_create_info_t info{};
+        REQUIRE(dstar_lite_create_info_init(&info, grid, &start, &goal)
+            == NAVSYS_STATUS_OK);
+        info.cost_callback = fixture_cost;
+        info.cost_userdata = &fixture;
+        dstar_lite_t* planner = nullptr;
+        REQUIRE(dstar_lite_create_ex(&info, &planner) == NAVSYS_STATUS_OK);
+        route_t* route = nullptr;
+        const navsys_status_t status = dstar_lite_replan(
+            planner, nullptr, &route, nullptr);
+        const int expected = reference_distance(fixture);
+        if (expected < 0) {
+            CHECK(status == NAVSYS_STATUS_NO_PATH);
+            CHECK(route == nullptr);
+        } else {
+            REQUIRE(status == NAVSYS_STATUS_OK);
+            REQUIRE(route);
+            CHECK(route_get_coord_count(route)
+                == static_cast<size_t>(expected + 1));
+        }
+        route_destroy(route);
+        dstar_lite_destroy(planner);
+    }
+    navgrid_destroy(grid);
+}
+
+TEST_CASE("D* Lite canonical incremental planner lifecycle") {
+    navgrid_t* grid = navgrid_create_full(
+        6, 6, NAVGRID_DIR_8, is_coord_blocked_navgrid);
+    REQUIRE(grid);
+    const coord_t start{0, 0};
+    const coord_t goal{5, 5};
+    dstar_lite_create_info_t info{};
+    REQUIRE(dstar_lite_create_info_init(&info, grid, &start, &goal)
+        == NAVSYS_STATUS_OK);
+    dstar_lite_t* planner = nullptr;
+    REQUIRE(dstar_lite_create_ex(&info, &planner) == NAVSYS_STATUS_OK);
+
+    route_t* first = nullptr;
+    dstar_lite_stats_t first_stats{};
+    REQUIRE(dstar_lite_replan(planner, nullptr, &first, &first_stats)
+        == NAVSYS_STATUS_OK);
+    REQUIRE(first);
+    CHECK(route_get_coord_count(first) >= 2);
+    coord_t first_step{};
+    REQUIRE(route_fetch_coord(first, 1, &first_step) == NAVSYS_STATUS_OK);
+
+    const dstar_lite_edge_update_t update{
+        start, first_step, 1.0f, std::numeric_limits<float>::infinity()};
+    REQUIRE(dstar_lite_notify_edge_changes(planner, &update, 1)
+        == NAVSYS_STATUS_OK);
+    route_t* repaired = nullptr;
+    dstar_lite_stats_t repaired_stats{};
+    REQUIRE(dstar_lite_replan(planner, nullptr, &repaired, &repaired_stats)
+        == NAVSYS_STATUS_OK);
+    coord_t repaired_step{};
+    REQUIRE(route_fetch_coord(repaired, 1, &repaired_step)
+        == NAVSYS_STATUS_OK);
+    CHECK_FALSE(coord_equal(&first_step, &repaired_step));
+    CHECK(repaired_stats.edge_changes == 1);
+    CHECK(repaired_stats.replans == 2);
+
+    REQUIRE(dstar_lite_set_current_start(planner, &repaired_step)
+        == NAVSYS_STATUS_OK);
+    dstar_lite_stats_t moved_stats{};
+    REQUIRE(dstar_lite_get_stats(planner, &moved_stats) == NAVSYS_STATUS_OK);
+    CHECK(moved_stats.km > 0.0f);
+
+    route_destroy(first);
+    route_destroy(repaired);
+    dstar_lite_destroy(planner);
+    navgrid_destroy(grid);
+}
+
+TEST_CASE("D* Lite canonical statuses preserve route output on failure") {
+    navgrid_t* grid = navgrid_create_full(
+        4, 4, NAVGRID_DIR_8, is_coord_blocked_navgrid);
+    REQUIRE(grid);
+    const coord_t start{0, 0};
+    const coord_t goal{3, 3};
+    dstar_lite_create_info_t info{};
+    REQUIRE(dstar_lite_create_info_init(&info, grid, &start, &goal)
+        == NAVSYS_STATUS_OK);
+    dstar_lite_t* planner = nullptr;
+    REQUIRE(dstar_lite_create_ex(&info, &planner) == NAVSYS_STATUS_OK);
+
+    dstar_lite_replan_options_t options{};
+    REQUIRE(dstar_lite_replan_options_init(&options) == NAVSYS_STATUS_OK);
+    options.max_expansions = 1;
+    route_t* sentinel = reinterpret_cast<route_t*>(static_cast<uintptr_t>(1));
+    CHECK(dstar_lite_replan(planner, &options, &sentinel, nullptr)
+        == NAVSYS_STATUS_LIMIT_REACHED);
+    CHECK(sentinel == reinterpret_cast<route_t*>(static_cast<uintptr_t>(1)));
+
+    REQUIRE(dstar_lite_reset_ex(planner, &start, &goal) == NAVSYS_STATUS_OK);
+    REQUIRE(dstar_lite_request_cancel(planner) == NAVSYS_STATUS_OK);
+    CHECK(dstar_lite_is_cancel_requested(planner));
+    CHECK(dstar_lite_replan(planner, nullptr, &sentinel, nullptr)
+        == NAVSYS_STATUS_CANCELLED);
+    REQUIRE(dstar_lite_reset_ex(planner, &start, &goal) == NAVSYS_STATUS_OK);
+    CHECK_FALSE(dstar_lite_is_cancel_requested(planner));
+
+    REQUIRE(dstar_lite_bind_cost_callback(
+        planner, failing_checked_cost, nullptr) == NAVSYS_STATUS_OK);
+    CHECK(dstar_lite_replan(planner, nullptr, &sentinel, nullptr)
+        == NAVSYS_STATUS_CALLBACK_FAILED);
+    REQUIRE(dstar_lite_reset_ex(planner, &start, &goal) == NAVSYS_STATUS_OK);
+    REQUIRE(dstar_lite_bind_cost_callback(
+        planner, block_outgoing_cost, nullptr) == NAVSYS_STATUS_OK);
+    CHECK(dstar_lite_replan(planner, nullptr, &sentinel, nullptr)
+        == NAVSYS_STATUS_NO_PATH);
+
+    dstar_lite_destroy(planner);
+    navgrid_destroy(grid);
+}
+
+TEST_CASE("D* Lite canonical concurrent cancellation is cooperative") {
+    navgrid_t* grid = navgrid_create_full(
+        20, 20, NAVGRID_DIR_8, is_coord_blocked_navgrid);
+    REQUIRE(grid);
+    const coord_t start{0, 0};
+    const coord_t goal{19, 19};
+    blocking_cost_fixture fixture;
+    dstar_lite_create_info_t info{};
+    REQUIRE(dstar_lite_create_info_init(&info, grid, &start, &goal)
+        == NAVSYS_STATUS_OK);
+    info.cost_callback = blocking_checked_cost;
+    info.cost_userdata = &fixture;
+    dstar_lite_t* planner = nullptr;
+    REQUIRE(dstar_lite_create_ex(&info, &planner) == NAVSYS_STATUS_OK);
+
+    navsys_status_t result = NAVSYS_STATUS_OK;
+    route_t* route = nullptr;
+    std::thread worker([&] {
+        result = dstar_lite_replan(planner, nullptr, &route, nullptr);
+    });
+    bool callback_entered = false;
+    for (size_t attempt = 0; attempt < 100000; ++attempt) {
+        if (fixture.entered.load(std::memory_order_acquire)) {
+            callback_entered = true;
+            break;
+        }
+        std::this_thread::yield();
+    }
+    if (callback_entered)
+        CHECK(dstar_lite_request_cancel(planner) == NAVSYS_STATUS_OK);
+    fixture.release.store(true, std::memory_order_release);
+    worker.join();
+
+    CHECK(callback_entered);
+    CHECK(result == NAVSYS_STATUS_CANCELLED);
+    CHECK(route == nullptr);
+    CHECK(dstar_lite_is_cancel_requested(planner));
+
+    dstar_lite_destroy(planner);
+    navgrid_destroy(grid);
+}
 
 TEST_CASE("test_dstar_lite_basic") {
         coord_t* start = coord_create_full(0, 0);

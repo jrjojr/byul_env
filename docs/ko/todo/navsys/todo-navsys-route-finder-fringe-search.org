@@ -80,7 +80,7 @@ canonical로 한다. =threshold_increment=가 원 알고리즘 variant에 필요
 필요 없으면 공개 config에서 제거한다. Empirical 추천은 header가 아니라 benchmark 문서로
 옮긴다.
 
-* TODO 1단계: 이름/원전 Conformance Audit
+* DONE 1단계: 이름/원전 Conformance Audit
 
 ** 실행
 
@@ -98,7 +98,7 @@ canonical로 한다. =threshold_increment=가 원 알고리즘 variant에 필요
 
 - 원전 reference implementation과 tiny/benchmark map의 found/cost/expanded 결과를 비교한다.
 
-* TODO 2단계: Correct Algorithm과 typed config
+* DONE 2단계: Canonical conformance block와 typed legacy config
 
 ** 실행
 
@@ -115,7 +115,7 @@ canonical로 한다. =threshold_increment=가 원 알고리즘 variant에 필요
 
 - exhaustive grid/reference A*, threshold boundary, NaN/Inf, cancel/OOM과 userdata test를 실행한다.
 
-* TODO 3단계: Legacy forwarding/성능 Gate
+* DONE 3단계: Legacy forwarding/성능 Gate
 
 ** 실행
 

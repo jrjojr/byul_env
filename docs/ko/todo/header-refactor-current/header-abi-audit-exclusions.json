@@ -78,27 +78,6 @@
       "reason": "Definition is not emitted as the declared public C ABI.",
       "owner": "simulation_consumer",
       "target_stage": "7-simulation"
-    },
-    {
-      "code": "missing-root-export",
-      "subject": "rta_star_config_create",
-      "reason": "Declared RTA* configuration API has no definition.",
-      "owner": "navsys",
-      "target_stage": "4-navsys"
-    },
-    {
-      "code": "missing-root-export",
-      "subject": "rta_star_config_create_full",
-      "reason": "Declared RTA* configuration API has no definition.",
-      "owner": "navsys",
-      "target_stage": "4-navsys"
-    },
-    {
-      "code": "missing-root-export",
-      "subject": "rta_star_config_destroy",
-      "reason": "Declared RTA* configuration API has no definition.",
-      "owner": "navsys",
-      "target_stage": "4-navsys"
     }
   ]
 }

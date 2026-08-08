@@ -1,0 +1,24 @@
+{
+  "schema_version": 1,
+  "stage": "navsys-stage7-dependency-audit",
+  "result": "passed",
+  "platform_date": "2026-08-08",
+  "forbidden_patterns": [
+    "scalar.h",
+    "scalar_equal",
+    "numal",
+    "math_engine"
+  ],
+  "scopes": {
+    "navsys_and_console_sources_headers_cmake": 0,
+    "generated_msvc_projects": 0,
+    "installed_public_headers": 0
+  },
+  "cmake_contract": {
+    "navsys_direct_numal_include_directories": 0,
+    "navsys_direct_numal_target_links": 0,
+    "console_direct_numal_include_directories": 0,
+    "console_direct_numal_target_links": 0
+  },
+  "result_detail": "Navsys and its diagnostic console are independent of Numal/Math Engine in source, generated build graph, and installed public headers."
+}

@@ -8,8 +8,25 @@
 // #include "console.h"
 #include <float.h>
 #include <cmath>
+#include <new>
 
 extern bool route_finder_poll_cancel_internal(void);
+
+rta_star_config rta_star_config_create() {
+    return rta_star_config_create_full(5);
+}
+
+rta_star_config rta_star_config_create_full(int depth_limit) {
+    if (depth_limit < 1) return nullptr;
+    rta_star_config config = new (std::nothrow) rta_star_config_t{};
+    if (!config) return nullptr;
+    config->depth_limit = depth_limit;
+    return config;
+}
+
+void rta_star_config_destroy(rta_star_config config) {
+    delete config;
+}
 
 static float rta_iterative_eval(const navgrid_t* m,
     const coord_t* start, const coord_t* goal, int max_depth,

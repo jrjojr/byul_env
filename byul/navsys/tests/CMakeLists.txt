@@ -55,7 +55,6 @@ message(STATUS "${PROJECT_NAME} : EXTERNAL_DIR = ${EXTERNAL_DIR}")
 target_include_directories(${PROJECT_NAME} PRIVATE
     ${CMAKE_SOURCE_DIR}
     ${CMAKE_SOURCE_DIR}/core
-    ${CMAKE_SOURCE_DIR}/numal
     ${CMAKE_SOURCE_DIR}/console
     ${CMAKE_SOURCE_DIR}/byul_tick
 
@@ -82,7 +81,6 @@ target_link_directories(${PROJECT_NAME} PRIVATE
 
 target_link_libraries(${PROJECT_NAME} PRIVATE
     navsys
-    numal
     console
 )
 
@@ -99,7 +97,6 @@ add_executable(test_navsys_allocation_failure
 target_include_directories(test_navsys_allocation_failure PRIVATE
     ${CMAKE_SOURCE_DIR}
     ${CMAKE_SOURCE_DIR}/core
-    ${CMAKE_SOURCE_DIR}/numal
     ${CMAKE_SOURCE_DIR}/navsys
     ${CMAKE_SOURCE_DIR}/navsys/coord
     ${CMAKE_SOURCE_DIR}/navsys/route
@@ -116,7 +113,6 @@ target_link_directories(test_navsys_allocation_failure PRIVATE
 )
 target_link_libraries(test_navsys_allocation_failure PRIVATE
     navsys
-    numal
 )
 target_compile_definitions(test_navsys_allocation_failure PRIVATE BYUL_STATIC)
 
@@ -126,7 +122,6 @@ add_executable(test_route_carver_performance_gate
 target_include_directories(test_route_carver_performance_gate PRIVATE
     ${CMAKE_SOURCE_DIR}
     ${CMAKE_SOURCE_DIR}/core
-    ${CMAKE_SOURCE_DIR}/numal
     ${CMAKE_SOURCE_DIR}/navsys
     ${CMAKE_SOURCE_DIR}/navsys/coord
     ${CMAKE_SOURCE_DIR}/navsys/navgrid
@@ -138,7 +133,6 @@ target_link_directories(test_route_carver_performance_gate PRIVATE
 )
 target_link_libraries(test_route_carver_performance_gate PRIVATE
     navsys
-    numal
 )
 target_compile_definitions(test_route_carver_performance_gate PRIVATE BYUL_STATIC)
 if(CMAKE_SYSTEM_NAME STREQUAL "Windows")

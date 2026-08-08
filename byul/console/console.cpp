@@ -1,6 +1,5 @@
 #include "console.h"
 #include "navgrid.h"
-#include "scalar.h"
 #include "coord_hash.h"
 #include "coord_list.h"
 #include "route.h"

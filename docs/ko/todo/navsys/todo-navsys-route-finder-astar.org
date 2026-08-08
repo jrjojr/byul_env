@@ -88,7 +88,7 @@ BYUL_API navsys_status_t route_finder_find_astar_ex(
   graph-search 재개방 정책과 consistent 조건을 만족할 때만 주장한다.
 - =out_route=는 usable outcome에서 caller-owned이고 =route_destroy=로 해제한다.
 
-* TODO 1단계: Legacy 동작과 optimality 기준선
+* DONE 1단계: Legacy 동작과 optimality 기준선
 
 ** 실행
 
@@ -105,7 +105,7 @@ BYUL_API navsys_status_t route_finder_find_astar_ex(
 
 - exhaustive tiny grid cost/adjacency/endpoint와 callback sentinel test를 실행한다.
 
-* TODO 2단계: Status형 A*와 평가 계약 구현
+* DONE 2단계: Status형 A*와 평가 계약 구현
 
 ** 실행
 
@@ -122,7 +122,7 @@ BYUL_API navsys_status_t route_finder_find_astar_ex(
 
 - inconsistent/admissible/zero heuristic, reopen, tie, cancel/OOM 경계 test를 실행한다.
 
-* TODO 3단계: Legacy forwarding과 배포 Gate
+* DONE 3단계: Legacy forwarding과 배포 Gate
 
 ** 실행
 

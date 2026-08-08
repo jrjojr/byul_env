@@ -1,0 +1,33 @@
+{
+  "schema_version": 1,
+  "scope": "dstar-lite-stage5-canonical-public-contracts",
+  "audit_tool": "tools/python/byul_wrapper/byul_wrapper_generator/header_parser.py:audit_header",
+  "summary": {
+    "headers": 3,
+    "declarations": 52,
+    "errors": 0
+  },
+  "headers": [
+    {
+      "path": "byul/navsys/dstar_lite/dstar_lite_planner.h",
+      "declarations": 13,
+      "errors": 0
+    },
+    {
+      "path": "byul/navsys/dstar_lite/dstar_lite_pqueue.h",
+      "declarations": 22,
+      "errors": 0
+    },
+    {
+      "path": "byul/navsys/dstar_lite/dstar_lite_tick.h",
+      "declarations": 17,
+      "errors": 0
+    }
+  ],
+  "global_baseline": {
+    "headers": 45,
+    "declarations": 690,
+    "errors": 270,
+    "note": "Unrelated pre-existing repository-wide documentation debt is outside Stage 5 scope."
+  }
+}

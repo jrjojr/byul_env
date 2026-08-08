@@ -74,7 +74,7 @@ BYUL_API navsys_status_t route_finder_bind_weighted_astar_config(
 Weight는 finite이고 승인 범위(기본적으로 >=1)를 status로 검증한다. =w= bound를 보장할 수
 없는 heuristic/cost이면 descriptor/stats가 “unbounded”를 명시하며 silent 최적성 주장을 하지 않는다.
 
-* TODO 1단계: Weight/보장 기준선
+* DONE 1단계: Weight/보장 기준선
 
 ** 실행
 
@@ -90,7 +90,7 @@ Weight는 finite이고 승인 범위(기본적으로 >=1)를 status로 검증한
 
 - exhaustive weighted grid에서 =cost/result_optimal <= w= 조건을 적용 가능한 fixture에 검사한다.
 
-* TODO 2단계: Typed config와 status/stats 구현
+* DONE 2단계: Typed config와 status/stats 구현
 
 ** 실행
 
@@ -109,7 +109,7 @@ Weight는 finite이고 승인 범위(기본적으로 >=1)를 status로 검증한
 
 - boundary/NaN/Inf weight, callback failure, w=1/large-w, limit/cancel/OOM을 실행한다.
 
-* TODO 3단계: Legacy/Internalize/Benchmark Gate
+* DONE 3단계: Legacy/Internalize/Benchmark Gate
 
 ** 실행
 

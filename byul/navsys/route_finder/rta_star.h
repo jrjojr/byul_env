@@ -1,5 +1,17 @@
-#ifndef RTA_STAR_H
-#define RTA_STAR_H
+/*
+ * Copyright (c) 2025-2026 ByulPapa (byuldev@outlook.kr)
+ * This file is part of the Byul World project.
+ * Licensed under the Byul World Source-Available Non-Commercial License v1.0 (2025).
+ * See the LICENSE file in the project root for full license terms.
+ */
+
+/**
+ * @file rta_star.h
+ * @brief Declares the legacy Real-Time A* route search C ABI.
+ */
+
+#ifndef BYUL_RTA_STAR_H
+#define BYUL_RTA_STAR_H
 
 #include "route_finder_core.h"
 
@@ -12,7 +24,13 @@ typedef struct s_rta_star_config{
 } rta_star_config_t;
 typedef rta_star_config_t* rta_star_config;
 
-BYUL_API rta_star_config rta_star_config_create();
+/**
+ * @brief Creates a legacy RTA* configuration with depth limit 5.
+ * @return Caller-owned configuration, or NULL on allocation failure.
+ * @byul.nullable return true
+ * @byul.lifetime return caller-owned
+ */
+BYUL_API rta_star_config rta_star_config_create(void);
 
 /**
  * @brief Creates the depth limit setting for the RTA* algorithm.
@@ -37,11 +55,18 @@ BYUL_API rta_star_config rta_star_config_create();
  * - Complex obstacle navigation: 6~8
  * - For maze-like structures, A* or Dijkstra is often more suitable.
  *
- * @param depth_limit The lookahead depth (recommended: 1 or higher)
+ * @param[in] depth_limit The lookahead depth (recommended: 1 or higher)
  * @return rta_star_config configuration object (must be freed)
+ * @byul.nullable return true
+ * @byul.lifetime return caller-owned
  */
 BYUL_API rta_star_config rta_star_config_create_full(int depth_limit);
 
+/**
+ * @brief Destroys a legacy RTA* configuration.
+ * @param[in] cfg Configuration to destroy; NULL is allowed.
+ * @byul.nullable cfg true
+ */
 BYUL_API void rta_star_config_destroy(rta_star_config cfg);
 
 /**
@@ -94,15 +119,22 @@ BYUL_API void rta_star_config_destroy(rta_star_config cfg);
  * rta_star_config_destroy(cfg);
  * @endcode
  *
- * @param m             The map
- * @param start         Starting coordinate
- * @param goal          Goal coordinate
- * @param cost_fn       Cost function
- * @param heuristic_fn  Heuristic function
- * @param depth_limit   Lookahead search depth limit
- * @param max_retry     Maximum number of iterations
- * @param debug_mode_enabled Whether to log visited nodes
+ * @param[in] m             The map
+ * @param[in] start         Starting coordinate
+ * @param[in] goal          Goal coordinate
+ * @param[in] cost_fn       Cost function
+ * @param[in] heuristic_fn  Heuristic function
+ * @param[in] depth_limit   Lookahead search depth limit
+ * @param[in] max_retry     Maximum number of iterations
+ * @param[in] debug_mode_enabled Whether to log visited nodes
  * @return route_t* Path result. success == true if a path is found, false otherwise.
+ * @byul.nullable m false
+ * @byul.nullable start false
+ * @byul.nullable goal false
+ * @byul.nullable cost_fn true
+ * @byul.nullable heuristic_fn true
+ * @byul.nullable return true
+ * @byul.lifetime return caller-owned
  */
 BYUL_API route_t* find_rta_star(const navgrid_t* m,
     const coord_t* start, const coord_t* goal,
@@ -114,4 +146,4 @@ BYUL_API route_t* find_rta_star(const navgrid_t* m,
 }
 #endif
 
-#endif // RTA_STAR_H
+#endif /* BYUL_RTA_STAR_H */

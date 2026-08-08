@@ -1,5 +1,17 @@
-#ifndef BFS_H
-#define BFS_H
+/*
+ * Copyright (c) 2025-2026 ByulPapa (byuldev@outlook.kr)
+ * This file is part of the Byul World project.
+ * Licensed under the Byul World Source-Available Non-Commercial License v1.0 (2025).
+ * See the LICENSE file in the project root for full license terms.
+ */
+
+/**
+ * @file bfs.h
+ * @brief Declares the breadth-first route search public C ABI.
+ */
+
+#ifndef BYUL_BFS_H
+#define BYUL_BFS_H
 
 #include "byul_config.h"
 #include "coord.h"
@@ -24,15 +36,20 @@ extern "C" {
  * - If no path exists: a route up to the last explored coordinate is returned, and success is false.
  * - If @p debug_mode_enabled is true, visit counts for all explored coordinates are recorded.
  *
- * @param m                The map object where the search is performed.
- * @param start            Start coordinate.
- * @param goal             Goal coordinate.
- * @param max_retry        Maximum number of iterations (recommended: width * height).
- * @param debug_mode_enabled  Whether to record visited coordinate counts.
+ * @param[in] m                The map object where the search is performed.
+ * @param[in] start            Start coordinate.
+ * @param[in] goal             Goal coordinate.
+ * @param[in] max_retry        Maximum number of iterations (recommended: width * height).
+ * @param[in] debug_mode_enabled  Whether to record visited coordinate counts.
  * 
  * @return A @c route_t* object.
  *         - If @c route_get_success(result) is true, the path search succeeded.
  *         - If failed, the path includes the last reached coordinate.
+ * @byul.nullable m false
+ * @byul.nullable start false
+ * @byul.nullable goal false
+ * @byul.nullable return true
+ * @byul.lifetime return caller-owned
  */
 BYUL_API route_t* find_bfs(const navgrid_t* m, 
     const coord_t* start, const coord_t* goal, 
@@ -42,4 +59,4 @@ BYUL_API route_t* find_bfs(const navgrid_t* m,
 }
 #endif
 
-#endif // BFS_H
+#endif /* BYUL_BFS_H */

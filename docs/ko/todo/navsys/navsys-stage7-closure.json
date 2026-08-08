@@ -1,0 +1,38 @@
+{
+  "schema_version": 1,
+  "stage": "navsys-stage7-final-release-gate",
+  "status": "closed",
+  "dependency_boundary": {
+    "numal_math_engine_matches": 0,
+    "artifact": "docs/ko/todo/navsys/navsys-stage7-dependency-audit.json"
+  },
+  "abi": {
+    "stage6_exports": 1266,
+    "stage7_exports": 1270,
+    "removed_symbols": 0,
+    "added_symbols": [
+      "dsl_debug_print_full_state",
+      "dsl_debug_print_state",
+      "dstar_lite_get_interval_sec",
+      "dstar_lite_update_vertex_by_route"
+    ],
+    "inventory_headers": 62,
+    "inventory_symbols": 708
+  },
+  "public_headers": {
+    "canonical": "byul/navsys/navsys.h",
+    "aggregate": "byul/navsys/navsys_all.h",
+    "canonical_sha256": "aac746a7d37e1a9d654d712dcc3248b3d35581db96773945e7ca5fad22ccb22a",
+    "aggregate_sha256": "41161226e71533471ba04eb678411313d4bfbb8e63c7ce4f59974724c585a57a"
+  },
+  "todo": {
+    "child_files": 44,
+    "open_child_headings": 0
+  },
+  "evidence": [
+    "docs/ko/todo/navsys/navsys-stage7-build.json",
+    "docs/ko/todo/navsys/navsys-stage7-dependency-audit.json",
+    "docs/ko/todo/navsys/navsys-current-abi-inventory.json",
+    "docs/ko/todo/navsys/navsys-stage6-header-audit.json"
+  ]
+}
