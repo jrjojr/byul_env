@@ -77,7 +77,7 @@ BYUL_API navsys_status_t byul_maze_generate_aldous_broder(
   engine/version/platform matrix에 한정한다.
 - cancel은 walk와 blocked materialization 양쪽에서 bounded interval로 poll한다.
 
-* TODO 1단계: 원 알고리즘과 현행 trace 동결
+* DONE 1단계: 원 알고리즘과 현행 trace 동결
 
 ** 실행
 
@@ -95,7 +95,7 @@ BYUL_API navsys_status_t byul_maze_generate_aldous_broder(
 - fixed injected RNG trace를 수작업 reference tree와 비교한다.
 - enum dispatcher와 direct 함수의 결과 contract가 일치하는지 검사한다.
 
-* TODO 2단계: seed·budget·status API 추가
+* DOING 2단계: seed·budget·status API 추가
 
 ** 실행
 

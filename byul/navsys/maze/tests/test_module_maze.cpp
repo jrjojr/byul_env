@@ -13,6 +13,7 @@
 
 extern "C" {
 #include "maze.h"
+#include "maze_aldous_broder.h"
 #include "maze_binary.h"
 #include "maze_eller.h"
 #include "maze_hunt_and_kill.h"
@@ -88,6 +89,29 @@ std::vector<int> erase_wilson_trace_for_test(
         }
     }
     return path;
+}
+
+std::vector<std::array<int, 2>> aldous_first_entry_edges_for_test(
+    const std::vector<int>& trace,
+    size_t node_count) {
+    std::vector<std::array<int, 2>> edges;
+    if (trace.empty()) return edges;
+    std::vector<uint8_t> visited(node_count, uint8_t{0});
+    REQUIRE(trace.front() >= 0);
+    REQUIRE(static_cast<size_t>(trace.front()) < node_count);
+    visited[static_cast<size_t>(trace.front())] = 1;
+    for (size_t index = 1; index < trace.size(); ++index) {
+        const int from = trace[index - 1];
+        const int to = trace[index];
+        REQUIRE(from >= 0);
+        REQUIRE(to >= 0);
+        REQUIRE(static_cast<size_t>(from) < node_count);
+        REQUIRE(static_cast<size_t>(to) < node_count);
+        if (visited[static_cast<size_t>(to)] != 0) continue;
+        edges.push_back({from, to});
+        visited[static_cast<size_t>(to)] = 1;
+    }
+    return edges;
 }
 #endif
 
@@ -330,6 +354,30 @@ TEST_CASE("Wilson ordered trace erases loops before tree commit") {
     CHECK(neighbor_count(0, 3, 3) == 2);
     CHECK(neighbor_count(1, 3, 3) == 3);
     CHECK(neighbor_count(4, 3, 3) == 4);
+}
+
+TEST_CASE("Aldous-Broder trace carves only first-entry edges") {
+    CHECK(aldous_first_entry_edges_for_test({0}, 1).empty());
+
+    const std::vector<std::array<int, 2>> two_by_two =
+        aldous_first_entry_edges_for_test({0, 1, 0, 2, 3, 1}, 4);
+    CHECK(two_by_two == std::vector<std::array<int, 2>>{
+        {0, 1}, {0, 2}, {2, 3}});
+
+    const std::vector<int> four_by_four_trace{
+        0, 1, 2, 3, 7, 6, 5, 4, 8, 9, 10, 11, 15, 14, 13, 12
+    };
+    const auto four_by_four =
+        aldous_first_entry_edges_for_test(four_by_four_trace, 16);
+    CHECK(four_by_four.size() == 15);
+
+    std::vector<uint8_t> entry_count(16, uint8_t{0});
+    entry_count[0] = 1;
+    for (const auto& edge : four_by_four) {
+        CHECK(entry_count[static_cast<size_t>(edge[1])] == 0);
+        entry_count[static_cast<size_t>(edge[1])] = 1;
+    }
+    CHECK(std::count(entry_count.begin(), entry_count.end(), uint8_t{1}) == 16);
 }
 
 TEST_CASE("Wilson checked API validates controls and preserves failure atomicity") {
