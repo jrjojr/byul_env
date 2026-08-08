@@ -1,0 +1,49 @@
+{
+  "schema_version": 1,
+  "scope": "navsys-maze-randomized-prim-stage1",
+  "status": "complete",
+  "source_revision": "7ca3642",
+  "algorithm_baseline": {
+    "state": "flat raster grid plus explicit frontier edges carrying wall and target coordinates",
+    "start": "one uniformly selected logical cell from independent bounded X and Y draws",
+    "selection": "uniform random frontier index with swap-pop removal",
+    "acceptance": "an edge is accepted only when its target logical cell remains unvisited",
+    "frontier_inventory": "every unique logical-grid edge is enqueued and popped exactly once; stale edges are skipped",
+    "topology": "every accepted edge adds exactly one new logical cell, producing a connected acyclic passage graph"
+  },
+  "goldens": {
+    "origin": [-5, 8],
+    "seed": 0,
+    "rasters": [
+      {"extent": [3, 9], "hash": 490189354},
+      {"extent": [9, 3], "hash": 54204446},
+      {"extent": [5, 9], "hash": 650319809},
+      {"extent": [9, 5], "hash": 16892751},
+      {"extent": [7, 11], "hash": 218476356},
+      {"extent": [11, 7], "hash": 477496482},
+      {"extent": [9, 9], "hash": 857387639}
+    ]
+  },
+  "property_corpus": {
+    "extents": "every odd width and height from 3 through 11",
+    "seeds": "0 through 15",
+    "cases": 400,
+    "checks": "logical V, exact unique-edge pop count E, V-1 passages, connected, acyclic, blocked border, and open logical cells"
+  },
+  "legacy_findings": {
+    "symbol": "maze_maze_prim",
+    "typo_policy": "must remain an ABI 1.x compatibility forwarder when the canonical checked API is added",
+    "validation": "legacy rejects dimensions below 3 but does not currently reject even extents",
+    "rng": "legacy uses the process-local generation seed; dispatcher already provides replayable checked routing"
+  },
+  "distribution_baseline": {
+    "installed_header": "include/byul/maze_prim.h",
+    "root_export": "maze_maze_prim",
+    "canonical_export": null,
+    "wrapper_registration": false,
+    "root_export_count": 1209
+  },
+  "verification": {
+    "windows_msvc_release": "88/88 test cases, 179756/179756 assertions"
+  }
+}

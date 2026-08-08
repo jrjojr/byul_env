@@ -11,6 +11,7 @@ from .route_finder_common import g_RouteFuncReg
 from .navsys_status import NavsysStatus
 
 from dataclasses import dataclass
+import math
 import weakref
 
 ffi.cdef("""
@@ -104,6 +105,10 @@ typedef struct s_route_finder_run_options {
 
  const char* get_route_finder_name(route_finder_type_t pa);
 
+ const char* route_finder_type_get_name(route_finder_type_t type);
+
+ bool route_finder_is_type_supported(route_finder_type_t type);
+
  bool route_finder_is_supported(route_finder_type_t type);
 
 typedef struct s_route_finder {
@@ -170,11 +175,15 @@ typedef struct s_route_finder {
  route_finder_t* route_finder_copy(const route_finder_t* src);
 
  void route_finder_set_navgrid(route_finder_t* a, navgrid_t* navgrid);
+
  void route_finder_set_start(route_finder_t* a, const coord_t* start);
+
  void route_finder_set_goal(route_finder_t* a, const coord_t* goal);
 
  const navgrid_t* route_finder_get_navgrid(const route_finder_t* a);
+
  int route_finder_fetch_start(const route_finder_t* a, coord_t* out);
+
  int route_finder_fetch_goal(const route_finder_t* a, coord_t* out);
 
  void route_finder_set_type(
@@ -210,6 +219,7 @@ typedef struct s_route_finder {
     route_finder_t* finder);
 
  void route_finder_set_max_retry(route_finder_t* a, int max_retry);
+
  int route_finder_get_max_retry(route_finder_t* a);
 
  navsys_status_t route_finder_set_max_retry_checked(
@@ -244,11 +254,18 @@ typedef struct s_route_finder {
  navsys_status_t route_finder_bind_cost_func(
     route_finder_t* finder, cost_func fn, void* userdata);
 
+ navsys_status_t route_finder_bind_cost_func_ex(
+    route_finder_t* finder, route_finder_cost_func_ex fn, void* userdata);
+
  navsys_status_t route_finder_unbind_cost_func(
     route_finder_t* finder);
 
  navsys_status_t route_finder_bind_heuristic_func(
     route_finder_t* finder, heuristic_func fn, void* userdata);
+
+ navsys_status_t route_finder_bind_heuristic_func_ex(
+    route_finder_t* finder, route_finder_heuristic_func_ex fn,
+    void* userdata);
 
  navsys_status_t route_finder_unbind_heuristic_func(
     route_finder_t* finder);
@@ -258,6 +275,7 @@ typedef struct s_route_finder {
  void route_finder_set_defaults(route_finder_t* a);
 
  bool route_finder_is_valid(const route_finder_t* a);
+
  void route_finder_print(const route_finder_t* a);
 
  route_t* route_finder_run(route_finder_t* a);
@@ -312,10 +330,6 @@ typedef struct s_fmm_cell {
 
  void fmm_cell_assign(fmm_cell_t* out, const fmm_cell_t* src);
 
-void* fmm_cell_copy(const void* p);
-
-void fmm_cell_destroy(void* p);
-
 typedef struct s_fmm_grid{
     int width;
     int height;
@@ -359,7 +373,7 @@ typedef struct s_rta_star_config{
 } rta_star_config_t;
 typedef rta_star_config_t* rta_star_config;
 
- rta_star_config rta_star_config_create();
+ rta_star_config rta_star_config_create(void);
 
  rta_star_config rta_star_config_create_full(int depth_limit);
 
@@ -477,6 +491,16 @@ class c_route_finder:
         self._typedata_handle = (
             None if typedata is None else ffi.new_handle(typedata)
         )
+        self._cost_userdata_handle = (
+            None if cost_userdata is None else ffi.new_handle(cost_userdata)
+        )
+        self._heuristic_userdata_handle = (
+            None if heuristic_userdata is None
+            else ffi.new_handle(heuristic_userdata)
+        )
+        self._cost_binding = None
+        self._heuristic_binding = None
+        self._evaluation_error = []
 
         if raw_ptr:
             self._c = raw_ptr
@@ -505,9 +529,11 @@ class c_route_finder:
                 max_retry,
                 debug,
                 cost_fn,
-                ffi.NULL if cost_userdata is None else ffi.new_handle(cost_userdata),
+                ffi.NULL if self._cost_userdata_handle is None
+                else self._cost_userdata_handle,
                 heuristic_fn,
-                ffi.NULL if heuristic_userdata is None else ffi.new_handle(heuristic_userdata)
+                ffi.NULL if self._heuristic_userdata_handle is None
+                else self._heuristic_userdata_handle
             )
             self._own = True
 
@@ -557,6 +583,12 @@ class c_route_finder:
                 self._c, options, out_route, out_stats
             )
         status = NavsysStatus(raw_status)
+        if self._evaluation_error:
+            error = self._evaluation_error.pop(0)
+            if out_route[0] != ffi.NULL:
+                C.route_destroy(out_route[0])
+                out_route[0] = ffi.NULL
+            raise error
         if out_route[0] == ffi.NULL:
             if callback_error:
                 raise callback_error[0]
@@ -649,19 +681,88 @@ class c_route_finder:
     def set_cost_func(self, name: str):
         fn = g_RouteFuncReg.get_cost_func(name)
         C.route_finder_set_cost_func(self._c, fn)
+        self._cost_binding = None
+        self._cost_userdata_handle = None
 
     def set_heuristic_func(self, name: str):
         fn = g_RouteFuncReg.get_heuristic_func(name)
         C.route_finder_set_heuristic_func(self._c, fn)
+        self._heuristic_binding = None
+        self._heuristic_userdata_handle = None
+
+    def bind_cost_func(self, callback, userdata=None):
+        """Bind callback(grid, from_coord, to_coord, userdata) -> cost."""
+        handle = ffi.new_handle(userdata)
+
+        @ffi.callback(
+            "navsys_status_t(const navgrid_t*, const coord_t*, "
+            "const coord_t*, float*, void*)"
+        )
+        def bridge(grid, from_coord, to_coord, out_cost, raw_userdata):
+            try:
+                value = float(callback(
+                    grid, from_coord, to_coord,
+                    ffi.from_handle(raw_userdata)))
+                if not math.isfinite(value) or value < 0.0:
+                    raise ValueError("cost callback must return a finite non-negative value")
+                out_cost[0] = value
+                return C.NAVSYS_STATUS_OK
+            except BaseException as exc:
+                self._evaluation_error.append(exc)
+                return C.NAVSYS_STATUS_CALLBACK_FAILED
+
+        status = C.route_finder_bind_cost_func_ex(self._c, bridge, handle)
+        if status != C.NAVSYS_STATUS_OK:
+            raise RuntimeError(f"could not bind cost callback ({status})")
+        self._cost_binding = (bridge, handle, callback, userdata)
+
+    def bind_heuristic_func(self, callback, userdata=None):
+        """Bind callback(from_coord, goal_coord, userdata) -> estimate."""
+        handle = ffi.new_handle(userdata)
+
+        @ffi.callback(
+            "navsys_status_t(const coord_t*, const coord_t*, float*, void*)"
+        )
+        def bridge(from_coord, goal_coord, out_estimate, raw_userdata):
+            try:
+                value = float(callback(
+                    from_coord, goal_coord,
+                    ffi.from_handle(raw_userdata)))
+                if not math.isfinite(value) or value < 0.0:
+                    raise ValueError(
+                        "heuristic callback must return a finite non-negative value"
+                    )
+                out_estimate[0] = value
+                return C.NAVSYS_STATUS_OK
+            except BaseException as exc:
+                self._evaluation_error.append(exc)
+                return C.NAVSYS_STATUS_CALLBACK_FAILED
+
+        status = C.route_finder_bind_heuristic_func_ex(
+            self._c, bridge, handle)
+        if status != C.NAVSYS_STATUS_OK:
+            raise RuntimeError(f"could not bind heuristic callback ({status})")
+        self._heuristic_binding = (bridge, handle, callback, userdata)
+
+    def unbind_cost_func(self):
+        status = C.route_finder_unbind_cost_func(self._c)
+        if status != C.NAVSYS_STATUS_OK:
+            raise RuntimeError(f"could not unbind cost callback ({status})")
+        self._cost_binding = None
+        self._cost_userdata_handle = None
+
+    def unbind_heuristic_func(self):
+        status = C.route_finder_unbind_heuristic_func(self._c)
+        if status != C.NAVSYS_STATUS_OK:
+            raise RuntimeError(f"could not unbind heuristic callback ({status})")
+        self._heuristic_binding = None
+        self._heuristic_userdata_handle = None
 
     def set_start(self, coord: c_coord):
         C.route_finder_set_start(self._c, coord._c)
 
     def set_goal(self, coord: c_coord):
         C.route_finder_set_goal(self._c, coord._c)
-
-    def set_userdata(self, obj):
-        C.route_finder_set_userdata(self._c, ffi.new_handle(obj))
 
     def get_start(self):
         out = ffi.new("coord_t*")
@@ -683,12 +784,16 @@ class c_route_finder:
         C.route_finder_clear(self._c)
         self._algorithm_config = None
         self._typedata_handle = None
+        self._cost_binding = None
+        self._heuristic_binding = None
+        self._cost_userdata_handle = None
+        self._heuristic_userdata_handle = None
 
     def print(self):
         C.route_finder_print(self._c)
 
     def name(self):
-        name_ptr = C.get_route_finder_name(self.get_type())
+        name_ptr = C.route_finder_type_get_name(self.get_type())
         return ffi.string(name_ptr).decode("utf-8") if name_ptr != ffi.NULL else "UNKNOWN"
 
     def __del__(self):
@@ -699,6 +804,11 @@ class c_route_finder:
             self._finalizer()
         self._algorithm_config = None
         self._typedata_handle = None
+        self._cost_binding = None
+        self._heuristic_binding = None
+        self._cost_userdata_handle = None
+        self._heuristic_userdata_handle = None
+        self._evaluation_error.clear()
 
     def __enter__(self):
         return self
@@ -712,7 +822,7 @@ class c_route_finder:
 
     @staticmethod
     def is_supported(type: RouteFinderType):
-        return bool(C.route_finder_is_supported(type))
+        return bool(C.route_finder_is_type_supported(type))
 
     @staticmethod
     def list_supported_route_finders():
@@ -724,6 +834,6 @@ class c_route_finder:
     @staticmethod
     def find_by_name(name: str):
         for a in RouteFinderType:
-            if ffi.string(C.get_route_finder_name(a)).decode("utf-8").lower() == name.lower():
+            if ffi.string(C.route_finder_type_get_name(a)).decode("utf-8").lower() == name.lower():
                 return a
         return RouteFinderType.UNKNOWN

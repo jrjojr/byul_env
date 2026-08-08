@@ -1,6 +1,6 @@
 #+TITLE: BYUL Math Engine Master TODO
 #+TODO: TODO DOING BLOCKED | DONE CANCELLED FAILED
-#+TODO_RULES: ../../../../external/rules/projects/byul/todo-rules.org
+#+TODO_RULES: ../../../../external/rules_env/projects/byul/todo-rules.org
 #+OWNERSHIP_MANIFEST: ../header-refactor-current/header-role-manifest.json
 #+AUTHOR: ByulPapa / Codex
 #+LANGUAGE: ko
@@ -74,6 +74,7 @@ Critical path는 장기 product roadmap 전체 완료를 기다리지 않는다.
 
 ** 공통 실행·ABI 계획
 
+- [[file:todo-math-engine-independent-refactoring.org][독립 프로젝트 리팩토링 선행 계획]]
 - [[file:todo-math-computation-context.org][계산 context]]
 - [[file:todo-math-engine-configuration.org][설정 resolver]]
 - [[file:todo-math-engine-build-abi.org][Build·독립 DLL ABI]]
@@ -127,6 +128,17 @@ legacy tool compatibility를 함께 추적한다.
 owner가 아니므로 Math Engine 범위 밖이다.
 
 * 단일 실행 소유권과 합류 Gate
+
+** 독립 저장소 우선 Gate
+
+[[file:todo-math-engine-independent-refactoring.org][독립 프로젝트 리팩토링 계획]]이 이 master의
+최우선 critical path다. 이 계획은 “BYUL 내부 canonical static handoff 뒤 DLL 전환”이라는
+기존 순서를 대체하고, 독립 Math Engine SDK를 먼저 완성한 뒤 BYUL consumer를 전환한다.
+
+리팩토링 계획의 release candidate SDK gate가 끝나기 전에는 아래 기존 실행 절차 중 BYUL,
+Balix, Entity, Projectile와 Ground production source를 변경하는 단계를 시작하지 않는다.
+기존 하위 TODO의 기능 inventory와 test corpus는 Math Engine 독립 구현의 입력으로 사용할 수
+있지만, BYUL 내부 target을 canonical Math Engine owner로 새로 만들지 않는다.
 
 Math Engine의 canonical 수학 API, 공식, kernel, neutral value/result, 새 public
 header/source/target은 이 master와 연결된 Math Engine 하위 TODO만 설계하고 구현한다.
@@ -418,7 +430,7 @@ climbing parser로 충분히 구현할 수 있다. 반면 문법이 statement, �
 조건식, vector/matrix literal과 특수 연산까지 확장되면 grammar file과 충돌 진단을
 제공하는 Flex/Bison의 이점이 커진다.
 
-세부 구현, =tools/cmake_starter_1040= 평가, code generation과 conformance 계획은
+세부 구현, =external/cmake_starter_env= 평가, code generation과 conformance 계획은
 =todo-expression.org= 를 기준으로 한다.
 
 #+begin_src text
@@ -476,7 +488,7 @@ maintainer regeneration
 도구 version 차이로 생성 diff가 지나치게 크거나 platform별 결과가 달라지면 고정된
 container 또는 CI job에서만 regeneration한다.
 
-=tools/cmake_starter_1040/starter.cmake= 전체는 BYUL build framework로 흡수하지 않는다.
+=external/cmake_starter_env/starter.cmake= 전체는 BYUL build framework로 흡수하지 않는다.
 홈 디렉터리의 =win_flex.exe=/=win_bison.exe= 고정 경로, Windows/Linux 전용 분기,
 전역 cache 기반 project 관계, configure 중 source 생성과 자체 install/CPack 규칙이
 현재 BYUL target·preset·package 구조와 충돌한다. pure/reentrant parser, token prefix,

@@ -36,7 +36,7 @@ void fmm_cell_assign(fmm_cell_t* out, const fmm_cell_t* src){
     out->value = src->value;
 }
 
-void* fmm_cell_copy(const void* p) {
+static void* fmm_cell_copy(const void* p) {
     if (!p) return nullptr;
     auto* in = static_cast<const fmm_cell_t*>(p);
     auto* out = new fmm_cell_t;
@@ -44,7 +44,7 @@ void* fmm_cell_copy(const void* p) {
     return out;
 }
 
-void fmm_cell_destroy(void* p) {
+static void fmm_cell_destroy(void* p) {
     delete static_cast<fmm_cell_t*>(p);
 }
 

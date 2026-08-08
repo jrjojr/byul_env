@@ -11,7 +11,7 @@ on:
       - "byul/**/tests/**"
       - "docs/ko/todo/byul-memory-test-matrix.json"
       - "docs/ko/todo/todo-byul-test-production-boundary.org"
-      - "external/rules"
+      - "external/rules_env"
       - "tools/gpu_comp_tester/CMakeLists.txt"
   workflow_dispatch:
 

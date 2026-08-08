@@ -1,0 +1,37 @@
+{
+  "schema_version": 1,
+  "scope": "navsys-maze-recursive-backtracker-closure",
+  "status": "complete",
+  "stage_revisions": {
+    "stage1_baseline": "83ba12f",
+    "stage2_checked_api": "9e53e73",
+    "stage3_topology_bounds": "3a4f4c1"
+  },
+  "release_note": {
+    "behavior": "The recursive backtracker now uses explicit heap DFS frames and a flat visited bitmap, eliminating native call-stack growth while preserving every seeded raster golden.",
+    "api": "byul_maze_generate_recursive_backtracker adds replayable seed, cancellation, max_steps, max_cells, status, and failure-atomic output controls.",
+    "topology": "Every success result is a connected acyclic perfect Maze with V logical cells and V-1 passages.",
+    "compatibility": "maze_make_recursive remains exported as a deprecated ABI 1.x forwarder. Equal checked seeds preserve the pre-API traversal order."
+  },
+  "distribution": {
+    "root_shared_exports": 1211,
+    "required_symbols": [
+      "byul_maze_generate_recursive_backtracker",
+      "maze_make_recursive"
+    ],
+    "clean_install_headers": 92,
+    "installed_header": "include/byul/maze_recursive.h",
+    "navsys_inventory": "58 headers, 656 symbols",
+    "wrapper_entry": "c_maze.generate_recursive_backtracker"
+  },
+  "final_verification": {
+    "windows_msvc_release": "101/101 Maze cases, 840265/840265 assertions; allocation-failure executable exit 0",
+    "windows_aggregate_root": "538/538 cases, 186302/186302 assertions",
+    "linux_gcc13_asan_lsan_ubsan": "101/101 Maze cases, 840265/840265 assertions; exit 0; no sanitizer report",
+    "deep_corridors": "3x131071 and 131071x3 completed with 65535 heap frames and constant native call depth",
+    "clean_sdk": "standalone C17/C++17 header probes and executable consumers passed",
+    "wrapper_scope": "17/17 generator, Maze ABI policy, and wrapper coverage tests passed",
+    "header_audit": "150 headers, 95 public C headers, 1172 declarations, 0 invariant errors",
+    "rules": "60 Org rule files, 0 errors, 0 warnings"
+  }
+}

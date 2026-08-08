@@ -1,12 +1,12 @@
 #+TITLE: BYUL Navsys fringe_search.h 정밀 리팩터링 TODO
 #+TODO: TODO DOING BLOCKED | DONE CANCELLED FAILED
-#+TODO_RULES: ../../../../external/rules/projects/byul/todo-rules.org
-#+PUBLIC_API_RULES: ../../../../external/rules/projects/byul/public-api-rules.org
-#+HEADER_DECLARATION_RULES: ../../../../external/rules/projects/byul/header-declaration-rules.org
-#+HEADER_COMMENT_RULES: ../../../../external/rules/projects/byul/header-comment-rules.org
-#+HEADER_AUTHORING_RULES: ../../../../external/rules/projects/byul/header-authoring-rules.org
-#+BUILD_RULES: ../../../../external/rules/projects/byul/build-rules.org
-#+TEST_RULES: ../../../../external/rules/projects/byul/test-rules.org
+#+TODO_RULES: ../../../../external/rules_env/projects/byul/todo-rules.org
+#+PUBLIC_API_RULES: ../../../../external/rules_env/projects/byul/public-api-rules.org
+#+HEADER_DECLARATION_RULES: ../../../../external/rules_env/projects/byul/header-declaration-rules.org
+#+HEADER_COMMENT_RULES: ../../../../external/rules_env/projects/byul/header-comment-rules.org
+#+HEADER_AUTHORING_RULES: ../../../../external/rules_env/projects/byul/header-authoring-rules.org
+#+BUILD_RULES: ../../../../external/rules_env/projects/byul/build-rules.org
+#+TEST_RULES: ../../../../external/rules_env/projects/byul/test-rules.org
 #+TODO_PARENT: todo-리팩토링-navsys-headers.org
 #+INDUSTRY_API_BASELINE: todo-navsys-industry-api-baseline.org
 #+AUTHOR: ByulPapa / Codex
@@ -80,7 +80,7 @@ canonical로 한다. =threshold_increment=가 원 알고리즘 variant에 필요
 필요 없으면 공개 config에서 제거한다. Empirical 추천은 header가 아니라 benchmark 문서로
 옮긴다.
 
-* TODO 1단계: 이름/원전 Conformance Audit
+* DONE 1단계: 이름/원전 Conformance Audit
 
 ** 실행
 
@@ -98,7 +98,7 @@ canonical로 한다. =threshold_increment=가 원 알고리즘 variant에 필요
 
 - 원전 reference implementation과 tiny/benchmark map의 found/cost/expanded 결과를 비교한다.
 
-* TODO 2단계: Correct Algorithm과 typed config
+* DONE 2단계: Canonical conformance block와 typed legacy config
 
 ** 실행
 
@@ -115,7 +115,7 @@ canonical로 한다. =threshold_increment=가 원 알고리즘 variant에 필요
 
 - exhaustive grid/reference A*, threshold boundary, NaN/Inf, cancel/OOM과 userdata test를 실행한다.
 
-* TODO 3단계: Legacy forwarding/성능 Gate
+* DONE 3단계: Legacy forwarding/성능 Gate
 
 ** 실행
 

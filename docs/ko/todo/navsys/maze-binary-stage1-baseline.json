@@ -1,0 +1,82 @@
+{
+  "schema_version": 1,
+  "scope": "navsys-maze-binary-stage1",
+  "status": "complete",
+  "source_revision": "1a1d4e77ca6cee8ac1d927be865c04167c9847a5",
+  "working_tree_patch": [
+    "byul/navsys/maze/maze_binary.h",
+    "byul/navsys/maze/maze_binary.cpp",
+    "byul/navsys/maze/internal/maze_private.hpp",
+    "byul/navsys/maze/tests/test_module_maze.cpp"
+  ],
+  "coordinate_contract": {
+    "x_positive": "east",
+    "y_positive": "south",
+    "legacy_bias": "BYUL_MAZE_BINARY_BIAS_SOUTH_EAST",
+    "logical_cells": "odd local x and odd local y",
+    "border": "blocked one-cell perimeter"
+  },
+  "rng_contract": {
+    "engine": "shared Maze PCG32 generation context",
+    "traversal": "row-major logical cells from north-west to south-east",
+    "two_choice": "one bounded(2) draw; 0 selects horizontal and 1 selects vertical",
+    "forced_boundary": "does not consume RNG",
+    "seed": 1,
+    "first_bounded_result": 0
+  },
+  "hand_authored_lattices": {
+    "3x3": {
+      "logical_nodes": 1,
+      "passage_edges": 0,
+      "hash_all_biases": 663082931
+    },
+    "5x5": {
+      "logical_nodes": 4,
+      "passage_edges": 3,
+      "north_west": {
+        "open_midpoints": [[2, 1], [1, 2], [2, 3]],
+        "blocked_hash": 470646451
+      },
+      "north_east": {
+        "open_midpoints": [[2, 1], [2, 3], [3, 2]],
+        "blocked_hash": 499477593
+      },
+      "south_west": {
+        "open_midpoints": [[2, 1], [1, 2], [2, 3]],
+        "blocked_hash": 470646451
+      },
+      "south_east": {
+        "open_midpoints": [[2, 1], [2, 3], [3, 2]],
+        "blocked_hash": 499477593
+      }
+    }
+  },
+  "perfect_tree_oracle": {
+    "node_count": "N=((width-1)/2)*((height-1)/2)",
+    "edge_count": "N-1",
+    "proof": "Every non-root logical cell chooses exactly one edge toward the bias root. Each edge strictly decreases Manhattan distance to that root, so cycles are impossible; repeated parent traversal reaches the root, so the graph is connected."
+  },
+  "consumer_inventory": {
+    "implementation": "byul/navsys/maze/maze_binary.cpp",
+    "public_header": "byul/navsys/maze/maze_binary.h",
+    "module_test": "byul/navsys/maze/tests/test_module_maze.cpp",
+    "static_target": "maze",
+    "root_shared_target": "byul",
+    "installed_header": "include/byul/maze_binary.h",
+    "sdk_header_inventory": "byul/tests/sdk_consumer/CMakeLists.txt",
+    "wrapper_registered": false,
+    "owner_todo": "docs/ko/todo/navsys/todo-navsys-maze-binary.org"
+  },
+  "verification": {
+    "windows_msvc_release": {
+      "test_maze": "48/48 test cases, 59855/59855 assertions",
+      "root_exports": [
+        "byul_maze_binary_bias_is_supported",
+        "byul_maze_generate_binary_tree",
+        "maze_make_binary"
+      ]
+    },
+    "header_abi_audit": "150 headers, 95 public C headers, 1164 declarations, 0 invariant errors",
+    "central_rules": "60 Org files, 0 errors, 0 warnings"
+  }
+}

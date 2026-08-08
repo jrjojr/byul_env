@@ -1,6 +1,6 @@
 #+TITLE: BYUL Math Engine 기초 수학 모듈 TODO
 #+TODO: TODO DOING BLOCKED | DONE CANCELLED FAILED
-#+TODO_RULES: ../../../../external/rules/projects/byul/todo-rules.org
+#+TODO_RULES: ../../../../external/rules_env/projects/byul/todo-rules.org
 #+TODO_PARENT: todo-math-engine.org
 #+AUTHOR: ByulPapa / Codex
 #+LANGUAGE: ko

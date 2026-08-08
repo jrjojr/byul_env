@@ -1,8 +1,8 @@
 #+TITLE: BYUL Test와 Production Artifact 경계 TODO
 #+TODO: TODO DOING BLOCKED | DONE CANCELLED FAILED
-#+TODO_RULES: ../../../external/rules/projects/byul/todo-rules.org
-#+BUILD_RULES: ../../../external/rules/projects/byul/build-rules.org
-#+TEST_RULES: ../../../external/rules/projects/byul/test-rules.org
+#+TODO_RULES: ../../../external/rules_env/projects/byul/todo-rules.org
+#+BUILD_RULES: ../../../external/rules_env/projects/byul/build-rules.org
+#+TEST_RULES: ../../../external/rules_env/projects/byul/test-rules.org
 #+TODO_PARENT: todo-리팩토링.org
 #+AUTHOR: ByulPapa / Codex
 #+LANGUAGE: ko

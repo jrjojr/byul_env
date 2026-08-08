@@ -1,0 +1,64 @@
+{
+  "schema_version": 1,
+  "scope": "navsys-maze-randomized-kruskal-stage2",
+  "status": "complete",
+  "source_revision": "9c66918",
+  "canonical_api": {
+    "generator": "byul_maze_generate_randomized_kruskal",
+    "options": "byul_maze_generate_options_t ABI version 1",
+    "output_contract": "out_maze is reset to NULL before validation and receives caller ownership only on success"
+  },
+  "algorithm": {
+    "vertices": "odd-coordinate logical cells mapped to flat IDs 0..V-1",
+    "edges": "every unique east and south logical-grid adjacency",
+    "randomization": "the Stage 1 edge insertion order and shared PCG32 Fisher-Yates shuffle are preserved",
+    "disjoint_set": "flat iterative path compression with union-by-size",
+    "early_stop": "edge consideration stops immediately after V-1 successful unions",
+    "claim_boundary": "randomized edge ordering; no minimum-weight or uniform-spanning-tree guarantee"
+  },
+  "validation": {
+    "dimensions": "width and height are odd and at least 3",
+    "bounds": "the inclusive last coordinate and each dimension must fit int32_t",
+    "max_cells": "checked before allocation",
+    "max_steps": "one step per considered shuffled edge; default is raster cells times 8",
+    "edge_count": "E must fit the bounded RNG uint32_t domain",
+    "cancellation": "polled before generation, throughout shuffle and raster materialization, and before every considered edge",
+    "exception_barrier": "bad_alloc maps to OUT_OF_MEMORY; callback exceptions map to CALLBACK_FAILED; other exceptions map to CORRUPT_STATE",
+    "failure_atomicity": "partial Maze output is never published"
+  },
+  "compatibility": {
+    "legacy_symbol": "maze_make_kruskal",
+    "legacy_policy": "deprecated ABI 1.x adapter forwarding to the checked generator",
+    "legacy_seed": "non-replayable process-local generation seed",
+    "generic_dispatcher": "BYUL_MAZE_ALGORITHM_RANDOMIZED_KRUSKAL produces the same raster for equal options"
+  },
+  "golden": {
+    "origin": [-5, 8],
+    "extent": [9, 9],
+    "seed": 0,
+    "hash": 73237245
+  },
+  "wrapper": {
+    "generator_manifest": "tools/python/byul_wrapper/generate_wrapper_abi.py",
+    "high_level_entry": "c_maze.generate_randomized_kruskal",
+    "policy_tests": "10/10 maze wrapper policy tests passed against the current MSVC Release DLL",
+    "generation_check": "generated CFFI declarations are up to date"
+  },
+  "root_shared": {
+    "profile": "msvc-x64-release",
+    "export_count": 1209,
+    "exports": [
+      "byul_maze_generate_randomized_kruskal",
+      "maze_make_kruskal"
+    ],
+    "installed_header": "include/byul/maze_kruskal.h"
+  },
+  "verification": {
+    "test_maze": "84/84 test cases, 169760/169760 assertions",
+    "test_navsys_allocation_failure": "exit 0",
+    "sdk_consumer": "clean-install C17 and C++17 consumers built and ran successfully",
+    "standalone_header": "clean-install MSVC C17 and C++17 probes passed",
+    "strict_header_audit": "150 headers, 95 public C headers, 1170 declarations, 0 invariant errors",
+    "navsys_abi_inventory": "58 headers, 654 symbols"
+  }
+}

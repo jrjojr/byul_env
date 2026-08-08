@@ -50,10 +50,12 @@ byul/docs/
 # external
 # Keep machine-local packages ignored, but version reproducible build inputs.
 external/*
-!external/rules
+!external/rules_env
 !external/SDL3-3.2.18/
 external/SDL3-3.2.18/*
 !external/SDL3-3.2.18/source
 !external/eigen-3.4.0
 !external/doctest-2.4.12
 !external/glad-2.0.8
+!external/cmake_starter_env/
+!external/cmake_starter_env/**

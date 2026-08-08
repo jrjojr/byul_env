@@ -2,7 +2,6 @@
 #define DSTAR_LITE_UTILS_H
 
 #include "byul_config.h"
-#include "scalar.h"
 #include "navgrid.h"
 #include "coord.h"
 #include "route.h"

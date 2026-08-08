@@ -12,6 +12,7 @@ from .navgrid import c_navgrid  # Registers navgrid_t and overlay identifiers.
 MAZE_ABI_VERSION = 2
 MAZE_ABI_FINGERPRINT = 0x4D415A4502000000
 MAZE_GENERATE_OPTIONS_ABI_VERSION = 1
+ROOM_BLEND_OPTIONS_ABI_VERSION = 1
 
 
 def _check_maze_abi():
@@ -223,6 +224,173 @@ typedef struct s_byul_maze_generate_options {
 
  maze_t* maze_make(
     int x0, int y0, int width, int height, maze_type_t type);
+
+/* Source: byul/navsys/maze/maze_aldous_broder.h */
+navsys_status_t byul_maze_generate_aldous_broder(
+    int32_t origin_x,
+    int32_t origin_y,
+    uint32_t width,
+    uint32_t height,
+    const byul_maze_generate_options_t* options,
+    maze_t** out_maze);
+
+ maze_t* maze_make_aldous_broder(int x0, int y0, int width, int height);
+
+/* Source: byul/navsys/maze/maze_binary.h */
+typedef enum e_byul_maze_binary_bias {
+    BYUL_MAZE_BINARY_BIAS_NORTH_WEST = 0,
+    BYUL_MAZE_BINARY_BIAS_NORTH_EAST = 1,
+    BYUL_MAZE_BINARY_BIAS_SOUTH_WEST = 2,
+    BYUL_MAZE_BINARY_BIAS_SOUTH_EAST = 3
+} byul_maze_binary_bias_t;
+
+ navsys_status_t byul_maze_binary_bias_is_supported(
+    byul_maze_binary_bias_t bias, bool* out_supported);
+
+ navsys_status_t byul_maze_generate_binary_tree(
+    int32_t origin_x,
+    int32_t origin_y,
+    uint32_t width,
+    uint32_t height,
+    byul_maze_binary_bias_t bias,
+    const byul_maze_generate_options_t* options,
+    maze_t** out_maze);
+
+ maze_t* maze_make_binary(int x0, int y0, int width, int height);
+
+/* Source: byul/navsys/maze/maze_eller.h */
+navsys_status_t byul_maze_generate_eller(
+    int32_t origin_x,
+    int32_t origin_y,
+    uint32_t width,
+    uint32_t height,
+    const byul_maze_generate_options_t* options,
+    maze_t** out_maze);
+
+ maze_t* maze_make_eller(int x0, int y0, int width, int height);
+
+/* Source: byul/navsys/maze/maze_hunt_and_kill.h */
+navsys_status_t byul_maze_generate_hunt_and_kill(
+    int32_t origin_x,
+    int32_t origin_y,
+    uint32_t width,
+    uint32_t height,
+    const byul_maze_generate_options_t* options,
+    maze_t** out_maze);
+
+ maze_t* maze_make_hunt_and_kill(int x0, int y0, int width, int height);
+
+/* Source: byul/navsys/maze/maze_kruskal.h */
+navsys_status_t byul_maze_generate_randomized_kruskal(
+    int32_t origin_x,
+    int32_t origin_y,
+    uint32_t width,
+    uint32_t height,
+    const byul_maze_generate_options_t* options,
+    maze_t** out_maze);
+
+ maze_t* maze_make_kruskal(int x0, int y0, int width, int height);
+
+/* Source: byul/navsys/maze/maze_prim.h */
+navsys_status_t byul_maze_generate_randomized_prim(
+    int32_t origin_x,
+    int32_t origin_y,
+    uint32_t width,
+    uint32_t height,
+    const byul_maze_generate_options_t* options,
+    maze_t** out_maze);
+
+ maze_t* maze_maze_prim(int x0, int y0, int width, int height);
+
+/* Source: byul/navsys/maze/maze_recursive.h */
+navsys_status_t byul_maze_generate_recursive_backtracker(
+    int32_t origin_x,
+    int32_t origin_y,
+    uint32_t width,
+    uint32_t height,
+    const byul_maze_generate_options_t* options,
+    maze_t** out_maze);
+
+ maze_t* maze_make_recursive(int x0, int y0, int width, int height);
+
+/* Source: byul/navsys/maze/maze_recursive_division.h */
+navsys_status_t byul_maze_generate_recursive_division(
+    int32_t origin_x,
+    int32_t origin_y,
+    uint32_t width,
+    uint32_t height,
+    const byul_maze_generate_options_t* options,
+    maze_t** out_maze);
+
+ maze_t* maze_make_recursive_division(
+    int x0, int y0, int width, int height);
+
+/* Source: byul/navsys/maze/maze_room_blend.h */
+typedef struct s_room {
+    int x;
+    int y;
+    int w;
+    int h;
+} room_t;
+
+typedef struct s_byul_room_blend_options {
+    uint32_t struct_size;
+    uint32_t abi_version;
+    uint64_t seed;
+    uint64_t max_steps;
+    uint64_t max_cells;
+    uint32_t room_attempts;
+    uint32_t min_room_width;
+    uint32_t min_room_height;
+    uint32_t max_room_width;
+    uint32_t max_room_height;
+    uint32_t room_padding;
+    byul_maze_generate_cancel_func cancel_func;
+    void* cancel_userdata;
+} byul_room_blend_options_t;
+
+ navsys_status_t byul_maze_generate_room_blend(
+    int32_t origin_x,
+    int32_t origin_y,
+    uint32_t width,
+    uint32_t height,
+    const byul_room_blend_options_t* options,
+    maze_t** out_maze);
+
+ maze_t* maze_make_room_blend(int x0, int y0, int width, int height);
+
+/* Source: byul/navsys/maze/maze_sidewinder.h */
+typedef enum e_byul_maze_sidewinder_sweep {
+    BYUL_MAZE_SIDEWINDER_EAST_NORTH = 0,
+    BYUL_MAZE_SIDEWINDER_EAST_SOUTH = 1,
+    BYUL_MAZE_SIDEWINDER_WEST_NORTH = 2,
+    BYUL_MAZE_SIDEWINDER_WEST_SOUTH = 3
+} byul_maze_sidewinder_sweep_t;
+
+ navsys_status_t byul_maze_sidewinder_sweep_is_supported(
+    byul_maze_sidewinder_sweep_t sweep, bool* out_supported);
+
+ navsys_status_t byul_maze_generate_sidewinder(
+    int32_t origin_x,
+    int32_t origin_y,
+    uint32_t width,
+    uint32_t height,
+    byul_maze_sidewinder_sweep_t sweep,
+    const byul_maze_generate_options_t* options,
+    maze_t** out_maze);
+
+ maze_t* maze_make_sidewinder(int x0, int y0, int width, int height);
+
+/* Source: byul/navsys/maze/maze_wilson.h */
+navsys_status_t byul_maze_generate_wilson(
+    int32_t origin_x,
+    int32_t origin_y,
+    uint32_t width,
+    uint32_t height,
+    const byul_maze_generate_options_t* options,
+    maze_t** out_maze);
+
+ maze_t* maze_make_wilson(int x0, int y0, int width, int height);
 """)
 
 
@@ -233,6 +401,28 @@ def maze_algorithm_is_supported(algorithm):
     raise_for_status(
         C.byul_maze_algorithm_is_supported(algorithm, output),
         "byul_maze_algorithm_is_supported",
+    )
+    return bool(output[0])
+
+
+def maze_binary_bias_is_supported(bias):
+    """Return whether the Binary Tree generator supports a bias."""
+    _check_maze_abi()
+    output = ffi.new("bool*")
+    raise_for_status(
+        C.byul_maze_binary_bias_is_supported(bias, output),
+        "byul_maze_binary_bias_is_supported",
+    )
+    return bool(output[0])
+
+
+def maze_sidewinder_sweep_is_supported(sweep):
+    """Return whether the Sidewinder generator supports a sweep."""
+    _check_maze_abi()
+    output = ffi.new("bool*")
+    raise_for_status(
+        C.byul_maze_sidewinder_sweep_is_supported(sweep, output),
+        "byul_maze_sidewinder_sweep_is_supported",
     )
     return bool(output[0])
 
@@ -298,6 +488,462 @@ class c_maze:
         )
         return cls(raw_ptr=output[0], own=True)
 
+    @classmethod
+    def generate_binary_tree(
+        cls,
+        x0,
+        y0,
+        width,
+        height,
+        bias,
+        *,
+        seed,
+        max_steps=0,
+        max_cells=0,
+    ):
+        """Generate a deterministic perfect Binary Tree Maze."""
+        _check_maze_abi()
+        options = ffi.new(
+            "byul_maze_generate_options_t*",
+            dict(
+                struct_size=ffi.sizeof("byul_maze_generate_options_t"),
+                abi_version=MAZE_GENERATE_OPTIONS_ABI_VERSION,
+                seed=seed,
+                max_steps=max_steps,
+                max_cells=max_cells,
+                cancel_func=ffi.NULL,
+                cancel_userdata=ffi.NULL,
+            ),
+        )
+        output = ffi.new("maze_t**")
+        raise_for_status(
+            C.byul_maze_generate_binary_tree(
+                x0,
+                y0,
+                width,
+                height,
+                bias,
+                options,
+                output,
+            ),
+            "byul_maze_generate_binary_tree",
+        )
+        return cls(raw_ptr=output[0], own=True)
+
+    @classmethod
+    def generate_eller(
+        cls,
+        x0,
+        y0,
+        width,
+        height,
+        *,
+        seed,
+        max_steps=0,
+        max_cells=0,
+    ):
+        """Generate a deterministic perfect Eller Maze."""
+        _check_maze_abi()
+        options = ffi.new(
+            "byul_maze_generate_options_t*",
+            dict(
+                struct_size=ffi.sizeof("byul_maze_generate_options_t"),
+                abi_version=MAZE_GENERATE_OPTIONS_ABI_VERSION,
+                seed=seed,
+                max_steps=max_steps,
+                max_cells=max_cells,
+                cancel_func=ffi.NULL,
+                cancel_userdata=ffi.NULL,
+            ),
+        )
+        output = ffi.new("maze_t**")
+        raise_for_status(
+            C.byul_maze_generate_eller(
+                x0,
+                y0,
+                width,
+                height,
+                options,
+                output,
+            ),
+            "byul_maze_generate_eller",
+        )
+        return cls(raw_ptr=output[0], own=True)
+
+    @classmethod
+    def generate_hunt_and_kill(
+        cls,
+        x0,
+        y0,
+        width,
+        height,
+        *,
+        seed,
+        max_steps=0,
+        max_cells=0,
+    ):
+        """Generate a deterministic perfect Hunt-and-Kill Maze."""
+        _check_maze_abi()
+        options = ffi.new(
+            "byul_maze_generate_options_t*",
+            dict(
+                struct_size=ffi.sizeof("byul_maze_generate_options_t"),
+                abi_version=MAZE_GENERATE_OPTIONS_ABI_VERSION,
+                seed=seed,
+                max_steps=max_steps,
+                max_cells=max_cells,
+                cancel_func=ffi.NULL,
+                cancel_userdata=ffi.NULL,
+            ),
+        )
+        output = ffi.new("maze_t**")
+        raise_for_status(
+            C.byul_maze_generate_hunt_and_kill(
+                x0,
+                y0,
+                width,
+                height,
+                options,
+                output,
+            ),
+            "byul_maze_generate_hunt_and_kill",
+        )
+        return cls(raw_ptr=output[0], own=True)
+
+    @classmethod
+    def generate_wilson(
+        cls,
+        x0,
+        y0,
+        width,
+        height,
+        *,
+        seed,
+        max_steps=0,
+        max_cells=0,
+    ):
+        """Generate a deterministic uniform-spanning-tree Maze with Wilson's algorithm."""
+        _check_maze_abi()
+        options = ffi.new(
+            "byul_maze_generate_options_t*",
+            dict(
+                struct_size=ffi.sizeof("byul_maze_generate_options_t"),
+                abi_version=MAZE_GENERATE_OPTIONS_ABI_VERSION,
+                seed=seed,
+                max_steps=max_steps,
+                max_cells=max_cells,
+                cancel_func=ffi.NULL,
+                cancel_userdata=ffi.NULL,
+            ),
+        )
+        output = ffi.new("maze_t**")
+        raise_for_status(
+            C.byul_maze_generate_wilson(
+                x0,
+                y0,
+                width,
+                height,
+                options,
+                output,
+            ),
+            "byul_maze_generate_wilson",
+        )
+        return cls(raw_ptr=output[0], own=True)
+
+    @classmethod
+    def generate_aldous_broder(
+        cls,
+        x0,
+        y0,
+        width,
+        height,
+        *,
+        seed,
+        max_steps=0,
+        max_cells=0,
+    ):
+        """Generate a deterministic uniform-spanning-tree Maze with Aldous-Broder."""
+        _check_maze_abi()
+        options = ffi.new(
+            "byul_maze_generate_options_t*",
+            dict(
+                struct_size=ffi.sizeof("byul_maze_generate_options_t"),
+                abi_version=MAZE_GENERATE_OPTIONS_ABI_VERSION,
+                seed=seed,
+                max_steps=max_steps,
+                max_cells=max_cells,
+                cancel_func=ffi.NULL,
+                cancel_userdata=ffi.NULL,
+            ),
+        )
+        output = ffi.new("maze_t**")
+        raise_for_status(
+            C.byul_maze_generate_aldous_broder(
+                x0,
+                y0,
+                width,
+                height,
+                options,
+                output,
+            ),
+            "byul_maze_generate_aldous_broder",
+        )
+        return cls(raw_ptr=output[0], own=True)
+
+    @classmethod
+    def generate_sidewinder(
+        cls,
+        x0,
+        y0,
+        width,
+        height,
+        sweep,
+        *,
+        seed,
+        max_steps=0,
+        max_cells=0,
+    ):
+        """Generate a deterministic perfect Sidewinder Maze."""
+        _check_maze_abi()
+        options = ffi.new(
+            "byul_maze_generate_options_t*",
+            dict(
+                struct_size=ffi.sizeof("byul_maze_generate_options_t"),
+                abi_version=MAZE_GENERATE_OPTIONS_ABI_VERSION,
+                seed=seed,
+                max_steps=max_steps,
+                max_cells=max_cells,
+                cancel_func=ffi.NULL,
+                cancel_userdata=ffi.NULL,
+            ),
+        )
+        output = ffi.new("maze_t**")
+        raise_for_status(
+            C.byul_maze_generate_sidewinder(
+                x0,
+                y0,
+                width,
+                height,
+                sweep,
+                options,
+                output,
+            ),
+            "byul_maze_generate_sidewinder",
+        )
+        return cls(raw_ptr=output[0], own=True)
+
+    @classmethod
+    def generate_recursive_division(
+        cls,
+        x0,
+        y0,
+        width,
+        height,
+        *,
+        seed,
+        max_steps=0,
+        max_cells=0,
+    ):
+        """Generate a deterministic perfect Recursive Division Maze."""
+        _check_maze_abi()
+        options = ffi.new(
+            "byul_maze_generate_options_t*",
+            dict(
+                struct_size=ffi.sizeof("byul_maze_generate_options_t"),
+                abi_version=MAZE_GENERATE_OPTIONS_ABI_VERSION,
+                seed=seed,
+                max_steps=max_steps,
+                max_cells=max_cells,
+                cancel_func=ffi.NULL,
+                cancel_userdata=ffi.NULL,
+            ),
+        )
+        output = ffi.new("maze_t**")
+        raise_for_status(
+            C.byul_maze_generate_recursive_division(
+                x0,
+                y0,
+                width,
+                height,
+                options,
+                output,
+            ),
+            "byul_maze_generate_recursive_division",
+        )
+        return cls(raw_ptr=output[0], own=True)
+
+    @classmethod
+    def generate_randomized_kruskal(
+        cls,
+        x0,
+        y0,
+        width,
+        height,
+        *,
+        seed,
+        max_steps=0,
+        max_cells=0,
+    ):
+        """Generate a deterministic perfect randomized Kruskal Maze."""
+        _check_maze_abi()
+        options = ffi.new(
+            "byul_maze_generate_options_t*",
+            dict(
+                struct_size=ffi.sizeof("byul_maze_generate_options_t"),
+                abi_version=MAZE_GENERATE_OPTIONS_ABI_VERSION,
+                seed=seed,
+                max_steps=max_steps,
+                max_cells=max_cells,
+                cancel_func=ffi.NULL,
+                cancel_userdata=ffi.NULL,
+            ),
+        )
+        output = ffi.new("maze_t**")
+        raise_for_status(
+            C.byul_maze_generate_randomized_kruskal(
+                x0,
+                y0,
+                width,
+                height,
+                options,
+                output,
+            ),
+            "byul_maze_generate_randomized_kruskal",
+        )
+        return cls(raw_ptr=output[0], own=True)
+
+    @classmethod
+    def generate_randomized_prim(
+        cls,
+        x0,
+        y0,
+        width,
+        height,
+        *,
+        seed,
+        max_steps=0,
+        max_cells=0,
+    ):
+        """Generate a deterministic perfect randomized Prim Maze."""
+        _check_maze_abi()
+        options = ffi.new(
+            "byul_maze_generate_options_t*",
+            dict(
+                struct_size=ffi.sizeof("byul_maze_generate_options_t"),
+                abi_version=MAZE_GENERATE_OPTIONS_ABI_VERSION,
+                seed=seed,
+                max_steps=max_steps,
+                max_cells=max_cells,
+                cancel_func=ffi.NULL,
+                cancel_userdata=ffi.NULL,
+            ),
+        )
+        output = ffi.new("maze_t**")
+        raise_for_status(
+            C.byul_maze_generate_randomized_prim(
+                x0,
+                y0,
+                width,
+                height,
+                options,
+                output,
+            ),
+            "byul_maze_generate_randomized_prim",
+        )
+        return cls(raw_ptr=output[0], own=True)
+
+    @classmethod
+    def generate_recursive_backtracker(
+        cls,
+        x0,
+        y0,
+        width,
+        height,
+        *,
+        seed,
+        max_steps=0,
+        max_cells=0,
+    ):
+        """Generate a deterministic perfect depth-first backtracker Maze."""
+        _check_maze_abi()
+        options = ffi.new(
+            "byul_maze_generate_options_t*",
+            dict(
+                struct_size=ffi.sizeof("byul_maze_generate_options_t"),
+                abi_version=MAZE_GENERATE_OPTIONS_ABI_VERSION,
+                seed=seed,
+                max_steps=max_steps,
+                max_cells=max_cells,
+                cancel_func=ffi.NULL,
+                cancel_userdata=ffi.NULL,
+            ),
+        )
+        output = ffi.new("maze_t**")
+        raise_for_status(
+            C.byul_maze_generate_recursive_backtracker(
+                x0,
+                y0,
+                width,
+                height,
+                options,
+                output,
+            ),
+            "byul_maze_generate_recursive_backtracker",
+        )
+        return cls(raw_ptr=output[0], own=True)
+
+    @classmethod
+    def generate_room_blend(
+        cls,
+        x0,
+        y0,
+        width,
+        height,
+        *,
+        seed,
+        room_attempts=30,
+        min_room_width=3,
+        min_room_height=3,
+        max_room_width=7,
+        max_room_height=7,
+        room_padding=0,
+        max_steps=0,
+        max_cells=0,
+    ):
+        """Generate a deterministic room-and-corridor blended Maze."""
+        _check_maze_abi()
+        options = ffi.new(
+            "byul_room_blend_options_t*",
+            dict(
+                struct_size=ffi.sizeof("byul_room_blend_options_t"),
+                abi_version=ROOM_BLEND_OPTIONS_ABI_VERSION,
+                seed=seed,
+                max_steps=max_steps,
+                max_cells=max_cells,
+                room_attempts=room_attempts,
+                min_room_width=min_room_width,
+                min_room_height=min_room_height,
+                max_room_width=max_room_width,
+                max_room_height=max_room_height,
+                room_padding=room_padding,
+                cancel_func=ffi.NULL,
+                cancel_userdata=ffi.NULL,
+            ),
+        )
+        output = ffi.new("maze_t**")
+        raise_for_status(
+            C.byul_maze_generate_room_blend(
+                x0,
+                y0,
+                width,
+                height,
+                options,
+                output,
+            ),
+            "byul_maze_generate_room_blend",
+        )
+        return cls(raw_ptr=output[0], own=True)
+
     @property
     def extent(self):
         output = ffi.new("byul_maze_extent_t*")
@@ -311,6 +957,11 @@ class c_maze:
             int(output.width),
             int(output.height),
         )
+
+    @property
+    def hash(self):
+        """Return the deterministic blocked-coordinate hash."""
+        return int(C.maze_hash(self._c))
 
     def translate(self, delta_x, delta_y):
         raise_for_status(

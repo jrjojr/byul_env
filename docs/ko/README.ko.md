@@ -108,7 +108,7 @@ byul
 #include "byul_config.h"
 #include "numal.h"
 #include "number_theory.h"
-#include "navsys.h"
+#include "navsys_all.h"
 #include "balix.h"
 #include "entity.h"
 #include "projectile.h"
@@ -329,6 +329,11 @@ trajectory
 
 ## 예제: Route Finding
 
+`navsys.h`는 안정적인 one-shot search facade만 제공합니다. Maze, D* Lite planner,
+Route Carver 등 모든 Navsys component를 함께 쓰는 기존 코드는 `navsys_all.h`를
+명시적으로 include하십시오. 최상위 `byul.h`는 소스 호환성을 위해 이 aggregate를
+포함합니다.
+
 ```cpp
 TEST_CASE("navsys: find astar") {
     navgrid_t* navgrid = navgrid_create();
@@ -339,8 +344,17 @@ TEST_CASE("navsys: find astar") {
         navgrid_block_coord(navgrid, 5, y);
     }
 
-    route_t* route = navsys_find_astar(navgrid, &start, &goal);
-    CHECK(route_get_success(route) == true);
+    navsys_path_query_t query{};
+    REQUIRE(navsys_path_query_init(&query, navgrid, &start, &goal)
+        == NAVSYS_STATUS_OK);
+
+    route_t* route = nullptr;
+    navsys_search_stats_t stats{};
+    REQUIRE(navsys_find_path(&query, &route, &stats)
+        == NAVSYS_STATUS_OK);
+    CHECK(route != nullptr);
+    CHECK(stats.complete);
+    CHECK(stats.algorithm == ROUTE_FINDER_ASTAR);
 
     route_print(route);
     navgrid_print_ascii_with_route(navgrid, route, 2);

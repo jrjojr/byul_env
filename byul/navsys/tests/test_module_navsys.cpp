@@ -1,5 +1,5 @@
 #include "doctest.h"
-#include "navsys.h"
+#include "navsys_all.h"
 #include "console.h"
 
 #include <cstddef>
@@ -19,6 +19,10 @@ static float bound_heuristic(
 }
 
 static void bound_move(const coord_t*, void*) {}
+
+static bool always_cancel(void*) {
+    return true;
+}
 
 static coord_list_t* bound_changed_coords(void*) {
     return nullptr;
@@ -405,6 +409,141 @@ TEST_CASE("navsys: D* Lite rejects same-owner callback reentrancy") {
 
     dstar_lite_key_destroy(key);
     dstar_lite_destroy(dsl);
+    navgrid_destroy(navgrid);
+}
+
+TEST_CASE("navsys: canonical facade initializes queries and reports capabilities") {
+    navgrid_t* navgrid = navgrid_create_full(
+        4, 4, NAVGRID_DIR_8, is_coord_blocked_navgrid);
+    REQUIRE(navgrid != nullptr);
+    const coord_t start{0, 0};
+    const coord_t goal{3, 3};
+
+    navsys_path_query_t query{};
+    REQUIRE(navsys_path_query_init(&query, navgrid, &start, &goal)
+        == NAVSYS_STATUS_OK);
+    CHECK(query.struct_size == sizeof(query));
+    CHECK(query.version == NAVSYS_PATH_QUERY_VERSION);
+    CHECK(query.grid == navgrid);
+    CHECK(query.algorithm == ROUTE_FINDER_ASTAR);
+    CHECK(query.algorithm_config == nullptr);
+    CHECK(query.max_expansions == NAVSYS_DEFAULT_MAX_EXPANSIONS);
+
+    for (int value = ROUTE_FINDER_UNKNOWN;
+         value <= ROUTE_FINDER_MCTS; ++value) {
+        const auto algorithm = static_cast<route_finder_type_t>(value);
+        const bool expected = route_finder_is_supported(algorithm)
+            || algorithm == ROUTE_FINDER_DSTAR_LITE;
+        CHECK(navsys_is_algorithm_supported(algorithm) == expected);
+        if (algorithm != ROUTE_FINDER_UNKNOWN) {
+            navsys_algorithm_descriptor_t descriptor{};
+            REQUIRE(navsys_get_algorithm_descriptor(
+                algorithm, &descriptor) == NAVSYS_STATUS_OK);
+            CHECK(descriptor.struct_size == sizeof(descriptor));
+            CHECK(descriptor.version == NAVSYS_ALGORITHM_DESCRIPTOR_VERSION);
+            CHECK(descriptor.algorithm == algorithm);
+            CHECK(descriptor.supported == expected);
+            CHECK(descriptor.incremental
+                == (algorithm == ROUTE_FINDER_DSTAR_LITE));
+        }
+    }
+
+    navsys_algorithm_descriptor_t descriptor{};
+    descriptor.version = 77;
+    CHECK(navsys_get_algorithm_descriptor(
+        ROUTE_FINDER_UNKNOWN, &descriptor) == NAVSYS_STATUS_INVALID_ARGUMENT);
+    CHECK(descriptor.version == 77);
+
+    navsys_algorithm_config_t config{};
+    REQUIRE(navsys_algorithm_config_init(
+        &config, NAVSYS_ALGORITHM_CONFIG_WEIGHTED_ASTAR)
+        == NAVSYS_STATUS_OK);
+    CHECK(config.struct_size == sizeof(config));
+    CHECK(config.version == NAVSYS_ALGORITHM_CONFIG_VERSION);
+    CHECK(config.kind == NAVSYS_ALGORITHM_CONFIG_WEIGHTED_ASTAR);
+    CHECK(config.value.weighted_astar.weight == doctest::Approx(1.5f));
+
+    navgrid_destroy(navgrid);
+}
+
+TEST_CASE("navsys: canonical facade validates and commits documented outcomes") {
+    navgrid_t* navgrid = navgrid_create_full(
+        10, 10, NAVGRID_DIR_8, is_coord_blocked_navgrid);
+    REQUIRE(navgrid != nullptr);
+    const coord_t start{0, 0};
+    const coord_t goal{9, 9};
+
+    navsys_path_query_t query{};
+    REQUIRE(navsys_path_query_init(&query, navgrid, &start, &goal)
+        == NAVSYS_STATUS_OK);
+    route_t* route = reinterpret_cast<route_t*>(1);
+    navsys_search_stats_t stats{};
+    stats.status = NAVSYS_STATUS_CORRUPT_STATE;
+    REQUIRE(navsys_find_path(&query, &route, &stats) == NAVSYS_STATUS_OK);
+    REQUIRE(route != nullptr);
+    CHECK(route_get_success(route));
+    CHECK(stats.complete);
+    CHECK_FALSE(stats.partial);
+    CHECK(stats.algorithm == ROUTE_FINDER_ASTAR);
+    CHECK(stats.status == NAVSYS_STATUS_OK);
+    CHECK(stats.route_length == route_get_coord_count(route));
+    route_destroy(route);
+
+    route = reinterpret_cast<route_t*>(1);
+    stats.status = NAVSYS_STATUS_CORRUPT_STATE;
+    query.algorithm = ROUTE_FINDER_FAST_MARCHING;
+    CHECK(navsys_find_path(&query, &route, &stats)
+        == NAVSYS_STATUS_UNSUPPORTED);
+    CHECK(route == reinterpret_cast<route_t*>(1));
+    CHECK(stats.status == NAVSYS_STATUS_CORRUPT_STATE);
+
+    query.algorithm = ROUTE_FINDER_WEIGHTED_ASTAR;
+    navsys_algorithm_config_t config{};
+    REQUIRE(navsys_algorithm_config_init(
+        &config, NAVSYS_ALGORITHM_CONFIG_WEIGHTED_ASTAR)
+        == NAVSYS_STATUS_OK);
+    query.algorithm_config = &config;
+    route = nullptr;
+    REQUIRE(navsys_find_path(&query, &route, &stats) == NAVSYS_STATUS_OK);
+    REQUIRE(route != nullptr);
+    CHECK(stats.algorithm == ROUTE_FINDER_WEIGHTED_ASTAR);
+    route_destroy(route);
+
+    query.algorithm = ROUTE_FINDER_ASTAR;
+    query.algorithm_config = nullptr;
+    query.max_expansions = 1;
+    route = nullptr;
+    REQUIRE(navsys_find_path(&query, &route, &stats)
+        == NAVSYS_STATUS_LIMIT_REACHED);
+    CHECK(stats.status == NAVSYS_STATUS_LIMIT_REACHED);
+    route_destroy(route);
+
+    query.max_expansions = NAVSYS_DEFAULT_MAX_EXPANSIONS;
+    query.cancel_func = always_cancel;
+    route = nullptr;
+    REQUIRE(navsys_find_path(&query, &route, &stats)
+        == NAVSYS_STATUS_CANCELLED);
+    CHECK(stats.status == NAVSYS_STATUS_CANCELLED);
+    route_destroy(route);
+
+    query.cancel_func = nullptr;
+    query.algorithm = ROUTE_FINDER_DSTAR_LITE;
+    query.max_expansions = 0;
+    route = nullptr;
+    REQUIRE(navsys_find_path(&query, &route, &stats) == NAVSYS_STATUS_OK);
+    REQUIRE(route != nullptr);
+    CHECK(stats.complete);
+    CHECK(stats.algorithm == ROUTE_FINDER_DSTAR_LITE);
+    route_destroy(route);
+
+    query.version = NAVSYS_PATH_QUERY_VERSION + 1;
+    route = reinterpret_cast<route_t*>(1);
+    stats.status = NAVSYS_STATUS_CORRUPT_STATE;
+    CHECK(navsys_find_path(&query, &route, &stats)
+        == NAVSYS_STATUS_INVALID_ARGUMENT);
+    CHECK(route == reinterpret_cast<route_t*>(1));
+    CHECK(stats.status == NAVSYS_STATUS_CORRUPT_STATE);
+
     navgrid_destroy(navgrid);
 }
 

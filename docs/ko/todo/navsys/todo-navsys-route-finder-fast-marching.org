@@ -1,12 +1,12 @@
 #+TITLE: BYUL Navsys fast_marching.h 정밀 리팩터링 TODO
 #+TODO: TODO DOING BLOCKED | DONE CANCELLED FAILED
-#+TODO_RULES: ../../../../external/rules/projects/byul/todo-rules.org
-#+PUBLIC_API_RULES: ../../../../external/rules/projects/byul/public-api-rules.org
-#+HEADER_DECLARATION_RULES: ../../../../external/rules/projects/byul/header-declaration-rules.org
-#+HEADER_COMMENT_RULES: ../../../../external/rules/projects/byul/header-comment-rules.org
-#+HEADER_AUTHORING_RULES: ../../../../external/rules/projects/byul/header-authoring-rules.org
-#+BUILD_RULES: ../../../../external/rules/projects/byul/build-rules.org
-#+TEST_RULES: ../../../../external/rules/projects/byul/test-rules.org
+#+TODO_RULES: ../../../../external/rules_env/projects/byul/todo-rules.org
+#+PUBLIC_API_RULES: ../../../../external/rules_env/projects/byul/public-api-rules.org
+#+HEADER_DECLARATION_RULES: ../../../../external/rules_env/projects/byul/header-declaration-rules.org
+#+HEADER_COMMENT_RULES: ../../../../external/rules_env/projects/byul/header-comment-rules.org
+#+HEADER_AUTHORING_RULES: ../../../../external/rules_env/projects/byul/header-authoring-rules.org
+#+BUILD_RULES: ../../../../external/rules_env/projects/byul/build-rules.org
+#+TEST_RULES: ../../../../external/rules_env/projects/byul/test-rules.org
 #+TODO_PARENT: todo-리팩토링-navsys-headers.org
 #+INDUSTRY_API_BASELINE: todo-navsys-industry-api-baseline.org
 #+AUTHOR: ByulPapa / Codex
@@ -128,7 +128,7 @@ Distance field와 route extraction을 분리한다. 지원 topology/speed model�
 않으면 =UNSUPPORTED=다. Field export는 two-call caller-buffer 모델을 사용하고 internal hash/
 visit list pointer는 반환하지 않는다.
 
-* TODO 1단계: ABI와 수치 Conformance 기준선
+* DONE 1단계: ABI와 수치 Conformance 기준선
 
 ** 실행
 
@@ -145,7 +145,7 @@ visit list pointer는 반환하지 않는다.
 
 - analytic constant-speed distance, independent FMM reference와 cell별 error/tolerance를 비교한다.
 
-* TODO 2단계: Opaque field와 typed config 구현
+* DONE 2단계: Canonical conformance block와 legacy field 격리
 
 ** 실행
 
@@ -162,7 +162,7 @@ visit list pointer는 반환하지 않는다.
 
 - value/export/trace, NaN/Inf/negative speed, exact radius, cancel/OOM과 leak test를 실행한다.
 
-* TODO 3단계: Legacy/Wrapper/배포 Gate
+* DONE 3단계: Legacy/Wrapper/배포 Gate
 
 ** 실행
 

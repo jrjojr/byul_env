@@ -1,0 +1,42 @@
+{
+  "schema_version": 1,
+  "scope": "navsys-maze-wilson-stage2",
+  "status": "complete",
+  "source_revision": "ed5f1eb",
+  "canonical_api": {
+    "generator": "byul_maze_generate_wilson",
+    "options": "byul_maze_generate_options_t ABI version 1",
+    "output_contract": "out_maze is reset to NULL before validation and receives caller ownership only on success",
+    "default_step_budget": "saturating raster cell count times 256",
+    "status_contract": [
+      "NAVSYS_STATUS_OK",
+      "NAVSYS_STATUS_INVALID_ARGUMENT",
+      "NAVSYS_STATUS_UNSUPPORTED",
+      "NAVSYS_STATUS_OUT_OF_MEMORY",
+      "NAVSYS_STATUS_CALLBACK_FAILED",
+      "NAVSYS_STATUS_CANCELLED",
+      "NAVSYS_STATUS_LIMIT_REACHED",
+      "NAVSYS_STATUS_CORRUPT_STATE"
+    ]
+  },
+  "validation": {
+    "dimensions": "width and height are odd and at least 3",
+    "bounds": "the inclusive last coordinate must fit int32_t",
+    "max_cells": "checked before generation",
+    "cancellation": "polled before generation, on each walk step, and during raster materialization",
+    "exception_barrier": "bad_alloc maps to OUT_OF_MEMORY; other exceptions map to CORRUPT_STATE",
+    "failure_atomicity": "partial Maze output is destroyed and never published"
+  },
+  "compatibility": {
+    "legacy_symbol": "maze_make_wilson",
+    "legacy_policy": "deprecated ABI 1.x forward adapter",
+    "legacy_seed": "non-replayable process-local generation seed"
+  },
+  "verification": {
+    "windows_msvc_wilson_scope": "6/6 test cases and 57452/57452 assertions",
+    "allocation_fault_sweep": "all Wilson allocation failure points returned OUT_OF_MEMORY without leaks or partial output, followed by success",
+    "direct_dispatcher_replay": "four seeds, including zero and UINT64_MAX, matched direct replay and generic dispatcher output",
+    "seed_zero_hash": 424385079,
+    "pending_stage4": "root export snapshot, wrapper and installed SDK integration"
+  }
+}

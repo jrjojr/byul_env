@@ -347,6 +347,18 @@ ROLE_OVERRIDES: dict[str, tuple[str, str | None, str | None, str]] = {
         "navsys",
         "Generated-by-refactor status foundation shared by every Navsys public component.",
     ),
+    "byul/navsys/navsys.h": (
+        "public-module-entry",
+        "navsys",
+        "navsys",
+        "Canonical versioned one-shot path-search facade with ABI 1 forwarding helpers.",
+    ),
+    "byul/navsys/navsys_all.h": (
+        "public-aggregate",
+        "navsys",
+        "navsys",
+        "Explicit include-only aggregate for consumers that need every Navsys component.",
+    ),
     "byul/entity/entity_avoidance.h": (
         "deprecated-reference",
         "entity",
@@ -364,6 +376,12 @@ ROLE_OVERRIDES: dict[str, tuple[str, str | None, str | None, str]] = {
         "navsys",
         "dstar_lite",
         "Installed C++ implementation helpers move behind the D* Lite internal boundary; the old include path remains through ABI 1.x.",
+    ),
+    "byul/navsys/dstar_lite/dstar_lite_planner.h": (
+        "public-component",
+        "navsys",
+        "dstar_lite",
+        "Canonical status-based incremental D* Lite planner lifecycle.",
     ),
     "byul/navsys/maze/maze.h": (
         "public-aggregate",
@@ -388,6 +406,12 @@ ROLE_OVERRIDES: dict[str, tuple[str, str | None, str | None, str]] = {
         "navsys",
         "route_finder",
         "Public cost and heuristic callback/evaluation component, not a shared type foundation.",
+    ),
+    "byul/navsys/route_finder/route_finder_evaluation.h": (
+        "public-component",
+        "navsys",
+        "route_finder",
+        "Canonical status-based cost and heuristic evaluation component.",
     ),
     "byul/numal/dualquat.hpp": (
         "cpp-facade",
@@ -664,6 +688,7 @@ def naming_decision(row: dict[str, Any]) -> dict[str, Any]:
         "byul/navsys/coord/internal/coord_ops.hpp",
         "byul/navsys/dstar_lite/internal/dstar_lite_callback.hpp",
         "byul/navsys/dstar_lite/internal/dstar_lite_key_ops.hpp",
+        "byul/navsys/dstar_lite/internal/dstar_lite_planner.hpp",
         "byul/navsys/navgrid/internal/navgrid_callback.hpp",
         "byul/navsys/route/internal/route_internal.h",
     }:

@@ -1,0 +1,37 @@
+{
+  "schema_version": 1,
+  "scope": "navsys-maze-wilson-stage4",
+  "status": "complete",
+  "source_revision": "0846d00",
+  "public_surface": {
+    "canonical_symbol": "byul_maze_generate_wilson",
+    "legacy_symbol": "maze_make_wilson",
+    "legacy_policy": "deprecated ABI 1.x forward adapter; removal requires ABI 2 or later",
+    "header": "byul/navsys/maze/maze_wilson.h",
+    "wrapper_mode": "generated"
+  },
+  "build_matrix": {
+    "module_static": "build_maze_dispatcher_stage5_msvc Release maze/test_maze",
+    "root_shared": "build_header_refactor_current Release byul.dll",
+    "root_export_count": 1213,
+    "install_file_count": 113,
+    "install_header_count": 92,
+    "installed_header": "include/byul/maze_wilson.h"
+  },
+  "consumers": {
+    "wrapper": "c_maze.generate_wilson",
+    "wrapper_policy": "14/14 passed against the current root DLL",
+    "sdk_c": "clean-install C17 consumer built and ran",
+    "sdk_cpp": "clean-install C++17 consumer built and ran",
+    "sdk_fixture": "seed-zero 9x9 hash 424385079"
+  },
+  "verification": {
+    "root_msvc_release": "25/25 CTest targets passed",
+    "wilson_scope": "7/7 test cases and 57471/57471 assertions",
+    "gcc_sanitizers": "full test_maze and allocation-failure executable passed under ASan, LSan and UBSan",
+    "header_abi_audit": "150 headers, 95 public C headers, 1174 declarations, 0 invariant errors",
+    "wrapper_generation": "CFFI declarations are current",
+    "rules": "60 Org rule files, 0 errors and 0 warnings",
+    "build_snapshot": "msvc-release-build.json refreshed from the root DLL and clean install"
+  }
+}

@@ -1,4 +1,6 @@
+import gc
 import unittest
+import weakref
 
 from byul_wrapper.coord import c_coord
 from byul_wrapper.navgrid import c_navgrid, NavgridDirMode
@@ -27,9 +29,10 @@ class TestRouteFinder(unittest.TestCase):
     def test_capability_query(self):
         supported = c_route_finder.list_supported_route_finders()
 
-        self.assertEqual(11, len(supported))
+        self.assertEqual(6, len(supported))
         self.assertIn(RouteFinderType.ASTAR, supported)
         self.assertIn(RouteFinderType.WEIGHTED_ASTAR, supported)
+        self.assertNotIn(RouteFinderType.IDA_STAR, supported)
         self.assertNotIn(RouteFinderType.DSTAR_LITE, supported)
         self.assertFalse(
             c_route_finder.is_supported(RouteFinderType.BELLMAN_FORD)
@@ -149,6 +152,41 @@ class TestRouteFinder(unittest.TestCase):
         with self.assertRaisesRegex(RuntimeError, "cancel failed"):
             self.route_finder.find_ex(cancel=fail_cancel)
 
+    def test_status_callbacks_retain_userdata_and_surface_exceptions(self):
+        class Sentinel:
+            pass
+
+        userdata = Sentinel()
+        retained = weakref.ref(userdata)
+        calls = []
+
+        def cost(_grid, _from, _to, bound_userdata):
+            calls.append(bound_userdata)
+            return 1.0
+
+        self.route_finder.bind_cost_func(cost, userdata)
+        del userdata
+        gc.collect()
+        self.assertIsNotNone(retained())
+
+        status, route, _stats = self.route_finder.find_ex()
+        self.assertEqual(NavsysStatus.OK, status)
+        self.assertTrue(calls)
+        route.close()
+
+        calls.clear()
+        self.route_finder.unbind_cost_func()
+        gc.collect()
+        self.assertIsNone(retained())
+
+        def bad_heuristic(_from, _goal, _userdata):
+            raise RuntimeError("heuristic failed")
+
+        self.route_finder.bind_heuristic_func(bad_heuristic)
+        with self.assertRaisesRegex(RuntimeError, "heuristic failed"):
+            self.route_finder.find_ex()
+        self.route_finder.unbind_heuristic_func()
+
     def test_find_bfs(self):
         print('test_find_bfs')
         self.route_finder.set_type(RouteFinderType.BFS)
@@ -180,20 +218,12 @@ class TestRouteFinder(unittest.TestCase):
         c_console.print_ascii_with_visited_count(self.navgrid, route)        
 
     def test_find_fast_marching(self):
-        print('test_find_fast_marching')
-        #include "internal/fast_marching.h"
-        self.route_finder.set_type(RouteFinderType.FAST_MARCHING)
-        route = self.route_finder.find()
-        route.print()
-        c_console.print_ascii_with_visited_count(self.navgrid, route)        
+        with self.assertRaises(ValueError):
+            self.route_finder.set_type(RouteFinderType.FAST_MARCHING)
 
     def test_find_fringe_search(self):
-        print('test_find_fringe_search')
-        #include "internal/fringe_search.h"
-        self.route_finder.set_type(RouteFinderType.FRINGE_SEARCH)
-        route = self.route_finder.find()
-        route.print()
-        c_console.print_ascii_with_visited_count(self.navgrid, route)        
+        with self.assertRaises(ValueError):
+            self.route_finder.set_type(RouteFinderType.FRINGE_SEARCH)
 
     def test_find_greedy_best_first(self):
         print('test_find_greedy_best_first')
@@ -204,28 +234,16 @@ class TestRouteFinder(unittest.TestCase):
         c_console.print_ascii_with_visited_count(self.navgrid, route)        
 
     def test_find_ida_star(self):
-        print('test_find_ida_star')
-        #include "internal/ida_star.h"
-        self.route_finder.set_type(RouteFinderType.IDA_STAR)
-        route = self.route_finder.find()
-        route.print()
-        c_console.print_ascii_with_visited_count(self.navgrid, route)        
+        with self.assertRaises(ValueError):
+            self.route_finder.set_type(RouteFinderType.IDA_STAR)
 
     def test_find_rta_star(self):
-        print('test_find_rta_star')
-        #include "internal/rta_star.h"
-        self.route_finder.set_type(RouteFinderType.RTA_STAR)
-        route = self.route_finder.find()
-        route.print()
-        c_console.print_ascii_with_visited_count(self.navgrid, route)        
+        with self.assertRaises(ValueError):
+            self.route_finder.set_type(RouteFinderType.RTA_STAR)
 
     def test_find_sma_star(self):
-        print('test_find_sma_star')
-        #include "internal/sma_star.h"
-        self.route_finder.set_type(RouteFinderType.SMA_STAR)
-        route = self.route_finder.find()
-        route.print()
-        c_console.print_ascii_with_visited_count(self.navgrid, route)        
+        with self.assertRaises(ValueError):
+            self.route_finder.set_type(RouteFinderType.SMA_STAR)
 
     def test_find_weighted_astar(self):
         print('/.test_find_weighted_astar')

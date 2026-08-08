@@ -1,0 +1,73 @@
+{
+  "schema_version": 1,
+  "scope": "navsys-maze-sidewinder-stage2",
+  "status": "complete",
+  "source_revision": "17bd2a9",
+  "canonical_api": {
+    "generator": "byul_maze_generate_sidewinder",
+    "support_query": "byul_maze_sidewinder_sweep_is_supported",
+    "options": "byul_maze_generate_options_t ABI version 1",
+    "sweeps": [
+      "BYUL_MAZE_SIDEWINDER_EAST_NORTH",
+      "BYUL_MAZE_SIDEWINDER_EAST_SOUTH",
+      "BYUL_MAZE_SIDEWINDER_WEST_NORTH",
+      "BYUL_MAZE_SIDEWINDER_WEST_SOUTH"
+    ],
+    "output_contract": "out_maze is reset to NULL before validation and receives caller ownership only on success"
+  },
+  "algorithm": {
+    "lattice": "odd/odd logical cells with a blocked one-cell perimeter",
+    "boundary_row": "the logical row nearest the connection direction is one forced run corridor",
+    "later_rows": "each closed run opens exactly one uniformly selected connection to the preceding logical row",
+    "rng": "shared Maze PCG32 generation context with bounded draws",
+    "reflection": "equal seeds preserve exact horizontal and vertical raster reflection relationships across all four sweeps",
+    "compatibility": "EAST_NORTH preserves the corrected Stage 1 RNG draw order and raster hashes"
+  },
+  "validation": {
+    "dimensions": "width and height are odd and at least 3",
+    "bounds": "the inclusive last coordinate and each dimension must fit int32_t",
+    "max_cells": "checked before allocation",
+    "max_steps": "one step per logical cell; default is raster cells times 4",
+    "cancellation": "polled before generation, throughout raster materialization, and at every logical cell",
+    "exception_barrier": "bad_alloc maps to OUT_OF_MEMORY; other exceptions map to CORRUPT_STATE",
+    "failure_atomicity": "partial Maze output is never published"
+  },
+  "compatibility": {
+    "legacy_symbol": "maze_make_sidewinder",
+    "legacy_policy": "deprecated ABI 1.x adapter selecting EAST_NORTH",
+    "legacy_seed": "non-replayable process-local generation seed",
+    "generic_dispatcher": "BYUL_MAZE_ALGORITHM_SIDEWINDER continues to select EAST_NORTH"
+  },
+  "goldens": {
+    "origin": [-5, 8],
+    "extent": [9, 9],
+    "seed": 0,
+    "hashes": [915955447, 907534649, 464412339, 455990389]
+  },
+  "wrapper": {
+    "generator_manifest": "tools/python/byul_wrapper/generate_wrapper_abi.py",
+    "support_query": "maze_sidewinder_sweep_is_supported",
+    "high_level_entry": "c_maze.generate_sidewinder",
+    "policy_tests": "8/8 maze wrapper policy tests passed against the current MSVC Release DLL",
+    "generation_check": "generated CFFI declarations are up to date"
+  },
+  "root_shared": {
+    "profile": "msvc-x64-release",
+    "export_count": 1207,
+    "exports": [
+      "byul_maze_generate_sidewinder",
+      "byul_maze_sidewinder_sweep_is_supported",
+      "maze_make_sidewinder"
+    ],
+    "installed_header": "include/byul/maze_sidewinder.h"
+  },
+  "verification": {
+    "test_maze": "69/69 test cases, 132776/132776 assertions",
+    "test_navsys_allocation_failure": "exit 0",
+    "sdk_consumer": "clean-install C17 and C++17 consumers built and ran successfully",
+    "standalone_header": "clean-install MSVC C17 and C++17 probes passed",
+    "strict_header_audit": "150 headers, 95 public C headers, 1168 declarations, 0 invariant errors",
+    "navsys_abi_inventory": "58 headers, 652 symbols",
+    "rules": "60 Org rule files, 0 errors, 0 warnings"
+  }
+}

@@ -16,6 +16,7 @@
 #include <cstdint>
 
 #include "../maze.h"
+#include "../maze_binary.h"
 #include "../../coord/coord_hash.h"
 
 struct s_maze {
@@ -80,6 +81,45 @@ navsys_status_t byul_maze_generate_binary_internal(
     int32_t origin_y,
     uint32_t width,
     uint32_t height,
+    byul_maze_generation_context& context,
+    maze_t** out_maze) noexcept;
+
+struct byul_maze_recursive_stats {
+    uint64_t visited_cells;
+    uint64_t peak_frames;
+};
+
+navsys_status_t byul_maze_generate_recursive_profiled_internal(
+    int32_t origin_x,
+    int32_t origin_y,
+    uint32_t width,
+    uint32_t height,
+    byul_maze_generation_context& context,
+    byul_maze_recursive_stats* stats,
+    maze_t** out_maze) noexcept;
+
+struct byul_maze_prim_stats {
+    uint64_t frontier_pops;
+    uint64_t accepted_edges;
+    uint64_t stale_edges;
+    uint64_t peak_frontier;
+};
+
+navsys_status_t byul_maze_generate_prim_profiled_internal(
+    int32_t origin_x,
+    int32_t origin_y,
+    uint32_t width,
+    uint32_t height,
+    byul_maze_generation_context& context,
+    byul_maze_prim_stats* stats,
+    maze_t** out_maze) noexcept;
+
+navsys_status_t byul_maze_generate_binary_with_bias_internal(
+    int32_t origin_x,
+    int32_t origin_y,
+    uint32_t width,
+    uint32_t height,
+    byul_maze_binary_bias_t bias,
     byul_maze_generation_context& context,
     maze_t** out_maze) noexcept;
 

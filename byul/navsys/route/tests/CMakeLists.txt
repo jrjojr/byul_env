@@ -54,7 +54,6 @@ target_include_directories(${PROJECT_NAME} PRIVATE
 
     ${CMAKE_SOURCE_DIR}
     ${CMAKE_SOURCE_DIR}/core
-    ${CMAKE_SOURCE_DIR}/numal
     ${CMAKE_SOURCE_DIR}/console
 
     ${CMAKE_SOURCE_DIR}/navsys

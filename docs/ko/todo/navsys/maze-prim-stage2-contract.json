@@ -1,0 +1,67 @@
+{
+  "schema_version": 1,
+  "scope": "navsys-maze-randomized-prim-stage2",
+  "status": "complete",
+  "source_revision": "bae8ced",
+  "canonical_api": {
+    "generator": "byul_maze_generate_randomized_prim",
+    "options": "byul_maze_generate_options_t ABI version 1",
+    "output_contract": "out_maze is reset to NULL before validation and receives caller ownership only on success"
+  },
+  "algorithm": {
+    "lattice": "odd-coordinate logical cells with a blocked one-cell perimeter",
+    "frontier": "explicit wall and target coordinates in an indexed swap-pop bag",
+    "inventory": "each unique logical-grid edge is popped exactly once",
+    "selection": "uniform bounded selection over the current frontier",
+    "rng": "shared Maze PCG32 generation context; Stage 1 draw order and raster hashes are preserved",
+    "claim_boundary": "randomized frontier growth; no minimum-weight or uniform-spanning-tree guarantee"
+  },
+  "validation": {
+    "dimensions": "width and height are odd and at least 3",
+    "bounds": "the inclusive last coordinate and each dimension must fit int32_t",
+    "max_cells": "checked before allocation",
+    "max_steps": "one step per frontier pop; default is raster cells times 16",
+    "edge_count": "E must fit the bounded RNG uint32_t domain",
+    "cancellation": "polled before generation, at every frontier pop, and throughout raster materialization",
+    "exception_barrier": "bad_alloc maps to OUT_OF_MEMORY; callback exceptions map to CALLBACK_FAILED; other exceptions map to CORRUPT_STATE",
+    "failure_atomicity": "partial Maze output is never published"
+  },
+  "compatibility": {
+    "legacy_symbol": "maze_maze_prim",
+    "legacy_policy": "deprecated ABI 1.x typo adapter forwarding to the checked generator",
+    "legacy_seed": "non-replayable process-local generation seed",
+    "generic_dispatcher": "BYUL_MAZE_ALGORITHM_RANDOMIZED_PRIM produces the same raster for equal options"
+  },
+  "golden": {
+    "origin": [-5, 8],
+    "extent": [9, 9],
+    "seed": 0,
+    "hash": 857387639
+  },
+  "wrapper": {
+    "generator_manifest": "tools/python/byul_wrapper/generate_wrapper_abi.py",
+    "high_level_entry": "c_maze.generate_randomized_prim",
+    "policy_tests": "11/11 maze wrapper policy tests passed against the current MSVC Release DLL",
+    "generation_check": "generated CFFI declarations are up to date"
+  },
+  "root_shared": {
+    "profile": "msvc-x64-release",
+    "export_count": 1210,
+    "exports": [
+      "byul_maze_generate_randomized_prim",
+      "maze_maze_prim"
+    ],
+    "installed_header": "include/byul/maze_prim.h"
+  },
+  "verification": {
+    "test_maze": "91/91 test cases, 179840/179840 assertions",
+    "aggregate_root": "538/538 test cases, 186302/186302 assertions",
+    "test_navsys_allocation_failure": "exit 0",
+    "sanitizers": "GCC 13 ASan/LSan/UBSan 91/91 test cases, 179840/179840 assertions",
+    "sdk_consumer": "clean-install C17 and C++17 consumers built and ran successfully",
+    "standalone_header": "clean-install MSVC C17 and C++17 probes passed",
+    "strict_header_audit": "150 headers, 95 public C headers, 1171 declarations, 0 invariant errors",
+    "navsys_abi_inventory": "58 headers, 655 symbols",
+    "rules": "60 Org rule files, 0 errors, 0 warnings"
+  }
+}

@@ -11,9 +11,11 @@ set(${PROJECT_NAME}_SOURCES
     ${CMAKE_CURRENT_SOURCE_DIR}/dstar_lite_key.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/dstar_lite_pqueue.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/dstar_lite.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/dstar_lite_planner.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/dstar_lite_tick.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/internal/dstar_lite_callback.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/internal/dstar_lite_key_ops.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/internal/dstar_lite_planner.hpp
 
 CACHE INTERNAL "${PROJECT_NAME} source files"  FORCE
 )
@@ -23,6 +25,7 @@ set(${PROJECT_NAME}_HEADERS
     ${CMAKE_CURRENT_SOURCE_DIR}/dstar_lite_key.h
     ${CMAKE_CURRENT_SOURCE_DIR}/dstar_lite_pqueue.h
     ${CMAKE_CURRENT_SOURCE_DIR}/dstar_lite.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/dstar_lite_planner.h
     ${CMAKE_CURRENT_SOURCE_DIR}/dstar_lite_tick.h
 
 CACHE INTERNAL "${PROJECT_NAME} header files"  FORCE

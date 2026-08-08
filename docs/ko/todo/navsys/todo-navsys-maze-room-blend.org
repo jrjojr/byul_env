@@ -1,12 +1,12 @@
 #+TITLE: BYUL maze_room_blend.h 정밀 리팩터링 TODO
 #+TODO: TODO DOING BLOCKED | DONE CANCELLED FAILED
-#+TODO_RULES: ../../../../external/rules/projects/byul/todo-rules.org
-#+PUBLIC_API_RULES: ../../../../external/rules/projects/byul/public-api-rules.org
-#+HEADER_DECLARATION_RULES: ../../../../external/rules/projects/byul/header-declaration-rules.org
-#+HEADER_COMMENT_RULES: ../../../../external/rules/projects/byul/header-comment-rules.org
-#+HEADER_AUTHORING_RULES: ../../../../external/rules/projects/byul/header-authoring-rules.org
-#+BUILD_RULES: ../../../../external/rules/projects/byul/build-rules.org
-#+TEST_RULES: ../../../../external/rules/projects/byul/test-rules.org
+#+TODO_RULES: ../../../../external/rules_env/projects/byul/todo-rules.org
+#+PUBLIC_API_RULES: ../../../../external/rules_env/projects/byul/public-api-rules.org
+#+HEADER_DECLARATION_RULES: ../../../../external/rules_env/projects/byul/header-declaration-rules.org
+#+HEADER_COMMENT_RULES: ../../../../external/rules_env/projects/byul/header-comment-rules.org
+#+HEADER_AUTHORING_RULES: ../../../../external/rules_env/projects/byul/header-authoring-rules.org
+#+BUILD_RULES: ../../../../external/rules_env/projects/byul/build-rules.org
+#+TEST_RULES: ../../../../external/rules_env/projects/byul/test-rules.org
 #+TODO_PARENT: todo-리팩토링-navsys-headers.org
 #+LANGUAGE: ko
 #+OPTIONS: toc:3 num:nil
@@ -48,15 +48,17 @@
 #+begin_src c
 typedef struct byul_room_blend_options {
     uint32_t struct_size;
+    uint32_t abi_version;
+    uint64_t seed;
+    uint64_t max_steps;
+    uint64_t max_cells;
     uint32_t room_attempts;
     uint32_t min_room_width;
     uint32_t min_room_height;
     uint32_t max_room_width;
     uint32_t max_room_height;
     uint32_t room_padding;
-    uint64_t seed;
-    uint64_t max_steps;
-    navsys_cancel_func cancel_func;
+    byul_maze_generate_cancel_func cancel_func;
     void* cancel_userdata;
 } byul_room_blend_options_t;
 
@@ -95,7 +97,7 @@ BYUL_API navsys_status_t byul_maze_generate_room_blend(
   추가한다. 결과 connectivity/cycle/room reachability claim을 명확히 한다.
 - cancel은 placement attempt, corridor cell, DFS step, materialization마다 bounded poll한다.
 
-* TODO 1단계: crash·dead ABI·topology 기준선
+* DONE 1단계: crash·dead ABI·topology 기준선
 
 ** 실행
 
@@ -114,7 +116,7 @@ BYUL_API navsys_status_t byul_maze_generate_room_blend(
 - size 9..20, even/odd/rectangular dimensions와 all room-size RNG branches를 sanitizer로 실행한다.
 - header/install/export/wrapper consumer inventory를 비교한다.
 
-* TODO 2단계: versioned options와 deterministic placement
+* DONE 2단계: versioned options와 deterministic placement
 
 ** 실행
 
@@ -131,7 +133,7 @@ BYUL_API navsys_status_t byul_maze_generate_room_blend(
 
 - option boundary matrix, allocator fault, parallel calls/global RNG non-interference를 검사한다.
 
-* TODO 3단계: corridor·fill topology 정규화
+* DONE 3단계: corridor·fill topology 정규화
 
 ** 실행
 
@@ -149,7 +151,11 @@ BYUL_API navsys_status_t byul_maze_generate_room_blend(
 - 0/1/many room, touching/padding, rectangular and negative origin property tests를 실행한다.
 - graph component/cycle/room reachability oracle와 seed golden을 검사한다.
 
-* TODO 4단계: legacy API와 role migration
+** 완료 증거
+
+- =maze-room-blend-stage3-topology.json=
+
+* DONE 4단계: legacy API와 role migration
 
 ** 실행
 
@@ -167,7 +173,11 @@ BYUL_API navsys_status_t byul_maze_generate_room_blend(
 - old/new SDK consumer, dispatcher and direct call equality를 검사한다.
 - root export/install manifest를 비교한다.
 
-* TODO 5단계: Header·robustness gate
+** 완료 증거
+
+- =maze-room-blend-stage4-migration.json=
+
+* DONE 5단계: Header·robustness gate
 
 ** 실행
 
@@ -182,3 +192,7 @@ BYUL_API navsys_status_t byul_maze_generate_room_blend(
 
 - C17/C++17 standalone include, module/root/property/fault tests와 clean SDK consumer를 실행한다.
 - module static =BYUL_STATIC=과 root shared =BYUL_EXPORTS=에서 role migration 전후 export를 각각 검증한다.
+
+** 완료 증거
+
+- =maze-room-blend-stage5-closure.json=

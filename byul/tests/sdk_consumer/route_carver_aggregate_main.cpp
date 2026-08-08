@@ -1,4 +1,4 @@
-#include "navsys.h"
+#include "navsys_all.h"
 
 #include <cstddef>
 

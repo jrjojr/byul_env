@@ -1,5 +1,17 @@
-#ifndef IDA_STAR_H
-#define IDA_STAR_H
+/*
+ * Copyright (c) 2025-2026 ByulPapa (byuldev@outlook.kr)
+ * This file is part of the Byul World project.
+ * Licensed under the Byul World Source-Available Non-Commercial License v1.0 (2025).
+ * See the LICENSE file in the project root for full license terms.
+ */
+
+/**
+ * @file ida_star.h
+ * @brief Declares the legacy IDA* route search C ABI.
+ */
+
+#ifndef BYUL_IDA_STAR_H
+#define BYUL_IDA_STAR_H
 
 #include "route_finder_core.h"
 
@@ -37,14 +49,21 @@ extern "C" {
  *   - Using Manhattan distance might require only 88 iterations to reach the same goal.
  * - If you are unsure which heuristic to use, setting it to NULL is the safest choice.
  *
- * @param m               Map information.
- * @param start           Start coordinate.
- * @param goal            Goal coordinate.
- * @param cost_fn         Cost function for movement (can be NULL).
- * @param heuristic_fn    Heuristic function (can be NULL, defaults to Manhattan distance).
- * @param max_retry       Maximum number of iterations (0 or less means unlimited).
- * @param debug_mode_enabled Whether to log the visited path (true logs it to route->visited).
+ * @param[in] m               Map information.
+ * @param[in] start           Start coordinate.
+ * @param[in] goal            Goal coordinate.
+ * @param[in] cost_fn         Cost function for movement (can be NULL).
+ * @param[in] heuristic_fn    Heuristic function (can be NULL, defaults to Manhattan distance).
+ * @param[in] max_retry       Maximum number of iterations (0 or less means unlimited).
+ * @param[in] debug_mode_enabled Whether to log the visited path (true logs it to route->visited).
  * @return route_t*       The resulting path. If search fails, success == false.
+ * @byul.nullable m false
+ * @byul.nullable start false
+ * @byul.nullable goal false
+ * @byul.nullable cost_fn true
+ * @byul.nullable heuristic_fn true
+ * @byul.nullable return true
+ * @byul.lifetime return caller-owned
  */
 BYUL_API route_t* find_ida_star(const navgrid_t* m, 
     const coord_t* start, const coord_t* goal,
@@ -55,4 +74,4 @@ BYUL_API route_t* find_ida_star(const navgrid_t* m,
 }
 #endif
 
-#endif // IDA_STAR_H
+#endif /* BYUL_IDA_STAR_H */

@@ -44,10 +44,24 @@ MODULE_HEADERS: dict[str, tuple[str, ...]] = {
     "maze.py": (
         "navsys/maze/maze_core.h",
         "navsys/maze/maze.h",
+        "navsys/maze/maze_aldous_broder.h",
+        "navsys/maze/maze_binary.h",
+          "navsys/maze/maze_eller.h",
+          "navsys/maze/maze_hunt_and_kill.h",
+          "navsys/maze/maze_kruskal.h",
+          "navsys/maze/maze_prim.h",
+          "navsys/maze/maze_recursive.h",
+          "navsys/maze/maze_recursive_division.h",
+          "navsys/maze/maze_room_blend.h",
+          "navsys/maze/maze_sidewinder.h",
+          "navsys/maze/maze_wilson.h",
     ),
     "route_carver.py": ("navsys/route_carver/route_carver.h",),
     "route.py": ("navsys/route/route.h",),
-    "route_finder_common.py": ("navsys/route_finder/route_finder_core.h",),
+    "route_finder_common.py": (
+        "navsys/route_finder/route_finder_evaluation.h",
+        "navsys/route_finder/route_finder_core.h",
+    ),
     "route_finder.py": (
         "navsys/route_finder/route_finder.h",
         *tuple(
@@ -55,10 +69,19 @@ MODULE_HEADERS: dict[str, tuple[str, ...]] = {
             for path in sorted(
                 (BYUL_ROOT / "navsys" / "route_finder").glob("*.h")
             )
-            if path.name not in {"route_finder.h", "route_finder_core.h"}
+            if path.name
+            not in {
+                "route_finder.h",
+                "route_finder_core.h",
+                "route_finder_evaluation.h",
+            }
         ),
     ),
-    "dstar_lite.py": ("navsys/dstar_lite/dstar_lite.h",),
+    "navsys.py": ("navsys/navsys.h",),
+    "dstar_lite.py": (
+        "navsys/dstar_lite/dstar_lite_planner.h",
+        "navsys/dstar_lite/dstar_lite.h",
+    ),
     "console.py": (
         "console/console.h",
         "console/dstar_lite_console.h",

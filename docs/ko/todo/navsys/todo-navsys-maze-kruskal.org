@@ -1,12 +1,12 @@
 #+TITLE: BYUL maze_kruskal.h 정밀 리팩터링 TODO
 #+TODO: TODO DOING BLOCKED | DONE CANCELLED FAILED
-#+TODO_RULES: ../../../../external/rules/projects/byul/todo-rules.org
-#+PUBLIC_API_RULES: ../../../../external/rules/projects/byul/public-api-rules.org
-#+HEADER_DECLARATION_RULES: ../../../../external/rules/projects/byul/header-declaration-rules.org
-#+HEADER_COMMENT_RULES: ../../../../external/rules/projects/byul/header-comment-rules.org
-#+HEADER_AUTHORING_RULES: ../../../../external/rules/projects/byul/header-authoring-rules.org
-#+BUILD_RULES: ../../../../external/rules/projects/byul/build-rules.org
-#+TEST_RULES: ../../../../external/rules/projects/byul/test-rules.org
+#+TODO_RULES: ../../../../external/rules_env/projects/byul/todo-rules.org
+#+PUBLIC_API_RULES: ../../../../external/rules_env/projects/byul/public-api-rules.org
+#+HEADER_DECLARATION_RULES: ../../../../external/rules_env/projects/byul/header-declaration-rules.org
+#+HEADER_COMMENT_RULES: ../../../../external/rules_env/projects/byul/header-comment-rules.org
+#+HEADER_AUTHORING_RULES: ../../../../external/rules_env/projects/byul/header-authoring-rules.org
+#+BUILD_RULES: ../../../../external/rules_env/projects/byul/build-rules.org
+#+TEST_RULES: ../../../../external/rules_env/projects/byul/test-rules.org
 #+TODO_PARENT: todo-리팩토링-navsys-headers.org
 #+LANGUAGE: ko
 #+OPTIONS: toc:3 num:nil
@@ -64,7 +64,7 @@ BYUL_API navsys_status_t byul_maze_generate_randomized_kruskal(
 - accepted edge가 =V-1=이면 종료하고 component count와 considered/accepted stats를 기록한다.
 - seed/RNG/version, cancellation/edge-consideration limit과 output strong guarantee를 제공한다.
 
-* TODO 1단계: graph·DSU 기준선
+* DONE 1단계: graph·DSU 기준선
 
 ** 실행
 
@@ -82,7 +82,7 @@ BYUL_API navsys_status_t byul_maze_generate_randomized_kruskal(
 - 1xN/Nx1 logical grid, 3x3 logical grid의 exhaustive edge order를 검사한다.
 - UBSan으로 parent index/size overflow를 검사한다.
 
-* TODO 2단계: checked DSU와 seeded API
+* DONE 2단계: checked DSU와 seeded API
 
 ** 실행
 
@@ -100,7 +100,7 @@ BYUL_API navsys_status_t byul_maze_generate_randomized_kruskal(
 - allocator fault, cancellation before/after union, huge E 계산 overflow를 검사한다.
 - old/new golden result와 export를 비교한다.
 
-* TODO 3단계: 위상·분포·성능 gate
+* DONE 3단계: 위상·분포·성능 gate
 
 ** 실행
 
@@ -116,7 +116,7 @@ BYUL_API navsys_status_t byul_maze_generate_randomized_kruskal(
 
 - deterministic/property/statistical suite, ASan/LSan과 performance baseline을 실행한다.
 
-* TODO 4단계: Header·통합 gate
+* DONE 4단계: Header·통합 gate
 
 ** 실행
 

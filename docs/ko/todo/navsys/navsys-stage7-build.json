@@ -1,0 +1,52 @@
+{
+  "schema_version": 1,
+  "stage": "navsys-stage7-final-release-gate",
+  "result": "passed",
+  "platform_date": "2026-08-08",
+  "gates": {
+    "msvc_release_module_static": {
+      "target": "test_navsys",
+      "test_cases": 40,
+      "assertions": 46146,
+      "failed": 0
+    },
+    "allocation_failure": {
+      "target": "test_navsys_allocation_failure",
+      "output_preservation": "passed",
+      "leak_check": "passed"
+    },
+    "msvc_release_root_shared": {
+      "target": "test_byul",
+      "test_cases": 558,
+      "assertions": 187517,
+      "failed": 0,
+      "dll_size_bytes": 587776,
+      "dll_sha256": "050baefa4317f3f4dbf0877354dc8b32a45b5e72b6953fe3a8b7bedcbfb50630"
+    },
+    "wsl_sanitizers": {
+      "sanitizers": ["ASan", "LSan", "UBSan"],
+      "canonical_test_cases": 2,
+      "canonical_assertions": 331,
+      "allocation_fixture": "passed",
+      "failed": 0
+    },
+    "installed_sdk": {
+      "prefix": "build_navsys_stage7_install",
+      "languages": ["C17", "C++17"],
+      "consumer_executables": 12,
+      "failed": 0
+    },
+    "python_wrapper": {
+      "focused_tests": 9,
+      "concrete_modules_imported": 19,
+      "resolved_c_references": 360,
+      "missing_c_references": 0,
+      "generator_check": "passed"
+    },
+    "abi_inventory": {
+      "headers": 62,
+      "symbols": 708,
+      "check": "passed"
+    }
+  }
+}

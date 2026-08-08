@@ -1,12 +1,12 @@
 #+TITLE: BYUL Navsys rta_star.h 정밀 리팩터링 TODO
 #+TODO: TODO DOING BLOCKED | DONE CANCELLED FAILED
-#+TODO_RULES: ../../../../external/rules/projects/byul/todo-rules.org
-#+PUBLIC_API_RULES: ../../../../external/rules/projects/byul/public-api-rules.org
-#+HEADER_DECLARATION_RULES: ../../../../external/rules/projects/byul/header-declaration-rules.org
-#+HEADER_COMMENT_RULES: ../../../../external/rules/projects/byul/header-comment-rules.org
-#+HEADER_AUTHORING_RULES: ../../../../external/rules/projects/byul/header-authoring-rules.org
-#+BUILD_RULES: ../../../../external/rules/projects/byul/build-rules.org
-#+TEST_RULES: ../../../../external/rules/projects/byul/test-rules.org
+#+TODO_RULES: ../../../../external/rules_env/projects/byul/todo-rules.org
+#+PUBLIC_API_RULES: ../../../../external/rules_env/projects/byul/public-api-rules.org
+#+HEADER_DECLARATION_RULES: ../../../../external/rules_env/projects/byul/header-declaration-rules.org
+#+HEADER_COMMENT_RULES: ../../../../external/rules_env/projects/byul/header-comment-rules.org
+#+HEADER_AUTHORING_RULES: ../../../../external/rules_env/projects/byul/header-authoring-rules.org
+#+BUILD_RULES: ../../../../external/rules_env/projects/byul/build-rules.org
+#+TEST_RULES: ../../../../external/rules_env/projects/byul/test-rules.org
 #+TODO_PARENT: todo-리팩토링-navsys-headers.org
 #+INDUSTRY_API_BASELINE: todo-navsys-industry-api-baseline.org
 #+AUTHOR: ByulPapa / Codex
@@ -91,7 +91,7 @@ Heuristic learning table owner, reset/snapshot, per-action lookahead expansion b
 정한다. Full route =find_rta_star=는 step을 반복하는 compatibility adapter일 뿐 실시간 latency
 보장을 대신하지 않는다.
 
-* TODO 1단계: Missing Symbol과 이름 판정 Gate
+* DONE 1단계: Missing Symbol과 이름 판정 Gate
 
 ** 실행
 
@@ -109,7 +109,7 @@ Heuristic learning table owner, reset/snapshot, per-action lookahead expansion b
 
 - export/load, original-paper trace fixture와 adversarial heuristic depression map을 실행한다.
 
-* TODO 2단계: Stateful RTA*와 config 구현
+* DONE 2단계: Canonical conformance block와 missing config symbol 복구
 
 ** 실행
 
@@ -126,7 +126,7 @@ Heuristic learning table owner, reset/snapshot, per-action lookahead expansion b
 
 - lookahead depth boundary, repeated trials/learning convergence, dead-end, cancel/OOM과 userdata를 검사한다.
 
-* TODO 3단계: Legacy/Wrapper/배포 Gate
+* DONE 3단계: Legacy/Wrapper/배포 Gate
 
 ** 실행
 

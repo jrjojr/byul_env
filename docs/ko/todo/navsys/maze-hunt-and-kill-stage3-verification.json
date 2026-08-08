@@ -1,0 +1,43 @@
+{
+  "schema_version": 1,
+  "scope": "navsys-maze-hunt-and-kill-stage3",
+  "status": "complete",
+  "source_revision": "0145c261f3451bb09bd651a74e4fd01660a00dcd",
+  "path_equivalence": {
+    "direct": "byul_maze_generate_hunt_and_kill",
+    "dispatcher": "byul_maze_generate with BYUL_MAZE_ALGORITHM_HUNT_AND_KILL",
+    "seed_corpus": [0, 1, 17, "UINT64_MAX"],
+    "assertion": "direct, replay, and dispatcher blocked-raster hashes are identical",
+    "legacy": "maze_make_hunt_and_kill preserves blocked border, logical-cell connectivity, and N-1 edge topology"
+  },
+  "public_property_gate": {
+    "api": "byul_maze_generate_hunt_and_kill",
+    "seeds": "integer seeds 0 through 99",
+    "extent": [13, -21, 9, 9],
+    "requirements": [
+      "blocked outer border",
+      "open odd/odd logical cells",
+      "connected logical graph",
+      "edge count equals node count minus one"
+    ]
+  },
+  "termination_gate": {
+    "extents": [[3, 3], [3, 31], [31, 3], [31, 31]],
+    "seeds": "integer seeds 0 through 31 for each extent",
+    "assertion": "generation context step count equals the logical cell count exactly",
+    "reason": "the start owns one vertex; every outer iteration either adds one vertex or performs the single final no-candidate termination step"
+  },
+  "performance_decision": {
+    "current_complexity": "row-major hunt scanning remains worst-case O(V^2)",
+    "representative_gate": "32 seeds on a 15-by-15 logical lattice plus one-row and one-column lattices",
+    "optimization": "deferred",
+    "reason": "an indexed frontier would alter selection and RNG semantics; the bounded corpus terminates cleanly and no performance contract requires that compatibility break"
+  },
+  "verification": {
+    "windows_msvc_release": "62/62 test cases, 121567/121567 assertions",
+    "exact_step_case": "384/384 assertions",
+    "linux_profile": "Ubuntu WSL, GCC 13.3.0, Debug, ASan+LSan",
+    "linux_test_maze": "62/62 test cases, 121567/121567 assertions, no sanitizer or leak finding",
+    "linux_checkout": "/home/byulmama/byul_validation/maze-hunt-0145c26"
+  }
+}

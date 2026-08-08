@@ -1,0 +1,34 @@
+{
+  "schema_version": 1,
+  "scope": "navsys-maze-aldous-broder-stage1",
+  "status": "complete",
+  "source_revision": "54209e2",
+  "algorithm": {
+    "graph": "rectangular four-neighbor graph over odd/odd logical cells",
+    "start": "one uniformly selected logical cell",
+    "transition": "one uniformly selected valid neighbor",
+    "carve": "the traversed edge is opened only when its destination is first visited",
+    "termination": "the walk stops after all logical cells have been visited"
+  },
+  "trace_oracles": {
+    "3x3_raster": {"trace": [0], "first_entry_edges": []},
+    "5x5_raster": {
+      "trace": [0, 1, 0, 2, 3, 1],
+      "first_entry_edges": [[0, 1], [0, 2], [2, 3]]
+    },
+    "9x9_raster": {
+      "logical_nodes": 16,
+      "reference_trace": "serpentine Hamiltonian walk",
+      "first_entry_edge_count": 15
+    }
+  },
+  "failure_inventory": {
+    "allocations": ["maze", "raster grid", "visited vector", "blocked-coordinate storage"],
+    "exception_barrier": "bad_alloc and other C++ exceptions are already mapped by the internal status generator",
+    "pending": "public checked direct API, allocation fault sweep, root export and consumers"
+  },
+  "verification": {
+    "windows_msvc_release": "1/1 trace case and 105/105 assertions",
+    "dispatcher": "BYUL_MAZE_ALGORITHM_ALDOUS_BRODER already routes to the same internal generator"
+  }
+}

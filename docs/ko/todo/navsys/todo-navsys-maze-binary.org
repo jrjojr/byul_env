@@ -1,12 +1,21 @@
 #+TITLE: BYUL maze_binary.h 정밀 리팩터링 TODO
 #+TODO: TODO DOING BLOCKED | DONE CANCELLED FAILED
-#+TODO_RULES: ../../../../external/rules/projects/byul/todo-rules.org
-#+PUBLIC_API_RULES: ../../../../external/rules/projects/byul/public-api-rules.org
-#+HEADER_DECLARATION_RULES: ../../../../external/rules/projects/byul/header-declaration-rules.org
-#+HEADER_COMMENT_RULES: ../../../../external/rules/projects/byul/header-comment-rules.org
-#+HEADER_AUTHORING_RULES: ../../../../external/rules/projects/byul/header-authoring-rules.org
-#+BUILD_RULES: ../../../../external/rules/projects/byul/build-rules.org
-#+TEST_RULES: ../../../../external/rules/projects/byul/test-rules.org
+#+TODO_STATUS: DONE
+#+RELEASE_NOTE_REQUIRED: yes
+#+RELEASE_CHANGE_KIND: feature
+#+RELEASE_LEVEL: minor
+#+RELEASE_TARGET: both
+#+RELEASE_TITLE: 결정적 bias 지정 Binary Tree Maze 생성 API
+#+RELEASE_GOAL: caller가 seed, 방향 bias, resource budget과 취소 정책을 명시해 perfect Maze를 replay할 수 있게 한다.
+#+RELEASE_BREAKING: no
+#+HELP_UPDATE_REQUIRED: no
+#+TODO_RULES: ../../../../external/rules_env/projects/byul/todo-rules.org
+#+PUBLIC_API_RULES: ../../../../external/rules_env/projects/byul/public-api-rules.org
+#+HEADER_DECLARATION_RULES: ../../../../external/rules_env/projects/byul/header-declaration-rules.org
+#+HEADER_COMMENT_RULES: ../../../../external/rules_env/projects/byul/header-comment-rules.org
+#+HEADER_AUTHORING_RULES: ../../../../external/rules_env/projects/byul/header-authoring-rules.org
+#+BUILD_RULES: ../../../../external/rules_env/projects/byul/build-rules.org
+#+TEST_RULES: ../../../../external/rules_env/projects/byul/test-rules.org
 #+TODO_PARENT: todo-리팩토링-navsys-headers.org
 #+LANGUAGE: ko
 #+OPTIONS: toc:3 num:nil
@@ -77,7 +86,7 @@ BYUL_API navsys_status_t byul_maze_generate_binary_tree(
 - RNG는 caller seed를 사용하고 각 two-choice가 unbiased여야 한다. 경계 forced choice는 RNG를
   소비할지 여부까지 golden contract에 포함한다.
 
-* TODO 1단계: bias와 lattice 기준선
+* DONE 1단계: bias와 lattice 기준선
 
 ** 실행
 
@@ -95,7 +104,14 @@ BYUL_API navsys_status_t byul_maze_generate_binary_tree(
 - 네 bias 각각 작은 hand-authored grid의 root/border corridor를 검사한다.
 - invalid/even/overflow dimension을 test한다.
 
-* TODO 2단계: 옵션·status API 구현
+** 결과
+
+- [[file:maze-binary-stage1-baseline.json][maze-binary-stage1-baseline.json]]에 좌표계, RNG draw 순서,
+  3x3/5x5 blocked hash, 네 bias의 hand-authored graph edge와 consumer inventory를 기록했다.
+- =test_module_maze.cpp=가 seed 1의 네 bias raster와 hash, border, connectivity,
+  =N-1= edge oracle, invalid/even/overflow extent를 검증한다.
+
+* DONE 2단계: 옵션·status API 구현
 
 ** 실행
 
@@ -112,7 +128,16 @@ BYUL_API navsys_status_t byul_maze_generate_binary_tree(
 
 - old/new consumer, all bias/seed golden과 allocator fault test를 실행한다.
 
-* TODO 3단계: 위상·편향 test
+** 결과
+
+- =byul_maze_generate_binary_tree=와 bias support query를 추가하고 legacy entry는
+  =SOUTH_EAST= 비결정 adapter로 유지했다.
+- [[file:maze-binary-stage2-contract.json][maze-binary-stage2-contract.json]]에 status/options, export, wrapper와
+  allocation-failure 검증을 기록했다.
+- MSVC Release module/root build, native old/new consumer, Python wrapper와 전용 allocation
+  failure fixture를 통과했다.
+
+* DONE 3단계: 위상·편향 test
 
 ** 실행
 
@@ -129,7 +154,21 @@ BYUL_API navsys_status_t byul_maze_generate_binary_tree(
 
 - deterministic corpus, statistical non-flaky suite와 ASan/LSan을 실행한다.
 
-* TODO 4단계: Header·통합 gate
+** 결과
+
+- 4개 bias와 seed =0,1,17,UINT64_MAX=의 9x9 raster hash, blocked border,
+  connectivity와 정확한 =N-1= edge, root row/column corridor를 고정했다.
+- 각 bias에서 seed 512개와 internal two-choice 4,608개를 검사했고 horizontal
+  2,326개(50.477%)가 비결정성 없는 43~57% gate를 통과했다. 이 결과는 biased
+  perfect tree의 RNG guard이며 UST 표본 주장이 아니다.
+- raster 9/17/33에서 step =N=, cancel poll =1+width*height+N=을 확인하고
+  =max_steps=N-1=과 poll 83 취소가 partial output 없이 종료됨을 검증했다.
+- MSVC Release와 Virtual Yard GCC 13.3 Debug ASan/LSan 전체 Maze suite가 각각
+  51 cases/119,609 assertions로 통과했고 sanitizer 오류와 leak은 없었다.
+- [[file:maze-binary-stage3-contract.json][maze-binary-stage3-contract.json]]에 bias/seed/hash provenance, 통계 범위와
+  O(width*height) 시간·저장공간 budget을 기록했다.
+
+* DONE 4단계: Header·통합 gate
 
 ** 실행
 
@@ -144,3 +183,24 @@ BYUL_API navsys_status_t byul_maze_generate_binary_tree(
 
 - C17/C++17 standalone compile, static/root tests와 SDK consumer를 실행한다.
 - module static =BYUL_STATIC=과 root shared =BYUL_EXPORTS=에서 legacy/canonical export를 각각 검증한다.
+
+** 결과
+
+- =maze_binary.h=에 bias 좌표 의미, PCG32 draw/replay, perfect-tree와 non-UST 경계,
+  실패 시 NULL output, ownership, thread/reentrancy, O(width*height) 계약을 기록했다.
+  Generation options의 실제 소유 header가 =maze.h=이므로 component는 이 direct dependency를
+  유지하며 =maze_core.h=만 include하는 잘못된 축소는 standalone compile gate로 거부했다.
+- MSVC Release와 Virtual Yard GCC 13.3 Debug에서 =BYUL_STATIC= module archive와
+  =BYUL_EXPORTS= root shared가 support query, canonical generator, legacy adapter 세 symbol을
+  각각 한 번씩 정의/export했다.
+- 새 Windows/Linux clean SDK에서 C17/C++17 direct consumer가 support query, 네이티브 생성,
+  legacy 생성과 destroy를 link/run했다. Linux 소비자는 ASan/LSan root와 같은 계측 profile로
+  실행해 sanitizer 오류와 leak 없이 종료했다.
+- MSVC와 GCC ASan/LSan =test_maze=는 각각 51 cases/119,609 assertions를 통과했다.
+  Strict header audit와 targeted wrapper header audit은 오류 0, generated CFFI =--check=,
+  wrapper native 5 tests와 generator/parser 11 tests도 통과했다.
+- [[file:maze-binary-stage4-contract.json][maze-binary-stage4-contract.json]]에 설치 header, dispatcher/wrapper manifest,
+  static/root symbol, SDK consumer와 release-note 후보 근거를 기록했다. Legacy
+  =maze_make_binary=는 SOUTH_EAST 비결정 adapter로 유지되는 non-breaking minor feature다.
+- 저장소 전체 wrapper audit의 unrelated 기존 문서 부채와 로컬 macOS 미실행은 증적에
+  제한으로 명시했으며, 현재 =maze_binary.h= 자체의 targeted issue는 0이다.

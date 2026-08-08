@@ -1,12 +1,14 @@
 #+TITLE: BYUL maze_aldous_broder.h 정밀 리팩터링 TODO
+#+RELEASE_TITLE: Deterministic checked Aldous-Broder Maze generation API
+#+RELEASE_GOAL: Callers can replay a uniform-spanning-tree Maze with explicit seed, resource budgets, cancellation, and failure status.
 #+TODO: TODO DOING BLOCKED | DONE CANCELLED FAILED
-#+TODO_RULES: ../../../../external/rules/projects/byul/todo-rules.org
-#+PUBLIC_API_RULES: ../../../../external/rules/projects/byul/public-api-rules.org
-#+HEADER_DECLARATION_RULES: ../../../../external/rules/projects/byul/header-declaration-rules.org
-#+HEADER_COMMENT_RULES: ../../../../external/rules/projects/byul/header-comment-rules.org
-#+HEADER_AUTHORING_RULES: ../../../../external/rules/projects/byul/header-authoring-rules.org
-#+BUILD_RULES: ../../../../external/rules/projects/byul/build-rules.org
-#+TEST_RULES: ../../../../external/rules/projects/byul/test-rules.org
+#+TODO_RULES: ../../../../external/rules_env/projects/byul/todo-rules.org
+#+PUBLIC_API_RULES: ../../../../external/rules_env/projects/byul/public-api-rules.org
+#+HEADER_DECLARATION_RULES: ../../../../external/rules_env/projects/byul/header-declaration-rules.org
+#+HEADER_COMMENT_RULES: ../../../../external/rules_env/projects/byul/header-comment-rules.org
+#+HEADER_AUTHORING_RULES: ../../../../external/rules_env/projects/byul/header-authoring-rules.org
+#+BUILD_RULES: ../../../../external/rules_env/projects/byul/build-rules.org
+#+TEST_RULES: ../../../../external/rules_env/projects/byul/test-rules.org
 #+TODO_PARENT: todo-리팩토링-navsys-headers.org
 #+LANGUAGE: ko
 #+OPTIONS: toc:3 num:nil
@@ -77,7 +79,7 @@ BYUL_API navsys_status_t byul_maze_generate_aldous_broder(
   engine/version/platform matrix에 한정한다.
 - cancel은 walk와 blocked materialization 양쪽에서 bounded interval로 poll한다.
 
-* TODO 1단계: 원 알고리즘과 현행 trace 동결
+* DONE 1단계: 원 알고리즘과 현행 trace 동결
 
 ** 실행
 
@@ -95,7 +97,7 @@ BYUL_API navsys_status_t byul_maze_generate_aldous_broder(
 - fixed injected RNG trace를 수작업 reference tree와 비교한다.
 - enum dispatcher와 direct 함수의 결과 contract가 일치하는지 검사한다.
 
-* TODO 2단계: seed·budget·status API 추가
+* DONE 2단계: seed·budget·status API 추가
 
 ** 실행
 
@@ -113,7 +115,7 @@ BYUL_API navsys_status_t byul_maze_generate_aldous_broder(
 - seed 0/MAX, 1-cell graph, huge dimensions, fault index별 test와 ASan/LSan을 실행한다.
 - legacy/new export와 wrapper audit exclusion 사유를 검사한다.
 
-* TODO 3단계: topology와 확률 품질 검증
+* DONE 3단계: topology와 확률 품질 검증
 
 ** 실행
 
@@ -131,7 +133,7 @@ BYUL_API navsys_status_t byul_maze_generate_aldous_broder(
 - deterministic property corpus와 별도 statistical suite를 실행한다.
 - sanitizer와 cancel latency 상한 test를 실행한다.
 
-* TODO 4단계: Header·통합 gate
+* DONE 4단계: Header·통합 gate
 
 ** 실행
 

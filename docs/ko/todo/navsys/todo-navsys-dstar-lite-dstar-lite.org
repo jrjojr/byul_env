@@ -1,12 +1,12 @@
 #+TITLE: BYUL Navsys dstar_lite.h 정밀 리팩토링 TODO
 #+TODO: TODO DOING BLOCKED | DONE CANCELLED FAILED
-#+TODO_RULES: ../../../../external/rules/projects/byul/todo-rules.org
-#+PUBLIC_API_RULES: ../../../../external/rules/projects/byul/public-api-rules.org
-#+HEADER_DECLARATION_RULES: ../../../../external/rules/projects/byul/header-declaration-rules.org
-#+HEADER_COMMENT_RULES: ../../../../external/rules/projects/byul/header-comment-rules.org
-#+HEADER_AUTHORING_RULES: ../../../../external/rules/projects/byul/header-authoring-rules.org
-#+BUILD_RULES: ../../../../external/rules/projects/byul/build-rules.org
-#+TEST_RULES: ../../../../external/rules/projects/byul/test-rules.org
+#+TODO_RULES: ../../../../external/rules_env/projects/byul/todo-rules.org
+#+PUBLIC_API_RULES: ../../../../external/rules_env/projects/byul/public-api-rules.org
+#+HEADER_DECLARATION_RULES: ../../../../external/rules_env/projects/byul/header-declaration-rules.org
+#+HEADER_COMMENT_RULES: ../../../../external/rules_env/projects/byul/header-comment-rules.org
+#+HEADER_AUTHORING_RULES: ../../../../external/rules_env/projects/byul/header-authoring-rules.org
+#+BUILD_RULES: ../../../../external/rules_env/projects/byul/build-rules.org
+#+TEST_RULES: ../../../../external/rules_env/projects/byul/test-rules.org
 #+TODO_PARENT: todo-리팩토링-navsys-headers.org
 #+AUTHOR: ByulPapa / Codex
 #+LANGUAGE: ko
@@ -413,7 +413,7 @@ opaque planner, atomic callback binding, owned route result, typed status/stats�
 
 * 구현 순서
 
-** TODO 1단계: ABI, owner graph와 algorithm characterization
+** DONE 1단계: ABI, owner graph와 algorithm characterization
 
 *** 실행
 
@@ -433,7 +433,7 @@ opaque planner, atomic callback binding, owned route result, typed status/stats�
 - ABI layout/symbol fixture, old SDK consumer와 현행 characterization suite를 실행한다.
 - 원 논문 trace에서 init key/stale-key/loop-condition 차이가 의도대로 실패하는지 확인한다.
 
-** TODO 2단계: key/open-list Gate 합류와 core algorithm 교정
+** DONE 2단계: key/open-list Gate 합류와 core algorithm 교정
 
 *** 실행
 
@@ -455,7 +455,7 @@ opaque planner, atomic callback binding, owned route result, typed status/stats�
 - branch-complete paper trace와 작은 directed graph exhaustive comparison을 실행한다.
 - property test, sanitizer와 allocation-failure test를 static/root 양쪽에서 실행한다.
 
-** TODO 3단계: explicit edge update와 reconstruction 교정
+** DONE 3단계: explicit edge update와 reconstruction 교정
 
 *** 실행
 
@@ -472,7 +472,7 @@ opaque planner, atomic callback binding, owned route result, typed status/stats�
 - edge increase/decrease/obstacle/start-move sequence를 매번 full recomputation과 비교한다.
 - unreachable/limit/cancel/reconstruction-bound가 올바른 status/stats를 반환하는지 검사한다.
 
-** TODO 4단계: opaque lifecycle와 public replan API 추가
+** DONE 4단계: opaque lifecycle와 public replan API 추가
 
 *** 실행
 
@@ -492,7 +492,7 @@ opaque planner, atomic callback binding, owned route result, typed status/stats�
   concurrent misuse test를 실행한다.
 - ABI 1 old/new symbol과 output ownership fixture를 실행한다.
 
-** TODO 5단계: orchestration 분리와 legacy forwarding
+** DONE 5단계: orchestration 분리와 legacy forwarding
 
 *** 실행
 
@@ -512,7 +512,7 @@ opaque planner, atomic callback binding, owned route result, typed status/stats�
 - deterministic fake-clock orchestration과 old source consumer를 실행한다.
 - forbidden legacy call/source scan과 ABI export 비교를 실행한다.
 
-** TODO 6단계: wrapper 재생성과 lifetime 수정
+** DONE 6단계: wrapper 재생성과 lifetime 수정
 
 *** 실행
 
@@ -530,7 +530,7 @@ opaque planner, atomic callback binding, owned route result, typed status/stats�
 - wrapper audit/check/native load, Python GC/close/callback exception/cancel/no-path/route tests를
   ASan/LSan root shared에서 실행한다.
 
-** TODO 7단계: ABI 2 opaque 전환과 통합 release gate
+** CANCELLED 7단계: ABI 2 opaque 전환과 통합 release gate
 
 *** 실행
 
@@ -549,3 +549,15 @@ opaque planner, atomic callback binding, owned route result, typed status/stats�
 - ABI 1 old binary/source와 ABI 2 source fixture를 별도 runtime에 실행한다.
 - Linux/macOS/Windows C17/C++17, static/root shared, sanitizer, wrapper, exhaustive reference
   suite와 =git diff --check=를 모두 통과한다.
+
+*** 이관 사유
+
+- 현재 release는 ABI 1 additive 단계다. 공개 struct 제거는 기존 binary/source 호환성을
+  깨뜨리므로 ABI 2.0 major 승인 gate로 이관했다. 이번 단계에서는 sidecar 기반 opaque
+  lifecycle과 migration accessor를 추가하고 기존 layout/symbol을 보존했다.
+
+* Stage 5 완료 증거
+
+- [[file:dstar-lite-stage5-build.json][빌드·테스트 증거]]
+- [[file:dstar-lite-stage5-header-audit.json][공개 계약 audit]]
+- [[file:dstar-lite-stage5-closure.json][요구사항 closure 및 ABI 2 이관 계약]]

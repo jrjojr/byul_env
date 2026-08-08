@@ -10,7 +10,7 @@
     "errors": 0,
     "warnings": 0,
     "command": [
-      "external/rules/validate_rules.bat"
+      "external/rules_env/validate_rules.bat"
     ]
   },
   "header_baseline": {

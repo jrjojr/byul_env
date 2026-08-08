@@ -5,6 +5,8 @@
     #include "coord.h"
     #include "route.h"
     #include "route_finder.h"
+    #include "route_finder_evaluation.h"
+    #include "rta_star.h"
     #include "console.h"
 // }
 
@@ -14,6 +16,7 @@
 #include <stdexcept>
 
 extern "C" int route_finder_c_abi_reports_type_supported(int type_value);
+extern "C" int route_finder_c_abi_exercises_stage4_symbols(void);
 
 struct cancel_fixture {
     int calls;
@@ -28,6 +31,43 @@ static bool cancel_after_n_polls(void* userdata) {
 
 static bool throwing_cancel(void*) {
     throw std::runtime_error("cancel callback failure");
+}
+
+static float unit_cost_with_userdata(
+    const navgrid_t*, const coord_t*, const coord_t*, void* userdata) {
+    return userdata ? *static_cast<const float*>(userdata) : -1.0f;
+}
+
+static float zero_heuristic_with_userdata(
+    const coord_t*, const coord_t*, void* userdata) {
+    return userdata ? *static_cast<const float*>(userdata) : -1.0f;
+}
+
+struct evaluation_fixture {
+    int cost_calls;
+    int heuristic_calls;
+    float cost;
+    float heuristic;
+    navsys_status_t status;
+};
+
+static navsys_status_t checked_cost(
+    const navgrid_t*, const coord_t*, const coord_t*, float* out_cost,
+    void* userdata) {
+    evaluation_fixture* fixture =
+        static_cast<evaluation_fixture*>(userdata);
+    ++fixture->cost_calls;
+    *out_cost = fixture->cost;
+    return fixture->status;
+}
+
+static navsys_status_t checked_heuristic(
+    const coord_t*, const coord_t*, float* out_estimate, void* userdata) {
+    evaluation_fixture* fixture =
+        static_cast<evaluation_fixture*>(userdata);
+    ++fixture->heuristic_calls;
+    *out_estimate = fixture->heuristic;
+    return fixture->status;
 }
 
 static void check_route_stats_contract(
@@ -93,12 +133,7 @@ TEST_CASE("route finder capability query matches the dispatcher") {
         ROUTE_FINDER_BFS,
         ROUTE_FINDER_DFS,
         ROUTE_FINDER_DIJKSTRA,
-        ROUTE_FINDER_FAST_MARCHING,
-        ROUTE_FINDER_FRINGE_SEARCH,
         ROUTE_FINDER_GREEDY_BEST_FIRST,
-        ROUTE_FINDER_IDA_STAR,
-        ROUTE_FINDER_RTA_STAR,
-        ROUTE_FINDER_SMA_STAR,
         ROUTE_FINDER_WEIGHTED_ASTAR,
     };
 
@@ -110,9 +145,16 @@ TEST_CASE("route finder capability query matches the dispatcher") {
             std::find(std::begin(supported), std::end(supported), type) !=
             std::end(supported);
         CHECK(route_finder_is_supported(type) == expected);
+        CHECK(route_finder_is_type_supported(type) == expected);
+        CHECK(route_finder_type_get_name(type) != nullptr);
+        if (type != ROUTE_FINDER_UNKNOWN)
+            CHECK(std::string(route_finder_type_get_name(type)) != "unknown");
+        CHECK(std::string(get_route_finder_name(type)) ==
+            route_finder_type_get_name(type));
     }
 
     CHECK(route_finder_c_abi_reports_type_supported(-1) == 0);
+    CHECK(route_finder_c_abi_exercises_stage4_symbols() == 1);
     CHECK_FALSE(route_finder_is_supported(
         static_cast<route_finder_type_t>(ROUTE_FINDER_MCTS + 1)));
 }
@@ -219,6 +261,158 @@ TEST_CASE("checked settings and run_ex preserve outputs on errors") {
     navgrid_destroy(navgrid);
 }
 
+TEST_CASE("RTA star legacy config constructors provide their promised ABI") {
+    rta_star_config_t* defaults = rta_star_config_create();
+    REQUIRE(defaults != nullptr);
+    CHECK(defaults->depth_limit == 5);
+
+    rta_star_config_t* configured = rta_star_config_create_full(7);
+    REQUIRE(configured != nullptr);
+    CHECK(configured->depth_limit == 7);
+    CHECK(rta_star_config_create_full(0) == nullptr);
+
+    rta_star_config_destroy(defaults);
+    rta_star_config_destroy(configured);
+    rta_star_config_destroy(nullptr);
+}
+
+TEST_CASE("status evaluation bindings retain userdata and reject bad values") {
+    navgrid_t* navgrid = navgrid_create();
+    REQUIRE(navgrid != nullptr);
+    route_finder_t* finder = route_finder_create(navgrid);
+    REQUIRE(finder != nullptr);
+    const coord_t goal = {3, 3};
+    route_finder_set_goal(finder, &goal);
+
+    evaluation_fixture fixture = {0, 0, 1.0f, 0.0f, NAVSYS_STATUS_OK};
+    REQUIRE(route_finder_bind_cost_func_ex(
+        finder, checked_cost, &fixture) == NAVSYS_STATUS_OK);
+    REQUIRE(route_finder_bind_heuristic_func_ex(
+        finder, checked_heuristic, &fixture) == NAVSYS_STATUS_OK);
+
+    route_t* route = nullptr;
+    route_finder_run_stats_t stats = {};
+    REQUIRE(route_finder_run_ex(finder, &route, &stats) == NAVSYS_STATUS_OK);
+    CHECK(fixture.cost_calls > 0);
+    CHECK(fixture.heuristic_calls > 0);
+    route_destroy(route);
+
+    route = reinterpret_cast<route_t*>(1);
+    stats = {91, 92, 93.0f, true, true};
+    fixture.cost = std::numeric_limits<float>::quiet_NaN();
+    CHECK(route_finder_run_ex(finder, &route, &stats)
+        == NAVSYS_STATUS_CALLBACK_FAILED);
+    CHECK(route == reinterpret_cast<route_t*>(1));
+    CHECK(stats.total_retry_count == 91);
+
+    fixture.cost = 1.0f;
+    fixture.status = NAVSYS_STATUS_INVALID_ARGUMENT;
+    CHECK(route_finder_run_ex(finder, &route, &stats)
+        == NAVSYS_STATUS_CALLBACK_FAILED);
+    CHECK(route == reinterpret_cast<route_t*>(1));
+
+    REQUIRE(route_finder_unbind_cost_func(finder) == NAVSYS_STATUS_OK);
+    REQUIRE(route_finder_unbind_heuristic_func(finder) == NAVSYS_STATUS_OK);
+    fixture.status = NAVSYS_STATUS_OK;
+    fixture.cost_calls = 0;
+    fixture.heuristic_calls = 0;
+    route = nullptr;
+    stats = {};
+    REQUIRE(route_finder_run_ex(finder, &route, &stats) == NAVSYS_STATUS_OK);
+    CHECK(fixture.cost_calls == 0);
+    CHECK(fixture.heuristic_calls == 0);
+    route_destroy(route);
+
+    route_finder_destroy(finder);
+    navgrid_destroy(navgrid);
+}
+
+TEST_CASE("init_full retains both callback userdata values") {
+    navgrid_t* navgrid = navgrid_create();
+    REQUIRE(navgrid != nullptr);
+    const coord_t start = {0, 0};
+    const coord_t goal = {2, 2};
+    float cost_userdata = 1.0f;
+    float heuristic_userdata = 0.0f;
+    route_finder_t finder = {};
+
+    REQUIRE(route_finder_init_full(
+        &finder, navgrid, &start, &goal, ROUTE_FINDER_ASTAR, nullptr,
+        100, false, unit_cost_with_userdata, &cost_userdata,
+        zero_heuristic_with_userdata, &heuristic_userdata) == 0);
+    CHECK(route_finder_get_cost_fn_userdata(&finder) == &cost_userdata);
+    CHECK(route_finder_get_heuristic_fn_userdata(&finder)
+        == &heuristic_userdata);
+
+    route_finder_free(&finder);
+    navgrid_destroy(navgrid);
+}
+
+TEST_CASE("canonical evaluation functions validate inputs and units") {
+    navgrid_t* navgrid = navgrid_create_full(
+        4, 4, NAVGRID_DIR_8, is_coord_blocked_navgrid);
+    REQUIRE(navgrid != nullptr);
+    const coord_t origin = {0, 0};
+    const coord_t diagonal = {1, 1};
+    const coord_t goal = {3, 4};
+    float value = -7.0f;
+
+    CHECK(route_finder_cost_unit(
+        navgrid, &origin, &diagonal, &value, nullptr) == NAVSYS_STATUS_OK);
+    CHECK(value == doctest::Approx(1.0f));
+    CHECK(route_finder_cost_diagonal(
+        navgrid, &origin, &diagonal, &value, nullptr) == NAVSYS_STATUS_OK);
+    CHECK(value == doctest::Approx(1.41421356237f));
+
+    value = -7.0f;
+    CHECK(route_finder_heuristic_euclidean(
+        &origin, &goal, &value, nullptr) == NAVSYS_STATUS_OK);
+    CHECK(value == doctest::Approx(5.0f));
+    CHECK(route_finder_heuristic_manhattan(
+        &origin, &goal, &value, nullptr) == NAVSYS_STATUS_OK);
+    CHECK(value == doctest::Approx(7.0f));
+    CHECK(route_finder_heuristic_chebyshev(
+        &origin, &goal, &value, nullptr) == NAVSYS_STATUS_OK);
+    CHECK(value == doctest::Approx(4.0f));
+    CHECK(route_finder_heuristic_default(
+        &origin, &goal, &value, nullptr) == NAVSYS_STATUS_OK);
+    CHECK(value == doctest::Approx(0.0f));
+
+    value = 13.0f;
+    CHECK(route_finder_cost_unit(
+        nullptr, &origin, &diagonal, &value, nullptr)
+        == NAVSYS_STATUS_INVALID_ARGUMENT);
+    CHECK(value == doctest::Approx(13.0f));
+    CHECK(route_finder_heuristic_euclidean(
+        nullptr, &goal, &value, nullptr)
+        == NAVSYS_STATUS_INVALID_ARGUMENT);
+    CHECK(value == doctest::Approx(13.0f));
+
+    navgrid_destroy(navgrid);
+}
+
+TEST_CASE("IDA star dispatch does not mutate the bound heuristic") {
+    navgrid_t* navgrid = navgrid_create();
+    REQUIRE(navgrid != nullptr);
+    route_finder_t* finder = route_finder_create(navgrid);
+    REQUIRE(finder != nullptr);
+    const coord_t goal = {3, 3};
+    float zero = 0.0f;
+    route_finder_set_goal(finder, &goal);
+    REQUIRE(route_finder_bind_heuristic_func(
+        finder, zero_heuristic_with_userdata, &zero) == NAVSYS_STATUS_OK);
+    route_finder_set_type(finder, ROUTE_FINDER_IDA_STAR);
+
+    route_t* route = route_finder_run(finder);
+    REQUIRE(route != nullptr);
+    CHECK(route_finder_get_heuristic_func(finder)
+        == zero_heuristic_with_userdata);
+
+    route_destroy(route);
+    route_finder_destroy(finder);
+    navgrid_destroy(navgrid);
+}
+
 TEST_CASE("run_ex separates success no-path and limit termination") {
     navgrid_t* navgrid = navgrid_create();
     REQUIRE(navgrid != nullptr);
@@ -285,12 +479,7 @@ TEST_CASE("run options cooperatively cancel every dispatcher algorithm") {
         ROUTE_FINDER_BFS,
         ROUTE_FINDER_DFS,
         ROUTE_FINDER_DIJKSTRA,
-        ROUTE_FINDER_FAST_MARCHING,
-        ROUTE_FINDER_FRINGE_SEARCH,
         ROUTE_FINDER_GREEDY_BEST_FIRST,
-        ROUTE_FINDER_IDA_STAR,
-        ROUTE_FINDER_RTA_STAR,
-        ROUTE_FINDER_SMA_STAR,
         ROUTE_FINDER_WEIGHTED_ASTAR,
     };
     navgrid_t* navgrid = navgrid_create();

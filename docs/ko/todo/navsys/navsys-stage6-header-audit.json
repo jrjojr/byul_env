@@ -1,0 +1,28 @@
+{
+  "schema_version": 1,
+  "scope": "navsys-stage6-canonical-public-contracts",
+  "audit_tool": "tools/python/byul_wrapper/byul_wrapper_generator/header_parser.py:audit_header",
+  "summary": {
+    "headers": 2,
+    "declarations": 17,
+    "errors": 0
+  },
+  "headers": [
+    {
+      "path": "byul/navsys/navsys.h",
+      "declarations": 17,
+      "errors": 0
+    },
+    {
+      "path": "byul/navsys/navsys_all.h",
+      "declarations": 0,
+      "errors": 0
+    }
+  ],
+  "global_baseline": {
+    "headers": 46,
+    "declarations": 707,
+    "errors": 270,
+    "note": "Unrelated pre-existing repository-wide documentation debt is outside Stage 6 scope."
+  }
+}

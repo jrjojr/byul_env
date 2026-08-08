@@ -1,0 +1,53 @@
+{
+  "schema_version": 1,
+  "scope": "navsys-maze-room-blend-stage4",
+  "status": "complete",
+  "source_revision": "2cdb658",
+  "role_decision": {
+    "decision": "keep as a public Maze component",
+    "reason": "the generator returns maze_t, participates in the Maze dispatcher and shares the common generation, topology and install contracts; a separate dungeon module would add a second public ownership boundary without a distinct result type",
+    "header_role": "public-component",
+    "room_t": "preserve the 16-byte ABI 1 layout through ABI 1.x; internalize only at an ABI-major boundary",
+    "room_t_sdk_layout": "sizeof 16, alignof 4, x/y/w/h offsets 0/4/8/12"
+  },
+  "legacy_adapter": {
+    "symbol": "maze_make_room_blend",
+    "status": "deprecated but exported through ABI 1.x",
+    "forwarding_target": "byul_maze_generate_room_blend",
+    "explicit_options": "30 attempts, 3..7 odd width and height, padding 0, nondeterministic legacy seed, default limits",
+    "removal_boundary": "ABI 2 or later"
+  },
+  "equivalence": {
+    "checked_dispatcher": "BYUL_MAZE_ALGORITHM_ROOM_BLEND",
+    "checked_direct": "byul_maze_generate_room_blend",
+    "fixture": "origin (-11,6), extent 21x15, seed 17, legacy room policy",
+    "result": "cell-equal raster and equal hash"
+  },
+  "wrapper": {
+    "legacy_surface": "low-level generated CFFI declaration only for ABI compatibility",
+    "high_level_surface": "c_maze.generate_room_blend uses only the canonical checked API",
+    "exclusion_reason": "the legacy API has hidden policy and a non-replayable seed",
+    "generation_check": "generated declarations are up to date"
+  },
+  "release_candidate": {
+    "kind": "compatibility",
+    "level": "minor",
+    "breaking": false,
+    "note": "Room Blend legacy creation now forwards through the checked canonical implementation and is deprecated for a future ABI-major removal."
+  },
+  "distribution": {
+    "root_shared_exports": 1212,
+    "required_symbols": [
+      "byul_maze_generate_room_blend",
+      "maze_make_room_blend"
+    ],
+    "clean_install_headers": 92,
+    "sdk_consumers": "C17 and C++17 compile, layout and old/new runtime probes passed"
+  },
+  "verification": {
+    "room_blend_scope": "10/10 cases, 3058/3058 assertions",
+    "root_shared_build": "MSVC Release byul and test_byul targets built",
+    "wrapper_check": "CFFI declarations are up to date",
+    "known_unrelated_audit_debt": "the repository-wide wrapper --audit --all-headers gate reports pre-existing non-Maze metadata debt; the scoped strict header audit remains the authoritative Maze gate"
+  }
+}

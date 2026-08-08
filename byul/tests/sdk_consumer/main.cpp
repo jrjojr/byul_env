@@ -8,6 +8,16 @@
 #include "coord_hash.h"
 #include "cost_coord_pq.h"
 #include "maze_core.h"
+#include "maze_aldous_broder.h"
+#include "maze_eller.h"
+#include "maze_hunt_and_kill.h"
+#include "maze_kruskal.h"
+#include "maze_prim.h"
+#include "maze_recursive.h"
+#include "maze_recursive_division.h"
+#include "maze_room_blend.h"
+#include "maze_wilson.h"
+#include "maze_sidewinder.h"
 #include "navcell.h"
 #include "navgrid.h"
 #include "obstacle.h"
@@ -59,6 +69,13 @@ static bool equal_coord_hash_int(
 }
 
 int main() {
+    static_assert(std::is_standard_layout_v<room_t>);
+    static_assert(sizeof(room_t) == 16);
+    static_assert(alignof(room_t) == 4);
+    static_assert(offsetof(room_t, x) == 0);
+    static_assert(offsetof(room_t, y) == 4);
+    static_assert(offsetof(room_t, w) == 8);
+    static_assert(offsetof(room_t, h) == 12);
     static_assert(std::is_same_v<
         decltype(&byul_maze_translate),
         navsys_status_t (*)(maze_t*, int32_t, int32_t)>);
@@ -482,6 +499,156 @@ int main() {
         checked_maze, &maze_blocked_count) == NAVSYS_STATUS_OK);
     assert(maze_blocked_count == 1);
     maze_destroy(checked_maze);
+
+    const byul_maze_generate_options_t eller_options{
+        sizeof(byul_maze_generate_options_t),
+        BYUL_MAZE_GENERATE_OPTIONS_ABI_VERSION,
+        UINT64_C(0),
+        UINT64_C(16),
+        UINT64_C(81),
+        nullptr,
+        nullptr
+    };
+    maze_t* eller = nullptr;
+    assert(byul_maze_generate_eller(
+        -5, 8, 9, 9, &eller_options, &eller) == NAVSYS_STATUS_OK);
+    assert(eller != nullptr);
+    assert(maze_hash(eller) == UINT32_C(789167229));
+    maze_destroy(eller);
+
+    const byul_maze_generate_options_t hunt_and_kill_options{
+        sizeof(byul_maze_generate_options_t),
+        BYUL_MAZE_GENERATE_OPTIONS_ABI_VERSION,
+        UINT64_C(0),
+        UINT64_C(1296),
+        UINT64_C(81),
+        nullptr,
+        nullptr
+    };
+    maze_t* hunt_and_kill = nullptr;
+    assert(byul_maze_generate_hunt_and_kill(
+        -5, 8, 9, 9, &hunt_and_kill_options, &hunt_and_kill)
+        == NAVSYS_STATUS_OK);
+    assert(hunt_and_kill != nullptr);
+    assert(maze_hash(hunt_and_kill) == UINT32_C(26398801));
+    maze_destroy(hunt_and_kill);
+
+    const byul_maze_generate_options_t wilson_options{
+        sizeof(byul_maze_generate_options_t),
+        BYUL_MAZE_GENERATE_OPTIONS_ABI_VERSION,
+        UINT64_C(0),
+        UINT64_C(20736),
+        UINT64_C(81),
+        nullptr,
+        nullptr
+    };
+    maze_t* wilson = nullptr;
+    assert(byul_maze_generate_wilson(
+        -5, 8, 9, 9, &wilson_options, &wilson) == NAVSYS_STATUS_OK);
+    assert(wilson != nullptr);
+    assert(maze_hash(wilson) == UINT32_C(424385079));
+    maze_destroy(wilson);
+
+    const byul_maze_generate_options_t aldous_broder_options{
+        sizeof(byul_maze_generate_options_t),
+        BYUL_MAZE_GENERATE_OPTIONS_ABI_VERSION,
+        UINT64_C(0),
+        UINT64_C(20736),
+        UINT64_C(81),
+        nullptr,
+        nullptr
+    };
+    maze_t* aldous_broder = nullptr;
+    assert(byul_maze_generate_aldous_broder(
+        -5, 8, 9, 9, &aldous_broder_options, &aldous_broder)
+        == NAVSYS_STATUS_OK);
+    assert(aldous_broder != nullptr);
+    assert(maze_hash(aldous_broder) == UINT32_C(744322881));
+    maze_destroy(aldous_broder);
+
+    const byul_maze_generate_options_t sidewinder_options{
+        sizeof(byul_maze_generate_options_t),
+        BYUL_MAZE_GENERATE_OPTIONS_ABI_VERSION,
+        UINT64_C(0),
+        UINT64_C(64),
+        UINT64_C(81),
+        nullptr,
+        nullptr
+    };
+    bool sidewinder_supported = false;
+    assert(byul_maze_sidewinder_sweep_is_supported(
+        BYUL_MAZE_SIDEWINDER_WEST_SOUTH, &sidewinder_supported)
+        == NAVSYS_STATUS_OK);
+    assert(sidewinder_supported);
+    maze_t* sidewinder = nullptr;
+    assert(byul_maze_generate_sidewinder(
+        -5, 8, 9, 9, BYUL_MAZE_SIDEWINDER_WEST_SOUTH,
+        &sidewinder_options, &sidewinder) == NAVSYS_STATUS_OK);
+    assert(sidewinder != nullptr);
+    assert(maze_hash(sidewinder) == UINT32_C(455990389));
+    maze_destroy(sidewinder);
+
+    const byul_maze_generate_options_t recursive_division_options{
+        sizeof(byul_maze_generate_options_t),
+        BYUL_MAZE_GENERATE_OPTIONS_ABI_VERSION,
+        UINT64_C(0),
+        UINT64_C(64),
+        UINT64_C(81),
+        nullptr,
+        nullptr
+    };
+    maze_t* recursive_division = nullptr;
+    assert(byul_maze_generate_recursive_division(
+        -5, 8, 9, 9, &recursive_division_options, &recursive_division)
+        == NAVSYS_STATUS_OK);
+    assert(recursive_division != nullptr);
+    assert(maze_hash(recursive_division) == UINT32_C(669558005));
+    maze_destroy(recursive_division);
+
+    maze_t* randomized_kruskal = nullptr;
+    assert(byul_maze_generate_randomized_kruskal(
+        -5, 8, 9, 9, &recursive_division_options, &randomized_kruskal)
+        == NAVSYS_STATUS_OK);
+    assert(randomized_kruskal != nullptr);
+    assert(maze_hash(randomized_kruskal) == UINT32_C(73237245));
+    maze_destroy(randomized_kruskal);
+
+    maze_t* randomized_prim = nullptr;
+    assert(byul_maze_generate_randomized_prim(
+        -5, 8, 9, 9, &recursive_division_options, &randomized_prim)
+        == NAVSYS_STATUS_OK);
+    assert(randomized_prim != nullptr);
+    assert(maze_hash(randomized_prim) == UINT32_C(857387639));
+    maze_destroy(randomized_prim);
+
+    maze_t* recursive_backtracker = nullptr;
+    assert(byul_maze_generate_recursive_backtracker(
+        -5, 8, 9, 9, &recursive_division_options, &recursive_backtracker)
+        == NAVSYS_STATUS_OK);
+    assert(recursive_backtracker != nullptr);
+    assert(maze_hash(recursive_backtracker) == UINT32_C(303425655));
+    maze_destroy(recursive_backtracker);
+
+    const byul_room_blend_options_t room_options{
+        sizeof(byul_room_blend_options_t),
+        BYUL_ROOM_BLEND_OPTIONS_ABI_VERSION,
+        UINT64_C(0),
+        UINT64_C(1000),
+        UINT64_C(81),
+        30, 3, 3, 7, 7, 0,
+        nullptr,
+        nullptr
+    };
+    maze_t* room_blend = nullptr;
+    assert(byul_maze_generate_room_blend(
+        -5, 8, 9, 9, &room_options, &room_blend) == NAVSYS_STATUS_OK);
+    assert(room_blend != nullptr);
+    assert(maze_hash(room_blend) == UINT32_C(453713525));
+    maze_destroy(room_blend);
+
+    maze_t* legacy_room_blend = maze_make_room_blend(-5, 8, 9, 9);
+    assert(legacy_room_blend != nullptr);
+    maze_destroy(legacy_room_blend);
 
     navgrid_t* legacy_carver_grid = navgrid_create_full(
         3, 3, NAVGRID_DIR_8, nullptr);

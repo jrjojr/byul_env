@@ -31,14 +31,22 @@ DEFAULT_OUTPUT = (
     REPOSITORY_ROOT / "docs/ko/todo/navsys/navsys-current-abi-inventory.json"
 )
 OWNER_TODO_OVERRIDES = {
+    "byul/navsys/navsys.h":
+        "docs/ko/todo/navsys/todo-navsys-navsys.org",
+    "byul/navsys/navsys_all.h":
+        "docs/ko/todo/navsys/todo-navsys-navsys.org",
     "byul/navsys/navsys_status.h":
         "docs/ko/todo/navsys/todo-navsys-industry-api-baseline.org",
     "byul/navsys/coord/internal/coord_ops.hpp":
         "docs/ko/todo/navsys/todo-navsys-coord-coord-cpp.org",
     "byul/navsys/dstar_lite/internal/dstar_lite_callback.hpp":
         "docs/ko/todo/navsys/todo-navsys-dstar-lite-dstar-lite.org",
+    "byul/navsys/dstar_lite/dstar_lite_planner.h":
+        "docs/ko/todo/navsys/todo-navsys-dstar-lite-dstar-lite.org",
     "byul/navsys/dstar_lite/internal/dstar_lite_key_ops.hpp":
         "docs/ko/todo/navsys/todo-navsys-dstar-lite-dstar-lite-key-cpp.org",
+    "byul/navsys/dstar_lite/internal/dstar_lite_planner.hpp":
+        "docs/ko/todo/navsys/todo-navsys-dstar-lite-dstar-lite.org",
     "byul/navsys/navgrid/internal/navgrid_callback.hpp":
         "docs/ko/todo/navsys/todo-navsys-navgrid-navgrid.org",
     "byul/navsys/navgrid/compat/abi1/navgrid_abi1.h":
@@ -59,6 +67,8 @@ OWNER_TODO_OVERRIDES = {
         "docs/ko/todo/navsys/todo-navsys-route-route.org",
     "byul/navsys/route_finder/internal/coord_hash_adapters.hpp":
         "docs/ko/todo/navsys/todo-navsys-route-finder-route-finder.org",
+    "byul/navsys/route_finder/route_finder_evaluation.h":
+        "docs/ko/todo/navsys/todo-navsys-route-finder-route-finder-core.org",
     "byul/navsys/route_carver/compat/route_carver_legacy.hpp":
         "docs/ko/todo/navsys/todo-navsys-route-carver-route-carver.org",
     "byul/navsys/route_carver/internal/route_carver_geometry.hpp":

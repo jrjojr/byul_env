@@ -54,7 +54,6 @@ target_include_directories(${PROJECT_NAME} PRIVATE
 
     ${CMAKE_SOURCE_DIR}
     ${CMAKE_SOURCE_DIR}/core
-    ${CMAKE_SOURCE_DIR}/numal
     ${CMAKE_SOURCE_DIR}/console
 
     ${CMAKE_SOURCE_DIR}/navsys/coord
@@ -72,7 +71,6 @@ target_link_directories(${PROJECT_NAME} PRIVATE
 
 target_link_libraries(${PROJECT_NAME} PRIVATE
     core
-    numal
     console
     
     coord

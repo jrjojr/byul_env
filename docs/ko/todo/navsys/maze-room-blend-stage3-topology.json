@@ -1,0 +1,51 @@
+{
+  "schema_version": 1,
+  "scope": "navsys-maze-room-blend-stage3",
+  "status": "complete",
+  "source_revision": "890ba42",
+  "topology_contract": {
+    "room_graph": "accepted rooms are vertices in placement order and consecutive vertices are connected",
+    "corridor_bend": "one per-call PCG32 bounded(2) draw selects horizontal-first or vertical-first L routing",
+    "corridor_raster": "radius 0, one-cell-wide orthogonal centerline from room center through each room boundary",
+    "fill": "a depth-first tree rooted at local (1,1) visits and opens every odd logical cell",
+    "connectivity": "rooms and corridors contain odd logical cells, so the DFS tree connects every open raster cell into one orthogonal component",
+    "cycles": "room_attempts 0 produces a perfect-maze raster; every accepted room of minimum size 3x3 permits cycles",
+    "border": "the full outer raster boundary remains blocked"
+  },
+  "oracle": {
+    "method": "query every raster cell, count orthogonal open edges, and BFS every open component",
+    "connected_condition": "open_cells is nonzero and component_count equals 1",
+    "cycle_condition": "open_edges plus component_count is greater than open_cells"
+  },
+  "property_corpus": {
+    "cases": 36,
+    "assertions": 252,
+    "room_modes": ["zero", "one", "many"],
+    "padding": [0, 2],
+    "extents": [[9, 21], [21, 9], [10, 18], [18, 10]],
+    "origins": "positive and negative, including negative X and Y",
+    "seeds": [0, 1, 2, 17, 123, "UINT64_MAX"],
+    "result": "all open rasters had one component and a blocked border; zero-room rasters were acyclic and room-bearing rasters contained cycles"
+  },
+  "golden": {
+    "origin": [-11, 6],
+    "extent": [21, 15],
+    "seed": 17,
+    "room_attempts": 12,
+    "room_padding": 2,
+    "hash": 559861491
+  },
+  "distribution": {
+    "root_shared_exports": 1212,
+    "clean_install_headers": 92,
+    "navsys_inventory": "58 headers, 657 symbols",
+    "clean_sdk": "C17 and C++17 consumers rebuilt and executed from the refreshed install"
+  },
+  "verification": {
+    "windows_msvc_release": "109/109 Maze cases, 843308/843308 assertions; allocation-failure executable exit 0",
+    "windows_aggregate_root": "543/543 cases, 186622/186622 assertions",
+    "linux_gcc13_asan_lsan_ubsan": "109/109 Maze cases, 843308/843308 assertions; allocation-failure executable exit 0; no sanitizer report",
+    "header_audit": "150 headers, 95 public C headers, 1173 declarations, 0 invariant errors",
+    "rules": "60 Org rule files, 0 errors, 0 warnings"
+  }
+}

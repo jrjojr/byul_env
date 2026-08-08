@@ -1,4 +1,8 @@
 #include "doctest.h"
+#include <algorithm>
+#include <array>
+#include <cstdlib>
+#include <future>
 #include <locale.h>
 #include <iostream>
 #include <limits>
@@ -9,7 +13,17 @@
 
 extern "C" {
 #include "maze.h"
+#include "maze_aldous_broder.h"
+#include "maze_binary.h"
+#include "maze_eller.h"
+#include "maze_hunt_and_kill.h"
 #include "maze_kruskal.h"
+#include "maze_prim.h"
+#include "maze_recursive.h"
+#include "maze_recursive_division.h"
+#include "maze_room_blend.h"
+#include "maze_sidewinder.h"
+#include "maze_wilson.h"
 #include "console.h"
 #include "obstacle_core.h"
 
@@ -52,6 +66,53 @@ using maze_generator_t = navsys_status_t (*)(
     uint32_t,
     byul_maze_generation_context&,
     maze_t**) noexcept;
+
+std::vector<int> erase_wilson_trace_for_test(
+    const std::vector<int>& trace,
+    size_t node_count) {
+    std::vector<int> path;
+    std::vector<int> position(node_count, -1);
+    for (const int node : trace) {
+        REQUIRE(node >= 0);
+        REQUIRE(static_cast<size_t>(node) < node_count);
+        const int loop_position = position[static_cast<size_t>(node)];
+        if (loop_position >= 0) {
+            for (size_t index = static_cast<size_t>(loop_position + 1);
+                 index < path.size(); ++index) {
+                position[static_cast<size_t>(path[index])] = -1;
+            }
+            path.resize(static_cast<size_t>(loop_position + 1));
+        } else {
+            position[static_cast<size_t>(node)] =
+                static_cast<int>(path.size());
+            path.push_back(node);
+        }
+    }
+    return path;
+}
+
+std::vector<std::array<int, 2>> aldous_first_entry_edges_for_test(
+    const std::vector<int>& trace,
+    size_t node_count) {
+    std::vector<std::array<int, 2>> edges;
+    if (trace.empty()) return edges;
+    std::vector<uint8_t> visited(node_count, uint8_t{0});
+    REQUIRE(trace.front() >= 0);
+    REQUIRE(static_cast<size_t>(trace.front()) < node_count);
+    visited[static_cast<size_t>(trace.front())] = 1;
+    for (size_t index = 1; index < trace.size(); ++index) {
+        const int from = trace[index - 1];
+        const int to = trace[index];
+        REQUIRE(from >= 0);
+        REQUIRE(to >= 0);
+        REQUIRE(static_cast<size_t>(from) < node_count);
+        REQUIRE(static_cast<size_t>(to) < node_count);
+        if (visited[static_cast<size_t>(to)] != 0) continue;
+        edges.push_back({from, to});
+        visited[static_cast<size_t>(to)] = 1;
+    }
+    return edges;
+}
 #endif
 
 struct maze_topology_t {
@@ -146,7 +207,483 @@ maze_topology_t analyze_logical_topology(
     return result;
 }
 
+struct maze_raster_topology_t {
+    bool queries_ok = true;
+    bool border_blocked = true;
+    bool connected = false;
+    bool has_cycle = false;
+    size_t open_cells = 0;
+    size_t open_edges = 0;
+    size_t component_count = 0;
+};
+
+maze_raster_topology_t analyze_open_raster_topology(
+    const maze_t* maze,
+    int32_t origin_x,
+    int32_t origin_y,
+    int width,
+    int height) {
+    maze_raster_topology_t result;
+    const size_t cell_count = static_cast<size_t>(width) * height;
+    std::vector<uint8_t> open(cell_count, uint8_t{0});
+    for (int y = 0; y < height; ++y) {
+        for (int x = 0; x < width; ++x) {
+            bool blocked = true;
+            if (byul_maze_is_blocked(
+                    maze, origin_x + x, origin_y + y, &blocked)
+                != NAVSYS_STATUS_OK) {
+                result.queries_ok = false;
+                continue;
+            }
+            const size_t index = static_cast<size_t>(y) * width + x;
+            open[index] = blocked ? uint8_t{0} : uint8_t{1};
+            result.open_cells += blocked ? 0u : 1u;
+            if ((x == 0 || y == 0 || x == width - 1 || y == height - 1)
+                && !blocked) {
+                result.border_blocked = false;
+            }
+        }
+    }
+
+    for (int y = 0; y < height; ++y) {
+        for (int x = 0; x < width; ++x) {
+            const size_t index = static_cast<size_t>(y) * width + x;
+            if (open[index] == 0) continue;
+            if (x + 1 < width && open[index + 1] != 0) ++result.open_edges;
+            if (y + 1 < height
+                && open[index + static_cast<size_t>(width)] != 0) {
+                ++result.open_edges;
+            }
+        }
+    }
+
+    static constexpr int delta_x[4] = {0, 0, -1, 1};
+    static constexpr int delta_y[4] = {-1, 1, 0, 0};
+    std::vector<uint8_t> reached(cell_count, uint8_t{0});
+    std::queue<size_t> pending;
+    for (size_t start = 0; start < cell_count; ++start) {
+        if (open[start] == 0 || reached[start] != 0) continue;
+        ++result.component_count;
+        reached[start] = 1;
+        pending.push(start);
+        while (!pending.empty()) {
+            const size_t index = pending.front();
+            pending.pop();
+            const int x = static_cast<int>(index % width);
+            const int y = static_cast<int>(index / width);
+            for (int direction = 0; direction < 4; ++direction) {
+                const int next_x = x + delta_x[direction];
+                const int next_y = y + delta_y[direction];
+                if (next_x < 0 || next_y < 0
+                    || next_x >= width || next_y >= height) {
+                    continue;
+                }
+                const size_t next = static_cast<size_t>(next_y) * width
+                    + next_x;
+                if (open[next] == 0 || reached[next] != 0) continue;
+                reached[next] = 1;
+                pending.push(next);
+            }
+        }
+    }
+    result.connected = result.open_cells != 0 && result.component_count == 1;
+    result.has_cycle = result.open_edges + result.component_count
+        > result.open_cells;
+    return result;
+}
+
+uint64_t logical_tree_mask(
+    const maze_t* maze,
+    int32_t origin_x,
+    int32_t origin_y,
+    int width,
+    int height) {
+    uint64_t mask = 0;
+    unsigned edge = 0;
+    const int columns = (width - 1) / 2;
+    const int rows = (height - 1) / 2;
+    for (int row = 0; row < rows; ++row) {
+        for (int column = 0; column < columns; ++column) {
+            const int x = 1 + column * 2;
+            const int y = 1 + row * 2;
+            if (column + 1 < columns) {
+                bool blocked = true;
+                REQUIRE(byul_maze_is_blocked(
+                    maze, origin_x + x + 1, origin_y + y, &blocked)
+                    == NAVSYS_STATUS_OK);
+                if (!blocked) mask |= UINT64_C(1) << edge;
+                ++edge;
+            }
+            if (row + 1 < rows) {
+                bool blocked = true;
+                REQUIRE(byul_maze_is_blocked(
+                    maze, origin_x + x, origin_y + y + 1, &blocked)
+                    == NAVSYS_STATUS_OK);
+                if (!blocked) mask |= UINT64_C(1) << edge;
+                ++edge;
+            }
+        }
+    }
+    REQUIRE(edge <= 64);
+    return mask;
+}
+
 } // namespace
+
+#ifndef BYUL_AGGREGATE_TEST
+TEST_CASE("Wilson ordered trace erases loops before tree commit") {
+    const std::vector<int> path = erase_wilson_trace_for_test(
+        {0, 1, 2, 1, 3, 4}, 5);
+    CHECK(path == std::vector<int>{0, 1, 3, 4});
+
+    for (size_t index = 0; index < path.size(); ++index) {
+        CHECK(std::count(path.begin(), path.end(), path[index]) == 1);
+        CHECK((path[index] == 4) == (index + 1 == path.size()));
+    }
+
+    CHECK(erase_wilson_trace_for_test({0, 0, 1, 2}, 3)
+        == std::vector<int>{0, 1, 2});
+
+    const auto neighbor_count = [](int node, int columns, int rows) {
+        const int column = node % columns;
+        const int row = node / columns;
+        return (row > 0 ? 1 : 0) + (row + 1 < rows ? 1 : 0)
+            + (column > 0 ? 1 : 0)
+            + (column + 1 < columns ? 1 : 0);
+    };
+    CHECK(neighbor_count(0, 3, 3) == 2);
+    CHECK(neighbor_count(1, 3, 3) == 3);
+    CHECK(neighbor_count(4, 3, 3) == 4);
+}
+
+TEST_CASE("Aldous-Broder trace carves only first-entry edges") {
+    CHECK(aldous_first_entry_edges_for_test({0}, 1).empty());
+
+    const std::vector<std::array<int, 2>> two_by_two =
+        aldous_first_entry_edges_for_test({0, 1, 0, 2, 3, 1}, 4);
+    CHECK(two_by_two == std::vector<std::array<int, 2>>{
+        {0, 1}, {0, 2}, {2, 3}});
+
+    const std::vector<int> four_by_four_trace{
+        0, 1, 2, 3, 7, 6, 5, 4, 8, 9, 10, 11, 15, 14, 13, 12
+    };
+    const auto four_by_four =
+        aldous_first_entry_edges_for_test(four_by_four_trace, 16);
+    CHECK(four_by_four.size() == 15);
+
+    std::vector<uint8_t> entry_count(16, uint8_t{0});
+    entry_count[0] = 1;
+    for (const auto& edge : four_by_four) {
+        CHECK(entry_count[static_cast<size_t>(edge[1])] == 0);
+        entry_count[static_cast<size_t>(edge[1])] = 1;
+    }
+    CHECK(std::count(entry_count.begin(), entry_count.end(), uint8_t{1}) == 16);
+}
+
+TEST_CASE("Aldous-Broder checked API validates controls and failure atomicity") {
+    byul_maze_generate_options_t options{
+        sizeof(byul_maze_generate_options_t),
+        BYUL_MAZE_GENERATE_OPTIONS_ABI_VERSION,
+        UINT64_C(17),
+        UINT64_C(20736),
+        UINT64_C(81),
+        nullptr,
+        nullptr
+    };
+    maze_t* output = reinterpret_cast<maze_t*>(uintptr_t{1});
+    CHECK(byul_maze_generate_aldous_broder(0, 0, 2, 3, &options, &output)
+        == NAVSYS_STATUS_UNSUPPORTED);
+    CHECK(output == nullptr);
+
+    output = reinterpret_cast<maze_t*>(uintptr_t{1});
+    CHECK(byul_maze_generate_aldous_broder(0, 0, 4, 5, &options, &output)
+        == NAVSYS_STATUS_UNSUPPORTED);
+    CHECK(output == nullptr);
+
+    output = reinterpret_cast<maze_t*>(uintptr_t{1});
+    CHECK(byul_maze_generate_aldous_broder(
+        std::numeric_limits<int32_t>::max(), 0, 3, 3, &options, &output)
+        == NAVSYS_STATUS_INVALID_ARGUMENT);
+    CHECK(output == nullptr);
+
+    output = reinterpret_cast<maze_t*>(uintptr_t{1});
+    CHECK(byul_maze_generate_aldous_broder(
+        std::numeric_limits<int32_t>::min(), 0, UINT32_MAX, 3,
+        &options, &output) == NAVSYS_STATUS_INVALID_ARGUMENT);
+    CHECK(output == nullptr);
+
+    output = reinterpret_cast<maze_t*>(uintptr_t{1});
+    CHECK(byul_maze_generate_aldous_broder(0, 0, 9, 9, nullptr, &output)
+        == NAVSYS_STATUS_INVALID_ARGUMENT);
+    CHECK(output == nullptr);
+    CHECK(byul_maze_generate_aldous_broder(0, 0, 9, 9, &options, nullptr)
+        == NAVSYS_STATUS_INVALID_ARGUMENT);
+
+    options.max_cells = UINT64_C(80);
+    output = reinterpret_cast<maze_t*>(uintptr_t{1});
+    CHECK(byul_maze_generate_aldous_broder(0, 0, 9, 9, &options, &output)
+        == NAVSYS_STATUS_LIMIT_REACHED);
+    CHECK(output == nullptr);
+
+    options.max_cells = UINT64_C(81);
+    options.max_steps = UINT64_C(1);
+    output = reinterpret_cast<maze_t*>(uintptr_t{1});
+    CHECK(byul_maze_generate_aldous_broder(0, 0, 9, 9, &options, &output)
+        == NAVSYS_STATUS_LIMIT_REACHED);
+    CHECK(output == nullptr);
+
+    output = nullptr;
+    REQUIRE(byul_maze_generate_aldous_broder(
+        -3, 7, 3, 3, &options, &output) == NAVSYS_STATUS_OK);
+    REQUIRE(output != nullptr);
+    const maze_topology_t one_cell =
+        analyze_logical_topology(output, -3, 7, 3, 3);
+    CHECK(one_cell.queries_ok);
+    CHECK(one_cell.border_blocked);
+    CHECK(one_cell.logical_cells_open);
+    CHECK(one_cell.connected);
+    CHECK(one_cell.node_count == 1);
+    CHECK(one_cell.edge_count == 0);
+    maze_destroy(output);
+
+    maze_cancel_fixture_t cancel_fixture{0, 3};
+    options.max_steps = UINT64_C(20736);
+    options.cancel_func = cancel_maze_overlay;
+    options.cancel_userdata = &cancel_fixture;
+    output = reinterpret_cast<maze_t*>(uintptr_t{1});
+    CHECK(byul_maze_generate_aldous_broder(0, 0, 9, 9, &options, &output)
+        == NAVSYS_STATUS_CANCELLED);
+    CHECK(output == nullptr);
+    CHECK(cancel_fixture.calls == cancel_fixture.cancel_after);
+
+    options.cancel_func = throw_maze_generation_cancel;
+    options.cancel_userdata = nullptr;
+    output = reinterpret_cast<maze_t*>(uintptr_t{1});
+    CHECK(byul_maze_generate_aldous_broder(0, 0, 9, 9, &options, &output)
+        == NAVSYS_STATUS_CALLBACK_FAILED);
+    CHECK(output == nullptr);
+
+    CHECK(maze_make_aldous_broder(0, 0, 2, 3) == nullptr);
+    CHECK(maze_make_aldous_broder(0, 0, 4, 5) == nullptr);
+}
+
+TEST_CASE("Aldous-Broder checked API replays and matches the dispatcher") {
+    const uint64_t seeds[] = {
+        UINT64_C(0), UINT64_C(1), UINT64_C(17), UINT64_MAX
+    };
+    for (const uint64_t seed : seeds) {
+        CAPTURE(seed);
+        const byul_maze_generate_options_t options{
+            sizeof(byul_maze_generate_options_t),
+            BYUL_MAZE_GENERATE_OPTIONS_ABI_VERSION,
+            seed,
+            UINT64_C(20736),
+            UINT64_C(81),
+            nullptr,
+            nullptr
+        };
+        maze_t* direct = nullptr;
+        maze_t* replay = nullptr;
+        maze_t* dispatched = nullptr;
+        REQUIRE(byul_maze_generate_aldous_broder(
+            -5, 8, 9, 9, &options, &direct) == NAVSYS_STATUS_OK);
+        REQUIRE(byul_maze_generate_aldous_broder(
+            -5, 8, 9, 9, &options, &replay) == NAVSYS_STATUS_OK);
+        REQUIRE(byul_maze_generate(
+            BYUL_MAZE_ALGORITHM_ALDOUS_BRODER,
+            -5, 8, 9, 9, &options, &dispatched) == NAVSYS_STATUS_OK);
+        REQUIRE(direct != nullptr);
+        REQUIRE(replay != nullptr);
+        REQUIRE(dispatched != nullptr);
+        if (seed == 0) CHECK(maze_hash(direct) == UINT32_C(744322881));
+        CHECK(maze_hash(direct) == maze_hash(replay));
+        CHECK(maze_hash(direct) == maze_hash(dispatched));
+        maze_destroy(dispatched);
+        maze_destroy(replay);
+        maze_destroy(direct);
+    }
+}
+
+TEST_CASE("Aldous-Broder checked calls are parallel and global-rand independent") {
+    const byul_maze_generate_options_t options{
+        sizeof(byul_maze_generate_options_t),
+        BYUL_MAZE_GENERATE_OPTIONS_ABI_VERSION,
+        UINT64_C(1234),
+        UINT64_C(56576),
+        UINT64_C(221),
+        nullptr,
+        nullptr
+    };
+    const auto generate_hash = [&options]() {
+        maze_t* maze = nullptr;
+        const navsys_status_t status = byul_maze_generate_aldous_broder(
+            -11, 23, 13, 17, &options, &maze);
+        const uint32_t hash = maze ? maze_hash(maze) : 0;
+        maze_destroy(maze);
+        return std::make_pair(status, hash);
+    };
+
+    std::srand(1);
+    const auto first = generate_hash();
+    std::srand(9999);
+    const auto second = generate_hash();
+    REQUIRE(first.first == NAVSYS_STATUS_OK);
+    REQUIRE(second.first == NAVSYS_STATUS_OK);
+    CHECK(first.second == second.second);
+
+    std::array<std::future<std::pair<navsys_status_t, uint32_t>>, 8> calls;
+    for (auto& call : calls) {
+        call = std::async(std::launch::async, generate_hash);
+    }
+    for (auto& call : calls) {
+        const auto result = call.get();
+        REQUIRE(result.first == NAVSYS_STATUS_OK);
+        CHECK(result.second == first.second);
+    }
+}
+
+TEST_CASE("Wilson checked API validates controls and preserves failure atomicity") {
+    byul_maze_generate_options_t options{
+        sizeof(byul_maze_generate_options_t),
+        BYUL_MAZE_GENERATE_OPTIONS_ABI_VERSION,
+        UINT64_C(17),
+        UINT64_C(20736),
+        UINT64_C(81),
+        nullptr,
+        nullptr
+    };
+    maze_t* output = reinterpret_cast<maze_t*>(uintptr_t{1});
+    CHECK(byul_maze_generate_wilson(0, 0, 2, 3, &options, &output)
+        == NAVSYS_STATUS_UNSUPPORTED);
+    CHECK(output == nullptr);
+
+    output = reinterpret_cast<maze_t*>(uintptr_t{1});
+    CHECK(byul_maze_generate_wilson(0, 0, 4, 5, &options, &output)
+        == NAVSYS_STATUS_UNSUPPORTED);
+    CHECK(output == nullptr);
+
+    output = reinterpret_cast<maze_t*>(uintptr_t{1});
+    CHECK(byul_maze_generate_wilson(
+        std::numeric_limits<int32_t>::max(), 0, 3, 3, &options, &output)
+        == NAVSYS_STATUS_INVALID_ARGUMENT);
+    CHECK(output == nullptr);
+
+    output = reinterpret_cast<maze_t*>(uintptr_t{1});
+    CHECK(byul_maze_generate_wilson(0, 0, 9, 9, nullptr, &output)
+        == NAVSYS_STATUS_INVALID_ARGUMENT);
+    CHECK(output == nullptr);
+    CHECK(byul_maze_generate_wilson(0, 0, 9, 9, &options, nullptr)
+        == NAVSYS_STATUS_INVALID_ARGUMENT);
+
+    options.max_cells = UINT64_C(80);
+    output = reinterpret_cast<maze_t*>(uintptr_t{1});
+    CHECK(byul_maze_generate_wilson(0, 0, 9, 9, &options, &output)
+        == NAVSYS_STATUS_LIMIT_REACHED);
+    CHECK(output == nullptr);
+
+    options.max_cells = UINT64_C(81);
+    options.max_steps = UINT64_C(1);
+    output = reinterpret_cast<maze_t*>(uintptr_t{1});
+    CHECK(byul_maze_generate_wilson(0, 0, 9, 9, &options, &output)
+        == NAVSYS_STATUS_LIMIT_REACHED);
+    CHECK(output == nullptr);
+
+    maze_cancel_fixture_t cancel_fixture{0, 3};
+    options.max_steps = UINT64_C(20736);
+    options.cancel_func = cancel_maze_overlay;
+    options.cancel_userdata = &cancel_fixture;
+    output = reinterpret_cast<maze_t*>(uintptr_t{1});
+    CHECK(byul_maze_generate_wilson(0, 0, 9, 9, &options, &output)
+        == NAVSYS_STATUS_CANCELLED);
+    CHECK(output == nullptr);
+    CHECK(cancel_fixture.calls == cancel_fixture.cancel_after);
+
+    options.cancel_func = throw_maze_generation_cancel;
+    options.cancel_userdata = nullptr;
+    output = reinterpret_cast<maze_t*>(uintptr_t{1});
+    CHECK(byul_maze_generate_wilson(0, 0, 9, 9, &options, &output)
+        == NAVSYS_STATUS_CALLBACK_FAILED);
+    CHECK(output == nullptr);
+
+    CHECK(maze_make_wilson(0, 0, 2, 3) == nullptr);
+    CHECK(maze_make_wilson(0, 0, 4, 5) == nullptr);
+}
+
+TEST_CASE("Wilson checked API replays and matches the dispatcher") {
+    const uint64_t seeds[] = {
+        UINT64_C(0), UINT64_C(1), UINT64_C(17), UINT64_MAX
+    };
+    for (const uint64_t seed : seeds) {
+        CAPTURE(seed);
+        const byul_maze_generate_options_t options{
+            sizeof(byul_maze_generate_options_t),
+            BYUL_MAZE_GENERATE_OPTIONS_ABI_VERSION,
+            seed,
+            UINT64_C(20736),
+            UINT64_C(81),
+            nullptr,
+            nullptr
+        };
+        maze_t* direct = nullptr;
+        maze_t* replay = nullptr;
+        maze_t* dispatched = nullptr;
+        REQUIRE(byul_maze_generate_wilson(
+            -5, 8, 9, 9, &options, &direct) == NAVSYS_STATUS_OK);
+        REQUIRE(byul_maze_generate_wilson(
+            -5, 8, 9, 9, &options, &replay) == NAVSYS_STATUS_OK);
+        REQUIRE(byul_maze_generate(
+            BYUL_MAZE_ALGORITHM_WILSON,
+            -5, 8, 9, 9, &options, &dispatched) == NAVSYS_STATUS_OK);
+        REQUIRE(direct != nullptr);
+        REQUIRE(replay != nullptr);
+        REQUIRE(dispatched != nullptr);
+        if (seed == 0) CHECK(maze_hash(direct) == UINT32_C(424385079));
+        CHECK(maze_hash(direct) == maze_hash(replay));
+        CHECK(maze_hash(direct) == maze_hash(dispatched));
+        maze_destroy(dispatched);
+        maze_destroy(replay);
+        maze_destroy(direct);
+    }
+}
+
+TEST_CASE("Wilson checked calls are parallel and global-rand independent") {
+    const byul_maze_generate_options_t options{
+        sizeof(byul_maze_generate_options_t),
+        BYUL_MAZE_GENERATE_OPTIONS_ABI_VERSION,
+        UINT64_C(1234),
+        UINT64_C(32768),
+        UINT64_C(221),
+        nullptr,
+        nullptr
+    };
+    const auto generate_hash = [&options]() {
+        maze_t* maze = nullptr;
+        const navsys_status_t status = byul_maze_generate_wilson(
+            -11, 23, 13, 17, &options, &maze);
+        const uint32_t hash = maze ? maze_hash(maze) : 0;
+        maze_destroy(maze);
+        return std::make_pair(status, hash);
+    };
+
+    std::srand(1);
+    const auto first = generate_hash();
+    std::srand(9999);
+    const auto second = generate_hash();
+    REQUIRE(first.first == NAVSYS_STATUS_OK);
+    REQUIRE(second.first == NAVSYS_STATUS_OK);
+    CHECK(first.second == second.second);
+
+    std::array<std::future<std::pair<navsys_status_t, uint32_t>>, 8> calls;
+    for (auto& call : calls) {
+        call = std::async(std::launch::async, generate_hash);
+    }
+    for (auto& call : calls) {
+        const auto result = call.get();
+        REQUIRE(result.first == NAVSYS_STATUS_OK);
+        CHECK(result.second == first.second);
+    }
+}
+#endif
 
 TEST_CASE("maze dispatcher preserves its ABI-1 enum and Kruskal fallback") {
     static_assert(MAZE_TYPE_RECURSIVE == 0);
@@ -176,6 +713,318 @@ TEST_CASE("maze dispatcher preserves its ABI-1 enum and Kruskal fallback") {
         maze_destroy(actual);
     }
     maze_destroy(expected);
+}
+
+TEST_CASE("Binary Tree checked API preserves explicit bias lattices") {
+    static_assert(BYUL_MAZE_BINARY_BIAS_NORTH_WEST == 0);
+    static_assert(BYUL_MAZE_BINARY_BIAS_NORTH_EAST == 1);
+    static_assert(BYUL_MAZE_BINARY_BIAS_SOUTH_WEST == 2);
+    static_assert(BYUL_MAZE_BINARY_BIAS_SOUTH_EAST == 3);
+    static_assert(sizeof(byul_maze_binary_bias_t) == 4);
+
+    struct bias_case_t {
+        byul_maze_binary_bias_t bias;
+        int open_midpoints[3][2];
+        uint32_t expected_hash;
+    };
+    const bias_case_t cases[] = {
+        {BYUL_MAZE_BINARY_BIAS_NORTH_WEST,
+            {{2, 1}, {1, 2}, {2, 3}}, UINT32_C(470646451)},
+        {BYUL_MAZE_BINARY_BIAS_NORTH_EAST,
+            {{2, 1}, {2, 3}, {3, 2}}, UINT32_C(499477593)},
+        {BYUL_MAZE_BINARY_BIAS_SOUTH_WEST,
+            {{2, 1}, {1, 2}, {2, 3}}, UINT32_C(470646451)},
+        {BYUL_MAZE_BINARY_BIAS_SOUTH_EAST,
+            {{2, 1}, {2, 3}, {3, 2}}, UINT32_C(499477593)}
+    };
+    const byul_maze_generate_options_t options{
+        sizeof(byul_maze_generate_options_t),
+        BYUL_MAZE_GENERATE_OPTIONS_ABI_VERSION,
+        UINT64_C(1),
+        UINT64_C(1000),
+        UINT64_C(25),
+        nullptr,
+        nullptr
+    };
+
+    for (const bias_case_t& fixture : cases) {
+        CAPTURE(static_cast<int>(fixture.bias));
+        bool supported = false;
+        REQUIRE(byul_maze_binary_bias_is_supported(
+            fixture.bias, &supported) == NAVSYS_STATUS_OK);
+        CHECK(supported);
+
+        maze_t* maze = nullptr;
+        REQUIRE(byul_maze_generate_binary_tree(
+            -2, 7, 5, 5, fixture.bias, &options, &maze)
+            == NAVSYS_STATUS_OK);
+        REQUIRE(maze != nullptr);
+        CHECK(maze_hash(maze) == fixture.expected_hash);
+        const maze_topology_t topology =
+            analyze_logical_topology(maze, -2, 7, 5, 5);
+        CHECK(topology.queries_ok);
+        CHECK(topology.border_blocked);
+        CHECK(topology.logical_cells_open);
+        CHECK(topology.connected);
+        CHECK(topology.node_count == 4);
+        CHECK(topology.edge_count == 3);
+
+        for (int y = 1; y < 4; ++y) {
+            for (int x = 1; x < 4; ++x) {
+                if ((x & 1) == (y & 1)) continue;
+                bool expected_open = false;
+                for (const auto& midpoint : fixture.open_midpoints) {
+                    expected_open = expected_open
+                        || (x == midpoint[0] && y == midpoint[1]);
+                }
+                bool blocked = true;
+                REQUIRE(byul_maze_is_blocked(
+                    maze, -2 + x, 7 + y, &blocked) == NAVSYS_STATUS_OK);
+                CHECK(blocked == !expected_open);
+            }
+        }
+        maze_destroy(maze);
+
+        maze = nullptr;
+        REQUIRE(byul_maze_generate_binary_tree(
+            0, 0, 3, 3, fixture.bias, &options, &maze)
+            == NAVSYS_STATUS_OK);
+        REQUIRE(maze != nullptr);
+        CHECK(maze_hash(maze) == UINT32_C(663082931));
+        maze_destroy(maze);
+    }
+}
+
+TEST_CASE("Binary Tree checked API rejects invalid dimensions and bias") {
+    byul_maze_generate_options_t options{
+        sizeof(byul_maze_generate_options_t),
+        BYUL_MAZE_GENERATE_OPTIONS_ABI_VERSION,
+        UINT64_C(0),
+        UINT64_C(1000),
+        UINT64_C(0),
+        nullptr,
+        nullptr
+    };
+    maze_t* output = reinterpret_cast<maze_t*>(uintptr_t{1});
+    CHECK(byul_maze_generate_binary_tree(
+        0, 0, 2, 3, BYUL_MAZE_BINARY_BIAS_SOUTH_EAST, &options, &output)
+        == NAVSYS_STATUS_UNSUPPORTED);
+    CHECK(output == nullptr);
+
+    output = reinterpret_cast<maze_t*>(uintptr_t{1});
+    CHECK(byul_maze_generate_binary_tree(
+        0, 0, 4, 5, BYUL_MAZE_BINARY_BIAS_SOUTH_EAST, &options, &output)
+        == NAVSYS_STATUS_UNSUPPORTED);
+    CHECK(output == nullptr);
+
+    output = reinterpret_cast<maze_t*>(uintptr_t{1});
+    CHECK(byul_maze_generate_binary_tree(
+        std::numeric_limits<int32_t>::max(), 0, 3, 3,
+        BYUL_MAZE_BINARY_BIAS_SOUTH_EAST, &options, &output)
+        == NAVSYS_STATUS_INVALID_ARGUMENT);
+    CHECK(output == nullptr);
+
+    output = reinterpret_cast<maze_t*>(uintptr_t{1});
+    CHECK(byul_maze_generate_binary_tree(
+        0, 0, 3, 3, static_cast<byul_maze_binary_bias_t>(4),
+        &options, &output) == NAVSYS_STATUS_UNSUPPORTED);
+    CHECK(output == nullptr);
+    bool supported = true;
+    CHECK(byul_maze_binary_bias_is_supported(
+        static_cast<byul_maze_binary_bias_t>(-1), &supported)
+        == NAVSYS_STATUS_UNSUPPORTED);
+
+    CHECK(maze_make_binary(0, 0, 2, 3) == nullptr);
+    CHECK(maze_make_binary(0, 0, 4, 5) == nullptr);
+}
+
+TEST_CASE("Binary Tree bias corpus preserves topology and root corridors") {
+    struct hash_case_t {
+        byul_maze_binary_bias_t bias;
+        uint64_t seed;
+        uint32_t expected_hash;
+    };
+    const hash_case_t hashes[] = {
+        {BYUL_MAZE_BINARY_BIAS_NORTH_WEST, UINT64_C(0), UINT32_C(314326785)},
+        {BYUL_MAZE_BINARY_BIAS_NORTH_WEST, UINT64_C(1), UINT32_C(333622325)},
+        {BYUL_MAZE_BINARY_BIAS_NORTH_WEST, UINT64_C(17), UINT32_C(637696577)},
+        {BYUL_MAZE_BINARY_BIAS_NORTH_WEST, UINT64_MAX, UINT32_C(456164093)},
+        {BYUL_MAZE_BINARY_BIAS_NORTH_EAST, UINT64_C(0), UINT32_C(19337297)},
+        {BYUL_MAZE_BINARY_BIAS_NORTH_EAST, UINT64_C(1), UINT32_C(481215691)},
+        {BYUL_MAZE_BINARY_BIAS_NORTH_EAST, UINT64_C(17), UINT32_C(212513867)},
+        {BYUL_MAZE_BINARY_BIAS_NORTH_EAST, UINT64_MAX, UINT32_C(65445043)},
+        {BYUL_MAZE_BINARY_BIAS_SOUTH_WEST, UINT64_C(0), UINT32_C(342668731)},
+        {BYUL_MAZE_BINARY_BIAS_SOUTH_WEST, UINT64_C(1), UINT32_C(276670393)},
+        {BYUL_MAZE_BINARY_BIAS_SOUTH_WEST, UINT64_C(17), UINT32_C(714964413)},
+        {BYUL_MAZE_BINARY_BIAS_SOUTH_WEST, UINT64_MAX, UINT32_C(397381761)},
+        {BYUL_MAZE_BINARY_BIAS_SOUTH_EAST, UINT64_C(0), UINT32_C(49710731)},
+        {BYUL_MAZE_BINARY_BIAS_SOUTH_EAST, UINT64_C(1), UINT32_C(405786447)},
+        {BYUL_MAZE_BINARY_BIAS_SOUTH_EAST, UINT64_C(17), UINT32_C(137609167)},
+        {BYUL_MAZE_BINARY_BIAS_SOUTH_EAST, UINT64_MAX, UINT32_C(7968567)}
+    };
+
+    for (const hash_case_t& fixture : hashes) {
+        CAPTURE(static_cast<int>(fixture.bias));
+        CAPTURE(fixture.seed);
+        const byul_maze_generate_options_t options{
+            sizeof(byul_maze_generate_options_t),
+            BYUL_MAZE_GENERATE_OPTIONS_ABI_VERSION,
+            fixture.seed,
+            UINT64_C(16),
+            UINT64_C(81),
+            nullptr,
+            nullptr
+        };
+        maze_t* maze = nullptr;
+        REQUIRE(byul_maze_generate_binary_tree(
+            -5, 8, 9, 9, fixture.bias, &options, &maze)
+            == NAVSYS_STATUS_OK);
+        REQUIRE(maze != nullptr);
+        CHECK(maze_hash(maze) == fixture.expected_hash);
+        const maze_topology_t topology =
+            analyze_logical_topology(maze, -5, 8, 9, 9);
+        CHECK(topology.queries_ok);
+        CHECK(topology.border_blocked);
+        CHECK(topology.logical_cells_open);
+        CHECK(topology.connected);
+        CHECK(topology.node_count == 16);
+        CHECK(topology.edge_count == 15);
+
+        const bool north = fixture.bias == BYUL_MAZE_BINARY_BIAS_NORTH_WEST
+            || fixture.bias == BYUL_MAZE_BINARY_BIAS_NORTH_EAST;
+        const bool west = fixture.bias == BYUL_MAZE_BINARY_BIAS_NORTH_WEST
+            || fixture.bias == BYUL_MAZE_BINARY_BIAS_SOUTH_WEST;
+        const int corridor_y = north ? 1 : 7;
+        const int corridor_x = west ? 1 : 7;
+        for (int x = 2; x < 8; x += 2) {
+            bool blocked = true;
+            REQUIRE(byul_maze_is_blocked(
+                maze, -5 + x, 8 + corridor_y, &blocked)
+                == NAVSYS_STATUS_OK);
+            CHECK_FALSE(blocked);
+        }
+        for (int y = 2; y < 8; y += 2) {
+            bool blocked = true;
+            REQUIRE(byul_maze_is_blocked(
+                maze, -5 + corridor_x, 8 + y, &blocked)
+                == NAVSYS_STATUS_OK);
+            CHECK_FALSE(blocked);
+        }
+        maze_destroy(maze);
+    }
+}
+
+TEST_CASE("Binary Tree two-choice draws remain deterministically unbiased") {
+    constexpr uint64_t sample_count = UINT64_C(512);
+    constexpr uint64_t choices_per_sample = UINT64_C(9);
+    constexpr uint64_t minimum_horizontal =
+        sample_count * choices_per_sample * UINT64_C(43) / UINT64_C(100);
+    constexpr uint64_t maximum_horizontal =
+        sample_count * choices_per_sample * UINT64_C(57) / UINT64_C(100);
+
+    for (int bias_value = BYUL_MAZE_BINARY_BIAS_NORTH_WEST;
+         bias_value <= BYUL_MAZE_BINARY_BIAS_SOUTH_EAST;
+         ++bias_value) {
+        const auto bias = static_cast<byul_maze_binary_bias_t>(bias_value);
+        const bool east = bias == BYUL_MAZE_BINARY_BIAS_NORTH_EAST
+            || bias == BYUL_MAZE_BINARY_BIAS_SOUTH_EAST;
+        const bool south = bias == BYUL_MAZE_BINARY_BIAS_SOUTH_WEST
+            || bias == BYUL_MAZE_BINARY_BIAS_SOUTH_EAST;
+        const int horizontal_delta = east ? 1 : -1;
+        const int vertical_delta = south ? 1 : -1;
+        uint64_t horizontal_count = 0;
+
+        for (uint64_t seed = 0; seed < sample_count; ++seed) {
+            const byul_maze_generate_options_t options{
+                sizeof(byul_maze_generate_options_t),
+                BYUL_MAZE_GENERATE_OPTIONS_ABI_VERSION,
+                seed,
+                UINT64_C(16),
+                UINT64_C(81),
+                nullptr,
+                nullptr
+            };
+            maze_t* maze = nullptr;
+            REQUIRE(byul_maze_generate_binary_tree(
+                0, 0, 9, 9, bias, &options, &maze) == NAVSYS_STATUS_OK);
+            REQUIRE(maze != nullptr);
+            for (int y = 1; y < 8; y += 2) {
+                for (int x = 1; x < 8; x += 2) {
+                    const bool both_choices = x + horizontal_delta * 2 > 0
+                        && x + horizontal_delta * 2 < 9
+                        && y + vertical_delta * 2 > 0
+                        && y + vertical_delta * 2 < 9;
+                    if (!both_choices) continue;
+                    bool horizontal_blocked = true;
+                    bool vertical_blocked = true;
+                    REQUIRE(byul_maze_is_blocked(
+                        maze, x + horizontal_delta, y, &horizontal_blocked)
+                        == NAVSYS_STATUS_OK);
+                    REQUIRE(byul_maze_is_blocked(
+                        maze, x, y + vertical_delta, &vertical_blocked)
+                        == NAVSYS_STATUS_OK);
+                    REQUIRE(horizontal_blocked != vertical_blocked);
+                    horizontal_count += horizontal_blocked ? 0u : 1u;
+                }
+            }
+            maze_destroy(maze);
+        }
+        CAPTURE(bias_value);
+        CAPTURE(horizontal_count);
+        CHECK(horizontal_count >= minimum_horizontal);
+        CHECK(horizontal_count <= maximum_horizontal);
+    }
+}
+
+TEST_CASE("Binary Tree step and cancellation work scale with raster cells") {
+    for (const uint32_t extent : {UINT32_C(9), UINT32_C(17), UINT32_C(33)}) {
+        const uint64_t logical_axis = (extent - 1) / 2;
+        const uint64_t logical_cells = logical_axis * logical_axis;
+        maze_cancel_fixture_t poll_fixture{0, std::numeric_limits<int>::max()};
+        byul_maze_generate_options_t options{
+            sizeof(byul_maze_generate_options_t),
+            BYUL_MAZE_GENERATE_OPTIONS_ABI_VERSION,
+            UINT64_C(23),
+            logical_cells,
+            static_cast<uint64_t>(extent) * extent,
+            cancel_maze_overlay,
+            &poll_fixture
+        };
+        maze_t* maze = nullptr;
+        REQUIRE(byul_maze_generate_binary_tree(
+            0, 0, extent, extent, BYUL_MAZE_BINARY_BIAS_SOUTH_EAST,
+            &options, &maze) == NAVSYS_STATUS_OK);
+        REQUIRE(maze != nullptr);
+        CHECK(poll_fixture.calls
+            == 1 + static_cast<int>(extent * extent + logical_cells));
+        maze_destroy(maze);
+
+        options.max_steps = logical_cells - 1;
+        options.cancel_func = nullptr;
+        options.cancel_userdata = nullptr;
+        maze = reinterpret_cast<maze_t*>(uintptr_t{1});
+        CHECK(byul_maze_generate_binary_tree(
+            0, 0, extent, extent, BYUL_MAZE_BINARY_BIAS_SOUTH_EAST,
+            &options, &maze) == NAVSYS_STATUS_LIMIT_REACHED);
+        CHECK(maze == nullptr);
+    }
+
+    maze_cancel_fixture_t cancel_fixture{0, 83};
+    const byul_maze_generate_options_t cancel_options{
+        sizeof(byul_maze_generate_options_t),
+        BYUL_MAZE_GENERATE_OPTIONS_ABI_VERSION,
+        UINT64_C(23),
+        UINT64_C(16),
+        UINT64_C(81),
+        cancel_maze_overlay,
+        &cancel_fixture
+    };
+    maze_t* output = reinterpret_cast<maze_t*>(uintptr_t{1});
+    CHECK(byul_maze_generate_binary_tree(
+        0, 0, 9, 9, BYUL_MAZE_BINARY_BIAS_SOUTH_EAST,
+        &cancel_options, &output) == NAVSYS_STATUS_CANCELLED);
+    CHECK(output == nullptr);
+    CHECK(cancel_fixture.calls == cancel_fixture.cancel_after);
 }
 
 TEST_CASE("maze checked dispatcher validates options and routes algorithms") {
@@ -330,6 +1179,1035 @@ TEST_CASE("maze generation context fixes PCG32 replay and Kruskal limits") {
     CHECK(output == nullptr);
 }
 
+TEST_CASE("Kruskal graph inventory and corrected seed-zero rasters are stable") {
+    struct fixture_t {
+        uint32_t width;
+        uint32_t height;
+        uint32_t hash;
+    };
+    const fixture_t fixtures[] = {
+        {3, 9, UINT32_C(490189354)},
+        {9, 3, UINT32_C(54204446)},
+        {5, 5, UINT32_C(778966597)},
+        {7, 9, UINT32_C(662756626)},
+        {9, 7, UINT32_C(4294952108)},
+        {9, 9, UINT32_C(73237245)}
+    };
+    for (const fixture_t& fixture : fixtures) {
+        CAPTURE(fixture.width);
+        CAPTURE(fixture.height);
+        const uint64_t columns = fixture.width / 2;
+        const uint64_t rows = fixture.height / 2;
+        const uint64_t vertices = columns * rows;
+        const uint64_t edges = (columns - 1) * rows + (rows - 1) * columns;
+        byul_maze_generation_context context(
+            UINT64_C(0), UINT64_C(1000000), nullptr, nullptr);
+        maze_t* maze = nullptr;
+        REQUIRE(byul_maze_generate_kruskal_internal(
+            -5, 8, fixture.width, fixture.height, context, &maze)
+            == NAVSYS_STATUS_OK);
+        REQUIRE(maze != nullptr);
+        CHECK(context.steps() >= vertices - 1);
+        CHECK(context.steps() <= edges);
+        CHECK(maze_hash(maze) == fixture.hash);
+        const maze_topology_t topology = analyze_logical_topology(
+            maze, -5, 8,
+            static_cast<int>(fixture.width),
+            static_cast<int>(fixture.height));
+        CHECK(topology.node_count == vertices);
+        CHECK(topology.edge_count + 1 == topology.node_count);
+        CHECK(topology.queries_ok);
+        CHECK(topology.border_blocked);
+        CHECK(topology.logical_cells_open);
+        CHECK(topology.connected);
+        maze_destroy(maze);
+    }
+}
+
+TEST_CASE("Kruskal tiny rectangular graph corpus considers every unique edge") {
+    for (uint32_t width = 3; width <= 11; width += 2) {
+        for (uint32_t height = 3; height <= 11; height += 2) {
+            const uint64_t columns = width / 2;
+            const uint64_t rows = height / 2;
+            const uint64_t vertices = columns * rows;
+            const uint64_t edges =
+                (columns - 1) * rows + (rows - 1) * columns;
+            for (uint64_t seed = 0; seed < 16; ++seed) {
+                CAPTURE(width);
+                CAPTURE(height);
+                CAPTURE(seed);
+                byul_maze_generation_context context(
+                    seed, UINT64_C(1000000), nullptr, nullptr);
+                maze_t* maze = nullptr;
+                REQUIRE(byul_maze_generate_kruskal_internal(
+                    13, -21, width, height, context, &maze)
+                    == NAVSYS_STATUS_OK);
+                REQUIRE(maze != nullptr);
+                CHECK(context.steps() >= vertices - 1);
+                CHECK(context.steps() <= edges);
+                const maze_topology_t topology = analyze_logical_topology(
+                    maze, 13, -21,
+                    static_cast<int>(width),
+                    static_cast<int>(height));
+                CHECK(topology.node_count == vertices);
+                CHECK(topology.edge_count + 1 == topology.node_count);
+                CHECK(topology.queries_ok);
+                CHECK(topology.border_blocked);
+                CHECK(topology.logical_cells_open);
+                CHECK(topology.connected);
+                maze_destroy(maze);
+            }
+        }
+    }
+}
+
+TEST_CASE("Kruskal checked API validates failure atomicity") {
+    byul_maze_generate_options_t options{
+        sizeof(byul_maze_generate_options_t),
+        BYUL_MAZE_GENERATE_OPTIONS_ABI_VERSION,
+        UINT64_C(0),
+        UINT64_C(1000),
+        UINT64_C(81),
+        nullptr,
+        nullptr
+    };
+    maze_t* output = reinterpret_cast<maze_t*>(uintptr_t{1});
+    CHECK(byul_maze_generate_randomized_kruskal(
+        0, 0, 2, 3, &options, &output) == NAVSYS_STATUS_UNSUPPORTED);
+    CHECK(output == nullptr);
+
+    output = reinterpret_cast<maze_t*>(uintptr_t{1});
+    CHECK(byul_maze_generate_randomized_kruskal(
+        0, 0, 4, 5, &options, &output) == NAVSYS_STATUS_UNSUPPORTED);
+    CHECK(output == nullptr);
+
+    output = reinterpret_cast<maze_t*>(uintptr_t{1});
+    CHECK(byul_maze_generate_randomized_kruskal(
+        std::numeric_limits<int32_t>::max(), 0, 3, 3, &options, &output)
+        == NAVSYS_STATUS_INVALID_ARGUMENT);
+    CHECK(output == nullptr);
+
+    output = reinterpret_cast<maze_t*>(uintptr_t{1});
+    CHECK(byul_maze_generate_randomized_kruskal(
+        std::numeric_limits<int32_t>::min(), 0, UINT32_MAX, 3,
+        &options, &output) == NAVSYS_STATUS_INVALID_ARGUMENT);
+    CHECK(output == nullptr);
+
+    output = reinterpret_cast<maze_t*>(uintptr_t{1});
+    CHECK(byul_maze_generate_randomized_kruskal(
+        0, 0, 9, 9, nullptr, &output) == NAVSYS_STATUS_INVALID_ARGUMENT);
+    CHECK(output == nullptr);
+
+    options.struct_size = sizeof(byul_maze_generate_options_t) - 1;
+    output = reinterpret_cast<maze_t*>(uintptr_t{1});
+    CHECK(byul_maze_generate_randomized_kruskal(
+        0, 0, 9, 9, &options, &output) == NAVSYS_STATUS_INVALID_ARGUMENT);
+    CHECK(output == nullptr);
+
+    options.struct_size = sizeof(byul_maze_generate_options_t);
+    ++options.abi_version;
+    output = reinterpret_cast<maze_t*>(uintptr_t{1});
+    CHECK(byul_maze_generate_randomized_kruskal(
+        0, 0, 9, 9, &options, &output) == NAVSYS_STATUS_UNSUPPORTED);
+    CHECK(output == nullptr);
+
+    options.abi_version = BYUL_MAZE_GENERATE_OPTIONS_ABI_VERSION;
+    options.max_cells = UINT64_C(80);
+    output = reinterpret_cast<maze_t*>(uintptr_t{1});
+    CHECK(byul_maze_generate_randomized_kruskal(
+        0, 0, 9, 9, &options, &output) == NAVSYS_STATUS_LIMIT_REACHED);
+    CHECK(output == nullptr);
+
+    options.max_cells = UINT64_C(81);
+    options.max_steps = UINT64_C(1);
+    output = reinterpret_cast<maze_t*>(uintptr_t{1});
+    CHECK(byul_maze_generate_randomized_kruskal(
+        0, 0, 9, 9, &options, &output) == NAVSYS_STATUS_LIMIT_REACHED);
+    CHECK(output == nullptr);
+
+    maze_cancel_fixture_t cancel_fixture{0, 1};
+    options.max_steps = UINT64_C(1000);
+    options.cancel_func = cancel_maze_overlay;
+    options.cancel_userdata = &cancel_fixture;
+    output = reinterpret_cast<maze_t*>(uintptr_t{1});
+    CHECK(byul_maze_generate_randomized_kruskal(
+        0, 0, 9, 9, &options, &output) == NAVSYS_STATUS_CANCELLED);
+    CHECK(output == nullptr);
+    CHECK(cancel_fixture.calls == 1);
+
+    options.cancel_func = throw_maze_overlay_cancel;
+    options.cancel_userdata = nullptr;
+    output = reinterpret_cast<maze_t*>(uintptr_t{1});
+    CHECK(byul_maze_generate_randomized_kruskal(
+        0, 0, 9, 9, &options, &output) == NAVSYS_STATUS_CALLBACK_FAILED);
+    CHECK(output == nullptr);
+
+    CHECK(maze_make_kruskal(0, 0, 2, 3) == nullptr);
+    CHECK(maze_make_kruskal(0, 0, 4, 5) == nullptr);
+}
+
+TEST_CASE("Kruskal checked API replays and matches dispatcher") {
+    for (const uint64_t seed : {
+             UINT64_C(0), UINT64_C(1), UINT64_C(17), UINT64_MAX}) {
+        CAPTURE(seed);
+        const byul_maze_generate_options_t options{
+            sizeof(byul_maze_generate_options_t),
+            BYUL_MAZE_GENERATE_OPTIONS_ABI_VERSION,
+            seed,
+            UINT64_C(1000),
+            UINT64_C(81),
+            nullptr,
+            nullptr
+        };
+        maze_t* direct = nullptr;
+        maze_t* replay = nullptr;
+        maze_t* dispatched = nullptr;
+        REQUIRE(byul_maze_generate_randomized_kruskal(
+            -5, 8, 9, 9, &options, &direct) == NAVSYS_STATUS_OK);
+        REQUIRE(byul_maze_generate_randomized_kruskal(
+            -5, 8, 9, 9, &options, &replay) == NAVSYS_STATUS_OK);
+        REQUIRE(byul_maze_generate(
+            BYUL_MAZE_ALGORITHM_RANDOMIZED_KRUSKAL,
+            -5, 8, 9, 9, &options, &dispatched) == NAVSYS_STATUS_OK);
+        REQUIRE(direct != nullptr);
+        REQUIRE(replay != nullptr);
+        REQUIRE(dispatched != nullptr);
+        if (seed == 0) CHECK(maze_hash(direct) == UINT32_C(73237245));
+        CHECK(maze_hash(direct) == maze_hash(replay));
+        CHECK(maze_hash(direct) == maze_hash(dispatched));
+        maze_destroy(dispatched);
+        maze_destroy(replay);
+        maze_destroy(direct);
+    }
+
+    maze_t* legacy = maze_make_kruskal(-5, 8, 9, 9);
+    REQUIRE(legacy != nullptr);
+    const maze_topology_t topology =
+        analyze_logical_topology(legacy, -5, 8, 9, 9);
+    CHECK(topology.queries_ok);
+    CHECK(topology.border_blocked);
+    CHECK(topology.logical_cells_open);
+    CHECK(topology.connected);
+    CHECK(topology.edge_count + 1 == topology.node_count);
+    maze_destroy(legacy);
+}
+
+TEST_CASE("Kruskal exact edge budgets and cancellation stay atomic") {
+    byul_maze_generation_context measured_context(
+        UINT64_C(17), UINT64_C(1000000), nullptr, nullptr);
+    maze_t* measured = nullptr;
+    REQUIRE(byul_maze_generate_kruskal_internal(
+        19, -31, 31, 21, measured_context, &measured) == NAVSYS_STATUS_OK);
+    REQUIRE(measured != nullptr);
+    const uint64_t considered_edges = measured_context.steps();
+    const uint64_t vertices = UINT64_C(15) * UINT64_C(10);
+    const uint64_t edges = UINT64_C(14) * UINT64_C(10)
+        + UINT64_C(9) * UINT64_C(15);
+    CHECK(considered_edges >= vertices - 1);
+    CHECK(considered_edges < edges);
+
+    byul_maze_generate_options_t options{
+        sizeof(byul_maze_generate_options_t),
+        BYUL_MAZE_GENERATE_OPTIONS_ABI_VERSION,
+        UINT64_C(17),
+        considered_edges,
+        UINT64_C(651),
+        nullptr,
+        nullptr
+    };
+    maze_t* exact = nullptr;
+    REQUIRE(byul_maze_generate_randomized_kruskal(
+        19, -31, 31, 21, &options, &exact) == NAVSYS_STATUS_OK);
+    REQUIRE(exact != nullptr);
+    CHECK(maze_hash(exact) == maze_hash(measured));
+    maze_destroy(exact);
+    maze_destroy(measured);
+
+    options.max_steps = considered_edges - 1;
+    maze_t* limited = reinterpret_cast<maze_t*>(uintptr_t{1});
+    CHECK(byul_maze_generate_randomized_kruskal(
+        19, -31, 31, 21, &options, &limited)
+        == NAVSYS_STATUS_LIMIT_REACHED);
+    CHECK(limited == nullptr);
+
+    for (const int cancel_after : {1, 2, 17, 200}) {
+        CAPTURE(cancel_after);
+        maze_cancel_fixture_t fixture{0, cancel_after};
+        options.max_steps = UINT64_C(1000000);
+        options.cancel_func = cancel_maze_overlay;
+        options.cancel_userdata = &fixture;
+        maze_t* cancelled = reinterpret_cast<maze_t*>(uintptr_t{1});
+        CHECK(byul_maze_generate_randomized_kruskal(
+            19, -31, 31, 21, &options, &cancelled)
+            == NAVSYS_STATUS_CANCELLED);
+        CHECK(cancelled == nullptr);
+        CHECK(fixture.calls == cancel_after);
+    }
+}
+
+TEST_CASE("Kruskal two-by-two logical graph accepts a tree for every edge order") {
+    constexpr std::array<std::array<int, 2>, 4> edges{{
+        {{0, 1}}, {{0, 2}}, {{1, 3}}, {{2, 3}}
+    }};
+    std::array<int, 4> order{{0, 1, 2, 3}};
+    size_t permutations = 0;
+    do {
+        std::array<int, 4> parent{{0, 1, 2, 3}};
+        const auto find_root = [&parent](int vertex) {
+            while (parent[vertex] != vertex) {
+                parent[vertex] = parent[parent[vertex]];
+                vertex = parent[vertex];
+            }
+            return vertex;
+        };
+        size_t accepted = 0;
+        for (const int edge_index : order) {
+            const int first = find_root(edges[edge_index][0]);
+            const int second = find_root(edges[edge_index][1]);
+            if (first == second) continue;
+            parent[second] = first;
+            ++accepted;
+        }
+        CHECK(accepted == 3);
+        const int root = find_root(0);
+        CHECK(find_root(1) == root);
+        CHECK(find_root(2) == root);
+        CHECK(find_root(3) == root);
+        ++permutations;
+    } while (std::next_permutation(order.begin(), order.end()));
+    CHECK(permutations == 24);
+}
+
+TEST_CASE("Kruskal two-by-three edge orders demonstrate non-UST frequencies") {
+    constexpr std::array<std::array<int, 2>, 7> edges{{
+        {{0, 1}}, {{0, 2}}, {{1, 3}}, {{2, 3}},
+        {{2, 4}}, {{3, 5}}, {{4, 5}}
+    }};
+    std::array<int, 7> order{{0, 1, 2, 3, 4, 5, 6}};
+    std::array<size_t, 128> tree_frequencies{};
+    size_t permutations = 0;
+    do {
+        std::array<int, 6> parent{{0, 1, 2, 3, 4, 5}};
+        const auto find_root = [&parent](int vertex) {
+            while (parent[vertex] != vertex) vertex = parent[vertex];
+            return vertex;
+        };
+        size_t accepted = 0;
+        size_t tree_mask = 0;
+        for (const int edge_index : order) {
+            const int first = find_root(edges[edge_index][0]);
+            const int second = find_root(edges[edge_index][1]);
+            if (first == second) continue;
+            parent[second] = first;
+            tree_mask |= size_t{1} << edge_index;
+            if (++accepted == 5) break;
+        }
+        REQUIRE(accepted == 5);
+        ++tree_frequencies[tree_mask];
+        ++permutations;
+    } while (std::next_permutation(order.begin(), order.end()));
+
+    size_t observed_trees = 0;
+    size_t frequency_300 = 0;
+    size_t frequency_360 = 0;
+    for (const size_t frequency : tree_frequencies) {
+        if (frequency == 0) continue;
+        ++observed_trees;
+        frequency_300 += frequency == 300 ? 1u : 0u;
+        frequency_360 += frequency == 360 ? 1u : 0u;
+    }
+    CHECK(permutations == 5040);
+    CHECK(observed_trees == 15);
+    CHECK(frequency_300 == 6);
+    CHECK(frequency_360 == 9);
+}
+
+TEST_CASE("Kruskal large rectangular corpus completes before exhausting edges") {
+    constexpr uint32_t width = 31;
+    constexpr uint32_t height = 21;
+    constexpr uint64_t vertices = UINT64_C(15) * UINT64_C(10);
+    constexpr uint64_t edges = UINT64_C(14) * UINT64_C(10)
+        + UINT64_C(9) * UINT64_C(15);
+    uint64_t considered_total = 0;
+    for (uint64_t seed = 0; seed < 128; ++seed) {
+        CAPTURE(seed);
+        byul_maze_generation_context context(
+            seed, UINT64_C(1000000), nullptr, nullptr);
+        maze_t* maze = nullptr;
+        REQUIRE(byul_maze_generate_kruskal_internal(
+            -37, 42, width, height, context, &maze) == NAVSYS_STATUS_OK);
+        REQUIRE(maze != nullptr);
+        CHECK(context.steps() >= vertices - 1);
+        CHECK(context.steps() < edges);
+        considered_total += context.steps();
+
+        const maze_topology_t topology = analyze_logical_topology(
+            maze, -37, 42, static_cast<int>(width), static_cast<int>(height));
+        CHECK(topology.queries_ok);
+        CHECK(topology.border_blocked);
+        CHECK(topology.logical_cells_open);
+        CHECK(topology.connected);
+        CHECK(topology.node_count == vertices);
+        CHECK(topology.edge_count + 1 == topology.node_count);
+        maze_destroy(maze);
+    }
+    CHECK(considered_total >= (vertices - 1) * UINT64_C(128));
+    CHECK(considered_total < edges * UINT64_C(128));
+}
+
+TEST_CASE("Recursive backtracker rectangular seed-zero rasters are stable") {
+    struct fixture_t {
+        uint32_t width;
+        uint32_t height;
+        uint32_t expected_hash;
+    };
+    const fixture_t fixtures[] = {
+        {3, 9, UINT32_C(490189354)},
+        {9, 3, UINT32_C(54204446)},
+        {5, 9, UINT32_C(835966655)},
+        {9, 5, UINT32_C(117517689)},
+        {7, 11, UINT32_C(4277753164)},
+        {11, 7, UINT32_C(410517540)},
+        {9, 9, UINT32_C(303425655)}
+    };
+    for (const fixture_t& fixture : fixtures) {
+        CAPTURE(fixture.width);
+        CAPTURE(fixture.height);
+        const uint64_t vertices =
+            static_cast<uint64_t>(fixture.width / 2) * (fixture.height / 2);
+        byul_maze_generation_context context(
+            UINT64_C(0), UINT64_C(1000000), nullptr, nullptr);
+        maze_t* maze = nullptr;
+        REQUIRE(byul_maze_generate_recursive_internal(
+            -5, 8, fixture.width, fixture.height, context, &maze)
+            == NAVSYS_STATUS_OK);
+        REQUIRE(maze != nullptr);
+        CHECK(context.steps() == vertices);
+        CHECK(maze_hash(maze) == fixture.expected_hash);
+        const maze_topology_t topology = analyze_logical_topology(
+            maze, -5, 8,
+            static_cast<int>(fixture.width),
+            static_cast<int>(fixture.height));
+        CHECK(topology.node_count == vertices);
+        CHECK(topology.edge_count + 1 == topology.node_count);
+        CHECK(topology.queries_ok);
+        CHECK(topology.border_blocked);
+        CHECK(topology.logical_cells_open);
+        CHECK(topology.connected);
+        maze_destroy(maze);
+    }
+}
+
+TEST_CASE("Recursive backtracker is translation invariant for equal seeds") {
+    for (const uint64_t seed : {
+             UINT64_C(0), UINT64_C(1), UINT64_C(17), UINT64_MAX}) {
+        CAPTURE(seed);
+        byul_maze_generation_context origin_context(
+            seed, UINT64_C(1000), nullptr, nullptr);
+        byul_maze_generation_context translated_context(
+            seed, UINT64_C(1000), nullptr, nullptr);
+        maze_t* origin = nullptr;
+        maze_t* translated = nullptr;
+        REQUIRE(byul_maze_generate_recursive_internal(
+            0, 0, 9, 13, origin_context, &origin) == NAVSYS_STATUS_OK);
+        REQUIRE(byul_maze_generate_recursive_internal(
+            23, -41, 9, 13, translated_context, &translated)
+            == NAVSYS_STATUS_OK);
+        REQUIRE(origin != nullptr);
+        REQUIRE(translated != nullptr);
+        REQUIRE(byul_maze_translate(origin, 23, -41) == NAVSYS_STATUS_OK);
+        CHECK(maze_equal(origin, translated));
+        CHECK(maze_hash(origin) == maze_hash(translated));
+        CHECK(origin_context.steps() == translated_context.steps());
+        maze_destroy(translated);
+        maze_destroy(origin);
+    }
+}
+
+TEST_CASE("Recursive backtracker baseline depth is linear on a narrow maze") {
+    constexpr uint32_t width = 3;
+    constexpr uint32_t height = 4095;
+    constexpr uint64_t vertices = height / 2;
+    byul_maze_generation_context context(
+        UINT64_C(17), vertices, nullptr, nullptr);
+    maze_t* maze = nullptr;
+    REQUIRE(byul_maze_generate_recursive_internal(
+        -7, 11, width, height, context, &maze) == NAVSYS_STATUS_OK);
+    REQUIRE(maze != nullptr);
+    CHECK(context.steps() == vertices);
+    const maze_topology_t topology =
+        analyze_logical_topology(maze, -7, 11, width, height);
+    CHECK(topology.node_count == vertices);
+    CHECK(topology.edge_count + 1 == topology.node_count);
+    CHECK(topology.queries_ok);
+    CHECK(topology.border_blocked);
+    CHECK(topology.logical_cells_open);
+    CHECK(topology.connected);
+    maze_destroy(maze);
+}
+
+TEST_CASE("Recursive backtracker checked API validates failure atomicity") {
+    byul_maze_generate_options_t options{
+        sizeof(byul_maze_generate_options_t),
+        BYUL_MAZE_GENERATE_OPTIONS_ABI_VERSION,
+        UINT64_C(0),
+        UINT64_C(1000),
+        UINT64_C(81),
+        nullptr,
+        nullptr
+    };
+    maze_t* output = reinterpret_cast<maze_t*>(uintptr_t{1});
+    CHECK(byul_maze_generate_recursive_backtracker(
+        0, 0, 2, 3, &options, &output) == NAVSYS_STATUS_UNSUPPORTED);
+    CHECK(output == nullptr);
+
+    output = reinterpret_cast<maze_t*>(uintptr_t{1});
+    CHECK(byul_maze_generate_recursive_backtracker(
+        0, 0, 4, 5, &options, &output) == NAVSYS_STATUS_UNSUPPORTED);
+    CHECK(output == nullptr);
+
+    output = reinterpret_cast<maze_t*>(uintptr_t{1});
+    CHECK(byul_maze_generate_recursive_backtracker(
+        std::numeric_limits<int32_t>::max(), 0, 3, 3, &options, &output)
+        == NAVSYS_STATUS_INVALID_ARGUMENT);
+    CHECK(output == nullptr);
+
+    output = reinterpret_cast<maze_t*>(uintptr_t{1});
+    CHECK(byul_maze_generate_recursive_backtracker(
+        std::numeric_limits<int32_t>::min(), 0, UINT32_MAX, 3,
+        &options, &output) == NAVSYS_STATUS_INVALID_ARGUMENT);
+    CHECK(output == nullptr);
+
+    output = reinterpret_cast<maze_t*>(uintptr_t{1});
+    CHECK(byul_maze_generate_recursive_backtracker(
+        0, 0, 9, 9, nullptr, &output) == NAVSYS_STATUS_INVALID_ARGUMENT);
+    CHECK(output == nullptr);
+
+    options.struct_size = sizeof(byul_maze_generate_options_t) - 1;
+    output = reinterpret_cast<maze_t*>(uintptr_t{1});
+    CHECK(byul_maze_generate_recursive_backtracker(
+        0, 0, 9, 9, &options, &output) == NAVSYS_STATUS_INVALID_ARGUMENT);
+    CHECK(output == nullptr);
+
+    options.struct_size = sizeof(byul_maze_generate_options_t);
+    ++options.abi_version;
+    output = reinterpret_cast<maze_t*>(uintptr_t{1});
+    CHECK(byul_maze_generate_recursive_backtracker(
+        0, 0, 9, 9, &options, &output) == NAVSYS_STATUS_UNSUPPORTED);
+    CHECK(output == nullptr);
+
+    options.abi_version = BYUL_MAZE_GENERATE_OPTIONS_ABI_VERSION;
+    options.max_cells = UINT64_C(80);
+    output = reinterpret_cast<maze_t*>(uintptr_t{1});
+    CHECK(byul_maze_generate_recursive_backtracker(
+        0, 0, 9, 9, &options, &output) == NAVSYS_STATUS_LIMIT_REACHED);
+    CHECK(output == nullptr);
+
+    options.max_cells = UINT64_C(81);
+    options.max_steps = UINT64_C(1);
+    output = reinterpret_cast<maze_t*>(uintptr_t{1});
+    CHECK(byul_maze_generate_recursive_backtracker(
+        0, 0, 9, 9, &options, &output) == NAVSYS_STATUS_LIMIT_REACHED);
+    CHECK(output == nullptr);
+
+    maze_cancel_fixture_t cancel_fixture{0, 1};
+    options.max_steps = UINT64_C(1000);
+    options.cancel_func = cancel_maze_overlay;
+    options.cancel_userdata = &cancel_fixture;
+    output = reinterpret_cast<maze_t*>(uintptr_t{1});
+    CHECK(byul_maze_generate_recursive_backtracker(
+        0, 0, 9, 9, &options, &output) == NAVSYS_STATUS_CANCELLED);
+    CHECK(output == nullptr);
+    CHECK(cancel_fixture.calls == 1);
+
+    options.cancel_func = throw_maze_overlay_cancel;
+    options.cancel_userdata = nullptr;
+    output = reinterpret_cast<maze_t*>(uintptr_t{1});
+    CHECK(byul_maze_generate_recursive_backtracker(
+        0, 0, 9, 9, &options, &output) == NAVSYS_STATUS_CALLBACK_FAILED);
+    CHECK(output == nullptr);
+
+    CHECK(maze_make_recursive(0, 0, 2, 3) == nullptr);
+    CHECK(maze_make_recursive(0, 0, 4, 5) == nullptr);
+}
+
+TEST_CASE("Recursive backtracker checked API preserves replay and dispatcher") {
+    for (const uint64_t seed : {
+             UINT64_C(0), UINT64_C(1), UINT64_C(17), UINT64_MAX}) {
+        CAPTURE(seed);
+        const byul_maze_generate_options_t options{
+            sizeof(byul_maze_generate_options_t),
+            BYUL_MAZE_GENERATE_OPTIONS_ABI_VERSION,
+            seed,
+            UINT64_C(1000),
+            UINT64_C(81),
+            nullptr,
+            nullptr
+        };
+        maze_t* direct = nullptr;
+        maze_t* replay = nullptr;
+        maze_t* dispatched = nullptr;
+        REQUIRE(byul_maze_generate_recursive_backtracker(
+            -5, 8, 9, 9, &options, &direct) == NAVSYS_STATUS_OK);
+        REQUIRE(byul_maze_generate_recursive_backtracker(
+            -5, 8, 9, 9, &options, &replay) == NAVSYS_STATUS_OK);
+        REQUIRE(byul_maze_generate(
+            BYUL_MAZE_ALGORITHM_RECURSIVE_BACKTRACKER,
+            -5, 8, 9, 9, &options, &dispatched) == NAVSYS_STATUS_OK);
+        REQUIRE(direct != nullptr);
+        REQUIRE(replay != nullptr);
+        REQUIRE(dispatched != nullptr);
+        if (seed == 0) CHECK(maze_hash(direct) == UINT32_C(303425655));
+        CHECK(maze_hash(direct) == maze_hash(replay));
+        CHECK(maze_hash(direct) == maze_hash(dispatched));
+        maze_destroy(dispatched);
+        maze_destroy(replay);
+        maze_destroy(direct);
+    }
+}
+
+TEST_CASE("Recursive backtracker exact vertex budgets stay atomic") {
+    constexpr uint64_t vertices = UINT64_C(15) * UINT64_C(10);
+    byul_maze_generate_options_t options{
+        sizeof(byul_maze_generate_options_t),
+        BYUL_MAZE_GENERATE_OPTIONS_ABI_VERSION,
+        UINT64_C(17),
+        vertices,
+        UINT64_C(651),
+        nullptr,
+        nullptr
+    };
+    maze_t* exact = nullptr;
+    REQUIRE(byul_maze_generate_recursive_backtracker(
+        19, -31, 31, 21, &options, &exact) == NAVSYS_STATUS_OK);
+    REQUIRE(exact != nullptr);
+    maze_destroy(exact);
+
+    options.max_steps = vertices - 1;
+    maze_t* limited = reinterpret_cast<maze_t*>(uintptr_t{1});
+    CHECK(byul_maze_generate_recursive_backtracker(
+        19, -31, 31, 21, &options, &limited)
+        == NAVSYS_STATUS_LIMIT_REACHED);
+    CHECK(limited == nullptr);
+
+    for (const int cancel_after : {1, 2, 17, 200}) {
+        CAPTURE(cancel_after);
+        maze_cancel_fixture_t fixture{0, cancel_after};
+        options.max_steps = UINT64_C(1000000);
+        options.cancel_func = cancel_maze_overlay;
+        options.cancel_userdata = &fixture;
+        maze_t* cancelled = reinterpret_cast<maze_t*>(uintptr_t{1});
+        CHECK(byul_maze_generate_recursive_backtracker(
+            19, -31, 31, 21, &options, &cancelled)
+            == NAVSYS_STATUS_CANCELLED);
+        CHECK(cancelled == nullptr);
+        CHECK(fixture.calls == cancel_after);
+    }
+}
+
+TEST_CASE("Recursive backtracker profiled corpus visits every logical cell") {
+    for (uint32_t width = 3; width <= 11; width += 2) {
+        for (uint32_t height = 3; height <= 11; height += 2) {
+            const uint64_t vertices =
+                static_cast<uint64_t>(width / 2) * (height / 2);
+            for (uint64_t seed = 0; seed < 16; ++seed) {
+                CAPTURE(width);
+                CAPTURE(height);
+                CAPTURE(seed);
+                byul_maze_generation_context context(
+                    seed, vertices, nullptr, nullptr);
+                byul_maze_recursive_stats stats{};
+                maze_t* maze = nullptr;
+                REQUIRE(byul_maze_generate_recursive_profiled_internal(
+                    13, -21, width, height, context, &stats, &maze)
+                    == NAVSYS_STATUS_OK);
+                REQUIRE(maze != nullptr);
+                CHECK(context.steps() == vertices);
+                CHECK(stats.visited_cells == vertices);
+                CHECK(stats.peak_frames > 0);
+                CHECK(stats.peak_frames <= vertices);
+                const maze_topology_t topology = analyze_logical_topology(
+                    maze, 13, -21,
+                    static_cast<int>(width),
+                    static_cast<int>(height));
+                CHECK(topology.node_count == vertices);
+                CHECK(topology.edge_count + 1 == topology.node_count);
+                CHECK(topology.queries_ok);
+                CHECK(topology.border_blocked);
+                CHECK(topology.logical_cells_open);
+                CHECK(topology.connected);
+                maze_destroy(maze);
+            }
+        }
+    }
+}
+
+TEST_CASE("Recursive backtracker handles deep narrow and wide corridors iteratively") {
+    struct extent_t { uint32_t width; uint32_t height; };
+    for (const extent_t extent : {
+             extent_t{3, 131071}, extent_t{131071, 3}}) {
+        CAPTURE(extent.width);
+        CAPTURE(extent.height);
+        constexpr uint64_t vertices = UINT64_C(65535);
+        byul_maze_generation_context context(
+            UINT64_C(17), vertices, nullptr, nullptr);
+        byul_maze_recursive_stats stats{};
+        maze_t* maze = nullptr;
+        REQUIRE(byul_maze_generate_recursive_profiled_internal(
+            -17, 29, extent.width, extent.height,
+            context, &stats, &maze) == NAVSYS_STATUS_OK);
+        REQUIRE(maze != nullptr);
+        CHECK(context.steps() == vertices);
+        CHECK(stats.visited_cells == vertices);
+        CHECK(stats.peak_frames == vertices);
+        const maze_topology_t topology = analyze_logical_topology(
+            maze, -17, 29,
+            static_cast<int>(extent.width),
+            static_cast<int>(extent.height));
+        CHECK(topology.node_count == vertices);
+        CHECK(topology.edge_count + 1 == topology.node_count);
+        CHECK(topology.queries_ok);
+        CHECK(topology.border_blocked);
+        CHECK(topology.logical_cells_open);
+        CHECK(topology.connected);
+        maze_destroy(maze);
+    }
+}
+
+TEST_CASE("Prim rectangular frontier inventory and seed-zero rasters are stable") {
+    struct fixture_t {
+        uint32_t width;
+        uint32_t height;
+        uint32_t expected_hash;
+    };
+    const fixture_t fixtures[] = {
+        {3, 9, UINT32_C(490189354)},
+        {9, 3, UINT32_C(54204446)},
+        {5, 9, UINT32_C(650319809)},
+        {9, 5, UINT32_C(16892751)},
+        {7, 11, UINT32_C(218476356)},
+        {11, 7, UINT32_C(477496482)},
+        {9, 9, UINT32_C(857387639)}
+    };
+    for (const fixture_t& fixture : fixtures) {
+        CAPTURE(fixture.width);
+        CAPTURE(fixture.height);
+        const uint64_t columns = fixture.width / 2;
+        const uint64_t rows = fixture.height / 2;
+        const uint64_t vertices = columns * rows;
+        const uint64_t edges =
+            (columns - 1) * rows + (rows - 1) * columns;
+        byul_maze_generation_context context(
+            UINT64_C(0), UINT64_C(1000000), nullptr, nullptr);
+        maze_t* maze = nullptr;
+        REQUIRE(byul_maze_generate_prim_internal(
+            -5, 8, fixture.width, fixture.height, context, &maze)
+            == NAVSYS_STATUS_OK);
+        REQUIRE(maze != nullptr);
+        CHECK(context.steps() == edges);
+        CHECK(maze_hash(maze) == fixture.expected_hash);
+
+        const maze_topology_t topology = analyze_logical_topology(
+            maze, -5, 8,
+            static_cast<int>(fixture.width),
+            static_cast<int>(fixture.height));
+        CHECK(topology.node_count == vertices);
+        CHECK(topology.edge_count + 1 == topology.node_count);
+        CHECK(topology.queries_ok);
+        CHECK(topology.border_blocked);
+        CHECK(topology.logical_cells_open);
+        CHECK(topology.connected);
+        maze_destroy(maze);
+    }
+}
+
+TEST_CASE("Prim tiny rectangular corpus pops every unique frontier edge") {
+    for (uint32_t width = 3; width <= 11; width += 2) {
+        for (uint32_t height = 3; height <= 11; height += 2) {
+            const uint64_t columns = width / 2;
+            const uint64_t rows = height / 2;
+            const uint64_t vertices = columns * rows;
+            const uint64_t edges =
+                (columns - 1) * rows + (rows - 1) * columns;
+            for (uint64_t seed = 0; seed < 16; ++seed) {
+                CAPTURE(width);
+                CAPTURE(height);
+                CAPTURE(seed);
+                byul_maze_generation_context context(
+                    seed, UINT64_C(1000000), nullptr, nullptr);
+                maze_t* maze = nullptr;
+                REQUIRE(byul_maze_generate_prim_internal(
+                    13, -21, width, height, context, &maze)
+                    == NAVSYS_STATUS_OK);
+                REQUIRE(maze != nullptr);
+                CHECK(context.steps() == edges);
+
+                const maze_topology_t topology = analyze_logical_topology(
+                    maze, 13, -21,
+                    static_cast<int>(width),
+                    static_cast<int>(height));
+                CHECK(topology.node_count == vertices);
+                CHECK(topology.edge_count + 1 == topology.node_count);
+                CHECK(topology.queries_ok);
+                CHECK(topology.border_blocked);
+                CHECK(topology.logical_cells_open);
+                CHECK(topology.connected);
+                maze_destroy(maze);
+            }
+        }
+    }
+}
+
+TEST_CASE("Prim checked API validates failure atomicity") {
+    byul_maze_generate_options_t options{
+        sizeof(byul_maze_generate_options_t),
+        BYUL_MAZE_GENERATE_OPTIONS_ABI_VERSION,
+        UINT64_C(0),
+        UINT64_C(1000),
+        UINT64_C(81),
+        nullptr,
+        nullptr
+    };
+    maze_t* output = reinterpret_cast<maze_t*>(uintptr_t{1});
+    CHECK(byul_maze_generate_randomized_prim(
+        0, 0, 2, 3, &options, &output) == NAVSYS_STATUS_UNSUPPORTED);
+    CHECK(output == nullptr);
+
+    output = reinterpret_cast<maze_t*>(uintptr_t{1});
+    CHECK(byul_maze_generate_randomized_prim(
+        0, 0, 4, 5, &options, &output) == NAVSYS_STATUS_UNSUPPORTED);
+    CHECK(output == nullptr);
+
+    output = reinterpret_cast<maze_t*>(uintptr_t{1});
+    CHECK(byul_maze_generate_randomized_prim(
+        std::numeric_limits<int32_t>::max(), 0, 3, 3, &options, &output)
+        == NAVSYS_STATUS_INVALID_ARGUMENT);
+    CHECK(output == nullptr);
+
+    output = reinterpret_cast<maze_t*>(uintptr_t{1});
+    CHECK(byul_maze_generate_randomized_prim(
+        std::numeric_limits<int32_t>::min(), 0, UINT32_MAX, 3,
+        &options, &output) == NAVSYS_STATUS_INVALID_ARGUMENT);
+    CHECK(output == nullptr);
+
+    output = reinterpret_cast<maze_t*>(uintptr_t{1});
+    CHECK(byul_maze_generate_randomized_prim(
+        0, 0, 9, 9, nullptr, &output) == NAVSYS_STATUS_INVALID_ARGUMENT);
+    CHECK(output == nullptr);
+
+    options.struct_size = sizeof(byul_maze_generate_options_t) - 1;
+    output = reinterpret_cast<maze_t*>(uintptr_t{1});
+    CHECK(byul_maze_generate_randomized_prim(
+        0, 0, 9, 9, &options, &output) == NAVSYS_STATUS_INVALID_ARGUMENT);
+    CHECK(output == nullptr);
+
+    options.struct_size = sizeof(byul_maze_generate_options_t);
+    ++options.abi_version;
+    output = reinterpret_cast<maze_t*>(uintptr_t{1});
+    CHECK(byul_maze_generate_randomized_prim(
+        0, 0, 9, 9, &options, &output) == NAVSYS_STATUS_UNSUPPORTED);
+    CHECK(output == nullptr);
+
+    options.abi_version = BYUL_MAZE_GENERATE_OPTIONS_ABI_VERSION;
+    options.max_cells = UINT64_C(80);
+    output = reinterpret_cast<maze_t*>(uintptr_t{1});
+    CHECK(byul_maze_generate_randomized_prim(
+        0, 0, 9, 9, &options, &output) == NAVSYS_STATUS_LIMIT_REACHED);
+    CHECK(output == nullptr);
+
+    options.max_cells = UINT64_C(81);
+    options.max_steps = UINT64_C(1);
+    output = reinterpret_cast<maze_t*>(uintptr_t{1});
+    CHECK(byul_maze_generate_randomized_prim(
+        0, 0, 9, 9, &options, &output) == NAVSYS_STATUS_LIMIT_REACHED);
+    CHECK(output == nullptr);
+
+    maze_cancel_fixture_t cancel_fixture{0, 1};
+    options.max_steps = UINT64_C(1000);
+    options.cancel_func = cancel_maze_overlay;
+    options.cancel_userdata = &cancel_fixture;
+    output = reinterpret_cast<maze_t*>(uintptr_t{1});
+    CHECK(byul_maze_generate_randomized_prim(
+        0, 0, 9, 9, &options, &output) == NAVSYS_STATUS_CANCELLED);
+    CHECK(output == nullptr);
+    CHECK(cancel_fixture.calls == 1);
+
+    options.cancel_func = throw_maze_overlay_cancel;
+    options.cancel_userdata = nullptr;
+    output = reinterpret_cast<maze_t*>(uintptr_t{1});
+    CHECK(byul_maze_generate_randomized_prim(
+        0, 0, 9, 9, &options, &output) == NAVSYS_STATUS_CALLBACK_FAILED);
+    CHECK(output == nullptr);
+
+    CHECK(maze_maze_prim(0, 0, 2, 3) == nullptr);
+    CHECK(maze_maze_prim(0, 0, 4, 5) == nullptr);
+}
+
+TEST_CASE("Prim checked API replays and matches dispatcher") {
+    for (const uint64_t seed : {
+             UINT64_C(0), UINT64_C(1), UINT64_C(17), UINT64_MAX}) {
+        CAPTURE(seed);
+        const byul_maze_generate_options_t options{
+            sizeof(byul_maze_generate_options_t),
+            BYUL_MAZE_GENERATE_OPTIONS_ABI_VERSION,
+            seed,
+            UINT64_C(1000),
+            UINT64_C(81),
+            nullptr,
+            nullptr
+        };
+        maze_t* direct = nullptr;
+        maze_t* replay = nullptr;
+        maze_t* dispatched = nullptr;
+        REQUIRE(byul_maze_generate_randomized_prim(
+            -5, 8, 9, 9, &options, &direct) == NAVSYS_STATUS_OK);
+        REQUIRE(byul_maze_generate_randomized_prim(
+            -5, 8, 9, 9, &options, &replay) == NAVSYS_STATUS_OK);
+        REQUIRE(byul_maze_generate(
+            BYUL_MAZE_ALGORITHM_RANDOMIZED_PRIM,
+            -5, 8, 9, 9, &options, &dispatched) == NAVSYS_STATUS_OK);
+        REQUIRE(direct != nullptr);
+        REQUIRE(replay != nullptr);
+        REQUIRE(dispatched != nullptr);
+        if (seed == 0) CHECK(maze_hash(direct) == UINT32_C(857387639));
+        CHECK(maze_hash(direct) == maze_hash(replay));
+        CHECK(maze_hash(direct) == maze_hash(dispatched));
+        maze_destroy(dispatched);
+        maze_destroy(replay);
+        maze_destroy(direct);
+    }
+
+    maze_t* legacy = maze_maze_prim(-5, 8, 9, 9);
+    REQUIRE(legacy != nullptr);
+    const maze_topology_t topology =
+        analyze_logical_topology(legacy, -5, 8, 9, 9);
+    CHECK(topology.queries_ok);
+    CHECK(topology.border_blocked);
+    CHECK(topology.logical_cells_open);
+    CHECK(topology.connected);
+    CHECK(topology.edge_count + 1 == topology.node_count);
+    maze_destroy(legacy);
+}
+
+TEST_CASE("Prim exact edge budgets and cancellation stay atomic") {
+    constexpr uint64_t edges = UINT64_C(14) * UINT64_C(10)
+        + UINT64_C(9) * UINT64_C(15);
+    byul_maze_generation_context measured_context(
+        UINT64_C(17), UINT64_C(1000000), nullptr, nullptr);
+    maze_t* measured = nullptr;
+    REQUIRE(byul_maze_generate_prim_internal(
+        19, -31, 31, 21, measured_context, &measured) == NAVSYS_STATUS_OK);
+    REQUIRE(measured != nullptr);
+    CHECK(measured_context.steps() == edges);
+
+    byul_maze_generate_options_t options{
+        sizeof(byul_maze_generate_options_t),
+        BYUL_MAZE_GENERATE_OPTIONS_ABI_VERSION,
+        UINT64_C(17),
+        edges,
+        UINT64_C(651),
+        nullptr,
+        nullptr
+    };
+    maze_t* exact = nullptr;
+    REQUIRE(byul_maze_generate_randomized_prim(
+        19, -31, 31, 21, &options, &exact) == NAVSYS_STATUS_OK);
+    REQUIRE(exact != nullptr);
+    CHECK(maze_hash(exact) == maze_hash(measured));
+    maze_destroy(exact);
+    maze_destroy(measured);
+
+    options.max_steps = edges - 1;
+    maze_t* limited = reinterpret_cast<maze_t*>(uintptr_t{1});
+    CHECK(byul_maze_generate_randomized_prim(
+        19, -31, 31, 21, &options, &limited)
+        == NAVSYS_STATUS_LIMIT_REACHED);
+    CHECK(limited == nullptr);
+
+    for (const int cancel_after : {1, 2, 17, 200}) {
+        CAPTURE(cancel_after);
+        maze_cancel_fixture_t fixture{0, cancel_after};
+        options.max_steps = UINT64_C(1000000);
+        options.cancel_func = cancel_maze_overlay;
+        options.cancel_userdata = &fixture;
+        maze_t* cancelled = reinterpret_cast<maze_t*>(uintptr_t{1});
+        CHECK(byul_maze_generate_randomized_prim(
+            19, -31, 31, 21, &options, &cancelled)
+            == NAVSYS_STATUS_CANCELLED);
+        CHECK(cancelled == nullptr);
+        CHECK(fixture.calls == cancel_after);
+    }
+}
+
+TEST_CASE("Prim profiled frontier accounting is exact on large rectangles") {
+    struct extent_t { uint32_t width; uint32_t height; };
+    for (const extent_t extent : {
+             extent_t{511, 255}, extent_t{255, 511}}) {
+        for (const uint64_t seed : {UINT64_C(0), UINT64_C(17)}) {
+            CAPTURE(extent.width);
+            CAPTURE(extent.height);
+            CAPTURE(seed);
+            const uint64_t columns = extent.width / 2;
+            const uint64_t rows = extent.height / 2;
+            const uint64_t vertices = columns * rows;
+            const uint64_t edges =
+                (columns - 1) * rows + (rows - 1) * columns;
+            byul_maze_generation_context context(
+                seed, edges, nullptr, nullptr);
+            byul_maze_prim_stats stats{};
+            maze_t* maze = nullptr;
+            REQUIRE(byul_maze_generate_prim_profiled_internal(
+                -701, 313, extent.width, extent.height,
+                context, &stats, &maze) == NAVSYS_STATUS_OK);
+            REQUIRE(maze != nullptr);
+            CHECK(context.steps() == edges);
+            CHECK(stats.frontier_pops == edges);
+            CHECK(stats.accepted_edges == vertices - 1);
+            CHECK(stats.stale_edges == edges - (vertices - 1));
+            CHECK(stats.peak_frontier > 0);
+            CHECK(stats.peak_frontier <= edges);
+            const maze_topology_t topology = analyze_logical_topology(
+                maze, -701, 313,
+                static_cast<int>(extent.width),
+                static_cast<int>(extent.height));
+            CHECK(topology.queries_ok);
+            CHECK(topology.border_blocked);
+            CHECK(topology.logical_cells_open);
+            CHECK(topology.connected);
+            CHECK(topology.node_count == vertices);
+            CHECK(topology.edge_count + 1 == topology.node_count);
+            maze_destroy(maze);
+        }
+    }
+}
+
+TEST_CASE("Prim seed corpus demonstrates a non-uniform tree distribution") {
+    std::array<uint32_t, 128> frequencies{};
+    for (uint64_t seed = 0; seed < UINT64_C(65536); ++seed) {
+        byul_maze_generation_context context(
+            seed, UINT64_C(100), nullptr, nullptr);
+        maze_t* maze = nullptr;
+        REQUIRE(byul_maze_generate_prim_internal(
+            0, 0, 5, 7, context, &maze) == NAVSYS_STATUS_OK);
+        REQUIRE(maze != nullptr);
+        ++frequencies[logical_tree_mask(maze, 0, 0, 5, 7)];
+        maze_destroy(maze);
+    }
+
+    size_t observed = 0;
+    uint32_t minimum = UINT32_MAX;
+    uint32_t maximum = 0;
+    for (const uint32_t frequency : frequencies) {
+        if (frequency == 0) continue;
+        ++observed;
+        minimum = std::min(minimum, frequency);
+        maximum = std::max(maximum, frequency);
+    }
+    CHECK(observed == 15);
+    CHECK(static_cast<uint64_t>(maximum) * 2
+        > static_cast<uint64_t>(minimum) * 3);
+}
+
 TEST_CASE("internal generators replay and honor step limits") {
     const maze_generator_t generators[] = {
         byul_maze_generate_recursive_internal,
@@ -430,6 +2308,1178 @@ TEST_CASE("generator seed corpus satisfies declared logical topology") {
             maze_destroy(maze);
         }
     }
+}
+
+TEST_CASE("Eller checked API validates options and failure atomicity") {
+    byul_maze_generate_options_t options{
+        sizeof(byul_maze_generate_options_t),
+        BYUL_MAZE_GENERATE_OPTIONS_ABI_VERSION,
+        UINT64_C(0),
+        UINT64_C(16),
+        UINT64_C(81),
+        nullptr,
+        nullptr
+    };
+    maze_t* output = reinterpret_cast<maze_t*>(uintptr_t{1});
+    CHECK(byul_maze_generate_eller(0, 0, 2, 3, &options, &output)
+        == NAVSYS_STATUS_UNSUPPORTED);
+    CHECK(output == nullptr);
+
+    output = reinterpret_cast<maze_t*>(uintptr_t{1});
+    CHECK(byul_maze_generate_eller(0, 0, 4, 5, &options, &output)
+        == NAVSYS_STATUS_UNSUPPORTED);
+    CHECK(output == nullptr);
+
+    output = reinterpret_cast<maze_t*>(uintptr_t{1});
+    CHECK(byul_maze_generate_eller(
+        std::numeric_limits<int32_t>::max(), 0, 3, 3, &options, &output)
+        == NAVSYS_STATUS_INVALID_ARGUMENT);
+    CHECK(output == nullptr);
+
+    output = reinterpret_cast<maze_t*>(uintptr_t{1});
+    CHECK(byul_maze_generate_eller(0, 0, 9, 9, nullptr, &output)
+        == NAVSYS_STATUS_INVALID_ARGUMENT);
+    CHECK(output == nullptr);
+
+    options.max_cells = UINT64_C(80);
+    output = reinterpret_cast<maze_t*>(uintptr_t{1});
+    CHECK(byul_maze_generate_eller(0, 0, 9, 9, &options, &output)
+        == NAVSYS_STATUS_LIMIT_REACHED);
+    CHECK(output == nullptr);
+
+    options.max_cells = UINT64_C(81);
+    options.max_steps = UINT64_C(15);
+    output = reinterpret_cast<maze_t*>(uintptr_t{1});
+    CHECK(byul_maze_generate_eller(0, 0, 9, 9, &options, &output)
+        == NAVSYS_STATUS_LIMIT_REACHED);
+    CHECK(output == nullptr);
+
+    maze_cancel_fixture_t cancel_fixture{0, 83};
+    options.max_steps = UINT64_C(16);
+    options.cancel_func = cancel_maze_overlay;
+    options.cancel_userdata = &cancel_fixture;
+    output = reinterpret_cast<maze_t*>(uintptr_t{1});
+    CHECK(byul_maze_generate_eller(0, 0, 9, 9, &options, &output)
+        == NAVSYS_STATUS_CANCELLED);
+    CHECK(output == nullptr);
+    CHECK(cancel_fixture.calls == cancel_fixture.cancel_after);
+
+    CHECK(maze_make_eller(0, 0, 2, 3) == nullptr);
+    CHECK(maze_make_eller(0, 0, 4, 5) == nullptr);
+}
+
+TEST_CASE("Eller checked API replays the corrected lattice") {
+    const byul_maze_generate_options_t options{
+        sizeof(byul_maze_generate_options_t),
+        BYUL_MAZE_GENERATE_OPTIONS_ABI_VERSION,
+        UINT64_C(0),
+        UINT64_C(16),
+        UINT64_C(81),
+        nullptr,
+        nullptr
+    };
+    maze_t* first = nullptr;
+    maze_t* second = nullptr;
+    REQUIRE(byul_maze_generate_eller(
+        -5, 8, 9, 9, &options, &first) == NAVSYS_STATUS_OK);
+    REQUIRE(byul_maze_generate_eller(
+        -5, 8, 9, 9, &options, &second) == NAVSYS_STATUS_OK);
+    REQUIRE(first != nullptr);
+    REQUIRE(second != nullptr);
+    CHECK(maze_hash(first) == UINT32_C(789167229));
+    CHECK(maze_hash(first) == maze_hash(second));
+    const maze_topology_t topology =
+        analyze_logical_topology(first, -5, 8, 9, 9);
+    CHECK(topology.queries_ok);
+    CHECK(topology.border_blocked);
+    CHECK(topology.logical_cells_open);
+    CHECK(topology.connected);
+    CHECK(topology.edge_count + 1 == topology.node_count);
+    maze_destroy(second);
+    maze_destroy(first);
+}
+
+TEST_CASE("Eller corrected lattice has stable tiny goldens") {
+    struct fixture_t {
+        uint32_t width;
+        uint32_t height;
+        uint32_t expected_hash;
+    };
+    const fixture_t fixtures[] = {
+        {3, 3, UINT32_C(910439850)},
+        {5, 5, UINT32_C(778966597)},
+        {9, 9, UINT32_C(789167229)}
+    };
+
+    for (const fixture_t& fixture : fixtures) {
+        CAPTURE(fixture.width);
+        CAPTURE(fixture.height);
+        byul_maze_generation_context context(
+            UINT64_C(0), UINT64_C(1000000), nullptr, nullptr);
+        maze_t* maze = nullptr;
+        REQUIRE(byul_maze_generate_eller_internal(
+            -5, 8, fixture.width, fixture.height, context, &maze)
+            == NAVSYS_STATUS_OK);
+        REQUIRE(maze != nullptr);
+        CHECK(maze_hash(maze) == fixture.expected_hash);
+
+        const maze_topology_t topology = analyze_logical_topology(
+            maze, -5, 8,
+            static_cast<int>(fixture.width),
+            static_cast<int>(fixture.height));
+        CHECK(topology.queries_ok);
+        CHECK(topology.border_blocked);
+        CHECK(topology.logical_cells_open);
+        CHECK(topology.connected);
+        CHECK(topology.edge_count + 1 == topology.node_count);
+        maze_destroy(maze);
+    }
+}
+
+TEST_CASE("Eller corrected lattice remains perfect across 100 seeds") {
+    for (uint64_t seed = 0; seed < 100; ++seed) {
+        CAPTURE(seed);
+        const byul_maze_generate_options_t options{
+            sizeof(byul_maze_generate_options_t),
+            BYUL_MAZE_GENERATE_OPTIONS_ABI_VERSION,
+            seed,
+            UINT64_C(16),
+            UINT64_C(81),
+            nullptr,
+            nullptr
+        };
+        maze_t* maze = nullptr;
+        REQUIRE(byul_maze_generate_eller(
+            13, -21, 9, 9, &options, &maze) == NAVSYS_STATUS_OK);
+        REQUIRE(maze != nullptr);
+
+        const maze_topology_t topology =
+            analyze_logical_topology(maze, 13, -21, 9, 9);
+        CHECK(topology.queries_ok);
+        CHECK(topology.border_blocked);
+        CHECK(topology.logical_cells_open);
+        CHECK(topology.connected);
+        CHECK(topology.edge_count + 1 == topology.node_count);
+        maze_destroy(maze);
+    }
+}
+
+TEST_CASE("Hunt-and-Kill phase contract has stable tiny goldens") {
+    struct fixture_t {
+        uint32_t width;
+        uint32_t height;
+        uint32_t expected_hash;
+    };
+    const fixture_t fixtures[] = {
+        {3, 3, UINT32_C(910439850)},
+        {5, 5, UINT32_C(874550531)},
+        {9, 9, UINT32_C(26398801)}
+    };
+
+    for (const fixture_t& fixture : fixtures) {
+        CAPTURE(fixture.width);
+        CAPTURE(fixture.height);
+        byul_maze_generation_context context(
+            UINT64_C(0), UINT64_C(1000000), nullptr, nullptr);
+        maze_t* maze = nullptr;
+        REQUIRE(byul_maze_generate_hunt_and_kill_internal(
+            -5, 8, fixture.width, fixture.height, context, &maze)
+            == NAVSYS_STATUS_OK);
+        REQUIRE(maze != nullptr);
+        CHECK(maze_hash(maze) == fixture.expected_hash);
+
+        const maze_topology_t topology = analyze_logical_topology(
+            maze, -5, 8,
+            static_cast<int>(fixture.width),
+            static_cast<int>(fixture.height));
+        CHECK(topology.queries_ok);
+        CHECK(topology.border_blocked);
+        CHECK(topology.logical_cells_open);
+        CHECK(topology.connected);
+        CHECK(topology.edge_count + 1 == topology.node_count);
+        maze_destroy(maze);
+    }
+}
+
+TEST_CASE("Hunt-and-Kill remains perfect across 100 seeds") {
+    for (uint64_t seed = 0; seed < 100; ++seed) {
+        CAPTURE(seed);
+        const byul_maze_generate_options_t options{
+            sizeof(byul_maze_generate_options_t),
+            BYUL_MAZE_GENERATE_OPTIONS_ABI_VERSION,
+            seed,
+            UINT64_C(1296),
+            UINT64_C(81),
+            nullptr,
+            nullptr
+        };
+        maze_t* maze = nullptr;
+        REQUIRE(byul_maze_generate_hunt_and_kill(
+            13, -21, 9, 9, &options, &maze) == NAVSYS_STATUS_OK);
+        REQUIRE(maze != nullptr);
+
+        const maze_topology_t topology =
+            analyze_logical_topology(maze, 13, -21, 9, 9);
+        CHECK(topology.queries_ok);
+        CHECK(topology.border_blocked);
+        CHECK(topology.logical_cells_open);
+        CHECK(topology.connected);
+        CHECK(topology.edge_count + 1 == topology.node_count);
+        maze_destroy(maze);
+    }
+}
+
+TEST_CASE("Hunt-and-Kill step count equals the logical cell count") {
+    const uint32_t extents[][2] = {
+        {3, 3}, {3, 31}, {31, 3}, {31, 31}
+    };
+    for (const auto& extent : extents) {
+        CAPTURE(extent[0]);
+        CAPTURE(extent[1]);
+        const uint64_t logical_cells =
+            static_cast<uint64_t>((extent[0] - 1) / 2)
+            * ((extent[1] - 1) / 2);
+        for (uint64_t seed = 0; seed < 32; ++seed) {
+            CAPTURE(seed);
+            byul_maze_generation_context context(
+                seed, logical_cells, nullptr, nullptr);
+            maze_t* maze = nullptr;
+            REQUIRE(byul_maze_generate_hunt_and_kill_internal(
+                7, -13, extent[0], extent[1], context, &maze)
+                == NAVSYS_STATUS_OK);
+            REQUIRE(maze != nullptr);
+            CHECK(context.steps() == logical_cells);
+            maze_destroy(maze);
+        }
+    }
+}
+
+TEST_CASE("Hunt-and-Kill handles one-dimensional logical grids") {
+    const int extents[][2] = {{3, 9}, {9, 3}};
+    for (const auto& extent : extents) {
+        CAPTURE(extent[0]);
+        CAPTURE(extent[1]);
+        byul_maze_generation_context context(
+            UINT64_C(17), UINT64_C(1000000), nullptr, nullptr);
+        maze_t* maze = nullptr;
+        REQUIRE(byul_maze_generate_hunt_and_kill_internal(
+            -11, 23,
+            static_cast<uint32_t>(extent[0]),
+            static_cast<uint32_t>(extent[1]),
+            context, &maze) == NAVSYS_STATUS_OK);
+        REQUIRE(maze != nullptr);
+
+        const maze_topology_t topology = analyze_logical_topology(
+            maze, -11, 23, extent[0], extent[1]);
+        CHECK(topology.queries_ok);
+        CHECK(topology.border_blocked);
+        CHECK(topology.logical_cells_open);
+        CHECK(topology.connected);
+        CHECK(topology.edge_count + 1 == topology.node_count);
+        maze_destroy(maze);
+    }
+}
+
+TEST_CASE("Hunt-and-Kill checked API validates options and failure atomicity") {
+    byul_maze_generate_options_t options{
+        sizeof(byul_maze_generate_options_t),
+        BYUL_MAZE_GENERATE_OPTIONS_ABI_VERSION,
+        UINT64_C(0),
+        UINT64_C(1296),
+        UINT64_C(81),
+        nullptr,
+        nullptr
+    };
+    maze_t* output = reinterpret_cast<maze_t*>(uintptr_t{1});
+    CHECK(byul_maze_generate_hunt_and_kill(
+        0, 0, 2, 3, &options, &output) == NAVSYS_STATUS_UNSUPPORTED);
+    CHECK(output == nullptr);
+
+    output = reinterpret_cast<maze_t*>(uintptr_t{1});
+    CHECK(byul_maze_generate_hunt_and_kill(
+        0, 0, 4, 5, &options, &output) == NAVSYS_STATUS_UNSUPPORTED);
+    CHECK(output == nullptr);
+
+    output = reinterpret_cast<maze_t*>(uintptr_t{1});
+    CHECK(byul_maze_generate_hunt_and_kill(
+        std::numeric_limits<int32_t>::max(), 0, 3, 3, &options, &output)
+        == NAVSYS_STATUS_INVALID_ARGUMENT);
+    CHECK(output == nullptr);
+
+    output = reinterpret_cast<maze_t*>(uintptr_t{1});
+    CHECK(byul_maze_generate_hunt_and_kill(
+        std::numeric_limits<int32_t>::min(), 0,
+        UINT32_MAX, 3, &options, &output)
+        == NAVSYS_STATUS_INVALID_ARGUMENT);
+    CHECK(output == nullptr);
+
+    output = reinterpret_cast<maze_t*>(uintptr_t{1});
+    CHECK(byul_maze_generate_hunt_and_kill(
+        0, 0, 9, 9, nullptr, &output) == NAVSYS_STATUS_INVALID_ARGUMENT);
+    CHECK(output == nullptr);
+
+    options.max_cells = UINT64_C(80);
+    output = reinterpret_cast<maze_t*>(uintptr_t{1});
+    CHECK(byul_maze_generate_hunt_and_kill(
+        0, 0, 9, 9, &options, &output) == NAVSYS_STATUS_LIMIT_REACHED);
+    CHECK(output == nullptr);
+
+    options.max_cells = UINT64_C(81);
+    options.max_steps = UINT64_C(1);
+    output = reinterpret_cast<maze_t*>(uintptr_t{1});
+    CHECK(byul_maze_generate_hunt_and_kill(
+        0, 0, 9, 9, &options, &output) == NAVSYS_STATUS_LIMIT_REACHED);
+    CHECK(output == nullptr);
+
+    maze_cancel_fixture_t cancel_fixture{0, 83};
+    options.max_steps = UINT64_C(1296);
+    options.cancel_func = cancel_maze_overlay;
+    options.cancel_userdata = &cancel_fixture;
+    output = reinterpret_cast<maze_t*>(uintptr_t{1});
+    CHECK(byul_maze_generate_hunt_and_kill(
+        0, 0, 9, 9, &options, &output) == NAVSYS_STATUS_CANCELLED);
+    CHECK(output == nullptr);
+    CHECK(cancel_fixture.calls == cancel_fixture.cancel_after);
+
+    CHECK(maze_make_hunt_and_kill(0, 0, 2, 3) == nullptr);
+    CHECK(maze_make_hunt_and_kill(0, 0, 4, 5) == nullptr);
+}
+
+TEST_CASE("Hunt-and-Kill checked API replays and matches dispatcher") {
+    const uint64_t seeds[] = {
+        UINT64_C(0), UINT64_C(1), UINT64_C(17), UINT64_MAX
+    };
+    for (const uint64_t seed : seeds) {
+        CAPTURE(seed);
+        const byul_maze_generate_options_t options{
+            sizeof(byul_maze_generate_options_t),
+            BYUL_MAZE_GENERATE_OPTIONS_ABI_VERSION,
+            seed,
+            UINT64_C(1296),
+            UINT64_C(81),
+            nullptr,
+            nullptr
+        };
+        maze_t* direct = nullptr;
+        maze_t* replay = nullptr;
+        maze_t* dispatched = nullptr;
+        REQUIRE(byul_maze_generate_hunt_and_kill(
+            -5, 8, 9, 9, &options, &direct) == NAVSYS_STATUS_OK);
+        REQUIRE(byul_maze_generate_hunt_and_kill(
+            -5, 8, 9, 9, &options, &replay) == NAVSYS_STATUS_OK);
+        REQUIRE(byul_maze_generate(
+            BYUL_MAZE_ALGORITHM_HUNT_AND_KILL,
+            -5, 8, 9, 9, &options, &dispatched) == NAVSYS_STATUS_OK);
+        REQUIRE(direct != nullptr);
+        REQUIRE(replay != nullptr);
+        REQUIRE(dispatched != nullptr);
+        if (seed == 0) CHECK(maze_hash(direct) == UINT32_C(26398801));
+        CHECK(maze_hash(direct) == maze_hash(replay));
+        CHECK(maze_hash(direct) == maze_hash(dispatched));
+        maze_destroy(dispatched);
+        maze_destroy(replay);
+        maze_destroy(direct);
+    }
+
+    maze_t* legacy = maze_make_hunt_and_kill(-5, 8, 9, 9);
+    REQUIRE(legacy != nullptr);
+    const maze_topology_t topology =
+        analyze_logical_topology(legacy, -5, 8, 9, 9);
+    CHECK(topology.queries_ok);
+    CHECK(topology.border_blocked);
+    CHECK(topology.logical_cells_open);
+    CHECK(topology.connected);
+    CHECK(topology.edge_count + 1 == topology.node_count);
+    maze_destroy(legacy);
+}
+
+TEST_CASE("Sidewinder corrected first-row contract has stable tiny goldens") {
+    struct fixture_t {
+        uint32_t width;
+        uint32_t height;
+        uint32_t expected_hash;
+    };
+    const fixture_t fixtures[] = {
+        {3, 3, UINT32_C(910439850)},
+        {5, 5, UINT32_C(778966597)},
+        {9, 9, UINT32_C(915955447)}
+    };
+
+    for (const fixture_t& fixture : fixtures) {
+        CAPTURE(fixture.width);
+        CAPTURE(fixture.height);
+        byul_maze_generation_context context(
+            UINT64_C(0), UINT64_C(1000000), nullptr, nullptr);
+        maze_t* maze = nullptr;
+        REQUIRE(byul_maze_generate_sidewinder_internal(
+            -5, 8, fixture.width, fixture.height, context, &maze)
+            == NAVSYS_STATUS_OK);
+        REQUIRE(maze != nullptr);
+        CHECK(maze_hash(maze) == fixture.expected_hash);
+
+        for (uint32_t x = 1; x + 1 < fixture.width; ++x) {
+            bool blocked = true;
+            REQUIRE(byul_maze_is_blocked(
+                maze, -5 + static_cast<int32_t>(x), 9, &blocked)
+                == NAVSYS_STATUS_OK);
+            CHECK_FALSE(blocked);
+        }
+        const maze_topology_t topology = analyze_logical_topology(
+            maze, -5, 8,
+            static_cast<int>(fixture.width),
+            static_cast<int>(fixture.height));
+        CHECK(topology.queries_ok);
+        CHECK(topology.border_blocked);
+        CHECK(topology.logical_cells_open);
+        CHECK(topology.connected);
+        CHECK(topology.edge_count + 1 == topology.node_count);
+        maze_destroy(maze);
+    }
+}
+
+TEST_CASE("Sidewinder corrected lattice remains perfect across 100 seeds") {
+    for (uint64_t seed = 0; seed < 100; ++seed) {
+        CAPTURE(seed);
+        byul_maze_generation_context context(
+            seed, UINT64_C(1000000), nullptr, nullptr);
+        maze_t* maze = nullptr;
+        REQUIRE(byul_maze_generate_sidewinder_internal(
+            13, -21, 9, 9, context, &maze) == NAVSYS_STATUS_OK);
+        REQUIRE(maze != nullptr);
+
+        for (int32_t x = 14; x < 21; ++x) {
+            bool blocked = true;
+            REQUIRE(byul_maze_is_blocked(maze, x, -20, &blocked)
+                == NAVSYS_STATUS_OK);
+            CHECK_FALSE(blocked);
+        }
+        const maze_topology_t topology =
+            analyze_logical_topology(maze, 13, -21, 9, 9);
+        CHECK(topology.queries_ok);
+        CHECK(topology.border_blocked);
+        CHECK(topology.logical_cells_open);
+        CHECK(topology.connected);
+        CHECK(topology.edge_count + 1 == topology.node_count);
+        maze_destroy(maze);
+    }
+}
+
+TEST_CASE("Sidewinder handles one-dimensional logical grids") {
+    const uint32_t extents[][2] = {{3, 9}, {9, 3}};
+    for (const auto& extent : extents) {
+        CAPTURE(extent[0]);
+        CAPTURE(extent[1]);
+        byul_maze_generation_context context(
+            UINT64_C(17), UINT64_C(1000000), nullptr, nullptr);
+        maze_t* maze = nullptr;
+        REQUIRE(byul_maze_generate_sidewinder_internal(
+            -11, 23, extent[0], extent[1], context, &maze)
+            == NAVSYS_STATUS_OK);
+        REQUIRE(maze != nullptr);
+
+        const maze_topology_t topology = analyze_logical_topology(
+            maze, -11, 23,
+            static_cast<int>(extent[0]),
+            static_cast<int>(extent[1]));
+        CHECK(topology.queries_ok);
+        CHECK(topology.border_blocked);
+        CHECK(topology.logical_cells_open);
+        CHECK(topology.connected);
+        CHECK(topology.edge_count + 1 == topology.node_count);
+        maze_destroy(maze);
+    }
+}
+
+TEST_CASE("Sidewinder checked API exposes four reflection-related sweeps") {
+    static_assert(BYUL_MAZE_SIDEWINDER_EAST_NORTH == 0);
+    static_assert(BYUL_MAZE_SIDEWINDER_EAST_SOUTH == 1);
+    static_assert(BYUL_MAZE_SIDEWINDER_WEST_NORTH == 2);
+    static_assert(BYUL_MAZE_SIDEWINDER_WEST_SOUTH == 3);
+    static_assert(sizeof(byul_maze_sidewinder_sweep_t) == 4);
+
+    struct fixture_t {
+        byul_maze_sidewinder_sweep_t sweep;
+        uint32_t expected_hash;
+    };
+    const fixture_t fixtures[] = {
+        {BYUL_MAZE_SIDEWINDER_EAST_NORTH, UINT32_C(915955447)},
+        {BYUL_MAZE_SIDEWINDER_EAST_SOUTH, UINT32_C(907534649)},
+        {BYUL_MAZE_SIDEWINDER_WEST_NORTH, UINT32_C(464412339)},
+        {BYUL_MAZE_SIDEWINDER_WEST_SOUTH, UINT32_C(455990389)}
+    };
+    const byul_maze_generate_options_t options{
+        sizeof(byul_maze_generate_options_t),
+        BYUL_MAZE_GENERATE_OPTIONS_ABI_VERSION,
+        UINT64_C(0),
+        UINT64_C(1000000),
+        UINT64_C(81),
+        nullptr,
+        nullptr
+    };
+
+    maze_t* mazes[4] = {nullptr, nullptr, nullptr, nullptr};
+    for (size_t index = 0; index < 4; ++index) {
+        CAPTURE(index);
+        bool supported = false;
+        REQUIRE(byul_maze_sidewinder_sweep_is_supported(
+            fixtures[index].sweep, &supported) == NAVSYS_STATUS_OK);
+        CHECK(supported);
+        REQUIRE(byul_maze_generate_sidewinder(
+            -5, 8, 9, 9, fixtures[index].sweep, &options, &mazes[index])
+            == NAVSYS_STATUS_OK);
+        REQUIRE(mazes[index] != nullptr);
+        CHECK(maze_hash(mazes[index]) == fixtures[index].expected_hash);
+
+        const maze_topology_t topology =
+            analyze_logical_topology(mazes[index], -5, 8, 9, 9);
+        CHECK(topology.queries_ok);
+        CHECK(topology.border_blocked);
+        CHECK(topology.logical_cells_open);
+        CHECK(topology.connected);
+        CHECK(topology.edge_count + 1 == topology.node_count);
+    }
+
+    for (int y = 0; y < 9; ++y) {
+        for (int x = 0; x < 9; ++x) {
+            bool east_north = true;
+            bool east_south = true;
+            bool west_north = true;
+            bool west_south = true;
+            REQUIRE(byul_maze_is_blocked(
+                mazes[0], -5 + x, 8 + y, &east_north) == NAVSYS_STATUS_OK);
+            REQUIRE(byul_maze_is_blocked(
+                mazes[1], -5 + x, 8 + (8 - y), &east_south)
+                == NAVSYS_STATUS_OK);
+            REQUIRE(byul_maze_is_blocked(
+                mazes[2], -5 + (8 - x), 8 + y, &west_north)
+                == NAVSYS_STATUS_OK);
+            REQUIRE(byul_maze_is_blocked(
+                mazes[3], -5 + (8 - x), 8 + (8 - y), &west_south)
+                == NAVSYS_STATUS_OK);
+            CHECK(east_north == east_south);
+            CHECK(east_north == west_north);
+            CHECK(east_north == west_south);
+        }
+    }
+    for (maze_t* maze : mazes) maze_destroy(maze);
+}
+
+TEST_CASE("Sidewinder all sweeps remain perfect across 100 seeds") {
+    for (int sweep_value = BYUL_MAZE_SIDEWINDER_EAST_NORTH;
+         sweep_value <= BYUL_MAZE_SIDEWINDER_WEST_SOUTH;
+         ++sweep_value) {
+        const auto sweep =
+            static_cast<byul_maze_sidewinder_sweep_t>(sweep_value);
+        const bool north = sweep == BYUL_MAZE_SIDEWINDER_EAST_NORTH
+            || sweep == BYUL_MAZE_SIDEWINDER_WEST_NORTH;
+        const int corridor_y = north ? 1 : 7;
+        for (uint64_t seed = 0; seed < 100; ++seed) {
+            CAPTURE(sweep_value);
+            CAPTURE(seed);
+            const byul_maze_generate_options_t options{
+                sizeof(byul_maze_generate_options_t),
+                BYUL_MAZE_GENERATE_OPTIONS_ABI_VERSION,
+                seed,
+                UINT64_C(1000000),
+                UINT64_C(81),
+                nullptr,
+                nullptr
+            };
+            maze_t* maze = nullptr;
+            REQUIRE(byul_maze_generate_sidewinder(
+                13, -21, 9, 9, sweep, &options, &maze)
+                == NAVSYS_STATUS_OK);
+            REQUIRE(maze != nullptr);
+            for (int x = 1; x < 8; ++x) {
+                bool blocked = true;
+                REQUIRE(byul_maze_is_blocked(
+                    maze, 13 + x, -21 + corridor_y, &blocked)
+                    == NAVSYS_STATUS_OK);
+                CHECK_FALSE(blocked);
+            }
+            const maze_topology_t topology =
+                analyze_logical_topology(maze, 13, -21, 9, 9);
+            CHECK(topology.queries_ok);
+            CHECK(topology.border_blocked);
+            CHECK(topology.logical_cells_open);
+            CHECK(topology.connected);
+            CHECK(topology.edge_count + 1 == topology.node_count);
+            maze_destroy(maze);
+        }
+    }
+}
+
+TEST_CASE("Sidewinder run-close coin remains deterministically balanced") {
+    constexpr uint64_t sample_count = UINT64_C(512);
+    constexpr uint64_t decisions_per_sample = UINT64_C(9);
+    constexpr uint64_t minimum_sweep_carves =
+        sample_count * decisions_per_sample * UINT64_C(43) / UINT64_C(100);
+    constexpr uint64_t maximum_sweep_carves =
+        sample_count * decisions_per_sample * UINT64_C(57) / UINT64_C(100);
+
+    for (int sweep_value = BYUL_MAZE_SIDEWINDER_EAST_NORTH;
+         sweep_value <= BYUL_MAZE_SIDEWINDER_WEST_SOUTH;
+         ++sweep_value) {
+        const auto sweep =
+            static_cast<byul_maze_sidewinder_sweep_t>(sweep_value);
+        const bool north = sweep == BYUL_MAZE_SIDEWINDER_EAST_NORTH
+            || sweep == BYUL_MAZE_SIDEWINDER_WEST_NORTH;
+        uint64_t sweep_carves = 0;
+        for (uint64_t seed = 0; seed < sample_count; ++seed) {
+            const byul_maze_generate_options_t options{
+                sizeof(byul_maze_generate_options_t),
+                BYUL_MAZE_GENERATE_OPTIONS_ABI_VERSION,
+                seed,
+                UINT64_C(16),
+                UINT64_C(81),
+                nullptr,
+                nullptr
+            };
+            maze_t* maze = nullptr;
+            REQUIRE(byul_maze_generate_sidewinder(
+                0, 0, 9, 9, sweep, &options, &maze)
+                == NAVSYS_STATUS_OK);
+            REQUIRE(maze != nullptr);
+            for (int row = 0; row < 3; ++row) {
+                const int y = north ? 3 + row * 2 : 5 - row * 2;
+                for (int x = 2; x < 8; x += 2) {
+                    bool blocked = true;
+                    REQUIRE(byul_maze_is_blocked(maze, x, y, &blocked)
+                        == NAVSYS_STATUS_OK);
+                    sweep_carves += blocked ? 0u : 1u;
+                }
+            }
+            maze_destroy(maze);
+        }
+        CAPTURE(sweep_value);
+        CAPTURE(sweep_carves);
+        CHECK(sweep_carves >= minimum_sweep_carves);
+        CHECK(sweep_carves <= maximum_sweep_carves);
+    }
+}
+
+TEST_CASE("Sidewinder step work equals the logical cell count") {
+    const uint32_t extents[][2] = {
+        {3, 3}, {3, 31}, {31, 3}, {31, 31}
+    };
+    for (const auto& extent : extents) {
+        const uint64_t logical_cells =
+            static_cast<uint64_t>((extent[0] - 1) / 2)
+            * ((extent[1] - 1) / 2);
+        for (int sweep_value = BYUL_MAZE_SIDEWINDER_EAST_NORTH;
+             sweep_value <= BYUL_MAZE_SIDEWINDER_WEST_SOUTH;
+             ++sweep_value) {
+            CAPTURE(extent[0]);
+            CAPTURE(extent[1]);
+            CAPTURE(sweep_value);
+            byul_maze_generate_options_t options{
+                sizeof(byul_maze_generate_options_t),
+                BYUL_MAZE_GENERATE_OPTIONS_ABI_VERSION,
+                UINT64_C(17),
+                logical_cells,
+                static_cast<uint64_t>(extent[0]) * extent[1],
+                nullptr,
+                nullptr
+            };
+            maze_t* maze = nullptr;
+            REQUIRE(byul_maze_generate_sidewinder(
+                7, -13, extent[0], extent[1],
+                static_cast<byul_maze_sidewinder_sweep_t>(sweep_value),
+                &options, &maze) == NAVSYS_STATUS_OK);
+            REQUIRE(maze != nullptr);
+            maze_destroy(maze);
+
+            if (logical_cells <= 1) continue;
+            options.max_steps = logical_cells - 1;
+            maze = reinterpret_cast<maze_t*>(uintptr_t{1});
+            CHECK(byul_maze_generate_sidewinder(
+                7, -13, extent[0], extent[1],
+                static_cast<byul_maze_sidewinder_sweep_t>(sweep_value),
+                &options, &maze) == NAVSYS_STATUS_LIMIT_REACHED);
+            CHECK(maze == nullptr);
+        }
+    }
+}
+
+TEST_CASE("Sidewinder checked API validates options and failure atomicity") {
+    byul_maze_generate_options_t options{
+        sizeof(byul_maze_generate_options_t),
+        BYUL_MAZE_GENERATE_OPTIONS_ABI_VERSION,
+        UINT64_C(0),
+        UINT64_C(1000000),
+        UINT64_C(81),
+        nullptr,
+        nullptr
+    };
+    maze_t* output = reinterpret_cast<maze_t*>(uintptr_t{1});
+    CHECK(byul_maze_generate_sidewinder(
+        0, 0, 2, 3, BYUL_MAZE_SIDEWINDER_EAST_NORTH, &options, &output)
+        == NAVSYS_STATUS_UNSUPPORTED);
+    CHECK(output == nullptr);
+
+    output = reinterpret_cast<maze_t*>(uintptr_t{1});
+    CHECK(byul_maze_generate_sidewinder(
+        0, 0, 4, 5, BYUL_MAZE_SIDEWINDER_EAST_NORTH, &options, &output)
+        == NAVSYS_STATUS_UNSUPPORTED);
+    CHECK(output == nullptr);
+
+    output = reinterpret_cast<maze_t*>(uintptr_t{1});
+    CHECK(byul_maze_generate_sidewinder(
+        std::numeric_limits<int32_t>::max(), 0, 3, 3,
+        BYUL_MAZE_SIDEWINDER_EAST_NORTH, &options, &output)
+        == NAVSYS_STATUS_INVALID_ARGUMENT);
+    CHECK(output == nullptr);
+
+    output = reinterpret_cast<maze_t*>(uintptr_t{1});
+    CHECK(byul_maze_generate_sidewinder(
+        std::numeric_limits<int32_t>::min(), 0, UINT32_MAX, 3,
+        BYUL_MAZE_SIDEWINDER_EAST_NORTH, &options, &output)
+        == NAVSYS_STATUS_INVALID_ARGUMENT);
+    CHECK(output == nullptr);
+
+    output = reinterpret_cast<maze_t*>(uintptr_t{1});
+    CHECK(byul_maze_generate_sidewinder(
+        0, 0, 9, 9, static_cast<byul_maze_sidewinder_sweep_t>(4),
+        &options, &output) == NAVSYS_STATUS_UNSUPPORTED);
+    CHECK(output == nullptr);
+    bool supported = true;
+    CHECK(byul_maze_sidewinder_sweep_is_supported(
+        static_cast<byul_maze_sidewinder_sweep_t>(-1), &supported)
+        == NAVSYS_STATUS_UNSUPPORTED);
+    CHECK_FALSE(supported);
+    CHECK(byul_maze_sidewinder_sweep_is_supported(
+        BYUL_MAZE_SIDEWINDER_EAST_NORTH, nullptr)
+        == NAVSYS_STATUS_INVALID_ARGUMENT);
+
+    output = reinterpret_cast<maze_t*>(uintptr_t{1});
+    CHECK(byul_maze_generate_sidewinder(
+        0, 0, 9, 9, BYUL_MAZE_SIDEWINDER_EAST_NORTH, nullptr, &output)
+        == NAVSYS_STATUS_INVALID_ARGUMENT);
+    CHECK(output == nullptr);
+
+    options.max_cells = UINT64_C(80);
+    output = reinterpret_cast<maze_t*>(uintptr_t{1});
+    CHECK(byul_maze_generate_sidewinder(
+        0, 0, 9, 9, BYUL_MAZE_SIDEWINDER_EAST_NORTH, &options, &output)
+        == NAVSYS_STATUS_LIMIT_REACHED);
+    CHECK(output == nullptr);
+
+    options.max_cells = UINT64_C(81);
+    options.max_steps = UINT64_C(15);
+    output = reinterpret_cast<maze_t*>(uintptr_t{1});
+    CHECK(byul_maze_generate_sidewinder(
+        0, 0, 9, 9, BYUL_MAZE_SIDEWINDER_EAST_NORTH, &options, &output)
+        == NAVSYS_STATUS_LIMIT_REACHED);
+    CHECK(output == nullptr);
+
+    maze_cancel_fixture_t cancel_fixture{0, 83};
+    options.max_steps = UINT64_C(1000000);
+    options.cancel_func = cancel_maze_overlay;
+    options.cancel_userdata = &cancel_fixture;
+    output = reinterpret_cast<maze_t*>(uintptr_t{1});
+    CHECK(byul_maze_generate_sidewinder(
+        0, 0, 9, 9, BYUL_MAZE_SIDEWINDER_EAST_NORTH, &options, &output)
+        == NAVSYS_STATUS_CANCELLED);
+    CHECK(output == nullptr);
+    CHECK(cancel_fixture.calls == cancel_fixture.cancel_after);
+}
+
+TEST_CASE("Sidewinder checked EAST_NORTH preserves dispatcher output") {
+    for (const uint64_t seed : {
+             UINT64_C(0), UINT64_C(1), UINT64_C(17), UINT64_MAX}) {
+        CAPTURE(seed);
+        const byul_maze_generate_options_t options{
+            sizeof(byul_maze_generate_options_t),
+            BYUL_MAZE_GENERATE_OPTIONS_ABI_VERSION,
+            seed,
+            UINT64_C(1000000),
+            UINT64_C(81),
+            nullptr,
+            nullptr
+        };
+        maze_t* direct = nullptr;
+        maze_t* dispatched = nullptr;
+        REQUIRE(byul_maze_generate_sidewinder(
+            -5, 8, 9, 9, BYUL_MAZE_SIDEWINDER_EAST_NORTH,
+            &options, &direct) == NAVSYS_STATUS_OK);
+        REQUIRE(byul_maze_generate(
+            BYUL_MAZE_ALGORITHM_SIDEWINDER,
+            -5, 8, 9, 9, &options, &dispatched) == NAVSYS_STATUS_OK);
+        REQUIRE(direct != nullptr);
+        REQUIRE(dispatched != nullptr);
+        CHECK(maze_hash(direct) == maze_hash(dispatched));
+        maze_destroy(dispatched);
+        maze_destroy(direct);
+    }
+}
+
+TEST_CASE("Recursive Division corrected open-area model has stable goldens") {
+    struct fixture_t {
+        uint32_t width;
+        uint32_t height;
+        uint32_t expected_hash;
+    };
+    const fixture_t fixtures[] = {
+        {5, 5, UINT32_C(874550531)},
+        {7, 9, UINT32_C(4279227220)},
+        {9, 7, UINT32_C(603411476)},
+        {9, 9, UINT32_C(669558005)}
+    };
+
+    for (const fixture_t& fixture : fixtures) {
+        CAPTURE(fixture.width);
+        CAPTURE(fixture.height);
+        byul_maze_generation_context context(
+            UINT64_C(0), UINT64_C(1000000), nullptr, nullptr);
+        maze_t* maze = nullptr;
+        REQUIRE(byul_maze_generate_recursive_division_internal(
+            -5, 8, fixture.width, fixture.height, context, &maze)
+            == NAVSYS_STATUS_OK);
+        REQUIRE(maze != nullptr);
+        CHECK(maze_hash(maze) == fixture.expected_hash);
+
+        const maze_topology_t topology = analyze_logical_topology(
+            maze, -5, 8,
+            static_cast<int>(fixture.width),
+            static_cast<int>(fixture.height));
+        CHECK(topology.queries_ok);
+        CHECK(topology.border_blocked);
+        CHECK(topology.logical_cells_open);
+        CHECK(topology.connected);
+        CHECK(topology.edge_count + 1 == topology.node_count);
+        maze_destroy(maze);
+    }
+}
+
+TEST_CASE("Recursive Division tiny rectangular corpus remains perfect") {
+    for (uint32_t width = 3; width <= 11; width += 2) {
+        for (uint32_t height = 3; height <= 11; height += 2) {
+            for (uint64_t seed = 0; seed < 32; ++seed) {
+                CAPTURE(width);
+                CAPTURE(height);
+                CAPTURE(seed);
+                byul_maze_generation_context context(
+                    seed, UINT64_C(1000000), nullptr, nullptr);
+                maze_t* maze = nullptr;
+                REQUIRE(byul_maze_generate_recursive_division_internal(
+                    13, -21, width, height, context, &maze)
+                    == NAVSYS_STATUS_OK);
+                REQUIRE(maze != nullptr);
+                const maze_topology_t topology = analyze_logical_topology(
+                    maze, 13, -21,
+                    static_cast<int>(width),
+                    static_cast<int>(height));
+                CHECK(topology.queries_ok);
+                CHECK(topology.border_blocked);
+                CHECK(topology.logical_cells_open);
+                CHECK(topology.connected);
+                CHECK(topology.edge_count + 1 == topology.node_count);
+                maze_destroy(maze);
+            }
+        }
+    }
+}
+
+TEST_CASE("Recursive Division narrow regions stay unsplit corridors") {
+    const uint32_t extents[][2] = {{3, 9}, {9, 3}};
+    for (const auto& extent : extents) {
+        CAPTURE(extent[0]);
+        CAPTURE(extent[1]);
+        byul_maze_generation_context context(
+            UINT64_C(17), UINT64_C(1000000), nullptr, nullptr);
+        maze_t* maze = nullptr;
+        REQUIRE(byul_maze_generate_recursive_division_internal(
+            -11, 23, extent[0], extent[1], context, &maze)
+            == NAVSYS_STATUS_OK);
+        REQUIRE(maze != nullptr);
+
+        for (uint32_t y = 1; y + 1 < extent[1]; ++y) {
+            for (uint32_t x = 1; x + 1 < extent[0]; ++x) {
+                bool blocked = true;
+                REQUIRE(byul_maze_is_blocked(
+                    maze,
+                    -11 + static_cast<int32_t>(x),
+                    23 + static_cast<int32_t>(y),
+                    &blocked) == NAVSYS_STATUS_OK);
+                CHECK_FALSE(blocked);
+            }
+        }
+        const maze_topology_t topology = analyze_logical_topology(
+            maze, -11, 23,
+            static_cast<int>(extent[0]),
+            static_cast<int>(extent[1]));
+        CHECK(topology.connected);
+        CHECK(topology.edge_count + 1 == topology.node_count);
+        maze_destroy(maze);
+    }
+}
+
+TEST_CASE("Recursive Division checked API validates failure atomicity") {
+    byul_maze_generate_options_t options{
+        sizeof(byul_maze_generate_options_t),
+        BYUL_MAZE_GENERATE_OPTIONS_ABI_VERSION,
+        UINT64_C(0),
+        UINT64_C(1000),
+        UINT64_C(81),
+        nullptr,
+        nullptr
+    };
+    maze_t* output = reinterpret_cast<maze_t*>(uintptr_t{1});
+    CHECK(byul_maze_generate_recursive_division(
+        0, 0, 2, 3, &options, &output) == NAVSYS_STATUS_UNSUPPORTED);
+    CHECK(output == nullptr);
+
+    output = reinterpret_cast<maze_t*>(uintptr_t{1});
+    CHECK(byul_maze_generate_recursive_division(
+        0, 0, 4, 5, &options, &output) == NAVSYS_STATUS_UNSUPPORTED);
+    CHECK(output == nullptr);
+
+    output = reinterpret_cast<maze_t*>(uintptr_t{1});
+    CHECK(byul_maze_generate_recursive_division(
+        std::numeric_limits<int32_t>::max(), 0, 3, 3, &options, &output)
+        == NAVSYS_STATUS_INVALID_ARGUMENT);
+    CHECK(output == nullptr);
+
+    output = reinterpret_cast<maze_t*>(uintptr_t{1});
+    CHECK(byul_maze_generate_recursive_division(
+        std::numeric_limits<int32_t>::min(), 0, UINT32_MAX, 3,
+        &options, &output) == NAVSYS_STATUS_INVALID_ARGUMENT);
+    CHECK(output == nullptr);
+
+    output = reinterpret_cast<maze_t*>(uintptr_t{1});
+    CHECK(byul_maze_generate_recursive_division(
+        0, 0, 9, 9, nullptr, &output) == NAVSYS_STATUS_INVALID_ARGUMENT);
+    CHECK(output == nullptr);
+
+    options.struct_size = sizeof(byul_maze_generate_options_t) - 1;
+    output = reinterpret_cast<maze_t*>(uintptr_t{1});
+    CHECK(byul_maze_generate_recursive_division(
+        0, 0, 9, 9, &options, &output) == NAVSYS_STATUS_INVALID_ARGUMENT);
+    CHECK(output == nullptr);
+
+    options.struct_size = sizeof(byul_maze_generate_options_t);
+    ++options.abi_version;
+    output = reinterpret_cast<maze_t*>(uintptr_t{1});
+    CHECK(byul_maze_generate_recursive_division(
+        0, 0, 9, 9, &options, &output) == NAVSYS_STATUS_UNSUPPORTED);
+    CHECK(output == nullptr);
+
+    options.abi_version = BYUL_MAZE_GENERATE_OPTIONS_ABI_VERSION;
+    options.max_cells = UINT64_C(80);
+    output = reinterpret_cast<maze_t*>(uintptr_t{1});
+    CHECK(byul_maze_generate_recursive_division(
+        0, 0, 9, 9, &options, &output) == NAVSYS_STATUS_LIMIT_REACHED);
+    CHECK(output == nullptr);
+
+    options.max_cells = UINT64_C(81);
+    options.max_steps = UINT64_C(1);
+    output = reinterpret_cast<maze_t*>(uintptr_t{1});
+    CHECK(byul_maze_generate_recursive_division(
+        0, 0, 9, 9, &options, &output) == NAVSYS_STATUS_LIMIT_REACHED);
+    CHECK(output == nullptr);
+
+    maze_cancel_fixture_t cancel_fixture{0, 1};
+    options.max_steps = UINT64_C(1000);
+    options.cancel_func = cancel_maze_overlay;
+    options.cancel_userdata = &cancel_fixture;
+    output = reinterpret_cast<maze_t*>(uintptr_t{1});
+    CHECK(byul_maze_generate_recursive_division(
+        0, 0, 9, 9, &options, &output) == NAVSYS_STATUS_CANCELLED);
+    CHECK(output == nullptr);
+    CHECK(cancel_fixture.calls == 1);
+
+    options.cancel_func = throw_maze_overlay_cancel;
+    options.cancel_userdata = nullptr;
+    output = reinterpret_cast<maze_t*>(uintptr_t{1});
+    CHECK(byul_maze_generate_recursive_division(
+        0, 0, 9, 9, &options, &output) == NAVSYS_STATUS_CALLBACK_FAILED);
+    CHECK(output == nullptr);
+
+    CHECK(maze_make_recursive_division(0, 0, 2, 3) == nullptr);
+    CHECK(maze_make_recursive_division(0, 0, 4, 5) == nullptr);
+}
+
+TEST_CASE("Recursive Division checked API replays and matches dispatcher") {
+    for (const uint64_t seed : {
+             UINT64_C(0), UINT64_C(1), UINT64_C(17), UINT64_MAX}) {
+        CAPTURE(seed);
+        const byul_maze_generate_options_t options{
+            sizeof(byul_maze_generate_options_t),
+            BYUL_MAZE_GENERATE_OPTIONS_ABI_VERSION,
+            seed,
+            UINT64_C(1000),
+            UINT64_C(81),
+            nullptr,
+            nullptr
+        };
+        maze_t* direct = nullptr;
+        maze_t* replay = nullptr;
+        maze_t* dispatched = nullptr;
+        REQUIRE(byul_maze_generate_recursive_division(
+            -5, 8, 9, 9, &options, &direct) == NAVSYS_STATUS_OK);
+        REQUIRE(byul_maze_generate_recursive_division(
+            -5, 8, 9, 9, &options, &replay) == NAVSYS_STATUS_OK);
+        REQUIRE(byul_maze_generate(
+            BYUL_MAZE_ALGORITHM_RECURSIVE_DIVISION,
+            -5, 8, 9, 9, &options, &dispatched) == NAVSYS_STATUS_OK);
+        REQUIRE(direct != nullptr);
+        REQUIRE(replay != nullptr);
+        REQUIRE(dispatched != nullptr);
+        if (seed == 0) CHECK(maze_hash(direct) == UINT32_C(669558005));
+        CHECK(maze_hash(direct) == maze_hash(replay));
+        CHECK(maze_hash(direct) == maze_hash(dispatched));
+        maze_destroy(dispatched);
+        maze_destroy(replay);
+        maze_destroy(direct);
+    }
+
+    maze_t* legacy = maze_make_recursive_division(-5, 8, 9, 9);
+    REQUIRE(legacy != nullptr);
+    const maze_topology_t topology =
+        analyze_logical_topology(legacy, -5, 8, 9, 9);
+    CHECK(topology.queries_ok);
+    CHECK(topology.border_blocked);
+    CHECK(topology.logical_cells_open);
+    CHECK(topology.connected);
+    CHECK(topology.edge_count + 1 == topology.node_count);
+    maze_destroy(legacy);
+}
+
+TEST_CASE("Recursive Division public rectangular corpus remains bounded and perfect") {
+    const uint32_t extents[][2] = {
+        {13, 17}, {17, 13}, {21, 31}, {31, 21}
+    };
+    for (const auto& extent : extents) {
+        const uint32_t width = extent[0];
+        const uint32_t height = extent[1];
+        const uint64_t logical_cells =
+            static_cast<uint64_t>(width / 2)
+            * static_cast<uint64_t>(height / 2);
+        for (uint64_t seed = 0; seed < 100; ++seed) {
+            CAPTURE(width);
+            CAPTURE(height);
+            CAPTURE(seed);
+            byul_maze_generation_context context(
+                seed, UINT64_C(1000000), nullptr, nullptr);
+            maze_t* maze = nullptr;
+            REQUIRE(byul_maze_generate_recursive_division_internal(
+                -37, 42, width, height, context, &maze)
+                == NAVSYS_STATUS_OK);
+            REQUIRE(maze != nullptr);
+            CHECK(context.steps() > 0);
+            CHECK(context.steps() < logical_cells);
+
+            const maze_topology_t topology = analyze_logical_topology(
+                maze, -37, 42,
+                static_cast<int>(width),
+                static_cast<int>(height));
+            CHECK(topology.queries_ok);
+            CHECK(topology.border_blocked);
+            CHECK(topology.logical_cells_open);
+            CHECK(topology.connected);
+            CHECK(topology.edge_count + 1 == topology.node_count);
+            maze_destroy(maze);
+        }
+    }
+}
+
+TEST_CASE("Recursive Division exact split budgets and cancellation stay atomic") {
+    for (uint64_t seed = 0; seed < 100; ++seed) {
+        CAPTURE(seed);
+        byul_maze_generation_context measured_context(
+            seed, UINT64_C(1000000), nullptr, nullptr);
+        maze_t* measured = nullptr;
+        REQUIRE(byul_maze_generate_recursive_division_internal(
+            19, -31, 31, 21, measured_context, &measured)
+            == NAVSYS_STATUS_OK);
+        REQUIRE(measured != nullptr);
+        const uint64_t divisions = measured_context.steps();
+        REQUIRE(divisions > 0);
+
+        byul_maze_generate_options_t options{
+            sizeof(byul_maze_generate_options_t),
+            BYUL_MAZE_GENERATE_OPTIONS_ABI_VERSION,
+            seed,
+            divisions,
+            UINT64_C(651),
+            nullptr,
+            nullptr
+        };
+        maze_t* exact = nullptr;
+        REQUIRE(byul_maze_generate_recursive_division(
+            19, -31, 31, 21, &options, &exact) == NAVSYS_STATUS_OK);
+        REQUIRE(exact != nullptr);
+        CHECK(maze_hash(exact) == maze_hash(measured));
+        maze_destroy(exact);
+        maze_destroy(measured);
+
+        options.max_steps = divisions - 1;
+        maze_t* limited = reinterpret_cast<maze_t*>(uintptr_t{1});
+        CHECK(byul_maze_generate_recursive_division(
+            19, -31, 31, 21, &options, &limited)
+            == NAVSYS_STATUS_LIMIT_REACHED);
+        CHECK(limited == nullptr);
+    }
+
+    for (const int cancel_after : {1, 2, 17, 200}) {
+        CAPTURE(cancel_after);
+        maze_cancel_fixture_t cancel_fixture{0, cancel_after};
+        const byul_maze_generate_options_t options{
+            sizeof(byul_maze_generate_options_t),
+            BYUL_MAZE_GENERATE_OPTIONS_ABI_VERSION,
+            UINT64_C(17),
+            UINT64_C(1000000),
+            UINT64_C(651),
+            cancel_maze_overlay,
+            &cancel_fixture
+        };
+        maze_t* output = reinterpret_cast<maze_t*>(uintptr_t{1});
+        CHECK(byul_maze_generate_recursive_division(
+            19, -31, 31, 21, &options, &output) == NAVSYS_STATUS_CANCELLED);
+        CHECK(output == nullptr);
+        CHECK(cancel_fixture.calls == cancel_after);
+    }
+}
+
+TEST_CASE("Eller direct dispatcher and legacy paths share topology") {
+    const uint64_t seeds[] = {
+        UINT64_C(0), UINT64_C(1), UINT64_C(17), UINT64_MAX
+    };
+    for (const uint64_t seed : seeds) {
+        CAPTURE(seed);
+        const byul_maze_generate_options_t options{
+            sizeof(byul_maze_generate_options_t),
+            BYUL_MAZE_GENERATE_OPTIONS_ABI_VERSION,
+            seed,
+            UINT64_C(16),
+            UINT64_C(81),
+            nullptr,
+            nullptr
+        };
+        maze_t* direct = nullptr;
+        maze_t* dispatched = nullptr;
+        REQUIRE(byul_maze_generate_eller(
+            -5, 8, 9, 9, &options, &direct) == NAVSYS_STATUS_OK);
+        REQUIRE(byul_maze_generate(
+            BYUL_MAZE_ALGORITHM_ELLER,
+            -5, 8, 9, 9, &options, &dispatched) == NAVSYS_STATUS_OK);
+        REQUIRE(direct != nullptr);
+        REQUIRE(dispatched != nullptr);
+        CHECK(maze_hash(direct) == maze_hash(dispatched));
+        maze_destroy(dispatched);
+        maze_destroy(direct);
+    }
+
+    maze_t* legacy = maze_make_eller(-5, 8, 9, 9);
+    REQUIRE(legacy != nullptr);
+    const maze_topology_t topology =
+        analyze_logical_topology(legacy, -5, 8, 9, 9);
+    CHECK(topology.queries_ok);
+    CHECK(topology.border_blocked);
+    CHECK(topology.logical_cells_open);
+    CHECK(topology.connected);
+    CHECK(topology.edge_count + 1 == topology.node_count);
+    maze_destroy(legacy);
 }
 
 TEST_CASE("all internal generators cancel without publishing partial output") {
@@ -575,7 +3625,425 @@ TEST_CASE("Room Blend replays at its minimum extent and honors step limits") {
     CHECK(output == nullptr);
     CHECK(limited_context.steps() == 1);
 }
+
+TEST_CASE("Room Blend Stage 1 legacy policy has stable rectangular goldens") {
+    struct golden_case_t {
+        uint32_t width;
+        uint32_t height;
+        uint32_t expected_hash;
+        uint64_t expected_steps;
+        size_t expected_edges;
+    };
+    const golden_case_t fixtures[] = {
+        {9, 9, UINT32_C(453713525), UINT64_C(70), 21},
+        {9, 11, UINT32_C(755833823), UINT64_C(80), 25},
+        {11, 9, UINT32_C(313654483), UINT64_C(80), 25},
+        {13, 17, UINT32_C(4290241006), UINT64_C(151), 60},
+        {17, 13, UINT32_C(509057616), UINT64_C(162), 65}
+    };
+
+    for (const golden_case_t& fixture : fixtures) {
+        CAPTURE(fixture.width);
+        CAPTURE(fixture.height);
+        byul_maze_generation_context context(0, UINT64_C(1000000), nullptr, nullptr);
+        maze_t* maze = nullptr;
+        REQUIRE(byul_maze_generate_room_blend_internal(
+            -5, 8, fixture.width, fixture.height, context, &maze)
+            == NAVSYS_STATUS_OK);
+        REQUIRE(maze != nullptr);
+        CHECK(maze_hash(maze) == fixture.expected_hash);
+        CHECK(context.steps() == fixture.expected_steps);
+        const maze_topology_t topology = analyze_logical_topology(
+            maze, -5, 8, static_cast<int>(fixture.width),
+            static_cast<int>(fixture.height));
+        CHECK(topology.queries_ok);
+        CHECK(topology.border_blocked);
+        CHECK(topology.logical_cells_open);
+        CHECK(topology.connected);
+        CHECK(topology.edge_count == fixture.expected_edges);
+        maze_destroy(maze);
+    }
+}
+
+TEST_CASE("Room Blend Stage 1 raster is translation invariant") {
+    const uint64_t seeds[] = {
+        UINT64_C(0), UINT64_C(1), UINT64_C(17),
+        UINT64_C(0xffffffffffffffff)
+    };
+    for (const uint64_t seed : seeds) {
+        CAPTURE(seed);
+        byul_maze_generation_context origin_context(
+            seed, UINT64_C(1000000), nullptr, nullptr);
+        byul_maze_generation_context translated_context(
+            seed, UINT64_C(1000000), nullptr, nullptr);
+        maze_t* origin = nullptr;
+        maze_t* translated = nullptr;
+        REQUIRE(byul_maze_generate_room_blend_internal(
+            0, 0, 13, 17, origin_context, &origin) == NAVSYS_STATUS_OK);
+        REQUIRE(byul_maze_generate_room_blend_internal(
+            23, -41, 13, 17, translated_context, &translated)
+            == NAVSYS_STATUS_OK);
+        REQUIRE(origin != nullptr);
+        REQUIRE(translated != nullptr);
+        for (int y = 0; y < 17; ++y) {
+            for (int x = 0; x < 13; ++x) {
+                bool origin_blocked = false;
+                bool translated_blocked = false;
+                REQUIRE(byul_maze_is_blocked(
+                    origin, x, y, &origin_blocked) == NAVSYS_STATUS_OK);
+                REQUIRE(byul_maze_is_blocked(
+                    translated, 23 + x, -41 + y, &translated_blocked)
+                    == NAVSYS_STATUS_OK);
+                CHECK(origin_blocked == translated_blocked);
+            }
+        }
+        CHECK(origin_context.steps() == translated_context.steps());
+        maze_destroy(translated);
+        maze_destroy(origin);
+    }
+}
+
+TEST_CASE("Room Blend checked legacy policy preserves the Stage 1 raster") {
+    const byul_room_blend_options_t options{
+        sizeof(byul_room_blend_options_t),
+        BYUL_ROOM_BLEND_OPTIONS_ABI_VERSION,
+        UINT64_C(0),
+        UINT64_C(1000000),
+        UINT64_C(81),
+        30, 3, 3, 7, 7, 0,
+        nullptr,
+        nullptr
+    };
+    byul_maze_generation_context internal_context(
+        0, UINT64_C(1000000), nullptr, nullptr);
+    maze_t* checked = nullptr;
+    maze_t* internal = nullptr;
+    REQUIRE(byul_maze_generate_room_blend(
+        -5, 8, 9, 9, &options, &checked) == NAVSYS_STATUS_OK);
+    REQUIRE(byul_maze_generate_room_blend_internal(
+        -5, 8, 9, 9, internal_context, &internal) == NAVSYS_STATUS_OK);
+    REQUIRE(checked != nullptr);
+    REQUIRE(internal != nullptr);
+    CHECK(maze_equal(checked, internal));
+    CHECK(maze_hash(checked) == UINT32_C(453713525));
+    maze_destroy(internal);
+    maze_destroy(checked);
+}
 #endif
+
+TEST_CASE("Room Blend checked API validates options and failure atomicity") {
+    byul_room_blend_options_t options{
+        sizeof(byul_room_blend_options_t),
+        BYUL_ROOM_BLEND_OPTIONS_ABI_VERSION,
+        UINT64_C(17),
+        UINT64_C(1000000),
+        UINT64_C(221),
+        12, 3, 3, 7, 5, 1,
+        nullptr,
+        nullptr
+    };
+    maze_t* output = reinterpret_cast<maze_t*>(uintptr_t{1});
+    CHECK(byul_maze_generate_room_blend(
+        0, 0, 9, 9, &options, nullptr) == NAVSYS_STATUS_INVALID_ARGUMENT);
+    CHECK(byul_maze_generate_room_blend(
+        0, 0, 9, 9, nullptr, &output) == NAVSYS_STATUS_INVALID_ARGUMENT);
+    CHECK(output == nullptr);
+
+    options.struct_size = sizeof(byul_room_blend_options_t) - 1;
+    output = reinterpret_cast<maze_t*>(uintptr_t{1});
+    CHECK(byul_maze_generate_room_blend(
+        0, 0, 9, 9, &options, &output) == NAVSYS_STATUS_INVALID_ARGUMENT);
+    CHECK(output == nullptr);
+
+    options.struct_size = sizeof(byul_room_blend_options_t);
+    ++options.abi_version;
+    output = reinterpret_cast<maze_t*>(uintptr_t{1});
+    CHECK(byul_maze_generate_room_blend(
+        0, 0, 9, 9, &options, &output) == NAVSYS_STATUS_UNSUPPORTED);
+    CHECK(output == nullptr);
+
+    options.abi_version = BYUL_ROOM_BLEND_OPTIONS_ABI_VERSION;
+    output = reinterpret_cast<maze_t*>(uintptr_t{1});
+    CHECK(byul_maze_generate_room_blend(
+        0, 0, 8, 9, &options, &output) == NAVSYS_STATUS_UNSUPPORTED);
+    CHECK(output == nullptr);
+
+    output = reinterpret_cast<maze_t*>(uintptr_t{1});
+    CHECK(byul_maze_generate_room_blend(
+        std::numeric_limits<int32_t>::max(), 0, 9, 9, &options, &output)
+        == NAVSYS_STATUS_INVALID_ARGUMENT);
+    CHECK(output == nullptr);
+
+    options.max_cells = UINT64_C(80);
+    output = reinterpret_cast<maze_t*>(uintptr_t{1});
+    CHECK(byul_maze_generate_room_blend(
+        0, 0, 9, 9, &options, &output) == NAVSYS_STATUS_LIMIT_REACHED);
+    CHECK(output == nullptr);
+    options.max_cells = UINT64_C(221);
+
+    options.min_room_width = 4;
+    output = reinterpret_cast<maze_t*>(uintptr_t{1});
+    CHECK(byul_maze_generate_room_blend(
+        0, 0, 9, 9, &options, &output) == NAVSYS_STATUS_INVALID_ARGUMENT);
+    CHECK(output == nullptr);
+    options.min_room_width = 3;
+
+    options.max_room_height = 4;
+    output = reinterpret_cast<maze_t*>(uintptr_t{1});
+    CHECK(byul_maze_generate_room_blend(
+        0, 0, 9, 9, &options, &output) == NAVSYS_STATUS_INVALID_ARGUMENT);
+    CHECK(output == nullptr);
+    options.max_room_height = 5;
+
+    options.min_room_width = 9;
+    output = reinterpret_cast<maze_t*>(uintptr_t{1});
+    CHECK(byul_maze_generate_room_blend(
+        0, 0, 9, 9, &options, &output) == NAVSYS_STATUS_INVALID_ARGUMENT);
+    CHECK(output == nullptr);
+    options.min_room_width = 3;
+
+    options.room_attempts = UINT32_MAX;
+    output = reinterpret_cast<maze_t*>(uintptr_t{1});
+    CHECK(byul_maze_generate_room_blend(
+        0, 0, 9, 9, &options, &output) == NAVSYS_STATUS_INVALID_ARGUMENT);
+    CHECK(output == nullptr);
+    options.room_attempts = 12;
+
+    options.max_steps = UINT64_C(1);
+    output = reinterpret_cast<maze_t*>(uintptr_t{1});
+    CHECK(byul_maze_generate_room_blend(
+        0, 0, 9, 9, &options, &output) == NAVSYS_STATUS_LIMIT_REACHED);
+    CHECK(output == nullptr);
+
+    maze_cancel_fixture_t fixture{0, 1};
+    options.max_steps = UINT64_C(1000000);
+    options.cancel_func = cancel_maze_overlay;
+    options.cancel_userdata = &fixture;
+    output = reinterpret_cast<maze_t*>(uintptr_t{1});
+    CHECK(byul_maze_generate_room_blend(
+        0, 0, 9, 9, &options, &output) == NAVSYS_STATUS_CANCELLED);
+    CHECK(output == nullptr);
+    CHECK(fixture.calls == 1);
+
+    options.cancel_func = throw_maze_overlay_cancel;
+    options.cancel_userdata = nullptr;
+    output = reinterpret_cast<maze_t*>(uintptr_t{1});
+    CHECK(byul_maze_generate_room_blend(
+        0, 0, 9, 9, &options, &output) == NAVSYS_STATUS_CALLBACK_FAILED);
+    CHECK(output == nullptr);
+}
+
+TEST_CASE("Room Blend checked API replays explicit placement policy") {
+    const byul_room_blend_options_t options{
+        sizeof(byul_room_blend_options_t),
+        BYUL_ROOM_BLEND_OPTIONS_ABI_VERSION,
+        UINT64_C(17),
+        UINT64_C(0),
+        UINT64_C(315),
+        12, 3, 3, 7, 5, 2,
+        nullptr,
+        nullptr
+    };
+    maze_t* first = nullptr;
+    maze_t* second = nullptr;
+    REQUIRE(byul_maze_generate_room_blend(
+        -11, 6, 21, 15, &options, &first) == NAVSYS_STATUS_OK);
+    REQUIRE(byul_maze_generate_room_blend(
+        -11, 6, 21, 15, &options, &second) == NAVSYS_STATUS_OK);
+    REQUIRE(first != nullptr);
+    REQUIRE(second != nullptr);
+    CHECK(maze_equal(first, second));
+    CHECK(maze_hash(first) == UINT32_C(559861491));
+    const maze_topology_t topology =
+        analyze_logical_topology(first, -11, 6, 21, 15);
+    CHECK(topology.queries_ok);
+    CHECK(topology.border_blocked);
+    CHECK(topology.logical_cells_open);
+    CHECK(topology.connected);
+    CHECK(topology.edge_count + 1 >= topology.node_count);
+    maze_destroy(second);
+    maze_destroy(first);
+}
+
+TEST_CASE("Room Blend checked dispatcher and direct policy agree") {
+    const byul_maze_generate_options_t dispatcher_options{
+        sizeof(byul_maze_generate_options_t),
+        BYUL_MAZE_GENERATE_OPTIONS_ABI_VERSION,
+        UINT64_C(17),
+        UINT64_C(0),
+        UINT64_C(315),
+        nullptr,
+        nullptr
+    };
+    const byul_room_blend_options_t direct_options{
+        sizeof(byul_room_blend_options_t),
+        BYUL_ROOM_BLEND_OPTIONS_ABI_VERSION,
+        UINT64_C(17),
+        UINT64_C(0),
+        UINT64_C(315),
+        30, 3, 3, 7, 7, 0,
+        nullptr,
+        nullptr
+    };
+    maze_t* dispatched = nullptr;
+    maze_t* direct = nullptr;
+    REQUIRE(byul_maze_generate(
+        BYUL_MAZE_ALGORITHM_ROOM_BLEND,
+        -11, 6, 21, 15, &dispatcher_options, &dispatched)
+        == NAVSYS_STATUS_OK);
+    REQUIRE(byul_maze_generate_room_blend(
+        -11, 6, 21, 15, &direct_options, &direct)
+        == NAVSYS_STATUS_OK);
+    REQUIRE(dispatched != nullptr);
+    REQUIRE(direct != nullptr);
+    CHECK(maze_equal(dispatched, direct));
+    CHECK(maze_hash(dispatched) == maze_hash(direct));
+    maze_destroy(direct);
+    maze_destroy(dispatched);
+}
+
+TEST_CASE("Room Blend zero-room policy is a deterministic perfect fill") {
+    const byul_room_blend_options_t options{
+        sizeof(byul_room_blend_options_t),
+        BYUL_ROOM_BLEND_OPTIONS_ABI_VERSION,
+        UINT64_C(99),
+        UINT64_C(0),
+        UINT64_C(221),
+        0, 3, 3, 7, 7, 0,
+        nullptr,
+        nullptr
+    };
+    maze_t* maze = nullptr;
+    REQUIRE(byul_maze_generate_room_blend(
+        4, -8, 13, 17, &options, &maze) == NAVSYS_STATUS_OK);
+    REQUIRE(maze != nullptr);
+    const maze_topology_t topology =
+        analyze_logical_topology(maze, 4, -8, 13, 17);
+    CHECK(topology.queries_ok);
+    CHECK(topology.border_blocked);
+    CHECK(topology.logical_cells_open);
+    CHECK(topology.connected);
+    CHECK(topology.edge_count + 1 == topology.node_count);
+    maze_destroy(maze);
+
+    maze = nullptr;
+    REQUIRE(byul_maze_generate_room_blend(
+        4, -8, 10, 12, &options, &maze) == NAVSYS_STATUS_OK);
+    REQUIRE(maze != nullptr);
+    maze_destroy(maze);
+}
+
+TEST_CASE("Room Blend open raster topology connects zero one and many rooms") {
+    struct topology_case_t {
+        int32_t origin_x;
+        int32_t origin_y;
+        uint32_t width;
+        uint32_t height;
+        uint32_t room_attempts;
+        uint32_t room_padding;
+        bool expect_cycle;
+    };
+    const topology_case_t fixtures[] = {
+        {-31, 12, 9, 21, 0, 0, false},
+        {7, -29, 21, 9, 1, 0, true},
+        {-17, -13, 9, 21, 48, 0, true},
+        {19, -23, 21, 9, 48, 2, true},
+        {-41, 5, 10, 18, 48, 0, true},
+        {11, -37, 18, 10, 48, 2, true}
+    };
+    const uint64_t seeds[] = {
+        UINT64_C(0), UINT64_C(1), UINT64_C(2), UINT64_C(17),
+        UINT64_C(123), UINT64_C(0xffffffffffffffff)
+    };
+
+    for (const topology_case_t& fixture : fixtures) {
+        for (const uint64_t seed : seeds) {
+            CAPTURE(fixture.origin_x);
+            CAPTURE(fixture.origin_y);
+            CAPTURE(fixture.width);
+            CAPTURE(fixture.height);
+            CAPTURE(fixture.room_attempts);
+            CAPTURE(fixture.room_padding);
+            CAPTURE(seed);
+            const byul_room_blend_options_t options{
+                sizeof(byul_room_blend_options_t),
+                BYUL_ROOM_BLEND_OPTIONS_ABI_VERSION,
+                seed,
+                UINT64_C(0),
+                static_cast<uint64_t>(fixture.width) * fixture.height,
+                fixture.room_attempts,
+                3, 3, 7, 7,
+                fixture.room_padding,
+                nullptr,
+                nullptr
+            };
+            maze_t* maze = nullptr;
+            REQUIRE(byul_maze_generate_room_blend(
+                fixture.origin_x,
+                fixture.origin_y,
+                fixture.width,
+                fixture.height,
+                &options,
+                &maze) == NAVSYS_STATUS_OK);
+            REQUIRE(maze != nullptr);
+            const maze_raster_topology_t topology =
+                analyze_open_raster_topology(
+                    maze,
+                    fixture.origin_x,
+                    fixture.origin_y,
+                    static_cast<int>(fixture.width),
+                    static_cast<int>(fixture.height));
+            CHECK(topology.queries_ok);
+            CHECK(topology.border_blocked);
+            CHECK(topology.connected);
+            CHECK(topology.component_count == 1);
+            CHECK(topology.has_cycle == fixture.expect_cycle);
+            maze_destroy(maze);
+        }
+    }
+}
+
+TEST_CASE("Room Blend checked calls are parallel and global-rand independent") {
+    const byul_room_blend_options_t options{
+        sizeof(byul_room_blend_options_t),
+        BYUL_ROOM_BLEND_OPTIONS_ABI_VERSION,
+        UINT64_C(1234),
+        UINT64_C(0),
+        UINT64_C(221),
+        18, 3, 3, 7, 7, 1,
+        nullptr,
+        nullptr
+    };
+    auto generate_hash = [options]() {
+        maze_t* maze = nullptr;
+        const navsys_status_t status = byul_maze_generate_room_blend(
+            0, 0, 13, 17, &options, &maze);
+        const uint32_t hash = maze ? maze_hash(maze) : 0;
+        maze_destroy(maze);
+        return std::make_pair(status, hash);
+    };
+    std::array<std::future<std::pair<navsys_status_t, uint32_t>>, 8> calls;
+    for (auto& call : calls) {
+        call = std::async(std::launch::async, generate_hash);
+    }
+    uint32_t expected_hash = 0;
+    for (size_t index = 0; index < calls.size(); ++index) {
+        const auto result = calls[index].get();
+        REQUIRE(result.first == NAVSYS_STATUS_OK);
+        if (index == 0) expected_hash = result.second;
+        CHECK(result.second == expected_hash);
+    }
+
+    std::srand(9182);
+    const int first_random = std::rand();
+    const auto generated = generate_hash();
+    const int second_random = std::rand();
+    std::srand(9182);
+    CHECK(std::rand() == first_random);
+    CHECK(std::rand() == second_random);
+    CHECK(generated.first == NAVSYS_STATUS_OK);
+    CHECK(generated.second == expected_hash);
+}
 
 TEST_CASE("maze ABI gate accepts canonical and compatibility fingerprints") {
     CHECK(byul_maze_get_abi_version() == BYUL_MAZE_ABI_VERSION);

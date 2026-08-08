@@ -1,0 +1,35 @@
+{
+  "schema_version": 1,
+  "scope": "navsys-maze-recursive-division-stage3",
+  "status": "complete",
+  "source_revision": "f50efd9",
+  "algorithm_contract": {
+    "classification": "perfect spanning tree produced by recursive single-gap divisions",
+    "logical_cell_count": "N=((width-1)/2)*((height-1)/2)",
+    "topology_oracle": "all logical cells open, connected, acyclic through exactly N-1 passage edges, with a blocked raster border",
+    "termination": "a region is terminal when either raster span is less than 4; every active split strictly reduces one child span",
+    "execution": "depth-first traversal over an explicit LIFO region stack"
+  },
+  "property_corpus": {
+    "origin": [-37, 42],
+    "extents": [[13, 17], [17, 13], [21, 31], [31, 21]],
+    "seeds_per_extent": 100,
+    "total_cases": 400,
+    "result": "all cases satisfied extent, blocked-border, logical-cell, connected, and acyclic invariants"
+  },
+  "work_and_cancellation": {
+    "step_unit": "one active region division",
+    "measured_bound": "0 < divisions < N for every non-narrow property case",
+    "max_steps_boundary": "for 31x21 and seeds 0..99, the measured division count succeeds and one fewer returns LIMIT_REACHED with NULL output",
+    "region_stack_bound": "reserved and runtime-guarded at floor(width/2)+floor(height/2) pending regions",
+    "cancellation_polls": [1, 2, 17, 200],
+    "cancellation_result": "each selected poll returns CANCELLED with NULL output and the exact callback count",
+    "complexity": "O(width*height) time and Maze/grid storage; O(width+height) pending-region stack storage"
+  },
+  "verification": {
+    "windows_msvc_release": "78/78 test cases, 165512/165512 assertions",
+    "linux_profile": "WSL Ubuntu x86_64, GCC/G++ 13, Debug",
+    "linux_instrumentation": "-fsanitize=address -fsanitize=leak; ASAN_OPTIONS=detect_leaks=1:halt_on_error=1; LSAN_OPTIONS=exitcode=23:report_objects=1",
+    "linux_result": "78/78 test cases, 165512/165512 assertions; exit 0; no ASan or LSan report"
+  }
+}

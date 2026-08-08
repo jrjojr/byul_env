@@ -1,12 +1,12 @@
 #+TITLE: BYUL Navsys route_finder_core.h 정밀 리팩터링 TODO
 #+TODO: TODO DOING BLOCKED | DONE CANCELLED FAILED
-#+TODO_RULES: ../../../../external/rules/projects/byul/todo-rules.org
-#+PUBLIC_API_RULES: ../../../../external/rules/projects/byul/public-api-rules.org
-#+HEADER_DECLARATION_RULES: ../../../../external/rules/projects/byul/header-declaration-rules.org
-#+HEADER_COMMENT_RULES: ../../../../external/rules/projects/byul/header-comment-rules.org
-#+HEADER_AUTHORING_RULES: ../../../../external/rules/projects/byul/header-authoring-rules.org
-#+BUILD_RULES: ../../../../external/rules/projects/byul/build-rules.org
-#+TEST_RULES: ../../../../external/rules/projects/byul/test-rules.org
+#+TODO_RULES: ../../../../external/rules_env/projects/byul/todo-rules.org
+#+PUBLIC_API_RULES: ../../../../external/rules_env/projects/byul/public-api-rules.org
+#+HEADER_DECLARATION_RULES: ../../../../external/rules_env/projects/byul/header-declaration-rules.org
+#+HEADER_COMMENT_RULES: ../../../../external/rules_env/projects/byul/header-comment-rules.org
+#+HEADER_AUTHORING_RULES: ../../../../external/rules_env/projects/byul/header-authoring-rules.org
+#+BUILD_RULES: ../../../../external/rules_env/projects/byul/build-rules.org
+#+TEST_RULES: ../../../../external/rules_env/projects/byul/test-rules.org
 #+TODO_PARENT: todo-리팩토링-navsys-headers.org
 #+INDUSTRY_API_BASELINE: todo-navsys-industry-api-baseline.org
 #+AUTHOR: ByulPapa / Codex
@@ -122,7 +122,7 @@ BYUL_API navsys_status_t route_finder_heuristic_octile(
 - =route_finder_bind_cost_func=와 =bind_heuristic_func=가 callback+userdata를 원자적으로
   보관하며 개별 raw setter는 사용하지 않는다.
 
-* TODO 1단계: 평가 계약 기준선 고정
+* DONE 1단계: 평가 계약 기준선 고정
 
 ** 실행
 
@@ -140,7 +140,7 @@ BYUL_API navsys_status_t route_finder_heuristic_octile(
 
 - C/C++ callback ABI, float edge case와 Python registry symbol intersection을 검사한다.
 
-* TODO 2단계: Canonical evaluation component 추가
+* DONE 2단계: Canonical evaluation component 추가
 
 ** 실행
 
@@ -158,7 +158,7 @@ BYUL_API navsys_status_t route_finder_heuristic_octile(
 - 4/8방향 exhaustive 좌표, scaled/nonuniform cost와 NULL/failure test를 실행한다.
 - A* 결과를 reference Dijkstra cost와 비교한다.
 
-* TODO 3단계: Binding과 wrapper lifetime 통합
+* DONE 3단계: Binding과 wrapper lifetime 통합
 
 ** 실행
 
@@ -175,7 +175,7 @@ BYUL_API navsys_status_t route_finder_heuristic_octile(
 
 - sentinel userdata, Python GC/exception, nested run과 cross-thread 호출 test를 실행한다.
 
-* TODO 4단계: Legacy core forwarding과 ABI Gate
+* DONE 4단계: Legacy core forwarding과 ABI Gate
 
 ** 실행
 

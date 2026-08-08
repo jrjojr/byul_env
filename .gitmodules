@@ -1,5 +1,5 @@
 [submodule "rules"]
-	path = external/rules
+	path = external/rules_env
 	url = ../rules_env
 [submodule "external/SDL3-3.2.18/source"]
 	path = external/SDL3-3.2.18/source
@@ -13,3 +13,6 @@
 [submodule "external/glad-2.0.8"]
 	path = external/glad-2.0.8
 	url = https://github.com/Dav1dde/glad.git
+[submodule "external/cmake_starter_env"]
+	path = external/cmake_starter_env
+	url = https://github.com/jrjojr/cmake_starter_env.git

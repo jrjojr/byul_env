@@ -6,6 +6,81 @@
 
 #include <iostream>
 
+TEST_CASE("D* Lite canonical tick is deterministic and lifecycle-safe") {
+    navgrid_t* grid_a = navgrid_create_full(5, 5, NAVGRID_DIR_8, nullptr);
+    navgrid_t* grid_b = navgrid_create_full(5, 5, NAVGRID_DIR_8, nullptr);
+    REQUIRE(grid_a);
+    REQUIRE(grid_b);
+    const coord_t start{0, 0};
+    const coord_t goal{4, 4};
+    dstar_lite_create_info_t planner_info_a{};
+    dstar_lite_create_info_t planner_info_b{};
+    REQUIRE(dstar_lite_create_info_init(
+        &planner_info_a, grid_a, &start, &goal) == NAVSYS_STATUS_OK);
+    REQUIRE(dstar_lite_create_info_init(
+        &planner_info_b, grid_b, &start, &goal) == NAVSYS_STATUS_OK);
+    dstar_lite_t* planner_a = nullptr;
+    dstar_lite_t* planner_b = nullptr;
+    REQUIRE(dstar_lite_create_ex(&planner_info_a, &planner_a)
+        == NAVSYS_STATUS_OK);
+    REQUIRE(dstar_lite_create_ex(&planner_info_b, &planner_b)
+        == NAVSYS_STATUS_OK);
+
+    dstar_lite_tick_create_info_t tick_info_a{};
+    dstar_lite_tick_create_info_t tick_info_b{};
+    REQUIRE(dstar_lite_tick_create_info_init(&tick_info_a, planner_a)
+        == NAVSYS_STATUS_OK);
+    REQUIRE(dstar_lite_tick_create_info_init(&tick_info_b, planner_b)
+        == NAVSYS_STATUS_OK);
+    dstar_lite_tick_t* controller_a = nullptr;
+    dstar_lite_tick_t* controller_b = nullptr;
+    REQUIRE(dstar_lite_tick_create_ex(&tick_info_a, &controller_a)
+        == NAVSYS_STATUS_OK);
+    REQUIRE(dstar_lite_tick_create_ex(&tick_info_b, &controller_b)
+        == NAVSYS_STATUS_OK);
+    CHECK(dstar_lite_tick_get_state(controller_a)
+        == DSTAR_LITE_TICK_STATE_DETACHED);
+
+    uint32_t steps = 99;
+    REQUIRE(dstar_lite_tick_advance(controller_a, 0.5f, &steps)
+        == NAVSYS_STATUS_OK);
+    CHECK(steps == 0);
+    REQUIRE(dstar_lite_tick_advance(controller_a, 0.5f, &steps)
+        == NAVSYS_STATUS_OK);
+    CHECK(steps == 1);
+    REQUIRE(dstar_lite_tick_advance(controller_b, 1.0f, &steps)
+        == NAVSYS_STATUS_OK);
+    CHECK(steps == 1);
+    coord_t position_a{};
+    coord_t position_b{};
+    REQUIRE(dstar_lite_tick_fetch_position(controller_a, &position_a)
+        == NAVSYS_STATUS_OK);
+    REQUIRE(dstar_lite_tick_fetch_position(controller_b, &position_b)
+        == NAVSYS_STATUS_OK);
+    CHECK(coord_equal(&position_a, &position_b));
+
+    tick_t* tick = tick_create();
+    REQUIRE(tick);
+    CHECK(dstar_lite_tick_start(controller_a, tick) == NAVSYS_STATUS_OK);
+    CHECK(dstar_lite_tick_start(controller_a, tick)
+        == NAVSYS_STATUS_IN_PROGRESS);
+    dstar_lite_tick_destroy(controller_a);
+    CHECK(tick_list_attached(tick, nullptr, 0) == 0);
+
+    tick_info_b.speed_m_per_sec = 0.0f;
+    dstar_lite_tick_t* untouched = controller_b;
+    CHECK(dstar_lite_tick_create_ex(&tick_info_b, &untouched)
+        == NAVSYS_STATUS_INVALID_ARGUMENT);
+    CHECK(untouched == controller_b);
+
+    dstar_lite_tick_destroy(controller_b);
+    tick_destroy(tick);
+    dstar_lite_destroy(planner_a);
+    dstar_lite_destroy(planner_b);
+    navgrid_destroy(grid_a);
+    navgrid_destroy(grid_b);
+}
+
 static dstar_lite_t* create_dummy_dsl(navgrid_t* ng, int width, int height) {
     coord_t start = {0, 0};
     coord_t goal = {width, height};

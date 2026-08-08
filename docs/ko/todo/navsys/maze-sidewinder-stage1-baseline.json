@@ -1,0 +1,86 @@
+{
+  "schema_version": 1,
+  "scope": "navsys-maze-sidewinder-stage1",
+  "status": "complete",
+  "source_revision": "ba0f010c7129eca106de9500082ed6b9b42ed13d",
+  "historical_implementation": {
+    "revision": "13624d1aadaa4f3d0508c2ef6a9f42896e05ae83",
+    "rng": "std::mt19937 seeded from time(nullptr), with modulo decisions and run-member selection",
+    "p0_defect": "the boundary logical row could close a run without attaching it to a previous row, leaving multiple disconnected components",
+    "contract_breaks": [
+      "the first logical row was not a continuous corridor",
+      "the result could be disconnected",
+      "results were not seed-replayable",
+      "allocation and blocked-cell insertion failures were not reported"
+    ]
+  },
+  "correction": {
+    "revision": "41070504e08009dd1f08f3263f5f2477db3413d1",
+    "policy": "The legacy ABI symbol adopted the corrected boundary-row corridor in this already-landed hardening change.",
+    "boundary_row": "force every non-edge sweep carve on the first logical row",
+    "later_rows": "each closed run opens exactly one connection to the previous logical row",
+    "rng": "shared Maze PCG32 generation context using bounded draws",
+    "legacy_compatibility": "Do not restore disconnected historical rasters. Keep maze_make_sidewinder as an ABI 1.x adapter to the corrected algorithm."
+  },
+  "tiny_goldens": {
+    "origin": [-5, 8],
+    "seed": 0,
+    "step_budget": 1000000,
+    "3x3_blocked_hash": 910439850,
+    "5x5_blocked_hash": 778966597,
+    "9x9_blocked_hash": 915955447
+  },
+  "topology_oracle": {
+    "seed_corpus": "integer seeds 0 through 99",
+    "extent": [13, -21, 9, 9],
+    "narrow_extents": [[-11, 23, 3, 9], [-11, 23, 9, 3]],
+    "requirements": [
+      "outer border is blocked",
+      "all odd/odd logical cells are passages",
+      "all logical cells are connected",
+      "edge count equals logical node count minus one",
+      "every raster cell between the first and last logical cell of the boundary row is open"
+    ]
+  },
+  "sweep_contract": {
+    "coordinate_system": "local x increases east and local y increases south",
+    "EAST_NORTH": "rows advance south from y=1 and each run advances east",
+    "EAST_SOUTH": "rows advance north from y=height-2 and each run advances east",
+    "WEST_NORTH": "rows advance south from y=1 and each run advances west",
+    "WEST_SOUTH": "rows advance north from y=height-2 and each run advances west",
+    "metamorphic_oracle": "for the same seed, horizontal and vertical raster reflections map EAST_NORTH to the other three sweeps"
+  },
+  "consumer_inventory": {
+    "implementation": "byul/navsys/maze/maze_sidewinder.cpp",
+    "public_header": "byul/navsys/maze/maze_sidewinder.h",
+    "public_symbol": "maze_make_sidewinder",
+    "internal_status_generator": "byul_maze_generate_sidewinder_internal",
+    "generic_dispatcher": "BYUL_MAZE_ALGORITHM_SIDEWINDER routes to byul_maze_generate_sidewinder_internal",
+    "module_test": "byul/navsys/maze/tests/test_module_maze.cpp",
+    "static_target": "maze",
+    "root_shared_target": "byul",
+    "installed_header": "include/byul/maze_sidewinder.h",
+    "sdk_header_inventory": "byul/tests/sdk_consumer/CMakeLists.txt",
+    "wrapper_direct_entry": false,
+    "wrapper_generic_enum": "MAZE_TYPE_SIDEWINDER",
+    "repository_exact_raster_consumer_fixture": false
+  },
+  "stage2_decision": {
+    "add_public_status_api": "byul_maze_generate_sidewinder",
+    "add_sweep_enum": "byul_maze_sidewinder_sweep_t with four reflection-related values",
+    "preserve_east_north_rng_draw_order": true,
+    "legacy_sweep": "BYUL_MAZE_SIDEWINDER_EAST_NORTH",
+    "legacy_symbol": "deprecated forward adapter"
+  },
+  "verification": {
+    "platform": "Windows MSVC Release",
+    "test_cases": "65/65",
+    "assertions": "123727/123727",
+    "native_contract_coverage": [
+      "3x3, 5x5, and 9x9 blocked-cell golden hashes",
+      "corrected first logical row corridor",
+      "perfect-maze topology across 100 seeds",
+      "3x9 and 9x3 one-dimensional logical grids"
+    ]
+  }
+}

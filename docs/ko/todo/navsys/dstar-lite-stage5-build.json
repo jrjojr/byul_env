@@ -1,0 +1,60 @@
+{
+  "schema_version": 1,
+  "stage": "navsys-dstar-lite-stage5",
+  "result": "passed",
+  "platform_date": "2026-08-08",
+  "gates": {
+    "msvc_release_native": {
+      "target": "test_dstar_lite",
+      "test_cases": 39,
+      "assertions": 1983,
+      "failed": 0
+    },
+    "wsl_sanitizers": {
+      "target": "test_dstar_lite",
+      "sanitizers": ["ASan", "LSan", "UBSan"],
+      "test_cases": 39,
+      "assertions": 1983,
+      "failed": 0
+    },
+    "python_wrapper": {
+      "module": "tools.python.byul_wrapper.tests.test_dstar_lite",
+      "tests": 9,
+      "failed": 0,
+      "generator_check": "passed",
+      "py_compile": "passed"
+    },
+    "installed_sdk": {
+      "prefix": "build_dstar_stage5_install",
+      "standalone_headers": [
+        "dstar_lite.h",
+        "dstar_lite_key.h",
+        "dstar_lite_planner.h",
+        "dstar_lite_pqueue.h",
+        "dstar_lite_tick.h"
+      ],
+      "languages": ["C17", "C++17"],
+      "c_consumer": "passed",
+      "cpp_consumer": "passed"
+    },
+    "root_shared": {
+      "path": "build_win_msvc/bin/Release/byul.dll",
+      "size_bytes": 584704,
+      "sha256": "7469d655cee5bda79f8f222cf2021db2e5fdffafced79f98a89e1e3b82be0f36",
+      "installed_binary_matches": true,
+      "canonical_exports_verified": true
+    },
+    "header_contract": {
+      "artifact": "docs/ko/todo/navsys/dstar-lite-stage5-header-audit.json",
+      "headers": 3,
+      "declarations": 52,
+      "errors": 0
+    },
+    "abi_inventory": {
+      "artifact": "docs/ko/todo/navsys/navsys-current-abi-inventory.json",
+      "headers": 61,
+      "symbols": 703,
+      "check": "passed"
+    }
+  }
+}

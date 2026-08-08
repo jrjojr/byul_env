@@ -1,6 +1,6 @@
 #+TITLE: BYUL 기하 계산·곡선·충돌·B-rep/NURBS TODO
 #+TODO: TODO DOING BLOCKED | DONE CANCELLED FAILED
-#+TODO_RULES: ../../../../external/rules/projects/byul/todo-rules.org
+#+TODO_RULES: ../../../../external/rules_env/projects/byul/todo-rules.org
 #+TODO_PARENT: todo-math-engine.org
 #+AUTHOR: ByulPapa / Codex
 #+LANGUAGE: ko

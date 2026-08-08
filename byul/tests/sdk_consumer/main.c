@@ -10,10 +10,26 @@
 #include "coord.h"
 #include "coord_hash.h"
 #include "cost_coord_pq.h"
+#include "dstar_lite.h"
 #include "dstar_lite_key.h"
+#include "dstar_lite_planner.h"
+#include "dstar_lite_pqueue.h"
+#include "dstar_lite_tick.h"
 #include "maze_core.h"
+#include "maze_aldous_broder.h"
+#include "maze_eller.h"
+#include "maze_hunt_and_kill.h"
+#include "maze_kruskal.h"
+#include "maze_prim.h"
+#include "maze_recursive.h"
+#include "maze_recursive_division.h"
+#include "maze_room_blend.h"
+#include "maze_wilson.h"
+#include "maze_sidewinder.h"
 #include "navcell.h"
 #include "navsys_status.h"
+#include "route_finder_evaluation.h"
+#include "rta_star.h"
 
 static bool cancel_immediately(void* userdata) {
     int* calls = (int*)userdata;
@@ -126,6 +142,12 @@ static_assert(
         default: 0),
     "coord hash equal callback calling convention");
 
+ABI1_TYPE_LAYOUT(room_t, 16, 4);
+ABI1_FIELD_OFFSET(room_t, x, 0);
+ABI1_FIELD_OFFSET(room_t, y, 4);
+ABI1_FIELD_OFFSET(room_t, w, 8);
+ABI1_FIELD_OFFSET(room_t, h, 12);
+
 ABI1_TYPE_LAYOUT(coord_hash_create_info_t, 40, 8);
 ABI1_FIELD_OFFSET(coord_hash_create_info_t, struct_size, 0);
 ABI1_FIELD_OFFSET(coord_hash_create_info_t, abi_version, 4);
@@ -197,6 +219,41 @@ ABI1_FIELD_OFFSET(route_t, avg_vec_x, 36);
 ABI1_FIELD_OFFSET(route_t, avg_vec_y, 40);
 ABI1_FIELD_OFFSET(route_t, vec_count, 44);
 
+ABI1_TYPE_LAYOUT(navsys_algorithm_config_t, 24, 8);
+ABI1_FIELD_OFFSET(navsys_algorithm_config_t, struct_size, 0);
+ABI1_FIELD_OFFSET(navsys_algorithm_config_t, version, 8);
+ABI1_FIELD_OFFSET(navsys_algorithm_config_t, kind, 12);
+ABI1_FIELD_OFFSET(navsys_algorithm_config_t, value, 16);
+
+ABI1_TYPE_LAYOUT(navsys_path_query_t, 80, 8);
+ABI1_FIELD_OFFSET(navsys_path_query_t, struct_size, 0);
+ABI1_FIELD_OFFSET(navsys_path_query_t, version, 8);
+ABI1_FIELD_OFFSET(navsys_path_query_t, grid, 16);
+ABI1_FIELD_OFFSET(navsys_path_query_t, start, 24);
+ABI1_FIELD_OFFSET(navsys_path_query_t, goal, 32);
+ABI1_FIELD_OFFSET(navsys_path_query_t, algorithm, 40);
+ABI1_FIELD_OFFSET(navsys_path_query_t, algorithm_config, 48);
+ABI1_FIELD_OFFSET(navsys_path_query_t, max_expansions, 56);
+ABI1_FIELD_OFFSET(navsys_path_query_t, cancel_func, 64);
+ABI1_FIELD_OFFSET(navsys_path_query_t, cancel_userdata, 72);
+
+ABI1_TYPE_LAYOUT(navsys_search_stats_t, 32, 8);
+ABI1_FIELD_OFFSET(navsys_search_stats_t, expansions, 0);
+ABI1_FIELD_OFFSET(navsys_search_stats_t, route_length, 8);
+ABI1_FIELD_OFFSET(navsys_search_stats_t, route_cost, 16);
+ABI1_FIELD_OFFSET(navsys_search_stats_t, complete, 20);
+ABI1_FIELD_OFFSET(navsys_search_stats_t, partial, 21);
+ABI1_FIELD_OFFSET(navsys_search_stats_t, algorithm, 24);
+ABI1_FIELD_OFFSET(navsys_search_stats_t, status, 28);
+
+ABI1_TYPE_LAYOUT(navsys_algorithm_descriptor_t, 32, 8);
+ABI1_FIELD_OFFSET(navsys_algorithm_descriptor_t, struct_size, 0);
+ABI1_FIELD_OFFSET(navsys_algorithm_descriptor_t, version, 8);
+ABI1_FIELD_OFFSET(navsys_algorithm_descriptor_t, algorithm, 12);
+ABI1_FIELD_OFFSET(navsys_algorithm_descriptor_t, required_config, 16);
+ABI1_FIELD_OFFSET(navsys_algorithm_descriptor_t, supported, 20);
+ABI1_FIELD_OFFSET(navsys_algorithm_descriptor_t, incremental, 25);
+
 ABI1_TYPE_LAYOUT(byul_maze_extent_t, 16, 4);
 ABI1_FIELD_OFFSET(byul_maze_extent_t, origin_x, 0);
 ABI1_FIELD_OFFSET(byul_maze_extent_t, origin_y, 4);
@@ -235,6 +292,34 @@ static float sdk_heuristic(
     (void)start;
     (void)goal;
     return userdata != NULL ? 0.0f : 1.0f;
+}
+
+static navsys_status_t sdk_cost_ex(
+    const navgrid_t* navgrid,
+    const coord_t* start,
+    const coord_t* goal,
+    float* out_cost,
+    void* userdata) {
+    (void)navgrid;
+    (void)start;
+    (void)goal;
+    if (out_cost == NULL || userdata == NULL)
+        return NAVSYS_STATUS_INVALID_ARGUMENT;
+    *out_cost = 1.0f;
+    return NAVSYS_STATUS_OK;
+}
+
+static navsys_status_t sdk_heuristic_ex(
+    const coord_t* start,
+    const coord_t* goal,
+    float* out_estimate,
+    void* userdata) {
+    (void)start;
+    (void)goal;
+    if (out_estimate == NULL || userdata == NULL)
+        return NAVSYS_STATUS_INVALID_ARGUMENT;
+    *out_estimate = 0.0f;
+    return NAVSYS_STATUS_OK;
 }
 
 static void sdk_move(const coord_t* coord, void* userdata) {
@@ -303,6 +388,76 @@ static_assert(
     "maze ABI check C calling convention");
 
 int main(void) {
+    {
+        navgrid_t* facade_grid = navgrid_create_full(
+            3, 3, NAVGRID_DIR_4, NULL);
+        const coord_t facade_start = {0, 0};
+        const coord_t facade_goal = {2, 2};
+        navsys_path_query_t facade_query;
+        navsys_search_stats_t facade_stats;
+        route_t* facade_route = NULL;
+        if (facade_grid == NULL
+            || navsys_path_query_init(
+                &facade_query, facade_grid, &facade_start, &facade_goal)
+                != NAVSYS_STATUS_OK
+            || !navsys_is_algorithm_supported(ROUTE_FINDER_ASTAR)
+            || navsys_find_path(
+                &facade_query, &facade_route, &facade_stats)
+                != NAVSYS_STATUS_OK
+            || facade_route == NULL
+            || !facade_stats.complete
+            || facade_stats.algorithm != ROUTE_FINDER_ASTAR) {
+            route_destroy(facade_route);
+            navgrid_destroy(facade_grid);
+            fprintf(stderr, "unexpected canonical Navsys facade SDK ABI\n");
+            return 18;
+        }
+        route_destroy(facade_route);
+        navgrid_destroy(facade_grid);
+    }
+
+    {
+        navgrid_t* dstar_grid = navgrid_create_full(
+            3, 3, NAVGRID_DIR_4, NULL);
+        const coord_t dstar_start = {0, 0};
+        const coord_t dstar_goal = {2, 2};
+        dstar_lite_create_info_t dstar_info;
+        dstar_lite_t* planner = NULL;
+        route_t* dstar_route = NULL;
+        dstar_lite_pqueue_t* queue = NULL;
+        dstar_lite_tick_create_info_t tick_info;
+        dstar_lite_tick_t* tick_controller = NULL;
+        if (dstar_grid == NULL
+            || dstar_lite_create_info_init(
+                &dstar_info, dstar_grid, &dstar_start, &dstar_goal)
+                != NAVSYS_STATUS_OK
+            || dstar_lite_create_ex(&dstar_info, &planner)
+                != NAVSYS_STATUS_OK
+            || dstar_lite_replan(planner, NULL, &dstar_route, NULL)
+                != NAVSYS_STATUS_OK
+            || route_get_coord_count(dstar_route) != 5
+            || dstar_lite_pqueue_create_ex(&queue) != NAVSYS_STATUS_OK
+            || dstar_lite_tick_create_info_init(&tick_info, planner)
+                != NAVSYS_STATUS_OK
+            || dstar_lite_tick_create_ex(&tick_info, &tick_controller)
+                != NAVSYS_STATUS_OK
+            || dstar_lite_tick_get_state(tick_controller)
+                != DSTAR_LITE_TICK_STATE_DETACHED) {
+            dstar_lite_tick_destroy(tick_controller);
+            dstar_lite_pqueue_destroy(queue);
+            route_destroy(dstar_route);
+            dstar_lite_destroy(planner);
+            navgrid_destroy(dstar_grid);
+            fprintf(stderr, "unexpected canonical D* Lite SDK ABI\n");
+            return 17;
+        }
+        dstar_lite_tick_destroy(tick_controller);
+        dstar_lite_pqueue_destroy(queue);
+        route_destroy(dstar_route);
+        dstar_lite_destroy(planner);
+        navgrid_destroy(dstar_grid);
+    }
+
     navcell_t zero_cell = {0};
     navcell_t compound_cell = {TERRAIN_TYPE_FOREST, INT_MAX};
     if (zero_cell.terrain != TERRAIN_TYPE_NORMAL
@@ -756,6 +911,8 @@ int main(void) {
     dstar_lite_key_destroy(exact_key);
 
     if (!route_finder_is_supported(ROUTE_FINDER_ASTAR)
+        || !route_finder_is_type_supported(ROUTE_FINDER_ASTAR)
+        || strcmp(route_finder_type_get_name(ROUTE_FINDER_ASTAR), "astar") != 0
         || !route_finder_is_supported(ROUTE_FINDER_WEIGHTED_ASTAR)
         || route_finder_is_supported(ROUTE_FINDER_BELLMAN_FORD)
         || route_finder_is_supported(ROUTE_FINDER_DSTAR_LITE)) {
@@ -770,6 +927,7 @@ int main(void) {
     route_finder_weighted_astar_config_t weighted = {2.0f};
     navgrid_t* navgrid = navgrid_create();
     route_finder_t* finder = route_finder_create(navgrid);
+    rta_star_config_t* legacy_rta = rta_star_config_create_full(7);
     dstar_lite_t* dsl = dstar_lite_create(navgrid);
     route_t* route = NULL;
     route_finder_run_stats_t run_stats = {0};
@@ -788,6 +946,7 @@ int main(void) {
     void* sdk_blocked_userdata = (void*)1;
     navgrid_abi_mismatch_t sdk_abi_mismatch = NAVGRID_ABI_VERSION_MISMATCH;
     if (navgrid == NULL || finder == NULL || dsl == NULL
+        || legacy_rta == NULL || legacy_rta->depth_limit != 7
         || navgrid_get_width(navgrid) != 0
         || navgrid_get_height(navgrid) != 0
         || navgrid_get_mode(navgrid) != NAVGRID_DIR_8
@@ -928,10 +1087,10 @@ int main(void) {
 
     if (navgrid_bind_is_coord_blocked_func(
             navgrid, sdk_is_blocked, &callback_identity) != NAVSYS_STATUS_OK
-        || route_finder_bind_cost_func(
-            finder, sdk_cost, &callback_identity) != NAVSYS_STATUS_OK
-        || route_finder_bind_heuristic_func(
-            finder, sdk_heuristic, &callback_identity) != NAVSYS_STATUS_OK
+        || route_finder_bind_cost_func_ex(
+            finder, sdk_cost_ex, &callback_identity) != NAVSYS_STATUS_OK
+        || route_finder_bind_heuristic_func_ex(
+            finder, sdk_heuristic_ex, &callback_identity) != NAVSYS_STATUS_OK
         || route_finder_bind_fringe_search_config(
             finder, &fringe) != NAVSYS_STATUS_OK
         || route_finder_bind_rta_star_config(
@@ -963,6 +1122,7 @@ int main(void) {
         return 7;
     }
     dstar_lite_destroy(dsl);
+    rta_star_config_destroy(legacy_rta);
     route_finder_destroy(finder);
     navgrid_destroy(navgrid);
 
@@ -1112,6 +1272,223 @@ int main(void) {
             return 8;
         }
         maze_destroy(checked_maze);
+    }
+
+    {
+        const byul_maze_generate_options_t options = {
+            sizeof(byul_maze_generate_options_t),
+            BYUL_MAZE_GENERATE_OPTIONS_ABI_VERSION,
+            UINT64_C(0),
+            UINT64_C(16),
+            UINT64_C(81),
+            NULL,
+            NULL
+        };
+        maze_t* eller = NULL;
+        if (byul_maze_generate_eller(
+                -5, 8, 9, 9, &options, &eller) != NAVSYS_STATUS_OK
+            || eller == NULL
+            || maze_hash(eller) != UINT32_C(789167229)) {
+            fprintf(stderr, "unexpected checked Eller SDK ABI\n");
+            maze_destroy(eller);
+            return 8;
+        }
+        maze_destroy(eller);
+    }
+
+    {
+        const byul_maze_generate_options_t options = {
+            sizeof(byul_maze_generate_options_t),
+            BYUL_MAZE_GENERATE_OPTIONS_ABI_VERSION,
+            UINT64_C(0),
+            UINT64_C(1296),
+            UINT64_C(81),
+            NULL,
+            NULL
+        };
+        maze_t* hunt_and_kill = NULL;
+        if (byul_maze_generate_hunt_and_kill(
+                -5, 8, 9, 9, &options, &hunt_and_kill) != NAVSYS_STATUS_OK
+            || hunt_and_kill == NULL
+            || maze_hash(hunt_and_kill) != UINT32_C(26398801)) {
+            fprintf(stderr, "unexpected checked Hunt-and-Kill SDK ABI\n");
+            maze_destroy(hunt_and_kill);
+            return 8;
+        }
+        maze_destroy(hunt_and_kill);
+    }
+
+    {
+        const byul_maze_generate_options_t options = {
+            sizeof(byul_maze_generate_options_t),
+            BYUL_MAZE_GENERATE_OPTIONS_ABI_VERSION,
+            UINT64_C(0),
+            UINT64_C(20736),
+            UINT64_C(81),
+            NULL,
+            NULL
+        };
+        maze_t* wilson = NULL;
+        if (byul_maze_generate_wilson(
+                -5, 8, 9, 9, &options, &wilson) != NAVSYS_STATUS_OK
+            || wilson == NULL
+            || maze_hash(wilson) != UINT32_C(424385079)) {
+            fprintf(stderr, "unexpected checked Wilson SDK ABI\n");
+            maze_destroy(wilson);
+            return 8;
+        }
+        maze_destroy(wilson);
+    }
+
+    {
+        const byul_maze_generate_options_t options = {
+            sizeof(byul_maze_generate_options_t),
+            BYUL_MAZE_GENERATE_OPTIONS_ABI_VERSION,
+            UINT64_C(0),
+            UINT64_C(20736),
+            UINT64_C(81),
+            NULL,
+            NULL
+        };
+        maze_t* aldous_broder = NULL;
+        if (byul_maze_generate_aldous_broder(
+                -5, 8, 9, 9, &options, &aldous_broder) != NAVSYS_STATUS_OK
+            || aldous_broder == NULL
+            || maze_hash(aldous_broder) != UINT32_C(744322881)) {
+            fprintf(stderr, "unexpected checked Aldous-Broder SDK ABI\n");
+            maze_destroy(aldous_broder);
+            return 8;
+        }
+        maze_destroy(aldous_broder);
+    }
+
+    {
+        const byul_maze_generate_options_t options = {
+            sizeof(byul_maze_generate_options_t),
+            BYUL_MAZE_GENERATE_OPTIONS_ABI_VERSION,
+            UINT64_C(0),
+            UINT64_C(64),
+            UINT64_C(81),
+            NULL,
+            NULL
+        };
+        bool supported = false;
+        maze_t* sidewinder = NULL;
+        if (byul_maze_sidewinder_sweep_is_supported(
+                BYUL_MAZE_SIDEWINDER_WEST_SOUTH, &supported)
+                != NAVSYS_STATUS_OK
+            || !supported
+            || byul_maze_generate_sidewinder(
+                -5, 8, 9, 9, BYUL_MAZE_SIDEWINDER_WEST_SOUTH,
+                &options, &sidewinder) != NAVSYS_STATUS_OK
+            || sidewinder == NULL
+            || maze_hash(sidewinder) != UINT32_C(455990389)) {
+            fprintf(stderr, "unexpected checked Sidewinder SDK ABI\n");
+            maze_destroy(sidewinder);
+            return 8;
+        }
+        maze_destroy(sidewinder);
+    }
+
+    {
+        const byul_maze_generate_options_t options = {
+            sizeof(byul_maze_generate_options_t),
+            BYUL_MAZE_GENERATE_OPTIONS_ABI_VERSION,
+            UINT64_C(0),
+            UINT64_C(64),
+            UINT64_C(81),
+            NULL,
+            NULL
+        };
+        maze_t* recursive_division = NULL;
+        if (byul_maze_generate_recursive_division(
+                -5, 8, 9, 9, &options, &recursive_division)
+                != NAVSYS_STATUS_OK
+            || recursive_division == NULL
+            || maze_hash(recursive_division) != UINT32_C(669558005)) {
+            fprintf(stderr, "unexpected checked Recursive Division SDK ABI\n");
+            maze_destroy(recursive_division);
+            return 8;
+        }
+        maze_destroy(recursive_division);
+    }
+
+    {
+        const byul_maze_generate_options_t options = {
+            sizeof(byul_maze_generate_options_t),
+            BYUL_MAZE_GENERATE_OPTIONS_ABI_VERSION,
+            UINT64_C(0),
+            UINT64_C(64),
+            UINT64_C(81),
+            NULL,
+            NULL
+        };
+        maze_t* randomized_kruskal = NULL;
+        if (byul_maze_generate_randomized_kruskal(
+                -5, 8, 9, 9, &options, &randomized_kruskal)
+                != NAVSYS_STATUS_OK
+            || randomized_kruskal == NULL
+            || maze_hash(randomized_kruskal) != UINT32_C(73237245)) {
+            fprintf(stderr, "unexpected checked randomized Kruskal SDK ABI\n");
+            maze_destroy(randomized_kruskal);
+            return 8;
+        }
+        maze_destroy(randomized_kruskal);
+
+        maze_t* randomized_prim = NULL;
+        if (byul_maze_generate_randomized_prim(
+                -5, 8, 9, 9, &options, &randomized_prim)
+                != NAVSYS_STATUS_OK
+            || randomized_prim == NULL
+            || maze_hash(randomized_prim) != UINT32_C(857387639)) {
+            fprintf(stderr, "unexpected checked randomized Prim SDK ABI\n");
+            maze_destroy(randomized_prim);
+            return 9;
+        }
+        maze_destroy(randomized_prim);
+
+        maze_t* recursive_backtracker = NULL;
+        if (byul_maze_generate_recursive_backtracker(
+                -5, 8, 9, 9, &options, &recursive_backtracker)
+                != NAVSYS_STATUS_OK
+            || recursive_backtracker == NULL
+            || maze_hash(recursive_backtracker) != UINT32_C(303425655)) {
+            fprintf(stderr, "unexpected checked recursive backtracker SDK ABI\n");
+            maze_destroy(recursive_backtracker);
+            return 10;
+        }
+        maze_destroy(recursive_backtracker);
+
+        {
+            const byul_room_blend_options_t room_options = {
+                sizeof(byul_room_blend_options_t),
+                BYUL_ROOM_BLEND_OPTIONS_ABI_VERSION,
+                UINT64_C(0),
+                UINT64_C(1000),
+                UINT64_C(81),
+                30, 3, 3, 7, 7, 0,
+                NULL,
+                NULL
+            };
+            maze_t* room_blend = NULL;
+            if (byul_maze_generate_room_blend(
+                    -5, 8, 9, 9, &room_options, &room_blend)
+                    != NAVSYS_STATUS_OK
+                || room_blend == NULL
+                || maze_hash(room_blend) != UINT32_C(453713525)) {
+                fprintf(stderr, "unexpected checked Room Blend SDK ABI\n");
+                maze_destroy(room_blend);
+                return 11;
+            }
+            maze_destroy(room_blend);
+
+            maze_t* legacy_room_blend = maze_make_room_blend(-5, 8, 9, 9);
+            if (legacy_room_blend == NULL) {
+                fprintf(stderr, "unexpected legacy Room Blend SDK ABI\n");
+                return 12;
+            }
+            maze_destroy(legacy_room_blend);
+        }
     }
 
     navgrid_t* legacy_carver_grid = navgrid_create_full(

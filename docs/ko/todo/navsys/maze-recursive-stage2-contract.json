@@ -1,0 +1,64 @@
+{
+  "schema_version": 1,
+  "scope": "navsys-maze-recursive-backtracker-stage2",
+  "status": "complete",
+  "source_revision": "83ba12f",
+  "canonical_api": {
+    "generator": "byul_maze_generate_recursive_backtracker",
+    "options": "byul_maze_generate_options_t ABI version 1",
+    "output_contract": "out_maze is reset to NULL before validation and receives caller ownership only on success"
+  },
+  "algorithm": {
+    "workspace": "flat visited bitmap plus explicit heap DFS frames",
+    "frame": "logical cell, one preserved four-direction shuffle, and next-direction index",
+    "native_stack": "constant with respect to logical vertex count",
+    "randomization": "Stage 1 PCG32 draw order and all raster goldens are preserved",
+    "step_unit": "one newly visited logical cell; exactly V on success"
+  },
+  "validation": {
+    "dimensions": "width and height are odd and at least 3",
+    "bounds": "the inclusive last coordinate and each dimension must fit int32_t",
+    "max_cells": "checked before allocation",
+    "max_steps": "one step per logical cell; default is raster cells times 8",
+    "cancellation": "polled before generation, throughout raster initialization, and at every frame push",
+    "exception_barrier": "bad_alloc maps to OUT_OF_MEMORY; callback exceptions map to CALLBACK_FAILED; other exceptions map to CORRUPT_STATE",
+    "failure_atomicity": "partial Maze output is never published"
+  },
+  "compatibility": {
+    "legacy_symbol": "maze_make_recursive",
+    "legacy_policy": "deprecated ABI 1.x adapter forwarding to the checked generator",
+    "legacy_seed": "non-replayable process-local generation seed",
+    "generic_dispatcher": "BYUL_MAZE_ALGORITHM_RECURSIVE_BACKTRACKER produces the same raster for equal options"
+  },
+  "golden": {
+    "origin": [-5, 8],
+    "extent": [9, 9],
+    "seed": 0,
+    "hash": 303425655
+  },
+  "wrapper": {
+    "generator_manifest": "tools/python/byul_wrapper/generate_wrapper_abi.py",
+    "high_level_entry": "c_maze.generate_recursive_backtracker",
+    "policy_tests": "12/12 Maze wrapper policy tests passed",
+    "generation_check": "generated CFFI declarations are up to date"
+  },
+  "root_shared": {
+    "profile": "msvc-x64-release",
+    "export_count": 1211,
+    "exports": [
+      "byul_maze_generate_recursive_backtracker",
+      "maze_make_recursive"
+    ],
+    "installed_header": "include/byul/maze_recursive.h"
+  },
+  "verification": {
+    "test_maze": "99/99 test cases, 835443/835443 assertions",
+    "aggregate_root": "538/538 test cases, 186302/186302 assertions",
+    "test_navsys_allocation_failure": "exit 0",
+    "sanitizers": "GCC 13 ASan/LSan/UBSan 99/99 test cases, 835443/835443 assertions",
+    "sdk_consumer": "clean-install C17 and C++17 consumers built and ran successfully",
+    "standalone_header": "clean-install MSVC C17 and C++17 probes passed",
+    "strict_header_audit": "150 headers, 95 public C headers, 1172 declarations, 0 invariant errors",
+    "navsys_abi_inventory": "58 headers, 656 symbols"
+  }
+}

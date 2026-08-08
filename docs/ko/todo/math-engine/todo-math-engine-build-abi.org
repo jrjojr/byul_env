@@ -1,11 +1,11 @@
 #+TITLE: Math Engine Static·Shared Build와 ABI 전환 TODO
 #+TODO: TODO DOING BLOCKED | DONE CANCELLED FAILED
-#+TODO_RULES: ../../../../external/rules/projects/byul/todo-rules.org
-#+PUBLIC_API_RULES: ../../../../external/rules/projects/byul/public-api-rules.org
-#+HEADER_DECLARATION_RULES: ../../../../external/rules/projects/byul/header-declaration-rules.org
-#+HEADER_AUTHORING_RULES: ../../../../external/rules/projects/byul/header-authoring-rules.org
-#+BUILD_RULES: ../../../../external/rules/projects/byul/build-rules.org
-#+TEST_RULES: ../../../../external/rules/projects/byul/test-rules.org
+#+TODO_RULES: ../../../../external/rules_env/projects/byul/todo-rules.org
+#+PUBLIC_API_RULES: ../../../../external/rules_env/projects/byul/public-api-rules.org
+#+HEADER_DECLARATION_RULES: ../../../../external/rules_env/projects/byul/header-declaration-rules.org
+#+HEADER_AUTHORING_RULES: ../../../../external/rules_env/projects/byul/header-authoring-rules.org
+#+BUILD_RULES: ../../../../external/rules_env/projects/byul/build-rules.org
+#+TEST_RULES: ../../../../external/rules_env/projects/byul/test-rules.org
 #+TODO_PARENT: todo-math-engine.org
 #+AUTHOR: ByulPapa / Codex
 #+LANGUAGE: ko
@@ -100,7 +100,7 @@ SHARED/IMPORTED target 계약]]을 기준으로 Windows import library와 Unix s
 
 * 중앙 규칙 충돌
 
-현재 =external/rules/projects/byul/byul-init-rules.org=와 =build-rules.org=는 공개
+현재 =external/rules_env/projects/byul/byul-init-rules.org=와 =build-rules.org=는 공개
 shared library를 root =byul= 하나로 고정한다. 사용자 목표가 이 정책을 바꾸므로 최종
 DLL cutover 전에 중앙 규칙, runtime/public API/test 규칙과 =rules-ref.org= pin을 같은
 승인 변경에서 갱신해야 한다. 그 전 단계는 root DLL을 유지한다.
@@ -188,7 +188,7 @@ external consumer를 실행한다.
 
 *** 검증
 
-=external/rules/validate_rules.bat=과 clean BYUL bootstrap에서 rule path/revision을
+=external/rules_env/validate_rules.bat=과 clean BYUL bootstrap에서 rule path/revision을
 검사한다.
 
 ** TODO 5. Shared 병행 build와 cutover를 수행한다

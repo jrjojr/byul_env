@@ -1,0 +1,66 @@
+{
+  "schema_version": 1,
+  "scope": "navsys-maze-binary-stage4",
+  "status": "complete",
+  "source_revision": "a28780c27a12025151ca2882758b6b77e268e7f0",
+  "header_contract": {
+    "header": "byul/navsys/maze/maze_binary.h",
+    "installed_path": "include/byul/maze_binary.h",
+    "direct_dependency": "maze.h owns byul_maze_generate_options_t; replacing it with maze_core.h alone fails standalone compilation",
+    "documented_contracts": [
+      "four explicit bias values and coordinate meaning",
+      "PCG32 draw consumption and deterministic replay tuple",
+      "perfect-tree topology and explicit non-UST classification",
+      "failure-atomic out_maze ownership",
+      "thread, reentrancy, blocking, and O(width*height) complexity",
+      "legacy SOUTH_EAST non-deterministic adapter and deprecation"
+    ],
+    "strict_header_abi_audit": "150 headers, 95 public C headers, 1164 declarations, 0 invariant errors",
+    "targeted_wrapper_header_audit": "3 declarations, 0 issues"
+  },
+  "inventory_alignment": {
+    "module_sources": "maze_binary.cpp is compiled into maze static and root shared inventories",
+    "module_compile_definition": "BYUL_STATIC",
+    "root_compile_definition": "BYUL_EXPORTS",
+    "symbols": [
+      "byul_maze_binary_bias_is_supported",
+      "byul_maze_generate_binary_tree",
+      "maze_make_binary"
+    ],
+    "windows_module_static": "all 3 symbols defined in maze.lib",
+    "windows_root_shared": "all 3 symbols exported once from byul.dll; 1203 total exports",
+    "linux_module_static": "all 3 symbols defined in libmaze.a",
+    "linux_root_shared": "all 3 symbols exported once from libbyul.so",
+    "navsys_abi_inventory": "58 headers, 648 symbols",
+    "installed_sdk": "92 flattened headers including maze_binary.h"
+  },
+  "dispatcher_and_wrapper": {
+    "dispatcher": "BYUL_MAZE_ALGORITHM_BINARY_TREE routes to the SOUTH_EAST compatibility bias under the checked common options contract",
+    "wrapper_manifest": "tools/python/byul_wrapper/generate_wrapper_abi.py registers navsys/maze/maze_binary.h",
+    "generated_cffi": "--check reports declarations up to date",
+    "native_policy_tests": "5/5 passed against the rebuilt MSVC Release byul.dll",
+    "generator_parser_tests": "11/11 passed"
+  },
+  "clean_sdk_consumers": {
+    "fixture": ".task_tmp/maze_binary_stage4_consumer_src",
+    "coverage": "C17 and C++17 direct include, support query, canonical generation, legacy generation, ownership destruction, link, and run",
+    "windows_msvc_release": "both consumers exit 0 using only build_maze_binary_stage4_sdk",
+    "linux_gcc_13_debug": "both consumers exit 0 using only the installed ASan/LSan SDK; consumer instrumentation matches the sanitized libbyul.so"
+  },
+  "verification": {
+    "windows_test_maze": "51/51 test cases, 119609/119609 assertions",
+    "linux_test_maze": "GCC/G++ 13.3.0 Debug ASan/LSan, 51/51 test cases, 119609/119609 assertions, no sanitizer or leak report",
+    "central_rules": "60 Org files, 0 errors, 0 warnings",
+    "wrapper_cache_warning": "pytest could not write its pre-existing protected .pytest_cache; all selected tests passed",
+    "global_header_debt_note": "The repository-wide wrapper audit still reports unrelated pre-existing documentation debt; maze_binary.h itself has zero targeted issues and zero strict invariant errors.",
+    "platform_not_run": "macOS was not available in this local environment"
+  },
+  "release_note_candidate": {
+    "change_kind": "feature",
+    "level": "minor",
+    "target": "both",
+    "breaking": false,
+    "title": "결정적 bias 지정 Binary Tree Maze 생성 API",
+    "migration": "New callers use byul_maze_generate_binary_tree; maze_make_binary remains an ABI-compatible deprecated SOUTH_EAST adapter."
+  }
+}

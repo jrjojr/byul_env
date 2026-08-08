@@ -1,6 +1,6 @@
 #+TITLE: Balix 공식·상수·Private Helper 전수 Inventory TODO
 #+TODO: TODO DOING BLOCKED | DONE CANCELLED FAILED
-#+TODO_RULES: ../../../../external/rules/projects/byul/todo-rules.org
+#+TODO_RULES: ../../../../external/rules_env/projects/byul/todo-rules.org
 #+TODO_PARENT: todo-balix-math-extraction.org
 #+OWNERSHIP_MANIFEST: ../header-refactor-current/header-role-manifest.json
 #+AUTHOR: ByulPapa / Codex

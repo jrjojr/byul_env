@@ -1,0 +1,37 @@
+{
+  "schema_version": 1,
+  "scope": "navsys-maze-eller-stage3",
+  "status": "complete",
+  "source_revision": "87f71bb",
+  "path_equivalence": {
+    "direct": "byul_maze_generate_eller",
+    "dispatcher": "byul_maze_generate with BYUL_MAZE_ALGORITHM_ELLER",
+    "seed_corpus": [0, 1, 17, "UINT64_MAX"],
+    "assertion": "direct and dispatcher blocked-raster hashes are identical",
+    "legacy": "maze_make_eller preserves the corrected blocked border, logical-cell connectivity, and N-1 edge topology"
+  },
+  "public_property_gate": {
+    "api": "byul_maze_generate_eller",
+    "seeds": "integer seeds 0 through 99",
+    "extent": [13, -21, 9, 9],
+    "requirements": [
+      "blocked outer border",
+      "open odd/odd logical cells",
+      "connected logical graph",
+      "edge count equals node count minus one"
+    ]
+  },
+  "compatibility": {
+    "legacy_symbol": "maze_make_eller",
+    "policy": "deprecated ABI 1.x forwarding adapter",
+    "behavior_change_revision": "41070504e08009dd1f08f3263f5f2477db3413d1",
+    "migration": "Historical even-row border-opening rasters remain intentionally unsupported; use the checked API for deterministic replay."
+  },
+  "verification": {
+    "windows_msvc_release": "56/56 test cases, 120387/120387 assertions",
+    "linux_profile": "Ubuntu WSL, GCC 13.3.0, Debug, ASan+LSan",
+    "linux_test_maze": "56/56 test cases, 120387/120387 assertions, no sanitizer or leak finding",
+    "linux_root_shared": "libbyul.so exports byul_maze_generate_eller and maze_make_eller",
+    "linux_checkout": "/home/byulmama/byul_validation/maze-eller-87f71bb"
+  }
+}

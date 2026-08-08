@@ -1,0 +1,45 @@
+{
+  "schema_version": 1,
+  "scope": "navsys-maze-sidewinder-stage3",
+  "status": "complete",
+  "source_revision": "370f20b",
+  "perfect_maze_gate": {
+    "sweeps": 4,
+    "seeds_per_sweep": 100,
+    "extent": [13, -21, 9, 9],
+    "requirements": [
+      "outer border remains blocked",
+      "every logical cell is open",
+      "every logical cell is connected",
+      "logical edge count equals logical node count minus one",
+      "the boundary-adjacent logical row is a continuous corridor"
+    ]
+  },
+  "metamorphic_gate": {
+    "seed": 0,
+    "extent": [-5, 8, 9, 9],
+    "horizontal_reflection": "EAST_NORTH equals reflected WEST_NORTH",
+    "vertical_reflection": "EAST_NORTH equals reflected EAST_SOUTH",
+    "double_reflection": "EAST_NORTH equals reflected WEST_SOUTH",
+    "comparison": "all 81 raster cells"
+  },
+  "bias_gate": {
+    "seeds_per_sweep": 512,
+    "coin_decisions_per_seed": 9,
+    "accepted_sweep_carve_ratio": "43% through 57%",
+    "result": "all four deterministic corpora remained within the bound"
+  },
+  "work_gate": {
+    "extents": [[3, 3], [3, 31], [31, 3], [31, 31]],
+    "sweeps": 4,
+    "success_budget": "exact logical cell count",
+    "failure_budget": "logical cell count minus one, except the one-cell zero-default case",
+    "complexity": "O(width*height) time and O(width) maximum run storage"
+  },
+  "verification": {
+    "windows": "MSVC Release 71/71 test cases and 155368/155368 assertions",
+    "linux": "Ubuntu WSL GCC 13.3.0 Debug ASan+LSan 71/71 test cases and 155368/155368 assertions",
+    "sanitizers": "ASan and LSan completed with no findings",
+    "linux_checkout": "/home/byulmama/byul_validation/maze-sidewinder-370f20b"
+  }
+}

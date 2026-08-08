@@ -1,0 +1,65 @@
+{
+  "schema_version": 1,
+  "scope": "navsys-route-finder-stage4",
+  "status": "complete",
+  "base_revision": "346b6ac",
+  "evidence_state": "verified working tree based on revision 346b6ac",
+  "canonical_contract": {
+    "evaluation_header": "byul/navsys/route_finder/route_finder_evaluation.h",
+    "status_callbacks": [
+      "route_finder_cost_func_ex",
+      "route_finder_heuristic_func_ex"
+    ],
+    "stable_type_names": 42,
+    "supported_algorithms": [
+      "astar",
+      "bfs",
+      "dfs",
+      "dijkstra",
+      "greedy_best_first",
+      "weighted_astar"
+    ],
+    "conformance_blocked_legacy_algorithms": [
+      "fast_marching",
+      "fringe_search",
+      "ida_star",
+      "rta_star",
+      "sma_star"
+    ],
+    "unsupported_behavior": "checked selection and status execution return NAVSYS_STATUS_UNSUPPORTED without mutating outputs",
+    "legacy_behavior": "ABI 1.x direct symbols and route_finder_run dispatch remain available for the previous eleven-type surface"
+  },
+  "callback_contract": {
+    "binding": "callback and userdata are replaced atomically and retained until unbind, clear, free, or destroy",
+    "validation": "cost and heuristic results must be finite and non-negative",
+    "failure": "callback status, exception, NaN, infinity, or negative output maps to NAVSYS_STATUS_CALLBACK_FAILED",
+    "python_lifetime": "CFFI callback and ffi.new_handle objects are strongly retained by c_route_finder"
+  },
+  "result_contract": {
+    "statuses": [
+      "OK",
+      "INVALID_ARGUMENT",
+      "OUT_OF_MEMORY",
+      "UNSUPPORTED",
+      "CALLBACK_FAILED",
+      "NO_PATH",
+      "CANCELLED",
+      "LIMIT_REACHED",
+      "IN_PROGRESS"
+    ],
+    "output_atomicity": "out_route and out_stats remain unchanged when no usable result is returned",
+    "route_cost": "canonical result cost is recomputed from the bound cost evaluator over every returned edge"
+  },
+  "verification": {
+    "msvc_release_native": "test_route_finder plus performance and regression gates: 3/3 passed",
+    "msvc_release_allocation": "test_navsys_allocation_failure and test_navsys_allocation_leak_gate: 2/2 passed",
+    "root_shared": "MSVC Release byul.dll built with 1230 exports; Stage 4 canonical and ABI 1.x legacy symbols are present",
+    "installed_sdk": "clean install has route_finder_evaluation.h and all 14 Route Finder headers compile standalone in C17 and C++17; C and C++ consumers build and run",
+    "python_native": "tools.python.byul_wrapper.tests.test_route_finder: 17/17 passed against Release byul.dll",
+    "linux_sanitizer": "Virtual Yard Ubuntu GCC 13.3.0, ASan+UBSan+LSan test_route_finder passed",
+    "wrapper_generation": "generate_wrapper_abi.py --check passed",
+    "declaration_audit": "all registered Route Finder headers have zero declaration audit errors",
+    "strict_header_abi_audit": "all 14 Route Finder public headers pass strict license, file Doxygen, include guard, C linkage, install, wrapper, and root-export invariants",
+    "repository_scope": "unrelated global header debt remains outside the completed Route Finder scope"
+  }
+}

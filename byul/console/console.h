@@ -2,7 +2,6 @@
 #define CONSOLE_H
 
 #include "byul_config.h"
-#include "scalar.h"
 
 #include "navgrid.h"
 #include "coord.h"

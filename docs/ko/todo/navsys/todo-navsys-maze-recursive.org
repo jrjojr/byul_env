@@ -1,12 +1,12 @@
 #+TITLE: BYUL maze_recursive.h 정밀 리팩터링 TODO
 #+TODO: TODO DOING BLOCKED | DONE CANCELLED FAILED
-#+TODO_RULES: ../../../../external/rules/projects/byul/todo-rules.org
-#+PUBLIC_API_RULES: ../../../../external/rules/projects/byul/public-api-rules.org
-#+HEADER_DECLARATION_RULES: ../../../../external/rules/projects/byul/header-declaration-rules.org
-#+HEADER_COMMENT_RULES: ../../../../external/rules/projects/byul/header-comment-rules.org
-#+HEADER_AUTHORING_RULES: ../../../../external/rules/projects/byul/header-authoring-rules.org
-#+BUILD_RULES: ../../../../external/rules/projects/byul/build-rules.org
-#+TEST_RULES: ../../../../external/rules/projects/byul/test-rules.org
+#+TODO_RULES: ../../../../external/rules_env/projects/byul/todo-rules.org
+#+PUBLIC_API_RULES: ../../../../external/rules_env/projects/byul/public-api-rules.org
+#+HEADER_DECLARATION_RULES: ../../../../external/rules_env/projects/byul/header-declaration-rules.org
+#+HEADER_COMMENT_RULES: ../../../../external/rules_env/projects/byul/header-comment-rules.org
+#+HEADER_AUTHORING_RULES: ../../../../external/rules_env/projects/byul/header-authoring-rules.org
+#+BUILD_RULES: ../../../../external/rules_env/projects/byul/build-rules.org
+#+TEST_RULES: ../../../../external/rules_env/projects/byul/test-rules.org
 #+TODO_PARENT: todo-리팩토링-navsys-headers.org
 #+LANGUAGE: ko
 #+OPTIONS: toc:3 num:nil
@@ -66,7 +66,7 @@ BYUL_API navsys_status_t byul_maze_generate_recursive_backtracker(
 - passage graph는 perfect maze이며 DFS 특유 long corridor는 characteristic이지 stable exact guarantee는 아니다.
 - seed/RNG state는 per-call, max cells/steps와 cancel은 loop에서 bounded poll한다.
 
-* TODO 1단계: nonzero-origin 오류 격리
+* DONE 1단계: nonzero-origin 오류 격리
 
 ** 실행
 
@@ -84,7 +84,7 @@ BYUL_API navsys_status_t byul_maze_generate_recursive_backtracker(
 - negative/nonzero/max origin, 1/2/even dimensions와 rectangular grid를 sanitizer로 실행한다.
 - CMake/export/test consumer 기준선을 비교한다.
 
-* TODO 2단계: iterative DFS와 checked workspace
+* DONE 2단계: iterative DFS와 checked workspace
 
 ** 실행
 
@@ -102,7 +102,7 @@ BYUL_API navsys_status_t byul_maze_generate_recursive_backtracker(
 - allocator fault at each visited/stack/hash stage, cancellation at push/pop/materialize를 검사한다.
 - stub RNG로 exact DFS/backtrack trace를 검증한다.
 
-* TODO 3단계: 좌표·위상·종료 gate
+* DONE 3단계: 좌표·위상·종료 gate
 
 ** 실행
 
@@ -119,7 +119,7 @@ BYUL_API navsys_status_t byul_maze_generate_recursive_backtracker(
 
 - property seed corpus, translation metamorphic test, ASan/LSan/UBSan과 benchmark를 실행한다.
 
-* TODO 4단계: Header·migration gate
+* DONE 4단계: Header·migration gate
 
 ** 실행
 

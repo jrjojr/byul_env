@@ -5,7 +5,18 @@
  * See the LICENSE file in the project root for full license terms.
  */
 
-#include "navsys.h"
+#include "navsys_all.h"
+#include "maze_aldous_broder.h"
+#include "maze_binary.h"
+#include "maze_eller.h"
+#include "maze_hunt_and_kill.h"
+#include "maze_kruskal.h"
+#include "maze_prim.h"
+#include "maze_recursive.h"
+#include "maze_recursive_division.h"
+#include "maze_room_blend.h"
+#include "maze_sidewinder.h"
+#include "maze_wilson.h"
 
 #include <cstddef>
 #include <cstdint>
@@ -1714,6 +1725,787 @@ bool verify_maze_lifecycle_allocation_failure_atomic() {
     return tracked_live_allocations == baseline;
 }
 
+bool verify_maze_binary_generation_allocation_failure_atomic() {
+    const std::size_t baseline = tracked_live_allocations;
+    const byul_maze_generate_options_t options{
+        sizeof(byul_maze_generate_options_t),
+        BYUL_MAZE_GENERATE_OPTIONS_ABI_VERSION,
+        UINT64_C(17),
+        UINT64_C(10000),
+        UINT64_C(81),
+        nullptr,
+        nullptr
+    };
+    bool reproduced_failure = false;
+    bool completed = false;
+
+    for (std::ptrdiff_t index = 0; index < 128; ++index) {
+        maze_t* output = reinterpret_cast<maze_t*>(uintptr_t{1});
+        track_allocations = true;
+        fail_after = index;
+        const navsys_status_t status = byul_maze_generate_binary_tree(
+            -4,
+            6,
+            9,
+            9,
+            BYUL_MAZE_BINARY_BIAS_NORTH_WEST,
+            &options,
+            &output);
+        fail_after = -1;
+        track_allocations = false;
+
+        if (status == NAVSYS_STATUS_OUT_OF_MEMORY) {
+            reproduced_failure = true;
+            if (output != nullptr) {
+                std::fprintf(
+                    stderr,
+                    "maze binary published output at failed allocation %td\n",
+                    index);
+                maze_destroy(output);
+                return false;
+            }
+        } else if (status == NAVSYS_STATUS_OK) {
+            if (!output) {
+                std::fprintf(stderr, "maze binary succeeded without output\n");
+                return false;
+            }
+            maze_destroy(output);
+            completed = true;
+        } else {
+            std::fprintf(
+                stderr,
+                "maze binary returned unexpected allocation status %d at %td\n",
+                static_cast<int>(status),
+                index);
+            maze_destroy(output);
+            return false;
+        }
+        if (tracked_live_allocations != baseline) {
+            std::fprintf(
+                stderr,
+                "maze binary leaked at failed allocation %td "
+                "(live=%zu, baseline=%zu)\n",
+                index,
+                tracked_live_allocations,
+                baseline);
+            return false;
+        }
+        if (completed) break;
+    }
+    return reproduced_failure && completed
+        && tracked_live_allocations == baseline;
+}
+
+bool verify_maze_eller_generation_allocation_failure_atomic() {
+    const std::size_t baseline = tracked_live_allocations;
+    const byul_maze_generate_options_t options{
+        sizeof(byul_maze_generate_options_t),
+        BYUL_MAZE_GENERATE_OPTIONS_ABI_VERSION,
+        UINT64_C(17),
+        UINT64_C(10000),
+        UINT64_C(81),
+        nullptr,
+        nullptr
+    };
+    bool reproduced_failure = false;
+    bool completed = false;
+
+    for (std::ptrdiff_t index = 0; index < 128; ++index) {
+        maze_t* output = reinterpret_cast<maze_t*>(uintptr_t{1});
+        track_allocations = true;
+        fail_after = index;
+        const navsys_status_t status = byul_maze_generate_eller(
+            -4, 6, 9, 9, &options, &output);
+        fail_after = -1;
+        track_allocations = false;
+
+        if (status == NAVSYS_STATUS_OUT_OF_MEMORY) {
+            reproduced_failure = true;
+            if (output != nullptr) {
+                std::fprintf(
+                    stderr,
+                    "maze Eller published output at failed allocation %td\n",
+                    index);
+                maze_destroy(output);
+                return false;
+            }
+        } else if (status == NAVSYS_STATUS_OK) {
+            if (!output) {
+                std::fprintf(stderr, "maze Eller succeeded without output\n");
+                return false;
+            }
+            maze_destroy(output);
+            completed = true;
+        } else {
+            std::fprintf(
+                stderr,
+                "maze Eller returned unexpected allocation status %d at %td\n",
+                static_cast<int>(status),
+                index);
+            maze_destroy(output);
+            return false;
+        }
+        if (tracked_live_allocations != baseline) {
+            std::fprintf(
+                stderr,
+                "maze Eller leaked at failed allocation %td "
+                "(live=%zu, baseline=%zu)\n",
+                index,
+                tracked_live_allocations,
+                baseline);
+            return false;
+        }
+        if (reproduced_failure && completed) break;
+    }
+    if (!reproduced_failure || !completed) {
+        std::fprintf(
+            stderr,
+            "maze Eller allocation sweep did not cover failure and success\n");
+        return false;
+    }
+    return tracked_live_allocations == baseline;
+}
+
+bool verify_maze_hunt_and_kill_generation_allocation_failure_atomic() {
+    const std::size_t baseline = tracked_live_allocations;
+    const byul_maze_generate_options_t options{
+        sizeof(byul_maze_generate_options_t),
+        BYUL_MAZE_GENERATE_OPTIONS_ABI_VERSION,
+        UINT64_C(17),
+        UINT64_C(10000),
+        UINT64_C(81),
+        nullptr,
+        nullptr
+    };
+    bool reproduced_failure = false;
+    bool completed = false;
+
+    for (std::ptrdiff_t index = 0; index < 128; ++index) {
+        maze_t* output = reinterpret_cast<maze_t*>(uintptr_t{1});
+        track_allocations = true;
+        fail_after = index;
+        const navsys_status_t status = byul_maze_generate_hunt_and_kill(
+            -4, 6, 9, 9, &options, &output);
+        fail_after = -1;
+        track_allocations = false;
+
+        if (status == NAVSYS_STATUS_OUT_OF_MEMORY) {
+            reproduced_failure = true;
+            if (output != nullptr) {
+                std::fprintf(
+                    stderr,
+                    "maze Hunt-and-Kill published output at failed allocation %td\n",
+                    index);
+                maze_destroy(output);
+                return false;
+            }
+        } else if (status == NAVSYS_STATUS_OK) {
+            if (!output) {
+                std::fprintf(
+                    stderr, "maze Hunt-and-Kill succeeded without output\n");
+                return false;
+            }
+            maze_destroy(output);
+            completed = true;
+        } else {
+            std::fprintf(
+                stderr,
+                "maze Hunt-and-Kill returned unexpected allocation status %d at %td\n",
+                static_cast<int>(status),
+                index);
+            maze_destroy(output);
+            return false;
+        }
+        if (tracked_live_allocations != baseline) {
+            std::fprintf(
+                stderr,
+                "maze Hunt-and-Kill leaked at failed allocation %td "
+                "(live=%zu, baseline=%zu)\n",
+                index,
+                tracked_live_allocations,
+                baseline);
+            return false;
+        }
+        if (reproduced_failure && completed) break;
+    }
+    if (!reproduced_failure || !completed) {
+        std::fprintf(
+            stderr,
+            "maze Hunt-and-Kill allocation sweep did not cover failure and success\n");
+        return false;
+    }
+    return tracked_live_allocations == baseline;
+}
+
+bool verify_maze_aldous_broder_generation_allocation_failure_atomic() {
+    const std::size_t baseline = tracked_live_allocations;
+    const byul_maze_generate_options_t options{
+        sizeof(byul_maze_generate_options_t),
+        BYUL_MAZE_GENERATE_OPTIONS_ABI_VERSION,
+        UINT64_C(17),
+        UINT64_C(20736),
+        UINT64_C(81),
+        nullptr,
+        nullptr
+    };
+    bool reproduced_failure = false;
+    bool completed = false;
+
+    for (std::ptrdiff_t index = 0; index < 128; ++index) {
+        maze_t* output = reinterpret_cast<maze_t*>(uintptr_t{1});
+        track_allocations = true;
+        fail_after = index;
+        const navsys_status_t status = byul_maze_generate_aldous_broder(
+            -4, 6, 9, 9, &options, &output);
+        fail_after = -1;
+        track_allocations = false;
+
+        if (status == NAVSYS_STATUS_OUT_OF_MEMORY) {
+            reproduced_failure = true;
+            if (output != nullptr) {
+                std::fprintf(
+                    stderr,
+                    "maze Aldous-Broder published output at failed allocation %td\n",
+                    index);
+                maze_destroy(output);
+                return false;
+            }
+        } else if (status == NAVSYS_STATUS_OK) {
+            if (!output) {
+                std::fprintf(stderr, "maze Aldous-Broder succeeded without output\n");
+                return false;
+            }
+            maze_destroy(output);
+            completed = true;
+        } else {
+            std::fprintf(
+                stderr,
+                "maze Aldous-Broder returned unexpected allocation status %d at %td\n",
+                static_cast<int>(status),
+                index);
+            maze_destroy(output);
+            return false;
+        }
+        if (tracked_live_allocations != baseline) {
+            std::fprintf(
+                stderr,
+                "maze Aldous-Broder leaked at failed allocation %td "
+                "(live=%zu, baseline=%zu)\n",
+                index,
+                tracked_live_allocations,
+                baseline);
+            return false;
+        }
+        if (reproduced_failure && completed) break;
+    }
+    if (!reproduced_failure || !completed) {
+        std::fprintf(
+            stderr,
+            "maze Aldous-Broder allocation sweep did not cover failure and success\n");
+        return false;
+    }
+    return tracked_live_allocations == baseline;
+}
+
+bool verify_maze_wilson_generation_allocation_failure_atomic() {
+    const std::size_t baseline = tracked_live_allocations;
+    const byul_maze_generate_options_t options{
+        sizeof(byul_maze_generate_options_t),
+        BYUL_MAZE_GENERATE_OPTIONS_ABI_VERSION,
+        UINT64_C(17),
+        UINT64_C(20736),
+        UINT64_C(81),
+        nullptr,
+        nullptr
+    };
+    bool reproduced_failure = false;
+    bool completed = false;
+
+    for (std::ptrdiff_t index = 0; index < 128; ++index) {
+        maze_t* output = reinterpret_cast<maze_t*>(uintptr_t{1});
+        track_allocations = true;
+        fail_after = index;
+        const navsys_status_t status = byul_maze_generate_wilson(
+            -4, 6, 9, 9, &options, &output);
+        fail_after = -1;
+        track_allocations = false;
+
+        if (status == NAVSYS_STATUS_OUT_OF_MEMORY) {
+            reproduced_failure = true;
+            if (output != nullptr) {
+                std::fprintf(
+                    stderr,
+                    "maze Wilson published output at failed allocation %td\n",
+                    index);
+                maze_destroy(output);
+                return false;
+            }
+        } else if (status == NAVSYS_STATUS_OK) {
+            if (!output) {
+                std::fprintf(stderr, "maze Wilson succeeded without output\n");
+                return false;
+            }
+            maze_destroy(output);
+            completed = true;
+        } else {
+            std::fprintf(
+                stderr,
+                "maze Wilson returned unexpected allocation status %d at %td\n",
+                static_cast<int>(status),
+                index);
+            maze_destroy(output);
+            return false;
+        }
+        if (tracked_live_allocations != baseline) {
+            std::fprintf(
+                stderr,
+                "maze Wilson leaked at failed allocation %td "
+                "(live=%zu, baseline=%zu)\n",
+                index,
+                tracked_live_allocations,
+                baseline);
+            return false;
+        }
+        if (reproduced_failure && completed) break;
+    }
+    if (!reproduced_failure || !completed) {
+        std::fprintf(
+            stderr,
+            "maze Wilson allocation sweep did not cover failure and success\n");
+        return false;
+    }
+    return tracked_live_allocations == baseline;
+}
+
+bool verify_maze_sidewinder_generation_allocation_failure_atomic() {
+    const std::size_t baseline = tracked_live_allocations;
+    const byul_maze_generate_options_t options{
+        sizeof(byul_maze_generate_options_t),
+        BYUL_MAZE_GENERATE_OPTIONS_ABI_VERSION,
+        UINT64_C(17),
+        UINT64_C(10000),
+        UINT64_C(81),
+        nullptr,
+        nullptr
+    };
+    bool reproduced_failure = false;
+    bool completed = false;
+
+    for (std::ptrdiff_t index = 0; index < 128; ++index) {
+        maze_t* output = reinterpret_cast<maze_t*>(uintptr_t{1});
+        track_allocations = true;
+        fail_after = index;
+        const navsys_status_t status = byul_maze_generate_sidewinder(
+            -4, 6, 9, 9, BYUL_MAZE_SIDEWINDER_WEST_SOUTH,
+            &options, &output);
+        fail_after = -1;
+        track_allocations = false;
+
+        if (status == NAVSYS_STATUS_OUT_OF_MEMORY) {
+            reproduced_failure = true;
+            if (output != nullptr) {
+                std::fprintf(
+                    stderr,
+                    "maze Sidewinder published output at failed allocation %td\n",
+                    index);
+                maze_destroy(output);
+                return false;
+            }
+        } else if (status == NAVSYS_STATUS_OK) {
+            if (!output) {
+                std::fprintf(
+                    stderr, "maze Sidewinder succeeded without output\n");
+                return false;
+            }
+            maze_destroy(output);
+            completed = true;
+        } else {
+            std::fprintf(
+                stderr,
+                "maze Sidewinder returned unexpected allocation status %d at %td\n",
+                static_cast<int>(status),
+                index);
+            maze_destroy(output);
+            return false;
+        }
+        if (tracked_live_allocations != baseline) {
+            std::fprintf(
+                stderr,
+                "maze Sidewinder leaked at failed allocation %td "
+                "(live=%zu, baseline=%zu)\n",
+                index,
+                tracked_live_allocations,
+                baseline);
+            return false;
+        }
+        if (reproduced_failure && completed) break;
+    }
+    if (!reproduced_failure || !completed) {
+        std::fprintf(
+            stderr,
+            "maze Sidewinder allocation sweep did not cover failure and success\n");
+        return false;
+    }
+    return tracked_live_allocations == baseline;
+}
+
+bool verify_maze_recursive_division_generation_allocation_failure_atomic() {
+    const std::size_t baseline = tracked_live_allocations;
+    const byul_maze_generate_options_t options{
+        sizeof(byul_maze_generate_options_t),
+        BYUL_MAZE_GENERATE_OPTIONS_ABI_VERSION,
+        UINT64_C(17),
+        UINT64_C(10000),
+        UINT64_C(81),
+        nullptr,
+        nullptr
+    };
+    bool reproduced_failure = false;
+    bool completed = false;
+
+    for (std::ptrdiff_t index = 0; index < 128; ++index) {
+        maze_t* output = reinterpret_cast<maze_t*>(uintptr_t{1});
+        track_allocations = true;
+        fail_after = index;
+        const navsys_status_t status = byul_maze_generate_recursive_division(
+            -4, 6, 9, 9, &options, &output);
+        fail_after = -1;
+        track_allocations = false;
+
+        if (status == NAVSYS_STATUS_OUT_OF_MEMORY) {
+            reproduced_failure = true;
+            if (output != nullptr) {
+                std::fprintf(
+                    stderr,
+                    "maze Recursive Division published output at failed allocation %td\n",
+                    index);
+                maze_destroy(output);
+                return false;
+            }
+        } else if (status == NAVSYS_STATUS_OK) {
+            if (!output) {
+                std::fprintf(
+                    stderr, "maze Recursive Division succeeded without output\n");
+                return false;
+            }
+            maze_destroy(output);
+            completed = true;
+        } else {
+            std::fprintf(
+                stderr,
+                "maze Recursive Division returned unexpected allocation status %d at %td\n",
+                static_cast<int>(status),
+                index);
+            maze_destroy(output);
+            return false;
+        }
+        if (tracked_live_allocations != baseline) {
+            std::fprintf(
+                stderr,
+                "maze Recursive Division leaked at failed allocation %td "
+                "(live=%zu, baseline=%zu)\n",
+                index,
+                tracked_live_allocations,
+                baseline);
+            return false;
+        }
+        if (reproduced_failure && completed) break;
+    }
+    if (!reproduced_failure || !completed) {
+        std::fprintf(
+            stderr,
+            "maze Recursive Division allocation sweep did not cover failure and success\n");
+        return false;
+    }
+    return tracked_live_allocations == baseline;
+}
+
+bool verify_maze_kruskal_generation_allocation_failure_atomic() {
+    const std::size_t baseline = tracked_live_allocations;
+    const byul_maze_generate_options_t options{
+        sizeof(byul_maze_generate_options_t),
+        BYUL_MAZE_GENERATE_OPTIONS_ABI_VERSION,
+        UINT64_C(17),
+        UINT64_C(10000),
+        UINT64_C(81),
+        nullptr,
+        nullptr
+    };
+    bool reproduced_failure = false;
+    bool completed = false;
+
+    for (std::ptrdiff_t index = 0; index < 128; ++index) {
+        maze_t* output = reinterpret_cast<maze_t*>(uintptr_t{1});
+        track_allocations = true;
+        fail_after = index;
+        const navsys_status_t status = byul_maze_generate_randomized_kruskal(
+            -4, 6, 9, 9, &options, &output);
+        fail_after = -1;
+        track_allocations = false;
+
+        if (status == NAVSYS_STATUS_OUT_OF_MEMORY) {
+            reproduced_failure = true;
+            if (output != nullptr) {
+                std::fprintf(
+                    stderr,
+                    "maze randomized Kruskal published output at failed allocation %td\n",
+                    index);
+                maze_destroy(output);
+                return false;
+            }
+        } else if (status == NAVSYS_STATUS_OK) {
+            if (!output) {
+                std::fprintf(
+                    stderr, "maze randomized Kruskal succeeded without output\n");
+                return false;
+            }
+            maze_destroy(output);
+            completed = true;
+        } else {
+            std::fprintf(
+                stderr,
+                "maze randomized Kruskal returned unexpected allocation status %d at %td\n",
+                static_cast<int>(status),
+                index);
+            maze_destroy(output);
+            return false;
+        }
+        if (tracked_live_allocations != baseline) {
+            std::fprintf(
+                stderr,
+                "maze randomized Kruskal leaked at failed allocation %td "
+                "(live=%zu, baseline=%zu)\n",
+                index,
+                tracked_live_allocations,
+                baseline);
+            return false;
+        }
+        if (reproduced_failure && completed) break;
+    }
+    if (!reproduced_failure || !completed) {
+        std::fprintf(
+            stderr,
+            "maze randomized Kruskal allocation sweep did not cover failure and success\n");
+        return false;
+    }
+    return tracked_live_allocations == baseline;
+}
+
+bool verify_maze_prim_generation_allocation_failure_atomic() {
+    const std::size_t baseline = tracked_live_allocations;
+    const byul_maze_generate_options_t options{
+        sizeof(byul_maze_generate_options_t),
+        BYUL_MAZE_GENERATE_OPTIONS_ABI_VERSION,
+        UINT64_C(17),
+        UINT64_C(10000),
+        UINT64_C(81),
+        nullptr,
+        nullptr
+    };
+    bool reproduced_failure = false;
+    bool completed = false;
+
+    for (std::ptrdiff_t index = 0; index < 128; ++index) {
+        maze_t* output = reinterpret_cast<maze_t*>(uintptr_t{1});
+        track_allocations = true;
+        fail_after = index;
+        const navsys_status_t status = byul_maze_generate_randomized_prim(
+            -4, 6, 9, 9, &options, &output);
+        fail_after = -1;
+        track_allocations = false;
+
+        if (status == NAVSYS_STATUS_OUT_OF_MEMORY) {
+            reproduced_failure = true;
+            if (output != nullptr) {
+                std::fprintf(
+                    stderr,
+                    "maze randomized Prim published output at failed allocation %td\n",
+                    index);
+                maze_destroy(output);
+                return false;
+            }
+        } else if (status == NAVSYS_STATUS_OK) {
+            if (!output) {
+                std::fprintf(
+                    stderr, "maze randomized Prim succeeded without output\n");
+                return false;
+            }
+            maze_destroy(output);
+            completed = true;
+        } else {
+            std::fprintf(
+                stderr,
+                "maze randomized Prim returned unexpected allocation status %d at %td\n",
+                static_cast<int>(status),
+                index);
+            maze_destroy(output);
+            return false;
+        }
+        if (tracked_live_allocations != baseline) {
+            std::fprintf(
+                stderr,
+                "maze randomized Prim leaked at failed allocation %td "
+                "(live=%zu, baseline=%zu)\n",
+                index,
+                tracked_live_allocations,
+                baseline);
+            return false;
+        }
+        if (reproduced_failure && completed) break;
+    }
+    if (!reproduced_failure || !completed) {
+        std::fprintf(
+            stderr,
+            "maze randomized Prim allocation sweep did not cover failure and success\n");
+        return false;
+    }
+    return tracked_live_allocations == baseline;
+}
+
+bool verify_maze_recursive_backtracker_allocation_failure_atomic() {
+    const std::size_t baseline = tracked_live_allocations;
+    const byul_maze_generate_options_t options{
+        sizeof(byul_maze_generate_options_t),
+        BYUL_MAZE_GENERATE_OPTIONS_ABI_VERSION,
+        UINT64_C(17),
+        UINT64_C(10000),
+        UINT64_C(81),
+        nullptr,
+        nullptr
+    };
+    bool reproduced_failure = false;
+    bool completed = false;
+
+    for (std::ptrdiff_t index = 0; index < 128; ++index) {
+        maze_t* output = reinterpret_cast<maze_t*>(uintptr_t{1});
+        track_allocations = true;
+        fail_after = index;
+        const navsys_status_t status =
+            byul_maze_generate_recursive_backtracker(
+                -4, 6, 9, 9, &options, &output);
+        fail_after = -1;
+        track_allocations = false;
+
+        if (status == NAVSYS_STATUS_OUT_OF_MEMORY) {
+            reproduced_failure = true;
+            if (output != nullptr) {
+                std::fprintf(
+                    stderr,
+                    "maze recursive backtracker published output at failed allocation %td\n",
+                    index);
+                maze_destroy(output);
+                return false;
+            }
+        } else if (status == NAVSYS_STATUS_OK) {
+            if (!output) {
+                std::fprintf(
+                    stderr, "maze recursive backtracker succeeded without output\n");
+                return false;
+            }
+            maze_destroy(output);
+            completed = true;
+        } else {
+            std::fprintf(
+                stderr,
+                "maze recursive backtracker returned unexpected allocation status %d at %td\n",
+                static_cast<int>(status),
+                index);
+            maze_destroy(output);
+            return false;
+        }
+        if (tracked_live_allocations != baseline) {
+            std::fprintf(
+                stderr,
+                "maze recursive backtracker leaked at failed allocation %td "
+                "(live=%zu, baseline=%zu)\n",
+                index,
+                tracked_live_allocations,
+                baseline);
+            return false;
+        }
+        if (reproduced_failure && completed) break;
+    }
+    if (!reproduced_failure || !completed) {
+        std::fprintf(
+            stderr,
+            "maze recursive backtracker allocation sweep did not cover failure and success\n");
+        return false;
+    }
+    return tracked_live_allocations == baseline;
+}
+
+bool verify_maze_room_blend_allocation_failure_atomic() {
+    const std::size_t baseline = tracked_live_allocations;
+    const byul_room_blend_options_t options{
+        sizeof(byul_room_blend_options_t),
+        BYUL_ROOM_BLEND_OPTIONS_ABI_VERSION,
+        UINT64_C(17),
+        UINT64_C(10000),
+        UINT64_C(81),
+        12, 3, 3, 7, 5, 1,
+        nullptr,
+        nullptr
+    };
+    bool reproduced_failure = false;
+    bool completed = false;
+
+    for (std::ptrdiff_t index = 0; index < 128; ++index) {
+        maze_t* output = reinterpret_cast<maze_t*>(uintptr_t{1});
+        track_allocations = true;
+        fail_after = index;
+        const navsys_status_t status = byul_maze_generate_room_blend(
+            -4, 6, 9, 9, &options, &output);
+        fail_after = -1;
+        track_allocations = false;
+
+        if (status == NAVSYS_STATUS_OUT_OF_MEMORY) {
+            reproduced_failure = true;
+            if (output != nullptr) {
+                std::fprintf(
+                    stderr,
+                    "maze Room Blend published output at failed allocation %td\n",
+                    index);
+                maze_destroy(output);
+                return false;
+            }
+        } else if (status == NAVSYS_STATUS_OK) {
+            if (!output) {
+                std::fprintf(
+                    stderr, "maze Room Blend succeeded without output\n");
+                return false;
+            }
+            maze_destroy(output);
+            completed = true;
+        } else {
+            std::fprintf(
+                stderr,
+                "maze Room Blend returned unexpected allocation status %d at %td\n",
+                static_cast<int>(status),
+                index);
+            maze_destroy(output);
+            return false;
+        }
+        if (tracked_live_allocations != baseline) {
+            std::fprintf(
+                stderr,
+                "maze Room Blend leaked at failed allocation %td "
+                "(live=%zu, baseline=%zu)\n",
+                index,
+                tracked_live_allocations,
+                baseline);
+            return false;
+        }
+        if (reproduced_failure && completed) break;
+    }
+    if (!reproduced_failure || !completed) {
+        std::fprintf(
+            stderr,
+            "maze Room Blend allocation sweep did not cover failure and success\n");
+        return false;
+    }
+    return tracked_live_allocations == baseline;
+}
+
 bool verify_maze_translate_allocation_failure_atomic() {
     const std::size_t baseline = tracked_live_allocations;
     maze_t* maze = maze_create_full(-5, 7, 9, 11);
@@ -1907,6 +2699,43 @@ bool verify_maze_overlay_allocation_failure_atomic() {
     return valid;
 }
 
+bool verify_navsys_find_path_allocation_failure() {
+    navgrid_t* grid = navgrid_create();
+    if (!grid) return false;
+    const coord_t start{0, 0};
+    const coord_t goal{9, 9};
+    navsys_path_query_t query{};
+    if (navsys_path_query_init(&query, grid, &start, &goal)
+        != NAVSYS_STATUS_OK) {
+        navgrid_destroy(grid);
+        return false;
+    }
+
+    const std::size_t baseline = tracked_live_allocations;
+    route_t* const route_sentinel = reinterpret_cast<route_t*>(1);
+    route_t* route = route_sentinel;
+    navsys_search_stats_t stats{};
+    stats.status = NAVSYS_STATUS_IN_PROGRESS;
+
+    track_allocations = true;
+    fail_after = 0;
+    const navsys_status_t status = navsys_find_path(&query, &route, &stats);
+    fail_after = -1;
+    track_allocations = false;
+
+    const bool valid = status == NAVSYS_STATUS_OUT_OF_MEMORY
+        && route == route_sentinel
+        && stats.status == NAVSYS_STATUS_IN_PROGRESS
+        && tracked_live_allocations == baseline;
+    if (!valid) {
+        std::fprintf(
+            stderr,
+            "navsys_find_path did not preserve outputs on allocation failure\n");
+    }
+    navgrid_destroy(grid);
+    return valid;
+}
+
 } // namespace
 
 void* operator new(std::size_t size) {
@@ -2047,6 +2876,39 @@ int main(int argc, char** argv) {
     if (!verify_maze_lifecycle_allocation_failure_atomic()) {
         return 27;
     }
+    if (!verify_maze_binary_generation_allocation_failure_atomic()) {
+        return 31;
+    }
+    if (!verify_maze_eller_generation_allocation_failure_atomic()) {
+        return 32;
+    }
+    if (!verify_maze_hunt_and_kill_generation_allocation_failure_atomic()) {
+        return 33;
+    }
+    if (!verify_maze_wilson_generation_allocation_failure_atomic()) {
+        return 40;
+    }
+    if (!verify_maze_aldous_broder_generation_allocation_failure_atomic()) {
+        return 41;
+    }
+    if (!verify_maze_sidewinder_generation_allocation_failure_atomic()) {
+        return 34;
+    }
+    if (!verify_maze_recursive_division_generation_allocation_failure_atomic()) {
+        return 35;
+    }
+    if (!verify_maze_kruskal_generation_allocation_failure_atomic()) {
+        return 36;
+    }
+    if (!verify_maze_prim_generation_allocation_failure_atomic()) {
+        return 37;
+    }
+    if (!verify_maze_recursive_backtracker_allocation_failure_atomic()) {
+        return 38;
+    }
+    if (!verify_maze_room_blend_allocation_failure_atomic()) {
+        return 39;
+    }
     if (!verify_maze_translate_allocation_failure_atomic()) {
         return 28;
     }
@@ -2055,6 +2917,9 @@ int main(int argc, char** argv) {
     }
     if (!verify_maze_overlay_allocation_failure_atomic()) {
         return 29;
+    }
+    if (!verify_navsys_find_path_allocation_failure()) {
+        return 30;
     }
 
     dependency_navgrid = navgrid_create();

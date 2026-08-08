@@ -1,12 +1,12 @@
 #+TITLE: BYUL maze_recursive_division.h 정밀 리팩터링 TODO
 #+TODO: TODO DOING BLOCKED | DONE CANCELLED FAILED
-#+TODO_RULES: ../../../../external/rules/projects/byul/todo-rules.org
-#+PUBLIC_API_RULES: ../../../../external/rules/projects/byul/public-api-rules.org
-#+HEADER_DECLARATION_RULES: ../../../../external/rules/projects/byul/header-declaration-rules.org
-#+HEADER_COMMENT_RULES: ../../../../external/rules/projects/byul/header-comment-rules.org
-#+HEADER_AUTHORING_RULES: ../../../../external/rules/projects/byul/header-authoring-rules.org
-#+BUILD_RULES: ../../../../external/rules/projects/byul/build-rules.org
-#+TEST_RULES: ../../../../external/rules/projects/byul/test-rules.org
+#+TODO_RULES: ../../../../external/rules_env/projects/byul/todo-rules.org
+#+PUBLIC_API_RULES: ../../../../external/rules_env/projects/byul/public-api-rules.org
+#+HEADER_DECLARATION_RULES: ../../../../external/rules_env/projects/byul/header-declaration-rules.org
+#+HEADER_COMMENT_RULES: ../../../../external/rules_env/projects/byul/header-comment-rules.org
+#+HEADER_AUTHORING_RULES: ../../../../external/rules_env/projects/byul/header-authoring-rules.org
+#+BUILD_RULES: ../../../../external/rules_env/projects/byul/build-rules.org
+#+TEST_RULES: ../../../../external/rules_env/projects/byul/test-rules.org
 #+TODO_PARENT: todo-리팩토링-navsys-headers.org
 #+LANGUAGE: ko
 #+OPTIONS: toc:3 num:nil
@@ -68,7 +68,7 @@ BYUL_API navsys_status_t byul_maze_generate_recursive_division(
 - iterative region stack을 검토하여 cancellation과 stack overflow를 제어한다.
 - result가 tree가 아니라면 정확한 cycle/component bounds를 capability에 기록하고 과장하지 않는다.
 
-* TODO 1단계: reference와 현 raster 비교
+* DONE 1단계: reference와 현 raster 비교
 
 ** 실행
 
@@ -86,7 +86,7 @@ BYUL_API navsys_status_t byul_maze_generate_recursive_division(
 - reference hand grids와 component/cycle oracle를 비교한다.
 - invalid/even/overflow dimensions를 sanitizer로 실행한다.
 
-* TODO 2단계: checked region stack와 seeded API
+* DONE 2단계: checked region stack와 seeded API
 
 ** 실행
 
@@ -104,7 +104,7 @@ BYUL_API navsys_status_t byul_maze_generate_recursive_division(
 - stub RNG로 horizontal/vertical/tie/gap edge cases를 강제한다.
 - allocator fault, cancel at split/materialize와 seed replay를 검사한다.
 
-* TODO 3단계: 위상·termination gate
+* DONE 3단계: 위상·termination gate
 
 ** 실행
 
@@ -121,7 +121,7 @@ BYUL_API navsys_status_t byul_maze_generate_recursive_division(
 
 - exhaustive tiny/property corpus, ASan/LSan과 worst-case benchmark를 실행한다.
 
-* TODO 4단계: Header·SDK gate
+* DONE 4단계: Header·SDK gate
 
 ** 실행
 

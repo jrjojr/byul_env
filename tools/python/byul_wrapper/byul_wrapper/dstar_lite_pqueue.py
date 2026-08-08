@@ -2,6 +2,7 @@ from .ffi_core import ffi, C
 
 from .coord import c_coord
 from .dstar_lite_key import c_dstar_lite_key
+from .navsys_status import NavsysStatus, raise_for_status
 
 import weakref
 
@@ -11,6 +12,50 @@ ffi.cdef("""
 
 /* Source: byul/navsys/dstar_lite/dstar_lite_pqueue.h */
 typedef struct s_dstar_lite_pqueue dstar_lite_pqueue_t;
+
+typedef struct s_dstar_lite_pqueue_entry {
+    dstar_lite_key_t key;
+    coord_t coord;
+} dstar_lite_pqueue_entry_t;
+
+ navsys_status_t dstar_lite_pqueue_create_ex(
+    dstar_lite_pqueue_t** out_queue);
+
+ navsys_status_t dstar_lite_pqueue_copy_ex(
+    const dstar_lite_pqueue_t* source,
+    dstar_lite_pqueue_t** out_queue);
+
+ navsys_status_t dstar_lite_pqueue_upsert(
+    dstar_lite_pqueue_t* queue,
+    const coord_t* coord,
+    const dstar_lite_key_t* key);
+
+ navsys_status_t dstar_lite_pqueue_peek_min(
+    const dstar_lite_pqueue_t* queue,
+    dstar_lite_pqueue_entry_t* out_entry);
+
+ navsys_status_t dstar_lite_pqueue_pop_min(
+    dstar_lite_pqueue_t* queue,
+    dstar_lite_pqueue_entry_t* out_entry);
+
+ navsys_status_t dstar_lite_pqueue_find_key(
+    const dstar_lite_pqueue_t* queue,
+    const coord_t* coord,
+    dstar_lite_key_t* out_key,
+    bool* out_found);
+
+ navsys_status_t dstar_lite_pqueue_remove_ex(
+    dstar_lite_pqueue_t* queue,
+    const coord_t* coord,
+    bool* out_removed);
+
+ size_t dstar_lite_pqueue_size(
+    const dstar_lite_pqueue_t* queue);
+
+ bool dstar_lite_pqueue_empty(
+    const dstar_lite_pqueue_t* queue);
+
+ void dstar_lite_pqueue_clear(dstar_lite_pqueue_t* queue);
 
  dstar_lite_pqueue_t* dstar_lite_pqueue_create(void);
 
@@ -53,9 +98,12 @@ class c_dstar_lite_pqueue:
             self._c = raw_ptr
             self._own = own
         else:
-            self._c = C.dstar_lite_pqueue_create()
-            if not self._c:
-                raise MemoryError("dstar_lite_pqueue allocation failed")
+            output = ffi.new("dstar_lite_pqueue_t**")
+            raise_for_status(
+                C.dstar_lite_pqueue_create_ex(output),
+                "dstar_lite_pqueue_create_ex",
+            )
+            self._c = output[0]
             self._own = True
 
         if self._own:
@@ -64,35 +112,67 @@ class c_dstar_lite_pqueue:
             self._finalizer = None
 
     def push(self, key: c_dstar_lite_key, coord: c_coord):
-        C.dstar_lite_pqueue_push(self._c, key.ptr(), coord.ptr())
+        raise_for_status(
+            C.dstar_lite_pqueue_upsert(self._c, coord.ptr(), key.ptr()),
+            "dstar_lite_pqueue_upsert",
+        )
 
     def peek(self):
-        ptr = C.dstar_lite_pqueue_peek(self._c)
-        return c_coord(raw_ptr=ptr) if ptr != ffi.NULL else None
+        entry = ffi.new("dstar_lite_pqueue_entry_t*")
+        status = C.dstar_lite_pqueue_peek_min(self._c, entry)
+        if status == NavsysStatus.NOT_FOUND:
+            return None
+        raise_for_status(status, "dstar_lite_pqueue_peek_min")
+        return c_coord(entry.coord.x, entry.coord.y)
 
     def pop(self):
-        ptr = C.dstar_lite_pqueue_pop(self._c)
-        return c_coord(raw_ptr=ptr) if ptr != ffi.NULL else None
+        entry = ffi.new("dstar_lite_pqueue_entry_t*")
+        status = C.dstar_lite_pqueue_pop_min(self._c, entry)
+        if status == NavsysStatus.NOT_FOUND:
+            return None
+        raise_for_status(status, "dstar_lite_pqueue_pop_min")
+        return c_coord(entry.coord.x, entry.coord.y)
 
     def top_key(self):
-        ptr = C.dstar_lite_pqueue_top_key(self._c)
-        return c_dstar_lite_key(raw_ptr=ptr, own=True) if ptr != ffi.NULL else None
+        entry = ffi.new("dstar_lite_pqueue_entry_t*")
+        status = C.dstar_lite_pqueue_peek_min(self._c, entry)
+        if status == NavsysStatus.NOT_FOUND:
+            return None
+        raise_for_status(status, "dstar_lite_pqueue_peek_min")
+        return c_dstar_lite_key(entry.key.k1, entry.key.k2)
 
     def find_key_by_coord(self, coord: c_coord):
-        ptr = C.dstar_lite_pqueue_get_key_by_coord(self._c, coord.ptr())
-        return c_dstar_lite_key(raw_ptr=ptr, own=True) if ptr != ffi.NULL else None
+        key = ffi.new("dstar_lite_key_t*")
+        found = ffi.new("bool*")
+        raise_for_status(
+            C.dstar_lite_pqueue_find_key(
+                self._c, coord.ptr(), key, found
+            ),
+            "dstar_lite_pqueue_find_key",
+        )
+        return c_dstar_lite_key(key.k1, key.k2) if found[0] else None
 
     def remove(self, coord: c_coord):
-        return bool(C.dstar_lite_pqueue_remove(self._c, coord.ptr()))
+        removed = ffi.new("bool*")
+        raise_for_status(
+            C.dstar_lite_pqueue_remove_ex(
+                self._c, coord.ptr(), removed
+            ),
+            "dstar_lite_pqueue_remove_ex",
+        )
+        return bool(removed[0])
 
     def remove_full(self, key: c_dstar_lite_key, coord: c_coord):
-        return bool(C.dstar_lite_pqueue_remove_full(self._c, key.ptr(), coord.ptr()))
+        current = self.find_key_by_coord(coord)
+        if current is None or current != key:
+            return False
+        return self.remove(coord)
 
     def contains(self, coord: c_coord):
-        return bool(C.dstar_lite_pqueue_contains(self._c, coord.ptr()))
+        return self.find_key_by_coord(coord) is not None
 
     def is_empty(self):
-        return bool(C.dstar_lite_pqueue_is_empty(self._c))
+        return bool(C.dstar_lite_pqueue_empty(self._c))
 
     def ptr(self):
         return self._c
@@ -106,6 +186,8 @@ class c_dstar_lite_pqueue:
     def close(self):
         if self._own and self._finalizer and self._finalizer.alive:
             self._finalizer()
+        self._c = ffi.NULL
+        self._own = False
 
     def __enter__(self):
         return self
@@ -114,4 +196,9 @@ class c_dstar_lite_pqueue:
         self.close()
 
     def copy(self):
-        return c_dstar_lite_pqueue(raw_ptr=C.dstar_lite_pqueue_copy(self._c), own=True)
+        output = ffi.new("dstar_lite_pqueue_t**")
+        raise_for_status(
+            C.dstar_lite_pqueue_copy_ex(self._c, output),
+            "dstar_lite_pqueue_copy_ex",
+        )
+        return c_dstar_lite_pqueue(raw_ptr=output[0], own=True)

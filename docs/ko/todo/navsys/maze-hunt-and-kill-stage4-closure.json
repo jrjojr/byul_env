@@ -1,0 +1,56 @@
+{
+  "schema_version": 1,
+  "scope": "navsys-maze-hunt-and-kill-stage4",
+  "status": "complete",
+  "source_revision": "1d7aff2",
+  "public_contract": {
+    "header": "byul/navsys/maze/maze_hunt_and_kill.h",
+    "canonical_symbol": "byul_maze_generate_hunt_and_kill",
+    "legacy_symbol": "maze_make_hunt_and_kill",
+    "legacy_disposition": "deprecated ABI 1.x forwarding adapter",
+    "hunt_policy": "ROW_MAJOR_FIRST",
+    "ownership": "successful output is caller-owned and destroyed with maze_destroy",
+    "failure_atomicity": "out_maze is NULL on every failure"
+  },
+  "header_gate": {
+    "standalone_c": "MSVC C17 passed from clean installed header",
+    "standalone_cpp": "MSVC C++17 passed from clean installed header",
+    "strict_audit": "150 headers, 95 public C headers, 1166 declarations, 0 invariant errors",
+    "role": "public-component",
+    "wrapper_mode": "generated"
+  },
+  "export_gate": {
+    "windows_profile": "MSVC x64 Release",
+    "windows_export_count": 1205,
+    "windows_symbols": [
+      "byul_maze_generate_hunt_and_kill",
+      "maze_make_hunt_and_kill"
+    ],
+    "linux_profile": "Ubuntu WSL GCC 13.3.0 Debug ASan+LSan",
+    "linux_symbols": [
+      "byul_maze_generate_hunt_and_kill",
+      "maze_make_hunt_and_kill"
+    ]
+  },
+  "consumer_gate": {
+    "static_native": "MSVC Release test_maze 62/62 cases and 121567/121567 assertions",
+    "linux_native": "GCC ASan+LSan test_maze 62/62 cases and 121567/121567 assertions",
+    "allocation_fault": "test_navsys_allocation_failure exit 0",
+    "sdk": "clean-install C17 and C++17 consumers built and ran successfully",
+    "wrapper": "7/7 maze wrapper policy tests passed",
+    "wrapper_generation": "CFFI declaration check is up to date"
+  },
+  "inventory_gate": {
+    "navsys_abi": "58 headers, 650 symbols",
+    "installed_header": "include/byul/maze_hunt_and_kill.h",
+    "generator_manifest": "tools/python/byul_wrapper/generate_wrapper_abi.py",
+    "rules": "60 Org rule files, 0 errors, 0 warnings"
+  },
+  "compatibility": {
+    "raster": "Stage 1 seed-zero hashes remain 910439850 for 3x3, 874550531 for 5x5, and 26398801 for 9x9",
+    "direct_dispatcher": "four-seed equality gate passed",
+    "topology": "100-seed public perfect-maze gate passed",
+    "termination": "step count equals logical cell count across 128 extent-seed combinations"
+  },
+  "linux_checkout": "/home/byulmama/byul_validation/maze-hunt-0145c26"
+}

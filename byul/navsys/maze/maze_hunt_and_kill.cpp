@@ -2,6 +2,7 @@
 #include "internal/maze_private.hpp"
 
 #include <cstdint>
+#include <limits>
 #include <new>
 #include <vector>
 
@@ -20,6 +21,16 @@ navsys_status_t open_cell(
     bool changed = false;
     return byul_maze_set_blocked(
         maze, origin_x + x, origin_y + y, false, &changed);
+}
+
+bool has_representable_bound(int32_t origin, uint32_t length) {
+    if (length == 0) return true;
+    if (length > static_cast<uint32_t>(std::numeric_limits<int32_t>::max())) {
+        return false;
+    }
+    const int64_t last = static_cast<int64_t>(origin)
+        + static_cast<int64_t>(length) - 1;
+    return last <= std::numeric_limits<int32_t>::max();
 }
 
 } // namespace
@@ -66,6 +77,9 @@ navsys_status_t byul_maze_generate_hunt_and_kill_internal(
         int current_x = 1 + static_cast<int>(context.bounded(logical_width)) * 2;
         int current_y = 1 + static_cast<int>(context.bounded(logical_height)) * 2;
         visited[static_cast<size_t>(current_y) * w + current_x] = 1;
+        uint64_t visited_count = 1;
+        const uint64_t logical_cell_count =
+            static_cast<uint64_t>(logical_width) * logical_height;
         navsys_status_t status = open_cell(
             maze, origin_x, origin_y, current_x, current_y);
         if (status != NAVSYS_STATUS_OK) {
@@ -113,6 +127,7 @@ navsys_status_t byul_maze_generate_hunt_and_kill_internal(
                     return status;
                 }
                 visited[static_cast<size_t>(next_y) * w + next_x] = 1;
+                ++visited_count;
                 current_x = next_x;
                 current_y = next_y;
                 moved = true;
@@ -158,13 +173,20 @@ navsys_status_t byul_maze_generate_hunt_and_kill_internal(
                         return status;
                     }
                     visited[static_cast<size_t>(y) * w + x] = 1;
+                    ++visited_count;
                     current_x = x;
                     current_y = y;
                     found = true;
                     break;
                 }
             }
-            if (!found) break;
+            if (!found) {
+                if (visited_count != logical_cell_count) {
+                    maze_destroy(maze);
+                    return NAVSYS_STATUS_CORRUPT_STATE;
+                }
+                break;
+            }
         }
 
     } catch (const std::bad_alloc&) {
@@ -179,19 +201,66 @@ navsys_status_t byul_maze_generate_hunt_and_kill_internal(
     return NAVSYS_STATUS_OK;
 }
 
+navsys_status_t byul_maze_generate_hunt_and_kill(
+    int32_t origin_x,
+    int32_t origin_y,
+    uint32_t width,
+    uint32_t height,
+    const byul_maze_generate_options_t* options,
+    maze_t** out_maze) {
+    if (!out_maze) return NAVSYS_STATUS_INVALID_ARGUMENT;
+    *out_maze = nullptr;
+    if (!options
+        || options->struct_size < sizeof(byul_maze_generate_options_t)) {
+        return NAVSYS_STATUS_INVALID_ARGUMENT;
+    }
+    if (options->abi_version != BYUL_MAZE_GENERATE_OPTIONS_ABI_VERSION
+        || width < 3 || height < 3
+        || (width & UINT32_C(1)) == 0
+        || (height & UINT32_C(1)) == 0) {
+        return NAVSYS_STATUS_UNSUPPORTED;
+    }
+    if (!has_representable_bound(origin_x, width)
+        || !has_representable_bound(origin_y, height)) {
+        return NAVSYS_STATUS_INVALID_ARGUMENT;
+    }
+    const uint64_t cells = static_cast<uint64_t>(width) * height;
+    if (options->max_cells != 0 && cells > options->max_cells) {
+        return NAVSYS_STATUS_LIMIT_REACHED;
+    }
+    const uint64_t default_steps =
+        cells > std::numeric_limits<uint64_t>::max() / 16
+        ? std::numeric_limits<uint64_t>::max()
+        : cells * 16;
+    byul_maze_generation_context context(
+        options->seed,
+        options->max_steps != 0 ? options->max_steps : default_steps,
+        options->cancel_func,
+        options->cancel_userdata);
+    return byul_maze_generate_hunt_and_kill_internal(
+        origin_x, origin_y, width, height, context, out_maze);
+}
+
 maze_t* maze_make_hunt_and_kill(int x0, int y0, int width, int height) {
     if (width < 3 || height < 3 || width % 2 == 0 || height % 2 == 0) {
         return nullptr;
     }
-    byul_maze_generation_context context(
-        byul_maze_generation_legacy_seed(), 0, nullptr, nullptr);
+    const byul_maze_generate_options_t options{
+        sizeof(byul_maze_generate_options_t),
+        BYUL_MAZE_GENERATE_OPTIONS_ABI_VERSION,
+        byul_maze_generation_legacy_seed(),
+        UINT64_C(0),
+        UINT64_C(0),
+        nullptr,
+        nullptr
+    };
     maze_t* maze = nullptr;
-    return byul_maze_generate_hunt_and_kill_internal(
+    return byul_maze_generate_hunt_and_kill(
                x0,
                y0,
                static_cast<uint32_t>(width),
                static_cast<uint32_t>(height),
-               context,
+               &options,
                &maze)
             == NAVSYS_STATUS_OK
         ? maze

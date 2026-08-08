@@ -1,0 +1,7970 @@
+{
+  "schema_version": 1,
+  "profile": "windows-msvc-x64-release-route-finder-stage4",
+  "dumpbin_version": "Microsoft (R) COFF/PE Dumper Version 14.38.33145.0",
+  "dll": {
+    "name": "byul.dll",
+    "size": 555008,
+    "sha256": "302a31d265cc3ad8acbd525d2756b2a64437148243952baf6f5e7c61ab55d40a",
+    "export_count": 1230
+  },
+  "exports": [
+    {
+      "ordinal": 1,
+      "hint": "0",
+      "rva": "00056630",
+      "name": "attitude_state_assign"
+    },
+    {
+      "ordinal": 2,
+      "hint": "1",
+      "rva": "00059400",
+      "name": "attitude_state_init"
+    },
+    {
+      "ordinal": 3,
+      "hint": "2",
+      "rva": "00059430",
+      "name": "attitude_state_init_full"
+    },
+    {
+      "ordinal": 4,
+      "hint": "3",
+      "rva": "000597D0",
+      "name": "bangbang_impl_assign"
+    },
+    {
+      "ordinal": 5,
+      "hint": "4",
+      "rva": "000597E0",
+      "name": "bangbang_impl_init"
+    },
+    {
+      "ordinal": 6,
+      "hint": "5",
+      "rva": "000597F0",
+      "name": "bangbang_impl_init_full"
+    },
+    {
+      "ordinal": 7,
+      "hint": "6",
+      "rva": "000483F0",
+      "name": "bodyprops_apply_friction"
+    },
+    {
+      "ordinal": 8,
+      "hint": "7",
+      "rva": "000484B0",
+      "name": "bodyprops_apply_friction_heat"
+    },
+    {
+      "ordinal": 9,
+      "hint": "8",
+      "rva": "00048560",
+      "name": "bodyprops_assign"
+    },
+    {
+      "ordinal": 10,
+      "hint": "9",
+      "rva": "00048590",
+      "name": "bodyprops_estimate_stop_time"
+    },
+    {
+      "ordinal": 11,
+      "hint": "A",
+      "rva": "000485F0",
+      "name": "bodyprops_init"
+    },
+    {
+      "ordinal": 12,
+      "hint": "B",
+      "rva": "00048630",
+      "name": "bodyprops_init_full"
+    },
+    {
+      "ordinal": 13,
+      "hint": "C",
+      "rva": "0000D480",
+      "name": "byul_factor_u32_emit"
+    },
+    {
+      "ordinal": 14,
+      "hint": "D",
+      "rva": "0000D560",
+      "name": "byul_is_prime_u32"
+    },
+    {
+      "ordinal": 15,
+      "hint": "E",
+      "rva": "0000D680",
+      "name": "byul_make_base_primes_u32"
+    },
+    {
+      "ordinal": 16,
+      "hint": "F",
+      "rva": "0002E9E0",
+      "name": "byul_maze_algorithm_is_supported"
+    },
+    {
+      "ordinal": 17,
+      "hint": "10",
+      "rva": "00010240",
+      "name": "byul_maze_alignof"
+    },
+    {
+      "ordinal": 18,
+      "hint": "11",
+      "rva": "0002F540",
+      "name": "byul_maze_apply"
+    },
+    {
+      "ordinal": 19,
+      "hint": "12",
+      "rva": "00030E30",
+      "name": "byul_maze_binary_bias_is_supported"
+    },
+    {
+      "ordinal": 20,
+      "hint": "13",
+      "rva": "0002F7C0",
+      "name": "byul_maze_check_abi"
+    },
+    {
+      "ordinal": 21,
+      "hint": "14",
+      "rva": "0002F820",
+      "name": "byul_maze_copy"
+    },
+    {
+      "ordinal": 22,
+      "hint": "15",
+      "rva": "0002F8E0",
+      "name": "byul_maze_create"
+    },
+    {
+      "ordinal": 23,
+      "hint": "16",
+      "rva": "0002F950",
+      "name": "byul_maze_fetch_blocked"
+    },
+    {
+      "ordinal": 24,
+      "hint": "17",
+      "rva": "0002EA00",
+      "name": "byul_maze_generate"
+    },
+    {
+      "ordinal": 25,
+      "hint": "18",
+      "rva": "00030820",
+      "name": "byul_maze_generate_aldous_broder"
+    },
+    {
+      "ordinal": 26,
+      "hint": "19",
+      "rva": "00030E50",
+      "name": "byul_maze_generate_binary_tree"
+    },
+    {
+      "ordinal": 27,
+      "hint": "1A",
+      "rva": "00031E60",
+      "name": "byul_maze_generate_eller"
+    },
+    {
+      "ordinal": 28,
+      "hint": "1B",
+      "rva": "000329A0",
+      "name": "byul_maze_generate_hunt_and_kill"
+    },
+    {
+      "ordinal": 29,
+      "hint": "1C",
+      "rva": "00033EB0",
+      "name": "byul_maze_generate_randomized_kruskal"
+    },
+    {
+      "ordinal": 30,
+      "hint": "1D",
+      "rva": "00034D60",
+      "name": "byul_maze_generate_randomized_prim"
+    },
+    {
+      "ordinal": 31,
+      "hint": "1E",
+      "rva": "000366A0",
+      "name": "byul_maze_generate_recursive_backtracker"
+    },
+    {
+      "ordinal": 32,
+      "hint": "1F",
+      "rva": "00035990",
+      "name": "byul_maze_generate_recursive_division"
+    },
+    {
+      "ordinal": 33,
+      "hint": "20",
+      "rva": "00037C10",
+      "name": "byul_maze_generate_room_blend"
+    },
+    {
+      "ordinal": 34,
+      "hint": "21",
+      "rva": "00038510",
+      "name": "byul_maze_generate_sidewinder"
+    },
+    {
+      "ordinal": 35,
+      "hint": "22",
+      "rva": "00039900",
+      "name": "byul_maze_generate_wilson"
+    },
+    {
+      "ordinal": 36,
+      "hint": "23",
+      "rva": "0002FA00",
+      "name": "byul_maze_get_abi_fingerprint"
+    },
+    {
+      "ordinal": 37,
+      "hint": "24",
+      "rva": "00025080",
+      "name": "byul_maze_get_abi_version"
+    },
+    {
+      "ordinal": 38,
+      "hint": "25",
+      "rva": "0002FA10",
+      "name": "byul_maze_get_blocked_count"
+    },
+    {
+      "ordinal": 39,
+      "hint": "26",
+      "rva": "0002FA60",
+      "name": "byul_maze_get_extent"
+    },
+    {
+      "ordinal": 40,
+      "hint": "27",
+      "rva": "0002FB50",
+      "name": "byul_maze_is_blocked"
+    },
+    {
+      "ordinal": 41,
+      "hint": "28",
+      "rva": "0002C340",
+      "name": "byul_maze_remove_overlay"
+    },
+    {
+      "ordinal": 42,
+      "hint": "29",
+      "rva": "0002FC30",
+      "name": "byul_maze_set_blocked"
+    },
+    {
+      "ordinal": 43,
+      "hint": "2A",
+      "rva": "00038690",
+      "name": "byul_maze_sidewinder_sweep_is_supported"
+    },
+    {
+      "ordinal": 44,
+      "hint": "2B",
+      "rva": "0002C590",
+      "name": "byul_maze_sizeof"
+    },
+    {
+      "ordinal": 45,
+      "hint": "2C",
+      "rva": "0002FD40",
+      "name": "byul_maze_translate"
+    },
+    {
+      "ordinal": 46,
+      "hint": "2D",
+      "rva": "0000D5D0",
+      "name": "byul_next_prime_u32"
+    },
+    {
+      "ordinal": 47,
+      "hint": "2E",
+      "rva": "00001200",
+      "name": "byul_print_version"
+    },
+    {
+      "ordinal": 48,
+      "hint": "2F",
+      "rva": "0000D830",
+      "name": "byul_segmented_primes_u32_emit"
+    },
+    {
+      "ordinal": 49,
+      "hint": "30",
+      "rva": "00001220",
+      "name": "byul_version_string"
+    },
+    {
+      "ordinal": 50,
+      "hint": "31",
+      "rva": "00017F70",
+      "name": "calc_direction"
+    },
+    {
+      "ordinal": 51,
+      "hint": "32",
+      "rva": "00052740",
+      "name": "calc_spin_accel"
+    },
+    {
+      "ordinal": 52,
+      "hint": "33",
+      "rva": "000600B0",
+      "name": "calc_suitable_dt"
+    },
+    {
+      "ordinal": 53,
+      "hint": "34",
+      "rva": "00060130",
+      "name": "calc_suitable_max_time"
+    },
+    {
+      "ordinal": 54,
+      "hint": "35",
+      "rva": "0003C520",
+      "name": "chebyshev_heuristic"
+    },
+    {
+      "ordinal": 55,
+      "hint": "36",
+      "rva": "00059800",
+      "name": "controller_create_bangbang"
+    },
+    {
+      "ordinal": 56,
+      "hint": "37",
+      "rva": "00059870",
+      "name": "controller_create_mpc"
+    },
+    {
+      "ordinal": 57,
+      "hint": "38",
+      "rva": "00059970",
+      "name": "controller_create_pid"
+    },
+    {
+      "ordinal": 58,
+      "hint": "39",
+      "rva": "000599F0",
+      "name": "controller_destroy"
+    },
+    {
+      "ordinal": 59,
+      "hint": "3A",
+      "rva": "0000EF40",
+      "name": "coord_add"
+    },
+    {
+      "ordinal": 60,
+      "hint": "3B",
+      "rva": "0000F030",
+      "name": "coord_add_checked"
+    },
+    {
+      "ordinal": 61,
+      "hint": "3C",
+      "rva": "0000F0F0",
+      "name": "coord_alignof"
+    },
+    {
+      "ordinal": 62,
+      "hint": "3D",
+      "rva": "0000F100",
+      "name": "coord_angle"
+    },
+    {
+      "ordinal": 63,
+      "hint": "3E",
+      "rva": "0000F150",
+      "name": "coord_angle_deg"
+    },
+    {
+      "ordinal": 64,
+      "hint": "3F",
+      "rva": "0000F1E0",
+      "name": "coord_angle_rad"
+    },
+    {
+      "ordinal": 65,
+      "hint": "40",
+      "rva": "00001630",
+      "name": "coord_assign"
+    },
+    {
+      "ordinal": 66,
+      "hint": "41",
+      "rva": "0000F260",
+      "name": "coord_clone_next_to_goal"
+    },
+    {
+      "ordinal": 67,
+      "hint": "42",
+      "rva": "0000F2F0",
+      "name": "coord_compare"
+    },
+    {
+      "ordinal": 68,
+      "hint": "43",
+      "rva": "0000F320",
+      "name": "coord_compare_canonical"
+    },
+    {
+      "ordinal": 69,
+      "hint": "44",
+      "rva": "0000F370",
+      "name": "coord_copy"
+    },
+    {
+      "ordinal": 70,
+      "hint": "45",
+      "rva": "0000F3A0",
+      "name": "coord_copy_checked"
+    },
+    {
+      "ordinal": 71,
+      "hint": "46",
+      "rva": "0000F400",
+      "name": "coord_create"
+    },
+    {
+      "ordinal": 72,
+      "hint": "47",
+      "rva": "0000F420",
+      "name": "coord_create_checked"
+    },
+    {
+      "ordinal": 73,
+      "hint": "48",
+      "rva": "0000F4A0",
+      "name": "coord_create_full"
+    },
+    {
+      "ordinal": 74,
+      "hint": "49",
+      "rva": "0000F570",
+      "name": "coord_degree"
+    },
+    {
+      "ordinal": 75,
+      "hint": "4A",
+      "rva": "0000F5D0",
+      "name": "coord_destroy"
+    },
+    {
+      "ordinal": 76,
+      "hint": "4B",
+      "rva": "0000F5E0",
+      "name": "coord_distance"
+    },
+    {
+      "ordinal": 77,
+      "hint": "4C",
+      "rva": "0000F630",
+      "name": "coord_distance_f64"
+    },
+    {
+      "ordinal": 78,
+      "hint": "4D",
+      "rva": "0000F690",
+      "name": "coord_div"
+    },
+    {
+      "ordinal": 79,
+      "hint": "4E",
+      "rva": "0000F770",
+      "name": "coord_div_checked"
+    },
+    {
+      "ordinal": 80,
+      "hint": "4F",
+      "rva": "0000F800",
+      "name": "coord_equal"
+    },
+    {
+      "ordinal": 81,
+      "hint": "50",
+      "rva": "0000F820",
+      "name": "coord_fetch"
+    },
+    {
+      "ordinal": 82,
+      "hint": "51",
+      "rva": "0000F840",
+      "name": "coord_format"
+    },
+    {
+      "ordinal": 83,
+      "hint": "52",
+      "rva": "0000F910",
+      "name": "coord_get_x"
+    },
+    {
+      "ordinal": 84,
+      "hint": "53",
+      "rva": "0000F920",
+      "name": "coord_get_y"
+    },
+    {
+      "ordinal": 85,
+      "hint": "54",
+      "rva": "0000F930",
+      "name": "coord_hash"
+    },
+    {
+      "ordinal": 86,
+      "hint": "55",
+      "rva": "00011DA0",
+      "name": "coord_hash_buffer_destroy"
+    },
+    {
+      "ordinal": 87,
+      "hint": "56",
+      "rva": "00011DB0",
+      "name": "coord_hash_clear"
+    },
+    {
+      "ordinal": 88,
+      "hint": "57",
+      "rva": "00011F40",
+      "name": "coord_hash_contains"
+    },
+    {
+      "ordinal": 89,
+      "hint": "58",
+      "rva": "00011F90",
+      "name": "coord_hash_copy"
+    },
+    {
+      "ordinal": 90,
+      "hint": "59",
+      "rva": "00012040",
+      "name": "coord_hash_copy_ex"
+    },
+    {
+      "ordinal": 91,
+      "hint": "5A",
+      "rva": "000121D0",
+      "name": "coord_hash_create"
+    },
+    {
+      "ordinal": 92,
+      "hint": "5B",
+      "rva": "00012200",
+      "name": "coord_hash_create_ex"
+    },
+    {
+      "ordinal": 93,
+      "hint": "5C",
+      "rva": "000122A0",
+      "name": "coord_hash_create_full"
+    },
+    {
+      "ordinal": 94,
+      "hint": "5D",
+      "rva": "000122E0",
+      "name": "coord_hash_destroy"
+    },
+    {
+      "ordinal": 95,
+      "hint": "5E",
+      "rva": "00012400",
+      "name": "coord_hash_double_copy"
+    },
+    {
+      "ordinal": 96,
+      "hint": "5F",
+      "rva": "0000F5D0",
+      "name": "coord_hash_double_destroy"
+    },
+    {
+      "ordinal": 97,
+      "hint": "60",
+      "rva": "00012440",
+      "name": "coord_hash_equal"
+    },
+    {
+      "ordinal": 98,
+      "hint": "61",
+      "rva": "000124D0",
+      "name": "coord_hash_equal_full"
+    },
+    {
+      "ordinal": 99,
+      "hint": "62",
+      "rva": "000126F0",
+      "name": "coord_hash_equal_keys"
+    },
+    {
+      "ordinal": 100,
+      "hint": "63",
+      "rva": "000127A0",
+      "name": "coord_hash_export"
+    },
+    {
+      "ordinal": 101,
+      "hint": "64",
+      "rva": "00012840",
+      "name": "coord_hash_export_entries"
+    },
+    {
+      "ordinal": 102,
+      "hint": "65",
+      "rva": "000128C0",
+      "name": "coord_hash_export_keys"
+    },
+    {
+      "ordinal": 103,
+      "hint": "66",
+      "rva": "00012920",
+      "name": "coord_hash_find"
+    },
+    {
+      "ordinal": 104,
+      "hint": "67",
+      "rva": "000129B0",
+      "name": "coord_hash_float_copy"
+    },
+    {
+      "ordinal": 105,
+      "hint": "68",
+      "rva": "000129F0",
+      "name": "coord_hash_float_destroy"
+    },
+    {
+      "ordinal": 106,
+      "hint": "69",
+      "rva": "00012A00",
+      "name": "coord_hash_foreach"
+    },
+    {
+      "ordinal": 107,
+      "hint": "6A",
+      "rva": "00012AD0",
+      "name": "coord_hash_format"
+    },
+    {
+      "ordinal": 108,
+      "hint": "6B",
+      "rva": "000130D0",
+      "name": "coord_hash_get"
+    },
+    {
+      "ordinal": 109,
+      "hint": "6C",
+      "rva": "00013130",
+      "name": "coord_hash_get_xy"
+    },
+    {
+      "ordinal": 110,
+      "hint": "6D",
+      "rva": "000131F0",
+      "name": "coord_hash_hash"
+    },
+    {
+      "ordinal": 111,
+      "hint": "6E",
+      "rva": "000132D0",
+      "name": "coord_hash_insert"
+    },
+    {
+      "ordinal": 112,
+      "hint": "6F",
+      "rva": "000133D0",
+      "name": "coord_hash_insert_copy"
+    },
+    {
+      "ordinal": 113,
+      "hint": "70",
+      "rva": "000134B0",
+      "name": "coord_hash_insert_xy"
+    },
+    {
+      "ordinal": 114,
+      "hint": "71",
+      "rva": "000129B0",
+      "name": "coord_hash_int_copy"
+    },
+    {
+      "ordinal": 115,
+      "hint": "72",
+      "rva": "000129F0",
+      "name": "coord_hash_int_destroy"
+    },
+    {
+      "ordinal": 116,
+      "hint": "73",
+      "rva": "000135A0",
+      "name": "coord_hash_is_empty"
+    },
+    {
+      "ordinal": 117,
+      "hint": "74",
+      "rva": "000135C0",
+      "name": "coord_hash_iter_create"
+    },
+    {
+      "ordinal": 118,
+      "hint": "75",
+      "rva": "000136B0",
+      "name": "coord_hash_iter_destroy"
+    },
+    {
+      "ordinal": 119,
+      "hint": "76",
+      "rva": "00013720",
+      "name": "coord_hash_iter_next"
+    },
+    {
+      "ordinal": 120,
+      "hint": "77",
+      "rva": "00013780",
+      "name": "coord_hash_iter_next_ex"
+    },
+    {
+      "ordinal": 121,
+      "hint": "78",
+      "rva": "000137F0",
+      "name": "coord_hash_keys"
+    },
+    {
+      "ordinal": 122,
+      "hint": "79",
+      "rva": "00013850",
+      "name": "coord_hash_length"
+    },
+    {
+      "ordinal": 123,
+      "hint": "7A",
+      "rva": "00013860",
+      "name": "coord_hash_print"
+    },
+    {
+      "ordinal": 124,
+      "hint": "7B",
+      "rva": "00013A60",
+      "name": "coord_hash_remove"
+    },
+    {
+      "ordinal": 125,
+      "hint": "7C",
+      "rva": "00013B80",
+      "name": "coord_hash_remove_all"
+    },
+    {
+      "ordinal": 126,
+      "hint": "7D",
+      "rva": "000132D0",
+      "name": "coord_hash_replace"
+    },
+    {
+      "ordinal": 127,
+      "hint": "7E",
+      "rva": "00013B90",
+      "name": "coord_hash_replace_copy"
+    },
+    {
+      "ordinal": 128,
+      "hint": "7F",
+      "rva": "000134B0",
+      "name": "coord_hash_replace_xy"
+    },
+    {
+      "ordinal": 129,
+      "hint": "80",
+      "rva": "00013CA0",
+      "name": "coord_hash_set"
+    },
+    {
+      "ordinal": 130,
+      "hint": "81",
+      "rva": "00013D20",
+      "name": "coord_hash_size"
+    },
+    {
+      "ordinal": 131,
+      "hint": "82",
+      "rva": "000137F0",
+      "name": "coord_hash_to_list"
+    },
+    {
+      "ordinal": 132,
+      "hint": "83",
+      "rva": "00013D30",
+      "name": "coord_hash_to_string"
+    },
+    {
+      "ordinal": 133,
+      "hint": "84",
+      "rva": "00013DB0",
+      "name": "coord_hash_upsert_copy"
+    },
+    {
+      "ordinal": 134,
+      "hint": "85",
+      "rva": "00013ED0",
+      "name": "coord_hash_values"
+    },
+    {
+      "ordinal": 135,
+      "hint": "86",
+      "rva": "0000F950",
+      "name": "coord_iadd"
+    },
+    {
+      "ordinal": 136,
+      "hint": "87",
+      "rva": "0000FA30",
+      "name": "coord_idiv"
+    },
+    {
+      "ordinal": 137,
+      "hint": "88",
+      "rva": "0000FB00",
+      "name": "coord_imul"
+    },
+    {
+      "ordinal": 138,
+      "hint": "89",
+      "rva": "000016E0",
+      "name": "coord_init"
+    },
+    {
+      "ordinal": 139,
+      "hint": "8A",
+      "rva": "0000FBC0",
+      "name": "coord_init_checked"
+    },
+    {
+      "ordinal": 140,
+      "hint": "8B",
+      "rva": "0000FBF0",
+      "name": "coord_init_full"
+    },
+    {
+      "ordinal": 141,
+      "hint": "8C",
+      "rva": "0000FCA0",
+      "name": "coord_isub"
+    },
+    {
+      "ordinal": 142,
+      "hint": "8D",
+      "rva": "00014220",
+      "name": "coord_list_back"
+    },
+    {
+      "ordinal": 143,
+      "hint": "8E",
+      "rva": "000142A0",
+      "name": "coord_list_clear"
+    },
+    {
+      "ordinal": 144,
+      "hint": "8F",
+      "rva": "00014300",
+      "name": "coord_list_contains"
+    },
+    {
+      "ordinal": 145,
+      "hint": "90",
+      "rva": "000143C0",
+      "name": "coord_list_copy"
+    },
+    {
+      "ordinal": 146,
+      "hint": "91",
+      "rva": "000143F0",
+      "name": "coord_list_copy_ex"
+    },
+    {
+      "ordinal": 147,
+      "hint": "92",
+      "rva": "000145B0",
+      "name": "coord_list_create"
+    },
+    {
+      "ordinal": 148,
+      "hint": "93",
+      "rva": "000145E0",
+      "name": "coord_list_create_ex"
+    },
+    {
+      "ordinal": 149,
+      "hint": "94",
+      "rva": "00014670",
+      "name": "coord_list_create_slice"
+    },
+    {
+      "ordinal": 150,
+      "hint": "95",
+      "rva": "000148A0",
+      "name": "coord_list_destroy"
+    },
+    {
+      "ordinal": 151,
+      "hint": "96",
+      "rva": "000148D0",
+      "name": "coord_list_empty"
+    },
+    {
+      "ordinal": 152,
+      "hint": "97",
+      "rva": "00014940",
+      "name": "coord_list_equal"
+    },
+    {
+      "ordinal": 153,
+      "hint": "98",
+      "rva": "00014AC0",
+      "name": "coord_list_equals"
+    },
+    {
+      "ordinal": 154,
+      "hint": "99",
+      "rva": "00014AF0",
+      "name": "coord_list_export"
+    },
+    {
+      "ordinal": 155,
+      "hint": "9A",
+      "rva": "00014BC0",
+      "name": "coord_list_fetch"
+    },
+    {
+      "ordinal": 156,
+      "hint": "9B",
+      "rva": "00014C80",
+      "name": "coord_list_fetch_back"
+    },
+    {
+      "ordinal": 157,
+      "hint": "9C",
+      "rva": "00014D20",
+      "name": "coord_list_fetch_front"
+    },
+    {
+      "ordinal": 158,
+      "hint": "9D",
+      "rva": "00014DC0",
+      "name": "coord_list_find"
+    },
+    {
+      "ordinal": 159,
+      "hint": "9E",
+      "rva": "00014E90",
+      "name": "coord_list_find_ex"
+    },
+    {
+      "ordinal": 160,
+      "hint": "9F",
+      "rva": "00014F70",
+      "name": "coord_list_front"
+    },
+    {
+      "ordinal": 161,
+      "hint": "A0",
+      "rva": "00014FE0",
+      "name": "coord_list_get"
+    },
+    {
+      "ordinal": 162,
+      "hint": "A1",
+      "rva": "00015080",
+      "name": "coord_list_insert"
+    },
+    {
+      "ordinal": 163,
+      "hint": "A2",
+      "rva": "000150B0",
+      "name": "coord_list_insert_ex"
+    },
+    {
+      "ordinal": 164,
+      "hint": "A3",
+      "rva": "000151D0",
+      "name": "coord_list_length"
+    },
+    {
+      "ordinal": 165,
+      "hint": "A4",
+      "rva": "00015250",
+      "name": "coord_list_pop_back"
+    },
+    {
+      "ordinal": 166,
+      "hint": "A5",
+      "rva": "000152E0",
+      "name": "coord_list_pop_front"
+    },
+    {
+      "ordinal": 167,
+      "hint": "A6",
+      "rva": "00015380",
+      "name": "coord_list_push_back"
+    },
+    {
+      "ordinal": 168,
+      "hint": "A7",
+      "rva": "000153A0",
+      "name": "coord_list_push_back_ex"
+    },
+    {
+      "ordinal": 169,
+      "hint": "A8",
+      "rva": "00015460",
+      "name": "coord_list_remove_at"
+    },
+    {
+      "ordinal": 170,
+      "hint": "A9",
+      "rva": "000154F0",
+      "name": "coord_list_remove_at_ex"
+    },
+    {
+      "ordinal": 171,
+      "hint": "AA",
+      "rva": "000155E0",
+      "name": "coord_list_remove_value"
+    },
+    {
+      "ordinal": 172,
+      "hint": "AB",
+      "rva": "00015680",
+      "name": "coord_list_remove_value_ex"
+    },
+    {
+      "ordinal": 173,
+      "hint": "AC",
+      "rva": "00015760",
+      "name": "coord_list_reserve"
+    },
+    {
+      "ordinal": 174,
+      "hint": "AD",
+      "rva": "00015870",
+      "name": "coord_list_reverse"
+    },
+    {
+      "ordinal": 175,
+      "hint": "AE",
+      "rva": "000158D0",
+      "name": "coord_list_size"
+    },
+    {
+      "ordinal": 176,
+      "hint": "AF",
+      "rva": "00015940",
+      "name": "coord_list_sublist"
+    },
+    {
+      "ordinal": 177,
+      "hint": "B0",
+      "rva": "00015990",
+      "name": "coord_list_try_pop_back"
+    },
+    {
+      "ordinal": 178,
+      "hint": "B1",
+      "rva": "00015A40",
+      "name": "coord_list_try_pop_front"
+    },
+    {
+      "ordinal": 179,
+      "hint": "B2",
+      "rva": "0000FD70",
+      "name": "coord_manhattan_distance"
+    },
+    {
+      "ordinal": 180,
+      "hint": "B3",
+      "rva": "0000FDA0",
+      "name": "coord_manhattan_distance_i64"
+    },
+    {
+      "ordinal": 181,
+      "hint": "B4",
+      "rva": "0000FDF0",
+      "name": "coord_mul"
+    },
+    {
+      "ordinal": 182,
+      "hint": "B5",
+      "rva": "0000FEC0",
+      "name": "coord_mul_checked"
+    },
+    {
+      "ordinal": 183,
+      "hint": "B6",
+      "rva": "0000FF40",
+      "name": "coord_next_to_goal"
+    },
+    {
+      "ordinal": 184,
+      "hint": "B7",
+      "rva": "00010090",
+      "name": "coord_offsetof_x"
+    },
+    {
+      "ordinal": 185,
+      "hint": "B8",
+      "rva": "0000F0F0",
+      "name": "coord_offsetof_y"
+    },
+    {
+      "ordinal": 186,
+      "hint": "B9",
+      "rva": "000100A0",
+      "name": "coord_print"
+    },
+    {
+      "ordinal": 187,
+      "hint": "BA",
+      "rva": "0000FBF0",
+      "name": "coord_set"
+    },
+    {
+      "ordinal": 188,
+      "hint": "BB",
+      "rva": "00010180",
+      "name": "coord_set_x"
+    },
+    {
+      "ordinal": 189,
+      "hint": "BC",
+      "rva": "000101E0",
+      "name": "coord_set_y"
+    },
+    {
+      "ordinal": 190,
+      "hint": "BD",
+      "rva": "00010240",
+      "name": "coord_sizeof"
+    },
+    {
+      "ordinal": 191,
+      "hint": "BE",
+      "rva": "00010250",
+      "name": "coord_step_toward"
+    },
+    {
+      "ordinal": 192,
+      "hint": "BF",
+      "rva": "000102C0",
+      "name": "coord_sub"
+    },
+    {
+      "ordinal": 193,
+      "hint": "C0",
+      "rva": "000103A0",
+      "name": "coord_sub_checked"
+    },
+    {
+      "ordinal": 194,
+      "hint": "C1",
+      "rva": "00010460",
+      "name": "coord_to_string"
+    },
+    {
+      "ordinal": 195,
+      "hint": "C2",
+      "rva": "00017190",
+      "name": "cost_coord_pq_clear"
+    },
+    {
+      "ordinal": 196,
+      "hint": "C3",
+      "rva": "000171E0",
+      "name": "cost_coord_pq_contains"
+    },
+    {
+      "ordinal": 197,
+      "hint": "C4",
+      "rva": "000172E0",
+      "name": "cost_coord_pq_create"
+    },
+    {
+      "ordinal": 198,
+      "hint": "C5",
+      "rva": "00017320",
+      "name": "cost_coord_pq_create_ex"
+    },
+    {
+      "ordinal": 199,
+      "hint": "C6",
+      "rva": "00017400",
+      "name": "cost_coord_pq_destroy"
+    },
+    {
+      "ordinal": 200,
+      "hint": "C7",
+      "rva": "000135A0",
+      "name": "cost_coord_pq_empty"
+    },
+    {
+      "ordinal": 201,
+      "hint": "C8",
+      "rva": "000135A0",
+      "name": "cost_coord_pq_is_empty"
+    },
+    {
+      "ordinal": 202,
+      "hint": "C9",
+      "rva": "00017440",
+      "name": "cost_coord_pq_length"
+    },
+    {
+      "ordinal": 203,
+      "hint": "CA",
+      "rva": "00017460",
+      "name": "cost_coord_pq_peek"
+    },
+    {
+      "ordinal": 204,
+      "hint": "CB",
+      "rva": "00017530",
+      "name": "cost_coord_pq_peek_cost"
+    },
+    {
+      "ordinal": 205,
+      "hint": "CC",
+      "rva": "000175B0",
+      "name": "cost_coord_pq_peek_min"
+    },
+    {
+      "ordinal": 206,
+      "hint": "CD",
+      "rva": "00017680",
+      "name": "cost_coord_pq_pop"
+    },
+    {
+      "ordinal": 207,
+      "hint": "CE",
+      "rva": "00017790",
+      "name": "cost_coord_pq_pop_min"
+    },
+    {
+      "ordinal": 208,
+      "hint": "CF",
+      "rva": "000178C0",
+      "name": "cost_coord_pq_push"
+    },
+    {
+      "ordinal": 209,
+      "hint": "D0",
+      "rva": "000178F0",
+      "name": "cost_coord_pq_push_ex"
+    },
+    {
+      "ordinal": 210,
+      "hint": "D1",
+      "rva": "00017930",
+      "name": "cost_coord_pq_remove"
+    },
+    {
+      "ordinal": 211,
+      "hint": "D2",
+      "rva": "00017A30",
+      "name": "cost_coord_pq_remove_all"
+    },
+    {
+      "ordinal": 212,
+      "hint": "D3",
+      "rva": "00017C90",
+      "name": "cost_coord_pq_remove_one"
+    },
+    {
+      "ordinal": 213,
+      "hint": "D4",
+      "rva": "00013D20",
+      "name": "cost_coord_pq_size"
+    },
+    {
+      "ordinal": 214,
+      "hint": "D5",
+      "rva": "00017DE0",
+      "name": "cost_coord_pq_trim_to_size"
+    },
+    {
+      "ordinal": 215,
+      "hint": "D6",
+      "rva": "00017F30",
+      "name": "cost_coord_pq_trim_worst"
+    },
+    {
+      "ordinal": 216,
+      "hint": "D7",
+      "rva": "0003C560",
+      "name": "default_cost"
+    },
+    {
+      "ordinal": 217,
+      "hint": "D8",
+      "rva": "0003C570",
+      "name": "default_heuristic"
+    },
+    {
+      "ordinal": 218,
+      "hint": "D9",
+      "rva": "00049D80",
+      "name": "detect_plane_collision"
+    },
+    {
+      "ordinal": 219,
+      "hint": "DA",
+      "rva": "0004A200",
+      "name": "detect_sphere_collision"
+    },
+    {
+      "ordinal": 220,
+      "hint": "DB",
+      "rva": "0004A540",
+      "name": "detect_sphere_collision_moving"
+    },
+    {
+      "ordinal": 221,
+      "hint": "DC",
+      "rva": "0004A980",
+      "name": "detect_sphere_collision_moving_precise"
+    },
+    {
+      "ordinal": 222,
+      "hint": "DD",
+      "rva": "0004B320",
+      "name": "detect_sphere_collision_precise"
+    },
+    {
+      "ordinal": 223,
+      "hint": "DE",
+      "rva": "0004B9D0",
+      "name": "detect_triangle_collision_moving"
+    },
+    {
+      "ordinal": 224,
+      "hint": "DF",
+      "rva": "0004BD50",
+      "name": "detect_triangle_collision_rotating"
+    },
+    {
+      "ordinal": 225,
+      "hint": "E0",
+      "rva": "0004C3A0",
+      "name": "detect_triangle_collision_rotating_alpha"
+    },
+    {
+      "ordinal": 226,
+      "hint": "E1",
+      "rva": "0003C5C0",
+      "name": "diagonal_cost"
+    },
+    {
+      "ordinal": 227,
+      "hint": "E2",
+      "rva": "00017FA0",
+      "name": "direction_to_coord"
+    },
+    {
+      "ordinal": 228,
+      "hint": "E3",
+      "rva": "00013F50",
+      "name": "double_copy"
+    },
+    {
+      "ordinal": 229,
+      "hint": "E4",
+      "rva": "0000F5D0",
+      "name": "double_destroy"
+    },
+    {
+      "ordinal": 230,
+      "hint": "E5",
+      "rva": "0000E300",
+      "name": "dsl_debug_print_g_table"
+    },
+    {
+      "ordinal": 231,
+      "hint": "E6",
+      "rva": "0000E390",
+      "name": "dsl_debug_print_rhs_table"
+    },
+    {
+      "ordinal": 232,
+      "hint": "E7",
+      "rva": "0000E420",
+      "name": "dsl_print_ascii_only_navgrid"
+    },
+    {
+      "ordinal": 233,
+      "hint": "E8",
+      "rva": "0000E430",
+      "name": "dsl_print_ascii_route"
+    },
+    {
+      "ordinal": 234,
+      "hint": "E9",
+      "rva": "0000E450",
+      "name": "dsl_print_ascii_update_count"
+    },
+    {
+      "ordinal": 235,
+      "hint": "EA",
+      "rva": "0000E470",
+      "name": "dsl_print_info"
+    },
+    {
+      "ordinal": 236,
+      "hint": "EB",
+      "rva": "000420A0",
+      "name": "dstar_lite_bind_changed_coords_func"
+    },
+    {
+      "ordinal": 237,
+      "hint": "EC",
+      "rva": "000420F0",
+      "name": "dstar_lite_bind_cost_func"
+    },
+    {
+      "ordinal": 238,
+      "hint": "ED",
+      "rva": "00042140",
+      "name": "dstar_lite_bind_heuristic_func"
+    },
+    {
+      "ordinal": 239,
+      "hint": "EE",
+      "rva": "00042190",
+      "name": "dstar_lite_bind_move_func"
+    },
+    {
+      "ordinal": 240,
+      "hint": "EF",
+      "rva": "000421E0",
+      "name": "dstar_lite_calc_key"
+    },
+    {
+      "ordinal": 241,
+      "hint": "F0",
+      "rva": "000422E0",
+      "name": "dstar_lite_compute_shortest_route"
+    },
+    {
+      "ordinal": 242,
+      "hint": "F1",
+      "rva": "00042880",
+      "name": "dstar_lite_copy"
+    },
+    {
+      "ordinal": 243,
+      "hint": "F2",
+      "rva": "00042A00",
+      "name": "dstar_lite_cost"
+    },
+    {
+      "ordinal": 244,
+      "hint": "F3",
+      "rva": "00042A90",
+      "name": "dstar_lite_create"
+    },
+    {
+      "ordinal": 245,
+      "hint": "F4",
+      "rva": "00042AE0",
+      "name": "dstar_lite_create_full"
+    },
+    {
+      "ordinal": 246,
+      "hint": "F5",
+      "rva": "00042C90",
+      "name": "dstar_lite_destroy"
+    },
+    {
+      "ordinal": 247,
+      "hint": "F6",
+      "rva": "00042D10",
+      "name": "dstar_lite_dynamic_cost"
+    },
+    {
+      "ordinal": 248,
+      "hint": "F7",
+      "rva": "00042DF0",
+      "name": "dstar_lite_enable_debug_mode"
+    },
+    {
+      "ordinal": 249,
+      "hint": "F8",
+      "rva": "00042E00",
+      "name": "dstar_lite_fetch_goal"
+    },
+    {
+      "ordinal": 250,
+      "hint": "F9",
+      "rva": "00042E20",
+      "name": "dstar_lite_fetch_next"
+    },
+    {
+      "ordinal": 251,
+      "hint": "FA",
+      "rva": "00043020",
+      "name": "dstar_lite_fetch_start"
+    },
+    {
+      "ordinal": 252,
+      "hint": "FB",
+      "rva": "00043040",
+      "name": "dstar_lite_find"
+    },
+    {
+      "ordinal": 253,
+      "hint": "FC",
+      "rva": "00043080",
+      "name": "dstar_lite_find_full"
+    },
+    {
+      "ordinal": 254,
+      "hint": "FD",
+      "rva": "000430B0",
+      "name": "dstar_lite_find_loop"
+    },
+    {
+      "ordinal": 255,
+      "hint": "FE",
+      "rva": "000435B0",
+      "name": "dstar_lite_find_proto"
+    },
+    {
+      "ordinal": 256,
+      "hint": "FF",
+      "rva": "000435E0",
+      "name": "dstar_lite_force_quit"
+    },
+    {
+      "ordinal": 257,
+      "hint": "100",
+      "rva": "000435F0",
+      "name": "dstar_lite_get_changed_coords_func"
+    },
+    {
+      "ordinal": 258,
+      "hint": "101",
+      "rva": "00043600",
+      "name": "dstar_lite_get_changed_coords_func_userdata"
+    },
+    {
+      "ordinal": 259,
+      "hint": "102",
+      "rva": "00043610",
+      "name": "dstar_lite_get_cost_func"
+    },
+    {
+      "ordinal": 260,
+      "hint": "103",
+      "rva": "0003E560",
+      "name": "dstar_lite_get_cost_func_userdata"
+    },
+    {
+      "ordinal": 261,
+      "hint": "104",
+      "rva": "00043620",
+      "name": "dstar_lite_get_frontier"
+    },
+    {
+      "ordinal": 262,
+      "hint": "105",
+      "rva": "0003E510",
+      "name": "dstar_lite_get_g_table"
+    },
+    {
+      "ordinal": 263,
+      "hint": "106",
+      "rva": "00043630",
+      "name": "dstar_lite_get_heuristic_func"
+    },
+    {
+      "ordinal": 264,
+      "hint": "107",
+      "rva": "0003E500",
+      "name": "dstar_lite_get_heuristic_func_userdata"
+    },
+    {
+      "ordinal": 265,
+      "hint": "108",
+      "rva": "00043640",
+      "name": "dstar_lite_get_km"
+    },
+    {
+      "ordinal": 266,
+      "hint": "109",
+      "rva": "00043650",
+      "name": "dstar_lite_get_max_range"
+    },
+    {
+      "ordinal": 267,
+      "hint": "10A",
+      "rva": "00043660",
+      "name": "dstar_lite_get_max_retry"
+    },
+    {
+      "ordinal": 268,
+      "hint": "10B",
+      "rva": "00043670",
+      "name": "dstar_lite_get_move_func"
+    },
+    {
+      "ordinal": 269,
+      "hint": "10C",
+      "rva": "00043680",
+      "name": "dstar_lite_get_move_func_userdata"
+    },
+    {
+      "ordinal": 270,
+      "hint": "10D",
+      "rva": "0003E540",
+      "name": "dstar_lite_get_navgrid"
+    },
+    {
+      "ordinal": 271,
+      "hint": "10E",
+      "rva": "00043690",
+      "name": "dstar_lite_get_proto_route"
+    },
+    {
+      "ordinal": 272,
+      "hint": "10F",
+      "rva": "000436A0",
+      "name": "dstar_lite_get_real_loop_max_retry"
+    },
+    {
+      "ordinal": 273,
+      "hint": "110",
+      "rva": "000436B0",
+      "name": "dstar_lite_get_real_route"
+    },
+    {
+      "ordinal": 274,
+      "hint": "111",
+      "rva": "000436C0",
+      "name": "dstar_lite_get_reconstruct_max_retry"
+    },
+    {
+      "ordinal": 275,
+      "hint": "112",
+      "rva": "000436D0",
+      "name": "dstar_lite_get_rhs_table"
+    },
+    {
+      "ordinal": 276,
+      "hint": "113",
+      "rva": "000436E0",
+      "name": "dstar_lite_heuristic"
+    },
+    {
+      "ordinal": 277,
+      "hint": "114",
+      "rva": "00043710",
+      "name": "dstar_lite_init"
+    },
+    {
+      "ordinal": 278,
+      "hint": "115",
+      "rva": "00043790",
+      "name": "dstar_lite_is_debug_mode_enabled"
+    },
+    {
+      "ordinal": 279,
+      "hint": "116",
+      "rva": "000437A0",
+      "name": "dstar_lite_is_quit_forced"
+    },
+    {
+      "ordinal": 280,
+      "hint": "117",
+      "rva": "0000F0F0",
+      "name": "dstar_lite_key_alignof"
+    },
+    {
+      "ordinal": 281,
+      "hint": "118",
+      "rva": "00040360",
+      "name": "dstar_lite_key_compare"
+    },
+    {
+      "ordinal": 282,
+      "hint": "119",
+      "rva": "00040420",
+      "name": "dstar_lite_key_compare_exact"
+    },
+    {
+      "ordinal": 283,
+      "hint": "11A",
+      "rva": "00040530",
+      "name": "dstar_lite_key_copy"
+    },
+    {
+      "ordinal": 284,
+      "hint": "11B",
+      "rva": "000405E0",
+      "name": "dstar_lite_key_copy_ex"
+    },
+    {
+      "ordinal": 285,
+      "hint": "11C",
+      "rva": "00040680",
+      "name": "dstar_lite_key_create"
+    },
+    {
+      "ordinal": 286,
+      "hint": "11D",
+      "rva": "000406B0",
+      "name": "dstar_lite_key_create_ex"
+    },
+    {
+      "ordinal": 287,
+      "hint": "11E",
+      "rva": "00040780",
+      "name": "dstar_lite_key_create_full"
+    },
+    {
+      "ordinal": 288,
+      "hint": "11F",
+      "rva": "0000F5D0",
+      "name": "dstar_lite_key_destroy"
+    },
+    {
+      "ordinal": 289,
+      "hint": "120",
+      "rva": "000407B0",
+      "name": "dstar_lite_key_equal"
+    },
+    {
+      "ordinal": 290,
+      "hint": "121",
+      "rva": "000407B0",
+      "name": "dstar_lite_key_equal_exact"
+    },
+    {
+      "ordinal": 291,
+      "hint": "122",
+      "rva": "00040850",
+      "name": "dstar_lite_key_hash"
+    },
+    {
+      "ordinal": 292,
+      "hint": "123",
+      "rva": "00040850",
+      "name": "dstar_lite_key_hash_exact"
+    },
+    {
+      "ordinal": 293,
+      "hint": "124",
+      "rva": "000408B0",
+      "name": "dstar_lite_key_init"
+    },
+    {
+      "ordinal": 294,
+      "hint": "125",
+      "rva": "00040970",
+      "name": "dstar_lite_key_is_close"
+    },
+    {
+      "ordinal": 295,
+      "hint": "126",
+      "rva": "00010090",
+      "name": "dstar_lite_key_offsetof_k1"
+    },
+    {
+      "ordinal": 296,
+      "hint": "127",
+      "rva": "0000F0F0",
+      "name": "dstar_lite_key_offsetof_k2"
+    },
+    {
+      "ordinal": 297,
+      "hint": "128",
+      "rva": "00010240",
+      "name": "dstar_lite_key_sizeof"
+    },
+    {
+      "ordinal": 298,
+      "hint": "129",
+      "rva": "00041360",
+      "name": "dstar_lite_pqueue_contains"
+    },
+    {
+      "ordinal": 299,
+      "hint": "12A",
+      "rva": "00041380",
+      "name": "dstar_lite_pqueue_copy"
+    },
+    {
+      "ordinal": 300,
+      "hint": "12B",
+      "rva": "000416F0",
+      "name": "dstar_lite_pqueue_create"
+    },
+    {
+      "ordinal": 301,
+      "hint": "12C",
+      "rva": "00041790",
+      "name": "dstar_lite_pqueue_destroy"
+    },
+    {
+      "ordinal": 302,
+      "hint": "12D",
+      "rva": "000418B0",
+      "name": "dstar_lite_pqueue_get_key_by_coord"
+    },
+    {
+      "ordinal": 303,
+      "hint": "12E",
+      "rva": "000418D0",
+      "name": "dstar_lite_pqueue_is_empty"
+    },
+    {
+      "ordinal": 304,
+      "hint": "12F",
+      "rva": "000418F0",
+      "name": "dstar_lite_pqueue_peek"
+    },
+    {
+      "ordinal": 305,
+      "hint": "130",
+      "rva": "00041920",
+      "name": "dstar_lite_pqueue_pop"
+    },
+    {
+      "ordinal": 306,
+      "hint": "131",
+      "rva": "000419E0",
+      "name": "dstar_lite_pqueue_push"
+    },
+    {
+      "ordinal": 307,
+      "hint": "132",
+      "rva": "00041CD0",
+      "name": "dstar_lite_pqueue_remove"
+    },
+    {
+      "ordinal": 308,
+      "hint": "133",
+      "rva": "00041E40",
+      "name": "dstar_lite_pqueue_remove_full"
+    },
+    {
+      "ordinal": 309,
+      "hint": "134",
+      "rva": "00041FA0",
+      "name": "dstar_lite_pqueue_top_key"
+    },
+    {
+      "ordinal": 310,
+      "hint": "135",
+      "rva": "000437B0",
+      "name": "dstar_lite_proto_compute_retry_count"
+    },
+    {
+      "ordinal": 311,
+      "hint": "136",
+      "rva": "000437C0",
+      "name": "dstar_lite_real_compute_retry_count"
+    },
+    {
+      "ordinal": 312,
+      "hint": "137",
+      "rva": "000437D0",
+      "name": "dstar_lite_real_loop_retry_count"
+    },
+    {
+      "ordinal": 313,
+      "hint": "138",
+      "rva": "000437E0",
+      "name": "dstar_lite_reconstruct_retry_count"
+    },
+    {
+      "ordinal": 314,
+      "hint": "139",
+      "rva": "000437F0",
+      "name": "dstar_lite_reconstruct_route"
+    },
+    {
+      "ordinal": 315,
+      "hint": "13A",
+      "rva": "00043B40",
+      "name": "dstar_lite_reset"
+    },
+    {
+      "ordinal": 316,
+      "hint": "13B",
+      "rva": "00043C00",
+      "name": "dstar_lite_set_changed_coords_func"
+    },
+    {
+      "ordinal": 317,
+      "hint": "13C",
+      "rva": "00043C10",
+      "name": "dstar_lite_set_changed_coords_func_userdata"
+    },
+    {
+      "ordinal": 318,
+      "hint": "13D",
+      "rva": "000253B0",
+      "name": "dstar_lite_set_cost_func"
+    },
+    {
+      "ordinal": 319,
+      "hint": "13E",
+      "rva": "00043C20",
+      "name": "dstar_lite_set_cost_func_userdata"
+    },
+    {
+      "ordinal": 320,
+      "hint": "13F",
+      "rva": "00043C30",
+      "name": "dstar_lite_set_force_quit"
+    },
+    {
+      "ordinal": 321,
+      "hint": "140",
+      "rva": "00043C40",
+      "name": "dstar_lite_set_frontier"
+    },
+    {
+      "ordinal": 322,
+      "hint": "141",
+      "rva": "0003ED20",
+      "name": "dstar_lite_set_goal"
+    },
+    {
+      "ordinal": 323,
+      "hint": "142",
+      "rva": "00043C70",
+      "name": "dstar_lite_set_heuristic_func"
+    },
+    {
+      "ordinal": 324,
+      "hint": "143",
+      "rva": "0003ECE0",
+      "name": "dstar_lite_set_heuristic_func_userdata"
+    },
+    {
+      "ordinal": 325,
+      "hint": "144",
+      "rva": "00043C80",
+      "name": "dstar_lite_set_interval_sec"
+    },
+    {
+      "ordinal": 326,
+      "hint": "145",
+      "rva": "00043C90",
+      "name": "dstar_lite_set_km"
+    },
+    {
+      "ordinal": 327,
+      "hint": "146",
+      "rva": "00043CA0",
+      "name": "dstar_lite_set_max_range"
+    },
+    {
+      "ordinal": 328,
+      "hint": "147",
+      "rva": "00043CB0",
+      "name": "dstar_lite_set_max_retry"
+    },
+    {
+      "ordinal": 329,
+      "hint": "148",
+      "rva": "00043CC0",
+      "name": "dstar_lite_set_move_func"
+    },
+    {
+      "ordinal": 330,
+      "hint": "149",
+      "rva": "00043CD0",
+      "name": "dstar_lite_set_move_func_userdata"
+    },
+    {
+      "ordinal": 331,
+      "hint": "14A",
+      "rva": "0003EDC0",
+      "name": "dstar_lite_set_navgrid"
+    },
+    {
+      "ordinal": 332,
+      "hint": "14B",
+      "rva": "00043CE0",
+      "name": "dstar_lite_set_real_loop_max_retry"
+    },
+    {
+      "ordinal": 333,
+      "hint": "14C",
+      "rva": "00043CF0",
+      "name": "dstar_lite_set_reconstruct_max_retry"
+    },
+    {
+      "ordinal": 334,
+      "hint": "14D",
+      "rva": "0003EDD0",
+      "name": "dstar_lite_set_start"
+    },
+    {
+      "ordinal": 335,
+      "hint": "14E",
+      "rva": "000444D0",
+      "name": "dstar_lite_tick_complete"
+    },
+    {
+      "ordinal": 336,
+      "hint": "14F",
+      "rva": "00044510",
+      "name": "dstar_lite_tick_copy"
+    },
+    {
+      "ordinal": 337,
+      "hint": "150",
+      "rva": "00044550",
+      "name": "dstar_lite_tick_create"
+    },
+    {
+      "ordinal": 338,
+      "hint": "151",
+      "rva": "000445C0",
+      "name": "dstar_lite_tick_create_full"
+    },
+    {
+      "ordinal": 339,
+      "hint": "152",
+      "rva": "00044620",
+      "name": "dstar_lite_tick_destroy"
+    },
+    {
+      "ordinal": 340,
+      "hint": "153",
+      "rva": "00044630",
+      "name": "dstar_lite_tick_prepare"
+    },
+    {
+      "ordinal": 341,
+      "hint": "154",
+      "rva": "000446E0",
+      "name": "dstar_lite_tick_prepare_full"
+    },
+    {
+      "ordinal": 342,
+      "hint": "155",
+      "rva": "000447B0",
+      "name": "dstar_lite_tick_reset"
+    },
+    {
+      "ordinal": 343,
+      "hint": "156",
+      "rva": "000447D0",
+      "name": "dstar_lite_tick_update"
+    },
+    {
+      "ordinal": 344,
+      "hint": "157",
+      "rva": "00043D00",
+      "name": "dstar_lite_unbind_changed_coords_func"
+    },
+    {
+      "ordinal": 345,
+      "hint": "158",
+      "rva": "00043D40",
+      "name": "dstar_lite_unbind_cost_func"
+    },
+    {
+      "ordinal": 346,
+      "hint": "159",
+      "rva": "00043D90",
+      "name": "dstar_lite_unbind_heuristic_func"
+    },
+    {
+      "ordinal": 347,
+      "hint": "15A",
+      "rva": "00043DE0",
+      "name": "dstar_lite_unbind_move_func"
+    },
+    {
+      "ordinal": 348,
+      "hint": "15B",
+      "rva": "00043E20",
+      "name": "dstar_lite_update_vertex"
+    },
+    {
+      "ordinal": 349,
+      "hint": "15C",
+      "rva": "000440A0",
+      "name": "dstar_lite_update_vertex_auto_range"
+    },
+    {
+      "ordinal": 350,
+      "hint": "15D",
+      "rva": "000440B0",
+      "name": "dstar_lite_update_vertex_range"
+    },
+    {
+      "ordinal": 351,
+      "hint": "15E",
+      "rva": "00001600",
+      "name": "dualnumber_add"
+    },
+    {
+      "ordinal": 352,
+      "hint": "15F",
+      "rva": "00001630",
+      "name": "dualnumber_assign"
+    },
+    {
+      "ordinal": 353,
+      "hint": "160",
+      "rva": "00001650",
+      "name": "dualnumber_div"
+    },
+    {
+      "ordinal": 354,
+      "hint": "161",
+      "rva": "000016A0",
+      "name": "dualnumber_equal"
+    },
+    {
+      "ordinal": 355,
+      "hint": "162",
+      "rva": "000016D0",
+      "name": "dualnumber_hash"
+    },
+    {
+      "ordinal": 356,
+      "hint": "163",
+      "rva": "000016E0",
+      "name": "dualnumber_init"
+    },
+    {
+      "ordinal": 357,
+      "hint": "164",
+      "rva": "000016F0",
+      "name": "dualnumber_init_full"
+    },
+    {
+      "ordinal": 358,
+      "hint": "165",
+      "rva": "00001700",
+      "name": "dualnumber_invscale"
+    },
+    {
+      "ordinal": 359,
+      "hint": "166",
+      "rva": "00001730",
+      "name": "dualnumber_mul"
+    },
+    {
+      "ordinal": 360,
+      "hint": "167",
+      "rva": "00001770",
+      "name": "dualnumber_neg"
+    },
+    {
+      "ordinal": 361,
+      "hint": "168",
+      "rva": "000017A0",
+      "name": "dualnumber_powf"
+    },
+    {
+      "ordinal": 362,
+      "hint": "169",
+      "rva": "00001820",
+      "name": "dualnumber_scale"
+    },
+    {
+      "ordinal": 363,
+      "hint": "16A",
+      "rva": "00001840",
+      "name": "dualnumber_sub"
+    },
+    {
+      "ordinal": 364,
+      "hint": "16B",
+      "rva": "000019C0",
+      "name": "dualquat_add"
+    },
+    {
+      "ordinal": 365,
+      "hint": "16C",
+      "rva": "00001A00",
+      "name": "dualquat_align"
+    },
+    {
+      "ordinal": 366,
+      "hint": "16D",
+      "rva": "00001A70",
+      "name": "dualquat_apply_inverse_to_point"
+    },
+    {
+      "ordinal": 367,
+      "hint": "16E",
+      "rva": "00001B30",
+      "name": "dualquat_apply_to_point"
+    },
+    {
+      "ordinal": 368,
+      "hint": "16F",
+      "rva": "00001DE0",
+      "name": "dualquat_apply_to_point_inplace"
+    },
+    {
+      "ordinal": 369,
+      "hint": "170",
+      "rva": "00001E20",
+      "name": "dualquat_assign"
+    },
+    {
+      "ordinal": 370,
+      "hint": "171",
+      "rva": "00001E40",
+      "name": "dualquat_blend_weighted"
+    },
+    {
+      "ordinal": 371,
+      "hint": "172",
+      "rva": "00001F80",
+      "name": "dualquat_conjugate"
+    },
+    {
+      "ordinal": 372,
+      "hint": "173",
+      "rva": "00001FB0",
+      "name": "dualquat_dot"
+    },
+    {
+      "ordinal": 373,
+      "hint": "174",
+      "rva": "00002000",
+      "name": "dualquat_equal"
+    },
+    {
+      "ordinal": 374,
+      "hint": "175",
+      "rva": "00002050",
+      "name": "dualquat_hash"
+    },
+    {
+      "ordinal": 375,
+      "hint": "176",
+      "rva": "00002080",
+      "name": "dualquat_init"
+    },
+    {
+      "ordinal": 376,
+      "hint": "177",
+      "rva": "000020B0",
+      "name": "dualquat_init_from_mat3"
+    },
+    {
+      "ordinal": 377,
+      "hint": "178",
+      "rva": "00002310",
+      "name": "dualquat_init_from_mat4"
+    },
+    {
+      "ordinal": 378,
+      "hint": "179",
+      "rva": "00002740",
+      "name": "dualquat_init_quat_vec"
+    },
+    {
+      "ordinal": 379,
+      "hint": "17A",
+      "rva": "000028B0",
+      "name": "dualquat_inverse"
+    },
+    {
+      "ordinal": 380,
+      "hint": "17B",
+      "rva": "00002940",
+      "name": "dualquat_length"
+    },
+    {
+      "ordinal": 381,
+      "hint": "17C",
+      "rva": "000029A0",
+      "name": "dualquat_lerp"
+    },
+    {
+      "ordinal": 382,
+      "hint": "17D",
+      "rva": "00002AE0",
+      "name": "dualquat_mul"
+    },
+    {
+      "ordinal": 383,
+      "hint": "17E",
+      "rva": "00002DE0",
+      "name": "dualquat_nlerp"
+    },
+    {
+      "ordinal": 384,
+      "hint": "17F",
+      "rva": "00002DF0",
+      "name": "dualquat_normalize"
+    },
+    {
+      "ordinal": 385,
+      "hint": "180",
+      "rva": "00002F70",
+      "name": "dualquat_scale"
+    },
+    {
+      "ordinal": 386,
+      "hint": "181",
+      "rva": "00002FB0",
+      "name": "dualquat_slerp"
+    },
+    {
+      "ordinal": 387,
+      "hint": "182",
+      "rva": "00003180",
+      "name": "dualquat_sub"
+    },
+    {
+      "ordinal": 388,
+      "hint": "183",
+      "rva": "000031C0",
+      "name": "dualquat_to_mat3"
+    },
+    {
+      "ordinal": 389,
+      "hint": "184",
+      "rva": "00003260",
+      "name": "dualquat_to_mat4"
+    },
+    {
+      "ordinal": 390,
+      "hint": "185",
+      "rva": "00003560",
+      "name": "dualquat_to_quat_vec"
+    },
+    {
+      "ordinal": 391,
+      "hint": "186",
+      "rva": "000036E0",
+      "name": "dualquat_unit"
+    },
+    {
+      "ordinal": 392,
+      "hint": "187",
+      "rva": "00051340",
+      "name": "entity_assign"
+    },
+    {
+      "ordinal": 393,
+      "hint": "188",
+      "rva": "00059E60",
+      "name": "entity_dynamic_assign"
+    },
+    {
+      "ordinal": 394,
+      "hint": "189",
+      "rva": "00059EC0",
+      "name": "entity_dynamic_bounce"
+    },
+    {
+      "ordinal": 395,
+      "hint": "18A",
+      "rva": "00059F90",
+      "name": "entity_dynamic_calc_accel"
+    },
+    {
+      "ordinal": 396,
+      "hint": "18B",
+      "rva": "0005A000",
+      "name": "entity_dynamic_calc_accel_env"
+    },
+    {
+      "ordinal": 397,
+      "hint": "18C",
+      "rva": "0005A120",
+      "name": "entity_dynamic_calc_drag_accel"
+    },
+    {
+      "ordinal": 398,
+      "hint": "18D",
+      "rva": "0005A1E0",
+      "name": "entity_dynamic_calc_position"
+    },
+    {
+      "ordinal": 399,
+      "hint": "18E",
+      "rva": "0005A2A0",
+      "name": "entity_dynamic_calc_position_env"
+    },
+    {
+      "ordinal": 400,
+      "hint": "18F",
+      "rva": "0005A440",
+      "name": "entity_dynamic_calc_state_env"
+    },
+    {
+      "ordinal": 401,
+      "hint": "190",
+      "rva": "0005A560",
+      "name": "entity_dynamic_calc_velocity"
+    },
+    {
+      "ordinal": 402,
+      "hint": "191",
+      "rva": "0005A5D0",
+      "name": "entity_dynamic_calc_velocity_env"
+    },
+    {
+      "ordinal": 403,
+      "hint": "192",
+      "rva": "0005C430",
+      "name": "entity_dynamic_collision_point"
+    },
+    {
+      "ordinal": 404,
+      "hint": "193",
+      "rva": "0005C510",
+      "name": "entity_dynamic_collision_point_env"
+    },
+    {
+      "ordinal": 405,
+      "hint": "194",
+      "rva": "0005ABA0",
+      "name": "entity_dynamic_commit_coord"
+    },
+    {
+      "ordinal": 406,
+      "hint": "195",
+      "rva": "0005AC80",
+      "name": "entity_dynamic_coord_distance"
+    },
+    {
+      "ordinal": 407,
+      "hint": "196",
+      "rva": "0005ACA0",
+      "name": "entity_dynamic_coord_in_range"
+    },
+    {
+      "ordinal": 408,
+      "hint": "197",
+      "rva": "0005C5D0",
+      "name": "entity_dynamic_distance"
+    },
+    {
+      "ordinal": 409,
+      "hint": "198",
+      "rva": "0005A6D0",
+      "name": "entity_dynamic_from_motion_state"
+    },
+    {
+      "ordinal": 410,
+      "hint": "199",
+      "rva": "0005ACE0",
+      "name": "entity_dynamic_get_world_coord"
+    },
+    {
+      "ordinal": 411,
+      "hint": "19A",
+      "rva": "0005C5E0",
+      "name": "entity_dynamic_in_contact"
+    },
+    {
+      "ordinal": 412,
+      "hint": "19B",
+      "rva": "0005A730",
+      "name": "entity_dynamic_init"
+    },
+    {
+      "ordinal": 413,
+      "hint": "19C",
+      "rva": "0005A770",
+      "name": "entity_dynamic_init_full"
+    },
+    {
+      "ordinal": 414,
+      "hint": "19D",
+      "rva": "0005C650",
+      "name": "entity_dynamic_predict_collision_time"
+    },
+    {
+      "ordinal": 415,
+      "hint": "19E",
+      "rva": "0005C710",
+      "name": "entity_dynamic_predict_collision_time_env"
+    },
+    {
+      "ordinal": 416,
+      "hint": "19F",
+      "rva": "0005A8C0",
+      "name": "entity_dynamic_to_motion_state"
+    },
+    {
+      "ordinal": 417,
+      "hint": "1A0",
+      "rva": "0005A980",
+      "name": "entity_dynamic_update"
+    },
+    {
+      "ordinal": 418,
+      "hint": "1A1",
+      "rva": "0005AA70",
+      "name": "entity_dynamic_update_env"
+    },
+    {
+      "ordinal": 419,
+      "hint": "1A2",
+      "rva": "00059C70",
+      "name": "entity_influence_radius"
+    },
+    {
+      "ordinal": 420,
+      "hint": "1A3",
+      "rva": "00059CE0",
+      "name": "entity_init"
+    },
+    {
+      "ordinal": 421,
+      "hint": "1A4",
+      "rva": "00059D10",
+      "name": "entity_init_full"
+    },
+    {
+      "ordinal": 422,
+      "hint": "1A5",
+      "rva": "0005C830",
+      "name": "entity_interact_apply_force"
+    },
+    {
+      "ordinal": 423,
+      "hint": "1A6",
+      "rva": "0005C8D0",
+      "name": "entity_interact_check_collision"
+    },
+    {
+      "ordinal": 424,
+      "hint": "1A7",
+      "rva": "0005C920",
+      "name": "entity_interact_check_fov"
+    },
+    {
+      "ordinal": 425,
+      "hint": "1A8",
+      "rva": "0005C9C0",
+      "name": "entity_interact_resolve_bounce"
+    },
+    {
+      "ordinal": 426,
+      "hint": "1A9",
+      "rva": "0005CB60",
+      "name": "entity_interact_update"
+    },
+    {
+      "ordinal": 427,
+      "hint": "1AA",
+      "rva": "0005CC10",
+      "name": "entity_interact_within_aoe"
+    },
+    {
+      "ordinal": 428,
+      "hint": "1AB",
+      "rva": "00059DB0",
+      "name": "entity_is_expired"
+    },
+    {
+      "ordinal": 429,
+      "hint": "1AC",
+      "rva": "00059DE0",
+      "name": "entity_size"
+    },
+    {
+      "ordinal": 430,
+      "hint": "1AD",
+      "rva": "00059E30",
+      "name": "entity_tick"
+    },
+    {
+      "ordinal": 431,
+      "hint": "1AE",
+      "rva": "00048670",
+      "name": "environ_apply_wind"
+    },
+    {
+      "ordinal": 432,
+      "hint": "1AF",
+      "rva": "000486A0",
+      "name": "environ_assign"
+    },
+    {
+      "ordinal": 433,
+      "hint": "1B0",
+      "rva": "000486D0",
+      "name": "environ_calc_gravity"
+    },
+    {
+      "ordinal": 434,
+      "hint": "1B1",
+      "rva": "00048760",
+      "name": "environ_calc_gravity_wind"
+    },
+    {
+      "ordinal": 435,
+      "hint": "1B2",
+      "rva": "00048810",
+      "name": "environ_calc_none"
+    },
+    {
+      "ordinal": 436,
+      "hint": "1B3",
+      "rva": "00048840",
+      "name": "environ_calc_periodic"
+    },
+    {
+      "ordinal": 437,
+      "hint": "1B4",
+      "rva": "00048930",
+      "name": "environ_distort_accel"
+    },
+    {
+      "ordinal": 438,
+      "hint": "1B5",
+      "rva": "00048950",
+      "name": "environ_distort_accel_except_gravity"
+    },
+    {
+      "ordinal": 439,
+      "hint": "1B6",
+      "rva": "00048B80",
+      "name": "environ_init"
+    },
+    {
+      "ordinal": 440,
+      "hint": "1B7",
+      "rva": "00048BE0",
+      "name": "environ_init_full"
+    },
+    {
+      "ordinal": 441,
+      "hint": "1B8",
+      "rva": "00048CC0",
+      "name": "environ_periodic_assign"
+    },
+    {
+      "ordinal": 442,
+      "hint": "1B9",
+      "rva": "00048CF0",
+      "name": "environ_periodic_init"
+    },
+    {
+      "ordinal": 443,
+      "hint": "1BA",
+      "rva": "00048D30",
+      "name": "environ_periodic_init_full"
+    },
+    {
+      "ordinal": 444,
+      "hint": "1BB",
+      "rva": "0003C570",
+      "name": "euclidean_heuristic"
+    },
+    {
+      "ordinal": 445,
+      "hint": "1BC",
+      "rva": "00039BC0",
+      "name": "find_astar"
+    },
+    {
+      "ordinal": 446,
+      "hint": "1BD",
+      "rva": "00039FE0",
+      "name": "find_bfs"
+    },
+    {
+      "ordinal": 447,
+      "hint": "1BE",
+      "rva": "0003A3A0",
+      "name": "find_dfs"
+    },
+    {
+      "ordinal": 448,
+      "hint": "1BF",
+      "rva": "0003A760",
+      "name": "find_dijkstra"
+    },
+    {
+      "ordinal": 449,
+      "hint": "1C0",
+      "rva": "0003AB60",
+      "name": "find_fast_marching"
+    },
+    {
+      "ordinal": 450,
+      "hint": "1C1",
+      "rva": "0003B400",
+      "name": "find_fringe_search"
+    },
+    {
+      "ordinal": 451,
+      "hint": "1C2",
+      "rva": "0003BA30",
+      "name": "find_greedy_best_first"
+    },
+    {
+      "ordinal": 452,
+      "hint": "1C3",
+      "rva": "0003BE30",
+      "name": "find_ida_star"
+    },
+    {
+      "ordinal": 453,
+      "hint": "1C4",
+      "rva": "0003F410",
+      "name": "find_rta_star"
+    },
+    {
+      "ordinal": 454,
+      "hint": "1C5",
+      "rva": "0003F980",
+      "name": "find_sma_star"
+    },
+    {
+      "ordinal": 455,
+      "hint": "1C6",
+      "rva": "0003FDB0",
+      "name": "find_weighted_astar"
+    },
+    {
+      "ordinal": 456,
+      "hint": "1C7",
+      "rva": "00001630",
+      "name": "fmm_cell_assign"
+    },
+    {
+      "ordinal": 457,
+      "hint": "1C8",
+      "rva": "000016E0",
+      "name": "fmm_cell_init"
+    },
+    {
+      "ordinal": 458,
+      "hint": "1C9",
+      "rva": "0003AE50",
+      "name": "fmm_cell_init_full"
+    },
+    {
+      "ordinal": 459,
+      "hint": "1CA",
+      "rva": "0003AE60",
+      "name": "fmm_dump_ascii"
+    },
+    {
+      "ordinal": 460,
+      "hint": "1CB",
+      "rva": "0003AF00",
+      "name": "fmm_grid_create_full"
+    },
+    {
+      "ordinal": 461,
+      "hint": "1CC",
+      "rva": "0003B3C0",
+      "name": "fmm_grid_destroy"
+    },
+    {
+      "ordinal": 462,
+      "hint": "1CD",
+      "rva": "000443F0",
+      "name": "get_changed_coord"
+    },
+    {
+      "ordinal": 463,
+      "hint": "1CE",
+      "rva": "00044450",
+      "name": "get_changed_coords"
+    },
+    {
+      "ordinal": 464,
+      "hint": "1CF",
+      "rva": "0003D980",
+      "name": "get_route_finder_name"
+    },
+    {
+      "ordinal": 465,
+      "hint": "1D0",
+      "rva": "000615C0",
+      "name": "ground_assign"
+    },
+    {
+      "ordinal": 466,
+      "hint": "1D1",
+      "rva": "00061770",
+      "name": "ground_free"
+    },
+    {
+      "ordinal": 467,
+      "hint": "1D2",
+      "rva": "000617C0",
+      "name": "ground_init"
+    },
+    {
+      "ordinal": 468,
+      "hint": "1D3",
+      "rva": "00061850",
+      "name": "ground_init_heightfield"
+    },
+    {
+      "ordinal": 469,
+      "hint": "1D4",
+      "rva": "000618B0",
+      "name": "ground_init_tiles"
+    },
+    {
+      "ordinal": 470,
+      "hint": "1D5",
+      "rva": "000618F0",
+      "name": "ground_init_uniform"
+    },
+    {
+      "ordinal": 471,
+      "hint": "1D6",
+      "rva": "00061940",
+      "name": "ground_material_at"
+    },
+    {
+      "ordinal": 472,
+      "hint": "1D7",
+      "rva": "00061A00",
+      "name": "ground_raycast"
+    },
+    {
+      "ordinal": 473,
+      "hint": "1D8",
+      "rva": "00061C10",
+      "name": "ground_reset"
+    },
+    {
+      "ordinal": 474,
+      "hint": "1D9",
+      "rva": "00061C30",
+      "name": "ground_sample_at"
+    },
+    {
+      "ordinal": 475,
+      "hint": "1DA",
+      "rva": "0005EB60",
+      "name": "guidance_lead"
+    },
+    {
+      "ordinal": 476,
+      "hint": "1DB",
+      "rva": "0005ECA0",
+      "name": "guidance_none"
+    },
+    {
+      "ordinal": 477,
+      "hint": "1DC",
+      "rva": "0005ECD0",
+      "name": "guidance_point"
+    },
+    {
+      "ordinal": 478,
+      "hint": "1DD",
+      "rva": "0005ED60",
+      "name": "guidance_predict"
+    },
+    {
+      "ordinal": 479,
+      "hint": "1DE",
+      "rva": "0005EF90",
+      "name": "guidance_predict_accel"
+    },
+    {
+      "ordinal": 480,
+      "hint": "1DF",
+      "rva": "0005F1A0",
+      "name": "guidance_predict_accel_env"
+    },
+    {
+      "ordinal": 481,
+      "hint": "1E0",
+      "rva": "00001290",
+      "name": "int_compare"
+    },
+    {
+      "ordinal": 482,
+      "hint": "1E1",
+      "rva": "00013F60",
+      "name": "int_copy"
+    },
+    {
+      "ordinal": 483,
+      "hint": "1E2",
+      "rva": "000129F0",
+      "name": "int_destroy"
+    },
+    {
+      "ordinal": 484,
+      "hint": "1E3",
+      "rva": "0004CBD0",
+      "name": "integrator_assign"
+    },
+    {
+      "ordinal": 485,
+      "hint": "1E4",
+      "rva": "0004CC70",
+      "name": "integrator_clear"
+    },
+    {
+      "ordinal": 486,
+      "hint": "1E5",
+      "rva": "0004CD30",
+      "name": "integrator_free"
+    },
+    {
+      "ordinal": 487,
+      "hint": "1E6",
+      "rva": "0004CD40",
+      "name": "integrator_init"
+    },
+    {
+      "ordinal": 488,
+      "hint": "1E7",
+      "rva": "0004CE40",
+      "name": "integrator_init_full"
+    },
+    {
+      "ordinal": 489,
+      "hint": "1E8",
+      "rva": "0004CEC0",
+      "name": "integrator_step"
+    },
+    {
+      "ordinal": 490,
+      "hint": "1E9",
+      "rva": "0004D010",
+      "name": "integrator_step_attitude_euler"
+    },
+    {
+      "ordinal": 491,
+      "hint": "1EA",
+      "rva": "0004D0B0",
+      "name": "integrator_step_attitude_euler_env"
+    },
+    {
+      "ordinal": 492,
+      "hint": "1EB",
+      "rva": "0004D230",
+      "name": "integrator_step_attitude_rk4"
+    },
+    {
+      "ordinal": 493,
+      "hint": "1EC",
+      "rva": "0004D360",
+      "name": "integrator_step_attitude_rk4_env"
+    },
+    {
+      "ordinal": 494,
+      "hint": "1ED",
+      "rva": "0004D010",
+      "name": "integrator_step_attitude_semi_implicit"
+    },
+    {
+      "ordinal": 495,
+      "hint": "1EE",
+      "rva": "0004D0B0",
+      "name": "integrator_step_attitude_semi_implicit_env"
+    },
+    {
+      "ordinal": 496,
+      "hint": "1EF",
+      "rva": "0004D990",
+      "name": "integrator_step_attitude_velocity_verlet"
+    },
+    {
+      "ordinal": 497,
+      "hint": "1F0",
+      "rva": "0004DB10",
+      "name": "integrator_step_attitude_velocity_verlet_env"
+    },
+    {
+      "ordinal": 498,
+      "hint": "1F1",
+      "rva": "0004DD90",
+      "name": "integrator_step_euler"
+    },
+    {
+      "ordinal": 499,
+      "hint": "1F2",
+      "rva": "0004DF20",
+      "name": "integrator_step_euler_env"
+    },
+    {
+      "ordinal": 500,
+      "hint": "1F3",
+      "rva": "0004E0E0",
+      "name": "integrator_step_motion_euler"
+    },
+    {
+      "ordinal": 501,
+      "hint": "1F4",
+      "rva": "0004E370",
+      "name": "integrator_step_motion_rk4"
+    },
+    {
+      "ordinal": 502,
+      "hint": "1F5",
+      "rva": "0004EC30",
+      "name": "integrator_step_motion_rk4_env"
+    },
+    {
+      "ordinal": 503,
+      "hint": "1F6",
+      "rva": "0004F7F0",
+      "name": "integrator_step_motion_semi_implicit"
+    },
+    {
+      "ordinal": 504,
+      "hint": "1F7",
+      "rva": "0004F8E0",
+      "name": "integrator_step_rk4"
+    },
+    {
+      "ordinal": 505,
+      "hint": "1F8",
+      "rva": "0004FEF0",
+      "name": "integrator_step_rk4_env"
+    },
+    {
+      "ordinal": 506,
+      "hint": "1F9",
+      "rva": "00050740",
+      "name": "integrator_step_semi_implicit"
+    },
+    {
+      "ordinal": 507,
+      "hint": "1FA",
+      "rva": "000508D0",
+      "name": "integrator_step_semi_implicit_env"
+    },
+    {
+      "ordinal": 508,
+      "hint": "1FB",
+      "rva": "00050A80",
+      "name": "integrator_step_velocity_verlet_env"
+    },
+    {
+      "ordinal": 509,
+      "hint": "1FC",
+      "rva": "00050DD0",
+      "name": "integrator_step_verlet"
+    },
+    {
+      "ordinal": 510,
+      "hint": "1FD",
+      "rva": "00050FC0",
+      "name": "integrator_step_verlet_env"
+    },
+    {
+      "ordinal": 511,
+      "hint": "1FE",
+      "rva": "00022D40",
+      "name": "is_coord_blocked_navgrid"
+    },
+    {
+      "ordinal": 512,
+      "hint": "1FF",
+      "rva": "00051260",
+      "name": "kalman_assign"
+    },
+    {
+      "ordinal": 513,
+      "hint": "200",
+      "rva": "00051280",
+      "name": "kalman_init"
+    },
+    {
+      "ordinal": 514,
+      "hint": "201",
+      "rva": "000512A0",
+      "name": "kalman_init_full"
+    },
+    {
+      "ordinal": 515,
+      "hint": "202",
+      "rva": "000512D0",
+      "name": "kalman_measurement_update"
+    },
+    {
+      "ordinal": 516,
+      "hint": "203",
+      "rva": "00051320",
+      "name": "kalman_time_update"
+    },
+    {
+      "ordinal": 517,
+      "hint": "204",
+      "rva": "00051340",
+      "name": "kalman_vec3_assign"
+    },
+    {
+      "ordinal": 518,
+      "hint": "205",
+      "rva": "00051370",
+      "name": "kalman_vec3_init"
+    },
+    {
+      "ordinal": 519,
+      "hint": "206",
+      "rva": "000513B0",
+      "name": "kalman_vec3_init_full"
+    },
+    {
+      "ordinal": 520,
+      "hint": "207",
+      "rva": "00051480",
+      "name": "kalman_vec3_measurement_update"
+    },
+    {
+      "ordinal": 521,
+      "hint": "208",
+      "rva": "000515C0",
+      "name": "kalman_vec3_project"
+    },
+    {
+      "ordinal": 522,
+      "hint": "209",
+      "rva": "00051600",
+      "name": "kalman_vec3_time_update"
+    },
+    {
+      "ordinal": 523,
+      "hint": "20A",
+      "rva": "00059460",
+      "name": "linear_state_assign"
+    },
+    {
+      "ordinal": 524,
+      "hint": "20B",
+      "rva": "00059480",
+      "name": "linear_state_init"
+    },
+    {
+      "ordinal": 525,
+      "hint": "20C",
+      "rva": "000594B0",
+      "name": "linear_state_init_full"
+    },
+    {
+      "ordinal": 526,
+      "hint": "20D",
+      "rva": "00051230",
+      "name": "make_kalman_vec3_interface"
+    },
+    {
+      "ordinal": 527,
+      "hint": "20E",
+      "rva": "000104A0",
+      "name": "make_tmp_coord"
+    },
+    {
+      "ordinal": 528,
+      "hint": "20F",
+      "rva": "0003C610",
+      "name": "manhattan_heuristic"
+    },
+    {
+      "ordinal": 529,
+      "hint": "210",
+      "rva": "0002FD50",
+      "name": "maze_apply_to_navgrid"
+    },
+    {
+      "ordinal": 530,
+      "hint": "211",
+      "rva": "0002BEE0",
+      "name": "maze_clear"
+    },
+    {
+      "ordinal": 531,
+      "hint": "212",
+      "rva": "0002FF30",
+      "name": "maze_copy"
+    },
+    {
+      "ordinal": 532,
+      "hint": "213",
+      "rva": "0002FFE0",
+      "name": "maze_create"
+    },
+    {
+      "ordinal": 533,
+      "hint": "214",
+      "rva": "0002FFF0",
+      "name": "maze_create_full"
+    },
+    {
+      "ordinal": 534,
+      "hint": "215",
+      "rva": "0002C120",
+      "name": "maze_destroy"
+    },
+    {
+      "ordinal": 535,
+      "hint": "216",
+      "rva": "0002C150",
+      "name": "maze_equal"
+    },
+    {
+      "ordinal": 536,
+      "hint": "217",
+      "rva": "0000D420",
+      "name": "maze_get_blocked_coords"
+    },
+    {
+      "ordinal": 537,
+      "hint": "218",
+      "rva": "0002C1F0",
+      "name": "maze_get_height"
+    },
+    {
+      "ordinal": 538,
+      "hint": "219",
+      "rva": "0000F820",
+      "name": "maze_get_origin"
+    },
+    {
+      "ordinal": 539,
+      "hint": "21A",
+      "rva": "000250A0",
+      "name": "maze_get_width"
+    },
+    {
+      "ordinal": 540,
+      "hint": "21B",
+      "rva": "0002C200",
+      "name": "maze_hash"
+    },
+    {
+      "ordinal": 541,
+      "hint": "21C",
+      "rva": "0002ED80",
+      "name": "maze_make"
+    },
+    {
+      "ordinal": 542,
+      "hint": "21D",
+      "rva": "00030990",
+      "name": "maze_make_aldous_broder"
+    },
+    {
+      "ordinal": 543,
+      "hint": "21E",
+      "rva": "00030FC0",
+      "name": "maze_make_binary"
+    },
+    {
+      "ordinal": 544,
+      "hint": "21F",
+      "rva": "00031FC0",
+      "name": "maze_make_eller"
+    },
+    {
+      "ordinal": 545,
+      "hint": "220",
+      "rva": "00032B10",
+      "name": "maze_make_hunt_and_kill"
+    },
+    {
+      "ordinal": 546,
+      "hint": "221",
+      "rva": "00034050",
+      "name": "maze_make_kruskal"
+    },
+    {
+      "ordinal": 547,
+      "hint": "222",
+      "rva": "00036820",
+      "name": "maze_make_recursive"
+    },
+    {
+      "ordinal": 548,
+      "hint": "223",
+      "rva": "00035B00",
+      "name": "maze_make_recursive_division"
+    },
+    {
+      "ordinal": 549,
+      "hint": "224",
+      "rva": "00037E10",
+      "name": "maze_make_room_blend"
+    },
+    {
+      "ordinal": 550,
+      "hint": "225",
+      "rva": "000386B0",
+      "name": "maze_make_sidewinder"
+    },
+    {
+      "ordinal": 551,
+      "hint": "226",
+      "rva": "00039A70",
+      "name": "maze_make_wilson"
+    },
+    {
+      "ordinal": 552,
+      "hint": "227",
+      "rva": "00034F00",
+      "name": "maze_maze_prim"
+    },
+    {
+      "ordinal": 553,
+      "hint": "228",
+      "rva": "00030090",
+      "name": "maze_remove_from_navgrid"
+    },
+    {
+      "ordinal": 554,
+      "hint": "229",
+      "rva": "000300D0",
+      "name": "maze_set_origin"
+    },
+    {
+      "ordinal": 555,
+      "hint": "22A",
+      "rva": "0005CC60",
+      "name": "missile_assign"
+    },
+    {
+      "ordinal": 556,
+      "hint": "22B",
+      "rva": "0005CCD0",
+      "name": "missile_init"
+    },
+    {
+      "ordinal": 557,
+      "hint": "22C",
+      "rva": "0005CD80",
+      "name": "missile_init_full"
+    },
+    {
+      "ordinal": 558,
+      "hint": "22D",
+      "rva": "0005CDD0",
+      "name": "missile_launch"
+    },
+    {
+      "ordinal": 559,
+      "hint": "22E",
+      "rva": "000594F0",
+      "name": "motion_state_assign"
+    },
+    {
+      "ordinal": 560,
+      "hint": "22F",
+      "rva": "00059530",
+      "name": "motion_state_init"
+    },
+    {
+      "ordinal": 561,
+      "hint": "230",
+      "rva": "00059580",
+      "name": "motion_state_init_full"
+    },
+    {
+      "ordinal": 562,
+      "hint": "231",
+      "rva": "000444A0",
+      "name": "move_to"
+    },
+    {
+      "ordinal": 563,
+      "hint": "232",
+      "rva": "00052E80",
+      "name": "mpc_config_assign"
+    },
+    {
+      "ordinal": 564,
+      "hint": "233",
+      "rva": "00052EC0",
+      "name": "mpc_config_init"
+    },
+    {
+      "ordinal": 565,
+      "hint": "234",
+      "rva": "00052F30",
+      "name": "mpc_config_init_full"
+    },
+    {
+      "ordinal": 566,
+      "hint": "235",
+      "rva": "00052FD0",
+      "name": "mpc_direction_target_init"
+    },
+    {
+      "ordinal": 567,
+      "hint": "236",
+      "rva": "00059A30",
+      "name": "mpc_impl_assign"
+    },
+    {
+      "ordinal": 568,
+      "hint": "237",
+      "rva": "00059B20",
+      "name": "mpc_impl_init"
+    },
+    {
+      "ordinal": 569,
+      "hint": "238",
+      "rva": "00059B70",
+      "name": "mpc_impl_init_full"
+    },
+    {
+      "ordinal": 570,
+      "hint": "239",
+      "rva": "000069D0",
+      "name": "mpc_target_route_assign"
+    },
+    {
+      "ordinal": 571,
+      "hint": "23A",
+      "rva": "00053010",
+      "name": "mpc_target_route_init"
+    },
+    {
+      "ordinal": 572,
+      "hint": "23B",
+      "rva": "00053030",
+      "name": "mpc_target_route_init_full"
+    },
+    {
+      "ordinal": 573,
+      "hint": "23C",
+      "rva": "00025490",
+      "name": "navcell_assign"
+    },
+    {
+      "ordinal": 574,
+      "hint": "23D",
+      "rva": "00025490",
+      "name": "navcell_assign_checked"
+    },
+    {
+      "ordinal": 575,
+      "hint": "23E",
+      "rva": "000254D0",
+      "name": "navcell_copy"
+    },
+    {
+      "ordinal": 576,
+      "hint": "23F",
+      "rva": "00025500",
+      "name": "navcell_copy_checked"
+    },
+    {
+      "ordinal": 577,
+      "hint": "240",
+      "rva": "00025590",
+      "name": "navcell_create"
+    },
+    {
+      "ordinal": 578,
+      "hint": "241",
+      "rva": "000255C0",
+      "name": "navcell_create_checked"
+    },
+    {
+      "ordinal": 579,
+      "hint": "242",
+      "rva": "00025650",
+      "name": "navcell_create_full"
+    },
+    {
+      "ordinal": 580,
+      "hint": "243",
+      "rva": "0000F5D0",
+      "name": "navcell_destroy"
+    },
+    {
+      "ordinal": 581,
+      "hint": "244",
+      "rva": "00025680",
+      "name": "navcell_init"
+    },
+    {
+      "ordinal": 582,
+      "hint": "245",
+      "rva": "000256A0",
+      "name": "navcell_init_checked"
+    },
+    {
+      "ordinal": 583,
+      "hint": "246",
+      "rva": "000256A0",
+      "name": "navcell_init_full"
+    },
+    {
+      "ordinal": 584,
+      "hint": "247",
+      "rva": "000256E0",
+      "name": "navcell_is_terrain_supported"
+    },
+    {
+      "ordinal": 585,
+      "hint": "248",
+      "rva": "00025720",
+      "name": "navcell_validate"
+    },
+    {
+      "ordinal": 586,
+      "hint": "249",
+      "rva": "00022E30",
+      "name": "navgrid_apply_blocked_overlay"
+    },
+    {
+      "ordinal": 587,
+      "hint": "24A",
+      "rva": "00022EB0",
+      "name": "navgrid_bind_is_coord_blocked_func"
+    },
+    {
+      "ordinal": 588,
+      "hint": "24B",
+      "rva": "00022F00",
+      "name": "navgrid_block_coord"
+    },
+    {
+      "ordinal": 589,
+      "hint": "24C",
+      "rva": "00022FA0",
+      "name": "navgrid_block_coord_ex"
+    },
+    {
+      "ordinal": 590,
+      "hint": "24D",
+      "rva": "00047C30",
+      "name": "navgrid_carve_area"
+    },
+    {
+      "ordinal": 591,
+      "hint": "24E",
+      "rva": "00047E90",
+      "name": "navgrid_carve_line"
+    },
+    {
+      "ordinal": 592,
+      "hint": "24F",
+      "rva": "00022FC0",
+      "name": "navgrid_check_abi"
+    },
+    {
+      "ordinal": 593,
+      "hint": "250",
+      "rva": "00023020",
+      "name": "navgrid_clear"
+    },
+    {
+      "ordinal": 594,
+      "hint": "251",
+      "rva": "00023080",
+      "name": "navgrid_clear_ex"
+    },
+    {
+      "ordinal": 595,
+      "hint": "252",
+      "rva": "00023140",
+      "name": "navgrid_copy"
+    },
+    {
+      "ordinal": 596,
+      "hint": "253",
+      "rva": "00023230",
+      "name": "navgrid_copy_neighbor_at_degree"
+    },
+    {
+      "ordinal": 597,
+      "hint": "254",
+      "rva": "00023270",
+      "name": "navgrid_copy_neighbor_at_goal"
+    },
+    {
+      "ordinal": 598,
+      "hint": "255",
+      "rva": "00023350",
+      "name": "navgrid_copy_neighbors"
+    },
+    {
+      "ordinal": 599,
+      "hint": "256",
+      "rva": "000235B0",
+      "name": "navgrid_copy_neighbors_all"
+    },
+    {
+      "ordinal": 600,
+      "hint": "257",
+      "rva": "000237F0",
+      "name": "navgrid_copy_neighbors_all_range"
+    },
+    {
+      "ordinal": 601,
+      "hint": "258",
+      "rva": "00023840",
+      "name": "navgrid_copy_neighbors_at_degree_range"
+    },
+    {
+      "ordinal": 602,
+      "hint": "259",
+      "rva": "000238A0",
+      "name": "navgrid_create"
+    },
+    {
+      "ordinal": 603,
+      "hint": "25A",
+      "rva": "000238C0",
+      "name": "navgrid_create_full"
+    },
+    {
+      "ordinal": 604,
+      "hint": "25B",
+      "rva": "000239D0",
+      "name": "navgrid_destroy"
+    },
+    {
+      "ordinal": 605,
+      "hint": "25C",
+      "rva": "00023A30",
+      "name": "navgrid_equal"
+    },
+    {
+      "ordinal": 606,
+      "hint": "25D",
+      "rva": "00023A80",
+      "name": "navgrid_export_cells"
+    },
+    {
+      "ordinal": 607,
+      "hint": "25E",
+      "rva": "00023FB0",
+      "name": "navgrid_export_neighbors"
+    },
+    {
+      "ordinal": 608,
+      "hint": "25F",
+      "rva": "00024140",
+      "name": "navgrid_export_neighbors_at_degree_range"
+    },
+    {
+      "ordinal": 609,
+      "hint": "260",
+      "rva": "00024640",
+      "name": "navgrid_export_neighbors_range"
+    },
+    {
+      "ordinal": 610,
+      "hint": "261",
+      "rva": "00024A80",
+      "name": "navgrid_fetch_cell"
+    },
+    {
+      "ordinal": 611,
+      "hint": "262",
+      "rva": "00024AF0",
+      "name": "navgrid_fetch_cell_ex"
+    },
+    {
+      "ordinal": 612,
+      "hint": "263",
+      "rva": "00024BA0",
+      "name": "navgrid_fetch_is_coord_blocked_binding"
+    },
+    {
+      "ordinal": 613,
+      "hint": "264",
+      "rva": "00024BD0",
+      "name": "navgrid_fetch_neighbor_at_degree"
+    },
+    {
+      "ordinal": 614,
+      "hint": "265",
+      "rva": "00024F90",
+      "name": "navgrid_fetch_neighbor_at_goal"
+    },
+    {
+      "ordinal": 615,
+      "hint": "266",
+      "rva": "00025070",
+      "name": "navgrid_get_abi_fingerprint"
+    },
+    {
+      "ordinal": 616,
+      "hint": "267",
+      "rva": "00025080",
+      "name": "navgrid_get_abi_version"
+    },
+    {
+      "ordinal": 617,
+      "hint": "268",
+      "rva": "0000D420",
+      "name": "navgrid_get_cell_map"
+    },
+    {
+      "ordinal": 618,
+      "hint": "269",
+      "rva": "0000F920",
+      "name": "navgrid_get_height"
+    },
+    {
+      "ordinal": 619,
+      "hint": "26A",
+      "rva": "00025090",
+      "name": "navgrid_get_is_coord_blocked_fn"
+    },
+    {
+      "ordinal": 620,
+      "hint": "26B",
+      "rva": "000250A0",
+      "name": "navgrid_get_mode"
+    },
+    {
+      "ordinal": 621,
+      "hint": "26C",
+      "rva": "0000F910",
+      "name": "navgrid_get_width"
+    },
+    {
+      "ordinal": 622,
+      "hint": "26D",
+      "rva": "000250B0",
+      "name": "navgrid_hash"
+    },
+    {
+      "ordinal": 623,
+      "hint": "26E",
+      "rva": "000250F0",
+      "name": "navgrid_is_inside"
+    },
+    {
+      "ordinal": 624,
+      "hint": "26F",
+      "rva": "0000DA50",
+      "name": "navgrid_print_ascii"
+    },
+    {
+      "ordinal": 625,
+      "hint": "270",
+      "rva": "0000DC10",
+      "name": "navgrid_print_ascii_with_route"
+    },
+    {
+      "ordinal": 626,
+      "hint": "271",
+      "rva": "0000DF30",
+      "name": "navgrid_print_ascii_with_visited_count"
+    },
+    {
+      "ordinal": 627,
+      "hint": "272",
+      "rva": "00025170",
+      "name": "navgrid_remove_blocked_overlay"
+    },
+    {
+      "ordinal": 628,
+      "hint": "273",
+      "rva": "00025180",
+      "name": "navgrid_set_cell"
+    },
+    {
+      "ordinal": 629,
+      "hint": "274",
+      "rva": "00025260",
+      "name": "navgrid_set_cell_ex"
+    },
+    {
+      "ordinal": 630,
+      "hint": "275",
+      "rva": "000253A0",
+      "name": "navgrid_set_height"
+    },
+    {
+      "ordinal": 631,
+      "hint": "276",
+      "rva": "000253B0",
+      "name": "navgrid_set_is_coord_blocked_func"
+    },
+    {
+      "ordinal": 632,
+      "hint": "277",
+      "rva": "000253C0",
+      "name": "navgrid_set_mode"
+    },
+    {
+      "ordinal": 633,
+      "hint": "278",
+      "rva": "000253D0",
+      "name": "navgrid_set_width"
+    },
+    {
+      "ordinal": 634,
+      "hint": "279",
+      "rva": "000253E0",
+      "name": "navgrid_unbind_is_coord_blocked_func"
+    },
+    {
+      "ordinal": 635,
+      "hint": "27A",
+      "rva": "00025420",
+      "name": "navgrid_unblock_coord"
+    },
+    {
+      "ordinal": 636,
+      "hint": "27B",
+      "rva": "00025470",
+      "name": "navgrid_unblock_coord_ex"
+    },
+    {
+      "ordinal": 637,
+      "hint": "27C",
+      "rva": "0000E520",
+      "name": "navsys_find_astar"
+    },
+    {
+      "ordinal": 638,
+      "hint": "27D",
+      "rva": "0000E5F0",
+      "name": "navsys_find_bfs"
+    },
+    {
+      "ordinal": 639,
+      "hint": "27E",
+      "rva": "0000E6C0",
+      "name": "navsys_find_dfs"
+    },
+    {
+      "ordinal": 640,
+      "hint": "27F",
+      "rva": "0000E790",
+      "name": "navsys_find_dijkstra"
+    },
+    {
+      "ordinal": 641,
+      "hint": "280",
+      "rva": "0000E860",
+      "name": "navsys_find_dstar_lite"
+    },
+    {
+      "ordinal": 642,
+      "hint": "281",
+      "rva": "0000E8B0",
+      "name": "navsys_find_fast_marching"
+    },
+    {
+      "ordinal": 643,
+      "hint": "282",
+      "rva": "0000E980",
+      "name": "navsys_find_fringe_search"
+    },
+    {
+      "ordinal": 644,
+      "hint": "283",
+      "rva": "0000EA90",
+      "name": "navsys_find_greedy_best_first"
+    },
+    {
+      "ordinal": 645,
+      "hint": "284",
+      "rva": "0000EB60",
+      "name": "navsys_find_ida_star"
+    },
+    {
+      "ordinal": 646,
+      "hint": "285",
+      "rva": "0000EC30",
+      "name": "navsys_find_rta_star"
+    },
+    {
+      "ordinal": 647,
+      "hint": "286",
+      "rva": "0000ED30",
+      "name": "navsys_find_sma_star"
+    },
+    {
+      "ordinal": 648,
+      "hint": "287",
+      "rva": "0000EE30",
+      "name": "navsys_find_weighted_astar"
+    },
+    {
+      "ordinal": 649,
+      "hint": "288",
+      "rva": "0001B2C0",
+      "name": "navsys_search_trace_clone_ex"
+    },
+    {
+      "ordinal": 650,
+      "hint": "289",
+      "rva": "0001B390",
+      "name": "navsys_search_trace_create"
+    },
+    {
+      "ordinal": 651,
+      "hint": "28A",
+      "rva": "0001B470",
+      "name": "navsys_search_trace_destroy"
+    },
+    {
+      "ordinal": 652,
+      "hint": "28B",
+      "rva": "000187B0",
+      "name": "navsys_search_trace_export_visits"
+    },
+    {
+      "ordinal": 653,
+      "hint": "28C",
+      "rva": "0001B4B0",
+      "name": "navsys_search_trace_fetch_coord_visit_count"
+    },
+    {
+      "ordinal": 654,
+      "hint": "28D",
+      "rva": "0001B510",
+      "name": "navsys_search_trace_fetch_visit"
+    },
+    {
+      "ordinal": 655,
+      "hint": "28E",
+      "rva": "00018EA0",
+      "name": "navsys_search_trace_get_visit_count"
+    },
+    {
+      "ordinal": 656,
+      "hint": "28F",
+      "rva": "000517F0",
+      "name": "numeq_model_accel"
+    },
+    {
+      "ordinal": 657,
+      "hint": "290",
+      "rva": "00051830",
+      "name": "numeq_model_accel_except_gravity"
+    },
+    {
+      "ordinal": 658,
+      "hint": "291",
+      "rva": "00051970",
+      "name": "numeq_model_accel_predict"
+    },
+    {
+      "ordinal": 659,
+      "hint": "292",
+      "rva": "00051A10",
+      "name": "numeq_model_bounce"
+    },
+    {
+      "ordinal": 660,
+      "hint": "293",
+      "rva": "00051C60",
+      "name": "numeq_model_drag_accel"
+    },
+    {
+      "ordinal": 661,
+      "hint": "294",
+      "rva": "00052810",
+      "name": "numeq_model_motion_accel"
+    },
+    {
+      "ordinal": 662,
+      "hint": "295",
+      "rva": "000528E0",
+      "name": "numeq_model_motion_drag_scale"
+    },
+    {
+      "ordinal": 663,
+      "hint": "296",
+      "rva": "00052A50",
+      "name": "numeq_model_motion_predict"
+    },
+    {
+      "ordinal": 664,
+      "hint": "297",
+      "rva": "00052B50",
+      "name": "numeq_model_motion_predict_rk4"
+    },
+    {
+      "ordinal": 665,
+      "hint": "298",
+      "rva": "00051DF0",
+      "name": "numeq_model_pos_predict"
+    },
+    {
+      "ordinal": 666,
+      "hint": "299",
+      "rva": "00051FB0",
+      "name": "numeq_model_predict"
+    },
+    {
+      "ordinal": 667,
+      "hint": "29A",
+      "rva": "00052090",
+      "name": "numeq_model_predict_collision"
+    },
+    {
+      "ordinal": 668,
+      "hint": "29B",
+      "rva": "000522B0",
+      "name": "numeq_model_predict_collision_plane"
+    },
+    {
+      "ordinal": 669,
+      "hint": "29C",
+      "rva": "00052460",
+      "name": "numeq_model_predict_rk4"
+    },
+    {
+      "ordinal": 670,
+      "hint": "29D",
+      "rva": "000525F0",
+      "name": "numeq_model_vel_predict"
+    },
+    {
+      "ordinal": 671,
+      "hint": "29E",
+      "rva": "00053050",
+      "name": "numeq_mpc_cost_default"
+    },
+    {
+      "ordinal": 672,
+      "hint": "29F",
+      "rva": "000531B0",
+      "name": "numeq_mpc_cost_hybrid"
+    },
+    {
+      "ordinal": 673,
+      "hint": "2A0",
+      "rva": "00053340",
+      "name": "numeq_mpc_cost_speed"
+    },
+    {
+      "ordinal": 674,
+      "hint": "2A1",
+      "rva": "000533E0",
+      "name": "numeq_mpc_solve"
+    },
+    {
+      "ordinal": 675,
+      "hint": "2A2",
+      "rva": "00053AE0",
+      "name": "numeq_mpc_solve_coarse2fine"
+    },
+    {
+      "ordinal": 676,
+      "hint": "2A3",
+      "rva": "00054490",
+      "name": "numeq_mpc_solve_directional"
+    },
+    {
+      "ordinal": 677,
+      "hint": "2A4",
+      "rva": "000545D0",
+      "name": "numeq_mpc_solve_fast"
+    },
+    {
+      "ordinal": 678,
+      "hint": "2A5",
+      "rva": "00054DA0",
+      "name": "numeq_mpc_solve_route"
+    },
+    {
+      "ordinal": 679,
+      "hint": "2A6",
+      "rva": "00055B50",
+      "name": "numeq_solve_bisection"
+    },
+    {
+      "ordinal": 680,
+      "hint": "2A7",
+      "rva": "00055CD0",
+      "name": "numeq_solve_cubic"
+    },
+    {
+      "ordinal": 681,
+      "hint": "2A8",
+      "rva": "00056090",
+      "name": "numeq_solve_linear"
+    },
+    {
+      "ordinal": 682,
+      "hint": "2A9",
+      "rva": "000560D0",
+      "name": "numeq_solve_quadratic"
+    },
+    {
+      "ordinal": 683,
+      "hint": "2AA",
+      "rva": "000561B0",
+      "name": "numeq_solve_quadratic_stable"
+    },
+    {
+      "ordinal": 684,
+      "hint": "2AB",
+      "rva": "00010240",
+      "name": "obstacle_alignof"
+    },
+    {
+      "ordinal": 685,
+      "hint": "2AC",
+      "rva": "0002BA60",
+      "name": "obstacle_apply_to_navgrid"
+    },
+    {
+      "ordinal": 686,
+      "hint": "2AD",
+      "rva": "0002BBC0",
+      "name": "obstacle_apply_to_navgrid_checked"
+    },
+    {
+      "ordinal": 687,
+      "hint": "2AE",
+      "rva": "0002BE60",
+      "name": "obstacle_block_coord"
+    },
+    {
+      "ordinal": 688,
+      "hint": "2AF",
+      "rva": "0002D5E0",
+      "name": "obstacle_block_line"
+    },
+    {
+      "ordinal": 689,
+      "hint": "2B0",
+      "rva": "0002D970",
+      "name": "obstacle_block_range"
+    },
+    {
+      "ordinal": 690,
+      "hint": "2B1",
+      "rva": "0002D9A0",
+      "name": "obstacle_block_square"
+    },
+    {
+      "ordinal": 691,
+      "hint": "2B2",
+      "rva": "0002DBD0",
+      "name": "obstacle_block_straight"
+    },
+    {
+      "ordinal": 692,
+      "hint": "2B3",
+      "rva": "0002BE80",
+      "name": "obstacle_check_abi"
+    },
+    {
+      "ordinal": 693,
+      "hint": "2B4",
+      "rva": "0002BEE0",
+      "name": "obstacle_clear"
+    },
+    {
+      "ordinal": 694,
+      "hint": "2B5",
+      "rva": "0002DC10",
+      "name": "obstacle_clone_neighbor_at_degree"
+    },
+    {
+      "ordinal": 695,
+      "hint": "2B6",
+      "rva": "0002DC20",
+      "name": "obstacle_clone_neighbor_at_goal"
+    },
+    {
+      "ordinal": 696,
+      "hint": "2B7",
+      "rva": "0002DC30",
+      "name": "obstacle_clone_neighbors"
+    },
+    {
+      "ordinal": 697,
+      "hint": "2B8",
+      "rva": "0002DC70",
+      "name": "obstacle_clone_neighbors_all"
+    },
+    {
+      "ordinal": 698,
+      "hint": "2B9",
+      "rva": "0002DCB0",
+      "name": "obstacle_clone_neighbors_all_range"
+    },
+    {
+      "ordinal": 699,
+      "hint": "2BA",
+      "rva": "0002DD00",
+      "name": "obstacle_clone_neighbors_at_degree_range"
+    },
+    {
+      "ordinal": 700,
+      "hint": "2BB",
+      "rva": "0002BF00",
+      "name": "obstacle_copy"
+    },
+    {
+      "ordinal": 701,
+      "hint": "2BC",
+      "rva": "0002BF30",
+      "name": "obstacle_copy_checked"
+    },
+    {
+      "ordinal": 702,
+      "hint": "2BD",
+      "rva": "0002C000",
+      "name": "obstacle_create"
+    },
+    {
+      "ordinal": 703,
+      "hint": "2BE",
+      "rva": "0002C040",
+      "name": "obstacle_create_checked"
+    },
+    {
+      "ordinal": 704,
+      "hint": "2BF",
+      "rva": "0002C0F0",
+      "name": "obstacle_create_full"
+    },
+    {
+      "ordinal": 705,
+      "hint": "2C0",
+      "rva": "0002DD80",
+      "name": "obstacle_create_neighbor_at_degree"
+    },
+    {
+      "ordinal": 706,
+      "hint": "2C1",
+      "rva": "0002DDC0",
+      "name": "obstacle_create_neighbor_at_goal"
+    },
+    {
+      "ordinal": 707,
+      "hint": "2C2",
+      "rva": "0002DE50",
+      "name": "obstacle_create_neighbors"
+    },
+    {
+      "ordinal": 708,
+      "hint": "2C3",
+      "rva": "0002DE90",
+      "name": "obstacle_create_neighbors_all"
+    },
+    {
+      "ordinal": 709,
+      "hint": "2C4",
+      "rva": "0002DED0",
+      "name": "obstacle_create_neighbors_all_range"
+    },
+    {
+      "ordinal": 710,
+      "hint": "2C5",
+      "rva": "0002DF20",
+      "name": "obstacle_create_neighbors_at_degree_range"
+    },
+    {
+      "ordinal": 711,
+      "hint": "2C6",
+      "rva": "00027EC0",
+      "name": "obstacle_cross_desc_init"
+    },
+    {
+      "ordinal": 712,
+      "hint": "2C7",
+      "rva": "0002C120",
+      "name": "obstacle_destroy"
+    },
+    {
+      "ordinal": 713,
+      "hint": "2C8",
+      "rva": "00027F10",
+      "name": "obstacle_enclosure_desc_init"
+    },
+    {
+      "ordinal": 714,
+      "hint": "2C9",
+      "rva": "0002C150",
+      "name": "obstacle_equal"
+    },
+    {
+      "ordinal": 715,
+      "hint": "2CA",
+      "rva": "0002C1A0",
+      "name": "obstacle_export_blocked"
+    },
+    {
+      "ordinal": 716,
+      "hint": "2CB",
+      "rva": "0002DF80",
+      "name": "obstacle_export_neighbors"
+    },
+    {
+      "ordinal": 717,
+      "hint": "2CC",
+      "rva": "0002E0E0",
+      "name": "obstacle_export_neighbors_at_degree_range"
+    },
+    {
+      "ordinal": 718,
+      "hint": "2CD",
+      "rva": "0002E510",
+      "name": "obstacle_export_neighbors_range"
+    },
+    {
+      "ordinal": 719,
+      "hint": "2CE",
+      "rva": "0002E6D0",
+      "name": "obstacle_fetch_neighbor_at_degree"
+    },
+    {
+      "ordinal": 720,
+      "hint": "2CF",
+      "rva": "0002E940",
+      "name": "obstacle_fetch_neighbor_at_goal"
+    },
+    {
+      "ordinal": 721,
+      "hint": "2D0",
+      "rva": "0000F820",
+      "name": "obstacle_fetch_origin"
+    },
+    {
+      "ordinal": 722,
+      "hint": "2D1",
+      "rva": "00027F80",
+      "name": "obstacle_generate_cross"
+    },
+    {
+      "ordinal": 723,
+      "hint": "2D2",
+      "rva": "000282B0",
+      "name": "obstacle_generate_enclosure"
+    },
+    {
+      "ordinal": 724,
+      "hint": "2D3",
+      "rva": "00028850",
+      "name": "obstacle_generate_filled_rect"
+    },
+    {
+      "ordinal": 725,
+      "hint": "2D4",
+      "rva": "00028D50",
+      "name": "obstacle_generate_line"
+    },
+    {
+      "ordinal": 726,
+      "hint": "2D5",
+      "rva": "00028F20",
+      "name": "obstacle_generate_options_init"
+    },
+    {
+      "ordinal": 727,
+      "hint": "2D6",
+      "rva": "00028F80",
+      "name": "obstacle_generate_polygon"
+    },
+    {
+      "ordinal": 728,
+      "hint": "2D7",
+      "rva": "000294B0",
+      "name": "obstacle_generate_polygon_outline"
+    },
+    {
+      "ordinal": 729,
+      "hint": "2D8",
+      "rva": "00029740",
+      "name": "obstacle_generate_random_rect"
+    },
+    {
+      "ordinal": 730,
+      "hint": "2D9",
+      "rva": "00029D30",
+      "name": "obstacle_generate_rect_outline"
+    },
+    {
+      "ordinal": 731,
+      "hint": "2DA",
+      "rva": "00029DB0",
+      "name": "obstacle_generate_spiral"
+    },
+    {
+      "ordinal": 732,
+      "hint": "2DB",
+      "rva": "0002A460",
+      "name": "obstacle_generate_triangle"
+    },
+    {
+      "ordinal": 733,
+      "hint": "2DC",
+      "rva": "0002A500",
+      "name": "obstacle_generate_triangle_outline"
+    },
+    {
+      "ordinal": 734,
+      "hint": "2DD",
+      "rva": "0002C1E0",
+      "name": "obstacle_get_abi_fingerprint"
+    },
+    {
+      "ordinal": 735,
+      "hint": "2DE",
+      "rva": "00025080",
+      "name": "obstacle_get_abi_version"
+    },
+    {
+      "ordinal": 736,
+      "hint": "2DF",
+      "rva": "0000D420",
+      "name": "obstacle_get_blocked_coords"
+    },
+    {
+      "ordinal": 737,
+      "hint": "2E0",
+      "rva": "0002C1F0",
+      "name": "obstacle_get_height"
+    },
+    {
+      "ordinal": 738,
+      "hint": "2E1",
+      "rva": "000250A0",
+      "name": "obstacle_get_width"
+    },
+    {
+      "ordinal": 739,
+      "hint": "2E2",
+      "rva": "0002C200",
+      "name": "obstacle_hash"
+    },
+    {
+      "ordinal": 740,
+      "hint": "2E3",
+      "rva": "0002C250",
+      "name": "obstacle_is_coord_blocked"
+    },
+    {
+      "ordinal": 741,
+      "hint": "2E4",
+      "rva": "0002C280",
+      "name": "obstacle_is_inside"
+    },
+    {
+      "ordinal": 742,
+      "hint": "2E5",
+      "rva": "0002A5A0",
+      "name": "obstacle_make_beam"
+    },
+    {
+      "ordinal": 743,
+      "hint": "2E6",
+      "rva": "0002A770",
+      "name": "obstacle_make_cross"
+    },
+    {
+      "ordinal": 744,
+      "hint": "2E7",
+      "rva": "0002A800",
+      "name": "obstacle_make_enclosure"
+    },
+    {
+      "ordinal": 745,
+      "hint": "2E8",
+      "rva": "0002A940",
+      "name": "obstacle_make_polygon"
+    },
+    {
+      "ordinal": 746,
+      "hint": "2E9",
+      "rva": "0002AB30",
+      "name": "obstacle_make_polygon_torus"
+    },
+    {
+      "ordinal": 747,
+      "hint": "2EA",
+      "rva": "0002AC90",
+      "name": "obstacle_make_rect_all_blocked"
+    },
+    {
+      "ordinal": 748,
+      "hint": "2EB",
+      "rva": "0002ACE0",
+      "name": "obstacle_make_rect_random_blocked"
+    },
+    {
+      "ordinal": 749,
+      "hint": "2EC",
+      "rva": "0002ADF0",
+      "name": "obstacle_make_spiral"
+    },
+    {
+      "ordinal": 750,
+      "hint": "2ED",
+      "rva": "0002B080",
+      "name": "obstacle_make_torus"
+    },
+    {
+      "ordinal": 751,
+      "hint": "2EE",
+      "rva": "0002B170",
+      "name": "obstacle_make_triangle"
+    },
+    {
+      "ordinal": 752,
+      "hint": "2EF",
+      "rva": "0002B3C0",
+      "name": "obstacle_make_triangle_torus"
+    },
+    {
+      "ordinal": 753,
+      "hint": "2F0",
+      "rva": "0002C300",
+      "name": "obstacle_remove_from_navgrid"
+    },
+    {
+      "ordinal": 754,
+      "hint": "2F1",
+      "rva": "0002C340",
+      "name": "obstacle_remove_from_navgrid_checked"
+    },
+    {
+      "ordinal": 755,
+      "hint": "2F2",
+      "rva": "0002C410",
+      "name": "obstacle_set_blocked"
+    },
+    {
+      "ordinal": 756,
+      "hint": "2F3",
+      "rva": "0002C500",
+      "name": "obstacle_set_height"
+    },
+    {
+      "ordinal": 757,
+      "hint": "2F4",
+      "rva": "0002C530",
+      "name": "obstacle_set_origin"
+    },
+    {
+      "ordinal": 758,
+      "hint": "2F5",
+      "rva": "0002C560",
+      "name": "obstacle_set_width"
+    },
+    {
+      "ordinal": 759,
+      "hint": "2F6",
+      "rva": "0002C590",
+      "name": "obstacle_sizeof"
+    },
+    {
+      "ordinal": 760,
+      "hint": "2F7",
+      "rva": "0002B560",
+      "name": "obstacle_spiral_desc_init"
+    },
+    {
+      "ordinal": 761,
+      "hint": "2F8",
+      "rva": "0002C5A0",
+      "name": "obstacle_unblock_coord"
+    },
+    {
+      "ordinal": 762,
+      "hint": "2F9",
+      "rva": "0003C650",
+      "name": "octile_heuristic"
+    },
+    {
+      "ordinal": 763,
+      "hint": "2FA",
+      "rva": "0005CF30",
+      "name": "patriot_assign"
+    },
+    {
+      "ordinal": 764,
+      "hint": "2FB",
+      "rva": "0005CFB0",
+      "name": "patriot_init"
+    },
+    {
+      "ordinal": 765,
+      "hint": "2FC",
+      "rva": "0005D000",
+      "name": "patriot_init_full"
+    },
+    {
+      "ordinal": 766,
+      "hint": "2FD",
+      "rva": "0005D070",
+      "name": "patriot_launch"
+    },
+    {
+      "ordinal": 767,
+      "hint": "2FE",
+      "rva": "00055200",
+      "name": "pid_assign"
+    },
+    {
+      "ordinal": 768,
+      "hint": "2FF",
+      "rva": "00059460",
+      "name": "pid_impl_assign"
+    },
+    {
+      "ordinal": 769,
+      "hint": "300",
+      "rva": "00059C20",
+      "name": "pid_impl_init"
+    },
+    {
+      "ordinal": 770,
+      "hint": "301",
+      "rva": "00059C40",
+      "name": "pid_impl_init_full"
+    },
+    {
+      "ordinal": 771,
+      "hint": "302",
+      "rva": "00055210",
+      "name": "pid_init"
+    },
+    {
+      "ordinal": 772,
+      "hint": "303",
+      "rva": "00055240",
+      "name": "pid_init_auto"
+    },
+    {
+      "ordinal": 773,
+      "hint": "304",
+      "rva": "000552A0",
+      "name": "pid_init_full"
+    },
+    {
+      "ordinal": 774,
+      "hint": "305",
+      "rva": "000552D0",
+      "name": "pid_preview"
+    },
+    {
+      "ordinal": 775,
+      "hint": "306",
+      "rva": "00055330",
+      "name": "pid_reset"
+    },
+    {
+      "ordinal": 776,
+      "hint": "307",
+      "rva": "00055340",
+      "name": "pid_set_state"
+    },
+    {
+      "ordinal": 777,
+      "hint": "308",
+      "rva": "00055350",
+      "name": "pid_update"
+    },
+    {
+      "ordinal": 778,
+      "hint": "309",
+      "rva": "00054F70",
+      "name": "pid_vec3_assign"
+    },
+    {
+      "ordinal": 779,
+      "hint": "30A",
+      "rva": "00054FB0",
+      "name": "pid_vec3_init"
+    },
+    {
+      "ordinal": 780,
+      "hint": "30B",
+      "rva": "00054FE0",
+      "name": "pid_vec3_init_full"
+    },
+    {
+      "ordinal": 781,
+      "hint": "30C",
+      "rva": "00055070",
+      "name": "pid_vec3_preview"
+    },
+    {
+      "ordinal": 782,
+      "hint": "30D",
+      "rva": "000550F0",
+      "name": "pid_vec3_reset"
+    },
+    {
+      "ordinal": 783,
+      "hint": "30E",
+      "rva": "00055120",
+      "name": "pid_vec3_set_state"
+    },
+    {
+      "ordinal": 784,
+      "hint": "30F",
+      "rva": "00055180",
+      "name": "pid_vec3_update"
+    },
+    {
+      "ordinal": 785,
+      "hint": "310",
+      "rva": "00004F50",
+      "name": "plane_anchor_point"
+    },
+    {
+      "ordinal": 786,
+      "hint": "311",
+      "rva": "00004FC0",
+      "name": "plane_assign"
+    },
+    {
+      "ordinal": 787,
+      "hint": "312",
+      "rva": "00004FE0",
+      "name": "plane_flip"
+    },
+    {
+      "ordinal": 788,
+      "hint": "313",
+      "rva": "00005020",
+      "name": "plane_init"
+    },
+    {
+      "ordinal": 789,
+      "hint": "314",
+      "rva": "00005040",
+      "name": "plane_init_full"
+    },
+    {
+      "ordinal": 790,
+      "hint": "315",
+      "rva": "000050C0",
+      "name": "plane_init_normal_height"
+    },
+    {
+      "ordinal": 791,
+      "hint": "316",
+      "rva": "00005150",
+      "name": "plane_init_point_normal"
+    },
+    {
+      "ordinal": 792,
+      "hint": "317",
+      "rva": "000051F0",
+      "name": "plane_init_points"
+    },
+    {
+      "ordinal": 793,
+      "hint": "318",
+      "rva": "00005300",
+      "name": "plane_project"
+    },
+    {
+      "ordinal": 794,
+      "hint": "319",
+      "rva": "000053A0",
+      "name": "plane_ray_intersect"
+    },
+    {
+      "ordinal": 795,
+      "hint": "31A",
+      "rva": "000054B0",
+      "name": "plane_rotate_axis_angle_origin"
+    },
+    {
+      "ordinal": 796,
+      "hint": "31B",
+      "rva": "00005580",
+      "name": "plane_rotate_axis_angle_pivot"
+    },
+    {
+      "ordinal": 797,
+      "hint": "31C",
+      "rva": "00005760",
+      "name": "plane_rotate_mat3_origin"
+    },
+    {
+      "ordinal": 798,
+      "hint": "31D",
+      "rva": "00005810",
+      "name": "plane_rotate_mat3_pivot"
+    },
+    {
+      "ordinal": 799,
+      "hint": "31E",
+      "rva": "00005A50",
+      "name": "plane_rotated_axis_angle_origin"
+    },
+    {
+      "ordinal": 800,
+      "hint": "31F",
+      "rva": "00005A70",
+      "name": "plane_rotated_axis_angle_pivot"
+    },
+    {
+      "ordinal": 801,
+      "hint": "320",
+      "rva": "00005AA0",
+      "name": "plane_segment_intersect"
+    },
+    {
+      "ordinal": 802,
+      "hint": "321",
+      "rva": "00005BF0",
+      "name": "plane_signed_distance"
+    },
+    {
+      "ordinal": 803,
+      "hint": "322",
+      "rva": "00005C30",
+      "name": "plane_translate_along_normal"
+    },
+    {
+      "ordinal": 804,
+      "hint": "323",
+      "rva": "0005D8D0",
+      "name": "projectile_assign"
+    },
+    {
+      "ordinal": 805,
+      "hint": "324",
+      "rva": "0005D950",
+      "name": "projectile_calc_launch_param"
+    },
+    {
+      "ordinal": 806,
+      "hint": "325",
+      "rva": "0005DBA0",
+      "name": "projectile_calc_launch_param_env"
+    },
+    {
+      "ordinal": 807,
+      "hint": "326",
+      "rva": "0005DE70",
+      "name": "projectile_calc_launch_param_inverse"
+    },
+    {
+      "ordinal": 808,
+      "hint": "327",
+      "rva": "0005DFB0",
+      "name": "projectile_calc_launch_param_inverse_env"
+    },
+    {
+      "ordinal": 809,
+      "hint": "328",
+      "rva": "0005E140",
+      "name": "projectile_default_expire_cb"
+    },
+    {
+      "ordinal": 810,
+      "hint": "329",
+      "rva": "0005E170",
+      "name": "projectile_default_hit_cb"
+    },
+    {
+      "ordinal": 811,
+      "hint": "32A",
+      "rva": "0005E1A0",
+      "name": "projectile_init"
+    },
+    {
+      "ordinal": 812,
+      "hint": "32B",
+      "rva": "0005E1F0",
+      "name": "projectile_init_full"
+    },
+    {
+      "ordinal": 813,
+      "hint": "32C",
+      "rva": "0005D1C0",
+      "name": "projectile_launch"
+    },
+    {
+      "ordinal": 814,
+      "hint": "32D",
+      "rva": "0005F5B0",
+      "name": "projectile_predict"
+    },
+    {
+      "ordinal": 815,
+      "hint": "32E",
+      "rva": "0005FBB0",
+      "name": "projectile_result_calc_initial_force_scalar"
+    },
+    {
+      "ordinal": 816,
+      "hint": "32F",
+      "rva": "0005FC60",
+      "name": "projectile_result_copy"
+    },
+    {
+      "ordinal": 817,
+      "hint": "330",
+      "rva": "0005FD10",
+      "name": "projectile_result_create"
+    },
+    {
+      "ordinal": 818,
+      "hint": "331",
+      "rva": "0005FD90",
+      "name": "projectile_result_create_full"
+    },
+    {
+      "ordinal": 819,
+      "hint": "332",
+      "rva": "0005FE20",
+      "name": "projectile_result_destroy"
+    },
+    {
+      "ordinal": 820,
+      "hint": "333",
+      "rva": "0005FE60",
+      "name": "projectile_result_free"
+    },
+    {
+      "ordinal": 821,
+      "hint": "334",
+      "rva": "0005FED0",
+      "name": "projectile_result_print"
+    },
+    {
+      "ordinal": 822,
+      "hint": "335",
+      "rva": "0005FF30",
+      "name": "projectile_result_print_detailed"
+    },
+    {
+      "ordinal": 823,
+      "hint": "336",
+      "rva": "0005FFC0",
+      "name": "projectile_result_reset"
+    },
+    {
+      "ordinal": 824,
+      "hint": "337",
+      "rva": "00060010",
+      "name": "projectile_result_resize"
+    },
+    {
+      "ordinal": 825,
+      "hint": "338",
+      "rva": "00060180",
+      "name": "projectile_tick"
+    },
+    {
+      "ordinal": 826,
+      "hint": "339",
+      "rva": "000606D0",
+      "name": "projectile_tick_assign"
+    },
+    {
+      "ordinal": 827,
+      "hint": "33A",
+      "rva": "000608F0",
+      "name": "projectile_tick_complete"
+    },
+    {
+      "ordinal": 828,
+      "hint": "33B",
+      "rva": "00060930",
+      "name": "projectile_tick_free"
+    },
+    {
+      "ordinal": 829,
+      "hint": "33C",
+      "rva": "000609F0",
+      "name": "projectile_tick_init"
+    },
+    {
+      "ordinal": 830,
+      "hint": "33D",
+      "rva": "00060A80",
+      "name": "projectile_tick_init_full"
+    },
+    {
+      "ordinal": 831,
+      "hint": "33E",
+      "rva": "00060C00",
+      "name": "projectile_tick_prepare"
+    },
+    {
+      "ordinal": 832,
+      "hint": "33F",
+      "rva": "00060CD0",
+      "name": "projectile_tick_prepare_full"
+    },
+    {
+      "ordinal": 833,
+      "hint": "340",
+      "rva": "0005E260",
+      "name": "projectile_update"
+    },
+    {
+      "ordinal": 834,
+      "hint": "341",
+      "rva": "0005E2C0",
+      "name": "propulsion_assign"
+    },
+    {
+      "ordinal": 835,
+      "hint": "342",
+      "rva": "0005E300",
+      "name": "propulsion_attach_controller"
+    },
+    {
+      "ordinal": 836,
+      "hint": "343",
+      "rva": "0005E310",
+      "name": "propulsion_consume"
+    },
+    {
+      "ordinal": 837,
+      "hint": "344",
+      "rva": "0005E340",
+      "name": "propulsion_detach_controller"
+    },
+    {
+      "ordinal": 838,
+      "hint": "345",
+      "rva": "0005E350",
+      "name": "propulsion_get_fuel_ratio"
+    },
+    {
+      "ordinal": 839,
+      "hint": "346",
+      "rva": "0005E370",
+      "name": "propulsion_get_max_runtime"
+    },
+    {
+      "ordinal": 840,
+      "hint": "347",
+      "rva": "0005E3A0",
+      "name": "propulsion_get_remaining_impulse"
+    },
+    {
+      "ordinal": 841,
+      "hint": "348",
+      "rva": "0005E3C0",
+      "name": "propulsion_get_target"
+    },
+    {
+      "ordinal": 842,
+      "hint": "349",
+      "rva": "0005E3D0",
+      "name": "propulsion_get_thrust"
+    },
+    {
+      "ordinal": 843,
+      "hint": "34A",
+      "rva": "0005E3F0",
+      "name": "propulsion_init"
+    },
+    {
+      "ordinal": 844,
+      "hint": "34B",
+      "rva": "0005E460",
+      "name": "propulsion_init_full"
+    },
+    {
+      "ordinal": 845,
+      "hint": "34C",
+      "rva": "0005E510",
+      "name": "propulsion_is_empty"
+    },
+    {
+      "ordinal": 846,
+      "hint": "34D",
+      "rva": "0005E530",
+      "name": "propulsion_predict_empty_time"
+    },
+    {
+      "ordinal": 847,
+      "hint": "34E",
+      "rva": "0005E570",
+      "name": "propulsion_predict_max_thrust"
+    },
+    {
+      "ordinal": 848,
+      "hint": "34F",
+      "rva": "0005E5B0",
+      "name": "propulsion_predict_runtime"
+    },
+    {
+      "ordinal": 849,
+      "hint": "350",
+      "rva": "0005E5E0",
+      "name": "propulsion_print"
+    },
+    {
+      "ordinal": 850,
+      "hint": "351",
+      "rva": "0005E640",
+      "name": "propulsion_refuel"
+    },
+    {
+      "ordinal": 851,
+      "hint": "352",
+      "rva": "0005E670",
+      "name": "propulsion_reset"
+    },
+    {
+      "ordinal": 852,
+      "hint": "353",
+      "rva": "0005E690",
+      "name": "propulsion_set_active"
+    },
+    {
+      "ordinal": 853,
+      "hint": "354",
+      "rva": "0005E6A0",
+      "name": "propulsion_set_target"
+    },
+    {
+      "ordinal": 854,
+      "hint": "355",
+      "rva": "0005E6B0",
+      "name": "propulsion_to_json"
+    },
+    {
+      "ordinal": 855,
+      "hint": "356",
+      "rva": "0005E720",
+      "name": "propulsion_to_string"
+    },
+    {
+      "ordinal": 856,
+      "hint": "357",
+      "rva": "0005E790",
+      "name": "propulsion_update"
+    },
+    {
+      "ordinal": 857,
+      "hint": "358",
+      "rva": "0005B0B0",
+      "name": "push_simulate_network"
+    },
+    {
+      "ordinal": 858,
+      "hint": "359",
+      "rva": "000068F0",
+      "name": "quat_add"
+    },
+    {
+      "ordinal": 859,
+      "hint": "35A",
+      "rva": "000069C0",
+      "name": "quat_apply_to_vec3"
+    },
+    {
+      "ordinal": 860,
+      "hint": "35B",
+      "rva": "000069D0",
+      "name": "quat_assign"
+    },
+    {
+      "ordinal": 861,
+      "hint": "35C",
+      "rva": "000069F0",
+      "name": "quat_conjugate"
+    },
+    {
+      "ordinal": 862,
+      "hint": "35D",
+      "rva": "00006A90",
+      "name": "quat_dot"
+    },
+    {
+      "ordinal": 863,
+      "hint": "35E",
+      "rva": "00006B40",
+      "name": "quat_equal"
+    },
+    {
+      "ordinal": 864,
+      "hint": "35F",
+      "rva": "00006BD0",
+      "name": "quat_get"
+    },
+    {
+      "ordinal": 865,
+      "hint": "360",
+      "rva": "00006C10",
+      "name": "quat_get_forward"
+    },
+    {
+      "ordinal": 866,
+      "hint": "361",
+      "rva": "00006D70",
+      "name": "quat_get_right"
+    },
+    {
+      "ordinal": 867,
+      "hint": "362",
+      "rva": "00006EC0",
+      "name": "quat_get_up"
+    },
+    {
+      "ordinal": 868,
+      "hint": "363",
+      "rva": "00007010",
+      "name": "quat_hash"
+    },
+    {
+      "ordinal": 869,
+      "hint": "364",
+      "rva": "00007080",
+      "name": "quat_identity"
+    },
+    {
+      "ordinal": 870,
+      "hint": "365",
+      "rva": "00007080",
+      "name": "quat_init"
+    },
+    {
+      "ordinal": 871,
+      "hint": "366",
+      "rva": "000070A0",
+      "name": "quat_init_angular_velocity"
+    },
+    {
+      "ordinal": 872,
+      "hint": "367",
+      "rva": "000071C0",
+      "name": "quat_init_axes"
+    },
+    {
+      "ordinal": 873,
+      "hint": "368",
+      "rva": "00007510",
+      "name": "quat_init_axis_angle"
+    },
+    {
+      "ordinal": 874,
+      "hint": "369",
+      "rva": "00007600",
+      "name": "quat_init_axis_deg"
+    },
+    {
+      "ordinal": 875,
+      "hint": "36A",
+      "rva": "00007620",
+      "name": "quat_init_euler"
+    },
+    {
+      "ordinal": 876,
+      "hint": "36B",
+      "rva": "00007A60",
+      "name": "quat_init_euler_deg"
+    },
+    {
+      "ordinal": 877,
+      "hint": "36C",
+      "rva": "00007A90",
+      "name": "quat_init_from_mat3"
+    },
+    {
+      "ordinal": 878,
+      "hint": "36D",
+      "rva": "00007CB0",
+      "name": "quat_init_from_mat4"
+    },
+    {
+      "ordinal": 879,
+      "hint": "36E",
+      "rva": "00007EC0",
+      "name": "quat_init_full"
+    },
+    {
+      "ordinal": 880,
+      "hint": "36F",
+      "rva": "00007EE0",
+      "name": "quat_init_two_vector"
+    },
+    {
+      "ordinal": 881,
+      "hint": "370",
+      "rva": "00008700",
+      "name": "quat_inverse"
+    },
+    {
+      "ordinal": 882,
+      "hint": "371",
+      "rva": "00008820",
+      "name": "quat_is_valid"
+    },
+    {
+      "ordinal": 883,
+      "hint": "372",
+      "rva": "000088A0",
+      "name": "quat_length"
+    },
+    {
+      "ordinal": 884,
+      "hint": "373",
+      "rva": "00008910",
+      "name": "quat_lerp"
+    },
+    {
+      "ordinal": 885,
+      "hint": "374",
+      "rva": "00008A40",
+      "name": "quat_mul"
+    },
+    {
+      "ordinal": 886,
+      "hint": "375",
+      "rva": "00008BA0",
+      "name": "quat_normalize"
+    },
+    {
+      "ordinal": 887,
+      "hint": "376",
+      "rva": "00007080",
+      "name": "quat_reset"
+    },
+    {
+      "ordinal": 888,
+      "hint": "377",
+      "rva": "00008C40",
+      "name": "quat_rotate_around_pivot"
+    },
+    {
+      "ordinal": 889,
+      "hint": "378",
+      "rva": "00008CB0",
+      "name": "quat_rotate_vector"
+    },
+    {
+      "ordinal": 890,
+      "hint": "379",
+      "rva": "00008E30",
+      "name": "quat_scale"
+    },
+    {
+      "ordinal": 891,
+      "hint": "37A",
+      "rva": "00007EC0",
+      "name": "quat_set"
+    },
+    {
+      "ordinal": 892,
+      "hint": "37B",
+      "rva": "00008EB0",
+      "name": "quat_slerp"
+    },
+    {
+      "ordinal": 893,
+      "hint": "37C",
+      "rva": "00009080",
+      "name": "quat_sub"
+    },
+    {
+      "ordinal": 894,
+      "hint": "37D",
+      "rva": "00009150",
+      "name": "quat_to_axis_angle"
+    },
+    {
+      "ordinal": 895,
+      "hint": "37E",
+      "rva": "00009330",
+      "name": "quat_to_euler"
+    },
+    {
+      "ordinal": 896,
+      "hint": "37F",
+      "rva": "000031C0",
+      "name": "quat_to_mat3"
+    },
+    {
+      "ordinal": 897,
+      "hint": "380",
+      "rva": "000095C0",
+      "name": "quat_to_mat4"
+    },
+    {
+      "ordinal": 898,
+      "hint": "381",
+      "rva": "00009750",
+      "name": "quat_unit"
+    },
+    {
+      "ordinal": 899,
+      "hint": "382",
+      "rva": "0005B320",
+      "name": "repulsion_simulate_network"
+    },
+    {
+      "ordinal": 900,
+      "hint": "383",
+      "rva": "0005D2D0",
+      "name": "rocket_assign"
+    },
+    {
+      "ordinal": 901,
+      "hint": "384",
+      "rva": "0005D340",
+      "name": "rocket_init"
+    },
+    {
+      "ordinal": 902,
+      "hint": "385",
+      "rva": "0005D3C0",
+      "name": "rocket_init_full"
+    },
+    {
+      "ordinal": 903,
+      "hint": "386",
+      "rva": "0005D470",
+      "name": "rocket_launch"
+    },
+    {
+      "ordinal": 904,
+      "hint": "387",
+      "rva": "00018000",
+      "name": "route_add_coord"
+    },
+    {
+      "ordinal": 905,
+      "hint": "388",
+      "rva": "00018030",
+      "name": "route_add_visited"
+    },
+    {
+      "ordinal": 906,
+      "hint": "389",
+      "rva": "000180F0",
+      "name": "route_append"
+    },
+    {
+      "ordinal": 907,
+      "hint": "38A",
+      "rva": "000181B0",
+      "name": "route_append_nodup"
+    },
+    {
+      "ordinal": 908,
+      "hint": "38B",
+      "rva": "00019ED0",
+      "name": "route_builder_append"
+    },
+    {
+      "ordinal": 909,
+      "hint": "38C",
+      "rva": "0001A0F0",
+      "name": "route_builder_assign_slice"
+    },
+    {
+      "ordinal": 910,
+      "hint": "38D",
+      "rva": "0001A170",
+      "name": "route_builder_create"
+    },
+    {
+      "ordinal": 911,
+      "hint": "38E",
+      "rva": "0001A1B0",
+      "name": "route_builder_create_from_route"
+    },
+    {
+      "ordinal": 912,
+      "hint": "38F",
+      "rva": "0001A240",
+      "name": "route_builder_destroy"
+    },
+    {
+      "ordinal": 913,
+      "hint": "390",
+      "rva": "0001A270",
+      "name": "route_builder_finish"
+    },
+    {
+      "ordinal": 914,
+      "hint": "391",
+      "rva": "0001A2A0",
+      "name": "route_builder_insert_coord"
+    },
+    {
+      "ordinal": 915,
+      "hint": "392",
+      "rva": "0001A3C0",
+      "name": "route_builder_push_coord"
+    },
+    {
+      "ordinal": 916,
+      "hint": "393",
+      "rva": "0001A4C0",
+      "name": "route_builder_remove_coord"
+    },
+    {
+      "ordinal": 917,
+      "hint": "394",
+      "rva": "0001A5F0",
+      "name": "route_builder_set_completion"
+    },
+    {
+      "ordinal": 918,
+      "hint": "395",
+      "rva": "0001A660",
+      "name": "route_builder_set_total_cost"
+    },
+    {
+      "ordinal": 919,
+      "hint": "396",
+      "rva": "00018310",
+      "name": "route_calc_average_dir"
+    },
+    {
+      "ordinal": 920,
+      "hint": "397",
+      "rva": "00018350",
+      "name": "route_calc_average_facing"
+    },
+    {
+      "ordinal": 921,
+      "hint": "398",
+      "rva": "00044C80",
+      "name": "route_carve_beam"
+    },
+    {
+      "ordinal": 922,
+      "hint": "399",
+      "rva": "00044C90",
+      "name": "route_carve_bomb"
+    },
+    {
+      "ordinal": 923,
+      "hint": "39A",
+      "rva": "00018390",
+      "name": "route_clear_coords"
+    },
+    {
+      "ordinal": 924,
+      "hint": "39B",
+      "rva": "000183A0",
+      "name": "route_clear_visited"
+    },
+    {
+      "ordinal": 925,
+      "hint": "39C",
+      "rva": "000183D0",
+      "name": "route_clone_ex"
+    },
+    {
+      "ordinal": 926,
+      "hint": "39D",
+      "rva": "0001A740",
+      "name": "route_compute_recent_facing"
+    },
+    {
+      "ordinal": 927,
+      "hint": "39E",
+      "rva": "0001A890",
+      "name": "route_compute_recent_heading_degrees"
+    },
+    {
+      "ordinal": 928,
+      "hint": "39F",
+      "rva": "00018500",
+      "name": "route_contains"
+    },
+    {
+      "ordinal": 929,
+      "hint": "3A0",
+      "rva": "00018560",
+      "name": "route_content_equal"
+    },
+    {
+      "ordinal": 930,
+      "hint": "3A1",
+      "rva": "00018690",
+      "name": "route_copy"
+    },
+    {
+      "ordinal": 931,
+      "hint": "3A2",
+      "rva": "000186C0",
+      "name": "route_create"
+    },
+    {
+      "ordinal": 932,
+      "hint": "3A3",
+      "rva": "00018760",
+      "name": "route_destroy"
+    },
+    {
+      "ordinal": 933,
+      "hint": "3A4",
+      "rva": "0001A9D0",
+      "name": "route_direction_between"
+    },
+    {
+      "ordinal": 934,
+      "hint": "3A5",
+      "rva": "0001AAE0",
+      "name": "route_direction_fetch_vector"
+    },
+    {
+      "ordinal": 935,
+      "hint": "3A6",
+      "rva": "0001AB30",
+      "name": "route_direction_from_vector"
+    },
+    {
+      "ordinal": 936,
+      "hint": "3A7",
+      "rva": "000187A0",
+      "name": "route_equal"
+    },
+    {
+      "ordinal": 937,
+      "hint": "3A8",
+      "rva": "000187B0",
+      "name": "route_export_coords"
+    },
+    {
+      "ordinal": 938,
+      "hint": "3A9",
+      "rva": "00018870",
+      "name": "route_fetch_completion"
+    },
+    {
+      "ordinal": 939,
+      "hint": "3AA",
+      "rva": "000188E0",
+      "name": "route_fetch_content_hash"
+    },
+    {
+      "ordinal": 940,
+      "hint": "3AB",
+      "rva": "00018A90",
+      "name": "route_fetch_coord"
+    },
+    {
+      "ordinal": 941,
+      "hint": "3AC",
+      "rva": "0001ABF0",
+      "name": "route_fetch_direction_at"
+    },
+    {
+      "ordinal": 942,
+      "hint": "3AD",
+      "rva": "00018B30",
+      "name": "route_fetch_total_cost"
+    },
+    {
+      "ordinal": 943,
+      "hint": "3AE",
+      "rva": "00018B50",
+      "name": "route_find"
+    },
+    {
+      "ordinal": 944,
+      "hint": "3AF",
+      "rva": "00018BB0",
+      "name": "route_find_coord"
+    },
+    {
+      "ordinal": 945,
+      "hint": "3B0",
+      "rva": "0003D990",
+      "name": "route_finder_bind_cost_func"
+    },
+    {
+      "ordinal": 946,
+      "hint": "3B1",
+      "rva": "0003DB30",
+      "name": "route_finder_bind_cost_func_ex"
+    },
+    {
+      "ordinal": 947,
+      "hint": "3B2",
+      "rva": "0003DC40",
+      "name": "route_finder_bind_fringe_search_config"
+    },
+    {
+      "ordinal": 948,
+      "hint": "3B3",
+      "rva": "0003DCF0",
+      "name": "route_finder_bind_heuristic_func"
+    },
+    {
+      "ordinal": 949,
+      "hint": "3B4",
+      "rva": "0003DE90",
+      "name": "route_finder_bind_heuristic_func_ex"
+    },
+    {
+      "ordinal": 950,
+      "hint": "3B5",
+      "rva": "0003DFA0",
+      "name": "route_finder_bind_rta_star_config"
+    },
+    {
+      "ordinal": 951,
+      "hint": "3B6",
+      "rva": "0003DFF0",
+      "name": "route_finder_bind_sma_star_config"
+    },
+    {
+      "ordinal": 952,
+      "hint": "3B7",
+      "rva": "0003E040",
+      "name": "route_finder_bind_weighted_astar_config"
+    },
+    {
+      "ordinal": 953,
+      "hint": "3B8",
+      "rva": "0003E0F0",
+      "name": "route_finder_clear"
+    },
+    {
+      "ordinal": 954,
+      "hint": "3B9",
+      "rva": "0003E140",
+      "name": "route_finder_copy"
+    },
+    {
+      "ordinal": 955,
+      "hint": "3BA",
+      "rva": "0003C6F0",
+      "name": "route_finder_cost_diagonal"
+    },
+    {
+      "ordinal": 956,
+      "hint": "3BB",
+      "rva": "0003C790",
+      "name": "route_finder_cost_unit"
+    },
+    {
+      "ordinal": 957,
+      "hint": "3BC",
+      "rva": "0003C7C0",
+      "name": "route_finder_cost_zero"
+    },
+    {
+      "ordinal": 958,
+      "hint": "3BD",
+      "rva": "0003E290",
+      "name": "route_finder_create"
+    },
+    {
+      "ordinal": 959,
+      "hint": "3BE",
+      "rva": "0003E2F0",
+      "name": "route_finder_create_full"
+    },
+    {
+      "ordinal": 960,
+      "hint": "3BF",
+      "rva": "0003E400",
+      "name": "route_finder_destroy"
+    },
+    {
+      "ordinal": 961,
+      "hint": "3C0",
+      "rva": "0003E460",
+      "name": "route_finder_enable_debug_mode"
+    },
+    {
+      "ordinal": 962,
+      "hint": "3C1",
+      "rva": "0003E470",
+      "name": "route_finder_fetch_goal"
+    },
+    {
+      "ordinal": 963,
+      "hint": "3C2",
+      "rva": "0003E480",
+      "name": "route_finder_fetch_start"
+    },
+    {
+      "ordinal": 964,
+      "hint": "3C3",
+      "rva": "0003E490",
+      "name": "route_finder_free"
+    },
+    {
+      "ordinal": 965,
+      "hint": "3C4",
+      "rva": "0003E4F0",
+      "name": "route_finder_get_cost_fn_userdata"
+    },
+    {
+      "ordinal": 966,
+      "hint": "3C5",
+      "rva": "0003E500",
+      "name": "route_finder_get_cost_func"
+    },
+    {
+      "ordinal": 967,
+      "hint": "3C6",
+      "rva": "0003E510",
+      "name": "route_finder_get_heuristic_fn_userdata"
+    },
+    {
+      "ordinal": 968,
+      "hint": "3C7",
+      "rva": "0003E520",
+      "name": "route_finder_get_heuristic_func"
+    },
+    {
+      "ordinal": 969,
+      "hint": "3C8",
+      "rva": "0003E530",
+      "name": "route_finder_get_max_retry"
+    },
+    {
+      "ordinal": 970,
+      "hint": "3C9",
+      "rva": "0003E540",
+      "name": "route_finder_get_navgrid"
+    },
+    {
+      "ordinal": 971,
+      "hint": "3CA",
+      "rva": "0003E550",
+      "name": "route_finder_get_type"
+    },
+    {
+      "ordinal": 972,
+      "hint": "3CB",
+      "rva": "0003E560",
+      "name": "route_finder_get_typedata"
+    },
+    {
+      "ordinal": 973,
+      "hint": "3CC",
+      "rva": "0003C7F0",
+      "name": "route_finder_heuristic_chebyshev"
+    },
+    {
+      "ordinal": 974,
+      "hint": "3CD",
+      "rva": "0003C850",
+      "name": "route_finder_heuristic_default"
+    },
+    {
+      "ordinal": 975,
+      "hint": "3CE",
+      "rva": "0003C870",
+      "name": "route_finder_heuristic_euclidean"
+    },
+    {
+      "ordinal": 976,
+      "hint": "3CF",
+      "rva": "0003C8F0",
+      "name": "route_finder_heuristic_manhattan"
+    },
+    {
+      "ordinal": 977,
+      "hint": "3D0",
+      "rva": "0003C970",
+      "name": "route_finder_heuristic_octile"
+    },
+    {
+      "ordinal": 978,
+      "hint": "3D1",
+      "rva": "0003C850",
+      "name": "route_finder_heuristic_zero"
+    },
+    {
+      "ordinal": 979,
+      "hint": "3D2",
+      "rva": "0003E570",
+      "name": "route_finder_init"
+    },
+    {
+      "ordinal": 980,
+      "hint": "3D3",
+      "rva": "0003E5E0",
+      "name": "route_finder_init_full"
+    },
+    {
+      "ordinal": 981,
+      "hint": "3D4",
+      "rva": "0003E6D0",
+      "name": "route_finder_is_debug_mode_enabled"
+    },
+    {
+      "ordinal": 982,
+      "hint": "3D5",
+      "rva": "0003E6E0",
+      "name": "route_finder_is_supported"
+    },
+    {
+      "ordinal": 983,
+      "hint": "3D6",
+      "rva": "0003E700",
+      "name": "route_finder_is_type_supported"
+    },
+    {
+      "ordinal": 984,
+      "hint": "3D7",
+      "rva": "0003E720",
+      "name": "route_finder_is_valid"
+    },
+    {
+      "ordinal": 985,
+      "hint": "3D8",
+      "rva": "0003E740",
+      "name": "route_finder_print"
+    },
+    {
+      "ordinal": 986,
+      "hint": "3D9",
+      "rva": "0003E830",
+      "name": "route_finder_run"
+    },
+    {
+      "ordinal": 987,
+      "hint": "3DA",
+      "rva": "0003EA30",
+      "name": "route_finder_run_ex"
+    },
+    {
+      "ordinal": 988,
+      "hint": "3DB",
+      "rva": "0003EA40",
+      "name": "route_finder_run_with_options"
+    },
+    {
+      "ordinal": 989,
+      "hint": "3DC",
+      "rva": "0003ECD0",
+      "name": "route_finder_set_cost_fn_userdata"
+    },
+    {
+      "ordinal": 990,
+      "hint": "3DD",
+      "rva": "0003ECE0",
+      "name": "route_finder_set_cost_func"
+    },
+    {
+      "ordinal": 991,
+      "hint": "3DE",
+      "rva": "0003ECF0",
+      "name": "route_finder_set_defaults"
+    },
+    {
+      "ordinal": 992,
+      "hint": "3DF",
+      "rva": "0003ED20",
+      "name": "route_finder_set_goal"
+    },
+    {
+      "ordinal": 993,
+      "hint": "3E0",
+      "rva": "0003ED30",
+      "name": "route_finder_set_heuristic_fn_userdata"
+    },
+    {
+      "ordinal": 994,
+      "hint": "3E1",
+      "rva": "0003ED40",
+      "name": "route_finder_set_heuristic_func"
+    },
+    {
+      "ordinal": 995,
+      "hint": "3E2",
+      "rva": "0003ED50",
+      "name": "route_finder_set_max_retry"
+    },
+    {
+      "ordinal": 996,
+      "hint": "3E3",
+      "rva": "0003ED80",
+      "name": "route_finder_set_max_retry_checked"
+    },
+    {
+      "ordinal": 997,
+      "hint": "3E4",
+      "rva": "0003EDC0",
+      "name": "route_finder_set_navgrid"
+    },
+    {
+      "ordinal": 998,
+      "hint": "3E5",
+      "rva": "0003EDD0",
+      "name": "route_finder_set_start"
+    },
+    {
+      "ordinal": 999,
+      "hint": "3E6",
+      "rva": "0003EDE0",
+      "name": "route_finder_set_type"
+    },
+    {
+      "ordinal": 1000,
+      "hint": "3E7",
+      "rva": "0003EDF0",
+      "name": "route_finder_set_type_checked"
+    },
+    {
+      "ordinal": 1001,
+      "hint": "3E8",
+      "rva": "0003EE60",
+      "name": "route_finder_set_typedata"
+    },
+    {
+      "ordinal": 1002,
+      "hint": "3E9",
+      "rva": "0003EE70",
+      "name": "route_finder_type_get_name"
+    },
+    {
+      "ordinal": 1003,
+      "hint": "3EA",
+      "rva": "0003F090",
+      "name": "route_finder_unbind_algorithm_config"
+    },
+    {
+      "ordinal": 1004,
+      "hint": "3EB",
+      "rva": "0003F0D0",
+      "name": "route_finder_unbind_cost_func"
+    },
+    {
+      "ordinal": 1005,
+      "hint": "3EC",
+      "rva": "0003F270",
+      "name": "route_finder_unbind_heuristic_func"
+    },
+    {
+      "ordinal": 1006,
+      "hint": "3ED",
+      "rva": "00018C30",
+      "name": "route_format"
+    },
+    {
+      "ordinal": 1007,
+      "hint": "3EE",
+      "rva": "00018E50",
+      "name": "route_get_coord_at"
+    },
+    {
+      "ordinal": 1008,
+      "hint": "3EF",
+      "rva": "00018EA0",
+      "name": "route_get_coord_count"
+    },
+    {
+      "ordinal": 1009,
+      "hint": "3F0",
+      "rva": "00018EC0",
+      "name": "route_get_coords"
+    },
+    {
+      "ordinal": 1010,
+      "hint": "3F1",
+      "rva": "00018ED0",
+      "name": "route_get_cost"
+    },
+    {
+      "ordinal": 1011,
+      "hint": "3F2",
+      "rva": "00018EE0",
+      "name": "route_get_direction_by_dir_coord"
+    },
+    {
+      "ordinal": 1012,
+      "hint": "3F3",
+      "rva": "00018F10",
+      "name": "route_get_direction_by_index"
+    },
+    {
+      "ordinal": 1013,
+      "hint": "3F4",
+      "rva": "00018F50",
+      "name": "route_get_last"
+    },
+    {
+      "ordinal": 1014,
+      "hint": "3F5",
+      "rva": "00018F80",
+      "name": "route_get_success"
+    },
+    {
+      "ordinal": 1015,
+      "hint": "3F6",
+      "rva": "00018F90",
+      "name": "route_get_total_retry_count"
+    },
+    {
+      "ordinal": 1016,
+      "hint": "3F7",
+      "rva": "0000D420",
+      "name": "route_get_visited_count"
+    },
+    {
+      "ordinal": 1017,
+      "hint": "3F8",
+      "rva": "00018FA0",
+      "name": "route_get_visited_order"
+    },
+    {
+      "ordinal": 1018,
+      "hint": "3F9",
+      "rva": "00018FB0",
+      "name": "route_has_changed"
+    },
+    {
+      "ordinal": 1019,
+      "hint": "3FA",
+      "rva": "000190F0",
+      "name": "route_has_changed_by_index"
+    },
+    {
+      "ordinal": 1020,
+      "hint": "3FB",
+      "rva": "00019190",
+      "name": "route_has_changed_with_angle"
+    },
+    {
+      "ordinal": 1021,
+      "hint": "3FC",
+      "rva": "000193A0",
+      "name": "route_has_changed_with_angle_by_index"
+    },
+    {
+      "ordinal": 1022,
+      "hint": "3FD",
+      "rva": "00019440",
+      "name": "route_hash"
+    },
+    {
+      "ordinal": 1023,
+      "hint": "3FE",
+      "rva": "0001AD50",
+      "name": "route_heading_tracker_create"
+    },
+    {
+      "ordinal": 1024,
+      "hint": "3FF",
+      "rva": "0001ADA0",
+      "name": "route_heading_tracker_destroy"
+    },
+    {
+      "ordinal": 1025,
+      "hint": "400",
+      "rva": "0001ADB0",
+      "name": "route_heading_tracker_fetch_heading_degrees"
+    },
+    {
+      "ordinal": 1026,
+      "hint": "401",
+      "rva": "0000D420",
+      "name": "route_heading_tracker_get_sample_count"
+    },
+    {
+      "ordinal": 1027,
+      "hint": "402",
+      "rva": "0001AE50",
+      "name": "route_heading_tracker_observe"
+    },
+    {
+      "ordinal": 1028,
+      "hint": "403",
+      "rva": "0001B010",
+      "name": "route_heading_tracker_observe_vector"
+    },
+    {
+      "ordinal": 1029,
+      "hint": "404",
+      "rva": "0001B290",
+      "name": "route_heading_tracker_reset"
+    },
+    {
+      "ordinal": 1030,
+      "hint": "405",
+      "rva": "00019440",
+      "name": "route_identity_hash"
+    },
+    {
+      "ordinal": 1031,
+      "hint": "406",
+      "rva": "00019450",
+      "name": "route_insert"
+    },
+    {
+      "ordinal": 1032,
+      "hint": "407",
+      "rva": "000187A0",
+      "name": "route_is_same"
+    },
+    {
+      "ordinal": 1033,
+      "hint": "408",
+      "rva": "000194E0",
+      "name": "route_length"
+    },
+    {
+      "ordinal": 1034,
+      "hint": "409",
+      "rva": "00019510",
+      "name": "route_make_direction"
+    },
+    {
+      "ordinal": 1035,
+      "hint": "40A",
+      "rva": "00019640",
+      "name": "route_print"
+    },
+    {
+      "ordinal": 1036,
+      "hint": "40B",
+      "rva": "00019840",
+      "name": "route_reconstruct"
+    },
+    {
+      "ordinal": 1037,
+      "hint": "40C",
+      "rva": "00019860",
+      "name": "route_reconstruct_ex"
+    },
+    {
+      "ordinal": 1038,
+      "hint": "40D",
+      "rva": "00019A70",
+      "name": "route_remove_at"
+    },
+    {
+      "ordinal": 1039,
+      "hint": "40E",
+      "rva": "00019AD0",
+      "name": "route_remove_value"
+    },
+    {
+      "ordinal": 1040,
+      "hint": "40F",
+      "rva": "00019B00",
+      "name": "route_set_cost"
+    },
+    {
+      "ordinal": 1041,
+      "hint": "410",
+      "rva": "00019B10",
+      "name": "route_set_success"
+    },
+    {
+      "ordinal": 1042,
+      "hint": "411",
+      "rva": "00019B20",
+      "name": "route_set_total_retry_count"
+    },
+    {
+      "ordinal": 1043,
+      "hint": "412",
+      "rva": "00019B30",
+      "name": "route_slice"
+    },
+    {
+      "ordinal": 1044,
+      "hint": "413",
+      "rva": "00019C10",
+      "name": "route_slice_ex"
+    },
+    {
+      "ordinal": 1045,
+      "hint": "414",
+      "rva": "00019CD0",
+      "name": "route_update_average_vector"
+    },
+    {
+      "ordinal": 1046,
+      "hint": "415",
+      "rva": "00019DC0",
+      "name": "route_update_average_vector_by_index"
+    },
+    {
+      "ordinal": 1047,
+      "hint": "416",
+      "rva": "0003F910",
+      "name": "rta_star_config_create"
+    },
+    {
+      "ordinal": 1048,
+      "hint": "417",
+      "rva": "0003F940",
+      "name": "rta_star_config_create_full"
+    },
+    {
+      "ordinal": 1049,
+      "hint": "418",
+      "rva": "000129F0",
+      "name": "rta_star_config_destroy"
+    },
+    {
+      "ordinal": 1050,
+      "hint": "419",
+      "rva": "000012B0",
+      "name": "scalar_clamp"
+    },
+    {
+      "ordinal": 1051,
+      "hint": "41A",
+      "rva": "000012D0",
+      "name": "scalar_clamp01"
+    },
+    {
+      "ordinal": 1052,
+      "hint": "41B",
+      "rva": "000012F0",
+      "name": "scalar_compare"
+    },
+    {
+      "ordinal": 1053,
+      "hint": "41C",
+      "rva": "00013F60",
+      "name": "scalar_copy"
+    },
+    {
+      "ordinal": 1054,
+      "hint": "41D",
+      "rva": "00001380",
+      "name": "scalar_deg2rad"
+    },
+    {
+      "ordinal": 1055,
+      "hint": "41E",
+      "rva": "000129F0",
+      "name": "scalar_destroy"
+    },
+    {
+      "ordinal": 1056,
+      "hint": "41F",
+      "rva": "000013A0",
+      "name": "scalar_equal"
+    },
+    {
+      "ordinal": 1057,
+      "hint": "420",
+      "rva": "000013F0",
+      "name": "scalar_equal_tol"
+    },
+    {
+      "ordinal": 1058,
+      "hint": "421",
+      "rva": "00001420",
+      "name": "scalar_equal_tol_all"
+    },
+    {
+      "ordinal": 1059,
+      "hint": "422",
+      "rva": "00001460",
+      "name": "scalar_inv_lerp"
+    },
+    {
+      "ordinal": 1060,
+      "hint": "423",
+      "rva": "00001490",
+      "name": "scalar_lerp"
+    },
+    {
+      "ordinal": 1061,
+      "hint": "424",
+      "rva": "000014A0",
+      "name": "scalar_rad2deg"
+    },
+    {
+      "ordinal": 1062,
+      "hint": "425",
+      "rva": "000014C0",
+      "name": "scalar_remap"
+    },
+    {
+      "ordinal": 1063,
+      "hint": "426",
+      "rva": "00001520",
+      "name": "scalar_safe_div"
+    },
+    {
+      "ordinal": 1064,
+      "hint": "427",
+      "rva": "00001540",
+      "name": "scalar_sign"
+    },
+    {
+      "ordinal": 1065,
+      "hint": "428",
+      "rva": "00001570",
+      "name": "scalar_smoothstep"
+    },
+    {
+      "ordinal": 1066,
+      "hint": "429",
+      "rva": "000015D0",
+      "name": "scalar_square"
+    },
+    {
+      "ordinal": 1067,
+      "hint": "42A",
+      "rva": "000015E0",
+      "name": "scalar_zero"
+    },
+    {
+      "ordinal": 1068,
+      "hint": "42B",
+      "rva": "0005D5D0",
+      "name": "shell_projectile_assign"
+    },
+    {
+      "ordinal": 1069,
+      "hint": "42C",
+      "rva": "0005D650",
+      "name": "shell_projectile_hit_cb"
+    },
+    {
+      "ordinal": 1070,
+      "hint": "42D",
+      "rva": "0005D690",
+      "name": "shell_projectile_init"
+    },
+    {
+      "ordinal": 1071,
+      "hint": "42E",
+      "rva": "0005D6E0",
+      "name": "shell_projectile_init_full"
+    },
+    {
+      "ordinal": 1072,
+      "hint": "42F",
+      "rva": "0005D750",
+      "name": "shell_projectile_launch"
+    },
+    {
+      "ordinal": 1073,
+      "hint": "430",
+      "rva": "0005B7F0",
+      "name": "spring_force"
+    },
+    {
+      "ordinal": 1074,
+      "hint": "431",
+      "rva": "0005B910",
+      "name": "spring_force_total"
+    },
+    {
+      "ordinal": 1075,
+      "hint": "432",
+      "rva": "0005BA00",
+      "name": "spring_simulate"
+    },
+    {
+      "ordinal": 1076,
+      "hint": "433",
+      "rva": "0005BCF0",
+      "name": "spring_simulate_network"
+    },
+    {
+      "ordinal": 1077,
+      "hint": "434",
+      "rva": "0005BFE0",
+      "name": "spring_simulate_pairwise"
+    },
+    {
+      "ordinal": 1078,
+      "hint": "435",
+      "rva": "0000C930",
+      "name": "strset_add"
+    },
+    {
+      "ordinal": 1079,
+      "hint": "436",
+      "rva": "0000CA30",
+      "name": "strset_clear"
+    },
+    {
+      "ordinal": 1080,
+      "hint": "437",
+      "rva": "0000CA40",
+      "name": "strset_contains"
+    },
+    {
+      "ordinal": 1081,
+      "hint": "438",
+      "rva": "0000CBF0",
+      "name": "strset_copy"
+    },
+    {
+      "ordinal": 1082,
+      "hint": "439",
+      "rva": "0000CC80",
+      "name": "strset_create"
+    },
+    {
+      "ordinal": 1083,
+      "hint": "43A",
+      "rva": "0000CCC0",
+      "name": "strset_destroy"
+    },
+    {
+      "ordinal": 1084,
+      "hint": "43B",
+      "rva": "0000CD00",
+      "name": "strset_difference"
+    },
+    {
+      "ordinal": 1085,
+      "hint": "43C",
+      "rva": "0000CE30",
+      "name": "strset_equal"
+    },
+    {
+      "ordinal": 1086,
+      "hint": "43D",
+      "rva": "0000CE60",
+      "name": "strset_foreach"
+    },
+    {
+      "ordinal": 1087,
+      "hint": "43E",
+      "rva": "0000CEC0",
+      "name": "strset_intersect"
+    },
+    {
+      "ordinal": 1088,
+      "hint": "43F",
+      "rva": "0000CFF0",
+      "name": "strset_peek"
+    },
+    {
+      "ordinal": 1089,
+      "hint": "440",
+      "rva": "0000D020",
+      "name": "strset_pop"
+    },
+    {
+      "ordinal": 1090,
+      "hint": "441",
+      "rva": "0000D1E0",
+      "name": "strset_remove"
+    },
+    {
+      "ordinal": 1091,
+      "hint": "442",
+      "rva": "0000D420",
+      "name": "strset_size"
+    },
+    {
+      "ordinal": 1092,
+      "hint": "443",
+      "rva": "0000D430",
+      "name": "strset_union"
+    },
+    {
+      "ordinal": 1093,
+      "hint": "444",
+      "rva": "0000A7C0",
+      "name": "tick_attach"
+    },
+    {
+      "ordinal": 1094,
+      "hint": "445",
+      "rva": "0000A990",
+      "name": "tick_create"
+    },
+    {
+      "ordinal": 1095,
+      "hint": "446",
+      "rva": "0000AA00",
+      "name": "tick_destroy"
+    },
+    {
+      "ordinal": 1096,
+      "hint": "447",
+      "rva": "0000AA40",
+      "name": "tick_detach"
+    },
+    {
+      "ordinal": 1097,
+      "hint": "448",
+      "rva": "0000AB20",
+      "name": "tick_list_attached"
+    },
+    {
+      "ordinal": 1098,
+      "hint": "449",
+      "rva": "0000AC00",
+      "name": "tick_request_detach"
+    },
+    {
+      "ordinal": 1099,
+      "hint": "44A",
+      "rva": "0000ADD0",
+      "name": "tick_update"
+    },
+    {
+      "ordinal": 1100,
+      "hint": "44B",
+      "rva": "00057980",
+      "name": "trajectory_add_sample"
+    },
+    {
+      "ordinal": 1101,
+      "hint": "44C",
+      "rva": "000579F0",
+      "name": "trajectory_assign"
+    },
+    {
+      "ordinal": 1102,
+      "hint": "44D",
+      "rva": "0002C1F0",
+      "name": "trajectory_capacity"
+    },
+    {
+      "ordinal": 1103,
+      "hint": "44E",
+      "rva": "00057A90",
+      "name": "trajectory_clear"
+    },
+    {
+      "ordinal": 1104,
+      "hint": "44F",
+      "rva": "00057AE0",
+      "name": "trajectory_copy"
+    },
+    {
+      "ordinal": 1105,
+      "hint": "450",
+      "rva": "00057B50",
+      "name": "trajectory_create"
+    },
+    {
+      "ordinal": 1106,
+      "hint": "451",
+      "rva": "00057BA0",
+      "name": "trajectory_create_full"
+    },
+    {
+      "ordinal": 1107,
+      "hint": "452",
+      "rva": "00057C20",
+      "name": "trajectory_destroy"
+    },
+    {
+      "ordinal": 1108,
+      "hint": "453",
+      "rva": "00057C70",
+      "name": "trajectory_estimate_acceleration"
+    },
+    {
+      "ordinal": 1109,
+      "hint": "454",
+      "rva": "00057E40",
+      "name": "trajectory_estimate_velocity"
+    },
+    {
+      "ordinal": 1110,
+      "hint": "455",
+      "rva": "00057F70",
+      "name": "trajectory_export_pos"
+    },
+    {
+      "ordinal": 1111,
+      "hint": "456",
+      "rva": "00058040",
+      "name": "trajectory_export_resample_distance"
+    },
+    {
+      "ordinal": 1112,
+      "hint": "457",
+      "rva": "00058550",
+      "name": "trajectory_export_resample_time"
+    },
+    {
+      "ordinal": 1113,
+      "hint": "458",
+      "rva": "00058990",
+      "name": "trajectory_export_until_impact"
+    },
+    {
+      "ordinal": 1114,
+      "hint": "459",
+      "rva": "00058B50",
+      "name": "trajectory_free"
+    },
+    {
+      "ordinal": 1115,
+      "hint": "45A",
+      "rva": "00058B90",
+      "name": "trajectory_get_positions"
+    },
+    {
+      "ordinal": 1116,
+      "hint": "45B",
+      "rva": "00058BF0",
+      "name": "trajectory_get_speeds"
+    },
+    {
+      "ordinal": 1117,
+      "hint": "45C",
+      "rva": "00058E50",
+      "name": "trajectory_init"
+    },
+    {
+      "ordinal": 1118,
+      "hint": "45D",
+      "rva": "00058EB0",
+      "name": "trajectory_init_full"
+    },
+    {
+      "ordinal": 1119,
+      "hint": "45E",
+      "rva": "00058F20",
+      "name": "trajectory_interpolate_position"
+    },
+    {
+      "ordinal": 1120,
+      "hint": "45F",
+      "rva": "000250A0",
+      "name": "trajectory_length"
+    },
+    {
+      "ordinal": 1121,
+      "hint": "460",
+      "rva": "00059010",
+      "name": "trajectory_print"
+    },
+    {
+      "ordinal": 1122,
+      "hint": "461",
+      "rva": "00059180",
+      "name": "trajectory_resize"
+    },
+    {
+      "ordinal": 1123,
+      "hint": "462",
+      "rva": "00059250",
+      "name": "trajectory_to_string"
+    },
+    {
+      "ordinal": 1124,
+      "hint": "463",
+      "rva": "00009850",
+      "name": "vec3_add"
+    },
+    {
+      "ordinal": 1125,
+      "hint": "464",
+      "rva": "00009880",
+      "name": "vec3_assign"
+    },
+    {
+      "ordinal": 1126,
+      "hint": "465",
+      "rva": "00003700",
+      "name": "vec3_barycentric"
+    },
+    {
+      "ordinal": 1127,
+      "hint": "466",
+      "rva": "00003880",
+      "name": "vec3_barycentric_inside"
+    },
+    {
+      "ordinal": 1128,
+      "hint": "467",
+      "rva": "00003900",
+      "name": "vec3_closest_point_on_segment"
+    },
+    {
+      "ordinal": 1129,
+      "hint": "468",
+      "rva": "000039C0",
+      "name": "vec3_colinear"
+    },
+    {
+      "ordinal": 1130,
+      "hint": "469",
+      "rva": "00003A80",
+      "name": "vec3_colinear_cross"
+    },
+    {
+      "ordinal": 1131,
+      "hint": "46A",
+      "rva": "000098A0",
+      "name": "vec3_cross"
+    },
+    {
+      "ordinal": 1132,
+      "hint": "46B",
+      "rva": "00009900",
+      "name": "vec3_distance"
+    },
+    {
+      "ordinal": 1133,
+      "hint": "46C",
+      "rva": "00009950",
+      "name": "vec3_distance_sq"
+    },
+    {
+      "ordinal": 1134,
+      "hint": "46D",
+      "rva": "00009990",
+      "name": "vec3_div"
+    },
+    {
+      "ordinal": 1135,
+      "hint": "46E",
+      "rva": "00009A30",
+      "name": "vec3_div_scalar"
+    },
+    {
+      "ordinal": 1136,
+      "hint": "46F",
+      "rva": "00009A90",
+      "name": "vec3_dot"
+    },
+    {
+      "ordinal": 1137,
+      "hint": "470",
+      "rva": "00009AC0",
+      "name": "vec3_equal"
+    },
+    {
+      "ordinal": 1138,
+      "hint": "471",
+      "rva": "00009B30",
+      "name": "vec3_equal_tol"
+    },
+    {
+      "ordinal": 1139,
+      "hint": "472",
+      "rva": "00009BC0",
+      "name": "vec3_equal_tol_all"
+    },
+    {
+      "ordinal": 1140,
+      "hint": "473",
+      "rva": "00009C50",
+      "name": "vec3_hash"
+    },
+    {
+      "ordinal": 1141,
+      "hint": "474",
+      "rva": "00009C80",
+      "name": "vec3_iadd"
+    },
+    {
+      "ordinal": 1142,
+      "hint": "475",
+      "rva": "00009CB0",
+      "name": "vec3_init"
+    },
+    {
+      "ordinal": 1143,
+      "hint": "476",
+      "rva": "00009CC0",
+      "name": "vec3_init_full"
+    },
+    {
+      "ordinal": 1144,
+      "hint": "477",
+      "rva": "00009CE0",
+      "name": "vec3_is_zero"
+    },
+    {
+      "ordinal": 1145,
+      "hint": "478",
+      "rva": "00009D30",
+      "name": "vec3_iscale"
+    },
+    {
+      "ordinal": 1146,
+      "hint": "479",
+      "rva": "00009D60",
+      "name": "vec3_isub"
+    },
+    {
+      "ordinal": 1147,
+      "hint": "47A",
+      "rva": "00009D90",
+      "name": "vec3_length"
+    },
+    {
+      "ordinal": 1148,
+      "hint": "47B",
+      "rva": "00009DD0",
+      "name": "vec3_length_sq"
+    },
+    {
+      "ordinal": 1149,
+      "hint": "47C",
+      "rva": "00009E00",
+      "name": "vec3_lerp"
+    },
+    {
+      "ordinal": 1150,
+      "hint": "47D",
+      "rva": "00009E50",
+      "name": "vec3_madd"
+    },
+    {
+      "ordinal": 1151,
+      "hint": "47E",
+      "rva": "00009E90",
+      "name": "vec3_mul"
+    },
+    {
+      "ordinal": 1152,
+      "hint": "47F",
+      "rva": "00009EC0",
+      "name": "vec3_negate"
+    },
+    {
+      "ordinal": 1153,
+      "hint": "480",
+      "rva": "00009EF0",
+      "name": "vec3_normalize"
+    },
+    {
+      "ordinal": 1154,
+      "hint": "481",
+      "rva": "00003B40",
+      "name": "vec3_point_in_triangle"
+    },
+    {
+      "ordinal": 1155,
+      "hint": "482",
+      "rva": "00003CA0",
+      "name": "vec3_point_plane_distance"
+    },
+    {
+      "ordinal": 1156,
+      "hint": "483",
+      "rva": "00003CF0",
+      "name": "vec3_point_plane_signed_distance"
+    },
+    {
+      "ordinal": 1157,
+      "hint": "484",
+      "rva": "00003DB0",
+      "name": "vec3_point_segment_distance"
+    },
+    {
+      "ordinal": 1158,
+      "hint": "485",
+      "rva": "00003E90",
+      "name": "vec3_point_segment_param"
+    },
+    {
+      "ordinal": 1159,
+      "hint": "486",
+      "rva": "00009FA0",
+      "name": "vec3_print"
+    },
+    {
+      "ordinal": 1160,
+      "hint": "487",
+      "rva": "00009FF0",
+      "name": "vec3_project"
+    },
+    {
+      "ordinal": 1161,
+      "hint": "488",
+      "rva": "00003F40",
+      "name": "vec3_project_on_plane"
+    },
+    {
+      "ordinal": 1162,
+      "hint": "489",
+      "rva": "00003FD0",
+      "name": "vec3_ray_plane_intersect"
+    },
+    {
+      "ordinal": 1163,
+      "hint": "48A",
+      "rva": "000040A0",
+      "name": "vec3_ray_sphere_intersect"
+    },
+    {
+      "ordinal": 1164,
+      "hint": "48B",
+      "rva": "000041D0",
+      "name": "vec3_ray_triangle_intersect"
+    },
+    {
+      "ordinal": 1165,
+      "hint": "48C",
+      "rva": "0000A080",
+      "name": "vec3_reflect"
+    },
+    {
+      "ordinal": 1166,
+      "hint": "48D",
+      "rva": "0000A100",
+      "name": "vec3_scale"
+    },
+    {
+      "ordinal": 1167,
+      "hint": "48E",
+      "rva": "000044D0",
+      "name": "vec3_segment_intersect_closest"
+    },
+    {
+      "ordinal": 1168,
+      "hint": "48F",
+      "rva": "000046C0",
+      "name": "vec3_segment_plane_intersect"
+    },
+    {
+      "ordinal": 1169,
+      "hint": "490",
+      "rva": "000047D0",
+      "name": "vec3_segment_segment_distance"
+    },
+    {
+      "ordinal": 1170,
+      "hint": "491",
+      "rva": "00004810",
+      "name": "vec3_segment_sphere_intersect"
+    },
+    {
+      "ordinal": 1171,
+      "hint": "492",
+      "rva": "00004910",
+      "name": "vec3_segment_sphere_intersect_ex"
+    },
+    {
+      "ordinal": 1172,
+      "hint": "493",
+      "rva": "00004B00",
+      "name": "vec3_segment_triangle_intersect"
+    },
+    {
+      "ordinal": 1173,
+      "hint": "494",
+      "rva": "00004C30",
+      "name": "vec3_sphere_sphere_distance"
+    },
+    {
+      "ordinal": 1174,
+      "hint": "495",
+      "rva": "0000A130",
+      "name": "vec3_sub"
+    },
+    {
+      "ordinal": 1175,
+      "hint": "496",
+      "rva": "0000A160",
+      "name": "vec3_to_mat4"
+    },
+    {
+      "ordinal": 1176,
+      "hint": "497",
+      "rva": "0000A1B0",
+      "name": "vec3_to_string"
+    },
+    {
+      "ordinal": 1177,
+      "hint": "498",
+      "rva": "00004C70",
+      "name": "vec3_triangle_area"
+    },
+    {
+      "ordinal": 1178,
+      "hint": "499",
+      "rva": "00004CF0",
+      "name": "vec3_triangle_normal"
+    },
+    {
+      "ordinal": 1179,
+      "hint": "49A",
+      "rva": "0000A220",
+      "name": "vec3_unit"
+    },
+    {
+      "ordinal": 1180,
+      "hint": "49B",
+      "rva": "0000A2D0",
+      "name": "vec3_zero"
+    },
+    {
+      "ordinal": 1181,
+      "hint": "49C",
+      "rva": "00056360",
+      "name": "xform_align_axis"
+    },
+    {
+      "ordinal": 1182,
+      "hint": "49D",
+      "rva": "00056410",
+      "name": "xform_align_vectors"
+    },
+    {
+      "ordinal": 1183,
+      "hint": "49E",
+      "rva": "00056440",
+      "name": "xform_apply"
+    },
+    {
+      "ordinal": 1184,
+      "hint": "49F",
+      "rva": "00056450",
+      "name": "xform_apply_inverse"
+    },
+    {
+      "ordinal": 1185,
+      "hint": "4A0",
+      "rva": "000564B0",
+      "name": "xform_apply_to_direction"
+    },
+    {
+      "ordinal": 1186,
+      "hint": "4A1",
+      "rva": "000564F0",
+      "name": "xform_apply_to_direction_inverse"
+    },
+    {
+      "ordinal": 1187,
+      "hint": "4A2",
+      "rva": "00056560",
+      "name": "xform_apply_to_point"
+    },
+    {
+      "ordinal": 1188,
+      "hint": "4A3",
+      "rva": "000565B0",
+      "name": "xform_apply_to_point_inverse"
+    },
+    {
+      "ordinal": 1189,
+      "hint": "4A4",
+      "rva": "00056630",
+      "name": "xform_assign"
+    },
+    {
+      "ordinal": 1190,
+      "hint": "4A5",
+      "rva": "00056660",
+      "name": "xform_equal"
+    },
+    {
+      "ordinal": 1191,
+      "hint": "4A6",
+      "rva": "000566C0",
+      "name": "xform_from_forward"
+    },
+    {
+      "ordinal": 1192,
+      "hint": "4A7",
+      "rva": "00056780",
+      "name": "xform_get_axis_angle"
+    },
+    {
+      "ordinal": 1193,
+      "hint": "4A8",
+      "rva": "00056790",
+      "name": "xform_get_axis_deg"
+    },
+    {
+      "ordinal": 1194,
+      "hint": "4A9",
+      "rva": "000567E0",
+      "name": "xform_get_euler"
+    },
+    {
+      "ordinal": 1195,
+      "hint": "4AA",
+      "rva": "000567F0",
+      "name": "xform_get_euler_deg"
+    },
+    {
+      "ordinal": 1196,
+      "hint": "4AB",
+      "rva": "00056880",
+      "name": "xform_get_position"
+    },
+    {
+      "ordinal": 1197,
+      "hint": "4AC",
+      "rva": "000568A0",
+      "name": "xform_get_scale"
+    },
+    {
+      "ordinal": 1198,
+      "hint": "4AD",
+      "rva": "000568C0",
+      "name": "xform_init"
+    },
+    {
+      "ordinal": 1199,
+      "hint": "4AE",
+      "rva": "00056900",
+      "name": "xform_init_axis_angle"
+    },
+    {
+      "ordinal": 1200,
+      "hint": "4AF",
+      "rva": "000569A0",
+      "name": "xform_init_axis_deg"
+    },
+    {
+      "ordinal": 1201,
+      "hint": "4B0",
+      "rva": "00056A50",
+      "name": "xform_init_euler"
+    },
+    {
+      "ordinal": 1202,
+      "hint": "4B1",
+      "rva": "00056B00",
+      "name": "xform_init_euler_deg"
+    },
+    {
+      "ordinal": 1203,
+      "hint": "4B2",
+      "rva": "00056BE0",
+      "name": "xform_inverse"
+    },
+    {
+      "ordinal": 1204,
+      "hint": "4B3",
+      "rva": "00056C90",
+      "name": "xform_lerp"
+    },
+    {
+      "ordinal": 1205,
+      "hint": "4B4",
+      "rva": "00056D10",
+      "name": "xform_look_at"
+    },
+    {
+      "ordinal": 1206,
+      "hint": "4B5",
+      "rva": "00056DF0",
+      "name": "xform_look_at_pivot"
+    },
+    {
+      "ordinal": 1207,
+      "hint": "4B6",
+      "rva": "00056E60",
+      "name": "xform_look_to"
+    },
+    {
+      "ordinal": 1208,
+      "hint": "4B7",
+      "rva": "00056EC0",
+      "name": "xform_mul"
+    },
+    {
+      "ordinal": 1209,
+      "hint": "4B8",
+      "rva": "00056F70",
+      "name": "xform_nlerp"
+    },
+    {
+      "ordinal": 1210,
+      "hint": "4B9",
+      "rva": "00057060",
+      "name": "xform_print"
+    },
+    {
+      "ordinal": 1211,
+      "hint": "4BA",
+      "rva": "000571C0",
+      "name": "xform_reflect"
+    },
+    {
+      "ordinal": 1212,
+      "hint": "4BB",
+      "rva": "000572C0",
+      "name": "xform_rotate_around_pivot"
+    },
+    {
+      "ordinal": 1213,
+      "hint": "4BC",
+      "rva": "00057340",
+      "name": "xform_rotate_axis_angle"
+    },
+    {
+      "ordinal": 1214,
+      "hint": "4BD",
+      "rva": "00057390",
+      "name": "xform_rotate_axis_deg"
+    },
+    {
+      "ordinal": 1215,
+      "hint": "4BE",
+      "rva": "000573F0",
+      "name": "xform_rotate_local_around_pivot"
+    },
+    {
+      "ordinal": 1216,
+      "hint": "4BF",
+      "rva": "00057480",
+      "name": "xform_rotate_local_axis_angle"
+    },
+    {
+      "ordinal": 1217,
+      "hint": "4C0",
+      "rva": "000574D0",
+      "name": "xform_rotate_local_axis_deg"
+    },
+    {
+      "ordinal": 1218,
+      "hint": "4C1",
+      "rva": "00057530",
+      "name": "xform_set_axis_angle"
+    },
+    {
+      "ordinal": 1219,
+      "hint": "4C2",
+      "rva": "00057540",
+      "name": "xform_set_axis_deg"
+    },
+    {
+      "ordinal": 1220,
+      "hint": "4C3",
+      "rva": "00057570",
+      "name": "xform_set_euler"
+    },
+    {
+      "ordinal": 1221,
+      "hint": "4C4",
+      "rva": "00057580",
+      "name": "xform_set_euler_deg"
+    },
+    {
+      "ordinal": 1222,
+      "hint": "4C5",
+      "rva": "000575D0",
+      "name": "xform_set_position"
+    },
+    {
+      "ordinal": 1223,
+      "hint": "4C6",
+      "rva": "000575F0",
+      "name": "xform_set_scale"
+    },
+    {
+      "ordinal": 1224,
+      "hint": "4C7",
+      "rva": "00057610",
+      "name": "xform_slerp"
+    },
+    {
+      "ordinal": 1225,
+      "hint": "4C8",
+      "rva": "00057700",
+      "name": "xform_slerp_pivot"
+    },
+    {
+      "ordinal": 1226,
+      "hint": "4C9",
+      "rva": "000577B0",
+      "name": "xform_to_mat4"
+    },
+    {
+      "ordinal": 1227,
+      "hint": "4CA",
+      "rva": "000578C0",
+      "name": "xform_translate"
+    },
+    {
+      "ordinal": 1228,
+      "hint": "4CB",
+      "rva": "00057900",
+      "name": "xform_translate_local"
+    },
+    {
+      "ordinal": 1229,
+      "hint": "4CC",
+      "rva": "0003CA00",
+      "name": "zero_cost"
+    },
+    {
+      "ordinal": 1230,
+      "hint": "4CD",
+      "rva": "0003CA00",
+      "name": "zero_heuristic"
+    }
+  ],
+  "install": {
+    "file_count": 114,
+    "header_count": 93,
+    "test_executable_count": 19,
+    "files": [
+      {
+        "path": "bin/byul.dll",
+        "size": 555008,
+        "sha256": "302a31d265cc3ad8acbd525d2756b2a64437148243952baf6f5e7c61ab55d40a"
+      },
+      {
+        "path": "bin/test_balix.exe",
+        "size": 369152,
+        "sha256": "e8a35574c151cd64d1887a1aa83af0ea9fe3f2eabf9665e4c0365cb097b15d2b"
+      },
+      {
+        "path": "bin/test_byul.exe",
+        "size": 1887232,
+        "sha256": "b93c7acbeb3fa8e94bca784b3e6539683592597ad6aa96ec3872be5f5d9d896a"
+      },
+      {
+        "path": "bin/test_byul_tick.exe",
+        "size": 204288,
+        "sha256": "13bc0ed54374d1091ce5f0cbcc89092f5e2671de2ee43b544f6b083aa4a6a0d1"
+      },
+      {
+        "path": "bin/test_collision.exe",
+        "size": 238080,
+        "sha256": "757abb38220823554c5aa18e4e7d186d5265017b44f5439eb07ed45c3916351b"
+      },
+      {
+        "path": "bin/test_coord.exe",
+        "size": 574976,
+        "sha256": "bfdb48904a5417c4a29131450e2fca58b47a5e3d20c5f312f6b349dac4850397"
+      },
+      {
+        "path": "bin/test_core.exe",
+        "size": 201728,
+        "sha256": "6e19582fa2e42d9b617249d87dca4845bcca47c435460660acda5497231fc575"
+      },
+      {
+        "path": "bin/test_dstar_lite.exe",
+        "size": 352768,
+        "sha256": "20b06f1f93a8e19340f857f2b8212d33c96af11aae97f38d5ef5028c2a84172c"
+      },
+      {
+        "path": "bin/test_entity.exe",
+        "size": 270336,
+        "sha256": "fb4795cfe684677feb1843082ddc8c8c22b03340ec14f6d7206c8c27d3a0adf6"
+      },
+      {
+        "path": "bin/test_ground.exe",
+        "size": 218112,
+        "sha256": "005a4e8c060cf858871faea0210145fa5b4b35a0b2651dab546f65126f830ed9"
+      },
+      {
+        "path": "bin/test_maze.exe",
+        "size": 424448,
+        "sha256": "2d8612710bc7b6729e12bdb875379578cea50732734ca1bc0162cdc7dcdb99bf"
+      },
+      {
+        "path": "bin/test_navgrid.exe",
+        "size": 376320,
+        "sha256": "bf83d6eea09970219640294c8e439cbf3f0b51e72b2118bbc00ec86e805a6609"
+      },
+      {
+        "path": "bin/test_navsys.exe",
+        "size": 464896,
+        "sha256": "fabf39235a87414fa4ce47584e5333710bd734305ed7904b962694c2e34b51df"
+      },
+      {
+        "path": "bin/test_numal.exe",
+        "size": 347136,
+        "sha256": "3f0fe028929f0da559202be0e7926aaa1f16f7a98eb42a88015f6748ddb951e6"
+      },
+      {
+        "path": "bin/test_number_theory.exe",
+        "size": 219648,
+        "sha256": "51de461d52a8ee1c72aa82ee893e69a5612b613baf98b408f13ec16f37e147fb"
+      },
+      {
+        "path": "bin/test_obstacle.exe",
+        "size": 512512,
+        "sha256": "68abef9e01b8bdf2baac1aaab132dc90dfefefa808a4659a0e6413672f841a1b"
+      },
+      {
+        "path": "bin/test_projectile.exe",
+        "size": 339968,
+        "sha256": "33590f5123071a8a067decf6ba755496af2b62fc9de436869cb79213e59f3235"
+      },
+      {
+        "path": "bin/test_rng.exe",
+        "size": 284160,
+        "sha256": "2caf2ca1c45dbda0d13b85e45b3b6aa0cf464672b54934cbf7ddd0a1cceda734"
+      },
+      {
+        "path": "bin/test_route.exe",
+        "size": 381440,
+        "sha256": "edee667f2925ae3d241746e3cecc3284f060991000ae76add19cb8f3dddc0489"
+      },
+      {
+        "path": "bin/test_route_finder.exe",
+        "size": 385024,
+        "sha256": "4d62ef470a05d87c83e56f755e8c9a2cfd3af3a7be1ee3df2dda227438a85448"
+      },
+      {
+        "path": "include/byul/astar.h",
+        "size": 2531,
+        "sha256": "a36bc67f70d57788195b1928d5561c7eb03b553c78bcce962f02ad84196e6a51"
+      },
+      {
+        "path": "include/byul/balix.h",
+        "size": 488,
+        "sha256": "adca0e94c07b4efe18dd67f303ae636f6f90a8f409c229ed877ff88367361446"
+      },
+      {
+        "path": "include/byul/bfs.h",
+        "size": 2166,
+        "sha256": "4bac7773c3f285dfa6d6b64d18901241ea1eb7b7a487994dcd4cd91cbdd7ff2e"
+      },
+      {
+        "path": "include/byul/bodyprops.h",
+        "size": 7936,
+        "sha256": "3bbe218db3c9d2ca46c1ee0009c5ae12f22e820fae176f1ef64af479c2041cfe"
+      },
+      {
+        "path": "include/byul/byul.h",
+        "size": 611,
+        "sha256": "c20a6e329f96af04f206e20079e332ec98a1a2f709b1eb61ce5d74a5c83d85f2"
+      },
+      {
+        "path": "include/byul/byul_config.h",
+        "size": 1814,
+        "sha256": "20664ae21c23124738cb0587b4721fd2bd76c49ab7d03827ca8c4b1be016ce07"
+      },
+      {
+        "path": "include/byul/byul_prime32.h",
+        "size": 618,
+        "sha256": "9f233f1634ddfe851681f20dfa0ce0ee8ce7bcc3c9b5923f3df696af75d82a15"
+      },
+      {
+        "path": "include/byul/byul_prime_segmented_u32.h",
+        "size": 1769,
+        "sha256": "9c3a966701122656dc238023e9729051a1661de3e5167303c015dc43b6146fb1"
+      },
+      {
+        "path": "include/byul/byul_tick.h",
+        "size": 2471,
+        "sha256": "de4a7736cbd5192444208c5d08293fd55efdeea3dd06afac28689a90359f3f27"
+      },
+      {
+        "path": "include/byul/collision.h",
+        "size": 18452,
+        "sha256": "018ed8cb10dc71bf895a904b5612663e4a7da86102671a36968d2408cf5d65fb"
+      },
+      {
+        "path": "include/byul/console.h",
+        "size": 1587,
+        "sha256": "e9d1fcffd5b4e93533987c31fcfe923c84a3c5f864ddf849dfad55f9fdefe6c1"
+      },
+      {
+        "path": "include/byul/controller.h",
+        "size": 8526,
+        "sha256": "c8a82a1eff1433886de54a0591109c4f8e77c4122e5f51913e66762a1245c4c2"
+      },
+      {
+        "path": "include/byul/coord.h",
+        "size": 23528,
+        "sha256": "78488c9096f5c687b6fead5632c0de6f135b7da63cb038d6a6d750118852bdd6"
+      },
+      {
+        "path": "include/byul/coord_hash.h",
+        "size": 25630,
+        "sha256": "cfc5ccccd8d49ada7088bbc8f9a9038c2a51243f33046fce478c9b3b913e06c2"
+      },
+      {
+        "path": "include/byul/coord_list.h",
+        "size": 20922,
+        "sha256": "52a9f6bfe7f92bb16bf9d5fa6a3e3a820429afa9e194c0b4875e6766618358e5"
+      },
+      {
+        "path": "include/byul/cost_coord_pq.h",
+        "size": 13289,
+        "sha256": "c550869ca0523ea3b9c1651572986dbe842f7f3d6b0d2fcf4eddef538cbf4a65"
+      },
+      {
+        "path": "include/byul/dfs.h",
+        "size": 2243,
+        "sha256": "dac3081b23143d979f73522f3fa17f227feb70506f515754d8e8e24b199b0051"
+      },
+      {
+        "path": "include/byul/dijkstra.h",
+        "size": 2321,
+        "sha256": "ab4c443b198d294baeb95623ce0b6d44a0e62ebeb7079b54c0c65cde2b532d03"
+      },
+      {
+        "path": "include/byul/dstar_lite.h",
+        "size": 19074,
+        "sha256": "a4048d48d880787897416b4b0f718cdec8bf567fad1171990a124f6eb6d82b5d"
+      },
+      {
+        "path": "include/byul/dstar_lite_console.h",
+        "size": 2531,
+        "sha256": "f6c09c5e89f1962de601e033226deee4fefe51c41efefad09cd1285a3ee780b5"
+      },
+      {
+        "path": "include/byul/dstar_lite_key.h",
+        "size": 13518,
+        "sha256": "9eac59754447a1b229930a9f3c801225b0daf124641f926d4fb2ec170cb0e898"
+      },
+      {
+        "path": "include/byul/dstar_lite_pqueue.h",
+        "size": 1386,
+        "sha256": "d12da13935c093581a614fcb92b59618d9d30501e9ee931d61f765b6eb1af6fa"
+      },
+      {
+        "path": "include/byul/dstar_lite_tick.h",
+        "size": 5909,
+        "sha256": "844bfdd3e10d9d752e07934e262934c44ec4e99caa248dcaf0b411404ec532a6"
+      },
+      {
+        "path": "include/byul/dualnumber.h",
+        "size": 2440,
+        "sha256": "f30a43433088949e5d57018ef6b96e1caef949146616ce3b383f1a8f4a231dbd"
+      },
+      {
+        "path": "include/byul/dualquat.h",
+        "size": 5150,
+        "sha256": "2d8fdd2ea95efec5f7f3a704aa4cd5177c521219c8aaebe82761fbb80dec2324"
+      },
+      {
+        "path": "include/byul/dualquat.hpp",
+        "size": 4083,
+        "sha256": "ed37413d8d6dd4a84cc577441c004d9002efd1b39fc65b601a63412e0b296858"
+      },
+      {
+        "path": "include/byul/entity.h",
+        "size": 5057,
+        "sha256": "26564f85c73cf55188cef68f03f7e1d43407386de4feb855830a89c425736817"
+      },
+      {
+        "path": "include/byul/entity_dynamic.h",
+        "size": 9832,
+        "sha256": "6928769fbe57ea8a80d27e3ed16d794fc2d233589e10e302886d84c6a40ab1e4"
+      },
+      {
+        "path": "include/byul/entity_dynamic_coord.h",
+        "size": 1648,
+        "sha256": "ebba7cacb1e91d33208155a3a69ba7783a81905a4bb153b1427d82a7718c2b95"
+      },
+      {
+        "path": "include/byul/entity_interaction.h",
+        "size": 7145,
+        "sha256": "2d5469b0b7cfa1442cf7834deb75bf32a9c8388d0b941d94a1a96bf0f9cabed0"
+      },
+      {
+        "path": "include/byul/entity_spring.h",
+        "size": 8262,
+        "sha256": "f3be81a29675f4ef2ef177fd382572fa629edcd7a172f100a73e9de7d1779aed"
+      },
+      {
+        "path": "include/byul/environ.h",
+        "size": 9812,
+        "sha256": "669244c620dfd918a2c8bc6996309ac04de3aa905aa9ff8a39c53e4628126e46"
+      },
+      {
+        "path": "include/byul/fast_marching.h",
+        "size": 4322,
+        "sha256": "551602a4a59d3aed8497cefb192e29e7b9c5e30954e4fbb89ea754da7496c510"
+      },
+      {
+        "path": "include/byul/fringe_search.h",
+        "size": 2840,
+        "sha256": "e5d846a430dcedbfe2edb5d4b0be688482db188af209b2196d7e656cc7d3f327"
+      },
+      {
+        "path": "include/byul/geom.h",
+        "size": 10222,
+        "sha256": "252dfc9c69cda64533623fd3ea86c40caa65dbe33f82b4f8dafd151b9e60bf65"
+      },
+      {
+        "path": "include/byul/greedy_best_first.h",
+        "size": 1939,
+        "sha256": "eddb8f666f67ba9f6358fa59e88dd2e81835ff6f28808962c399516647b9bf9d"
+      },
+      {
+        "path": "include/byul/ground.h",
+        "size": 6366,
+        "sha256": "8fd05b4b8a94f69f91bcccc610af60d53140109db2b22af115fcbe3d3137c526"
+      },
+      {
+        "path": "include/byul/guidance.h",
+        "size": 7297,
+        "sha256": "68e3349cb73051058672b47e86fdd2d76039bb3f5b1b546e2770a86d8e21468f"
+      },
+      {
+        "path": "include/byul/ida_star.h",
+        "size": 3174,
+        "sha256": "2bdd1bd9816e59baac5d27dff52511cdd0d5fad56982266ff43be1e4b2546486"
+      },
+      {
+        "path": "include/byul/maze.h",
+        "size": 6124,
+        "sha256": "e72f50be41438ec7c9af5a6f8d7cad3b9c84703aa45b54bdc782d9bfb0ac1651"
+      },
+      {
+        "path": "include/byul/maze_aldous_broder.h",
+        "size": 3388,
+        "sha256": "657daab3e782f7fcf552868ce3a5b366b8a961ba45670be96de6aaab6d7e2d79"
+      },
+      {
+        "path": "include/byul/maze_binary.h",
+        "size": 5558,
+        "sha256": "1841d76f5be35d7605d56d1f49ba5faa673cce640d33af10638c2c0b695c0b7e"
+      },
+      {
+        "path": "include/byul/maze_core.h",
+        "size": 22620,
+        "sha256": "2b637a9ed5e893effab70093b0a815ac1439b777edde17d3e1b872e422390c78"
+      },
+      {
+        "path": "include/byul/maze_eller.h",
+        "size": 3582,
+        "sha256": "1c81d78d1e16fdc1bda638a2b36c4bc9f3a68ed1df41d0b60617de1bfd006142"
+      },
+      {
+        "path": "include/byul/maze_hunt_and_kill.h",
+        "size": 3854,
+        "sha256": "4db251c48f0e6c05b9215003a59f2ce42680f5448a63531943ca59f8f8386ba2"
+      },
+      {
+        "path": "include/byul/maze_kruskal.h",
+        "size": 3625,
+        "sha256": "7ea0f99771cde72bbb5f7cb1f679c21767c2df665050204221c3f5882d1c647e"
+      },
+      {
+        "path": "include/byul/maze_prim.h",
+        "size": 3646,
+        "sha256": "c46dc3e98e5f16b979fdc105bfdb061cb1ee3daa697c0c0bebbece47a846caf3"
+      },
+      {
+        "path": "include/byul/maze_recursive.h",
+        "size": 3554,
+        "sha256": "34bbe7c4c15e18a8d3423ccec083a653f2e0d2ea824a5048321a9d10b0d36dad"
+      },
+      {
+        "path": "include/byul/maze_recursive_division.h",
+        "size": 3678,
+        "sha256": "3c2860ac91df1f348755e95f6e1f8d73d203f3366b88bfb602cef937ac0e8ded"
+      },
+      {
+        "path": "include/byul/maze_room_blend.h",
+        "size": 6042,
+        "sha256": "1fc2eb3bd64d1996ea9887bce3bca4700874757e7ae238f4142e5e54c932ed89"
+      },
+      {
+        "path": "include/byul/maze_sidewinder.h",
+        "size": 4792,
+        "sha256": "86706c919f05ef546ca0b97c63840b051656d7b6f0bc44da0eb8cd0b00de9ec4"
+      },
+      {
+        "path": "include/byul/maze_wilson.h",
+        "size": 3327,
+        "sha256": "59e6a9ef06176c139aeb64fd644590472a4ce03488f8ff07f9f5cbed693d25e6"
+      },
+      {
+        "path": "include/byul/motion_state.h",
+        "size": 6189,
+        "sha256": "ea0c5aebf1c64f0abeffcddfb0368d2754aae61247d2cf1340a2ef663aba299f"
+      },
+      {
+        "path": "include/byul/navcell.h",
+        "size": 12439,
+        "sha256": "f59164330de785a6768bfcde9bdbe76d982e5c285f3d1dd0aca9531bd8bbef7b"
+      },
+      {
+        "path": "include/byul/navgrid.h",
+        "size": 37120,
+        "sha256": "7527025cb94e09754853103818ec999e9736ddf22e3c0926ea3cab111c482e13"
+      },
+      {
+        "path": "include/byul/navsys.h",
+        "size": 4061,
+        "sha256": "b558b749ce4eec39755f7befe204e26605c26768fb25ac7f4e4705d38dcd29f8"
+      },
+      {
+        "path": "include/byul/navsys_status.h",
+        "size": 1560,
+        "sha256": "478d49ff912534da7a322c877b4a94b1a8abefdd5c16e8e5a9cc06a1b6fedaa2"
+      },
+      {
+        "path": "include/byul/numal.h",
+        "size": 241,
+        "sha256": "b5d9b9bb7a9b9faa6fc8e64f69f08aae7bcb10239587d506eb2d833619976ef0"
+      },
+      {
+        "path": "include/byul/number_theory.h",
+        "size": 165,
+        "sha256": "0f767c5fa461346cdbb0ff8b44b6de1deb723096ef1aba99fa10ddeeb6f410a6"
+      },
+      {
+        "path": "include/byul/numeq.h",
+        "size": 275,
+        "sha256": "8eaec9a793b06809eb986eada5e4b0218caf666a66c82299100348df9aa3e9c4"
+      },
+      {
+        "path": "include/byul/numeq_filters.h",
+        "size": 3807,
+        "sha256": "f32a78f96f53c05dcb0e6b4af0ab776616ac68494a8fb07a83cc11be49bfba9b"
+      },
+      {
+        "path": "include/byul/numeq_integrator.h",
+        "size": 15712,
+        "sha256": "39ab7b3799a1dc76fe67bdaf57fd164c3b3eca8d04085a290c83e57c29db49bb"
+      },
+      {
+        "path": "include/byul/numeq_kalman.h",
+        "size": 6127,
+        "sha256": "4603c1392e7c3b7fc1bbb26f6f730f05264a7091bba5e132eaf87da8956300c6"
+      },
+      {
+        "path": "include/byul/numeq_model.h",
+        "size": 9377,
+        "sha256": "c2b7752d3481e0bbb3df3147551d87c17a4a818f5d65fdafa16d2493570c43d4"
+      },
+      {
+        "path": "include/byul/numeq_model_motion.h",
+        "size": 6335,
+        "sha256": "8fb9fb3d92610474d1c6a775e481461d50cae457709f7af3d32204e653e682d0"
+      },
+      {
+        "path": "include/byul/numeq_mpc.h",
+        "size": 8503,
+        "sha256": "facd359be7cac8f54154be1ca66fca49cf3987ddf41c1d4778d60cf795083d9c"
+      },
+      {
+        "path": "include/byul/numeq_pid.h",
+        "size": 4971,
+        "sha256": "13d9466a8e79c85676179e545530da4b50795d7302e10f652fb99c7d5461ba8d"
+      },
+      {
+        "path": "include/byul/numeq_pid_vec3.h",
+        "size": 3473,
+        "sha256": "5e76c14d111265d1d859b4f964bc93ab4951a0eb4f3f7f0bdbf302fd2fe827fb"
+      },
+      {
+        "path": "include/byul/numeq_solver.h",
+        "size": 5198,
+        "sha256": "cc45d90474ef3849fd55d474afabee8dd064bc50c80d14aca6aae202397908ce"
+      },
+      {
+        "path": "include/byul/obstacle.h",
+        "size": 40527,
+        "sha256": "66e7cddba64c6e493fca831c3901b499f034289fcca826fd5905b925cb502afe"
+      },
+      {
+        "path": "include/byul/obstacle_core.h",
+        "size": 26582,
+        "sha256": "4b288287ac9c9befcd16d274dac68ea379c96e02600159028ec034a4e62437fe"
+      },
+      {
+        "path": "include/byul/plane.h",
+        "size": 2397,
+        "sha256": "af35942e4ece7e24734a50c2cd5f679ec6f1caa66739f3ea82a86e29e4271e2c"
+      },
+      {
+        "path": "include/byul/projectile.h",
+        "size": 6039,
+        "sha256": "8c2354cdd9b0664264311ec18b971afad89c0430b5c9d0f85d736db5857696b3"
+      },
+      {
+        "path": "include/byul/projectile_core.h",
+        "size": 14661,
+        "sha256": "a6d1c64cc799ed500f42bc19881c0274d94af7c57b311cb6e9c46ac7b6cf2137"
+      },
+      {
+        "path": "include/byul/projectile_predict.h",
+        "size": 8326,
+        "sha256": "d208930285eaf6791e981ba4deefe36f0ca8d85eb6ffeb0071b53d62e8baac6a"
+      },
+      {
+        "path": "include/byul/projectile_tick.h",
+        "size": 5827,
+        "sha256": "db8c54bc964cee17445e0a1cafe48733014da313f10b59929a60224fe24e737c"
+      },
+      {
+        "path": "include/byul/propulsion.h",
+        "size": 8957,
+        "sha256": "b7b8674405cd3d81f7199746099d542c9581d0e6089d131969e319765871df97"
+      },
+      {
+        "path": "include/byul/quat.h",
+        "size": 6155,
+        "sha256": "61136dc2d239557c77b893c2b9a9b7a91a54f5da7a6ab63e5c9beffaf454b780"
+      },
+      {
+        "path": "include/byul/quat.hpp",
+        "size": 3070,
+        "sha256": "6d314b64d97fdb2fbf97a86070730e7da91cb2e90a9bc05d29e92f256425287c"
+      },
+      {
+        "path": "include/byul/route.h",
+        "size": 58864,
+        "sha256": "c740474545383a96368f9fd72ce48a9e7db98aba6b36bcc67485fe6b00b7fc20"
+      },
+      {
+        "path": "include/byul/route_carver.h",
+        "size": 8465,
+        "sha256": "3548ecff5783a1e519d5634fa95ff39f6069dfe853657663a5075f022f46b661"
+      },
+      {
+        "path": "include/byul/route_finder.h",
+        "size": 35062,
+        "sha256": "fb419b1c31b9cf992b96d0d949e48d7e760ba27bc7720d2714b35ef2b4d609ab"
+      },
+      {
+        "path": "include/byul/route_finder_core.h",
+        "size": 5177,
+        "sha256": "97bb203a7b6434aaddc04df1be7c23edf53fbb6d0e1355a8597cae09025ab33e"
+      },
+      {
+        "path": "include/byul/route_finder_evaluation.h",
+        "size": 11316,
+        "sha256": "cf0bffb8320a542a8f11f5bc4dad90e0529d3d3e34ba2729e3a22c0e89041bce"
+      },
+      {
+        "path": "include/byul/rta_star.h",
+        "size": 5039,
+        "sha256": "e76b09b5ed24234abfa05dfd9f06cb16ae8979741c6c22c19f225cf8816c9729"
+      },
+      {
+        "path": "include/byul/scalar.h",
+        "size": 5422,
+        "sha256": "c4c8ba95ad9daec071d649a56d75ff6b09522110559ef827da0717be8fafcf5f"
+      },
+      {
+        "path": "include/byul/sma_star.h",
+        "size": 3233,
+        "sha256": "9fb3288e7a4cd5003ba5ab20e3b5eaf5675fd44711f404d8f2d13cc79848cc41"
+      },
+      {
+        "path": "include/byul/strset.h",
+        "size": 1732,
+        "sha256": "d71ec09b18f371322f8fa6147606062566f16a6aacee0617b35d0a6b04f63bf3"
+      },
+      {
+        "path": "include/byul/trajectory.h",
+        "size": 10540,
+        "sha256": "5273282325b27f4ede6038fe52b096bf322e76ed3f1cdf44cb9b7d9ee22f9c84"
+      },
+      {
+        "path": "include/byul/vec3.h",
+        "size": 6737,
+        "sha256": "25960009b944e3105e2d5e6d3d0d1ac4fe1e986f91e962a91c3c2df9fcd826e8"
+      },
+      {
+        "path": "include/byul/vec3.hpp",
+        "size": 3951,
+        "sha256": "31360615fbb677c3744e4929d23f7b1a1f615bf6c2c26d29954a9b0c6bc0e004"
+      },
+      {
+        "path": "include/byul/weighted_astar.h",
+        "size": 2884,
+        "sha256": "ad75a89f5c2d4e582d827360f3031e20c12cb58d0f66a72bf1aec7105725e30a"
+      },
+      {
+        "path": "include/byul/xform.h",
+        "size": 8832,
+        "sha256": "527edb21eeca1987b2b97ba422c2897e43ae4f7c378a2efbe1327d875e29c1e7"
+      },
+      {
+        "path": "lib/byul/byul.lib",
+        "size": 279914,
+        "sha256": "24ac54f4beadc6c9af677c51a07e46653d6530ff9bb533b79aa5618eb9f9101a"
+      }
+    ]
+  }
+}

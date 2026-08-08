@@ -56,7 +56,6 @@ target_include_directories(${PROJECT_NAME} PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}
 
     ${CMAKE_SOURCE_DIR}/core
-    ${CMAKE_SOURCE_DIR}/numal
     ${CMAKE_SOURCE_DIR}/console
 
     ${CMAKE_SOURCE_DIR}/navsys
@@ -75,7 +74,6 @@ target_link_directories(${PROJECT_NAME} PRIVATE
 
 target_link_libraries(${PROJECT_NAME} PRIVATE
     core
-    numal
     console
     
     coord
@@ -94,7 +92,6 @@ add_executable(test_route_finder_performance_gate
 target_include_directories(test_route_finder_performance_gate PRIVATE
     ${CMAKE_SOURCE_DIR}
     ${CMAKE_SOURCE_DIR}/core
-    ${CMAKE_SOURCE_DIR}/numal
     ${CMAKE_SOURCE_DIR}/navsys
     ${CMAKE_SOURCE_DIR}/navsys/coord
     ${CMAKE_SOURCE_DIR}/navsys/route
@@ -103,7 +100,6 @@ target_include_directories(test_route_finder_performance_gate PRIVATE
 )
 target_link_libraries(test_route_finder_performance_gate PRIVATE
     core
-    numal
     coord
     route
     navgrid

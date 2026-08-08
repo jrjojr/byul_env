@@ -1,0 +1,34 @@
+{
+  "schema_version": 1,
+  "stage": "navsys-stage6-public-facade",
+  "status": "closed",
+  "decisions": {
+    "canonical_facade": "byul/navsys/navsys.h",
+    "explicit_aggregate": "byul/navsys/navsys_all.h",
+    "root_source_compatibility": "byul/byul.h includes navsys_all.h",
+    "canonical_algorithms": [
+      "ASTAR",
+      "BFS",
+      "DFS",
+      "DIJKSTRA",
+      "GREEDY_BEST_FIRST",
+      "WEIGHTED_ASTAR",
+      "DSTAR_LITE"
+    ],
+    "unsupported_algorithms": "reported by capability query without removing ABI 1 legacy exports",
+    "output_contract": "operational outcomes commit route/stats; validation and infrastructure failures preserve outputs",
+    "wrapper": "generated CFFI declarations plus Python find_path/capability facade"
+  },
+  "compatibility": {
+    "legacy_symbols_preserved": 12,
+    "additive_symbols": 5,
+    "removed_symbols": 0,
+    "installed_aggregate_migration": "navsys_all.h"
+  },
+  "evidence": [
+    "docs/ko/todo/navsys/navsys-stage6-build.json",
+    "docs/ko/todo/navsys/navsys-stage6-header-audit.json",
+    "docs/ko/todo/navsys/navsys-current-abi-inventory.json",
+    "docs/ko/todo/header-refactor-current/header-role-manifest.json"
+  ]
+}

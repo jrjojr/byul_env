@@ -1,0 +1,37 @@
+{
+  "schema_version": 1,
+  "scope": "navsys-maze-wilson-stage3",
+  "status": "complete",
+  "source_revision": "fa55b9c",
+  "topology_contract": {
+    "lattice": "odd/odd logical cells inside a blocked one-cell perimeter",
+    "connectivity": "all logical cells are connected",
+    "acyclicity": "logical edge count equals logical node count minus one",
+    "seed_zero_9x9_hash": 424385079
+  },
+  "uniform_spanning_tree_oracle": {
+    "graph": "2x2 logical-cell grid",
+    "samples": 4096,
+    "expected_tree_classes": 4,
+    "accepted_bucket_range": [850, 1200],
+    "result": "all four missing-edge classes observed inside the fixed bounds"
+  },
+  "termination": {
+    "explicit_budget": "each random-walk transition consumes one step",
+    "default_budget_corpus": "64 seeds on 9x9 completed within raster cells times 256",
+    "cancellation": "cancel and callback-failure paths leave output NULL",
+    "materialization": "cancellation remains polled while blocked cells are copied to the Maze"
+  },
+  "concurrency": {
+    "parallel_calls": 8,
+    "extent": [13, 17],
+    "seed": 1234,
+    "result": "all status values and hashes matched",
+    "global_rand": "changing srand state did not affect checked output"
+  },
+  "verification": {
+    "windows_msvc_wilson_scope": "7/7 test cases and 57471/57471 assertions",
+    "deterministic_corpus": "six edge-case seeds retain perfect-maze topology",
+    "allocation_fault_sweep": "passes with no leaked or published partial Maze"
+  }
+}

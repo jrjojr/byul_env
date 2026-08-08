@@ -42,6 +42,7 @@ set(BYUL_MAZE_PUBLIC_HEADERS
     maze_wilson.h
     maze_hunt_and_kill.h
     maze_sidewinder.h
+    maze_sidewinder.h
     maze_recursive_division.h
     maze_kruskal.h
     maze_room_blend.h
@@ -61,6 +62,90 @@ foreach(header IN LISTS BYUL_MAZE_PUBLIC_HEADERS)
             "${header} must compile standalone in both C and C++")
     endif()
 endforeach()
+
+set(BYUL_ROUTE_FINDER_PUBLIC_HEADERS
+    astar.h
+    bfs.h
+    dfs.h
+    dijkstra.h
+    fast_marching.h
+    fringe_search.h
+    greedy_best_first.h
+    ida_star.h
+    route_finder.h
+    route_finder_core.h
+    route_finder_evaluation.h
+    rta_star.h
+    sma_star.h
+    weighted_astar.h
+)
+foreach(header IN LISTS BYUL_ROUTE_FINDER_PUBLIC_HEADERS)
+    string(MAKE_C_IDENTIFIER "${header}" header_id)
+    string(TOUPPER "${header_id}" header_id)
+    check_c_source_compiles(
+        "#include \"${header}\"\nint main(void) { return 0; }"
+        "BYUL_ROUTE_FINDER_${header_id}_STANDALONE_C")
+    check_cxx_source_compiles(
+        "#include \"${header}\"\nint main() { return 0; }"
+        "BYUL_ROUTE_FINDER_${header_id}_STANDALONE_CXX")
+    if(NOT BYUL_ROUTE_FINDER_${header_id}_STANDALONE_C OR
+       NOT BYUL_ROUTE_FINDER_${header_id}_STANDALONE_CXX)
+        message(FATAL_ERROR
+            "${header} must compile standalone in both C and C++")
+    endif()
+endforeach()
+
+set(BYUL_DSTAR_LITE_PUBLIC_HEADERS
+    dstar_lite.h
+    dstar_lite_key.h
+    dstar_lite_planner.h
+    dstar_lite_pqueue.h
+    dstar_lite_tick.h
+)
+foreach(header IN LISTS BYUL_DSTAR_LITE_PUBLIC_HEADERS)
+    string(MAKE_C_IDENTIFIER "${header}" header_id)
+    string(TOUPPER "${header_id}" header_id)
+    check_c_source_compiles(
+        "#include \"${header}\"\nint main(void) { return 0; }"
+        "BYUL_DSTAR_LITE_${header_id}_STANDALONE_C")
+    check_cxx_source_compiles(
+        "#include \"${header}\"\nint main() { return 0; }"
+        "BYUL_DSTAR_LITE_${header_id}_STANDALONE_CXX")
+    if(NOT BYUL_DSTAR_LITE_${header_id}_STANDALONE_C OR
+       NOT BYUL_DSTAR_LITE_${header_id}_STANDALONE_CXX)
+        message(FATAL_ERROR
+            "${header} must compile standalone in both C and C++")
+    endif()
+endforeach()
+
+set(BYUL_NAVSYS_PUBLIC_HEADERS navsys.h navsys_all.h)
+foreach(header IN LISTS BYUL_NAVSYS_PUBLIC_HEADERS)
+    string(MAKE_C_IDENTIFIER "${header}" header_id)
+    string(TOUPPER "${header_id}" header_id)
+    check_c_source_compiles(
+        "#include \"${header}\"\nint main(void) { return 0; }"
+        "BYUL_NAVSYS_${header_id}_STANDALONE_C")
+    check_cxx_source_compiles(
+        "#include \"${header}\"\nint main() { return 0; }"
+        "BYUL_NAVSYS_${header_id}_STANDALONE_CXX")
+    if(NOT BYUL_NAVSYS_${header_id}_STANDALONE_C OR
+       NOT BYUL_NAVSYS_${header_id}_STANDALONE_CXX)
+        message(FATAL_ERROR
+            "${header} must compile standalone in both C and C++")
+    endif()
+endforeach()
+
+check_c_source_compiles(
+    "#include \"navsys.h\"\nint main(void) { dstar_lite_key_t key; (void)key; return 0; }"
+    BYUL_NAVSYS_FACADE_LEAKS_DSTAR_LITE_C)
+check_cxx_source_compiles(
+    "#include \"navsys.h\"\nint main() { dstar_lite_key_t key{}; (void)key; return 0; }"
+    BYUL_NAVSYS_FACADE_LEAKS_DSTAR_LITE_CXX)
+if(BYUL_NAVSYS_FACADE_LEAKS_DSTAR_LITE_C OR
+   BYUL_NAVSYS_FACADE_LEAKS_DSTAR_LITE_CXX)
+    message(FATAL_ERROR
+        "navsys.h must not transitively expose D* Lite component types")
+endif()
 
 check_c_source_compiles(
     "#include \"maze_core.h\"\nint main(void) { return (int)sizeof(maze_t); }"

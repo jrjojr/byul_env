@@ -6,7 +6,12 @@ from byul_wrapper.dstar_lite import c_dstar_lite
 from byul_wrapper.dstar_lite_key import c_dstar_lite_key
 from byul_wrapper.dstar_lite_pqueue import c_dstar_lite_pqueue
 from byul_wrapper.navgrid import NavgridDirMode, c_navgrid
-from byul_wrapper.navsys_status import NavsysInvalidArgumentError
+from byul_wrapper.navsys_status import (
+    NavsysCallbackError,
+    NavsysCancelledError,
+    NavsysInvalidArgumentError,
+    NavsysStatus,
+)
 
 
 class DStarLiteSupportTest(unittest.TestCase):
@@ -97,6 +102,23 @@ class DStarLiteSupportTest(unittest.TestCase):
                 self.assertTrue(queue.remove(coord))
                 self.assertTrue(queue.is_empty())
 
+    def test_priority_queue_replaces_coordinate_key_without_borrowing(self):
+        with c_dstar_lite_pqueue() as queue:
+            with c_coord(3, 4) as coord:
+                with c_dstar_lite_key(9.0, 1.0) as old_key:
+                    queue.push(old_key, coord)
+                with c_dstar_lite_key(2.0, 1.0) as new_key:
+                    queue.push(new_key, coord)
+                observed = queue.find_key_by_coord(coord)
+                popped = queue.pop()
+                try:
+                    self.assertEqual(observed.to_tuple(), (2.0, 1.0))
+                    self.assertEqual((popped.x, popped.y), (3, 4))
+                    self.assertTrue(queue.is_empty())
+                finally:
+                    observed.close()
+                    popped.close()
+
     def test_finds_route_on_empty_grid(self):
         with c_navgrid(width=5, height=5, mode=NavgridDirMode.DIR_8) as navgrid:
             with c_coord(0, 0) as start, c_coord(4, 4) as goal:
@@ -108,6 +130,58 @@ class DStarLiteSupportTest(unittest.TestCase):
                         self.assertGreater(route.length(), 0)
                     finally:
                         route.close()
+
+    def test_incremental_replan_stats_and_sticky_cancel(self):
+        with c_navgrid(width=5, height=5, mode=NavgridDirMode.DIR_8) as navgrid:
+            with c_coord(0, 0) as start, c_coord(4, 4) as goal:
+                with c_dstar_lite(navgrid, start, goal) as finder:
+                    route, stats = finder.replan()
+                    try:
+                        self.assertEqual(stats["last_status"], NavsysStatus.OK)
+                        self.assertEqual(stats["replans"], 1)
+                        first_step = route.coord_at(1)
+                        with first_step:
+                            finder.notify_edge_changes([
+                                (start, first_step, 1.0, math.inf)
+                            ])
+                            repaired, repaired_stats = finder.replan()
+                            try:
+                                changed_step = repaired.coord_at(1)
+                                try:
+                                    self.assertNotEqual(
+                                        (first_step.x, first_step.y),
+                                        (changed_step.x, changed_step.y),
+                                    )
+                                finally:
+                                    changed_step.close()
+                                self.assertEqual(repaired_stats["edge_changes"], 1)
+                                self.assertEqual(repaired_stats["replans"], 2)
+                            finally:
+                                repaired.close()
+                    finally:
+                        route.close()
+
+                    finder.request_cancel()
+                    self.assertTrue(finder.is_cancel_requested())
+                    with self.assertRaises(NavsysCancelledError):
+                        finder.replan()
+
+    def test_callback_failure_and_no_path_are_distinct(self):
+        with c_navgrid(width=3, height=3, mode=NavgridDirMode.DIR_8) as navgrid:
+            with c_coord(0, 0) as start, c_coord(2, 2) as goal:
+                with c_dstar_lite(
+                    navgrid, start, goal,
+                    cost_fn=lambda *_args: (_ for _ in ()).throw(ValueError()),
+                ) as failing:
+                    with self.assertRaises(NavsysCallbackError):
+                        failing.replan()
+                with c_dstar_lite(
+                    navgrid, start, goal,
+                    cost_fn=lambda *_args: math.inf,
+                ) as blocked:
+                    route, stats = blocked.replan()
+                    self.assertIsNone(route)
+                    self.assertEqual(stats["last_status"], NavsysStatus.NO_PATH)
 
 
 if __name__ == "__main__":

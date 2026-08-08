@@ -24,6 +24,8 @@
 #include "byul_tick.h"
 #include "dstar_lite.h"
 #include "coord.h"
+#include "navsys_status.h"
+#include <stdint.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -31,6 +33,30 @@ extern "C" {
 
 /// @brief Maximum steps per single tick cycle
 #define MAX_STEP 64
+#define BYUL_DSTAR_LITE_TICK_DEFAULT_MAX_STEPS 64u
+
+/** Explicit canonical controller state. */
+typedef enum e_dstar_lite_tick_state {
+    DSTAR_LITE_TICK_STATE_DETACHED = 0,
+    DSTAR_LITE_TICK_STATE_ATTACHED = 1,
+    DSTAR_LITE_TICK_STATE_RUNNING = 2,
+    DSTAR_LITE_TICK_STATE_COMPLETED = 3,
+    DSTAR_LITE_TICK_STATE_CANCELLED = 4,
+    DSTAR_LITE_TICK_STATE_FAILED = 5
+} dstar_lite_tick_state_t;
+
+/** Versioned canonical controller configuration. */
+typedef struct s_dstar_lite_tick_create_info {
+    uint32_t struct_size;
+    uint32_t abi_version;
+    dstar_lite_t* planner;
+    float tile_size_m;
+    float speed_m_per_sec;
+    float max_duration_sec;
+    uint32_t max_steps_per_update;
+} dstar_lite_tick_create_info_t;
+
+#define DSTAR_LITE_TICK_CREATE_INFO_VERSION 1u
 
 /**
  * @struct s_dstar_lite_tick
@@ -54,6 +80,93 @@ typedef struct s_dstar_lite_tick {
 } dstar_lite_tick_t;
 
 /**
+ * @brief Initializes canonical tick configuration defaults.
+ * @param[out] out_info Destination configuration.
+ * @param[in] planner Borrowed planner controlled by the tick controller.
+ * @return A status code; NAVSYS_STATUS_OK on success.
+ * @byul.nullable out_info false
+ * @byul.nullable planner false
+ */
+BYUL_API navsys_status_t dstar_lite_tick_create_info_init(
+    dstar_lite_tick_create_info_t* out_info, dstar_lite_t* planner);
+
+/**
+ * @brief Creates a detached controller that borrows its planner.
+ * @param[in] info Valid versioned configuration.
+ * @param[out] out_controller Receives the caller-owned controller on success.
+ * @return A status code; NAVSYS_STATUS_OK on success.
+ * @byul.nullable info false
+ * @byul.nullable out_controller false
+ */
+BYUL_API navsys_status_t dstar_lite_tick_create_ex(
+    const dstar_lite_tick_create_info_t* info,
+    dstar_lite_tick_t** out_controller);
+
+/**
+ * @brief Attaches a detached controller to a tick source.
+ * @param[in,out] controller Controller to attach.
+ * @param[in,out] tick Tick source that borrows the controller.
+ * @return A status code; NAVSYS_STATUS_OK on success.
+ * @byul.nullable controller false
+ * @byul.nullable tick false
+ */
+BYUL_API navsys_status_t dstar_lite_tick_start(
+    dstar_lite_tick_t* controller, tick_t* tick);
+
+/**
+ * @brief Synchronously detaches an attached controller.
+ * @param[in,out] controller Controller to stop.
+ * @return A status code; NAVSYS_STATUS_OK on success.
+ * @byul.nullable controller false
+ */
+BYUL_API navsys_status_t dstar_lite_tick_stop(
+    dstar_lite_tick_t* controller);
+
+/**
+ * @brief Advances deterministic controller time and movement.
+ * @param[in,out] controller Controller to advance.
+ * @param[in] delta_seconds Non-negative elapsed time in seconds.
+ * @param[out] out_steps Optional destination for the number of moved tiles.
+ * @return A status code; NAVSYS_STATUS_OK on success.
+ * @byul.nullable controller false
+ * @byul.nullable out_steps true
+ */
+BYUL_API navsys_status_t dstar_lite_tick_advance(
+    dstar_lite_tick_t* controller, float delta_seconds,
+    uint32_t* out_steps);
+
+/**
+ * @brief Returns the explicit controller lifecycle state.
+ * @param[in] controller Controller to inspect.
+ * @return Current state, or DSTAR_LITE_TICK_STATE_FAILED for invalid input.
+ * @byul.nullable controller false
+ */
+BYUL_API dstar_lite_tick_state_t dstar_lite_tick_get_state(
+    const dstar_lite_tick_t* controller);
+
+/**
+ * @brief Copies the current planner position.
+ * @param[in] controller Controller to inspect.
+ * @param[out] out_position Destination coordinate.
+ * @return A status code; NAVSYS_STATUS_OK on success.
+ * @byul.nullable controller false
+ * @byul.nullable out_position false
+ */
+BYUL_API navsys_status_t dstar_lite_tick_fetch_position(
+    const dstar_lite_tick_t* controller, coord_t* out_position);
+
+/**
+ * @brief Copies elapsed monotonic controller time in seconds.
+ * @param[in] controller Controller to inspect.
+ * @param[out] out_elapsed_seconds Destination elapsed time.
+ * @return A status code; NAVSYS_STATUS_OK on success.
+ * @byul.nullable controller false
+ * @byul.nullable out_elapsed_seconds false
+ */
+BYUL_API navsys_status_t dstar_lite_tick_get_elapsed_seconds(
+    const dstar_lite_tick_t* controller, float* out_elapsed_seconds);
+
+/**
  * @brief Creates a D* Lite tick controller with default values.
  *
  * The following defaults are used:
@@ -64,8 +177,11 @@ typedef struct s_dstar_lite_tick {
  * Must be attached to the tick system using
  * dstar_lite_tick_prepare() or dstar_lite_tick_prepare_full().
  *
- * @param dsl Target D* Lite object
- * @return Initialized tick controller, or NULL on failure
+ * @param[in] dsl Borrowed target D* Lite object.
+ * @return A caller-owned tick controller, or NULL on failure.
+ * @byul.nullable dsl false
+ * @byul.nullable return true
+ * @byul.lifetime return caller-owned
  */
 BYUL_API dstar_lite_tick_t* dstar_lite_tick_create(dstar_lite_t* dsl);
 
@@ -84,23 +200,30 @@ BYUL_API dstar_lite_tick_t* dstar_lite_tick_create(dstar_lite_t* dsl);
  * Must be attached using dstar_lite_tick_prepare() or
  * dstar_lite_tick_prepare_full() before use.
  *
- * @param dsl Target D* Lite object
- * @param max_time Total allowed tick duration (in seconds)
- * @return Initialized tick controller, or NULL on failure
+ * @param[in] dsl Borrowed target D* Lite object.
+ * @param[in] max_time Total allowed tick duration in seconds.
+ * @return A caller-owned tick controller, or NULL on failure.
+ * @byul.nullable dsl false
+ * @byul.nullable return true
+ * @byul.lifetime return caller-owned
  */
 BYUL_API dstar_lite_tick_t* dstar_lite_tick_create_full(
     dstar_lite_t* dsl, float max_time);
 
 /**
- * @brief Frees memory allocated to tick controller
- * @param dst Tick controller to free
+ * @brief Frees a tick controller after synchronously detaching it.
+ * @param[in,out] dst Controller to free; NULL is accepted.
+ * @byul.nullable dst true
  */
 BYUL_API void dstar_lite_tick_destroy(dstar_lite_tick_t* dst);
 
 /**
- * @brief Copies a tick controller object
- * @param src Tick controller to copy
- * @return Duplicated controller object
+ * @brief Copies controller configuration into a detached controller.
+ * @param[in] src Controller to copy.
+ * @return A caller-owned detached copy, or NULL on failure.
+ * @byul.nullable src false
+ * @byul.nullable return true
+ * @byul.lifetime return caller-owned
  */
 BYUL_API dstar_lite_tick_t* dstar_lite_tick_copy(const dstar_lite_tick_t* src);
 
@@ -117,7 +240,8 @@ BYUL_API dstar_lite_tick_t* dstar_lite_tick_copy(const dstar_lite_tick_t* src);
  *
  * Other fields (base, speed, unit_m, max_time) remain unchanged.
  *
- * @param dst Tick controller to reset (NULL is ignored)
+ * @param[in,out] dst Tick controller to reset; NULL is accepted.
+ * @byul.nullable dst true
  */
 BYUL_API void dstar_lite_tick_reset(dstar_lite_tick_t* dst);
 
@@ -129,8 +253,10 @@ BYUL_API void dstar_lite_tick_reset(dstar_lite_tick_t* dst);
  *
  * Uses default values for unit_m, speed, and max_time.
  *
- * @param dst Tick controller (must be pre-created)
- * @param tk Tick system handle
+ * @param[in,out] dst Pre-created controller.
+ * @param[in,out] tk Tick system handle.
+ * @byul.nullable dst false
+ * @byul.nullable tk false
  */
 BYUL_API void dstar_lite_tick_prepare(
     dstar_lite_tick_t* dst, tick_t* tk);
@@ -145,11 +271,13 @@ BYUL_API void dstar_lite_tick_prepare(
  *
  * This function attaches the controller to the tick system immediately.
  *
- * @param dst Tick controller (must be pre-created)
- * @param unit_m Unit distance per tile
- * @param speed_sec Speed in meters per second
- * @param max_time Maximum allowed tick duration
- * @param tk Tick system object
+ * @param[in,out] dst Pre-created controller.
+ * @param[in] unit_m Unit distance per tile.
+ * @param[in] speed_sec Speed in meters per second.
+ * @param[in] max_time Maximum allowed tick duration.
+ * @param[in,out] tk Tick system object.
+ * @byul.nullable dst false
+ * @byul.nullable tk false
  */
 BYUL_API void dstar_lite_tick_prepare_full(
     dstar_lite_tick_t* dst,
@@ -169,8 +297,9 @@ BYUL_API void dstar_lite_tick_prepare_full(
  * Once the goal is reached or max_time is exceeded, the tick
  * controller is detached automatically.
  *
- * @param dst Tick controller
- * @param dt Delta time since last tick (seconds)
+ * @param[in,out] dst Tick controller.
+ * @param[in] dt Delta time since last tick in seconds.
+ * @byul.nullable dst false
  */
 BYUL_API void dstar_lite_tick_update(dstar_lite_tick_t* dst, float dt);
 
@@ -180,8 +309,10 @@ BYUL_API void dstar_lite_tick_update(dstar_lite_tick_t* dst, float dt);
  * This disables further automatic updates. It is usually called
  * after reaching the goal or on user-triggered events.
  *
- * @param dst Tick controller to detach
- * @param tk Tick system object
+ * @param[in,out] dst Tick controller to detach.
+ * @param[in,out] tk Tick system object.
+ * @byul.nullable dst false
+ * @byul.nullable tk false
  */
 BYUL_API void dstar_lite_tick_complete(
     dstar_lite_tick_t* dst, tick_t* tk);

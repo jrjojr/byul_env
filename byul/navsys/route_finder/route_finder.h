@@ -1,5 +1,17 @@
-#ifndef ROUTE_FINDER_H
-#define ROUTE_FINDER_H
+/*
+ * Copyright (c) 2025-2026 ByulPapa (byuldev@outlook.kr)
+ * This file is part of the Byul World project.
+ * Licensed under the Byul World Source-Available Non-Commercial License v1.0 (2025).
+ * See the LICENSE file in the project root for full license terms.
+ */
+
+/**
+ * @file route_finder.h
+ * @brief Declares the Route Finder dispatcher and configuration public C ABI.
+ */
+
+#ifndef BYUL_ROUTE_FINDER_H
+#define BYUL_ROUTE_FINDER_H
 
 #include <stdint.h>
 
@@ -163,6 +175,30 @@ typedef struct s_route_finder_run_options {
 BYUL_API const char* get_route_finder_name(route_finder_type_t pa);
 
 /**
+ * @brief Returns the stable name assigned to every route finder type value.
+ * @param[in] type Route finder type.
+ * @return Static UTF-8 name; "unknown" for values outside the enum.
+ * @byul.nullable return false
+ * @byul.lifetime return borrowed:static-storage
+ * @byul.side_effect none
+ * @byul.thread_safety thread-safe
+ * @byul.blocking false
+ * @byul.reentrant true
+ */
+BYUL_API const char* route_finder_type_get_name(route_finder_type_t type);
+
+/**
+ * @brief Reports whether the canonical dispatcher supports a type.
+ * @param[in] type Route finder type.
+ * @return true when route_finder_run_ex can dispatch the type.
+ * @byul.side_effect none
+ * @byul.thread_safety thread-safe
+ * @byul.blocking false
+ * @byul.reentrant true
+ */
+BYUL_API bool route_finder_is_type_supported(route_finder_type_t type);
+
+/**
  * @brief 지정한 route finder type을 공통 dispatcher가 실행하는지 확인한다.
  *
  * Enum에 이름이 존재하더라도 현재 build의 공통 dispatcher에 구현이 연결되지 않은
@@ -209,12 +245,40 @@ typedef struct s_route_finder {
  * - debug_mode_enabled: false
  * - typedata: nullptr by default, used for algorithm-specific data
  *
- * @param navgrid The navigation grid to use
+ * @param[in] navgrid The navigation grid to use.
  * @return A pointer to the initialized route_finder_t (allocated on heap).
  *         Must be freed using route_finder_destroy.
+ * @byul.nullable navgrid false
+ * @byul.nullable return true
+ * @byul.lifetime return caller-owned
  */
 BYUL_API route_finder_t* route_finder_create(navgrid_t* navgrid);
 
+/**
+ * @brief Creates a fully configured legacy route finder.
+ * @param[in] navgrid Borrowed navigation grid.
+ * @param[in] start Start coordinate.
+ * @param[in] goal Goal coordinate.
+ * @param[in] type Algorithm type.
+ * @param[in] typedata Borrowed legacy algorithm data.
+ * @param[in] max_retry Positive expansion limit.
+ * @param[in] debug_mode_enabled Whether tracing is enabled.
+ * @param[in] cost_fn Legacy cost callback.
+ * @param[in] cost_fn_userdata Borrowed cost callback data.
+ * @param[in] heuristic_fn Legacy heuristic callback.
+ * @param[in] heuristic_fn_userdata Borrowed heuristic callback data.
+ * @return Caller-owned finder, or NULL on invalid input or allocation failure.
+ * @byul.nullable navgrid false
+ * @byul.nullable start false
+ * @byul.nullable goal false
+ * @byul.nullable typedata true
+ * @byul.nullable cost_fn false
+ * @byul.nullable cost_fn_userdata true
+ * @byul.nullable heuristic_fn false
+ * @byul.nullable heuristic_fn_userdata true
+ * @byul.nullable return true
+ * @byul.lifetime return caller-owned
+ */
 BYUL_API route_finder_t* route_finder_create_full(
     navgrid_t* navgrid, 
     const coord_t* start, 
@@ -233,8 +297,41 @@ BYUL_API route_finder_t* route_finder_create_full(
     void* heuristic_fn_userdata
 );
 
+/**
+ * @brief Initializes caller storage as a minimal legacy finder.
+ * @param[out] out Caller storage.
+ * @param[in] navgrid Borrowed navigation grid.
+ * @return Zero on success, otherwise -1.
+ * @byul.nullable out false
+ * @byul.nullable navgrid false
+ */
 BYUL_API int route_finder_init(route_finder_t* out, navgrid_t* navgrid);
 
+/**
+ * @brief Initializes caller storage from all legacy configuration fields.
+ * @param[out] out Caller storage.
+ * @param[in] navgrid Borrowed navigation grid.
+ * @param[in] start Start coordinate.
+ * @param[in] goal Goal coordinate.
+ * @param[in] type Algorithm type.
+ * @param[in] typedata Borrowed legacy algorithm data.
+ * @param[in] max_retry Positive expansion limit.
+ * @param[in] debug_mode_enabled Whether tracing is enabled.
+ * @param[in] cost_fn Legacy cost callback.
+ * @param[in] cost_fn_userdata Borrowed cost callback data.
+ * @param[in] heuristic_fn Legacy heuristic callback.
+ * @param[in] heuristic_fn_userdata Borrowed heuristic callback data.
+ * @return Zero on success, otherwise -1.
+ * @byul.nullable out false
+ * @byul.nullable navgrid false
+ * @byul.nullable start false
+ * @byul.nullable goal false
+ * @byul.nullable typedata true
+ * @byul.nullable cost_fn false
+ * @byul.nullable cost_fn_userdata true
+ * @byul.nullable heuristic_fn false
+ * @byul.nullable heuristic_fn_userdata true
+ */
 BYUL_API int route_finder_init_full(
     route_finder_t* out, 
     navgrid_t* navgrid, 
@@ -252,26 +349,104 @@ BYUL_API int route_finder_init_full(
     void* heuristic_fn_userdata    
 );
 
+/**
+ * @brief Releases sidecar state and clears caller-owned finder storage.
+ * @param[in,out] out Finder storage.
+ * @return Zero on success, otherwise -1.
+ * @byul.nullable out false
+ */
 BYUL_API int route_finder_free(route_finder_t* out);
 
+/**
+ * @brief Destroys a heap-allocated route finder.
+ * @param[in] a Finder to destroy.
+ * @return Zero on success, otherwise -1.
+ * @byul.nullable a false
+ */
 BYUL_API int route_finder_destroy(route_finder_t* a);
 
+/**
+ * @brief Copies a finder and its retained evaluation binding.
+ * @param[in] src Finder to copy.
+ * @return Caller-owned copy, or NULL on failure.
+ * @byul.nullable src false
+ * @byul.nullable return true
+ * @byul.lifetime return caller-owned
+ */
 BYUL_API route_finder_t* route_finder_copy(const route_finder_t* src);
 
 /**
- * @brief Getters/Setters for route_finder_t configuration.
+ * @brief Sets the borrowed navigation grid.
+ * @param[in,out] a Finder to update.
+ * @param[in] navgrid Grid retained as a borrowed pointer.
+ * @byul.nullable a false
+ * @byul.nullable navgrid false
  */
 BYUL_API void route_finder_set_navgrid(route_finder_t* a, navgrid_t* navgrid);
+
+/**
+ * @brief Sets the start coordinate.
+ * @param[in,out] a Finder to update.
+ * @param[in] start Coordinate to copy.
+ * @byul.nullable a false
+ * @byul.nullable start false
+ */
 BYUL_API void route_finder_set_start(route_finder_t* a, const coord_t* start);
+
+/**
+ * @brief Sets the goal coordinate.
+ * @param[in,out] a Finder to update.
+ * @param[in] goal Coordinate to copy.
+ * @byul.nullable a false
+ * @byul.nullable goal false
+ */
 BYUL_API void route_finder_set_goal(route_finder_t* a, const coord_t* goal);
 
+/**
+ * @brief Returns the borrowed navigation grid.
+ * @param[in] a Finder to inspect.
+ * @return Borrowed grid, or NULL when none is configured.
+ * @byul.nullable a false
+ * @byul.nullable return true
+ * @byul.lifetime return borrowed:a
+ */
 BYUL_API const navgrid_t* route_finder_get_navgrid(const route_finder_t* a);
+
+/**
+ * @brief Copies the configured start coordinate.
+ * @param[in] a Finder to inspect.
+ * @param[out] out Destination coordinate.
+ * @return Zero on success, otherwise -1.
+ * @byul.nullable a false
+ * @byul.nullable out false
+ */
 BYUL_API int route_finder_fetch_start(const route_finder_t* a, coord_t* out);
+
+/**
+ * @brief Copies the configured goal coordinate.
+ * @param[in] a Finder to inspect.
+ * @param[out] out Destination coordinate.
+ * @return Zero on success, otherwise -1.
+ * @byul.nullable a false
+ * @byul.nullable out false
+ */
 BYUL_API int route_finder_fetch_goal(const route_finder_t* a, coord_t* out);
 
+/**
+ * @brief Sets a legacy algorithm type without checking capability.
+ * @param[in,out] a Finder to update.
+ * @param[in] type Algorithm type.
+ * @byul.nullable a false
+ */
 BYUL_API void route_finder_set_type(
     route_finder_t* a, route_finder_type_t type);
 
+/**
+ * @brief Returns the selected algorithm type.
+ * @param[in] a Finder to inspect.
+ * @return Selected algorithm type.
+ * @byul.nullable a false
+ */
 BYUL_API route_finder_type_t route_finder_get_type(const route_finder_t* a);
 
 /**
@@ -292,9 +467,24 @@ BYUL_API route_finder_type_t route_finder_get_type(const route_finder_t* a);
 BYUL_API navsys_status_t route_finder_set_type_checked(
     route_finder_t* finder, route_finder_type_t type);
 
+/**
+ * @brief Sets borrowed legacy algorithm data.
+ * @param[in,out] a Finder to update.
+ * @param[in] typedata Borrowed algorithm data, or NULL.
+ * @byul.nullable a false
+ * @byul.nullable typedata true
+ */
 BYUL_API void route_finder_set_typedata(
     route_finder_t* a, void* typedata);
 
+/**
+ * @brief Returns borrowed legacy algorithm data.
+ * @param[in] a Finder to inspect.
+ * @return Borrowed algorithm data, or NULL.
+ * @byul.nullable a false
+ * @byul.nullable return true
+ * @byul.lifetime return borrowed:a
+ */
 BYUL_API void* route_finder_get_typedata(const route_finder_t* a);    
 
 /**
@@ -393,7 +583,20 @@ BYUL_API navsys_status_t route_finder_bind_weighted_astar_config(
 BYUL_API navsys_status_t route_finder_unbind_algorithm_config(
     route_finder_t* finder);
 
+/**
+ * @brief Sets the legacy retry limit without validation.
+ * @param[in,out] a Finder to update.
+ * @param[in] max_retry Retry limit to store.
+ * @byul.nullable a false
+ */
 BYUL_API void route_finder_set_max_retry(route_finder_t* a, int max_retry);
+
+/**
+ * @brief Returns the configured retry limit.
+ * @param[in] a Finder to inspect.
+ * @return Configured retry limit.
+ * @byul.nullable a false
+ */
 BYUL_API int route_finder_get_max_retry(route_finder_t* a);
 
 /**
@@ -413,29 +616,105 @@ BYUL_API int route_finder_get_max_retry(route_finder_t* a);
 BYUL_API navsys_status_t route_finder_set_max_retry_checked(
     route_finder_t* finder, int max_retry);
 
+/**
+ * @brief Enables or disables legacy diagnostic logging.
+ * @param[in,out] a Finder to update.
+ * @param[in] is_logging Whether logging is enabled.
+ * @byul.nullable a false
+ */
 BYUL_API void route_finder_enable_debug_mode(
     route_finder_t* a, bool is_logging);
 
+/**
+ * @brief Reports whether diagnostic logging is enabled.
+ * @param[in] a Finder to inspect.
+ * @return true when logging is enabled.
+ * @byul.nullable a false
+ */
 BYUL_API bool route_finder_is_debug_mode_enabled(route_finder_t* a);
 
+/**
+ * @brief Replaces the legacy cost callback.
+ * @param[in,out] a Finder to update.
+ * @param[in] cost_fn Cost callback retained by the finder.
+ * @byul.nullable a false
+ * @byul.nullable cost_fn false
+ * @byul.lifetime cost_fn until-unbind
+ */
 BYUL_API void route_finder_set_cost_func(
     route_finder_t* a, cost_func cost_fn);
 
+/**
+ * @brief Returns the retained legacy cost callback.
+ * @param[in] a Finder to inspect.
+ * @return Retained callback.
+ * @byul.nullable a false
+ * @byul.nullable return true
+ * @byul.lifetime return borrowed:a
+ */
 BYUL_API cost_func route_finder_get_cost_func(route_finder_t* a);
 
+/**
+ * @brief Replaces the borrowed legacy cost callback data.
+ * @param[in,out] a Finder to update.
+ * @param[in] cost_fn_userdata Caller-owned callback data.
+ * @byul.nullable a false
+ * @byul.nullable cost_fn_userdata true
+ * @byul.lifetime cost_fn_userdata until-unbind
+ */
 BYUL_API void route_finder_set_cost_fn_userdata(
     route_finder_t* a, void* cost_fn_userdata);
 
+/**
+ * @brief Returns the borrowed legacy cost callback data.
+ * @param[in] a Finder to inspect.
+ * @return Retained callback data.
+ * @byul.nullable a false
+ * @byul.nullable return true
+ * @byul.lifetime return borrowed:a
+ */
 BYUL_API void* route_finder_get_cost_fn_userdata(const route_finder_t* a);
 
+/**
+ * @brief Replaces the legacy heuristic callback.
+ * @param[in,out] a Finder to update.
+ * @param[in] heuristic_fn Heuristic callback retained by the finder.
+ * @byul.nullable a false
+ * @byul.nullable heuristic_fn false
+ * @byul.lifetime heuristic_fn until-unbind
+ */
 BYUL_API void route_finder_set_heuristic_func(
     route_finder_t* a, heuristic_func heuristic_fn);
 
+/**
+ * @brief Returns the retained legacy heuristic callback.
+ * @param[in] a Finder to inspect.
+ * @return Retained callback.
+ * @byul.nullable a false
+ * @byul.nullable return true
+ * @byul.lifetime return borrowed:a
+ */
 BYUL_API heuristic_func route_finder_get_heuristic_func(route_finder_t* a);
 
+/**
+ * @brief Replaces the borrowed legacy heuristic callback data.
+ * @param[in,out] a Finder to update.
+ * @param[in] heuristic_fn_userdata Caller-owned callback data.
+ * @byul.nullable a false
+ * @byul.nullable heuristic_fn_userdata true
+ * @byul.lifetime heuristic_fn_userdata until-unbind
+ */
 BYUL_API void route_finder_set_heuristic_fn_userdata(
     route_finder_t* a, void* heuristic_fn_userdata);
 
+/**
+ * @brief Returns the borrowed legacy heuristic callback data.
+ * @param[in] a Finder to inspect.
+ * @return Retained callback data.
+ * @byul.nullable a false
+ * @byul.nullable return true
+ * @byul.lifetime return borrowed:a
+ */
 BYUL_API void* route_finder_get_heuristic_fn_userdata(
     const route_finder_t* a);
 
@@ -460,6 +739,28 @@ BYUL_API void* route_finder_get_heuristic_fn_userdata(
  */
 BYUL_API navsys_status_t route_finder_bind_cost_func(
     route_finder_t* finder, cost_func fn, void* userdata);
+
+/**
+ * @brief Atomically binds a status-returning cost callback and userdata.
+ * @param[in,out] finder Route finder to update.
+ * @param[in] fn Callback retained until unbound or the finder is released.
+ * @param[in] userdata Caller-owned callback data retained as a borrowed pointer.
+ * @return Common Navsys status value.
+ * @retval NAVSYS_STATUS_OK The binding was replaced.
+ * @retval NAVSYS_STATUS_INVALID_ARGUMENT finder or fn is NULL.
+ * @retval NAVSYS_STATUS_IN_PROGRESS The finder is executing a callback.
+ * @byul.nullable finder false
+ * @byul.nullable fn false
+ * @byul.nullable userdata true
+ * @byul.lifetime fn until-unbind
+ * @byul.lifetime userdata until-unbind
+ * @byul.side_effect mutates:finder
+ * @byul.thread_safety externally-synchronized
+ * @byul.blocking false
+ * @byul.reentrant false
+ */
+BYUL_API navsys_status_t route_finder_bind_cost_func_ex(
+    route_finder_t* finder, route_finder_cost_func_ex fn, void* userdata);
 
 /**
  * @brief Cost binding을 기본 callback과 NULL userdata로 되돌린다.
@@ -500,6 +801,29 @@ BYUL_API navsys_status_t route_finder_bind_heuristic_func(
     route_finder_t* finder, heuristic_func fn, void* userdata);
 
 /**
+ * @brief Atomically binds a status-returning heuristic callback and userdata.
+ * @param[in,out] finder Route finder to update.
+ * @param[in] fn Callback retained until unbound or the finder is released.
+ * @param[in] userdata Caller-owned callback data retained as a borrowed pointer.
+ * @return Common Navsys status value.
+ * @retval NAVSYS_STATUS_OK The binding was replaced.
+ * @retval NAVSYS_STATUS_INVALID_ARGUMENT finder or fn is NULL.
+ * @retval NAVSYS_STATUS_IN_PROGRESS The finder is executing a callback.
+ * @byul.nullable finder false
+ * @byul.nullable fn false
+ * @byul.nullable userdata true
+ * @byul.lifetime fn until-unbind
+ * @byul.lifetime userdata until-unbind
+ * @byul.side_effect mutates:finder
+ * @byul.thread_safety externally-synchronized
+ * @byul.blocking false
+ * @byul.reentrant false
+ */
+BYUL_API navsys_status_t route_finder_bind_heuristic_func_ex(
+    route_finder_t* finder, route_finder_heuristic_func_ex fn,
+    void* userdata);
+
+/**
  * @brief Heuristic binding을 기본 callback과 NULL userdata로 되돌린다.
  * @param[in,out] finder 변경할 route finder.
  * @return 공통 Navsys 상태 값.
@@ -516,7 +840,9 @@ BYUL_API navsys_status_t route_finder_unbind_heuristic_func(
     route_finder_t* finder);
 
 /**
- * @brief Resets and validates the configuration.
+ * @brief Resets the finder to its default configuration.
+ * @param[in,out] a Finder to reset; NULL is ignored.
+ * @byul.nullable a true
  */
 BYUL_API void route_finder_clear(route_finder_t* a);
 
@@ -528,15 +854,33 @@ BYUL_API void route_finder_clear(route_finder_t* a);
  * - max_retry: 10000
  * - debug_mode_enabled: false
  *
- * @param a Pointer to the route_finder_t to initialize.
+ * @param[out] a Finder storage to initialize.
+ * @byul.nullable a false
  */
 BYUL_API void route_finder_set_defaults(route_finder_t* a);
 
+/**
+ * @brief Validates the legacy finder fields.
+ * @param[in] a Finder to validate.
+ * @return true when all required fields and values are valid.
+ * @byul.nullable a false
+ */
 BYUL_API bool route_finder_is_valid(const route_finder_t* a);
+
+/**
+ * @brief Prints a diagnostic representation of the finder.
+ * @param[in] a Finder to print; NULL prints a null diagnostic.
+ * @byul.nullable a true
+ */
 BYUL_API void route_finder_print(const route_finder_t* a);
 
 /**
- * @brief Direct run functions for specific algorithms.
+ * @brief Runs the selected legacy dispatcher algorithm.
+ * @param[in,out] a Configured finder.
+ * @return Caller-owned route, or NULL when validation or search fails.
+ * @byul.nullable a false
+ * @byul.nullable return true
+ * @byul.lifetime return caller-owned
  */
 BYUL_API route_t* route_finder_run(route_finder_t* a);
 
@@ -617,4 +961,4 @@ BYUL_API navsys_status_t route_finder_run_with_options(
 }
 #endif
 
-#endif // ROUTE_FINDER_H
+#endif /* BYUL_ROUTE_FINDER_H */

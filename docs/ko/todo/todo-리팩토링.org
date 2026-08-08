@@ -1,12 +1,12 @@
 #+TITLE: BYUL 전체 헤더 리팩터링 TODO
 #+TODO: TODO DOING BLOCKED | DONE CANCELLED FAILED
-#+TODO_RULES: ../../../external/rules/projects/byul/todo-rules.org
-#+PUBLIC_API_RULES: ../../../external/rules/projects/byul/public-api-rules.org
-#+HEADER_DECLARATION_RULES: ../../../external/rules/projects/byul/header-declaration-rules.org
-#+HEADER_COMMENT_RULES: ../../../external/rules/projects/byul/header-comment-rules.org
-#+HEADER_AUTHORING_RULES: ../../../external/rules/projects/byul/header-authoring-rules.org
-#+BUILD_RULES: ../../../external/rules/projects/byul/build-rules.org
-#+TEST_RULES: ../../../external/rules/projects/byul/test-rules.org
+#+TODO_RULES: ../../../external/rules_env/projects/byul/todo-rules.org
+#+PUBLIC_API_RULES: ../../../external/rules_env/projects/byul/public-api-rules.org
+#+HEADER_DECLARATION_RULES: ../../../external/rules_env/projects/byul/header-declaration-rules.org
+#+HEADER_COMMENT_RULES: ../../../external/rules_env/projects/byul/header-comment-rules.org
+#+HEADER_AUTHORING_RULES: ../../../external/rules_env/projects/byul/header-authoring-rules.org
+#+BUILD_RULES: ../../../external/rules_env/projects/byul/build-rules.org
+#+TEST_RULES: ../../../external/rules_env/projects/byul/test-rules.org
 #+OWNERSHIP_MANIFEST: header-refactor-current/header-role-manifest.json
 #+AUTHOR: ByulPapa / Codex
 #+LANGUAGE: ko
@@ -25,7 +25,7 @@ library, 설치 SDK, wrapper, 외부 C consumer가 같은 계약을 검증한 �
 
 * 규칙과 분석 기준
 
-- 규칙 checkout: =external/rules=
+- 규칙 checkout: =external/rules_env=
 - 검토한 중앙 규칙 revision: =b644b4cfa630534b755e1837f524753c7252b749=
 - 분석한 BYUL Git HEAD: =4b758193c922640a0804b2f1bb20ff8d648c5e55=
 - revision과 checkout 계약의 원본 기록: =rules-ref.org=
@@ -530,7 +530,7 @@ public C header의 완료 상태:
 - 3단계에서 수정한 =strset.h/dualnumber.h/vec3.h= SHA를
   =header-refactor-current=에 다시 capture하고 role manifest를 재생성해 135개
   path/SHA current check를 통과했으므로 조건 4도 닫았다.
-- =rules-ref.org=와 =external/rules= HEAD는 모두
+- =rules-ref.org=와 =external/rules_env= HEAD는 모두
   =642275431efe0d87f4fc3856ef326d6fdfbb0aba=이고 중앙 validator 60개가
   0 error/0 warning으로 통과했다. Rules checkout도 clean이므로 조건 2를 닫았다.
 - 1~3단계 변경은 =c355b1a=, =f17c8b7=, =fad3e29=의 범위 제한 commit으로

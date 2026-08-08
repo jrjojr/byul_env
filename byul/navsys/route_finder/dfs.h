@@ -1,8 +1,19 @@
-#ifndef DFS_H
-#define DFS_H
+/*
+ * Copyright (c) 2025-2026 ByulPapa (byuldev@outlook.kr)
+ * This file is part of the Byul World project.
+ * Licensed under the Byul World Source-Available Non-Commercial License v1.0 (2025).
+ * See the LICENSE file in the project root for full license terms.
+ */
+
+/**
+ * @file dfs.h
+ * @brief Declares the depth-first route search public C ABI.
+ */
+
+#ifndef BYUL_DFS_H
+#define BYUL_DFS_H
 
 #include "byul_config.h"
-#include "scalar.h"
 #include "coord.h"
 #include "navgrid.h"
 #include "route.h"
@@ -26,15 +37,20 @@ extern "C" {
  * - If no path is found: a route up to the last explored coordinate is returned, and success is false.
  * - If @p debug_mode_enabled is true, visit counts for all visited coordinates are recorded.
  *
- * @param m                The map object for pathfinding.
- * @param start            Start coordinate.
- * @param goal             Goal coordinate.
- * @param max_retry        Maximum number of iterations (recommended: width * height).
- * @param debug_mode_enabled  Whether to log visited coordinate counts.
+ * @param[in] m                The map object for pathfinding.
+ * @param[in] start            Start coordinate.
+ * @param[in] goal             Goal coordinate.
+ * @param[in] max_retry        Maximum number of iterations (recommended: width * height).
+ * @param[in] debug_mode_enabled  Whether to log visited coordinate counts.
  * 
  * @return A @c route_t* object.  
  *         - If @c route_get_success(result) is true, the route successfully reached the goal.
  *         - If false, the route includes the path up to the last explored point.
+ * @byul.nullable m false
+ * @byul.nullable start false
+ * @byul.nullable goal false
+ * @byul.nullable return true
+ * @byul.lifetime return caller-owned
  */
 BYUL_API route_t* find_dfs(const navgrid_t* m, 
     const coord_t* start, const coord_t* goal, 
@@ -44,4 +60,4 @@ BYUL_API route_t* find_dfs(const navgrid_t* m,
 }
 #endif
 
-#endif // DFS_H
+#endif /* BYUL_DFS_H */

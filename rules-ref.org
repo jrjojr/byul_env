@@ -3,9 +3,9 @@
 #+OPTIONS: toc:nil num:nil
 #+RULES_REPOSITORY: rules_env
 #+RULES_REMOTE: https://github.com/jrjojr/rules_env.git
-#+RULES_REVISION: b1ff82f7b2c5144f50cd4c5a37207a1bd2423453
+#+RULES_REVISION: 5367ce60d760e019269e2b05fd856e99d48ba163
 #+RULES_PROJECT: byul
-#+RULES_DEFAULT_CHECKOUT: external/rules
+#+RULES_DEFAULT_CHECKOUT: external/rules_env
 #+RULES_COMMON_ENTRYPOINT: common/init-rules.org
 #+RULES_ENTRYPOINT: projects/byul/byul-init-rules.org
 
@@ -16,7 +16,7 @@
 
 * Bootstrap
 
-1. =git submodule update --init external/rules=로 submodule을 준비한다.
+1. =git submodule update --init external/rules_env=로 submodule을 준비한다.
 2. =RULES_DEFAULT_CHECKOUT=을 BYUL 저장소 root에서 resolve한다.
 3. 해당 directory의 =RULES_COMMON_ENTRYPOINT=와 =RULES_ENTRYPOINT=이 존재하는지 확인한다.
 4. Git =HEAD=가 =RULES_REVISION=과 다른 경우 오래된 local 규칙으로 fallback하지 않고

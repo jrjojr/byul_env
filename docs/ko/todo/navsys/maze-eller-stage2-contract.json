@@ -1,0 +1,65 @@
+{
+  "schema_version": 1,
+  "scope": "navsys-maze-eller-stage2",
+  "status": "complete",
+  "source_revision": "565f68b",
+  "canonical_api": {
+    "generator": "byul_maze_generate_eller",
+    "options": "byul_maze_generate_options_t ABI version 1",
+    "output_contract": "out_maze is reset to NULL before validation and receives caller ownership only on success",
+    "status_contract": [
+      "NAVSYS_STATUS_OK",
+      "NAVSYS_STATUS_INVALID_ARGUMENT",
+      "NAVSYS_STATUS_UNSUPPORTED",
+      "NAVSYS_STATUS_OUT_OF_MEMORY",
+      "NAVSYS_STATUS_CALLBACK_FAILED",
+      "NAVSYS_STATUS_CANCELLED",
+      "NAVSYS_STATUS_LIMIT_REACHED"
+    ]
+  },
+  "algorithm": {
+    "lattice": "odd/odd logical cells with a blocked one-cell perimeter",
+    "row_state": "current and next set identifiers proportional to logical width",
+    "horizontal_join": "bounded(2) on distinct adjacent sets in every non-final row",
+    "vertical_join": "one uniformly selected required member plus bounded(2) optional members per set",
+    "final_join": "all distinct adjacent sets are merged in the final row",
+    "rng": "shared Maze PCG32 generation context",
+    "replay": "same extent and seed preserve the Stage 1 raster hash"
+  },
+  "validation": {
+    "dimensions": "width and height are odd and at least 3",
+    "bounds": "the inclusive last coordinate must fit int32_t",
+    "max_cells": "checked before allocation",
+    "max_steps": "checked at every logical cell",
+    "cancellation": "polled before generation and throughout raster materialization",
+    "exception_barrier": "bad_alloc maps to OUT_OF_MEMORY; other exceptions map to CORRUPT_STATE"
+  },
+  "compatibility": {
+    "legacy_symbol": "maze_make_eller",
+    "legacy_policy": "deprecated ABI 1.x adapter",
+    "legacy_seed": "non-replayable process-local generation seed",
+    "historical_border_opening_raster": "not restored"
+  },
+  "wrapper": {
+    "generator_manifest": "tools/python/byul_wrapper/generate_wrapper_abi.py",
+    "high_level_entry": "c_maze.generate_eller",
+    "native_policy_test": "6/6 maze wrapper policy tests passed against the current MSVC Release DLL",
+    "full_suite_note": "196/197 passed; the unrelated pre-existing navcell source-text policy test failed"
+  },
+  "root_shared": {
+    "profile": "msvc-x64-release",
+    "export_count": 1204,
+    "exports": [
+      "byul_maze_generate_eller",
+      "maze_make_eller"
+    ],
+    "installed_header": "include/byul/maze_eller.h"
+  },
+  "verification": {
+    "test_maze": "55/55 test cases, 120361/120361 assertions",
+    "test_navsys_allocation_failure": "exit 0",
+    "header_abi_audit": "150 headers, 95 public C headers, 1165 declarations, 0 invariant errors",
+    "navsys_abi_inventory": "58 headers, 649 symbols",
+    "stage1_topology": "100-seed perfect-maze corpus remains active"
+  }
+}
