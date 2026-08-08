@@ -106,7 +106,7 @@ BYUL_API navsys_status_t byul_maze_generate_wilson(
 - allocation fault index, cancellation during walk/erase/commit/materialization을 test한다.
 - old/new ABI와 root export를 비교한다.
 
-* DOING 3단계: UST·종료·재현 검증
+* DONE 3단계: UST·종료·재현 검증
 
 ** 실행
 
@@ -123,7 +123,7 @@ BYUL_API navsys_status_t byul_maze_generate_wilson(
 
 - deterministic corpus, statistical suite, sanitizer와 repeated parallel calls를 실행한다.
 
-* TODO 4단계: Header·consumer 통합
+* DOING 4단계: Header·consumer 통합
 
 ** 실행
 
