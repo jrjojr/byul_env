@@ -1,0 +1,35 @@
+{
+  "schema_version": 1,
+  "scope": "navsys-maze-room-blend-stage5",
+  "status": "complete",
+  "source_revision": "3d377e7",
+  "header_contract": {
+    "license": "canonical BYUL license block",
+    "file_and_guard": "maze_room_blend.h and BYUL_MAZE_ROOM_BLEND_H",
+    "dependency": "direct maze foundation dependency through maze.h; no implementation-only or C++ type leaks",
+    "options": "versioned seed, room policy, limits and cancellation metadata",
+    "topology": "placement-order L corridors, one-cell centerline, connected DFS fill, cycle and blocked-border policy",
+    "ownership": "caller-owned maze on success and NULL output on every failure",
+    "errors": "navsys_status_t status mapping with a C++ exception barrier",
+    "legacy": "deprecated ABI 1 adapter retained and exported"
+  },
+  "build_roles": {
+    "module_static": "BYUL_STATIC maze/navsys targets built and tested",
+    "root_shared": "BYUL_EXPORTS root byul.dll built with both canonical and legacy symbols",
+    "install": "92 public headers and 1212 root exports captured in the distribution snapshot"
+  },
+  "verification": {
+    "windows_msvc_release": "110/110 Maze cases, 843314/843314 assertions; allocation-failure executable exit 0",
+    "windows_aggregate_root": "544/544 cases, 186628/186628 assertions",
+    "linux_gcc13_asan_lsan_ubsan": "110/110 Maze cases, 843314/843314 assertions; allocation-failure executable exit 0; no sanitizer report",
+    "room_blend_properties": "36 topology corpus cases plus deterministic golden, option boundaries, cancellation, parallel calls and allocation sweep",
+    "clean_sdk": "C17 and C++17 header/layout and old/new runtime consumers passed",
+    "wrapper": "26/26 scoped parser, generator, Maze ABI and dispatcher tests passed against the explicit root DLL; generated declarations are current",
+    "strict_header_audit": "150 headers, 95 public C headers, 1173 declarations, 0 invariant errors",
+    "navsys_inventory": "58 headers, 657 symbols",
+    "rules": "60 Org rule files, 0 errors, 0 warnings"
+  },
+  "known_repository_debt": {
+    "wrapper_all_headers": "repository-wide --audit --all-headers still reports unrelated pre-existing metadata debt outside the Maze closure; Room Blend strict audit and scoped wrapper gates are clean"
+  }
+}

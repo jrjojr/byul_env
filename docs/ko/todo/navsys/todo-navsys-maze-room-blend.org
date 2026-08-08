@@ -177,7 +177,7 @@ BYUL_API navsys_status_t byul_maze_generate_room_blend(
 
 - =maze-room-blend-stage4-migration.json=
 
-* DOING 5단계: Header·robustness gate
+* DONE 5단계: Header·robustness gate
 
 ** 실행
 
@@ -192,3 +192,7 @@ BYUL_API navsys_status_t byul_maze_generate_room_blend(
 
 - C17/C++17 standalone include, module/root/property/fault tests와 clean SDK consumer를 실행한다.
 - module static =BYUL_STATIC=과 root shared =BYUL_EXPORTS=에서 role migration 전후 export를 각각 검증한다.
+
+** 완료 증거
+
+- =maze-room-blend-stage5-closure.json=
