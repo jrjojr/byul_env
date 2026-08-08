@@ -331,6 +331,110 @@ TEST_CASE("Wilson ordered trace erases loops before tree commit") {
     CHECK(neighbor_count(1, 3, 3) == 3);
     CHECK(neighbor_count(4, 3, 3) == 4);
 }
+
+TEST_CASE("Wilson checked API validates controls and preserves failure atomicity") {
+    byul_maze_generate_options_t options{
+        sizeof(byul_maze_generate_options_t),
+        BYUL_MAZE_GENERATE_OPTIONS_ABI_VERSION,
+        UINT64_C(17),
+        UINT64_C(20736),
+        UINT64_C(81),
+        nullptr,
+        nullptr
+    };
+    maze_t* output = reinterpret_cast<maze_t*>(uintptr_t{1});
+    CHECK(byul_maze_generate_wilson(0, 0, 2, 3, &options, &output)
+        == NAVSYS_STATUS_UNSUPPORTED);
+    CHECK(output == nullptr);
+
+    output = reinterpret_cast<maze_t*>(uintptr_t{1});
+    CHECK(byul_maze_generate_wilson(0, 0, 4, 5, &options, &output)
+        == NAVSYS_STATUS_UNSUPPORTED);
+    CHECK(output == nullptr);
+
+    output = reinterpret_cast<maze_t*>(uintptr_t{1});
+    CHECK(byul_maze_generate_wilson(
+        std::numeric_limits<int32_t>::max(), 0, 3, 3, &options, &output)
+        == NAVSYS_STATUS_INVALID_ARGUMENT);
+    CHECK(output == nullptr);
+
+    output = reinterpret_cast<maze_t*>(uintptr_t{1});
+    CHECK(byul_maze_generate_wilson(0, 0, 9, 9, nullptr, &output)
+        == NAVSYS_STATUS_INVALID_ARGUMENT);
+    CHECK(output == nullptr);
+    CHECK(byul_maze_generate_wilson(0, 0, 9, 9, &options, nullptr)
+        == NAVSYS_STATUS_INVALID_ARGUMENT);
+
+    options.max_cells = UINT64_C(80);
+    output = reinterpret_cast<maze_t*>(uintptr_t{1});
+    CHECK(byul_maze_generate_wilson(0, 0, 9, 9, &options, &output)
+        == NAVSYS_STATUS_LIMIT_REACHED);
+    CHECK(output == nullptr);
+
+    options.max_cells = UINT64_C(81);
+    options.max_steps = UINT64_C(1);
+    output = reinterpret_cast<maze_t*>(uintptr_t{1});
+    CHECK(byul_maze_generate_wilson(0, 0, 9, 9, &options, &output)
+        == NAVSYS_STATUS_LIMIT_REACHED);
+    CHECK(output == nullptr);
+
+    maze_cancel_fixture_t cancel_fixture{0, 3};
+    options.max_steps = UINT64_C(20736);
+    options.cancel_func = cancel_maze_overlay;
+    options.cancel_userdata = &cancel_fixture;
+    output = reinterpret_cast<maze_t*>(uintptr_t{1});
+    CHECK(byul_maze_generate_wilson(0, 0, 9, 9, &options, &output)
+        == NAVSYS_STATUS_CANCELLED);
+    CHECK(output == nullptr);
+    CHECK(cancel_fixture.calls == cancel_fixture.cancel_after);
+
+    options.cancel_func = throw_maze_generation_cancel;
+    options.cancel_userdata = nullptr;
+    output = reinterpret_cast<maze_t*>(uintptr_t{1});
+    CHECK(byul_maze_generate_wilson(0, 0, 9, 9, &options, &output)
+        == NAVSYS_STATUS_CALLBACK_FAILED);
+    CHECK(output == nullptr);
+
+    CHECK(maze_make_wilson(0, 0, 2, 3) == nullptr);
+    CHECK(maze_make_wilson(0, 0, 4, 5) == nullptr);
+}
+
+TEST_CASE("Wilson checked API replays and matches the dispatcher") {
+    const uint64_t seeds[] = {
+        UINT64_C(0), UINT64_C(1), UINT64_C(17), UINT64_MAX
+    };
+    for (const uint64_t seed : seeds) {
+        CAPTURE(seed);
+        const byul_maze_generate_options_t options{
+            sizeof(byul_maze_generate_options_t),
+            BYUL_MAZE_GENERATE_OPTIONS_ABI_VERSION,
+            seed,
+            UINT64_C(20736),
+            UINT64_C(81),
+            nullptr,
+            nullptr
+        };
+        maze_t* direct = nullptr;
+        maze_t* replay = nullptr;
+        maze_t* dispatched = nullptr;
+        REQUIRE(byul_maze_generate_wilson(
+            -5, 8, 9, 9, &options, &direct) == NAVSYS_STATUS_OK);
+        REQUIRE(byul_maze_generate_wilson(
+            -5, 8, 9, 9, &options, &replay) == NAVSYS_STATUS_OK);
+        REQUIRE(byul_maze_generate(
+            BYUL_MAZE_ALGORITHM_WILSON,
+            -5, 8, 9, 9, &options, &dispatched) == NAVSYS_STATUS_OK);
+        REQUIRE(direct != nullptr);
+        REQUIRE(replay != nullptr);
+        REQUIRE(dispatched != nullptr);
+        if (seed == 0) CHECK(maze_hash(direct) == UINT32_C(424385079));
+        CHECK(maze_hash(direct) == maze_hash(replay));
+        CHECK(maze_hash(direct) == maze_hash(dispatched));
+        maze_destroy(dispatched);
+        maze_destroy(replay);
+        maze_destroy(direct);
+    }
+}
 #endif
 
 TEST_CASE("maze dispatcher preserves its ABI-1 enum and Kruskal fallback") {
