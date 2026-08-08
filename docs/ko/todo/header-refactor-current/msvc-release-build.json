@@ -5,7 +5,7 @@
   "dll": {
     "name": "byul.dll",
     "size": 543744,
-    "sha256": "f81f3b3650ed4699f472729c91523a24dcabc5f57f6fecb6c97869f4fd77fd6b",
+    "sha256": "61c61bf648a831b96694abc9fb709b91b51f980f5e9b3069ec8c03b40bd9d198",
     "export_count": 1212
   },
   "exports": [
@@ -7290,7 +7290,7 @@
       {
         "path": "bin/byul.dll",
         "size": 543744,
-        "sha256": "f81f3b3650ed4699f472729c91523a24dcabc5f57f6fecb6c97869f4fd77fd6b"
+        "sha256": "61c61bf648a831b96694abc9fb709b91b51f980f5e9b3069ec8c03b40bd9d198"
       },
       {
         "path": "bin/test_balix.exe",
@@ -7299,8 +7299,8 @@
       },
       {
         "path": "bin/test_byul.exe",
-        "size": 1972736,
-        "sha256": "43732c99d4b6ab7e1de58b0e3172b3244febe9631916d62a94c75fd82128e6a8"
+        "size": 1985536,
+        "sha256": "3558214fc17c327e66a5ad72598f2c7b02a0f6b66978df4086b365907df961fd"
       },
       {
         "path": "bin/test_byul_tick.exe",
@@ -7634,8 +7634,8 @@
       },
       {
         "path": "include/byul/maze_room_blend.h",
-        "size": 5226,
-        "sha256": "e98638f79d49e2f95dc1cbb4aa4893d34c269a44e994cfff88d70ee5a6ee86bd"
+        "size": 5670,
+        "sha256": "aa54dc6c2f658a535dec6a6898ae73afa1b7e6bbee4a600d48b3ae9035893827"
       },
       {
         "path": "include/byul/maze_sidewinder.h",

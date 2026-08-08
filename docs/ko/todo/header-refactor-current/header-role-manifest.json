@@ -3887,7 +3887,7 @@
     {
       "asset_id": "initial:byul/navsys/maze/maze_room_blend.h",
       "current_path": "byul/navsys/maze/maze_room_blend.h",
-      "sha256": "e98638f79d49e2f95dc1cbb4aa4893d34c269a44e994cfff88d70ee5a6ee86bd",
+      "sha256": "aa54dc6c2f658a535dec6a6898ae73afa1b7e6bbee4a600d48b3ae9035893827",
       "primary_role": "public-component",
       "role_reason": "Handwritten public maze algorithm component; generator wording is not file provenance.",
       "owner_module": "navsys",

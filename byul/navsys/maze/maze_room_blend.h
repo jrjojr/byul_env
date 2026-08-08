@@ -74,9 +74,13 @@ typedef struct s_byul_room_blend_options {
  *
  * 각 배치 시도는 홀수 크기와 홀수 local origin을 균등 선택하고 padding을
  * 포함해 기존 방과 겹치지 않을 때만 채택한다. 채택 순서의 인접한 방 중심은
- * seed로 선택한 L corridor로 연결되고, 남은 logical cell은 depth-first maze로
- * 채운다. 같은 extent, options와 seed는 같은 raster를 만든다. 실패하면
- * *out_maze는 NULL이다.
+ * seeded RNG draw가 선택한 horizontal-first 또는 vertical-first L corridor로 연결한다.
+ * corridor는 반경 0인 한 cell 너비의 centerline이며 두 room center에서 시작해
+ * room boundary를 통과한다. 모든 홀수 logical cell을 (1, 1)에서 시작하는 하나의
+ * depth-first tree로 채우므로 room, corridor와 fill passage 전체가 하나의
+ * orthogonally connected network를 이룬다. 방은 cycle을 허용하지만 room_attempts가
+ * 0이면 fill은 perfect maze다. raster 외곽은 항상 blocked다. 같은 extent,
+ * options와 seed는 같은 raster를 만든다. 실패하면 *out_maze는 NULL이다.
  *
  * @param[in] origin_x raster extent의 최소 X 좌표다.
  * @param[in] origin_y raster extent의 최소 Y 좌표다.

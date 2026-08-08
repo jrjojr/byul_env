@@ -133,7 +133,7 @@ BYUL_API navsys_status_t byul_maze_generate_room_blend(
 
 - option boundary matrix, allocator fault, parallel calls/global RNG non-interference를 검사한다.
 
-* DOING 3단계: corridor·fill topology 정규화
+* DONE 3단계: corridor·fill topology 정규화
 
 ** 실행
 
@@ -151,7 +151,11 @@ BYUL_API navsys_status_t byul_maze_generate_room_blend(
 - 0/1/many room, touching/padding, rectangular and negative origin property tests를 실행한다.
 - graph component/cycle/room reachability oracle와 seed golden을 검사한다.
 
-* TODO 4단계: legacy API와 role migration
+** 완료 증거
+
+- =maze-room-blend-stage3-topology.json=
+
+* DOING 4단계: legacy API와 role migration
 
 ** 실행
 

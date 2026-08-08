@@ -158,6 +158,91 @@ maze_topology_t analyze_logical_topology(
     return result;
 }
 
+struct maze_raster_topology_t {
+    bool queries_ok = true;
+    bool border_blocked = true;
+    bool connected = false;
+    bool has_cycle = false;
+    size_t open_cells = 0;
+    size_t open_edges = 0;
+    size_t component_count = 0;
+};
+
+maze_raster_topology_t analyze_open_raster_topology(
+    const maze_t* maze,
+    int32_t origin_x,
+    int32_t origin_y,
+    int width,
+    int height) {
+    maze_raster_topology_t result;
+    const size_t cell_count = static_cast<size_t>(width) * height;
+    std::vector<uint8_t> open(cell_count, uint8_t{0});
+    for (int y = 0; y < height; ++y) {
+        for (int x = 0; x < width; ++x) {
+            bool blocked = true;
+            if (byul_maze_is_blocked(
+                    maze, origin_x + x, origin_y + y, &blocked)
+                != NAVSYS_STATUS_OK) {
+                result.queries_ok = false;
+                continue;
+            }
+            const size_t index = static_cast<size_t>(y) * width + x;
+            open[index] = blocked ? uint8_t{0} : uint8_t{1};
+            result.open_cells += blocked ? 0u : 1u;
+            if ((x == 0 || y == 0 || x == width - 1 || y == height - 1)
+                && !blocked) {
+                result.border_blocked = false;
+            }
+        }
+    }
+
+    for (int y = 0; y < height; ++y) {
+        for (int x = 0; x < width; ++x) {
+            const size_t index = static_cast<size_t>(y) * width + x;
+            if (open[index] == 0) continue;
+            if (x + 1 < width && open[index + 1] != 0) ++result.open_edges;
+            if (y + 1 < height
+                && open[index + static_cast<size_t>(width)] != 0) {
+                ++result.open_edges;
+            }
+        }
+    }
+
+    static constexpr int delta_x[4] = {0, 0, -1, 1};
+    static constexpr int delta_y[4] = {-1, 1, 0, 0};
+    std::vector<uint8_t> reached(cell_count, uint8_t{0});
+    std::queue<size_t> pending;
+    for (size_t start = 0; start < cell_count; ++start) {
+        if (open[start] == 0 || reached[start] != 0) continue;
+        ++result.component_count;
+        reached[start] = 1;
+        pending.push(start);
+        while (!pending.empty()) {
+            const size_t index = pending.front();
+            pending.pop();
+            const int x = static_cast<int>(index % width);
+            const int y = static_cast<int>(index / width);
+            for (int direction = 0; direction < 4; ++direction) {
+                const int next_x = x + delta_x[direction];
+                const int next_y = y + delta_y[direction];
+                if (next_x < 0 || next_y < 0
+                    || next_x >= width || next_y >= height) {
+                    continue;
+                }
+                const size_t next = static_cast<size_t>(next_y) * width
+                    + next_x;
+                if (open[next] == 0 || reached[next] != 0) continue;
+                reached[next] = 1;
+                pending.push(next);
+            }
+        }
+    }
+    result.connected = result.open_cells != 0 && result.component_count == 1;
+    result.has_cycle = result.open_edges + result.component_count
+        > result.open_cells;
+    return result;
+}
+
 uint64_t logical_tree_mask(
     const maze_t* maze,
     int32_t origin_x,
@@ -3405,6 +3490,76 @@ TEST_CASE("Room Blend zero-room policy is a deterministic perfect fill") {
         4, -8, 10, 12, &options, &maze) == NAVSYS_STATUS_OK);
     REQUIRE(maze != nullptr);
     maze_destroy(maze);
+}
+
+TEST_CASE("Room Blend open raster topology connects zero one and many rooms") {
+    struct topology_case_t {
+        int32_t origin_x;
+        int32_t origin_y;
+        uint32_t width;
+        uint32_t height;
+        uint32_t room_attempts;
+        uint32_t room_padding;
+        bool expect_cycle;
+    };
+    const topology_case_t fixtures[] = {
+        {-31, 12, 9, 21, 0, 0, false},
+        {7, -29, 21, 9, 1, 0, true},
+        {-17, -13, 9, 21, 48, 0, true},
+        {19, -23, 21, 9, 48, 2, true},
+        {-41, 5, 10, 18, 48, 0, true},
+        {11, -37, 18, 10, 48, 2, true}
+    };
+    const uint64_t seeds[] = {
+        UINT64_C(0), UINT64_C(1), UINT64_C(2), UINT64_C(17),
+        UINT64_C(123), UINT64_C(0xffffffffffffffff)
+    };
+
+    for (const topology_case_t& fixture : fixtures) {
+        for (const uint64_t seed : seeds) {
+            CAPTURE(fixture.origin_x);
+            CAPTURE(fixture.origin_y);
+            CAPTURE(fixture.width);
+            CAPTURE(fixture.height);
+            CAPTURE(fixture.room_attempts);
+            CAPTURE(fixture.room_padding);
+            CAPTURE(seed);
+            const byul_room_blend_options_t options{
+                sizeof(byul_room_blend_options_t),
+                BYUL_ROOM_BLEND_OPTIONS_ABI_VERSION,
+                seed,
+                UINT64_C(0),
+                static_cast<uint64_t>(fixture.width) * fixture.height,
+                fixture.room_attempts,
+                3, 3, 7, 7,
+                fixture.room_padding,
+                nullptr,
+                nullptr
+            };
+            maze_t* maze = nullptr;
+            REQUIRE(byul_maze_generate_room_blend(
+                fixture.origin_x,
+                fixture.origin_y,
+                fixture.width,
+                fixture.height,
+                &options,
+                &maze) == NAVSYS_STATUS_OK);
+            REQUIRE(maze != nullptr);
+            const maze_raster_topology_t topology =
+                analyze_open_raster_topology(
+                    maze,
+                    fixture.origin_x,
+                    fixture.origin_y,
+                    static_cast<int>(fixture.width),
+                    static_cast<int>(fixture.height));
+            CHECK(topology.queries_ok);
+            CHECK(topology.border_blocked);
+            CHECK(topology.connected);
+            CHECK(topology.component_count == 1);
+            CHECK(topology.has_cycle == fixture.expect_cycle);
+            maze_destroy(maze);
+        }
+    }
 }
 
 TEST_CASE("Room Blend checked calls are parallel and global-rand independent") {
