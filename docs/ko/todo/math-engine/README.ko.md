@@ -326,7 +326,7 @@ C++ prototype을 만들어 다음을 비교합니다.
 - Windows, Linux와 macOS 재생성
 - fuzz와 sanitizer 안정성
 
-`cmake_starter_1040` 전체는 흡수하지 않습니다. Reentrant scanner, pure parser,
+`external/cmake_starter_env` 전체는 흡수하지 않습니다. Reentrant scanner, pure parser,
 `%destructor`, token prefix와 detailed error 원칙만 선별 참고하고 BYUL 전용 maintainer
 regeneration helper를 작성합니다.
 
@@ -348,7 +348,7 @@ regeneration helper를 작성합니다.
 - 새 `mathunits` ABI로 재설계하여 이식
 - bit-field ABI, unsigned 지수와 quantity 연산 문제를 회귀 test로 보존
 
-### `tools/cmake_starter_1040`
+### `external/cmake_starter_env`
 
 - Flex/Bison 사용 경험과 prototype 참고 자료
 - 전체 build framework는 흡수하지 않음
