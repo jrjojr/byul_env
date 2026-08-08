@@ -50,7 +50,7 @@ byul/docs/
 # external
 # Keep machine-local packages ignored, but version reproducible build inputs.
 external/*
-!external/rules
+!external/rules_env
 !external/SDL3-3.2.18/
 external/SDL3-3.2.18/*
 !external/SDL3-3.2.18/source

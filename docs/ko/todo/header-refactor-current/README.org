@@ -1,7 +1,7 @@
 #+TITLE: BYUL Header 리팩터링 현재 기준선
 #+LANGUAGE: ko
 #+OPTIONS: toc:2 num:nil
-#+TODO_RULES: ../../../../external/rules/projects/byul/todo-rules.org
+#+TODO_RULES: ../../../../external/rules_env/projects/byul/todo-rules.org
 #+TODO_PARENT: ../todo-리팩토링.org
 
 * 책임

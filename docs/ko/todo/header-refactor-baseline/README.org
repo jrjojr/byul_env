@@ -1,7 +1,7 @@
 #+TITLE: BYUL Header 리팩터링 최초 기준선
 #+LANGUAGE: ko
 #+OPTIONS: toc:2 num:nil
-#+TODO_RULES: ../../../../external/rules/projects/byul/todo-rules.org
+#+TODO_RULES: ../../../../external/rules_env/projects/byul/todo-rules.org
 #+TODO_PARENT: ../todo-리팩토링.org
 
 * 책임
@@ -56,7 +56,7 @@ python -m unittest tools/tests/test_header_refactor_baseline.py
 tools/header_refactor_baseline.bat --check
 python tools/python/byul_wrapper/generate_wrapper_abi.py --audit --all-headers \
   --json-output docs/ko/todo/header-refactor-baseline/header-audit.json
-external/rules/validate_rules.bat
+external/rules_env/validate_rules.bat
 #+end_src
 
 Header 수는 135개, =byul= 104개, =tools= 31개여야 하며 =asset_id=와

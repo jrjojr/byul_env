@@ -1,7 +1,7 @@
 #+TITLE: BYUL Math Engine 계산 Context TODO
 #+TODO: TODO DOING BLOCKED | DONE CANCELLED FAILED
-#+TODO_RULES: ../../../../external/rules/projects/byul/todo-rules.org
-#+CONFIGURATION_RULES: ../../../../external/rules/projects/byul/configuration-rules.org
+#+TODO_RULES: ../../../../external/rules_env/projects/byul/todo-rules.org
+#+CONFIGURATION_RULES: ../../../../external/rules_env/projects/byul/configuration-rules.org
 #+TODO_PARENT: todo-math-engine.org
 #+AUTHOR: ByulPapa / Codex
 #+LANGUAGE: ko

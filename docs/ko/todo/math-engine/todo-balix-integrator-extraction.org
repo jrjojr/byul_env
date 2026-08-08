@@ -1,6 +1,6 @@
 #+TITLE: Balix ODE·Rigid Motion Integrator 추출 TODO
 #+TODO: TODO DOING BLOCKED | DONE CANCELLED FAILED
-#+TODO_RULES: ../../../../external/rules/projects/byul/todo-rules.org
+#+TODO_RULES: ../../../../external/rules_env/projects/byul/todo-rules.org
 #+TODO_PARENT: todo-balix-math-extraction.org
 #+AUTHOR: ByulPapa / Codex
 #+LANGUAGE: ko

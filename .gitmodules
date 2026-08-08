@@ -1,5 +1,5 @@
 [submodule "rules"]
-	path = external/rules
+	path = external/rules_env
 	url = ../rules_env
 [submodule "external/SDL3-3.2.18/source"]
 	path = external/SDL3-3.2.18/source
