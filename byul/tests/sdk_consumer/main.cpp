@@ -15,6 +15,7 @@
 #include "maze_recursive.h"
 #include "maze_recursive_division.h"
 #include "maze_room_blend.h"
+#include "maze_wilson.h"
 #include "maze_sidewinder.h"
 #include "navcell.h"
 #include "navgrid.h"
@@ -530,6 +531,22 @@ int main() {
     assert(hunt_and_kill != nullptr);
     assert(maze_hash(hunt_and_kill) == UINT32_C(26398801));
     maze_destroy(hunt_and_kill);
+
+    const byul_maze_generate_options_t wilson_options{
+        sizeof(byul_maze_generate_options_t),
+        BYUL_MAZE_GENERATE_OPTIONS_ABI_VERSION,
+        UINT64_C(0),
+        UINT64_C(20736),
+        UINT64_C(81),
+        nullptr,
+        nullptr
+    };
+    maze_t* wilson = nullptr;
+    assert(byul_maze_generate_wilson(
+        -5, 8, 9, 9, &wilson_options, &wilson) == NAVSYS_STATUS_OK);
+    assert(wilson != nullptr);
+    assert(maze_hash(wilson) == UINT32_C(424385079));
+    maze_destroy(wilson);
 
     const byul_maze_generate_options_t sidewinder_options{
         sizeof(byul_maze_generate_options_t),

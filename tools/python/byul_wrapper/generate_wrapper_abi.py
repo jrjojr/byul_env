@@ -53,6 +53,7 @@ MODULE_HEADERS: dict[str, tuple[str, ...]] = {
           "navsys/maze/maze_recursive_division.h",
           "navsys/maze/maze_room_blend.h",
           "navsys/maze/maze_sidewinder.h",
+          "navsys/maze/maze_wilson.h",
     ),
     "route_carver.py": ("navsys/route_carver/route_carver.h",),
     "route.py": ("navsys/route/route.h",),

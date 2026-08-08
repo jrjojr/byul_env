@@ -123,7 +123,7 @@ BYUL_API navsys_status_t byul_maze_generate_wilson(
 
 - deterministic corpus, statistical suite, sanitizer와 repeated parallel calls를 실행한다.
 
-* DOING 4단계: Header·consumer 통합
+* DONE 4단계: Header·consumer 통합
 
 ** 실행
 

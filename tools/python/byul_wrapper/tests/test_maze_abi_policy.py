@@ -39,6 +39,7 @@ def test_maze_wrapper_uses_opaque_ready_accessors():
     assert "C.byul_maze_binary_bias_is_supported" in source
     assert "C.byul_maze_generate_eller" in source
     assert "C.byul_maze_generate_hunt_and_kill" in source
+    assert "C.byul_maze_generate_wilson" in source
     assert "C.byul_maze_generate_sidewinder" in source
     assert "C.byul_maze_generate_recursive_division" in source
     assert "C.byul_maze_generate_randomized_kruskal" in source
@@ -93,6 +94,12 @@ def test_maze_wrapper_loads_checked_hunt_and_kill_generator():
     with c_maze.generate_hunt_and_kill(-5, 8, 9, 9, seed=0) as maze:
         assert maze.extent == (-5, 8, 9, 9)
         assert maze.hash == 26398801
+
+
+def test_maze_wrapper_loads_checked_wilson_generator():
+    with c_maze.generate_wilson(-5, 8, 9, 9, seed=0) as maze:
+        assert maze.extent == (-5, 8, 9, 9)
+        assert maze.hash == 424385079
 
 
 def test_maze_wrapper_loads_all_checked_sidewinder_sweeps():

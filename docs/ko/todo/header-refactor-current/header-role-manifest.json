@@ -3975,7 +3975,7 @@
     {
       "asset_id": "initial:byul/navsys/maze/maze_wilson.h",
       "current_path": "byul/navsys/maze/maze_wilson.h",
-      "sha256": "9fdb81d98db616d478a0b302ba6cafb4079246f94eb053e9b515dbbe95d86327",
+      "sha256": "59e6a9ef06176c139aeb64fd644590472a4ce03488f8ff07f9f5cbed693d25e6",
       "primary_role": "public-component",
       "role_reason": "Handwritten public maze algorithm component; generator wording is not file provenance.",
       "owner_module": "navsys",
@@ -3983,8 +3983,8 @@
       "approved_install": true,
       "install_reason": "Public or compatibility SDK surface.",
       "wrapper": {
-        "mode": "manual",
-        "reason": "Public legacy declarations require explicit ownership/error metadata before automatic generation."
+        "mode": "generated",
+        "reason": "Registered in the canonical wrapper generator manifest after checked API metadata completion."
       },
       "naming": {
         "disposition": "keep",

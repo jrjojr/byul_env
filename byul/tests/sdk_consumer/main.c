@@ -19,6 +19,7 @@
 #include "maze_recursive.h"
 #include "maze_recursive_division.h"
 #include "maze_room_blend.h"
+#include "maze_wilson.h"
 #include "maze_sidewinder.h"
 #include "navcell.h"
 #include "navsys_status.h"
@@ -1170,6 +1171,28 @@ int main(void) {
             return 8;
         }
         maze_destroy(hunt_and_kill);
+    }
+
+    {
+        const byul_maze_generate_options_t options = {
+            sizeof(byul_maze_generate_options_t),
+            BYUL_MAZE_GENERATE_OPTIONS_ABI_VERSION,
+            UINT64_C(0),
+            UINT64_C(20736),
+            UINT64_C(81),
+            NULL,
+            NULL
+        };
+        maze_t* wilson = NULL;
+        if (byul_maze_generate_wilson(
+                -5, 8, 9, 9, &options, &wilson) != NAVSYS_STATUS_OK
+            || wilson == NULL
+            || maze_hash(wilson) != UINT32_C(424385079)) {
+            fprintf(stderr, "unexpected checked Wilson SDK ABI\n");
+            maze_destroy(wilson);
+            return 8;
+        }
+        maze_destroy(wilson);
     }
 
     {
