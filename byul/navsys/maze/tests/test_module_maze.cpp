@@ -22,6 +22,7 @@ extern "C" {
 #include "maze_recursive_division.h"
 #include "maze_room_blend.h"
 #include "maze_sidewinder.h"
+#include "maze_wilson.h"
 #include "console.h"
 #include "obstacle_core.h"
 
@@ -64,6 +65,30 @@ using maze_generator_t = navsys_status_t (*)(
     uint32_t,
     byul_maze_generation_context&,
     maze_t**) noexcept;
+
+std::vector<int> erase_wilson_trace_for_test(
+    const std::vector<int>& trace,
+    size_t node_count) {
+    std::vector<int> path;
+    std::vector<int> position(node_count, -1);
+    for (const int node : trace) {
+        REQUIRE(node >= 0);
+        REQUIRE(static_cast<size_t>(node) < node_count);
+        const int loop_position = position[static_cast<size_t>(node)];
+        if (loop_position >= 0) {
+            for (size_t index = static_cast<size_t>(loop_position + 1);
+                 index < path.size(); ++index) {
+                position[static_cast<size_t>(path[index])] = -1;
+            }
+            path.resize(static_cast<size_t>(loop_position + 1));
+        } else {
+            position[static_cast<size_t>(node)] =
+                static_cast<int>(path.size());
+            path.push_back(node);
+        }
+    }
+    return path;
+}
 #endif
 
 struct maze_topology_t {
@@ -280,6 +305,33 @@ uint64_t logical_tree_mask(
 }
 
 } // namespace
+
+#ifndef BYUL_AGGREGATE_TEST
+TEST_CASE("Wilson ordered trace erases loops before tree commit") {
+    const std::vector<int> path = erase_wilson_trace_for_test(
+        {0, 1, 2, 1, 3, 4}, 5);
+    CHECK(path == std::vector<int>{0, 1, 3, 4});
+
+    for (size_t index = 0; index < path.size(); ++index) {
+        CHECK(std::count(path.begin(), path.end(), path[index]) == 1);
+        CHECK((path[index] == 4) == (index + 1 == path.size()));
+    }
+
+    CHECK(erase_wilson_trace_for_test({0, 0, 1, 2}, 3)
+        == std::vector<int>{0, 1, 2});
+
+    const auto neighbor_count = [](int node, int columns, int rows) {
+        const int column = node % columns;
+        const int row = node / columns;
+        return (row > 0 ? 1 : 0) + (row + 1 < rows ? 1 : 0)
+            + (column > 0 ? 1 : 0)
+            + (column + 1 < columns ? 1 : 0);
+    };
+    CHECK(neighbor_count(0, 3, 3) == 2);
+    CHECK(neighbor_count(1, 3, 3) == 3);
+    CHECK(neighbor_count(4, 3, 3) == 4);
+}
+#endif
 
 TEST_CASE("maze dispatcher preserves its ABI-1 enum and Kruskal fallback") {
     static_assert(MAZE_TYPE_RECURSIVE == 0);

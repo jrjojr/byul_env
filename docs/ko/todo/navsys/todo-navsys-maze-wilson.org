@@ -70,7 +70,7 @@ BYUL_API navsys_status_t byul_maze_generate_wilson(
 - C++ allocation/exception은 catch되어 defined negative status로 변환되어야 한다.
 - topology/seed/cancel/step budget은 Aldous-Broder와 같은 공통 options를 사용한다.
 
-* TODO 1단계: loop-erased trace 기준선
+* DONE 1단계: loop-erased trace 기준선
 
 ** 실행
 
@@ -88,7 +88,7 @@ BYUL_API navsys_status_t byul_maze_generate_wilson(
 - hand-authored trace에서 commit edge가 simple path이고 기존 tree와 한 점에서만 만나는지 검사한다.
 - UBSan/ASan으로 hash/map failure 경로를 확인한다.
 
-* TODO 2단계: checked seeded API와 exception barrier
+* DOING 2단계: checked seeded API와 exception barrier
 
 ** 실행
 
