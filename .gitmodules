@@ -1,6 +1,6 @@
-[submodule "rules"]
+[submodule "external/rules_env"]
 	path = external/rules_env
-	url = ../rules_env
+	url = https://github.com/jrjojr/rules_env.git
 [submodule "external/SDL3-3.2.18/source"]
 	path = external/SDL3-3.2.18/source
 	url = https://github.com/libsdl-org/SDL.git
