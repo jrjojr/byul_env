@@ -67,6 +67,13 @@ static bool equal_coord_hash_int(
 }
 
 int main() {
+    static_assert(std::is_standard_layout_v<room_t>);
+    static_assert(sizeof(room_t) == 16);
+    static_assert(alignof(room_t) == 4);
+    static_assert(offsetof(room_t, x) == 0);
+    static_assert(offsetof(room_t, y) == 4);
+    static_assert(offsetof(room_t, w) == 8);
+    static_assert(offsetof(room_t, h) == 12);
     static_assert(std::is_same_v<
         decltype(&byul_maze_translate),
         navsys_status_t (*)(maze_t*, int32_t, int32_t)>);
@@ -603,6 +610,10 @@ int main() {
     assert(room_blend != nullptr);
     assert(maze_hash(room_blend) == UINT32_C(453713525));
     maze_destroy(room_blend);
+
+    maze_t* legacy_room_blend = maze_make_room_blend(-5, 8, 9, 9);
+    assert(legacy_room_blend != nullptr);
+    maze_destroy(legacy_room_blend);
 
     navgrid_t* legacy_carver_grid = navgrid_create_full(
         3, 3, NAVGRID_DIR_8, nullptr);

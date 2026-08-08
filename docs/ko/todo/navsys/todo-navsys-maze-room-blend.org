@@ -155,7 +155,7 @@ BYUL_API navsys_status_t byul_maze_generate_room_blend(
 
 - =maze-room-blend-stage3-topology.json=
 
-* DOING 4단계: legacy API와 role migration
+* DONE 4단계: legacy API와 role migration
 
 ** 실행
 
@@ -173,7 +173,11 @@ BYUL_API navsys_status_t byul_maze_generate_room_blend(
 - old/new SDK consumer, dispatcher and direct call equality를 검사한다.
 - root export/install manifest를 비교한다.
 
-* TODO 5단계: Header·robustness gate
+** 완료 증거
+
+- =maze-room-blend-stage4-migration.json=
+
+* DOING 5단계: Header·robustness gate
 
 ** 실행
 

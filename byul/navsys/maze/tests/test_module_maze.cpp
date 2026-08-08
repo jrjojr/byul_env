@@ -3461,6 +3461,43 @@ TEST_CASE("Room Blend checked API replays explicit placement policy") {
     maze_destroy(first);
 }
 
+TEST_CASE("Room Blend checked dispatcher and direct policy agree") {
+    const byul_maze_generate_options_t dispatcher_options{
+        sizeof(byul_maze_generate_options_t),
+        BYUL_MAZE_GENERATE_OPTIONS_ABI_VERSION,
+        UINT64_C(17),
+        UINT64_C(0),
+        UINT64_C(315),
+        nullptr,
+        nullptr
+    };
+    const byul_room_blend_options_t direct_options{
+        sizeof(byul_room_blend_options_t),
+        BYUL_ROOM_BLEND_OPTIONS_ABI_VERSION,
+        UINT64_C(17),
+        UINT64_C(0),
+        UINT64_C(315),
+        30, 3, 3, 7, 7, 0,
+        nullptr,
+        nullptr
+    };
+    maze_t* dispatched = nullptr;
+    maze_t* direct = nullptr;
+    REQUIRE(byul_maze_generate(
+        BYUL_MAZE_ALGORITHM_ROOM_BLEND,
+        -11, 6, 21, 15, &dispatcher_options, &dispatched)
+        == NAVSYS_STATUS_OK);
+    REQUIRE(byul_maze_generate_room_blend(
+        -11, 6, 21, 15, &direct_options, &direct)
+        == NAVSYS_STATUS_OK);
+    REQUIRE(dispatched != nullptr);
+    REQUIRE(direct != nullptr);
+    CHECK(maze_equal(dispatched, direct));
+    CHECK(maze_hash(dispatched) == maze_hash(direct));
+    maze_destroy(direct);
+    maze_destroy(dispatched);
+}
+
 TEST_CASE("Room Blend zero-room policy is a deterministic perfect fill") {
     const byul_room_blend_options_t options{
         sizeof(byul_room_blend_options_t),

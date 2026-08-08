@@ -426,15 +426,28 @@ navsys_status_t byul_maze_generate_room_blend(
 
 maze_t* maze_make_room_blend(int x0, int y0, int width, int height) {
     if (width < 9 || height < 9) return nullptr;
-    byul_maze_generation_context context(
-        byul_maze_generation_legacy_seed(), 0, nullptr, nullptr);
+    const byul_room_blend_options_t options{
+        sizeof(byul_room_blend_options_t),
+        BYUL_ROOM_BLEND_OPTIONS_ABI_VERSION,
+        byul_maze_generation_legacy_seed(),
+        0,
+        0,
+        legacy_policy.room_attempts,
+        legacy_policy.min_room_width,
+        legacy_policy.min_room_height,
+        legacy_policy.max_room_width,
+        legacy_policy.max_room_height,
+        legacy_policy.room_padding,
+        nullptr,
+        nullptr
+    };
     maze_t* maze = nullptr;
-    return byul_maze_generate_room_blend_internal(
+    return byul_maze_generate_room_blend(
                x0,
                y0,
                static_cast<uint32_t>(width),
                static_cast<uint32_t>(height),
-               context,
+               &options,
                &maze)
             == NAVSYS_STATUS_OK
         ? maze

@@ -119,6 +119,11 @@ BYUL_API navsys_status_t byul_maze_generate_room_blend(
 
 /**
  * @brief 비결정적 Room Blend 방식으로 연결된 순환 허용 Maze를 생성한다.
+ *
+ * 30회 배치, 3..7 홀수 방 크기와 padding 0을 사용하는 ABI 1 adapter다.
+ * Replay, 명시 room policy와 resource budget이 필요하면 checked API를 사용한다.
+ *
+ * @deprecated byul_maze_generate_room_blend를 사용한다. ABI 2 이후 제거할 수 있다.
  * @param[in] x0 Maze 원점의 X 좌표다.
  * @param[in] y0 Maze 원점의 Y 좌표다.
  * @param[in] width 3 이상인 홀수 너비다.
@@ -131,6 +136,8 @@ BYUL_API navsys_status_t byul_maze_generate_room_blend(
  * @byul.thread_safety thread-compatible
  * @byul.blocking true
  */
+BYUL_DEPRECATED(
+    "Use byul_maze_generate_room_blend; removal requires ABI 2 or later.")
 BYUL_API maze_t* maze_make_room_blend(int x0, int y0, int width, int height);
 
 #ifdef __cplusplus

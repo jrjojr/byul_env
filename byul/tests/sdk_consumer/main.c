@@ -134,6 +134,12 @@ static_assert(
         default: 0),
     "coord hash equal callback calling convention");
 
+ABI1_TYPE_LAYOUT(room_t, 16, 4);
+ABI1_FIELD_OFFSET(room_t, x, 0);
+ABI1_FIELD_OFFSET(room_t, y, 4);
+ABI1_FIELD_OFFSET(room_t, w, 8);
+ABI1_FIELD_OFFSET(room_t, h, 12);
+
 ABI1_TYPE_LAYOUT(coord_hash_create_info_t, 40, 8);
 ABI1_FIELD_OFFSET(coord_hash_create_info_t, struct_size, 0);
 ABI1_FIELD_OFFSET(coord_hash_create_info_t, abi_version, 4);
@@ -1285,6 +1291,13 @@ int main(void) {
                 return 11;
             }
             maze_destroy(room_blend);
+
+            maze_t* legacy_room_blend = maze_make_room_blend(-5, 8, 9, 9);
+            if (legacy_room_blend == NULL) {
+                fprintf(stderr, "unexpected legacy Room Blend SDK ABI\n");
+                return 12;
+            }
+            maze_destroy(legacy_room_blend);
         }
     }
 

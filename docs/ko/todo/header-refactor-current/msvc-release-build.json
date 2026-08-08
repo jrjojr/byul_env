@@ -7634,8 +7634,8 @@
       },
       {
         "path": "include/byul/maze_room_blend.h",
-        "size": 5670,
-        "sha256": "aa54dc6c2f658a535dec6a6898ae73afa1b7e6bbee4a600d48b3ae9035893827"
+        "size": 6042,
+        "sha256": "1fc2eb3bd64d1996ea9887bce3bca4700874757e7ae238f4142e5e54c932ed89"
       },
       {
         "path": "include/byul/maze_sidewinder.h",
