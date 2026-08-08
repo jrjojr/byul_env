@@ -225,6 +225,17 @@ typedef struct s_byul_maze_generate_options {
  maze_t* maze_make(
     int x0, int y0, int width, int height, maze_type_t type);
 
+/* Source: byul/navsys/maze/maze_aldous_broder.h */
+navsys_status_t byul_maze_generate_aldous_broder(
+    int32_t origin_x,
+    int32_t origin_y,
+    uint32_t width,
+    uint32_t height,
+    const byul_maze_generate_options_t* options,
+    maze_t** out_maze);
+
+ maze_t* maze_make_aldous_broder(int x0, int y0, int width, int height);
+
 /* Source: byul/navsys/maze/maze_binary.h */
 typedef enum e_byul_maze_binary_bias {
     BYUL_MAZE_BINARY_BIAS_NORTH_WEST = 0,
@@ -636,6 +647,46 @@ class c_maze:
                 output,
             ),
             "byul_maze_generate_wilson",
+        )
+        return cls(raw_ptr=output[0], own=True)
+
+    @classmethod
+    def generate_aldous_broder(
+        cls,
+        x0,
+        y0,
+        width,
+        height,
+        *,
+        seed,
+        max_steps=0,
+        max_cells=0,
+    ):
+        """Generate a deterministic uniform-spanning-tree Maze with Aldous-Broder."""
+        _check_maze_abi()
+        options = ffi.new(
+            "byul_maze_generate_options_t*",
+            dict(
+                struct_size=ffi.sizeof("byul_maze_generate_options_t"),
+                abi_version=MAZE_GENERATE_OPTIONS_ABI_VERSION,
+                seed=seed,
+                max_steps=max_steps,
+                max_cells=max_cells,
+                cancel_func=ffi.NULL,
+                cancel_userdata=ffi.NULL,
+            ),
+        )
+        output = ffi.new("maze_t**")
+        raise_for_status(
+            C.byul_maze_generate_aldous_broder(
+                x0,
+                y0,
+                width,
+                height,
+                options,
+                output,
+            ),
+            "byul_maze_generate_aldous_broder",
         )
         return cls(raw_ptr=output[0], own=True)
 

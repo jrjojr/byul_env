@@ -498,7 +498,7 @@ MSVC Debug/Release root와 =test_navsys=, route-carver performance/OOM CTest가 
 =--check=도 통과했다. 정확한 matrix와 다음 단계 허용 근거는
 [[file:navsys-stage2-closure-evidence.json][Stage 2 마감 evidence]]에 보존한다.
 
-** DOING 3단계: Maze generator별 계약 구현
+** DONE 3단계: Maze generator별 계약 구현
 
 *** 실행
 
@@ -518,7 +518,7 @@ MSVC Debug/Release root와 =test_navsys=, route-carver performance/OOM CTest가 
 - 작은 grid exhaustive oracle, property test, deterministic replay, termination/resource limit,
   OOM과 wrapper enum round-trip을 algorithm별로 실행한다.
 
-** TODO 4단계: Route-finder algorithm별 계약 구현
+** DOING 4단계: Route-finder algorithm별 계약 구현
 
 *** 실행
 

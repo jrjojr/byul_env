@@ -34,6 +34,7 @@ def test_maze_wrapper_uses_opaque_ready_accessors():
     assert "C.byul_maze_is_blocked" in source
     assert "C.byul_maze_check_abi" in source
     assert "C.byul_maze_generate" in source
+    assert "C.byul_maze_generate_aldous_broder" in source
     assert "C.byul_maze_algorithm_is_supported" in source
     assert "C.byul_maze_generate_binary_tree" in source
     assert "C.byul_maze_binary_bias_is_supported" in source
@@ -100,6 +101,12 @@ def test_maze_wrapper_loads_checked_wilson_generator():
     with c_maze.generate_wilson(-5, 8, 9, 9, seed=0) as maze:
         assert maze.extent == (-5, 8, 9, 9)
         assert maze.hash == 424385079
+
+
+def test_maze_wrapper_loads_checked_aldous_broder_generator():
+    with c_maze.generate_aldous_broder(-5, 8, 9, 9, seed=0) as maze:
+        assert maze.extent == (-5, 8, 9, 9)
+        assert maze.hash == 744322881
 
 
 def test_maze_wrapper_loads_all_checked_sidewinder_sweeps():

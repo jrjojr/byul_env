@@ -1,0 +1,37 @@
+{
+  "schema_version": 1,
+  "scope": "navsys-maze-aldous-broder-stage4",
+  "status": "complete",
+  "source_revision": "1b546f0",
+  "public_surface": {
+    "canonical_symbol": "byul_maze_generate_aldous_broder",
+    "legacy_symbol": "maze_make_aldous_broder",
+    "legacy_policy": "deprecated ABI 1.x forward adapter; removal requires ABI 2 or later",
+    "header": "byul/navsys/maze/maze_aldous_broder.h",
+    "wrapper_mode": "generated"
+  },
+  "build_matrix": {
+    "module_static": "build_maze_dispatcher_stage5_msvc Release maze/test_maze",
+    "root_shared": "build_header_refactor_current Release byul.dll",
+    "root_export_count": 1214,
+    "install_file_count": 113,
+    "install_header_count": 92,
+    "installed_header": "include/byul/maze_aldous_broder.h"
+  },
+  "consumers": {
+    "wrapper": "c_maze.generate_aldous_broder",
+    "wrapper_policy": "15/15 passed against the current root DLL",
+    "sdk_c": "clean-install C17 consumer built and ran",
+    "sdk_cpp": "clean-install C++17 consumer built and ran",
+    "sdk_fixture": "seed-zero 9x9 hash 744322881"
+  },
+  "verification": {
+    "root_msvc_release": "25/25 CTest targets passed",
+    "aldous_broder_scope": "6/6 cases and 57551/57551 assertions",
+    "gcc_sanitizers": "118/118 cases and 843606/843606 assertions passed under ASan, LSan and UBSan; allocation-failure executable exited 0",
+    "header_abi_audit": "150 headers, 95 public C headers, 1175 declarations, 0 invariant errors",
+    "navsys_abi_inventory": "58 headers and 659 symbols",
+    "wrapper_generation": "CFFI declarations are current",
+    "build_snapshot": "msvc-release-build.json refreshed from the root DLL and clean install"
+  }
+}

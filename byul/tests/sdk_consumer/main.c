@@ -12,6 +12,7 @@
 #include "cost_coord_pq.h"
 #include "dstar_lite_key.h"
 #include "maze_core.h"
+#include "maze_aldous_broder.h"
 #include "maze_eller.h"
 #include "maze_hunt_and_kill.h"
 #include "maze_kruskal.h"
@@ -1193,6 +1194,28 @@ int main(void) {
             return 8;
         }
         maze_destroy(wilson);
+    }
+
+    {
+        const byul_maze_generate_options_t options = {
+            sizeof(byul_maze_generate_options_t),
+            BYUL_MAZE_GENERATE_OPTIONS_ABI_VERSION,
+            UINT64_C(0),
+            UINT64_C(20736),
+            UINT64_C(81),
+            NULL,
+            NULL
+        };
+        maze_t* aldous_broder = NULL;
+        if (byul_maze_generate_aldous_broder(
+                -5, 8, 9, 9, &options, &aldous_broder) != NAVSYS_STATUS_OK
+            || aldous_broder == NULL
+            || maze_hash(aldous_broder) != UINT32_C(744322881)) {
+            fprintf(stderr, "unexpected checked Aldous-Broder SDK ABI\n");
+            maze_destroy(aldous_broder);
+            return 8;
+        }
+        maze_destroy(aldous_broder);
     }
 
     {

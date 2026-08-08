@@ -8,6 +8,7 @@
 #include "coord_hash.h"
 #include "cost_coord_pq.h"
 #include "maze_core.h"
+#include "maze_aldous_broder.h"
 #include "maze_eller.h"
 #include "maze_hunt_and_kill.h"
 #include "maze_kruskal.h"
@@ -547,6 +548,23 @@ int main() {
     assert(wilson != nullptr);
     assert(maze_hash(wilson) == UINT32_C(424385079));
     maze_destroy(wilson);
+
+    const byul_maze_generate_options_t aldous_broder_options{
+        sizeof(byul_maze_generate_options_t),
+        BYUL_MAZE_GENERATE_OPTIONS_ABI_VERSION,
+        UINT64_C(0),
+        UINT64_C(20736),
+        UINT64_C(81),
+        nullptr,
+        nullptr
+    };
+    maze_t* aldous_broder = nullptr;
+    assert(byul_maze_generate_aldous_broder(
+        -5, 8, 9, 9, &aldous_broder_options, &aldous_broder)
+        == NAVSYS_STATUS_OK);
+    assert(aldous_broder != nullptr);
+    assert(maze_hash(aldous_broder) == UINT32_C(744322881));
+    maze_destroy(aldous_broder);
 
     const byul_maze_generate_options_t sidewinder_options{
         sizeof(byul_maze_generate_options_t),

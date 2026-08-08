@@ -1,4 +1,6 @@
 #+TITLE: BYUL maze_wilson.h 정밀 리팩터링 TODO
+#+RELEASE_TITLE: Deterministic checked Wilson Maze generation API
+#+RELEASE_GOAL: Callers can replay a loop-erased uniform-spanning-tree Maze with explicit seed, resource budgets, cancellation, and failure status.
 #+TODO: TODO DOING BLOCKED | DONE CANCELLED FAILED
 #+TODO_RULES: ../../../../external/rules/projects/byul/todo-rules.org
 #+PUBLIC_API_RULES: ../../../../external/rules/projects/byul/public-api-rules.org

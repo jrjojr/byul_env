@@ -3463,7 +3463,7 @@
     {
       "asset_id": "initial:byul/navsys/maze/maze_aldous_broder.h",
       "current_path": "byul/navsys/maze/maze_aldous_broder.h",
-      "sha256": "37d055683e3b297c0fe66ce243084569f40a43050dc94e5a978274e32618a962",
+      "sha256": "657daab3e782f7fcf552868ce3a5b366b8a961ba45670be96de6aaab6d7e2d79",
       "primary_role": "public-component",
       "role_reason": "Handwritten public maze algorithm component; generator wording is not file provenance.",
       "owner_module": "navsys",
@@ -3471,8 +3471,8 @@
       "approved_install": true,
       "install_reason": "Public or compatibility SDK surface.",
       "wrapper": {
-        "mode": "manual",
-        "reason": "Public legacy declarations require explicit ownership/error metadata before automatic generation."
+        "mode": "generated",
+        "reason": "Registered in the canonical wrapper generator manifest after checked API metadata completion."
       },
       "naming": {
         "disposition": "keep",

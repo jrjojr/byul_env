@@ -1,4 +1,6 @@
 #+TITLE: BYUL maze_aldous_broder.h 정밀 리팩터링 TODO
+#+RELEASE_TITLE: Deterministic checked Aldous-Broder Maze generation API
+#+RELEASE_GOAL: Callers can replay a uniform-spanning-tree Maze with explicit seed, resource budgets, cancellation, and failure status.
 #+TODO: TODO DOING BLOCKED | DONE CANCELLED FAILED
 #+TODO_RULES: ../../../../external/rules/projects/byul/todo-rules.org
 #+PUBLIC_API_RULES: ../../../../external/rules/projects/byul/public-api-rules.org
@@ -131,7 +133,7 @@ BYUL_API navsys_status_t byul_maze_generate_aldous_broder(
 - deterministic property corpus와 별도 statistical suite를 실행한다.
 - sanitizer와 cancel latency 상한 test를 실행한다.
 
-* DOING 4단계: Header·통합 gate
+* DONE 4단계: Header·통합 gate
 
 ** 실행
 
