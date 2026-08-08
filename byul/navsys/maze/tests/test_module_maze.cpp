@@ -504,6 +504,44 @@ TEST_CASE("Aldous-Broder checked API replays and matches the dispatcher") {
     }
 }
 
+TEST_CASE("Aldous-Broder checked calls are parallel and global-rand independent") {
+    const byul_maze_generate_options_t options{
+        sizeof(byul_maze_generate_options_t),
+        BYUL_MAZE_GENERATE_OPTIONS_ABI_VERSION,
+        UINT64_C(1234),
+        UINT64_C(56576),
+        UINT64_C(221),
+        nullptr,
+        nullptr
+    };
+    const auto generate_hash = [&options]() {
+        maze_t* maze = nullptr;
+        const navsys_status_t status = byul_maze_generate_aldous_broder(
+            -11, 23, 13, 17, &options, &maze);
+        const uint32_t hash = maze ? maze_hash(maze) : 0;
+        maze_destroy(maze);
+        return std::make_pair(status, hash);
+    };
+
+    std::srand(1);
+    const auto first = generate_hash();
+    std::srand(9999);
+    const auto second = generate_hash();
+    REQUIRE(first.first == NAVSYS_STATUS_OK);
+    REQUIRE(second.first == NAVSYS_STATUS_OK);
+    CHECK(first.second == second.second);
+
+    std::array<std::future<std::pair<navsys_status_t, uint32_t>>, 8> calls;
+    for (auto& call : calls) {
+        call = std::async(std::launch::async, generate_hash);
+    }
+    for (auto& call : calls) {
+        const auto result = call.get();
+        REQUIRE(result.first == NAVSYS_STATUS_OK);
+        CHECK(result.second == first.second);
+    }
+}
+
 TEST_CASE("Wilson checked API validates controls and preserves failure atomicity") {
     byul_maze_generate_options_t options{
         sizeof(byul_maze_generate_options_t),

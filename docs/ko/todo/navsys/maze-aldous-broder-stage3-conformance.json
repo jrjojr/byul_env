@@ -1,0 +1,40 @@
+{
+  "schema_version": 1,
+  "scope": "navsys-maze-aldous-broder-stage3",
+  "status": "complete",
+  "source_revision": "1880367",
+  "topology_contract": {
+    "lattice": "odd/odd logical cells inside a blocked one-cell perimeter",
+    "connectivity": "all logical cells are connected",
+    "acyclicity": "each non-root cell receives exactly one first-entry edge",
+    "edge_count": "logical node count minus one",
+    "seed_zero_9x9_hash": 744322881
+  },
+  "uniformity": {
+    "neighbor_choice": "shared PCG32 bounded draw over the exact valid-neighbor count",
+    "boundary_degrees": [2, 3, 4],
+    "ust_graph": "2x2 logical-cell grid",
+    "samples": 4096,
+    "tree_classes": 4,
+    "accepted_bucket_range": [850, 1200],
+    "result": "all four missing-edge classes observed inside fixed non-flaky bounds"
+  },
+  "termination": {
+    "step_definition": "one random-walk transition",
+    "default_budget_corpus": "64 seeds on 9x9 completed within raster cells times 256",
+    "limit_status": "NAVSYS_STATUS_LIMIT_REACHED is distinct from invalid input and OOM",
+    "cancel_latency": "the callback is polled on every transition and during materialization"
+  },
+  "concurrency": {
+    "parallel_calls": 8,
+    "extent": [13, 17],
+    "seed": 1234,
+    "result": "all status values and hashes matched",
+    "global_rand": "changing srand state did not affect checked output"
+  },
+  "verification": {
+    "windows_msvc_scope": "6/6 Aldous-Broder cases and 57551/57551 assertions",
+    "deterministic_corpus": "six edge-case seeds retain perfect-maze topology",
+    "allocation_fault_sweep": "passes with no leaked or published partial Maze"
+  }
+}

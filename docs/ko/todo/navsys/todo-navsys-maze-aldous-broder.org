@@ -113,7 +113,7 @@ BYUL_API navsys_status_t byul_maze_generate_aldous_broder(
 - seed 0/MAX, 1-cell graph, huge dimensions, fault index별 test와 ASan/LSan을 실행한다.
 - legacy/new export와 wrapper audit exclusion 사유를 검사한다.
 
-* DOING 3단계: topology와 확률 품질 검증
+* DONE 3단계: topology와 확률 품질 검증
 
 ** 실행
 
@@ -131,7 +131,7 @@ BYUL_API navsys_status_t byul_maze_generate_aldous_broder(
 - deterministic property corpus와 별도 statistical suite를 실행한다.
 - sanitizer와 cancel latency 상한 test를 실행한다.
 
-* TODO 4단계: Header·통합 gate
+* DOING 4단계: Header·통합 gate
 
 ** 실행
 
